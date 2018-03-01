@@ -22,21 +22,21 @@
 class StorageNodeManagementPage extends FOGPage
 {
     /**
-     * Node this class works from.
+     * The node this works off of.
      *
      * @var string
      */
     public $node = 'storagenode';
     /**
-     * Initializes the storage page.
+     * Initializes the storage node class.
      *
-     * @param string $name Name to initialize with.
+     * @param string $name The name to load this as.
      *
      * @return void
      */
     public function __construct($name = '')
     {
-        $this->name = 'Storage Node Management';
+        $this->name = _('Storage Node Management');
         parent::__construct($this->name);
         $this->headerData = [
             self::$foglang['SN'],
@@ -61,16 +61,16 @@ class StorageNodeManagementPage extends FOGPage
         ];
     }
     /**
-     * Display createing a new storage node.
+     * Page to enable creating a new storage node.
      *
      * @return void
      */
     public function add()
     {
         $this->title = _('Create New Storage Node');
-        $name = filter_input(
+        $storagenode = filter_input(
             INPUT_POST,
-            'name'
+            'storagenode'
         );
         $description = filter_input(
             INPUT_POST,
@@ -87,7 +87,7 @@ class StorageNodeManagementPage extends FOGPage
         $maxClients = (int)filter_input(
             INPUT_POST,
             'maxClients'
-        );
+        ) ?: 10;
         $isMaster = isset($_POST['isMaster']) ? ' checked' : '';
         $bandwidth = filter_input(
             INPUT_POST,
@@ -134,63 +134,184 @@ class StorageNodeManagementPage extends FOGPage
             INPUT_POST,
             'pass'
         );
-
+        $labelClass = 'col-sm-2 control-label';
         $fields = [
-            '<label class="col-sm-2 control-label" for="name">'
-            . _('Storage Node Name')
-            . '</label>' => '<input type="text" name="name" '
-            . 'value="'
-            . $name
-            . '" class="storagenodename-input form-control" '
-            . 'id="name" required/>',
-            '<label class="col-sm-2 control-label" for="description">'
-            . _('Storage Node Description')
-            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
-            . 'min-height:50px;" '
-            . 'id="description" name="description">'
-            . $description
-            . '</textarea>',
-            '<label class="col-sm-2 control-label" for="ip">'
-            . self::$foglang['IPAdr']
-            . '</label>' => '<input type="text" name="ip" '
-            . 'value="'
-            . $ip
-            . '" class="storagenodeip-input form-control" '
-            . 'id="ip" required/>',
-            '<label class="col-sm-2 control-label" for="webroot">'
-            . _('Web Root')
-            . '</label>' => '<input type="text" name="webroot" '
-            . 'value="'
-            . $webroot
-            . '" class="storagenodewebroot-input form-control" '
-            . 'id="webroot" required/>',
-            '<label class="col-sm-2 control-label" for="maxClients">'
-            . _('Max Clients')
-            . '</label>' => '<input type="number" name="maxClients" '
-            . 'value="'
-            . $maxClients
-            . '" class="storagenodemaxclients-input form-control" '
-            . 'id="maxClients"/>',
-            '<label class="col-sm-2 control-label" for="isMaster">'
-            . _('Is Master Node')
-            . '</label>' => '<input type="checkbox" name="isMaster" '
-            . 'id="isMaster"'
-            . $isMaster
-            . '/>',
-            '<label class="col-sm-2 control-label" for="bandwidth">'
-            . self::$foglang['BandwidthReplication']
-            . ' (Kbps)'
-            . '</label>' => '<input type="number" name="bandwidth" '
-            . 'value="'
-            . $bandwidth
-            . '" class="storagenodebandwidth-input form-control" '
-            . 'id="bandwidth"/>',
-            '<label class="col-sm-2 control-label" for="storagegroupID">'
-            . _('Storage Group')
-            . '</label>' => self::getClass('StorageGroupManager')->buildSelectBox(
+            // Basic information
+            self::makeLabel(
+                $labelClass,
+                'storagenode',
+                _('Storage Node Name')
+            ) => self::makeInput(
+                'form-control storagenodename-input',
+                'storagenode',
+                _('Storage Node Name'),
+                'text',
+                'storagenode',
+                $storagenode,
+                true,
+                false
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Storage Node Description')
+            ) => self::makeTextarea(
+                'form-control storeagenodedescription-input',
+                'description',
+                _('Storage Node Description'),
+                'description',
+                $description,
+                false,
+                false
+            ),
+            // Node information
+            self::makeLabel(
+                $labelClass,
+                'storagegroupID',
+                _('Storage Group')
+            ) => self::getClass('StorageGroupManager')
+            ->buildSelectBox(
                 $storagegroupID,
                 'storagegroupID'
             ),
+            self::makeLabel(
+                $labelClass,
+                'ip',
+                _('Storage Node IP')
+            ) => self::makeInput(
+                'form-control storagenodeip-input',
+                'ip',
+                '127.0.0.1',
+                'text',
+                'ip',
+                $ip,
+                true,
+                false,
+                -1,
+                -1,
+                'data-inputmask="\'alias\': \'ip\'"'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'webroot',
+                _('Storage Node Web Root')
+            ) => self::makeInput(
+                'form-control storagenodewebroot-input',
+                'webroot',
+                _('Storage Node Web Root'),
+                'text',
+                'webroot',
+                $webroot,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'maxClients',
+                _('Storage Node Max Clients')
+            ) => self::makeInput(
+                'form-control storagenodemaxclients-input',
+                'maxClients',
+                '',
+                'number',
+                'maxClients',
+                $maxClients
+            ),
+            // Node Checkboxes
+            self::makeLabel(
+                $labelClass,
+                'isMaster',
+                _('Storage Node Master')
+            ) => self::makeInput(
+                'storagenodeismaster-input',
+                'isMaster',
+                '',
+                'checkbox',
+                'isMaster',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $isMaster
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isEnabled',
+                _('Storage Node Enabled')
+            ) => self::makeInput(
+                'storagenodeisenabled-input',
+                'isEnabled',
+                '',
+                'checkbox',
+                'isEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isGraphEnabled',
+                _('Graph Enabled')
+                . '<br/>('
+                . _('On Dashboard')
+                . ')'
+            ) => self::makeInput(
+                'storagenodeisgraphenabled-input',
+                'isGraphEnabled',
+                '',
+                'checkbox',
+                'isGraphEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            ),
+            // Bandwidth/Network Limiting
+            self::makeLabel(
+                $labelClass,
+                'interface',
+                _('Network Interface')
+            ) => self::makeInput(
+                'form-control storagenodeinterface-input',
+                'interface',
+                'eth0',
+                'text',
+                'interface',
+                $interface
+            ),
+            self::makeLabel(
+                $labelClass,
+                'bandwidth',
+                self::$foglang['BandwidthReplication']
+                . '<br/>('
+                . _('Kbps')
+                . ')'
+            ) => self::makeInput(
+                'form-control storagenodebandwidth-input',
+                'bandwidth',
+                '0',
+                'number',
+                'bandwidth',
+                $bandwidth
+            ),
+            self::makeLabel(
+                $labelClass,
+                'bitrate',
+                _('Multicast Bitrate')
+            ) => self::makeInput(
+                'form-control storagenodebitrate-input',
+                'bitrate',
+                '100m',
+                'text',
+                'bitrate',
+                $bitrate
+            ),
+            // Node Path Locations
             '<label class="col-sm-2 control-label" for="path">'
             . _('Image Path')
             . '</label>' => '<input type="text" name="path" '
@@ -219,48 +340,35 @@ class StorageNodeManagementPage extends FOGPage
             . $sslpath
             . '" class="storagenodesslpath-input form-control" '
             . 'id="sslpath" required/>',
-            '<label class="col-sm-2 control-label" for="bitrate">'
-            . _('Bitrate')
-            . '</label>' => '<input type="text" name="bitrate" '
-            . 'value="'
-            . $bitrate
-            . '" class="storagenodebitrate-input form-control" '
-            . 'id="bitrate"/>',
-            '<label class="col-sm-2 control-label" for="interface">'
-            . self::$foglang['Interface']
-            . '</label>' => '<input type="text" name="interface" '
-            . 'value="'
-            . $interface
-            . '" class="storagenodeinterface-input form-control" '
-            . 'id="interface"/>',
-            '<label class="col-sm-2 control-label" for="isen">'
-            . self::$foglang['IsEnabled']
-            . '</label>' => '<input type="checkbox" name="isEnabled" id="isen" '
-            . 'checked/>',
-            '<label class="col-sm-2 control-label" for="isgren">'
-            . self::$foglang['IsGraphEnabled']
-            . '<br/>'
-            . '('
-            . self::$foglang['OnDash']
-            . ')'
-            . '</label>' => '<input type="checkbox" name="isGraphEnabled" '
-            . 'id="isgren" checked/>',
-            '<label class="col-sm-2 control-label" for="user">'
-            . self::$foglang['ManUser']
-            . '</label>' => '<input type="text" name="user" '
-            . 'value="'
-            . $user
-            . '" class="storagenodeuser-input form-control" '
-            . 'id="user" required/>',
-            '<label class="col-sm-2 control-label" for="pass">'
-            . self::$foglang['ManPass']
-            . '</label>' => '<div class="input-group">'
-            . '<input type="password" name="pass" '
-            . 'value="'
-            . $pass
-            . '" class="storagenodepass-input form-control" '
-            . 'id="pass" required/>'
-            . '</div>'
+            // Node FTP User/Password
+            self::makeLabel(
+                $labelClass,
+                'user',
+                _('Storage Node FTP User')
+            ) => self::makeInput(
+                'form-control storagenodeuser-input',
+                'user',
+                'fog',
+                'text',
+                'user',
+                $user,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'pass',
+                _('Storage Node FTP Password')
+            ) => '<div class="input-group">'
+            . self::makeInput(
+                'form-control storagenodepass-input',
+                'pass',
+                _('Password'),
+                'password',
+                'pass',
+                $pass,
+                true
+            )
+            . '</div>',
         ];
         self::$HookManager
             ->processEvent(
@@ -270,12 +378,22 @@ class StorageNodeManagementPage extends FOGPage
                     'StorageNode' => self::getClass('StorageNode')
                 ]
             );
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
         $rendered = self::formFields($fields);
         unset($fields);
         echo '<div class="box box-solid" id="storagenode-create">';
-        echo '<form id="storagenode-create-form" class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '" novalidate>';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'storagenode-create-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box-body">';
         echo '<!-- Storage Node -->';
         echo '<div class="box box-primary">';
@@ -289,9 +407,7 @@ class StorageNodeManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="send">'
-            . _('Create')
-            . '</button>';
+        echo $buttons;
         echo '</div>';
         echo '</form>';
         echo '</div>';
@@ -304,7 +420,7 @@ class StorageNodeManagementPage extends FOGPage
     public function addPost()
     {
         // Setup and filter our vars.
-        $name = filter_input(INPUT_POST, 'name');
+        $storagenode = filter_input(INPUT_POST, 'storagenode');
         $ip = filter_input(INPUT_POST, 'ip');
         $maxClients = filter_input(INPUT_POST, 'maxClients');
         $interface = filter_input(INPUT_POST, 'interface');

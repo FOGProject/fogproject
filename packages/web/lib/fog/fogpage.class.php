@@ -4261,4 +4261,54 @@ abstract class FOGPage extends FOGBase
             . ($extra ? " $extra" : '')
             . '>';
     }
+    /**
+     * Makes textarea element.
+     *
+     * @param string $class        The class to give this input.
+     * @param string $name         The name to give this input.
+     * @param string $placeholder  A placeholder limit.
+     * @param string $id           The id to give this input.
+     * @param mixed  $value        The value to assign to this input.
+     * @param bool   $required     Is this input required.
+     * @param bool   $autocomplete If autoomplete should be on or off.
+     * @param int    $minlength    Minimum length of field if required.
+     * @param int    $maxlength    Maximum length of field if required.
+     * @param string $extra        Any extra attributes to add. (This is
+     *   just a simple single string of extra information as needed.)
+     * @param bool   $readonly     Is this input to be readonly.
+     * @param bool   $disabled     Is this input to be disabled.
+     *
+     * @return string
+     */
+    public static function makeTextarea(
+        $class,
+        $name,
+        $placeholder = '',
+        $id = '',
+        $value = '',
+        $required = false,
+        $autocomplete = false,
+        $extra = '',
+        $readonly = false,
+        $disabled = false
+    ) {
+        if (!$id) {
+            $id = $name;
+        }
+        return '<textarea class="' . $class . '" '
+            . 'name="' . $name . '" '
+            . 'placeholder="' . $placeholder . '" '
+            . 'id="' . $id . '" '
+            . 'style="resize:vertical;min-height:50px;" '
+            . ($required ? 'required ' : '')
+            . ($readonly ? 'readonly ' : '')
+            . ($disabled ? 'disabled ' : '')
+            . 'autocomplete="' . ($autocomplete ? 'on' : 'off') . '"'
+            . ($minlength > 0 ? ' minlength="' . $minlength . '"' : '')
+            . ($maxlength > 0 ? ' maxlength="' . $maxlength . '"' : '')
+            . ($extra ? " $extra" : '')
+            . '>'
+            . $value
+            . '</textarea>';
+    }
 }
