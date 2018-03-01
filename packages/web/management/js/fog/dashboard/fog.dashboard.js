@@ -317,11 +317,9 @@ var Graph30Day = $('#graph-30day'),
         $('#graph-bandwidth-time-title > span').text($(this).text());
         $(this).blur().addClass('active').siblings('a').removeClass('active');
         GraphBandwidthMaxDataPoints = $(this).prop('rel');
-        console.log(GraphBandwidthMaxDataPoints);
         e.preventDefault();
     });
     GraphBandwidthMaxDataPoints = $('.time-filters.active').prop('rel');
-    console.log(GraphBandwidthMaxDataPoints);
 
     $('#graph-bandwidth').css({
         height: '150px'
