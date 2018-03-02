@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-01 18:58-0500\n"
+"POT-Creation-Date: 2018-03-02 02:44-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3264,6 +3264,21 @@ msgstr ""
 msgid "Storage Node Update Fail"
 msgstr ""
 
+msgid "Use the selector to choose how many items you want exported."
+msgstr ""
+
+msgid ""
+"All columns less the id field will be exported. Column visibility does not "
+"affect the exported items."
+msgstr ""
+
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
+msgstr ""
+
 msgid "Started By"
 msgstr ""
 
@@ -3799,6 +3814,9 @@ msgid "Total Clients"
 msgstr ""
 
 msgid "Create New Storage Group"
+msgstr ""
+
+msgid "Storage Group name"
 msgstr ""
 
 msgid "Storage Group Create Success"
@@ -4375,21 +4393,6 @@ msgid "User Update Success"
 msgstr ""
 
 msgid "User Update Fail"
-msgstr ""
-
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
 msgstr ""
 
 msgid "This will allow you to configure how services"
@@ -6003,9 +6006,6 @@ msgid "Unable to open file for reading"
 msgstr ""
 
 msgid "IP Passed is incorrect"
-msgstr ""
-
-msgid "All done"
 msgstr ""
 
 msgid "Invalid"

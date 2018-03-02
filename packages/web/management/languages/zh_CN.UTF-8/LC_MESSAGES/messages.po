@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-01 18:58-0500\n"
+"POT-Creation-Date: 2018-03-02 02:44-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3699,6 +3699,21 @@ msgstr "存储节点更新"
 msgid "Storage Node Update Fail"
 msgstr "存储节点更新"
 
+msgid "Use the selector to choose how many items you want exported."
+msgstr ""
+
+msgid ""
+"All columns less the id field will be exported. Column visibility does not "
+"affect the exported items."
+msgstr ""
+
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
+msgstr ""
+
 #, fuzzy
 msgid "Started By"
 msgstr "由...制作"
@@ -4333,6 +4348,10 @@ msgstr "最大客户"
 #, fuzzy
 msgid "Create New Storage Group"
 msgstr "存储节点"
+
+#, fuzzy
+msgid "Storage Group name"
+msgstr "存储组名称"
 
 #, fuzzy
 msgid "Storage Group Create Success"
@@ -4998,21 +5017,6 @@ msgstr "安装/升级成功！"
 #, fuzzy
 msgid "User Update Fail"
 msgstr "用户更新失败"
-
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
 
 msgid "This will allow you to configure how services"
 msgstr ""
@@ -6898,9 +6902,6 @@ msgstr "无法打开文件进行读取"
 
 msgid "IP Passed is incorrect"
 msgstr "IP传递是不正确"
-
-msgid "All done"
-msgstr ""
 
 #, fuzzy
 msgid "Invalid"

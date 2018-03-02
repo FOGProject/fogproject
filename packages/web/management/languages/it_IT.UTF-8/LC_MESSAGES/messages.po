@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-01 18:58-0500\n"
+"POT-Creation-Date: 2018-03-02 02:44-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3369,6 +3369,21 @@ msgstr "Aggiornamento nodo di archiviazione completato"
 msgid "Storage Node Update Fail"
 msgstr "Aggiornamento nodo di archiviazione fallito!"
 
+msgid "Use the selector to choose how many items you want exported."
+msgstr ""
+
+msgid ""
+"All columns less the id field will be exported. Column visibility does not "
+"affect the exported items."
+msgstr ""
+
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
+msgstr ""
+
 #, fuzzy
 msgid "Started By"
 msgstr "Creato da"
@@ -3961,6 +3976,10 @@ msgstr "clienti max"
 #, fuzzy
 msgid "Create New Storage Group"
 msgstr "Creazione Gruppo di archiviazione"
+
+#, fuzzy
+msgid "Storage Group name"
+msgstr "Nome gruppo di archiviazione"
 
 msgid "Storage Group Create Success"
 msgstr "Gruppo di archiviazione creato con successo"
@@ -4563,21 +4582,6 @@ msgstr "Utente aggiornato con successo"
 
 msgid "User Update Fail"
 msgstr "Aggiornamento utente non riuscita"
-
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
 
 msgid "This will allow you to configure how services"
 msgstr "Ciò consentirà di configurare come servizi"
@@ -6228,9 +6232,6 @@ msgstr "Impossibile aprire il file per la lettura"
 
 msgid "IP Passed is incorrect"
 msgstr "IP Passato è corretto"
-
-msgid "All done"
-msgstr ""
 
 msgid "Invalid"
 msgstr "Non valido"

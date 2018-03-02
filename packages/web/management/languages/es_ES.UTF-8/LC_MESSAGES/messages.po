@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-01 18:58-0500\n"
+"POT-Creation-Date: 2018-03-02 02:44-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3927,6 +3927,21 @@ msgstr "nodo de almacenamiento"
 msgid "Storage Node Update Fail"
 msgstr "nodo de almacenamiento"
 
+msgid "Use the selector to choose how many items you want exported."
+msgstr ""
+
+msgid ""
+"All columns less the id field will be exported. Column visibility does not "
+"affect the exported items."
+msgstr ""
+
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
+msgstr ""
+
 #, fuzzy
 msgid "Started By"
 msgstr "Creado"
@@ -4574,6 +4589,10 @@ msgstr "Clientela"
 #, fuzzy
 msgid "Create New Storage Group"
 msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Storage Group name"
+msgstr "Nombre del grupo de almacenamiento"
 
 #, fuzzy
 msgid "Storage Group Create Success"
@@ -5249,21 +5268,6 @@ msgstr "Actualizar impresora"
 #, fuzzy
 msgid "User Update Fail"
 msgstr "actualización Valoración falló"
-
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
 
 msgid "This will allow you to configure how services"
 msgstr ""
@@ -7157,9 +7161,6 @@ msgstr "No se puede abrir archivo para lectura"
 
 msgid "IP Passed is incorrect"
 msgstr "Pasado IP es incorrecta"
-
-msgid "All done"
-msgstr ""
 
 #, fuzzy
 msgid "Invalid"
