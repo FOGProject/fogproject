@@ -27,9 +27,9 @@
         columns: [
             {data: 'hostname'},
             {data: 'imagename'},
-            {data: 'storagenodename'},
             {data: 'createdBy'},
-            {data: 'taskstatename'}
+            {data: 'taskstatename'},
+            {data: 'percent'}
         ],
         rowId: 'id',
         columnDefs: [
@@ -50,13 +50,44 @@
             {
                 responsivePriority: 1,
                 render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=storagenode&sub=edit&id=' + row.storagenodeid + '">' + data + '</a>';
+                    return '<a href="../management/index.php?node=user&sub=edit&id=' + row.userid + '">' + data + '</a>';
                 },
                 targets: 2
             },
             {
                 render: function(data, type, row) {
-                    return '<i class="fa fa-' + row.taskstateicon + '"></i>';
+                    return row.taskstatename
+                        + ' <i class="fa fa-' + row.taskstateicon + '"></i> '
+                },
+                targets: 3
+            },
+            {
+                render: function(data, type, row) {
+                    if (data) {
+                        data = parseInt(data);
+                    } else {
+                        data = parseInt(row.pct);
+                    }
+                    return row.timeElapsed
+                        + ' / '
+                        + row.timeRemaining
+                        + ' '
+                        + row.dataCopied
+                        + ' of '
+                        + row.dataTotal
+                        + ' ('
+                        + row.bpm
+                        + '/min)'
+                        + '<div class="progress progress-md active">'
+                        + '<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="'
+                        + data
+                        + '" aria-valuemin="0" aria-valuemax="100" style="width:'
+                        + data
+                        + '%">'
+                        + data
+                        + '%'
+                        + '</div>'
+                        + '</div>';
                 },
                 targets: 4
             }
