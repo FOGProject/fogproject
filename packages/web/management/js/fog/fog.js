@@ -1174,8 +1174,8 @@ function buildRow(
                 + colspan
                 + '" class="task-progress-td min">'
                 + '<div class="task-progress-fill min" style="width: '
-                + value.width
-                + 'px"></div>'
+                + parseInt(value.percent)
+                + '%"></div>'
                 + '<div class="task-progress min">'
                 + '<ul>'
                 + '<li>'
