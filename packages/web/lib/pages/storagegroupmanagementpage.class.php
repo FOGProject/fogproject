@@ -216,6 +216,8 @@ class StorageGroupManagementPage extends FOGPage
         $description = filter_input(INPUT_POST, 'description') ?:
             $this->obj->get('description');
 
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
             self::makeLabel(
                 $labelClass,
@@ -271,7 +273,7 @@ class StorageGroupManagementPage extends FOGPage
             'storagegroup-general-form',
             self::makeTabUpdateURL(
                 'storagegroup-general',
-                $htis->obj->get('id')
+                $this->obj->get('id')
             ),
             'post',
             'application/x-www-form-urlencoded',
