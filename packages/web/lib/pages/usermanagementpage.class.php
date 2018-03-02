@@ -500,7 +500,6 @@ class UserManagementPage extends FOGPage
             'btn btn-primary'
         );
 
-        echo '<div class="box box-solid">';
         echo self::makeFormTag(
             'form-horizontal',
             'user-changepw-form',
@@ -512,14 +511,15 @@ class UserManagementPage extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
+        echo '<div class="box box-solid">';
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $buttons;
         echo '</div>';
-        echo '</form>';
         echo '</div>';
+        echo '</form>';
     }
     /**
      * User change password post.
@@ -622,7 +622,6 @@ class UserManagementPage extends FOGPage
             'btn btn-primary'
         );
 
-        echo '<div class="box box-solid">';
         echo self::makeFormTag(
             'form-horizontal',
             'user-api-form',
@@ -634,14 +633,15 @@ class UserManagementPage extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
+        echo '<div class="box box-solid">';
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $buttons;
         echo '</div>';
-        echo '</form>';
         echo '</div>';
+        echo '</form>';
     }
     /**
      * User Change API Post
@@ -803,16 +803,6 @@ class UserManagementPage extends FOGPage
 
         $this->title = _('Export Users');
 
-        echo self::makeFormTag(
-            'form-horizontal',
-            'user-export-form',
-            self::makeTabUpdateURL(
-                'user-export'
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -840,7 +830,6 @@ class UserManagementPage extends FOGPage
         $this->render(12, 'user-export-table');
         echo '</div>';
         echo '</div>';
-        echo '</form>';
     }
     /**
      * Present the export list.
