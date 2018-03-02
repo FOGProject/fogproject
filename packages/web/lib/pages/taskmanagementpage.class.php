@@ -48,9 +48,9 @@ class TaskManagementPage extends FOGPage
         $this->headerData = [
             _('Host Name'),
             _('Image Name'),
-            _('Storage Node'),
             _('Started By'),
-            _('Status')
+            _('Status'),
+            _('Progress')
         ];
         $this->templates = [
             '',
@@ -109,6 +109,8 @@ class TaskManagementPage extends FOGPage
             ON `tasks`.`taskImageID` = `images`.`imageID`
             LEFT OUTER JOIN `nfsGroupMembers`
             ON `tasks`.`taskNFSMemberID` = `nfsGroupMembers`.`ngmID`
+            LEFT OUTER JOIN `users`
+            ON `tasks`.`taskCreateBy` = `users`.`uName`
             %s
             %s
             %s";
@@ -124,6 +126,8 @@ class TaskManagementPage extends FOGPage
             ON `tasks`.`taskImageID` = `images`.`imageID`
             LEFT OUTER JOIN `nfsGroupMembers`
             ON `tasks`.`taskNFSMemberID` = `nfsGroupMembers`.`ngmID`
+            LEFT OUTER JOIN `users`
+            ON `tasks`.`taskCreateBy` = `users`.`uName`
             %s";
         $tasksTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`
@@ -137,6 +141,8 @@ class TaskManagementPage extends FOGPage
             ON `tasks`.`taskImageID` = `images`.`imageID`
             LEFT OUTER JOIN `nfsGroupMembers`
             ON `tasks`.`taskNFSMemberID` = `nfsGroupMembers`.`ngmID`
+            LEFT OUTER JOIN `users`
+            ON `tasks`.`taskCreateBy` = `users`.`uName`
             WHERE $where";
         foreach (self::getClass('TaskManager')
             ->getColumns() as $common => &$real
@@ -176,11 +182,24 @@ class TaskManagementPage extends FOGPage
         }
         foreach (self::getClass('StorageNodeManager')
             ->getColumns() as $common => &$real
-        ){
+        ) {
             $columns[] = [
                 'db' => $real,
                 'dt' => 'storagenode' . $common
             ];
+            unset($real);
+        }
+        foreach (self::getClass('UserManager')
+            ->getColumns() as $common => &$real
+        ) {
+            if (in_array($common, ['id', 'name'])) {
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => 'user' . $common
+                ];
+                continue;
+            }
+            break;
             unset($real);
         }
         echo json_encode(
