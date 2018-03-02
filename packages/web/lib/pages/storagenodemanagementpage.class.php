@@ -148,8 +148,7 @@ class StorageNodeManagementPage extends FOGPage
                 'text',
                 'storagenode',
                 $storagenode,
-                true,
-                false
+                true
             ),
             self::makeLabel(
                 $labelClass,
@@ -161,7 +160,6 @@ class StorageNodeManagementPage extends FOGPage
                 _('Storage Node Description'),
                 'description',
                 $description,
-                false,
                 false
             ),
             // Node information
@@ -409,7 +407,6 @@ class StorageNodeManagementPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<div class="box box-solid" id="storagenode-create">';
         echo self::makeFormTag(
             'form-horizontal',
             'storagenode-create-form',
@@ -418,6 +415,7 @@ class StorageNodeManagementPage extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
+        echo '<div class="box box-solid" id="storagenode-create">';
         echo '<div class="box-body">';
         echo '<!-- Storage Node -->';
         echo '<div class="box box-primary">';
@@ -433,8 +431,8 @@ class StorageNodeManagementPage extends FOGPage
         echo '<div class="box-footer">';
         echo $buttons;
         echo '</div>';
-        echo '</form>';
         echo '</div>';
+        echo '</form>';
     }
     /**
      * Actually save the new node.
@@ -443,6 +441,7 @@ class StorageNodeManagementPage extends FOGPage
      */
     public function addPost()
     {
+        header('Content-type: application/json');
         // Setup and filter our vars.
         $storagenode = trim(
             filter_input(INPUT_POST, 'storagenode')
@@ -582,6 +581,7 @@ class StorageNodeManagementPage extends FOGPage
                 ]
             );
         }
+        //header('Location: ../management/index.php?node=storagenode&sub=edit&sub=' . $StorageNode->get('id'));
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -1310,6 +1310,7 @@ class StorageNodeManagementPage extends FOGPage
      */
     public function getExportList()
     {
+        header('Content-type: application/json');
         $obj = self::getClass('StorageNodeManager');
         $table = $obj->getTable();
         $sqlstr = $obj->getQueryStr();

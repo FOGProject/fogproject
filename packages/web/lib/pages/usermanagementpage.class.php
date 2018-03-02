@@ -838,6 +838,7 @@ class UserManagementPage extends FOGPage
      */
     public function getExportList()
     {
+        header('Content-type: application/json');
         $obj = self::getClass('UserManager');
         $table = $obj->getTable();
         $sqlstr = $obj->getQueryStr();
