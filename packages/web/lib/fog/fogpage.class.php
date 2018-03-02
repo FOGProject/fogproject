@@ -318,10 +318,6 @@ abstract class FOGPage extends FOGBase
                     $link,
                     'edit'
                 );
-                $this->membership = sprintf(
-                    $link,
-                    'membership'
-                );
                 if ($id === 0 || !is_numeric($id) || !$this->obj->isValid()) {
                     unset($this->obj);
                     self::setMessage(

@@ -1,12 +1,13 @@
 (function($) {
     // ----------------------------------------------------
     // GENERAL TAB
-    var originalName = $('#name').val();
+    var originalName = $('#storagenode').val();
 
     var updateName = function(newName) {
         var e = $('#pageTitle'),
             text = e.text();
         text = text.replace(": " + originalName, ": " + newName);
+        document.title = text;
         e.text(text);
     };
 
@@ -26,8 +27,8 @@
             if (err) {
                 return;
             }
-            updateName($('#name').val());
-            originalName = $('#name').val();
+            updateName($('#storagenode').val());
+            originalName = $('#storagenode').val();
         });
     });
 })(jQuery);

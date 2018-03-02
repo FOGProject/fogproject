@@ -1,12 +1,13 @@
 (function($) {
     // ----------------------------------------------------
     // GENERAL TAB
-    var originalName = $('#name').val();
+    var originalName = $('#user').val();
 
     var updateName = function(newName) {
         var e = $('#pageTitle'),
             text = e.text();
         text = text.replace(": " + originalName, ": " + newName);
+        document.title = text;
         e.text(text);
     };
 
@@ -26,11 +27,11 @@
             if (err) {
                 return;
             }
-            updateName($('#name').val());
-            originalName = $('#name').val();
+            updateName($('#user').val());
+            originalName = $('#user').val();
         });
     });
-    $("#name").inputmask({"mask": Common.masks.username, "placeholder": ""});
+    $("#user").inputmask({"mask": Common.masks.username, "placeholder": ""});
 
 
     // ----------------------------------------------------

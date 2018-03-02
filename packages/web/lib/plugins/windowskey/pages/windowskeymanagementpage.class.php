@@ -39,67 +39,22 @@ class WindowsKeyManagementPage extends FOGPage
     public function __construct($name = '')
     {
         $this->name = 'Windows Key Management';
-        /**
-         * Add this page to the PAGES_WITH_OBJECTS hook event.
-         */
         self::$HookManager->processEvent(
             'PAGES_WITH_OBJECTS',
-            array('PagesWithObjects' => &$this->PagesWithObjects)
+            ['PagesWithObjects' => &$this->PagesWithObjects]
         );
-        /**
-         * Get our $_GET['node'], $_GET['sub'], and $_GET['id']
-         * in a nicer to use format.
-         */
-        global $node;
-        global $sub;
-        global $id;
         self::$foglang['ExportWindowskey'] = _('Export Windows Keys');
         self::$foglang['ImportWindowskey'] = _('Import Windows Keys');
         parent::__construct($this->name);
-        if ($id) {
-            $this->subMenu = array(
-                "$this->linkformat#windowskey-gen" => self::$foglang['General'],
-                $this->membership => self::$foglang['Membership'],
-                "$this->delformat" => self::$foglang['Delete'],
-            );
-        }
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
-            _('Key Name')
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="windowskey[]" value="${id}" '
-            . 'class="toggle-action"/>',
-            '<a href="?node=windowskey&sub=edit&id=${id}">${name}</a>'
-        );
-        $this->attributes = array(
-            array(
-                'class' => 'filter-false',
-                'width' => 16
-            ),
-            array(
-                'data-toggle' => 'tooltip',
-                'data-placement' => 'bottom',
-                'title' => _('Edit')
-                . ' '
-                . '${name}'
-            )
-        );
-        /**
-         * Lambda function to return data either by list or search.
-         *
-         * @param object $WindowsKey the object to use
-         *
-         * @return void
-         */
-        self::$returnData = function (&$WindowsKey) {
-            $this->data[] = array(
-                'id' => $WindowsKey->id,
-                'name' => $WindowsKey->name
-            );
-            unset($WindowsKey);
-        };
+        $this->headerData = [
+            _('Windows Key Name')
+        ];
+        $this->templates = [
+            ''
+        ];
+        $this->attributes = [
+            []
+        ];
     }
     /**
      * Show form for creating a new windows key entry.

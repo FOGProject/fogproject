@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-28 21:54-0500\n"
+"POT-Creation-Date: 2018-03-01 18:58-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1175,16 +1175,12 @@ msgid "Import Windows Keys"
 msgstr "Windows 8的"
 
 #, fuzzy
-msgid "Key Name"
-msgstr "内核名称"
+msgid "Windows Key Name"
+msgstr "用户管理"
 
 #, fuzzy
 msgid "New Windows Key"
 msgstr "Windows 8的"
-
-#, fuzzy
-msgid "Windows Key Name"
-msgstr "用户管理"
 
 #, fuzzy
 msgid "Windows Key Description"
@@ -3614,15 +3610,59 @@ msgid "Errors on revert detected!"
 msgstr "在复归错误检测"
 
 #, fuzzy
+msgid "Storage Node Management"
+msgstr "存储管理"
+
+#, fuzzy
 msgid "Create New Storage Node"
 msgstr "存储节点"
 
 #, fuzzy
-msgid "Web Root"
-msgstr "Web根目录"
+msgid "Storage Node Web Root"
+msgstr "存储节点名称"
 
-msgid "Bitrate"
-msgstr "比特率"
+#, fuzzy
+msgid "Storage Node Master"
+msgstr "存储节点名称"
+
+#, fuzzy
+msgid "Storage Node Enabled"
+msgstr "存储节点名称"
+
+#, fuzzy
+msgid "Network Interface"
+msgstr "网络打印机"
+
+msgid "Kbps"
+msgstr ""
+
+#, fuzzy
+msgid "Multicast Bitrate"
+msgstr "组播"
+
+#, fuzzy
+msgid "Storage Node Image Path"
+msgstr "存储节点的IP"
+
+#, fuzzy
+msgid "Storage Node FTP Path"
+msgstr "存储节点的IP"
+
+#, fuzzy
+msgid "Storage Node Snapin Path"
+msgstr "存储节点更新"
+
+#, fuzzy
+msgid "Storage Node SSL Path"
+msgstr "存储节点的IP"
+
+#, fuzzy
+msgid "Storage Node FTP User"
+msgstr "存储节点的用户名"
+
+#, fuzzy
+msgid "Storage Node FTP Password"
+msgstr "存储节点密码"
 
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr "带宽应该是数字和大于0"
@@ -4305,10 +4345,6 @@ msgstr "存储组创建"
 #, fuzzy
 msgid "Update Master Node"
 msgstr "主节点"
-
-#, fuzzy
-msgid "Storage Node Master"
-msgstr "存储节点名称"
 
 #, fuzzy
 msgid "Storage Node Associated"
@@ -6862,6 +6898,9 @@ msgstr "无法打开文件进行读取"
 
 msgid "IP Passed is incorrect"
 msgstr "IP传递是不正确"
+
+msgid "All done"
+msgstr ""
 
 #, fuzzy
 msgid "Invalid"

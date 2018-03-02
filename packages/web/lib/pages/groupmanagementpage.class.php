@@ -382,7 +382,7 @@ class GroupManagementPage extends FOGPage
         $fields = [
             '<label for="name" class="col-sm-2 control-label">'
             . _('Group Name')
-            . '</label>' => '<input id="name" class="form-control" placeholder="'
+            . '</label>' => '<input id="group" class="form-control" placeholder="'
             . _('Group Name')
             . '" type="text" value="'
             . $group

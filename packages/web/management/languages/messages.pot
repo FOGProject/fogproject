@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-28 21:54-0500\n"
+"POT-Creation-Date: 2018-03-01 18:58-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1132,13 +1132,10 @@ msgstr ""
 msgid "Import Windows Keys"
 msgstr ""
 
-msgid "Key Name"
+msgid "Windows Key Name"
 msgstr ""
 
 msgid "New Windows Key"
-msgstr ""
-
-msgid "Windows Key Name"
 msgstr ""
 
 msgid "Windows Key Description"
@@ -3198,13 +3195,46 @@ msgstr ""
 msgid "Errors on revert detected!"
 msgstr ""
 
+msgid "Storage Node Management"
+msgstr ""
+
 msgid "Create New Storage Node"
 msgstr ""
 
-msgid "Web Root"
+msgid "Storage Node Web Root"
 msgstr ""
 
-msgid "Bitrate"
+msgid "Storage Node Master"
+msgstr ""
+
+msgid "Storage Node Enabled"
+msgstr ""
+
+msgid "Network Interface"
+msgstr ""
+
+msgid "Kbps"
+msgstr ""
+
+msgid "Multicast Bitrate"
+msgstr ""
+
+msgid "Storage Node Image Path"
+msgstr ""
+
+msgid "Storage Node FTP Path"
+msgstr ""
+
+msgid "Storage Node Snapin Path"
+msgstr ""
+
+msgid "Storage Node SSL Path"
+msgstr ""
+
+msgid "Storage Node FTP User"
+msgstr ""
+
+msgid "Storage Node FTP Password"
 msgstr ""
 
 msgid "Bandwidth should be numeric and greater than 0"
@@ -3778,9 +3808,6 @@ msgid "Storage Group Create Fail"
 msgstr ""
 
 msgid "Update Master Node"
-msgstr ""
-
-msgid "Storage Node Master"
 msgstr ""
 
 msgid "Storage Node Associated"
@@ -5976,6 +6003,9 @@ msgid "Unable to open file for reading"
 msgstr ""
 
 msgid "IP Passed is incorrect"
+msgstr ""
+
+msgid "All done"
 msgstr ""
 
 msgid "Invalid"

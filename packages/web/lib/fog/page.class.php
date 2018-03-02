@@ -166,9 +166,6 @@ class Page extends FOGBase
             $files[] = 'js/fog/fog.login.js';
         } else {
             $subset = $sub;
-            if ($sub == 'membership') {
-                $subset = 'edit';
-            }
             $node = preg_replace(
                 '#_#',
                 '-',

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-28 21:54-0500\n"
+"POT-Creation-Date: 2018-03-01 18:58-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1348,15 +1348,11 @@ msgid "Import Windows Keys"
 msgstr "Impresora TCP / IP Port"
 
 #, fuzzy
-msgid "Key Name"
+msgid "Windows Key Name"
 msgstr "Nombre del núcleo"
 
 msgid "New Windows Key"
 msgstr ""
-
-#, fuzzy
-msgid "Windows Key Name"
-msgstr "Nombre del núcleo"
 
 #, fuzzy
 msgid "Windows Key Description"
@@ -3842,16 +3838,59 @@ msgid "Errors on revert detected!"
 msgstr "Los errores en Revert detectados"
 
 #, fuzzy
+msgid "Storage Node Management"
+msgstr "Gestión de usuarios"
+
+#, fuzzy
 msgid "Create New Storage Node"
 msgstr "nodo de almacenamiento"
 
 #, fuzzy
-msgid "Web Root"
-msgstr "Reiniciar"
+msgid "Storage Node Web Root"
+msgstr "nodo de almacenamiento"
 
 #, fuzzy
-msgid "Bitrate"
-msgstr "Estado"
+msgid "Storage Node Master"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Storage Node Enabled"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Network Interface"
+msgstr "impresora de red"
+
+msgid "Kbps"
+msgstr ""
+
+#, fuzzy
+msgid "Multicast Bitrate"
+msgstr "multidifusión"
+
+#, fuzzy
+msgid "Storage Node Image Path"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Storage Node FTP Path"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Storage Node Snapin Path"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Storage Node SSL Path"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
+msgid "Storage Node FTP User"
+msgstr "Uso del disco nodo de almacenamiento"
+
+#, fuzzy
+msgid "Storage Node FTP Password"
+msgstr "nodo de almacenamiento"
 
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr ""
@@ -4546,10 +4585,6 @@ msgstr "Nombre del grupo de almacenamiento"
 
 #, fuzzy
 msgid "Update Master Node"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
-msgid "Storage Node Master"
 msgstr "nodo de almacenamiento"
 
 #, fuzzy
@@ -7122,6 +7157,9 @@ msgstr "No se puede abrir archivo para lectura"
 
 msgid "IP Passed is incorrect"
 msgstr "Pasado IP es incorrecta"
+
+msgid "All done"
+msgstr ""
 
 #, fuzzy
 msgid "Invalid"
