@@ -1,5 +1,5 @@
 (function($) {
-    var exportTable = Common.registerTable($('#user-export-table'), Common.onSelect, {
+    var exportTable = Common.registerTable($('#storagenode-export-table'), Common.onSelect, {
         buttons: [
             'copy',
             {
@@ -19,13 +19,24 @@
         ],
         columns: [
             {data: 'name'},
-            {data: 'password'},
-            {data: 'createdTime'},
-            {data: 'createdBy'},
-            {data: 'type'},
-            {data: 'display'},
-            {data: 'api'},
-            {data: 'token'}
+            {data: 'description'},
+            {data: 'isMaster'},
+            {data: 'storagegroupID'},
+            {data: 'isEnabled'},
+            {data: 'isGraphEnabled'},
+            {data: 'path'},
+            {data: 'ftppath'},
+            {data: 'bitrate'},
+            {data: 'snapinpath'},
+            {data: 'sslpath'},
+            {data: 'ip'},
+            {data: 'maxClients'},
+            {data: 'user'},
+            {data: 'pass'},
+            {data: 'key'},
+            {data: 'interface'},
+            {data: 'bandwidth'},
+            {data: 'webroot'}
         ],
         columnDefs: [
             {
@@ -45,11 +56,27 @@
                 visible: false
             },
             {
-                targets: 6,
+                targets: 5,
                 visible: false
             },
             {
-                targets: 7,
+                targets: 8,
+                visible: false
+            },
+            {
+                targets: 13,
+                visible: false
+            },
+            {
+                targets: 14,
+                visible: false
+            },
+            {
+                targets: 15,
+                visible: false
+            },
+            {
+                targets: 17,
                 visible: false
             }
         ],
