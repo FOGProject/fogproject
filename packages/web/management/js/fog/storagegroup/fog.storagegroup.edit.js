@@ -1,7 +1,7 @@
 (function($) {
     // ----------------------------------------------------
     // GENERAL TAB
-    var originalName = $('#name').val();
+    var originalName = $('#storagegroup').val();
 
     var updateName = function(newName) {
         var e = $('#pageTitle'),
@@ -26,8 +26,8 @@
             if (err) {
                 return;
             }
-            updateName($('#name').val());
-            originalName = $('#name').val();
+            updateName($('#storagegroup').val());
+            originalName = $('#storagegroup').val();
         });
     });
 

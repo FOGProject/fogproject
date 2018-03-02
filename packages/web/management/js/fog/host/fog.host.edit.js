@@ -1,7 +1,7 @@
 (function($) {
     // ---------------------------------------------------------------
     // GENERAL TAB
-    var originalName = $("#name").val(),
+    var originalName = $("#host").val(),
         updateName = function(newName) {
             var e = $("#pageTitle"),
                 text = e.text();
@@ -10,7 +10,7 @@
             e.text(text);
         };
 
-    $('#name').inputmask({mask: Common.masks.hostname, repeat: 15});
+    $('#host').inputmask({mask: Common.masks.hostname, repeat: 15});
     $('#mac').inputmask({mask: Common.masks.mac});
     $('#productKey').inputmask({mask: Common.masks.productKey});
 
@@ -34,8 +34,8 @@
             if (err) {
                 return;
             }
-            updateName($('#name').val())
-            originalName = $('#name').val();
+            updateName($('#host').val())
+            originalName = $('#host').val();
         });
     });
     generalDeleteBtn.on('click',function() {

@@ -10,5 +10,5 @@
             createFormBtn.prop('disabled', false);
         });
     });
-    $('#name').inputmask({mask: Common.masks.username, placeholder: ''});
+    $('#user').inputmask({mask: Common.masks.username, placeholder: ''});
 })(jQuery);

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-28 21:54-0500\n"
+"POT-Creation-Date: 2018-03-01 18:58-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1141,14 +1141,11 @@ msgstr "Esporta chiavi Windows"
 msgid "Import Windows Keys"
 msgstr "Importa chiavi Windows"
 
-msgid "Key Name"
-msgstr "Nome chiave"
+msgid "Windows Key Name"
+msgstr "Nome chiave di Windows"
 
 msgid "New Windows Key"
 msgstr "Nuova chiave di Windows"
-
-msgid "Windows Key Name"
-msgstr "Nome chiave di Windows"
 
 msgid "Windows Key Description"
 msgstr "Descrizione chiave di Windows"
@@ -3290,15 +3287,59 @@ msgid "Errors on revert detected!"
 msgstr "Errori su Revert rilevati"
 
 #, fuzzy
+msgid "Storage Node Management"
+msgstr "Storage Management"
+
+#, fuzzy
 msgid "Create New Storage Node"
 msgstr "Storage Node"
 
 #, fuzzy
-msgid "Web Root"
-msgstr "radice Web"
+msgid "Storage Node Web Root"
+msgstr "Nome Storage Node"
 
-msgid "Bitrate"
-msgstr "bitrate"
+#, fuzzy
+msgid "Storage Node Master"
+msgstr "Nome Storage Node"
+
+#, fuzzy
+msgid "Storage Node Enabled"
+msgstr "Nodo di archiviazione aggiunto!"
+
+#, fuzzy
+msgid "Network Interface"
+msgstr "Installazione via rete"
+
+msgid "Kbps"
+msgstr ""
+
+#, fuzzy
+msgid "Multicast Bitrate"
+msgstr "Immagine Multicast"
+
+#, fuzzy
+msgid "Storage Node Image Path"
+msgstr "Storage Node IP"
+
+#, fuzzy
+msgid "Storage Node FTP Path"
+msgstr "Storage Node IP"
+
+#, fuzzy
+msgid "Storage Node Snapin Path"
+msgstr "Storage Node Aggiornato"
+
+#, fuzzy
+msgid "Storage Node SSL Path"
+msgstr "Storage Node IP"
+
+#, fuzzy
+msgid "Storage Node FTP User"
+msgstr "Storage Node Nome utente"
+
+#, fuzzy
+msgid "Storage Node FTP Password"
+msgstr "Storage Node password"
 
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
@@ -3930,10 +3971,6 @@ msgstr "Gruppo di archiviazione creazione fallita"
 #, fuzzy
 msgid "Update Master Node"
 msgstr "Maestro Node"
-
-#, fuzzy
-msgid "Storage Node Master"
-msgstr "Nome Storage Node"
 
 #, fuzzy
 msgid "Storage Node Associated"
@@ -6191,6 +6228,9 @@ msgstr "Impossibile aprire il file per la lettura"
 
 msgid "IP Passed is incorrect"
 msgstr "IP Passato è corretto"
+
+msgid "All done"
+msgstr ""
 
 msgid "Invalid"
 msgstr "Non valido"

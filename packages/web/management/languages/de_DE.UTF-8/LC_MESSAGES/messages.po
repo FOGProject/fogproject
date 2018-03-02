@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-28 21:54-0500\n"
+"POT-Creation-Date: 2018-03-01 18:58-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -1175,16 +1175,12 @@ msgid "Import Windows Keys"
 msgstr "Windows-Schlüssel importieren"
 
 #, fuzzy
-msgid "Key Name"
-msgstr "Schlüsselname"
+msgid "Windows Key Name"
+msgstr "Windows-Schlüsselname"
 
 #, fuzzy
 msgid "New Windows Key"
 msgstr "Neuer Windows-Schlüssel"
-
-#, fuzzy
-msgid "Windows Key Name"
-msgstr "Windows-Schlüsselname"
 
 #, fuzzy
 msgid "Windows Key Description"
@@ -3625,15 +3621,59 @@ msgid "Errors on revert detected!"
 msgstr "Fehler beim Zurücksetzen erkannt!"
 
 #, fuzzy
+msgid "Storage Node Management"
+msgstr "Speicherverwaltung"
+
+#, fuzzy
 msgid "Create New Storage Node"
 msgstr "Storage Node"
 
 #, fuzzy
-msgid "Web Root"
-msgstr "Webroot"
+msgid "Storage Node Web Root"
+msgstr "Speicherknotenname"
 
-msgid "Bitrate"
-msgstr "Bitrate"
+#, fuzzy
+msgid "Storage Node Master"
+msgstr "Speicherknotenname"
+
+#, fuzzy
+msgid "Storage Node Enabled"
+msgstr "Speicherknoten hinzugefügt"
+
+#, fuzzy
+msgid "Network Interface"
+msgstr "Netzwerk-Installer"
+
+msgid "Kbps"
+msgstr ""
+
+#, fuzzy
+msgid "Multicast Bitrate"
+msgstr "Multicast Image"
+
+#, fuzzy
+msgid "Storage Node Image Path"
+msgstr "Speicherknoten-IP"
+
+#, fuzzy
+msgid "Storage Node FTP Path"
+msgstr "Speicherknoten-IP"
+
+#, fuzzy
+msgid "Storage Node Snapin Path"
+msgstr "Speicherknoten aktualisiert"
+
+#, fuzzy
+msgid "Storage Node SSL Path"
+msgstr "Speicherknoten-IP"
+
+#, fuzzy
+msgid "Storage Node FTP User"
+msgstr "Speicherknoten Benutzername"
+
+#, fuzzy
+msgid "Storage Node FTP Password"
+msgstr "Speicherknoten Passwort"
 
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr "Bandbreite sollte numerisch und größer als 0 sein."
@@ -4321,10 +4361,6 @@ msgstr "Erstellen einer Speichergruppe fehlgeschlagen"
 #, fuzzy
 msgid "Update Master Node"
 msgstr "Master-Knoten"
-
-#, fuzzy
-msgid "Storage Node Master"
-msgstr "Speicherknotenname"
 
 #, fuzzy
 msgid "Storage Node Associated"
@@ -6892,6 +6928,9 @@ msgstr "Datei kann zum Lesen nicht geöffnet werden"
 
 msgid "IP Passed is incorrect"
 msgstr "IP ist inkorrekt"
+
+msgid "All done"
+msgstr ""
 
 #, fuzzy
 msgid "Invalid"

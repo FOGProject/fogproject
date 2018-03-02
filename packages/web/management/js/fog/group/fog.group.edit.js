@@ -1,7 +1,7 @@
 (function($) {
     // ---------------------------------------------------------------
     // GENERAL TAB
-    var originalName = $('#name').val(),
+    var originalName = $('#group').val(),
         updateName = function(newName) {
             var e = $('#pageTitle'),
                 text = e.text();
@@ -32,8 +32,8 @@
             if (err) {
                 return;
             }
-            updateName($('#name').val());
-            originalName = $('#name').val();
+            updateName($('#group').val());
+            originalName = $('#group').val();
         });
     });
     generalDeleteBtn.on('click',function() {
