@@ -2294,32 +2294,32 @@ abstract class FOGPage extends FOGBase
         echo '<div class="box box-solid" id="'
             . $this->node
             . '-tasks">';
-        echo '  <div class="box-body">';
-        echo '      <div id="taskAccordian" class="box-group">';
-        echo '          <div class="panel box box-primary">';
-        echo '              <div class="box-header with-border">';
-        echo '                  <h4 class="box-title"><a class="" data-toggle="collapse" data-parent="#taskAccordian" href="#tasksBasic">';
+        echo '<div class="box-body">';
+        echo '<div id="taskAccordian" class="box-group">';
+        echo '<div class="panel box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title"><a class="" data-toggle="collapse" data-parent="#taskAccordian" href="#tasksBasic">';
         echo _('Basic Tasks') . '</a></h4>';
-        echo '              </div>';
-        echo '              <div id="tasksBasic" class="panel-collapse collapse in">';
-        echo '                  <div class="box-body">';
-        echo '                      <table class="table table-striped">';
-        echo '                          <tbody>';
+        echo '</div>';
+        echo '<div id="tasksBasic" class="panel-collapse collapse in">';
+        echo '<div class="box-body">';
+        echo '<table class="table table-striped">';
+        echo '<tbody>';
         echo self::stripedTable($this->data);
-        echo '                          </tbody>';
-        echo '                      </table>';
-        echo '                  </div>';
-        echo '              </div>';
-        echo '          </div>';
-        echo '          <div class="panel box box-warning">';
-        echo '              <div class="box-header with-border">';
-        echo '                  <h4 class="box-title"><a class="" data-toggle="collapse" data-parent="#taskAccordian" href="#tasksAdvance">';
+        echo '</tbody>';
+        echo '</table>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="panel box box-warning">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title"><a class="" data-toggle="collapse" data-parent="#taskAccordian" href="#tasksAdvance">';
         echo _('Advanced Actions') . '</a></h4>';
-        echo '              </div>';
-        echo '              <div id="tasksAdvance" class="panel-collapse collapse">';
-        echo '                  <div class="box-body">';
-        echo '                      <table class="table table-striped">';
-        echo '                          <tbody>';
+        echo '</div>';
+        echo '<div id="tasksAdvance" class="panel-collapse collapse">';
+        echo '<div class="box-body">';
+        echo '<table class="table table-striped">';
+        echo '<tbody>';
         unset($this->data);
         $advanced = 1;
         foreach ((array)$items as &$TaskType) {
@@ -2339,13 +2339,13 @@ abstract class FOGPage extends FOGBase
             ]
         );
         echo self::stripedTable($this->data);
-        echo '                          </tbody>';
-        echo '                      </table>';
-        echo '                  </div>';
-        echo '              </div>';
-        echo '          </div>';
-        echo '      </div>';
-        echo '  </div>';
+        echo '</tbody>';
+        echo '</table>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
         unset($TaskTypes);
         unset($this->data);
@@ -3891,16 +3891,11 @@ abstract class FOGPage extends FOGBase
         ob_start();
         foreach ($fields as $field => &$input) {
             echo '<div class="form-group">';
-            //echo '<div class="col-sm-2 control-label">';
             echo $field;
-            //echo '</div>';
             echo '<div class="col-sm-10">';
             echo $input;
             echo '</div>';
             echo '</div>';
-            //echo '<br/>';
-            //echo '<br/>';
-            //echo '<br/>';
             unset($field, $input);
         }
         return ob_get_clean();
