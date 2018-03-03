@@ -6584,9 +6584,6 @@ msgstr "deleted"
 msgid "Delete Fail"
 msgstr "Delete file data"
 
-msgid "Export the items as a CSV?"
-msgstr ""
-
 #, fuzzy
 msgid "List"
 msgstr "Host List"

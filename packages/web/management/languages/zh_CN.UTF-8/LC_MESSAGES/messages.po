@@ -6567,9 +6567,6 @@ msgstr "删除"
 msgid "Delete Fail"
 msgstr "删除的文件数据"
 
-msgid "Export the items as a CSV?"
-msgstr ""
-
 #, fuzzy
 msgid "List"
 msgstr "线"

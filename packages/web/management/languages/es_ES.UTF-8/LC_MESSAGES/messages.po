@@ -6823,9 +6823,6 @@ msgstr "suprimido"
 msgid "Delete Fail"
 msgstr "Eliminar los datos del archivo"
 
-msgid "Export the items as a CSV?"
-msgstr ""
-
 #, fuzzy
 msgid "List"
 msgstr "Línea"
