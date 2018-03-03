@@ -169,8 +169,6 @@
         }
     });
 
-    console.log(exportTable);
-
     // Enable searching
     if (Common.search && Common.search.length > 0) {
         exportTable.search(Common.search).draw();

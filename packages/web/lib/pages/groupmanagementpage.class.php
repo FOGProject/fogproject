@@ -1719,7 +1719,7 @@ class GroupManagementPage extends FOGPage
         echo '<h4 class="box-title">';
         echo _('Export Groups');
         echo '</h4>';
-        echo '<p class="help-blocK">';
+        echo '<p class="help-block">';
         echo _('Use the selector to choose how many items you want exported.');
         echo '</p>';
         echo '</div>';

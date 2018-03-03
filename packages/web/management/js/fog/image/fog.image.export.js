@@ -1,25 +1,121 @@
 (function($) {
-    var exportBtn = $('#export'),
-        exportForm = $('#export-form'),
-        exportModal = $('#exportModal'),
-        exportModalConfirm = $('#confirmExportModal'),
-        passwordField = $('#exportPassword'),
-        cancelExport = $('#closeExportModal'),
-        exportAction = exportForm.prop('action');
-    function disableButtons(disable) {
-        exportBtn.prop('disabled', disable);
-    }
-    exportForm.on('submit',function(e) {
-        e.preventDefault();
-    });
-    exportBtn.on('click', function(e) {
-        exportBtn.prop('disabled', true);
-        Common.processForm(exportForm, function(err) {
-            exportBtn.prop('disabled', false);
-            if (err) {
-                return;
+    var exportTable = Common.registerTable($('#image-export-table'), Common.onSelect, {
+        buttons: [
+            'copy',
+            {
+                extend: 'csv',
+                header: false
+            },
+            'excel',
+            'print',
+            'colvis'
+        ],
+        lengthMenu: [
+            [10, 25, 50, 100, -1],
+            [10, 25, 50, 100, 'All']
+        ],
+        order: [
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'name'}, // 0
+            {data: 'description'}, // 1
+            {data: 'path'}, // 2
+            {data: 'createdTime'}, // 3
+            {data: 'createdBy'}, // 4
+            {data: 'building'}, // 5
+            {data: 'size'}, // 6
+            {data: 'imageTypeID'}, // 7
+            {data: 'imagePartitionTypeID'}, // 8
+            {data: 'osID'}, // 9
+            {data: 'deployed'}, // 10
+            {data: 'format'}, // 11
+            {data: 'magnet'}, // 12
+            {data: 'protected'}, // 13
+            {data: 'compress'}, // 14
+            {data: 'isEnabled'}, // 15
+            {data: 'toReplicate'}, // 16
+            {data: 'srvsize'} // 17
+        ],
+        columnDefs: [
+            {
+                targets: 1,
+                visible: false
+            },
+            {
+                targets: 3,
+                visible: false
+            },
+            {
+                targets: 4,
+                visible: false
+            },
+            {
+                targets: 5,
+                visible: false
+            },
+            {
+                targets: 6,
+                visible: false
+            },
+            {
+                targets: 7,
+                visible: false
+            },
+            {
+                targets: 8,
+                visible: false
+            },
+            {
+                targets: 9,
+                visible: false
+            },
+            {
+                targets: 10,
+                visible: false
+            },
+            {
+                targets: 11,
+                visible: false
+            },
+            {
+                targets: 12,
+                visible: false
+            },
+            {
+                targets: 13,
+                visible: false
+            },
+            {
+                targets: 14,
+                visible: false
+            },
+            {
+                targets: 15,
+                visible: false
+            },
+            {
+                targets: 16,
+                visible: false
+            },
+            {
+                targets: 17,
+                visible: false
             }
-            $('<form method="post" action="' + exportForm.prop('action') + '"><input type="hidden" name="nojson"/></form>').appendTo('body').submit().remove();
-        });
+        ],
+        rowId: 'id',
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+            + Common.node
+            + '&sub=getExportList',
+            type: 'post'
+        }
     });
+
+    // Enable searching
+    if (Common.search && Common.search.length > 0) {
+        exportTable.search(Common.search).draw();
+    }
 })(jQuery);
