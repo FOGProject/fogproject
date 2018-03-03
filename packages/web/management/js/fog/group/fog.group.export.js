@@ -1,28 +1,66 @@
 (function($) {
-    var exportBtn = $('#export'),
-        exportForm = $('#export-form'),
-        exportModal = $('#exportModal'),
-        exportModalConfirm = $('#confirmExportModal'),
-        passwordField = $('#exportPassword'),
-        cancelExport = $('#closeExportModal'),
-        exportAction = exportForm.prop('action');
-
-    function disableButtons(disable) {
-        exportBtn.prop('disabled', disable);
-    }
-
-    exportForm.submit(function(e) {
-        e.preventDefault();
-    });
-
-    exportBtn.on('click', function(e) {
-        exportBtn.prop('disabled', true);
-        Common.processForm(exportForm, function(err) {
-            exportBtn.prop('disabled', false);
-            if (err) {
-                return;
+    var exportTable = Common.registerTable($('#group-export-table'), Common.onSelect, {
+        buttons: [
+            'copy',
+            {
+                extend: 'csv',
+                header: false
+            },
+            'excel',
+            'print',
+            'colvis'
+        ],
+        lengthMenu: [
+            [10, 25, 50, 100, -1],
+            [10, 25, 50, 100, 'All']
+        ],
+        order: [
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'name'}, // 0
+            {data: 'description'}, // 1
+            {data: 'createdBy'}, // 2
+            {data: 'createdTime'}, // 3
+            {data: 'building'}, // 4
+            {data: 'kernel'}, // 5
+            {data: 'kernelArgs'}, // 6
+            {data: 'kernelDevice'}, // 7
+            {data: 'init'}, // 8
+        ],
+        columnDefs: [
+            {
+                targets: 1,
+                visible: false
+            },
+            {
+                targets: 2,
+                visible: false
+            },
+            {
+                targets: 3,
+                visible: false
+            },
+            {
+                targets: 4,
+                visible: false
             }
-            $('<form method="post" action="' + exportForm.prop('action') + '"><input type="hidden" name="nojson"/></form>').appendTo('body').submit().remove();
-        });
+        ],
+        rowId: 'id',
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+            + Common.node
+            + '&sub=getExportList',
+            type: 'post'
+        }
     });
+
+    console.log(exportTable);
+
+    // Enable searching
+    if (Common.search && Common.search.length > 0) {
+        exportTable.search(Common.search).draw();
+    }
 })(jQuery);
