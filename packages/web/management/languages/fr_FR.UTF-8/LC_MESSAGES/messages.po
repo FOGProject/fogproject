@@ -6605,9 +6605,6 @@ msgstr "supprimé"
 msgid "Delete Fail"
 msgstr "Supprimer les données de fichiers"
 
-msgid "Export the items as a CSV?"
-msgstr ""
-
 #, fuzzy
 msgid "List"
 msgstr "Ligne"

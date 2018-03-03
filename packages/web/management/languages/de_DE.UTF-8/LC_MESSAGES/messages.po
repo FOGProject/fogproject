@@ -6594,9 +6594,6 @@ msgstr "gelöscht"
 msgid "Delete Fail"
 msgstr "Löschen fehlgeschlagen"
 
-msgid "Export the items as a CSV?"
-msgstr ""
-
 #, fuzzy
 msgid "List"
 msgstr "Zeige"

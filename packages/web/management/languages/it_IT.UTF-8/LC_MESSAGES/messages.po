@@ -5945,9 +5945,6 @@ msgstr "eliminata"
 msgid "Delete Fail"
 msgstr "Cancellare i file"
 
-msgid "Export the items as a CSV?"
-msgstr ""
-
 msgid "List"
 msgstr "Elenca"
 
