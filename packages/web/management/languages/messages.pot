@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-03 11:05-0500\n"
+"POT-Creation-Date: 2018-03-03 16:14-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2715,12 +2715,6 @@ msgstr ""
 msgid "Save Kernel"
 msgstr ""
 
-msgid "Install Kernel"
-msgstr ""
-
-msgid "Install"
-msgstr ""
-
 msgid "FOG PXE Boot Menu Configuration"
 msgstr ""
 
@@ -3351,6 +3345,15 @@ msgstr ""
 msgid "Assigned Image"
 msgstr ""
 
+msgid "All Pending Hosts"
+msgstr ""
+
+msgid "Approve selected"
+msgstr ""
+
+msgid "Delete selected"
+msgstr ""
+
 msgid "Create New Host"
 msgstr ""
 
@@ -3429,9 +3432,6 @@ msgid "Add New MAC Address"
 msgstr ""
 
 msgid "Update selected"
-msgstr ""
-
-msgid "Delete selected"
 msgstr ""
 
 msgid "Primary"
@@ -3953,6 +3953,9 @@ msgid "would you ilke to install it now"
 msgstr ""
 
 msgid "Install Plugin"
+msgstr ""
+
+msgid "Install"
 msgstr ""
 
 msgid "Reboot after deploy"
