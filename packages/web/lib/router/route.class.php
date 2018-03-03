@@ -497,8 +497,6 @@ class Route extends FOGBase
         case 'host':
             $columns[] = ['db' => 'imageName', 'dt' => 'imagename'];
             $columns[] = ['db' => 'hmMAC', 'dt' => 'primac'];
-            $columns[] = ['db' => 'iSysserial', 'dt' => 'sysserial'];
-            $columns[] = ['db' => 'iSysproduct', 'dt' => 'sysproduct'];
             break;
         case 'group':
             $columns[] = ['db' => 'gmMembers', 'dt' => 'members', 'removeFromQuery' => true];
