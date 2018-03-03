@@ -213,10 +213,7 @@ class Route extends FOGBase
         }
         self::$router = new AltoRouter(
             [],
-            rtrim(
-                self::getSetting('FOG_WEB_ROOT'),
-                '/'
-            )
+            '/fog'
         );
         self::defineRoutes();
         self::setMatches();
@@ -246,63 +243,63 @@ class Route extends FOGBase
             ->map(
                 'HEAD|GET',
                 '/system/[status|info]',
-                [self, 'status'],
+                ['self', 'status'],
                 'status'
             )
             ->map(
                 'GET|POST',
                 '/[search|unisearch]/[*:item]/[i:limit]?',
-                [self, 'unisearch'],
+                ['self', 'unisearch'],
                 'unisearch'
             )
             ->get(
                 "${expandeda}/[current|active]",
-                [self, 'active'],
+                ['self', 'active'],
                 'active'
             )
             ->get(
                 '/bandwidth/[*:dev]',
-                [self, 'bandwidth'],
+                ['self', 'bandwidth'],
                 'bandwidth'
             )
             ->get(
                 "${expanded}/search/[*:item]",
-                [self, 'search'],
+                ['self', 'search'],
                 'search'
             )
             ->get(
                 "${expanded}/[list|all]?",
-                [self, 'listem'],
+                ['self', 'listem'],
                 'list'
             )
             ->get(
                 "${expanded}/[i:id]",
-                [self, 'indiv'],
+                ['self', 'indiv'],
                 'indiv'
             )
             ->put(
                 "${expanded}/[i:id]/[update|edit]?",
-                [self, 'edit'],
+                ['self', 'edit'],
                 'update'
             )
             ->post(
                 "${expandedt}/[i:id]/[task]",
-                [self, 'task'],
+                ['self', 'task'],
                 'task'
             )
             ->post(
                 "${expanded}/[create|new]?",
-                [self, 'create'],
+                ['self', 'create'],
                 'create'
             )
             ->delete(
                 "${expandedt}/[i:id]?/[cancel]",
-                [self, 'cancel'],
+                ['self', 'cancel'],
                 'cancel'
             )
             ->delete(
                 "${expanded}/[i:id]/[delete|remove]?",
-                [self, 'delete'],
+                ['self', 'delete'],
                 'delete'
             );
     }
