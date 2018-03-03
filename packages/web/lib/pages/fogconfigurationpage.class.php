@@ -309,26 +309,39 @@ class FOGConfigurationPage extends FOGPage
             );
 
             $fields = [
-                '<label class="col-sm-2 control-label" for="dstName">'
-                . _('Kernel Name')
-                . '</label>' => '<input class="form-control" type="text" name="dstName" id='
-                . '"dstName" value="'
-                . $tmpArch
-                . '"/>',
-                '' => '<input type="hidden" name="file" value="'
-                . $tmpFile
-                . '"/>'
+                self::makeLabel(
+                    'col-sm-2 control-label',
+                    'dstName',
+                    _('Kernel Name')
+                ) => self::makInput(
+                    'form-control kernelname-input',
+                    'dstName',
+                    'bzImage',
+                    'text',
+                    'dstName',
+                    $tmpArch,
+                    true
+                )
             ];
+            self::$HookManager->processEvent(
+                'KERNEL_UPDATE_FIELDS',
+                ['fields' => &$fields]
+            );
 
             $rendered = self::formFields($fields);
+            unset($fields);
 
             $props = ' method="post" action="'
                 . $formstr
                 . '" ';
 
-            $buttons = self::makeButton('install', _('Save Kernel'), 'btn btn-warning', $props);
+            $buttons = self::makeButton(
+                'install',
+                _('Save Kernel'),
+                'btn btn-warning',
+                $props
+            );
 
-            $formstr = "../management/index.php?node={$node}&sub=kernelUpdate";
             echo '<!-- Kernel Information -->';
             echo '<div class="box-group" id="kernel-update-form">';
             echo '<div class="box box-solid">';
@@ -345,50 +358,6 @@ class FOGConfigurationPage extends FOGPage
             echo '</div>';
             echo '<div class="box-footer">';
             echo $buttons;
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-            return;
-
-            echo '<div class="col-xs-9">';
-            echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Save Kernel');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body">';
-            echo '<form class="form-horizontal" method="post" action="';
-            $formstr;
-            echo '" novalidate>';
-            echo '<input type="hidden" name="file" value="';
-            echo $tmpFile;
-            echo '"/>';
-            echo '<div class="col-xs-4">';
-            echo '<label class="control-label" for="dstName">';
-            echo _('Kernel Name');
-            echo '</label>';
-            echo '</div>';
-            echo '<div class="col-xs-8">';
-            echo '<div class="input-group">';
-            echo '<input class="form-control" type="text" name="dstName" id='
-                . '"dstName" value="'
-                . $tmpArch
-                . '"/>';
-            echo '</div>';
-            echo '</div>';
-            echo '<div class="col-xs-4">';
-            echo '<label class="control-label" for="install">';
-            echo _('Install Kernel');
-            echo '</label>';
-            echo '</div>';
-            echo '<div class="col-xs-8">';
-            echo '<button type="submit" class="btn btn-info btn-block" id='
-                . '"install" name="install">';
-            echo _('Install');
-            echo '</button>';
-            echo '</div>';
-            echo '</form>';
             echo '</div>';
             echo '</div>';
             echo '</div>';

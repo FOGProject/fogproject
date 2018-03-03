@@ -43,8 +43,7 @@ class GroupManagementPage extends FOGPage
     {
         $this->name = 'Group Management';
         parent::__construct($this->name);
-        global $id;
-        if ($id) {
+        if ($this->obj) {
             $this->_getHostCommon();
         }
         $this->headerData = [

@@ -49,8 +49,14 @@ class HostManagementPage extends FOGPage
             $this->exitNorm = filter_input(INPUT_POST, 'bootTypeExit');
             $this->exitEfi = filter_input(INPUT_POST, 'efiBootTypeExit');
         } else {
-            $this->exitNorm = $this->obj->get('biosexit');
-            $this->exitEfi = $this->obj->get('efiexit');
+            $this->exitNorm = (
+                filter_input(INPUT_POST, 'bootTypeExit') ?: 
+                $this->obj->get('biosexit')
+            );
+            $this->exitEfi = (
+                filter_input(INPUT_POST, 'efiBootTypeExit') ?:
+                $this->obj->get('efiexit')
+            );
         }
         $this->exitNorm = Service::buildExitSelector(
             'bootTypeExit',
@@ -113,7 +119,81 @@ class HostManagementPage extends FOGPage
      */
     public function pending()
     {
-        echo 'Work in Progress';
+        if (false === self::$showhtml) {
+            return;
+        }
+        $this->title = _('All Pending Hosts');
+
+        // Remove unnecessary elements.
+        unset(
+            $this->headerData[2],
+            $this->headerData[3],
+            $this->headerData[4],
+            $this->attributes[2],
+            $this->attributes[3],
+            $this->attributes[4],
+            $this->templates[2],
+            $this->templates[3],
+            $this->templates[4]
+        );
+
+        // Reorder the arrays
+        $this->headerData = array_values(
+            $this->headerData
+        );
+        $this->attributes = array_values(
+            $this->attributes
+        );
+        $this->templates = array_values(
+            $this->templates
+        );
+
+        self::$HookManager->processEvent(
+            'HOST_PENDING_DATA',
+            [
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes,
+                'headerData' => &$this->headerData
+            ]
+        );
+        self::$HookManager->processEvent(
+            'HOST_PENDING_HEADER_DATA',
+            ['headerData' => &$this->headerData]
+        );
+
+        $buttons = self::makeButton(
+            'approve',
+            _('Approve selected'),
+            'btn btn-primary'
+        );
+        $buttons .= self::makeButton(
+            'delete',
+            _('Delete selected'),
+            'btn btn-danger pull-right'
+        );
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'host-pending-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
     }
     /**
      * Pending host form submitting
@@ -3233,6 +3313,91 @@ class HostManagementPage extends FOGPage
                 $sqlstr,
                 $filterstr,
                 $totalstr
+            )
+        );
+        exit;
+    }
+    /**
+     * Get pending host list.
+     *
+     * @return void
+     */
+    public function getPendingList()
+    {
+        header('Content-type: application/json');
+
+        $where = "`hosts`.`hostPending` > '0'";
+
+        $obj = self::getClass('HostManager');
+        $table = $obj->getTable();
+        $sqlstr = "SELECT `%s`
+            FROM `%s`
+            LEFT OUTER JOIN `images`
+            ON `hosts`.`hostImage` = `images`.`imageID`
+            LEFT OUTER JOIN `hostMAC`
+            ON `hosts`.`hostID` = `hostMAC`.`hmHostID`
+            AND `hostMAC`.`hmPrimary` = '1'
+            %s
+            %s
+            %s";
+        $filterstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `images`
+            ON `hosts`.`hostImage` = `images`.`imageID`
+            LEFT OUTER JOIN `hostMAC`
+            ON `hosts`.`hostID` = `hostMAC`.`hmHostID`
+            AND `hostMAC`.`hmPrimary` = '1'
+            %s";
+        $totalstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `images`
+            ON `hosts`.`hostImage` = `images`.`imageID`
+            LEFT OUTER JOIN `hostMAC`
+            ON `hosts`.`hostID` = `hostMAC`.`hmHostID`
+            AND `hostMAC`.`hmPrimary` = '1'
+            WHERE "
+            . $where;
+        $dbcolumns = $obj->getColumns();
+        $pass_vars = $columns = [];
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        // Setup our columns for the CSVn.
+        // Automatically removes the id column.
+        $columns[] = ['db' => 'hmMAC', 'dt' => 'primac'];
+        foreach ($dbcolumns as $common => &$real) {
+            if ('id' == $common) {
+                $tableID = $real;
+                continue;
+            }
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        $columns[] = ['db' => 'imageName', 'dt' => 'imagename'];
+        self::$HookManager->processEvent(
+            'HOST_PENDING_HOSTS',
+            [
+                'table' => &$table,
+                'sqlstr' => &$sqlstr,
+                'filterstr' => &$filterstr,
+                'totalstr' => &$totalstr,
+                'columns' => &$columns
+            ]
+        );
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                $table,
+                $tableID,
+                $columns,
+                $sqlstr,
+                $filterstr,
+                $totalstr,
+                $where
             )
         );
         exit;

@@ -477,6 +477,9 @@ class Route extends FOGBase
             break;
         }
         foreach ((array)$tmpcolumns as $common => &$real) {
+            if ($common == 'id') {
+                $tableID = $real;
+            }
             $columns[] = ['db' => $real, 'dt' => $common];
             //if ($common == 'id') {
             //    $columns[] = [
@@ -549,7 +552,7 @@ class Route extends FOGBase
             self::$data = FOGManagerController::simple(
                 $pass_vars,
                 $table,
-                'id',
+                $tableID,
                 $columns,
                 $sqlstr,
                 $fltrstr,

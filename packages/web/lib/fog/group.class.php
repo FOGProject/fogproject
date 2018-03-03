@@ -61,25 +61,18 @@ class Group extends FOGController
         'hosts',
         'hostsnotinme',
     ];
-    protected $sqlQueryStr = "SELECT COUNT(`gmHostID`) `gmMembers`,`%s`
+    protected $sqlQueryStr = "SELECT `%s`,COUNT(`gmHostID`) AS `gmMembers`
         FROM `%s`
         LEFT OUTER JOIN `groupMembers`
         ON `groups`.`groupID` = `groupMembers`.`gmGroupID`
         %s
-        GROUP BY `groupID`,`gmGroupID`
         %s
         %s";
-    protected $sqlFilterStr = "SELECT COUNT(`gmHostID`) `gmMembers`,COUNT(`%s`)
+    protected $sqlFilterStr = "SELECT COUNT(`%s`)
         FROM `%s`
-        LEFT OUTER JOIN `groupMembers`
-        ON `groups`.`groupID` = `groupMembers`.`gmGroupID`
-        %s
-        GROUP BY `groupID`,`gmGroupID`";
-    protected $sqlTotalStr = "SELECT COUNT(`gmHostID`) `gmMembers`,COUNT(`%s`)
-        FROM `%s`
-        LEFT OUTER JOIN `groupMembers`
-        ON `groups`.`groupID` = `groupMembers`.`gmGroupID`
-        GROUP BY `groupID`,`gmGroupID`";
+        %s";
+    protected $sqlTotalStr = "SELECT COUNT(`%s`)
+        FROM `%s`";
     /**
      * Destroy the group object and all associations.
      *

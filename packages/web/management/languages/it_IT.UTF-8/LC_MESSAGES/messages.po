@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-02 21:12-0500\n"
+"POT-Creation-Date: 2018-03-03 16:14-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -2794,12 +2794,6 @@ msgstr "Nome kernel"
 msgid "Save Kernel"
 msgstr "Save Kernel"
 
-msgid "Install Kernel"
-msgstr "Installa Kernel"
-
-msgid "Install"
-msgstr "Installa"
-
 msgid "FOG PXE Boot Menu Configuration"
 msgstr "Menu di configurazione di avvio PXE FOG"
 
@@ -3464,6 +3458,17 @@ msgid "Assigned Image"
 msgstr "Immagine assegnata"
 
 #, fuzzy
+msgid "All Pending Hosts"
+msgstr "Host in sospeso"
+
+#, fuzzy
+msgid "Approve selected"
+msgstr "Approvare MAC selezionati"
+
+msgid "Delete selected"
+msgstr "Cancella selezionato"
+
+#, fuzzy
 msgid "Create New Host"
 msgstr "Crea nuovo %s"
 
@@ -3546,9 +3551,6 @@ msgstr "Indirizzo MAC"
 #, fuzzy
 msgid "Update selected"
 msgstr "Aggiungi stampanti selezionate"
-
-msgid "Delete selected"
-msgstr "Cancella selezionato"
 
 #, fuzzy
 msgid "Primary"
@@ -4122,6 +4124,9 @@ msgstr "ti piacerebbe installarlo ora"
 
 msgid "Install Plugin"
 msgstr "Installare plugin"
+
+msgid "Install"
+msgstr "Installa"
 
 msgid "Reboot after deploy"
 msgstr "Riavvio dopo Deploy"

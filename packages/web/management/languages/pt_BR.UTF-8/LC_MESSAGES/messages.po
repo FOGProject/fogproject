@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-02 21:12-0500\n"
+"POT-Creation-Date: 2018-03-03 16:14-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3059,14 +3059,6 @@ msgstr "Nome Kernel"
 msgid "Save Kernel"
 msgstr "Núcleo"
 
-#, fuzzy
-msgid "Install Kernel"
-msgstr "hospedar Kernel"
-
-#, fuzzy
-msgid "Install"
-msgstr "Instalar / Atualizar Falha!"
-
 msgid "FOG PXE Boot Menu Configuration"
 msgstr "Configuração do menu FOG Boot PXE"
 
@@ -3809,6 +3801,18 @@ msgid "Assigned Image"
 msgstr "imagem atribuída"
 
 #, fuzzy
+msgid "All Pending Hosts"
+msgstr "Anfitriões pendentes"
+
+#, fuzzy
+msgid "Approve selected"
+msgstr "Aprovar Hosts selecionados"
+
+#, fuzzy
+msgid "Delete selected"
+msgstr "Delete Selected"
+
+#, fuzzy
 msgid "Create New Host"
 msgstr "Criar novo %s"
 
@@ -3902,10 +3906,6 @@ msgstr "Lista de endereços MAC"
 #, fuzzy
 msgid "Update selected"
 msgstr "Impressora"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "Delete Selected"
 
 #, fuzzy
 msgid "Primary"
@@ -4529,6 +4529,10 @@ msgstr "Este plugin não está instalado, você gostaria de instalá-lo agora?"
 #, fuzzy
 msgid "Install Plugin"
 msgstr "instalar Plugins"
+
+#, fuzzy
+msgid "Install"
+msgstr "Instalar / Atualizar Falha!"
 
 msgid "Reboot after deploy"
 msgstr "Reinicialização após deploy"

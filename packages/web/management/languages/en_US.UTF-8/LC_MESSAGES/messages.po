@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-02 21:12-0500\n"
+"POT-Creation-Date: 2018-03-03 16:14-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3055,14 +3055,6 @@ msgstr "Kernel Name"
 msgid "Save Kernel"
 msgstr "Kernel"
 
-#, fuzzy
-msgid "Install Kernel"
-msgstr "Host Kernel"
-
-#, fuzzy
-msgid "Install"
-msgstr "Smart Installer (Recommended)"
-
 msgid "FOG PXE Boot Menu Configuration"
 msgstr "FOG PXE Boot Menu Configuration"
 
@@ -3807,6 +3799,18 @@ msgid "Assigned Image"
 msgstr "Assigned Image"
 
 #, fuzzy
+msgid "All Pending Hosts"
+msgstr "Pending Hosts"
+
+#, fuzzy
+msgid "Approve selected"
+msgstr "Approve selected Hosts"
+
+#, fuzzy
+msgid "Delete selected"
+msgstr "Delete Selected"
+
+#, fuzzy
 msgid "Create New Host"
 msgstr "Create New %s"
 
@@ -3900,10 +3904,6 @@ msgstr "MAC Address List"
 #, fuzzy
 msgid "Update selected"
 msgstr "Remove selected printers"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "Delete Selected"
 
 #, fuzzy
 msgid "Primary"
@@ -4528,6 +4528,10 @@ msgstr ""
 #, fuzzy
 msgid "Install Plugin"
 msgstr "Install Plugins"
+
+#, fuzzy
+msgid "Install"
+msgstr "Smart Installer (Recommended)"
 
 msgid "Reboot after deploy"
 msgstr "Reboot after deploy"

@@ -604,6 +604,7 @@ abstract class FOGPage extends FOGBase
      */
     public static function buildSubMenuItems($refNode = '')
     {
+        $node = strtolower($refNode);
         $refNode = ucfirst($refNode);
         $refNode = _($refNode);
         $menu = [
@@ -619,6 +620,15 @@ abstract class FOGPage extends FOGBase
             'add' => sprintf(
                 self::$foglang['CreateNew'],
                 $refNode
+            ),
+            (
+                'host' == $node ?
+                'pending' :
+                null
+            ) => (
+                'host' == $node ?
+                _('Pending Hosts') :
+                null
             ),
             'export' => sprintf(
                 self::$foglang[
@@ -637,6 +647,9 @@ abstract class FOGPage extends FOGBase
                 ]
             ),
         ];
+
+        $menu = array_filter($menu);
+
         self::$HookManager->processEvent(
             'SUB_MENULINK_DATA',
             [

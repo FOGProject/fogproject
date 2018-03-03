@@ -133,36 +133,30 @@ class Host extends FOGController
         )
     );
 
-    protected $sqlQueryStr = "SELECT `%s`,`images`.`imageName` `imagename`, `hostMAC`.`hmMAC` `primac`
+    protected $sqlQueryStr = "SELECT `%s`
         FROM `%s`
         LEFT OUTER JOIN `images`
-        ON `images`.`imageID` = `hosts`.`hostImage`
-        LEFT OUTER JOIN `inventory`
-        ON `inventory`.`iHostID` = `hosts`.`hostID`
+        ON `hosts`.`hostImage` = `images`.`imageID`
         LEFT JOIN `hostMAC`
-        ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
+        ON `hosts`.`hostID` = `hostMAC`.`hmHostID`
         AND `hostMAC`.`hmPrimary` = '1'
         %s
         %s
         %s";
-    protected $sqlFilterStr = "SELECT COUNT(`%s`),`images`.`imageName`,`hostMAC`.`hmMAC` AS `primac`
+    protected $sqlFilterStr = "SELECT COUNT(`%s`)
         FROM `%s`
         LEFT OUTER JOIN `images`
-        ON `images`.`imageID` = `hosts`.`hostImage`
-        LEFT OUTER JOIN `inventory`
-        ON `inventory`.`iHostID` = `hosts`.`hostID`
+        ON `hosts`.`hostImage` = `images`.`imageID`
         LEFT JOIN `hostMAC`
-        ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
+        ON `hosts`.`hostID` = `hostMAC`.`hmHostID`
         AND `hostMAC`.`hmPrimary` = '1'
         %s";
-    protected $sqlTotalStr = "SELECT COUNT(`%s`),`images`.`imageName` AS `imagename`,`hostMAC`.`hmMAC` AS `primac`
+    protected $sqlTotalStr = "SELECT COUNT(`%s`)
         FROM `%s`
         LEFT OUTER JOIN `images`
-        ON `images`.`imageID` = `hosts`.`hostImage`
-        LEFT OUTER JOIN `inventory`
-        ON `inventory`.`iHostID` = `hosts`.`hostID`
+        ON `hosts`.`hostImage` = `images`.`imageID`
         LEFT JOIN `hostMAC`
-        ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
+        ON `hosts`.`hostID` = `hostMAC`.`hmHostID`
         AND `hostMAC`.`hmPrimary` = '1'";
     /**
      * Display val storage

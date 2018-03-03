@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-02 21:12-0500\n"
+"POT-Creation-Date: 2018-03-03 16:14-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3053,14 +3053,6 @@ msgstr "Kernel-Name"
 msgid "Save Kernel"
 msgstr "Kernel speichern"
 
-#, fuzzy
-msgid "Install Kernel"
-msgstr "Kernel installieren"
-
-#, fuzzy
-msgid "Install"
-msgstr "Installieren"
-
 msgid "FOG PXE Boot Menu Configuration"
 msgstr "FOG PXE-Bootmenü-Konfiguration"
 
@@ -3809,6 +3801,18 @@ msgid "Assigned Image"
 msgstr "Zugeordnetes Image"
 
 #, fuzzy
+msgid "All Pending Hosts"
+msgstr "Ausstehende Hosts"
+
+#, fuzzy
+msgid "Approve selected"
+msgstr "Ausgewählten MAcs freigeben"
+
+#, fuzzy
+msgid "Delete selected"
+msgstr "Ausgewählte löschen"
+
+#, fuzzy
 msgid "Create New Host"
 msgstr "Neue %s erstellen"
 
@@ -3902,10 +3906,6 @@ msgstr "MAC-Adresse"
 #, fuzzy
 msgid "Update selected"
 msgstr "ausgewählte Images hinzufügen"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "Ausgewählte löschen"
 
 #, fuzzy
 msgid "Primary"
@@ -4530,6 +4530,10 @@ msgstr "möchten Sie es jetzt installieren?"
 #, fuzzy
 msgid "Install Plugin"
 msgstr "Plugin installieren"
+
+#, fuzzy
+msgid "Install"
+msgstr "Installieren"
 
 msgid "Reboot after deploy"
 msgstr "Neustart nach der Verteilung"

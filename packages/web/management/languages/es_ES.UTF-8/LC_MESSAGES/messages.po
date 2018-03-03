@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-02 21:12-0500\n"
+"POT-Creation-Date: 2018-03-03 16:14-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3268,14 +3268,6 @@ msgstr "Nombre del núcleo"
 msgid "Save Kernel"
 msgstr "Núcleo"
 
-#, fuzzy
-msgid "Install Kernel"
-msgstr "Núcleo"
-
-#, fuzzy
-msgid "Install"
-msgstr "actualización de la impresora ha fallado!"
-
 msgid "FOG PXE Boot Menu Configuration"
 msgstr "Configuración del menú de arranque PXE FOG"
 
@@ -4028,6 +4020,18 @@ msgid "Assigned Image"
 msgstr "imagen asignado"
 
 #, fuzzy
+msgid "All Pending Hosts"
+msgstr "anfitriones pendientes"
+
+#, fuzzy
+msgid "Approve selected"
+msgstr "retirar"
+
+#, fuzzy
+msgid "Delete selected"
+msgstr "Eliminar seleccionado"
+
+#, fuzzy
 msgid "Create New Host"
 msgstr "Crear nuevo grupo"
 
@@ -4128,10 +4132,6 @@ msgstr "Dirección MAC de lista de origen: "
 #, fuzzy
 msgid "Update selected"
 msgstr "Impresora"
-
-#, fuzzy
-msgid "Delete selected"
-msgstr "Eliminar seleccionado"
 
 #, fuzzy
 msgid "Primary"
@@ -4755,6 +4755,10 @@ msgstr "No se pudo iniciar tareas de despliegue"
 
 #, fuzzy
 msgid "Install Plugin"
+msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+msgid "Install"
 msgstr "actualización de la impresora ha fallado!"
 
 msgid "Reboot after deploy"
