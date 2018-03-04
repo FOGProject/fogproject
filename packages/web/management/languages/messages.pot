@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-03 21:57-0500\n"
+"POT-Creation-Date: 2018-03-04 00:11-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4048,19 +4048,25 @@ msgstr ""
 msgid "Image Description"
 msgstr ""
 
-msgid "Partition"
+msgid "Image Compression Rating"
+msgstr ""
+
+msgid "Image Storage Group"
+msgstr ""
+
+msgid "Image Operating System"
+msgstr ""
+
+msgid "Image Partition"
+msgstr ""
+
+msgid "Image Manager"
 msgstr ""
 
 msgid "Image Enabled"
 msgstr ""
 
-msgid "Replicate"
-msgstr ""
-
-msgid "Compression"
-msgstr ""
-
-msgid "Image Manager"
+msgid "Image Replicate"
 msgstr ""
 
 msgid "An image name is required!"
@@ -4087,7 +4093,16 @@ msgstr ""
 msgid "Image Create Fail"
 msgstr ""
 
+msgid "Partition"
+msgstr ""
+
 msgid "Image Protected"
+msgstr ""
+
+msgid "Replicate"
+msgstr ""
+
+msgid "Compression"
 msgstr ""
 
 msgid "Update Primary Group"

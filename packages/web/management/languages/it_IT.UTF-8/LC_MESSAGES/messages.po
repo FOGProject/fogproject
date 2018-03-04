@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-03 21:07-0500\n"
+"POT-Creation-Date: 2018-03-04 00:11-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4222,21 +4222,31 @@ msgstr "partimage"
 msgid "Image Description"
 msgstr "Descrizione dell'immagine"
 
-msgid "Partition"
+#, fuzzy
+msgid "Image Compression Rating"
+msgstr "Associazione immagine"
+
+#, fuzzy
+msgid "Image Storage Group"
+msgstr "gruppo di archiviazione"
+
+#, fuzzy
+msgid "Image Operating System"
+msgstr "Sistema operativo"
+
+#, fuzzy
+msgid "Image Partition"
 msgstr "Partizione"
+
+msgid "Image Manager"
+msgstr "Image manager"
 
 msgid "Image Enabled"
 msgstr "immagine Abilitato"
 
 #, fuzzy
-msgid "Replicate"
-msgstr "Replicare?"
-
-msgid "Compression"
-msgstr "Compressione"
-
-msgid "Image Manager"
-msgstr "Image manager"
+msgid "Image Replicate"
+msgstr "immagine Replicator"
 
 #, fuzzy
 msgid "An image name is required!"
@@ -4264,9 +4274,19 @@ msgstr "Creazione immagine riuscita"
 msgid "Image Create Fail"
 msgstr "Creazione immagine fallita"
 
+msgid "Partition"
+msgstr "Partizione"
+
 #, fuzzy
 msgid "Image Protected"
 msgstr "Protetta"
+
+#, fuzzy
+msgid "Replicate"
+msgstr "Replicare?"
+
+msgid "Compression"
+msgstr "Compressione"
 
 #, fuzzy
 msgid "Update Primary Group"

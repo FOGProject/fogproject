@@ -232,17 +232,17 @@
         storagegroupsTable.search(Common.search).draw();
     }
     // ---------------------------------------------------------------
-    // MEMBERSHIP TAB
-    var membershipAddBtn = $('#membership-add'),
-        membershipRemoveBtn = $('#membership-remove');
-    membershipAddBtn.prop('disabled', true);
-    membershipRemoveBtn.prop('disabled', true);
-    function onMembershipSelect(selected) {
+    // HOST TAB
+    var hostAddBtn = $('#host-add'),
+        hostRemoveBtn = $('#host-remove');
+    hostAddBtn.prop('disabled', true);
+    hostRemoveBtn.prop('disabled', true);
+    function onHostSelect(selected) {
         var disabled = selected.count() == 0;
-        membershipAddBtn.prop('disabled', disabled);
-        membershipRemoveBtn.prop('disabled', disabled);
+        hostAddBtn.prop('disabled', disabled);
+        hostRemoveBtn.prop('disabled', disabled);
     }
-    var membershipTable = Common.registerTable($('#image-membership-table'), onMembershipSelect, {
+    var hostTable = Common.registerTable($('#image-host-table'), onHostSelect, {
         columns: [
             {data: 'name'},
             {data: 'association'}
@@ -285,60 +285,60 @@
             type: 'post'
         }
     });
-    membershipTable.on('draw', function() {
-        Common.iCheck('#image-membership-table input');
-        $('#image-membership-table input.associated').on('ifClicked', onCheckboxSelect);
+    hostTable.on('draw', function() {
+        Common.iCheck('#image-host-table input');
+        $('#image-host-table input.associated').on('ifClicked', onCheckboxSelect);
     });
-    membershipAddBtn.on('click', function() {
-        membershipAddBtn.prop('disabled', true);
+    hostAddBtn.on('click', function() {
+        hostAddBtn.prop('disabled', true);
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = membershipTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(membershipTable),
+            rows = hostTable.rows({selected: true}),
+            toAdd = Common.getSelectedIds(hostTable),
             opts = {
-                'updatemembership': '1',
-                'membership': toAdd
+                updatehost: '1',
+                host: toAdd
             };
         Common.apiCall(method,action,opts,function(err) {
             if (!err) {
-                membershipTable.draw(false);
-                membershipTable.rows({selected: true}).deselect();
-                $('#image-membership-table').find('.associated').each(function() {
+                hostTable.draw(false);
+                hostTable.rows({selected: true}).deselect();
+                $('#image-host-table').find('.associated').each(function() {
                     if ($.inArray($(this).val(), toAdd) != -1) {
                         $(this).iCheck('check');
                     }
                 });
             } else {
-                membershipAddBtn.prop('disable', false);
+                hostAddBtn.prop('disable', false);
             }
         });
     });
-    membershipRemoveBtn.on('click', function() {
-        membershipRemoveBtn.prop('disabled', true);
+    hostRemoveBtn.on('click', function() {
+        hostRemoveBtn.prop('disabled', true);
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = membershipTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(membershipTable),
+            rows = hostTable.rows({selected: true}),
+            toRemove = Common.getSelectedIds(hostTable),
             opts = {
-                'membershipdel': '1',
-                'membershipRemove' : toRemove
+                hostdel: '1',
+                hostRemove : toRemove
             };
         Common.apiCall(method,action,opts,function(err) {
             if (!err) {
-                membershipTable.draw(false);
-                membershipTable.rows({selected: true}).deselect();
-                $('#image-membership-table').find('.associated').each(function() {
+                hostTable.draw(false);
+                hostTable.rows({selected: true}).deselect();
+                $('#image-host-table').find('.associated').each(function() {
                     if ($.inArray($(this).val(), toRemove) != -1) {
                         $(this).iCheck('uncheck');
                     }
                 });
             } else {
-                membershipRemoveBtn.prop('disabled', false);
+                hostRemoveBtn.prop('disabled', false);
             }
         });
     });
     if (Common.search && Common.search.length > 0) {
-        membershipTable.search(Common.search).draw();
+        hostTable.search(Common.search).draw();
     }
     $('.slider').slider();
 })(jQuery);

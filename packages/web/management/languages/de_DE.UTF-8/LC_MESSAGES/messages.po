@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-03 21:07-0500\n"
+"POT-Creation-Date: 2018-03-04 00:11-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4639,21 +4639,31 @@ msgstr "Partimage"
 msgid "Image Description"
 msgstr "Imagebeschreibung"
 
-msgid "Partition"
+#, fuzzy
+msgid "Image Compression Rating"
+msgstr "Imagezuordnung"
+
+#, fuzzy
+msgid "Image Storage Group"
+msgstr "Speichergruppe"
+
+#, fuzzy
+msgid "Image Operating System"
+msgstr "Betriebssystem"
+
+#, fuzzy
+msgid "Image Partition"
 msgstr "Partition"
+
+msgid "Image Manager"
+msgstr "Image Manager"
 
 msgid "Image Enabled"
 msgstr "Image aktiviert"
 
 #, fuzzy
-msgid "Replicate"
-msgstr "Replizieren?"
-
-msgid "Compression"
-msgstr "Kompression"
-
-msgid "Image Manager"
-msgstr "Image Manager"
+msgid "Image Replicate"
+msgstr "Image-Replikator"
 
 #, fuzzy
 msgid "An image name is required!"
@@ -4685,9 +4695,19 @@ msgstr "Imageerstellung erfolgreich"
 msgid "Image Create Fail"
 msgstr "Imageerstellung fehlgeschlagen"
 
+msgid "Partition"
+msgstr "Partition"
+
 #, fuzzy
 msgid "Image Protected"
 msgstr "Geschützt"
+
+#, fuzzy
+msgid "Replicate"
+msgstr "Replizieren?"
+
+msgid "Compression"
+msgstr "Kompression"
 
 #, fuzzy
 msgid "Update Primary Group"
