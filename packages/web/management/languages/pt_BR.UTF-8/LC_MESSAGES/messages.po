@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-03 16:14-0500\n"
+"POT-Creation-Date: 2018-03-03 21:07-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4025,6 +4025,10 @@ msgid "Snapin Associated"
 msgstr "Snapin atualizada"
 
 #, fuzzy
+msgid "Host Snapins"
+msgstr "História Snapin"
+
+#, fuzzy
 msgid "Enable All"
 msgstr "ativado"
 
@@ -4215,12 +4219,20 @@ msgid "MAC Addresses"
 msgstr "Lista de endereços MAC"
 
 #, fuzzy
+msgid "Associations"
+msgstr "Associação imagem"
+
+#, fuzzy
 msgid "Service Settings"
 msgstr "status do serviço"
 
 #, fuzzy
-msgid "Group Membership"
-msgstr "Membership"
+msgid "Client Module Settings"
+msgstr "Configurações"
+
+#, fuzzy
+msgid "History Items"
+msgstr "ID de acolhimento"
 
 #, fuzzy
 msgid "Imaging History"

@@ -1289,6 +1289,11 @@ class HostManagementPage extends FOGPage
 
         echo '<div class="box box-solid">';
         echo '<div id="updatesnapins" class="">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Host Snapins');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
         $this->render(12, 'host-snapins-table', $buttons);
         echo '</div>';
@@ -2533,50 +2538,58 @@ class HostManagementPage extends FOGPage
             ];
         }
 
-        // Printers
+        // Associations
         $tabData[] = [
-            'name' => _('Printers'),
-            'id' => 'host-printers',
-            'generator' => function() {
-                $this->hostPrinters();
-            }
+            'tabs' => [
+                'name' => _('Associations'),
+                'tabData' => [
+                    [
+                        'name' => _('Groups'),
+                        'id' => 'host-groups',
+                        'generator' => function() {
+                            //$this->hostMembership();
+                            echo 'TODO: Make functional';
+                        }
+                    ],
+                    [
+                        'name' => _('Printers'),
+                        'id' => 'host-printers',
+                        'generator' => function() {
+                            $this->hostPrinters();
+                        }
+                    ],
+                    [
+                        'name' => _('Snapins'),
+                        'id' => 'host-snapins',
+                        'generator' => function() {
+                            $this->hostSnapins();
+                        }
+                    ],
+                ]
+            ]
         ];
 
-        // Snapins
+        // FOG Client settings.
         $tabData[] = [
-            'name' => _('Snapins'),
-            'id' => 'host-snapins',
-            'generator' => function() {
-                $this->hostSnapins();
-            }
-        ];
-
-        // Service
-        $tabData[] = [
-            'name' => _('Service Settings'),
-            'id' => 'host-service',
-            'generator' => function() {
-                $this->hostService();
-            }
-        ];
-
-        // Power Management
-        $tabData[] = [
-            'name' => _('Power Management'),
-            'id' => 'host-powermanagement',
-            'generator' => function() {
-                $this->hostPowermanagement();
-            }
-        ];
-
-        // Group Membership
-        $tabData[] = [
-            'name' => _('Group Membership'),
-            'id' => 'host-membership',
-            'generator' => function() {
-                //$this->hostMembership();
-                echo 'TODO: Make functional';
-            }
+            'tabs' => [
+                'name' => _('Service Settings'),
+                'tabData' => [
+                    [
+                        'name' => _('Client Module Settings'),
+                        'id' => 'host-service',
+                        'generator' => function() {
+                            $this->hostService();
+                        }
+                    ],
+                    [
+                        'name' => _('Power Management'),
+                        'id' => 'host-powermanagement',
+                        'generator' => function() {
+                            $this->hostPowerManagement();
+                        }
+                    ]
+                ]
+            ]
         ];
 
         // Inventory
@@ -2588,35 +2601,55 @@ class HostManagementPage extends FOGPage
             }
         ];
 
-        // Login History
+        // History Items
         $tabData[] = [
-            'name' => _('Login History'),
-            'id' => 'host-login-history',
-            'generator' => function() {
-                //$this->hostLoginHistory();
-                echo 'TODO: Make functional';
-            }
+            'tabs' => [
+                'name' => _('History Items'),
+                'tabData' => [
+                    [
+                        'name' => _('Login History'),
+                        'id' => 'host-login-history',
+                        'generator' => function() {
+                            //$this->hostLoginHistory();
+                            echo 'TODO: Make functional';
+                        }
+                    ],
+                    [
+                        'name' => _('Imaging History'),
+                        'id' => 'host-image-history',
+                        'generator' => function() {
+                            //$this->hostImageHistory();
+                            echo 'TODO: Make functional';
+                        }
+                    ],
+                    [
+                        'name' => _('Snapin History'),
+                        'id' => 'host-snapin-history',
+                        'generator' => function() {
+                            //$this->hostSnapinHistory();
+                            echo 'TODO: Make functional';
+                        }
+                    ],
+                ]
+            ]
         ];
 
-        // Image History
-        $tabData[] = [
-            'name' => _('Imaging History'),
-            'id' => 'host-image-history',
-            'generator' => function() {
-                //$this->hostImageHistory();
-                echo 'TODO: Make functional';
-            }
-        ];
+        self::$HookManager->processEvent(
+            'HOST_PLUGINS_INJECT_TABDATA',
+            [
+                'pluginsTabData' => &$this->obj->pluginsTabData,
+                'obj' => &$this->obj
+            ]
+        );
 
-        // Snapin History
-        $tabData[] = [
-            'name' => _('Snapin History'),
-            'id' => 'host-snapin-history',
-            'generator' => function() {
-                //$this->hostSnapinHistory();
-                echo 'TODO: Make functional';
-            }
-        ];
+        if (count($this->obj->pluginsTabData)) {
+            $tabData[] = [
+                'tabs' => [
+                    'name' => _('Plugins'),
+                    'tabData' => $this->obj->pluginsTabData
+                ]
+            ];
+        }
 
         echo self::tabFields($tabData, $this->obj);
     }
@@ -2653,6 +2686,9 @@ class HostManagementPage extends FOGPage
                 break;
             case 'host-snapins':
                 $this->hostSnapinPost();
+                break;
+            case 'host-groups':
+                $this->hostGroupPost();
                 break;
             case 'host-service':
                 $this->hostServicePost();

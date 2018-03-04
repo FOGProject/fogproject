@@ -3772,16 +3772,12 @@ abstract class FOGPage extends FOGBase
                 $this->obj->get('id')
             )
             . '" novalidate>';
-        if ($this->obj instanceof Host) {
-            echo '<div class="box box-primary">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
-            echo _('New Power Management Task');
-            echo '</h4>';
-            echo '</div>';
-        } else {
-            echo '<div class="box box-solid">';
-        }
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('New Power Management Task');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
@@ -3942,48 +3938,109 @@ abstract class FOGPage extends FOGBase
         );
         ob_start();
         $activeId = '';
+        $dropdown = false;
         echo '<div class="nav-tabs-custom">';
         echo '<ul class="nav nav-tabs">';
         foreach ($tabData as &$entry) {
-            $name = $entry['name'];
-            $id = $entry['id'];
-            if (empty($activeId)) {
-                $activeId = $id;
+            if (isset($entry['tabs'])) {
+                $name = $entry['tabs']['name'];
+                echo '<li class="dropdown">';
+                echo '<a class="dropdown-toggle" data-toggle="dropdown" href="#">';
+                echo $name;
+                echo '<span class="caret"></span>';
+                echo '</a>';
+                echo '<ul class="dropdown-menu">';
+                $tabs = $entry['tabs']['tabData'];
+                foreach ($tabs as &$tab) {
+                    $name = $tab['name'];
+                    $id = $tab['id'];
+                    if (empty($activeId)) {
+                        $activeId = $id;
+                    }
+                    $isActive = ($activeId === $id);
+                    echo '<li class="'
+                        . (
+                            $isActive ?
+                            'active' :
+                            ''
+                        )
+                        . '">';
+                    echo '<a href="#'
+                        . $id
+                        . '" data-toggle="tab" ariaexpanded="true">'
+                        . $name
+                        . '</a>';
+                    echo '</li>';
+                    unset($tab);
+                }
+                echo '</ul>';
+            } else {
+                $name = $entry['name'];
+                $id = $entry['id'];
+                if (empty($activeId)) {
+                    $activeId = $id;
+                }
+                $isActive = ($activeId === $id);
+                echo '<li class="'
+                    . (
+                        $isActive ?
+                        'active' :
+                        ''
+                    )
+                    . '">';
+                echo '<a href="#'
+                    . $id
+                    . '" data-toggle="tab" ariaexpanded="true">'
+                    . $name
+                    . '</a>';
+                echo '</li>';
             }
-            $isActive = ($activeId === $id);
-            echo '<li class="'
-                . (
-                    $isActive ?
-                    'active' :
-                    ''
-                )
-                . '">';
-            echo '<a href="#'
-                . $id
-                . '" data-toggle="tab" ariaexpanded="true">'
-                . $name
-                . '</a>';
-            echo '</li>';
             unset($entry);
         }
         echo '</ul>';
         echo '<div class="tab-content">';
         foreach ($tabData as &$entry) {
-            $generator = $entry['generator'];
-            $name = $entry['name'];
-            $id = $entry['id'];
-            $isActive = ($activeId === $id);
-            echo '<div id="'
-                . $id
-                . '" class="tab-pane '
-                . (
-                    $isActive ?
-                    'active' :
-                    ''
-                )
-                . '">';
-            $generator();
-            echo '</div>';
+            if (isset($entry['tabs'])) {
+                $tabs = $entry['tabs']['tabData'];
+                foreach ($tabs as &$tab) {
+                    $generator = $tab['generator'];
+                    $name = $tab['name'];
+                    $id = $tab['id'];
+                    $isActive = ($activeId === $id);
+                    echo '<div id="'
+                        . $id
+                        . '" class="tab-pane '
+                        . (
+                            $isActive ?
+                            'active' :
+                            ''
+                        )
+                        . '">';
+                    if (is_callable($generator)) {
+                        $generator();
+                    }
+                    echo '</div>';
+                    unset($tab);
+                }
+            } else {
+                $generator = $entry['generator'];
+                $name = $entry['name'];
+                $id = $entry['id'];
+                $isActive = ($activeId === $id);
+                echo '<div id="'
+                    . $id
+                    . '" class="tab-pane '
+                    . (
+                        $isActive ?
+                        'active' :
+                        ''
+                    )
+                    . '">';
+                if (is_callable($generator)) {
+                    $generator();
+                }
+                echo '</div>';
+            }
             unset($entry);
         }
         echo '</div>';

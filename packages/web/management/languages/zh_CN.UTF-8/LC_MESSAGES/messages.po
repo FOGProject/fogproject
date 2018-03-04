@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-03 16:14-0500\n"
+"POT-Creation-Date: 2018-03-03 21:07-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4011,6 +4011,10 @@ msgid "Snapin Associated"
 msgstr "更新管理单元"
 
 #, fuzzy
+msgid "Host Snapins"
+msgstr "历史管理单元"
+
+#, fuzzy
 msgid "Enable All"
 msgstr "启用"
 
@@ -4201,12 +4205,20 @@ msgid "MAC Addresses"
 msgstr "MAC地址列表"
 
 #, fuzzy
+msgid "Associations"
+msgstr "图像协会"
+
+#, fuzzy
 msgid "Service Settings"
 msgstr "服务状态"
 
 #, fuzzy
-msgid "Group Membership"
-msgstr "籍"
+msgid "Client Module Settings"
+msgstr "设置"
+
+#, fuzzy
+msgid "History Items"
+msgstr "主机ID"
 
 #, fuzzy
 msgid "Imaging History"

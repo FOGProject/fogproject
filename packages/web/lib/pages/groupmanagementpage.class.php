@@ -1386,40 +1386,58 @@ class GroupManagementPage extends FOGPage
             }
         ];
 
-        // Printers
+        // Associations
         $tabData[] = [
-            'name' => _('Printers'),
-            'id' => 'group-printers',
-            'generator' => function() {
-                $this->groupPrinters();
-            }
+            'tabs' => [
+                'name' => _('Associations'),
+                'tabData' => [
+                    [
+                        'name' => _('Hosts'),
+                        'id' => 'group-hosts',
+                        'generator' => function() {
+                            //$this->groupMembership();
+                            echo 'TODO: Make functional';
+                        }
+                    ],
+                    [
+                        'name' => _('Printers'),
+                        'id' => 'group-printers',
+                        'generator' => function() {
+                            $this->groupPrinters();
+                        }
+                    ],
+                    [
+                        'name' => _('Snapins'),
+                        'id' => 'group-snapins',
+                        'generator' => function() {
+                            $this->groupSnapins();
+                        }
+                    ]
+                ]
+            ]
         ];
 
-        // Snapins
+        // FOG Client settings.
         $tabData[] = [
-            'name' => _('Snapins'),
-            'id' => 'group-snapins',
-            'generator' => function() {
-                $this->groupSnapins();
-            }
-        ];
-
-        // Service
-        $tabData[] = [
-            'name' => _('Service Settings'),
-            'id' => 'group-service',
-            'generator' => function() {
-                $this->groupService();
-            }
-        ];
-
-        // Power Management
-        $tabData[] = [
-            'name' => _('Power Management'),
-            'id' => 'group-powermanagement',
-            'generator' => function() {
-                $this->groupPowermanagement();
-            }
+            'tabs' => [
+                'name' => _('Service Settings'),
+                'tabData' => [
+                    [
+                        'name' => _('Client Module Settings'),
+                        'id' => 'group-service',
+                        'generator' => function() {
+                            $this->groupService();
+                        }
+                    ],
+                    [
+                        'name' => _('Power Management'),
+                        'id' => 'group-powermanagement',
+                        'generator' => function() {
+                            $this->groupPowermanagement();
+                        }
+                    ]
+                ]
+            ]
         ];
 
         // Inventory
@@ -1430,6 +1448,23 @@ class GroupManagementPage extends FOGPage
                 $this->groupInventory();
             }
         ];
+
+        self::$HookManager->processEvent(
+            'GROUP_PLUGINS_INJECT_TABDATA',
+            [
+                'pluginsTabData' => &$this->obj->pluginsTabData,
+                'obj' => &$this->obj
+            ]
+        );
+
+        if (count($this->obj->pluginsTabData)) {
+            $tabData[] = [
+                'tabs' => [
+                    'name' => _('Plugins'),
+                    'tabData' => $this->obj->pluginsTabData
+                ]
+            ];
+        }
 
         echo self::tabFields($tabData, $this->obj);
     }
