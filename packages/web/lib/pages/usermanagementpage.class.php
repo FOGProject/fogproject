@@ -706,11 +706,6 @@ class UserManagementPage extends FOGPage
             }
         ];
 
-        self::$HookManager->processEvent(
-            'USER_TAB_DATA',
-            ['tabData' => &$tabData]
-        );
-
         echo self::tabFields($tabData, $this->obj);
     }
     /**

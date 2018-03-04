@@ -3936,6 +3936,23 @@ abstract class FOGPage extends FOGBase
                 'obj' => &$obj
             ]
         );
+        self::$HookManager->processEvent(
+            'PLUGINS_INJECT_TABDATA',
+            [
+                'pluginsTabData' => &$obj->pluginsTabData,
+                'obj' => &$obj
+            ]
+        );
+
+        if (count($obj->pluginsTabData)) {
+            $tabData[] = [
+                'tabs' => [
+                    'name' => _('Plugins'),
+                    'tabData' => $obj->pluginsTabData
+                ]
+            ];
+        }
+
         ob_start();
         $activeId = '';
         $dropdown = false;

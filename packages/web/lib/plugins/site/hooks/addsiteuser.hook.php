@@ -58,7 +58,7 @@ class AddSiteUser extends Hook
         }
         self::$HookManager
             ->register(
-                'TABDATA_HOOK',
+                'PLUGINS_INJECT_TABDATA',
                 [$this, 'userTabData']
             )
             ->register(
@@ -84,7 +84,7 @@ class AddSiteUser extends Hook
             return;
         }
         $obj = $arguments['obj'];
-        $arguments['tabData'][] = [
+        $arguments['pluginsTabData'][] = [
             'name' => _('Site Association'),
             'id' => 'user-site',
             'generator' => function() use ($obj) {

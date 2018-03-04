@@ -60,7 +60,7 @@ class AddLocationGroup extends Hook
         }
         self::$HookManager
             ->register(
-                'GROUP_PLUGINS_INJECT_TABDATA',
+                'PLUGINS_INJECT_TABDATA',
                 [$this, 'groupTabData']
             )
             ->register(
