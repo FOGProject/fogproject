@@ -60,7 +60,7 @@ class AddLocationHost extends Hook
         }
         self::$HookManager
             ->register(
-                'HOST_PLUGINS_INJECT_TABDATA',
+                'PLUGINS_INJECT_TABDATA',
                 [$this, 'hostTabData']
             )
             ->register(

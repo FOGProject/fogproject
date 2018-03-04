@@ -1449,23 +1449,6 @@ class GroupManagementPage extends FOGPage
             }
         ];
 
-        self::$HookManager->processEvent(
-            'GROUP_PLUGINS_INJECT_TABDATA',
-            [
-                'pluginsTabData' => &$this->obj->pluginsTabData,
-                'obj' => &$this->obj
-            ]
-        );
-
-        if (count($this->obj->pluginsTabData)) {
-            $tabData[] = [
-                'tabs' => [
-                    'name' => _('Plugins'),
-                    'tabData' => $this->obj->pluginsTabData
-                ]
-            ];
-        }
-
         echo self::tabFields($tabData, $this->obj);
     }
     /**
