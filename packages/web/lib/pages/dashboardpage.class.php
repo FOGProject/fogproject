@@ -174,7 +174,13 @@ class DashboardPage extends FOGPage
         );
         $setMesg = '';
         if (self::$pendingHosts > 0) {
-            $title = self::$pendingHosts . ' ' . _('Pending hosts');
+            $title = self::$pendingHosts
+                . ' '
+                . (
+                    self::$pendingHosts != 1 ?
+                    _('Pending hosts') :
+                    _('Pending host')
+                );
             self::displayAlert($title, $hostPend, 'warning', true, true);
         }
         if (self::$pendingMACs > 0) {
