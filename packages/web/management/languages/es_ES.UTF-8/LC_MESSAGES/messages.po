@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-03 21:07-0500\n"
+"POT-Creation-Date: 2018-03-04 00:11-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4875,21 +4875,31 @@ msgstr "partimage"
 msgid "Image Description"
 msgstr "Descripción de la imagen"
 
-msgid "Partition"
+#, fuzzy
+msgid "Image Compression Rating"
+msgstr "Asociación para la imagen"
+
+#, fuzzy
+msgid "Image Storage Group"
+msgstr "Grupo de almacenamiento"
+
+#, fuzzy
+msgid "Image Operating System"
+msgstr "Sistema operativo"
+
+#, fuzzy
+msgid "Image Partition"
 msgstr "Dividir"
+
+msgid "Image Manager"
+msgstr "Administrador de imágenes"
 
 msgid "Image Enabled"
 msgstr "imagen Habilitado"
 
 #, fuzzy
-msgid "Replicate"
-msgstr "¿Reproducir exactamente?"
-
-msgid "Compression"
-msgstr "Compresión"
-
-msgid "Image Manager"
-msgstr "Administrador de imágenes"
+msgid "Image Replicate"
+msgstr "replicador de imagen"
 
 #, fuzzy
 msgid "An image name is required!"
@@ -4921,9 +4931,19 @@ msgstr "creado por el usuario"
 msgid "Image Create Fail"
 msgstr "creado por el usuario"
 
+msgid "Partition"
+msgstr "Dividir"
+
 #, fuzzy
 msgid "Image Protected"
 msgstr "Protegido"
+
+#, fuzzy
+msgid "Replicate"
+msgstr "¿Reproducir exactamente?"
+
+msgid "Compression"
+msgstr "Compresión"
 
 #, fuzzy
 msgid "Update Primary Group"

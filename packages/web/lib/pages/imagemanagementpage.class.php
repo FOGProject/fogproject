@@ -914,28 +914,28 @@ class ImageManagementPage extends FOGPage
         }
     }
     /**
-     * Image Membership tab
+     * Image hosts tab
      *
      * @return void
      */
-    public function imageMembership()
+    public function imageHosts()
     {
         $props = ' method="post" action="'
             . $this->formAction
-            . '&tab=image-membership" ';
+            . '&tab=image-hosts" ';
 
-        echo '<!-- Host Membership -->';
-        echo '<div class="box-group" id="membership">';
+        echo '<!-- Hosts -->';
+        echo '<div class="box-group" id="hosts">';
         // =================================================================
         // Associated Storage Groups
         $buttons = self::makeButton(
-            'membership-add',
+            'host-add',
             _('Add selected'),
             'btn btn-primary',
             $props
         );
         $buttons .= self::makeButton(
-            'membership-remove',
+            'host-remove',
             _('Remove selected'),
             'btn btn-danger',
             $props
@@ -954,9 +954,9 @@ class ImageManagementPage extends FOGPage
         ];
 
         echo '<div class="box box-solid">';
-        echo '<div class="updatemembership" class="">';
+        echo '<div class="updatehost" class="">';
         echo '<div class="box-body">';
-        $this->render(12, 'image-membership-table', $buttons);
+        $this->render(12, 'image-host-table', $buttons);
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -985,20 +985,27 @@ class ImageManagementPage extends FOGPage
             }
         ];
 
+        // Associations
         $tabData[] = [
-            'name' => _('Storage Groups'),
-            'id' => 'image-storagegroups',
-            'generator' => function() {
-                $this->imageStoragegroups();
-            }
-        ];
-
-        $tabData[] = [
-            'name' => _('Host Membership'),
-            'id' => 'image-membership',
-            'generator' => function() {
-                $this->imageMembership();
-            }
+            'tabs' => [
+                'name' => _('Associations'),
+                'tabData' => [
+                    [
+                        'name' => _('Hosts'),
+                        'id' => 'image-hosts',
+                        'generator' => function() {
+                            $this->imageHosts();
+                        }
+                    ],
+                    [
+                        'name' => _('Storage Groups'),
+                        'id' => 'image-storagegroups',
+                        'generator' => function() {
+                            $this->imageStoragegroups();
+                        }
+                    ]
+                ]
+            ]
         ];
 
         echo self::tabFields($tabData, $this->obj);
@@ -1025,8 +1032,8 @@ class ImageManagementPage extends FOGPage
             case 'image-storagegroups':
                 $this->imageStoragegroupsPost();
                 break;
-            case 'image-membership':
-                $this->imageMembershipPost();
+            case 'image-hosts':
+                $this->imageHostPost();
                 break;
             }
             if (!$this->obj->save()) {
@@ -1451,7 +1458,7 @@ class ImageManagementPage extends FOGPage
         exit;
     }
     /**
-     * Image -> host membership list
+     * Image -> host list
      *
      * @return void
      */
@@ -1510,25 +1517,25 @@ class ImageManagementPage extends FOGPage
         exit;
     }
     /**
-     * Image membership post elements
+     * Image host post elements
      *
      * @return void
      */
-    public function imageMembershipPost()
+    public function imageHostPost()
     {
-        if (isset($_POST['updatemembership'])) {
-            $membership = filter_input_array(
+        if (isset($_POST['updatehost'])) {
+            $host = filter_input_array(
                 INPUT_POST,
                 [
-                    'membership' => [
+                    'host' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $membership = $membership['membership'];
+            $host = $host['host'];
             self::getClass('HostManager')->update(
                 [
-                    'id' => $membership
+                    'id' => $host
                 ],
                 '',
                 [
@@ -1536,19 +1543,19 @@ class ImageManagementPage extends FOGPage
                 ]
             );
         }
-        if (isset($_POST['membershipdel'])) {
-            $membership = filter_input_array(
+        if (isset($_POST['hostdel'])) {
+            $host = filter_input_array(
                 INPUT_POST,
                 [
-                    'membershipRemove' => [
+                    'hostRemove' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $membership = $membership['membershipRemove'];
+            $host = $host['hostRemove'];
             self::getClass('HostManager')->update(
                 [
-                    'id' => $membership,
+                    'id' => $host,
                     'imageID' => $this->obj->get('id')
                 ],
                 '',
@@ -1639,7 +1646,7 @@ class ImageManagementPage extends FOGPage
             unset($real);
         }
         self::$HookManager->processEvent(
-            'GROUP_EXPORT_ITEMS',
+            'IMAGE_EXPORT_ITEMS',
             [
                 'table' => &$table,
                 'sqlstr' => &$sqlstr,
