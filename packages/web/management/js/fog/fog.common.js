@@ -143,7 +143,6 @@ var $_GET = getQueryParams(document.location.search),
         }
     });
 
-
     // https://stackoverflow.com/a/1026087
     Common.capitalizeFirstLitter = function(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
@@ -264,13 +263,15 @@ var $_GET = getQueryParams(document.location.search),
                 data: opts,
                 success: function(res) {
                     Common.notifyFromAPI(res, false);
-                    if (cb && typeof(cb) === 'function')
+                    if (cb && typeof(cb) === 'function') {
                         cb();
+                    }
                 },
                 error: function(res) {
                     Common.notifyFromAPI(res.responseJSON, true);
-                    if (cb && typeof(cb) === 'function')
+                    if (cb && typeof(cb) === 'function') {
                         cb(res);
+                    }
                 }
             });
         });
@@ -298,26 +299,32 @@ var $_GET = getQueryParams(document.location.search),
                 data: opts,
                 success: function(res) {
                     Common.notifyFromAPI(res, false);
-                    if (cb && typeof(cb) === 'function')
+                    if (cb && typeof(cb) === 'function') {
                         cb();
+                    }
                 },
                 error: function(res) {
                     if (res.status == 401) {
-                        cb(res);
+                        if (cb && typeof(cb) === 'function') {
+                            cb(res);
+                        }
                     } else {
                         Common.notifyFromAPI(res.responseJSON, true);
-                        if (cb && typeof(cb) === 'function')
+                        if (cb && typeof(cb) === 'function') {
                             cb(res);
+                        }
                     }
                 }
             });
         });
     };
     Common.massDelete = function(password, cb, table, remIds) {
-        if(!remIds)
+        if(!remIds) {
             remIds = [];
+        }
 
         var rows = undefined;
+
         if (table === undefined) {
             remIds = [Common.id];
         } else {
@@ -327,43 +334,38 @@ var $_GET = getQueryParams(document.location.search),
 
         var opts = {
             fogguipass: password,
+            confirmdel: 1,
             remitems: remIds
         };
+
         Pace.track(function(){
             $.ajax('', {
-                type: 'POST',
-                url: '../management/index.php?node='+Common.node+'&sub=deletemulti',
+                type: 'post',
+                url: '../management/index.php?node='
+                + Common.node
+                + '&sub=deletemulti',
                 async: true,
                 data: opts,
                 success: function(res) {
-                    if(table !== undefined) {
+                    if (table !== undefined) {
                         rows.remove().draw(false);
                         table.rows({selected: true}).deselect();
                     }
                     Common.notifyFromAPI(res, false);
-                    if (cb && typeof(cb) === 'function')
+                    if (cb && typeof(cb) === 'function') {
                         cb();
+                    }
                 },
                 error: function(res) {
                     if (res.status == 401) {
-                        cb(res);
-                        // bootbox.prompt({
-                        //     title: 'Please re-enter your password',
-                        //     className: 'modal modal-danger',
-                        //     inputType: 'password',
-                        //     callback: function(result) {
-                        //         if (result !== null) {
-                        //             Common.massDelete(result, cb, table);
-                        //         } else {
-                        //             if (cb && typeof(cb) === 'function')
-                        //                 cb('cancel');
-                        //         }
-                        //     }
-                        // });
+                        if (cb && typeof(cb) === 'function') {
+                            cb(res);
+                        }
                     } else {
                         Common.notifyFromAPI(res.responseJSON, true);
-                        if (cb && typeof(cb) === 'function')
+                        if (cb && typeof(cb) === 'function') {
                             cb(res);
+                        }
                     }
                 }
             });
@@ -436,7 +438,7 @@ var $_GET = getQueryParams(document.location.search),
     Common.getSelectedIds = function(table) {
         var rows = table.rows({selected: true});
         return rows.ids().toArray();
-    }
+    };
 
     //Initialize Select2 Elements
     $('.select2').select2({

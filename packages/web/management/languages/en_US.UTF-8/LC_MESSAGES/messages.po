@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-04 00:11-0500\n"
+"POT-Creation-Date: 2018-03-04 15:23-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3811,6 +3811,26 @@ msgid "Delete selected"
 msgstr "Delete Selected"
 
 #, fuzzy
+msgid "Approve Pending Hosts"
+msgstr "Pending Hosts"
+
+#, fuzzy
+msgid "Approving the selected pending hosts."
+msgstr "Approve selected Hosts"
+
+#, fuzzy
+msgid "Confirm password"
+msgstr "Management Password"
+
+#, fuzzy
+msgid "Approved selected hosts!"
+msgstr "Approve selected Hosts"
+
+#, fuzzy
+msgid "Host Approval Success"
+msgstr "Host Created"
+
+#, fuzzy
 msgid "Create New Host"
 msgstr "Create New %s"
 
@@ -4896,6 +4916,10 @@ msgid "to review."
 msgstr "to review."
 
 msgid "Pending hosts"
+msgstr "Pending hosts"
+
+#, fuzzy
+msgid "Pending host"
 msgstr "Pending hosts"
 
 msgid "Pending macs"
@@ -6334,10 +6358,6 @@ msgstr "HD Serial"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "Remove selected snapins"
-
-#, fuzzy
-msgid "Confirm password"
-msgstr "Management Password"
 
 msgid "Requires templates to process"
 msgstr "Requires templates to process"

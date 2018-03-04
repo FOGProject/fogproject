@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-04 00:11-0500\n"
+"POT-Creation-Date: 2018-03-04 15:23-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3802,6 +3802,26 @@ msgid "Delete selected"
 msgstr "删除所选"
 
 #, fuzzy
+msgid "Approve Pending Hosts"
+msgstr "待主机"
+
+#, fuzzy
+msgid "Approving the selected pending hosts."
+msgstr "批准选定主机"
+
+#, fuzzy
+msgid "Confirm password"
+msgstr "管理密码"
+
+#, fuzzy
+msgid "Approved selected hosts!"
+msgstr "批准选定主机"
+
+#, fuzzy
+msgid "Host Approval Success"
+msgstr "主机创建"
+
+#, fuzzy
 msgid "Create New Host"
 msgstr "新建%s"
 
@@ -4882,6 +4902,10 @@ msgid "to review."
 msgstr "回顾。"
 
 msgid "Pending hosts"
+msgstr "待主机"
+
+#, fuzzy
+msgid "Pending host"
 msgstr "待主机"
 
 msgid "Pending macs"
@@ -6316,10 +6340,6 @@ msgstr "HD系列"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "打印机"
-
-#, fuzzy
-msgid "Confirm password"
-msgstr "管理密码"
 
 msgid "Requires templates to process"
 msgstr "需要模板来处理"

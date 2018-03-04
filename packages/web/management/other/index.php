@@ -60,6 +60,14 @@ echo 'hold-transition skin-blue sidebar-mini';
 echo '">';
 
 if (self::$FOGUser->isValid()) {
+    echo FOGPage::makeInput(
+        'reAuthDelete',
+        'reAuthDelete',
+        '',
+        'hidden',
+        'reAuthDelete',
+        self::getSetting('FOG_REAUTH_ON_DELETE')
+    );
     echo '<div class="wrapper">';
     
     // HEADER

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-04 00:11-0500\n"
+"POT-Creation-Date: 2018-03-04 15:23-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3813,6 +3813,26 @@ msgid "Delete selected"
 msgstr "Ausgewählte löschen"
 
 #, fuzzy
+msgid "Approve Pending Hosts"
+msgstr "Ausstehende Hosts"
+
+#, fuzzy
+msgid "Approving the selected pending hosts."
+msgstr "Ausgewählten MAcs freigeben"
+
+#, fuzzy
+msgid "Confirm password"
+msgstr "Passwort ändern"
+
+#, fuzzy
+msgid "Approved selected hosts!"
+msgstr "Ausgewählten MAcs freigeben"
+
+#, fuzzy
+msgid "Host Approval Success"
+msgstr "Host erfolgreich erstellt"
+
+#, fuzzy
 msgid "Create New Host"
 msgstr "Neue %s erstellen"
 
@@ -4898,6 +4918,10 @@ msgid "to review."
 msgstr "um zu überprüfen."
 
 msgid "Pending hosts"
+msgstr "Ausstehende Hosts"
+
+#, fuzzy
+msgid "Pending host"
 msgstr "Ausstehende Hosts"
 
 msgid "Pending macs"
@@ -6339,10 +6363,6 @@ msgstr "HDD-Seriennummer"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "Ausgewählte Speichergruppen hinzufügen"
-
-#, fuzzy
-msgid "Confirm password"
-msgstr "Passwort ändern"
 
 msgid "Requires templates to process"
 msgstr "Template erforderlich"

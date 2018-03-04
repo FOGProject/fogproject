@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-04 00:11-0500\n"
+"POT-Creation-Date: 2018-03-04 15:23-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4032,6 +4032,26 @@ msgid "Delete selected"
 msgstr "Eliminar seleccionado"
 
 #, fuzzy
+msgid "Approve Pending Hosts"
+msgstr "anfitriones pendientes"
+
+#, fuzzy
+msgid "Approving the selected pending hosts."
+msgstr "retirar"
+
+#, fuzzy
+msgid "Confirm password"
+msgstr "La gestión de contraseñas"
+
+#, fuzzy
+msgid "Approved selected hosts!"
+msgstr "retirar"
+
+#, fuzzy
+msgid "Host Approval Success"
+msgstr "Creado"
+
+#, fuzzy
 msgid "Create New Host"
 msgstr "Crear nuevo grupo"
 
@@ -5134,6 +5154,10 @@ msgid "to review."
 msgstr "para revisar."
 
 msgid "Pending hosts"
+msgstr "anfitriones pendientes"
+
+#, fuzzy
+msgid "Pending host"
 msgstr "anfitriones pendientes"
 
 msgid "Pending macs"
@@ -6571,10 +6595,6 @@ msgstr "serie HD"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "Impresora"
-
-#, fuzzy
-msgid "Confirm password"
-msgstr "La gestión de contraseñas"
 
 msgid "Requires templates to process"
 msgstr "Requiere plantillas para procesar"

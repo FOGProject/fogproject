@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-04 00:11-0500\n"
+"POT-Creation-Date: 2018-03-04 15:23-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3354,6 +3354,21 @@ msgstr ""
 msgid "Delete selected"
 msgstr ""
 
+msgid "Approve Pending Hosts"
+msgstr ""
+
+msgid "Approving the selected pending hosts."
+msgstr ""
+
+msgid "Confirm password"
+msgstr ""
+
+msgid "Approved selected hosts!"
+msgstr ""
+
+msgid "Host Approval Success"
+msgstr ""
+
 msgid "Create New Host"
 msgstr ""
 
@@ -4274,6 +4289,9 @@ msgid "to review."
 msgstr ""
 
 msgid "Pending hosts"
+msgstr ""
+
+msgid "Pending host"
 msgstr ""
 
 msgid "Pending macs"
@@ -5510,9 +5528,6 @@ msgid "HD Serial"
 msgstr ""
 
 msgid "Add selected to group"
-msgstr ""
-
-msgid "Confirm password"
 msgstr ""
 
 msgid "Requires templates to process"

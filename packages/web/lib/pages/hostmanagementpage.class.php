@@ -172,6 +172,46 @@ class HostManagementPage extends FOGPage
             'btn btn-danger pull-right'
         );
 
+        $modalApprovalBtns = self::makeButton(
+            'confirmApproveModal',
+            _('Approve'),
+            'btn btn-success pull-right'
+        );
+        $modalApprovalBtns .= self::makeButton(
+            'cancelApprovalModal',
+            _('Cancel'),
+            'btn btn-warning pull-left',
+            'data-dismiss="modal"'
+        );
+        $approvalModal = self::makeModal(
+            'approveModal',
+            _('Approve Pending Hosts'),
+            _('Approving the selected pending hosts.'),
+            $modalApprovalBtns
+        );
+
+        $modalDeleteBtns = self::makeButton(
+            'confirmDeleteModal',
+            _('Delete'),
+            'btn btn-danger pull-right'
+        );
+        $modalDeleteBtns .= self::makeButton(
+            'closeDeleteModal',
+            _('Cancel'),
+            'btn btn-warning pull-left',
+            'data-dismiss="modal"'
+        );
+        $deleteModal = self::makeModal(
+            'deleteModal',
+            _('Confirm password'),
+            '<div class="input-group">'
+            . '<input id="deletePassword" class="form-control" placeholder="'
+            . _('Password')
+            . '" autocomplete="off" type="password">'
+            . '</div>',
+            $modalDeleteBtns
+        );
+
         echo self::makeFormTag(
             'form-horizontal',
             'host-pending-form',
@@ -191,24 +231,78 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
+        echo $approvalModal;
+        echo $deleteModal;
         echo '</div>';
         echo '</div>';
         echo '</form>';
     }
     /**
-     * Pending host form submitting
+     * Actually performs the update/delete actions
      *
      * @return void
      */
-    public function pendingPost()
+    public function pendingAjax()
     {
-        echo json_encode(
+        header('Content-type: application/json');
+
+        $flags = ['flags' => FILTER_REQUIRE_ARRAY];
+        $items = filter_input_array(
+            INPUT_POST,
             [
-                'msg' => 'Work In Progress',
-                'title' => 'WIP'
+                'remitems' => $flags,
+                'pending' => $flags
             ]
         );
-        exit;
+        $remitems = $items['remitems'];
+        $pending = $items['pending'];
+        if (isset($_POST['confirmdel'])) {
+            if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
+
+                $user = filter_input(INPUT_POST, 'fogguiuser');
+
+                if (empty($user)) {
+                    $user = self::$FOGUser->get('name');
+                }
+                $pass = filter_input(INPUT_POST, 'fogguipass');
+                $validate = self::getClass('User')
+                    ->passwordValidate(
+                        $user,
+                        $pass,
+                        true
+                    );
+                if (!$validate) {
+                    echo json_encode(
+                        ['error' => self::$foglang['InvalidLogin']]
+                    );
+                    http_response_code(401);
+                    exit;
+                }
+            }
+            self::getClass('HostManager')->destroy(
+                [
+                    'id' => $remitems,
+                    'pending' => 1
+                ]
+            );
+        }
+        if (isset($_POST['approvepending'])) {
+            self::getClass('HostManager')->update(
+                [
+                    'id' => $pending,
+                    'pending' => 1
+                ],
+                '',
+                ['pending' => 0]
+            );
+            echo json_encode(
+                [
+                    'msg' => _('Approved selected hosts!'),
+                    'title' => _('Host Approval Success')
+                ]
+            );
+            exit;
+        }
     }
     /**
      * Creates a new host.
@@ -3302,7 +3396,6 @@ class HostManagementPage extends FOGPage
         foreach ($dbcolumns as $common => &$real) {
             if ('id' == $common) {
                 $tableID = $real;
-                continue;
             }
             $columns[] = [
                 'db' => $real,
