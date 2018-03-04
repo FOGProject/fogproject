@@ -22,53 +22,34 @@
 class ImageManagementPage extends FOGPage
 {
     /**
-     * The node this page operates off of.
+     * The node this works off of.
      *
      * @var string
      */
     public $node = 'image';
     /**
-     * Initializes the image page class.
+     * Initializes the image class.
      *
-     * @param string $name the name to pass
+     * @param string $name The name to load this as.
      *
      * @return void
      */
     public function __construct($name = '')
     {
-        /**
-         * The real name not using our name passer.
-         */
         $this->name = 'Image Management';
-        /**
-         * Pull in the FOGPage class items.
-         */
         parent::__construct($this->name);
-        /**
-         * If we want the Server size taken by the image.
-         */
-        $SizeServer = self::getSetting('FOG_FTP_IMAGE_SIZE');
-        /**
-         * The header data for list/search.
-         */
         $this->headerData = [
             _('Image Name'),
             _('Protected'),
             _('Enabled'),
             _('Captured')
         ];
-        /**
-         * The template for the list/search elements.
-         */
         $this->templates = [
             '',
             '',
             '',
             ''
         ];
-        /**
-         * The attributes for the table items.
-         */
         $this->attributes = [
             [],
             [],
@@ -85,10 +66,6 @@ class ImageManagementPage extends FOGPage
     public function add()
     {
         $this->title = _('Create New Image');
-        /**
-         * Setup our variables for back up/incorrect settings without
-         * making the user reset entirely
-         */
         $image = filter_input(INPUT_POST, 'image');
         $description = filter_input(INPUT_POST, 'description');
         $storagegroup = (int)filter_input(INPUT_POST, 'storagegroup');
@@ -97,15 +74,12 @@ class ImageManagementPage extends FOGPage
         $imagepartitiontype = (int)filter_input(INPUT_POST, 'imagepartitiontype');
         $compress = (int)filter_input(INPUT_POST, 'compress');
         $imagemanage = filter_input(INPUT_POST, 'imagemanage');
-        $file = filter_input(INPUT_POST, 'file');
+        $path = filter_input(INPUT_POST, 'path');
         if ($storagegroup > 0) {
             $sgID = $storagegroup;
         } else {
             $sgID = @min(self::getSubObjectIDs('StorageGroup'));
         }
-        /**
-         * Set our storage group object.
-         */
         $StorageGroup = new StorageGroup($sgID);
         $StorageGroups = self::getClass('StorageGroupManager')
             ->buildSelectBox(
@@ -113,9 +87,6 @@ class ImageManagementPage extends FOGPage
                 '',
                 'id'
             );
-        /**
-         * Get the master storage node.
-         */
         $StorageNode = $StorageGroup->getMasterStorageNode();
         $OSs = self::getClass('OSManager')
             ->buildSelectBox($os);
@@ -201,66 +172,140 @@ class ImageManagementPage extends FOGPage
             ),
             _('Partclone Zstd Split 200MiB')
         );
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="image">'
-            . _('Image Name')
-            . '</label>' => '<input type="text" name="image" '
-            . 'value="'
-            . $image
-            . '" class="imagename-input form-control" '
-            . 'id="image" required/>',
-            '<label class="col-sm-2 control-label" for="description">'
-            . _('Image Description')
-            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
-            . 'min-height:50px;" '
-            . 'id="description" name="description">'
-            . $description
-            . '</textarea>',
-            '<label class="col-sm-2 control-label" for="storagegroup">'
-            . _('Storage Group')
-            . '</label>' => $StorageGroups,
-            '<label class="col-sm-2 control-label" for="os">'
-            . _('Operating System')
-            . '</label>' => $OSs,
-            '<label class="col-sm-2 control-label" for="file">'
-            . _('Image Path')
-            . '</label>' => '<div class="input-group">'
+            // Input/Textarea elements
+            self::makeLabel(
+                $labelClass,
+                'image',
+                _('Image Name')
+            ) => self::makeInput(
+                'form-control imagename-input',
+                'image',
+                _('Image Name'),
+                'text',
+                'image',
+                $image,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Image Description')
+            ) => self::makeTextarea(
+                'form-control imagedescription-input',
+                'description',
+                _('Image Description'),
+                'description',
+                $description,
+                false,
+                false
+            ),
+            self::makeLabel(
+                $labelClass,
+                'path',
+                _('Image Path')
+            ) => '<div class="input-group">'
             . '<span class="input-group-addon">'
             . $StorageNode->get('path')
             . '/'
             . '</span>'
-            . '<input type="text" name="file" '
-            . 'value="'
-            . $file
-            . '" class="form-control" id="file" required/></div>',
-            '<label class="col-sm-2 control-label" for="imagetype">'
-            . _('Image Type')
-            . '</label>' => $ImageTypes,
-            '<label class="col-sm-2 control-label" for="imagepartitiontype">'
-            . _('Partition')
-            . '</label>' => $ImagePartitionTypes,
-            '<label class="col-sm-2 control-label" for="isEnabled">'
-            . _('Image Enabled')
-            . '</label>' => '<input type="checkbox" '
-            . 'name="isEnabled" id="isEnabled" checked/>',
-            '<label class="col-sm-2 control-label" for="toRep">'
-            . _('Replicate')
-            . '</label>' => '<input type="checkbox" '
-            . 'name="toReplicate" id="toRep" checked/>',
-            '<label class="col-sm-2 control-label" for="pigzcomp">'
-            . _('Compression')
-            . '</label>' => '<input type="text" value="'
-            . $compression
-            . '" class="slider form-control" '
-            . 'data-slider-min="0" data-slider-max="22" data-slider-step="1" '
-            . 'data-slider-value="'
-            . $compression
-            . '" data-slider-orientation="horizontal" '
-            . 'data-slider-selection="before" data-slider-tooltip="show" '
-            . 'data-slider-id="blue"/>',
-            '<label class="col-sm-2 control-label" for="imagemanage">'
-            . _('Image Manager')
-            . '</label>' => $format
+            . self::makeInput(
+                'form-control imagepath-input',
+                'path',
+                _('Image Path'),
+                'text',
+                'path',
+                $path,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'compression',
+                _('Image Compression Rating')
+            ) => self::makeInput(
+                'form-control slider imagecompression-input',
+                'compression',
+                '6',
+                'text',
+                'compression',
+                $compression,
+                false,
+                false,
+                -1,
+                -1,
+                'data-slider-min="0" '
+                . 'data-slider-max="22" '
+                . 'data-slider-step="1" '
+                . 'data-slider-value="' . $compression . '" '
+                . 'data-slider-orientation="horizontal" '
+                . 'data-slider-selection="before" '
+                . 'data-slider-tooltip="show" '
+                . 'data-slider-id="blue" '
+            ),
+            // Image Select elements.
+            self::makeLabel(
+                $labelClass,
+                'storagegroup',
+                _('Image Storage Group')
+            ) => $StorageGroups,
+            self::makeLabel(
+                $labelClass,
+                'os',
+                _('Image Operating System')
+            ) => $OSs,
+            self::makeLabel(
+                $labelClass,
+                'imagetype',
+                _('Image Type')
+            ) => $ImageTypes,
+            self::makeLabel(
+                $labelClass,
+                'imagepartitiontype',
+                _('Image Partition')
+            ) => $ImagePartitionTypes,
+            self::makeLabel(
+                $labelClass,
+                'imagemanage',
+                _('Image Manager')
+            ) => $format,
+            // Checkboxes
+            self::makeLabel(
+                $labelClass,
+                'isEnabled',
+                _('Image Enabled')
+            ) => self::makeInput(
+                'imageenabled-input',
+                'isEnabled',
+                '',
+                'checkbox',
+                'isEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'toReplicate',
+                _('Image Replicate')
+            ) => self::makeInput(
+                'imagereplicate-input',
+                'toReplicate',
+                '',
+                'checkbox',
+                'toReplicate',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            )
         ];
         self::$HookManager
             ->processEvent(
@@ -270,12 +315,22 @@ class ImageManagementPage extends FOGPage
                     'Image' => self::getClass('Image')
                 ]
             );
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
         $rendered = self::formFields($fields);
         unset($fields);
+        echo self::makeFormTag(
+            'form-horizontal',
+            'image-create-form',
+            $this->formAction   ,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid" id="image-create">';
-        echo '<form id="image-create-form" class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '" novalidate>';
         echo '<div class="box-body">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
@@ -290,15 +345,13 @@ class ImageManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="send">'
-            . _('Create')
-            . '</button>';
+        echo $buttons;
+        echo '</div>';
         echo '</div>';
         echo '</form>';
-        echo '</div>';
     }
     /**
-     * Actually submit the creation of the image.
+     * Actually save the new node.
      *
      * @return void
      */
@@ -329,10 +382,10 @@ class ImageManagementPage extends FOGPage
                 'os'
             )
         );
-        $file = trim(
+        $path = trim(
             filter_input(
                 INPUT_POST,
-                'file'
+                'path'
             )
         );
         $imagetype = (int)trim(
@@ -373,12 +426,12 @@ class ImageManagementPage extends FOGPage
                     _('An image already exists with this name!')
                 );
             }
-            if (in_array($file, ['postdownloadscripts','dev'])) {
+            if (in_array($path, ['postdownloadscripts','dev'])) {
                 throw new Exception(
                     _('Please choose a different filename/path as this is reserved')
                 );
             }
-            if (self::getClass('ImageManager')->exists($file, '', 'path')) {
+            if (self::getClass('ImageManager')->exists($path, '', 'path')) {
                 throw new Exception(
                     _('The path requested is already in use by another image!')
                 );
@@ -387,7 +440,7 @@ class ImageManagementPage extends FOGPage
                 ->set('name', $image)
                 ->set('description', $description)
                 ->set('osID', $os)
-                ->set('path', $file)
+                ->set('path', $path)
                 ->set('imageTypeID', $imagetype)
                 ->set('imagePartitionTypeID', $imagepartitiontype)
                 ->set('compress', $compress)
@@ -470,10 +523,10 @@ class ImageManagementPage extends FOGPage
                 '',
                 'id'
             );
-        $file = (
+        $path = (
             filter_input(
                 INPUT_POST,
-                'file'
+                'path'
             ) ?: $this->obj->get('path')
         );
         $itID = (int)(

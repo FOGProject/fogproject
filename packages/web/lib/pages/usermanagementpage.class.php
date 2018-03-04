@@ -36,7 +36,7 @@ class UserManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = _('User Management');
+        $this->name = 'User Management';
         parent::__construct($this->name);
         $this->headerData = [
             _('Username'),
