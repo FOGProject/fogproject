@@ -277,11 +277,7 @@ class Host extends FOGController
             ->destroy($find);
         self::getClass('ModuleAssociationManager')
             ->destroy($find);
-        self::getClass('GreenFogManager')
-            ->destroy($find);
         self::getClass('InventoryManager')
-            ->destroy($find);
-        self::getClass('UserTrackingManager')
             ->destroy($find);
         self::getClass('MACAddressAssociationManager')
             ->destroy($find);

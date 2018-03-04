@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-04 00:11-0500\n"
+"POT-Creation-Date: 2018-03-04 15:23-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3469,6 +3469,26 @@ msgid "Delete selected"
 msgstr "Cancella selezionato"
 
 #, fuzzy
+msgid "Approve Pending Hosts"
+msgstr "Host in sospeso"
+
+#, fuzzy
+msgid "Approving the selected pending hosts."
+msgstr "Approvare MAC selezionati"
+
+#, fuzzy
+msgid "Confirm password"
+msgstr "Cambia password"
+
+#, fuzzy
+msgid "Approved selected hosts!"
+msgstr "Approvare MAC selezionati"
+
+#, fuzzy
+msgid "Host Approval Success"
+msgstr "Creazione Host con successo"
+
+#, fuzzy
 msgid "Create New Host"
 msgstr "Crea nuovo %s"
 
@@ -4466,6 +4486,10 @@ msgid "to review."
 msgstr "da revisionare"
 
 msgid "Pending hosts"
+msgstr "host in sospeso"
+
+#, fuzzy
+msgid "Pending host"
 msgstr "host in sospeso"
 
 msgid "Pending macs"
@@ -5734,10 +5758,6 @@ msgstr "HD Serial"
 #, fuzzy
 msgid "Add selected to group"
 msgstr "Aggiungi gruppo di archiviazione selezionato"
-
-#, fuzzy
-msgid "Confirm password"
-msgstr "Cambia password"
 
 msgid "Requires templates to process"
 msgstr "Richiede modelli per elaborare"

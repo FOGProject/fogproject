@@ -915,17 +915,30 @@ abstract class FOGPage extends FOGBase
                     $actionbox = $actionbox . self::makeButton('addSelectedToGroup', _('Add selected to group'), 'btn btn-default');
                 }
                 $actionbox = $actionbox . self::makeButton('deleteSelected', _('Delete selected'), 'btn btn-danger');
-                $modals = $modals . self::makeModal('deleteModal',
+                $modals .= self::makeModal(
+                    'deleteModal',
                     _('Confirm password'),
-                    '<div class="input-group"><input id="deletePassword" class="form-control" placeholder="' . _('Password') . '" autocomplete="off" type="password"></div>',
-                    self::makeButton('closeDeleteModal',
-                    _('Cancel'),
-                    'btn btn-outline pull-left',
-                    'data-dismiss="modal"') .
-                    self::makeButton('confirmDeleteModal',
-                        _('Delete') . ' {0} ' . _('hosts'),
-                        'btn btn-outline'),
-                    '','danger');
+                    '<div class="input-group">'
+                    . '<input id="deletePassword" class="form-control" placeholder="'
+                    . _('Password')
+                    . '" autocomplete="off" type="password">'
+                    . '</div>',
+                    self::makeButton(
+                        'closeDeleteModal',
+                        _('Cancel'),
+                        'btn btn-outline pull-left',
+                        'data-dismiss="modal"'
+                    )
+                    . self::makeButton(
+                        'confirmDeleteModal',
+                        _('Delete')
+                        . ' {0} '
+                        . _('hosts'),
+                        'btn btn-outline'
+                    ),
+                    '',
+                    'danger'
+                );
             }
             $actionbox = $actionbox . $buttons;
             self::$HookManager->processEvent(

@@ -1,5 +1,5 @@
 (function($) {
-    var exportTable = Common.registerTable($('#snapin-export-table'), Common.onSelect, {
+    var exportTable = Common.registerTable($('#snapin-export-table'), null, {
         buttons: [
             'copy',
             {

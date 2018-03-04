@@ -10,7 +10,6 @@
         passwordField = $('#deletePassword'),
         confirmDelete = $('#confirmDeleteModal'),
         cancelDelete = $('#closeDeleteModal'),
-        numHostString = confirmDelete.val(),
         // Form to work with.
         pendingForm = $('#host-pending-form'),
         method = pendingForm.attr('method'),
@@ -63,19 +62,51 @@
         table.search(Common.search).draw();
     }
 
-    deleteSelected.on('click',function() {
-        disableButtons(true);
-        confirmDelete.val(numHostString.format(''));
-        Common.massDelete(null, function(err) {
-            if (err.status == 401) {
+    disableButtons(true);
+    confirmDelete.on('click', function(e) {
+        e.preventDefault();
+        cancelDelete.prop('disabled', true);
+        confirmDelete.prop('disabled', true);
+        Common.massDelete(passwordField.val(), function(err) {
+            if (err) {
+                headerText = deleteModal.find('.modal-header').text();
                 deleteModal.modal('show');
+                deleteModal.find('.modal-header').text(err.responseJSON.error);
+                setTimeout(function() {
+                    deleteModal.find('.modal-header').text(headerText);
+                    passwordField.val('');
+                    confirmDelete.prop('disabled', false);
+                }, 2000);
             } else {
-                onSelect(table.rows({selected: true}));
+                deleteModal.modal('hide');
+                disableButtons(false);
+                table.draw(false);
+                table.rows({selected: true}).deselect();
             }
         }, table);
     });
 
+    deleteSelected.on('click',function(e) {
+        e.preventDefault();
+        disableButtons(true);
+        confirmDelete.trigger('click');
+    });
+
     approveSelected.on('click', function() {
         disableButtons(true);
+        var rows = table.rows({selected: true}),
+            toApprove = Common.getSelectedIds(table),
+            opts = {
+                approvepending: 1,
+                pending: toApprove
+            };
+        Common.apiCall(method,action,opts,function(err) {
+            disableButtons(false);
+            if (err) {
+                return;
+            }
+            table.draw(false);
+            table.rows({selected: true}).deselect();
+        });
     });
 })(jQuery);

@@ -312,17 +312,9 @@ class HostManager extends FOGManagerController
          */
         self::getClass('ModuleAssociationManager')->destroy($findWhere);
         /*
-         * Remove any green fog entries
-         */
-        self::getClass('GreenFogManager')->destroy($findWhere);
-        /*
          * Remove any inventory entries
          */
         self::getClass('InventoryManager')->destroy($findWhere);
-        /*
-         * Remove any user tracking entries
-         */
-        self::getClass('UserTrackingManager')->destroy($findWhere);
         /*
          * Remove any mac association entries
          */
