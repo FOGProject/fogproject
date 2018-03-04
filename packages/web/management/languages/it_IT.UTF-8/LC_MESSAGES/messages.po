@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-03 16:14-0500\n"
+"POT-Creation-Date: 2018-03-03 21:07-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3667,6 +3667,10 @@ msgid "Snapin Associated"
 msgstr "Snapin Protetto"
 
 #, fuzzy
+msgid "Host Snapins"
+msgstr "Storia Snapin Host"
+
+#, fuzzy
 msgid "Enable All"
 msgstr "Abilitato"
 
@@ -3847,12 +3851,20 @@ msgid "MAC Addresses"
 msgstr "Indirizzo MAC"
 
 #, fuzzy
+msgid "Associations"
+msgstr "Associazioni di immagini"
+
+#, fuzzy
 msgid "Service Settings"
 msgstr "Stato servizio"
 
 #, fuzzy
-msgid "Group Membership"
-msgstr "membri"
+msgid "Client Module Settings"
+msgstr "Impostazioni Client"
+
+#, fuzzy
+msgid "History Items"
+msgstr "Grafico storico"
 
 #, fuzzy
 msgid "Imaging History"

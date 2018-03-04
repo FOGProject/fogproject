@@ -28,11 +28,17 @@
 abstract class FOGController extends FOGBase
 {
     /**
+     * Storage point for plugins tab data.
+     *
+     * @var array
+     */
+    public $pluginsTabData = [];
+    /**
      * The data to set/get.
      *
      * @var array
      */
-    protected $data = array();
+    protected $data = [];
     /**
      * If true, saves the object automatically.
      *
@@ -50,41 +56,41 @@ abstract class FOGController extends FOGBase
      *
      * @var array
      */
-    protected $databaseFields = array();
+    protected $databaseFields = [];
     /**
      * The required DB fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array();
+    protected $databaseFieldsRequired = [];
     /**
      * Additional elements unrelated to DB side directly for object.
      *
      * @var array
      */
-    protected $additionalFields = array();
+    protected $additionalFields = [];
     /**
      * The flipped fields as we commonize names, flipping allows
      * translation to the main db column.
      *
      * @var array
      */
-    protected $databaseFieldsFlipped = array();
+    protected $databaseFieldsFlipped = [];
     /**
      * Fields to ignore.
      *
      * @var array
      */
-    protected $databaseFieldsToIgnore = array(
+    protected $databaseFieldsToIgnore = [
         'createdBy',
         'createdTime',
-    );
+    ];
     /**
      * Not used now, but can be used to setup alternate db aliases.
      *
      * @var array
      */
-    protected $aliasedFields = array();
+    protected $aliasedFields = [];
     /**
      * The sql query string.
      *
@@ -115,7 +121,7 @@ abstract class FOGController extends FOGBase
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array();
+    protected $databaseFieldClassRelationships = [];
     /**
      * The select query template to use.
      *
@@ -373,7 +379,7 @@ abstract class FOGController extends FOGBase
                 $this->loadItem($key);
             }
             if (!is_array($this->data[$key])) {
-                $this->data[$key] = array($this->data[$key]);
+                $this->data[$key] = [$this->data[$key]];
             }
             $this->data[$key] = array_unique($this->data[$key]);
             $index = array_search($value, $this->data[$key]);
@@ -409,10 +415,10 @@ abstract class FOGController extends FOGBase
     public function save()
     {
         try {
-            $insertKeys = array();
-            $insertValKeys = $updateValKeys = array();
-            $insertValues = $updateValues = array();
-            $updateData = $fieldData = array();
+            $insertKeys = [];
+            $insertValKeys = $updateValKeys = [];
+            $insertValues = $updateValues = [];
+            $updateData = $fieldData = [];
             if (count($this->aliasedFields) > 0) {
                 self::arrayRemove($this->aliasedFields, $this->databaseFields);
             }
@@ -480,7 +486,7 @@ abstract class FOGController extends FOGBase
                 _('object')
             );
             self::info($msg);
-            self::$DB->query($query, array(), $queryArray);
+            self::$DB->query($query, [], $queryArray);
             if (!$this->get('id') || $this->get('id') < 1) {
                 $this->set('id', self::$DB->insertId());
             }
@@ -580,12 +586,12 @@ abstract class FOGController extends FOGBase
                     )
                 );
             }
-            $join = $whereArrayAnd = array();
+            $join = $whereArrayAnd = [];
             $c = null;
             $this->buildQuery($join, $whereArrayAnd, $c);
             $join = array_filter((array) $join);
             $join = implode((array) $join);
-            $fields = array();
+            $fields = [];
             $this->getcolumns($fields);
             $key = $this->key($key);
             $paramKey = sprintf(':%s', $key);
@@ -617,7 +623,7 @@ abstract class FOGController extends FOGBase
             );
             self::$DB->query(
                 $query,
-                array(),
+                [],
                 $queryArray
             );
             $vals = self::$DB->fetch()->get();
@@ -717,7 +723,7 @@ abstract class FOGController extends FOGBase
                 (array) $paramKey,
                 (array) $val
             );
-            self::$DB->query($query, array(), $queryArray);
+            self::$DB->query($query, [], $queryArray);
             if (!$this instanceof History) {
                 if ($this->get('name')) {
                     $msg = sprintf(
@@ -852,7 +858,7 @@ abstract class FOGController extends FOGBase
         if (!$test) {
             throw new Exception(_('Invalid key being requested'));
         }
-        if (!in_array($array_type, array('merge', 'diff'))) {
+        if (!in_array($array_type, ['merge', 'diff'])) {
             throw new Exception(
                 _('Invalid type, merge to add, diff to remove')
             );
@@ -1018,7 +1024,7 @@ abstract class FOGController extends FOGBase
         if (count($this->databaseFieldClassRelationships) > 0) {
             array_walk($this->databaseFieldClassRelationships, $joinInfo);
         }
-        return array(implode((array) $join), $whereArrayAnd);
+        return [implode((array) $join), $whereArrayAnd];
     }
     /**
      * Set's the queries data into the object as/where needed.
@@ -1108,10 +1114,10 @@ abstract class FOGController extends FOGBase
         $objstr = sprintf('%sID', $objtype);
         $assocstr = sprintf('%sID', $assoc);
         $lalter = strtolower($alteritem);
-        $gitems = array(
+        $gitems = [
             'storagegroup',
             'snapingroup'
-        );
+        ];
         if (count($this->get($plural))) {
             if (in_array($lalter, $gitems)) {
                 $tmpAssoc = $assocItem;
@@ -1136,26 +1142,26 @@ abstract class FOGController extends FOGBase
         if (count($RemIDs) > 0) {
             self::getClass(sprintf('%sManager', $classCall))
                 ->destroy(
-                    array(
+                    [
                         $objstr => $this->get('id'),
                         $assocstr => $RemIDs,
-                    )
+                    ]
                 );
             unset($RemIDs);
         }
-        $insert_fields = array(
+        $insert_fields = [
             $objstr,
             $assocstr,
-        );
+        ];
         if ($assocstr == 'moduleID') {
             array_push($insert_fields, 'state');
         }
-        $insert_values = array();
+        $insert_values = [];
         foreach ((array) $this->get($plural) as &$id) {
-            $insert_val = array(
+            $insert_val = [
                 $this->get('id'),
                 $id,
-            );
+            ];
             if ($assocstr == 'moduleID') {
                 array_push($insert_val, 1);
             }

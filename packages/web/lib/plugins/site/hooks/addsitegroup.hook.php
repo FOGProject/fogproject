@@ -58,7 +58,7 @@ class AddSiteGroup extends Hook
         }
         self::$HookManager
             ->register(
-                'TABDATA_HOOK',
+                'GROUP_PLUGINS_INJECT_TABDATA',
                 [$this, 'groupTabData']
             )
             ->register(
@@ -84,7 +84,7 @@ class AddSiteGroup extends Hook
             return;
         }
         $obj = $arguments['obj'];
-        $arguments['tabData'][] = [
+        $arguments['pluginsTabData'][] = [
             'name' => _('Site Association'),
             'id' => 'group-site',
             'generator' => function() use ($obj) {

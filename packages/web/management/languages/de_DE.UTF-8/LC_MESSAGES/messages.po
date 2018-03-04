@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-03 16:14-0500\n"
+"POT-Creation-Date: 2018-03-03 21:07-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4026,6 +4026,10 @@ msgid "Snapin Associated"
 msgstr "Snapin geschützt"
 
 #, fuzzy
+msgid "Host Snapins"
+msgstr "Host Snapinverlauf"
+
+#, fuzzy
 msgid "Enable All"
 msgstr "Aktiviert"
 
@@ -4216,12 +4220,20 @@ msgid "MAC Addresses"
 msgstr "MAC-Adresse"
 
 #, fuzzy
+msgid "Associations"
+msgstr "Image Zugehörigkeiten"
+
+#, fuzzy
 msgid "Service Settings"
 msgstr "Service-Status"
 
 #, fuzzy
-msgid "Group Membership"
-msgstr "Mitgliedschaft"
+msgid "Client Module Settings"
+msgstr "Client Einstellungen"
+
+#, fuzzy
+msgid "History Items"
+msgstr "Verlaufs-ID"
 
 #, fuzzy
 msgid "Imaging History"

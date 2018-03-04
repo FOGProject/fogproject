@@ -60,7 +60,7 @@ class AddLocationGroup extends Hook
         }
         self::$HookManager
             ->register(
-                'TABDATA_HOOK',
+                'GROUP_PLUGINS_INJECT_TABDATA',
                 [$this, 'groupTabData']
             )
             ->register(
@@ -87,7 +87,7 @@ class AddLocationGroup extends Hook
         }
         $obj = $arguments['obj'];
 
-        $arguments['tabData'][] = [
+        $arguments['pluginsTabData'][] = [
             'name' => _('Location Association'),
             'id' => 'group-location',
             'generator' => function() use ($obj) {

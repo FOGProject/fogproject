@@ -58,7 +58,7 @@ class AddSiteHost extends Hook
         }
         self::$HookManager
             ->register(
-                'TABDATA_HOOK',
+                'HOST_PLUGINS_INJECT_TABDATA',
                 [$this, 'hostTabData']
             )
             ->register(
@@ -84,7 +84,7 @@ class AddSiteHost extends Hook
             return;
         }
         $obj = $arguments['obj'];
-        $arguments['tabData'][] = [
+        $arguments['pluginsTabData'][] = [
             'name' => _('Site Association'),
             'id' => 'host-site',
             'generator' => function() use ($obj) {

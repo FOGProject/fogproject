@@ -60,7 +60,7 @@ class AddLocationHost extends Hook
         }
         self::$HookManager
             ->register(
-                'TABDATA_HOOK',
+                'HOST_PLUGINS_INJECT_TABDATA',
                 [$this, 'hostTabData']
             )
             ->register(
@@ -86,7 +86,7 @@ class AddLocationHost extends Hook
             return;
         }
         $obj = $arguments['obj'];
-        $arguments['tabData'][] = [
+        $arguments['pluginsTabData'][] = [
             'name' => _('Location Association'),
             'id' => 'host-location',
             'generator' => function() use ($obj) {
