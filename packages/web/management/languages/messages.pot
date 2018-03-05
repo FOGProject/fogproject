@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-04 15:23-0500\n"
+"POT-Creation-Date: 2018-03-05 00:16-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4108,16 +4108,7 @@ msgstr ""
 msgid "Image Create Fail"
 msgstr ""
 
-msgid "Partition"
-msgstr ""
-
 msgid "Image Protected"
-msgstr ""
-
-msgid "Replicate"
-msgstr ""
-
-msgid "Compression"
 msgstr ""
 
 msgid "Update Primary Group"
@@ -4150,70 +4141,58 @@ msgstr ""
 msgid "Client Count"
 msgstr ""
 
-msgid "Timeout"
+msgid "Session Timeout"
 msgstr ""
 
 msgid "minutes"
 msgstr ""
 
-msgid "Select Image"
+msgid "Session Image"
 msgstr ""
 
-msgid "Multicast Image"
+msgid "New Multicast Session"
 msgstr ""
 
-msgid "Start Multicast Session"
+msgid "Cancel Selected Tasks"
 msgstr ""
 
-msgid "Clients"
+msgid "Cancel the selected tasks."
 msgstr ""
 
-msgid "Percent"
-msgstr ""
-
-msgid "Stop Task"
-msgstr ""
-
-msgid "Current Sessions"
-msgstr ""
-
-msgid "Please input a session name"
+msgid "Multicast Sessions"
 msgstr ""
 
 msgid "Please choose an image"
 msgstr ""
 
-msgid "Session with that name already exists"
+msgid "Please select a valid image"
 msgstr ""
 
-msgid "Session name cannot be the same as an existing hostname"
+msgid "Session with that name already exists!"
 msgstr ""
 
-msgid "Please wait until a slot is open"
+msgid "Server is only configured to run "
 msgstr ""
 
-msgid "There are currently"
+msgid "Session created!"
 msgstr ""
 
-msgid "tasks in queue"
+msgid "Session Create Success"
 msgstr ""
 
-msgid "Your server only allows"
+msgid "Session Create Fail"
 msgstr ""
 
 msgid "Failed to create Session"
 msgstr ""
 
-msgid "Multicast session created!"
+msgid "Sessions cancelled!"
 msgstr ""
 
-msgid "Multicast Session Create Success"
+msgid "Session Cancel Success"
 msgstr ""
 
-msgid "Multicast Session Create Fail"
-msgstr ""
-
-msgid "Cancelled task"
+msgid "Session Cancel Fail"
 msgstr ""
 
 msgid "Server Information"
@@ -4562,6 +4541,9 @@ msgid "Snapin Arguments Hidden"
 msgstr ""
 
 msgid "Snapin Timeout (seconds)"
+msgstr ""
+
+msgid "Replicate"
 msgstr ""
 
 msgid "Reboot after install"

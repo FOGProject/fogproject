@@ -24,9 +24,7 @@
     }
 
     function sessionTableButtons(disable) {
-        sessionResumeBtn.prop('disabled', disable);
         sessionCancelBtn.prop('disabled', disable);
-        sessionPauseBtn.prop('disabled', disable);
     }
 
     sessionCreateForm.on('submit', function(e) {
@@ -107,9 +105,36 @@
         sessionsTable.search(Common.search).draw();
     }
 
+    sessionCancelBtn.on('click', function(e) {
+        sessionPauseBtn.prop('disabled', true);
+        sessionResumeBtn.prop('disabled', true);
+        sessionCancelBtn.prop('disable', true);
+        clearTimeout(reloadinterval);
+        var rows = sessionsTable.rows({selected: true}),
+            toRemove = Common.getSelectedIds(sessionsTable),
+            method = sessionCancelBtn.attr('method'),
+            action = sessionCancelBtn.attr('action'),
+            opts = {
+                cancelconfirm: 1,
+                tasks: toRemove
+            };
+        Common.apiCall(method, action, opts, function(err) {
+            sessionCancelBtn.prop('disabled', false);
+            sessionPauseBtn.prop('disabled', false);
+            sessionResumeBtn.prop('disabled', true);
+            reload(null, false);
+            if (err) {
+                return;
+            }
+            sessionsTable.draw(false);
+            sessionsTable.rows({selected: true}).deselect();
+        });
+    });
+
     reload(null, false);
     sessionPauseBtn.prop('disabled', false);
     sessionResumeBtn.prop('disabled', true);
+    sessionCancelBtn.prop('disabled', true);
     sessionPauseBtn.on('click', function(e) {
         sessionPauseBtn.prop('disabled', true);
         sessionResumeBtn.prop('disabled', false);

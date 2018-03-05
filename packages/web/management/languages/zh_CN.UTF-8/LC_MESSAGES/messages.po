@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-04 15:23-0500\n"
+"POT-Creation-Date: 2018-03-05 00:16-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4699,19 +4699,9 @@ msgstr "用户创建"
 msgid "Image Create Fail"
 msgstr "用户创建"
 
-msgid "Partition"
-msgstr "划分"
-
 #, fuzzy
 msgid "Image Protected"
 msgstr "受保护"
-
-#, fuzzy
-msgid "Replicate"
-msgstr "复制？"
-
-msgid "Compression"
-msgstr "压缩"
 
 #, fuzzy
 msgid "Update Primary Group"
@@ -4751,79 +4741,73 @@ msgstr "会话名称"
 msgid "Client Count"
 msgstr "客户端计数"
 
-msgid "Timeout"
-msgstr "时间到"
+#, fuzzy
+msgid "Session Timeout"
+msgstr "会话超时"
 
 msgid "minutes"
 msgstr "分钟"
 
-msgid "Select Image"
-msgstr "选择图片"
+#, fuzzy
+msgid "Session Image"
+msgstr "会话名称"
 
 #, fuzzy
-msgid "Multicast Image"
-msgstr "组播"
-
-msgid "Start Multicast Session"
+msgid "New Multicast Session"
 msgstr "开始多播会话"
 
-msgid "Clients"
-msgstr "客户端"
-
-msgid "Percent"
-msgstr "百分"
-
-msgid "Stop Task"
-msgstr "停止任务"
+#, fuzzy
+msgid "Cancel Selected Tasks"
+msgstr "删除所选"
 
 #, fuzzy
-msgid "Current Sessions"
-msgstr "图像协会"
+msgid "Cancel the selected tasks."
+msgstr "删除所选"
 
-msgid "Please input a session name"
-msgstr "请输入会话名称"
+#, fuzzy
+msgid "Multicast Sessions"
+msgstr "开始多播会话"
 
 msgid "Please choose an image"
 msgstr "请选择一个图像"
 
-msgid "Session with that name already exists"
-msgstr "会话使用该名称已经存在"
-
-msgid "Session name cannot be the same as an existing hostname"
-msgstr "会话名称不能相同的现有的主机名"
+#, fuzzy
+msgid "Please select a valid image"
+msgstr "选择一个有效的图像"
 
 #, fuzzy
-msgid "Please wait until a slot is open"
-msgstr "请输入访问令牌"
+msgid "Session with that name already exists!"
+msgstr "使用此名称的主机名已经存在。"
 
-#, fuzzy
-msgid "There are currently"
-msgstr "有"
-
-msgid "tasks in queue"
+msgid "Server is only configured to run "
 msgstr ""
 
 #, fuzzy
-msgid "Your server only allows"
-msgstr "您只能分配"
+msgid "Session created!"
+msgstr "会话名称"
+
+#, fuzzy
+msgid "Session Create Success"
+msgstr "更新管理单元"
+
+#, fuzzy
+msgid "Session Create Fail"
+msgstr "更新管理单元"
 
 msgid "Failed to create Session"
 msgstr "无法创建会话"
 
 #, fuzzy
-msgid "Multicast session created!"
-msgstr "开始多播会话"
+msgid "Sessions cancelled!"
+msgstr "已成功更新"
 
 #, fuzzy
-msgid "Multicast Session Create Success"
-msgstr "更新管理单元"
+msgid "Session Cancel Success"
+msgstr "用户创建"
 
 #, fuzzy
-msgid "Multicast Session Create Fail"
-msgstr "更新管理单元"
-
-msgid "Cancelled task"
-msgstr "取消任务"
+msgid "Session Cancel Fail"
+msgstr "用户创建"
 
 #, fuzzy
 msgid "Server Information"
@@ -5220,6 +5204,10 @@ msgstr "管理单元参数"
 #, fuzzy
 msgid "Snapin Timeout (seconds)"
 msgstr "菜单超时（以秒为单位）"
+
+#, fuzzy
+msgid "Replicate"
+msgstr "复制？"
 
 msgid "Reboot after install"
 msgstr "重启后安装"
