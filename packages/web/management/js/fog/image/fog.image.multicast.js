@@ -2,25 +2,26 @@
 
     var sessionCreateBtn = $('#session-create'),
         sessionCreateForm = $('#session-create-form'),
-        sessionResumeBtn = $('#session-resume'),
-        sessionPauseBtn = $('#session-pause'),
+        sessionCreateModal = $('#createModal'),
+        sessionCreateModalConfirmBtn = $('#createConfirmModalBtn'),
+        sessionCreateModalCancelBtn = $('#createCancelModalBtn'),
+        // Cancel elements
         sessionCancelBtn = $('#session-cancel'),
         sessionModal = $('#cancelModal'),
-        sessionConfirmBtn = $('#confirmModalBtn'),
+        sessionModalConfirmBtn = $('#confirmModalBtn'),
         sessionModalCancelBtn = $('#cancelModalBtn'),
+        // Main Table
         sessionTable = $('#multicast-sessions-table'),
-        reloadinterval;
+        reloadinterval,
+        sessionResumeBtn = $('#session-resume'),
+        sessionPauseBtn = $('#session-pause');
 
     function reload(callback, userpaging) {
         if (reloadinterval) {
             clearTimeout(reloadinterval);
         }
-        sessionsTable.ajax.reload(callback, userpaging);
+        sessionsTable.draw(false);
         reloadinterval = setTimeout(reload, 5000);
-    }
-
-    function sessionCreateButtons(disable) {
-        sessionCreateBtn.prop('disabled', disable);
     }
 
     function sessionTableButtons(disable) {
@@ -31,14 +32,9 @@
         e.preventDefault();
     });
 
-    sessionCreateBtn.on('click', function(e) {
+    sessionCreateModalConfirmBtn.on('click', function(e) {
         e.preventDefault();
-        sessionTableButtons(true);
-        sessionCreateButtons(true);
         Common.processForm(sessionCreateForm, function(err) {
-            sessionTableButtons(false);
-            sessionCreateButtons(false);
-            clearTimeout(reloadinterval);
             if (err) {
                 return;
             }
@@ -46,8 +42,14 @@
             $('#image').select2({width: '100%'});
             sessionsTable.draw(false);
             sessionsTable.rows({selected: true}).deselect();
-            reload(null, false);
+            sessionCreateModal.modal('hide');
         });
+    });
+
+    sessionCreateBtn.on('click', function(e) {
+        e.preventDefault();
+        sessionTableButtons(true)
+        sessionCreateModal.modal('show');
     });
 
     function onSessionSelect(selected) {
@@ -105,15 +107,15 @@
         }
     });
 
+    sessionsTable.on('draw', function() {
+        sessionTableButtons(sessionsTable.rows({selected: true}));
+    });
+
     if (Common.search && Common.search.length > 0) {
         sessionsTable.search(Common.search).draw();
     }
 
-    sessionCancelBtn.on('click', function(e) {
-        sessionPauseBtn.prop('disabled', true);
-        sessionResumeBtn.prop('disabled', true);
-        sessionCancelBtn.prop('disable', true);
-        clearTimeout(reloadinterval);
+    sessionModalConfirmBtn.on('click', function(e) {
         var rows = sessionsTable.rows({selected: true}),
             toRemove = Common.getSelectedIds(sessionsTable),
             method = sessionCancelBtn.attr('method'),
@@ -129,12 +131,17 @@
             if (err) {
                 return;
             }
+            sessionModal.modal('hide');
             sessionsTable.draw(false);
             sessionsTable.rows({selected: true}).deselect();
-            reload(null, false);
         });
     });
 
+    sessionCancelBtn.on('click', function(e) {
+        sessionModal.modal('show');
+    });
+
+    // Enable the reload elements. (Auto refresh)
     reload(null, false);
     sessionPauseBtn.prop('disabled', false);
     sessionResumeBtn.prop('disabled', true);

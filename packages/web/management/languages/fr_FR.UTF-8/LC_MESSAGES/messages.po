@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-05 00:16-0500\n"
+"POT-Creation-Date: 2018-03-05 17:09-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4779,16 +4779,16 @@ msgid "Session Image"
 msgstr "Nom de session"
 
 #, fuzzy
-msgid "New Multicast Session"
-msgstr "Démarrez Multicast session"
-
-#, fuzzy
 msgid "Cancel Selected Tasks"
 msgstr "Supprimer sélectionnée"
 
 #, fuzzy
 msgid "Cancel the selected tasks."
 msgstr "Supprimer sélectionnée"
+
+#, fuzzy
+msgid "Create new Session Task"
+msgstr "Créer un nouveau %s"
 
 #, fuzzy
 msgid "Multicast Sessions"
