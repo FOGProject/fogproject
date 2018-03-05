@@ -1365,7 +1365,7 @@ class ImageManagementPage extends FOGPage
      */
     public function sessionCreate()
     {
-        $ssesionname = trim(
+        $sessionname = trim(
             filter_input(INPUT_POST, 'sessionname')
         );
         $image = (int)trim(

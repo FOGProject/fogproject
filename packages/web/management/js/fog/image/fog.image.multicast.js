@@ -38,11 +38,15 @@
         Common.processForm(sessionCreateForm, function(err) {
             sessionTableButtons(false);
             sessionCreateButtons(false);
+            clearTimeout(reloadinterval);
             if (err) {
                 return;
             }
+            $('#sessionname, #sessioncount, #sessiontimeout, #image').val('');
+            $('#image').select2({width: '100%'});
             sessionsTable.draw(false);
             sessionsTable.rows({selected: true}).deselect();
+            reload(null, false);
         });
     });
 
@@ -122,12 +126,12 @@
             sessionCancelBtn.prop('disabled', false);
             sessionPauseBtn.prop('disabled', false);
             sessionResumeBtn.prop('disabled', true);
-            reload(null, false);
             if (err) {
                 return;
             }
             sessionsTable.draw(false);
             sessionsTable.rows({selected: true}).deselect();
+            reload(null, false);
         });
     });
 

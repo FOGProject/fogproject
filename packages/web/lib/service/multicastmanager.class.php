@@ -570,7 +570,7 @@ class MulticastManager extends FOGService
                                         ->set(
                                             'completetime',
                                             self::niceDate()->format('Y-m-d H:i:s')
-                                        )//->set('name', '')
+                                        )->set('name', '')
                                         ->set('stateID', self::getCompleteState())
                                         ->save();
                                     $KnownTasks = $this->_removeFromKnownList(
