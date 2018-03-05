@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-05 00:16-0500\n"
+"POT-Creation-Date: 2018-03-05 17:09-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4345,16 +4345,16 @@ msgid "Session Image"
 msgstr "Nome sessione"
 
 #, fuzzy
-msgid "New Multicast Session"
-msgstr "Sessione multicast non valida"
-
-#, fuzzy
 msgid "Cancel Selected Tasks"
 msgstr "Elimina selezionato"
 
 #, fuzzy
 msgid "Cancel the selected tasks."
 msgstr "Elimina selezionato"
+
+#, fuzzy
+msgid "Create new Session Task"
+msgstr "Crea nuovo snapin"
 
 #, fuzzy
 msgid "Multicast Sessions"

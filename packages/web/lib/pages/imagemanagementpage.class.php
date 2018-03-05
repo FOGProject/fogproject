@@ -1165,35 +1165,12 @@ class ImageManagementPage extends FOGPage
         exit;
     }
     /**
-     * Presents the form to created named multicast
-     * sessions.
+     * Creates the session create form modal elements.
      *
-     * @return void
+     * @return string
      */
-    public function multicast()
+    public function sessionCreateModal()
     {
-        $this->title = self::$foglang['Multicast'];
-
-        // This is for the actual current tasks.
-        $this->headerData = [
-            _('Session Name'),
-            _('Image Name'),
-            _('Client Count'),
-            _('Progress')
-        ];
-        $this->attributes = [
-            [],
-            [],
-            ['width' => 5],
-            []
-        ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            ''
-        ];
-
         $sessionname = filter_input(INPUT_POST, 'sessionname');
         $sessioncount = filter_input(INPUT_POST, 'sessioncount');
         $timeout = (int)filter_input(INPUT_POST, 'sessiontimeout');
@@ -1258,21 +1235,10 @@ class ImageManagementPage extends FOGPage
                 ['fields' => &$fields]
             );
 
-        $buttons = self::makeButton(
-            'session-create',
-            _('Create'),
-            'btn btn-primary'
-        );
-
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
-
-        echo '<!-- Create New Multicast Session -->';
-        echo '<div class="box-group" id="multicastsessions">';
-
+        ob_start();
         // The Create new form.
         echo self::makeFormTag(
             'form-horizontal',
@@ -1284,20 +1250,45 @@ class ImageManagementPage extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-info">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('New Multicast Session');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
         echo $rendered;
-        echo '</div>';
-        echo '<div class="box-footer">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
         echo '</form>';
+        return ob_get_clean();
+    }
+    /**
+     * Presents the form to created named multicast
+     * sessions.
+     *
+     * @return void
+     */
+    public function multicast()
+    {
+        $this->title = self::$foglang['Multicast'];
+
+        // This is for the actual current tasks.
+        $this->headerData = [
+            _('Session Name'),
+            _('Image Name'),
+            _('Client Count'),
+            _('Progress')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            ['width' => 5],
+            []
+        ];
+        $this->templates = [
+            '',
+            '',
+            '',
+            ''
+        ];
+
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
+
+        echo '<!-- Create New Multicast Session -->';
+        echo '<div class="box-group" id="multicastsessions">';
 
         // The Current running tasks.
         $props = ' method="post" action="'
@@ -1307,6 +1298,11 @@ class ImageManagementPage extends FOGPage
             . '" ';
 
         $buttons = self::makeButton(
+            'session-create',
+            _('Create'),
+            'btn btn-primary'
+        );
+        $buttons .= self::makeButton(
             'session-resume',
             _('Resume Reload'),
             'btn btn-success'
@@ -1335,11 +1331,34 @@ class ImageManagementPage extends FOGPage
             'btn btn-danger'
         );
 
+        $modalCreateBtns = self::makeButton(
+            'createCancelModalBtn',
+            _('Cancel'),
+            'btn btn-warning pull-left',
+            'data-dismiss="modal"'
+        );
+        $modalCreateBtns .= self::makeButton(
+            'createConfirmModalBtn',
+            _('Create'),
+            'btn btn-success',
+            ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'session-create'
+            )
+            . '" '
+        );
+
         $buttons .= self::makeModal(
             'cancelModal',
             _('Cancel Selected Tasks'),
             _('Cancel the selected tasks.'),
             $modalBtns
+        );
+        $buttons .= self::makeModal(
+            'createModal',
+            _('Create new Session Task'),
+            $this->sessionCreateModal(),
+            $modalCreateBtns
         );
 
         echo '<div class="box box-primary">';

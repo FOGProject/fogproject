@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-05 00:16-0500\n"
+"POT-Creation-Date: 2018-03-05 17:09-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4769,16 +4769,16 @@ msgid "Session Image"
 msgstr "Sitzungsname"
 
 #, fuzzy
-msgid "New Multicast Session"
-msgstr "ungültige Multicast-Sitzung"
-
-#, fuzzy
 msgid "Cancel Selected Tasks"
 msgstr "Ausgewählte löschen"
 
 #, fuzzy
 msgid "Cancel the selected tasks."
 msgstr "Ausgewählte löschen"
+
+#, fuzzy
+msgid "Create new Session Task"
+msgstr "Neues Snapin erstellen"
 
 #, fuzzy
 msgid "Multicast Sessions"
