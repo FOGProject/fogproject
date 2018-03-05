@@ -111,9 +111,6 @@
                 'cancelconfirm': '1',
                 'tasks': toRemove
             };
-        console.log(opts);
-        console.log(cancelSelected.attr('method'));
-        console.log(cancelSelected.attr('action'));
         Common.apiCall(cancelSelected.attr('method'), cancelSelected.attr('action'), opts, function(err) {
             if (!err) {
                 table.draw(false);
