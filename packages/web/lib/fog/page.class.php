@@ -435,4 +435,25 @@ class Page extends FOGBase
                     $class->id,
                     sprintf(
                         self::$foglang['SelMenu'],
+                        get_class($class->obj)
+                    ),
+                    'submenu'
+                );
+                unset($t);
+            }
+            unset($classSubMenu);
+        }
+        if (count($class->notes)) {
+            foreach ($class->notes as $l => &$t) {
+                $FOGSub->addNotes(
+                    $class->node,
+                    array((string)$t => (string)$l),
+                    $class->id
+                );
+                unset($t);
+            }
+        }
+        echo $FOGSub->get($class->node);
+    }
+}
            
