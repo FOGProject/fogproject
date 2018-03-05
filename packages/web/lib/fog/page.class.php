@@ -107,18 +107,18 @@ class Page extends FOGBase
             }
         }
         $this
-            ->addCSS('bower_components/bootstrap/dist/css/bootstrap.min.css')
-            ->addCSS('bower_components/font-awesome/css/font-awesome.min.css')
-            ->addCSS('bower_components/select2/dist/css/select2.min.css')
-            ->addCSS('bower_components/Ionicons/css/ionicons.min.css')
-            ->addCSS('plugins/datatables/datatables.min.css')
-            ->addCSS('plugins/bootstrap-slider/slider.css')
-            ->addCSS('plugins/pnotify/pnotify.min.css')
-            ->addCSS('plugins/iCheck/square/blue.css')
-            ->addCSS('plugins/animate/animate.css')
-            ->addCSS('plugins/pace/pace.min.css')
-            ->addCSS('dist/css/AdminLTE.min.css')
-            ->addCSS('dist/css/skins/_all-skins.min.css')
+            ->addCSS('css/bootstrap.min.css')
+            ->addCSS('css/font-awesome.min.css')
+            ->addCSS('css/select2.min.css')
+            ->addCSS('css/ionicons.min.css')
+            ->addCSS('css/datatables.min.css')
+            ->addCSS('css/slider.css')
+            ->addCSS('css/pnotify.min.css')
+            ->addCSS('css/icheck-square-blue.css')
+            ->addCSS('css/animate.css')
+            ->addCSS('css/pace.min.css')
+            ->addCSS('css/AdminLTE.min.css')
+            ->addCSS('css/adminlte-skins.min.css')
             ->addCSS('css/font.css');
         if (!isset($node)
             || !$node
@@ -138,28 +138,27 @@ class Page extends FOGBase
             || !self::$FOGUser->isValid();
         FOGPage::buildMainMenuItems($this->menu);
         $files = array(
-            'bower_components/jquery/dist/jquery.min.js',
-            //'bower_components/jquery-ui/jquery-ui.min.js',
-            'bower_components/bootstrap/dist/js/bootstrap.min.js',
-            'bower_components/fastclick/lib/fastclick.js',
-            'bower_components/Flot/jquery.flot.js',
-            'bower_components/Flot/jquery.flot.resize.js',
-            'bower_components/Flot/jquery.flot.pie.js',
-            'bower_components/Flot/jquery.flot.time.js',
-            'bower_components/select2/dist/js/select2.full.min.js',
-            'bower_components/jquery-slimscroll/jquery.slimscroll.min.js',
-            'dist/js/adminlte.min.js',
-            'plugins/datatables/datatables.min.js',
-            'plugins/iCheck/icheck.min.js',
-            'plugins/bootbox/bootbox.min.js',
-            'plugins/pnotify/pnotify.min.js',
-            'plugins/pace/pace.min.js',
-            'plugins/input-mask/jquery.inputmask.js',
-            'plugins/input-mask/jquery.inputmask.extensions.js',
-            'plugins/input-mask/jquery.inputmask.regex.extensions.js',
-            'plugins/input-mask/jquery.inputmask.numeric.extensions.js',
-            'plugins/input-mask/jquery.inputmask.date.extensions.js',
-            'plugins/bootstrap-slider/bootstrap-slider.js',
+            'js/jquery.min.js',
+            'js/bootstrap.min.js',
+            'js/fastclick.js',
+            'js/Flot/jquery.flot.js',
+            'js/Flot/jquery.flot.resize.js',
+            'js/Flot/jquery.flot.pie.js',
+            'js/Flot/jquery.flot.time.js',
+            'js/select2.full.min.js',
+            'js/jquery.slimscroll.min.js',
+            'js/adminlte.min.js',
+            'js/datatables.min.js',
+            'js/icheck.min.js',
+            'js/bootbox.min.js',
+            'js/pnotify.min.js',
+            'js/pace.min.js',
+            'js/input-mask/jquery.inputmask.js',
+            'js/input-mask/jquery.inputmask.extensions.js',
+            'js/input-mask/jquery.inputmask.regex.extensions.js',
+            'js/input-mask/jquery.inputmask.numeric.extensions.js',
+            'js/input-mask/jquery.inputmask.date.extensions.js',
+            'js/bootstrap-slider/bootstrap-slider.js',
             'js/fog/fog.common.js',
         );
         if (!self::$FOGUser->isValid()) {
@@ -436,24 +435,4 @@ class Page extends FOGBase
                     $class->id,
                     sprintf(
                         self::$foglang['SelMenu'],
-                        get_class($class->obj)
-                    ),
-                    'submenu'
-                );
-                unset($t);
-            }
-            unset($classSubMenu);
-        }
-        if (count($class->notes)) {
-            foreach ($class->notes as $l => &$t) {
-                $FOGSub->addNotes(
-                    $class->node,
-                    array((string)$t => (string)$l),
-                    $class->id
-                );
-                unset($t);
-            }
-        }
-        echo $FOGSub->get($class->node);
-    }
-}
+           
