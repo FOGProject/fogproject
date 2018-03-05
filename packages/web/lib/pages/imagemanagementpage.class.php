@@ -199,9 +199,7 @@ class ImageManagementPage extends FOGPage
                 'description',
                 _('Image Description'),
                 'description',
-                $description,
-                false,
-                false
+                $description
             ),
             self::makeLabel(
                 $labelClass,
@@ -553,11 +551,11 @@ class ImageManagementPage extends FOGPage
                 '',
                 'id'
             );
-        $toprot = (int)isset($_POST['isProtected']) ?: $this->obj->get('protected');
-        if ($toprot) {
-            $toprot = ' checked';
+        $isprot = (int)isset($_POST['isProtected']) ?: $this->obj->get('protected');
+        if ($isprot) {
+            $isprot = ' checked';
         } else {
-            $toprot = '';
+            $isprot = '';
         }
         $isen = (int)isset($_POST['isEnabled']) ?: $this->obj->get('isEnabled');
         if ($isen) {
@@ -636,74 +634,153 @@ class ImageManagementPage extends FOGPage
             ),
             _('Partclone Zstd Split 200MiB')
         );
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="image">'
-            . _('Image Name')
-            . '</label>' => '<input type="text" name="image" '
-            . 'value="'
-            . $image
-            . '" class="imagename-input form-control" '
-            . 'id="image" required/>',
-            '<label class="col-sm-2 control-label" for="description">'
-            . _('Image Description')
-            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
-            . 'min-height:50px;" '
-            . 'id="description" name="description">'
-            . $description
-            . '</textarea>',
-            '<label class="col-sm-2 control-label" for="os">'
-            . _('Operating System')
-            . '</label>' => $OSs,
-            '<label class="col-sm-2 control-label" for="file">'
-            . _('Image Path')
-            . '</label>' => '<div class="input-group">'
+            // Input/Textarea elements
+            self::makeLabel(
+                $labelClass,
+                'image',
+                _('Image Name')
+            ) => self::makeInput(
+                'form-control imagename-input',
+                'image',
+                _('Image Name'),
+                'text',
+                'image',
+                $image,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Image Description')
+            ) => self::makeTextarea(
+                'form-control imagedescription-input',
+                'description',
+                _('Image Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'path',
+                _('Image Path')
+            ) => '<div class="input-group">'
             . '<span class="input-group-addon">'
             . $StorageNode->get('path')
             . '/'
             . '</span>'
-            . '<input type="text" name="file" '
-            . 'value="'
-            . $file
-            . '" class="form-control" id="file" required/></div>',
-            '<label class="col-sm-2 control-label" for="imagetype">'
-            . _('Image Type')
-            . '</label>' => $ImageTypes,
-            '<label class="col-sm-2 control-label" for="imagepartitiontype">'
-            . _('Partition')
-            . '</label>' => $ImagePartitionTypes,
-            '<label class="col-sm-2 control-label" for="isProtected">'
-            . _('Image Protected')
-            . '</label>' => '<input type="checkbox" '
-            . 'name="isProtected" id="isProtected"'
-            . $toprot
-            . '/>',
-            '<label class="col-sm-2 control-label" for="isEnabled">'
-            . _('Image Enabled')
-            . '</label>' => '<input type="checkbox" '
-            . 'name="isEnabled" id="isEnabled"'
-            . $isen
-            . '/>',
-            '<label class="col-sm-2 control-label" for="toRep">'
-            . _('Replicate')
-            . '</label>' => '<input type="checkbox" '
-            . 'name="toReplicate" id="toRep"'
-            . $torep
-            . '/>',
-            '<label class="col-sm-2 control-label" for="pigzcomp">'
-            . _('Compression')
-            . '</label>' => '<input type="text" value="'
-            . $compression
-            . '" class="slider form-control" '
-            . 'data-slider-min="0" data-slider-max="22" data-slider-step="1" '
-            . 'data-slider-value="'
-            . $compression
-            . '" data-slider-orientation="horizontal" '
-            . 'data-slider-selection="before" data-slider-tooltip="show" '
-            . 'data-slider-id="blue"/>',
-            '<label class="col-sm-2 control-label" for="imagemanage">'
-            . _('Image Manager')
-            . '</label>' => $format
+            . self::makeInput(
+                'form-control imagepath-input',
+                'path',
+                _('Image Path'),
+                'text',
+                'path',
+                $path,
+                true
+            )
+            . '</div>',
+            self::makeLabel(
+                $labelClass,
+                'compression',
+                _('Image Compression Rating')
+            ) => self::makeInput(
+                'form-control slider imagecompression-input',
+                'compression',
+                '6',
+                'text',
+                'compression',
+                $compression,
+                false,
+                false,
+                -1,
+                -1,
+                'data-slider-min="0" '
+                . 'data-slider-max="22" '
+                . 'data-slider-step="1" '
+                . 'data-slider-value="' . $compression . '" '
+                . 'data-slider-orientation="horizontal" '
+                . 'data-slider-selection="before" '
+                . 'data-slider-tooltip="show" '
+                . 'data-slider-id="blue" '
+            ),
+            // Image Select elements.
+            self::makeLabel(
+                $labelClass,
+                'os',
+                _('Image Operating System')
+            ) => $OSs,
+            self::makeLabel(
+                $labelClass,
+                'imagetype',
+                _('Image Type')
+            ) => $ImageTypes,
+            self::makeLabel(
+                $labelClass,
+                'imagepartitiontype',
+                _('Image Partition')
+            ) => $ImagePartitionTypes,
+            self::makeLabel(
+                $labelClass,
+                'imagemanage',
+                _('Image Manager')
+            ) => $format,
+            // Checkboxes
+            self::makeLabel(
+                $labelClass,
+                'isProtected',
+                _('Image Protected')
+            ) => self::makeInput(
+                'imageprotected-input',
+                'isProtected',
+                '',
+                'checkbox',
+                'isProtected',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $isprot
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isEnabled',
+                _('Image Enabled')
+            ) => self::makeInput(
+                'imageenabled-input',
+                'isEnabled',
+                '',
+                'checkbox',
+                'isEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $isen
+            ),
+            self::makeLabel(
+                $labelClass,
+                'toReplicate',
+                _('Image Replicate')
+            ) => self::makeInput(
+                'imagereplicaet-input',
+                'toReplicate',
+                '',
+                'checkbox',
+                'toReplicate',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $torep
+            )
         ];
+
         self::$HookManager
             ->processEvent(
                 'IMAGE_GENERAL_FIELDS',
@@ -714,20 +791,35 @@ class ImageManagementPage extends FOGPage
             );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<form id="image-general-form" class="form-horizontal" method="post" action="'
-            . self::makeTabUpdateURL('image-general', $this->obj->get('id'))
-            . '" novalidate>';
+
+        $buttons = self::makeButton(
+            'general-send',
+            _('Update'),
+            'btn btn-primary'
+        );
+        $buttons .= self::makeButton(
+            'general-delete',
+            _('Delete'),
+            'btn btn-danger pull-right'
+        );
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'image-general-form',
+            self::makeTabUpdateURL(
+                'image-general',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="general-send">'
-            . _('Update')
-            . '</button>';
-        echo '<button class="btn btn-danger pull-right" id="general-delete">'
-            . _('Delete')
-            . '</button>';
+        echo $buttons;
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -757,10 +849,10 @@ class ImageManagementPage extends FOGPage
                 'os'
             )
         );
-        $file = trim(
+        $path = trim(
             filter_input(
                 INPUT_POST,
-                'file'
+                'path'
             )
         );
         $itID = (int)trim(
@@ -782,7 +874,7 @@ class ImageManagementPage extends FOGPage
             ->set('name', $image)
             ->set('description', $description)
             ->set('osID', $osID)
-            ->set('path', $file)
+            ->set('path', $path)
             ->set('imageTypeID', $itID)
             ->set('imagePartitionTypeID', $iptID)
             ->set('format', $imagemanage)
@@ -1081,168 +1173,266 @@ class ImageManagementPage extends FOGPage
     public function multicast()
     {
         $this->title = self::$foglang['Multicast'];
+
+        // This is for the actual current tasks.
+        $this->headerData = [
+            _('Session Name'),
+            _('Image Name'),
+            _('Client Count'),
+            _('Progress')
+        ];
         $this->attributes = [
             [],
+            [],
+            ['width' => 5],
             []
         ];
         $this->templates = [
             '',
+            '',
+            '',
             ''
         ];
-        $name = filter_input(INPUT_POST, 'name');
-        $count = (int)filter_input(INPUT_POST, 'count');
-        $timeout = (int)filter_input(INPUT_POST, 'timeout');
-        $image = (int)filter_input(INPUT_POST, 'image');
+
+        $sessionname = filter_input(INPUT_POST, 'sessionname');
+        $sessioncount = filter_input(INPUT_POST, 'sessioncount');
+        $timeout = (int)filter_input(INPUT_POST, 'sessiontimeout');
+        $image = filter_input(INPUT_POST, 'image');
+
+        $images = self::getClass('ImageManager')->buildSelectBox(
+            $image
+        );
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label for="iName">'
-            . _('Session Name')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control" type="text" name="name" id="iName" '
-            . 'autocomplete="off" value="'
-            . $name
-            . '"/>'
-            . '</div>',
-            '<label for="iCount">'
-            . _('Client Count')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control" type="number" name="count" id="iCount" '
-            . 'autocomplete="off" value="'
-            . $count
-            . '"/>'
-            . '</div>',
-            '<label for="iTimeout">'
-            . _('Timeout')
-            . ' ('
-            . _('minutes')
-            . ')'
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control" type="number" name=timeout" '
-            . 'id="iTimeout" autocomplete="off" value="'
-            . $timeout
-            . '"/>'
-            . '</div>',
-            '<label for="image">'
-            . _('Select Image')
-            . '</label>' => self::getClass('ImageManager')->buildSelectBox(
-                $image,
-                '',
-                'name'
-            )
+            self::makeLabel(
+                $labelClass,
+                'sessionname',
+                _('Session Name')
+            ) => self::makeInput(
+                'form-control sessionname-input',
+                'sessionname',
+                _('Session Name'),
+                'text',
+                'sessionname',
+                $sessionname,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'sessioncount',
+                _('Client Count')
+            ) => self::makeInput(
+                'form-control sessioncount-input',
+                'sessioncount',
+                '0',
+                'number',
+                'sessioncount',
+                $sessioncount
+            ),
+            self::makeLabel(
+                $labelClass,
+                'sessiontimeout',
+                _('Session Timeout')
+                . '<br/>('
+                . _('minutes')
+                . ')'
+            ) => self::makeInput(
+                'form-control sessiontimeout-input',
+                'sessiontimeout',
+                '0',
+                'number',
+                'sessiontimeout',
+                $sessiontimeout
+            ),
+            self::makeLabel(
+                $labelClass,
+                'image',
+                _('Session Image')
+            ) => $images
         ];
         self::$HookManager
             ->processEvent(
                 'IMAGE_MULTICAST_SESSION_FIELDS',
                 ['fields' => &$fields]
             );
+
+        $buttons = self::makeButton(
+            'session-create',
+            _('Create'),
+            'btn btn-primary'
+        );
+
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Multicast Image');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '" novalidate>';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Start Multicast Session');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->form,
-            $this->data,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
+
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
+
+        echo '<!-- Create New Multicast Session -->';
+        echo '<div class="box-group" id="multicastsessions">';
+
+        // The Create new form.
+        echo self::makeFormTag(
+            'form-horizontal',
+            'session-create-form',
+            self::makeTabUpdateURL(
+                'session-create'
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
         );
-        $this->headerData = [
-            _('Task Name'),
-            _('Clients'),
-            _('Start Time'),
-            _('Percent'),
-            _('State'),
-            _('Stop Task'),
-        ];
-        $this->attributes = [
-            [],
-            [],
-            [],
-            [],
-            [],
-            []
-        ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            '',
-            '',
-            ''
-        ];
-        $find = [
-            'stateID' => self::fastmerge(
-                (array)self::getQueuedStates(),
-                (array)self::getProgressState()
-            )
-        ];
-        Route::active('multicastsession');
-        $MulticastSessions = json_decode(
-            Route::getData()
-        );
-        $MulticastSessions = $MulticastSessions->data;
-        foreach ((array)$MulticastSessions as &$MulticastSession) {
-            $Image = $MulticastSession->image;
-            if (!$Image->id) {
-                continue;
-            }
-            $this->data[] = [
-                'mc_name' => $MulticastSession->name,
-                'mc_count' => $MulticastSession->sessclients,
-                'image_name' => $Image->name,
-                'os' => $Image->os->name,
-                'mc_start' => self::formatTime(
-                    $MulticastSession->starttime,
-                    'Y-m-d H:i:s'
-                ),
-                'mc_percent' => $MulticastSession->percent,
-                'mc_state' => $MulticastSession->state->icon,
-                'mc_id' => $MulticastSession->id,
-            ];
-            unset($MulticastSession);
-        }
-        self::$HookManager
-            ->processEvent(
-                'IMAGE_MULTICAST_START',
-                [
-                    'data' => &$this->data,
-                    'headerData' => &$this->headerData,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                ]
-            );
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Current Sessions');
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('New Multicast Session');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $buttons;
         echo '</div>';
         echo '</div>';
         echo '</form>';
+
+        // The Current running tasks.
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'session-running'
+            )
+            . '" ';
+
+        $buttons = self::makeButton(
+            'session-resume',
+            _('Resume Reload'),
+            'btn btn-success'
+        );
+        $buttons .= self::makeButton(
+            'session-pause',
+            _('Pause Reload'),
+            'btn btn-warning'
+        );
+        $buttons .= self::makeButton(
+            'session-cancel',
+            _('Cancel Selected'),
+            'btn btn-danger',
+            $props
+        );
+
+        $modalBtns = self::makeButton(
+            'cancelModalBtn',
+            _('Cancel'),
+            'btn btn-warning pull-left',
+            'data-dismiss="modal"'
+        );
+        $modalBtns .= self::makeButton(
+            'confirmModalBtn',
+            _('Confirm'),
+            'btn btn-danger'
+        );
+
+        $buttons .= self::makeModal(
+            'cancelModal',
+            _('Cancel Selected Tasks'),
+            _('Cancel the selected tasks.'),
+            $modalBtns
+        );
+
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Multicast Sessions');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'multicast-sessions-table', $buttons);
         echo '</div>';
         echo '</div>';
+
         echo '</div>';
+
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Create new session.
+     *
+     * @return MulticastSession
+     */
+    public function sessionCreate()
+    {
+        $ssesionname = trim(
+            filter_input(INPUT_POST, 'sessionname')
+        );
+        $image = (int)trim(
+            filter_input(INPUT_POST, 'image')
+        );
+        $sessiontimeout = (int)trim(
+            filter_input(INPUT_POST, 'sessiontimeout')
+        );
+        $sessioncount = (int)trim(
+            filter_input(INPUT_POST, 'sessioncount')
+        );
+        if (!$image) {
+            throw new Exception(_('Please choose an image'));
+        }
+        $Image = new Image($image);
+        if (!$Image->isValid()) {
+            throw new Exception(
+                _('Please select a valid image')
+            );
+        }
+        if (self::getClass('MulticastSessionManager')->exists($sessionname)) {
+            throw new Exception(_('Session with that name already exists!'));
+        }
+        if ($sessiontimeout > 0) {
+            self::setSetting('FOG_UDPCAST_MAXWAIT', $sessiontimeout);
+        }
+        $countmc = self::getClass('MulticastSessionManager')
+            ->count(
+                [
+                    'stateID' => self::fastmerge(
+                        (array)self::getQueuedStates(),
+                        (array)self::getProgressState()
+                    )
+                ]
+            );
+        $countmctot = self::getSetting('FOG_MULTICAST_MAX_SESSIONS');
+        if ($countmc >= $countmctot) {
+            throw new Exception(
+                _(
+                    'Server is only configured to run '
+                    . $countmctot
+                    . ' multicast tasks!'
+                )
+            );
+        }
+        $StorageGroup = $Image->getStorageGroup();
+        $StorageNode = $StorageGroup->getMasterStorageNode();
+        return self::getClass('MulticastSession')
+            ->set('name', $sessionname)
+            ->set('port', self::getSetting('FOG_UDPCAST_STARTINGPORT'))
+            ->set('image', $Image->get('id'))
+            ->set('stateID', 0)
+            ->set('sessclients', $sessioncount)
+            ->set('isDD', $Image->get('imageTypeID'))
+            ->set('starttime', self::formatTime('now', 'Y-m-d H:i:s'))
+            ->set('interface', $StorageNode->get('interface'))
+            ->set('logpath', $Image->get('path'))
+            ->set('storagegroupID', $StorageNode->get('id'))
+            ->set('clients', -2);
+    }
+    /**
+     * Cancels the selected/passed sessions.
+     *
+     * @return void
+     */
+    public function sessionCancel()
+    {
     }
     /**
      * Submit the mutlicast form.
@@ -1251,83 +1441,33 @@ class ImageManagementPage extends FOGPage
      */
     public function multicastPost()
     {
+        header('Content-type: application/json');
+        self::$HookManager->processEvent(
+            'IMAGE_MULTICAST_SESSION_POST'
+        );
+        global $tab;
+        $serverFault = false;
         try {
-            $name = trim(
-                filter_input(INPUT_POST, 'name')
-            );
-            $image = (int)trim(
-                filter_input(INPUT_POST, 'image')
-            );
-            $timeout = (int)trim(
-                filter_input(INPUT_POST, 'timeout')
-            );
-            $count = (int)trim(
-                filter_input(INPUT_POST, 'count')
-            );
-            if (!$name) {
-                throw new Exception(_('Please input a session name'));
-            }
-            if (!$image) {
-                throw new Exception(_('Please choose an image'));
-            }
-            if (self::getClass('MulticastSessionManager')->exists($name)) {
-                throw new Exception(_('Session with that name already exists'));
-            }
-            if (self::getClass('HostManager')->exists($name)) {
-                throw new Exception(
-                    _('Session name cannot be the same as an existing hostname')
-                );
-            }
-            if ($timeout > 0) {
-                self::setSetting('FOG_UDPCAST_MAXWAIT', $timeout);
-            }
-            $countmc = self::getClass('MulticastSessionManager')
-                ->count(
-                    [
-                        'stateID' => self::fastmerge(
-                            (array)self::getQueuedStates(),
-                            (array)self::getProgressState()
-                        )
-                    ]
-                );
-            $countmctot = self::getSetting('FOG_MULTICAST_MAX_SESSIONS');
-            $Image = new Image($image);
-            $StorageGroup = $Image->getStorageGroup();
-            $StorageNode = $StorageGroup->getMasterStorageNode();
-            if ($countmc >= $countmctot) {
-                throw new Exception(
-                    sprintf(
-                        '%s<br/>%s %s %s<br/>%s %s',
-                        _('Please wait until a slot is open'),
-                        _('There are currently'),
-                        $countmc,
-                        _('tasks in queue'),
-                        _('Your server only allows'),
-                        $countmctot
-                    )
-                );
-            }
-            $MulticastSession = self::getClass('MulticastSession')
-                ->set('name', $name)
-                ->set('port', self::getSetting('FOG_UDPCAST_STARTINGPORT'))
-                ->set('image', $Image->get('id'))
-                ->set('stateID', 0)
-                ->set('sessclients', $count)
-                ->set('isDD', $Image->get('imageTypeID'))
-                ->set('starttime', self::formatTime('now', 'Y-m-d H:i:s'))
-                ->set('interface', $StorageNode->get('interface'))
-                ->set('logpath', $Image->get('path'))
-                ->set('storagegroupID', $StorageNode->get('id'))
-                ->set('clients', -2);
-            if (!$MulticastSession->save()) {
-                $serverFault = true;
-                throw new Exception(_('Failed to create Session'));
-            }
-            $randomnumber = mt_rand(24576, 32766)*2;
-            while ($randomnumber == $MulticastSession->get('port')) {
+            switch ($tab) {
+            case 'session-create':
+                $MulticastSession = $this->sessionCreate();
+                if (!$MulticastSession->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Failed to create Session'));
+                }
+
+                // Reset our port to a random number within the proper range.
                 $randomnumber = mt_rand(24576, 32766)*2;
+                while ($randomnumber == $MulticastSession->get('port')) {
+                    $randomnumber = mt_rand(24576, 32766)*2;
+                }
+                self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
+
+                break;
+            case 'session-cancel':
+                $this->sessionCancel();
+                break;
             }
-            self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
             $code = 201;
             $hook = 'IMAGE_MULTICAST_SESSION_SUCCESS';
             $msg = json_encode(
@@ -1350,33 +1490,6 @@ class ImageManagementPage extends FOGPage
         echo $msg;
         unset($MulticastSession);
         exit;
-    }
-    /**
-     * Stops/Cancels the mutlicast session(s).
-     *
-     * @return void
-     */
-    public function stop()
-    {
-        $mcid = (int)filter_input(INPUT_GET, 'mcid');
-        if ($mcid < 1) {
-            self::redirect(
-                sprintf('?node=%s&sub=multicast', $this->node)
-            );
-        }
-        self::getClass('MulticastSessionManager')->cancel($mcid);
-        self::setMessage(
-            sprintf(
-                '%s%s',
-                _('Cancelled task'),
-                (
-                    count($mcid) !== 1 ?
-                    's' :
-                    ''
-                )
-            )
-        );
-        self::redirect(sprintf('?node=%s&sub=multicast', $this->node));
     }
     /**
      * Presents the storage groups list table.
@@ -1664,6 +1777,108 @@ class ImageManagementPage extends FOGPage
                 $sqlstr,
                 $filterstr,
                 $totalstr
+            )
+        );
+        exit;
+    }
+    /**
+     * Get the current active tasks.
+     *
+     * @return void
+     */
+    public function getSessionsList()
+    {
+        header('Content-type: application/json');
+
+        $activestates = [
+            'queued',
+            'checked in',
+            'in-progress'
+        ];
+
+        $where = "`taskStates`.`tsName` IN ('"
+            . implode("','", $activestates)
+            . "')";
+
+        $obj = self::getClass('MulticastSessionManager');
+        $table = $obj->getTable();
+        $tableID = '';
+        $sqlstr = "SELECT `%s`
+            FROM `%s`
+            LEFT OUTER JOIN `taskStates`
+            ON `multicastSessions`.`msState` = `taskStates`.`tsID`
+            LEFT OUTER JOIN `images`
+            ON `multicastSessions`.`msImage` = `images`.`imageID`
+            %s
+            %s
+            %s";
+        $filterstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `taskStates`
+            ON `multicastSessions`.`msState` = `taskStates`.`tsID`
+            LEFT OUTER JOIN `images`
+            ON `multicastSessions`.`msImage` = `images`.`imageID`
+            %s";
+        $totalstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `taskStates`
+            ON `multicastSessions`.`msState` = `taskStates`.`tsID`
+            LEFT OUTER JOIN `images`
+            ON `multicastSessions`.`msImage` = `images`.`imageID`
+            WHERE " . $where;
+
+        $dbcolumns = $obj->getColumns();
+        $pass_vars = $columns = [];
+
+
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        foreach ($dbcolumns as $common => &$real) {
+            if ('id' == $common) {
+                $tableID = $real;
+            }
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+
+        $obj = self::getClass('ImageManager');
+        $table = $obj->getTable();
+        $dbcolumns = $obj->getColumns();
+        foreach ($dbcolumns as $common => &$real) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => 'image' . $common
+            ];
+            unset($real);
+        }
+
+        $obj = self::getClass('TaskStateManager');
+        $table = $obj->getTable();
+        $dbcolumns = $obj->getColumns();
+        foreach ($dbcolumns as $common => &$real) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => 'taskstate' . $common
+            ];
+            unset($real);
+        }
+
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'multicastSessions',
+                $tableID,
+                $columns,
+                $sqlstr,
+                $filterstr,
+                $totalstr,
+                $where
             )
         );
         exit;
