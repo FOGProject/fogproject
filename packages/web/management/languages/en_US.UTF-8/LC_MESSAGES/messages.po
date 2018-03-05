@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-04 15:23-0500\n"
+"POT-Creation-Date: 2018-03-05 00:16-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4713,19 +4713,9 @@ msgstr "User created"
 msgid "Image Create Fail"
 msgstr "User created"
 
-msgid "Partition"
-msgstr "Partition"
-
 #, fuzzy
 msgid "Image Protected"
 msgstr "Protected"
-
-#, fuzzy
-msgid "Replicate"
-msgstr "Replicate?"
-
-msgid "Compression"
-msgstr "Compression"
 
 #, fuzzy
 msgid "Update Primary Group"
@@ -4765,79 +4755,73 @@ msgstr "Session Name"
 msgid "Client Count"
 msgstr "Client Count"
 
-msgid "Timeout"
-msgstr "Timeout"
+#, fuzzy
+msgid "Session Timeout"
+msgstr "Session timeout"
 
 msgid "minutes"
 msgstr "minutes"
 
-msgid "Select Image"
-msgstr "Select Image"
+#, fuzzy
+msgid "Session Image"
+msgstr "Session Name"
 
 #, fuzzy
-msgid "Multicast Image"
-msgstr "Multicast"
-
-msgid "Start Multicast Session"
+msgid "New Multicast Session"
 msgstr "Start Multicast Session"
 
-msgid "Clients"
-msgstr "Clients"
-
-msgid "Percent"
-msgstr "Percent"
-
-msgid "Stop Task"
-msgstr "Stop Task"
+#, fuzzy
+msgid "Cancel Selected Tasks"
+msgstr "Delete Selected"
 
 #, fuzzy
-msgid "Current Sessions"
-msgstr "Image Association"
+msgid "Cancel the selected tasks."
+msgstr "Delete Selected"
 
-msgid "Please input a session name"
-msgstr "Please input a session name"
+#, fuzzy
+msgid "Multicast Sessions"
+msgstr "Start Multicast Session"
 
 msgid "Please choose an image"
 msgstr "Please choose an image"
 
-msgid "Session with that name already exists"
-msgstr "Session with that name already exists"
-
-msgid "Session name cannot be the same as an existing hostname"
-msgstr "Session name cannot be the same as an existing hostname"
+#, fuzzy
+msgid "Please select a valid image"
+msgstr "Select a valid image"
 
 #, fuzzy
-msgid "Please wait until a slot is open"
-msgstr "Please enter an access token"
+msgid "Session with that name already exists!"
+msgstr "A hostname with that name already exists."
 
-#, fuzzy
-msgid "There are currently"
-msgstr "There are"
-
-msgid "tasks in queue"
+msgid "Server is only configured to run "
 msgstr ""
 
 #, fuzzy
-msgid "Your server only allows"
-msgstr "You are only allowed to assign"
+msgid "Session created!"
+msgstr "Session Name"
+
+#, fuzzy
+msgid "Session Create Success"
+msgstr "Snapin updated"
+
+#, fuzzy
+msgid "Session Create Fail"
+msgstr "Snapin updated"
 
 msgid "Failed to create Session"
 msgstr "Failed to create Session"
 
 #, fuzzy
-msgid "Multicast session created!"
-msgstr "Start Multicast Session"
+msgid "Sessions cancelled!"
+msgstr "has been successfully updated"
 
 #, fuzzy
-msgid "Multicast Session Create Success"
-msgstr "Snapin updated"
+msgid "Session Cancel Success"
+msgstr "User created"
 
 #, fuzzy
-msgid "Multicast Session Create Fail"
-msgstr "Snapin updated"
-
-msgid "Cancelled task"
-msgstr "Cancelled task"
+msgid "Session Cancel Fail"
+msgstr "User created"
 
 #, fuzzy
 msgid "Server Information"
@@ -5236,6 +5220,10 @@ msgstr "Snapin Arguments"
 #, fuzzy
 msgid "Snapin Timeout (seconds)"
 msgstr "Menu Timeout (in seconds)"
+
+#, fuzzy
+msgid "Replicate"
+msgstr "Replicate?"
 
 msgid "Reboot after install"
 msgstr "Reboot after install"

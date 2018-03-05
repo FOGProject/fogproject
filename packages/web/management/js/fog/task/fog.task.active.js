@@ -105,19 +105,26 @@
 
     cancelSelected.on('click', function() {
         cancelSelected.prop('disabled', true);
+        pauseReload.prop('disabled', true);
+        resumeReload.prop('disabled', true);
+        clearTimeout(reloadinterval);
         var rows = table.rows({selected: true}),
             toRemove = Common.getSelectedIds(table),
+            method = cancelSelected.attr('method'),
+            action = cancelSelected.attr('action'),
             opts = {
-                'cancelconfirm': '1',
-                'tasks': toRemove
+                cancelconfirm: 1,
+                tasks: toRemove
             };
-        Common.apiCall(cancelSelected.attr('method'), cancelSelected.attr('action'), opts, function(err) {
-            if (!err) {
-                table.draw(false);
-                table.rows({selected: true}).deselect();
-            } else {
-                cancelSelected.prop('disabled', false);
+        Common.apiCall(method, action, opts, function(err) {
+            cancelSelected.prop('disabled', false);
+            pauseReload.prop('disabled', false);
+            reload(null, false);
+            if (err) {
+                return;
             }
+            table.draw(false);
+            table.rows({selected: true}).deselect();
         });
     });
     reload(null, false);

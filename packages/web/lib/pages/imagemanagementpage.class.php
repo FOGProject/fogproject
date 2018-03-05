@@ -1302,7 +1302,7 @@ class ImageManagementPage extends FOGPage
         // The Current running tasks.
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
-                'session-running'
+                'session-cancel'
             )
             . '" ';
 
@@ -1433,6 +1433,24 @@ class ImageManagementPage extends FOGPage
      */
     public function sessionCancel()
     {
+        header('Content-type: application/json');
+        self::$HookManager->processEvent(
+            'IMAGE_MULTICAST_TASK_CANCEL'
+        );
+        if (isset($_POST['cancelconfirm'])) {
+            $tasks = filter_input_array(
+                INPUT_POST,
+                [
+                    'tasks' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $tasks = $tasks['tasks'];
+            self::getClass('MulticastSessionManager')->cancel(
+                $tasks
+            );
+        }
     }
     /**
      * Submit the mutlicast form.
@@ -1450,6 +1468,10 @@ class ImageManagementPage extends FOGPage
         try {
             switch ($tab) {
             case 'session-create':
+                $msgSuccess = _('Session created!');
+                $titleSuccess = _('Session Create Success');
+                $titleFail = _('Session Create Fail');
+
                 $MulticastSession = $this->sessionCreate();
                 if (!$MulticastSession->save()) {
                     $serverFault = true;
@@ -1462,27 +1484,29 @@ class ImageManagementPage extends FOGPage
                     $randomnumber = mt_rand(24576, 32766)*2;
                 }
                 self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
-
                 break;
             case 'session-cancel':
                 $this->sessionCancel();
+                $msgSuccess = _('Sessions cancelled!');
+                $titleSuccess = _('Session Cancel Success');
+                $titleFail = _('Session Cancel Fail');
                 break;
             }
-            $code = 201;
-            $hook = 'IMAGE_MULTICAST_SESSION_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Multicast session created!'),
-                    'title' => _('Multicast Session Create Success')
+                    'msg' => $msgSuccess,
+                    'title' => $titleSuccess
                 ]
             );
+            $code = 201;
+            $hook = 'IMAGE_MULTICAST_SESSION_SUCCESS';
         } catch (Exception $e) {
             $code = ($serverFault ? 500 : 400);
             $hook = 'IMAGE_MULTICAST_SESSION_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Multicast Session Create Fail')
+                    'title' => $titleFail
                 ]
             );
         }

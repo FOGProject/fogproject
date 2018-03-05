@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-04 15:23-0500\n"
+"POT-Creation-Date: 2018-03-05 00:16-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4294,19 +4294,9 @@ msgstr "Creazione immagine riuscita"
 msgid "Image Create Fail"
 msgstr "Creazione immagine fallita"
 
-msgid "Partition"
-msgstr "Partizione"
-
 #, fuzzy
 msgid "Image Protected"
 msgstr "Protetta"
-
-#, fuzzy
-msgid "Replicate"
-msgstr "Replicare?"
-
-msgid "Compression"
-msgstr "Compressione"
 
 #, fuzzy
 msgid "Update Primary Group"
@@ -4343,74 +4333,73 @@ msgstr "Nome sessione"
 msgid "Client Count"
 msgstr "Conte client"
 
-msgid "Timeout"
-msgstr "Tempo scaduto"
+#, fuzzy
+msgid "Session Timeout"
+msgstr "Timeout della sessione"
 
 msgid "minutes"
 msgstr "minuti"
 
-msgid "Select Image"
-msgstr "Seleziona Immagine"
+#, fuzzy
+msgid "Session Image"
+msgstr "Nome sessione"
 
-msgid "Multicast Image"
-msgstr "Immagine Multicast"
+#, fuzzy
+msgid "New Multicast Session"
+msgstr "Sessione multicast non valida"
 
-msgid "Start Multicast Session"
-msgstr "Inizia sessione multicast"
+#, fuzzy
+msgid "Cancel Selected Tasks"
+msgstr "Elimina selezionato"
 
-msgid "Clients"
-msgstr "clienti"
+#, fuzzy
+msgid "Cancel the selected tasks."
+msgstr "Elimina selezionato"
 
-msgid "Percent"
-msgstr "Per cento"
-
-msgid "Stop Task"
-msgstr "arresto Task"
-
-msgid "Current Sessions"
-msgstr "Sessioni correnti"
-
-msgid "Please input a session name"
-msgstr "Si prega di inserire un nome di sessione"
+#, fuzzy
+msgid "Multicast Sessions"
+msgstr "Sessione multicast non valida"
 
 msgid "Please choose an image"
 msgstr "Scegliere un immagine"
 
-msgid "Session with that name already exists"
-msgstr "Sessione con questo nome esiste già"
+#, fuzzy
+msgid "Please select a valid image"
+msgstr "Selezionare un'immagine valida"
 
-msgid "Session name cannot be the same as an existing hostname"
-msgstr "nome della sessione non può essere la stessa di un nome host esistente"
+#, fuzzy
+msgid "Session with that name already exists!"
+msgstr "Un nome host con questo nome esiste già"
 
-msgid "Please wait until a slot is open"
-msgstr "Attendere l'apertura di uno slot"
+msgid "Server is only configured to run "
+msgstr ""
 
-msgid "There are currently"
-msgstr "Ci sono attualmente"
+#, fuzzy
+msgid "Session created!"
+msgstr "Nome sessione"
 
-msgid "tasks in queue"
-msgstr "attività in coda"
+#, fuzzy
+msgid "Session Create Success"
+msgstr "Creazione Snapin completata"
 
-msgid "Your server only allows"
-msgstr "Il tuo server consente solo"
+#, fuzzy
+msgid "Session Create Fail"
+msgstr "Creazione Snapin fallita"
 
 msgid "Failed to create Session"
 msgstr "Impossibile creare Session"
 
 #, fuzzy
-msgid "Multicast session created!"
-msgstr "Inizia sessione multicast"
+msgid "Sessions cancelled!"
+msgstr "Attività pianificate create con successo"
 
 #, fuzzy
-msgid "Multicast Session Create Success"
-msgstr "Creazione posizione riuscita"
+msgid "Session Cancel Success"
+msgstr "Aggiunta tipo attività riuscita"
 
 #, fuzzy
-msgid "Multicast Session Create Fail"
-msgstr "Creazione posizione fallita"
-
-msgid "Cancelled task"
-msgstr "compito Annullato"
+msgid "Session Cancel Fail"
+msgstr "Aggiunta tipo attività fallita"
 
 #, fuzzy
 msgid "Server Information"
@@ -4777,6 +4766,10 @@ msgstr "Snapin Argomenti nascosti"
 
 msgid "Snapin Timeout (seconds)"
 msgstr "Timeout Snapin (in secondi)"
+
+#, fuzzy
+msgid "Replicate"
+msgstr "Replicare?"
 
 msgid "Reboot after install"
 msgstr "Riavvio dopo l'installazione"

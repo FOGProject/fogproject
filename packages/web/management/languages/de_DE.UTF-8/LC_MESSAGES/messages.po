@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-04 15:23-0500\n"
+"POT-Creation-Date: 2018-03-05 00:16-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4715,19 +4715,9 @@ msgstr "Imageerstellung erfolgreich"
 msgid "Image Create Fail"
 msgstr "Imageerstellung fehlgeschlagen"
 
-msgid "Partition"
-msgstr "Partition"
-
 #, fuzzy
 msgid "Image Protected"
 msgstr "Geschützt"
-
-#, fuzzy
-msgid "Replicate"
-msgstr "Replizieren?"
-
-msgid "Compression"
-msgstr "Kompression"
 
 #, fuzzy
 msgid "Update Primary Group"
@@ -4767,79 +4757,73 @@ msgstr "Sitzungsname"
 msgid "Client Count"
 msgstr "Anzahl der Clients"
 
-msgid "Timeout"
-msgstr "Timeout"
+#, fuzzy
+msgid "Session Timeout"
+msgstr "Session-Timeout"
 
 msgid "minutes"
 msgstr "Minuten"
 
-msgid "Select Image"
-msgstr "Wählen Sie ein Image"
+#, fuzzy
+msgid "Session Image"
+msgstr "Sitzungsname"
 
 #, fuzzy
-msgid "Multicast Image"
-msgstr "Multicast Image"
-
-msgid "Start Multicast Session"
-msgstr "Multicast-Sitzung starten"
-
-msgid "Clients"
-msgstr "Clients"
-
-msgid "Percent"
-msgstr "Prozent"
-
-msgid "Stop Task"
-msgstr "Task beenden"
+msgid "New Multicast Session"
+msgstr "ungültige Multicast-Sitzung"
 
 #, fuzzy
-msgid "Current Sessions"
-msgstr "Aktuelle Sitzungen"
+msgid "Cancel Selected Tasks"
+msgstr "Ausgewählte löschen"
 
-msgid "Please input a session name"
-msgstr "Bitte geben Sie einen Sitzungsnamen ein"
+#, fuzzy
+msgid "Cancel the selected tasks."
+msgstr "Ausgewählte löschen"
+
+#, fuzzy
+msgid "Multicast Sessions"
+msgstr "ungültige Multicast-Sitzung"
 
 msgid "Please choose an image"
 msgstr "Bitte wählen Sie ein Image"
 
-msgid "Session with that name already exists"
-msgstr "Sitzung mit diesem Namen ist bereits vorhanden"
-
-msgid "Session name cannot be the same as an existing hostname"
-msgstr "Sitzungsname darf nicht mit vorhandenem Hostname identisch sein"
+#, fuzzy
+msgid "Please select a valid image"
+msgstr "Wählen Sie ein gültiges Abbild"
 
 #, fuzzy
-msgid "Please wait until a slot is open"
-msgstr "Bitte warten, bis ein Slot offen ist"
+msgid "Session with that name already exists!"
+msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
+
+msgid "Server is only configured to run "
+msgstr ""
 
 #, fuzzy
-msgid "There are currently"
-msgstr "Es gibt aktuell "
-
-msgid "tasks in queue"
-msgstr "Tasks in der Warteschlange"
+msgid "Session created!"
+msgstr "Sitzungsname"
 
 #, fuzzy
-msgid "Your server only allows"
-msgstr "Ihr Server erlaubt nur "
+msgid "Session Create Success"
+msgstr "Snapin erfolgreich hinzugefügt"
+
+#, fuzzy
+msgid "Session Create Fail"
+msgstr "Snapin erstellen fehlgeschlagen"
 
 msgid "Failed to create Session"
 msgstr "Fehler beim Erstellen der Sitzung"
 
 #, fuzzy
-msgid "Multicast session created!"
-msgstr "Multicast-Sitzung starten"
+msgid "Sessions cancelled!"
+msgstr "geplante Tasks wurde erfolgreich erstellt"
 
 #, fuzzy
-msgid "Multicast Session Create Success"
-msgstr "Standort erfolgreich erstellt"
+msgid "Session Cancel Success"
+msgstr "Task-Typ erfolgreich erstellt"
 
 #, fuzzy
-msgid "Multicast Session Create Fail"
-msgstr "Standort erstellen fehlgeschlagen"
-
-msgid "Cancelled task"
-msgstr "Stornierter Task"
+msgid "Session Cancel Fail"
+msgstr "Task-Typ erstellen fehlgeschlagen"
 
 #, fuzzy
 msgid "Server Information"
@@ -5238,6 +5222,10 @@ msgstr "Snapin-Argumente versteckt"
 #, fuzzy
 msgid "Snapin Timeout (seconds)"
 msgstr "Snapin-Timeout (in Sekunden)"
+
+#, fuzzy
+msgid "Replicate"
+msgstr "Replizieren?"
 
 msgid "Reboot after install"
 msgstr "Nach der Installation neu starten"
