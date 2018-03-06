@@ -139,7 +139,7 @@ class Page extends FOGBase
         FOGPage::buildMainMenuItems($this->menu);
         $files = array(
             'js/jquery.min.js',
-            'js/underscore-min.js',
+            'js/lodash.min.js',
             'js/bootstrap.min.js',
             'js/fastclick.js',
             'js/Flot/jquery.flot.js',
