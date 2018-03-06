@@ -45,11 +45,11 @@
                         + '</a>';
                 },
                 targets: 0
-            }
+            },
             {
                 responsivePriority: 0,
                 targets: 1
-            },
+            }
         ],
         processing: true,
         serverSide: true,

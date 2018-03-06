@@ -167,8 +167,8 @@ class DashboardPage extends FOGPage
         $macPend = sprintf(
             $pendingInfo,
             _('Click'),
-            'report',
-            'file&f=cGVuZGluZyBtYWMgbGlzdA==',
+            'host',
+            'pendingMacs',
             _('here'),
             _('to review.')
         );
