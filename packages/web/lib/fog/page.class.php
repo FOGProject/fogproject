@@ -141,6 +141,7 @@ class Page extends FOGBase
             'js/jquery.min.js',
             'js/lodash.min.js',
             'js/bootstrap.min.js',
+            'js/bootstrap-slider.min.js',
             'js/fastclick.js',
             'js/Flot/jquery.flot.js',
             'js/Flot/jquery.flot.resize.js',
