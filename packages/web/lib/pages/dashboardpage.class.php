@@ -203,6 +203,10 @@ class DashboardPage extends FOGPage
                 ['fields' => &$fields]
             );
 
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
+
+        echo '<div clss="box-group">';
         echo '<!-- FOG Overview Boxes -->';
         // Server info basic.
         echo '<div class="col-md-4">';
@@ -272,6 +276,7 @@ class DashboardPage extends FOGPage
         echo '<a href="?node=hwinfo" id="hwinfolink">';
         echo '<div id="graph-diskusage"></div>';
         echo '</a>';
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -398,6 +403,9 @@ class DashboardPage extends FOGPage
         echo '<div class="box-body">';
         echo '<div id="graph-bandwidth"></div>';
         echo '</div>';
+        echo '</div>';
+        echo '</div>';
+
         echo '</div>';
         echo '</div>';
     }

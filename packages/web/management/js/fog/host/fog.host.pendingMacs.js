@@ -27,11 +27,11 @@
     disableButtons(true);
     var table = Common.registerTable($('#dataTable'), onSelect, {
         order: [
-            [1, 'asc']
+            [0, 'asc']
         ],
         columns: [
-            {data: 'mac'},
-            {data: 'hostname'}
+            {data: 'hostname'},
+            {data: 'mac'}
         ],
         rowId: 'id',
         columnDefs: [
