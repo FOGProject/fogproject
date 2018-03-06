@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-05 17:09-0500\n"
+"POT-Creation-Date: 2018-03-06 01:31-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3831,6 +3831,10 @@ msgid "Host Approval Success"
 msgstr "Host Created"
 
 #, fuzzy
+msgid "All Pending MACs"
+msgstr "Pending MACs"
+
+#, fuzzy
 msgid "Create New Host"
 msgstr "Create New %s"
 
@@ -5308,6 +5312,28 @@ msgstr "Install / Update Successful!"
 #, fuzzy
 msgid "Snapin Update Fail"
 msgstr "Snapin update failed"
+
+#, fuzzy
+msgid "Login Failed"
+msgstr "Load failed: %s"
+
+#, fuzzy
+msgid "Login successful!"
+msgstr "Successful"
+
+#, fuzzy
+msgid "Login Success"
+msgstr "Install / Update Successful!"
+
+msgid "Sign in to start your session"
+msgstr ""
+
+msgid "Remember Me"
+msgstr ""
+
+#, fuzzy
+msgid "Sign In"
+msgstr "Signed"
 
 msgid "Database Schema Installer / Updater"
 msgstr "Database Schema Installer / Updater"

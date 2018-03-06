@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-05 17:09-0500\n"
+"POT-Creation-Date: 2018-03-06 01:31-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3369,6 +3369,9 @@ msgstr ""
 msgid "Host Approval Success"
 msgstr ""
 
+msgid "All Pending MACs"
+msgstr ""
+
 msgid "Create New Host"
 msgstr ""
 
@@ -4613,6 +4616,24 @@ msgid "Snapin Update Success"
 msgstr ""
 
 msgid "Snapin Update Fail"
+msgstr ""
+
+msgid "Login Failed"
+msgstr ""
+
+msgid "Login successful!"
+msgstr ""
+
+msgid "Login Success"
+msgstr ""
+
+msgid "Sign in to start your session"
+msgstr ""
+
+msgid "Remember Me"
+msgstr ""
+
+msgid "Sign In"
 msgstr ""
 
 msgid "Database Schema Installer / Updater"

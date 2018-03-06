@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-05 17:09-0500\n"
+"POT-Creation-Date: 2018-03-06 01:31-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3822,6 +3822,10 @@ msgid "Host Approval Success"
 msgstr "主机创建"
 
 #, fuzzy
+msgid "All Pending MACs"
+msgstr "待定的MAC"
+
+#, fuzzy
 msgid "Create New Host"
 msgstr "新建%s"
 
@@ -5292,6 +5296,28 @@ msgstr "安装/升级成功！"
 #, fuzzy
 msgid "Snapin Update Fail"
 msgstr "管理单元更新失败"
+
+#, fuzzy
+msgid "Login Failed"
+msgstr "加载失败： %s"
+
+#, fuzzy
+msgid "Login successful!"
+msgstr "成功"
+
+#, fuzzy
+msgid "Login Success"
+msgstr "安装/升级成功！"
+
+msgid "Sign in to start your session"
+msgstr ""
+
+msgid "Remember Me"
+msgstr ""
+
+#, fuzzy
+msgid "Sign In"
+msgstr "签"
 
 msgid "Database Schema Installer / Updater"
 msgstr "数据库模式安装/更新"

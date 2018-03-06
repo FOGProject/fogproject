@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-05 17:09-0500\n"
+"POT-Creation-Date: 2018-03-06 01:31-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3833,6 +3833,10 @@ msgid "Host Approval Success"
 msgstr "Host erfolgreich erstellt"
 
 #, fuzzy
+msgid "All Pending MACs"
+msgstr "Ausstehende MACs"
+
+#, fuzzy
 msgid "Create New Host"
 msgstr "Neue %s erstellen"
 
@@ -5310,6 +5314,28 @@ msgstr "Snapin Update erfolgreich!"
 #, fuzzy
 msgid "Snapin Update Fail"
 msgstr "Snapin Update fehlgeschlagen"
+
+#, fuzzy
+msgid "Login Failed"
+msgstr "Laden fehlgeschlagen: %s"
+
+#, fuzzy
+msgid "Login successful!"
+msgstr "Erfolgreich"
+
+#, fuzzy
+msgid "Login Success"
+msgstr "Standort erfolgreich aktualisiert"
+
+msgid "Sign in to start your session"
+msgstr ""
+
+msgid "Remember Me"
+msgstr ""
+
+#, fuzzy
+msgid "Sign In"
+msgstr "Unterschrift"
 
 msgid "Database Schema Installer / Updater"
 msgstr "Datenbank-Schema Installer / Updater"
