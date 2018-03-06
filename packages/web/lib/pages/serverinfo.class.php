@@ -73,8 +73,29 @@ class ServerInfo extends FOGPage
             self::$httpproto,
             $this->obj->get('ip')
         );
+        $test = parse_url($url, PHP_URL_HOST);
+        $test = self::$FOGURLRequests->isAvailable($test, 1);
+        if (!array_shift($test)) {
+            echo '<div class="col-md-12">';
+            echo '<div class="box box-warning">';
+            echo '<div class="box-header with-border">';
+            echo '<h4 class="box-title">';
+            echo $this->title;
+            echo '</h4>';
+            echo '<div class="box-tools pull-right">';
+            echo self::$FOGCollapseBox;
+            echo self::$FOGCloseBox;
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="box-body">';
+            echo _('Server appears to be offline or unavailable!');
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            return;
+        }
         $ret = self::$FOGURLRequests->process($url);
-        $ret = trim($ret[0]);
+        $ret = array_shift($ret);
         if (!$ret) {
             echo '<div class="col-md-12">';
             echo '<div class="box box-warning">';
@@ -88,12 +109,13 @@ class ServerInfo extends FOGPage
             echo '</div>';
             echo '</div>';
             echo '<div class="box-body">';
-            echo _('Unable to get server infromation!');
+            echo _('Unable to retrieve server information!');
             echo '</div>';
             echo '</div>';
             echo '</div>';
             return;
         }
+        $ret = trim($ret[0]);
         $section = 0;
         $arGeneral = [];
         $arFS = [];
