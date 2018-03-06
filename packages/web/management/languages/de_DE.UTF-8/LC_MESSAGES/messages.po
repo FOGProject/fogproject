@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 16:47-0500\n"
+"POT-Creation-Date: 2018-03-06 17:28-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4848,9 +4848,12 @@ msgstr "Allgemeine Informationen"
 msgid "Invalid Server Information!"
 msgstr "Ungültige Serverinformation!"
 
+msgid "Server appears to be offline or unavailable!"
+msgstr ""
+
 #, fuzzy
-msgid "Unable to get server infromation!"
-msgstr "Es konnten keine Serverinformationen abgerufen werden!"
+msgid "Unable to retrieve server information!"
+msgstr "Grundlegende Informationen nicht gefunden"
 
 msgid "General Information"
 msgstr "Allgemeine Informationen"

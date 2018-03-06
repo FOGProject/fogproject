@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 16:47-0500\n"
+"POT-Creation-Date: 2018-03-06 17:28-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4426,8 +4426,12 @@ msgstr "Informazione generale"
 msgid "Invalid Server Information!"
 msgstr "Information Server non valido!"
 
-msgid "Unable to get server infromation!"
-msgstr "Impossibile ottenere informazioni sul server!"
+msgid "Server appears to be offline or unavailable!"
+msgstr ""
+
+#, fuzzy
+msgid "Unable to retrieve server information!"
+msgstr "Impossibile trovare informazioni di base!"
 
 msgid "General Information"
 msgstr "Informazione generale"

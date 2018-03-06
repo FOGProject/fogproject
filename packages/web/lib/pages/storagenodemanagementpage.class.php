@@ -442,6 +442,7 @@ class StorageNodeManagementPage extends FOGPage
     public function addPost()
     {
         header('Content-type: application/json');
+        self::$HookManager->processEvent('STORAGENODE_ADD_POST');
         // Setup and filter our vars.
         $storagenode = trim(
             filter_input(INPUT_POST, 'storagenode')
@@ -492,7 +493,6 @@ class StorageNodeManagementPage extends FOGPage
             filter_input(INPUT_POST, 'bitrate')
         );
         $serverFault = false;
-        self::$HookManager->processEvent('STORAGE_NODE_ADD_POST');
         try {
             if (empty($storagenode)) {
                 throw new Exception(self::$foglang['StorageNameRequired']);
@@ -572,12 +572,13 @@ class StorageNodeManagementPage extends FOGPage
             $msg = json_encode(
                 [
                     'msg' => _('Storage Node added!'),
-                    'title' => _('Storage Node Create Success')
+                    'title' => _('Storage Node Create Success'),
+                    'id' => $StorageNode->get('id')
                 ]
             );
         } catch (Exception $e) {
             $code = ($serverFault ? 500 : 400);
-            $hook = 'STORAGE_NODE_ADD_FAIL';
+            $hook = 'STORAGENODE_ADD_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
@@ -597,6 +598,7 @@ class StorageNodeManagementPage extends FOGPage
                     'serverFault' => &$serverFault
                 ]
             );
+        http_response_code($code);
         unset($StorageNode);
         echo $msg;
         exit;
