@@ -97,13 +97,6 @@ class SubMenuData extends Hook
                 'config' => self::$foglang['ConfigSave']
             ];
             break;
-        case 'image':
-            $arguments['menu']['multicast'] = sprintf(
-                '%s %s',
-                self::$foglang['Multicast'],
-                self::$foglang['Image']
-            );
-            break;
         case 'plugin':
             $arguments['menu'] = [
                 'home' => self::$foglang['Home'],
@@ -120,6 +113,7 @@ class SubMenuData extends Hook
                 'activescheduled' => self::$foglang['ScheduledTasks'],
             ];
             break;
+        case 'image':
         case 'storagenode':
         case 'storagegroup':
         case 'group':

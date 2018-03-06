@@ -574,7 +574,7 @@ class PluginManagementPage extends FOGPage
             global $node;
             $run = filter_input(INPUT_GET, 'run');
             $url = sprintf(
-                '?node=%s&sub=%s&run=%s',
+                '../management/index.php?node=%s&sub=%s&run=%s',
                 $node,
                 $sub,
                 $run

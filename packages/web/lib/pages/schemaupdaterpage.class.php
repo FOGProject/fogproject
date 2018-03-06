@@ -39,7 +39,7 @@ class SchemaUpdaterPage extends FOGPage
         parent::__construct($name);
         $schema = new Schema(1);
         if ($schema->get('version') >= FOG_SCHEMA) {
-            self::redirect('index.php');
+            self::redirect('../management/index.php');
         }
         $this->name = 'Database Schema Installer / Updater';
     }

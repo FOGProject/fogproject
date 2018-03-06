@@ -46,9 +46,239 @@ $(function() {
     });
     // ---------------------------------------------------------------
     // HOST ASSOCIATION TAB
-    // TODO: Make Functional
+    var siteHostForm = $('#site-host-form'),
+        siteHostUpdateBtn = $('#site-host-send'),
+        siteHostRemoveBtn = $('#site-host-remove');
+
+    function disableHostButtons(disable) {
+        siteHostUpdateBtn.prop('disabled', disable);
+        siteHostRemoveBtn.prop('disabled', disable);
+    }
+
+    function onHostSelect(selected) {
+        var disabled = selected.count() == 0;
+        disableHostButtons(disabled);
+    }
+
+    siteHostForm.on('submit', function(e) {
+        e.preventDefault();
+    });
+
+    siteHostUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = siteHostForm.attr('method'),
+            action = siteHostForm.attr('action'),
+            rows = siteHostsTable.rows({selected: true}),
+            toAdd = Common.getSelectedIds(siteHostsTable),
+            opts = {
+                addhosts: 1,
+                hosts: toAdd
+            };
+        Common.apiCall(method,action,opts,function(err) {
+            disableHostButtons(false);
+            siteHostsTable.rows({selected: true}).deselect();
+            siteHostsTable.draw(false);
+        });
+    });
+
+    siteHostRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = siteHostForm.attr('method'),
+            action = siteHostForm.attr('action'),
+            rows = siteHostsTable.rows({selected: true}),
+            toRemove = Common.getSelectedIds(siteHostsTable),
+            opts = {
+                remhosts: 1,
+                hostsrem: toRemove
+            };
+        Common.apiCall(method,action,opts,function(err) {
+            disableHostButtons(false);
+            siteHostsTable.rows({selected: true}).deselect();
+            siteHostsTable.draw(false);
+            if (err) {
+                return;
+            }
+        });
+    });
+
+    var siteHostsTable = Common.registerTable($('#site-host-table'), onHostSelect, {
+        order: [
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'name'},
+            {data: 'association'}
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                responsivePriority: -1,
+                render: function(data, type, row) {
+                    return '<a href="../management/index.php?node=host&sub=edit&id='
+                    + row.id
+                    + '">'
+                    + row.name
+                    + '</a>';
+                },
+                targets: 0
+            },
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                    + '<input type="checkbox" class="associated" name="associate[]" id="siteHostAssoc_'
+                    + row.id
+                    + '" value="' + row.id + '"'
+                    + checkval
+                    + '/>'
+                    + '</div>';
+                },
+                targets: 1
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+            + Common.node
+            + '&sub=getHostsList&id='
+            + Common.id,
+            type: 'post'
+        }
+    });
+
+    siteHostsTable.on('draw', function() {
+        Common.iCheck('#site-host-table input');
+        $('#site-host-table input.associated').on('ifClicked', onSiteHostCheckboxSelect);
+        onHostSelect(siteHostsTable.rows({selected: true}));
+    });
+
+    var onSiteHostCheckboxSelect = function(event) {
+    };
+
+    if (Common.search && Common.search.length > 0) {
+        siteHostsTable.search(Common.search).draw();
+    }
 
     // ---------------------------------------------------------------
     // USER ASSOCIATION TAB
-    // TODO: Make Functional
+    var siteUserForm = $('#site-user-form'),
+        siteUserUpdateBtn = $('#site-user-send'),
+        siteUserRemoveBtn = $('#site-user-remove');
+
+    function disableUserButtons(disable) {
+        siteUserUpdateBtn.prop('disabled', disable);
+        siteUserRemoveBtn.prop('disabled', disable);
+    }
+
+    function onUserSelect(selected) {
+        var disabled = selected.count() == 0;
+        disableUserButtons(disabled);
+    }
+
+    siteUserForm.on('submit', function(e) {
+        e.preventDefault();
+    });
+
+    siteUserUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = siteUserForm.attr('method'),
+            action = siteUserForm.attr('action'),
+            rows = siteUsersTable.rows({selected: true}),
+            toAdd = Common.getSelectedIds(siteUsersTable),
+            opts = {
+                addusers: 1,
+                users: toAdd
+            };
+        Common.apiCall(method,action,opts,function(err) {
+            disableUserButtons(false);
+            siteUsersTable.rows({selected: true}).deselect();
+            siteUsersTable.draw(false);
+        });
+    });
+
+    siteUserRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = siteUserForm.attr('method'),
+            action = siteUserForm.attr('action'),
+            rows = siteUsersTable.rows({selected: true}),
+            toRemove = Common.getSelectedIds(siteUsersTable),
+            opts = {
+                remusers: 1,
+                usersrem: toRemove
+            };
+        Common.apiCall(method,action,opts,function(err) {
+            disableUserButtons(false);
+            siteUsersTable.rows({selected: true}).deselect();
+            siteUsersTable.draw(false);
+            if (err) {
+                return;
+            }
+        });
+    });
+
+    var siteUsersTable = Common.registerTable($('#site-user-table'), onUserSelect, {
+        order: [
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'name'},
+            {data: 'association'}
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                responsivePriority: -1,
+                render: function(data, type, row) {
+                    return '<a href="../management/index.php?node=user&sub=edit&id='
+                    + row.id
+                    + '">'
+                    + row.name
+                    + '</a>';
+                },
+                targets: 0
+            },
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                    + '<input type="checkbox" class="associated" name="associate[]" id="siteUserAssoc_'
+                    + row.id
+                    + '" value="' + row.id + '"'
+                    + checkval
+                    + '/>'
+                    + '</div>';
+                },
+                targets: 1
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+            + Common.node
+            + '&sub=getUsersList&id='
+            + Common.id,
+            type: 'post'
+        }
+    });
+
+    siteUsersTable.on('draw', function() {
+        Common.iCheck('#site-user-table input');
+        $('#site-user-table input.associated').on('ifClicked', onSiteUserCheckboxSelect);
+        onUserSelect(siteUsersTable.rows({selected: true}));
+    });
+
+    var onSiteUserCheckboxSelect = function(event) {
+    };
+
+    if (Common.search && Common.search.length > 0) {
+        siteUsersTable.search(Common.search).draw();
+    }
 });

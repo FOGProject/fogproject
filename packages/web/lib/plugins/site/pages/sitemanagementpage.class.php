@@ -273,6 +273,134 @@ class SiteManagementPage extends FOGPage
             ->set('description', $description);
     }
     /**
+     * Presents the hosts list.
+     *
+     * @return void
+     */
+    public function siteHosts()
+    {
+        $this->headerData = [
+            _('Host Name'),
+            _('Associated')
+        ];
+        $this->templates = [
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
+        $buttons = self::makeButton(
+            'site-host-send',
+            _('Add selected'),
+            'btn btn-primary'
+        );
+        $buttons .= self::makeButton(
+            'site-host-remove',
+            _('Remove selected'),
+            'btn btn-danger'
+        );
+        echo self::makeFormTag(
+            'form-horizontal',
+            'site-host-form',
+            self::makeTabUpdateURL(
+                'site-host',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Site Host Associations');
+        echo '</h4>';
+        echo '<p class="help-block">';
+        echo 'TODO: Make jQuery Functional';
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'site-host-table', $buttons);
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+    }
+    /**
+     * Updates site hosts.
+     *
+     * @return void
+     */
+    public function siteHostPost()
+    {
+        throw new Exception('TODO: Make Functional');
+    }
+    /**
+     * Presents the users list.
+     *
+     * @return void
+     */
+    public function siteUsers()
+    {
+        $this->headerData = [
+            _('User Name'),
+            _('Associated')
+        ];
+        $this->templates = [
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
+        $buttons = self::makeButton(
+            'site-user-send',
+            _('Add selected'),
+            'btn btn-primary'
+        );
+        $buttons .= self::makeButton(
+            'site-user-remove',
+            _('Remove selected'),
+            'btn btn-danger'
+        );
+        echo self::makeFormTag(
+            'form-horizontal',
+            'site-user-form',
+            self::makeTabUpdateURL(
+                'site-user',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Site User Associations');
+        echo '</h4>';
+        echo '<p class="help-block">';
+        echo 'TODO: Make jQuery Functional';
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'site-user-table', $buttons);
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+    }
+    /**
+     * Updates site users.
+     *
+     * @return void
+     */
+    public function siteUserPost()
+    {
+        throw new Exception('TODO: Make Functional');
+    }
+    /**
      * Edit.
      *
      * @return void
@@ -296,22 +424,27 @@ class SiteManagementPage extends FOGPage
             }
         ];
 
-        // Site Host Association
+        // Associations
         $tabData[] = [
-            'name' => _('Host Association'),
-            'id' => 'site-host',
-            'generator' => function() {
-                echo 'TODO: Make functional';
-            }
-        ];
-
-        // Site User Association
-        $tabData[] = [
-            'name' => _('User Association'),
-            'id' => 'site-user',
-            'generator' => function() {
-                echo 'TODO: Make functional';
-            }
+            'tabs' => [
+                'name' => _('Associations'),
+                'tabData' => [
+                    [
+                        'name' => _('Host Association'),
+                        'id' => 'site-host',
+                        'generator' => function() {
+                            $this->siteHosts();
+                        }
+                    ],
+                    [
+                        'name' => _('User Association'),
+                        'id' => 'site-user',
+                        'generator' => function() {
+                            $this->siteUsers();
+                        }
+                    ]
+                ]
+            ]
         ];
 
         echo self::tabFields($tabData, $this->obj);
@@ -381,314 +514,131 @@ class SiteManagementPage extends FOGPage
         exit;
     }
     /**
-     * List the hosts which are associated to a site
+     * Gets the host list.
      *
      * @return void
      */
-    public function assocHost()
+    public function getHostsList()
     {
-        $this->data = [];
-        echo '<!-- Host membership -->';
-        printf(
-            '<div id="%s-membership">',
-            $this->node
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
         );
-        $this->headerData = [
-            '<input type="checkbox" name="toggle-checkboxhost"'
-            . 'class="toggle-checkboxhost"/>',
-            _('Host')
+
+        $hostsSqlStr = "SELECT `%s`,"
+            . "IF(`shaSiteID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') as `shaSiteID`
+            FROM `%s`
+            CROSS JOIN `site`
+            LEFT OUTER JOIN `siteHostAssoc`
+            ON `hosts`.`hostID` = `siteHostAssoc`.`shaHostID`
+            AND `site`.`sID` = `siteHostAssoc`.`shaSiteID`
+            %s
+            %s
+            %s";
+        $hostsFilterStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            CROSS JOIN `site`
+            LEFT OUTER JOIN `siteHostAssoc`
+            ON `hosts`.`hostID` = `siteHostAssoc`.`shaHostID`
+            AND `site`.`sID` = `siteHostAssoc`.`shaSiteID`
+            %s";
+        $hostsTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+
+        foreach (self::getClass('HostManager')
+            ->getColumns() as $common => &$real
+        ) {
+            if ('id' == $common) {
+                $tableID = $real;
+            }
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        $columns[] = [
+            'db' => 'shaSiteID',
+            'dt' => 'association'
         ];
-        $this->templates = [
-            '<input type="checkbox" name="host[]" value="${host_id}" '
-            . 'class="toggle-host"/>',
-            sprintf(
-                '<a href="?node=%ssub=edit&id=${host_id}" '
-                . 'title="%s: ${host_name}">${host_name}</a>',
-                'host',
-                _('Edit')
+        echo json_encode(
+            FOGManagerController::simple(
+                $pass_vars,
+                'hosts',
+                $tableID,
+                $columns,
+                $hostsSqlStr,
+                $hostsFilterStr,
+                $hostsTotalStr
             )
-        ];
-        $this->attributes = [
-            [
-                'width' => 16,
-                'class' => 'filter-false',
-            ],
-            []
-        ];
-        foreach ((array)self::getClass('HostManager')
-            ->find(
-                ['id' => $this->obj->get('hostsnotinme')]
-            ) as &$Host
+        );
+        exit;
+    }
+    /**
+     * Gets the user list.
+     *
+     * @return void
+     */
+    public function getUsersList()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $usersSqlStr = "SELECT `%s`,"
+            . "IF(`suaSiteID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') as `suaSiteID`
+            FROM `%s`
+            CROSS JOIN `site`
+            LEFT OUTER JOIN `siteUserAssoc`
+            ON `users`.`uID` = `siteUserAssoc`.`suaUserID`
+            AND `site`.`sID` = `siteUserAssoc`.`suaSiteID`
+            %s
+            %s
+            %s";
+        $usersFilterStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            CROSS JOIN `site`
+            LEFT OUTER JOIN `siteUserAssoc`
+            ON `users`.`uID` = `siteUserAssoc`.`suaUserID`
+            AND `site`.`sID` = `siteUserAssoc`.`suaSiteID`
+            %s";
+        $usersTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+
+        foreach (self::getClass('UserManager')
+            ->getColumns() as $common => &$real
         ) {
-            $this->data[] = [
-                'host_id' => $Host->get('id'),
-                'host_name' => $Host->get('name'),
+            if ('id' == $common) {
+                $tableID = $real;
+            }
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
             ];
-            unset($Host);
+            unset($real);
         }
-        if (count($this->data) > 0) {
-            self::$HookManager
-                ->processEvent(
-                    'SITE_ASSOCHOST_NOT_IN_ME',
-                    [
-                        'headerData' => &$this->headerData,
-                        'data' => &$this->data,
-                        'templates' => &$this->templates,
-                        'attributes' => &$this->attributes
-                    ]
-                );
-            printf(
-                '<form method="post" action="%s"><label for="hostMeShow">'
-                . '<p class="c"> %s %s&nbsp;&nbsp;<input '
-                . 'type="checkbox" name="hostMeShow" id="hostMeShow"/>'
-                . '</p></label><div id="hostNotInMe"><h2>%s %s</h2>',
-                $this->formAction,
-                _('Check here to see hosts not within this'),
-                $this->node,
-                _('Modify site membership for'),
-                $this->obj->get('name')
-            );
-            $this->render();
-            printf(
-                '</div><br/><p class="c"><input type="submit" '
-                . 'value="%s %s(s) %s %s" name="addHosts"/></p><br/>',
-                _('Add'),
-                _('host'),
-                _('to'),
-                $this->node
-            );
-        }
-        $this->data = [];
-        $this->headerData = [
-            '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
-            _('Host')
+        $columns[] = [
+            'db' => 'suaSiteID',
+            'dt' => 'association'
         ];
-        $this->templates = [
-            '<input type="checkbox" name="hostdel[]" value="${host_id}" '
-            . 'class="toggle-action"/>',
-            sprintf(
-                '<a href="?node=%ssub=edit&id=${host_id}" '
-                . 'title="%s: ${host_name}">${host_name}</a>',
-                'host',
-                _('Edit')
+        echo json_encode(
+            FOGManagerController::simple(
+                $pass_vars,
+                'users',
+                $tableID,
+                $columns,
+                $usersSqlStr,
+                $usersFilterStr,
+                $usersTotalStr
             )
-        ];
-        foreach ((array)self::getClass('HostManager')
-            ->find(
-                ['id' => $this->obj->get('hosts')]
-            ) as &$Host
-        ) {
-            $this->data[] = [
-                'host_id' => $Host->get('id'),
-                'host_name' => $Host->get('name'),
-            ];
-            unset($Host);
-        }
-        self::$HookManager
-            ->processEvent(
-                'SITE_ASSOCHOST_DATA',
-                [
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                ]
-            );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
         );
-        $this->render();
-        if (count($this->data)) {
-            printf(
-                '<p class="c"><input type="submit" '
-                . 'value="%s %ss %s %s" name="remhost"/></p>',
-                _('Delete Selected'),
-                _('host'),
-                _('from'),
-                $this->node
-            );
-        }
-        $this->data = [];
-    }
-    /**
-     * Post assoc host adjustments.
-     *
-     * @return void
-     */
-    public function assocHostPost()
-    {
-        $this->membershipPost();
-    }
-    /**
-     * Custom membership method.
-     *
-     * @return void
-     */
-    public function membership()
-    {
-        $this->data = [];
-        echo '<!-- Membership -->';
-        printf(
-            '<div id="%s-membership">',
-            $this->node
-        );
-        $this->headerData = [
-            '<input type="checkbox" name="toggle-checkboxuser" '
-            . 'class="toggle-checkboxuser"/>',
-            _('Username'),
-            _('Friendly Name')
-        ];
-        $this->templates = [
-            sprintf(
-                '<input type="checkbox" name="user[]" value="${user_id}" '
-                . 'class="toggle-%s"/>',
-                'user'
-            ),
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${user_id}" '
-                . 'title="Edit: ${user_name}">${user_name}</a>',
-                'user'
-            ),
-            '${friendly}'
-        ];
-        $this->attributes = [
-            [
-                'width' => 16,
-                'class' => 'filter-false'
-            ],
-            [],
-            []
-        ];
-        foreach ((array)self::getClass('UserManager')
-            ->find(
-                ['id' => $this->obj->get('usersnotinme')]
-            ) as &$User
-        ) {
-            $this->data[] = [
-                'user_id' => $User->get('id'),
-                'user_name' => $User->get('name'),
-                'friendly' => $User->get('display')
-            ];
-            unset($User);
-        }
-        if (count($this->data) > 0) {
-            self::$HookManager->processEvent(
-                'OBJ_USERS_NOT_IN_ME',
-                [
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                ]
-            );
-            printf(
-                '<form method="post" action="%s"><label for="userMeShow">'
-                . '<p class="c">%s %s&nbsp;&nbsp;<input '
-                . 'type="checkbox" name="userMeShow" id="userMeShow"/>'
-                . '</p></label><div id="userNotInMe"><h2>%s %s</h2>',
-                $this->formAction,
-                _('Check here to see users not within this'),
-                $this->node,
-                _('Modify Membership for'),
-                $this->obj->get('name')
-            );
-            $this->render();
-            printf(
-                '</div><br/><p class="c"><input type="submit" '
-                . 'value="%s %s(s) %s %s" name="addUsers"/></p><br/>',
-                _('Add'),
-                _('user'),
-                _('to'),
-                $this->node
-            );
-        }
-        $this->data = [];
-        $this->headerData = [
-            '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
-            _('Username'),
-            _('Friendly Name')
-        ];
-        $this->templates = [
-            '<input type="checkbox" name="userdel[]" '
-            . 'value="${user_id}" class="toggle-action"/>',
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${user_id}" '
-                . 'title="%s: ${user_name}">${user_name}</a>',
-                'user',
-                _('Edit')
-            ),
-            '${friendly}'
-        ];
-        foreach ((array)self::getClass('UserManager')
-            ->find(
-                ['id' => $this->obj->get('users')]
-            ) as &$User
-        ) {
-            $this->data[] = [
-                'user_id' => $User->get('id'),
-                'user_name' => $User->get('name'),
-                'friendly' => $User->get('display')
-            ];
-            unset($User);
-        }
-        self::$HookManager
-            ->processEvent(
-                'SITE_USER_DATA',
-                [
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                ]
-            );
-        printf(
-            '<form method="post" action="%s">',
-            $this->formAction
-        );
-        $this->render();
-        if (count($this->data)) {
-            printf(
-                '<p class="c"><input type="submit" '
-                . 'value="%s %ss %s %s" name="remusers"/></p>',
-                _('Delete Selected'),
-                _('user'),
-                _('from'),
-                $this->node
-            );
-        }
-        $this->data = [];
-    }
-    /**
-     * Customize membership actions
-     *
-     * @return void
-     */
-    public function membershipPost()
-    {
-        if (isset($_REQUEST['addUsers'])) {
-            $this->obj->addUser($_REQUEST['user']);
-        }
-        if (isset($_REQUEST['remusers'])) {
-            $this->obj->removeUser($_REQUEST['userdel']);
-        }
-        if (isset($_REQUEST['addHosts'])) {
-            $this->obj->addHost($_REQUEST['host']);
-        }
-        if (isset($_REQUEST['remhost'])) {
-            $this->obj->removeHost($_REQUEST['hostdel']);
-        }
-        if ($this->obj->save()) {
-            self::setMessage(
-                sprintf(
-                    '%s %s',
-                    $this->obj->get('name'),
-                    _('saved successfully')
-                )
-            );
-        }
-        self::redirect($this->formAction);
+        exit;
     }
 }

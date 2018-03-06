@@ -256,7 +256,7 @@ abstract class FOGPage extends FOGBase
                 _('ID Must be set to edit')
             );
             self::redirect(
-                "?node=$node"
+                "../management/?node=$node"
             );
             exit;
         }
@@ -322,17 +322,8 @@ abstract class FOGPage extends FOGBase
                             $id
                         )
                     );
-                    self::redirect(
-                        sprintf(
-                            '?node=%s',
-                            $this->node
-                        )
-                    );
+                    self::redirect("../management/index.php?node={$this->node}");
                 }
-                // $this->name .= ' '
-                //     . _('Edit')
-                //     . ': '
-                //     . $this->obj->get('name');
             }
         }
         $this->reportString = '<h4 class="title">'
@@ -523,7 +514,7 @@ abstract class FOGPage extends FOGBase
         if ($node
             && !in_array($node, $links)
         ) {
-            self::redirect('index.php');
+            self::redirect('../management/index.php');
         }
         ob_start();
         $count = false;
@@ -634,6 +625,15 @@ abstract class FOGPage extends FOGBase
                 _('Pending MACs') :
                 null
             ),
+            (
+                'image' == $node ?
+                'multicast' :
+                null
+            ) => (
+                'image' == $node ?
+                _('Multicast Image') :
+                null
+            ),
             'export' => sprintf(
                 self::$foglang[
                     sprintf(
@@ -658,7 +658,8 @@ abstract class FOGPage extends FOGBase
             'SUB_MENULINK_DATA',
             [
                 'menu' => &$menu,
-                'node' => &$refNode
+                'node' => &$node,
+                'refNode' => &$refNode
             ]
         );
         return $menu;
@@ -979,12 +980,7 @@ abstract class FOGPage extends FOGBase
             if (in_array($node, ['task'])
                 && (!$sub || $sub == 'list')
             ) {
-                self::redirect(
-                    sprintf(
-                        '?node=%s&sub=active',
-                        $node
-                    )
-                );
+                self::redirect("../management/index.php?node=$node&sub=active");
             }
             ob_start();
             if (isset($this->form)) {
@@ -1226,7 +1222,7 @@ abstract class FOGPage extends FOGBase
             );
             self::redirect(
                 sprintf(
-                    '?node=%s&sub=edit%s',
+                    '../management/?node=%s&sub=edit%s',
                     $this->node,
                     (
                         is_numeric($id) && $id > 0 ?
@@ -2142,7 +2138,7 @@ abstract class FOGPage extends FOGBase
             unset($object);
         }
         if (count($this->data ?: []) < 1) {
-            self::redirect('?node=' . $node);
+            self::redirect("../management/index.php?node=$node");
         }
         $this->data[] = [
             'field' => '<label for="delete">'
