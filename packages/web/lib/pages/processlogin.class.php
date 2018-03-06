@@ -22,18 +22,6 @@
 class ProcessLogin extends FOGPage
 {
     /**
-     * The username to process.
-     *
-     * @var string
-     */
-    private $_username;
-    /**
-     * The password to process.
-     *
-     * @var string
-     */
-    private $_password;
-    /**
      * The language menu.
      *
      * @var string
@@ -56,17 +44,6 @@ class ProcessLogin extends FOGPage
     {
         parent::__construct($name);
         $this->_lang = self::$locale;
-    }
-    /**
-     * Index page.
-     *
-     * @return void
-     */
-    public function index()
-    {
-        if (self::$FOGUser->isValid()) {
-            self::redirect('?node=home');
-        }
     }
     /**
      * Gets the languages into a string.
@@ -198,37 +175,53 @@ class ProcessLogin extends FOGPage
         textdomain($domain);
     }
     /**
-     * Sets the redirection we need.
+     * The processing post form.
      *
      * @return void
      */
-    private function _setRedirMode()
+    public function loginPost()
     {
-        foreach ($_GET as $key => &$value) {
-            $redirect[$key] = $value;
-            unset($value);
+        header('Content-type: application/json');
+        global $currentUser;
+        $this->setLang();
+        $uname = filter_input(INPUT_POST, 'uname');
+        $upass = filter_input(INPUT_POST, 'upass');
+        $type = self::$FOGUser->get('type');
+        self::$HookManager->processEvent(
+            'USER_TYPE_HOOK',
+            ['type' => &$type]
+        );
+        self::$FOGUser = self::attemptLogin(
+            $uname,
+            $upass
+        );
+        if (!self::$FOGUser->isValid()) {
+            $code = HTTPResponseCodes::HTTP_FORBIDDEN;
+            $msg = json_encode(
+                [
+                    'error' => self::$foglang['InvalidLogin'],
+                    'title' => _('Login Failed')
+                ]
+            );
+        } else {
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            $msg = json_encode(
+                [
+                    'msg' => _('Login successful!'),
+                    'title' => _('Login Success')
+                ]
+            );
+            self::$HookManager->processEvent(
+                'LoginSuccess',
+                [
+                    'username' => $uname,
+                    'password' => $upass
+                ]
+            );
         }
-        unset($redirect['upass'], $redirect['uname'], $redirect['ulang']);
-        if (in_array($redirect['node'], ['login', 'logout'])) {
-            unset($redirect['node']);
-        }
-        foreach ((array)$redirect as $key => &$value) {
-            if (!$value) {
-                continue;
-            }
-            $http_query[$key] = $value;
-            unset($value);
-        }
-        if (count($http_query) < 1) {
-            unset($redirect['login']);
-            self::redirect('index.php');
-        }
-        $query = trim(http_build_query($http_query));
-        $redir = 'index.php';
-        if ($query) {
-            $redir .= "?$query";
-        }
-        self::redirect($redir);
+        http_response_code($code);
+        echo $msg;
+        exit;
     }
     /**
      * Processes the login.
@@ -238,100 +231,15 @@ class ProcessLogin extends FOGPage
     public function processMainLogin()
     {
         global $currentUser;
-        $this->setLang();
-        $uname = filter_input(INPUT_POST, 'uname');
-        $upass = filter_input(INPUT_POST, 'upass');
-        $this->_username = $uname;
-        $this->_password = $upass;
-        $type = self::$FOGUser->get('type');
-        self::$HookManager
-            ->processEvent(
-                'USER_TYPE_HOOK',
-                ['type' => &$type]
-            );
-        if (!isset($_POST['login'])) {
-            return;
-        }
-        if (!$this->_username) {
-            self::setMessage(self::$foglang['InvalidLogin']);
-            self::redirect('index.php?node=logout');
-        }
-        self::$FOGUser = self::attemptLogin(
-            $this->_username,
-            $this->_password
-        );
-        if (!self::$FOGUser->isValid()) {
-            $this->_setRedirMode();
-        }
-        self::$HookManager
-            ->processEvent(
-                'LoginSuccess',
-                [
-                    'username' => $this->_username,
-                    'password' => $this->_password
-                ]
-            );
-        $this->_setRedirMode();
-    }
-    /**
-     * Displays the main login form.
-     *
-     * @return void
-     */
-    public function mainLoginForm()
-    {
-        $this->setLang();
-        global $node;
-        if (in_array($node, ['login', 'logout'])) {
-            if (session_status() != PHP_SESSION_NONE) {
-                self::setMessage($_SESSION['FOG_MESSAGES']);
+        if (self::$reqmethod == 'POST') {
+            $this->loginPost();
+        } else {
+            if (self::$FOGUser->isValid()) {
+                return;
+            } else {
+                $this->mainLoginForm();
             }
-            unset($_GET['login']);
-            self::redirect('index.php');
         }
-        $this->_getLanguages();
-        echo '<div class="login-box">';
-        echo '  <div class="login-logo">';
-        echo '      <a href="./index.php"><b>FOG</b> Project</a>';
-        echo '  </div>';
-        echo '  <div class="login-box-body">';
-        echo '      <p class="login-box-msg">Sign in to start your session</p>';
-        
-        echo '      <form method="post" action="'; 
-        echo $this->formAction; 
-        echo '" novalidate>';
-
-        echo '          <div class="form-group has-feedback">';
-        echo '              <input type="username" class="form-control" placeholder="';
-        echo self::$foglang['Username'];
-        echo '" name="uname" id="uname">';
-        echo '              <span class="glyphicon glyphicon-user form-control-feedback"></span>';
-        echo '          </div>';
-        echo '          <div class="form-group has-feedback">';
-        echo '              <input type="password" class="form-control" placeholder="';
-        echo self::$foglang['Password'];
-        echo '" name="upass" id="upass">';
-        echo '              <span class="glyphicon glyphicon-lock form-control-feedback"></span>';
-        echo '          </div>';
-        echo '          <div class="form-group">';
-        echo '                      <select class="form-control select2" name="ulang" id="ulang">';
-        echo $this->_langMenu;
-        echo '                      </select>';
-        echo '          </div>';
-        echo '          <div class="row">';
-        echo '              <div class="col-xs-8">';
-        echo '                  <div class="checkbox icheck">';
-        echo '                      <label>';
-        echo '                          <input type="checkbox"> Remember Me';
-        echo '                      </label>';
-        echo '                  </div>';
-        echo '              </div>';
-        echo '              <div class="col-xs-4">';
-        echo '                  <button type="submit" class="btn btn-primary btn-block btn-flat" name="login">Sign In</button>';
-        echo '              </div>';
-        echo '          </div>';
-        echo '          </div>';
-        echo '      </form>';
     }
     /**
      * Gets the locale.
@@ -343,5 +251,87 @@ class ProcessLogin extends FOGPage
         $lang = explode('_', self::$locale);
         $lang = $lang[0];
         return $lang;
+    }
+    /**
+     * Presents the login form.
+     *
+     * @return void
+     */
+    public function mainLoginForm()
+    {
+        $this->setLang();
+        $this->_getLanguages();
+        echo '<div class="login-box">';
+        echo '<div class="login-logo">';
+        echo '<a href="./index.php"><b>FOG</b> Project</a>';
+        echo '</div>';
+        echo '<div class="login-box-body">';
+        echo '<p class="login-box-msg">';
+        echo _('Sign in to start your session');
+        echo '</p>';
+        echo self::makeFormTag(
+            '',
+            'loginForm',
+            '../management/index.php?node=home&sub=login',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="form-group has-feedback">';
+        echo self::makeInput(
+            'form-control',
+            'uname',
+            self::$foglang['Username'],
+            'text',
+            'uname',
+            '',
+            true
+        );
+        echo '<span class="glyphicon glyphicon-user form-control-feedback"></span>';
+        echo '</div>';
+        echo '<div class="form-group has-feedback">';
+        echo self::makeInput(
+            'form-control',
+            'upass',
+            self::$foglang['Password'],
+            'password',
+            'upass',
+            '',
+            true
+        );
+        echo '<span class="glyphicon glyphicon-lock form-control-feedback"></span>';
+        echo '</div>';
+        echo '<div class="form-group">';
+        echo '<select class="form-control select2" name="ulang" id="ulang">';
+        echo $this->_langMenu;
+        echo '</select>';
+        echo '</div>';
+        echo '<div class="row">';
+        echo '<div class="col-xs-8">';
+        echo '<div class="checkbox icheck">';
+        echo '<label for="remember-me">';
+        echo self::makeInput(
+            'remember-me',
+            'remember-me',
+            '',
+            'checkbox',
+            'remember-me',
+            ''
+        );
+        echo ' ';
+        echo _('Remember Me');
+        echo '</label>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="col-xs-4">';
+        echo self::makeButton(
+            'loginSubmit',
+            _('Sign In'),
+            'btn btn-primary btn-block btn-flat'
+        );
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
     }
 }
