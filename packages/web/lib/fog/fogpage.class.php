@@ -786,7 +786,7 @@ abstract class FOGPage extends FOGBase
      * @return void
      */
     public function render(
-        $colsize = 9,
+        $colsize = 12,
         $tableId = 'dataTable',
         $buttons = '',
         $tableClass = 'display table table-bordered table-striped',
@@ -898,7 +898,7 @@ abstract class FOGPage extends FOGBase
      * @return string
      */
     public function process(
-        $colsize = 9,
+        $colsize = 12,
         $tableId = 'dataTable',
         $buttons = '',
         $tableClass = '',
@@ -917,9 +917,25 @@ abstract class FOGPage extends FOGBase
             $modals = '';
             if ($sub == 'list') {
                 if ($node == 'host') {
-                    $actionbox = $actionbox . self::makeButton('addSelectedToGroup', _('Add selected to group'), 'btn btn-default');
+                    $actionbox .= self::makeButton(
+                        'addSelectedToGroup',
+                        _('Add selected to group'),
+                        'btn btn-default'
+                    );
+                    $modals .= self::makeInput(
+                        'pingundetermined',
+                        'pingundetermined',
+                        '',
+                        'hidden',
+                        'pingundetermined',
+                        _('Unable to determine status')
+                    );
                 }
-                $actionbox = $actionbox . self::makeButton('deleteSelected', _('Delete selected'), 'btn btn-danger');
+                $actionbox .= self::makeButton(
+                    'deleteSelected',
+                    _('Delete selected'),
+                    'btn btn-danger'
+                );
                 $modals .= self::makeModal(
                     'deleteModal',
                     _('Confirm password'),
@@ -945,15 +961,16 @@ abstract class FOGPage extends FOGBase
                     'danger'
                 );
             }
-            $actionbox = $actionbox . $buttons;
+            $actionbox .= $buttons;
             self::$HookManager->processEvent(
                 'ACTIONBOX',
                 ['actionbox' => &$actionbox]
             );
             if (strlen($actionbox) > 0) {
-                $actionbox = '<div class="btn-group">' . $actionbox . '</div>';
+                $actionbox = '<div class="btn-group">'
+                    . $actionbox
+                    . '</div>';
             }
-
             if (self::$ajax) {
                 echo json_encode(
                     [
@@ -972,11 +989,6 @@ abstract class FOGPage extends FOGBase
                 );
                 exit;
             }
-            if (!count($this->templates ?: [])) {
-                throw new Exception(
-                    _('Requires templates to process')
-                );
-            }
             if (in_array($node, ['task'])
                 && (!$sub || $sub == 'list')
             ) {
@@ -986,7 +998,11 @@ abstract class FOGPage extends FOGBase
             if (isset($this->form)) {
                 printf($this->form);
             }
-            echo '<table id="' . $tableId  . '" class="' . $tableClass . '">';
+            echo '<table id="'
+                . $tableId
+                . '" class="'
+                . $tableClass
+                . '">';
             if ($this->data['error']) {
                 echo '<thead><tr class="header"></tr></thead>';
                 echo '<tbody>';
@@ -1044,7 +1060,8 @@ abstract class FOGPage extends FOGBase
             return $e->getMessage();
         }
         return ob_get_clean()
-            . $actionbox . $modals;
+            . $actionbox
+            . $modals;
     }
     /**
      * Sets the attributes
