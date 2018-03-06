@@ -339,7 +339,6 @@ var $_GET = getQueryParams(document.location.search),
     disableFormDefaults();
     setupPasswordReveal();
     setupUniversalSearch();
-
 })(jQuery);
 
 function setupIntegrations() {
@@ -363,113 +362,81 @@ function setupIntegrations() {
 }
 
 function setupUniversalSearch() {
-    // If there is no search form, skip the rest
     var uniSearchForm = $('#universal-search-form');
     if (!uniSearchForm.length)
         return;
 
-    var uniSearchField = $('#universal-search-field');
-    var uniSearchButton = $('#universal-search-btn');
-    var uniSearchResults = $('#universal-search-results');
-    var uniSearchTimer = 0;
+    var resultLimit = 5;
 
+    var uniSearchField = $('#universal-search-select');
+    var baseURL = uniSearchForm.attr('action');
+    var method = uniSearchForm.attr('method');
 
-    if (Common.node !== undefined && Common.node.length != 0 && Common.node !== 'home') {
-        $(document).ajaxStart(function() { Pace.restart(); });
-    }
-
-    $("body").on('click',function(e) {
-        if(e.target !== uniSearchResults &&
-            e.target !== uniSearchForm &&
-            !uniSearchResults.has(e.target).length &&
-            !uniSearchForm.has(e.target).length) {
-
-            if (uniSearchResults.hasClass("open")) {
-                uniSearchResults.removeClass("open");
-                uniSearchResults.children().remove();
-            }
-        }
-    });
-
-    var processSearch = function(res, query) {
-
-        var lang = res._lang;
-        var isResult = false;
-
-        var list = $('<ul style="width: 100%;"></ul>');
-
-        for (var key in res) {
-            if (!res.hasOwnProperty(key)) continue;
-            if (key.startsWith("_")) continue;
-
-            var obj = res[key];
-            if (obj.length == 0) continue;
-            isResult = true;
-            var objHeader = $('<li class=""></li>');
-            objHeader.append('<a href="#">' + Common.capitalizeFirstLetter(lang[key]) + '</a>');
-            list.append(objHeader);
-            var objList = $('<ul class="menu"></ul>');
-            objHeader.append(objList);
-
-            for (var i = 0; i < obj.length; i++) {
-                var item = obj[i];
-                var linkHtml = '<a href="' + '../management/index.php?node=' + key + '&sub=edit&id=' + item.id + '">' + item.name + '</a>';
-                objList.append('<li>' +linkHtml + '</li>')
-            }
-            if (obj.length != res._results[key]) {
-                var linkHtml = '<a href="' + '../management/index.php?node=' + key + '&sub=list&search=' + query+ '">See all results</a>';
-                objList.append('<li>' +linkHtml + '</li>')
-            }
-        }
-
-        uniSearchResults.children().remove();
-        if (!isResult) {
-            list = $('<center><a href="#">No Results</a></center>');
-        }
-        uniSearchResults.append(list);
-        if (!uniSearchResults.hasClass("open")) {
-            uniSearchResults.addClass("open");
-        }
+    var formatEntry = function (entry) {
+        return 'wee';
     };
 
-    var handleQueryChange = function() {
-        // Use a timer to only search once the user
-        //  stops typing
-        clearTimeout(uniSearchTimer);
-        uniSearchTimer = setTimeout(function() {
-            var query = uniSearchField.val();
-            if (query.length == 0) {
-                if (uniSearchResults.hasClass("open")) {
-                    uniSearchResults.removeClass("open");
-                    uniSearchResults.children().remove();
-                }
-                return;
-            }
-            var opts = {
-                search: query
-            };
-            Pace.track(function(){
-                $.ajax('', {
-                    type: uniSearchForm.attr('method'),
-                    url: uniSearchForm.attr('action') + '/' + query + '/' + 5,
-                    async: true,
-                    data: opts,
-                    dataType: 'json',
-                    success: function(res) {
-                        processSearch(res, opts.search);
-                    },
-                    error: function(res) {
-                        Common.notifyFromAPI(res.responseJSON, true);
-                    }
-                });
-            });
-        }, 100);
-    }
+    uniSearchField.on("select2:selecting", function(e) { 
+        e.preventDefault();
+        var url = e.params.args.data.url;
+        uniSearchField.prop('disable', true);
+        window.location.href = url;
+    });
 
-    uniSearchField.on('input', handleQueryChange);
-    uniSearchButton.on('click',function (e) {
-        if (!uniSearchResults.hasClass("open")) {
-            handleQueryChange();
+    uniSearchField.select2({
+        width: '100%',
+        placeholder: 'Search...',
+        minimumInputLength: 1,
+        multiple: true,
+        maximumSelectionSize: 1,
+     //   templateResult: formatEntry,
+      //    templateSelection: formatEntry,
+        ajax: {
+            delay: 250,
+            url: function(params)  {
+                return baseURL + '/' + params.term + '/' + resultLimit;
+            },
+            type: method,
+            dataType: 'json',
+            cache: false,
+            processResults: function (data) {
+                var results = [];
+
+                var lang = data._lang;
+                var id = 0;
+                for (var key in data) {
+                    if (!data.hasOwnProperty(key)) continue;
+                    if (key.startsWith("_")) continue;
+        
+                    var obj = data[key];
+                    if (obj.length == 0) continue;
+                    var objData = [];
+
+                    for (var i = 0; i < obj.length; i++) {
+                        var item = obj[i];
+                        objData.push({
+                            "id": id,
+                            "text": item.name,
+                            "url": '../management/index.php?node=' + key + '&sub=edit&id=' + item.id,
+                        })
+                    }
+                    if (obj.length != data._results[key]) {
+                        objData.push({
+                            "id": id,
+                            "text": "--> " + lang.AllResults,
+                            "url": '../management/index.php?node=' + key + '&sub=list&search=' + data._query
+                        })
+                    }
+
+                    results.push({
+                        "text": Common.capitalizeFirstLetter(lang[key]),
+                        "children": objData
+                    });
+                }
+                return {
+                    results: results
+                };
+            }
         }
     });
 }
