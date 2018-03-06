@@ -283,6 +283,7 @@ var $_GET = getQueryParams(document.location.search),
 
         return table;
     };
+
     Common.getSelectedIds = function(table) {
         var rows = table.rows({selected: true});
         return rows.ids().toArray();
@@ -303,6 +304,22 @@ var $_GET = getQueryParams(document.location.search),
         ichecks.forEach(function(inputObj) {
             $(inputObj).iCheck((disabled) ? 'disable' : 'enable');
         });
+    };
+
+    Common.setLoading = function(container, loading) {
+        if(loading !== false) {
+            loading = true;
+        }
+
+        var loadingId = 'loadingOverlay';
+
+        if (loading) {
+            container.append(
+                '<div class="overlay" id="' + loadingId  + '"><i class="fa fa-refresh fa-spin"></i></div>'
+            );
+        } else {
+            container.children('#'+loadingId).remove();;
+        }
     }
 
     Common.iCheck = function(match) {
@@ -312,7 +329,7 @@ var $_GET = getQueryParams(document.location.search),
             radioClass: 'iradio_square-blue',
             increaseArea: '20%' // optional
         });
-    }
+    };
 
     Common.debugLog("=== DEBUG LOGGING ENABLED ===");
     setupIntegrations();

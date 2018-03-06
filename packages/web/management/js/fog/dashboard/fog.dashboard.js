@@ -1,5 +1,5 @@
 // 30 day
-var Graph30Day = $('#graph-30day'),
+var Graph30Day,
     Graph30DayOpts = {
         colors: ['#3c8dbc', '#0073b7'],
         grid: {
@@ -129,10 +129,200 @@ var Graph30Day = $('#graph-30day'),
     },
     GraphDiskUsageData = [],
     diskusageinterval,
-    startTime = new Date().getTime();
+    startTime = new Date().getTime(),
+    loadings = {
+        activity: true,
+        diskusage: true,
+        imagehistory: true,
+        bandwidth: true
+    };
+
 (function($) {
+    Graph30Day = $('#graph-30day');
+
+    setupOverlays();
+
+    setupOverview();
+    setupActivity();
+    setupDiskUsage();
+    setupImagingHistory();
+    setupBandwidth();
+})(jQuery);
+
+function setupOverlays() {
+    var activity = $("#graph-activity");
+    var diskUsage = $("#diskusage-selector");
+    var bandwidth = $("#realtime");
+    makeParentBoxLoad(activity, true);
+    makeParentBoxLoad(diskUsage, true);
+    makeParentBoxLoad(Graph30Day, true);
+    makeParentBoxLoad(bandwidth, true);
+}
+
+
+function makeParentBoxLoad(child, loading) {
+    var parent = child.closest('.box');
+    Common.setLoading(parent, loading);
+}
+
+function setupOverview() {
+
+}
+
+function setupActivity() {
+    // Client Count
+    $('#graph-activity').css({
+        height: '150px',
+        color: '#f3f3f3',
+        'text-decoration': 'none',
+        'font-weight': 'bold'
+    });
+    var updateClientCount = function() {
+        sgID = $('.activity-count').val();
+        if (!loadings.activity) {
+            makeParentBoxLoad($('#graph-activity'), true);
+            loadings.activity = true;
+        }
+        Pace.ignore(function() {
+            $.ajax({
+                url: '../management/index.php?node=home&sub=clientcount',
+                type: 'post',
+                data: {
+                    id: sgID
+                },
+                dataType: 'json',
+                success: updateClientCountGraph,
+                error: function(jqXHR, textStatus, errorThrown) {
+                },
+                complete: function() {
+                    $('#graph-activity').addClass('loaded');
+                    if (loadings.activity) {
+                        makeParentBoxLoad($('#graph-activity'), false);
+                        loadings.activity = false;
+                    }
+                }
+            });
+        });
+    };
+    var updateClientCountGraph = function(data) {
+        updateClientCountData = [
+            {
+                label: data._labels[0],
+                data: parseInt(data.ActivitySlots)
+            },
+            {
+                label: data._labels[1],
+                data: parseInt(data.ActivityQueued)
+            },
+            {
+                label: data._labels[2],
+                data: parseInt(data.ActivityActive)
+            }
+        ];
+        $.plot('#graph-activity', updateClientCountData, updateClientCountOpts);
+        if (clientinterval) {
+            clearTimeout(clientinterval);
+        }
+        clientinterval = setTimeout(
+            updateClientCount,
+            300000 - (
+                (new Date().getTime() - startTime)
+                % 300000
+            )
+        );
+    };
+    updateClientCount();
+    $('.activity-count').on('change', function(e) {
+        if (clientinterval) {
+            clearTimeout(clientinterval);
+        }
+        updateClientCount();
+        e.preventDefault();
+    });
+}
+
+function setupDiskUsage() {
+   // Disk Usage
+   $('#graph-diskusage').css({
+    height: '150px',
+    color: '#f3f3f3',
+    'text-decoration': 'none',
+    'font-weight': 'bold'
+    });
+    var updateDiskUsage = function() {
+        var now = new Date().getTime(),
+            nodeid = $('.nodeid').val();
+        if (!loadings.diskusage) {
+            makeParentBoxLoad($('#graph-diskusage'), true);
+            loadings.diskusage = true;
+        }
+        Pace.ignore(function() {
+            $.ajax({
+                url: '../management/index.php?node=home&sub=diskusage',
+                data: {
+                    id: nodeid
+                },
+                dataType: 'json',
+                success: updateDiskUsageGraph,
+                error: function(jqXHR, textStatus, errorThrown) {
+                },
+                complete: function() {
+                    if (loadings.diskusage) {
+                        makeParentBoxLoad($('#graph-diskusage'), false);
+                        loadings.diskusage = false;
+                    }
+                }
+            });
+        });
+    };
+    var updateDiskUsageGraph = function(data) {
+        if (data.error) {
+            $('#graph-diskusage').html(data.error ? data.error : 'No data returned');
+        }
+        GraphDiskUsageData = [
+            {
+                label: data._labels[0],
+                data: parseInt(data.free, 10)
+            },
+            {
+                label: data._labels[1],
+                data: parseInt(data.used, 10)
+            }
+        ];
+        $.plot($('#graph-diskusage'), GraphDiskUsageData, GraphDiskUsageOpts);
+        if (diskusageinterval) {
+            clearTimeout(diskusageinterval);
+        }
+        diskusageinterval = setTimeout(
+            updateDiskUsage,
+            300000 - (
+                (
+                    new Date().getTime() - startTime
+                ) % 300000
+            )
+        );
+    };
+    nodeid = $('.nodeid').val();
+    $('#hwinfolink').attr('href', '../management/index.php?node=hwinfo&id=' + nodeid);
+    updateDiskUsage();
+    $('.nodeid').on('change', function(e) {
+        nodeid = $(this).val();
+        $('#hwinfolink').attr('href', '../management/index.php?node=hwinfo&id=' + nodeid);
+        if (diskusageinterval) {
+            clearTimeout(diskusageinterval);
+        }
+        updateDiskUsage();
+        e.preventDefault();
+    });
+}
+
+function setupImagingHistory() {
     // 30 day chart, updates every 5 minutes
     var update30day = function() {
+        if (!loadings.imaginghistory) {
+            makeParentBoxLoad($('#graph-30day'), true);
+            loadings.imaginghistory = true;
+        }
         Pace.ignore(function() {
             $.ajax({
                 url: '../management/index.php?node=home',
@@ -161,6 +351,12 @@ var Graph30Day = $('#graph-30day'),
                             ) % 300000
                         )
                     );
+                },
+                complete: function() {
+                    if (loadings.imaginghistory) {
+                        makeParentBoxLoad($('#graph-30day'), false);
+                        loadings.imaginghistory = false;
+                    }
                 }
             });
         });
@@ -188,7 +384,9 @@ var Graph30Day = $('#graph-30day'),
         }
     });
     update30day();
+}
 
+function setupBandwidth() {
     // Bandwidth chart
     function updateBandwidth() {
         var GraphBandwidthOpts = {
@@ -216,8 +414,9 @@ var Graph30Day = $('#graph-30day'),
             yaxis: {
                 min: 0,
                 tickFormatter: function(v) {
-                    return v
-                        + 'Mbps';
+                    var f = parseFloat(v);
+                    f = f.toFixed(2);
+                    return f + ' Mbps';
                 },
                 show: true
             },
@@ -225,7 +424,8 @@ var Graph30Day = $('#graph-30day'),
                 show: true,
                 noColumns: 5,
                 labelFormatter: function(label, series) {
-                    return label.replace('()', '');
+                    return label;
+                    //return label.replace('()', '');
                 },
                 position: 'nw'
             }
@@ -329,7 +529,13 @@ var Graph30Day = $('#graph-30day'),
                     }
                 },
                 // On Success, update our graph and data.
-                success: onDataReceived
+                success: onDataReceived,
+                complete: function() {
+                    if (loadings.bandwidth) {
+                        makeParentBoxLoad($('#realtime'), false);
+                        loadings.bandwidth = false;
+                    }
+                }
             });
         }
 
@@ -380,131 +586,4 @@ var Graph30Day = $('#graph-30day'),
     });
 
     updateBandwidth();
-
-    // Client Count
-    $('#graph-activity').css({
-        height: '150px',
-        color: '#f3f3f3',
-        'text-decoration': 'none',
-        'font-weight': 'bold'
-    });
-    var updateClientCount = function() {
-        sgID = $('.activity-count').val();
-        Pace.ignore(function() {
-            $.ajax({
-                url: '../management/index.php?node=home&sub=clientcount',
-                type: 'post',
-                data: {
-                    id: sgID
-                },
-                dataType: 'json',
-                success: updateClientCountGraph,
-                error: function(jqXHR, textStatus, errorThrown) {
-                },
-                complete: function() {
-                    $('#graph-activity').addClass('loaded');
-                }
-            });
-        });
-    };
-    var updateClientCountGraph = function(data) {
-        updateClientCountData = [
-            {
-                label: data._labels[0],
-                data: parseInt(data.ActivitySlots)
-            },
-            {
-                label: data._labels[1],
-                data: parseInt(data.ActivityQueued)
-            },
-            {
-                label: data._labels[2],
-                data: parseInt(data.ActivityActive)
-            }
-        ];
-        $.plot('#graph-activity', updateClientCountData, updateClientCountOpts);
-        if (clientinterval) {
-            clearTimeout(clientinterval);
-        }
-        clientinterval = setTimeout(
-            updateClientCount,
-            300000 - (
-                (new Date().getTime() - startTime)
-                % 300000
-            )
-        );
-    };
-    updateClientCount();
-    $('.activity-count').on('change', function(e) {
-        if (clientinterval) {
-            clearTimeout(clientinterval);
-        }
-        updateClientCount();
-        e.preventDefault();
-    });
-
-    // Disk Usage
-    $('#graph-diskusage').css({
-        height: '150px',
-        color: '#f3f3f3',
-        'text-decoration': 'none',
-        'font-weight': 'bold'
-    });
-    var updateDiskUsage = function() {
-        var now = new Date().getTime(),
-            nodeid = $('.nodeid').val();
-        Pace.ignore(function() {
-            $.ajax({
-                url: '../management/index.php?node=home&sub=diskusage',
-                data: {
-                    id: nodeid
-                },
-                dataType: 'json',
-                success: updateDiskUsageGraph,
-                error: function(jqXHR, textStatus, errorThrown) {
-                },
-                complete: function() {
-                }
-            });
-        });
-    };
-    var updateDiskUsageGraph = function(data) {
-        if (data.error) {
-            $('#graph-diskusage').html(data.error ? data.error : 'No data returned');
-        }
-        GraphDiskUsageData = [
-            {
-                label: data._labels[0],
-                data: parseInt(data.free, 10)
-            },
-            {
-                label: data._labels[1],
-                data: parseInt(data.used, 10)
-            }
-        ];
-        $.plot($('#graph-diskusage'), GraphDiskUsageData, GraphDiskUsageOpts);
-        if (diskusageinterval) {
-            clearTimeout(diskusageinterval);
-        }
-        diskusageinterval = setTimeout(
-            updateDiskUsage,
-            300000 - (
-                (
-                    new Date().getTime() - startTime
-                ) % 300000
-            )
-        );
-    };
-    nodeid = $('.nodeid').val();
-    $('#hwinfolink').attr('href', '../management/index.php?node=hwinfo&id=' + nodeid);
-    updateDiskUsage();
-    $('.nodeid').on('change', function(e) {
-        nodeid = $(this).val();
-        $('#hwinfolink').attr('href', '../management/index.php?node=hwinfo&id=' + nodeid);
-        if (diskusageinterval) {
-            clearTimeout(diskusageinterval);
-        }
-        updateDiskUsage();
-        e.preventDefault();
-    });
-})(jQuery);
+}
