@@ -584,6 +584,8 @@ class Route extends FOGBase
         }
         $item = trim($item);
         $data = [];
+        $data['_query'] = $item;
+        $data['_lang']['AllResults'] = _('See all results');
         foreach (self::$searchPages as &$search) {
             if ($search == 'task') {
                 continue;
