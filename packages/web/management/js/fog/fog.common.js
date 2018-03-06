@@ -372,10 +372,6 @@ function setupUniversalSearch() {
     var baseURL = uniSearchForm.attr('action');
     var method = uniSearchForm.attr('method');
 
-    var formatEntry = function (entry) {
-        return 'wee';
-    };
-
     uniSearchField.on("select2:selecting", function(e) { 
         e.preventDefault();
         var url = e.params.args.data.url;
@@ -389,8 +385,6 @@ function setupUniversalSearch() {
         minimumInputLength: 1,
         multiple: true,
         maximumSelectionSize: 1,
-     //   templateResult: formatEntry,
-      //    templateSelection: formatEntry,
         ajax: {
             delay: 250,
             url: function(params)  {
