@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 16:47-0500\n"
+"POT-Creation-Date: 2018-03-06 17:28-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4846,9 +4846,12 @@ msgstr "General Information"
 msgid "Invalid Server Information!"
 msgstr "Invalid Server Information!"
 
+msgid "Server appears to be offline or unavailable!"
+msgstr ""
+
 #, fuzzy
-msgid "Unable to get server infromation!"
-msgstr "Unable to pull server information!"
+msgid "Unable to retrieve server information!"
+msgstr "Unable to find basic information"
 
 msgid "General Information"
 msgstr "General Information"
