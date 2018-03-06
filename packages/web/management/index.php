@@ -38,10 +38,16 @@ $nodes = [
     'client',
     'ipxe'
 ];
-if (!in_array($node, $nodes)
-    && ($node == 'logout' || !$currentUser->isValid())
-) {
+if ($node == 'logout') {
     $currentUser->logout();
+    FOGCore::redirect('../management/index.php');
+}
+if ($node == 'login') {
+    FOGCore::redirect('../management/index.php');
+}
+if (!in_array($node, $nodes)
+    && !$currentUser->isValid()
+) {
     $Page
         ->setTitle($foglang['Login'])
         ->setSecTitle($foglang['ManagementLogin'])
