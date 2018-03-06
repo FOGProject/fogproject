@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 01:31-0500\n"
+"POT-Creation-Date: 2018-03-06 16:47-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1462,6 +1462,27 @@ msgstr ""
 msgid "Site Create Fail"
 msgstr ""
 
+msgid "Associated"
+msgstr ""
+
+msgid "Add selected"
+msgstr ""
+
+msgid "Remove selected"
+msgstr ""
+
+msgid "Site Host Associations"
+msgstr ""
+
+msgid "User Name"
+msgstr ""
+
+msgid "Site User Associations"
+msgstr ""
+
+msgid "Associations"
+msgstr ""
+
 msgid "Host Association"
 msgstr ""
 
@@ -1478,39 +1499,6 @@ msgid "Site Update Success"
 msgstr ""
 
 msgid "Site Update Fail"
-msgstr ""
-
-msgid "Check here to see hosts not within this"
-msgstr ""
-
-msgid "Modify site membership for"
-msgstr ""
-
-msgid "host"
-msgstr ""
-
-msgid "to"
-msgstr ""
-
-msgid "Delete Selected"
-msgstr ""
-
-msgid "from"
-msgstr ""
-
-msgid "Friendly Name"
-msgstr ""
-
-msgid "Check here to see users not within this"
-msgstr ""
-
-msgid "Modify Membership for"
-msgstr ""
-
-msgid "user"
-msgstr ""
-
-msgid "saved successfully"
 msgstr ""
 
 msgid "Pushbullet Accounts"
@@ -1717,10 +1705,10 @@ msgstr ""
 msgid "Access Controls"
 msgstr ""
 
-msgid "Role"
+msgid "Delete Selected"
 msgstr ""
 
-msgid "User Name"
+msgid "Role"
 msgstr ""
 
 msgid "User Access Control"
@@ -1863,13 +1851,34 @@ msgstr ""
 msgid "rule"
 msgstr ""
 
+msgid "to"
+msgstr ""
+
 msgid "Rule Name"
+msgstr ""
+
+msgid "from"
 msgstr ""
 
 msgid "Not role selected"
 msgstr ""
 
 msgid "Not rule selected"
+msgstr ""
+
+msgid "Friendly Name"
+msgstr ""
+
+msgid "Check here to see users not within this"
+msgstr ""
+
+msgid "Modify Membership for"
+msgstr ""
+
+msgid "user"
+msgstr ""
+
+msgid "saved successfully"
 msgstr ""
 
 msgid "LDAP Servers"
@@ -3333,6 +3342,9 @@ msgstr ""
 msgid "group"
 msgstr ""
 
+msgid "host"
+msgstr ""
+
 msgid "Primary MAC"
 msgstr ""
 
@@ -3370,6 +3382,12 @@ msgid "Host Approval Success"
 msgstr ""
 
 msgid "All Pending MACs"
+msgstr ""
+
+msgid "Approved selected macss!"
+msgstr ""
+
+msgid "MAC Approval Success"
 msgstr ""
 
 msgid "Create New Host"
@@ -3517,12 +3535,6 @@ msgid "Only Assigned Printers"
 msgstr ""
 
 msgid "Update default"
-msgstr ""
-
-msgid "Add selected"
-msgstr ""
-
-msgid "Remove selected"
 msgstr ""
 
 msgid "Default"
@@ -3718,9 +3730,6 @@ msgid "Host Snapin History"
 msgstr ""
 
 msgid "MAC Addresses"
-msgstr ""
-
-msgid "Associations"
 msgstr ""
 
 msgid "Service Settings"
@@ -4324,7 +4333,22 @@ msgstr ""
 msgid "1 Hour"
 msgstr ""
 
+msgid "No activity information available for this group"
+msgstr ""
+
 msgid "Free"
+msgstr ""
+
+msgid "No Data Available"
+msgstr ""
+
+msgid "used"
+msgstr ""
+
+msgid "Node is unavailable"
+msgstr ""
+
+msgid "Node Offline"
 msgstr ""
 
 msgid "Used"
@@ -4829,6 +4853,9 @@ msgid "Message"
 msgstr ""
 
 msgid "Check that database is running"
+msgstr ""
+
+msgid "See all results"
 msgstr ""
 
 msgid "Already created"
@@ -5530,10 +5557,13 @@ msgstr ""
 msgid "HD Serial"
 msgstr ""
 
+msgid "Multicast Image"
+msgstr ""
+
 msgid "Add selected to group"
 msgstr ""
 
-msgid "Requires templates to process"
+msgid "Unable to determine status"
 msgstr ""
 
 msgid "Cannot set tasking to invalid hosts"
@@ -6064,6 +6094,12 @@ msgid "Invalid"
 msgstr ""
 
 msgid "File or path does not exist"
+msgstr ""
+
+msgid "File Not Found"
+msgstr ""
+
+msgid "No data found"
 msgstr ""
 
 msgid "Device must be a string"

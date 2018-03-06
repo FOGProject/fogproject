@@ -491,6 +491,7 @@ class StorageNodeManagementPage extends FOGPage
         $bitrate = trim(
             filter_input(INPUT_POST, 'bitrate')
         );
+        $serverFault = false;
         self::$HookManager->processEvent('STORAGE_NODE_ADD_POST');
         try {
             if (empty($storagenode)) {
@@ -543,6 +544,7 @@ class StorageNodeManagementPage extends FOGPage
                 ->set('pass', $pass)
                 ->set('bandwidth', $bandwidth);
             if (!$StorageNode->save()) {
+                $serverFault = true;
                 throw new Exception(_('Add storage node failed!'));
             }
             if ($StorageNode->get('isMaster')) {
@@ -565,7 +567,8 @@ class StorageNodeManagementPage extends FOGPage
                         ['isMaster' => 0]
                     );
             }
-            $hook = 'STORAGE_NODE_ADD_SCCESS';
+            $code = 201;
+            $hook = 'STORAGE_NODE_ADD_SUCCESS';
             $msg = json_encode(
                 [
                     'msg' => _('Storage Node added!'),
@@ -573,6 +576,7 @@ class StorageNodeManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
+            $code = ($serverFault ? 500 : 400);
             $hook = 'STORAGE_NODE_ADD_FAIL';
             $msg = json_encode(
                 [

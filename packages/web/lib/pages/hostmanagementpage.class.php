@@ -2788,22 +2788,6 @@ class HostManagementPage extends FOGPage
             }
         ];
 
-        // Active Directory
-        $tabData[] = [
-            'name' =>  _('Active Directory'),
-            'id' => 'host-active-directory',
-            'generator' => function() {
-                $this->adFieldsToDisplay(
-                    $this->obj->get('useAD'),
-                    $this->obj->get('ADDomain'),
-                    $this->obj->get('ADOU'),
-                    $this->obj->get('ADUser'),
-                    $this->obj->get('ADPass'),
-                    $this->obj->get('enforce')
-                );
-            }
-        ];
-
         // Tasks
         if (!$this->obj->get('pending')) {
             $tabData[] = [
@@ -2856,6 +2840,20 @@ class HostManagementPage extends FOGPage
                         'id' => 'host-service',
                         'generator' => function() {
                             $this->hostService();
+                        }
+                    ],
+                    [
+                        'name' =>  _('Active Directory'),
+                        'id' => 'host-active-directory',
+                        'generator' => function() {
+                            $this->adFieldsToDisplay(
+                                $this->obj->get('useAD'),
+                                $this->obj->get('ADDomain'),
+                                $this->obj->get('ADOU'),
+                                $this->obj->get('ADUser'),
+                                $this->obj->get('ADPass'),
+                                $this->obj->get('enforce')
+                            );
                         }
                     ],
                     [

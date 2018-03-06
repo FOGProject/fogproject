@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 01:31-0500\n"
+"POT-Creation-Date: 2018-03-06 16:47-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1593,6 +1593,33 @@ msgid "Site Create Fail"
 msgstr "mise à jour de l'imprimante a échoué!"
 
 #, fuzzy
+msgid "Associated"
+msgstr "Aucun noeud associé"
+
+#, fuzzy
+msgid "Add selected"
+msgstr "Imprimante"
+
+#, fuzzy
+msgid "Remove selected"
+msgstr "Retirer snapins sélectionnés"
+
+#, fuzzy
+msgid "Site Host Associations"
+msgstr "Aucun noeud associé"
+
+msgid "User Name"
+msgstr "Nom d'utilisateur"
+
+#, fuzzy
+msgid "Site User Associations"
+msgstr "Association Image"
+
+#, fuzzy
+msgid "Associations"
+msgstr "Association Image"
+
+#, fuzzy
 msgid "Host Association"
 msgstr "Aucun noeud associé"
 
@@ -1615,46 +1642,6 @@ msgstr "Installation / Mise à jour réussie!"
 #, fuzzy
 msgid "Site Update Fail"
 msgstr "mise à jour de l'imprimante a échoué!"
-
-#, fuzzy
-msgid "Check here to see hosts not within this"
-msgstr "Vérifiez ici pour voir les groupes non affecté cette image"
-
-#, fuzzy
-msgid "Modify site membership for"
-msgstr "Modifier adhésion pour"
-
-msgid "host"
-msgstr "hôte"
-
-#, fuzzy
-msgid "to"
-msgstr "Auto"
-
-msgid "Delete Selected"
-msgstr "Supprimer sélectionnée"
-
-#, fuzzy
-msgid "from"
-msgstr "De"
-
-#, fuzzy
-msgid "Friendly Name"
-msgstr "Nom Kernel"
-
-#, fuzzy
-msgid "Check here to see users not within this"
-msgstr "Vérifiez ici pour voir les groupes non affecté cette image"
-
-msgid "Modify Membership for"
-msgstr "Modifier adhésion pour"
-
-#, fuzzy
-msgid "user"
-msgstr "Utilisateur"
-
-msgid "saved successfully"
-msgstr "sauvegarde réussie"
 
 msgid "Pushbullet Accounts"
 msgstr "Comptes Pushbullet"
@@ -1907,12 +1894,12 @@ msgstr ""
 msgid "Access Controls"
 msgstr "Tous les contrôles d'accès"
 
+msgid "Delete Selected"
+msgstr "Supprimer sélectionnée"
+
 #, fuzzy
 msgid "Role"
 msgstr "Retirer"
-
-msgid "User Name"
-msgstr "Nom d'utilisateur"
 
 #, fuzzy
 msgid "User Access Control"
@@ -2091,8 +2078,16 @@ msgid "rule"
 msgstr "Résultats"
 
 #, fuzzy
+msgid "to"
+msgstr "Auto"
+
+#, fuzzy
 msgid "Rule Name"
 msgstr "Nom du module"
+
+#, fuzzy
+msgid "from"
+msgstr "De"
 
 #, fuzzy
 msgid "Not role selected"
@@ -2101,6 +2096,24 @@ msgstr "Aucun hôtes ont été sélectionnés"
 #, fuzzy
 msgid "Not rule selected"
 msgstr "Aucun hôtes ont été sélectionnés"
+
+#, fuzzy
+msgid "Friendly Name"
+msgstr "Nom Kernel"
+
+#, fuzzy
+msgid "Check here to see users not within this"
+msgstr "Vérifiez ici pour voir les groupes non affecté cette image"
+
+msgid "Modify Membership for"
+msgstr "Modifier adhésion pour"
+
+#, fuzzy
+msgid "user"
+msgstr "Utilisateur"
+
+msgid "saved successfully"
+msgstr "sauvegarde réussie"
 
 #, fuzzy
 msgid "LDAP Servers"
@@ -3794,6 +3807,9 @@ msgstr "Différé"
 msgid "group"
 msgstr "groupe"
 
+msgid "host"
+msgstr "hôte"
+
 msgid "Primary MAC"
 msgstr "MAC primaire"
 
@@ -3842,6 +3858,14 @@ msgstr "hôte Créé"
 #, fuzzy
 msgid "All Pending MACs"
 msgstr "en attente MACs"
+
+#, fuzzy
+msgid "Approved selected macss!"
+msgstr "Approuver hôtes sélectionnés"
+
+#, fuzzy
+msgid "MAC Approval Success"
+msgstr "hôte Créé"
 
 #, fuzzy
 msgid "Create New Host"
@@ -4021,14 +4045,6 @@ msgstr "Imprimantes Seulement Assigned"
 #, fuzzy
 msgid "Update default"
 msgstr "Mise à jour de l'imprimante"
-
-#, fuzzy
-msgid "Add selected"
-msgstr "Imprimante"
-
-#, fuzzy
-msgid "Remove selected"
-msgstr "Retirer snapins sélectionnés"
 
 msgid "Default"
 msgstr "Défaut"
@@ -4248,10 +4264,6 @@ msgstr "snapin Histoire"
 #, fuzzy
 msgid "MAC Addresses"
 msgstr "MAC Address List"
-
-#, fuzzy
-msgid "Associations"
-msgstr "Association Image"
 
 #, fuzzy
 msgid "Service Settings"
@@ -4973,7 +4985,24 @@ msgstr "30 minutes"
 msgid "1 Hour"
 msgstr "1 heure"
 
+msgid "No activity information available for this group"
+msgstr ""
+
 msgid "Free"
+msgstr ""
+
+#, fuzzy
+msgid "No Data Available"
+msgstr "Indisponible"
+
+msgid "used"
+msgstr ""
+
+#, fuzzy
+msgid "Node is unavailable"
+msgstr "Pas de hachage disponible"
+
+msgid "Node Offline"
 msgstr ""
 
 msgid "Used"
@@ -5564,6 +5593,10 @@ msgstr "Message"
 
 msgid "Check that database is running"
 msgstr "Vérifiez que la base de données est en cours d'exécution"
+
+#, fuzzy
+msgid "See all results"
+msgstr "Lister tous les %s"
 
 #, fuzzy
 msgid "Already created"
@@ -6386,11 +6419,16 @@ msgid "HD Serial"
 msgstr "HD série"
 
 #, fuzzy
+msgid "Multicast Image"
+msgstr "Multicast"
+
+#, fuzzy
 msgid "Add selected to group"
 msgstr "Imprimante"
 
-msgid "Requires templates to process"
-msgstr "Requiert des modèles pour traiter"
+#, fuzzy
+msgid "Unable to determine status"
+msgstr "Impossible de déterminer les détails du plugin"
 
 #, fuzzy
 msgid "Cannot set tasking to invalid hosts"
@@ -7029,6 +7067,14 @@ msgstr "ID invalide"
 #, fuzzy
 msgid "File or path does not exist"
 msgstr "Méthode n'existe pas"
+
+#, fuzzy
+msgid "File Not Found"
+msgstr "Icône Fichier introuvable"
+
+#, fuzzy
+msgid "No data found"
+msgstr "Pas trouvé"
 
 #, fuzzy
 msgid "Device must be a string"

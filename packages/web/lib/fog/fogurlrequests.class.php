@@ -599,21 +599,22 @@ class FOGURLRequests extends FOGBase
     /**
      * Quick test if url is available.
      *
-     * @param string $urls the url to check.
+     * @param string $urls    The url to check.
+     * @param int    $timeout How long to wait.
      *
      * @return void
      */
-    public function isAvailable($urls)
+    public function isAvailable($urls, $timeout = 30)
     {
         $this->__destruct();
-        $output = array();
+        $output = [];
         foreach ((array) $urls as &$url) {
             $socket = @fsockopen(
                 $url,
                 self::$FOGFTP->get('port'),
                 $errno,
                 $errstr,
-                30
+                $timeout
             );
             if (!$socket) {
                 $output[] = false;

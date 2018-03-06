@@ -1361,22 +1361,6 @@ class GroupManagementPage extends FOGPage
             }
         ];
 
-        // Active Directory
-        $tabData[] = [
-            'name' => _('Active Directory'),
-            'id' => 'group-active-directory',
-            'generator' => function() {
-                $this->adFieldsToDisplay(
-                    $useAD,
-                    $ADDomain,
-                    $ADOU,
-                    $ADUser,
-                    $ADPass,
-                    $enforce
-                );
-            }
-        ];
-
         // Tasks
         $tabData[] = [
             'name' => _('Tasks'),
@@ -1427,6 +1411,20 @@ class GroupManagementPage extends FOGPage
                         'id' => 'group-service',
                         'generator' => function() {
                             $this->groupService();
+                        }
+                    ],
+                    [
+                        'name' => _('Active Directory'),
+                        'id' => 'group-active-directory',
+                        'generator' => function() {
+                            $this->adFieldsToDisplay(
+                                $useAD,
+                                $ADDomain,
+                                $ADOU,
+                                $ADUser,
+                                $ADPass,
+                                $enforce
+                            );
                         }
                     ],
                     [
