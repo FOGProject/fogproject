@@ -20,6 +20,10 @@
     var pingcodes = [0, 6, 110],
         pingstring = [];
 
+    pingstring[-1] = '<span class="label label-info">'
+    + $('#pingundetermined').val()
+    + '</span>';
+
     // Callback to set our ping string array.
     function pingStatusCallback(retstring, code) {
         return pingstring[code] = retstring;
@@ -47,7 +51,7 @@
             {data: 'primac'},
             {
                 data: 'pingstatus',
-                defaultContent: pingstring[6]
+                defaultContent: pingstring[-1]
             },
             {data: 'deployed'},
             {data: 'imagename'},
