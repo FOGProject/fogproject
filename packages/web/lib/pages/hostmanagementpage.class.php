@@ -295,10 +295,193 @@ class HostManagementPage extends FOGPage
                 '',
                 ['pending' => 0]
             );
+            http_response_code(201);
             echo json_encode(
                 [
                     'msg' => _('Approved selected hosts!'),
                     'title' => _('Host Approval Success')
+                ]
+            );
+            exit;
+        }
+    }
+    /**
+     * Lists the pending macs
+     *
+     * @return false
+     */
+    public function pendingMacs()
+    {
+        if (false === self::$showhtml) {
+            return;
+        }
+        $this->title = _('All Pending MACs');
+
+        $this->headerData = [
+            _('Host Name'),
+            _('MAC Address')
+        ];
+        $this->templates = [
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
+
+        self::$HookManager->processEvent(
+            'HOST_PENDING_MAC_DATA',
+            [
+                'templates' => &$this->templates,
+                'attributes' => &$this->attributes,
+                'headerData' => &$this->headerData
+            ]
+        );
+        self::$HookManager->processEvent(
+            'HOST_PENDING_MAC_HEADER_DATA',
+            ['headerData' => &$this->headerData]
+        );
+
+        $buttons = self::makeButton(
+            'approve',
+            _('Approve selected'),
+            'btn btn-primary'
+        );
+        $buttons .= self::makeButton(
+            'delete',
+            _('Delete selected'),
+            'btn btn-danger pull-right'
+        );
+
+        $modalApprovalBtns = self::makeButton(
+            'confirmApproveModal',
+            _('Approve'),
+            'btn btn-success pull-right'
+        );
+        $modalApprovalBtns .= self::makeButton(
+            'cancelApprovalModal',
+            _('Cancel'),
+            'btn btn-warning pull-left',
+            'data-dismiss="modal"'
+        );
+        $approvalModal = self::makeModal(
+            'approveModal',
+            _('Approve Pending Hosts'),
+            _('Approving the selected pending hosts.'),
+            $modalApprovalBtns
+        );
+
+        $modalDeleteBtns = self::makeButton(
+            'confirmDeleteModal',
+            _('Delete'),
+            'btn btn-danger pull-right'
+        );
+        $modalDeleteBtns .= self::makeButton(
+            'closeDeleteModal',
+            _('Cancel'),
+            'btn btn-warning pull-left',
+            'data-dismiss="modal"'
+        );
+        $deleteModal = self::makeModal(
+            'deleteModal',
+            _('Confirm password'),
+            '<div class="input-group">'
+            . '<input id="deletePassword" class="form-control" placeholder="'
+            . _('Password')
+            . '" autocomplete="off" type="password">'
+            . '</div>',
+            $modalDeleteBtns
+        );
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'mac-pending-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12);
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $buttons;
+        echo $approvalModal;
+        echo $deleteModal;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+    }
+    /**
+     * Actually performs the update/delete actions
+     *
+     * @return void
+     */
+    public function pendingMacsAjax()
+    {
+        header('Content-type: application/json');
+
+        $flags = ['flags' => FILTER_REQUIRE_ARRAY];
+        $items = filter_input_array(
+            INPUT_POST,
+            [
+                'remitems' => $flags,
+                'pending' => $flags
+            ]
+        );
+        $remitems = $items['remitems'];
+        $pending = $items['pending'];
+        if (isset($_POST['confirmdel'])) {
+            if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
+
+                $user = filter_input(INPUT_POST, 'fogguiuser');
+
+                if (empty($user)) {
+                    $user = self::$FOGUser->get('name');
+                }
+                $pass = filter_input(INPUT_POST, 'fogguipass');
+                $validate = self::getClass('User')
+                    ->passwordValidate(
+                        $user,
+                        $pass,
+                        true
+                    );
+                if (!$validate) {
+                    echo json_encode(
+                        ['error' => self::$foglang['InvalidLogin']]
+                    );
+                    http_response_code(401);
+                    exit;
+                }
+            }
+            self::getClass('MACAddressAssociationManager')->destroy(
+                [
+                    'id' => $remitems,
+                    'pending' => 1
+                ]
+            );
+        }
+        if (isset($_POST['approvepending'])) {
+            self::getClass('MACAddressAssociationManager')->update(
+                [
+                    'id' => $pending,
+                    'pending' => 1
+                ],
+                '',
+                ['pending' => 0]
+            );
+            http_response_code(201);
+            echo json_encode(
+                [
+                    'msg' => _('Approved selected macss!'),
+                    'title' => _('MAC Approval Success')
                 ]
             );
             exit;
@@ -3406,6 +3589,81 @@ class HostManagementPage extends FOGPage
         $columns[] = ['db' => 'imageName', 'dt' => 'imagename'];
         self::$HookManager->processEvent(
             'HOST_PENDING_HOSTS',
+            [
+                'table' => &$table,
+                'sqlstr' => &$sqlstr,
+                'filterstr' => &$filterstr,
+                'totalstr' => &$totalstr,
+                'columns' => &$columns
+            ]
+        );
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                $table,
+                $tableID,
+                $columns,
+                $sqlstr,
+                $filterstr,
+                $totalstr,
+                $where
+            )
+        );
+        exit;
+    }
+    /**
+     * Get pending mac list.
+     *
+     * @return void
+     */
+    public function getPendingMacList()
+    {
+        header('Content-type: application/json');
+
+        $where = "`hostMAC`.`hmPending` > '0'";
+
+        $obj = self::getClass('MACAddressAssociationManager');
+        $table = $obj->getTable();
+        $sqlstr = "SELECT `%s`
+            FROM `%s`
+            LEFT OUTER JOIN `hosts`
+            ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
+            %s
+            %s
+            %s";
+        $filterstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `hosts`
+            ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
+            %s";
+        $totalstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `hosts`
+            ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
+            WHERE "
+            . $where;
+        $dbcolumns = $obj->getColumns();
+        $pass_vars = $columns = [];
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        // Setup our columns for the CSVn.
+        // Automatically removes the id column.
+        foreach ($dbcolumns as $common => &$real) {
+            if ('id' == $common) {
+                $tableID = $real;
+            }
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        $columns[] = ['db' => 'hostID', 'dt' => 'hostid'];
+        $columns[] = ['db' => 'hostName', 'dt' => 'hostname'];
+        self::$HookManager->processEvent(
+            'HOST_PENDING_MACS',
             [
                 'table' => &$table,
                 'sqlstr' => &$sqlstr,

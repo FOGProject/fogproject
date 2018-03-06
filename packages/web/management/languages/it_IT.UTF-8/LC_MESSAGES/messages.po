@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-05 17:09-0500\n"
+"POT-Creation-Date: 2018-03-06 01:31-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3489,6 +3489,10 @@ msgid "Host Approval Success"
 msgstr "Creazione Host con successo"
 
 #, fuzzy
+msgid "All Pending MACs"
+msgstr "sospeso MAC"
+
+#, fuzzy
 msgid "Create New Host"
 msgstr "Crea nuovo %s"
 
@@ -4839,6 +4843,28 @@ msgstr "Modifica Snapin riuscita"
 
 msgid "Snapin Update Fail"
 msgstr "Aggiornamento Snapin fallito"
+
+#, fuzzy
+msgid "Login Failed"
+msgstr "Caricamento non riuscito"
+
+#, fuzzy
+msgid "Login successful!"
+msgstr "Riuscito"
+
+#, fuzzy
+msgid "Login Success"
+msgstr "Modifica posizione riuscita"
+
+msgid "Sign in to start your session"
+msgstr ""
+
+msgid "Remember Me"
+msgstr ""
+
+#, fuzzy
+msgid "Sign In"
+msgstr "firmato"
 
 msgid "Database Schema Installer / Updater"
 msgstr "Database Schema di installazione / aggiornamento"

@@ -625,6 +625,15 @@ abstract class FOGPage extends FOGBase
                 _('Pending Hosts') :
                 null
             ),
+            (
+                'host' == $node ?
+                'pendingMacs' :
+                null
+            ) => (
+                'host' == $node ?
+                _('Pending MACs') :
+                null
+            ),
             'export' => sprintf(
                 self::$foglang[
                     sprintf(

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-05 17:09-0500\n"
+"POT-Creation-Date: 2018-03-06 01:31-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3840,6 +3840,10 @@ msgid "Host Approval Success"
 msgstr "hôte Créé"
 
 #, fuzzy
+msgid "All Pending MACs"
+msgstr "en attente MACs"
+
+#, fuzzy
 msgid "Create New Host"
 msgstr "Créer un nouveau %s"
 
@@ -5318,6 +5322,28 @@ msgstr "Installation / Mise à jour réussie!"
 #, fuzzy
 msgid "Snapin Update Fail"
 msgstr "mise à jour a échoué Snapin"
+
+#, fuzzy
+msgid "Login Failed"
+msgstr "Échec du chargement: %s"
+
+#, fuzzy
+msgid "Login successful!"
+msgstr "Réussi"
+
+#, fuzzy
+msgid "Login Success"
+msgstr "Installation / Mise à jour réussie!"
+
+msgid "Sign in to start your session"
+msgstr ""
+
+msgid "Remember Me"
+msgstr ""
+
+#, fuzzy
+msgid "Sign In"
+msgstr "Signé"
 
 msgid "Database Schema Installer / Updater"
 msgstr "Base de données de schéma d'installation / Updater"
