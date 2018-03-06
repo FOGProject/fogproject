@@ -28,7 +28,9 @@ if (session_status() != PHP_SESSION_NONE) {
         unset($_SESSION['delitems']);
     }
 }
+ob_start();
 FOGCore::getClass('ProcessLogin')->processMainLogin();
+$login = ob_get_clean();
 require '../commons/text.php';
 $Page = FOGCore::getClass('Page');
 $nodes = [
@@ -44,8 +46,7 @@ if (!in_array($node, $nodes)
         ->setTitle($foglang['Login'])
         ->setSecTitle($foglang['ManagementLogin'])
         ->startBody();
-    FOGCore::getClass('ProcessLogin')
-        ->mainLoginForm();
+    echo $login;
     $Page
         ->endBody()
         ->render();
@@ -56,10 +57,7 @@ if (!in_array($node, $nodes)
     }
     $Page->startBody();
     $FOGPageManager->render();
-    //if ($FOGPageManager->getFOGPageName() !== $FOGPageManager->getFOGPageTitle()) {
-        $Page
-            ->setTitle($FOGPageManager->getFOGPageTitle());
-    //}
+    $Page->setTitle($FOGPageManager->getFOGPageTitle());
     $Page->setSecTitle($FOGPageManager->getFOGPageName());
     $Page
         ->endBody()

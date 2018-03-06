@@ -234,11 +234,6 @@ abstract class FOGPage extends FOGBase
             . 'btn-box-tool" data-widget="remove">'
             . '<i class="fa fa-times"></i>'
             . '</button>';
-        if (self::$ajax) {
-            session_write_close();
-            ignore_user_abort(true);
-            set_time_limit(0);
-        }
         self::$HookManager->processEvent(
             'PAGES_WITH_OBJECTS',
             ['PagesWithObjects' => &$this->PagesWithObjects]
