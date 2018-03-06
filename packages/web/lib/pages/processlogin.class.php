@@ -46,6 +46,18 @@ class ProcessLogin extends FOGPage
         $this->_lang = self::$locale;
     }
     /**
+     * Redirect if no direct page to go to.
+     *
+     * @return void
+     */
+    public function index()
+    {
+        if (self::$FOGUser->isValid()) {
+            self::redirect('../management/index.php?node=home');
+        }
+        $this->mainLoginForm();
+    }
+    /**
      * Gets the languages into a string.
      *
      * @return void
@@ -232,7 +244,9 @@ class ProcessLogin extends FOGPage
     {
         global $currentUser;
         if (self::$reqmethod == 'POST') {
-            $this->loginPost();
+            if (isset($_POST['login'])) {
+                $this->loginPost();
+            }
         } else {
             if (self::$FOGUser->isValid()) {
                 return;
@@ -332,6 +346,15 @@ class ProcessLogin extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
+        echo self::makeInput(
+            '',
+            'login',
+            '',
+            'hidden',
+            'login',
+            '1',
+            true
+        );
         echo '</form>';
     }
 }
