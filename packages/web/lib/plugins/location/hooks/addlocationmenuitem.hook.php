@@ -83,7 +83,7 @@ class AddLocationMenuItem extends Hook
      *
      * @return void
      */
-    public function menuUpdate($argumetns)
+    public function menuUpdate($arguments)
     {
         if ($arguments['node'] != $this->node) {
             return;

@@ -170,7 +170,7 @@ class PDODB extends DatabaseManager
             );
             if (self::$_link && !self::currentDb($this)) {
                 if (preg_match('#schema#', self::$querystring)) {
-                    self::redirect('?node=schema');
+                    self::redirect('../management/index.php?node=schema');
                 }
             }
             self::query("SET SESSION sql_mode=''");

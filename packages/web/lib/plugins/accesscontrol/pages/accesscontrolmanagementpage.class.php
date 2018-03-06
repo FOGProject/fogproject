@@ -224,7 +224,7 @@ class AccessControlManagementPage extends FOGPage
                     );
                     self::redirect(
                         sprintf(
-                            '?node=%s',
+                            '../management/index.php?node=%s',
                             $this->node
                         )
                     );
@@ -805,7 +805,7 @@ class AccessControlManagementPage extends FOGPage
             self::setMessage(_('Rule Added, editing!'));
             self::redirect(
                 sprintf(
-                    '?node=accesscontrol&sub=editRule&id=%s',
+                    '../management/index.php?node=accesscontrol&sub=editRule&id=%s',
                     $AccessControlRule->get('id')
                 )
             );
@@ -930,7 +930,7 @@ class AccessControlManagementPage extends FOGPage
                 self::setMessage(_('Rule Updated'));
                 self::redirect(
                     sprintf(
-                        '?node=accesscontrol&sub=editRule&id=%d',
+                        '../management/index.php?node=accesscontrol&sub=editRule&id=%d',
                         $this->obj->get('id')
                     )
                 );
@@ -1018,7 +1018,7 @@ class AccessControlManagementPage extends FOGPage
                 _('Rule Delete Success')
             );
             $url = sprintf(
-                '?node=%s&sub=accesscontrol',
+                '../management/index.php?node=%s&sub=accesscontrol',
                 $this->node
             );
         } catch (Exception $e) {
@@ -1236,7 +1236,7 @@ class AccessControlManagementPage extends FOGPage
             unset($ruleID);
 
             self::setMessage(_('Rule Added, editing!'));
-            self::redirect('?node=accesscontrol&sub=ruleList');
+            self::redirect('../management/index.php?node=accesscontrol&sub=ruleList');
         } catch (Exception $e) {
             self::setMessage($e->getMessage());
             self::redirect($this->formAction);

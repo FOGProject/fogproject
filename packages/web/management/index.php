@@ -38,11 +38,10 @@ $nodes = [
     'client',
     'ipxe'
 ];
-if ($node == 'logout') {
-    $currentUser->logout();
-    FOGCore::redirect('../management/index.php');
-}
-if ($node == 'login') {
+if (in_array($node, ['logout', 'login'])) {
+    if ('logout' == $node) {
+        $currentUser->logout();
+    }
     FOGCore::redirect('../management/index.php');
 }
 if (!in_array($node, $nodes)

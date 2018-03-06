@@ -2959,7 +2959,7 @@ class HostManagementPage extends FOGPage
             case 'host-login-history':
                 $dte = filter_input(INPUT_POST, 'dte');
                 self::redirect(
-                    '?node='
+                    '../management/index.php?node='
                     . $this->node
                     . '&sub=edit&id='
                     . $this->obj->get('id')

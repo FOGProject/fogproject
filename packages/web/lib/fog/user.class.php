@@ -457,7 +457,7 @@ class User extends FOGController
                 && $_SESSION['OBSOLETE']
             ) {
                 $_SESSION['OBSOLETE'] = false;
-                self::redirect('index.php?node=logout');
+                self::redirect('../management/index.php?node=logout');
             }
         }
         $authTime = time() - $this->get('authTime');
