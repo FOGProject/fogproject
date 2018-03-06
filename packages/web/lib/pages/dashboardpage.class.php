@@ -203,9 +203,6 @@ class DashboardPage extends FOGPage
                 ['fields' => &$fields]
             );
 
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
-
         echo '<div clss="box-group">';
         echo '<!-- FOG Overview Boxes -->';
         // Server info basic.
@@ -251,9 +248,6 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         unset(
-            $this->data,
-            $this->templates,
-            $this->attributes,
             $fields,
             $SystemUptime,
             $tftp
@@ -281,9 +275,6 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         unset(
-            $this->data,
-            $this->templates,
-            $this->attributes,
             $fields,
             $SystemUptime,
             $tftp
@@ -405,9 +396,6 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Gets the client count active/used/queued
@@ -416,13 +404,14 @@ class DashboardPage extends FOGPage
      */
     public function clientcount()
     {
-        session_write_close();
-        ignore_user_abort(true);
-        set_time_limit(0);
+        header('Content-type: application/json');
         $ActivityActive = $ActivityQueued = $ActivityTotalClients = 0;
         $ActivityTotalClients = $this->obj->getTotalAvailableSlots();
         $ActivityQueued = $this->obj->getQueuedSlots();
         $ActivityActive = $this->obj->getUsedSlots();
+        if (!$ActivityActive && !$ActivityTotalClients && !$ActivityQueued) {
+            $error = _('No activity information available for this group');
+        }
         $data = [
             '_labels' => [
                 _('Free'),
@@ -433,41 +422,55 @@ class DashboardPage extends FOGPage
             'ActivityQueued' => &$ActivityQueued,
             'ActivitySlots' => &$ActivityTotalClients
         ];
+        if ($error) {
+            $data['error'] = $error;
+            $data['title'] = _('No Data Available');
+        }
         unset(
             $ActivityActive,
             $ActivityQueued,
             $ActivityTotalClients
         );
+        http_response_code(201);
         echo json_encode($data);
         unset($data);
         exit;
     }
     /**
-     * Gets the disk usage of the selected node.
+     * Ge://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/css/bootstrap-slider.min.cssts the disk usage of the selected node.
      *
      * @return void
      */
     public function diskusage()
     {
-        session_write_close();
-        ignore_user_abort(true);
-        set_time_limit(0);
         $url = sprintf(
             '%s://%s/fog/status/freespace.php?path=%s',
             self::$httpproto,
             $this->obj->get('ip'),
             base64_encode($this->obj->get('path'))
         );
+        $test = self::$FOGURLRequests->isAvailable($this->obj->get('ip'), 1);
+        if (!array_shift($test)) {
+            echo json_encode(
+                [
+                    '_labels' => [
+                        _('Free'),
+                        _('used')
+                    ],
+                    'free' => 0,
+                    'used' => 0,
+                    'error' => _('Node is unavailable'),
+                    'title' => _('Node Offline')
+                ]
+            );
+            exit;
+        }
         $data = self::$FOGURLRequests
             ->process($url);
         $data = json_decode(
             array_shift($data)
         );
-        if ($data->error) {
-            echo json_encode($data);
-            exit;
-        }
-        $data = [
+        $datatmp = [
             '_labels' => [
                 _('Free'),
                 _('Used')
@@ -475,8 +478,13 @@ class DashboardPage extends FOGPage
             'free' => $data->free,
             'used' => $data->used
         ];
+        if ($data->error) {
+            $datatmp['error'] = $data->error;
+            $datatmp['title'] = $data->title;
+        }
         unset($url);
-        echo json_encode((array)$data);
+        http_response_code(201);
+        echo json_encode($datatmp);
         unset($data);
         exit;
     }
@@ -519,6 +527,7 @@ class DashboardPage extends FOGPage
             ];
             unset($date);
         }
+        http_response_code(201);
         echo json_encode($data);
         exit;
     }
@@ -530,9 +539,6 @@ class DashboardPage extends FOGPage
     public function bandwidth()
     {
         header('Content-type: application/json');
-        session_write_close();
-        ignore_user_abort(true);
-        set_time_limit(0);
         $sent = filter_input(
             INPUT_POST,
             'url',
@@ -550,8 +556,10 @@ class DashboardPage extends FOGPage
             $urls[] = $url;
             unset($url);
         }
-        $datas = self::$FOGURLRequests
-            ->process($urls);
+        $urls = array_values(
+            array_filter($urls)
+        );
+        $datas = self::$FOGURLRequests->process($urls);
         $dataSet = [];
         foreach ((array)$datas as $i => &$data) {
             $d = json_decode($data);
@@ -566,6 +574,59 @@ class DashboardPage extends FOGPage
         }
         http_response_code(201);
         echo json_encode($dataSet);
+        exit;
+    }
+    /**
+     * Test if the urls are available.
+     *
+     * @return array
+     */
+    public function testUrls()
+    {
+        header('Content-type: application/json');
+        $sent = filter_input(
+            INPUT_POST,
+            'url',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
+        $names = filter_input(
+            INPUT_POST,
+            'names',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
+        $testurls = [];
+        foreach ((array)$sent as &$url) {
+            $testurls[] = parse_url($url, PHP_URL_HOST);
+            unset($url);
+        }
+        $tests = self::$FOGURLRequests->isAvailable($testurls, 1);
+        unset($testurls);
+        foreach ($tests as $index => &$test) {
+            if (!$test) {
+                unset(
+                    $sent[$index],
+                    $names[$index]
+                );
+            }
+            unset($test);
+        }
+        $names = array_values(
+            array_filter($names)
+        );
+
+        $sent = array_values(
+            array_filter($sent)
+        );
+
+        http_response_code(201);
+        echo json_encode(
+            [
+                'names' => $names,
+                'urls' => $sent
+            ]
+        );
         exit;
     }
 }

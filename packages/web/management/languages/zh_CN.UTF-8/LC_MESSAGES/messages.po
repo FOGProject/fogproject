@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 01:31-0500\n"
+"POT-Creation-Date: 2018-03-06 16:47-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1588,6 +1588,33 @@ msgid "Site Create Fail"
 msgstr "打印机更新失败！"
 
 #, fuzzy
+msgid "Associated"
+msgstr "无关联的节点"
+
+#, fuzzy
+msgid "Add selected"
+msgstr "打印机"
+
+#, fuzzy
+msgid "Remove selected"
+msgstr "删除选定snapins"
+
+#, fuzzy
+msgid "Site Host Associations"
+msgstr "无关联的节点"
+
+msgid "User Name"
+msgstr "用户名"
+
+#, fuzzy
+msgid "Site User Associations"
+msgstr "图像协会"
+
+#, fuzzy
+msgid "Associations"
+msgstr "图像协会"
+
+#, fuzzy
 msgid "Host Association"
 msgstr "无关联的节点"
 
@@ -1610,46 +1637,6 @@ msgstr "安装/升级成功！"
 #, fuzzy
 msgid "Site Update Fail"
 msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "Check here to see hosts not within this"
-msgstr "请查看这里以组未分配此图片"
-
-#, fuzzy
-msgid "Modify site membership for"
-msgstr "修改为会员"
-
-msgid "host"
-msgstr "主办"
-
-#, fuzzy
-msgid "to"
-msgstr "汽车"
-
-msgid "Delete Selected"
-msgstr "删除所选"
-
-#, fuzzy
-msgid "from"
-msgstr "从"
-
-#, fuzzy
-msgid "Friendly Name"
-msgstr "内核名称"
-
-#, fuzzy
-msgid "Check here to see users not within this"
-msgstr "请查看这里以组未分配此图片"
-
-msgid "Modify Membership for"
-msgstr "修改为会员"
-
-#, fuzzy
-msgid "user"
-msgstr "用户"
-
-msgid "saved successfully"
-msgstr "保存成功"
 
 msgid "Pushbullet Accounts"
 msgstr "Pushbullet账户"
@@ -1902,12 +1889,12 @@ msgstr ""
 msgid "Access Controls"
 msgstr "所有访问控制"
 
+msgid "Delete Selected"
+msgstr "删除所选"
+
 #, fuzzy
 msgid "Role"
 msgstr "去掉"
-
-msgid "User Name"
-msgstr "用户名"
 
 #, fuzzy
 msgid "User Access Control"
@@ -2086,8 +2073,16 @@ msgid "rule"
 msgstr "结果"
 
 #, fuzzy
+msgid "to"
+msgstr "汽车"
+
+#, fuzzy
 msgid "Rule Name"
 msgstr "模块名称"
+
+#, fuzzy
+msgid "from"
+msgstr "从"
 
 #, fuzzy
 msgid "Not role selected"
@@ -2096,6 +2091,24 @@ msgstr "没有选定主机"
 #, fuzzy
 msgid "Not rule selected"
 msgstr "没有选定主机"
+
+#, fuzzy
+msgid "Friendly Name"
+msgstr "内核名称"
+
+#, fuzzy
+msgid "Check here to see users not within this"
+msgstr "请查看这里以组未分配此图片"
+
+msgid "Modify Membership for"
+msgstr "修改为会员"
+
+#, fuzzy
+msgid "user"
+msgstr "用户"
+
+msgid "saved successfully"
+msgstr "保存成功"
 
 #, fuzzy
 msgid "LDAP Servers"
@@ -3776,6 +3789,9 @@ msgstr "延迟"
 msgid "group"
 msgstr "组"
 
+msgid "host"
+msgstr "主办"
+
 msgid "Primary MAC"
 msgstr "主MAC"
 
@@ -3824,6 +3840,14 @@ msgstr "主机创建"
 #, fuzzy
 msgid "All Pending MACs"
 msgstr "待定的MAC"
+
+#, fuzzy
+msgid "Approved selected macss!"
+msgstr "批准选定主机"
+
+#, fuzzy
+msgid "MAC Approval Success"
+msgstr "主机创建"
 
 #, fuzzy
 msgid "Create New Host"
@@ -4000,14 +4024,6 @@ msgstr "只有分配打印机"
 #, fuzzy
 msgid "Update default"
 msgstr "更新打印机"
-
-#, fuzzy
-msgid "Add selected"
-msgstr "打印机"
-
-#, fuzzy
-msgid "Remove selected"
-msgstr "删除选定snapins"
 
 msgid "Default"
 msgstr "默认"
@@ -4227,10 +4243,6 @@ msgstr "历史管理单元"
 #, fuzzy
 msgid "MAC Addresses"
 msgstr "MAC地址列表"
-
-#, fuzzy
-msgid "Associations"
-msgstr "图像协会"
 
 #, fuzzy
 msgid "Service Settings"
@@ -4947,7 +4959,24 @@ msgstr "30分钟"
 msgid "1 Hour"
 msgstr "1小时"
 
+msgid "No activity information available for this group"
+msgstr ""
+
 msgid "Free"
+msgstr ""
+
+#, fuzzy
+msgid "No Data Available"
+msgstr "不可用"
+
+msgid "used"
+msgstr ""
+
+#, fuzzy
+msgid "Node is unavailable"
+msgstr "没有可用的散列"
+
+msgid "Node Offline"
 msgstr ""
 
 msgid "Used"
@@ -5538,6 +5567,10 @@ msgstr "信息"
 
 msgid "Check that database is running"
 msgstr "检查数据库运行"
+
+#, fuzzy
+msgid "See all results"
+msgstr "列表中的所有%s"
 
 #, fuzzy
 msgid "Already created"
@@ -6352,11 +6385,16 @@ msgid "HD Serial"
 msgstr "HD系列"
 
 #, fuzzy
+msgid "Multicast Image"
+msgstr "组播"
+
+#, fuzzy
 msgid "Add selected to group"
 msgstr "打印机"
 
-msgid "Requires templates to process"
-msgstr "需要模板来处理"
+#, fuzzy
+msgid "Unable to determine status"
+msgstr "无法确定插件的详细信息"
 
 #, fuzzy
 msgid "Cannot set tasking to invalid hosts"
@@ -6987,6 +7025,14 @@ msgstr "无效的ID"
 #, fuzzy
 msgid "File or path does not exist"
 msgstr "方法不存在"
+
+#, fuzzy
+msgid "File Not Found"
+msgstr "图标文件未找到"
+
+#, fuzzy
+msgid "No data found"
+msgstr "未找到"
 
 #, fuzzy
 msgid "Device must be a string"

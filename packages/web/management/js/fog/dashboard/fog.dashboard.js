@@ -219,7 +219,19 @@ function setupActivity() {
                 data: parseInt(data.ActivityActive)
             }
         ];
-        $.plot('#graph-activity', updateClientCountData, updateClientCountOpts);
+        if (data.error) {
+            $('#graph-activity').html(
+                '<div class="alert alert-warning">'
+                + '<h4>'
+                + data.title
+                + '</h4>'
+                + data.error
+                + '</div>'
+            );
+        } else {
+            $('#graph-activity').html('');
+            $.plot('#graph-activity', updateClientCountData, updateClientCountOpts);
+        }
         if (clientinterval) {
             clearTimeout(clientinterval);
         }
@@ -242,12 +254,12 @@ function setupActivity() {
 }
 
 function setupDiskUsage() {
-   // Disk Usage
-   $('#graph-diskusage').css({
-    height: '150px',
-    color: '#f3f3f3',
-    'text-decoration': 'none',
-    'font-weight': 'bold'
+    // Disk Usage
+    $('#graph-diskusage').css({
+        height: '150px',
+        color: '#f3f3f3',
+        'text-decoration': 'none',
+        'font-weight': 'bold'
     });
     var updateDiskUsage = function() {
         var now = new Date().getTime(),
@@ -276,9 +288,6 @@ function setupDiskUsage() {
         });
     };
     var updateDiskUsageGraph = function(data) {
-        if (data.error) {
-            $('#graph-diskusage').html(data.error ? data.error : 'No data returned');
-        }
         GraphDiskUsageData = [
             {
                 label: data._labels[0],
@@ -289,7 +298,18 @@ function setupDiskUsage() {
                 data: parseInt(data.used, 10)
             }
         ];
-        $.plot($('#graph-diskusage'), GraphDiskUsageData, GraphDiskUsageOpts);
+        if (data.error) {
+            $('#graph-diskusage').html(
+                '<div class="alert alert-warning">'
+                + '<h4>'
+                + data.title
+                + '</h4>'
+                + data.error
+                + '</div>'
+            );
+        } else {
+            $.plot($('#graph-diskusage'), GraphDiskUsageData, GraphDiskUsageOpts);
+        }
         if (diskusageinterval) {
             clearTimeout(diskusageinterval);
         }
@@ -373,12 +393,12 @@ function setupImagingHistory() {
             var x = item.datapoint[0],
                 y = item.datapoint[1],
                 date = new Date(x).toDateString();
-                $('#graph-30day-tooltip').html(
-                    item.series.label + ': ' + y + ' on ' + date
-                ).css({
-                    top: item.pageY + 5,
-                    left: item.pageX + 5
-                }).fadeIn(200);
+            $('#graph-30day-tooltip').html(
+                item.series.label + ': ' + y + ' on ' + date
+            ).css({
+                top: item.pageY + 5,
+                left: item.pageX + 5
+            }).fadeIn(200);
         } else {
             $('#graph-30day-tooltip').hide();
         }
@@ -387,6 +407,34 @@ function setupImagingHistory() {
 }
 
 function setupBandwidth() {
+
+    // Get the list of url's and names.
+    var nodeurls = $('#bandwidthUrls').val().split(','),
+        nodenames = $('#nodeNames').val().split(','),
+        urls,
+        names;
+
+    function setStuff(data) {
+        urls = data.urls;
+        names = data.names;
+        updateBandwidth();
+    }
+    // Let's find out which are actually available.
+    Pace.ignore(function() {
+        $.ajax({
+            url: '../management/index.php?node=home&sub=testUrls',
+            type: 'post',
+            data: {
+                url: nodeurls,
+                names: nodenames
+            },
+            dataType: 'json',
+            success: function(data) {
+                setStuff(data);
+            }
+        });
+    });
+
     // Bandwidth chart
     function updateBandwidth() {
         var GraphBandwidthOpts = {
@@ -503,6 +551,7 @@ function setupBandwidth() {
                 bandwidthinterval = setTimeout(fetchData, 1000);
             }
 
+
             // This gets our data.
             bandwidthajax = $.ajax({
                 // The url
@@ -511,8 +560,8 @@ function setupBandwidth() {
                 type: 'post',
                 // The data we want to obtain.
                 data: {
-                    url: $('#bandwidthUrls').val().split(','),
-                    names: $('#nodeNames').val().split(',')
+                    url: urls,
+                    names: names
                 },
                 // The data type.
                 dataType: 'json',
@@ -541,7 +590,6 @@ function setupBandwidth() {
 
         // Actually fetch our data.
         fetchData();
-
     }
     // If the user presses the off button, we should stop
     // displaying, notice we still collect data, we just don't
@@ -584,6 +632,4 @@ function setupBandwidth() {
     $('#graph-bandwidth').css({
         height: '150px'
     });
-
-    updateBandwidth();
 }

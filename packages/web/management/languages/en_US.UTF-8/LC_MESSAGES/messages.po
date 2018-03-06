@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 01:31-0500\n"
+"POT-Creation-Date: 2018-03-06 16:47-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1591,6 +1591,33 @@ msgid "Site Create Fail"
 msgstr "Printer update failed!"
 
 #, fuzzy
+msgid "Associated"
+msgstr "No node associated"
+
+#, fuzzy
+msgid "Add selected"
+msgstr "Remove selected printers"
+
+#, fuzzy
+msgid "Remove selected"
+msgstr "Remove selected snapins"
+
+#, fuzzy
+msgid "Site Host Associations"
+msgstr "No node associated"
+
+msgid "User Name"
+msgstr "User Name"
+
+#, fuzzy
+msgid "Site User Associations"
+msgstr "Image Association"
+
+#, fuzzy
+msgid "Associations"
+msgstr "Image Association"
+
+#, fuzzy
 msgid "Host Association"
 msgstr "No node associated"
 
@@ -1613,46 +1640,6 @@ msgstr "Install / Update Successful!"
 #, fuzzy
 msgid "Site Update Fail"
 msgstr "Printer update failed!"
-
-#, fuzzy
-msgid "Check here to see hosts not within this"
-msgstr "Check here to see groups not assigned this image"
-
-#, fuzzy
-msgid "Modify site membership for"
-msgstr "Modify Membership for"
-
-msgid "host"
-msgstr "host"
-
-#, fuzzy
-msgid "to"
-msgstr "Auto"
-
-msgid "Delete Selected"
-msgstr "Delete Selected"
-
-#, fuzzy
-msgid "from"
-msgstr "From"
-
-#, fuzzy
-msgid "Friendly Name"
-msgstr "Kernel Name"
-
-#, fuzzy
-msgid "Check here to see users not within this"
-msgstr "Check here to see groups not assigned this image"
-
-msgid "Modify Membership for"
-msgstr "Modify Membership for"
-
-#, fuzzy
-msgid "user"
-msgstr "User"
-
-msgid "saved successfully"
-msgstr "saved successfully"
 
 msgid "Pushbullet Accounts"
 msgstr "Pushbullet Accounts"
@@ -1905,12 +1892,12 @@ msgstr ""
 msgid "Access Controls"
 msgstr "All Access Controls"
 
+msgid "Delete Selected"
+msgstr "Delete Selected"
+
 #, fuzzy
 msgid "Role"
 msgstr "Remove"
-
-msgid "User Name"
-msgstr "User Name"
 
 #, fuzzy
 msgid "User Access Control"
@@ -2089,8 +2076,16 @@ msgid "rule"
 msgstr "Results"
 
 #, fuzzy
+msgid "to"
+msgstr "Auto"
+
+#, fuzzy
 msgid "Rule Name"
 msgstr "Module Name"
+
+#, fuzzy
+msgid "from"
+msgstr "From"
 
 #, fuzzy
 msgid "Not role selected"
@@ -2099,6 +2094,24 @@ msgstr "No Hosts were selected"
 #, fuzzy
 msgid "Not rule selected"
 msgstr "No Hosts were selected"
+
+#, fuzzy
+msgid "Friendly Name"
+msgstr "Kernel Name"
+
+#, fuzzy
+msgid "Check here to see users not within this"
+msgstr "Check here to see groups not assigned this image"
+
+msgid "Modify Membership for"
+msgstr "Modify Membership for"
+
+#, fuzzy
+msgid "user"
+msgstr "User"
+
+msgid "saved successfully"
+msgstr "saved successfully"
 
 #, fuzzy
 msgid "LDAP Servers"
@@ -3785,6 +3798,9 @@ msgstr "Delayed"
 msgid "group"
 msgstr "group"
 
+msgid "host"
+msgstr "host"
+
 msgid "Primary MAC"
 msgstr "Primary MAC"
 
@@ -3833,6 +3849,14 @@ msgstr "Host Created"
 #, fuzzy
 msgid "All Pending MACs"
 msgstr "Pending MACs"
+
+#, fuzzy
+msgid "Approved selected macss!"
+msgstr "Approve selected Hosts"
+
+#, fuzzy
+msgid "MAC Approval Success"
+msgstr "Host Created"
 
 #, fuzzy
 msgid "Create New Host"
@@ -4012,14 +4036,6 @@ msgstr "Only Assigned Printers"
 #, fuzzy
 msgid "Update default"
 msgstr "Update Printer"
-
-#, fuzzy
-msgid "Add selected"
-msgstr "Remove selected printers"
-
-#, fuzzy
-msgid "Remove selected"
-msgstr "Remove selected snapins"
 
 msgid "Default"
 msgstr "Default"
@@ -4238,10 +4254,6 @@ msgstr "Snapin History"
 #, fuzzy
 msgid "MAC Addresses"
 msgstr "MAC Address List"
-
-#, fuzzy
-msgid "Associations"
-msgstr "Image Association"
 
 #, fuzzy
 msgid "Service Settings"
@@ -4961,7 +4973,24 @@ msgstr "30 Minutes"
 msgid "1 Hour"
 msgstr "1 hour"
 
+msgid "No activity information available for this group"
+msgstr ""
+
 msgid "Free"
+msgstr ""
+
+#, fuzzy
+msgid "No Data Available"
+msgstr "Not Available"
+
+msgid "used"
+msgstr ""
+
+#, fuzzy
+msgid "Node is unavailable"
+msgstr "No hash available"
+
+msgid "Node Offline"
 msgstr ""
 
 msgid "Used"
@@ -5554,6 +5583,10 @@ msgstr "Message"
 
 msgid "Check that database is running"
 msgstr "Check that database is running"
+
+#, fuzzy
+msgid "See all results"
+msgstr "List All %s"
 
 #, fuzzy
 msgid "Already created"
@@ -6370,11 +6403,16 @@ msgid "HD Serial"
 msgstr "HD Serial"
 
 #, fuzzy
+msgid "Multicast Image"
+msgstr "Multicast"
+
+#, fuzzy
 msgid "Add selected to group"
 msgstr "Remove selected snapins"
 
-msgid "Requires templates to process"
-msgstr "Requires templates to process"
+#, fuzzy
+msgid "Unable to determine status"
+msgstr "Unable to determine plugin details"
 
 #, fuzzy
 msgid "Cannot set tasking to invalid hosts"
@@ -7008,6 +7046,14 @@ msgstr "Invalid ID"
 #, fuzzy
 msgid "File or path does not exist"
 msgstr "Method does not exist"
+
+#, fuzzy
+msgid "File Not Found"
+msgstr "Icon File not found"
+
+#, fuzzy
+msgid "No data found"
+msgstr "Not found"
 
 #, fuzzy
 msgid "Device must be a string"

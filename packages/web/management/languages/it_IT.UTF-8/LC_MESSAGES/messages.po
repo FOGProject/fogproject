@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 01:31-0500\n"
+"POT-Creation-Date: 2018-03-06 16:47-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1525,6 +1525,33 @@ msgid "Site Create Fail"
 msgstr "Creazione stampante fallita"
 
 #, fuzzy
+msgid "Associated"
+msgstr "Host associato"
+
+#, fuzzy
+msgid "Add selected"
+msgstr "Aggiungi stampanti selezionate"
+
+#, fuzzy
+msgid "Remove selected"
+msgstr "Rimuovi i selezionati"
+
+#, fuzzy
+msgid "Site Host Associations"
+msgstr "Host associato"
+
+msgid "User Name"
+msgstr "Nome utente"
+
+#, fuzzy
+msgid "Site User Associations"
+msgstr "Associazione Sito"
+
+#, fuzzy
+msgid "Associations"
+msgstr "Associazioni di immagini"
+
+#, fuzzy
 msgid "Host Association"
 msgstr "Host associato"
 
@@ -1547,39 +1574,6 @@ msgstr "Aggiornamento host completato!"
 #, fuzzy
 msgid "Site Update Fail"
 msgstr "Aggiornamento della stampante non riuscito"
-
-msgid "Check here to see hosts not within this"
-msgstr "Controlla qui per vedere gli host non all'interno di questo"
-
-msgid "Modify site membership for"
-msgstr "Modificare appartenenza al sito per"
-
-msgid "host"
-msgstr "host"
-
-msgid "to"
-msgstr "a"
-
-msgid "Delete Selected"
-msgstr "Elimina selezionato"
-
-msgid "from"
-msgstr "da"
-
-msgid "Friendly Name"
-msgstr "Nome amichevole"
-
-msgid "Check here to see users not within this"
-msgstr "Controlla qui per vedere gli utenti non all'interno di questo"
-
-msgid "Modify Membership for"
-msgstr "Modificare l'appartenenza per"
-
-msgid "user"
-msgstr "utente"
-
-msgid "saved successfully"
-msgstr "Salvato con successo"
 
 msgid "Pushbullet Accounts"
 msgstr "Pushbullet Conti"
@@ -1785,11 +1779,11 @@ msgstr "Consente la modifica/creazione di Task States per FOG."
 msgid "Access Controls"
 msgstr "Controllo accessi"
 
+msgid "Delete Selected"
+msgstr "Elimina selezionato"
+
 msgid "Role"
 msgstr "Regola"
-
-msgid "User Name"
-msgstr "Nome utente"
 
 msgid "User Access Control"
 msgstr "User Access Control"
@@ -1931,14 +1925,35 @@ msgstr "Modificare l'appartenenza alle regole per"
 msgid "rule"
 msgstr "regola"
 
+msgid "to"
+msgstr "a"
+
 msgid "Rule Name"
 msgstr "Nome regola"
+
+msgid "from"
+msgstr "da"
 
 msgid "Not role selected"
 msgstr "Nessun ruolo selezionato"
 
 msgid "Not rule selected"
 msgstr "Nessuna regola selezionata"
+
+msgid "Friendly Name"
+msgstr "Nome amichevole"
+
+msgid "Check here to see users not within this"
+msgstr "Controlla qui per vedere gli utenti non all'interno di questo"
+
+msgid "Modify Membership for"
+msgstr "Modificare l'appartenenza per"
+
+msgid "user"
+msgstr "utente"
+
+msgid "saved successfully"
+msgstr "Salvato con successo"
 
 msgid "LDAP Servers"
 msgstr "LDAP Servers"
@@ -3444,6 +3459,9 @@ msgstr "Ritardato"
 msgid "group"
 msgstr "gruppo"
 
+msgid "host"
+msgstr "host"
+
 msgid "Primary MAC"
 msgstr "MAC primaria"
 
@@ -3491,6 +3509,14 @@ msgstr "Creazione Host con successo"
 #, fuzzy
 msgid "All Pending MACs"
 msgstr "sospeso MAC"
+
+#, fuzzy
+msgid "Approved selected macss!"
+msgstr "Approvare MAC selezionati"
+
+#, fuzzy
+msgid "MAC Approval Success"
+msgstr "Creazione Host con successo"
 
 #, fuzzy
 msgid "Create New Host"
@@ -3658,14 +3684,6 @@ msgstr "Solo stampanti assegnate"
 #, fuzzy
 msgid "Update default"
 msgstr "Aggiorna la stampante predefinita"
-
-#, fuzzy
-msgid "Add selected"
-msgstr "Aggiungi stampanti selezionate"
-
-#, fuzzy
-msgid "Remove selected"
-msgstr "Rimuovi i selezionati"
 
 msgid "Default"
 msgstr "Predefinito"
@@ -3873,10 +3891,6 @@ msgstr "Storia Snapin Host"
 #, fuzzy
 msgid "MAC Addresses"
 msgstr "Indirizzo MAC"
-
-#, fuzzy
-msgid "Associations"
-msgstr "Associazioni di immagini"
 
 #, fuzzy
 msgid "Service Settings"
@@ -4535,7 +4549,24 @@ msgstr "30 minuti"
 msgid "1 Hour"
 msgstr "1 ora"
 
+msgid "No activity information available for this group"
+msgstr ""
+
 msgid "Free"
+msgstr ""
+
+#, fuzzy
+msgid "No Data Available"
+msgstr "Non disponibile"
+
+msgid "used"
+msgstr ""
+
+#, fuzzy
+msgid "Node is unavailable"
+msgstr "Percorso non disponibile"
+
+msgid "Node Offline"
 msgstr ""
 
 msgid "Used"
@@ -5073,6 +5104,10 @@ msgstr "Messaggio"
 
 msgid "Check that database is running"
 msgstr "Controllare che database è in esecuzione"
+
+#, fuzzy
+msgid "See all results"
+msgstr "Elencare tutte le regole"
 
 msgid "Already created"
 msgstr "Già creato"
@@ -5775,11 +5810,16 @@ msgid "HD Serial"
 msgstr "HD Serial"
 
 #, fuzzy
+msgid "Multicast Image"
+msgstr "Immagine Multicast"
+
+#, fuzzy
 msgid "Add selected to group"
 msgstr "Aggiungi gruppo di archiviazione selezionato"
 
-msgid "Requires templates to process"
-msgstr "Richiede modelli per elaborare"
+#, fuzzy
+msgid "Unable to determine status"
+msgstr "Impossibile determinare i dettagli del plugin"
 
 msgid "Cannot set tasking to invalid hosts"
 msgstr "Impossibile affidare attività ad host non valiti"
@@ -6322,6 +6362,14 @@ msgstr "Non valido"
 #, fuzzy
 msgid "File or path does not exist"
 msgstr "Metodo non esiste"
+
+#, fuzzy
+msgid "File Not Found"
+msgstr "File Icona non trovato"
+
+#, fuzzy
+msgid "No data found"
+msgstr "Non trovato"
 
 msgid "Device must be a string"
 msgstr "Dispositivo deve essere una stringa"
