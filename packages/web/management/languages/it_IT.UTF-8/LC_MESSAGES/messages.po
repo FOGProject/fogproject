@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 17:28-0500\n"
+"POT-Creation-Date: 2018-03-06 23:06-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3636,6 +3636,17 @@ msgstr "MAC Format non è valido"
 msgid "MAC Address is assigned to another host!"
 msgstr "Questo MAC appartiene a un altro host"
 
+msgid "Group Name"
+msgstr "Nome del gruppo"
+
+#, fuzzy
+msgid "Group Associated"
+msgstr "Storage Node Creato"
+
+#, fuzzy
+msgid "Host Groups"
+msgstr "Gruppi Export"
+
 #, fuzzy
 msgid "Host Printer Configuration"
 msgstr "Configurazione della stampante"
@@ -3767,6 +3778,13 @@ msgstr "Impostazioni di integrità"
 
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
 msgstr ""
+
+msgid "Cron Schedule"
+msgstr "pianificazione cron"
+
+#, fuzzy
+msgid "Current Power Management Tasks"
+msgstr "Gestione energetica"
 
 msgid "You must select an action to perform"
 msgstr "È necessario selezionare un'azione da eseguire"
@@ -3944,9 +3962,6 @@ msgstr ""
 msgid "Create New Group"
 msgstr "Creazione Gruppo di archiviazione"
 
-msgid "Group Name"
-msgstr "Nome del gruppo"
-
 msgid "Group Description"
 msgstr "Descrizione del gruppo"
 
@@ -3999,6 +4014,10 @@ msgid "Group Image"
 msgstr "Nome del gruppo"
 
 #, fuzzy
+msgid "Group Hosts"
+msgstr "gruppi"
+
+#, fuzzy
 msgid "Group Printer Configuration"
 msgstr "Configurazione della stampante"
 
@@ -4011,6 +4030,10 @@ msgstr ""
 "Questa impostazione consentirà solo che le stampanti FOG assegnate siano "
 "aggiunte all'host. Qualsiasi stampante non assegnata verrà rimossa, incluse "
 "le stampanti non gestite da FOG."
+
+#, fuzzy
+msgid "Group Snapins"
+msgstr "Storia Snapin Host"
 
 #, fuzzy
 msgid "Module Association"
@@ -5958,9 +5981,6 @@ msgstr "Attività pianificate create con successo"
 
 msgid "Failed to start tasking type"
 msgstr "Fallito l'avvio di una attività tipo"
-
-msgid "Cron Schedule"
-msgstr "pianificazione cron"
 
 msgid "Delayed Start"
 msgstr "Partenza ritardata"

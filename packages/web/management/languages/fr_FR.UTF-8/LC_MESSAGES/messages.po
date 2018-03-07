@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 17:28-0500\n"
+"POT-Creation-Date: 2018-03-06 23:06-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3996,6 +3996,17 @@ msgstr "MAC Format est invalide"
 msgid "MAC Address is assigned to another host!"
 msgstr "Ce MAC Appartient à un autre hôte"
 
+msgid "Group Name"
+msgstr "Nom de groupe"
+
+#, fuzzy
+msgid "Group Associated"
+msgstr "Nœud de stockage Créé"
+
+#, fuzzy
+msgid "Host Groups"
+msgstr "Groupes d'exportation"
+
 #, fuzzy
 msgid "Host Printer Configuration"
 msgstr "Configuration du service"
@@ -4131,6 +4142,13 @@ msgstr "Paramètres"
 
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
 msgstr ""
+
+msgid "Cron Schedule"
+msgstr "Cron Schedule"
+
+#, fuzzy
+msgid "Current Power Management Tasks"
+msgstr "Gestion des utilisateurs"
 
 #, fuzzy
 msgid "You must select an action to perform"
@@ -4323,9 +4341,6 @@ msgstr ""
 msgid "Create New Group"
 msgstr "nœud de stockage"
 
-msgid "Group Name"
-msgstr "Nom de groupe"
-
 msgid "Group Description"
 msgstr "Description du groupe"
 
@@ -4384,6 +4399,10 @@ msgid "Group Image"
 msgstr "Nom de groupe"
 
 #, fuzzy
+msgid "Group Hosts"
+msgstr "Groupes"
+
+#, fuzzy
 msgid "Group Printer Configuration"
 msgstr "Configuration du service"
 
@@ -4396,6 +4415,10 @@ msgstr ""
 "Ce paramètre ne permettra imprimantes BROUILLARD Assigné à être ajoutés à "
 "l'hôte. Toute imprimante qui est non affecté sera supprimé, y compris les "
 "imprimantes gérées non-FOG."
+
+#, fuzzy
+msgid "Group Snapins"
+msgstr "snapin Histoire"
 
 #, fuzzy
 msgid "Module Association"
@@ -6600,9 +6623,6 @@ msgstr "a été mis à jour avec succès"
 #, fuzzy
 msgid "Failed to start tasking type"
 msgstr "Impossible de démarrer le déploiement multitâche"
-
-msgid "Cron Schedule"
-msgstr "Cron Schedule"
 
 msgid "Delayed Start"
 msgstr "Démarrage retardé"

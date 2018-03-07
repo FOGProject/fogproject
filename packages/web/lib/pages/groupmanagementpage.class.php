@@ -633,6 +633,96 @@ class GroupManagementPage extends FOGPage
         );
     }
     /**
+     * Group hosts display.
+     *
+     * @return void
+     */
+    public function groupHosts()
+    {
+        $props = ' method="post" action="'
+            . $this->formAction
+            . '&tab=group-hosts" ';
+
+        echo '<!-- Hosts -->';
+        echo '<div class="box-group" id="hosts">';
+
+        $buttons = self::makeButton(
+            'hosts-add',
+            _('Add selected'),
+            'btn btn-primary',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'hosts-remove',
+            _('Remove selected'),
+            'btn btn-danger',
+            $props
+        );
+
+        $this->headerData = [
+            _('Host Name'),
+            _('Associated')
+        ];
+        $this->templates = [
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
+
+        echo '<div class="box box-solid">';
+        echo '<div id="updatehosts" class="">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Group Hosts');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'group-hosts-table', $buttons);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Update the group hosts.
+     *
+     * @return void
+     */
+    public function groupHostPost()
+    {
+        if (isset($_POST['updatehosts'])) {
+            $hosts = filter_input_array(
+                INPUT_POST,
+                [
+                    'host' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $hosts = $hosts['host'];
+            if (count($hosts ?: []) > 0) {
+                $this->obj->addHost($hosts);
+            }
+        }
+        if (isset($_POST['hostdel'])) {
+            $hosts = filter_input_array(
+                INPUT_POST,
+                [
+                    'hostRemove' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $hosts = $hosts['hostRemove'];
+            if (count($hosts ?: []) > 0) {
+                $this->obj->removeHost($hosts);
+            }
+        }
+    }
+    /**
      * Group printers display.
      *
      * @return void
@@ -903,6 +993,11 @@ class GroupManagementPage extends FOGPage
         ];
 
         echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Group Snapins');
+        echo '</h4>';
+        echo '</div>';
         echo '<div id="updatesnapins" class="">';
         echo '<div class="box-body">';
         $this->render(12, 'group-snapins-table', $buttons);
@@ -1379,8 +1474,7 @@ class GroupManagementPage extends FOGPage
                         'name' => _('Hosts'),
                         'id' => 'group-hosts',
                         'generator' => function() {
-                            //$this->groupMembership();
-                            echo 'TODO: Make functional';
+                            $this->groupHosts();
                         }
                     ],
                     [
@@ -1484,6 +1578,9 @@ class GroupManagementPage extends FOGPage
             case 'group-active-directory':
                 $this->groupADPost();
                 break;
+            case 'group-hosts':
+                $this->groupHostPost();
+                break;
             case 'group-printers':
                 $this->groupPrinterPost();
                 break;
@@ -1532,6 +1629,70 @@ class GroupManagementPage extends FOGPage
             );
         http_response_code($code);
         echo $msg;
+        exit;
+    }
+    /**
+     * Presents the hosts list table.
+     *
+     * @return void
+     */
+    public function getHostsList()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        // Workable queries
+        $hostsSqlStr = "SELECT `%s`,"
+            . "IF(`gmGroupID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `gmGroupID`
+            FROM `%s`
+            LEFT OUTER JOIN `groupMembers`
+            ON `hosts`.`hostID` = `groupMembers`.`gmHostID`
+            AND `groupMembers`.`gmGroupID` = '"
+            . $this->obj->get('id')
+            . "'
+            %s
+            %s
+            %s";
+        $hostsFilterStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `groupMembers`
+            ON `hosts`.`hostID` = `groupMembers`.`gmHostID`
+            AND `groupMembers`.`gmGroupID` = '"
+            . $this->obj->get('id')
+            . "'
+            %s";
+        $hostsTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+        foreach (self::getClass('HostManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        $columns[] = [
+            'db' => 'gmGroupID',
+            'dt' => 'association'
+        ];
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'hosts',
+                'hostID',
+                $columns,
+                $hostsSqlStr,
+                $hostsFilterStr,
+                $hostsTotalStr,
+                $where
+            )
+        );
         exit;
     }
     /**

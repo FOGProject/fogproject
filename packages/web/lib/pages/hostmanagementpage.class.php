@@ -3054,14 +3054,14 @@ class HostManagementPage extends FOGPage
             case 'host-powermanagement':
                 $this->hostPowermanagementPost();
                 break;
+            case 'host-groups':
+                $this->hostGroupPost();
+                break;
             case 'host-printers':
                 $this->hostPrinterPost();
                 break;
             case 'host-snapins':
                 $this->hostSnapinPost();
-                break;
-            case 'host-groups':
-                $this->hostGroupPost();
                 break;
             case 'host-service':
                 $this->hostServicePost();
