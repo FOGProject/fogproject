@@ -156,7 +156,7 @@
     });
 
     membershipAddBtn.on('click', function() {
-        membershipAddBtn.prop('disable', true);
+        membershipAddBtn.prop('disabled', true);
 
         var rows = membershipTable.rows({selected: true}),
             toAdd = Common.getSelectedIds(membershipTable),

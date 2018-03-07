@@ -191,7 +191,7 @@
                     }
                 });
             } else {
-                storagegroupsAddBtn.prop('disable', false);
+                storagegroupsAddBtn.prop('disabled', false);
             }
         });
     });
@@ -309,7 +309,7 @@
                     }
                 });
             } else {
-                hostAddBtn.prop('disable', false);
+                hostAddBtn.prop('disabled', false);
             }
         });
     });

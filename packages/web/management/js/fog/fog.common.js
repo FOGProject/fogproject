@@ -372,10 +372,10 @@ function setupUniversalSearch() {
     var baseURL = uniSearchForm.attr('action');
     var method = uniSearchForm.attr('method');
 
-    uniSearchField.on("select2:selecting", function(e) { 
+    uniSearchField.on("select2:selecting", function(e) {
         e.preventDefault();
         var url = e.params.args.data.url;
-        uniSearchField.prop('disable', true);
+        uniSearchField.prop('disabled', true);
         window.location.href = url;
     });
 
@@ -401,7 +401,7 @@ function setupUniversalSearch() {
                 for (var key in data) {
                     if (!data.hasOwnProperty(key)) continue;
                     if (key.startsWith("_")) continue;
-        
+
                     var obj = data[key];
                     if (obj.length == 0) continue;
                     var objData = [];
