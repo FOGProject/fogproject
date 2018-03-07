@@ -199,7 +199,7 @@
                     }
                 });
             } else {
-                storagegroupsAddBtn.prop('disable', false);
+                storagegroupsAddBtn.prop('disabled', false);
             }
         });
     });

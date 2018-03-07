@@ -463,7 +463,7 @@
     }
     function onSnapinsAddSelect (selected) {
         var disabled = selected.count() == 0;
-        snapinsAddBtn.prop('disable', disabled);
+        snapinsAddBtn.prop('disabled', disabled);
     }
 
     var snapinsTable = Common.registerTable($('#group-snapins-table'), onSnapinsRemoveSelect, {
@@ -513,7 +513,7 @@
     });
 
     snapinsRemoveBtn.on('click', function() {
-        snapinsRemoveBtn.prop('disable', true);
+        snapinsRemoveBtn.prop('disabled', true);
         var method = snapinsRemoveBtn.attr('method'),
             action = snapinsRemoveBtn.attr('action'),
             rows = snapinsTable.rows({selected: true}),
