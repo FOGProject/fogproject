@@ -4170,19 +4170,23 @@ abstract class FOGPage extends FOGBase
      * @param string $class The class to give the label.
      * @param string $id    The "fog" identifier.
      * @param string $str   What the label displays as its string.
+     * @param string $extra Any extra attributes to append.
      *
      * @return string
      */
     public static function makeLabel(
         $class,
         $id,
-        $str
+        $str,
+        $extra = ''
     ) {
         return '<label class="'
             . $class
             . '" for="'
             . $id
-            . '">'
+            . '"'
+            . ($extra ? " $extra" : '')
+            . '>'
             . $str
             . '</label>';
     }

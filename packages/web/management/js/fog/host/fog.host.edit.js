@@ -12,7 +12,7 @@
 
     $('#host').inputmask({mask: Common.masks.hostname, repeat: 15});
     $('#mac').inputmask({mask: Common.masks.mac});
-    $('#productKey').inputmask({mask: Common.masks.productKey});
+    $('#key').inputmask({mask: Common.masks.productKey});
 
     var generalForm = $('#host-general-form'),
         generalFormBtn = $('#general-send'),

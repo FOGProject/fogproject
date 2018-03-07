@@ -11,5 +11,5 @@
         });
     });
     $('#mac').inputmask({mask: Common.masks.mac});
-    $('#productKey').inputmask({mask: Common.masks.productKey});
+    $('#key').inputmask({mask: Common.masks.productKey});
 })(jQuery);
