@@ -89,6 +89,7 @@ class DatabaseManager extends FOGCore
          * Files that are okay to get
          */
         $okayFiles = array(
+            'dbrunning.php',
             'checkcredentials.php',
             'getversion.php',
         );
