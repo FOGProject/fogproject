@@ -696,16 +696,12 @@ abstract class FOGService extends FOGBase
                                 $nodename
                             )
                         );
-                        if ($test !== false) {
-                            $test = true;
-                        }
+                        self::$FOGFTP->close();
+                        continue;
                     }
                     unset($localfile);
                 }
                 self::$FOGFTP->close();
-                if ($test === true) {
-                    continue;
-                }
                 $logname = sprintf(
                     '%s.%s.transfer.%s.log',
                     rtrim(
