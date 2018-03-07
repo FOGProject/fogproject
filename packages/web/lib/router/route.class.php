@@ -437,7 +437,7 @@ class Route extends FOGBase
 
         self::$data = $columns = [];
         $classname = strtolower($class);
-        $calssman = self::getClass("{$class}manager");
+        $classman = self::getClass("{$class}manager");
         $table = $classman->getTable();
         $sqlstr = $classman->getQueryStr();
         $fltrstr = $classman->getFilterStr();
