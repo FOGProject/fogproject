@@ -245,9 +245,14 @@ class AddLocationHost extends Hook
         }
         $locationID = (int)filter_input(INPUT_POST, 'location');
         $arguments['fields'][
-            '<label for="location" class="col-sm-2 control-label">'
-            . _('Host Location')
-            . '</label>'] = self::getClass('LocationManager')
-            ->buildSelectBox($locationID, 'location');
+            FOGPage::makeLabel(
+                'col-sm-2 control-label',
+                'location',
+                _('Host Location')
+            )
+        ] = self::getClass('LocationManager')->buildSelectBox(
+            $locationID,
+            'location'
+        );
     }
 }

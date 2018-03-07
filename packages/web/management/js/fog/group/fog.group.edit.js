@@ -10,7 +10,7 @@
             e.text(text);
         };
 
-    $('#productKey').inputmask({mask: Common.masks.productKey});
+    $('#key').inputmask({mask: Common.masks.productKey});
 
     var generalForm = $('#group-general-form'),
         generalFormBtn = $('#general-send'),

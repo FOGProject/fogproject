@@ -426,27 +426,23 @@ class Route extends FOGBase
      * Presents the equivalent of a page's list all.
      *
      * @param string $class  The class to work with.
-     * @param string $sortby How to sort the data.
-     * @param bool   $bypass Allow showing hidden data.
-     * @param array  $find   Additional filter items.
      *
      * @return void
      */
-    public static function listem(
-        $class,
-        $sortby = 'name',
-        $bypass = false,
-        $find = []
-    ) {
-        self::$data = [];
+    public static function listem($class) {
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        self::$data = $columns = [];
         $classname = strtolower($class);
-        $classman = self::getClass($class)->getManager();
         $table = $classman->getTable();
         $sqlstr = $classman->getQueryStr();
         $fltrstr = $classman->getFilterStr();
         $ttlstr = $classman->getTotalStr();
         $tmpcolumns = $classman->getColumns();
-        $columns = [];
+
         /**
          * Any custom fields that we need removed
          */
@@ -476,6 +472,12 @@ class Route extends FOGBase
         case 'group':
             break;
         }
+        self::$HookManager->processEvent(
+            'API_REMOVE_COLUMNS',
+            ['tmpcolumns' => &$tmpcolumns]
+        );
+
+        // Setup our columns to return
         foreach ((array)$tmpcolumns as $common => &$real) {
             if ($common == 'id') {
                 $tableID = $real;
@@ -513,60 +515,24 @@ class Route extends FOGBase
             'CUSTOMIZE_DT_COLUMNS',
             ['columns' => &$columns]
         );
-        self::$data['count'] = 0;
-        self::$data[$classname.'s'] = [];
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
+
+        self::$data = FOGManagerController::simple(
+            $pass_vars,
+            $table,
+            $tableID,
+            $columns,
+            $sqlstr,
+            $fltrstr,
+            $ttlstr
         );
-        $find = self::fastmerge(
-            $find,
-            self::getsearchbody($classname)
+        self::$HookManager->processEvent(
+            'API_MASSDATA_MAPPING',
+            [
+                'data' => &self::$data,
+                'classname' => &$classname,
+                'classman' => &$classman
+            ]
         );
-        switch ($classname) {
-        case 'plugin':
-            self::$data['count_active'] = 0;
-            self::$data['count_installed'] = 0;
-            self::$data['count_not_active'] = 0;
-            foreach (self::getClass('Plugin')->getPlugins() as $class) {
-                self::$data[$classname.'s'][] = self::getter(
-                    $classname,
-                    $class
-                );
-                if ($class->isActive() && !$class->isInstalled()) {
-                    self::$data['count_active']++;
-                }
-                if ($class->isActive() && $class->isInstalled()) {
-                    self::$data['count_installed']++;
-                }
-                if (!$class->isActive() && !$class->isInstalled()) {
-                    self::$data['count_not_active']++;
-                }
-                self::$data['count']++;
-                unset($class);
-            }
-            break;
-        default:
-            self::$data = FOGManagerController::simple(
-                $pass_vars,
-                $table,
-                $tableID,
-                $columns,
-                $sqlstr,
-                $fltrstr,
-                $ttlstr
-            );
-            break;
-        }
-        self::$HookManager
-            ->processEvent(
-                'API_MASSDATA_MAPPING',
-                [
-                    'data' => &self::$data,
-                    'classname' => &$classname,
-                    'classman' => &$classman
-                ]
-            );
     }
     /**
      * Presents the equivalent of a universal search.

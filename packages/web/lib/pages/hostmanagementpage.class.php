@@ -535,9 +535,9 @@ class HostManagementPage extends FOGPage
             . 'id="description" name="description">'
             . $description
             . '</textarea>',
-            '<label class="col-sm-2 control-label" for="productKey">'
+            '<label class="col-sm-2 control-label" for="key">'
             . _('Host Product Key')
-            . '</label>' => '<input id="productKey" type="text" '
+            . '</label>' => '<input id="key" type="text" '
             . 'name="key" value="'
             . $key
             . '" class="form-control" maxlength="29" exactlength="25"/>',

@@ -173,7 +173,6 @@ class UserManagementPage extends FOGPage
             );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<div class="box box-solid" id="user-create">';
         echo self::makeFormTag(
             'form-horizontal',
             'user-create-form',
@@ -182,8 +181,8 @@ class UserManagementPage extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
+        echo '<div class="box box-solid" id="user-create">';
         echo '<div class="box-body">';
-        echo '<!-- User General -->';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -191,7 +190,6 @@ class UserManagementPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        echo '<!-- User General -->';
         echo $rendered;
         echo '</div>';
         echo '</div>';
@@ -203,8 +201,8 @@ class UserManagementPage extends FOGPage
             'btn btn-primary'
         );
         echo '</div>';
-        echo '</form>';
         echo '</div>';
+        echo '</form>';
     }
     /**
      * Actually create the new user.

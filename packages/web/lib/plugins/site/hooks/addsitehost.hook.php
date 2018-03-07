@@ -245,9 +245,14 @@ class AddSiteHost extends Hook
         }
         $siteID = (int)filter_input(INPUT_POST, 'site');
         $arguments['fields'][
-            '<label for="site" class="col-sm-2 control-label">'
-            . _('Host Site')
-            . '</label>'] = self::getClass('SiteManager')
-            ->buildSelectBox($siteID, 'site');
+            FOGPage::makeLabel(
+                'col-sm-2 control-label',
+                'site',
+                _('Host Site')
+            )
+        ] = self::getClass('SiteManager')->buildSelectBox(
+            $siteID,
+            'site'
+        );
     }
 }

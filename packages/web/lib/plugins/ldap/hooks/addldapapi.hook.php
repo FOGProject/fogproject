@@ -53,35 +53,10 @@ class AddLDAPAPI extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'API_VALID_CLASSES',
-                array(
-                    $this,
-                    'injectAPIElements'
-                )
-            )
-            ->register(
-                'API_GETTER',
-                array(
-                    $this,
-                    'adjustGetter'
-                )
-            )
-            ->register(
-                'API_INDIVDATA_MAPPING',
-                array(
-                    $this,
-                    'adjustIndivInfoUpdate'
-                )
-            )
-            ->register(
-                'API_MASSDATA_MAPPING',
-                array(
-                    $this,
-                    'adjustMassInfo'
-                )
-            );
+        self::$HookManager->register(
+            'API_VALID_CLASSES',
+            [$this, 'injectAPIElements']
+        );
     }
     /**
      * This function injects site elements for
@@ -93,53 +68,9 @@ class AddLDAPAPI extends Hook
      */
     public function injectAPIElements($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         $arguments['validClasses'] = self::fastmerge(
             $arguments['validClasses'],
-            array(
-                'ldap'
-            )
+            ['ldap']
         );
-    }
-    /**
-     * This function changes the api data map as needed.
-     *
-     * @param mixed $arguments The arguments to modify.
-     *
-     * @return void
-     */
-    public function adjustIndivInfoUpdate($arguments)
-    {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-    }
-    /**
-     * This function changes the api data map as needed.
-     *
-     * @param mixed $arguments The arguments to modify.
-     *
-     * @return void
-     */
-    public function adjustMassInfo($arguments)
-    {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-    }
-    /**
-     * This function changes the getter to enact on this particular item.
-     *
-     * @param mixed $arguments The arguments to modify.
-     *
-     * @return void
-     */
-    public function adjustGetter($arguments)
-    {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
     }
 }

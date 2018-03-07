@@ -110,43 +110,82 @@ class GroupManagementPage extends FOGPage
         $init = filter_input(INPUT_POST, 'init');
         $dev = filter_input(INPUT_POST, 'dev');
 
+        $labelClass = 'col-sm-2 control-label';
+
         // The fields to display
         $fields = [
-            '<label class="col-sm-2 control-label" for="group">'
-            . _('Group Name')
-            . '</label>' => '<input type="text" name="group" '
-            . 'value="'
-            . $group
-            . '" class="groupname-input form-control" '
-            . 'id="group" required/>',
-            '<label class="col-sm-2 control-label" for="description">'
-            . _('Group Description')
-            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
-            . 'min-height: 50px;" '
-            . 'id="description" name="description">'
-            . $description
-            . '</textarea>',
-            '<label class="col-sm-2 control-label" for="kern">'
-            . _('Group Product Key')
-            . '</label>' => '<input type="text" name="kern" '
-            . 'value="'
-            . $kern
-            . '" class="form-control" id="kern"/>',
-            '<label class="col-sm-2 control-label" for="args">'
-            . _('Group Kernel Arguments')
-            . '</label>' => '<input type="text" name="args" id="args" value="'
-            . $args
-            . '" class="form-control"/>',
-            '<label class="col-sm-2 control-label" for="init">'
-            . _('Group Init')
-            . '</label>' => '<input type="text" name="init" value="'
-            . $init
-            . '" id="init" class="form-control"/>',
-            '<label class="col-sm-2 control-label" for="dev">'
-            . _('Group Primary Disk')
-            . '</label>' => '<input type="text" name="dev" value="'
-            . $dev
-            . '" id="dev" class="form-control"/>'
+            self::makeLabel(
+                $labelClass,
+                'group',
+                _('Group Name')
+            ) => self::makeInput(
+                'form-control groupname-input',
+                'group',
+                _('Group Name'),
+                'text',
+                'group',
+                $group,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Group Description')
+            ) => self::makeTextarea(
+                'form-control groupdescription-input',
+                'description',
+                _('Group Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'kern',
+                _('Group Kernel')
+            ) => self::makeInput(
+                'form-control groupkernel-input',
+                'kern',
+                'customBzimage',
+                'text',
+                'kern',
+                $kern
+            ),
+            self::makeLabel(
+                $labelClass,
+                'args',
+                _('Group Kernel Arguments')
+            ) => self::makeInput(
+                'form-control groupkernelargs-input',
+                'args',
+                'debug acpi=off',
+                'text',
+                'args',
+                $args
+            ),
+            self::makeLabel(
+                $labelClass,
+                'init',
+                _('Group Init')
+            ) => self::makeInput(
+                'form-control groupinit-input',
+                'init',
+                'customInit.xz',
+                'text',
+                'init',
+                $init
+            ),
+            self::makeLabel(
+                $labelClass,
+                'dev',
+                _('Group Primary Disk')
+            ) => self::makeInput(
+                'form-control groupdev-input',
+                'dev',
+                '/dev/md0',
+                'text',
+                'dev',
+                $dev
+            )
         ];
         self::$HookManager
             ->processEvent(
@@ -158,12 +197,16 @@ class GroupManagementPage extends FOGPage
             );
         $rendered = self::formFields($fields);
         unset($fields);
+        echo self::makeFormTag(
+            'form-horizontal',
+            'group-create-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid" id="group-create">';
-        echo '<form id="group-create-form" class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '" novalidate>';
         echo '<div class="box-body">';
-        echo '<!-- Group General -->';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -175,13 +218,15 @@ class GroupManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="send">'
-            . _('Create')
-            . '</button>';
+        echo '<div class="box-footer with-border">';
+        echo self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
+        echo '</div>';
         echo '</div>';
         echo '</form>';
-        echo '</div>';
     }
     /**
      * When submitted to add post this is what's run
@@ -315,7 +360,7 @@ class GroupManagementPage extends FOGPage
         $group = (
             filter_input(INPUT_POST, 'group') ?: $this->obj->get('name')
         );
-        $desc = (
+        $description = (
             filter_input(INPUT_POST, 'description') ?: $this->obj->get('description')
         );
         $productKey = (
@@ -342,23 +387,20 @@ class GroupManagementPage extends FOGPage
         );
         $args = (
             filter_input(INPUT_POST, 'args') ?: (
-                $args ?
-                self::$Host->get('kernelArgs') :
+                self::$Host->get('kernelArgs') ?:
                 $this->obj->get('kernelArgs')
             )
         );
         $init = (
             filter_input(INPUT_POST, 'init') ?: (
-                $init ?
-                self::$Host->get('init') :
+                self::$Host->get('init') ?:
                 $this->obj->get('init')
             )
         );
         $dev = (
             filter_input(INPUT_POST, 'dev') ?: (
-                $dev ?
-                self::$Host->get('kernelDevice')
-                : $this->obj->get('kernelDevice')
+                self::$Host->get('kernelDevice') ?:
+                $this->obj->get('kernelDevice')
             )
         );
         $modalresetBtn = self::makeButton(
@@ -378,56 +420,109 @@ class GroupManagementPage extends FOGPage
             _('Resetting encryption data should only be done if you re-installed the FOG Client or are using Debugger'),
             $modalresetBtn
         );
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label for="name" class="col-sm-2 control-label">'
-            . _('Group Name')
-            . '</label>' => '<input id="group" class="form-control" placeholder="'
-            . _('Group Name')
-            . '" type="text" value="'
-            . $group
-            . '" name="group" required>',
-            '<label for="description" class="col-sm-2 control-label">'
-            . _('Group Description')
-            . '</label>' => '<textarea style="resize:vertical;'
-            . 'min-height:50px;" id="description" name="description" class="form-control">'
-            . $desc
-            . '</textarea>',
-            '<label for="productKey" class="col-sm-2 control-label">'
-            . _('Group Product Key')
-            . '</label>' => '<input id="productKey" name="key" class="form-control" '
-            . 'value="'
-            . $productKey
-            . '" maxlength="29" exactlength="25">',
-            '<label for="kern" class="col-sm-2 control-label">'
-            . _('Group Kernel')
-            . '</label>' => '<input id="kern" name="kern" class="form-control" '
-            . 'placeholder="" type="text" value="'
-            . $kern
-            . '">',
-            '<label for="args" class="col-sm-2 control-label">'
-            . _('Group Kernel Arguments')
-            . '</label>' => '<input id="args" name="args" class="form-control" '
-            . 'placeholder="" type="text" value="'
-            . $args
-            . '">',
-            '<label for="init" class="col-sm-2 control-label">'
-            . _('Group Init')
-            . '</label>' => '<input id="init" name="init" class="form-control" '
-            . 'placeholder="" type="text" value="'
-            . $init
-            . '">',
-            '<label for="dev" class="col-sm-2 control-label">'
-            . _('Group Primary Disk')
-            . '</label>' => '<input id="dev" name="dev" class="form-control" '
-            . 'placeholder="" type="text" value="'
-            . $dev
-            . '">',
-            '<label for="bootTypeExit" class="col-sm-2 control-label">'
-            . _('Group Bios Exit Type')
-            . '</label>' => $exitNorm,
-            '<label for="efiBootTypeExit" class="col-sm-2 control-label">'
-            . _('Group EFI Exit Type')
-            . '</label>' => $exitEfi
+            self::makeLabel(
+                $labelClass,
+                'group',
+                _('Group Name')
+            ) => self::makeInput(
+                'form-control groupname-input',
+                'group',
+                _('Group Name'),
+                'text',
+                'group',
+                $group,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Group Description')
+            ) => self::makeTextarea(
+                'form-control groupdescription-input',
+                'description',
+                _('Group Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'key',
+                _('Group Product Key')
+            ) => self::makeInput(
+                'form-control groupkey-input',
+                'key',
+                'ABCDE-FGHIJ-KLMNO-PQRST-UVWXY',
+                'text',
+                'key',
+                $productKey,
+                false,
+                false,
+                -1,
+                29,
+                'exactlength="25"'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'kern',
+                _('Group Kernel')
+            ) => self::makeInput(
+                'form-control groupkern-input',
+                'kern',
+                'customBzimage',
+                'text',
+                'kern',
+                $kern
+            ),
+            self::makeLabel(
+                $labelClass,
+                'args',
+                _('Group Kernel Arguments')
+            ) => self::makeInput(
+                'form-control groupkernelargs-input',
+                'args',
+                'debug acpi=off',
+                'text',
+                'args',
+                $args
+            ),
+            self::makeLabel(
+                $labelClass,
+                'init',
+                _('Group Init')
+            ) => self::makeInput(
+                'form-control groupinit-input',
+                'init',
+                'customInit.xz',
+                'text',
+                'init',
+                $init
+            ),
+            self::makeLabel(
+                $labelClass,
+                'dev',
+                _('Group Primary Disk')
+            ) => self::makeInput(
+                'form-control groupdev-input',
+                'dev',
+                '/dev/md0',
+                'text',
+                'dev',
+                $dev
+            ),
+            self::makeLabel(
+                $labelClass,
+                'bootTypeExit',
+                _('Group BIOS Exit')
+            ) => $exitNorm,
+            self::makeLabel(
+                $labelClass,
+                'efiBootTypeExit',
+                _('Group EFI Exit')
+            ) => $exitEfi
         ];
         self::$HookManager->processEvent(
             'GROUP_GENERAL_FIELDS',
@@ -437,29 +532,46 @@ class GroupManagementPage extends FOGPage
             ]
         );
         $rendered = self::formFields($fields);
+        unset($fields);
+
+        $buttons = '<div class="btn-group">';
+        $buttons .= self::makeButton(
+            'general-send',
+            _('Update'),
+            'btn btn-primary'
+        );
+        $buttons .= self::makeButton(
+            'reset-encryption-data',
+            _('Reset Encryption Data'),
+            'btn btn-warning'
+        );
+        $buttons .= self::makeButton(
+            'general-delete',
+            _('Delete'),
+            'btn btn-danger'
+        );
+        $buttons .= '</div>';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'group-general-form',
+            self::makeTabUpdateURL(
+                'group-general',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
-        echo '<form id="group-general-form" class="form-horizontal" method="post" action="'
-            . self::makeTabUpdateURL('group-general', $this->obj->get('id'))
-            . '" novalidate>';
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<div class="btn-group">';
-        echo '<button class="btn btn-primary" id="general-send">'
-            . _('Update')
-            . '</button>';
-        echo '<button class="btn btn-warning" id="reset-encryption-data">'
-            . _('Reset Encryption Data')
-            . '</button>';
-        echo '</div>';
-        echo '<button class="btn btn-danger pull-right" id="general-delete">'
-            . _('Delete')
-            . '</button>';
+        echo $buttons;
         echo $modalreset;
         echo '</div>';
-        echo '</form>';
         echo '</div>';
+        echo '</form>';
     }
     /**
      * Group general post element
@@ -551,11 +663,17 @@ class GroupManagementPage extends FOGPage
         // Group Images
         $imageSelector = self::getClass('ImageManager')
             ->buildSelectBox($imageID, 'image');
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label for="image" class="col-sm-2 control-label">'
-            . _('Group Image')
-            . '</label>' => $imageSelector
+            self::makeLabel(
+                $labelClass,
+                'image',
+                _('Group Image')
+            ) => $imageSelection
         ];
+
         self::$HookManager
             ->processEvent(
                 'GROUP_IMAGE_FIELDS',
@@ -565,18 +683,32 @@ class GroupManagementPage extends FOGPage
                 ]
             );
         $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'group-image-form',
+            self::makeTabUpdateURL(
+                'group-image',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
         echo '<div class="box-body">';
-        echo '<form id="group-image-form" class="form-horizontal" method="post" action="'
-            . self::makeTabUpdateURL('group-image', $this->obj->get('id'))
-            . '" novalidate>';
         echo $rendered;
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="image-send">' . _('Update') . '</button>';
+        echo self::makeButton(
+            'image-send',
+            _('Update'),
+            'btn btn-primary'
+        );
         echo '</div>';
         echo '</div>';
+        echo '</form>';
     }
     /**
      * Group image post element
@@ -738,13 +870,28 @@ class GroupManagementPage extends FOGPage
         );
 
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=group-printers" ';
+            . self::makeTabUpdateURL(
+                'group-printers',
+                $this->obj->get('id')
+            )
+            . '" ';
+
+        echo '<!-- Printers -->';
+        echo '<div class="box-group" id="printers">';
 
         // =========================================================
         // Printer Configuration
-        echo '<!-- Printers -->';
-        echo '<div class="box-group" id="printers">';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'printer-config-form',
+            self::makeTabUpdateURL(
+                'group-printers',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-info">';
         echo '<div class="box-header with-border">';
         echo '<div class="box-tools pull-right">';
@@ -755,33 +902,55 @@ class GroupManagementPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div id="printerconf" class="">';
-        echo '<form id="printer-config-form" class="form-horizontal"' . $props . ' novalidate>';
         echo '<div class="box-body">';
         echo '<div class="radio">';
-        echo '<label for="nolevel" data-toggle="tooltip" data-placement="left" '
-            . 'title="'
-            . _('This setting turns off all FOG Printer Management')
-            . '. '
-            . _('Although there are multiple levels already')
-            . ' '
-            . _('between host and global settings')
-            . ', '
-            . _('this is just another to ensure safety')
-            . '.">';
-        echo '<input type="radio" name="level" value="0" '
-            . 'id="nolevel"'
-            . (
-                $printerLevel == 0 ?
-                ' checked' :
-                ''
+        echo self::makeLabel(
+            '',
+            'noLevel',
+            self::makeInput(
+                'printer-nolevel',
+                'level',
+                '',
+                'radio',
+                'noLevel',
+                '0',
+                false,
+                false,
+                -1,
+                -1,
+                ($printerLevel == 0 ? 'checked' : '')
             )
-            . '/> ';
-        echo _('No Printer Management');
-        echo '</label>';
+            . ' '
+            . _('No Printer Management'),
+            'data-toggle="tooltip" data-placement="right" title="'
+            . _(
+                'This setting turns off all FOG Printer Management.'
+                . ' Although there are multiple levels already, this '
+                . ' is just another level if needed.'
+            )
+            . '"'
+        );
         echo '</div>';
         echo '<div class="radio">';
-        echo '<label for="addlevel" data-toggle="tooltip" data-placement="left" '
-            . 'title="'
+        echo self::makeLabel(
+            '',
+            'addlevel',
+            self::makeInput(
+                'printer-addlevel',
+                'level',
+                '',
+                'radio',
+                'addlevel',
+                '1',
+                false,
+                false,
+                -1,
+                -1,
+                ($printerLevel == 1 ? 'checked' : '')
+            )
+            . ' '
+            . _('Add/Remove Managed Printers'),
+            'data-toggle="tooltip" data-placement="right" title="'
             . _(
                 'This setting only adds and removes '
                 . 'printers that are managed by FOG. '
@@ -792,49 +961,49 @@ class GroupManagementPage extends FOGPage
                 . 'It will add printers to the host '
                 . 'that are assigned.'
             )
-            . '">';
-        echo '<input type="radio" name="level" value="1" '
-            . 'id="addlevel"'
-            . (
-                $printerLevel == 1 ?
-                ' checked' :
-                ''
-            )
-            . '/> ';
-        echo _('FOG Managed Printers');
-        echo '</label>';
+            . '"'
+        );
         echo '</div>';
         echo '<div class="radio">';
-        echo '<label for="alllevel" data-toggle="tooltip" data-placement="left" '
-            . 'title="'
+        echo self::makeLabel(
+            '',
+            'alllevel',
+            self::makeInput(
+                'printer-alllevel',
+                'level',
+                '',
+                'radio',
+                'alllevel',
+                '2',
+                false,
+                false,
+                -1,
+                -1,
+                ($printerLevel == 2 ? 'checked' : '')
+            )
+            . ' '
+            . _('All Printers'),
+            'data-toggle="tooltip" data-placement="right" title="'
             . _(
                 'This setting will only allow FO GAssigned '
                 . 'printers to be added to the host. Any '
                 . 'printer that is not assigned will be '
                 . 'removed including non-FOG managed printers.'
             )
-            . '">';
-        echo '<input type="radio" name="level" value="2" '
-            . 'id="alllevel"'
-            . (
-                $printerLevel  == 2 ?
-                ' checked' :
-                ''
-            )
-            . '/> ';
-        echo _('Only Assigned Printers');
-        echo '</label>';
+            . '"'
+        );
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button type="submit" name="levelup" class='
-            . '"btn btn-primary" id="printer-config-send">'
-            . _('Update')
-            . '</button>';
+        echo self::makeButton(
+            'printer-config-send',
+            _('Update'),
+            'btn btn-primary'
+        );
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
 
         // =========================================================
         // Associated Printers
