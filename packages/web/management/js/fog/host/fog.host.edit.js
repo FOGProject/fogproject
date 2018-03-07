@@ -735,7 +735,7 @@
                 return;
             }
             snapinsTable.draw(false);
-            snapinsTble.rows({selected: true}).deselect();
+            snapinsTable.rows({selected: true}).deselect();
         });
     });
     if (Common.search && Common.search.length > 0) {
@@ -913,8 +913,7 @@
         month = $('.scheduleCronMonth', powermanagementForm),
         dow = $('.scheduleCronDOW', powermanagementForm),
         ondemand = $('#scheduleOnDemand', powermanagementForm),
-        specialCrons = $('.specialCrons', powermanagementForm),
-        action = $('.pmaction', powermanagementForm);
+        specialCrons = $('.specialCrons', powermanagementForm);
 
     powermanagementForm.on('submit', function(e) {
         e.preventDefault();
@@ -985,9 +984,153 @@
     });
 
     // The Power Management List element.
+    function onPMSelect(selected) {
+        var disable = selected.count() == 0;
+    }
+
+    var powermanagementTable = Common.registerTable($("#host-powermanagement-table"), onPMSelect, {
+        columns: [
+            {data: 'id'},
+            {data: 'action'}
+        ],
+        columnDefs: [
+            {
+                targets: 0,
+                render: function(data, type, row) {
+                    return row.min
+                        + ' '
+                        + row.hour
+                        + ' '
+                        + row.dom
+                        + ' '
+                        + row.month
+                        + ' '
+                        + row.dow;
+                }
+            }
+        ],
+        rowId: 'id',
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+            + Common.node
+            + '&sub=getPowermanagementList&id='
+            + Common.id,
+            type: 'post'
+        }
+    });
 
     // ---------------------------------------------------------------
     // GROUP MEMBERSHIP TAB
+
+    var groupsAddBtn = $('#groups-add'),
+        groupsRemoveBtn = $('#groups-remove');
+
+    groupsAddBtn.prop('disabled', true);
+    groupsRemoveBtn.prop('disabled', true);
+
+    function onGroupsSelect(selected) {
+        var disabled = selected.count() == 0;
+        groupsAddBtn.prop('disabled', disabled);
+        groupsRemoveBtn.prop('disabled', disabled);
+    }
+
+    var groupsTable = Common.registerTable($('#host-groups-table'), onGroupsSelect, {
+        columns: [
+            {data: 'name'},
+            {data: 'association'}
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                responsivePriority: -1,
+                render: function(data, type, row) {
+                    return '<a href="../management/index.php?node=group&sub=edit&id='
+                        + row.id
+                        + '">'
+                        + data
+                        + '</a>';
+                },
+                targets: 0
+            },
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="snapinAssoc_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+            + Common.node
+            + '&sub=getGroupsList&id='
+            + Common.id,
+            type: 'post'
+        }
+    });
+    groupsTable.on('draw', function() {
+        Common.iCheck('#host-groups input');
+    });
+
+    groupsAddBtn.on('click',function() {
+        groupsAddBtn.prop('disabled', true);
+        groupsRemoveBtn.prop('disabled', true);
+
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = groupsTable.rows({selected: true}),
+            toAdd = Common.getSelectedIds(groupsTable),
+            opts = {
+                updategroups: 1,
+                group: toAdd
+            };
+        Common.apiCall(method,action,opts,function(err) {
+            groupsAddBtn.prop('disabled', false);
+            groupsRemoveBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            groupsTable.draw(false);
+            groupsTable.rows({selected: true}).deselect();
+        });
+    });
+
+    groupsRemoveBtn.on('click',function() {
+        groupsRemoveBtn.prop('disabled', true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = groupsTable.rows({selected: true}),
+            toRemove = Common.getSelectedIds(groupsTable),
+            opts = {
+                groupdel: 1,
+                groupRemove: toRemove
+            };
+        Common.apiCall(method,action,opts,function(err) {
+            groupsAddBtn.prop('disabled', false);
+            groupsRemoveBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            groupsTable.draw(false);
+            groupsTable.rows({selected: true}).deselect();
+        });
+    });
+    if (Common.search && Common.search.length > 0) {
+        groupsTable.search(Common.search).draw();
+    }
 
     // ---------------------------------------------------------------
     // INVENTORY TAB

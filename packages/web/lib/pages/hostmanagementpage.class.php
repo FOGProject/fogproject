@@ -1301,6 +1301,97 @@ class HostManagementPage extends FOGPage
         );
     }
     /**
+     * Host groups dispay.
+     *
+     * @return void
+     */
+    public function hostGroups()
+    {
+        $props = ' method="post" action="'
+            . $this->formAction
+            . '&tab=host-groups" ';
+
+        echo '<!-- Groups -->';
+        echo '<div class="box-group" id="groups">';
+        // =================================================================
+        // Associated Snapins
+        $buttons = self::makeButton(
+            'groups-add',
+            _('Add selected'),
+            'btn btn-primary',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'groups-remove',
+            _('Remove selected'),
+            'btn btn-danger',
+            $props
+        );
+
+        $this->headerData = [
+            _('Group Name'),
+            _('Group Associated')
+        ];
+        $this->templates = [
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
+
+        echo '<div class="box box-solid">';
+        echo '<div id="updategroups" class="">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Host Groups');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'host-groups-table', $buttons);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Host groups modifications.
+     *
+     * @return void
+     */
+    public function hostGroupPost()
+    {
+        if (isset($_POST['updategroups'])) {
+            $groups = filter_input_array(
+                INPUT_POST,
+                [
+                    'group' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $groups = $groups['group'];
+            if (count($groups ?: []) > 0) {
+                $this->obj->addGroup($groups);
+            }
+        }
+        if (isset($_POST['groupdel'])) {
+            $groups = filter_input_array(
+                INPUT_POST,
+                [
+                    'groupRemove' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $groups = $groups['groupRemove'];
+            if (count($groups ?: []) > 0) {
+                $this->obj->removeGroup($groups);
+            }
+        }
+    }
+    /**
      * Host printers display.
      *
      * @return void
@@ -1918,6 +2009,31 @@ class HostManagementPage extends FOGPage
     {
         echo '<!-- Power Management -->';
         echo $this->newPMDisplay();
+        // The powermanagement table.
+        $this->headerData = [
+            _('Cron Schedule'),
+            _('Action')
+        ];
+        $this->templates = [
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Current Power Management Tasks');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'host-powermanagement-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Host power management post.
@@ -2808,8 +2924,7 @@ class HostManagementPage extends FOGPage
                         'name' => _('Groups'),
                         'id' => 'host-groups',
                         'generator' => function() {
-                            //$this->hostMembership();
-                            echo 'TODO: Make functional';
+                            $this->hostGroups();
                         }
                     ],
                     [
@@ -2860,7 +2975,7 @@ class HostManagementPage extends FOGPage
                         'name' => _('Power Management'),
                         'id' => 'host-powermanagement',
                         'generator' => function() {
-                            $this->hostPowerManagement();
+                            $this->hostPowermanagement();
                         }
                     ]
                 ]
@@ -3133,6 +3248,71 @@ class HostManagementPage extends FOGPage
         exit;
     }
     /**
+     * Presents the groups list table.
+     *
+     * @return void
+     */
+    public function getGroupsList()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        // Workable queries
+        $groupsSqlStr = "SELECT `%s`,"
+            . "IF(`gmHostID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `gmHostID`
+            FROM `%s`
+            LEFT OUTER JOIN `groupMembers`
+            ON `groups`.`groupID` = `groupMembers`.`gmGroupID`
+            AND `groupMembers`.`gmHostID` = '"
+            . $this->obj->get('id')
+            . "'
+            %s
+            %s
+            %s";
+        $groupsFilterStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `groupMembers`
+            ON `groups`.`groupID` = `groupMembers`.`gmGroupID`
+            AND `groupMembers`.`gmHostID` = '"
+            . $this->obj->get('id')
+            . "'
+            %s";
+        $groupsTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+
+        foreach (self::getClass('GroupManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        $columns[] = [
+            'db' => 'gmHostID',
+            'dt' => 'association'
+        ];
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'groups',
+                'groupID',
+                $columns,
+                $groupsSqlStr,
+                $groupsFilterStr,
+                $groupsTotalStr,
+                $where
+            )
+        );
+        exit;
+    }
+    /**
      * Presents the printers list table.
      *
      * @return void
@@ -3145,20 +3325,17 @@ class HostManagementPage extends FOGPage
             $pass_vars
         );
 
-        $where = "`hosts`.`hostID` = '"
-            . $this->obj->get('id')
-            . "'";
-
         // Workable queries
         $printersSqlStr = "SELECT `%s`,"
             . "IF(`paHostID` = '"
             . $this->obj->get('id')
-            . "','associated','dissociated') AS `paHostID`,`paIsDefault`
+            . "','associated','dissociated') AS `paHostID`
             FROM `%s`
-            CROSS JOIN `hosts`
             LEFT OUTER JOIN `printerAssoc`
             ON `printers`.`pID` = `printerAssoc`.`paPrinterID`
-            AND `hosts`.`hostID` = `printerAssoc`.`paHostID`
+            AND `printerAssoc`.`paHostID` = '"
+            . $this->obj->get('id')
+            . "'
             %s
             %s
             %s";
@@ -3167,10 +3344,11 @@ class HostManagementPage extends FOGPage
             . $this->obj->get('id')
             . "','associated','dissociated') AS `paHostID`,`paIsDefault`
             FROM `%s`
-            CROSS JOIN `hosts`
             LEFT OUTER JOIN `printerAssoc`
             ON `printers`.`pID` = `printerAssoc`.`paPrinterID`
-            AND `hosts`.`hostID` = `printerAssoc`.`paHostID`
+            AND `printerAssoc`.`paHostID` = '"
+            . $this->obj->get('id')
+            . "'
             %s";
         $printersTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`";
@@ -3219,20 +3397,17 @@ class HostManagementPage extends FOGPage
             $pass_vars
         );
 
-        $where = "`hosts`.`hostID` = '"
-            . $this->obj->get('id')
-            . "'";
-
         // Workable queries
         $snapinsSqlStr = "SELECT `%s`,"
             . "IF(`saHostID` = '"
             . $this->obj->get('id')
             . "','associated','dissociated') AS `saHostID`
             FROM `%s`
-            CROSS JOIN `hosts`
             LEFT OUTER JOIN `snapinAssoc`
             ON `snapins`.`sID` = `snapinAssoc`.`saSnapinID`
-            AND `hosts`.`hostID` = `snapinAssoc`.`saHostID`
+            AND `snapinAssoc`.`saHostID` = '"
+            . $this->obj->get('id')
+            . "'
             %s
             %s
             %s";
@@ -3241,10 +3416,11 @@ class HostManagementPage extends FOGPage
             . $this->obj->get('id')
             . "','associated','dissociated') AS `saHostID`
             FROM `%s`
-            CROSS JOIN `hosts`
             LEFT OUTER JOIN `snapinAssoc`
             ON `snapins`.`sID` = `snapinAssoc`.`saSnapinID`
-            AND `hosts`.`hostID` = `snapinAssoc`.`saHostID`
+            AND `snapinAssoc`.`saHostID` = '"
+            . $this->obj->get('id')
+            . "'
             %s";
         $snapinsTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`";
@@ -3303,9 +3479,7 @@ class HostManagementPage extends FOGPage
             'usercleanup'
         ];
 
-        $where = "`hosts`.`hostID` = '"
-            . $this->obj->get('id')
-            . "' AND `modules`.`short_name` "
+        $where = "`modules`.`short_name` "
             . "NOT IN ('"
             . implode("','", $notWhere)
             . "') AND `modules`.`short_name` IN ('"
@@ -3318,17 +3492,21 @@ class HostManagementPage extends FOGPage
             . $this->obj->get('id')
             . "','associated','dissociated') AS `msHostID`
             FROM `%s`
-            CROSS JOIN `hosts`
             LEFT OUTER JOIN `moduleStatusByHost`
             ON `modules`.`id` = `moduleStatusByHost`.`msModuleID`
-            AND `hosts`.`hostID` = `moduleStatusByHost`.`msHostID`
+            AND `moduleStatusByHost`.`msHostID` = '"
+            . $this->obj->get('id')
+            . "'
             %s
-            GROUP BY `modules`.`short_name`
             %s
             %s";
         $modulesFilterStr = "SELECT COUNT(`%s`)
             FROM `%s`
-            CROSS JOIN `hosts`
+            LEFT OUTER JOIN `moduleStatusByHost`
+            ON `modules`.`id` = `moduleStatusByHost`.`msModuleID`
+            AND `moduleStatusByHost`.`msHostID` = '"
+            . $this->obj->get('id')
+            . "'
             %s";
         $modulesTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`
@@ -3674,6 +3852,66 @@ class HostManagementPage extends FOGPage
             FOGManagerController::complex(
                 $pass_vars,
                 $table,
+                $tableID,
+                $columns,
+                $sqlstr,
+                $filterstr,
+                $totalstr,
+                $where
+            )
+        );
+        exit;
+    }
+    /**
+     * Gets the current list of power management tasks.
+     *
+     * @return void
+     */
+    public function getPowermanagementList()
+    {
+        header('Content-type: application:json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $where = "`powerManagement`.`pmHostID` = '"
+            . $this->obj->get('id')
+            . "'";
+
+        $sqlstr = "SELECT `%s`
+            FROM `%s`
+            %s
+            %s
+            %s";
+
+        $filterstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            %s";
+
+        $totalstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            WHERE $where";
+
+        $dbcolumns = self::getClass('PowerManagementManager')->getColumns();
+
+        $columns = [];
+
+        foreach ($dbcolumns as $common => &$real) {
+            if ('id' == $common) {
+                $tableID = $real;
+            }
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'powerManagement',
                 $tableID,
                 $columns,
                 $sqlstr,
