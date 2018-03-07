@@ -596,7 +596,7 @@ abstract class FOGManagerController extends FOGBase
         try {
             $stmt->execute();
         } catch (PDOException $e) {
-            self::fatal( "An SQL error occurred: ".$e->getMessage() );
+            self::fatal("An SQL error occurred: ".$e->getMessage() . "SQL: $sql");
         }
         // Return all
         return $stmt->fetchAll( PDO::FETCH_BOTH );

@@ -4321,4 +4321,43 @@ abstract class FOGPage extends FOGBase
             . $value
             . '</textarea>';
     }
+    /**
+     * Gets our special cron types and values.
+     *
+     * @return void
+     */
+    public function getSpecialCrons()
+    {
+        echo json_encode(
+            [
+                'types' => [
+                    _('Select a cron type'),
+                    _('Yearly') . '/' . _('Annually'),
+                    _('Monthly'),
+                    _('Weekly'),
+                    _('Daily') . '/' . _('Midnight'),
+                    _('Hourly')
+                ],
+                'values' => [
+                    '',
+                    'yearly',
+                    'monthly',
+                    'weekly',
+                    'daily',
+                    'hourly'
+                ],
+                'actiontypes' => [
+                    _('Shutdown'),
+                    _('Reboot'),
+                    _('Wake On Lan')
+                ],
+                'actionvalues' => [
+                    'shutdown',
+                    'reboot',
+                    'wol'
+                ]
+            ]
+        );
+        exit;
+    }
 }
