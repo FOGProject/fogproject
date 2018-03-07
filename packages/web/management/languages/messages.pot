@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 17:28-0500\n"
+"POT-Creation-Date: 2018-03-06 23:06-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3497,6 +3497,15 @@ msgstr ""
 msgid "MAC Address is assigned to another host!"
 msgstr ""
 
+msgid "Group Name"
+msgstr ""
+
+msgid "Group Associated"
+msgstr ""
+
+msgid "Host Groups"
+msgstr ""
+
 msgid "Host Printer Configuration"
 msgstr ""
 
@@ -3607,6 +3616,12 @@ msgid "Auto Logout Settings"
 msgstr ""
 
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
+msgstr ""
+
+msgid "Cron Schedule"
+msgstr ""
+
+msgid "Current Power Management Tasks"
 msgstr ""
 
 msgid "You must select an action to perform"
@@ -3778,9 +3793,6 @@ msgstr ""
 msgid "Create New Group"
 msgstr ""
 
-msgid "Group Name"
-msgstr ""
-
 msgid "Group Description"
 msgstr ""
 
@@ -3829,6 +3841,9 @@ msgstr ""
 msgid "Group Image"
 msgstr ""
 
+msgid "Group Hosts"
+msgstr ""
+
 msgid "Group Printer Configuration"
 msgstr ""
 
@@ -3836,6 +3851,9 @@ msgid ""
 "This setting will only allow FO GAssigned printers to be added to the host. "
 "Any printer that is not assigned will be removed including non-FOG managed "
 "printers."
+msgstr ""
+
+msgid "Group Snapins"
 msgstr ""
 
 msgid "Module Association"
@@ -5699,9 +5717,6 @@ msgid "Scheduled tasks successfully created"
 msgstr ""
 
 msgid "Failed to start tasking type"
-msgstr ""
-
-msgid "Cron Schedule"
 msgstr ""
 
 msgid "Delayed Start"

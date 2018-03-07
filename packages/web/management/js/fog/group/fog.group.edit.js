@@ -162,6 +162,118 @@
     });
 
     // ---------------------------------------------------------------
+    // HOST MEMBERSHIP TAB
+    var hostsAddBtn = $('#hosts-add'),
+        hostsRemoveBtn = $('#hosts-remove');
+
+    hostsAddBtn.prop('disabled', true);
+    hostsRemoveBtn.prop('disabled', true);
+
+    function onHostsSelect (selected) {
+        var disabled = selected.count() == 0;
+        hostsAddBtn.prop('disabled', disabled);
+        hostsRemoveBtn.prop('disabled', disabled);
+    }
+
+    var hostsTable = Common.registerTable($('#group-hosts-table'), onHostsSelect, {
+        columns: [
+            {data: 'name'},
+            {data: 'associated'}
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                responsivePriority: -1,
+                render: function(data, type, row) {
+                    return '<a href="../management/index.php?node=host&sub=edit&id='
+                        + row.id
+                        + '">'
+                        + data
+                        + '</a>';
+                },
+                targets: 0
+            },
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                    + '<input type="checkbox" class="associated" name="associate[]" id="hostAssoc_'
+                    + row.id
+                    + '" value="' + row.id + '"'
+                    + checkval
+                    + '/>'
+                    + '</div>';
+                },
+                targets: 1
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+            + Common.node
+            + '&sub=getHostsList&id='
+            + Common.id,
+            type: 'post'
+        }
+    });
+    hostsTable.on('draw', function() {
+        Common.iCheck('#group-hosts-table input');
+    });
+
+    hostsAddBtn.on('click', function() {
+        hostsAddBtn.prop('disabled', true);
+        hostsRemoveBtn.prop('disabled', true);
+
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = hostsTable.rows({selected: true}),
+            toAdd = Common.getSelectedIds(hostsTable),
+            opts = {
+                updatehosts: 1,
+                host: toAdd
+            };
+        Common.apiCall(method,action,opts,function(err) {
+            hostsAddBtn.prop('disabled', false);
+            hostsRemoveBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            hostsTable.draw(false);
+            hostsTable.rows({selected: true}).deselect();
+        });
+    });
+
+    hostsRemoveBtn.on('click', function() {
+        hostsAddBtn.prop('disabled', true);
+        hostsRemoveBtn.prop('disabled', true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = hostsTable.rows({selected: true}),
+            toRemove = Common.getSelectedIds(hostsTable),
+            opts = {
+                hostdel: 1,
+                hostRemove: toRemove
+            };
+        Common.apiCall(method,action,opts,function(err) {
+            hostsAddBtn.prop('disabled', false);
+            hostsRemoveBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            hostsTable.draw(false);
+            hostsTable.rows({selected: true}).deselect();
+        });
+    });
+
+    if (Common.search && Common.search.length > 0) {
+        hostsTable.search(Common.search).draw();
+    }
+
+    // ---------------------------------------------------------------
     // PRINTER TAB
     var printerConfigForm = $('#printer-config-form'),
         printerConfigBtn = $('#printer-config-send'),

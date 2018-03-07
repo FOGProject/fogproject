@@ -1082,7 +1082,7 @@
         }
     });
     groupsTable.on('draw', function() {
-        Common.iCheck('#host-groups input');
+        Common.iCheck('#host-groups-table input');
     });
 
     groupsAddBtn.on('click',function() {

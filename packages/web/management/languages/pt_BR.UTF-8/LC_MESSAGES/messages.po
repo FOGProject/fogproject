@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 17:28-0500\n"
+"POT-Creation-Date: 2018-03-06 23:06-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3989,6 +3989,17 @@ msgstr "Formato MAC é inválido"
 msgid "MAC Address is assigned to another host!"
 msgstr "Este MAC pertence para outro host"
 
+msgid "Group Name"
+msgstr "Nome do grupo"
+
+#, fuzzy
+msgid "Group Associated"
+msgstr "Nó de Armazenamento Criado"
+
+#, fuzzy
+msgid "Host Groups"
+msgstr "Grupos de exportação"
+
 #, fuzzy
 msgid "Host Printer Configuration"
 msgstr "Configuração de serviço"
@@ -4124,6 +4135,13 @@ msgstr "Configurações"
 
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
 msgstr ""
+
+msgid "Cron Schedule"
+msgstr "Horário cron"
+
+#, fuzzy
+msgid "Current Power Management Tasks"
+msgstr "Gerenciamento de usuários"
 
 #, fuzzy
 msgid "You must select an action to perform"
@@ -4316,9 +4334,6 @@ msgstr ""
 msgid "Create New Group"
 msgstr "Nó de armazenamento"
 
-msgid "Group Name"
-msgstr "Nome do grupo"
-
 msgid "Group Description"
 msgstr "descrição do grupo"
 
@@ -4377,6 +4392,10 @@ msgid "Group Image"
 msgstr "Nome do grupo"
 
 #, fuzzy
+msgid "Group Hosts"
+msgstr "grupos"
+
+#, fuzzy
 msgid "Group Printer Configuration"
 msgstr "Configuração de serviço"
 
@@ -4389,6 +4408,10 @@ msgstr ""
 "Essa configuração só irá permitir impressoras FOG Designado para ser "
 "adicionado ao host. Qualquer impressora que não é atribuído serão removidos "
 "incluindo impressoras gerenciadas não nevoeiro."
+
+#, fuzzy
+msgid "Group Snapins"
+msgstr "História Snapin"
 
 #, fuzzy
 msgid "Module Association"
@@ -6582,9 +6605,6 @@ msgstr "foi atualizado com sucesso"
 #, fuzzy
 msgid "Failed to start tasking type"
 msgstr "Falha ao iniciar a tarefa de implantação"
-
-msgid "Cron Schedule"
-msgstr "Horário cron"
 
 msgid "Delayed Start"
 msgstr "Início Programado"
