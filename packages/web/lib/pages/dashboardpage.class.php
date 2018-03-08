@@ -300,10 +300,20 @@ class DashboardPage extends FOGPage
         $rel5 = 300;
         $rel2 = 120;
         echo '<div class="col-xs-12">';
-        printf(
-            '<input type="hidden" id="bandwidthUrls" type="hidden" value="%s"/>'
-            . '<input type="hidden" id="nodeNames" type="hidden" value="%s"/>',
-            implode(',', self::$_nodeURLs),
+        echo self::makeInput(
+            '',
+            '',
+            '',
+            'hidden',
+            'bandwidthUrls',
+            implode(',', self::$_nodeURLs)
+        );
+        echo self::makeInput(
+            '',
+            '',
+            '',
+            'hidden',
+            'nodeNames',
             implode(',', self::$_nodeNames)
         );
         echo '<div class="box box-primary">';
