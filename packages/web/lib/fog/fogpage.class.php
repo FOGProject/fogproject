@@ -257,7 +257,7 @@ abstract class FOGPage extends FOGBase
                 _('ID Must be set to edit')
             );
             self::redirect(
-                "../management/?node=$node"
+                "../management/index.php?node=$node"
             );
             exit;
         }
@@ -1240,7 +1240,7 @@ abstract class FOGPage extends FOGBase
             );
             self::redirect(
                 sprintf(
-                    '../management/?node=%s&sub=edit%s',
+                    '../management/index.php?node=%s&sub=edit%s',
                     $this->node,
                     (
                         is_numeric($id) && $id > 0 ?

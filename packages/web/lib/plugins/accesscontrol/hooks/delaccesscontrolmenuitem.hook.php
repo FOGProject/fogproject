@@ -75,29 +75,21 @@ class DelAccessControlMenuItem extends Hook
     {
         $userID = self::getSubObjectIDs(
             'User',
-            array(
-                'name' => self::$FOGUser->get('name')
-            ),
+            ['name' => self::$FOGUser->get('name')],
             'id'
         );
         $acID = self::getSubObjectIDs(
             'AccessControlAssociation',
-            array(
-                'userID' => $userID
-            ),
+            ['userID' => $userID],
             'accesscontrolID'
         );
-        $rules = array();
-        foreach ((array)self::getClass('AccessControlManager')
-            ->find(array('id' => $acID)) as &$AccessControl
-        ) {
-            $rules = self::fastmerge(
-                $rules,
-                (array)$AccessControl->get('accesscontrolrules')
-            );
-            unset($AccessControl);
-        }
-        foreach ((array)self::getClass('AccessControlRuleManager')
+        $rules = self::getSubObjectIDs(
+            'AccessControl',
+            ['id' => $acID],
+            'accesscontrolrules'
+        );
+
+        /*foreach ((array)self::getClass('AccessControlRuleManager')
             ->find(
                 array('id' => $rules)
             ) as $Rule
@@ -106,7 +98,7 @@ class DelAccessControlMenuItem extends Hook
                 $arguments[$Rule->get('parent')][$Rule->get('value')],
                 $Rule
             );
-        }
+        }*/
     }
     /**
      * The menu data to change.
@@ -117,22 +109,17 @@ class DelAccessControlMenuItem extends Hook
      */
     public function deleteSubMenuData($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         $userID = self::getSubObjectIDs(
             'User',
-            array(
-                'name' => self::$FOGUser->get('name')
-            ),
+            ['name' => self::$FOGUser->get('name')],
             'id'
         );
         $acID = self::getSubObjectIDs(
             'AccessControlAssociation',
-            array('userID' => $userID),
+            ['userID' => $userID],
             'accesscontrolID'
         );
-        foreach ((array)self::getClass('AccessControlRuleAssociationManager')
+        /*foreach ((array)self::getClass('AccessControlRuleAssociationManager')
             ->find(array('accesscontrolID' => $acID)) as
             &$AccessControlRuleAssociation
         ) {
@@ -149,6 +136,6 @@ class DelAccessControlMenuItem extends Hook
                 $AccessControlRule
             );
         }
-        unset($AccessControlRuleAssociation);
+        unset($AccessControlRuleAssociation);*/
     }
 }

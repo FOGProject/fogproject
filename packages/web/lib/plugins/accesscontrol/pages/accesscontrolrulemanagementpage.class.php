@@ -21,6 +21,11 @@
  */
 class AccessControlRuleManagementPage extends FOGPage
 {
+    /**
+     * The node this works off.
+     *
+     * @var string
+     */
     public $node = 'accesscontrolrule';
     /**
      * Constructor
@@ -122,7 +127,7 @@ class AccessControlRuleManagementPage extends FOGPage
                 'value',
                 _('Rule Value'),
                 'text',
-                'node',
+                'value',
                 $value,
                 true
             )
@@ -323,7 +328,7 @@ class AccessControlRuleManagementPage extends FOGPage
                 'value',
                 _('Rule Value'),
                 'text',
-                'node',
+                'value',
                 $value,
                 true
             )
@@ -390,6 +395,9 @@ class AccessControlRuleManagementPage extends FOGPage
         $value = trim(
             filter_input(INPUT_POST, 'value')
         );
+        $orgname = $this->obj->get('type')
+            . '-'
+            . $this->obj->get('value');
         $name = $type
             . '-'
             . $value;
@@ -401,7 +409,7 @@ class AccessControlRuleManagementPage extends FOGPage
         ) {
             throw new Exception(_('A value already exists with this content!'));
         }
-        if ($nameexists) {
+        if ($orgname != $name && $nameexists) {
             throw new Exception(_('A name with this type-value pair already exists!'));
         }
         $this->obj

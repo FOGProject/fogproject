@@ -352,42 +352,41 @@ class FOGPageManager extends FOGBase
             )
         );
         unset($normalfiles, $pluginfiles);
-        $startClass = function ($element) use ($strlen, $node) {
-            if (substr($element, $strlen) !== '.class.php'
-                && substr($element, $strlen) !== '.report.php'
-            ) {
+        foreach ($files as &$file) {
+            $elementsub = substr($file, $strlen);
+            if (!in_array($elementsub, ['.class.php','.report.php'], true)) {
                 return;
             }
-            $className = substr(basename($element), 0, $strlen);
-            if ($node == 'report'
-                && filter_input(INPUT_GET, 'f')
-            ) {
-                $className = str_replace(
-                    ' ',
-                    '_',
-                    base64_decode(
-                        filter_input(INPUT_GET, 'f')
-                    )
-                );
+            $className = substr(basename($file), 0, $strlen);
+            if ($node == 'report') {
+                $f = filter_input(INPUT_GET, 'f');
+                if ($f) {
+                    $className = str_replace(
+                        ' ',
+                        '_',
+                        base64_decode(
+                            $f
+                        )
+                    );
+                }
             }
             if (!$className || !isset($className)) {
-                return;
+                continue;
             }
             if (in_array($className, get_declared_classes())
                 || class_exists($className, false)
             ) {
-                return;
+                continue;
             }
             $vals = get_class_vars($className);
             if ($vals['node'] !== trim($node)) {
-                return;
+                continue;
             }
             unset($vals);
             $class = new $className;
             $this->_nodes[$this->classValue] = $class;
             $this->_register($class);
             unset($class);
-        };
-        array_map($startClass, (array)$files);
+        }
     }
 }
