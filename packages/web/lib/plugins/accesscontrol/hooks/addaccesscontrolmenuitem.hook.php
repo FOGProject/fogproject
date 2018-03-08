@@ -53,28 +53,44 @@ class AddAccessControlMenuItem extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'MAIN_MENU_DATA',
-                array(
-                    $this,
-                    'menuData'
-                )
-            )
-            ->register(
-                'SEARCH_PAGES',
-                array(
-                    $this,
-                    'addSearch'
-                )
-            )
-            ->register(
-                'PAGES_WITH_OBJECTS',
-                array(
-                    $this,
-                    'addPageWithObject'
-                )
-            );
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        self::$HookManager->register(
+            'MAIN_MENU_DATA',
+            [$this, 'menuData']
+        )->register(
+            'SEARCH_PAGES',
+            [$this, 'addSearch']
+        )->register(
+            'PAGES_WITH_OBJECTS',
+            [$this, 'addPageWithObject']
+        )->register(
+            'SUB_MENULINK_DATA',
+            [$this, 'menuUpdate']
+        );
+    }
+    /**
+     * Add the enw items beyond list/create.
+     *
+     * @param mixed $arguments The items to modify.
+     *
+     * @return void
+     */
+    public function menuUpdate($arguments)
+    {
+        if ($arguments['node'] == $this->node) {
+            $arguments['menu']['list'] = _('List All Roles');
+            $arguments['menu']['add'] = _('Create New Role');
+            $arguments['menu']['export'] = _('Export Roles');
+            $arguments['menu']['import'] = _('Import Roles');
+        }
+        if ($arguments['node'] == 'accesscontrolrule') {
+            $arguments['menu']['list'] = _('List All Rules');
+            $arguments['menu']['add'] = _('Create New Rule');
+            $arguments['menu']['export'] = _('Export Rules');
+            $arguments['menu']['import'] = _('Import Rules');
+        }
     }
     /**
      * The menu data to change.
@@ -85,17 +101,17 @@ class AddAccessControlMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         self::arrayInsertAfter(
             'storagegroup',
             $arguments['main'],
             $this->node,
-            array(
-                _('Access Controls'),
-                'fa fa-user-secret'
-            )
+            [_('Access Controls'), 'fa fa-user-secret']
+        );
+        self::arrayInsertAfter(
+            $this->node,
+            $arguments['main'],
+            'accesscontrolrule',
+            [_('Access Control Rules'), 'fa fa-user-times']
         );
     }
     /**
@@ -107,10 +123,8 @@ class AddAccessControlMenuItem extends Hook
      */
     public function addSearch($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         array_push($arguments['searchPages'], $this->node);
+        array_push($arguments['searchPages'], 'accesscontrolrule');
     }
     /**
      * Adds the location page to objects elements.
@@ -121,9 +135,7 @@ class AddAccessControlMenuItem extends Hook
      */
     public function addPageWithObject($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         array_push($arguments['PagesWithObjects'], $this->node);
+        array_push($arguments['PagesWithObjects'], 'accesscontrolrule');
     }
 }
