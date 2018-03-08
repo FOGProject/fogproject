@@ -2580,4 +2580,31 @@ abstract class FOGBase
             $limit
         );
     }
+    /**
+     * Starts the class based on the filename passed.
+     *
+     * @param array $files  The array of files.
+     * @param int   $strlen How much of file to strip off end to get classname.
+     *
+     * @return void
+     */
+    public static function startClassFromFiles($files, $strlen)
+    {
+        foreach ($files as &$file) {
+            $className = str_replace(
+                ["\t","\n",' '],
+                '_',
+                substr(
+                    basename($file),
+                    0,
+                    $strlen
+                )
+            );
+            if (class_exists($className, false)) {
+                continue;
+            }
+            self::getClass($className);
+            unset($file);
+        }
+    }
 }

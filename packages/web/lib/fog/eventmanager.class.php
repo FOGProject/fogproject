@@ -277,80 +277,32 @@ class EventManager extends FOGBase
         // startClass simply iterates the passed data and starts the needed
         // hooks or events.
         // Plugins don't need to know if the active flag is set either
-        $startClass = function (&$element) use ($strlen) {
-            $className = str_replace(
-                array("\t", "\n", ' '),
-                '_',
-                substr(
-                    basename($element),
-                    0,
-                    $strlen
-                )
-            );
-            $decClasses = get_declared_classes();
-            foreach ((array)$decClasses as $key => &$classExist) {
-                $exists[$classExist] = 1;
-                unset($classExist);
-            }
-            $exists = class_exists(
-                $className,
-                false
-            );
-            if ($exists) {
-                return;
-            }
-            self::getClass(
-                str_replace(
-                    array("\t", "\n", ' '),
-                    '_',
-                    $className
-                )
-            );
-            unset($element, $key);
-        };
-        // Plugins should be established first so menus and what not are setup.
-        array_map(
-            $startClass,
-            (array) $pluginfiles
-        );
+        self::startClassFromFiles($pluginfiles, $strlen);
         // Cleanup the plugin files
         unset($pluginfiles);
-        // This function is a secondary to start class and only used on
-        // non plugin files.  We have to find out if the class has the active
-        // flag set or not.
-        $checkNormalAndStart = function ($element) use ($strlen, $startClass) {
-            // If we can't open the file just return
-            if (($fh = fopen($element, 'rb')) === false) {
-                return;
+        // Now scan non plugin files and see if the active flag is set.
+        // If active, start the class, otherwise on to next file.
+        $startfiles = [];
+        foreach ($normalfiles as &$file) {
+            if (false === ($fh = fopen($file, 'rb'))) {
+                continue;
             }
-            // Start processing to find the active variable
             while (feof($fh) === false) {
-                // reset loop active flag just in case
                 unset($active);
-                // get the line
-                $line = fgets($fh, 8192);
-                if ($line === false) {
+                $line = fgets($fh, 4096);
+                if (false === $line) {
                     continue;
                 }
-                // We get the value and pop the line off and make it set as
-                // a part of the code.
-                preg_match('#(\$active\s?=\s?true;)#', $line, $linefound);
-                if (count($linefound) < 1) {
+                preg_match ('#(\$active\s?=\s?true;)#', $line, $linefound);
+                if (count($linefound ?: []) < 1) {
                     continue;
                 }
-                // We are set and active start the class and break from the loop.
-                $startClass($element);
+                $startfiles[] = $file;
                 break;
             }
-            // Close the file.
             fclose($fh);
-        };
-        // Perform the checks.
-        if (count($normalfiles) > 0) {
-            array_walk(
-                $normalfiles,
-                $checkNormalAndStart
-            );
         }
+        unset($normalfiles);
+        self::startClassFromFiles($startfiles, $strlen);
     }
 }

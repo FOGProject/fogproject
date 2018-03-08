@@ -270,28 +270,18 @@ class Initiator
         $globalVars = [
             'newService',
             'json',
+            'node',
+            'sub',
             'printertype',
+            'id',
             'groupid',
             'sub',
             'crit',
             'sort',
             'confirm',
+            'tab',
             'type',
         ];
-        $getVars = [
-            'node',
-            'sub',
-            'id',
-            'tab'
-        ];
-
-        foreach ($getVars as &$x) {
-            global $$x;
-            $$x = trim(
-                filter_input(INPUT_GET, $x)
-            );
-            unset($x);
-        }
         /**
          * Sets our variables to always be trimmed.
          */
@@ -301,6 +291,23 @@ class Initiator
                 $_REQUEST[$x] = $$x = trim($_REQUEST[$x]);
             }
             unset($x);
+        }
+        /**
+         * Sometimes these items might not be set, for some reason or other.
+         *
+         * Ensure we get them from the url if possible.
+         */
+        if (!$node) {
+            $node = filter_input(INPUT_GET, 'node');
+        }
+        if (!$sub) {
+            $sub = filter_input(INPUT_GET, 'sub');
+        }
+        if (!$tab) {
+            $tab = filter_input(INPUT_GET, 'tab');
+        }
+        if (!$id) {
+            $id = filter_input(INPUT_GET, 'id');
         }
         /**
          * Initialize the system itself.
