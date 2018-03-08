@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-07 19:11-0500\n"
+"POT-Creation-Date: 2018-03-08 00:19-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1891,11 +1891,44 @@ msgid "Allows editing/creating of Task States fog currently has."
 msgstr ""
 
 #, fuzzy
+msgid "List All Roles"
+msgstr "Lister tous les %s"
+
+#, fuzzy
+msgid "Create New Role"
+msgstr "Créer un nouveau %s"
+
+#, fuzzy
+msgid "Export Roles"
+msgstr "Les hôtes à l'exportation"
+
+#, fuzzy
+msgid "Import Roles"
+msgstr "Hôtes d'importation"
+
+#, fuzzy
+msgid "List All Rules"
+msgstr "Lister tous les %s"
+
+#, fuzzy
+msgid "Create New Rule"
+msgstr "Créer un nouveau %s"
+
+#, fuzzy
+msgid "Export Rules"
+msgstr "Réussi"
+
+#, fuzzy
+msgid "Import Rules"
+msgstr "Hôtes d'importation"
+
+#, fuzzy
 msgid "Access Controls"
 msgstr "Tous les contrôles d'accès"
 
-msgid "Delete Selected"
-msgstr "Supprimer sélectionnée"
+#, fuzzy
+msgid "Access Control Rules"
+msgstr "Tous les contrôles d'accès"
 
 #, fuzzy
 msgid "Role"
@@ -1906,214 +1939,118 @@ msgid "User Access Control"
 msgstr "Contrôle d'accès"
 
 #, fuzzy
-msgid "Export Accesscontrols"
-msgstr "Contrôle d'accès"
-
-#, fuzzy
-msgid "Import Accesscontrols"
-msgstr "Contrôle d'accès"
-
-#, fuzzy
-msgid "Rule Association"
-msgstr "Association Image"
-
-#, fuzzy
 msgid "Role Name"
 msgstr "Nom du module"
-
-#, fuzzy
-msgid "Rule type"
-msgstr "Type de module"
-
-msgid "Rule value"
-msgstr ""
-
-#, fuzzy
-msgid "Parent Node"
-msgstr "Modèle d'imprimante"
-
-#, fuzzy, php-format
-msgid "%s ID %d is not valid"
-msgstr "%s ID %s est pas valide"
-
-#, fuzzy, php-format
-msgid "List all roles"
-msgstr "Lister tous les %s"
-
-#, fuzzy, php-format
-msgid "Add new role"
-msgstr "Ajouter un compte d'utilisateur"
-
-#, fuzzy, php-format
-msgid "List all rules"
-msgstr "Lister tous les %s"
-
-#, fuzzy, php-format
-msgid "Add new rule"
-msgstr "Ajouter un compte d'utilisateur"
 
 #, fuzzy
 msgid "Role Description"
 msgstr "La description"
 
 #, fuzzy
-msgid "New Role"
-msgstr "Nouveau menu"
+msgid "Access Control Name"
+msgstr "Tous les contrôles d'accès"
 
 #, fuzzy
-msgid "Create New Access Control Role"
-msgstr "Tous les contrôles d'accès"
+msgid "A role name is required!"
+msgstr "Un nom de l'image est nécessaire!"
 
 #, fuzzy
 msgid "A role already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
 
 #, fuzzy
-msgid "Add role failed!"
-msgstr "Ajouter SnapIn a échoué!"
-
-#, fuzzy
-msgid "Role added!"
-msgstr "Nom de l'imprimante"
-
-#, fuzzy
-msgid "Role Create Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Role Create Fail"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Access Control Role General"
+msgid "Add access control failed!"
 msgstr "Tous les contrôles d'accès"
 
 #, fuzzy
-msgid "Role update failed!"
-msgstr "mise à jour de l'utilisateur a échoué"
-
-#, fuzzy
-msgid "Role updated!"
-msgstr "Updater Client"
-
-#, fuzzy
-msgid "Role Update Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Role Update Fail"
-msgstr "Groupe create a échoué"
-
-#, fuzzy
-msgid "Access Control Rules"
+msgid "Access Control added!"
 msgstr "Tous les contrôles d'accès"
 
-msgid "Value"
-msgstr "Valeur"
+#, fuzzy
+msgid "Access Control Create Success"
+msgstr "snapin mise à jour"
 
 #, fuzzy
-msgid "Parent"
-msgstr "Pour cent"
+msgid "Access Control Create Fail"
+msgstr "snapin mise à jour"
 
-#, fuzzy
-msgid "New Rule"
-msgstr "Nouveau menu"
-
-#, fuzzy
-msgid "Rule Type"
-msgstr "Type de module"
-
-#, fuzzy
-msgid "Node Parent"
-msgstr "Pour cent"
-
-#, fuzzy
-msgid "Rule Value"
-msgstr "Valeur"
-
-#, fuzzy
-msgid "Create Rule?"
-msgstr "Créer un utilisateur"
-
-#, fuzzy
-msgid "Rule already Exists, please try again."
-msgstr "Localisation existe déjà, s'il vous plaît essayer à nouveau."
-
-#, fuzzy
-msgid "Please enter a value for this rule."
-msgstr "S'il vous plaît entrer un nom pour cette adresse."
-
-#, fuzzy
-msgid "Rule Added, editing!"
-msgstr "Lieu Ajouté, édition!"
-
-msgid "Failed to update"
-msgstr "Impossible de mettre à jour"
-
-#, fuzzy
-msgid "Rule Updated"
-msgstr "Updater Client"
-
-#, fuzzy
-msgid "Fail to delete rule"
-msgstr "Impossible de supprimer le fichier"
-
-msgid "Rule Delete Success"
+msgid "Use the selector to choose how many items you want exported."
 msgstr ""
 
-#, fuzzy
-msgid "Rule name"
-msgstr "Nom du module"
-
-#, fuzzy
-msgid "Check here to see rules not within this"
-msgstr "Vérifiez ici pour voir les groupes non affecté cette image"
-
-#, fuzzy
-msgid "Modify Rule Membership for"
-msgstr "Modifier adhésion pour"
-
-#, fuzzy
-msgid "rule"
-msgstr "Résultats"
-
-#, fuzzy
-msgid "to"
-msgstr "Auto"
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
+msgstr ""
 
 #, fuzzy
 msgid "Rule Name"
 msgstr "Nom du module"
 
 #, fuzzy
-msgid "from"
-msgstr "De"
+msgid "Rule Parent"
+msgstr "Nom du module"
 
 #, fuzzy
-msgid "Not role selected"
-msgstr "Aucun hôtes ont été sélectionnés"
+msgid "Rule Type"
+msgstr "Type de module"
 
 #, fuzzy
-msgid "Not rule selected"
-msgstr "Aucun hôtes ont été sélectionnés"
+msgid "Rule Value"
+msgstr "Valeur"
 
 #, fuzzy
-msgid "Friendly Name"
-msgstr "Nom Kernel"
+msgid "Rule Node"
+msgstr "Nom du module"
 
 #, fuzzy
-msgid "Check here to see users not within this"
-msgstr "Vérifiez ici pour voir les groupes non affecté cette image"
-
-msgid "Modify Membership for"
-msgstr "Modifier adhésion pour"
+msgid "A rule already exists with the generated name!"
+msgstr "Une image existe déjà avec ce nom!"
 
 #, fuzzy
-msgid "user"
-msgstr "Utilisateur"
+msgid "A rule already exists with this value!"
+msgstr "Une image existe déjà avec ce nom!"
 
-msgid "saved successfully"
-msgstr "sauvegarde réussie"
+#, fuzzy
+msgid "Add rule failed!"
+msgstr "Ajouter SnapIn a échoué!"
+
+#, fuzzy
+msgid "Rule added!"
+msgstr "Nom de l'imprimante"
+
+#, fuzzy
+msgid "Rule Create Success"
+msgstr "Imprimante existe déjà"
+
+#, fuzzy
+msgid "Rule Create Fail"
+msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+msgid "A value already exists with this content!"
+msgstr "Une image existe déjà avec ce nom!"
+
+#, fuzzy
+msgid "A name with this type-value pair already exists!"
+msgstr "Un nom d'hôte avec ce nom existe déjà."
+
+#, fuzzy
+msgid "Rule update failed!"
+msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+msgid "Rule updated!"
+msgstr "Imprimante mis à jour!"
+
+#, fuzzy
+msgid "Rule Update Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Rule Update Fail"
+msgstr "Groupe create a échoué"
 
 #, fuzzy
 msgid "LDAP Servers"
@@ -2357,12 +2294,6 @@ msgstr "Chercher"
 #, fuzzy
 msgid "Result"
 msgstr "Résultats"
-
-msgid "Unable to determine plugin details"
-msgstr "Impossible de déterminer les détails du plugin"
-
-msgid "Plugin Description"
-msgstr "Plugin description de"
 
 msgid "FOG Snapin Log"
 msgstr "FOG Snapin Connexion"
@@ -3329,6 +3260,10 @@ msgid "see the forums or lookup the commands and scripts available"
 msgstr ""
 
 #, fuzzy
+msgid "from"
+msgstr "De"
+
+#, fuzzy
 msgid "Menu Item"
 msgstr "Élément du menu:"
 
@@ -3722,19 +3657,9 @@ msgstr "Nœud de stockage Mise à jour"
 msgid "Storage Node Update Fail"
 msgstr "Nœud de stockage Mise à jour"
 
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
 msgid ""
 "All columns less the id field will be exported. Column visibility does not "
 "affect the exported items."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
 msgstr ""
 
 #, fuzzy
@@ -4330,13 +4255,6 @@ msgstr "Installation / Mise à jour réussie!"
 msgid "Host Add to Group Fail"
 msgstr "Ajouter au groupe"
 
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searchedand the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
-
 #, fuzzy
 msgid "Create New Group"
 msgstr "nœud de stockage"
@@ -4607,6 +4525,9 @@ msgstr "Nom Plugin"
 
 msgid "Unable to determine plugin details."
 msgstr "Impossible de déterminer les détails du plugin."
+
+msgid "Plugin Description"
+msgstr "Plugin description de"
 
 msgid "Plugin Installation"
 msgstr "Installation Plugin"
@@ -5083,6 +5004,10 @@ msgstr ""
 
 msgid "To view a report, select an item from the menu"
 msgstr ""
+
+#, fuzzy
+msgid "Friendly Name"
+msgstr "Nom Kernel"
 
 msgid "API?"
 msgstr ""
@@ -6345,6 +6270,9 @@ msgstr "Objet"
 msgid "Array"
 msgstr ""
 
+msgid "Value"
+msgstr "Valeur"
+
 #, fuzzy
 msgid "Set Failed"
 msgstr "Échoué"
@@ -6422,6 +6350,10 @@ msgstr "Vous êtes seulement autorisé à attribuer"
 #, fuzzy
 msgid "ID Must be set to edit"
 msgstr "Doit être crypté"
+
+#, fuzzy, php-format
+msgid "%s ID %d is not valid"
+msgstr "%s ID %s est pas valide"
 
 msgid "Inventory ID"
 msgstr "N ° d'inventaire"

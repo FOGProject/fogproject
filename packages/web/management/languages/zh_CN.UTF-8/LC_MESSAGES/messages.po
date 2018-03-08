@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-07 19:11-0500\n"
+"POT-Creation-Date: 2018-03-08 00:19-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1886,11 +1886,44 @@ msgid "Allows editing/creating of Task States fog currently has."
 msgstr ""
 
 #, fuzzy
+msgid "List All Roles"
+msgstr "列表中的所有%s"
+
+#, fuzzy
+msgid "Create New Role"
+msgstr "新建%s"
+
+#, fuzzy
+msgid "Export Roles"
+msgstr "主机出口"
+
+#, fuzzy
+msgid "Import Roles"
+msgstr "进口主机"
+
+#, fuzzy
+msgid "List All Rules"
+msgstr "列表中的所有%s"
+
+#, fuzzy
+msgid "Create New Rule"
+msgstr "新建%s"
+
+#, fuzzy
+msgid "Export Rules"
+msgstr "成功"
+
+#, fuzzy
+msgid "Import Rules"
+msgstr "进口主机"
+
+#, fuzzy
 msgid "Access Controls"
 msgstr "所有访问控制"
 
-msgid "Delete Selected"
-msgstr "删除所选"
+#, fuzzy
+msgid "Access Control Rules"
+msgstr "所有访问控制"
 
 #, fuzzy
 msgid "Role"
@@ -1901,214 +1934,118 @@ msgid "User Access Control"
 msgstr "访问控制"
 
 #, fuzzy
-msgid "Export Accesscontrols"
-msgstr "访问控制"
-
-#, fuzzy
-msgid "Import Accesscontrols"
-msgstr "访问控制"
-
-#, fuzzy
-msgid "Rule Association"
-msgstr "图像协会"
-
-#, fuzzy
 msgid "Role Name"
 msgstr "模块名称"
-
-#, fuzzy
-msgid "Rule type"
-msgstr "模块类型"
-
-msgid "Rule value"
-msgstr ""
-
-#, fuzzy
-msgid "Parent Node"
-msgstr "打印机型号"
-
-#, fuzzy, php-format
-msgid "%s ID %d is not valid"
-msgstr "%s ID %s是无效的"
-
-#, fuzzy, php-format
-msgid "List all roles"
-msgstr "列表中的所有%s"
-
-#, fuzzy, php-format
-msgid "Add new role"
-msgstr "添加新的用户帐户"
-
-#, fuzzy, php-format
-msgid "List all rules"
-msgstr "列表中的所有%s"
-
-#, fuzzy, php-format
-msgid "Add new rule"
-msgstr "添加新的用户帐户"
 
 #, fuzzy
 msgid "Role Description"
 msgstr "描述"
 
 #, fuzzy
-msgid "New Role"
-msgstr "新菜单"
+msgid "Access Control Name"
+msgstr "所有访问控制"
 
 #, fuzzy
-msgid "Create New Access Control Role"
-msgstr "所有访问控制"
+msgid "A role name is required!"
+msgstr "图像名是必需的！"
 
 #, fuzzy
 msgid "A role already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
-msgid "Add role failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "Role added!"
-msgstr "打印机名称"
-
-#, fuzzy
-msgid "Role Create Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Role Create Fail"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Access Control Role General"
+msgid "Add access control failed!"
 msgstr "所有访问控制"
 
 #, fuzzy
-msgid "Role update failed!"
-msgstr "用户更新失败"
-
-#, fuzzy
-msgid "Role updated!"
-msgstr "客户端更新"
-
-#, fuzzy
-msgid "Role Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Role Update Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "Access Control Rules"
+msgid "Access Control added!"
 msgstr "所有访问控制"
 
-msgid "Value"
-msgstr "值"
+#, fuzzy
+msgid "Access Control Create Success"
+msgstr "更新管理单元"
 
 #, fuzzy
-msgid "Parent"
-msgstr "百分"
+msgid "Access Control Create Fail"
+msgstr "更新管理单元"
 
-#, fuzzy
-msgid "New Rule"
-msgstr "新菜单"
-
-#, fuzzy
-msgid "Rule Type"
-msgstr "模块类型"
-
-#, fuzzy
-msgid "Node Parent"
-msgstr "百分"
-
-#, fuzzy
-msgid "Rule Value"
-msgstr "值"
-
-#, fuzzy
-msgid "Create Rule?"
-msgstr "创建用户"
-
-#, fuzzy
-msgid "Rule already Exists, please try again."
-msgstr "位置已经存在，请重试。"
-
-#, fuzzy
-msgid "Please enter a value for this rule."
-msgstr "这个地址输入名称。"
-
-#, fuzzy
-msgid "Rule Added, editing!"
-msgstr "位置添加，编辑！"
-
-msgid "Failed to update"
-msgstr "无法更新"
-
-#, fuzzy
-msgid "Rule Updated"
-msgstr "客户端更新"
-
-#, fuzzy
-msgid "Fail to delete rule"
-msgstr "无法删除文件"
-
-msgid "Rule Delete Success"
+msgid "Use the selector to choose how many items you want exported."
 msgstr ""
 
-#, fuzzy
-msgid "Rule name"
-msgstr "模块名称"
-
-#, fuzzy
-msgid "Check here to see rules not within this"
-msgstr "请查看这里以组未分配此图片"
-
-#, fuzzy
-msgid "Modify Rule Membership for"
-msgstr "修改为会员"
-
-#, fuzzy
-msgid "rule"
-msgstr "结果"
-
-#, fuzzy
-msgid "to"
-msgstr "汽车"
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
+msgstr ""
 
 #, fuzzy
 msgid "Rule Name"
 msgstr "模块名称"
 
 #, fuzzy
-msgid "from"
-msgstr "从"
+msgid "Rule Parent"
+msgstr "模块名称"
 
 #, fuzzy
-msgid "Not role selected"
-msgstr "没有选定主机"
+msgid "Rule Type"
+msgstr "模块类型"
 
 #, fuzzy
-msgid "Not rule selected"
-msgstr "没有选定主机"
+msgid "Rule Value"
+msgstr "值"
 
 #, fuzzy
-msgid "Friendly Name"
-msgstr "内核名称"
+msgid "Rule Node"
+msgstr "模块名称"
 
 #, fuzzy
-msgid "Check here to see users not within this"
-msgstr "请查看这里以组未分配此图片"
-
-msgid "Modify Membership for"
-msgstr "修改为会员"
+msgid "A rule already exists with the generated name!"
+msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
-msgid "user"
-msgstr "用户"
+msgid "A rule already exists with this value!"
+msgstr "图像已经存在具有此名称！"
 
-msgid "saved successfully"
-msgstr "保存成功"
+#, fuzzy
+msgid "Add rule failed!"
+msgstr "添加管理单元失败！"
+
+#, fuzzy
+msgid "Rule added!"
+msgstr "打印机名称"
+
+#, fuzzy
+msgid "Rule Create Success"
+msgstr "打印机已经存在"
+
+#, fuzzy
+msgid "Rule Create Fail"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "A value already exists with this content!"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+msgid "A name with this type-value pair already exists!"
+msgstr "使用此名称的主机名已经存在。"
+
+#, fuzzy
+msgid "Rule update failed!"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Rule updated!"
+msgstr "打印机更新！"
+
+#, fuzzy
+msgid "Rule Update Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Rule Update Fail"
+msgstr "集团创建失败"
 
 #, fuzzy
 msgid "LDAP Servers"
@@ -2352,12 +2289,6 @@ msgstr "搜索"
 #, fuzzy
 msgid "Result"
 msgstr "结果"
-
-msgid "Unable to determine plugin details"
-msgstr "无法确定插件的详细信息"
-
-msgid "Plugin Description"
-msgstr "插件说明"
 
 msgid "FOG Snapin Log"
 msgstr "FOG管理单元日志"
@@ -3311,6 +3242,10 @@ msgid "see the forums or lookup the commands and scripts available"
 msgstr ""
 
 #, fuzzy
+msgid "from"
+msgstr "从"
+
+#, fuzzy
 msgid "Menu Item"
 msgstr "菜单项："
 
@@ -3704,19 +3639,9 @@ msgstr "存储节点更新"
 msgid "Storage Node Update Fail"
 msgstr "存储节点更新"
 
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
 msgid ""
 "All columns less the id field will be exported. Column visibility does not "
 "affect the exported items."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
 msgstr ""
 
 #, fuzzy
@@ -4309,13 +4234,6 @@ msgstr "安装/升级成功！"
 msgid "Host Add to Group Fail"
 msgstr "添加到组"
 
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searchedand the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
-
 #, fuzzy
 msgid "Create New Group"
 msgstr "存储节点"
@@ -4585,6 +4503,9 @@ msgstr "插件名称"
 
 msgid "Unable to determine plugin details."
 msgstr "无法确定插件的详细信息。"
+
+msgid "Plugin Description"
+msgstr "插件说明"
 
 msgid "Plugin Installation"
 msgstr "插件安装"
@@ -5057,6 +4978,10 @@ msgstr ""
 
 msgid "To view a report, select an item from the menu"
 msgstr ""
+
+#, fuzzy
+msgid "Friendly Name"
+msgstr "内核名称"
 
 msgid "API?"
 msgstr ""
@@ -6313,6 +6238,9 @@ msgstr "目的"
 msgid "Array"
 msgstr ""
 
+msgid "Value"
+msgstr "值"
+
 #, fuzzy
 msgid "Set Failed"
 msgstr "失败"
@@ -6388,6 +6316,10 @@ msgstr "您只能分配"
 #, fuzzy
 msgid "ID Must be set to edit"
 msgstr "必须加密"
+
+#, fuzzy, php-format
+msgid "%s ID %d is not valid"
+msgstr "%s ID %s是无效的"
 
 msgid "Inventory ID"
 msgstr "库存ID"

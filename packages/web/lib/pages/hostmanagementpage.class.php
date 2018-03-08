@@ -3638,7 +3638,7 @@ class HostManagementPage extends FOGPage
         echo '<p class="help-block">';
         echo _(
             'When you click on the item you want to export, it can only select '
-            . 'what is currently viewable on the screen. This includes searched'
+            . 'what is currently viewable on the screen. This includes searched '
             . 'and the current page. Please use the selector to choose the amount '
             . 'of items you would like to export.'
         );
