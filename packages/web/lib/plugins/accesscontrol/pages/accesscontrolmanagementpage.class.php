@@ -296,7 +296,7 @@ class AccessControlManagementPage extends FOGPage
      *
      * @return void
      */
-    public function accesscontrolGeneralPost()
+    public function roleGeneralPost()
     {
         $role = trim(
             filter_input(INPUT_POST, 'role')

@@ -4,7 +4,9 @@ $(function() {
     };
     // ---------------------------------------------------------------
     // GENERAL TAB
-    var originalName = $('#role').val(),
+    var originalName = $('#type').val()
+        + '-'
+        + $('#value').val(),
         updateName = function(newName) {
             var e = $('#pageTitle'),
                 text = e.text();
@@ -29,8 +31,11 @@ $(function() {
             if (err) {
                 return;
             }
-            updateName($('#rule').val());
-            originalName = $('#rule').val();
+            name = $('#type').val()
+                + '-'
+                + $('#value').val();
+            updateName(name);
+            originalName = name;
         });
     });
     generalDeleteBtn.on('cilck', function() {
