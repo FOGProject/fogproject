@@ -32,7 +32,7 @@ class AccessControlRule extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'ruleID',
         'name' => 'ruleName',
         'type' => 'ruleType',
@@ -41,22 +41,14 @@ class AccessControlRule extends FOGController
         'createdBy' => 'ruleCreatedBy',
         'createdTime' => 'ruleCreatedTime',
         'node' => 'ruleNode'
-    );
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'type',
-        'value',
-    );
-    /**
-     * Additional fields
-     *
-     * @var array
-     */
-    protected $additionalFields = array(
-        'parent',
-    );
+        'value'
+    ];
 }

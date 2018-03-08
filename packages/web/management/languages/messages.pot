@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-07 19:19-0500\n"
+"POT-Creation-Date: 2018-03-08 00:19-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1702,10 +1702,34 @@ msgstr ""
 msgid "Allows editing/creating of Task States fog currently has."
 msgstr ""
 
+msgid "List All Roles"
+msgstr ""
+
+msgid "Create New Role"
+msgstr ""
+
+msgid "Export Roles"
+msgstr ""
+
+msgid "Import Roles"
+msgstr ""
+
+msgid "List All Rules"
+msgstr ""
+
+msgid "Create New Rule"
+msgstr ""
+
+msgid "Export Rules"
+msgstr ""
+
+msgid "Import Rules"
+msgstr ""
+
 msgid "Access Controls"
 msgstr ""
 
-msgid "Delete Selected"
+msgid "Access Control Rules"
 msgstr ""
 
 msgid "Role"
@@ -1714,171 +1738,92 @@ msgstr ""
 msgid "User Access Control"
 msgstr ""
 
-msgid "Export Accesscontrols"
-msgstr ""
-
-msgid "Import Accesscontrols"
-msgstr ""
-
-msgid "Rule Association"
-msgstr ""
-
 msgid "Role Name"
-msgstr ""
-
-msgid "Rule type"
-msgstr ""
-
-msgid "Rule value"
-msgstr ""
-
-msgid "Parent Node"
-msgstr ""
-
-#, php-format
-msgid "%s ID %d is not valid"
-msgstr ""
-
-#, php-format
-msgid "List all roles"
-msgstr ""
-
-#, php-format
-msgid "Add new role"
-msgstr ""
-
-#, php-format
-msgid "List all rules"
-msgstr ""
-
-#, php-format
-msgid "Add new rule"
 msgstr ""
 
 msgid "Role Description"
 msgstr ""
 
-msgid "New Role"
+msgid "Access Control Name"
 msgstr ""
 
-msgid "Create New Access Control Role"
+msgid "A role name is required!"
 msgstr ""
 
 msgid "A role already exists with this name!"
 msgstr ""
 
-msgid "Add role failed!"
+msgid "Add access control failed!"
 msgstr ""
 
-msgid "Role added!"
+msgid "Access Control added!"
 msgstr ""
 
-msgid "Role Create Success"
+msgid "Access Control Create Success"
 msgstr ""
 
-msgid "Role Create Fail"
+msgid "Access Control Create Fail"
 msgstr ""
 
-msgid "Access Control Role General"
+msgid "Use the selector to choose how many items you want exported."
 msgstr ""
 
-msgid "Role update failed!"
-msgstr ""
-
-msgid "Role updated!"
-msgstr ""
-
-msgid "Role Update Success"
-msgstr ""
-
-msgid "Role Update Fail"
-msgstr ""
-
-msgid "Access Control Rules"
-msgstr ""
-
-msgid "Value"
-msgstr ""
-
-msgid "Parent"
-msgstr ""
-
-msgid "New Rule"
-msgstr ""
-
-msgid "Rule Type"
-msgstr ""
-
-msgid "Node Parent"
-msgstr ""
-
-msgid "Rule Value"
-msgstr ""
-
-msgid "Create Rule?"
-msgstr ""
-
-msgid "Rule already Exists, please try again."
-msgstr ""
-
-msgid "Please enter a value for this rule."
-msgstr ""
-
-msgid "Rule Added, editing!"
-msgstr ""
-
-msgid "Failed to update"
-msgstr ""
-
-msgid "Rule Updated"
-msgstr ""
-
-msgid "Fail to delete rule"
-msgstr ""
-
-msgid "Rule Delete Success"
-msgstr ""
-
-msgid "Rule name"
-msgstr ""
-
-msgid "Check here to see rules not within this"
-msgstr ""
-
-msgid "Modify Rule Membership for"
-msgstr ""
-
-msgid "rule"
-msgstr ""
-
-msgid "to"
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
 msgstr ""
 
 msgid "Rule Name"
 msgstr ""
 
-msgid "from"
+msgid "Rule Parent"
 msgstr ""
 
-msgid "Not role selected"
+msgid "Rule Type"
 msgstr ""
 
-msgid "Not rule selected"
+msgid "Rule Value"
 msgstr ""
 
-msgid "Friendly Name"
+msgid "Rule Node"
 msgstr ""
 
-msgid "Check here to see users not within this"
+msgid "A rule already exists with the generated name!"
 msgstr ""
 
-msgid "Modify Membership for"
+msgid "A rule already exists with this value!"
 msgstr ""
 
-msgid "user"
+msgid "Add rule failed!"
 msgstr ""
 
-msgid "saved successfully"
+msgid "Rule added!"
+msgstr ""
+
+msgid "Rule Create Success"
+msgstr ""
+
+msgid "Rule Create Fail"
+msgstr ""
+
+msgid "A value already exists with this content!"
+msgstr ""
+
+msgid "A name with this type-value pair already exists!"
+msgstr ""
+
+msgid "Rule update failed!"
+msgstr ""
+
+msgid "Rule updated!"
+msgstr ""
+
+msgid "Rule Update Success"
+msgstr ""
+
+msgid "Rule Update Fail"
 msgstr ""
 
 msgid "LDAP Servers"
@@ -2080,12 +2025,6 @@ msgid "Search Method"
 msgstr ""
 
 msgid "Result"
-msgstr ""
-
-msgid "Unable to determine plugin details"
-msgstr ""
-
-msgid "Plugin Description"
 msgstr ""
 
 msgid "FOG Snapin Log"
@@ -2946,6 +2885,9 @@ msgstr ""
 msgid "see the forums or lookup the commands and scripts available"
 msgstr ""
 
+msgid "from"
+msgstr ""
+
 msgid "Menu Item"
 msgstr ""
 
@@ -3267,19 +3209,9 @@ msgstr ""
 msgid "Storage Node Update Fail"
 msgstr ""
 
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
 msgid ""
 "All columns less the id field will be exported. Column visibility does not "
 "affect the exported items."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
 msgstr ""
 
 msgid "Started By"
@@ -3783,13 +3715,6 @@ msgstr ""
 msgid "Host Add to Group Fail"
 msgstr ""
 
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searchedand the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
-
 msgid "Create New Group"
 msgstr ""
 
@@ -4006,6 +3931,9 @@ msgid "Plugin Name"
 msgstr ""
 
 msgid "Unable to determine plugin details."
+msgstr ""
+
+msgid "Plugin Description"
 msgstr ""
 
 msgid "Plugin Installation"
@@ -4414,6 +4342,9 @@ msgid "is going on with your FOG System"
 msgstr ""
 
 msgid "To view a report, select an item from the menu"
+msgstr ""
+
+msgid "Friendly Name"
 msgstr ""
 
 msgid "API?"
@@ -5490,6 +5421,9 @@ msgstr ""
 msgid "Array"
 msgstr ""
 
+msgid "Value"
+msgstr ""
+
 msgid "Set Failed"
 msgstr ""
 
@@ -5551,6 +5485,10 @@ msgid "You are only allowed to assign"
 msgstr ""
 
 msgid "ID Must be set to edit"
+msgstr ""
+
+#, php-format
+msgid "%s ID %d is not valid"
 msgstr ""
 
 msgid "Inventory ID"

@@ -297,17 +297,16 @@ class GroupManagementPage extends FOGPage
             );
         }
         //header('Location: ../management/index.php?node=group&sub=edit&id=' . $Group->get('id'));
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'Group' => &$Group,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Group' => &$Group,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
         http_response_code($code);
         unset($Group);
         echo $msg;
@@ -674,14 +673,13 @@ class GroupManagementPage extends FOGPage
             ) => $imageSelection
         ];
 
-        self::$HookManager
-            ->processEvent(
-                'GROUP_IMAGE_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'Group' => &$this->obj
-                ]
-            );
+        self::$HookManager->processEvent(
+            'GROUP_IMAGE_FIELDS',
+            [
+                'fields' => &$fields,
+                'Group' => &$this->obj
+            ]
+        );
         $rendered = self::formFields($fields);
         unset($fields);
 
@@ -1836,17 +1834,16 @@ class GroupManagementPage extends FOGPage
                 ]
             );
         }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'Group' => &$this->obj,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Group' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
         http_response_code($code);
         echo $msg;
         exit;
@@ -2123,7 +2120,7 @@ class GroupManagementPage extends FOGPage
         echo '<p class="help-block">';
         echo _(
             'When you click on the item you want to export, it can only select '
-            . 'what is currently viewable on the screen. This includes searched'
+            . 'what is currently viewable on the screen. This includes searched '
             . 'and the current page. Please use the selector to choose the amount '
             . 'of items you would like to export.'
         );
