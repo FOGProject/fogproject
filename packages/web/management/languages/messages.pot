@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-08 00:19-0500\n"
+"POT-Creation-Date: 2018-03-08 00:38-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1765,6 +1765,21 @@ msgstr ""
 msgid "Access Control Create Fail"
 msgstr ""
 
+msgid "A role with this name already exists!"
+msgstr ""
+
+msgid "Role update failed!"
+msgstr ""
+
+msgid "Role updated!"
+msgstr ""
+
+msgid "Rule Update Success"
+msgstr ""
+
+msgid "Role Update Fail"
+msgstr ""
+
 msgid "Use the selector to choose how many items you want exported."
 msgstr ""
 
@@ -1818,9 +1833,6 @@ msgid "Rule update failed!"
 msgstr ""
 
 msgid "Rule updated!"
-msgstr ""
-
-msgid "Rule Update Success"
 msgstr ""
 
 msgid "Rule Update Fail"

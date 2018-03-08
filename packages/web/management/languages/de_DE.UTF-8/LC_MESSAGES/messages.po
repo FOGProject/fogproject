@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-08 00:19-0500\n"
+"POT-Creation-Date: 2018-03-08 00:35-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -1971,6 +1971,26 @@ msgstr "Snapin erfolgreich hinzugefügt"
 msgid "Access Control Create Fail"
 msgstr "Snapin erstellen fehlgeschlagen"
 
+#, fuzzy
+msgid "A role with this name already exists!"
+msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
+
+#, fuzzy
+msgid "Role update failed!"
+msgstr "Drucker-Update fehlgeschlagen!"
+
+#, fuzzy
+msgid "Role updated!"
+msgstr "Drucker aktualisiert!"
+
+#, fuzzy
+msgid "Rule Update Success"
+msgstr "Modulupdate erfolgreich"
+
+#, fuzzy
+msgid "Role Update Fail"
+msgstr "Modulupdate fehlgeschlagen"
+
 msgid "Use the selector to choose how many items you want exported."
 msgstr ""
 
@@ -2040,10 +2060,6 @@ msgstr "Drucker-Update fehlgeschlagen!"
 #, fuzzy
 msgid "Rule updated!"
 msgstr "Drucker aktualisiert!"
-
-#, fuzzy
-msgid "Rule Update Success"
-msgstr "Modulupdate erfolgreich"
 
 #, fuzzy
 msgid "Rule Update Fail"

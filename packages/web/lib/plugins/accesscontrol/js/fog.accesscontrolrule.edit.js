@@ -13,7 +13,7 @@ $(function() {
             e.text(text);
         };
 
-    var generalForm = $('#role-general-form'),
+    var generalForm = $('#rule-general-form'),
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete');
 
@@ -29,8 +29,8 @@ $(function() {
             if (err) {
                 return;
             }
-            updateName($('#role').val());
-            originalName = $('#role').val();
+            updateName($('#rule').val());
+            originalName = $('#rule').val();
         });
     });
     generalDeleteBtn.on('cilck', function() {

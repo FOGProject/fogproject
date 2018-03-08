@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-08 00:19-0500\n"
+"POT-Creation-Date: 2018-03-08 00:35-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2149,6 +2149,26 @@ msgstr "Nombre snapin"
 msgid "Access Control Create Fail"
 msgstr "Nombre snapin"
 
+#, fuzzy
+msgid "A role with this name already exists!"
+msgstr "Sesión con ese nombre ya existe"
+
+#, fuzzy
+msgid "Role update failed!"
+msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+msgid "Role updated!"
+msgstr "Impresora actualiza!"
+
+#, fuzzy
+msgid "Rule Update Success"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "Role Update Fail"
+msgstr "Grupo Error de creación"
+
 msgid "Use the selector to choose how many items you want exported."
 msgstr ""
 
@@ -2218,10 +2238,6 @@ msgstr "actualización de la impresora ha fallado!"
 #, fuzzy
 msgid "Rule updated!"
 msgstr "Impresora actualiza!"
-
-#, fuzzy
-msgid "Rule Update Success"
-msgstr "creado por el usuario"
 
 #, fuzzy
 msgid "Rule Update Fail"

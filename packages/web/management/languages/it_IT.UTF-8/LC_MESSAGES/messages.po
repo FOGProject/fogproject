@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-08 00:19-0500\n"
+"POT-Creation-Date: 2018-03-08 00:35-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1853,6 +1853,26 @@ msgstr "Creazione Snapin completata"
 msgid "Access Control Create Fail"
 msgstr "Creazione Snapin fallita"
 
+#, fuzzy
+msgid "A role with this name already exists!"
+msgstr "Un nome host con questo nome esiste già"
+
+#, fuzzy
+msgid "Role update failed!"
+msgstr "Aggiornamento della stampante non è riuscito!"
+
+#, fuzzy
+msgid "Role updated!"
+msgstr "aggiornato stampante!"
+
+#, fuzzy
+msgid "Rule Update Success"
+msgstr "Aggiornamento del modulo completato"
+
+#, fuzzy
+msgid "Role Update Fail"
+msgstr "Aggiornamento modulo non riuscito"
+
 msgid "Use the selector to choose how many items you want exported."
 msgstr ""
 
@@ -1919,10 +1939,6 @@ msgstr "Aggiornamento della stampante non è riuscito!"
 #, fuzzy
 msgid "Rule updated!"
 msgstr "aggiornato stampante!"
-
-#, fuzzy
-msgid "Rule Update Success"
-msgstr "Aggiornamento del modulo completato"
 
 #, fuzzy
 msgid "Rule Update Fail"

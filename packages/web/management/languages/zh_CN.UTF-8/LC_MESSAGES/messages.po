@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-08 00:19-0500\n"
+"POT-Creation-Date: 2018-03-08 00:35-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1969,6 +1969,26 @@ msgstr "更新管理单元"
 msgid "Access Control Create Fail"
 msgstr "更新管理单元"
 
+#, fuzzy
+msgid "A role with this name already exists!"
+msgstr "使用此名称的主机名已经存在。"
+
+#, fuzzy
+msgid "Role update failed!"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Role updated!"
+msgstr "打印机更新！"
+
+#, fuzzy
+msgid "Rule Update Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Role Update Fail"
+msgstr "集团创建失败"
+
 msgid "Use the selector to choose how many items you want exported."
 msgstr ""
 
@@ -2038,10 +2058,6 @@ msgstr "打印机更新失败！"
 #, fuzzy
 msgid "Rule updated!"
 msgstr "打印机更新！"
-
-#, fuzzy
-msgid "Rule Update Success"
-msgstr "用户创建"
 
 #, fuzzy
 msgid "Rule Update Fail"
