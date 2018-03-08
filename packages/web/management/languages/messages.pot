@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 23:12-0500\n"
+"POT-Creation-Date: 2018-03-07 19:11-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3796,7 +3796,7 @@ msgstr ""
 msgid "Group Description"
 msgstr ""
 
-msgid "Group Product Key"
+msgid "Group Kernel"
 msgstr ""
 
 msgid "Group Kernel Arguments"
@@ -3826,13 +3826,13 @@ msgstr ""
 msgid "Group Create Fail"
 msgstr ""
 
-msgid "Group Kernel"
+msgid "Group Product Key"
 msgstr ""
 
-msgid "Group Bios Exit Type"
+msgid "Group BIOS Exit"
 msgstr ""
 
-msgid "Group EFI Exit Type"
+msgid "Group EFI Exit"
 msgstr ""
 
 msgid "Please use another group name"
@@ -3845,6 +3845,17 @@ msgid "Group Hosts"
 msgstr ""
 
 msgid "Group Printer Configuration"
+msgstr ""
+
+msgid ""
+"This setting turns off all FOG Printer Management. Although there are "
+"multiple levels already, this  is just another level if needed."
+msgstr ""
+
+msgid "Add/Remove Managed Printers"
+msgstr ""
+
+msgid "All Printers"
 msgstr ""
 
 msgid ""

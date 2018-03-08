@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 23:06-0500\n"
+"POT-Creation-Date: 2018-03-07 19:11-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4567,8 +4567,8 @@ msgstr "nodo de almacenamiento"
 msgid "Group Description"
 msgstr "Descripción del Grupo"
 
-msgid "Group Product Key"
-msgstr "Clave del producto Grupo"
+msgid "Group Kernel"
+msgstr "grupo Núcleo"
 
 msgid "Group Kernel Arguments"
 msgstr "Argumentos grupo Kernel"
@@ -4604,14 +4604,16 @@ msgstr "creado por el usuario"
 msgid "Group Create Fail"
 msgstr "Grupo Error de creación"
 
-msgid "Group Kernel"
-msgstr "grupo Núcleo"
+msgid "Group Product Key"
+msgstr "Clave del producto Grupo"
 
-msgid "Group Bios Exit Type"
-msgstr "Grupo Bios Tipo de salida"
+#, fuzzy
+msgid "Group BIOS Exit"
+msgstr "snapins"
 
-msgid "Group EFI Exit Type"
-msgstr "Grupo EFI Tipo de salida"
+#, fuzzy
+msgid "Group EFI Exit"
+msgstr "snapins"
 
 #, fuzzy
 msgid "Please use another group name"
@@ -4628,6 +4630,19 @@ msgstr "Grupo"
 #, fuzzy
 msgid "Group Printer Configuration"
 msgstr "Configuración de servicio"
+
+msgid ""
+"This setting turns off all FOG Printer Management. Although there are "
+"multiple levels already, this  is just another level if needed."
+msgstr ""
+
+#, fuzzy
+msgid "Add/Remove Managed Printers"
+msgstr "Impresoras FOG Managed"
+
+#, fuzzy
+msgid "All Printers"
+msgstr "impresora IP"
 
 msgid ""
 "This setting will only allow FO GAssigned printers to be added to the host. "

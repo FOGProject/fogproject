@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 23:06-0500\n"
+"POT-Creation-Date: 2018-03-07 19:11-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4337,8 +4337,8 @@ msgstr "Nó de armazenamento"
 msgid "Group Description"
 msgstr "descrição do grupo"
 
-msgid "Group Product Key"
-msgstr "Grupo de Chave de Produto"
+msgid "Group Kernel"
+msgstr "grupo Kernel"
 
 msgid "Group Kernel Arguments"
 msgstr "Argumentos Grupo Kernel"
@@ -4374,14 +4374,16 @@ msgstr "usuário criado"
 msgid "Group Create Fail"
 msgstr "Grupo Criar falhou"
 
-msgid "Group Kernel"
-msgstr "grupo Kernel"
+msgid "Group Product Key"
+msgstr "Grupo de Chave de Produto"
 
-msgid "Group Bios Exit Type"
-msgstr "Grupo Bios Tipo Exit"
+#, fuzzy
+msgid "Group BIOS Exit"
+msgstr "exportação Snapins"
 
-msgid "Group EFI Exit Type"
-msgstr "Grupo EFI Tipo Exit"
+#, fuzzy
+msgid "Group EFI Exit"
+msgstr "exportação Snapins"
 
 #, fuzzy
 msgid "Please use another group name"
@@ -4398,6 +4400,19 @@ msgstr "grupos"
 #, fuzzy
 msgid "Group Printer Configuration"
 msgstr "Configuração de serviço"
+
+msgid ""
+"This setting turns off all FOG Printer Management. Although there are "
+"multiple levels already, this  is just another level if needed."
+msgstr ""
+
+#, fuzzy
+msgid "Add/Remove Managed Printers"
+msgstr "FOG Managed Impressoras"
+
+#, fuzzy
+msgid "All Printers"
+msgstr "impressoras"
 
 #, fuzzy
 msgid ""

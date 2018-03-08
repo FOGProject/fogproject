@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 23:06-0500\n"
+"POT-Creation-Date: 2018-03-07 19:11-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4323,8 +4323,8 @@ msgstr "存储节点"
 msgid "Group Description"
 msgstr "团体简介"
 
-msgid "Group Product Key"
-msgstr "集团产品密钥"
+msgid "Group Kernel"
+msgstr "集团核心"
 
 msgid "Group Kernel Arguments"
 msgstr "集团内核参数"
@@ -4360,14 +4360,16 @@ msgstr "用户创建"
 msgid "Group Create Fail"
 msgstr "集团创建失败"
 
-msgid "Group Kernel"
-msgstr "集团核心"
+msgid "Group Product Key"
+msgstr "集团产品密钥"
 
-msgid "Group Bios Exit Type"
-msgstr "集团的Bios退出类型"
+#, fuzzy
+msgid "Group BIOS Exit"
+msgstr "出口Snapins"
 
-msgid "Group EFI Exit Type"
-msgstr "集团EFI退出类型"
+#, fuzzy
+msgid "Group EFI Exit"
+msgstr "出口Snapins"
 
 #, fuzzy
 msgid "Please use another group name"
@@ -4384,6 +4386,19 @@ msgstr "组"
 #, fuzzy
 msgid "Group Printer Configuration"
 msgstr "服务配置"
+
+msgid ""
+"This setting turns off all FOG Printer Management. Although there are "
+"multiple levels already, this  is just another level if needed."
+msgstr ""
+
+#, fuzzy
+msgid "Add/Remove Managed Printers"
+msgstr "FOG管理的打印机"
+
+#, fuzzy
+msgid "All Printers"
+msgstr "打印机"
 
 #, fuzzy
 msgid ""
