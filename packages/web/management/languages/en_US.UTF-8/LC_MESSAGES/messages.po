@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-08 00:19-0500\n"
+"POT-Creation-Date: 2018-03-08 00:35-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1972,6 +1972,26 @@ msgstr "Snapin updated"
 msgid "Access Control Create Fail"
 msgstr "Snapin updated"
 
+#, fuzzy
+msgid "A role with this name already exists!"
+msgstr "A hostname with that name already exists."
+
+#, fuzzy
+msgid "Role update failed!"
+msgstr "Printer update failed!"
+
+#, fuzzy
+msgid "Role updated!"
+msgstr "Printer updated!"
+
+#, fuzzy
+msgid "Rule Update Success"
+msgstr "User created"
+
+#, fuzzy
+msgid "Role Update Fail"
+msgstr "Group create failed"
+
 msgid "Use the selector to choose how many items you want exported."
 msgstr ""
 
@@ -2041,10 +2061,6 @@ msgstr "Printer update failed!"
 #, fuzzy
 msgid "Rule updated!"
 msgstr "Printer updated!"
-
-#, fuzzy
-msgid "Rule Update Success"
-msgstr "User created"
 
 #, fuzzy
 msgid "Rule Update Fail"
