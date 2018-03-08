@@ -38,7 +38,7 @@ class SubMenuData extends Hook
      *
      * @var bool
      */
-    public $active = true;
+    public $active = false;
     /**
      * The node to interact with.
      *

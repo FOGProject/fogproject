@@ -594,6 +594,7 @@ abstract class FOGPage extends FOGBase
         $node = strtolower($refNode);
         $refNode = ucfirst($refNode);
         $refNode = _($refNode);
+        $menu = [];
         $menu = [
             'list' => sprintf(
                 self::$foglang['ListAll'],
@@ -607,33 +608,6 @@ abstract class FOGPage extends FOGBase
             'add' => sprintf(
                 self::$foglang['CreateNew'],
                 $refNode
-            ),
-            (
-                'host' == $node ?
-                'pending' :
-                null
-            ) => (
-                'host' == $node ?
-                _('Pending Hosts') :
-                null
-            ),
-            (
-                'host' == $node ?
-                'pendingMacs' :
-                null
-            ) => (
-                'host' == $node ?
-                _('Pending MACs') :
-                null
-            ),
-            (
-                'image' == $node ?
-                'multicast' :
-                null
-            ) => (
-                'image' == $node ?
-                _('Multicast Image') :
-                null
             ),
             'export' => sprintf(
                 self::$foglang[
@@ -652,6 +626,68 @@ abstract class FOGPage extends FOGBase
                 ]
             ),
         ];
+        switch ($node) {
+        case 'home':
+        case 'client':
+        case 'report':
+        case 'schema':
+        case 'service':
+        case 'hwinfo':
+            $menu = [];
+            break;
+        case 'about':
+            $menu = [
+                'home' => self::$foglang['Home'],
+                'license' => self::$foglang['License'],
+                'kernelUpdate' => self::$foglang['KernelUpdate'],
+                'pxemenu' => self::$foglang['PXEBootMenu'],
+                'customizepxe' => self::$foglang['PXEConfiguration'],
+                'newMenu' => self::$foglang['NewMenu'],
+                'maclist' => self::$foglang['MACAddrList'],
+                'settings' => self::$foglang['FOGSettings'],
+                'logviewer' => self::$foglang['LogViewer'],
+                'config' => self::$foglang['ConfigSave']
+            ];
+            break;
+        case 'plugin':
+            $menu = [
+                'home' => self::$foglang['Home'],
+                'activate' => self::$foglang['ActivatePlugins'],
+                'install' => self::$foglang['InstallPlugins'],
+                'installed' => self::$foglang['InstalledPlugins']
+            ];
+            break;
+        case 'task':
+            $menu = [
+                'active' => self::$foglang['ActiveTasks'],
+                'activemulticast' => self::$foglang['ActiveMCTasks'],
+                'activesnapins' => self::$foglang['ActiveSnapins'],
+                'activescheduled' => self::$foglang['ScheduledTasks']
+            ];
+            break;
+        case 'image':
+            self::arrayInsertBefore(
+                'export',
+                $menu,
+                'multicast',
+                _('Multicast Image')
+            );
+            break;
+        case 'host':
+            self::arrayInsertBefore(
+                'export',
+                $menu,
+                'pending',
+                _('Pending Hosts')
+            );
+            self::arrayInsertBefore(
+                'export',
+                $menu,
+                'pendingMacs',
+                _('Pending MACs')
+            );
+            break;
+        }
 
         $menu = array_filter($menu);
 
