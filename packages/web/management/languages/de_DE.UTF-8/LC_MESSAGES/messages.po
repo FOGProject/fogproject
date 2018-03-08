@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 23:06-0500\n"
+"POT-Creation-Date: 2018-03-07 19:11-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4338,8 +4338,8 @@ msgstr "Speichergruppe erstellen"
 msgid "Group Description"
 msgstr "Gruppenbeschreibung"
 
-msgid "Group Product Key"
-msgstr "Produktschlüssel der Gruppe"
+msgid "Group Kernel"
+msgstr "Gruppe-Kernel"
 
 msgid "Group Kernel Arguments"
 msgstr "Gruppe-Kernel Argumente"
@@ -4375,14 +4375,16 @@ msgstr "Gruppe erfolgreich erstellt"
 msgid "Group Create Fail"
 msgstr "Gruppe erstellen fehlgeschlagen"
 
-msgid "Group Kernel"
-msgstr "Gruppe-Kernel"
+msgid "Group Product Key"
+msgstr "Produktschlüssel der Gruppe"
 
-msgid "Group Bios Exit Type"
-msgstr "Gruppen-BIOS-Exit-Typ"
+#, fuzzy
+msgid "Group BIOS Exit"
+msgstr "Gruppen-Snapins"
 
-msgid "Group EFI Exit Type"
-msgstr "Gruppe-EFI-Exit-Typ"
+#, fuzzy
+msgid "Group EFI Exit"
+msgstr "Gruppen-Snapins"
 
 #, fuzzy
 msgid "Please use another group name"
@@ -4399,6 +4401,19 @@ msgstr "Gruppen"
 #, fuzzy
 msgid "Group Printer Configuration"
 msgstr "Druckerkonfiguration"
+
+msgid ""
+"This setting turns off all FOG Printer Management. Although there are "
+"multiple levels already, this  is just another level if needed."
+msgstr ""
+
+#, fuzzy
+msgid "Add/Remove Managed Printers"
+msgstr "FOG-verwaltete Drucker"
+
+#, fuzzy
+msgid "All Printers"
+msgstr "Drucker"
 
 #, fuzzy
 msgid ""

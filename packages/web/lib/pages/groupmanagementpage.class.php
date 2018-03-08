@@ -772,8 +772,11 @@ class GroupManagementPage extends FOGPage
     public function groupHosts()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=group-hosts" ';
+            . self::makeTabUpdateURL(
+                'group-hosts',
+                $this->obj->get('id')
+            )
+            . '" ';
 
         echo '<!-- Hosts -->';
         echo '<div class="box-group" id="hosts">';
@@ -1128,8 +1131,11 @@ class GroupManagementPage extends FOGPage
     public function groupSnapins()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=group-snapins" ';
+            . self::makeTabUpdateURL(
+                'group-snapins',
+                $this->obj->get('id')
+            )
+            . '" ';
 
         echo '<!-- Snapins -->';
         echo '<div class="box-group" id="snapins">';
@@ -1219,8 +1225,12 @@ class GroupManagementPage extends FOGPage
     public function groupService()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=group-service" ';
+            . self::makeTabUpdateURL(
+                'group-service',
+                $this->obj->get('id')
+            )
+            . '" ';
+
         echo '<!-- Modules/Service Settings -->';
         echo '<div class="box-group" id="modules">';
         // =============================================================
@@ -1318,6 +1328,9 @@ class GroupManagementPage extends FOGPage
                 . ')'
             ]
         ];
+
+        $labelClass = 'col-sm-2 control-label';
+
         foreach ($names as $name => &$get) {
             switch ($name) {
             case 'r':
@@ -1331,25 +1344,36 @@ class GroupManagementPage extends FOGPage
                 break;
             }
             $fields[
-                '<label for="'
-                . $name
-                . '" class="col-sm-2 control-label">'
-                . $get[1]
-                . '</label>'
-            ] = '<input type="number" id="'
-            . $name
-            . '" class="form-control" name="'
-            . $name
-            . '" value="'
-            . $val
-            . '"/>';
+                self::makeLabel(
+                    $labelClass,
+                    $name,
+                    $get[1]
+                )
+            ] = self::makeInput(
+                'form-control',
+                $name,
+                '',
+                'number',
+                $name,
+                $val
+            );
             unset($get);
         }
+
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<form id="group-dispman" class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=group-service" novalidate>';
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'group-dispman',
+            self::makeTabUpdateURL(
+                'group-service',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -1361,12 +1385,21 @@ class GroupManagementPage extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
-        echo '<input type="hidden" name="dispmansend" value="1"/>';
+        echo self::makeInput(
+            '',
+            'dispmansend',
+            '',
+            'hidden',
+            '',
+            1
+        );
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="displayman-send">'
-            . _('Update')
-            . '</button>';
+        echo self::makeButton(
+            'displayman-send',
+            _('Update'),
+            'btn btn-primary'
+        );
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -1377,20 +1410,37 @@ class GroupManagementPage extends FOGPage
             $tme = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
         }
         $fields = [
-            '<label for="tme" class="col-sm-2 control-label">'
-            . _('Auto Logout Time')
-            . '<br/>('
-            . _('in minutes')
-            . ')</label>' => '<input type="number" name="tme" class="form-control" '
-            . 'value="'
-            . $tme
-            . '" id="tme"/>'
+            self::makeLabel(
+                $labelClass,
+                'tme',
+                _('Auto Logout Time')
+                . '<br/>('
+                . _('in minutes')
+                . ')'
+            ) => self::makeInput(
+                'form-control',
+                'tme',
+                '',
+                'number',
+                'tme',
+                $tme
+            )
         ];
+
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<form id="group-alo" class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=group-service" novalidate>';
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'group-alo',
+            self::makeTabUpdateURL(
+                'group-service',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-warning">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -1407,15 +1457,25 @@ class GroupManagementPage extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
-        echo '<input type="hidden" name="alosend" value="1"/>';
+        echo self::makeInput(
+            '',
+            'alosend',
+            '',
+            'hidden',
+            '',
+            1
+        );
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="alo-send">'
-            . _('Update')
-            . '</button>';
+        echo self::makeButton(
+            'alo-send',
+            _('Update'),
+            'btn btn-primary'
+        );
         echo '</div>';
         echo '</div>';
         echo '</form>';
+        
         // End Box Group
         echo '</div>';
     }
@@ -1558,15 +1618,6 @@ class GroupManagementPage extends FOGPage
         );
         $hostids = $this->obj->get('hosts');
         self::$Host = new Host(@max($hostids));
-        echo '<input type="hidden" name="hostID" value="'
-            . self::$Host->get('id')
-            . '"/>';
-        // Set Field Information
-        $printerLevel = (
-            $printerLevel ?
-            self::$Host->get('printerLevel') :
-            ''
-        );
         $useAD = (
             $aduse ?
             self::$Host->get('useAD') :

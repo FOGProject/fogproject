@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-06 23:06-0500\n"
+"POT-Creation-Date: 2018-03-07 19:11-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4344,8 +4344,8 @@ msgstr "nœud de stockage"
 msgid "Group Description"
 msgstr "Description du groupe"
 
-msgid "Group Product Key"
-msgstr "Groupe clé de produit"
+msgid "Group Kernel"
+msgstr "Groupe Kernel"
 
 msgid "Group Kernel Arguments"
 msgstr "Arguments Groupe Kernel"
@@ -4381,14 +4381,16 @@ msgstr "utilisateur créé"
 msgid "Group Create Fail"
 msgstr "Groupe create a échoué"
 
-msgid "Group Kernel"
-msgstr "Groupe Kernel"
+msgid "Group Product Key"
+msgstr "Groupe clé de produit"
 
-msgid "Group Bios Exit Type"
-msgstr "Groupe Bios Type de sortie"
+#, fuzzy
+msgid "Group BIOS Exit"
+msgstr "Export SnapIns"
 
-msgid "Group EFI Exit Type"
-msgstr "Groupe EFI Type de sortie"
+#, fuzzy
+msgid "Group EFI Exit"
+msgstr "Export SnapIns"
 
 #, fuzzy
 msgid "Please use another group name"
@@ -4405,6 +4407,19 @@ msgstr "Groupes"
 #, fuzzy
 msgid "Group Printer Configuration"
 msgstr "Configuration du service"
+
+msgid ""
+"This setting turns off all FOG Printer Management. Although there are "
+"multiple levels already, this  is just another level if needed."
+msgstr ""
+
+#, fuzzy
+msgid "Add/Remove Managed Printers"
+msgstr "Imprimantes BROUILLARD Géré"
+
+#, fuzzy
+msgid "All Printers"
+msgstr "Imprimantes"
 
 #, fuzzy
 msgid ""
