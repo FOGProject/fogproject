@@ -891,8 +891,11 @@ class ImageManagementPage extends FOGPage
     public function imageStoragegroups()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=image-storagegroups" ';
+            . self::makeTabUpdateURL(
+                'image-storagegroups',
+                $this->obj->get('id')
+            )
+            . '" ';
 
         echo '<!-- Storage Groups -->';
         echo '<div class="box-group" id="storagegroups">';
@@ -1013,8 +1016,11 @@ class ImageManagementPage extends FOGPage
     public function imageHosts()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=image-hosts" ';
+            . self::makeTabUpdateURL(
+                'image-hosts',
+                $this->obj->get('id')
+            )
+            . '" ';
 
         echo '<!-- Hosts -->';
         echo '<div class="box-group" id="hosts">';

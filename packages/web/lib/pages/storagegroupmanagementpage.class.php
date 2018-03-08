@@ -326,8 +326,11 @@ class StorageGroupManagementPage extends FOGPage
     public function storagegroupMembership()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=storagegroup-membership" ';
+            . self::makeTabUpdateURL(
+                'storagegroup-membership',
+                $this->obj->get('id')
+            )
+            . '" ';
 
         $buttons = self::makeButton(
             'membership-master',
