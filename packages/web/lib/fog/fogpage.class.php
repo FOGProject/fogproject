@@ -238,6 +238,7 @@ abstract class FOGPage extends FOGBase
             'PAGES_WITH_OBJECTS',
             ['PagesWithObjects' => &$this->PagesWithObjects]
         );
+
         global $node;
         global $type;
         global $sub;

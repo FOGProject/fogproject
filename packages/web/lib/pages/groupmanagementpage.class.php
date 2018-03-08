@@ -187,16 +187,16 @@ class GroupManagementPage extends FOGPage
                 $dev
             )
         ];
-        self::$HookManager
-            ->processEvent(
-                'GROUP_ADD_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'Group' => self::getClass('Group')
-                ]
-            );
+        self::$HookManager->processEvent(
+            'GROUP_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'Group' => self::getClass('Group')
+            ]
+        );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'group-create-form',
@@ -240,7 +240,7 @@ class GroupManagementPage extends FOGPage
         $group = trim(
             filter_input(INPUT_POST, 'group')
         );
-        $desc = trim(
+        $description = trim(
             filter_input(INPUT_POST, 'description')
         );
         $kern = trim(
@@ -269,7 +269,7 @@ class GroupManagementPage extends FOGPage
             }
             $Group = self::getClass('Group')
                 ->set('name', $group)
-                ->set('description', $desc)
+                ->set('description', $description)
                 ->set('kernel', $kern)
                 ->set('kernelArgs', $args)
                 ->set('kernelDevice', $dev)

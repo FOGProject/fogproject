@@ -53,21 +53,16 @@ class DelAccessControlMenuItem extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'MAIN_MENU_DATA',
-                array(
-                    $this,
-                    'deleteMenuData'
-                )
-            )
-            ->register(
-                'SUB_MENULINK_DATA',
-                array(
-                    $this,
-                    'deleteSubMenuData'
-                )
-            );
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        self::$HookManager->register(
+            'MAIN_MENU_DATA',
+            [$this, 'deleteMenuData']
+        )->register(
+            'SUB_MENULINK_DATA',
+            [$this, 'deleteSubMenuData']
+        );
     }
     /**
      * The menu data to change.
@@ -78,9 +73,6 @@ class DelAccessControlMenuItem extends Hook
      */
     public function deleteMenuData($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         $userID = self::getSubObjectIDs(
             'User',
             array(
