@@ -1438,7 +1438,7 @@ EOF
         *)
             if [[ $recreateCA == yes || $recreateKeys == yes || ! -f $etcconf ]]; then
                 if [[ $httpproto == https ]]; then
-                    echo "<VirtualHost *:80>" >> "$etcconf"
+                    echo "<VirtualHost *:80>" > "$etcconf"
                     echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
                     echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
                     echo "    </FilesMatch>" >> "$etcconf"
@@ -1464,14 +1464,14 @@ EOF
                     echo "    SSLCertificateChainFile $webdirdest/management/other/ca.cert.der" >> "$etcconf"
                     echo "    <Directory $webdirdest>" >> "$etcconf"
                     echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+                    echo "        RewriteEngine On" >> "$etcconf"
+                    echo "        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
+                    echo "        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
+                    echo "        RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
                     echo "    </Directory>" >> "$etcconf"
-                    echo "    RewriteEngine On" >> "$etcconf"
-                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
-                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
-                    echo "    RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
                     echo "</VirtualHost>" >> "$etcconf"
                 else
-                    echo "<VirtualHost *:80>" >> "$etcconf"
+                    echo "<VirtualHost *:80>" > "$etcconf"
                     echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
                     echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
                     echo "    </FilesMatch>" >> "$etcconf"
@@ -1480,11 +1480,11 @@ EOF
                     echo "    DocumentRoot $docroot" >> "$etcconf"
                     echo "    <Directory $webdirdest>" >> "$etcconf"
                     echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+                    echo "        RewriteEngine On" >> "$etcconf"
+                    echo "        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
+                    echo "        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
+                    echo "        RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
                     echo "    </Directory>" >> "$etcconf"
-                    echo "    RewriteEngine On" >> "$etcconf"
-                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
-                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
-                    echo "    RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
                     echo "</VirtualHost>" >> "$etcconf"
                 fi
                 errorStat $?
