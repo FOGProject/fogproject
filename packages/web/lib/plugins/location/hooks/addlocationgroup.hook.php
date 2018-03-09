@@ -90,7 +90,7 @@ class AddLocationGroup extends Hook
         $arguments['pluginsTabData'][] = [
             'name' => _('Location Association'),
             'id' => 'group-location',
-            'generator' => function() use ($obj) {
+            'generator' => function () use ($obj) {
                 $this->groupLocation($obj);
             }
         ];
@@ -161,7 +161,7 @@ class AddLocationGroup extends Hook
         $hosts = $obj->get('hosts');
         if (count($hosts) > 0) {
             self::getClass('LocationAssociationManager')->destroy(
-                    ['hostID' => $hosts]
+                ['hostID' => $hosts]
             );
             foreach ((array)$hosts as $ind => &$hostID) {
                 $insert_values[] = [$hostID, $locationID];

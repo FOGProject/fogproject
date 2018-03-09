@@ -129,7 +129,7 @@ class PrinterManagementPage extends FOGPage
         $fields = [
             '<label class="col-sm-2 control-label" for="printercopy">'
             . _('Copy from existing')
-            . '</label>' => self::getClass('PrinterManager')->buildSelectBox('','printercopy'),
+            . '</label>' => self::getClass('PrinterManager')->buildSelectBox('', 'printercopy'),
             '<label class="col-sm-2 control-label" for="printertype">'
             . _('Printer Type')
             . '</label>' => $printerSel
@@ -742,7 +742,7 @@ class PrinterManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('General'),
             'id' => 'printer-general',
-            'generator' => function() {
+            'generator' => function () {
                 $this->printerGeneral();
             }
         ];
@@ -751,7 +751,7 @@ class PrinterManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('Host Membership'),
             'id' => 'printer-membership',
-            'generator' => function() {
+            'generator' => function () {
                 $this->printerMembership();
             }
         ];

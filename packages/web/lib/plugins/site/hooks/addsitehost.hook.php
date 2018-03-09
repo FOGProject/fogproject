@@ -87,7 +87,7 @@ class AddSiteHost extends Hook
         $arguments['pluginsTabData'][] = [
             'name' => _('Site Association'),
             'id' => 'host-site',
-            'generator' => function() use ($obj) {
+            'generator' => function () use ($obj) {
                 $this->hostSite($obj);
             }
         ];

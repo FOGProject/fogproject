@@ -159,9 +159,9 @@ abstract class FOGManagerController extends FOGBase
     /**
      * Create the data output array for the DataTables rows
      *
-     *  @param  array $columns Column information array
-     *  @param  array $data    Data from the SQL get
-     *  @return array          Formatted data in a row based format
+     * @param  array $columns Column information array
+     * @param  array $data    Data from the SQL get
+     * @return array          Formatted data in a row based format
      */
     public static function data_output($columns, $data)
     {
@@ -171,7 +171,7 @@ abstract class FOGManagerController extends FOGBase
             for ($j=0, $jen=count($columns); $j < $jen; $j++) {
                 $column = $columns[$j];
                 // Is there a formatter?
-                if (isset( $column['formatter'])) {
+                if (isset($column['formatter'])) {
                     if (!isset($column['extra'])) {
                         $row[$column['dt']] = $column['formatter'](
                             $data[$i][$column['db']],
@@ -222,9 +222,9 @@ abstract class FOGManagerController extends FOGBase
      *
      * Construct the ORDER BY clause for server-side processing SQL query
      *
-     *  @param  array $request Data sent to server by DataTables
-     *  @param  array $columns Column information array
-     *  @return string SQL order by clause
+     * @param  array $request Data sent to server by DataTables
+     * @param  array $columns Column information array
+     * @return string SQL order by clause
      */
     public static function order($request, $columns)
     {
@@ -259,12 +259,12 @@ abstract class FOGManagerController extends FOGBase
      * word by word on any field. It's possible to do here performance on large
      * databases would be very poor
      *
-     *  @param  array $request  Data sent to server by DataTables
-     *  @param  array $columns  Column information array
-     *  @param  array $bindings Array of values for PDO bindings, used in the
-     *    sql_exec() function
+     * @param array $request  Data sent to server by DataTables
+     * @param array $columns  Column information array
+     * @param array $bindings Array of values for PDO bindings, used in the
+     *                        sql_exec() function
      *
-     *  @return string SQL where clause
+     * @return string SQL where clause
      */
     public static function filter($request, $columns, &$bindings)
     {
@@ -325,7 +325,7 @@ abstract class FOGManagerController extends FOGBase
                     -1,
                     PREG_SPLIT_NO_EMPTY|PREG_SPLIT_DELIM_CAPTURE
                 );*/
-                if ( $requestColumn['searchable'] == 'true') {
+                if ($requestColumn['searchable'] == 'true') {
                     // This whole if stanza should be commented when doing smart search.
                     if ($str != '') {
                         if (!isset($column['db'])) {
@@ -383,15 +383,15 @@ abstract class FOGManagerController extends FOGBase
      * in response to an SSP request, or can be modified if needed before
      * sending back to the client.
      *
-     *  @param array  $request    Data sent to server by DataTables
-     *  @param string $table      SQL table to query
-     *  @param string $primaryKey Primary key of the table
-     *  @param array  $columns    Column information array
-     *  @param string $sqlstr     The sql query to use.
-     *  @param string $fltrstr    The Filter query to use.
-     *  @param string $ttlstr     The total query to use.
+     * @param array  $request    Data sent to server by DataTables
+     * @param string $table      SQL table to query
+     * @param string $primaryKey Primary key of the table
+     * @param array  $columns    Column information array
+     * @param string $sqlstr     The sql query to use.
+     * @param string $fltrstr    The Filter query to use.
+     * @param string $ttlstr     The total query to use.
      *
-     *  @return array Server-side processing response array
+     * @return array Server-side processing response array
      */
     public static function simple(
         $request,
@@ -472,18 +472,18 @@ abstract class FOGManagerController extends FOGBase
      *   used in conditions where you don't want the user to ever have access to
      *   particular records (for example, restricting by a login id).
      *
-     *  @param  array $request Data sent to server by DataTables
-     *  @param  string $table SQL table to query
-     *  @param  string $primaryKey Primary key of the table
-     *  @param  array $columns Column information array
-     *  @param string $sqlstr     The sql query to use.
-     *  @param string $fltrstr    The Filter query to use.
-     *  @param string $ttlstr     The total query to use.
-     *  @param  string $whereResult WHERE condition to apply to the result set
-     *  @param  string $whereAll WHERE condition to apply to all queries
-     *  @return array          Server-side processing response array
+     * @param  array  $request     Data sent to server by DataTables
+     * @param  string $table       SQL table to query
+     * @param  string $primaryKey  Primary key of the table
+     * @param  array  $columns     Column information array
+     * @param  string $sqlstr      The sql query to use.
+     * @param  string $fltrstr     The Filter query to use.
+     * @param  string $ttlstr      The total query to use.
+     * @param  string $whereResult WHERE condition to apply to the result set
+     * @param  string $whereAll    WHERE condition to apply to all queries
+     * @return array          Server-side processing response array
      */
-    public static function complex (
+    public static function complex(
         $request,
         $table,
         $primaryKey,
@@ -511,8 +511,8 @@ abstract class FOGManagerController extends FOGBase
         $limit = self::limit($request, $columns);
         $order = self::order($request, $columns);
         $where = self::filter($request, $columns, $bindings);
-        $whereResult = self::_flatten( $whereResult );
-        $whereAll = self::_flatten( $whereAll );
+        $whereResult = self::_flatten($whereResult);
+        $whereAll = self::_flatten($whereAll);
         if ($whereResult) {
             $where = $where ?
                 $where .' AND '.$whereResult :
@@ -558,7 +558,7 @@ abstract class FOGManagerController extends FOGBase
          */
         return array(
             "draw" => (
-                isset ($request['draw']) ?
+                isset($request['draw']) ?
                 intval($request['draw']) :
                 0
             ),
@@ -570,11 +570,11 @@ abstract class FOGManagerController extends FOGBase
     /**
      * Execute an SQL query on the database
      *
-     * @param  resource $db  Database handler
+     * @param  resource $db       Database handler
      * @param  array    $bindings Array of PDO binding values from bind() to be
-     *   used for safely escaping strings. Note that this can be given as the
-     *   SQL query string if no bindings are required.
-     * @param  string   $sql SQL query to execute.
+     *                            used for safely escaping strings. Note that this can be given as the
+     *                            SQL query string if no bindings are required.
+     * @param  string   $sql      SQL query to execute.
      * @return array         Result from the query (all rows)
      */
     public static function sql_exec($db, $bindings, $sql = null)
@@ -599,7 +599,7 @@ abstract class FOGManagerController extends FOGBase
             self::fatal("An SQL error occurred: ".$e->getMessage() . "SQL: $sql");
         }
         // Return all
-        return $stmt->fetchAll( PDO::FETCH_BOTH );
+        return $stmt->fetchAll(PDO::FETCH_BOTH);
     }
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
      * Internal methods
@@ -611,9 +611,9 @@ abstract class FOGManagerController extends FOGBase
      * This writes out an error message in a JSON string which DataTables will
      * see and show to the user in the browser.
      *
-     * @param  string $msg Message to send to the client
+     * @param string $msg Message to send to the client
      */
-    public static function fatal ($msg)
+    public static function fatal($msg)
     {
         echo json_encode(
             array(
@@ -626,9 +626,9 @@ abstract class FOGManagerController extends FOGBase
      * Create a PDO binding key which can be used for escaping variables safely
      * when executing a query with sql_exec()
      *
-     * @param  array &$a    Array of bindings
-     * @param  *      $val  Value to bind
-     * @param  int    $type PDO field type
+     * @param  array &$a   Array of bindings
+     * @param  *     $val  Value to bind
+     * @param  int   $type PDO field type
      * @return string       Bound key to be used in the SQL where this parameter
      *   would be used.
      */
@@ -646,9 +646,9 @@ abstract class FOGManagerController extends FOGBase
      * Pull a particular property from each assoc. array in a numeric array,
      * returning and array of the property values from each item.
      *
-     *  @param  array  $a    Array to get data from
-     *  @param  string $prop Property to read
-     *  @return array        Array of property values
+     * @param  array  $a    Array to get data from
+     * @param  string $prop Property to read
+     * @return array        Array of property values
      */
     public static function pluck($a, $prop)
     {
@@ -667,8 +667,8 @@ abstract class FOGManagerController extends FOGBase
     /**
      * Return a string from an array or a string
      *
-     * @param  array|string $a Array to join
-     * @param  string $join Glue for the concatenation
+     * @param  array|string $a    Array to join
+     * @param  string       $join Glue for the concatenation
      * @return string Joined string
      */
     public static function _flatten($a, $join = ' AND ')

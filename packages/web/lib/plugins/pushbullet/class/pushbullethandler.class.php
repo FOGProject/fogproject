@@ -182,12 +182,12 @@ class PushbulletHandler extends Pushbullet
      * @param string $recipient   The recipient.
      * @param string $filePath    The path of the file to push.
      * @param string $mimeType    The MIME type of the file.
-     *      If null, we'll try to guess it.
+     *                            If null, we'll try to guess it.
      * @param string $title       The title of the push notification.
      * @param string $body        The body of the push notification.
      * @param string $altFileName Alternative file name to use instead
-     *      of the original one.
-     *      For example, you might want to push 'someFile.tmp' as 'image.jpg'.
+     *                            of the original one.
+     *                            For example, you might want to push 'someFile.tmp' as 'image.jpg'.
      *
      * @return object Response.
      * @throws PushbulletException
@@ -256,11 +256,11 @@ class PushbulletHandler extends Pushbullet
      * Get push history.
      *
      * @param int    $modifiedAfter Request pushes modified after
-     * this UNIX timestamp.
+     *                              this UNIX timestamp.
      * @param string $cursor        Request the next page via its
-     * cursor from a previous response. See the API
-     * documentation (https://docs.pushbullet.com/http/) for a
-     * detailed description.
+     *                              cursor from a previous response. See the API
+     *                              documentation (https://docs.pushbullet.com/http/) for a
+     *                              detailed description.
      * @param int    $limit         Maximum number of objects on each page.
      *
      * @return object Response.
@@ -320,11 +320,11 @@ class PushbulletHandler extends Pushbullet
      * Get a list of available devices.
      *
      * @param int    $modifiedAfter Request devices modified after
-     * this UNIX timestamp.
+     *                              this UNIX timestamp.
      * @param string $cursor        Request the next page via its
-     * cursor from a previous response. See the API
-     * documentation (https://docs.pushbullet.com/http/)
-     * for a detailed description.
+     *                              cursor from a previous response. See the API
+     *                              documentation (https://docs.pushbullet.com/http/)
+     *                              for a detailed description.
      * @param int    $limit         Maximum number of objects on each page.
      *
      * @return object Response.
@@ -394,11 +394,11 @@ class PushbulletHandler extends Pushbullet
      * Get a list of contacts.
      *
      * @param int    $modifiedAfter Request contacts modified after
-     * this UNIX timestamp.
+     *                              this UNIX timestamp.
      * @param string $cursor        Request the next page via its
-     * cursor from a previous response. See the API
-     * documentation (https://docs.pushbullet.com/http/) for
-     * a detailed description.
+     *                              cursor from a previous response. See the API
+     *                              documentation (https://docs.pushbullet.com/http/) for
+     *                              a detailed description.
      * @param int    $limit         Maximum number of objects on each page.
      *
      * @return object Response.
@@ -542,10 +542,10 @@ class PushbulletHandler extends Pushbullet
      * Send an SMS message.
      *
      * @param string $fromDeviceIden device_iden of the device
-     * that should send the SMS message. Only devices which
-     * have the 'has_sms' property set to true in their
-     * descriptions can send SMS messages. Use {@link getDevices()}
-     * to check if they're capable to do so.
+     *                               that should send the SMS message. Only devices which
+     *                               have the 'has_sms' property set to true in their
+     *                               descriptions can send SMS messages. Use {@link getDevices()}
+     *                               to check if they're capable to do so.
      * @param mixed  $toNumber       Phone number of the recipient.
      * @param string $message        Text of the message.
      *
@@ -584,7 +584,7 @@ class PushbulletHandler extends Pushbullet
      *
      * @param string $recipient Recipient string.
      * @param array  $data      Data array to populate with
-     * the correct recipient parameter.
+     *                          the correct recipient parameter.
      *
      * @return void
      */

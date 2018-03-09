@@ -123,8 +123,8 @@ class Group extends FOGController
      *
      * @return object
      */
-    public function addPrinter($addArray) {
-
+    public function addPrinter($addArray)
+    {
         if (count($addArray) > 0) {
             $insert_fields = ['hostID', 'printerID'];
             $insert_values = [];
@@ -152,7 +152,7 @@ class Group extends FOGController
     /**
      * Removes printers from all hosts in this group.
      *
-     * @param array $removeArray
+     * @param array $removeArray The array of items to remove.
      *
      * @return object
      */

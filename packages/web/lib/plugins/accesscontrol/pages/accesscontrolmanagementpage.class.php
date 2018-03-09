@@ -333,7 +333,7 @@ class AccessControlManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('General'),
             'id' => 'role-general',
-            'generator' => function() {
+            'generator' => function () {
                 $this->roleGeneral();
             }
         ];

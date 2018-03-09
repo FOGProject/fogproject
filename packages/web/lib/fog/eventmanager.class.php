@@ -293,7 +293,11 @@ class EventManager extends FOGBase
                 if (false === $line) {
                     continue;
                 }
-                preg_match ('#(\$active\s?=\s?true;)#', $line, $linefound);
+                preg_match(
+                    '#(\$active\s?=\s?true;)#',
+                    $line,
+                    $linefound
+                );
                 if (count($linefound ?: []) < 1) {
                     continue;
                 }

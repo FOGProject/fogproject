@@ -75,6 +75,23 @@ class FOGFTP extends FOGGetSet
         $this->close();
     }
     /**
+     * Magic class to do ftp functions.
+     *
+     * @param string $func The ftp_function name to be called.
+     * @param array  $args The arguments to pass in.
+     *
+     * @return mixed
+     */
+    public function __call($func, $args)
+    {
+        array_unshift(
+            $args,
+            $this->_link
+        );
+        $func = 'ftp_' . $func;
+        return $func($args);
+    }
+    /**
      * FTP Alloc as a method
      *
      * @param double|int $filesize the filesize to allocate
@@ -492,155 +509,6 @@ class FOGFTP extends FOGGetSet
         return ftp_mkdir($this->_link, $directory);
     }
     /**
-     * Continue non-blocking
-     *
-     * @return ftp_nb_continue
-     */
-    public function nb_continue()
-    {
-        return ftp_nb_continue($this->_link);
-    }
-    /**
-     * Fget non-blocking
-     *
-     * @param resource $handle      the file handle local
-     * @param string   $remote_file the file to get
-     * @param mixed    $mode        the mode to fget the file
-     * @param mixed    $resumepos   the position to continue from
-     *
-     * @return ftp_nb_fget
-     */
-    public function nb_fget(
-        $handle,
-        $remote_file,
-        $mode = 0,
-        $resumepos = 0
-    ) {
-        if (!$mode) {
-            $mode = $this->get('mode');
-        }
-        if ($resumepos) {
-            return ftp_nb_fget(
-                $this->_link,
-                $handle,
-                $remote_file,
-                $mode,
-                $resumepos
-            );
-        }
-        return ftp_nb_fget(
-            $this->_link,
-            $handle,
-            $remote_file,
-            $mode
-        );
-    }
-    /**
-     * Fput non-blocking
-     *
-     * @param string   $remote_file the file to get
-     * @param resource $handle      the file handle local
-     * @param mixed    $mode        the mode to fget the file
-     * @param mixed    $startpos    the position to continue from
-     *
-     * @return ftp_nb_fput
-     */
-    public function nb_fput(
-        $remote_file,
-        $handle,
-        $mode = 0,
-        $startpos = 0
-    ) {
-        if (!$mode) {
-            $mode = $this->get('mode');
-        }
-        if ($startpos) {
-            return ftp_nb_fput(
-                $this->_link,
-                $remote_file,
-                $handle,
-                $mode,
-                $startpos
-            );
-        }
-        return ftp_nb_fput(
-            $this->_link,
-            $remote_file,
-            $handle,
-            $mode
-        );
-    }
-    /**
-     * Get non-blocking
-     *
-     * @param string $local_file  the file handle local
-     * @param string $remote_file the file to get
-     * @param mixed  $mode        the mode to fget the file
-     * @param mixed  $resumepos   the position to continue from
-     *
-     * @return ftp_nb_get
-     */
-    public function nb_get(
-        $local_file,
-        $remote_file,
-        $mode = 0,
-        $resumepos = 0
-    ) {
-        if (!$mode) {
-            $mode = $this->get('mode');
-        }
-        if ($resumepos) {
-            return ftp_nb_get(
-                $this->_link,
-                $local_file,
-                $remote_file,
-                $mode,
-                $resumepos
-            );
-        }
-        return ftp_nb_get(
-            $this->_link,
-            $local_file,
-            $remote_file,
-            $mode
-        );
-    }
-    /**
-     * Put non-blocking
-     *
-     * @param string $remote_file the file to get
-     * @param string $local_file  the file handle local
-     * @param mixed  $mode        the mode to fget the file
-     * @param mixed  $startpos    the position to continue from
-     *
-     * @return ftp_nb_put
-     */
-    public function nb_put(
-        $remote_file,
-        $local_file,
-        $mode = 0,
-        $startpos = 0
-    ) {
-        if (!$mode) {
-            $mode = $this->get('mode');
-        }
-        if ($startpos) {
-            return ftp_nb_put(
-                $this->_link,
-                $remote_file,
-                $local_file,
-                $mode,
-                $startpos
-            );
-        }
-        return ftp_nb_put(
-            $this->_link,
-            $remote_file,
-            $local_file,
-            $mode
-        );
-    }
-    /**
      * FTP nlist
      *
      * @param string $directory the directory to list
@@ -823,20 +691,6 @@ class FOGFTP extends FOGGetSet
         return ftp_rmdir($this->_link, $directory);
     }
     /**
-     * Set the options for the ftp session
-     *
-     * @param string $option the option to set
-     * @param mixed  $value  the value to set to
-     *
-     * @return ftp_set_option
-     */
-    public function set_option(
-        $option,
-        $value
-    ) {
-        return ftp_set_option($this->_link, $option, $value);
-    }
-    /**
      * Site to run command on
      *
      * @param string $command the command to run
@@ -907,7 +761,7 @@ class FOGFTP extends FOGGetSet
      *
      * @return object
      */
-    public function ssl_connect(
+    public function sslConnect(
         $host = '',
         $port = 0,
         $timeout = 90,

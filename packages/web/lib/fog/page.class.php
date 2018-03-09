@@ -389,7 +389,7 @@ class Page extends FOGBase
      * Get main side menu items.
      *
      * @param string $node Override main side menu
-     * @param string $sub Override main sub side menu
+     * @param string $sub  Override main sub side menu
      *
      * @return void
      */

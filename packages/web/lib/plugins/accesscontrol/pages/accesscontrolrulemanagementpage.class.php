@@ -438,7 +438,7 @@ class AccessControlRuleManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('General'),
             'id' => 'rule-general',
-            'generator' => function() {
+            'generator' => function () {
                 $this->ruleGeneral();
             }
         ];

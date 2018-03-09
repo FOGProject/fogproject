@@ -284,8 +284,7 @@ class AltoRouter
     /**
      * Add transformer.
      *
-     * @param string           $matchType   The name/key for an added match type
-     * (see: addMatchTypes())
+     * @param string           $matchType   The name/key for an added match type.
      * @param \AltoTransformer $transformer A transformer instance.
      *
      * @return AltoRouter
@@ -299,15 +298,16 @@ class AltoRouter
      * Map a route to a target.
      *
      * @param string $method One of 5 HTTP Methods,
-     * or a pipe-separated list of multiple HTTP Methods
-     * (GET|POST|PATCH|PUT|DELETE)
+     *                       or a pipe-separated list of multiple HTTP Methods
+     *                       (GET|POST|PATCH|PUT|DELETE)
      * @param string $route  The route regex,
-     * custom regex must start with an @.
-     * You can use multiple pre-set regex filters, like [i:id].
+     *                       custom regex must start with an @.
+     *                       You can use multiple pre-set regex filters, like [i:id].
      * @param mixed  $target The target where this route
-     * should point to. Can be anything.
+     *                       should point to. Can be anything.
      * @param string $name   Optional name of this route.
-     * Supply if you want to reverse route this url in your application.
+     *                       Supply if you want to reverse route
+     *                       this url in your application.
      *
      * @throws Exception
      *
@@ -352,7 +352,7 @@ class AltoRouter
      *
      * @param string $routeName The name of the route.
      * @param array  $params    Associative array of parameters
-     * to replace placeholders with.
+     *                          to replace placeholders with.
      *
      * @throws Exception
      *

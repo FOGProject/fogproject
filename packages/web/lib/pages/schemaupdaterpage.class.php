@@ -264,10 +264,10 @@ class SchemaUpdaterPage extends FOGPage
                             continue;
                         }
                         $errors[] = sprintf(
-                                "%s: %s\n",
-                                _('Update ID'),
-                                $version + 1
-                            )
+                            "%s: %s\n",
+                            _('Update ID'),
+                            $version + 1
+                        )
                             . ' '
                             . sprintf(
                                 "%s: %s\n",

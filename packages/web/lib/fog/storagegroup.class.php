@@ -56,7 +56,8 @@ class StorageGroup extends FOGController
         'usedtasks',
     ];
 
-    protected $sqlQueryStr = "SELECT `%s`,SUM(`nfsGroupMembers`.`ngmMaxClients`) AS `totalclients`
+    protected $sqlQueryStr = "SELECT `%s`,SUM(`nfsGroupMembers`.`ngmMaxClients`)
+        AS `totalclients`
         FROM `%s`
         LEFT OUTER JOIN `nfsGroupMembers`
         ON `nfsGroups`.`ngID` = `nfsGroupMembers`.`ngmGroupID`
@@ -65,14 +66,14 @@ class StorageGroup extends FOGController
         GROUP BY `nfsGroups`.`ngName`
         %s
         %s";
-    protected $sqlFilterStr = "SELECT COUNT(`%s`),SUM(`nfsGroupMembers`.`ngmMaxClients`) AS `totalclients`
+    protected $sqlFilterStr = "SELECT COUNT(`%s`)
         FROM `%s`
         LEFT OUTER JOIN `nfsGroupMembers`
         ON `nfsGroups`.`ngID` = `nfsGroupMembers`.`ngmGroupID`
         AND `nfsGroupMembers`.`ngmIsEnabled` = '1'
         %s
         GROUP BY `nfsGroups`.`ngName`";
-    protected $sqlTotalStr = "SELECT COUNT(`%s`),SUM(`nfsGroupMembers`.`ngmMaxClients`) AS `totalclients`
+    protected $sqlTotalStr = "SELECT COUNT(`%s`)
         FROM `%s`
         LEFT OUTER JOIN `nfsGroupMembers`
         ON `nfsGroups`.`ngID` = `nfsGroupMembers`.`ngmGroupID`

@@ -462,7 +462,7 @@ class StorageGroupManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('General'),
             'id' => 'storagegroup-general',
-            'generator' => function() {
+            'generator' => function () {
                 $this->storagegroupGeneral();
             }
         ];
@@ -471,7 +471,7 @@ class StorageGroupManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('Membership'),
             'id' => 'storagegroup-membership',
-            'generator' => function() {
+            'generator' => function () {
                 $this->storagegroupMembership();
             }
         ];

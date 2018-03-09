@@ -1660,7 +1660,7 @@ class GroupManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('General'),
             'id' => 'group-general',
-            'generator' => function() {
+            'generator' => function () {
                 $this->groupGeneral();
             }
         ];
@@ -1669,7 +1669,7 @@ class GroupManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('Image'),
             'id' => 'group-image',
-            'generator' => function() {
+            'generator' => function () {
                 $this->groupImage();
             }
         ];
@@ -1678,7 +1678,7 @@ class GroupManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('Tasks'),
             'id' => 'group-tasks',
-            'generator' => function() {
+            'generator' => function () {
                 $this->basictasksOptions();
             }
         ];
@@ -1691,21 +1691,21 @@ class GroupManagementPage extends FOGPage
                     [
                         'name' => _('Hosts'),
                         'id' => 'group-hosts',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->groupHosts();
                         }
                     ],
                     [
                         'name' => _('Printers'),
                         'id' => 'group-printers',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->groupPrinters();
                         }
                     ],
                     [
                         'name' => _('Snapins'),
                         'id' => 'group-snapins',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->groupSnapins();
                         }
                     ]
@@ -1721,14 +1721,14 @@ class GroupManagementPage extends FOGPage
                     [
                         'name' => _('Client Module Settings'),
                         'id' => 'group-service',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->groupService();
                         }
                     ],
                     [
                         'name' => _('Active Directory'),
                         'id' => 'group-active-directory',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->adFieldsToDisplay(
                                 $useAD,
                                 $ADDomain,
@@ -1742,7 +1742,7 @@ class GroupManagementPage extends FOGPage
                     [
                         'name' => _('Power Management'),
                         'id' => 'group-powermanagement',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->groupPowermanagement();
                         }
                     ]
@@ -1754,7 +1754,7 @@ class GroupManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('Inventory'),
             'id' => 'group-inventory',
-            'generator' => function() {
+            'generator' => function () {
                 $this->groupInventory();
             }
         ];

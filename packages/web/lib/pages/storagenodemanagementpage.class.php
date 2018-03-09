@@ -1190,7 +1190,7 @@ class StorageNodeManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('General'),
             'id' => 'storagenode-general',
-            'generator' => function() {
+            'generator' => function () {
                 $this->storagenodeGeneral();
             }
         ];

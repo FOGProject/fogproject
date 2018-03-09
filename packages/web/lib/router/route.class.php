@@ -425,11 +425,12 @@ class Route extends FOGBase
     /**
      * Presents the equivalent of a page's list all.
      *
-     * @param string $class  The class to work with.
+     * @param string $class The class to work with.
      *
      * @return void
      */
-    public static function listem($class) {
+    public static function listem($class) 
+    {
         parse_str(
             file_get_contents('php://input'),
             $pass_vars

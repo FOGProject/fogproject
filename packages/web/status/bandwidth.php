@@ -22,10 +22,6 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-//require '../commons/base.inc.php';
-//session_write_close();
-//ignore_user_abort(true);
-//set_time_limit(0);
 header('Content-Type: application/json');
 /**
  * Lambda for returning the bytes from the file requested.
@@ -83,7 +79,7 @@ foreach ($dir_interfaces as &$iface) {
 $interface = preg_grep("#^$dev$#", $interfaces);
 // If our interface isn't found, try getting it directly off the system
 if (count($interface) < 1) {
-    require '../commons/base.inc.php';
+    include '../commons/base.inc.php';
     session_write_close();
     ignore_user_abort(true);
     set_time_limit(0);

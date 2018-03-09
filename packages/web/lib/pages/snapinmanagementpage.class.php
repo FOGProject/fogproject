@@ -1334,7 +1334,7 @@ class SnapinManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('General'),
             'id' => 'snapin-general',
-            'generator' => function() {
+            'generator' => function () {
                 $this->snapinGeneral();
             }
         ];
@@ -1342,7 +1342,7 @@ class SnapinManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('Storage Groups'),
             'id' => 'snapin-storagegroups',
-            'generator' => function() {
+            'generator' => function () {
                 $this->snapinStoragegroups();
             }
         ];
@@ -1350,7 +1350,7 @@ class SnapinManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('Host Membership'),
             'id' => 'snapin-membership',
-            'generator' => function() {
+            'generator' => function () {
                 $this->snapinMembership();
             }
         ];

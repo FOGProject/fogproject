@@ -87,7 +87,7 @@ class AddSiteUser extends Hook
         $arguments['pluginsTabData'][] = [
             'name' => _('Site Association'),
             'id' => 'user-site',
-            'generator' => function() use ($obj) {
+            'generator' => function () use ($obj) {
                 $this->userSite($obj);
             }
         ];

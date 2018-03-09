@@ -63,6 +63,6 @@ class SiteUserRestriction extends FOGController
             'id',
             'userID',
             'user'
-       ]
+        ]
     ];
 }

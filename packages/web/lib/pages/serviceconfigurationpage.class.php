@@ -103,7 +103,7 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary',
             $props
         );
-        Route::search('module','display manager');
+        Route::search('module', 'display manager');
         $Modules = json_decode(
             Route::getData()
         );
@@ -206,7 +206,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceDisplaymanagerPost()
     {
-        Route::search('module','display manager');
+        Route::search('module', 'display manager');
         $Modules = json_decode(
             Route::getData()
         );
@@ -250,7 +250,7 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary',
             $props
         );
-        Route::search('module','auto log out');
+        Route::search('module', 'auto log out');
         $Modules = json_decode(
             Route::getData()
         );
@@ -324,7 +324,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceAutologoutPost()
     {
-        Route::search('module','auto log out');
+        Route::search('module', 'auto log out');
         $Modules = json_decode(
             Route::getData()
         );
@@ -367,7 +367,7 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary',
             $props
         );
-        Route::search('module','snapins');
+        Route::search('module', 'snapins');
         $Modules = json_decode(
             Route::getData()
         );
@@ -430,7 +430,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceSnapinclientPost()
     {
-        Route::search('module','snapins');
+        Route::search('module', 'snapins');
         $Modules = json_decode(
             Route::getData()
         );
@@ -468,7 +468,7 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary',
             $props
         );
-        Route::search('module','host registration');
+        Route::search('module', 'host registration');
         $Modules = json_decode(
             Route::getData()
         );
@@ -531,7 +531,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceHostregisterPost()
     {
-        Route::search('module','host registration');
+        Route::search('module', 'host registration');
         $Modules = json_decode(
             Route::getData()
         );
@@ -569,7 +569,7 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary',
             $props
         );
-        Route::search('module','hostname changer');
+        Route::search('module', 'hostname changer');
         $Modules = json_decode(
             Route::getData()
         );
@@ -632,7 +632,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceHostnamechangerPost()
     {
-        Route::search('module','hostname changer');
+        Route::search('module', 'hostname changer');
         $Modules = json_decode(
             Route::getData()
         );
@@ -670,7 +670,7 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary',
             $props
         );
-        Route::search('module','printer manager');
+        Route::search('module', 'printer manager');
         $Modules = json_decode(
             Route::getData()
         );
@@ -733,7 +733,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function servicePrintermanagerPost()
     {
-        Route::search('module','printer manager');
+        Route::search('module', 'printer manager');
         $Modules = json_decode(
             Route::getData()
         );
@@ -771,7 +771,7 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary',
             $props
         );
-        Route::search('module','task reboot');
+        Route::search('module', 'task reboot');
         $Modules = json_decode(
             Route::getData()
         );
@@ -834,7 +834,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceTaskrebootPost()
     {
-        Route::search('module','task reboot');
+        Route::search('module', 'task reboot');
         $Modules = json_decode(
             Route::getData()
         );
@@ -872,7 +872,7 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary',
             $props
         );
-        Route::search('module','user tracker');
+        Route::search('module', 'user tracker');
         $Modules = json_decode(
             Route::getData()
         );
@@ -935,7 +935,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceUsertrackerPost()
     {
-        Route::search('module','user tracker');
+        Route::search('module', 'user tracker');
         $Modules = json_decode(
             Route::getData()
         );
@@ -973,7 +973,7 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary',
             $props
         );
-        Route::search('module','power management');
+        Route::search('module', 'power management');
         $Modules = json_decode(
             Route::getData()
         );
@@ -1036,7 +1036,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function servicePowermanagementPost()
     {
-        Route::search('module','power management');
+        Route::search('module', 'power management');
         $Modules = json_decode(
             Route::getData()
         );
@@ -1108,7 +1108,7 @@ class ServiceConfigurationPage extends FOGPage
         $tabData[] = [
             'name' => _('Home'),
             'id' => 'service-home',
-            'generator' => function() {
+            'generator' => function () {
                 $this->serviceHome();
             }
         ];
@@ -1135,7 +1135,7 @@ class ServiceConfigurationPage extends FOGPage
             $tabData[] = [
                 'name' => $Module->name,
                 'id' => 'service-' . $Module->shortName,
-                'generator' => function() use ($Module) {
+                'generator' => function () use ($Module) {
                     $func = 'service' . ucfirst($Module->shortName);
                     $this->{$func}();
                 }

@@ -2484,6 +2484,7 @@ abstract class FOGBase
      * @param string $class   What class are we searching in.
      * @param string $keyword What to search for.
      * @param int    $limit   Limit results?
+     * @param bool   $count   Return count?.
      *
      * @return mixed
      */
