@@ -508,8 +508,5 @@ class User extends FOGController
         session_write_close();
         session_start();
         $_SESSION=array();
-        if (isset($messages)) {
-            self::setMessage($messages);
-        }
     }
 }

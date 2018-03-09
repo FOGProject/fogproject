@@ -569,7 +569,6 @@ class PluginManagementPage extends FOGPage
                 }
             }
         } catch (Exception $e) {
-            echo self::setMessage($e->getMessage());
             global $sub;
             global $node;
             $run = filter_input(INPUT_GET, 'run');
@@ -688,7 +687,6 @@ class PluginManagementPage extends FOGPage
                 }
             }
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
         }
         self::redirect($this->formAction);
     }

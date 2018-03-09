@@ -524,21 +524,20 @@ abstract class FOGBase
                 $mac = filter_input(INPUT_GET, 'mac');
             }
         }
-// disabling sysuuid detection code for now as it is causing
-// trouble with machines having the same UUID like we've seen
-// on some MSI motherboards having FFFFFFFF-FFFF-FFFF-FFFF...
-/*        $sysuuid = filter_input(INPUT_POST, 'sysuuid');
-        if (!$sysuuid) {
-            $sysuuid = filter_input(INPUT_GET, 'sysuuid');
-        }
-*/
+        // disabling sysuuid detection code for now as it is causing
+        // trouble with machines having the same UUID like we've seen
+        // on some MSI motherboards having FFFFFFFF-FFFF-FFFF-FFFF...
+        //$sysuuid = filter_input(INPUT_POST, 'sysuuid');
+        //if (!$sysuuid) {
+        //    $sysuuid = filter_input(INPUT_GET, 'sysuuid');
+        //}
         // If encoded decode and store value
         if ($encoded === true) {
             $mac = base64_decode($mac);
-//            $sysuuid = base64_decode($sysuuid);
+            //$sysuuid = base64_decode($sysuuid);
         }
         // See if we can find the host by system uuid rather than by mac's first.
-/*        if ($sysuuid) {
+        /*if ($sysuuid) {
             $Inventory = self::getClass('Inventory')
                 ->set('sysuuid', $sysuuid)
                 ->load('sysuuid');
@@ -550,8 +549,7 @@ abstract class FOGBase
                 self::$Host = $Host;
                 return;
             }
-        }
-*/
+        }*/
         // Trim the mac list.
         $mac = trim($mac);
         // Parsing the macs
@@ -773,54 +771,6 @@ abstract class FOGBase
             $data
         );
         printf('<div class="debug debug-info">%s</div>', $string);
-    }
-    /**
-     * Sets message banner at top of pages.
-     *
-     * @param string $txt  the string to use
-     * @param array  $data the data if txt is formatted string
-     *
-     * @return void
-     */
-    protected static function setMessage($txt, $data = array())
-    {
-        if (session_status() != PHP_SESSION_NONE) {
-            $_SESSION['FOG_MESSAGES'] = self::_setString($txt, $data);
-        }
-    }
-    /**
-     * Gets message banner and prepares to display it.
-     *
-     * @return string
-     */
-    protected static function getMessages()
-    {
-        if (session_status() == PHP_SESSION_NONE) {
-            return;
-        }
-        if (!isset($_SESSION['FOG_MESSAGES'])) {
-            $_SESSION['FOG_MESSAGES'] = array();
-        }
-        $messages = (array) $_SESSION['FOG_MESSAGES'];
-        unset($_SESSION['FOG_MESSAGES']);
-        // Create a hook in for messages
-        if (self::$HookManager instanceof HookManager) {
-            self::$HookManager->processEvent(
-                'MessageBox',
-                array('data' => &$messages)
-            );
-        }
-        /**
-         * Lambda that simply prints the messages as passed.
-         *
-         * @param string $message the message to print
-         */
-        $print_messages = function ($message) {
-            printf('<div class="fog-message-box">%s</div>', $message);
-        };
-        // Print the messages
-        array_map($print_messages, $messages);
-        unset($messages);
     }
     /**
      * Redirect pages where/when necessary.
