@@ -87,7 +87,7 @@ class AddSiteGroup extends Hook
         $arguments['pluginsTabData'][] = [
             'name' => _('Site Association'),
             'id' => 'group-site',
-            'generator' => function() use ($obj) {
+            'generator' => function () use ($obj) {
                 $this->groupSite($obj);
             }
         ];

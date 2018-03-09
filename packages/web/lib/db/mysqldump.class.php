@@ -10,7 +10,6 @@
  * @author   Diego Torres <ifsnop@github.com>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     https://github.com/ifsnop/mysqldump-php
- *
  */
 
 //use Exception;
@@ -26,7 +25,6 @@
  * @author   Diego Torres <ifsnop@github.com>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     https://github.com/ifsnop/mysqldump-php
- *
  */
 class Mysqldump
 {
@@ -44,24 +42,28 @@ class Mysqldump
     const UTF8MB4 = 'utf8mb4';
 
     /**
-    * Database username
-    * @var string
-    */
+     * Database username
+     *
+     * @var string
+     */
     public $user;
     /**
-    * Database password
-    * @var string
-    */
+     * Database password
+     *
+     * @var string
+     */
     public $pass;
     /**
-    * Connection string for PDO
-    * @var string
-    */
+     * Connection string for PDO
+     *
+     * @var string
+     */
     public $dsn;
     /**
-    * Destination filename, defaults to stdout
-    * @var string
-    */
+     * Destination filename, defaults to stdout
+     *
+     * @var string
+     */
     public $fileName = 'php://output';
 
     // Internal stuff
@@ -78,28 +80,31 @@ class Mysqldump
     private $version;
     private $tableColumnTypes = array();
     /**
-    * database name, parsed from dsn
-    * @var string
-    */
+     * database name, parsed from dsn
+     *
+     * @var string
+     */
     private $dbName;
     /**
-    * host name, parsed from dsn
-    * @var string
-    */
+     * host name, parsed from dsn
+     *
+     * @var string
+     */
     private $host;
     /**
-    * dsn string parsed as an array
-    * @var array
-    */
+     * dsn string parsed as an array
+     *
+     * @var array
+     */
     private $dsnArray = array();
 
     /**
      * Constructor of Mysqldump. Note that in the case of an SQLite database
      * connection, the filename must be in the $db parameter.
      *
-     * @param string $dsn        PDO DSN connection string
-     * @param string $user       SQL account username
-     * @param string $pass       SQL account password
+     * @param string $dsn          PDO DSN connection string
+     * @param string $user         SQL account username
+     * @param string $pass         SQL account password
      * @param array  $dumpSettings SQL database settings
      * @param array  $pdoSettings  PDO configured attributes
      */
@@ -163,8 +168,9 @@ class Mysqldump
             throw new Exception("Unexpected value in dumpSettings: (" . implode(",", $diff) . ")");
         }
 
-        if (!is_array($this->dumpSettings['include-tables']) ||
-            !is_array($this->dumpSettings['exclude-tables'])) {
+        if (!is_array($this->dumpSettings['include-tables']) 
+            || !is_array($this->dumpSettings['exclude-tables'])
+        ) {
             throw new Exception("Include-tables and exclude-tables should be arrays");
         }
 
@@ -229,8 +235,9 @@ class Mysqldump
             $this->dsnArray[strtolower($kvpArr[0])] = $kvpArr[1];
         }
 
-        if (empty($this->dsnArray['host']) &&
-            empty($this->dsnArray['unix_socket'])) {
+        if (empty($this->dsnArray['host']) 
+            && empty($this->dsnArray['unix_socket'])
+        ) {
             throw new Exception("Missing host from DSN string");
         }
         $this->host = (!empty($this->dsnArray['host'])) ?
@@ -256,27 +263,27 @@ class Mysqldump
         // Connecting with PDO
         try {
             switch ($this->dbType) {
-                case 'sqlite':
-                    $this->dbHandler = @new PDO("sqlite:" . $this->dbName, null, null, $this->pdoSettings);
-                    break;
-                case 'mysql':
-                case 'pgsql':
-                case 'dblib':
-                    $this->dbHandler = @new PDO(
-                        $this->dsn,
-                        $this->user,
-                        $this->pass,
-                        $this->pdoSettings
-                    );
-                    // Execute init commands once connected
-                    foreach ($this->dumpSettings['init_commands'] as $stmt) {
-                        $this->dbHandler->exec($stmt);
-                    }
-                    // Store server version
-                    $this->version = $this->dbHandler->getAttribute(PDO::ATTR_SERVER_VERSION);
-                    break;
-                default:
-                    throw new Exception("Unsupported database type (" . $this->dbType . ")");
+            case 'sqlite':
+                $this->dbHandler = @new PDO("sqlite:" . $this->dbName, null, null, $this->pdoSettings);
+                break;
+            case 'mysql':
+            case 'pgsql':
+            case 'dblib':
+                $this->dbHandler = @new PDO(
+                    $this->dsn,
+                    $this->user,
+                    $this->pass,
+                    $this->pdoSettings
+                );
+                // Execute init commands once connected
+                foreach ($this->dumpSettings['init_commands'] as $stmt) {
+                    $this->dbHandler->exec($stmt);
+                }
+                // Store server version
+                $this->version = $this->dbHandler->getAttribute(PDO::ATTR_SERVER_VERSION);
+                break;
+            default:
+                throw new Exception("Unsupported database type (" . $this->dbType . ")");
             }
         } catch (PDOException $e) {
             throw new Exception(
@@ -292,7 +299,7 @@ class Mysqldump
     /**
      * Main call
      *
-     * @param string $filename  Name of file to write sql dump to
+     * @param  string $filename Name of file to write sql dump to
      * @return null
      */
     public function start($filename = '')
@@ -470,8 +477,9 @@ class Mysqldump
 
     /**
      * Compare if $table name matches with a definition inside $arr
-     * @param $table string
-     * @param $arr array with strings or patterns
+     *
+     * @param  $table string
+     * @param  $arr array with strings or patterns
      * @return bool
      */
     private function matches($table, $arr)
@@ -563,8 +571,8 @@ class Mysqldump
     /**
      * Table structure extractor
      *
-     * @todo move specific mysql code to typeAdapter
-     * @param string $tableName  Name of table to export
+     * @todo   move specific mysql code to typeAdapter
+     * @param  string $tableName Name of table to export
      * @return null
      */
     private function getTableStructure($tableName)
@@ -597,7 +605,7 @@ class Mysqldump
     /**
      * Store column types to create data dumps and for Stand-In tables
      *
-     * @param string $tableName  Name of table to export
+     * @param  string $tableName Name of table to export
      * @return array type column types detailed
      */
 
@@ -625,8 +633,8 @@ class Mysqldump
     /**
      * View structure extractor, create table (avoids cyclic references)
      *
-     * @todo move mysql specific code to typeAdapter
-     * @param string $viewName  Name of view to export
+     * @todo   move mysql specific code to typeAdapter
+     * @param  string $viewName Name of view to export
      * @return null
      */
     private function getViewStructureTable($viewName)
@@ -658,7 +666,7 @@ class Mysqldump
      * Write a create table statement for the table Stand-In, show create
      * table would return a create algorithm when used on a view
      *
-     * @param string $viewName  Name of view to export
+     * @param  string $viewName Name of view to export
      * @return string create statement
      */
     public function createStandInTable($viewName)
@@ -678,8 +686,8 @@ class Mysqldump
     /**
      * View structure extractor, create view
      *
-     * @todo move mysql specific code to typeAdapter
-     * @param string $viewName  Name of view to export
+     * @todo   move mysql specific code to typeAdapter
+     * @param  string $viewName Name of view to export
      * @return null
      */
     private function getViewStructureView($viewName)
@@ -709,7 +717,7 @@ class Mysqldump
     /**
      * Trigger structure extractor
      *
-     * @param string $triggerName  Name of trigger to export
+     * @param  string $triggerName Name of trigger to export
      * @return null
      */
     private function getTriggerStructure($triggerName)
@@ -731,7 +739,7 @@ class Mysqldump
     /**
      * Procedure structure extractor
      *
-     * @param string $procedureName  Name of procedure to export
+     * @param  string $procedureName Name of procedure to export
      * @return null
      */
     private function getProcedureStructure($procedureName)
@@ -755,7 +763,7 @@ class Mysqldump
      * Escape values with quotes when needed
      *
      * @param string $tableName Name of table which contains rows
-     * @param array $row Associative array of column names and values to be quoted
+     * @param array  $row       Associative array of column names and values to be quoted
      *
      * @return string
      */
@@ -784,7 +792,7 @@ class Mysqldump
     /**
      * Table rows extractor
      *
-     * @param string $tableName  Name of table to export
+     * @param string $tableName Name of table to export
      *
      * @return null
      */
@@ -822,8 +830,9 @@ class Mysqldump
             } else {
                 $lineSize += $this->compressManager->write(",(" . implode(",", $vals) . ")");
             }
-            if (($lineSize > self::MAXLINESIZE) ||
-                    !$this->dumpSettings['extended-insert']) {
+            if (($lineSize > self::MAXLINESIZE) 
+                || !$this->dumpSettings['extended-insert']
+            ) {
                 $onlyOnce = true;
                 $lineSize = $this->compressManager->write(";" . PHP_EOL);
             }
@@ -840,7 +849,7 @@ class Mysqldump
     /**
      * Table rows extractor, append information prior to dump
      *
-     * @param string $tableName  Name of table to export
+     * @param string $tableName Name of table to export
      *
      * @return null
      */
@@ -888,7 +897,7 @@ class Mysqldump
     /**
      * Table rows extractor, close locks and commits after dump
      *
-     * @param string $tableName  Name of table to export
+     * @param string $tableName Name of table to export
      *
      * @return null
      */
@@ -929,7 +938,7 @@ class Mysqldump
     /**
      * Build SQL List of all columns on current table
      *
-     * @param string $tableName  Name of table to get columns
+     * @param string $tableName Name of table to get columns
      *
      * @return string SQL sentence with columns
      */
@@ -953,7 +962,6 @@ class Mysqldump
 
 /**
  * Enum with all available compression methods
- *
  */
 abstract class CompressMethod
 {
@@ -1101,7 +1109,6 @@ class CompressNone extends CompressManagerFactory
 
 /**
  * Enum with all available TypeAdapter implementations
- *
  */
 abstract class TypeAdapter
 {
@@ -1122,13 +1129,12 @@ abstract class TypeAdapter
 
 /**
  * TypeAdapter Factory
- *
  */
 abstract class TypeAdapterFactory
 {
     /**
-     * @param string $c Type of database factory to create (Mysql, Sqlite,...)
-     * @param PDO $dbHandler
+     * @param string $c         Type of database factory to create (Mysql, Sqlite,...)
+     * @param PDO    $dbHandler
      */
     public static function create($c, $dbHandler = null)
     {
@@ -1142,6 +1148,7 @@ abstract class TypeAdapterFactory
 
     /**
      * function databases Add sql to create and use database
+     *
      * @todo make it do something with sqlite
      */
     public function databases()
@@ -1158,6 +1165,7 @@ abstract class TypeAdapterFactory
 
     /**
      * function create_table Get table creation code from database
+     *
      * @todo make it do something with sqlite
      */
     public function create_table($row, $dumpSettings)
@@ -1174,6 +1182,7 @@ abstract class TypeAdapterFactory
 
     /**
      * function create_view Get view creation code from database
+     *
      * @todo make it do something with sqlite
      */
     public function create_view($row)
@@ -1183,6 +1192,7 @@ abstract class TypeAdapterFactory
 
     /**
      * function show_create_trigger Get trigger creation code from database
+     *
      * @todo make it do something with sqlite
      */
     public function show_create_trigger($triggerName)
@@ -1192,6 +1202,7 @@ abstract class TypeAdapterFactory
 
     /**
      * function create_trigger Modify trigger code, add delimiters, etc
+     *
      * @todo make it do something with sqlite
      */
     public function create_trigger($triggerName)
@@ -1201,6 +1212,7 @@ abstract class TypeAdapterFactory
 
     /**
      * function create_procedure Modify procedure code, add delimiters, etc
+     *
      * @todo make it do something with sqlite
      */
     public function create_procedure($procedureName, $dumpSettings)
@@ -1318,7 +1330,7 @@ abstract class TypeAdapterFactory
      * Decode column metadata and fill info structure.
      * type, is_numeric and is_blob will always be available.
      *
-     * @param array $colType Array returned from "SHOW COLUMNS FROM tableName"
+     * @param  array $colType Array returned from "SHOW COLUMNS FROM tableName"
      * @return array
      */
     public function parseColumnType($colType)
@@ -1466,9 +1478,10 @@ class TypeAdapterMysql extends TypeAdapterFactory
             " */" . PHP_EOL . "/*!50001 VIEW ",
             $triggerStmtReplaced2
         );
-        if (false === $triggerStmtReplaced1 ||
-            false === $triggerStmtReplaced2 ||
-            false === $triggerStmtReplaced3) {
+        if (false === $triggerStmtReplaced1 
+            || false === $triggerStmtReplaced2 
+            || false === $triggerStmtReplaced3
+        ) {
             $triggerStmtReplaced = $triggerStmt;
         } else {
             $triggerStmtReplaced = $triggerStmtReplaced3 . " */;";
@@ -1510,8 +1523,10 @@ class TypeAdapterMysql extends TypeAdapterFactory
     {
         $ret = "";
         if (!isset($row['Create Procedure'])) {
-            throw new Exception("Error getting procedure code, unknown output. " .
-                "Please check 'https://bugs.mysql.com/bug.php?id=14564'");
+            throw new Exception(
+                "Error getting procedure code, unknown output. " .
+                "Please check 'https://bugs.mysql.com/bug.php?id=14564'"
+            );
         }
         $procedureStmt = $row['Create Procedure'];
 
@@ -1678,7 +1693,7 @@ class TypeAdapterMysql extends TypeAdapterFactory
      * Decode column metadata and fill info structure.
      * type, is_numeric and is_blob will always be available.
      *
-     * @param array $colType Array returned from "SHOW COLUMNS FROM tableName"
+     * @param  array $colType Array returned from "SHOW COLUMNS FROM tableName"
      * @return array
      */
     public function parseColumnType($colType)

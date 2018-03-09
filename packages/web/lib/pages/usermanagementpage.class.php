@@ -681,7 +681,7 @@ class UserManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('General'),
             'id' => 'user-general',
-            'generator' => function() {
+            'generator' => function () {
                 $this->userGeneral();
             }
         ];
@@ -690,7 +690,7 @@ class UserManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('Password'),
             'id' => 'user-changepw',
-            'generator' => function() {
+            'generator' => function () {
                 $this->userChangePW();
             }
         ];
@@ -699,7 +699,7 @@ class UserManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('API'),
             'id' => 'user-api',
-            'generator' => function() {
+            'generator' => function () {
                 $this->userAPI();
             }
         ];

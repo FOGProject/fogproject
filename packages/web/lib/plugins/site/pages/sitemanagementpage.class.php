@@ -419,7 +419,7 @@ class SiteManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('General'),
             'id' => 'site-general',
-            'generator' => function() {
+            'generator' => function () {
                 $this->siteGeneral();
             }
         ];
@@ -432,14 +432,14 @@ class SiteManagementPage extends FOGPage
                     [
                         'name' => _('Host Association'),
                         'id' => 'site-host',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->siteHosts();
                         }
                     ],
                     [
                         'name' => _('User Association'),
                         'id' => 'site-user',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->siteUsers();
                         }
                     ]

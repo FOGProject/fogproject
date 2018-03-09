@@ -835,7 +835,8 @@ abstract class FOGPage extends FOGBase
      *
      * @return string
      */
-    public function makeTabUpdateURL($tab, $id = -1) {
+    public function makeTabUpdateURL($tab, $id = -1)
+    {
         global $node;
         global $sub;
         return "../management/index.php?node=$node"
@@ -843,22 +844,63 @@ abstract class FOGPage extends FOGBase
             . ($id > 0 ? "&id=$id" : '')
             . "&tab=$tab";
     }
-
-    public function displayAlert($title, $body, $type, $dismissable=true, $isCallout=false) {
+    /**
+     * Displays an alert for the user.
+     *
+     * @param string $title       The title of the alert.
+     * @param string $body        The body of the alert.
+     * @param string $type        The type of alert.
+     * @param bool   $dismissable Allow the alert to be dismissed.
+     * @param bool   $isCallout   Is the alert calling out something?
+     *
+     * @return void
+     */
+    public function displayAlert(
+        $title,
+        $body,
+        $type,
+        $dismissable = true,
+        $isCallout = false
+    ) {
         echo '<div class="box-body">';
         echo '<div class="';
-        echo ($isCallout) ? 'callout callout-' : 'alert alert-';
+        echo (
+            $isCallout ?
+            'callout callout-' :
+            'alert alert-'
+        );
         echo $type;
-        if ($dismissable) echo ' alert-dismissible';
+        if ($dismissable) {
+            echo ' alert-dismissible';
+        }
         echo '">';
-        if ($dismissable) echo '<button class="close" type="button" data-dismiss="alert" aria-hidden-"true">x</button>';
-        echo '<h4>' . $title . '</h4>';
+        if ($dismissable) {
+            echo self::makeButton(
+                '',
+                'x',
+                'close',
+                'data-dismiss="alert" aria-hidden="true"'
+            );
+        }
+        echo '<h4>'
+            . $title
+            . '</h4>';
         echo $body;
         echo '</div>';
         echo '</div>';
     }
-
-    public function makeButton($id, $text, $class, $props = '') {
+    /**
+     * Makes a button element for us.
+     *
+     * @param string $id    The id of the button
+     * @param string $text  The text for the button.
+     * @param string $class The class to associated to the button.
+     * @param string $props Any additional properies to append to the button.
+     *
+     * @return string
+     */
+    public function makeButton($id, $text, $class, $props = '')
+    {
         ob_start();
         echo '<button';
         if ($id) {
@@ -879,7 +921,18 @@ abstract class FOGPage extends FOGBase
         echo '</button>';
         return ob_get_clean();
     }
-
+    /**
+     * Makes a modal for us.
+     *
+     * @param string $id     The id of the modal.
+     * @param string $header The header of the modal.
+     * @param string $body   The body of the modal.
+     * @param string $footer The footer of the modal.
+     * @param string $class  The class to assign the modal.
+     * @param string $type   The type of the modal.
+     *
+     * @return string
+     */
     public function makeModal(
         $id,
         $header,
@@ -900,27 +953,30 @@ abstract class FOGPage extends FOGBase
             . '" style="display: none;" id="'
             . $id
             . '">';
-        echo '  <div class="modal-dialog">';
-        echo '    <div class="modal-content">';
-        echo '      <div class="modal-header">';
+        echo '<div class="modal-dialog">';
+        echo '<div class="modal-content">';
+        echo '<div class="modal-header">';
         echo $header;
-        echo '      </div>';
-        echo '      <div class="modal-body">';
+        echo '</div>';
+        echo '<div class="modal-body">';
         echo $body;
-        echo '      </div>';
-        echo '      <div class="modal-footer">';
+        echo '</div>';
+        echo '<div class="modal-footer">';
         echo $footer;
-        echo '      </div>';
-        echo '    </div>';
-        echo '  </div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
         return ob_get_clean();
     }
-
     /**
      * Process the information
      *
-     * @param int $colsize Col Size
+     * @param int    $colsize    Column Size.
+     * @param string $tableId    The id to give the table.
+     * @param string $buttons    Buttons to append to the table.
+     * @param string $tableClass Class to associate with the table.
+     * @param bool   $serverSide Is this table a serverSide processing table.
      *
      * @return string
      */
@@ -2352,8 +2408,12 @@ abstract class FOGPage extends FOGBase
         echo '<div id="taskAccordian" class="box-group">';
         echo '<div class="panel box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title"><a class="" data-toggle="collapse" data-parent="#taskAccordian" href="#tasksBasic">';
-        echo _('Basic Tasks') . '</a></h4>';
+        echo '<h4 class="box-title">';
+        echo '<a href="#tasksBasic" class="" '
+            . 'data-toggle="collapse" data-parent="#taskAccordian">';
+        echo _('Basic Tasks');
+        echo '</a>';
+        echo '</h4>';
         echo '</div>';
         echo '<div id="tasksBasic" class="panel-collapse collapse in">';
         echo '<div class="box-body">';
@@ -2367,8 +2427,12 @@ abstract class FOGPage extends FOGBase
         echo '</div>';
         echo '<div class="panel box box-warning">';
         echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title"><a class="" data-toggle="collapse" data-parent="#taskAccordian" href="#tasksAdvance">';
-        echo _('Advanced Actions') . '</a></h4>';
+        echo '<h4 class="box-title">';
+        echo '<a href="#tasksAdvance" class="" '
+            . 'data-toggle="collapse" data-parent="#taskAccordian">';
+        echo _('Advanced Actions')
+            . '</a>';
+        echo '</h4>';
         echo '</div>';
         echo '<div id="tasksAdvance" class="panel-collapse collapse">';
         echo '<div class="box-body">';
@@ -2407,14 +2471,14 @@ abstract class FOGPage extends FOGBase
     /**
      * Displays the AD options
      *
-     * @param mixed  $useAD        whether to use ad or not
-     * @param string $ADDomain     the domain to select
-     * @param string $ADOU         the ou to select
-     * @param string $ADUser       the user to use
-     * @param string $ADPass       the password
-     * @param mixed  $enforce      enforced selected
-     * @param mixed  $ownElement   do we need to be our own container
-     * @param mixed  $retFields    return just the fields?
+     * @param mixed  $useAD      whether to use ad or not
+     * @param string $ADDomain   the domain to select
+     * @param string $ADOU       the ou to select
+     * @param string $ADUser     the user to use
+     * @param string $ADPass     the password
+     * @param mixed  $enforce    enforced selected
+     * @param mixed  $ownElement do we need to be our own container
+     * @param mixed  $retFields  return just the fields?
      *
      * @return void
      */
@@ -2539,9 +2603,10 @@ abstract class FOGPage extends FOGBase
                 _('Domain Password'),
                 _('Will auto-encrypt plaintext')
             ) => sprintf(
-                '<div class="input-group"><input id="adPassword" class="form-control" type='
-                . '"password" '
-                . 'name="domainpassword" value="%s" autocomplete="off"/></div>',
+                '<div class="input-group">'
+                . '<input id="adPassword" class="form-control" type='
+                . '"password" name="domainpassword" value="%s" '
+                . 'autocomplete="off"/></div>',
                 $ADPass
             ),
             sprintf(
@@ -2580,12 +2645,17 @@ abstract class FOGPage extends FOGBase
         echo '<!-- Active Directory -->';
         if ($ownElement) {
             echo '<div class="box box-solid">';
-            echo '<form id="active-directory-form" class="form-horizontal" method="post" action="'
-                . $this->formAction
-                . '&tab='
-                . $node
-                . '-active-directory'
-                . '" novalidate>';
+            echo self::makeFormTag(
+                'form-horizontal',
+                'active-directory-form',
+                self::makeTabUpdateURL(
+                    $node . '-active-directory',
+                    $this->obj->get('id')
+                ),
+                'post',
+                'application/x-www-form-urlencoded',
+                true
+            );
             echo '<div id="'
                 . $node
                 . '-active-directory" class="">';
@@ -2598,11 +2668,20 @@ abstract class FOGPage extends FOGBase
             . '"fakes hidden"/>';
         echo $rendered;
         if ($ownElement) {
-            echo '  </div>';
-            echo '  <div class="box-footer">';
-            echo '      <button class="btn btn-primary" id="ad-send">' . _('Update') . '</button>';
-            echo '      <button class="btn btn-danger pull-right" id="ad-clear">' . _('Clear Fields') . '</button>';
-            echo '  </div>';
+            $buttons = self::makeButton(
+                'ad-send',
+                _('Update'),
+                'btn btn-primary'
+            );
+            $buttons .= self::makeButton(
+                'ad-clear',
+                _('Clear Fields'),
+                'btn btn-danger pull-right'
+            );
+            echo '</div>';
+            echo '<div class="box-footer">';
+            echo $buttons;
+            echo '</div>';
             echo '</form>';
             echo '</div>';
             echo '</div>';
@@ -3563,11 +3642,16 @@ abstract class FOGPage extends FOGBase
                         $primac = array_shift($macs);
                         $index = array_search('productKey', $dbkeys) + 1;
                         $test_encryption = self::aesdecrypt($data[$index]);
+                        $test_base64 = mb_detect_encoding(
+                            $test_encryption,
+                            'utf-8',
+                            true
+                        );
                         if ($test_base64 = base64_decode($data[$index])) {
                             if (mb_detect_encoding($test_base64, 'utf-8', true)) {
                                 $data[$index] = $test_base64;
                             }
-                        } elseif (mb_detect_encoding($test_encryption, 'utf-8', true)) {
+                        } elseif ($test_base64) {
                             $data[$index] = $test_encryption;
                         }
                     }
@@ -3758,31 +3842,36 @@ abstract class FOGPage extends FOGBase
             . '<input type="text" name="scheduleCronMin" '
             . 'placeholder="'
             . _('minutes')
-            . '" autocomplete="off" class="form-control scheduleCronMin cronInput"/>'
+            . '" autocomplete="off" class="form-control '
+            . 'scheduleCronMin cronInput"/>'
             . '</div>'
             . '<div class="col-sm-2">'
             . '<input type="text" name="scheduleCronHour" '
             . 'placeholder="'
             . _('hours')
-            . '" autocomplete="off" class="form-control scheduleCronHour cronInput"/>'
+            . '" autocomplete="off" class="form-control '
+            . 'scheduleCronHour cronInput"/>'
             . '</div>'
             . '<div class="col-sm-2">'
             . '<input type="text" name="scheduleCronDOM" '
             . 'placeholder="'
             . _('dayOfMonth')
-            . '" autocomplete="off" class="form-control scheduleCronDOM cronInput"/>'
+            . '" autocomplete="off" class="form-control '
+            . 'scheduleCronDOM cronInput"/>'
             . '</div>'
             . '<div class="col-sm-2">'
             . '<input type="text" name="scheduleCronMonth" '
             . 'placeholder="'
             . _('month')
-            . '" autocomplete="off" class="form-control scheduleCronMonth cronInput"/>'
+            . '" autocomplete="off" class="form-control '
+            . 'scheduleCronMonth cronInput"/>'
             . '</div>'
             . '<div class="col-sm-2">'
             . '<input type="text" name="scheduleCronDOW" '
             . 'placeholder="'
             . _('dayOfWeek')
-            . '" autocomplete="off" class="form-control scheduleCronDOW cronInput"/>'
+            . '" autocomplete="off" class="form-control '
+            . 'scheduleCronDOW cronInput"/>'
             . '</div>'
             . '</div>'
             . '</div>',
@@ -3856,12 +3945,17 @@ abstract class FOGPage extends FOGBase
             $modaldelete = self::makeModal(
                 'deletepowermanagementmodal',
                 _('Delete All Powermanagement Items'),
-                _('This will delete all powermanagement items from all hosts in this group'),
+                _(
+                    'This will delete all powermanagement '
+                    . 'items from all hosts in this group'
+                ),
                 $modaldeleteBtns
             );
-            echo '<button class="btn btn-danger pull-right" id="powermanagement-delete">'
-                . _('Delete All')
-                . '</button>';
+            echo self::makeButton(
+                'powermanagement-delete',
+                _('Delete All'),
+                'btn btn-danger pull-right'
+            );
             echo $modaldelete;
         }
         echo '</div>';
@@ -3936,7 +4030,8 @@ abstract class FOGPage extends FOGBase
      *
      * @return string
      */
-    public static function formFields($fields) {
+    public static function formFields($fields)
+    {
         ob_start();
         foreach ($fields as $field => &$input) {
             echo '<div class="form-group">';
@@ -3949,8 +4044,15 @@ abstract class FOGPage extends FOGBase
         }
         return ob_get_clean();
     }
-
-    public static function stripedTable($fields) {
+    /**
+     * Build a striped table.
+     * 
+     * @param array $fields The fields to build the array from.
+     *
+     * @return string
+     */
+    public static function stripedTable($fields)
+    {
         ob_start();
         foreach ($fields as $field => &$input) {
             echo '<tr>';
@@ -3973,7 +4075,8 @@ abstract class FOGPage extends FOGBase
      *
      * @return string
      */
-    public static function tabFields($tabData, $obj = -1) {
+    public static function tabFields($tabData, $obj = -1)
+    {
         // Allow commonized tab data hooks.
         global $node;
         global $id;
@@ -4135,7 +4238,8 @@ abstract class FOGPage extends FOGBase
         $class = '',
         $size = false
     ) {
-        // TODO: Make this check array elements and make sure array elements "line up".
+        // TODO: Make this check array elements
+        // and make sure array elements "line up".
         // TODO: Make $name = $id field if name is blank.
     }
     /**
@@ -4156,8 +4260,6 @@ abstract class FOGPage extends FOGBase
     /**
      * Translates the code to string
      *
-     * @param int $code The code to get the status of.
-     *
      * @return string
      */
     public function getSocketCodeStr()
@@ -4169,12 +4271,13 @@ abstract class FOGPage extends FOGBase
         $socketstr = socket_strerror($code);
         $labelType = 'danger';
 
-        // Ping succeeded
-        if ($code == 0)
+        if ($code == 0) {
+            // Ping succeeded
             $labelType = 'success';
-        // No such device or address
-        else if ($code == 6)
+        } else if ($code == 6) {
+            // No such device or address
             $labelType = 'warning';
+        }
 
         $strtoupdate = '<span class="label label-'
             . $labelType
@@ -4226,8 +4329,7 @@ abstract class FOGPage extends FOGBase
      * @param bool   $autocomplete If autoomplete should be on or off.
      * @param int    $minlength    Minimum length of field if required.
      * @param int    $maxlength    Maximum length of field if required.
-     * @param string $extra        Any extra attributes to add. (This is
-     *   just a simple single string of extra information as needed.)
+     * @param string $extra        Any extra attributes to add.
      * @param bool   $readonly     Is this input to be readonly.
      * @param bool   $disabled     Is this input to be disabled.
      *
@@ -4275,8 +4377,7 @@ abstract class FOGPage extends FOGBase
      * @param string $method     The method to submit this port.
      * @param string $enctype    Encoding type the form is working with.
      * @param bool   $novalidate Should we stop natural validation.
-     * @param string $extra      Any extra attributes to add. (This is just a simple
-     *   single string of extra information as needed.)
+     * @param string $extra      Any extra attributes to add.
      *
      * @return string
      */
@@ -4308,10 +4409,7 @@ abstract class FOGPage extends FOGBase
      * @param mixed  $value        The value to assign to this input.
      * @param bool   $required     Is this input required.
      * @param bool   $autocomplete If autoomplete should be on or off.
-     * @param int    $minlength    Minimum length of field if required.
-     * @param int    $maxlength    Maximum length of field if required.
-     * @param string $extra        Any extra attributes to add. (This is
-     *   just a simple single string of extra information as needed.)
+     * @param string $extra        Any extra attributes to add.
      * @param bool   $readonly     Is this input to be readonly.
      * @param bool   $disabled     Is this input to be disabled.
      *
@@ -4341,8 +4439,6 @@ abstract class FOGPage extends FOGBase
             . ($readonly ? 'readonly ' : '')
             . ($disabled ? 'disabled ' : '')
             . 'autocomplete="' . ($autocomplete ? 'on' : 'off') . '"'
-            . ($minlength > 0 ? ' minlength="' . $minlength . '"' : '')
-            . ($maxlength > 0 ? ' maxlength="' . $maxlength . '"' : '')
             . ($extra ? " $extra" : '')
             . '>'
             . $value

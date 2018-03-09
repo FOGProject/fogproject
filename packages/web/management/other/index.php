@@ -53,10 +53,11 @@ echo '<![endif]-->';
 unset($this->stylesheets);
 echo '</head>';
 echo '<body class="';
-if (!self::$FOGUser->isValid())
+if (!self::$FOGUser->isValid()) {
     echo 'hold-transition login-page';
-else
-echo 'hold-transition skin-blue sidebar-mini';
+} else {
+    echo 'hold-transition skin-blue sidebar-mini';
+}
 echo '">';
 
 if (self::$FOGUser->isValid()) {
@@ -94,7 +95,7 @@ if (self::$FOGUser->isValid()) {
     //echo '              </div>';
     echo '              <div class="">';
     echo '                  <center><a class="">' . trim(self::$FOGUser->get('name')) . '</a></center>';
-   // echo '                  <a href="#"><i class="fa fa-circle text-success"></i> Online</a>';
+    // echo '                  <a href="#"><i class="fa fa-circle text-success"></i> Online</a>';
     echo '              </div>';
     echo '          </div>';
     echo '          <form id="universal-search-form" class="sidebar-form" action="../fog/unisearch" method="post">';

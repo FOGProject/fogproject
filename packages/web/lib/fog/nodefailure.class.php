@@ -26,7 +26,12 @@ class NodeFailure extends FOGController
      *
      * @var string
      */
-    protected $loadQueryTemplate = "SELECT * FROM `%s` WHERE `%s`='%s' AND TIMESTAMP(`nfDateTime`) BETWEEN TIMESTAMP(DATE_ADD(NOW(), INTERVAL -5 MINUTE)) AND TIMESTAMP(NOW())";
+    protected $loadQueryTemplate = "SELECT * 
+        FROM `%s`
+        WHERE `%s`='%s'
+        AND TIMESTAMP(`nfDateTime`)
+        BETWEEN TIMESTAMP(DATE_ADD(NOW(), INTERVAL -5 MINUTE))
+        AND TIMESTAMP(NOW())";
     /**
      * The node failure table.
      *

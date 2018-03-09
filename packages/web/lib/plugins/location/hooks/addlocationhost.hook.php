@@ -89,7 +89,7 @@ class AddLocationHost extends Hook
         $arguments['pluginsTabData'][] = [
             'name' => _('Location Association'),
             'id' => 'host-location',
-            'generator' => function() use ($obj) {
+            'generator' => function () use ($obj) {
                 $this->hostLocation($obj);
             }
         ];

@@ -1810,7 +1810,7 @@ class HostManagementPage extends FOGPage
             $ix = $this->obj->get('hostscreen')->get('width');
             if ($ix) {
                 $x = $ix;
-           }
+            }
         } else {
             $x = $ix;
         }
@@ -2890,7 +2890,7 @@ class HostManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('General'),
             'id' => 'host-general',
-            'generator' => function() {
+            'generator' => function () {
                 $this->hostGeneral();
             }
         ];
@@ -2899,7 +2899,7 @@ class HostManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('MAC Addresses'),
             'id' => 'host-macaddress',
-            'generator' => function() {
+            'generator' => function () {
                 $this->hostMacaddress();
             }
         ];
@@ -2909,7 +2909,7 @@ class HostManagementPage extends FOGPage
             $tabData[] = [
                 'name' =>  _('Tasks'),
                 'id' => 'host-tasks',
-                'generator' => function() {
+                'generator' => function () {
                     $this->basictasksOptions();
                 }
             ];
@@ -2923,21 +2923,21 @@ class HostManagementPage extends FOGPage
                     [
                         'name' => _('Groups'),
                         'id' => 'host-groups',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->hostGroups();
                         }
                     ],
                     [
                         'name' => _('Printers'),
                         'id' => 'host-printers',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->hostPrinters();
                         }
                     ],
                     [
                         'name' => _('Snapins'),
                         'id' => 'host-snapins',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->hostSnapins();
                         }
                     ],
@@ -2953,14 +2953,14 @@ class HostManagementPage extends FOGPage
                     [
                         'name' => _('Client Module Settings'),
                         'id' => 'host-service',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->hostService();
                         }
                     ],
                     [
                         'name' =>  _('Active Directory'),
                         'id' => 'host-active-directory',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->adFieldsToDisplay(
                                 $this->obj->get('useAD'),
                                 $this->obj->get('ADDomain'),
@@ -2974,7 +2974,7 @@ class HostManagementPage extends FOGPage
                     [
                         'name' => _('Power Management'),
                         'id' => 'host-powermanagement',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->hostPowermanagement();
                         }
                     ]
@@ -2986,7 +2986,7 @@ class HostManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('Inventory'),
             'id' => 'host-inventory',
-            'generator' => function() {
+            'generator' => function () {
                 $this->hostInventory();
             }
         ];
@@ -2999,7 +2999,7 @@ class HostManagementPage extends FOGPage
                     [
                         'name' => _('Login History'),
                         'id' => 'host-login-history',
-                        'generator' => function() {
+                        'generator' => function () {
                             //$this->hostLoginHistory();
                             echo 'TODO: Make functional';
                         }
@@ -3007,7 +3007,7 @@ class HostManagementPage extends FOGPage
                     [
                         'name' => _('Imaging History'),
                         'id' => 'host-image-history',
-                        'generator' => function() {
+                        'generator' => function () {
                             //$this->hostImageHistory();
                             echo 'TODO: Make functional';
                         }
@@ -3015,7 +3015,7 @@ class HostManagementPage extends FOGPage
                     [
                         'name' => _('Snapin History'),
                         'id' => 'host-snapin-history',
-                        'generator' => function() {
+                        'generator' => function () {
                             //$this->hostSnapinHistory();
                             echo 'TODO: Make functional';
                         }

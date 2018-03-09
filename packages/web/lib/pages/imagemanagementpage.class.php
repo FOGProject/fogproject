@@ -323,7 +323,7 @@ class ImageManagementPage extends FOGPage
         echo self::makeFormTag(
             'form-horizontal',
             'image-create-form',
-            $this->formAction   ,
+            $this->formAction,
             'post',
             'application/x-www-form-urlencoded',
             true
@@ -360,7 +360,8 @@ class ImageManagementPage extends FOGPage
         $image = trim(
             filter_input(
                 INPUT_POST,
-                'image')
+                'image'
+            )
         );
         $description = trim(
             filter_input(
@@ -1078,7 +1079,7 @@ class ImageManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('General'),
             'id' => 'image-general',
-            'generator' => function() {
+            'generator' => function () {
                 $this->imageGeneral();
             }
         ];
@@ -1091,14 +1092,14 @@ class ImageManagementPage extends FOGPage
                     [
                         'name' => _('Hosts'),
                         'id' => 'image-hosts',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->imageHosts();
                         }
                     ],
                     [
                         'name' => _('Storage Groups'),
                         'id' => 'image-storagegroups',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->imageStoragegroups();
                         }
                     ]

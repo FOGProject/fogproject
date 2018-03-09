@@ -468,7 +468,7 @@ class LocationManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('General'),
             'id' => 'location-general',
-            'generator' => function() {
+            'generator' => function () {
                 $this->locationGeneral();
             }
         ];
@@ -477,7 +477,7 @@ class LocationManagementPage extends FOGPage
         $tabData[] = [
             'name' => _('Host Membership'),
             'id' => 'location-membership',
-            'generator' => function() {
+            'generator' => function () {
                 $this->locationMembership();
             }
         ];
