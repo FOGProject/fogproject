@@ -444,6 +444,11 @@ class PDODB extends DatabaseManager
      */
     public function insertId()
     {
+        if (is_bool(self::$_link)) {
+            if (!self::$_link) {
+                die(_('Database connection unavailable'));
+            }
+        }
         return self::$_link->lastInsertId();
     }
     /**
