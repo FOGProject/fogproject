@@ -2396,9 +2396,6 @@ msgstr "Export CSV"
 msgid "Export PDF"
 msgstr "Export PDF"
 
-msgid "All Pending MACs approved."
-msgstr "Tous les MACs en attente approuvés."
-
 msgid "Pending MAC Export"
 msgstr "En attente MAC Export"
 
@@ -4836,10 +4833,6 @@ msgstr "Informations sur le serveur invalide!"
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
-#, fuzzy
-msgid "Unable to retrieve server information!"
-msgstr "Impossible de trouver des informations de base"
-
 msgid "General Information"
 msgstr "Informations générales"
 
@@ -6363,14 +6356,6 @@ msgstr "snapin par hôte"
 msgid "You are only allowed to assign"
 msgstr "Vous êtes seulement autorisé à attribuer"
 
-#, fuzzy
-msgid "ID Must be set to edit"
-msgstr "Doit être crypté"
-
-#, fuzzy, php-format
-msgid "%s ID %d is not valid"
-msgstr "%s ID %s est pas valide"
-
 msgid "Inventory ID"
 msgstr "N ° d'inventaire"
 
@@ -6716,10 +6701,6 @@ msgstr ""
 
 msgid "It will operate based on the fields the area typcially requires."
 msgstr ""
-
-#, fuzzy
-msgid "File must be a csv"
-msgstr "Événement doit être une chaîne"
 
 msgid "Could not find temp filename"
 msgstr "Impossible de trouver le nom de fichier temporaire"

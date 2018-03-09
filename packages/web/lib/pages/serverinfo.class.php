@@ -95,7 +95,6 @@ class ServerInfo extends FOGPage
             return;
         }
         $ret = self::$FOGURLRequests->process($url);
-        $ret = array_shift($ret);
         if (!$ret) {
             echo '<div class="col-md-12">';
             echo '<div class="box box-warning">';
@@ -109,7 +108,7 @@ class ServerInfo extends FOGPage
             echo '</div>';
             echo '</div>';
             echo '<div class="box-body">';
-            echo _('Unable to retrieve server information!');
+            echo _('Server appears to be offline or unavailable!');
             echo '</div>';
             echo '</div>';
             echo '</div>';
