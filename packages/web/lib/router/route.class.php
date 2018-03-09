@@ -503,10 +503,18 @@ class Route extends FOGBase
             $columns[] = ['db' => 'hmMAC', 'dt' => 'primac'];
             break;
         case 'group':
-            $columns[] = ['db' => 'gmMembers', 'dt' => 'members', 'removeFromQuery' => true];
+            $columns[] = [
+                'db' => 'gmMembers',
+                'dt' => 'members',
+                'removeFromQuery' => true
+            ];
             break;
         case 'storagegroup':
-            $columns[] = ['db' => 'totalclients', 'dt' => 'totalclients', 'removeFromQuery' => true];
+            $columns[] = [
+                'db' => 'totalclients',
+                'dt' => 'totalclients',
+                'removeFromQuery' => true
+            ];
             break;
         case 'storagenode':
             $columns[] = ['db' => 'ngID', 'dt' => 'storagegroupID'];
