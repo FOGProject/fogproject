@@ -253,9 +253,6 @@ abstract class FOGPage extends FOGBase
             || !is_numeric($id)
             || $id < 1)
         ) {
-            self::setMessage(
-                _('ID Must be set to edit')
-            );
             self::redirect(
                 "../management/index.php?node=$node"
             );
@@ -316,13 +313,6 @@ abstract class FOGPage extends FOGBase
                 );
                 if ($id === 0 || !is_numeric($id) || !$this->obj->isValid()) {
                     unset($this->obj);
-                    self::setMessage(
-                        sprintf(
-                            _('%s ID %d is not valid'),
-                            $this->childClass,
-                            $id
-                        )
-                    );
                     self::redirect("../management/index.php?node={$this->node}");
                 }
             }
@@ -1271,9 +1261,6 @@ abstract class FOGPage extends FOGBase
                 throw new Exception(_('Cannot set tasking as image is not enabled'));
             }
         } catch (Exception $e) {
-            self::setMessage(
-                $e->getMessage()
-            );
             self::redirect(
                 sprintf(
                     '../management/index.php?node=%s&sub=edit%s',
@@ -3518,7 +3505,6 @@ abstract class FOGPage extends FOGBase
             $mime = $_FILES['file']['type'];
             if (!in_array($mime, $mimes)) {
                 if ($ext !== 'csv') {
-                    self::setMessage(_('File must be a csv'));
                     self::redirect($this->formAction);
                 }
             }

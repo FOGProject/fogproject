@@ -3188,7 +3188,6 @@ class FOGConfigurationPage extends FOGPage
             }
             echo '</div>';
         } catch (Exception $e) {
-            self::setMessage($e->getMessage());
             self::redirect($this->formAction);
         }
     }

@@ -38,7 +38,6 @@ class Pending_MAC_List extends ReportManagementPage
                         'pending' => 0
                     )
                 );
-            self::setMessage(_('All Pending MACs approved.'));
         }
         $this->title = _('Pending MAC Export');
         echo '</h2>';
