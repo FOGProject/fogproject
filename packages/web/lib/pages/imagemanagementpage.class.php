@@ -305,18 +305,18 @@ class ImageManagementPage extends FOGPage
                 'checked'
             )
         ];
-        self::$HookManager
-            ->processEvent(
-                'IMAGE_ADD_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'Image' => self::getClass('Image')
-                ]
-            );
         $buttons = self::makeButton(
             'send',
             _('Create'),
             'btn btn-primary'
+        );
+        self::$HookManager->processEvent(
+            'IMAGE_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'Image' => self::getClass('Image')
+            ]
         );
         $rendered = self::formFields($fields);
         unset($fields);
@@ -336,7 +336,6 @@ class ImageManagementPage extends FOGPage
         echo _('Create New Image');
         echo '</h4>';
         echo '</div>';
-        echo '<!-- Image General -->';
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';

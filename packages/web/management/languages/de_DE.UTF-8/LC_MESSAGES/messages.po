@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 14:55-0500\n"
+"POT-Creation-Date: 2018-03-10 17:53-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -1195,10 +1195,6 @@ msgid "Windows Key for Image"
 msgstr "Windows-Schlüssel für Image"
 
 #, fuzzy
-msgid "Windows Keys"
-msgstr "Windows Keys"
-
-#, fuzzy
 msgid "Export Windows Keys"
 msgstr "Windows-Schlüssel exportieren"
 
@@ -1207,35 +1203,44 @@ msgid "Import Windows Keys"
 msgstr "Windows-Schlüssel importieren"
 
 #, fuzzy
+msgid "Windows Keys"
+msgstr "Windows Keys"
+
+#, fuzzy
 msgid "Windows Key Name"
 msgstr "Windows-Schlüsselname"
 
 #, fuzzy
-msgid "New Windows Key"
-msgstr "Neuer Windows-Schlüssel"
+msgid "Product Key"
+msgstr "Host Produktschlüssel"
+
+#, fuzzy
+msgid "Create New Windows Key"
+msgstr "Neuen Drucker erstellen"
+
+#, fuzzy
+msgid "Windows 10 Professional"
+msgstr "Windows-Schlüssel beschreibung"
 
 #, fuzzy
 msgid "Windows Key Description"
 msgstr "Windows-Schlüssel beschreibung"
 
 #, fuzzy
-msgid "Windows Key"
-msgstr "Windows Schlüssel"
+msgid "Windows Product key"
+msgstr "Host Produktschlüssel"
 
 #, fuzzy
-msgid "Create New Key"
-msgstr "Neuen Schlüssel erstellen"
-
-msgid "Not able to add"
-msgstr "Hinzufügen nicht möglich"
+msgid "A windows key name is required!"
+msgstr "Ein Hostname ist erforderlich!"
 
 #, fuzzy
 msgid "A Windows Key already exists with this name!"
 msgstr "Ein Windows-Schlüssel mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
-msgid "Add Windows Key failed!"
-msgstr "Windows-Schlüssel hinzufügen fehlgeschlagen"
+msgid "Add windows key failed!"
+msgstr "Hinzufügen eines Hosts fehlgeschlagen!"
 
 #, fuzzy
 msgid "Windows Key added!"
@@ -1250,16 +1255,12 @@ msgid "Windows Key Create Fail"
 msgstr "Windows-Schlüssel erstellen fehlgeschlagen"
 
 #, fuzzy
-msgid "Windows Key General"
-msgstr "Windows-Schlüssel allgemein"
+msgid "Associations"
+msgstr "Image Zugehörigkeiten"
 
 #, fuzzy
-msgid "Make Changes?"
-msgstr "Änderungen speichern?"
-
-#, fuzzy
-msgid "Update Windows Key failed!"
-msgstr "Windows-Schlüssel aktualisieren fehlgeschlagen"
+msgid "Windows Key update failed!"
+msgstr "Windows-Schlüssel aktualisiert"
 
 #, fuzzy
 msgid "Windows Key updated!"
@@ -1272,29 +1273,6 @@ msgstr "Windows-Schlüssel erfolgreich aktualisiert"
 #, fuzzy
 msgid "Windows Key Update Fail"
 msgstr "Windows-Schlüssel aktualisieren fehlgeschlagen"
-
-msgid "Image Name"
-msgstr "Image-Name"
-
-#, fuzzy
-msgid "Image Membership"
-msgstr "Image-Mitgliedschaft"
-
-#, fuzzy
-msgid "Check here to see what images can be added"
-msgstr "Prüfen Sie hier, welche Images hinzugefügt werden können"
-
-#, fuzzy
-msgid "Add selected images"
-msgstr "ausgewählte Images hinzufügen"
-
-#, fuzzy
-msgid "Remove Images"
-msgstr "Images entfernen"
-
-#, fuzzy
-msgid "Remove selected images"
-msgstr "ausgewählte Images entfernen"
 
 msgid "Windows keys is a plugin that associates product keys"
 msgstr "Windows Keys ist ein Plugin, das Produktschlüssel für"
@@ -1640,10 +1618,6 @@ msgid "Site User Associations"
 msgstr "Site Zugehörigkeit"
 
 #, fuzzy
-msgid "Associations"
-msgstr "Image Zugehörigkeiten"
-
-#, fuzzy
 msgid "Host Association"
 msgstr "zugeordneter Host"
 
@@ -1751,6 +1725,10 @@ msgstr "Erstellen eines Broadcasts fehlgeschlagen"
 #, fuzzy
 msgid "WOL Broadcast General"
 msgstr "WOLBroadcast allgemein"
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "Änderungen speichern?"
 
 #, fuzzy
 msgid "A broadcast already exists with this name"
@@ -2207,6 +2185,9 @@ msgstr "Passwort binden"
 msgid "Create New LDAP"
 msgstr "Neues LDAP erstellen"
 
+msgid "Not able to add"
+msgstr "Hinzufügen nicht möglich"
+
 msgid "Please enter a name for this LDAP server."
 msgstr "Bitte geben Sie einen Namen für den LDAP-Server an."
 
@@ -2600,6 +2581,9 @@ msgstr "Host HD-Gerät"
 
 msgid "Image ID"
 msgstr "Image-ID"
+
+msgid "Image Name"
+msgstr "Image-Name"
 
 msgid "Image Desc"
 msgstr "Image-Desc"

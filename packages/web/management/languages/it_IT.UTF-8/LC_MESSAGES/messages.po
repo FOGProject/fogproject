@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 14:55-0500\n"
+"POT-Creation-Date: 2018-03-10 17:53-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1165,41 +1165,48 @@ msgstr "Sistema operativo"
 msgid "Windows Key for Image"
 msgstr "Chiave di Windows per l'immagine"
 
-msgid "Windows Keys"
-msgstr "Chiave Windows"
-
 msgid "Export Windows Keys"
 msgstr "Esporta chiavi Windows"
 
 msgid "Import Windows Keys"
 msgstr "Importa chiavi Windows"
 
+msgid "Windows Keys"
+msgstr "Chiave Windows"
+
 msgid "Windows Key Name"
 msgstr "Nome chiave di Windows"
 
-msgid "New Windows Key"
-msgstr "Nuova chiave di Windows"
+#, fuzzy
+msgid "Product Key"
+msgstr "Host Product Key"
+
+#, fuzzy
+msgid "Create New Windows Key"
+msgstr "Crea nuova stampante"
+
+#, fuzzy
+msgid "Windows 10 Professional"
+msgstr "Descrizione chiave di Windows"
 
 msgid "Windows Key Description"
 msgstr "Descrizione chiave di Windows"
 
-msgid "Windows Key"
-msgstr "Chiave di Windows"
+#, fuzzy
+msgid "Windows Product key"
+msgstr "Host Product Key"
 
 #, fuzzy
-msgid "Create New Key"
-msgstr "Crea nuovo %s"
-
-msgid "Not able to add"
-msgstr "Non in grado di aggiungere"
+msgid "A windows key name is required!"
+msgstr "È richiesto un nome host!"
 
 #, fuzzy
 msgid "A Windows Key already exists with this name!"
 msgstr "Un host già esiste con questo nome!"
 
 #, fuzzy
-msgid "Add Windows Key failed!"
-msgstr "Nome chiave di Windows"
+msgid "Add windows key failed!"
+msgstr "Aggiunta host non riuscita!"
 
 #, fuzzy
 msgid "Windows Key added!"
@@ -1214,15 +1221,12 @@ msgid "Windows Key Create Fail"
 msgstr "Creazione utente fallita"
 
 #, fuzzy
-msgid "Windows Key General"
-msgstr "Nome chiave di Windows"
-
-msgid "Make Changes?"
-msgstr "Applicare cambiamenti?"
+msgid "Associations"
+msgstr "Associazioni di immagini"
 
 #, fuzzy
-msgid "Update Windows Key failed!"
-msgstr "Aggiornamento tipo attività fallita!"
+msgid "Windows Key update failed!"
+msgstr "Chiave di Windows Aggiornata"
 
 #, fuzzy
 msgid "Windows Key updated!"
@@ -1235,29 +1239,6 @@ msgstr "Chiave di Windows Aggiornata"
 #, fuzzy
 msgid "Windows Key Update Fail"
 msgstr "Chiave di Windows Aggiornata"
-
-msgid "Image Name"
-msgstr "Nome immagine"
-
-#, fuzzy
-msgid "Image Membership"
-msgstr "membri"
-
-#, fuzzy
-msgid "Check here to see what images can be added"
-msgstr "Controllare qui per vedere cosa è possibile aggiungere stampanti"
-
-#, fuzzy
-msgid "Add selected images"
-msgstr "Aggiungi stampanti selezionate"
-
-#, fuzzy
-msgid "Remove Images"
-msgstr "Rimuovere"
-
-#, fuzzy
-msgid "Remove selected images"
-msgstr "Rimuovi i selezionati"
 
 msgid "Windows keys is a plugin that associates product keys"
 msgstr "Tasti di Windows è un plugin che associa le chiavi di prodotto"
@@ -1578,10 +1559,6 @@ msgid "Site User Associations"
 msgstr "Associazione Sito"
 
 #, fuzzy
-msgid "Associations"
-msgstr "Associazioni di immagini"
-
-#, fuzzy
 msgid "Host Association"
 msgstr "Host associato"
 
@@ -1675,6 +1652,9 @@ msgstr "Creazione Broadcast fallita"
 
 msgid "WOL Broadcast General"
 msgstr "WOL Broadcast Generale"
+
+msgid "Make Changes?"
+msgstr "Applicare cambiamenti?"
 
 msgid "A broadcast already exists with this name"
 msgstr "Un broadcast esiste già con questo nome"
@@ -2072,6 +2052,9 @@ msgstr "Bind Password"
 msgid "Create New LDAP"
 msgstr "Crea nuovo LDAP"
 
+msgid "Not able to add"
+msgstr "Non in grado di aggiungere"
+
 msgid "Please enter a name for this LDAP server."
 msgstr "Si prega di inserire un nome per questo server LDAP."
 
@@ -2419,6 +2402,9 @@ msgstr "Host Dispositivo HD"
 
 msgid "Image ID"
 msgstr "ID immagine"
+
+msgid "Image Name"
+msgstr "Nome immagine"
 
 msgid "Image Desc"
 msgstr "immagine Desc"
