@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 14:19-0500\n"
+"POT-Creation-Date: 2018-03-10 14:27-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4711,6 +4711,29 @@ msgstr "30 minuti"
 
 msgid "1 Hour"
 msgstr "1 ora"
+
+msgid "No activity information available for this group"
+msgstr ""
+
+msgid "Free"
+msgstr ""
+
+#, fuzzy
+msgid "No Data Available"
+msgstr "Non disponibile"
+
+msgid "used"
+msgstr ""
+
+#, fuzzy
+msgid "Node is unavailable"
+msgstr "Percorso non disponibile"
+
+msgid "Node Offline"
+msgstr ""
+
+msgid "Used"
+msgstr ""
 
 msgid "Import Reports"
 msgstr "Importa Report"
