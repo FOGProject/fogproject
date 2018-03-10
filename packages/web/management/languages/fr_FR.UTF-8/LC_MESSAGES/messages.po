@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 00:16-0500\n"
+"POT-Creation-Date: 2018-03-10 14:55-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -976,6 +976,34 @@ msgstr "La langue"
 msgid "Missing one or more extensions."
 msgstr "Extensions manquantes"
 
+msgid "MAIN NAVIGATION"
+msgstr ""
+
+msgid "RESOURCES"
+msgstr ""
+
+msgid "Donate"
+msgstr ""
+
+msgid "News"
+msgstr ""
+
+#, fuzzy
+msgid "Forums"
+msgstr "BROUILLARD Forums"
+
+msgid "Wiki"
+msgstr ""
+
+msgid "Channel"
+msgstr ""
+
+msgid "Copyright"
+msgstr ""
+
+msgid "All rights reserved."
+msgstr ""
+
 msgid "Invalid unit passed"
 msgstr "unité non valide passé"
 
@@ -1087,9 +1115,6 @@ msgstr "Comptes Slack"
 msgid "Account removed from FOG GUI at"
 msgstr "Compte retiré de FOG GUI au"
 
-msgid "Link Slack Account"
-msgstr "Lien compte Slack"
-
 msgid "Team"
 msgstr "Équipe"
 
@@ -1099,18 +1124,25 @@ msgstr "Créé par"
 msgid "User/Channel Name"
 msgstr "Utilisateur / Nom de la chaîne"
 
-msgid "Link New Account"
-msgstr "Lien Nouveau compte"
+msgid "Link Slack Account"
+msgstr "Lien compte Slack"
 
 msgid "Access Token"
 msgstr "Jeton d'accès"
 
-msgid "User/Channel to post to"
-msgstr "Utilisateur / Canal pour poster à"
+#, fuzzy
+msgid "Slack Token"
+msgstr "Comptes Slack"
 
 #, fuzzy
-msgid "Add Slack Account"
-msgstr "Comptes Slack"
+msgid "User/Channel"
+msgstr "Utilisateur / Nom de la chaîne"
+
+msgid "Slack User/Slack Channel"
+msgstr ""
+
+msgid "Create"
+msgstr "Créer"
 
 msgid "Must use an"
 msgstr ""
@@ -1198,9 +1230,6 @@ msgstr "Windows 8"
 #, fuzzy
 msgid "Create New Key"
 msgstr "Créer un nouveau %s"
-
-msgid "Create"
-msgstr "Créer"
 
 msgid "Not able to add"
 msgstr "Pas en mesure d'ajouter"
@@ -1653,7 +1682,11 @@ msgid "Email"
 msgstr "Email"
 
 #, fuzzy
-msgid "Add Pushbullet Account"
+msgid "Access token"
+msgstr "Jeton d'accès"
+
+#, fuzzy
+msgid "Pushbullet Token"
 msgstr "Comptes Pushbullet"
 
 #, fuzzy
@@ -6359,42 +6392,6 @@ msgstr "snapin par hôte"
 
 msgid "You are only allowed to assign"
 msgstr "Vous êtes seulement autorisé à attribuer"
-
-msgid "Inventory ID"
-msgstr "N ° d'inventaire"
-
-msgid "Inventory Desc"
-msgstr "Inventaire Desc"
-
-msgid "Other Tag 1"
-msgstr "Autre Tag 1"
-
-msgid "Other Tag 2"
-msgstr "Autre Tag 2"
-
-msgid "MB Manufacturer"
-msgstr "MB Fabricant"
-
-msgid "MB Name"
-msgstr "Nom MB"
-
-msgid "MB Version"
-msgstr "MB Version"
-
-msgid "MB Serial"
-msgstr "MB Serial"
-
-msgid "MB Asset"
-msgstr "MB Asset"
-
-msgid "HD Model"
-msgstr "HD Modèle"
-
-msgid "HD Firmware"
-msgstr "HD Firmware"
-
-msgid "HD Serial"
-msgstr "HD série"
 
 #, fuzzy
 msgid "Multicast Image"

@@ -261,7 +261,7 @@ function setupDiskUsage() {
         'text-decoration': 'none',
         'font-weight': 'bold'
     });
-    var updateDiskUsage = function() {
+    function updateDiskUsage() {
         var now = new Date().getTime(),
             nodeid = $('.nodeid').val();
         if (!loadings.diskusage) {

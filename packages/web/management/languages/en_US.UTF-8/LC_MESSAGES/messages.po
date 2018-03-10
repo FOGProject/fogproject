@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 00:16-0500\n"
+"POT-Creation-Date: 2018-03-10 14:55-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -974,6 +974,34 @@ msgstr "Language"
 msgid "Missing one or more extensions."
 msgstr "Missing Extensions"
 
+msgid "MAIN NAVIGATION"
+msgstr ""
+
+msgid "RESOURCES"
+msgstr ""
+
+msgid "Donate"
+msgstr ""
+
+msgid "News"
+msgstr ""
+
+#, fuzzy
+msgid "Forums"
+msgstr "FOG Forums"
+
+msgid "Wiki"
+msgstr ""
+
+msgid "Channel"
+msgstr ""
+
+msgid "Copyright"
+msgstr ""
+
+msgid "All rights reserved."
+msgstr ""
+
 msgid "Invalid unit passed"
 msgstr "Invalid unit passed"
 
@@ -1085,9 +1113,6 @@ msgstr "Slack Accounts"
 msgid "Account removed from FOG GUI at"
 msgstr "Account removed from FOG GUI at"
 
-msgid "Link Slack Account"
-msgstr "Link Slack Account"
-
 msgid "Team"
 msgstr "Team"
 
@@ -1097,18 +1122,25 @@ msgstr "Created By"
 msgid "User/Channel Name"
 msgstr "User/Channel Name"
 
-msgid "Link New Account"
-msgstr "Link New Account"
+msgid "Link Slack Account"
+msgstr "Link Slack Account"
 
 msgid "Access Token"
 msgstr "Access Token"
 
-msgid "User/Channel to post to"
-msgstr "User/Channel to post to"
+#, fuzzy
+msgid "Slack Token"
+msgstr "Slack Accounts"
 
 #, fuzzy
-msgid "Add Slack Account"
-msgstr "Slack Accounts"
+msgid "User/Channel"
+msgstr "User/Channel Name"
+
+msgid "Slack User/Slack Channel"
+msgstr ""
+
+msgid "Create"
+msgstr "Create"
 
 msgid "Must use an"
 msgstr ""
@@ -1196,9 +1228,6 @@ msgstr "Windows 8"
 #, fuzzy
 msgid "Create New Key"
 msgstr "Create New %s"
-
-msgid "Create"
-msgstr "Create"
 
 msgid "Not able to add"
 msgstr "Not able to add"
@@ -1651,7 +1680,11 @@ msgid "Email"
 msgstr "Email"
 
 #, fuzzy
-msgid "Add Pushbullet Account"
+msgid "Access token"
+msgstr "Access Token"
+
+#, fuzzy
+msgid "Pushbullet Token"
 msgstr "Pushbullet Accounts"
 
 #, fuzzy
@@ -6343,42 +6376,6 @@ msgstr "snapin per host"
 
 msgid "You are only allowed to assign"
 msgstr "You are only allowed to assign"
-
-msgid "Inventory ID"
-msgstr "Inventory ID"
-
-msgid "Inventory Desc"
-msgstr "Inventory Desc"
-
-msgid "Other Tag 1"
-msgstr "Other Tag 1"
-
-msgid "Other Tag 2"
-msgstr "Other Tag 2"
-
-msgid "MB Manufacturer"
-msgstr "MB Manufacturer"
-
-msgid "MB Name"
-msgstr "MB Name"
-
-msgid "MB Version"
-msgstr "MB Version"
-
-msgid "MB Serial"
-msgstr "MB Serial"
-
-msgid "MB Asset"
-msgstr "MB Asset"
-
-msgid "HD Model"
-msgstr "HD Model"
-
-msgid "HD Firmware"
-msgstr "HD Firmware"
-
-msgid "HD Serial"
-msgstr "HD Serial"
 
 #, fuzzy
 msgid "Multicast Image"
