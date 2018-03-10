@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-25 01:37-0500\n"
+"POT-Creation-Date: 2018-03-10 14:19-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -5958,6 +5958,10 @@ msgstr "Debug"
 msgid "Cannot connect to database"
 msgstr "Kann keine Verbindung zur Datenbank herstellen"
 
+#, fuzzy
+msgid "Database connection unavailable"
+msgstr "Datenbank nicht verfügbar"
+
 msgid "A valid database connection could not be made"
 msgstr "Eine gültige Datenbankverbindung konnte nicht hergestellt werden"
 
@@ -7457,10 +7461,3 @@ msgstr "Ungültig"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Gerätename muss eine Zeichenfolge sein."
-
-#, fuzzy
-msgid "File must be a string"
-msgstr "Dateiname muss eine Zeichenfolge sein."
-
-msgid "Only tx and rx bytes files can be read"
-msgstr "Nur tx und rx bytes-Dateien können gelesen werden"

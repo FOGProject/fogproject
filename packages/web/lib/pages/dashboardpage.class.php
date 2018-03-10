@@ -512,18 +512,19 @@ class DashboardPage extends FOGPage
         foreach ((array)$dates as $index => &$date) {
             $count = self::getClass('ImagingLogManager')
                 ->count(
-                    array(
+                    [
                         'start' => $date->format('Y-m-d%'),
                         'finish' => $date->format('Y-m-d%')
-                    ),
+                    ],
                     'OR'
                 );
-            $data[] = array(
+            $data[] = [
                 ($date->getTimestamp() * 1000),
                 $count
-            );
+            ];
             unset($date);
         }
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         echo json_encode($data);
         exit;
     }
@@ -534,38 +535,94 @@ class DashboardPage extends FOGPage
      */
     public function bandwidth()
     {
-        session_write_close();
-        ignore_user_abort(true);
-        set_time_limit(0);
+        header('Content-type: application/json');
         $sent = filter_input(
-            INPUT_GET,
+            INPUT_POST,
             'url',
             FILTER_DEFAULT,
             FILTER_REQUIRE_ARRAY
         );
         $names = filter_input(
-            INPUT_GET,
+            INPUT_POST,
             'names',
             FILTER_DEFAULT,
             FILTER_REQUIRE_ARRAY
         );
-        $urls = array();
+        $urls = [];
         foreach ((array)$sent as &$url) {
             $urls[] = $url;
             unset($url);
         }
-        $datas = self::$FOGURLRequests
-            ->process($urls);
-        $dataSet = array();
-        foreach ((array)$datas as &$data) {
-            $dataSet[] = json_decode($data, true);
-            unset($data);
+        $urls = array_values(
+            array_filter($urls)
+        );
+        $datas = self::$FOGURLRequests->process($urls);
+        $dataSet = [];
+        foreach ((array)$datas as $i => &$data) {
+            $d = json_decode($data);
+            $data = [
+                'dev' => $d->dev,
+                'name' => $names[$i],
+                'rx' => $d->rx,
+                'tx' => $d->tx
+            ];
+            $dataSet[] = $data;
+            unset($data, $d);
         }
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
+        echo json_encode($dataSet);
+        exit;
+    }
+    /**
+     * Test if the urls are available.
+     *
+     * @return array
+     */
+    public function testUrls()
+    {
+        header('Content-type: application/json');
+        $sent = filter_input(
+            INPUT_POST,
+            'url',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
+        $names = filter_input(
+            INPUT_POST,
+            'names',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
+        $testurls = [];
+        foreach ((array)$sent as &$url) {
+            $testurls[] = parse_url($url, PHP_URL_HOST);
+            unset($url);
+        }
+        $tests = self::$FOGURLRequests->isAvailable($testurls, 1);
+        unset($testurls);
+        foreach ($tests as $index => &$test) {
+            if (!$test) {
+                unset(
+                    $sent[$index],
+                    $names[$index]
+                );
+            }
+            unset($test);
+        }
+        $names = array_values(
+            array_filter($names)
+        );
+
+        $sent = array_values(
+            array_filter($sent)
+        );
+
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         echo json_encode(
-            array_combine(
-                $names,
-                $dataSet
-            )
+            [
+                'names' => $names,
+                'urls' => $sent
+            ]
         );
         exit;
     }
