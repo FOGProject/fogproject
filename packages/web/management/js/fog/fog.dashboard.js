@@ -205,15 +205,15 @@ function setupActivity() {
     var updateClientCountGraph = function(data) {
         updateClientCountData = [
             {
-                label: 'Free',
+                label: data._labels[0],
                 data: parseInt(data.ActivitySlots)
             },
             {
-                label: 'Queued',
+                label: data._labels[1],
                 data: parseInt(data.ActivityQueued)
             },
             {
-                label: 'Active',
+                label: data._labels[2],
                 data: parseInt(data.ActivityActive)
             }
         ];
@@ -286,11 +286,11 @@ function setupDiskUsage() {
     var updateDiskUsageGraph = function(data) {
         GraphDiskUsageData = [
             {
-                label: 'Free',
+                label: data._labels[0],
                 data: parseInt(data.free, 10)
             },
             {
-                label: 'Used',
+                label: data._labels[1],
                 data: parseInt(data.used, 10)
             }
         ];
