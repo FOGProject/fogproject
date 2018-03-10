@@ -278,7 +278,7 @@ class GroupManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Add group failed!'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'GROUP_ADD_SUCCESS';
             $msg = json_encode(
                 [
@@ -287,7 +287,11 @@ class GroupManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'GROUP_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -296,7 +300,10 @@ class GroupManagementPage extends FOGPage
                 ]
             );
         }
-        //header('Location: ../management/index.php?node=group&sub=edit&id=' . $Group->get('id'));
+        //header(
+        //    'Location: ../management/index.php?node=group&sub=edit&id='
+        //    . $Group->get('id')
+        //);
         self::$HookManager->processEvent(
             $hook,
             [
@@ -416,7 +423,10 @@ class GroupManagementPage extends FOGPage
         $modalreset = self::makeModal(
             'resetencryptionmodal',
             _('Reset Encryption Data'),
-            _('Resetting encryption data should only be done if you re-installed the FOG Client or are using Debugger'),
+            _(
+                'Resetting encryption data should only be done '
+                . 'if you re-installed the FOG Client or are using Debugger'
+            ),
             $modalresetBtn
         );
 
@@ -1816,7 +1826,7 @@ class GroupManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Group update failed!'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'GROUP_EDIT_SUCCESS';
             $msg = json_encode(
                 [
@@ -1825,7 +1835,11 @@ class GroupManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'GROUP_EDIT_FAIL';
             $msg = json_encode(
                 [

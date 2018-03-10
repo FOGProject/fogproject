@@ -70,9 +70,22 @@ class TaskManagementPage extends FOGPage
             . $this->formAction
             . '" ';
 
-        $this->_buttons = self::makeButton('resume-refresh', _('Resume Reload'), 'btn btn-success', null);
-        $this->_buttons .= self::makeButton('pause-refresh', _('Pause Reload'), 'btn btn-warning', null);
-        $this->_buttons .= self::makeButton('cancel-selected', _('Cancel Selected'), 'btn btn-danger', $props);
+        $this->_buttons = self::makeButton(
+            'resume-refresh',
+            _('Resume Reload'),
+            'btn btn-success'
+        );
+        $this->_buttons .= self::makeButton(
+            'pause-refresh',
+            _('Pause Reload'),
+            'btn btn-warning'
+        );
+        $this->_buttons .= self::makeButton(
+            'cancel-selected',
+            _('Cancel Selected'),
+            'btn btn-danger',
+            $props
+        );
     }
     /**
      * Get the active tasks
@@ -349,7 +362,7 @@ class TaskManagementPage extends FOGPage
                 $tasks = $tasks['tasks'];
                 self::getClass('TaskManager')->cancel($tasks);
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'TASK_CANCEL_SUCCESS';
             $msg = json_encode(
                 [
@@ -358,7 +371,11 @@ class TaskManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'TASK_CANCEL_FAIL';
             $msg = json_encode(
                 [
@@ -452,7 +469,7 @@ class TaskManagementPage extends FOGPage
             );
             self::getClass('TaskManager')->cancel($tasks);
             self::getClass('MulticastSessionManager')->cancel($mtasks);
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'TASK_CANCEL_SUCCESS';
             $msg = json_encode(
                 [
@@ -461,7 +478,11 @@ class TaskManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'TASK_CANCEL_FAIL';
             $msg = json_encode(
                 [
@@ -800,7 +821,7 @@ class TaskManagementPage extends FOGPage
                 );
                 self::getClass('ScheduledTaskManager')->destroy($tasks);
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'TASK_CANCEL_SUCCESS';
             $msg = json_encode(
                 [
@@ -809,7 +830,11 @@ class TaskManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'TASK_CANCEL_FAIL';
             $msg = json_encode(
                 [

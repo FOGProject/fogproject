@@ -2302,7 +2302,7 @@ abstract class FOGPage extends FOGBase
                         'title' => _('Unable to Authenticate')
                     ]
                 );
-                http_response_code(401);
+                http_response_code(HTTPResponseCodes::HTTP_UNAUTHORIZED);
                 exit;
             }
         }
@@ -2333,7 +2333,7 @@ abstract class FOGPage extends FOGBase
                 'title' => _('Delete Success')
             ]
         );
-        http_response_code(200);
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         exit;
     }
     /**
@@ -3358,7 +3358,7 @@ abstract class FOGPage extends FOGBase
                     'sec_time' => '0000-00-00 00:00:00'
                 ]
             );
-        http_response_code(201);
+        http_response_code(HTTPResponseCodes::HTTP_ACCEPTED);
         echo json_encode(
             [
                 'msg' => _('Encryption Data Reset'),

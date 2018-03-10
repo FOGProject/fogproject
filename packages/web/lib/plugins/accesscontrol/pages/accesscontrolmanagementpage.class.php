@@ -170,7 +170,7 @@ class AccessControlManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Add access control failed!'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'ACCESSCONTROL_ADD_SUCCESS';
             $msg = json_encode(
                 [
@@ -179,7 +179,11 @@ class AccessControlManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'ACCESSCONTROL_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -188,7 +192,10 @@ class AccessControlManagementPage extends FOGPage
                 ]
             );
         }
-        //header('Location: ../management/index.php?node=accesscontrol&sub=edit&id=' . $AccessControl->get('id'));
+        //header(
+        //    'Location: ../management/index.php?node=accesscontrol&sub=edit&id='
+        //    . $AccessControl->get('id')
+        //);
         self::$HookManager->processEvent(
             $hook,
             [
@@ -364,7 +371,7 @@ class AccessControlManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Role update failed!'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'ROLE_EDIT_SUCCESS';
             $msg = json_encode(
                 [
@@ -373,7 +380,11 @@ class AccessControlManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFalt ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'ROLE_EDIT_FAIL';
             $msg = json_encode(
                 [

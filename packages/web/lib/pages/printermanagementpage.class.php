@@ -129,7 +129,11 @@ class PrinterManagementPage extends FOGPage
         $fields = [
             '<label class="col-sm-2 control-label" for="printercopy">'
             . _('Copy from existing')
-            . '</label>' => self::getClass('PrinterManager')->buildSelectBox('', 'printercopy'),
+            . '</label>' => self::getClass('PrinterManager')
+            ->buildSelectBox(
+                '',
+                'printercopy'
+            ),
             '<label class="col-sm-2 control-label" for="printertype">'
             . _('Printer Type')
             . '</label>' => $printerSel
@@ -158,7 +162,8 @@ class PrinterManagementPage extends FOGPage
             . 'required/>',
             '<label class="col-sm-2 control-label" for="descnetwork">'
             . _('Printer Description')
-            . '</label>' => '<textarea name="description" id="descnetwork" class="form-control">'
+            . '</label>' => '<textarea name="description" id="descnetwork" '
+            . 'class="form-control">'
             . $description
             . '</textarea>',
             '<label class="col-sm-2 control-label" for="filenetwork">'
@@ -191,7 +196,8 @@ class PrinterManagementPage extends FOGPage
             . 'required/>',
             '<label class="col-sm-2 control-label" for="desciprint">'
             . _('Printer Description')
-            . '</label>' => '<textarea name="description" id="desciprint" class="form-control">'
+            . '</label>' => '<textarea name="description" id="desciprint" '
+            . 'class="form-control">'
             . $description
             . '</textarea>',
             '<label class="col-sm-2 control-label" for="portiprint">'
@@ -231,7 +237,8 @@ class PrinterManagementPage extends FOGPage
             . 'required/>',
             '<label class="col-sm-2 control-label" for="desccups">'
             . _('Printer Description')
-            . '</label>' => '<textarea name="description" id="desccups" class="form-control">'
+            . '</label>' => '<textarea name="description" id="desccups" '
+            . 'class="form-control">'
             . $description
             . '</textarea>',
             '<label class="col-sm-2 control-label" for="infcups">'
@@ -274,7 +281,8 @@ class PrinterManagementPage extends FOGPage
             . 'required/>',
             '<label class="col-sm-2 control-label" for="desclocal">'
             . _('Printer Description')
-            . '</label>' => '<textarea name="description" id="desclocal" class="form-control">'
+            . '</label>' => '<textarea name="description" id="desclocal" '
+            . 'class="form-control">'
             . $description
             . '</textarea>',
             '<label class="col-sm-2 control-label" for="portlocal">'
@@ -316,9 +324,14 @@ class PrinterManagementPage extends FOGPage
             . '</div>';
         unset($fields);
         echo '<div class="box box-solid" id="printer-create">';
-        echo '<form id="printer-create-form" class="form-horizontal" method="post action="'
-            . $this->formAction
-            . '" novalidate>';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'printer-create-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box-body">';
         echo '<!-- Printer General -->';
         echo '<div class="box box-primary">';
@@ -439,7 +452,7 @@ class PrinterManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Add printer failed!'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'PRINTER_ADD_SUCCESS';
             $msg = json_encode(
                 [
@@ -448,7 +461,11 @@ class PrinterManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'PRINTER_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -457,7 +474,10 @@ class PrinterManagementPage extends FOGPage
                 ]
             );
         }
-        //header('Location: ../management/index.php?node=host&sub=edit&id=' . $Printer->get('id'));
+        //header(
+        //    'Location: ../management/index.php?node=host&sub=edit&id='
+        //    . $Printer->get('id')
+        //);
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -544,7 +564,8 @@ class PrinterManagementPage extends FOGPage
             . 'required/>',
             '<label class="col-sm-2 control-label" for="descnetwork">'
             . _('Printer Description')
-            . '</label>' => '<textarea name="description" id="descnetwork" class="form-control">'
+            . '</label>' => '<textarea name="description" id="descnetwork" '
+            . 'class="form-control">'
             . $description
             . '</textarea>',
             '<label class="col-sm-2 control-label" for="filenetwork">'
@@ -577,7 +598,8 @@ class PrinterManagementPage extends FOGPage
             . 'required/>',
             '<label class="col-sm-2 control-label" for="desciprint">'
             . _('Printer Description')
-            . '</label>' => '<textarea name="description" id="desciprint" class="form-control">'
+            . '</label>' => '<textarea name="description" id="desciprint" '
+            . 'class="form-control">'
             . $description
             . '</textarea>',
             '<label class="col-sm-2 control-label" for="portiprint">'
@@ -617,7 +639,8 @@ class PrinterManagementPage extends FOGPage
             . 'required/>',
             '<label class="col-sm-2 control-label" for="desccups">'
             . _('Printer Description')
-            . '</label>' => '<textarea name="description" id="desccups" class="form-control">'
+            . '</label>' => '<textarea name="description" id="desccups" '
+            . 'class="form-control">'
             . $description
             . '</textarea>',
             '<label class="col-sm-2 control-label" for="infcups">'
@@ -660,7 +683,8 @@ class PrinterManagementPage extends FOGPage
             . 'required/>',
             '<label class="col-sm-2 control-label" for="desclocal">'
             . _('Printer Description')
-            . '</label>' => '<textarea name="description" id="desclocal" class="form-control">'
+            . '</label>' => '<textarea name="description" id="desclocal" '
+            . 'class="form-control">'
             . $description
             . '</textarea>',
             '<label class="col-sm-2 control-label" for="portlocal">'
@@ -701,9 +725,17 @@ class PrinterManagementPage extends FOGPage
             . self::formFields($fields)
             . '</div>';
         unset($fields);
-        echo '<form id="printer-general-form" class="form-horizontal" method="post" action="'
-            . self::makeTabUpdateURL('printer-general', $this->obj->get('id'))
-            . '" novalidate>';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'printer-general-form',
+            self::makeTabUpdateURL(
+                'printer-general',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
         echo '<div class="box-body">';
         echo $printerCopy;
@@ -857,8 +889,11 @@ class PrinterManagementPage extends FOGPage
     public function printerMembership()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=printer-membership" ';
+            . self::makeTabUpdateURL(
+                'printer-hosts',
+                $this->obj->get('id')
+            )
+            . '" ';
 
         echo '<!-- Host Membership -->';
         echo '<div class="box-group" id="membership">';
@@ -1072,7 +1107,7 @@ class PrinterManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Printer update failed!'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'PRINTER_EDIT_SUCCESS';
             $msg = json_encode(
                 [
@@ -1081,7 +1116,11 @@ class PrinterManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'PRINTER_EDIT_FAIL';
             $msg = json_encode(
                 [

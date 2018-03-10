@@ -116,9 +116,14 @@ class LocationManagementPage extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
         echo '<div class="box box-solid" id="location-create">';
-        echo '<form id="location-create-form" class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '" novalidate>';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'location-create-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box-body">';
         echo '<!-- Location General -->';
         echo '<div class="box box-primary">';
@@ -133,9 +138,11 @@ class LocationManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="send">'
-            . _('Create')
-            . '</button>';
+        echo self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
         echo '</div>';
         echo '</form>';
         echo '</div>';
@@ -192,7 +199,7 @@ class LocationManagementPage extends FOGPage
                 $serverFault = false;
                 throw new Exception(_('Add location failed!'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'LOCATION_ADD_SUCCESS';
             $msg = json_encode(
                 [
@@ -201,7 +208,11 @@ class LocationManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'LOCATION_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -210,7 +221,10 @@ class LocationManagementPage extends FOGPage
                 ]
             );
         }
-        // header('Location: ../management/index.php?node=location&sub=edit&id=' . $Location->get('id'));
+        // header(
+        //     'Location: ../management/index.php?node=location&sub=edit&id='
+        //     . $Location->get('id')
+        // );
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -303,19 +317,31 @@ class LocationManagementPage extends FOGPage
             );
         $rendered = self::formFields($fields);
         echo '<div class="box box-solid">';
-        echo '<form id="location-general-form" class="form-horizontal" method="post" action="'
-            . self::makeTabUpdateURL('location-general', $this->obj->get('id'))
-            . '" novalidate>';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'location-general-form',
+            self::makeTabUpdateURL(
+                'location-general',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="general-send">'
-            . _('Update')
-            . '</button>';
-        echo '<button class="btn btn-danger pull-right" id="general-delete">'
-            . _('Delete')
-            . '</button>';
+        echo self::makeButton(
+            'general-send',
+            _('Update'),
+            'btn btn-primary'
+        );
+        echo self::makeButton(
+            'general-delete',
+            _('Delete'),
+            'btn btn-danger pull-right'
+        );
         echo '</div>';
         echo '</form>';
         echo '</div>';
@@ -512,7 +538,7 @@ class LocationManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Location update failed!'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'LOCATION_EDIT_SUCCESS';
             $msg = json_encode(
                 [
@@ -521,7 +547,11 @@ class LocationManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'LOCATION_EDIT_FAIL';
             $msg = json_encode(
                 [

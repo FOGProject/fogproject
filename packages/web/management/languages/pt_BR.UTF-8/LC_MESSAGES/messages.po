@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-08 00:35-0500\n"
+"POT-Creation-Date: 2018-03-10 00:16-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5539,6 +5539,10 @@ msgstr "Depurar"
 
 msgid "Cannot connect to database"
 msgstr "Não é possível conectar ao banco de dados"
+
+#, fuzzy
+msgid "Database connection unavailable"
+msgstr "Nenhum de hash disponíveis"
 
 msgid "A valid database connection could not be made"
 msgstr ""

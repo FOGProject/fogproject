@@ -94,8 +94,10 @@ class ServiceConfigurationPage extends FOGPage
     public function serviceDisplaymanager()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=service-displaymanager" ';
+            . self::makeTabUpdateURL(
+                'service-displaymanager'
+            )
+            . '" ';
 
         $buttons = self::makeButton(
             'displaymanager-update',
@@ -185,12 +187,10 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updatedisplaymanager" class="">';
         echo '<div class="box-body">';
-        echo '<form id="displaymanagerupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['displaymanager']
             . '"/>';
         echo $rendered;
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
@@ -241,8 +241,10 @@ class ServiceConfigurationPage extends FOGPage
     public function serviceAutologout()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=service-autologout" ';
+            . self::makeTabUpdateURL(
+                'service-autologout'
+            )
+            . '" ';
 
         $buttons = self::makeButton(
             'autologout-update',
@@ -303,12 +305,10 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updateautologout" class="">';
         echo '<div class="box-body">';
-        echo '<form id="autologoutupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['autologout']
             . '"/>';
         echo $rendered;
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
@@ -358,8 +358,10 @@ class ServiceConfigurationPage extends FOGPage
     public function serviceSnapinclient()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=service-snapinclient" ';
+            . self::makeTabUpdateURL(
+                'service-snapinclient'
+            )
+            . '" ';
 
         $buttons = self::makeButton(
             'snapinclient-update',
@@ -409,12 +411,10 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updatesnapinclient" class="">';
         echo '<div class="box-body">';
-        echo '<form id="snapinclientupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['snapinclient']
             . '"/>';
         echo $rendered;
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
@@ -459,8 +459,10 @@ class ServiceConfigurationPage extends FOGPage
     public function serviceHostregister()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=service-hostregister" ';
+            . self::makeTabUpdateURL(
+                'service-hostregister'
+            )
+            . '" ';
 
         $buttons = self::makeButton(
             'hostregister-update',
@@ -510,12 +512,10 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updatehostregister" class="">';
         echo '<div class="box-body">';
-        echo '<form id="hostregisterupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['hostregister']
             . '"/>';
         echo $rendered;
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
@@ -560,8 +560,10 @@ class ServiceConfigurationPage extends FOGPage
     public function serviceHostnamechanger()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=service-hostnamechanger" ';
+            . self::makeTabUpdateURL(
+                'service-hostnamechanger'
+            )
+            . '" ';
 
         $buttons = self::makeButton(
             'hostnamechanger-update',
@@ -611,12 +613,10 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updatehostnamechanger" class="">';
         echo '<div class="box-body">';
-        echo '<form id="hostnamechangerupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['hostnamechanger']
             . '"/>';
         echo $rendered;
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
@@ -661,8 +661,10 @@ class ServiceConfigurationPage extends FOGPage
     public function servicePrintermanager()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=service-printermanager" ';
+            . self::makeTabUpdateURL(
+                'service-printermanager'
+            )
+            . '" ';
 
         $buttons = self::makeButton(
             'printermanager-update',
@@ -712,12 +714,10 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updateprintermanager" class="">';
         echo '<div class="box-body">';
-        echo '<form id="printermanagerupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['printermanager']
             . '"/>';
         echo $rendered;
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
@@ -762,8 +762,10 @@ class ServiceConfigurationPage extends FOGPage
     public function serviceTaskreboot()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=service-taskreboot" ';
+            . self::makeTabUpdateURL(
+                'service-taskreboot'
+            )
+            . '" ';
 
         $buttons = self::makeButton(
             'taskreboot-update',
@@ -813,12 +815,10 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updatetaskreboot" class="">';
         echo '<div class="box-body">';
-        echo '<form id="taskrebootupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['taskreboot']
             . '"/>';
         echo $rendered;
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
@@ -863,8 +863,10 @@ class ServiceConfigurationPage extends FOGPage
     public function serviceUsertracker()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=service-usertracker" ';
+            . self::makeTabUpdateURL(
+                'service-usertracker'
+            )
+            . '" ';
 
         $buttons = self::makeButton(
             'usertracker-update',
@@ -914,12 +916,10 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updateusertracker" class="">';
         echo '<div class="box-body">';
-        echo '<form id="usertrackerupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['usertracker']
             . '"/>';
         echo $rendered;
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
@@ -964,8 +964,10 @@ class ServiceConfigurationPage extends FOGPage
     public function servicePowermanagement()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=service-powermanagement" ';
+            . self::makeTabUpdateURL(
+                'service-powermanagement'
+            )
+            . '" ';
 
         $buttons = self::makeButton(
             'powermanagement-update',
@@ -1015,12 +1017,10 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div id="updatepowermanagement" class="">';
         echo '<div class="box-body">';
-        echo '<form id="powermanagementupdate-form" class="form-horizontal" novalidate>';
         echo '<input type="hidden" name="name" value="'
             . self::$_modNames['powermanagement']
             . '"/>';
         echo $rendered;
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
@@ -1187,7 +1187,7 @@ class ServiceConfigurationPage extends FOGPage
                 $this->servicePowermanagementPost();
                 break;
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'SERVICE_UPDATE_SUCCESS';
             $msg = json_encode(
                 [
@@ -1196,7 +1196,7 @@ class ServiceConfigurationPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = 500;
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $hook = 'SERVICE_UPDATE_FAIL';
             $msg = json_encode(
                 [

@@ -441,13 +441,13 @@ class DashboardPage extends FOGPage
             $ActivityQueued,
             $ActivityTotalClients
         );
-        http_response_code(201);
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         echo json_encode($data);
         unset($data);
         exit;
     }
     /**
-     * Ge://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/css/bootstrap-slider.min.cssts the disk usage of the selected node.
+     * Gets the disk usage of the selected node.
      *
      * @return void
      */
@@ -493,7 +493,7 @@ class DashboardPage extends FOGPage
             $datatmp['title'] = $data->title;
         }
         unset($url);
-        http_response_code(201);
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         echo json_encode($datatmp);
         unset($data);
         exit;
@@ -537,7 +537,7 @@ class DashboardPage extends FOGPage
             ];
             unset($date);
         }
-        http_response_code(201);
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         echo json_encode($data);
         exit;
     }
@@ -582,7 +582,7 @@ class DashboardPage extends FOGPage
             $dataSet[] = $data;
             unset($data, $d);
         }
-        http_response_code(201);
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         echo json_encode($dataSet);
         exit;
     }
@@ -630,7 +630,7 @@ class DashboardPage extends FOGPage
             array_filter($sent)
         );
 
-        http_response_code(201);
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         echo json_encode(
             [
                 'names' => $names,

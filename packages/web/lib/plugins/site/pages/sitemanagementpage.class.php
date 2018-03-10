@@ -101,9 +101,14 @@ class SiteManagementPage extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
         echo '<div class="box box-solid" id="site-create">';
-        echo '<form id="site-create-form" class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '" novalidate>';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'site-create-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box-body">';
         echo '<!-- Site General -->';
         echo '<div class="box box-primary">';
@@ -159,7 +164,7 @@ class SiteManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Add site failed!'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'SITE_ADD_SUCCESS';
             $msg = json_encode(
                 [
@@ -168,7 +173,11 @@ class SiteManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500: 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'SITE_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -177,7 +186,10 @@ class SiteManagementPage extends FOGPage
                 ]
             );
         }
-        // header('Location: ../management/index.php?node=site&sub=edit&id=' . $Site->get('id'));
+        // header(
+        //     'Location: ../management/index.php?node=site&sub=edit&id='
+        //     . $Site->get('id')
+        // );
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -220,7 +232,8 @@ class SiteManagementPage extends FOGPage
             '<label for="description" class="col-sm-2 control-label">'
             . _('Site Description')
             . '</label>' => '<textarea style="resize:vertical;'
-            . 'min-height:50px;" id="description" name="description" class="form-control">'
+            . 'min-height:50px;" id="description" '
+            . 'name="description" class="form-control">'
             . $description
             . '</textarea>'
         ];
@@ -233,9 +246,17 @@ class SiteManagementPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         echo '<div class="box box-solid">';
-        echo '<form id="site-general-form" class="form-horizontal" method="post" action="'
-            . self::makeTabUpdateURL('site-general', $this->obj->get('id'))
-            . '" novalidate>';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'site-general-form',
+            self::makeTabUpdateURL(
+                'site-general',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
@@ -480,7 +501,7 @@ class SiteManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Site update failed!'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'SITE_EDIT_SUCCESS';
             $msg = json_encode(
                 [
@@ -489,7 +510,11 @@ class SiteManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'SITE_EDIT_FAIL';
             $msg = json_encode(
                 [

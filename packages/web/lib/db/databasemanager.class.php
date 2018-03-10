@@ -52,7 +52,7 @@ class DatabaseManager extends FOGCore
         if (strtolower(self::$reqmethod) === 'post'
             && !self::getLink()
         ) {
-            http_response_code(406);
+            http_response_code(HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR);
         }
         /**
          * If it is, and we don't have a link and the

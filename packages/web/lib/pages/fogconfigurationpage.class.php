@@ -976,7 +976,7 @@ class FOGConfigurationPage extends FOGPage
                         $items
                     );
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $msg = json_encode(
                 [
                     'msg' => _('iPXE Settings updated successfully!'),
@@ -984,7 +984,7 @@ class FOGConfigurationPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = 400;
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
@@ -1200,7 +1200,8 @@ class FOGConfigurationPage extends FOGPage
                 ]
             );
             echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading text-center expand_trigger hand" id="pxeItem_'
+            echo '<div class="panel-heading text-center '
+                . 'expand_trigger hand" id="pxeItem_'
                 . $divTab
                 . '">';
             echo '<h4 class="title">';
@@ -1559,12 +1560,16 @@ class FOGConfigurationPage extends FOGPage
             $countDefault = self::getClass('PXEMenuOptionsManager')
                 ->count(['default' => 1]);
             if ($countDefault == 0 || $countDefault > 1) {
-                if (!self::getClass('PXEMenuOptions', 1)->set('default', 1)->save()) {
+                $PXEMenuOptions = self::getClass(
+                    'PXEMenuOptions',
+                    1
+                )->set('default', 1);
+                if (!$PXEMenuOptions->save()) {
                     $serverFault = true;
                     throw new Exception(_('Menu item failed!'));
                 }
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'MENU_ADD_SUCCESS';
             $msg = json_encode(
                 [
@@ -1573,7 +1578,11 @@ class FOGConfigurationPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'MENU_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -2604,7 +2613,7 @@ class FOGConfigurationPage extends FOGPage
                         $items
                     );
             }
-            $code = 201;
+            $code = HTTPResponseCode::HTTP_ACCEPTED;
             $msg = json_encode(
                 [
                     'msg' => _('Settings successfully stored!'),
@@ -2627,7 +2636,7 @@ class FOGConfigurationPage extends FOGPage
                 return;
             }
         } catch (Exception $e) {
-            $code = 400;
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),

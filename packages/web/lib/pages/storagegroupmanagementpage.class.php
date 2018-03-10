@@ -169,7 +169,7 @@ class StorageGroupManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(self::$foglang['DBupfailed']);
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'STORAGEGROUP_ADD_POST_SUCCESS';
             $msg = json_encode(
                 [
@@ -178,7 +178,11 @@ class StorageGroupManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'STORAGEGROUP_ADD_POST_FAIL';
             $msg = json_encode(
                 [
@@ -187,7 +191,10 @@ class StorageGroupManagementPage extends FOGPage
                 ]
             );
         }
-        //header('Location: ../management/index.php?node=storagegroup&sub=edit&id=' . $StorageGroup->get('id'));
+        //header(
+        //    'Location: ../management/index.php?node=storagegroup&sub=edit&id='
+        //    . $StorageGroup->get('id')
+        //);
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -505,7 +512,7 @@ class StorageGroupManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Storage Group Update Failed'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'STORAGEGROUP_EDIT_POST_SUCCESS';
             $msg = json_encode(
                 [
@@ -514,7 +521,11 @@ class StorageGroupManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'STORAGEGROUP_EDIT_POST_FAIL';
             $msg = json_encode(
                 [

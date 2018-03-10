@@ -205,7 +205,12 @@ class AccessControlRuleManagementPage extends FOGPage
                     _('A rule already exists with the generated name!')
                 );
             }
-            if (self::getClass('AccessControlRuleManager')->exists($value, '', 'value')) {
+            $exists = self::getClass('AccessControlRuleManager')->exists(
+                $value,
+                '',
+                'value'
+            );
+            if ($exists) {
                 throw new Exception(
                     _('A rule already exists with this value!')
                 );
@@ -220,7 +225,7 @@ class AccessControlRuleManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Add rule failed!'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'ACCESSCONTROLRULE_ADD_SUCCESS';
             $msg = json_encode(
                 [
@@ -229,6 +234,11 @@ class AccessControlRuleManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $code = ($serverFault ? 500 : 400);
             $hook = 'ACCESSCONTROLRULE_ADD_FAIL';
             $msg = json_encode(
@@ -238,7 +248,10 @@ class AccessControlRuleManagementPage extends FOGPage
                 ]
             );
         }
-        //header('Location: ../management/index.php?node=accesscontrolrule&sub=edit&id=' . $AccessControlRule->get('id'));
+        //header(
+        //    'Location: ../management/index.php?node=accesscontrolrule&sub=edit&id='
+        //    . $AccessControlRule->get('id')
+        //);
         self::$HookManager->processEvent(
             $hook,
             [
@@ -410,7 +423,9 @@ class AccessControlRuleManagementPage extends FOGPage
             throw new Exception(_('A value already exists with this content!'));
         }
         if ($orgname != $name && $nameexists) {
-            throw new Exception(_('A name with this type-value pair already exists!'));
+            throw new Exception(
+                _('A name with this type-value pair already exists!')
+            );
         }
         $this->obj
             ->set('type', $type)
@@ -469,7 +484,7 @@ class AccessControlRuleManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Rule update failed!'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'RULE_EDIT_SUCCESS';
             $msg = json_encode(
                 [
@@ -478,7 +493,11 @@ class AccessControlRuleManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'RULE_EDIT_FAIL';
             $msg = json_encode(
                 [

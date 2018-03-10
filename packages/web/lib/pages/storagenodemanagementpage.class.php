@@ -567,7 +567,7 @@ class StorageNodeManagementPage extends FOGPage
                         ['isMaster' => 0]
                     );
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'STORAGE_NODE_ADD_SUCCESS';
             $msg = json_encode(
                 [
@@ -577,7 +577,11 @@ class StorageNodeManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'STORAGENODE_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -586,7 +590,10 @@ class StorageNodeManagementPage extends FOGPage
                 ]
             );
         }
-        //header('Location: ../management/index.php?node=storagenode&sub=edit&sub=' . $StorageNode->get('id'));
+        //header(
+        //    'Location: ../management/index.php?node=storagenode&sub=edit&sub='
+        //    . $StorageNode->get('id')
+        //);
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -1222,7 +1229,7 @@ class StorageNodeManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Storage Node Update Failed'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'STORAGENODE_EDIT_SUCCESS';
             $msg = json_encode(
                 [
@@ -1231,7 +1238,11 @@ class StorageNodeManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'STORAGENODE_EDIT_FAIL';
             $msg = json_encode(
                 [
