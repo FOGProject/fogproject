@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-09 16:34-0500\n"
+"POT-Creation-Date: 2018-03-10 00:16-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4804,6 +4804,9 @@ msgid "Debug"
 msgstr ""
 
 msgid "Cannot connect to database"
+msgstr ""
+
+msgid "Database connection unavailable"
 msgstr ""
 
 msgid "A valid database connection could not be made"

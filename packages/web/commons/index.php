@@ -19,5 +19,6 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+http_response_code(HTTPResponseCodes::HTTP_PERMANENT_REDIRECT);
 header('Location: ../management/index.php');
 exit;

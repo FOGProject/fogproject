@@ -81,7 +81,8 @@ class SnapinManagementPage extends FOGPage
          */
         ob_start();
         printf(
-            '<select class="form-control packnotemplate hidden" name="argTypes" id="argTypes">'
+            '<select class="form-control packnotemplate hidden" '
+            . 'name="argTypes" id="argTypes">'
             . '<option value="">- %s -</option>',
             _('Please select an option')
         );
@@ -169,7 +170,9 @@ class SnapinManagementPage extends FOGPage
         ];
         ob_start();
         printf(
-            '<select class="form-control packtemplate hidden" id="packTypes"><option value="">- %s -</option>',
+            '<select class="form-control packtemplate hidden" '
+            . 'id="packTypes">'
+            . '<option value="">- %s -</option>',
             _('Please select an option')
         );
         foreach ($args as $type => &$cmd) {
@@ -335,27 +338,33 @@ class SnapinManagementPage extends FOGPage
             '<label class="col-sm-2 control-label" for="snapinpack">'
             . _('Snapin Type')
             . '</label>' => $packtypes,
-            '<label class="packnotemplate hidden col-sm-2 control-label" for="argTypes">'
+            '<label class="packnotemplate hidden col-sm-2 control-label" '
+            . 'for="argTypes">'
             . _('Snapin Template')
             . '</label>'
-            . '<label class="packtemplate hidden col-sm-2 control-label" for="packTypes">'
+            . '<label class="packtemplate hidden col-sm-2 control-label" '
+            . 'for="packTypes">'
             . _('Snapin Pack Template')
             . '</label>' => self::$_template1
             . self::$_template2,
-            '<label class="packnotemplate hidden col-sm-2 control-label" for="snaprw">'
+            '<label class="packnotemplate hidden col-sm-2 control-label" '
+            . 'for="snaprw">'
             . _('Snapin Run With')
             . '</label>'
-            . '<label class="packtemplate hidden col-sm-2 control-label" for="snaprw">'
+            . '<label class="packtemplate hidden col-sm-2 control-label" '
+            . 'for="snaprw">'
             . _('Snapin Pack File')
             . '</label>' => '<input type="text" name="rw" '
             . 'value="'
             . $rw
             . '" class="snapinrw-input cmdlet1 form-control" '
             . 'id="snaprw"/>',
-            '<label class="packnotemplate hidden col-sm-2 control-label" for="snaprwa">'
+            '<label class="packnotemplate hidden col-sm-2 control-label" '
+            . 'for="snaprwa">'
             . _('Snapin Run With Argument')
             . '</label>'
-            . '<label class="packtemplate hidden col-sm-2 control-label" for="snaprwa">'
+            . '<label class="packtemplate hidden col-sm-2 control-label" '
+            . 'for="snaprwa">'
             . _('Snapin Pack Arguments')
             . '</label>' => '<input type="text" name="rwa" '
             . 'value="'
@@ -426,8 +435,9 @@ class SnapinManagementPage extends FOGPage
             . _('Snapin Command')
             . '<br/>'
             . _('read-only')
-            . '</label>' => '<textarea class="form-control snapincmd" name="snapincmd" '
-            . 'id="cmdletin" style="resize:vertical;height:50px;" readonly></textarea>'
+            . '</label>' => '<textarea class="form-control snapincmd" '
+            . 'name="snapincmd" id="cmdletin" '
+            . 'style="resize:vertical;height:50px;" readonly></textarea>'
         ];
         self::$HookManager
             ->processEvent(
@@ -659,7 +669,7 @@ class SnapinManagementPage extends FOGPage
              * This will set it to be the primary master.
              */
             $Snapin->setPrimaryGroup($storagegroup);
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'SNAPIN_ADD_SUCCESS';
             $msg = json_encode(
                 [
@@ -669,7 +679,11 @@ class SnapinManagementPage extends FOGPage
             );
         } catch (Exception $e) {
             self::$FOGFTP->close();
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'SNAPIN_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -678,7 +692,10 @@ class SnapinManagementPage extends FOGPage
                 ]
             );
         }
-        //header('Location: ../management/index.php?node=snapin&sub=edit&id=' . $Snapin->get('id'));
+        //header(
+        //    'Location: ../management/index.php?node=snapin&sub=edit&id='
+        //    . $Snapin->get('id')
+        //);
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -819,27 +836,33 @@ class SnapinManagementPage extends FOGPage
             '<label class="col-sm-2 control-label" for="snapinpack">'
             . _('Snapin Type')
             . '</label>' => $packtypes,
-            '<label class="packnotemplate hidden col-sm-2 control-label" for="argTypes">'
+            '<label class="packnotemplate hidden col-sm-2 control-label" '
+            . 'for="argTypes">'
             . _('Snapin Template')
             . '</label>'
-            . '<label class="packtemplate hidden col-sm-2 control-label" for="packTypes">'
+            . '<label class="packtemplate hidden col-sm-2 control-label" '
+            . 'for="packTypes">'
             . _('Snapin Pack Template')
             . '</label>' => self::$_template1
             . self::$_template2,
-            '<label class="packnotemplate hidden col-sm-2 control-label" for="snaprw">'
+            '<label class="packnotemplate hidden col-sm-2 control-label" '
+            . 'for="snaprw">'
             . _('Snapin Run With')
             . '</label>'
-            . '<label class="packtemplate hidden col-sm-2 control-label" for="snaprw">'
+            . '<label class="packtemplate hidden col-sm-2 control-label" '
+            . 'for="snaprw">'
             . _('Snapin Pack File')
             . '</label>' => '<input type="text" name="rw" '
             . 'value="'
             . $rw
             . '" class="snapinrw-input cmdlet1 form-control" '
             . 'id="snaprw"/>',
-            '<label class="packnotemplate hidden col-sm-2 control-label" for="snaprwa">'
+            '<label class="packnotemplate hidden col-sm-2 control-label" '
+            . 'for="snaprwa">'
             . _('Snapin Run With Argument')
             . '</label>'
-            . '<label class="packtemplate hidden col-sm-2 control-label" for="snaprwa">'
+            . '<label class="packtemplate hidden col-sm-2 control-label" '
+            . 'for="snaprwa">'
             . _('Snapin Pack Arguments')
             . '</label>' => '<input type="text" name="rwa" '
             . 'value="'
@@ -926,8 +949,9 @@ class SnapinManagementPage extends FOGPage
             . _('Snapin Command')
             . '<br/>'
             . _('read-only')
-            . '</label>' => '<textarea class="form-control snapincmd" name="snapincmd" '
-            . 'id="cmdletin" style="resize:vertical;height:50px;" readonly></textarea>'
+            . '</label>' => '<textarea class="form-control snapincmd" '
+            . 'name="snapincmd" id="cmdletin" '
+            . 'style="resize:vertical;height:50px;" readonly></textarea>'
         ];
         self::$HookManager
             ->processEvent(
@@ -1387,7 +1411,7 @@ class SnapinManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Snapin update failed!'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'SNAPIN_EDIT_SUCCESS';
             $msg = json_encode(
                 [
@@ -1397,7 +1421,11 @@ class SnapinManagementPage extends FOGPage
             );
         } catch (Exception $e) {
             self::$FOGFTP->close();
-            $code = ($serverFalt ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'SNAPIN_EDIT_FAIL';
             $msg = json_encode(
                 [
@@ -1563,6 +1591,11 @@ class SnapinManagementPage extends FOGPage
         );
         exit;
     }
+    /**
+     * Enables exporting the snapins list.
+     *
+     * @return void
+     */
     public function export()
     {
         // The data to use for building our table.

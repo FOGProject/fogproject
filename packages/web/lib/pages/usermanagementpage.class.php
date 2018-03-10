@@ -272,7 +272,7 @@ class UserManagementPage extends FOGPage
                     _('Add user failed!')
                 );
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'USER_ADD_SUCCESS';
             $msg = json_encode(
                 [
@@ -282,7 +282,11 @@ class UserManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'USER_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -737,7 +741,7 @@ class UserManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('User update failed!'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'USER_EDIT_SUCCESS';
             $msg = json_encode(
                 [
@@ -746,7 +750,11 @@ class UserManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'USER_EDIT_FAIL';
             $msg = json_encode(
                 [

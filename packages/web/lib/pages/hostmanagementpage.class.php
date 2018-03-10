@@ -275,7 +275,7 @@ class HostManagementPage extends FOGPage
                     echo json_encode(
                         ['error' => self::$foglang['InvalidLogin']]
                     );
-                    http_response_code(401);
+                    http_response_code(HTTPResponseCodes::HTTP_UNAUTHORIZED);
                     exit;
                 }
             }
@@ -295,7 +295,7 @@ class HostManagementPage extends FOGPage
                 '',
                 ['pending' => 0]
             );
-            http_response_code(201);
+            http_response_code(HTTPResponseCodes::HTTP_ACCEPTED);
             echo json_encode(
                 [
                     'msg' => _('Approved selected hosts!'),
@@ -457,7 +457,7 @@ class HostManagementPage extends FOGPage
                     echo json_encode(
                         ['error' => self::$foglang['InvalidLogin']]
                     );
-                    http_response_code(401);
+                    http_response_code(HTTPResponseCodes::HTTP_UNAUTHORIZED);
                     exit;
                 }
             }
@@ -477,7 +477,7 @@ class HostManagementPage extends FOGPage
                 '',
                 ['pending' => 0]
             );
-            http_response_code(201);
+            http_response_code(HTTPResponseCodes::HTTP_ACCEPTED);
             echo json_encode(
                 [
                     'msg' => _('Approved selected macss!'),
@@ -524,7 +524,8 @@ class HostManagementPage extends FOGPage
             . 'id="host" required/>',
             '<label class="col-sm-2 control-label" for="mac">'
             . _('Primary MAC')
-            . '</label>' => '<input type="text" name="mac" class="macaddr form-control" '
+            . '</label>' => '<input type="text" name="mac" '
+            . 'class="macaddr form-control" '
             . 'id="mac" value="'
             . $mac
             . '" maxlength="17" exactlength="12" required/>',
@@ -587,9 +588,14 @@ class HostManagementPage extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
         echo '<div class="box box-solid" id="host-create">';
-        echo '<form id="host-create-form" class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '" novalidate>';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'host-create-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box-body">';
         echo '<!-- Host General -->';
         echo '<div class="box box-primary">';
@@ -630,9 +636,11 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="send">'
-            . _('Create')
-            . '</button>';
+        echo self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
         echo '</div>';
         echo '</form>';
         echo '</div>';
@@ -765,7 +773,7 @@ class HostManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Add host failed!'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'HOST_ADD_SUCCESS';
             $msg = json_encode(
                 [
@@ -774,7 +782,11 @@ class HostManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'HOST_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -783,7 +795,10 @@ class HostManagementPage extends FOGPage
                 ]
             );
         }
-        //header('Location: ../management/index.php?node=host&sub=edit&id=' . $Host->get('id'));
+        //header(
+        //    'Location: ../management/index.php?node=host&sub=edit&id='
+        //    . $Host->get('id')
+        //);
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -851,7 +866,8 @@ class HostManagementPage extends FOGPage
             '<label for="description" class="col-sm-2 control-label">'
             . _('Host description')
             . '</label>' => '<textarea style="resize:vertical;'
-            . 'min-height:50px;" id="description" name="description" class="form-control">'
+            . 'min-height:50px;" id="description" '
+            . 'name="description" class="form-control">'
             . $desc
             . '</textarea>',
             '<label for="productKey" class="col-sm-2 control-label">'
@@ -917,28 +933,44 @@ class HostManagementPage extends FOGPage
         $modalreset = self::makeModal(
             'resetencryptionmodal',
             _('Reset Encryption Data'),
-            _('Resetting encryption data should only be done if you re-installed the FOG Client or are using Debugger'),
+            _(
+                'Resetting encryption data should only be done '
+                . 'if you re-installed the FOG Client or are using Debugger'
+            ),
             $modalresetBtn
         );
-        echo '<form id="host-general-form" class="form-horizontal" method="post" action="'
-            . self::makeTabUpdateURL('host-general', $this->obj->get('id'))
-            . '" novalidate>';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'host-general-form',
+            self::makeTabUpdateURL(
+                'host-general',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
         echo '<div class="btn-group">';
-        echo '<button class="btn btn-primary" id="general-send">'
-            . _('Update')
-            . '</button>';
-        echo '<button class="btn btn-warning" id="reset-encryption-data">'
-            . _('Reset Encryption Data')
-            . '</button>';
-        echo '</div>';
-        echo '<button class="btn btn-danger pull-right" id="general-delete">'
-            . _('Delete')
-            . '</button>';
+        echo self::makeButton(
+            'general-send',
+            _('Update'),
+            'btn btn-primary'
+        );
+        echo self::makeButton(
+            'reset-encryption-data',
+            _('Reset Encryption Data'),
+            'btn btn-warning'
+        );
+        echo self::makeButton(
+            'general-delete',
+            _('Delete'),
+            'btn btn-danger'
+        );
         echo $modalreset;
         echo '</div>';
         echo '</div>';
@@ -1419,7 +1451,17 @@ class HostManagementPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div id="printerconf" class="">';
-        echo '<form id="printer-config-form" class="form-horizontal"' . $props . ' novalidate>';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'printer-config-form',
+            self::makeTabUpdateURL(
+                'host-printers',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box-body">';
         echo '<div class="radio">';
         echo '<label for="nolevel" data-toggle="tooltip" data-placement="left" '
@@ -1491,10 +1533,11 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button type="submit" name="levelup" class='
-            . '"btn btn-primary" id="printer-config-send">'
-            . _('Update')
-            . '</button>';
+        echo self::makeButton(
+            'printer-config-send',
+            _('Update'),
+            'btn btn-primary'
+        );
         echo '</div>';
         echo '</form>';
         echo '</div>';
@@ -2385,20 +2428,27 @@ class HostManagementPage extends FOGPage
         echo '<!-- Inventory -->';
         echo '<div class="box box-solid">';
         echo '<div class="box-body">';
-        echo '<form id="host-inventory-form" class="form-horizontal" method="post" action="'
-            . self::makeTabUpdateURL(
+        echo self::makeFormTag(
+            'form-horizontal',
+            'host-inventory-form',
+            self::makeTabUpdateURL(
                 'host-inventory',
                 $this->obj->get('id')
-            )
-            . '" novalidate>';
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo $rendered;
         echo '<input type="hidden" name="updateinv" value="1"/>';
         echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="inventory-send">'
-            . _('Update')
-            . '</button>';
+        echo self::makeButton(
+            'inventory-send',
+            _('Update'),
+            'btn btn-primary'
+        );
         echo '</div>';
         echo '</div>';
     }
@@ -3087,24 +3137,7 @@ class HostManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Host update failed!'));
             }
-            $this->obj->setAD();
-            if ($tab == 'host-general') {
-                $igstuff = filter_input_array(
-                    INPUT_POST,
-                    [
-                        'igimage' => [
-                            'flags' => FILTER_REQUIRE_ARRAY
-                        ],
-                        'igclient' => [
-                            'flags' => FILTER_REQUIRE_ARRAY
-                        ]
-                    ]
-                );
-                $igimage = $igstuff['igimage'];
-                $igclient = $igstuff['igclient'];
-                $this->obj->ignore($igimage, $igclient);
-            }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'HOST_EDIT_SUCCESS';
             $msg = json_encode(
                 [
@@ -3113,7 +3146,11 @@ class HostManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'HOST_EDIT_FAIL';
             $msg = json_encode(
                 [
@@ -3169,7 +3206,7 @@ class HostManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Failed to create new Group'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $msg = json_encode(
                 [
                     'msg' => _('Successfully added selected hosts to the group!'),
@@ -3177,7 +3214,11 @@ class HostManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),

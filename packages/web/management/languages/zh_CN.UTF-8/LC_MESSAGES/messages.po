@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-08 00:35-0500\n"
+"POT-Creation-Date: 2018-03-10 00:16-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5524,6 +5524,10 @@ msgstr "调试"
 
 msgid "Cannot connect to database"
 msgstr "无法连接到数据库"
+
+#, fuzzy
+msgid "Database connection unavailable"
+msgstr "没有可用的散列"
 
 msgid "A valid database connection could not be made"
 msgstr ""

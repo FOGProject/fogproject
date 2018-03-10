@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-08 00:35-0500\n"
+"POT-Creation-Date: 2018-03-10 00:16-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -5542,6 +5542,10 @@ msgstr "Debug"
 
 msgid "Cannot connect to database"
 msgstr "Kann keine Verbindung zur Datenbank herstellen"
+
+#, fuzzy
+msgid "Database connection unavailable"
+msgstr "Pfad ist nicht verfügbar"
 
 msgid "A valid database connection could not be made"
 msgstr "Eine gültige Datenbankverbindung konnte nicht hergestellt werden"

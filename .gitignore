@@ -61,7 +61,8 @@ packages/web/management/other/*
 ###############
 *config.class.php
 *.well-known
-packages/web/fog 
+packages/web/fog
+packages/web/.vscode
 
 # Checksum #
 ############

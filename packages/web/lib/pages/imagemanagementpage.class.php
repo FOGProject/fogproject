@@ -456,7 +456,7 @@ class ImageManagementPage extends FOGPage
              * This will set it to be the primary master.
              */
             $Image->setPrimaryGroup($storagegroup);
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'IMAGE_ADD_SUCCESS';
             $msg = json_encode(
                 [
@@ -465,7 +465,11 @@ class ImageManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'IMAGE_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -474,7 +478,10 @@ class ImageManagementPage extends FOGPage
                 ]
             );
         }
-        //header('Location: ../management/index.php?node=host&sub=edit&id=' . $Image->get('id'));
+        //header(
+        //    'Location: ../management/index.php?node=host&sub=edit&id='
+        //    . $Image->get('id')
+        //);
         self::$HookManager->processEvent(
             $hook,
             [
@@ -552,19 +559,22 @@ class ImageManagementPage extends FOGPage
                 '',
                 'id'
             );
-        $isprot = (int)isset($_POST['isProtected']) ?: $this->obj->get('protected');
+        $isprot = (int)isset($_POST['isProtected']) ?:
+            $this->obj->get('protected');
         if ($isprot) {
             $isprot = ' checked';
         } else {
             $isprot = '';
         }
-        $isen = (int)isset($_POST['isEnabled']) ?: $this->obj->get('isEnabled');
+        $isen = (int)isset($_POST['isEnabled']) ?:
+            $this->obj->get('isEnabled');
         if ($isen) {
             $isen = ' checked';
         } else {
             $isen = '';
         }
-        $torep = (int)isset($_POST['toReplicate']) ?: $this->obj->get('toReplicate');;
+        $torep = (int)isset($_POST['toReplicate']) ?:
+            $this->obj->get('toReplicate');;
         if ($torep) {
             $torep = ' checked';
         } else {
@@ -828,7 +838,7 @@ class ImageManagementPage extends FOGPage
     /**
      * Update the general post
      *
-     * return void
+     * @return void
      */
     public function imageGeneralPost()
     {
@@ -1139,7 +1149,7 @@ class ImageManagementPage extends FOGPage
                 $serverFault = true;
                 throw new Exception(_('Image update failed!'));
             }
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'IMAGE_EDIT_SUCCESS';
             $msg = json_encode(
                 [
@@ -1148,7 +1158,11 @@ class ImageManagementPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'IMAGE_EDIT_FAIL';
             $msg = json_encode(
                 [

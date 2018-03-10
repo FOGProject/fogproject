@@ -41,7 +41,7 @@ header('Content-type: application/json');
                 'title' => _('Unable to Authenticate')
             ]
         );
-        http_response_code(401);
+        http_response_code(HTTPResponseCode::HTTP_UNAUTHORIZED);
         exit;
     }
 }*/

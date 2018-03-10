@@ -179,7 +179,7 @@ class SchemaUpdaterPage extends FOGPage
                 throw new Exception(_('Database connection unavailable.'));
             }
             if (count($this->schema) <= self::$mySchema) {
-                http_response_code(201);
+                http_response_code(HTTPResponseCodes::HTTP_NO_CONTENT);
                 echo json_encode(
                     [
                         'msg' => _('Update not required'),
@@ -339,7 +339,7 @@ class SchemaUpdaterPage extends FOGPage
             }
             $db = self::$DB->returnThis();
             self::$DB->currentDb($db);
-            $code = 201;
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
             $msg = json_encode(
                 [
                     'msg' => _('Schema updated successfully!'),
@@ -347,7 +347,11 @@ class SchemaUpdaterPage extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $code = ($serverFault ? 500 : 400);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-08 00:35-0500\n"
+"POT-Creation-Date: 2018-03-10 00:16-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5096,6 +5096,10 @@ msgstr "mettere a punto"
 
 msgid "Cannot connect to database"
 msgstr "Non è possibile connettersi al database"
+
+#, fuzzy
+msgid "Database connection unavailable"
+msgstr "Percorso non disponibile"
 
 msgid "A valid database connection could not be made"
 msgstr "Non è possibile effettuare una connessione di database valida"
