@@ -215,10 +215,7 @@ class Route extends FOGBase
         }
         self::$router = new AltoRouter(
             array(),
-            rtrim(
-                self::getSetting('FOG_WEB_ROOT'),
-                '/'
-            )
+            '/fog'
         );
         self::defineRoutes();
         self::setMatches();
@@ -1241,8 +1238,6 @@ class Route extends FOGBase
                         $class->get('host')
                     ),
                     'image' => (
-                        $class->get('images')->isValid() ?
-                        $class->get('images')->get() :
                         $class->get('image')
                     )
                 )
