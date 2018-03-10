@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 00:16-0500\n"
+"POT-Creation-Date: 2018-03-10 14:55-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -973,6 +973,34 @@ msgstr "语言"
 msgid "Missing one or more extensions."
 msgstr "缺少扩展"
 
+msgid "MAIN NAVIGATION"
+msgstr ""
+
+msgid "RESOURCES"
+msgstr ""
+
+msgid "Donate"
+msgstr ""
+
+msgid "News"
+msgstr ""
+
+#, fuzzy
+msgid "Forums"
+msgstr "FOG论坛"
+
+msgid "Wiki"
+msgstr ""
+
+msgid "Channel"
+msgstr ""
+
+msgid "Copyright"
+msgstr ""
+
+msgid "All rights reserved."
+msgstr ""
+
 msgid "Invalid unit passed"
 msgstr "无效的单元传递"
 
@@ -1084,9 +1112,6 @@ msgstr "斯莱克账户"
 msgid "Account removed from FOG GUI at"
 msgstr "应收FOG GUI中删除在"
 
-msgid "Link Slack Account"
-msgstr "链接松弛账户"
-
 msgid "Team"
 msgstr "球队"
 
@@ -1096,18 +1121,25 @@ msgstr "由...制作"
 msgid "User/Channel Name"
 msgstr "用户/通道名称"
 
-msgid "Link New Account"
-msgstr "链接新帐号"
+msgid "Link Slack Account"
+msgstr "链接松弛账户"
 
 msgid "Access Token"
 msgstr "访问令牌"
 
-msgid "User/Channel to post to"
-msgstr "用户/通道张贴到"
+#, fuzzy
+msgid "Slack Token"
+msgstr "斯莱克账户"
 
 #, fuzzy
-msgid "Add Slack Account"
-msgstr "斯莱克账户"
+msgid "User/Channel"
+msgstr "用户/通道名称"
+
+msgid "Slack User/Slack Channel"
+msgstr ""
+
+msgid "Create"
+msgstr "创建"
 
 msgid "Must use an"
 msgstr ""
@@ -1193,9 +1225,6 @@ msgstr "Windows 8的"
 #, fuzzy
 msgid "Create New Key"
 msgstr "新建%s"
-
-msgid "Create"
-msgstr "创建"
 
 msgid "Not able to add"
 msgstr "不能添加"
@@ -1648,7 +1677,11 @@ msgid "Email"
 msgstr "电子邮件"
 
 #, fuzzy
-msgid "Add Pushbullet Account"
+msgid "Access token"
+msgstr "访问令牌"
+
+#, fuzzy
+msgid "Pushbullet Token"
 msgstr "Pushbullet账户"
 
 #, fuzzy
@@ -6325,42 +6358,6 @@ msgstr "每个主机管理单元"
 
 msgid "You are only allowed to assign"
 msgstr "您只能分配"
-
-msgid "Inventory ID"
-msgstr "库存ID"
-
-msgid "Inventory Desc"
-msgstr "库存说明"
-
-msgid "Other Tag 1"
-msgstr "其他标签1"
-
-msgid "Other Tag 2"
-msgstr "其他标签2"
-
-msgid "MB Manufacturer"
-msgstr "MB厂商"
-
-msgid "MB Name"
-msgstr "MB名称"
-
-msgid "MB Version"
-msgstr "MB版本"
-
-msgid "MB Serial"
-msgstr "MB系列"
-
-msgid "MB Asset"
-msgstr "MB资产"
-
-msgid "HD Model"
-msgstr "HD型号"
-
-msgid "HD Firmware"
-msgstr "HD固件"
-
-msgid "HD Serial"
-msgstr "HD系列"
 
 #, fuzzy
 msgid "Multicast Image"

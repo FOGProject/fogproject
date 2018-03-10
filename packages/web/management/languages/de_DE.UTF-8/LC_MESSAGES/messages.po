@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 00:16-0500\n"
+"POT-Creation-Date: 2018-03-10 14:55-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -971,6 +971,34 @@ msgstr "Sprache"
 msgid "Missing one or more extensions."
 msgstr "Eine odere mehrere Erweiterungen fehlen"
 
+msgid "MAIN NAVIGATION"
+msgstr ""
+
+msgid "RESOURCES"
+msgstr ""
+
+msgid "Donate"
+msgstr ""
+
+msgid "News"
+msgstr ""
+
+#, fuzzy
+msgid "Forums"
+msgstr "FOG-Forum"
+
+msgid "Wiki"
+msgstr ""
+
+msgid "Channel"
+msgstr ""
+
+msgid "Copyright"
+msgstr ""
+
+msgid "All rights reserved."
+msgstr ""
+
 msgid "Invalid unit passed"
 msgstr "Ungültige Einheit übergeben"
 
@@ -1082,9 +1110,6 @@ msgstr "Slack Accounts"
 msgid "Account removed from FOG GUI at"
 msgstr "Account von der FOG GUI entfernt"
 
-msgid "Link Slack Account"
-msgstr "Slack Account verknüpfen"
-
 msgid "Team"
 msgstr "Team"
 
@@ -1094,18 +1119,25 @@ msgstr "Erstellt von"
 msgid "User/Channel Name"
 msgstr "Benutzer-/ Kanalname"
 
-msgid "Link New Account"
-msgstr "Neuen Account verknüpfen"
+msgid "Link Slack Account"
+msgstr "Slack Account verknüpfen"
 
 msgid "Access Token"
 msgstr "Zugangs-Token"
 
-msgid "User/Channel to post to"
-msgstr "Benutzer/Kanal zum Veröffentlichen auf"
+#, fuzzy
+msgid "Slack Token"
+msgstr "Slack Accounts"
 
 #, fuzzy
-msgid "Add Slack Account"
-msgstr "Slack Account hinzufügen"
+msgid "User/Channel"
+msgstr "Benutzer-/ Kanalname"
+
+msgid "Slack User/Slack Channel"
+msgstr ""
+
+msgid "Create"
+msgstr "Erstellen"
 
 msgid "Must use an"
 msgstr "Es muss ein @ oder # verwendet werden,"
@@ -1193,9 +1225,6 @@ msgstr "Windows Schlüssel"
 #, fuzzy
 msgid "Create New Key"
 msgstr "Neuen Schlüssel erstellen"
-
-msgid "Create"
-msgstr "Erstellen"
 
 msgid "Not able to add"
 msgstr "Hinzufügen nicht möglich"
@@ -1648,8 +1677,12 @@ msgid "Email"
 msgstr "E-Mail"
 
 #, fuzzy
-msgid "Add Pushbullet Account"
-msgstr "Pushbullet-Account hinzufügen"
+msgid "Access token"
+msgstr "Zugangs-Token"
+
+#, fuzzy
+msgid "Pushbullet Token"
+msgstr "Pushbullet Accounts"
 
 #, fuzzy
 msgid "Link Pushbullet Account Success"
@@ -6348,42 +6381,6 @@ msgstr "per Host"
 
 msgid "You are only allowed to assign"
 msgstr "Sie dürfen nur zuweisen"
-
-msgid "Inventory ID"
-msgstr "Bestands-ID"
-
-msgid "Inventory Desc"
-msgstr "Inventarbeschreibung"
-
-msgid "Other Tag 1"
-msgstr "Weiterer Eintrag 1"
-
-msgid "Other Tag 2"
-msgstr "Weiterer Eintrag 2"
-
-msgid "MB Manufacturer"
-msgstr "Mainboard-Hersteller"
-
-msgid "MB Name"
-msgstr "Mainboard-Name"
-
-msgid "MB Version"
-msgstr "Mainboard-Version"
-
-msgid "MB Serial"
-msgstr "Mainboard-Serie"
-
-msgid "MB Asset"
-msgstr "Mainboard-Asset"
-
-msgid "HD Model"
-msgstr "Festplattenmodell"
-
-msgid "HD Firmware"
-msgstr "Festplatten-Firmware"
-
-msgid "HD Serial"
-msgstr "HDD-Seriennummer"
 
 #, fuzzy
 msgid "Multicast Image"

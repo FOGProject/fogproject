@@ -28,7 +28,7 @@ $path = base64_decode($decodePath);
 if (!(file_exists($path) && is_dir($path) && is_readable($path))) {
     $error = _('File or path does not exist');
     $title = _('File Not Found');
-    http_response_code(HTTPResponseCode::HTTP_NOT_FOUND);
+    http_response_code(401);
     echo json_encode(
         [
             'free' => 0,
@@ -47,7 +47,7 @@ $test = preg_match(
     $match
 );
 if (!$test) {
-    http_response_code(HTTPResponseCodes::HTTP_NO_CONTENT);
+    http_response_code(204);
     $error = _('No data found');
     $title = _('No Data Available');
     echo json_encode(
@@ -60,7 +60,7 @@ if (!$test) {
     );
     exit;
 }
-http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
+http_response_code(200);
 echo json_encode(
     [
         'free' => (int)$match[2],

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 00:16-0500\n"
+"POT-Creation-Date: 2018-03-10 14:55-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -975,6 +975,34 @@ msgstr "Língua"
 msgid "Missing one or more extensions."
 msgstr "Extensões ausentes"
 
+msgid "MAIN NAVIGATION"
+msgstr ""
+
+msgid "RESOURCES"
+msgstr ""
+
+msgid "Donate"
+msgstr ""
+
+msgid "News"
+msgstr ""
+
+#, fuzzy
+msgid "Forums"
+msgstr "FOG Fóruns"
+
+msgid "Wiki"
+msgstr ""
+
+msgid "Channel"
+msgstr ""
+
+msgid "Copyright"
+msgstr ""
+
+msgid "All rights reserved."
+msgstr ""
+
 msgid "Invalid unit passed"
 msgstr "unidade inválido passado"
 
@@ -1086,9 +1114,6 @@ msgstr "Contas Slack"
 msgid "Account removed from FOG GUI at"
 msgstr "Conta removida de FOG GUI no"
 
-msgid "Link Slack Account"
-msgstr "Link Conta Slack"
-
 msgid "Team"
 msgstr "Equipe"
 
@@ -1098,18 +1123,25 @@ msgstr "Criado por"
 msgid "User/Channel Name"
 msgstr "Usuário Nome / Canal"
 
-msgid "Link New Account"
-msgstr "Fazer a ligação Nova Conta"
+msgid "Link Slack Account"
+msgstr "Link Conta Slack"
 
 msgid "Access Token"
 msgstr "token de acesso"
 
-msgid "User/Channel to post to"
-msgstr "User / Canal para postar"
+#, fuzzy
+msgid "Slack Token"
+msgstr "Contas Slack"
 
 #, fuzzy
-msgid "Add Slack Account"
-msgstr "Contas Slack"
+msgid "User/Channel"
+msgstr "Usuário Nome / Canal"
+
+msgid "Slack User/Slack Channel"
+msgstr ""
+
+msgid "Create"
+msgstr "Crio"
 
 msgid "Must use an"
 msgstr ""
@@ -1197,9 +1229,6 @@ msgstr "Windows 8"
 #, fuzzy
 msgid "Create New Key"
 msgstr "Criar novo %s"
-
-msgid "Create"
-msgstr "Crio"
 
 msgid "Not able to add"
 msgstr "Não é capaz de adicionar"
@@ -1652,7 +1681,11 @@ msgid "Email"
 msgstr "O email"
 
 #, fuzzy
-msgid "Add Pushbullet Account"
+msgid "Access token"
+msgstr "token de acesso"
+
+#, fuzzy
+msgid "Pushbullet Token"
 msgstr "Contas Pushbullet"
 
 #, fuzzy
@@ -6345,42 +6378,6 @@ msgstr "snap-in por host"
 
 msgid "You are only allowed to assign"
 msgstr "Você só está autorizado a transferir"
-
-msgid "Inventory ID"
-msgstr "ID Inventory"
-
-msgid "Inventory Desc"
-msgstr "Desc Inventory"
-
-msgid "Other Tag 1"
-msgstr "Outros Tag 1"
-
-msgid "Other Tag 2"
-msgstr "Outros Tag 2"
-
-msgid "MB Manufacturer"
-msgstr "MB Fabricante"
-
-msgid "MB Name"
-msgstr "Nome MB"
-
-msgid "MB Version"
-msgstr "MB Versão"
-
-msgid "MB Serial"
-msgstr "MB Serial"
-
-msgid "MB Asset"
-msgstr "MB de ativos"
-
-msgid "HD Model"
-msgstr "HD Modelo"
-
-msgid "HD Firmware"
-msgstr "HD Firmware"
-
-msgid "HD Serial"
-msgstr "HD Serial"
 
 #, fuzzy
 msgid "Multicast Image"

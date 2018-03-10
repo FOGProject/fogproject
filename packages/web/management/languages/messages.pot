@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 00:16-0500\n"
+"POT-Creation-Date: 2018-03-10 14:55-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -952,6 +952,33 @@ msgstr ""
 msgid "Missing one or more extensions."
 msgstr ""
 
+msgid "MAIN NAVIGATION"
+msgstr ""
+
+msgid "RESOURCES"
+msgstr ""
+
+msgid "Donate"
+msgstr ""
+
+msgid "News"
+msgstr ""
+
+msgid "Forums"
+msgstr ""
+
+msgid "Wiki"
+msgstr ""
+
+msgid "Channel"
+msgstr ""
+
+msgid "Copyright"
+msgstr ""
+
+msgid "All rights reserved."
+msgstr ""
+
 msgid "Invalid unit passed"
 msgstr ""
 
@@ -1051,9 +1078,6 @@ msgstr ""
 msgid "Account removed from FOG GUI at"
 msgstr ""
 
-msgid "Link Slack Account"
-msgstr ""
-
 msgid "Team"
 msgstr ""
 
@@ -1063,16 +1087,22 @@ msgstr ""
 msgid "User/Channel Name"
 msgstr ""
 
-msgid "Link New Account"
+msgid "Link Slack Account"
 msgstr ""
 
 msgid "Access Token"
 msgstr ""
 
-msgid "User/Channel to post to"
+msgid "Slack Token"
 msgstr ""
 
-msgid "Add Slack Account"
+msgid "User/Channel"
+msgstr ""
+
+msgid "Slack User/Slack Channel"
+msgstr ""
+
+msgid "Create"
 msgstr ""
 
 msgid "Must use an"
@@ -1145,9 +1175,6 @@ msgid "Windows Key"
 msgstr ""
 
 msgid "Create New Key"
-msgstr ""
-
-msgid "Create"
 msgstr ""
 
 msgid "Not able to add"
@@ -1510,7 +1537,10 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-msgid "Add Pushbullet Account"
+msgid "Access token"
+msgstr ""
+
+msgid "Pushbullet Token"
 msgstr ""
 
 msgid "Link Pushbullet Account Success"
@@ -5491,42 +5521,6 @@ msgid "per host"
 msgstr ""
 
 msgid "You are only allowed to assign"
-msgstr ""
-
-msgid "Inventory ID"
-msgstr ""
-
-msgid "Inventory Desc"
-msgstr ""
-
-msgid "Other Tag 1"
-msgstr ""
-
-msgid "Other Tag 2"
-msgstr ""
-
-msgid "MB Manufacturer"
-msgstr ""
-
-msgid "MB Name"
-msgstr ""
-
-msgid "MB Version"
-msgstr ""
-
-msgid "MB Serial"
-msgstr ""
-
-msgid "MB Asset"
-msgstr ""
-
-msgid "HD Model"
-msgstr ""
-
-msgid "HD Firmware"
-msgstr ""
-
-msgid "HD Serial"
 msgstr ""
 
 msgid "Multicast Image"
