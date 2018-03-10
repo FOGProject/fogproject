@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-25 01:37-0500\n"
+"POT-Creation-Date: 2018-03-10 14:19-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5960,6 +5960,10 @@ msgstr "Depurar"
 msgid "Cannot connect to database"
 msgstr "Não é possível conectar ao banco de dados"
 
+#, fuzzy
+msgid "Database connection unavailable"
+msgstr "atualização de banco de dados falhou"
+
 msgid "A valid database connection could not be made"
 msgstr ""
 
@@ -7455,10 +7459,3 @@ msgstr "ID Inválido"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Evento deve ser uma string"
-
-#, fuzzy
-msgid "File must be a string"
-msgstr "Evento deve ser uma string"
-
-msgid "Only tx and rx bytes files can be read"
-msgstr ""
