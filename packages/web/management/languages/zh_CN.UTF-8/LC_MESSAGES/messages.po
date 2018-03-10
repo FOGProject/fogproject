@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 14:55-0500\n"
+"POT-Creation-Date: 2018-03-10 17:53-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1195,10 +1195,6 @@ msgid "Windows Key for Image"
 msgstr "用户管理"
 
 #, fuzzy
-msgid "Windows Keys"
-msgstr "Windows 8的"
-
-#, fuzzy
 msgid "Export Windows Keys"
 msgstr "Windows 8的"
 
@@ -1207,34 +1203,43 @@ msgid "Import Windows Keys"
 msgstr "Windows 8的"
 
 #, fuzzy
+msgid "Windows Keys"
+msgstr "Windows 8的"
+
+#, fuzzy
 msgid "Windows Key Name"
 msgstr "用户管理"
 
 #, fuzzy
-msgid "New Windows Key"
-msgstr "Windows 8的"
+msgid "Product Key"
+msgstr "主机产品密钥"
+
+#, fuzzy
+msgid "Create New Windows Key"
+msgstr "新建%s"
+
+#, fuzzy
+msgid "Windows 10 Professional"
+msgstr "主机描述"
 
 #, fuzzy
 msgid "Windows Key Description"
 msgstr "主机描述"
 
 #, fuzzy
-msgid "Windows Key"
-msgstr "Windows 8的"
+msgid "Windows Product key"
+msgstr "主机产品密钥"
 
 #, fuzzy
-msgid "Create New Key"
-msgstr "新建%s"
-
-msgid "Not able to add"
-msgstr "不能添加"
+msgid "A windows key name is required!"
+msgstr "图像名是必需的！"
 
 #, fuzzy
 msgid "A Windows Key already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
-msgid "Add Windows Key failed!"
+msgid "Add windows key failed!"
 msgstr "添加管理单元失败！"
 
 #, fuzzy
@@ -1250,16 +1255,12 @@ msgid "Windows Key Create Fail"
 msgstr "用户创建"
 
 #, fuzzy
-msgid "Windows Key General"
+msgid "Associations"
+msgstr "图像协会"
+
+#, fuzzy
+msgid "Windows Key update failed!"
 msgstr "用户管理"
-
-#, fuzzy
-msgid "Make Changes?"
-msgstr "保存更改"
-
-#, fuzzy
-msgid "Update Windows Key failed!"
-msgstr "添加管理单元失败！"
 
 #, fuzzy
 msgid "Windows Key updated!"
@@ -1272,29 +1273,6 @@ msgstr "用户管理"
 #, fuzzy
 msgid "Windows Key Update Fail"
 msgstr "用户管理"
-
-msgid "Image Name"
-msgstr "图片名称"
-
-#, fuzzy
-msgid "Image Membership"
-msgstr "籍"
-
-#, fuzzy
-msgid "Check here to see what images can be added"
-msgstr "请查看这里以可以添加哪些打印机"
-
-#, fuzzy
-msgid "Add selected images"
-msgstr "打印机"
-
-#, fuzzy
-msgid "Remove Images"
-msgstr "去掉"
-
-#, fuzzy
-msgid "Remove selected images"
-msgstr "删除选定snapins"
 
 msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
@@ -1640,10 +1618,6 @@ msgid "Site User Associations"
 msgstr "图像协会"
 
 #, fuzzy
-msgid "Associations"
-msgstr "图像协会"
-
-#, fuzzy
 msgid "Host Association"
 msgstr "无关联的节点"
 
@@ -1751,6 +1725,10 @@ msgstr "主机创建失败"
 #, fuzzy
 msgid "WOL Broadcast General"
 msgstr "所有广播"
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "保存更改"
 
 #, fuzzy
 msgid "A broadcast already exists with this name"
@@ -2205,6 +2183,9 @@ msgstr "域密码"
 msgid "Create New LDAP"
 msgstr "新建%s"
 
+msgid "Not able to add"
+msgstr "不能添加"
+
 msgid "Please enter a name for this LDAP server."
 msgstr "这个LDAP服务器输入名称。"
 
@@ -2597,6 +2578,9 @@ msgstr "高清设备"
 
 msgid "Image ID"
 msgstr "图片ID"
+
+msgid "Image Name"
+msgstr "图片名称"
 
 msgid "Image Desc"
 msgstr "图片说明"

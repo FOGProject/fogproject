@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 14:55-0500\n"
+"POT-Creation-Date: 2018-03-10 17:53-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1199,10 +1199,6 @@ msgid "Windows Key for Image"
 msgstr "Gerenciamento de usuários"
 
 #, fuzzy
-msgid "Windows Keys"
-msgstr "Windows 8"
-
-#, fuzzy
 msgid "Export Windows Keys"
 msgstr "Windows 8"
 
@@ -1211,34 +1207,43 @@ msgid "Import Windows Keys"
 msgstr "Windows 8"
 
 #, fuzzy
+msgid "Windows Keys"
+msgstr "Windows 8"
+
+#, fuzzy
 msgid "Windows Key Name"
 msgstr "Gerenciamento de usuários"
 
 #, fuzzy
-msgid "New Windows Key"
-msgstr "Windows 8"
+msgid "Product Key"
+msgstr "Hospedar de Chave de Produto"
+
+#, fuzzy
+msgid "Create New Windows Key"
+msgstr "Criar novo %s"
+
+#, fuzzy
+msgid "Windows 10 Professional"
+msgstr "anfitrião Descrição"
 
 #, fuzzy
 msgid "Windows Key Description"
 msgstr "anfitrião Descrição"
 
 #, fuzzy
-msgid "Windows Key"
-msgstr "Windows 8"
+msgid "Windows Product key"
+msgstr "Hospedar de Chave de Produto"
 
 #, fuzzy
-msgid "Create New Key"
-msgstr "Criar novo %s"
-
-msgid "Not able to add"
-msgstr "Não é capaz de adicionar"
+msgid "A windows key name is required!"
+msgstr "Um nome de imagem é necessário!"
 
 #, fuzzy
 msgid "A Windows Key already exists with this name!"
 msgstr "Uma imagem já existe com este nome!"
 
 #, fuzzy
-msgid "Add Windows Key failed!"
+msgid "Add windows key failed!"
 msgstr "Adicionar snap-in falhou!"
 
 #, fuzzy
@@ -1254,16 +1259,12 @@ msgid "Windows Key Create Fail"
 msgstr "usuário criado"
 
 #, fuzzy
-msgid "Windows Key General"
+msgid "Associations"
+msgstr "Associação imagem"
+
+#, fuzzy
+msgid "Windows Key update failed!"
 msgstr "Gerenciamento de usuários"
-
-#, fuzzy
-msgid "Make Changes?"
-msgstr "Salvar alterações"
-
-#, fuzzy
-msgid "Update Windows Key failed!"
-msgstr "Adicionar snap-in falhou!"
 
 #, fuzzy
 msgid "Windows Key updated!"
@@ -1276,29 +1277,6 @@ msgstr "Gerenciamento de usuários"
 #, fuzzy
 msgid "Windows Key Update Fail"
 msgstr "Gerenciamento de usuários"
-
-msgid "Image Name"
-msgstr "Nome da imagem"
-
-#, fuzzy
-msgid "Image Membership"
-msgstr "Membership"
-
-#, fuzzy
-msgid "Check here to see what images can be added"
-msgstr "Verifique aqui para ver o que as impressoras podem ser adicionadas"
-
-#, fuzzy
-msgid "Add selected images"
-msgstr "Impressora"
-
-#, fuzzy
-msgid "Remove Images"
-msgstr "Remover"
-
-#, fuzzy
-msgid "Remove selected images"
-msgstr "Remover snapins selecionados"
 
 msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
@@ -1644,10 +1622,6 @@ msgid "Site User Associations"
 msgstr "Associação imagem"
 
 #, fuzzy
-msgid "Associations"
-msgstr "Associação imagem"
-
-#, fuzzy
 msgid "Host Association"
 msgstr "No nó associado"
 
@@ -1755,6 +1729,10 @@ msgstr "Hospedar criar falha"
 #, fuzzy
 msgid "WOL Broadcast General"
 msgstr "todas as transmissões"
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "Salvar alterações"
 
 #, fuzzy
 msgid "A broadcast already exists with this name"
@@ -2209,6 +2187,9 @@ msgstr "senha de domínio"
 msgid "Create New LDAP"
 msgstr "Criar novo %s"
 
+msgid "Not able to add"
+msgstr "Não é capaz de adicionar"
+
 msgid "Please enter a name for this LDAP server."
 msgstr "Por favor, indique um nome para este servidor LDAP."
 
@@ -2601,6 +2582,9 @@ msgstr "dispositivo HD"
 
 msgid "Image ID"
 msgstr "ID da imagem"
+
+msgid "Image Name"
+msgstr "Nome da imagem"
 
 msgid "Image Desc"
 msgstr "imagem Desc"

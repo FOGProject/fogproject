@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 14:55-0500\n"
+"POT-Creation-Date: 2018-03-10 17:53-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1153,37 +1153,40 @@ msgstr ""
 msgid "Windows Key for Image"
 msgstr ""
 
-msgid "Windows Keys"
-msgstr ""
-
 msgid "Export Windows Keys"
 msgstr ""
 
 msgid "Import Windows Keys"
 msgstr ""
 
+msgid "Windows Keys"
+msgstr ""
+
 msgid "Windows Key Name"
 msgstr ""
 
-msgid "New Windows Key"
+msgid "Product Key"
+msgstr ""
+
+msgid "Create New Windows Key"
+msgstr ""
+
+msgid "Windows 10 Professional"
 msgstr ""
 
 msgid "Windows Key Description"
 msgstr ""
 
-msgid "Windows Key"
+msgid "Windows Product key"
 msgstr ""
 
-msgid "Create New Key"
-msgstr ""
-
-msgid "Not able to add"
+msgid "A windows key name is required!"
 msgstr ""
 
 msgid "A Windows Key already exists with this name!"
 msgstr ""
 
-msgid "Add Windows Key failed!"
+msgid "Add windows key failed!"
 msgstr ""
 
 msgid "Windows Key added!"
@@ -1195,13 +1198,10 @@ msgstr ""
 msgid "Windows Key Create Fail"
 msgstr ""
 
-msgid "Windows Key General"
+msgid "Associations"
 msgstr ""
 
-msgid "Make Changes?"
-msgstr ""
-
-msgid "Update Windows Key failed!"
+msgid "Windows Key update failed!"
 msgstr ""
 
 msgid "Windows Key updated!"
@@ -1211,24 +1211,6 @@ msgid "Windows Key Update Success"
 msgstr ""
 
 msgid "Windows Key Update Fail"
-msgstr ""
-
-msgid "Image Name"
-msgstr ""
-
-msgid "Image Membership"
-msgstr ""
-
-msgid "Check here to see what images can be added"
-msgstr ""
-
-msgid "Add selected images"
-msgstr ""
-
-msgid "Remove Images"
-msgstr ""
-
-msgid "Remove selected images"
 msgstr ""
 
 msgid "Windows keys is a plugin that associates product keys"
@@ -1507,9 +1489,6 @@ msgstr ""
 msgid "Site User Associations"
 msgstr ""
 
-msgid "Associations"
-msgstr ""
-
 msgid "Host Association"
 msgstr ""
 
@@ -1595,6 +1574,9 @@ msgid "Broadcast Create Fail"
 msgstr ""
 
 msgid "WOL Broadcast General"
+msgstr ""
+
+msgid "Make Changes?"
 msgstr ""
 
 msgid "A broadcast already exists with this name"
@@ -1961,6 +1943,9 @@ msgstr ""
 msgid "Create New LDAP"
 msgstr ""
 
+msgid "Not able to add"
+msgstr ""
+
 msgid "Please enter a name for this LDAP server."
 msgstr ""
 
@@ -2307,6 +2292,9 @@ msgid "Host HD Device"
 msgstr ""
 
 msgid "Image ID"
+msgstr ""
+
+msgid "Image Name"
 msgstr ""
 
 msgid "Image Desc"

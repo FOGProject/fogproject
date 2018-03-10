@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 14:55-0500\n"
+"POT-Creation-Date: 2018-03-10 17:53-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1367,10 +1367,6 @@ msgid "Windows Key for Image"
 msgstr ""
 
 #, fuzzy
-msgid "Windows Keys"
-msgstr "Nombre del núcleo"
-
-#, fuzzy
 msgid "Export Windows Keys"
 msgstr "impresora iPrint"
 
@@ -1379,33 +1375,43 @@ msgid "Import Windows Keys"
 msgstr "Impresora TCP / IP Port"
 
 #, fuzzy
+msgid "Windows Keys"
+msgstr "Nombre del núcleo"
+
+#, fuzzy
 msgid "Windows Key Name"
 msgstr "Nombre del núcleo"
 
-msgid "New Windows Key"
-msgstr ""
+#, fuzzy
+msgid "Product Key"
+msgstr "Clave del producto Grupo"
+
+#, fuzzy
+msgid "Create New Windows Key"
+msgstr "Crear nuevo grupo"
+
+#, fuzzy
+msgid "Windows 10 Professional"
+msgstr "Descripción de la impresora"
 
 #, fuzzy
 msgid "Windows Key Description"
 msgstr "Descripción de la impresora"
 
-msgid "Windows Key"
-msgstr ""
+#, fuzzy
+msgid "Windows Product key"
+msgstr "Clave del producto Grupo"
 
 #, fuzzy
-msgid "Create New Key"
-msgstr "Crear nuevo grupo"
-
-#, fuzzy
-msgid "Not able to add"
-msgstr "Ningún archivo subido"
+msgid "A windows key name is required!"
+msgstr "Se requiere un nombre de imagen!"
 
 #, fuzzy
 msgid "A Windows Key already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
-msgid "Add Windows Key failed!"
+msgid "Add windows key failed!"
 msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
@@ -1421,16 +1427,12 @@ msgid "Windows Key Create Fail"
 msgstr "creado por el usuario"
 
 #, fuzzy
-msgid "Windows Key General"
+msgid "Associations"
+msgstr "Asociación para la imagen"
+
+#, fuzzy
+msgid "Windows Key update failed!"
 msgstr "Nombre del núcleo"
-
-#, fuzzy
-msgid "Make Changes?"
-msgstr "Guardar cambios"
-
-#, fuzzy
-msgid "Update Windows Key failed!"
-msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
 msgid "Windows Key updated!"
@@ -1443,29 +1445,6 @@ msgstr "Actualizar impresora"
 #, fuzzy
 msgid "Windows Key Update Fail"
 msgstr "actualización Valoración falló"
-
-msgid "Image Name"
-msgstr "Nombre de la imagen"
-
-#, fuzzy
-msgid "Image Membership"
-msgstr "miembros"
-
-#, fuzzy
-msgid "Check here to see what images can be added"
-msgstr "Marque aquí para ver lo que se pueden agregar impresoras"
-
-#, fuzzy
-msgid "Add selected images"
-msgstr "Impresora"
-
-#, fuzzy
-msgid "Remove Images"
-msgstr "retirar"
-
-#, fuzzy
-msgid "Remove selected images"
-msgstr "Remoto"
 
 msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
@@ -1812,10 +1791,6 @@ msgid "Site User Associations"
 msgstr "Asociación para la imagen"
 
 #, fuzzy
-msgid "Associations"
-msgstr "Asociación para la imagen"
-
-#, fuzzy
 msgid "Host Association"
 msgstr "No nodo asociado"
 
@@ -1925,6 +1900,10 @@ msgstr "Grupo Error de creación"
 #, fuzzy
 msgid "WOL Broadcast General"
 msgstr "Editar anfitrión"
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "Guardar cambios"
 
 #, fuzzy
 msgid "A broadcast already exists with this name"
@@ -2384,6 +2363,10 @@ msgstr "Contraseña de dominio"
 msgid "Create New LDAP"
 msgstr "Crear nuevo grupo"
 
+#, fuzzy
+msgid "Not able to add"
+msgstr "Ningún archivo subido"
+
 msgid "Please enter a name for this LDAP server."
 msgstr ""
 
@@ -2795,6 +2778,9 @@ msgstr "sede de la descripción"
 #, fuzzy
 msgid "Image ID"
 msgstr "Imagen"
+
+msgid "Image Name"
+msgstr "Nombre de la imagen"
 
 #, fuzzy
 msgid "Image Desc"
