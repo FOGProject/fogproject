@@ -33,290 +33,213 @@ class AddAccessControlUser extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'USER_HEADER_DATA',
-                array(
-                    $this,
-                    'userTableHeader'
-                )
-            )
-            ->register(
-                'USER_DATA',
-                array(
-                    $this,
-                    'userData'
-                )
-            )
-            ->register(
-                'USER_FIELDS',
-                array(
-                    $this,
-                    'userFields'
-                )
-            )
-            ->register(
-                'USER_ADD_SUCCESS',
-                array(
-                    $this,
-                    'userAddAccessControl'
-                )
-            )
-            ->register(
-                'USER_UPDATE_SUCCESS',
-                array(
-                    $this,
-                    'userAddAccessControl'
-                )
-            )
-            ->register(
-                'SUB_MENULINK_DATA',
-                array(
-                    $this,
-                    'addNotes'
-                )
-            );
+        self::$HookManager->register(
+            'PLUGINS_INJECT_TABDATA',
+            [$this, 'userTabData']
+        )->register(
+            'USER_EDIT_SUCCESS',
+            [$this, 'userAddAccessControlEdit']
+        )->register(
+            'USER_ADD_FIELDS',
+            [$this, 'userAddAccessControlField']
+        );
     }
     /**
-     * This function modifies the header of the user page.
-     * Add one column calls 'Role'
+     * The user tab data.
      *
-     * @param mixed $arguments The arguments to modify.
+     * @param mixed $arguments The arguments to change.
      *
      * @return void
      */
-    public function userTableHeader($arguments)
+    public function userTabData($arguments)
     {
         global $node;
-        global $sub;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if ($node != 'user') {
             return;
         }
-        if ($sub == 'pending') {
-            return;
-        }
-        foreach ((array)$arguments['headerData'] as $index => &$str) {
-            if ($index == 5) {
-                $arguments['headerData'][$index] = _('Role');
-                $arguments['headerData'][] = $str;
+        $obj = $arguments['obj'];
+        $arguments['pluginsTabData'][] = [
+            'name' => _('Role Association'),
+            'id' => 'user-accesscontrol',
+            'generator' => function () use ($obj) {
+                $this->userAccesscontrol($obj);
             }
-            unset($str);
-        }
+        ];
     }
     /**
-     * This function modifies the data of the user page.
-     * Add one column calls 'Role'
+     * The user access control display.
      *
-     * @param mixed $arguments The arguments to modify.
+     * @param object $obj The user object we're working with.
      *
      * @return void
      */
-    public function userData($arguments)
+    public function userAccesscontrol($obj)
     {
-        global $node;
-        global $sub;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        if ($node != 'user') {
-            return;
-        }
-        if ($sub == 'pending') {
-            return;
-        }
-        foreach ((array)$arguments['attributes'] as $index => &$str) {
-            if ($index == 5) {
-                $arguments['attributes'][$index] = array();
-                $arguments['attributes'][] = $str;
+        Route::listem('accesscontrolassociation');
+        $items = json_decode(
+            Route::getData()
+        );
+        $accesscontrol = 0;
+        foreach ((array)$items->data as &$item) {
+            if ($item->userID == $obj->get('id')) {
+                $accesscontrol = $item->accesscontrolID;
+                unset($item);
+                break;
             }
-            unset($str);
+            unset($item);
         }
-        foreach ((array)$arguments['templates'] as $index => &$str) {
-            if ($index == 5) {
-                $arguments['templates'][$index] = '${role}';
-                $arguments['templates'][] = $str;
-            }
-            unset($str);
-        }
-        foreach ((array)$arguments['data'] as $index => &$vals) {
-            $find = array(
-                'userID' => $vals['id']
-            );
-            $Roles = self::getSubObjectIDs(
-                'AccessControlAssociation',
-                $find,
-                'accesscontrolID'
-            );
-            $cnt = count($Roles);
-            if ($cnt !== 1) {
-                $arguments['data'][$index]['role'] = '';
-                continue;
-            }
-            $RoleNames = array_values(
-                array_unique(
-                    array_filter(
-                        self::getSubObjectIDs(
-                            'AccessControl',
-                            array('id' => $Roles),
-                            'name'
-                        )
-                    )
-                )
-            );
-            $arguments['data'][$index]['role'] = $RoleNames[0];
-            unset($vals);
-            unset($Roles, $RoleNames);
-        }
-    }
-    /**
-     * This function adds a new column in the result table.
-     *
-     * @param mixed $arguments The arguments to modify.
-     *
-     * @return void
-     */
-    public function userFields($arguments)
-    {
-        global $node;
-        global $sub;
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        if ($node != 'user') {
-            return;
-        }
-        $AccessControls = self::getSubObjectIDs(
-            'AccessControlAssociation',
-            array(
-                'userID' => $arguments['User']->get('id')
+        $accesscontrolID = (int)filter_input(
+            INPUT_POST,
+            'accesscontrol'
+        ) ?: $accesscontrol;
+        // User access controls
+        $accesscontrolSelector = self::getClass('AccessControlManager')
+            ->buildSelectBox($accesscontrolID, 'accesscontrol');
+        $fields = [
+            FOGPage::makeLabel(
+                'col-sm-2 control-label',
+                'accesscontrol',
+                _('User Role')
+            ) => $accesscontrolSelector
+        ];
+        $buttons = FOGPage::makeButton(
+            'accesscontrol-send',
+            _('Update'),
+            'btn btn-primary'
+        );
+        self::$HookManager->processEvent(
+            'USER_ACCESSCONTROL_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'User' => &$obj
+            ]
+        );
+        $rendered = FOGPage::formFields($fields);
+        unset($fields);
+        echo FOGPage::makeFormTag(
+            'form-horizontal',
+            'user-accesscontrol-fom',
+            FOGPage::makeTabUpdateURL(
+                'user-accesscontrol',
+                $obj->get('id')
             ),
-            'accesscontrolID'
+            'post',
+            'application/x-www-form-urlencoded',
+            true
         );
-        $cnt = self::getClass('AccessControlManager')->count(
-            array(
-                'id' => $AccessControls
-            )
-        );
-        if ($cnt !== 1) {
-            $acID = 0;
-        } else {
-            $AccessControls = self::getSubObjectIDs(
-                'AccessControl',
-                array('id' => $AccessControls)
-            );
-            $acID = $AccessControls[0];
-        }
-        self::arrayInsertAfter(
-            _('User Name'),
-            $arguments['fields'],
-            _('User Access Control'),
-            self::getClass('AccessControlManager')->buildSelectBox(
-                $acID
-            )
-        );
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
     }
     /**
-     * This function adds one entry in the roleUserAssoc table in the DB
+     * The user access control updater element.
      *
-     * @param mixed $arguments The arguments to modify.
+     * @param object $obj The object we're working with.
      *
      * @return void
      */
-    public function userAddAccessControl($arguments)
+    public function userAccesscontrolPost($obj)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        global $node;
-        global $sub;
-        global $tab;
-        $subs = array(
-            'add',
-            'edit',
-            'addPost',
-            'editPost'
-        );
-        if ($node != 'user') {
-            return;
-        }
-        if (!in_array($sub, $subs)) {
-            return;
-        }
-        self::getClass('AccessControlAssociationManager')->destroy(
-            array(
-                'userID' => $arguments['User']->get('id')
+        $accesscontrolID = trim(
+            (int)filter_input(
+                INPUT_POST,
+                'accesscontrol'
             )
         );
-        $cnt = self::getClass('AccessControlManager')
-            ->count(
-                array('id' => $_REQUEST['accesscontrol'])
+        $insert_fields = ['userID', 'accesscontrolID'];
+        $insert_values = [];
+        $users = [$obj->get('id')];
+        if (count($users) > 0) {
+            self::getClass('AccessControlAssociation')->destroy(
+                ['userID' => $users]
             );
-        if ($cnt !== 1) {
-            return;
+            if ($accesscontrolID > 0) {
+                foreach ((array)$users as $ind => &$userID) {
+                    $insert_values[] = [$userID, $accesscontrolID];
+                    unset($userID);
+                }
+            }
         }
-        $Role = new AccessControl($_REQUEST['accesscontrol']);
-        self::getClass('AccessControlAssociation')
-            ->set('userID', $arguments['User']->get('id'))
-            ->load('userID')
-            ->set('accesscontrolID', $_REQUEST['accesscontrol'])
-            ->set(
-                'name',
-                sprintf(
-                    '%s-%s',
-                    $Role->get('name'),
-                    $arguments['User']->get('name')
-                )
-            )
-            ->save();
+        if (count($insert_values) > 0) {
+            self::getClass('AccessControlAssociation')
+                ->insertBatch(
+                    $insert_fields,
+                    $insert_values
+                );
+        }
     }
     /**
-     * This function adds role to notes
+     * The user accesscontrol selector
      *
-     * @param mixed $arguments The arguments to modify.
+     * @param mixed $arguments The arguments to change.
      *
      * @return void
      */
-    public function addNotes($arguments)
+    public function userAddAccessControlEdit($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        global $node;
-        global $sub;
         global $tab;
+        global $node;
         if ($node != 'user') {
             return;
         }
-        if (count($arguments['notes']) < 1) {
+        $obj = $arguments['User'];
+        try {
+            switch ($tab) {
+            case 'user-accesscontrol':
+                $this->userAccesscontrolPost();
+                break;
+            default:
+                return;
+            }
+            $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
+            $arguments['hook'] = 'USER_EDIT_ACCESSCONTROL_SUCCESS';
+            $arguments['msg'] = json_encode(
+                [
+                    'msg' => _('User role updated!'),
+                    'title' => _('User Role Update Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $arguments['code'] = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $arguments['hook'] = 'USER_EDIT_ACCESSCONTROL_FAIL';
+            $argumetns['msg'] = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('User Role Update Fail')
+                ]
+            );
+        }
+    }
+    /**
+     * The user access control field for function add.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function userAddAccessControlField($arguments)
+    {
+        global $node;
+        if ($node != 'user') {
             return;
         }
-        $AccessControls = self::getSubObjectIDs(
-            'AccessControlAssociation',
-            array(
-                'userID' => $arguments['object']->get('id')
-            ),
-            'accesscontrolID'
+        $accesscontrolID = (int)filter_input(INPUT_POST, 'accesscontrol');
+        $arguments['fields'][
+            FOGPage::makeLabel(
+                'col-sm-2 control-label',
+                'accesscontrol',
+                _('User Role')
+            )
+        ] = self::getClass('AccessControlManager')->buildSelectBox(
+            $accesscontrolID,
+            'accesscontrol'
         );
-        $cnt = count($AccessControls);
-        if ($cnt !== 1) {
-            $acID = 0;
-        } else {
-            $AccessControls = array_values(
-                array_unique(
-                    array_filter(
-                        self::getSubObjectIDs(
-                            'AccessControl',
-                            array('id' => $AccessControls),
-                            'name'
-                        )
-                    )
-                )
-            );
-            $acID = $AccessControls[0];
-        }
-        $arguments['notes'][_('Role')] = $acID;
     }
 }

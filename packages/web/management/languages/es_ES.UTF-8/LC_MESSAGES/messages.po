@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 17:53-0500\n"
+"POT-Creation-Date: 2018-03-10 18:39-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1700,7 +1700,7 @@ msgid "Group Update Site Fail"
 msgstr "Grupo Error de creación"
 
 #, fuzzy
-msgid "User Site"
+msgid "User Role"
 msgstr "snapin"
 
 #, fuzzy
@@ -1712,8 +1712,12 @@ msgid "User Site Update Success"
 msgstr "Actualizar impresora"
 
 #, fuzzy
-msgid "User Update Site Fail"
-msgstr "actualización Valoración falló"
+msgid "User Site Update Fail"
+msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+msgid "User Site"
+msgstr "snapin"
 
 #, fuzzy
 msgid "Export Sites"
@@ -2117,11 +2121,20 @@ msgid "Access Control Rules"
 msgstr "impresora iPrint"
 
 #, fuzzy
-msgid "Role"
-msgstr "retirar"
+msgid "Role Association"
+msgstr "Asociación para la imagen"
 
-msgid "User Access Control"
-msgstr ""
+#, fuzzy
+msgid "User role updated!"
+msgstr "el usuario actualiza"
+
+#, fuzzy
+msgid "User Role Update Success"
+msgstr "Actualizar impresora"
+
+#, fuzzy
+msgid "User Role Update Fail"
+msgstr "Grupo Error de creación"
 
 #, fuzzy
 msgid "Role Name"

@@ -122,33 +122,47 @@ class AddSiteUser extends Hook
         $siteSelector = self::getClass('SiteManager')
             ->buildSelectBox($siteID, 'site');
         $fields = [
-            '<label for="site" class="col-sm-2 control-label">'
-            . _('User Site')
-            . '</label>' => &$siteSelector
+            FOGPage::makeLabel(
+                'col-sm-2 control-label',
+                'site',
+                _('User Site')
+            ) => $siteSelector
         ];
-        self::$HookManager
-            ->processEvent(
-                'USER_SITE_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'User' => &$obj
-                ]
-            );
+        $buttons = FOGPage::makeButton(
+            'site-send',
+            _('Update'),
+            'btn btn-primary'
+        );
+        self::$HookManager->processEvent(
+            'USER_SITE_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'User' => &$obj
+            ]
+        );
         $rendered = FOGPage::formFields($fields);
+        unset($fields);
+        echo FOGPage::makeFormTag(
+            'form-horizontal',
+            'user-site-form',
+            FOGPage::makeTabUpdateURL(
+                'user-site',
+                $obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
         echo '<div class="box-body">';
-        echo '<form id="user-site-form" class="form-horizontal" method="post" action="'
-            . FOGPage::makeTabUpdateURL('user-site', $obj->get('id'))
-            . '" novalidate>';
         echo $rendered;
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="site-send">'
-            . _('Update')
-            . '</button>';
+        echo $buttons;
         echo '</div>';
         echo '</div>';
+        echo '</form>';
     }
     /**
      * The site updater element.
@@ -165,7 +179,6 @@ class AddSiteUser extends Hook
                 'site'
             )
         );
-        $Site = new Site($siteID);
         $insert_fields = ['userID', 'siteID'];
         $insert_values = [];
         $users = [$obj->get('id')];
@@ -211,7 +224,7 @@ class AddSiteUser extends Hook
             default:
                 return;
             }
-            $arguments['code'] = 201;
+            $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
             $argumetns['hook'] = 'USER_EDIT_SITE_SUCCESS';
             $arguments['msg'] = json_encode(
                 [
@@ -220,12 +233,12 @@ class AddSiteUser extends Hook
                 ]
             );
         } catch (Exception $e) {
-            $arguments['code'] = 400;
+            $arguments['code'] = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $arguments['hook'] = 'USER_EDIT_SITE_FAIL';
             $arguments['msg'] = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('User Update Site Fail')
+                    'title' => _('User Site Update Fail')
                 ]
             );
         }
@@ -245,9 +258,14 @@ class AddSiteUser extends Hook
         }
         $siteID = (int)filter_input(INPUT_POST, 'site');
         $arguments['fields'][
-            '<label for="site" class="col-sm-2 control-label">'
-            . _('User Site')
-            . '</label>'] = self::getClass('SiteManager')
-            ->buildSelectBox($siteID, 'site');
+            FOGPage::makeLabel(
+                'col-sm-2 control-label',
+                'site',
+                _('User Site')
+            )
+        ] = self::getClass('SiteManager')->buildSelectBox(
+            $siteID,
+            'site'
+        );
     }
 }

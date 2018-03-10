@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 17:53-0500\n"
+"POT-Creation-Date: 2018-03-10 18:39-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -1527,8 +1527,8 @@ msgid "Group Update Site Fail"
 msgstr "Gruppe aktualisieren fehlgeschlagen"
 
 #, fuzzy
-msgid "User Site"
-msgstr "Neue Site"
+msgid "User Role"
+msgstr "Benutzer-Bereinigung"
 
 #, fuzzy
 msgid "User Site Updated!"
@@ -1539,8 +1539,12 @@ msgid "User Site Update Success"
 msgstr "Benutzeraktualisierung erfolgreich!"
 
 #, fuzzy
-msgid "User Update Site Fail"
-msgstr "Benutzer-Update fehlgeschlagen"
+msgid "User Site Update Fail"
+msgstr "Drucker-Update fehlgeschlagen!"
+
+#, fuzzy
+msgid "User Site"
+msgstr "Neue Site"
 
 #, fuzzy
 msgid "Export Sites"
@@ -1939,12 +1943,20 @@ msgid "Access Control Rules"
 msgstr "Zugriffskontrollregeln"
 
 #, fuzzy
-msgid "Role"
-msgstr "Rolle"
+msgid "Role Association"
+msgstr "Regel Zuordnung"
 
 #, fuzzy
-msgid "User Access Control"
-msgstr "Benutzerzugriffskontrolle"
+msgid "User role updated!"
+msgstr "Benutzer aktualisiert"
+
+#, fuzzy
+msgid "User Role Update Success"
+msgstr "Benutzeraktualisierung erfolgreich!"
+
+#, fuzzy
+msgid "User Role Update Fail"
+msgstr "Modulupdate fehlgeschlagen"
 
 #, fuzzy
 msgid "Role Name"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 17:53-0500\n"
+"POT-Creation-Date: 2018-03-10 18:39-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1420,7 +1420,7 @@ msgstr ""
 msgid "Group Update Site Fail"
 msgstr ""
 
-msgid "User Site"
+msgid "User Role"
 msgstr ""
 
 msgid "User Site Updated!"
@@ -1429,7 +1429,10 @@ msgstr ""
 msgid "User Site Update Success"
 msgstr ""
 
-msgid "User Update Site Fail"
+msgid "User Site Update Fail"
+msgstr ""
+
+msgid "User Site"
 msgstr ""
 
 msgid "Export Sites"
@@ -1744,10 +1747,16 @@ msgstr ""
 msgid "Access Control Rules"
 msgstr ""
 
-msgid "Role"
+msgid "Role Association"
 msgstr ""
 
-msgid "User Access Control"
+msgid "User role updated!"
+msgstr ""
+
+msgid "User Role Update Success"
+msgstr ""
+
+msgid "User Role Update Fail"
 msgstr ""
 
 msgid "Role Name"
