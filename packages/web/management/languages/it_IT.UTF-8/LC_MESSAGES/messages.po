@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 17:53-0500\n"
+"POT-Creation-Date: 2018-03-10 18:39-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1473,8 +1473,8 @@ msgid "Group Update Site Fail"
 msgstr "Aggiornamento gruppo non riuscito"
 
 #, fuzzy
-msgid "User Site"
-msgstr "Nuovo Sito"
+msgid "User Role"
+msgstr "Cleanup utente"
 
 #, fuzzy
 msgid "User Site Updated!"
@@ -1485,8 +1485,12 @@ msgid "User Site Update Success"
 msgstr "Utente aggiornato con successo"
 
 #, fuzzy
-msgid "User Update Site Fail"
-msgstr "Aggiornamento utente non riuscita"
+msgid "User Site Update Fail"
+msgstr "Aggiornamento della stampante non riuscito"
+
+#, fuzzy
+msgid "User Site"
+msgstr "Nuovo Sito"
 
 msgid "Export Sites"
 msgstr "Esporta Siti"
@@ -1829,11 +1833,21 @@ msgstr "Controllo accessi"
 msgid "Access Control Rules"
 msgstr "Regole controllo accessi"
 
-msgid "Role"
-msgstr "Regola"
+#, fuzzy
+msgid "Role Association"
+msgstr "Regole di associazione"
 
-msgid "User Access Control"
-msgstr "User Access Control"
+#, fuzzy
+msgid "User role updated!"
+msgstr "Utente aggiornato"
+
+#, fuzzy
+msgid "User Role Update Success"
+msgstr "Utente aggiornato con successo"
+
+#, fuzzy
+msgid "User Role Update Fail"
+msgstr "Aggiornamento modulo non riuscito"
 
 msgid "Role Name"
 msgstr "Nome regola"
