@@ -296,74 +296,12 @@ abstract class FOGPage extends FOGBase
                 $id
             );
             if (isset($id)) {
-                $link = sprintf(
-                    '?node=%s&sub=%s&%s=%d',
-                    $this->node,
-                    '%s',
-                    $this->id,
-                    $id
-                );
-                $this->delformat = sprintf(
-                    $link,
-                    'delete'
-                );
-                $this->linkformat = sprintf(
-                    $link,
-                    'edit'
-                );
                 if ($id === 0 || !is_numeric($id) || !$this->obj->isValid()) {
                     unset($this->obj);
                     self::redirect("../management/index.php?node={$this->node}");
                 }
             }
         }
-        $this->reportString = '<h4 class="title">'
-            . '<div id="exportDiv"></div>'
-            . '<a id="csvsub" href="../management/export.php?filename=%s&type=csv" '
-            . 'alt="%s" title="%s" target="_blank" data-toggle="tooltip" '
-            . 'data-placement="top">%s</a> '
-            . '<a id="pdfsub" href="../management/export.php?filename=%s&type=pdf" '
-            . 'alt="%s" title="%s" target="_blank" data-toggle="tooltip" '
-            . 'data-placement="top">%s</a>'
-            . '</h4>';
-        self::$pdffile = '<i class="fa fa-file-pdf-o fa-2x"></i>';
-        self::$csvfile = '<i class="fa fa-file-excel-o fa-2x"></i>';
-        self::$inventoryCsvHead = [
-            _('Host ID') => 'id',
-            _('Host name') => 'name',
-            _('Host MAC') => 'mac',
-            _('Host Desc') => 'description',
-            _('Inventory ID') => 'id',
-            _('Inventory Desc') => 'description',
-            _('Primary User') => 'primaryUser',
-            _('Other Tag 1') => 'other1',
-            _('Other Tag 2') => 'other2',
-            _('System Manufacturer') => 'sysman',
-            _('System Product') => 'sysproduct',
-            _('System Version') => 'sysversion',
-            _('System Serial') => 'sysserial',
-            _('System Type') => 'systype',
-            _('BIOS Version') => 'biosversion',
-            _('BIOS Vendor') => 'biosvendor',
-            _('BIOS Date') => 'biosdate',
-            _('MB Manufacturer') => 'mbman',
-            _('MB Name') => 'mbproductname',
-            _('MB Version') => 'mbversion',
-            _('MB Serial') => 'mbserial',
-            _('MB Asset') => 'mbasset',
-            _('CPU Manufacturer') => 'cpuman',
-            _('CPU Version') => 'cpuversion',
-            _('CPU Speed') => 'cpucurrent',
-            _('CPU Max Speed') => 'cpumax',
-            _('Memory') => 'mem',
-            _('HD Model') => 'hdmodel',
-            _('HD Firmware') => 'hdfirmware',
-            _('HD Serial') => 'hdserial',
-            _('Chassis Manufacturer') => 'caseman',
-            _('Chassis Version') => 'casever',
-            _('Chassis Serial') => 'caseser',
-            _('Chassis Asset') => 'caseasset',
-        ];
         self::$HookManager->processEvent(
             'SEARCH_PAGES',
             ['searchPages' => &self::$searchPages]
@@ -507,70 +445,92 @@ abstract class FOGPage extends FOGBase
         ) {
             self::redirect('../management/index.php');
         }
+
+        $main = self::buildMenuStructure($menu);
+        return $main;
+    }
+    /**
+     * Builds the menu structure.
+     *
+     * @param array $menu The links to build upon.
+     *
+     * @return string
+     */
+    public static function buildMenuStructure($menu)
+    {
+        if (count($menu ?: []) < 1) {
+            return;
+        }
+        global $node;
         ob_start();
-        $count = false;
-        if (count($menu ?: []) > 0) {
-            foreach ($menu as $link => &$title) {
-                $links[] = $link;
-                if (!$node && $link == 'home') {
-                    $node = $link;
-                }
-                $activelink = ($node == $link);
-                $subItems = array_filter(
-                    FOGPage::buildSubMenuItems($link)
-                );
-                echo '<li class="';
-                echo (
+        $links = [];
+        foreach ($menu as $link => &$title) {
+            $links[] = $link;
+            if (!$node && 'home' == $link) {
+                $node = $link;
+            }
+            $activelink = ($node == $link);
+            $activelink = ($node == $link);
+            $subItems = array_filter(
+                FOGPage::buildSubMenuItems($link)
+            );
+            echo '<li class="'
+                . (
                     count($subItems ?: []) > 0 ?
-                    'treeview ' :
+                    'treeview' :
                     ''
-                );
-                echo (
+                )
+                . (
                     $activelink ?
-                    'active' :
+                    (
+                        count($subItems ?: []) > 0 ?
+                        ' ' :
+                        ''
+                    ) . 'active' :
                     ''
-                );
-                echo '">';
-                echo '  <a href="';
-                echo (
+                )
+                . '">';
+            echo '<a href="'
+                . (
                     count($subItems ?: []) > 0 ?
                     '#' :
-                    '?node=' . $link
-                );
-                echo '">';
-                echo '      <i class="' . $title[1] . '"></i> ';
-                echo '<span>' . $title[0] . '</span>';
-                if (count($subItems ?: []) > 0) {
-                    echo '<span class="pull-right-container">';
-                    echo '    <i class="fa fa-angle-left pull-right"></i>';
-                    echo '</span>';
-                }
-                echo '</a>';
-                if (count($subItems ?: []) > 0) {
-                    echo '<ul class="treeview-menu">';
-                    foreach ($subItems as $subItem => $text) {
-                        echo '<li class="';
-                        if ($activelink && $sub == $subItem) {
-                            echo 'active';
-                        }
-                        echo '"><a href="../management/index.php?node=';
-                        echo $link;
-                        echo '&sub=';
-                        echo $subItem;
-                        echo '">';
-                        echo '<i class="fa fa-circle-o"></i>';
-                        echo $text;
-                        echo '</a>';
-                        echo '</li>';
-                    }
-                    echo '</ul>';
-                }
-                echo '</li>';
-                unset($title);
+                    "../management/index.php?node=$link"
+                )
+                . '">';
+            echo '<i class="' . $title[1] . '"></i> ';
+            echo '<span>' . $title[0] . '</span>';
+            if (count($subItems ?: []) > 0) {
+                echo '<span class="pull-right-container">';
+                echo '<i class="fa fa-angle-left pull-right"></i>';
+                echo '</span>';
             }
+            echo '</a>';
+            if (count($subItems ?: []) > 0) {
+                echo '<ul class="treeview-menu">';
+                foreach ($subItems as $subItem => $text) {
+                    echo '<li class="'
+                        . (
+                            $activelink && $sub == $subItem ?
+                            'active' :
+                            ''
+                        )
+                        . '">';
+                    echo '<a href="../management/index.php?node='
+                        . $link
+                        . '&sub='
+                        . $subItem
+                        . '">';
+                    echo '<i class="fa fa-circle-o"></i>';
+                    echo $text;
+                    echo '</a>';
+                    echo '</li>';
+                }
+                echo '</ul>';
+            }
+            echo '</li>';
+            unset($title);
         }
-        $main = ob_get_clean();
-        return $main;
+        return ob_get_clean();
     }
     /**
      * Creates the sub menu items.
