@@ -38,44 +38,18 @@ class PushbulletManagementPage extends FOGPage
     {
         $this->name = 'Pushbullet Management';
         parent::__construct($this->name);
-        $this->menu = array(
-            'list' => sprintf(
-                self::$foglang['ListAll'],
-                _('Pushbullet Accounts')
-            ),
-            'add' => _('Link Pushbullet Account'),
-        );
-        global $id;
-        if ($id) {
-            unset($this->subMenu);
-        }
-        $this->headerData = array(
+        $this->headerData = [
             _('Name'),
             _('Email'),
-        );
-        $this->templates = array(
-            '${name}',
-            '${email}',
-        );
-        $this->attributes = array(
-            array(),
-            array()
-        );
-        /**
-         * Lambda function to return data either by list or search.
-         *
-         * @param object $PushBullet the object to use
-         *
-         * @return void
-         */
-        self::$returnData = function (&$PushBullet) {
-            $this->data[] = array(
-                'name'    => $PushBullet->name,
-                'email'   => $PushBullet->email,
-                'id'      => $PushBullet->id,
-            );
-            unset($PushBullet);
-        };
+        ];
+        $this->templates = [
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
     }
     /**
      * Presents for creating a new link
@@ -84,70 +58,66 @@ class PushbulletManagementPage extends FOGPage
      */
     public function add()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->span,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        $this->title = _('Link New Account');
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $value = filter_input(
+        $this->title = _('Link Pushbullet Account');
+        $apiToken = filter_input(
             INPUT_POST,
             'apiToken'
         );
-        $fields = array(
-            '<label for="apiToken">'
-            . _('Access Token')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control" type="text" '
-            . 'name="apiToken" id="apiToken" value="'
-            . $value
-            . '"/>'
-            . '</div>',
-            '<label for="add">'
-            . _('Add Pushbullet Account')
-            . '</label>' => '<button type="submit" name="add" class="'
-            . 'btn btn-info btn-block" id="add">'
-            . _('Add')
-            . '</button>'
+        $labelClass = 'col-sm-2 control-label';
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'apiToken',
+                _('Access token')
+            ) => self::makeInput(
+                'form-control pushbullettoken-input',
+                'apiToken',
+                _('Pushbullet Token'),
+                'text',
+                'apiToken',
+                $apiToken,
+                true
+            )
+        ];
+        self::$HookManager->processEvent(
+            'PUSHBULLET_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'Pushbullet' => self::getClass('Pushbullet')
+            ]
         );
         $rendered = self::formFields($fields);
-        self::$HookManager
-            ->processEvent(
-                'PUSHBULLET_ADD',
-                array(
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes,
-                    'headerData' => &$this->headerData
-                )
-            );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
+        unset($fields);
+        echo self::makeFormTag(
+            'form-horizontal',
+            'pushbullet-create-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="box box-solid" id="pushbullet-create">';
+        echo '<div class="box-body">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-borader">';
+        echo '<h4 class="box-title">';
+        echo _('Link Pushbullet Account');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '">';
-        $this->render(12);
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Actually insert the new object

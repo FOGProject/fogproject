@@ -38,60 +38,21 @@ class SlackManagementPage extends FOGPage
     {
         $this->name = 'Slack Management';
         parent::__construct($this->name);
-        $this->menu = array(
-            'list' => sprintf(
-                self::$foglang['ListAll'],
-                _('Slack Accounts')
-            ),
-            'add' => _('Link Slack Account'),
-        );
-        global $id;
-        if ($id) {
-            unset($this->subMenu);
-        }
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" '
-            . 'class="toggle-checkboxAction"/>',
+        $this->headerData = [
             _('Team'),
             _('Created By'),
             _('User/Channel Name')
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="slack[]" '
-            . 'value="${id}" class="toggle-action"/>',
-            '${team}',
-            '${createdBy}',
-            '${name}'
-        );
-        $this->attributes = array(
-            array(
-                'class' => 'filter-false',
-                'width' => 16
-            ),
-            array(),
-            array(),
-            array()
-        );
-        /**
-         * Lambda function to return data either by list or search.
-         *
-         * @param object $Slack the object to use
-         *
-         * @return void
-         */
-        self::$returnData = function (&$Slack) {
-            $team_name = self::getClass(
-                'Slack',
-                $Slack->id
-            )->call('auth.test');
-            $this->data[] = array(
-                'id' => $Slack->id,
-                'team' => $team_name['team'],
-                'createdBy' => $team_name['user'],
-                'name' => $Slack->name,
-            );
-            unset($Slack);
-        };
+        ];
+        $this->templates = [
+            '',
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            [],
+            []
+        ];
     }
     /**
      * Presents for creating a new link
@@ -100,24 +61,8 @@ class SlackManagementPage extends FOGPage
      */
     public function add()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->span,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        $this->title = _('Link New Account');
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $value = filter_input(
+        $this->title = _('Link Slack Account');
+        $apiToken = filter_input(
             INPUT_POST,
             'apiToken'
         );
@@ -125,57 +70,74 @@ class SlackManagementPage extends FOGPage
             INPUT_POST,
             'user'
         );
-        $fields = array(
-            '<label for="apiToken">'
-            . _('Access Token')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control" type="text" '
-            . 'name="apiToken" id="apiToken" value="'
-            . $value
-            . '" required/>'
-            . '</div>',
-            '<label for="user">'
-            . _('User/Channel to post to')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control" type="text" '
-            . 'name="user" id="user" value="'
-            . $user
-            . '" required/>'
-            . '</div>',
-            '<label for="add">'
-            . _('Add Slack Account')
-            . '</label>' => '<button type="submit" name="add" class="'
-            . 'btn btn-info btn-block" id="add">'
-            . _('Add')
-            . '</button>'
+        $labelClass = 'col-sm-2 control-label';
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'apiToken',
+                _('Access Token')
+            ) => self::makeInput(
+                'form-control slacktoken-input',
+                'apiToken',
+                _('Slack Token'),
+                'text',
+                'apiToken',
+                $apiToken,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'user',
+                _('User/Channel')
+            ) => self::makeInput(
+                'form-control slackuser-input',
+                'user',
+                _('Slack User/Slack Channel'),
+                'text',
+                'user',
+                $user,
+                true
+            )
+        ];
+        self::$HookManager->processEvent(
+            'SLACK_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'Slack' => self::getClass('Slack')
+            ]
         );
         $rendered = self::formFields($fields);
-        self::$HookManager
-            ->processEvent(
-                'SLACK_ADD',
-                array(
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes,
-                    'headerData' => &$this->headerData
-                )
-            );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
+        unset($fields);
+        echo self::makeFormTag(
+            'form-horizontal',
+            'slack-create-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="box box-solid" id="slack-create">';
+        echo '<div class="box-body">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-borader">';
+        echo '<h4 class="box-title">';
+        echo _('Link Slack Account');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '">';
-        $this->render(12);
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Actually create the entry.
