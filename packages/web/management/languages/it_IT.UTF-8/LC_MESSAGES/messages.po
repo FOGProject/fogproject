@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 20:39-0500\n"
+"POT-Creation-Date: 2018-03-10 22:51-0500\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5692,6 +5692,10 @@ msgstr "Chiave deve essere una stringa"
 msgid "Line"
 msgstr "linea"
 
+#, fuzzy
+msgid "Unable to Authenticate"
+msgstr "Impossibile contattare il server"
+
 msgid "No viable storage groups found"
 msgstr "Nessun gruppo di storage disponibile trovato"
 
@@ -5982,10 +5986,6 @@ msgstr "Create attività per"
 
 msgid "Remove these items?"
 msgstr "Rimuovere questi elementi?"
-
-#, fuzzy
-msgid "Unable to Authenticate"
-msgstr "Impossibile contattare il server"
 
 #, fuzzy
 msgid "Successfully deleted"

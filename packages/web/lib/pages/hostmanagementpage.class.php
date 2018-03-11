@@ -42,9 +42,6 @@ class HostManagementPage extends FOGPage
     {
         $this->name = 'Host Management';
         parent::__construct($this->name);
-        if (self::$pendingHosts > 0) {
-            $this->menu['pending'] = self::$foglang['PendingHosts'];
-        }
         if (!($this->obj instanceof Host && $this->obj->isValid())) {
             $this->exitNorm = filter_input(INPUT_POST, 'bootTypeExit');
             $this->exitEfi = filter_input(INPUT_POST, 'efiBootTypeExit');
@@ -148,19 +145,6 @@ class HostManagementPage extends FOGPage
             $this->templates
         );
 
-        self::$HookManager->processEvent(
-            'HOST_PENDING_DATA',
-            [
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes,
-                'headerData' => &$this->headerData
-            ]
-        );
-        self::$HookManager->processEvent(
-            'HOST_PENDING_HEADER_DATA',
-            ['headerData' => &$this->headerData]
-        );
-
         $buttons = self::makeButton(
             'approve',
             _('Approve selected'),
@@ -257,28 +241,7 @@ class HostManagementPage extends FOGPage
         $remitems = $items['remitems'];
         $pending = $items['pending'];
         if (isset($_POST['confirmdel'])) {
-            if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
-
-                $user = filter_input(INPUT_POST, 'fogguiuser');
-
-                if (empty($user)) {
-                    $user = self::$FOGUser->get('name');
-                }
-                $pass = filter_input(INPUT_POST, 'fogguipass');
-                $validate = self::getClass('User')
-                    ->passwordValidate(
-                        $user,
-                        $pass,
-                        true
-                    );
-                if (!$validate) {
-                    echo json_encode(
-                        ['error' => self::$foglang['InvalidLogin']]
-                    );
-                    http_response_code(HTTPResponseCodes::HTTP_UNAUTHORIZED);
-                    exit;
-                }
-            }
+            self::checkauth();
             self::getClass('HostManager')->destroy(
                 [
                     'id' => $remitems,
@@ -439,28 +402,7 @@ class HostManagementPage extends FOGPage
         $remitems = $items['remitems'];
         $pending = $items['pending'];
         if (isset($_POST['confirmdel'])) {
-            if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
-
-                $user = filter_input(INPUT_POST, 'fogguiuser');
-
-                if (empty($user)) {
-                    $user = self::$FOGUser->get('name');
-                }
-                $pass = filter_input(INPUT_POST, 'fogguipass');
-                $validate = self::getClass('User')
-                    ->passwordValidate(
-                        $user,
-                        $pass,
-                        true
-                    );
-                if (!$validate) {
-                    echo json_encode(
-                        ['error' => self::$foglang['InvalidLogin']]
-                    );
-                    http_response_code(HTTPResponseCodes::HTTP_UNAUTHORIZED);
-                    exit;
-                }
-            }
+            self::checkauth();
             self::getClass('MACAddressAssociationManager')->destroy(
                 [
                     'id' => $remitems,

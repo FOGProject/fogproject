@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 20:39-0500\n"
+"POT-Creation-Date: 2018-03-10 22:51-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6232,6 +6232,10 @@ msgstr "Evento deve ser uma string"
 msgid "Line"
 msgstr "Linha"
 
+#, fuzzy
+msgid "Unable to Authenticate"
+msgstr "servidor entrar em contato com erro"
+
 msgid "No viable storage groups found"
 msgstr ""
 
@@ -6569,10 +6573,6 @@ msgstr "Criar usuário"
 #, fuzzy
 msgid "Remove these items?"
 msgstr "Remover snapins selecionados"
-
-#, fuzzy
-msgid "Unable to Authenticate"
-msgstr "servidor entrar em contato com erro"
 
 #, fuzzy
 msgid "Successfully deleted"
