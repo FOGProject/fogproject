@@ -79,10 +79,16 @@ class PushbulletManagementPage extends FOGPage
                 true
             )
         ];
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
         self::$HookManager->processEvent(
             'PUSHBULLET_ADD_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Pushbullet' => self::getClass('Pushbullet')
             ]
         );
@@ -110,11 +116,7 @@ class PushbulletManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer with-border">';
-        echo self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary'
-        );
+        echo $buttons;
         echo '</div>';
         echo '</div>';
         echo '</form>';

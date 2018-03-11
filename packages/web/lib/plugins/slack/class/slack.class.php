@@ -1,16 +1,58 @@
 <?php
+/**
+ * Slack class.
+ *
+ * PHP Version 5
+ *
+ * @category Slack
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  https://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Slack class.
+ *
+ * @category Slack
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  https://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class Slack extends FOGController
 {
+    /**
+     * The table.
+     *
+     * @var string
+     */
     protected $databaseTable = 'slack';
-    protected $databaseFields = array(
+    /**
+     * The fields within the table.
+     *
+     * @var array
+     */
+    protected $databaseFields = [
         'id'     => 'sID',
         'token'  => 'sToken',
-        'name' => 'sUsername',
-    );
-    protected $databaseFieldsRequired = array(
+        'name' => 'sUsername'
+    ];
+    /**
+     * The required fields.
+     *
+     * @var array
+     */
+    protected $databaseFieldsRequired = [
         'token',
-        'name',
-    );
+        'name'
+    ];
+    /**
+     * Get the channels of the slack you're logging in with.
+     *
+     * @throws SlackException
+     *
+     * @return array
+     */
     public function getChannels()
     {
         $channels = array();
@@ -27,6 +69,13 @@ class Slack extends FOGController
         $channels = array_values((array)$channels);
         return (array)$channels;
     }
+    /**
+     * Get the users of the slack you're logging in with.
+     *
+     * @throws SlackException
+     *
+     * @return array
+     */
     public function getUsers()
     {
         $users = array();
@@ -46,21 +95,42 @@ class Slack extends FOGController
         $users = array_values((array)$users);
         return (array)$users;
     }
+    /**
+     * Validates the token.
+     *
+     * @return bool
+     */
     public function verifyToken()
     {
-        $testAuth = self::getClass('SlackHandler', $this->get('token'))->call('auth.test');
+        $testAuth = self::getClass(
+            'SlackHandler',
+            $this->get('token')
+        )->call('auth.test');
         return (bool)$testAuth['ok'];
     }
-    public function call($method, $args = array())
+    /**
+     * Call the chat elements.
+     *
+     * @param string $method How is the message passing.
+     * @param array  $args   Any extra arguments sent in.
+     *
+     * @return mixed
+     */
+    public function call($method, $args = [])
     {
         if ($method === 'chat.postMessage') {
             $tmpName = preg_replace('/^[#]|^[@]/', '', $this->get('name'));
             $username = $this->call('auth.test');
-            if ($tmpName != $username['user'] || in_array($tmpName, (array)$this->getChannels())) {
+            if ($tmpName != $username['user']
+                || in_array($tmpName, (array)$this->getChannels())
+            ) {
                 $args['username'] = $username['user'];
                 $args['as_user'] = true;
             }
         }
-        return self::getClass('SlackHandler', $this->get('token'))->call($method, $args);
+        return self::getClass(
+            'SlackHandler',
+            $this->get('token')
+        )->call($method, $args);
     }
 }
