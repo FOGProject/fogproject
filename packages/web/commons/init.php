@@ -300,6 +300,9 @@ class Initiator
         if (!$node) {
             $node = filter_input(INPUT_GET, 'node');
         }
+        if (!$type) {
+            $type = filter_input(INPUT_GET, 'type');
+        }
         if (!$sub) {
             $sub = filter_input(INPUT_GET, 'sub');
         }

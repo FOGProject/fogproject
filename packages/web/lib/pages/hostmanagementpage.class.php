@@ -856,6 +856,7 @@ class HostManagementPage extends FOGPage
             'HOST_GENERAL_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Host' => &$this->obj
             ]
         );
@@ -913,6 +914,7 @@ class HostManagementPage extends FOGPage
             _('Delete'),
             'btn btn-danger'
         );
+        echo '</div>';
         echo $modalreset;
         echo '</div>';
         echo '</div>';
@@ -3904,5 +3906,347 @@ class HostManagementPage extends FOGPage
             )
         );
         exit;
+    }
+    /**
+     * Tasking for this host.
+     *
+     * @return void
+     */
+    public function deploy()
+    {
+        global $type;
+        global $id;
+
+        try {
+            if (!is_numeric($type) || $type < 1) {
+                $type = 1;
+            }
+
+            $TaskType = new TaskType($type);
+
+            $this->title = $TaskType->get('name')
+                . ' '
+                . $this->obj->get('name');
+
+            $imagingTypes = $TaskType->isImagingTask();
+
+            $iscapturetask = $TaskType->isCapture();
+
+            $issnapintask = $TaskType->isSnapinTasking();
+
+            $isinitneeded = $TaskType->isInitNeededTasking();
+
+            $isdebug = $TaskType->isDebug();
+
+            $image = $this->obj->getImage();
+
+            if (!$TaskType->isValid()) {
+                throw new Exception(_('Task type is invalid'));
+            }
+            if ($this->obj->get('pending') > 0) {
+                throw new Exception(_('Cannot task pending hosts'));
+            }
+            if ($imagingTypes
+                && !$image->isValid()
+            ) {
+                throw new Exception(_('Assigned image is invalid'));
+            }
+            if ($imagingTypes
+                && $image->get('isEnabled') < 1
+            ) {
+                throw new Exception(_('Assigned image is not enabled'));
+            }
+            if ($imagingTypes
+                && $iscapturetask
+                && $image->get('protected')
+            ) {
+                throw new Exception(_('Assigned image is protected'));
+            }
+            $labelClass = 'col-sm-2 control-label';
+            $fields = [];
+            if ($issnapintask
+                && TaskType::SINGLE_SNAPIN == $type
+            ) {
+                $snapinSelector = self::getClass('SnapinManager')
+                    ->buildSelectBox('', 'snapin');
+                $fields[
+                    self::makeLabel(
+                        $labelClass,
+                        'snapin',
+                        _('Select Snapin to run')
+                    )
+                ] = $snapinSelector;
+            } else if (TaskType::PASSWORD_RESET == $type) {
+                $fields [
+                    self::makeLabel(
+                        $labelClass,
+                        'account',
+                        _('Account Name')
+                    )
+                ] = self::makeInput(
+                    'form-control',
+                    'account',
+                    'Administrator',
+                    'text',
+                    'account',
+                    '',
+                    true
+                );
+            }
+            if ($isinitneeded
+                && !$isdebug
+            ) {
+                $shutdownchecked = self::getSetting(
+                    'FOG_TASKING_ADV_SHUTDOWN_ENABLED'
+                ) ? ' checked' : '';
+                $fields = self::fastmerge(
+                    $fields,
+                    [
+                        '<div class="hideFromDebug">'
+                        . self::makeLabel(
+                            $labelClass,
+                            'shutdown',
+                            _('Shutdown when complete')
+                        ) => self::makeInput(
+                            '',
+                            'shutdown',
+                            '',
+                            'checkbox',
+                            'shutdown',
+                            '',
+                            false,
+                            false,
+                            -1,
+                            -1,
+                            $shutdownchecked
+                        )
+                        . '</div>'
+                    ]
+                );
+            }
+            if (TaskType::WAKE_UP != $type) {
+                $wolchecked = self::getSetting(
+                    'FOG_TASKING_ADV_WOL_ENABLED'
+                ) ? ' checked' : '';
+                $fields = self::fastmerge(
+                    $fields,
+                    [
+                        self::makeLabel(
+                            $labelClass,
+                            'wol',
+                            _('Wake Up')
+                        ) => self::makeInput(
+                            '',
+                            'wol',
+                            '',
+                            'checkbox',
+                            'wol',
+                            '',
+                            false,
+                            false,
+                            -1,
+                            -1,
+                            $wolchecked
+                        )
+                    ]
+                );
+            }
+            if (TaskType::PASSWORD_RESET != $type
+                && !$isdebug
+                && $isinitneeded
+            ) {
+                $debugchecked = self::getSetting(
+                    'FOG_TASKING_ADV_DEBUG_ENABLED'
+                ) ? ' checked' : '';
+                $fields = self::fastmerge(
+                    $fields,
+                    [
+                        self::makeLabel(
+                            $labelClass,
+                            'checkdebug',
+                            _('Debug Task')
+                        ) => self::makeInput(
+                            '',
+                            'isDebugTask',
+                            '',
+                            'checkbox',
+                            'checkdebug',
+                            '',
+                            false,
+                            false,
+                            -1,
+                            -1,
+                            $debugchecked
+                        )
+                    ]
+                );
+            }
+            $fields = self::fastmerge(
+                $fields,
+                [
+                    self::makeLabel(
+                        $labelClass,
+                        'instant',
+                        _('Schedule Immediately')
+                    ) => self::makeInput(
+                        'instant',
+                        'scheduleType',
+                        '',
+                        'radio',
+                        'instant',
+                        'instant',
+                        false,
+                        false,
+                        -1,
+                        -1,
+                        ' checked'
+                    )
+                ]
+            );
+            if (!$isdebug
+                && TaskType::PASSWORD_RESET != $type
+            ) {
+                $fields = self::fastmerge(
+                    $fields,
+                    [
+                        '<div class="hideFromDebug">'
+                        . self::makeLabel(
+                            $labelClass,
+                            'delayed',
+                            _('Schedule Later')
+                        ) => self::makeInput(
+                            'delayed',
+                            'scheduleType',
+                            '',
+                            'radio',
+                            'delayed',
+                            'single'
+                        )
+                        . '</div>',
+                        '<div class="delayedinput hidden">'
+                        . self::makeLabel(
+                            $labelClass,
+                            'delayedinput',
+                            _('Start Time')
+                        ) => self::makeInput(
+                            'form-control',
+                            'scheduleSingleTime',
+                            self::niceDate()->format('Y-m-d H:i:s'),
+                            'text',
+                            'delayedinput',
+                            ''
+                        )
+                        . '</div>',
+                        '<div class="hideFromDebug">'
+                        . self::makeLabel(
+                            $labelClass,
+                            'cron',
+                            _('Schedule Crontab Style')
+                        ) => self::makeInput(
+                            'croninput',
+                            'scheduleType',
+                            '',
+                            'radio',
+                            'cron',
+                            'cron'
+                        )
+                        . '</div>',
+                        '<div class="croninput hidden">'
+                        . self::makeLabel(
+                            $labelClass,
+                            'specialCrons',
+                            _('Special Crons')
+                        ) => FOGCron::buildSpecialCron('specialCrons')
+                        . '</div>',
+                        '<div class="croninput hidden">'
+                        . self::makeLabel(
+                            $labelClass,
+                            '',
+                            _('Cron Entry')
+                        ) => self::makeInput(
+                            'col-sm-2 croninput cronmin hidden',
+                            'scheduleCronMin',
+                            _('min'),
+                            'text',
+                            'cronMin'
+                        )
+                        . self::makeInput(
+                            'col-sm-2 croninput cronhour hidden',
+                            'scheduleCronHour',
+                            _('hour'),
+                            'text',
+                            'cronHour'
+                        )
+                        . self::makeInput(
+                            'col-sm-2 croninput crondom hidden',
+                            'scheduleCronDOM',
+                            _('day'),
+                            'text',
+                            'cronDom'
+                        )
+                        . self::makeInput(
+                            'col-sm-2 croninput cronmonth hidden',
+                            'scheduleCronMonth',
+                            _('month'),
+                            'text',
+                            'cronMonth'
+                        )
+                        . self::makeInput(
+                            'col-sm-2 croninput crondow hidden',
+                            'scheduleCronDOW',
+                            _('weekday'),
+                            'text',
+                            'cronDow'
+                        )
+                        . '</div>'
+                    ]
+                );
+            }
+
+            $buttons = self::makeButton(
+                'tasking-send',
+                _('Create'),
+                'btn btn-primary'
+            );
+            self::$HookManager->processEvent(
+                'HOST_CREATE_TASKING',
+                [
+                    'fields' => &$fields,
+                    'buttons' => &$buttons,
+                    'Host' => &$this->obj
+                ]
+            );
+            $rendered = self::formFields($fields);
+            unset($fields);
+            echo self::makeFormTag(
+                'form-horizontal',
+                'host-deploy-form',
+                $this->formAction,
+                'post',
+                'application/x-www-form-url-encoded',
+                true
+            );
+            echo '<div class="box box-solid">';
+            echo '<div class="box-header with-border">';
+            echo '<h4 class="box-title">';
+            echo $this->title;
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="box-body">';
+            echo $rendered;
+            echo '</div>';
+            echo '<div class="box-footer">';
+            echo $buttons;
+            echo '</div>';
+            echo '</div>';
+            echo '</form>';
+        } catch (Exception $e) {
+            echo self::displayAlert(
+                'Tasking Cannot Occur',
+                $e->getMessage(),
+                'warning',
+                false
+            );
+        }
     }
 }

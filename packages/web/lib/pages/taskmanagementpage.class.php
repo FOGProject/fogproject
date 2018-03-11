@@ -329,7 +329,7 @@ class TaskManagementPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'tasks-active-table');
+        $this->render(12, 'active-tasks-table');
         echo '</div>';
         echo '<div class="box-footer">';
         echo '<div class="btn-group">';
@@ -426,7 +426,7 @@ class TaskManagementPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'tasks-active-table');
+        $this->render(12, 'active-multicast-table');
         echo '</div>';
         echo '<div class="box-footer">';
         echo '<div class="btn-group">';
@@ -506,107 +506,41 @@ class TaskManagementPage extends FOGPage
      */
     public function activesnapins()
     {
-        $this->title = 'Active Snapins';
+        $this->title = 'Active Snapin Tasks';
         $this->headerData = [
-            '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction" id="toggler2"/><label for="'
-            . 'toggler2"></label>',
             _('Host Name'),
             _('Snapin'),
             _('Start Time'),
-            _('State'),
+            _('State')
         ];
         $this->templates = [
-            '<input type="checkbox" name="task[]" value="${id}" class='
-            . '"toggle-action" id="sntasks-${id}"/><label for="'
-            . 'sntasks-${id}"></label>',
-            sprintf(
-                '<p><a href="?node=host&sub=edit&id=${host_id}" title='
-                . '"%s">${host_name}</a></p><small>${host_mac}</small>',
-                _('Edit Host')
-            ),
-            '${name}',
-            '${startDate}',
-            '${state}',
+            '',
+            '',
+            '',
+            ''
         ];
         $this->attributes = [
             [],
             [],
             [],
-            [],
             []
         ];
-        Route::active('snapintask');
-        $SnapinTasks = json_decode(
-            Route::getData()
-        );
-        $activestate = self::fastmerge(
-            (array)self::getQueuedStates(),
-            (array)self::getProgressState()
-        );
-        $SnapinTasks = $SnapinTasks->data;
-        foreach ((array)$SnapinTasks as &$SnapinTask) {
-            Route::indiv('snapin', $SnapinTask->snapinID);
-            $Snapin = json_decode(Route::getData());
-            if (!$Snapin->id) {
-                continue;
-            }
-            $SnapinJob = $SnapinTask->snapinjob;
-            if (!$SnapinJob->id) {
-                continue;
-            }
-            Route::indiv('host', $SnapinJob->hostID);
-            $Host = json_decode(
-                Route::getData()
-            );
-            if (!$Host->id) {
-                continue;
-            }
-            $state = $SnapinJob->stateID;
-            $inArr = in_array($state, $activestate);
-            if (!$inArr) {
-                continue;
-            }
-            $this->data[] = [
-                'id' => $SnapinTask->id,
-                'name' => $Snapin->name,
-                'host_id' => $Host->id,
-                'host_name' => $Host->name,
-                'host_mac' => $Host->primac,
-                'startDate' => self::formatTime(
-                    $SnapinTask->checkin,
-                    'Y-m-d H:i:s'
-                ),
-                'state' => $SnapinTask->state->name
-            ];
-            unset(
-                $SnapinTask,
-                $Snapin,
-                $SnapinJob,
-                $Host
-            );
-        }
-        self::$HookManager
-            ->processEvent(
-                'TaskActiveSnapinsData',
-                [
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                ]
-            );
-        unset($SnapinTasks);
-        if (self::$ajax) {
-            return $this->render();
-        }
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
-        );
+        echo '<!-- Active Snapin Tasks -->';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'active-snapintasks-table');
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<div class="btn-group">';
+        echo $this->_buttons;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Cancels and snapin taskings.
@@ -663,38 +597,24 @@ class TaskManagementPage extends FOGPage
      */
     public function activescheduled()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
-        );
         $this->title = _('Scheduled Tasks');
         $this->headerData = [
-            '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction" id="toggler3"/><label for="'
-            . 'toggler3"></label>',
             _('Host/Group Name'),
             _('Is Group'),
             _('Task Name'),
             _('Task Type'),
             _('Start Time'),
             _('Active'),
-            _('Type'),
+            _('Type')
         ];
         $this->templates = [
-            '<input type="checkbox" name="task[]" value="${id}" class='
-            . '"toggle-action" id="sctasks-${id}"/><label for="'
-            . 'sctasks-${id}"></label>',
-            '<a href="?node=${hostgroup}&sub=edit&id=${hostgroupid}" title='
-            . '"Edit ${nametype}: ${hostgroupname}">${hostgroupname}</a>${extra}',
-            '${groupbased}',
-            '<span class="icon" title="${hover}">${details_taskname}</span>',
-            '${task_type}',
-            '<small>${start_time}</small>',
-            '${active}',
-            '${type}',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            ''
         ];
         $this->attributes = [
             [],
@@ -703,100 +623,24 @@ class TaskManagementPage extends FOGPage
             [],
             [],
             [],
-            [],
             []
         ];
-        Route::active('scheduledtask');
-        $ScheduledTasks = json_decode(
-            Route::getData()
-        );
-        $ScheduledTasks = $ScheduledTasks->data;
-        foreach ((array)$ScheduledTasks as &$ScheduledTask) {
-            $method = 'host';
-            if ($ScheduledTask->isGroupTask) {
-                $method = 'group';
-            }
-            $ObjTest = $ScheduledTask->{$method};
-            if (!$ObjTest->id) {
-                continue;
-            }
-            $TaskType = $ScheduledTask->tasktype;
-            if (!$TaskType->id) {
-                continue;
-            }
-            $sID = $ScheduledTask->other2;
-            if ($TaskType->isSnapinTasking) {
-                if ($TaskType->id == 12
-                    || $ScheduledTask->other2 == -1
-                ) {
-                    $hover = _('All snapins');
-                } elseif ($TaskType->id == 13) {
-                    $snapin = new Snapin($sID);
-                    if (!$snapin->isValid()) {
-                        $hover = _('Invalid snapin');
-                    } else {
-                        $hover = _('Snapin to be installed')
-                            . ': '
-                            . $snapin->get('name');
-                    }
-                }
-            }
-            $this->data[] = [
-                'id' => $ScheduledTask->id,
-                'start_time' => $ScheduledTask->runtime,
-                'groupbased' => (
-                    $ScheduledTask->isGroupTask ?
-                    _('Yes') :
-                    _('No')
-                ),
-                'active' => (
-                    $ScheduledTask->isActive ?
-                    _('Yes') :
-                    _('No')
-                ),
-                'type' => $ScheduledTask->type == 'C' ? _('Cron') : _('Delayed'),
-                'hostgroup' => (
-                    $ScheduledTask->isGroupTask ?
-                    _('group') :
-                    _('host')
-                ),
-                'hostgroupname' => $ObjTest->name,
-                'hostgroupid' => $ObjTest->id,
-                'details_taskname' => $ScheduledTask->name,
-                'task_type' => $TaskType->name,
-                'extra' => (
-                    $ScheduledTask->isGroupTask ?
-                    '' :
-                    sprintf(
-                        '<br/>%s',
-                        $ObjTest->primac
-                    )
-                ),
-                'nametype' => $method,
-                'hover' => $hover
-            ];
-            unset($ScheduledTask, $ObjTest, $TaskType);
-        }
-        self::$HookManager
-            ->processEvent(
-                'TaskScheduledData',
-                [
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                ]
-            );
-        if (self::$ajax) {
-            return $this->render();
-        }
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
-        );
+        echo '<!-- Scheduled Tasks -->';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'scheduled-task-table');
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo '<div class="btn-group">';
+        echo $this->_buttons;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Canceled tasks for us.
