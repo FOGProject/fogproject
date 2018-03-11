@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 22:51-0500\n"
+"POT-Creation-Date: 2018-03-11 03:06-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -5162,8 +5162,8 @@ msgid "Module Enabled"
 msgstr "Modulname"
 
 #, fuzzy
-msgid "Enabled as Default"
-msgstr "Standardmäßig aktiviert"
+msgid "Enabled by Default"
+msgstr "Standarddrucker aktualisieren"
 
 msgid "Default Width"
 msgstr "Standardbreite"
@@ -5186,7 +5186,7 @@ msgstr "Datei kann zum Lesen nicht geöffnet werden"
 msgid "Auto Log Out Time"
 msgstr "Standard Logout-Zeit (in Minuten)"
 
-msgid "Active only at 5 minutes"
+msgid "Active at 5 minutes or more"
 msgstr ""
 
 #, fuzzy

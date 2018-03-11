@@ -222,18 +222,24 @@ abstract class FOGPage extends FOGBase
     public function __construct($name = '')
     {
         parent::__construct();
-        self::$FOGCollapseBox = '<button type="button" class="btn '
-            . 'btn-box-tool" data-widget="collapse">'
-            . '<i class="fa fa-minus"></i>'
-            . '</button>';
-        self::$FOGExpandBox = '<button type="button" class="btn '
-            . 'btn-box-tool" data-widget="collapse">'
-            . '<i class="fa fa-plus"></i>'
-            . '</button>';
-        self::$FOGCloseBox = '<button type="button" class="btn '
-            . 'btn-box-tool" data-widget="remove">'
-            . '<i class="fa fa-times"></i>'
-            . '</button>';
+        self::$FOGCollapseBox = self::makeButton(
+            '',
+            '<i class="fa fa-minus"></i>',
+            'btn btn-box-tool',
+            'data-widget="collapse"'
+        );
+        self::$FOGExpandBox = self::makeButton(
+            '',
+            '<i class="fa fa-plus"></i>',
+            'btn btn-box-tool',
+            'data-widget="expand"'
+        );
+        self::$FOGCloseBox = self::makeButton(
+            '',
+            '<i class="fa fa-times"></i>',
+            'btn btn-box-tool',
+            'data-widget="remove"'
+        );
         self::$HookManager->processEvent(
             'PAGES_WITH_OBJECTS',
             ['PagesWithObjects' => &$this->PagesWithObjects]
@@ -677,35 +683,7 @@ abstract class FOGPage extends FOGBase
                 _('All'),
                 _("{$this->childClass}s")
             );
-            $this->data = [];
-            $event = sprintf(
-                '%s_DATA',
-                strtoupper($this->node)
-            );
-            self::$HookManager->processEvent(
-                $event,
-                [
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes,
-                    'headerData' => &$this->headerData
-                ]
-            );
-            $event = sprintf(
-                '%s_HEADER_DATA',
-                strtoupper($this->node)
-            );
-            self::$HookManager->processEvent(
-                $event,
-                ['headerData' => &$this->headerData]
-            );
             $this->indexDivDisplay();
-            unset(
-                $this->headerData,
-                $this->data,
-                $this->templates,
-                $this->attributes
-            );
         } else {
             $vals = function (&$value, $key) {
                 return sprintf(
@@ -1014,33 +992,12 @@ abstract class FOGPage extends FOGBase
                     . $actionbox
                     . '</div>';
             }
-            if (self::$ajax) {
-                echo json_encode(
-                    [
-                        'data' => $this->data,
-                        'templates' => $this->templates,
-                        'headerData' => $this->headerData,
-                        'title' => $this->title,
-                        'attributes' => $this->attributes,
-                        'form' => $this->form,
-                        'actionbox' => (
-                            count($this->data ?: []) > 0 ?
-                            $actionbox :
-                            ''
-                        ),
-                    ]
-                );
-                exit;
-            }
             if (in_array($node, ['task'])
                 && (!$sub || $sub == 'list')
             ) {
                 self::redirect("../management/index.php?node=$node&sub=active");
             }
             ob_start();
-            if (isset($this->form)) {
-                printf($this->form);
-            }
             echo '<table id="'
                 . $tableId
                 . '" class="'
@@ -1118,11 +1075,7 @@ abstract class FOGPage extends FOGBase
                 $this->atts[$index] .= sprintf(
                     ' %s="%s" ',
                     $name,
-                    (
-                        $this->dataFind ?
-                        str_replace($this->dataFind, $this->dataReplace, $val) :
-                        $val
-                    )
+                    $val
                 );
                 unset($name);
             }
@@ -1142,13 +1095,7 @@ abstract class FOGPage extends FOGBase
             return;
         }
         ob_start();
-        echo '<tr class="header'
-            . (
-                count($this->data ?: []) < 1 ?
-                ' hiddeninitially' :
-                ''
-            )
-            . '">';
+        echo '<tr class="header">';
         foreach ($this->headerData as $index => &$content) {
             echo '<th'
                 . (
@@ -1213,8 +1160,8 @@ abstract class FOGPage extends FOGBase
     public function buildRow($data)
     {
         unset($this->atts);
-        $this->_replaceNeeds($data);
         $this->_setAtts();
+        $this->_replaceNeeds($data);
         ob_start();
         foreach ((array)$this->templates as $index => &$template) {
             echo '<td'

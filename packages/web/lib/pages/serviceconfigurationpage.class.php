@@ -126,78 +126,128 @@ class ServiceConfigurationPage extends FOGPage
             'value'
         );
         unset($disps);
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="isdmEnabled">'
-            . _('Module Enabled')
-            . '</label>' => '<input type="checkbox" name="isEnabled" '
-            . 'id="isdmEnabled"'
-            . (
-                self::$_moduleName['displaymanager'] ?
-                ' checked' :
-                ''
+            self::makeLabel(
+                $labelClass,
+                'isdmEnabled',
+                _('Module Enabled')
+            ) => self::makeInput(
+                '',
+                'isEnabled',
+                '',
+                'checkbox',
+                'isdmEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                (self::$_moduleName['displaymanager'] ? ' checked' : '')
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isdmDefault',
+                _('Enabled by Default')
+            ) => self::makeInput(
+                '',
+                'isDefault',
+                '',
+                'checkbox',
+                'isdmDefault',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                ($Module->isDefault ? ' checked' : '')
+            ),
+            self::makeLabel(
+                $labelClass,
+                'width',
+                _('Default Width')
+                . '<br/>('
+                . _('in pixels')
+                . ')'
+            ) => self::makeInput(
+                'form-control',
+                'width',
+                '1024',
+                'number',
+                'width',
+                $x
+            ),
+            self::makeLabel(
+                $labelClass,
+                'height',
+                _('Default Height')
+                . '<br/>('
+                . _('in pixels')
+                . ')'
+            ) => self::makeInput(
+                'form-control',
+                'height',
+                '768',
+                'number',
+                'height',
+                $y
+            ),
+            self::makeLabel(
+                $labelClass,
+                'refresh',
+                _('Default Refresh Rate')
+                . '<br/>('
+                . _('in Hz')
+                . ')'
+            ) => self::makeInput(
+                'form-control',
+                'refresh',
+                '60',
+                'number',
+                'refresh',
+                $r
             )
-            . '/>',
-            '<label class="col-sm-2 control-label" for="isdmDefault">'
-            . _('Enabled as Default')
-            . '</label>' => '<input type="checkbox" name="isDefault" '
-            . 'id="isdmDefault"'
-            . (
-                $Module->isDefault ?
-                ' checked' :
-                ''
-            )
-            . '/>',
-            '<label class="col-sm-2 control-label" for="width">'
-            . _('Default Width')
-            . '<br/>('
-            . _('in pixels')
-            . ')</label>' => '<input type="number" class="form-control" '
-            . 'name="width" value="'
-            . $x
-            . '" id="width"/>',
-            '<label class="col-sm-2 control-label" for="height">'
-            . _('Default Height')
-            . '<br/>('
-            . _('in pixels')
-            . ')'
-            . '</label>' => '<input type="number" class="form-control" '
-            . 'name="height" value="'
-            . $y
-            . '" id="height"/>',
-            '<label class="col-sm-2 control-label" for="refresh">'
-            . _('Default Refresh Rate')
-            . '<br/>('
-            . _('in Hz')
-            . ')</label>' => '<input type="number" class="form-control" '
-            . 'name="refresh" value="'
-            . $r
-            . '" id="refresh"/>'
         ];
         self::$HookManager->processEvent(
             'MODULE_DISPLAYMANAGER_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Module' => &$Module
             ]
         );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<!-- Display Manager -->';
-        echo '<div class="box-group" id="displaymanager">';
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'displaymanagerupdate-form',
+            self::makeTabUpdateURL(
+                'service-displaymanager'
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
-        echo '<div id="updatedisplaymanager" class="">';
         echo '<div class="box-body">';
-        echo '<input type="hidden" name="name" value="'
-            . self::$_modNames['displaymanager']
-            . '"/>';
+        echo self::makeInput(
+            '',
+            'name',
+            '',
+            'hidden',
+            '',
+            self::$_modNames['displaymanager']
+        );
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo '</form>';
     }
     /**
      * Updates the display manager elements.
@@ -206,11 +256,17 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceDisplaymanagerPost()
     {
-        Route::search('module', 'display manager');
+        Route::search(
+            'module',
+            'display manager'
+        );
         $Modules = json_decode(
             Route::getData()
         );
-        $Module = self::getClass('Module', $Modules->modules[0]->id);
+        $Module = self::getClass(
+            'Module',
+            $Modules->modules[0]->id
+        );
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['displaymanager'])
             ->load('name');
@@ -252,70 +308,109 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary',
             $props
         );
-        Route::search('module', 'auto log out');
+        Route::search(
+            'module',
+            'auto log out'
+        );
         $Modules = json_decode(
             Route::getData()
         );
         $Module = $Modules->modules[0];
         unset($Modules);
+
+        $labelClass = 'col-sm-2 control-label';
+
         $tme = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
         $fields = [
-            '<label class="col-sm-2 control-label" for="isaloEnabled">'
-            . _('Module Enabled')
-            . '</label>' => '<input type="checkbox" name="isEnabled" '
-            . 'id="isaloEnabled"'
-            . (
-                self::$_moduleName['autologout'] ?
-                ' checked' :
-                ''
+            self::makeLabel(
+                $labelClass,
+                'isaloEnabled',
+                _('Module Enabled')
+            ) => self::makeInput(
+                '',
+                'isEnabled',
+                '',
+                'checkbox',
+                'isaloEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                (self::$_moduleName['autologout'] ? ' checked' : '')
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isaloDefault',
+                _('Enabled by Default')
+            ) => self::makeInput(
+                '',
+                'isDefault',
+                '',
+                'checkbox',
+                'isaloDefault',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                ($Module->isDefault ? ' checked' : '')
+            ),
+            self::makeLabel(
+                $labelClass,
+                'updatetme',
+                _('Auto Log Out Time')
+                . '<br/>('
+                . _('in minutes')
+                . ')<br/>('
+                . _('Active at 5 minutes or more')
+                . ')'
+            ) => self::makeInput(
+                'form-control',
+                'tme',
+                '5',
+                'number',
+                'updatetme',
+                $tme
             )
-            . '/>',
-            '<label class="col-sm-2 control-label" for="isaloDefault">'
-            . _('Enabled as Default')
-            . '</label>' => '<input type="checkbox" name="isDefault" '
-            . 'id="isaloDefault"'
-            . (
-                $Module->isDefault ?
-                ' checked' :
-                ''
-            )
-            . '/>',
-            '<label class="col-sm-2 control-label" for="updatetme">'
-            . _('Auto Log Out Time')
-            . '<br/>('
-            . _('in minutes')
-            . ')<br/>('
-            . _('Active only at 5 minutes')
-            . ')</label>' => '<input type="number" class="form-control" '
-            . 'name="tme" value="'
-            . $tme
-            . '" id="updatetme"/>'
         ];
         self::$HookManager->processEvent(
             'MODULE_AUTOLOGOUT_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Module' => &$Module
             ]
         );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<!-- Auto Logout -->';
-        echo '<div class="box-group" id="autologout">';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'autologoutupdate-form',
+            self::makeTabUpdateURL(
+                'service-autologout'
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
-        echo '<div id="updateautologout" class="">';
         echo '<div class="box-body">';
-        echo '<input type="hidden" name="name" value="'
-            . self::$_modNames['autologout']
-            . '"/>';
+        echo self::makeInput(
+            '',
+            'name',
+            '',
+            'hidden',
+            '',
+            self::$_modNames['autologout']
+        );
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo '</form>';
     }
     /**
      * Updates the autologout elements.
@@ -328,7 +423,10 @@ class ServiceConfigurationPage extends FOGPage
         $Modules = json_decode(
             Route::getData()
         );
-        $Module = self::getClass('Module', $Modules->modules[0]->id);
+        $Module = self::getClass(
+            'Module',
+            $Modules->modules[0]->id
+        );
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['autologout'])
             ->load('name');
@@ -369,59 +467,91 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary',
             $props
         );
-        Route::search('module', 'snapins');
+        Route::search(
+            'module',
+            'snapins'
+        );
         $Modules = json_decode(
             Route::getData()
         );
         $Module = $Modules->modules[0];
         unset($Modules);
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="isscEnabled">'
-            . _('Module Enabled')
-            . '</label>' => '<input type="checkbox" name="isEnabled" '
-            . 'id="isscEnabled"'
-            . (
-                self::$_moduleName['snapinclient'] ?
-                ' checked' :
-                ''
+            self::makeLabel(
+                $labelClass,
+                'isscEnabled',
+                _('Module Enabled')
+            ) => self::makeInput(
+                '',
+                'isEnabled',
+                '',
+                'checkbox',
+                'isscEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                (self::$_moduleName['snapinclient'] ? ' checked' : '')
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isscDefault',
+                _('Enabled by Default')
+            ) => self::makeInput(
+                '',
+                'isDefault',
+                '',
+                'checkbox',
+                'isscDefault',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                ($Module->isDefault ? ' checked' : '')
             )
-            . '/>',
-            '<label class="col-sm-2 control-label" for="isscDefault">'
-            . _('Enabled as Default')
-            . '</label>' => '<input type="checkbox" name="isDefault" '
-            . 'id="isscDefault"'
-            . (
-                $Module->isDefault ?
-                ' checked' :
-                ''
-            )
-            . '/>'
         ];
         self::$HookManager->processEvent(
             'MODUL_SNAPINCLIENT_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Module' => &$Module
             ]
         );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<!-- Snapin Client -->';
-        echo '<div class="box-group" id="snapinclient">';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'snapinclientupdate-form',
+            self::makeTabUpdateURL(
+                'service-snapinclient'
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
-        echo '<div id="updatesnapinclient" class="">';
         echo '<div class="box-body">';
-        echo '<input type="hidden" name="name" value="'
-            . self::$_modNames['snapinclient']
-            . '"/>';
+        echo self::makeInput(
+            '',
+            'name',
+            '',
+            'hidden',
+            '',
+            self::$_modNames['snapinclient']
+        );
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo '</form>';
     }
     /**
      * Updates the snapinclient elements.
@@ -430,11 +560,17 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceSnapinclientPost()
     {
-        Route::search('module', 'snapins');
+        Route::search(
+            'module',
+            'snapins'
+        );
         $Modules = json_decode(
             Route::getData()
         );
-        $Module = self::getClass('Module', $Modules->modules[0]->id);
+        $Module = self::getClass(
+            'Module',
+            $Modules->modules[0]->id
+        );
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['snapinclient'])
             ->load('name');
@@ -470,59 +606,91 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary',
             $props
         );
-        Route::search('module', 'host registration');
+        Route::search(
+            'module',
+            'host registration'
+        );
         $Modules = json_decode(
             Route::getData()
         );
         $Module = $Modules->modules[0];
         unset($Modules);
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="ishrEnabled">'
-            . _('Module Enabled')
-            . '</label>' => '<input type="checkbox" name="isEnabled" '
-            . 'id="ishrEnabled"'
-            . (
-                self::$_moduleName['hostregister'] ?
-                ' checked' :
-                ''
+            self::makeLabel(
+                $labelClass,
+                'ishrEnabled',
+                _('Module Enabled')
+            ) => self::makeInput(
+                '',
+                'isEnabled',
+                '',
+                'checkbox',
+                'ishrEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                (self::$_moduleName['hostregister'] ? ' checked' : '')
+            ),
+            self::makeLabel(
+                $labelClass,
+                'ishrDefault',
+                _('Enabled by Default')
+            ) => self::makeInput(
+                '',
+                'isDefault',
+                '',
+                'checkbox',
+                'ishrDefault',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                ($Module->isDefault ? ' checked' : '')
             )
-            . '/>',
-            '<label class="col-sm-2 control-label" for="ishrDefault">'
-            . _('Enabled as Default')
-            . '</label>' => '<input type="checkbox" name="isDefault" '
-            . 'id="ishrDefault"'
-            . (
-                $Module->isDefault ?
-                ' checked' :
-                ''
-            )
-            . '/>'
         ];
         self::$HookManager->processEvent(
             'MODUL_HOSTREGISTER_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Module' => &$Module
             ]
         );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<!-- Host Register -->';
-        echo '<div class="box-group" id="hostregister">';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'hostregisterupdate-form',
+            self::makeTabUpdateURL(
+                'service-hostregister'
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
-        echo '<div id="updatehostregister" class="">';
         echo '<div class="box-body">';
-        echo '<input type="hidden" name="name" value="'
-            . self::$_modNames['hostregister']
-            . '"/>';
+        echo self::makeInput(
+            '',
+            'name',
+            '',
+            'hidden',
+            '',
+            self::$_modNames['hostregister']
+        );
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo '</form>';
     }
     /**
      * Updates the Host register elements.
@@ -577,53 +745,82 @@ class ServiceConfigurationPage extends FOGPage
         );
         $Module = $Modules->modules[0];
         unset($Modules);
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="ishcEnabled">'
-            . _('Module Enabled')
-            . '</label>' => '<input type="checkbox" name="isEnabled" '
-            . 'id="ishcEnabled"'
-            . (
-                self::$_moduleName['hostnamechanger'] ?
-                ' checked' :
-                ''
+            self::makeLabel(
+                $labelClass,
+                'ishcEnabled',
+                _('Module Enabled')
+            ) => self::makeInput(
+                '',
+                'isEnabled',
+                '',
+                'checkbox',
+                'ishcEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                (self::$_moduleName['hostnamechanger'] ? ' checked' : '')
+            ),
+            self::makeLabel(
+                $labelClass,
+                'ishcDefault',
+                _('Enabled by Default')
+            ) => self::makeInput(
+                '',
+                'isDefault',
+                '',
+                'checkbox',
+                'ishcDefault',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                ($Module->isDefault ? ' checked' : '')
             )
-            . '/>',
-            '<label class="col-sm-2 control-label" for="ishcDefault">'
-            . _('Enabled as Default')
-            . '</label>' => '<input type="checkbox" name="isDefault" '
-            . 'id="ishcDefault"'
-            . (
-                $Module->isDefault ?
-                ' checked' :
-                ''
-            )
-            . '/>'
         ];
         self::$HookManager->processEvent(
             'MODUL_HOSTNAMECHANGER_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Module' => &$Module
             ]
         );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<!-- Hostname Changer -->';
-        echo '<div class="box-group" id="hostnamechanger">';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'hostnamechangerupdate-form',
+            self::makeTabUpdateURL(
+                'service-hostnamechanger'
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
-        echo '<div id="updatehostnamechanger" class="">';
         echo '<div class="box-body">';
-        echo '<input type="hidden" name="name" value="'
-            . self::$_modNames['hostnamechanger']
-            . '"/>';
+        echo self::makeInput(
+            '',
+            'name',
+            '',
+            'hidden',
+            '',
+            self::$_modNames['hostnamechanger']
+        );
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo '</form>';
     }
     /**
      * Updates the Host name changer elements.
@@ -678,53 +875,82 @@ class ServiceConfigurationPage extends FOGPage
         );
         $Module = $Modules->modules[0];
         unset($Modules);
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="ispmEnabled">'
-            . _('Module Enabled')
-            . '</label>' => '<input type="checkbox" name="isEnabled" '
-            . 'id="ispmEnabled"'
-            . (
-                self::$_moduleName['printermanager'] ?
-                ' checked' :
-                ''
+            self::makeLabel(
+                $labelClass,
+                'ispmEnabled',
+                _('Module Enabled')
+            ) => self::makeInput(
+                '',
+                'isEnabled',
+                '',
+                'checkbox',
+                'ispmEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                (self::$_moduleName['printermanager'] ? ' checked' : '')
+            ),
+            self::makeLabel(
+                $labelClass,
+                'ispmDefault',
+                _('Enabled by Default')
+            ) => self::makeInput(
+                '',
+                'isDefault',
+                '',
+                'checkbox',
+                'ispmDefault',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                ($Module->isDefault ? ' checked' : '')
             )
-            . '/>',
-            '<label class="col-sm-2 control-label" for="ispmDefault">'
-            . _('Enabled as Default')
-            . '</label>' => '<input type="checkbox" name="isDefault" '
-            . 'id="ispmDefault"'
-            . (
-                $Module->isDefault ?
-                ' checked' :
-                ''
-            )
-            . '/>'
         ];
         self::$HookManager->processEvent(
             'MODULE_PRINTERMANAGER_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Module' => &$Module
             ]
         );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<!-- Printer Manager -->';
-        echo '<div class="box-group" id="printermanager">';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'printermanagerupdate-form',
+            self::makeTabUpdateURL(
+                'service-printermanager'
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
-        echo '<div id="updateprintermanager" class="">';
         echo '<div class="box-body">';
-        echo '<input type="hidden" name="name" value="'
-            . self::$_modNames['printermanager']
-            . '"/>';
+        echo self::makeInput(
+            '',
+            'name',
+            '',
+            'hidden',
+            '',
+            self::$_modNames['printermanager']
+        );
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo '</form>';
     }
     /**
      * Updates the printer manager elements.
@@ -779,53 +1005,82 @@ class ServiceConfigurationPage extends FOGPage
         );
         $Module = $Modules->modules[0];
         unset($Modules);
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="istrEnabled">'
-            . _('Module Enabled')
-            . '</label>' => '<input type="checkbox" name="isEnabled" '
-            . 'id="istrEnabled"'
-            . (
-                self::$_moduleName['taskreboot'] ?
-                ' checked' :
-                ''
+            self::makeLabel(
+                $labelClass,
+                'istrEnabled',
+                _('Module Enabled')
+            ) => self::makeInput(
+                '',
+                'isEnabled',
+                '',
+                'checkbox',
+                'istrEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                (self::$_moduleName['taskreboot'] ? ' checked' : '')
+            ),
+            self::makeLabel(
+                $labelClass,
+                'istrDefault',
+                _('Enabled by Default')
+            ) => self::makeInput(
+                '',
+                'isDefault',
+                '',
+                'checkbox',
+                'istrDefault',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                ($Module->isDefault ? ' checked' : '')
             )
-            . '/>',
-            '<label class="col-sm-2 control-label" for="istrDefault">'
-            . _('Enabled as Default')
-            . '</label>' => '<input type="checkbox" name="isDefault" '
-            . 'id="istrDefault"'
-            . (
-                $Module->isDefault ?
-                ' checked' :
-                ''
-            )
-            . '/>'
         ];
         self::$HookManager->processEvent(
             'MODULE_TASKREBOOT_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Module' => &$Module
             ]
         );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<!-- Task Reboot -->';
-        echo '<div class="box-group" id="taskreboot">';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'taskrebootupdate-form',
+            self::makeTabUpdateURL(
+                'service-taskreboot'
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
-        echo '<div id="updatetaskreboot" class="">';
         echo '<div class="box-body">';
-        echo '<input type="hidden" name="name" value="'
-            . self::$_modNames['taskreboot']
-            . '"/>';
+        echo self::makeInput(
+            '',
+            'name',
+            '',
+            'hidden',
+            '',
+            self::$_modNames['taskreboot']
+        );
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo '</form>';
     }
     /**
      * Updates the task reboot elements.
@@ -880,53 +1135,82 @@ class ServiceConfigurationPage extends FOGPage
         );
         $Module = $Modules->modules[0];
         unset($Modules);
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="isutEnabled">'
-            . _('Module Enabled')
-            . '</label>' => '<input type="checkbox" name="isEnabled" '
-            . 'id="isutEnabled"'
-            . (
-                self::$_moduleName['usertracker'] ?
-                ' checked' :
-                ''
+            self::makeLabel(
+                $labelClass,
+                'isutEnabled',
+                _('Module Enabled')
+            ) => self::makeInput(
+                '',
+                'isEnabled',
+                '',
+                'checkbox',
+                'isutEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                (self::$_moduleName['usertracker'] ? ' checked' : '')
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isutDefault',
+                _('Enabled by Default')
+            ) => self::makeInput(
+                '',
+                'isDefault',
+                '',
+                'checkbox',
+                'isutDefault',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                ($Module->isDefault ? ' checked' : '')
             )
-            . '/>',
-            '<label class="col-sm-2 control-label" for="isutDefault">'
-            . _('Enabled as Default')
-            . '</label>' => '<input type="checkbox" name="isDefault" '
-            . 'id="isutDefault"'
-            . (
-                $Module->isDefault ?
-                ' checked' :
-                ''
-            )
-            . '/>'
         ];
         self::$HookManager->processEvent(
             'MODULE_USERTRACKER_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Module' => &$Module
             ]
         );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<!-- User Tracker -->';
-        echo '<div class="box-group" id="usertracker">';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'usertrackerupdate-form',
+            self::makeTabUpdateURL(
+                'service-usertracker'
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
-        echo '<div id="updateusertracker" class="">';
         echo '<div class="box-body">';
-        echo '<input type="hidden" name="name" value="'
-            . self::$_modNames['usertracker']
-            . '"/>';
+        echo self::makeInput(
+            '',
+            'name',
+            '',
+            'hidden',
+            '',
+            self::$_modNames['usertracker']
+        );
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo '</form>';
     }
     /**
      * Updates the user tracker elements.
@@ -981,53 +1265,82 @@ class ServiceConfigurationPage extends FOGPage
         );
         $Module = $Modules->modules[0];
         unset($Modules);
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="isprmEnabled">'
-            . _('Module Enabled')
-            . '</label>' => '<input type="checkbox" name="isEnabled" '
-            . 'id="isprmEnabled"'
-            . (
-                self::$_moduleName['powermanagement'] ?
-                ' checked' :
-                ''
+            self::makeLabel(
+                $labelClass,
+                'ispmEnabled',
+                _('Module Enabled')
+            ) => self::makeInput(
+                '',
+                'isEnabled',
+                '',
+                'checkbox',
+                'ispmEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                (self::$_moduleName['powermanagement'] ? ' checked' : '')
+            ),
+            self::makeLabel(
+                $labelClass,
+                'ispmDefault',
+                _('Enabled by Default')
+            ) => self::makeInput(
+                '',
+                'isDefault',
+                '',
+                'checkbox',
+                'ispmDefault',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                ($Module->isDefault ? ' checked' : '')
             )
-            . '/>',
-            '<label class="col-sm-2 control-label" for="isprmDefault">'
-            . _('Enabled as Default')
-            . '</label>' => '<input type="checkbox" name="isDefault" '
-            . 'id="isprmDefault"'
-            . (
-                $Module->isDefault ?
-                ' checked' :
-                ''
-            )
-            . '/>'
         ];
         self::$HookManager->processEvent(
             'MODULE_POWERMANAGEMENT_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Module' => &$Module
             ]
         );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<!-- Power Management -->';
-        echo '<div class="box-group" id="powermanagement">';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'powermanagementupdate-form',
+            self::makeTabUpdateURL(
+                'service-powermanagement'
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
-        echo '<div id="updatepowermanagement" class="">';
         echo '<div class="box-body">';
-        echo '<input type="hidden" name="name" value="'
-            . self::$_modNames['powermanagement']
-            . '"/>';
+        echo self::makeInput(
+            '',
+            'name',
+            '',
+            'hidden',
+            '',
+            self::$_modNames['powermanagement']
+        );
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo '</form>';
     }
     /**
      * Updates the power management elements.

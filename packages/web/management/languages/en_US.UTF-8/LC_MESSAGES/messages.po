@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 22:51-0500\n"
+"POT-Creation-Date: 2018-03-11 03:06-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5160,8 +5160,8 @@ msgid "Module Enabled"
 msgstr "Module Name"
 
 #, fuzzy
-msgid "Enabled as Default"
-msgstr "Enabled as default"
+msgid "Enabled by Default"
+msgstr "Update Printer"
 
 msgid "Default Width"
 msgstr "Default Width"
@@ -5184,7 +5184,7 @@ msgstr "Unable to open file for reading"
 msgid "Auto Log Out Time"
 msgstr "Default log out time (in minutes)"
 
-msgid "Active only at 5 minutes"
+msgid "Active at 5 minutes or more"
 msgstr ""
 
 #, fuzzy
