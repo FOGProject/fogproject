@@ -82,6 +82,7 @@ class AddSlackAPI extends Hook
             )->call('auth.test');
             $items['data'][$ind]['id'] = $team['team'];
             $items['data'][$ind]['token'] = $team['user'];
+            unset($item);
         }
         $arguments['data']['data'] = $items['data'];
     }
