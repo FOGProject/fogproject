@@ -70,7 +70,7 @@ abstract class FOGBase
      *
      * @var array
      */
-    public static $pluginsinstalled = array();
+    public static $pluginsinstalled = [];
     /**
      * User agent string.
      *
@@ -118,7 +118,7 @@ abstract class FOGBase
      *
      * @var array
      */
-    protected $isLoaded = array();
+    protected $isLoaded = [];
     /**
      * The length of a given string item.
      *
@@ -256,19 +256,19 @@ abstract class FOGBase
      *
      * @var array
      */
-    protected static $ips = array();
+    protected static $ips = [];
     /**
      * The current server's Interface information.
      *
      * @var array
      */
-    protected static $interface = array();
+    protected static $interface = [];
     /**
      * The current base pages requiring search functionality.
      *
      * @var array
      */
-    protected static $searchPages = array(
+    protected static $searchPages = [
         'user',
         'host',
         'group',
@@ -277,8 +277,8 @@ abstract class FOGBase
         'storagegroup',
         'snapin',
         'printer',
-        'task',
-    );
+        'task'
+    ];
     /**
      * Is our current element already initialized?
      *
@@ -558,7 +558,7 @@ abstract class FOGBase
             !$service,
             $service
         );
-        $macs = array();
+        $macs = [];
         foreach ((array) $MACs as &$mac) {
             if (!$mac->isValid()) {
                 continue;
@@ -638,10 +638,10 @@ abstract class FOGBase
 
             return $NodeFailure->get('id');
         };
-        $find = array(
+        $find = [
             'taskID' => self::$Host->get('task')->get('id'),
             'hostID' => self::$Host->get('id'),
-        );
+        ];
         $nodeRet = array_map(
             $nodeFail,
             (array)self::getClass('NodeFailureManager')->find($find)
@@ -661,14 +661,14 @@ abstract class FOGBase
     {
         $plugins = self::getSubObjectIDs(
             'Plugin',
-            array(
+            [
                 'installed' => 1,
                 'state' => 1,
-            ),
+            ],
             'name'
         );
 
-        return array_map('strtolower', (array) $plugins);
+        return array_map('strtolower', (array)$plugins);
     }
     /**
      * Converts our string if needed.
@@ -678,7 +678,7 @@ abstract class FOGBase
      *
      * @return string
      */
-    private static function _setString($txt, $data = array())
+    private static function _setString($txt, $data = [])
     {
         if (count($data)) {
             $data = vsprintf($txt, $data);
@@ -689,27 +689,6 @@ abstract class FOGBase
         return $data;
     }
     /**
-     * Prints fatal errors.
-     *
-     * @param string $txt  the string to use
-     * @param array  $data the data if txt is formatted string
-     *
-     * @return void
-     */
-    protected static function fatalError($txt, $data = array())
-    {
-        if (self::$service || self::$ajax) {
-            return;
-        }
-        $data = self::_setString($txt, $data);
-        $string = sprintf(
-            'FOG FATAL ERROR: %s: %s',
-            get_class($this),
-            $data
-        );
-        printf('<div class="debug debug-error">%s</div>', $string);
-    }
-    /**
      * Prints error.
      *
      * @param string $txt  the string to use
@@ -717,7 +696,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected static function error($txt, $data = array())
+    protected static function error($txt, $data = [])
     {
         if ((self::$service || self::$ajax) || !self::$debug) {
             return;
@@ -738,7 +717,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected static function debug($txt, $data = array())
+    protected static function debug($txt, $data = [])
     {
         if ((self::$service || self::$ajax) || !self::$debug) {
             return;
@@ -759,7 +738,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected static function info($txt, $data = array())
+    protected static function info($txt, $data = [])
     {
         if (!self::$info || self::$service || self::$ajax) {
             return;
@@ -812,7 +791,7 @@ abstract class FOGBase
         if (!is_string($key)) {
             throw new Exception(_('Key must be a string or index'));
         }
-        $new = array();
+        $new = [];
         foreach ($array as $k => &$value) {
             if ($k === $key) {
                 $new[$new_key] = $new_value;
@@ -842,7 +821,7 @@ abstract class FOGBase
         if (!is_string($key) && !is_numeric($key)) {
             throw new Exception(_('Key must be a string or index'));
         }
-        $new = array();
+        $new = [];
         foreach ($array as $k => &$value) {
             $new[$k] = $value;
             if ($k === $key) {
@@ -937,7 +916,7 @@ abstract class FOGBase
             return;
         }
         if (!isset($_SESSION['post_request_vals'])) {
-            $_SESSION['post_request_vals'] = array();
+            $_SESSION['post_request_vals'] = [];
         }
         $sesVars = $_SESSION['post_request_vals'];
         $setReq = function (&$val, &$key) {
@@ -960,7 +939,7 @@ abstract class FOGBase
             return;
         }
         if (!isset($_SESSION['post_request_vals'])) {
-            $_SESSION['post_request_vals'] = array();
+            $_SESSION['post_request_vals'] = [];
         }
         if (!$_SESSION['post_request_vals'] && self::$post) {
             $_SESSION['post_request_vals'] = $_POST;
@@ -975,7 +954,7 @@ abstract class FOGBase
      */
     protected static function formatByteSize($size)
     {
-        $units = array('iB', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB');
+        $units = ['iB', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
         $factor = floor((strlen($size) - 1) / 3);
 
         return sprintf('%3.2f %s', $size / pow(1024, $factor), $units[$factor]);
@@ -996,7 +975,7 @@ abstract class FOGBase
         // If the right is true it means the short is accurate.
         // If the left is not the right caller in form of:
         //     FOG_CLIENT_<name>_ENABLED in lowercase.
-        $services = array(
+        $services = [
             'autologout' => 'autologoff',
             'displaymanager' => true,
             'hostnamechanger' => true,
@@ -1005,8 +984,8 @@ abstract class FOGBase
             'printermanager' => true,
             'snapinclient' => 'snapin',
             'taskreboot' => true,
-            'usertracker' => true,
-        );
+            'usertracker' => true
+        ];
         // If keys is set, return just the keys.
         if ($keys) {
             $keys = array_keys($services);
@@ -1028,9 +1007,7 @@ abstract class FOGBase
         // Now lets get their status'
         $serviceEn = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array_values($services),
-            ),
+            ['name' => array_values($services)],
             'value',
             false,
             'AND',
@@ -1414,18 +1391,14 @@ abstract class FOGBase
         $key = self::hex2bin($key);
         if (mb_strlen($key, '8bit') !== ($iv_size * 2)) {
             echo json_encode(
-                array(
-                    'error' => _('Needs a 256-bit key!')
-                )
+                ['error' => _('Needs a 256-bit key!')]
             );
             exit;
         }
         $iv = openssl_random_pseudo_bytes($iv_size, $cstrong);
         if (!$iv) {
             echo json_encode(
-                array(
-                    'error' => openssl_error_string()
-                )
+                ['error' => openssl_error_string()]
             );
             exit;
         }
@@ -1444,9 +1417,7 @@ abstract class FOGBase
         );
         if (!$cipher) {
             echo json_encode(
-                array(
-                    'error' => openssl_error_string()
-                )
+                ['error' => openssl_error_string()]
             );
             exit;
         }
@@ -1494,9 +1465,7 @@ abstract class FOGBase
         );
         if (!$decipher) {
             echo json_encode(
-                array(
-                    'error' => openssl_error_string()
-                )
+                ['error' => openssl_error_string()]
             );
             exit;
         }
@@ -1540,7 +1509,7 @@ abstract class FOGBase
         } else {
             $padding = OPENSSL_NO_PADDING;
         }
-        $tmpssl = array();
+        $tmpssl = [];
         $sslfile = self::getSubObjectIDs('StorageNode', '', 'sslpath');
         foreach ($sslfile as &$path) {
             if (!file_exists($path) || !is_readable($path)) {
@@ -1555,11 +1524,8 @@ abstract class FOGBase
         $sslfile = sprintf(
             '%s%s.srvprivate.key',
             str_replace(
-                array('\\', '/'),
-                array(
-                    DS,
-                    DS
-                ),
+                ['\\', '/'],
+                [DS, DS],
                 $tmpssl[0]
             ),
             DS
@@ -1578,7 +1544,7 @@ abstract class FOGBase
         }
         $a_key = openssl_pkey_get_details($priv_key);
         $chunkSize = ceil($a_key['bits'] / 8);
-        $output = array();
+        $output = [];
         foreach ((array) $dataArr as &$data) {
             $dataun = '';
             while ($data) {
@@ -1618,7 +1584,7 @@ abstract class FOGBase
         $image = false,
         $client = false
     ) {
-        $MAClist = array();
+        $MAClist = [];
         $MACs = $stringlist;
         $lowerAndTrim = function ($element) {
             return strtolower(trim($element));
@@ -1632,7 +1598,7 @@ abstract class FOGBase
         $MACs = array_unique($MACs);
         $MACs = array_values($MACs);
         if (count($MACs) < 1) {
-            return array();
+            return [];
         }
         $pending_filter = explode(
             ',',
@@ -1652,21 +1618,21 @@ abstract class FOGBase
             $MACs = array_values($MACs);
         }
         if (count($MACs) < 1) {
-            return array();
+            return [];
         }
         $count = self::getClass('MACAddressAssociationManager')->count(
-            array(
+            [
                 'mac' => $MACs,
-                'pending' => array(0, ''),
-            )
+                'pending' => array(0, '')
+            ]
         );
         if ($count > 0) {
             $existingMACs = self::getSubObjectIDs(
                 'MACAddressAssociation',
-                array(
+                [
                     'mac' => $MACs,
-                    'pending' => array(0, ''),
-                ),
+                    'pending' => [0, '']
+                ],
                 'mac'
             );
             $existingMACs = array_map($lowerAndTrim, $existingMACs);
@@ -1679,10 +1645,10 @@ abstract class FOGBase
         if ($client) {
             $clientIgnored = self::getSubObjectIDs(
                 'MACAddressAssociation',
-                array(
+                [
                     'mac' => $MACs,
-                    'clientIgnore' => 1,
-                ),
+                    'clientIgnore' => 1
+                ],
                 'mac'
             );
             $clientIgnored = array_map($lowerAndTrim, $clientIgnored);
@@ -1692,10 +1658,10 @@ abstract class FOGBase
         if ($image) {
             $imageIgnored = self::getSubObjectIDs(
                 'MACAddressAssociation',
-                array(
+                [
                     'mac' => $MACs,
-                    'imageIgnore' => 1,
-                ),
+                    'imageIgnore' => 1
+                ],
                 'mac'
             );
             $imageIgnored = array_map($lowerAndTrim, (array) $imageIgnored);
@@ -1706,9 +1672,9 @@ abstract class FOGBase
         $MACs = array_unique($MACs);
         $MACs = array_values($MACs);
         if (count($MACs) < 1) {
-            return array();
+            return [];
         }
-        $validMACs = array();
+        $validMACs = [];
         foreach ($MACs as &$MAC) {
             $MAC = self::getClass('MACAddress', $MAC);
             if (!$MAC->isValid()) {
@@ -1733,7 +1699,7 @@ abstract class FOGBase
     protected function sendData(
         $datatosend,
         $service = true,
-        $array = array()
+        $array = []
     ) {
         global $sub;
         if (false === $service) {
@@ -1773,7 +1739,7 @@ abstract class FOGBase
                 }
                 $repData = str_replace('#!', '', $e->getMessage());
                 $array['error'] = $repData;
-                $data = array('error' => $repData);
+                $data = ['error' => $repData];
                 if ($sub === 'requestClientInfo') {
                     echo json_encode($array);
                     exit;
@@ -1796,7 +1762,7 @@ abstract class FOGBase
     protected static function arrayStrpos($haystack, $needles, $case = true)
     {
         $cmd = sprintf('str%spos', ($case ? 'i' : ''));
-        $mapinfo = array();
+        $mapinfo = [];
         foreach ((array) $needles as &$needle) {
             $mapinfo[] = $cmd($haystack, $needle);
             unset($needle);
@@ -1834,8 +1800,8 @@ abstract class FOGBase
         if (self::$ajax) {
             return;
         }
-        $findStr = array("\r", "\n", "\t", ' ,');
-        $repStr = array('', ' ', ' ', ',');
+        $findStr = ["\r", "\n", "\t", ' ,'];
+        $repStr = ['', ' ', ' ', ','];
         $txt = str_replace($findStr, $repStr, $txt);
         $txt = trim($txt);
         if (empty($txt)) {
@@ -1925,7 +1891,7 @@ abstract class FOGBase
      */
     public static function getSubObjectIDs(
         $object = 'Host',
-        $findWhere = array(),
+        $findWhere = [],
         $getField = 'id',
         $not = false,
         $operator = 'AND',
@@ -2013,9 +1979,9 @@ abstract class FOGBase
     public static function setSetting($key, $value)
     {
         self::getClass('ServiceManager')->update(
-            array('name' => $key),
+            ['name' => $key],
             '',
-            array('value' => trim($value))
+            ['value' => trim($value)]
         );
     }
     /**
@@ -2138,7 +2104,7 @@ abstract class FOGBase
         if (!$ip_find) {
             return;
         }
-        self::$interface = array();
+        self::$interface = [];
         $index = 0;
         foreach ((array) self::$ips as &$ip) {
             $ip = trim($ip);
@@ -2164,7 +2130,7 @@ abstract class FOGBase
         if (count(self::$ips) > 0) {
             return self::$ips;
         }
-        $output = array();
+        $output = [];
         exec(
             "/sbin/ip -4 addr | awk -F'[ /]+' '/global/ {print $3}'",
             $IPs,
@@ -2206,7 +2172,7 @@ abstract class FOGBase
         $output = self::fastmerge(
             $IPs,
             $Names,
-            array('127.0.0.1', '127.0.1.1')
+            ['127.0.0.1', '127.0.1.1']
         );
         unset($IPs, $Names);
         natcasesort($output);
@@ -2260,7 +2226,7 @@ abstract class FOGBase
     public static function wakeUp($macs)
     {
         if (!is_array($macs)) {
-            $macs = array($macs);
+            $macs = [$macs];
         }
         session_write_close();
         ignore_user_abort(true);
@@ -2279,14 +2245,14 @@ abstract class FOGBase
         }
         $url = '%s://%s/fog/management/index.php?';
         $url .= 'node=client&sub=wakeEmUp';
-        $nodeURLs = array();
+        $nodeURLs = [];
         $macCount = count($macs);
         if ($macCount < 1) {
             return;
         }
         foreach ((array)self::getClass('StorageNodeManager')
             ->find(
-                array('isEnabled' => 1)
+                ['isEnabled' => 1]
             ) as &$Node
         ) {
             $ip = $Node->get('ip');
@@ -2301,11 +2267,11 @@ abstract class FOGBase
             $gHost
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'FOG_WEB_HOST'
-                ),
-            ),
+                ]
+            ],
             'value',
             false,
             'AND',
@@ -2318,7 +2284,7 @@ abstract class FOGBase
         $ret = self::$FOGURLRequests->process(
             $nodeURLs,
             'POST',
-            array('mac' => $macStr),
+            ['mac' => $macStr],
             false,
             false,
             false,
@@ -2441,7 +2407,7 @@ abstract class FOGBase
      */
     public static function getBroadcast()
     {
-        $output = array();
+        $output = [];
         $cmd = sprintf(
             '%s | %s | %s',
             '/sbin/ip -4 addr',
@@ -2501,10 +2467,10 @@ abstract class FOGBase
             '%%%s%%',
             $keyword
         );
-        $find = array(
+        $find = [
             'id' => $keyword,
             'name' => $keyword
-        );
+        ];
         $classman = sprintf(
             '%sManager',
             $class
