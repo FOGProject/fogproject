@@ -2240,32 +2240,7 @@ abstract class FOGPage extends FOGBase
     public function deletemultiAjax()
     {
         header('Content-type: application/json');
-        if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
-
-            $user = filter_input(INPUT_POST, 'fogguiuser');
-
-            if (empty($user)) {
-                $user = self::$FOGUser->get('name');
-            }
-            $pass = filter_input(INPUT_POST, 'fogguipass');
-
-            $validate = self::getClass('User')
-                ->passwordValidate(
-                    $user,
-                    $pass,
-                    true
-                );
-            if (!$validate) {
-                echo json_encode(
-                    [
-                        'error' => self::$foglang['InvalidLogin'],
-                        'title' => _('Unable to Authenticate')
-                    ]
-                );
-                http_response_code(HTTPResponseCodes::HTTP_UNAUTHORIZED);
-                exit;
-            }
-        }
+        self::checkauth();
         $remitems = filter_input_array(
             INPUT_POST,
             [
@@ -3355,20 +3330,7 @@ abstract class FOGPage extends FOGBase
      */
     public function deletePost()
     {
-        if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
-            $validate = self::getClass('User')
-                ->passwordValidate(
-                    $_POST['fogguiuser'],
-                    $_POST['fogguipass'],
-                    true
-                );
-            if (!$validate) {
-                echo json_encode(
-                    ['error' => self::$foglang['InvalidLogin']]
-                );
-                exit;
-            }
-        }
+        self::checkauth();
         self::$HookManager->processEvent(
             sprintf(
                 '%s_DEL_POST',

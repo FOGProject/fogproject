@@ -2558,4 +2558,36 @@ abstract class FOGBase
             unset($file);
         }
     }
+    /**
+     * Does the work for reauthentication during delete, if needed.
+     *
+     * @return void
+     */
+    public static function checkauth()
+    {
+        if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
+            $user = filter_input(INPUT_POST, 'fogguiuser');
+            if (empty($user)) {
+                $user = self::$FOGUser->get('name');
+            }
+            $pass = filter_input(INPUT_POST, 'fogguipass');
+            $validate = self::getClass('User')
+                ->passwordValidate(
+                    $user,
+                    $pass,
+                    true
+                );
+            if (!$validate) {
+                header('Content-type: application/json');
+                echo json_encode(
+                    [
+                        'error' => self::$foglang['InvalidLogin'],
+                        'title' => _('Unable to Authenticate')
+                    ]
+                );
+                http_response_code(HTTPResponseCodes::HTTP_UNAUTHORIZED);
+                exit;
+            }
+        }
+    }
 }

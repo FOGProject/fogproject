@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 20:39-0500\n"
+"POT-Creation-Date: 2018-03-10 22:51-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -6234,6 +6234,10 @@ msgstr "Schlüsselname muss eine Zeichenfolge sein."
 msgid "Line"
 msgstr "Zeile"
 
+#, fuzzy
+msgid "Unable to Authenticate"
+msgstr "Authentifizieren nicht möglich"
+
 msgid "No viable storage groups found"
 msgstr "Keine brauchbaren Speichergruppen gefunden"
 
@@ -6576,10 +6580,6 @@ msgstr "Erstellte Aufgaben für"
 #, fuzzy
 msgid "Remove these items?"
 msgstr "Diese Objekte entfernen?"
-
-#, fuzzy
-msgid "Unable to Authenticate"
-msgstr "Authentifizieren nicht möglich"
 
 #, fuzzy
 msgid "Successfully deleted"
