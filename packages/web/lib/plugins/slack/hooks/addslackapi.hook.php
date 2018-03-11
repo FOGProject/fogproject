@@ -74,6 +74,9 @@ class AddSlackAPI extends Hook
      */
     public function adjustMassData($arguments)
     {
+        if ($arguments['classname'] != $this->node) {
+            return;
+        }
         $items = $arguments['data'];
         foreach ($items['data'] as $ind => &$item) {
             $team = self::getClass(
