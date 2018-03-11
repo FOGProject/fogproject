@@ -32,7 +32,7 @@ class ReportManagementPage extends FOGPage
      *
      * @return array
      */
-    private static function _loadCustomReports()
+    public static function loadCustomReports()
     {
         $regext = sprintf(
             '#^.+%sreports%s.*\.report\.php$#',
@@ -130,43 +130,6 @@ class ReportManagementPage extends FOGPage
         set_time_limit(0);
         $this->name = 'Report Management';
         parent::__construct($this->name);
-        $this->menu = [
-            'home' => self::$foglang['Home']
-        ];
-        $reportlink = "../management/index.php?node={$this->node}&sub=file&f=";
-        foreach (self::_loadCustomReports() as &$report) {
-            $item = [];
-            foreach (explode(' ', strtolower($report)) as &$rep) {
-                $item[] = ucfirst(trim($rep));
-                unset($rep);
-            }
-            $item = implode(' ', $item);
-            $this->menu = self::fastmerge(
-                (array)$this->menu,
-                [
-                    sprintf(
-                        '%s%s',
-                        $reportlink,
-                        base64_encode($report)
-                    ) => $item
-                ]
-            );
-            unset($report, $item);
-        }
-        $this->menu = self::fastmerge(
-            (array)$this->menu,
-            ['upload' => _('Import Reports')]
-        );
-        self::$HookManager
-            ->processEvent(
-                'SUB_MENULINK_DATA',
-                [
-                    'menu' => &$this->menu,
-                    'submenu' => &$this->subMenu,
-                    'id' => &$this->id,
-                    'notes' => &$this->notes
-                ]
-            );
         $_SESSION['foglastreport'] = null;
         $this->ReportMaker = self::getClass('ReportMaker');
     }
@@ -186,82 +149,92 @@ class ReportManagementPage extends FOGPage
      */
     public function upload()
     {
-        $this->title = _('Import FOG Reports');
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
+        $this->title = _('Import Reports');
+
+        $buttons = self::makeButton(
+            'import-send',
+            _('Import'),
+            'btn btn-primary'
         );
-        $this->attributes = [
-            [],
-            []
-        ];
-        $this->templates = [
-            '${field}',
-            '${input}'
-        ];
-        $this->data[] = [
-            'field' => '<label for="import">'
-            . _('Import Report?')
-            . '<br/>'
-            . _('Max Size')
-            . ': '
-            . ini_get('post_max_size')
-            . '</label>',
-            'input' => '<div class="input-group">'
-            . '<label class="input-group-btn">'
-            . '<span class="btn btn-info">'
-            . _('Browse')
-            . '<input type="file" class="hidden" name='
-            . '"report" id="import"/>'
-            . '</span>'
-            . '</label>'
-            . '<input type="text" class="form-control filedisp" readonly/>'
-            . '</div>'
-        ];
-        $this->data[] = [
-            'field' => '<label for="importbtn">'
-            . _('Import Report?')
-            . '</label>',
-            'input' => '<button type="submit" name="importbtn" class="'
-            . 'btn btn-info btn-block" id="importbtn">'
-            . _('Import')
-            . '</button>'
+
+        $fields = [
+            self::makeLabel(
+                'col-sm-2 control-label',
+                'import',
+                _('Import Report')
+                . '<br/>('
+                . _('Max Size')
+                . ': '
+                . ini_get('post_max_size')
+            ) => '<div class="input-group">'
+            . self::makeLabel(
+                'input-group-btn',
+                '',
+                '<span class="btn btn-info">'
+                . _('Browse')
+                . self::makeInput(
+                    'hidden',
+                    'report',
+                    '',
+                    'file',
+                    'import'
+                )
+                . '</span>'
+            )
+            . self::makeInput(
+                'form-control filedisp',
+                '',
+                '',
+                'text',
+                '',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            )
         ];
         self::$HookManager->processEvent(
-            'IMPORT_REPORT',
+            'IMPORT_REPORT_FIELDS',
             [
-                'data' => &$this->data,
-                'headerData' => &$this->headerData,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'report' => &$this->ReportMaker
             ]
         );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
+        $rendered = self::formFields($fields);
+        unset($fields);
+        echo self::makeFormTag(
+            'form-horizontal',
+            'import-form',
+            $this->formAction,
+            'post',
+            'multipart/form-data',
+            true
+        );
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
         echo $this->title;
         echo '</h4>';
+        echo '<p class="help-block">';
+        echo _(
+            'This section allows you to upload user '
+            . 'defined reports that may not be a part of '
+            . 'the base FOG install.'
+        );
+        echo '</p>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo _('This section allows you to uploade user')
-            . ' '
-            . _('defined reports that may not be a part of')
-            . ' '
-            . _('the base FOG install')
-            . '.';
-        echo '<hr/>';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '" novalidate>';
-        $this->render(12);
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * The actual index presentation.

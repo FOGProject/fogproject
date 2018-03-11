@@ -585,7 +585,6 @@ abstract class FOGPage extends FOGBase
         switch ($node) {
         case 'home':
         case 'client':
-        case 'report':
         case 'schema':
         case 'service':
         case 'hwinfo':
@@ -642,6 +641,28 @@ abstract class FOGPage extends FOGBase
                 'pendingMacs',
                 _('Pending MACs')
             );
+            break;
+        case 'report':
+            $reportlink = "../management/index.php?node={$node}&sub=file&f=";
+            $menu = [];
+            $menu['home'] = self::$foglang['Home'];
+            foreach (ReportManagementPage::loadCustomReports() as &$report) {
+                $item = [];
+                foreach (explode(' ', strtolower($report)) as &$rep) {
+                    $item[] = ucfirst(trim($rep));
+                    unset($rep);
+                }
+                $item = implode(' ', $item);
+                $menu[
+                    sprintf(
+                        '%s%s',
+                        $reportlink,
+                        base64_encode($report)
+                    )
+                ] = $item;
+                unset($report, $item);
+            }
+            $menu['upload'] = _('Import Reports');
             break;
         }
 
