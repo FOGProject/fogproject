@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 22:51-0500\n"
+"POT-Creation-Date: 2018-03-11 03:06-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4761,8 +4761,8 @@ msgid "Module Enabled"
 msgstr "Nome Modulo"
 
 #, fuzzy
-msgid "Enabled as Default"
-msgstr "Attivata come impostazione predefinita"
+msgid "Enabled by Default"
+msgstr "Aggiorna la stampante predefinita"
 
 msgid "Default Width"
 msgstr "Larghezza predefinita"
@@ -4785,7 +4785,7 @@ msgstr "Impossibile aprire il file per la lettura"
 msgid "Auto Log Out Time"
 msgstr "Predefinito disconnettersi tempo (in minuti)"
 
-msgid "Active only at 5 minutes"
+msgid "Active at 5 minutes or more"
 msgstr ""
 
 #, fuzzy
