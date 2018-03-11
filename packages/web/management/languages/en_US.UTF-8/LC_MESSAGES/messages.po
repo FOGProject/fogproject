@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 18:39-0500\n"
+"POT-Creation-Date: 2018-03-10 20:39-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1530,8 +1530,8 @@ msgid "Group Update Site Fail"
 msgstr "Group create failed"
 
 #, fuzzy
-msgid "User Role"
-msgstr "User Cleanup"
+msgid "User Site"
+msgstr "Add New Snapin"
 
 #, fuzzy
 msgid "User Site Updated!"
@@ -1544,10 +1544,6 @@ msgstr "Install / Update Successful!"
 #, fuzzy
 msgid "User Site Update Fail"
 msgstr "Printer update failed!"
-
-#, fuzzy
-msgid "User Site"
-msgstr "Add New Snapin"
 
 #, fuzzy
 msgid "Export Sites"
@@ -1946,6 +1942,10 @@ msgstr "All Access Controls"
 #, fuzzy
 msgid "Role Association"
 msgstr "Image Association"
+
+#, fuzzy
+msgid "User Role"
+msgstr "User Cleanup"
 
 #, fuzzy
 msgid "User role updated!"

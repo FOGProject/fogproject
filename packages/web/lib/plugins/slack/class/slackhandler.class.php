@@ -1,10 +1,50 @@
 <?php
+/**
+ * Handles the api calling of Slack messages.
+ *
+ * PHP Version 5
+ *
+ * @category SlackHandler
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  https://opensource.org/license/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * Handles the api calling of Slack messages.
+ *
+ * @category SlackHandler
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  https://opensource.org/license/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class SlackHandler extends Slack
 {
+    /**
+     * The token
+     *
+     * @var string
+     */
     private $_apiToken;
+    /**
+     * The api endpoint.
+     *
+     * @var string
+     */
     private static $_apiEndpoint = 'https://slack.com/api/<method>';
+    /**
+     * Callback for curl to use.
+     *
+     * @var callable
+     */
     private $_curlCallback;
-    private static $_methods = array(
+    /**
+     * The methods available for slack.
+     *
+     * @var array
+     */
+    private static $_methods = [
         // api
         'api.test',
         // auth
@@ -114,7 +154,16 @@ class SlackHandler extends Slack
         'users.list',
         'users.setActive',
         'users.setPresence',
-    );
+    ];
+    /**
+     * Initializes the handler object.
+     *
+     * @param string $apiToken The token to use.
+     *
+     * @throws SlackException
+     *
+     * @return void
+     */
     public function __construct($apiToken)
     {
         $this->_apiToken = $apiToken;
@@ -122,13 +171,34 @@ class SlackHandler extends Slack
             throw new SlackException('cURL library is not loaded.');
         }
     }
-    public function call($method, $args = array())
+    /**
+     * Performs the call.
+     *
+     * @param string $method How are wew posting the call.
+     * @param array  $args   The arguments to pass into the call.
+     *
+     * @return array
+     */
+    public function call($method, $args = [])
     {
         if (array_search($method, self::$_methods, true) === false) {
             throw new SlackException(_('Invalid method called'));
         }
         $args['token'] = $this->_apiToken;
-        return json_decode(json_encode($this->_curlRequest(str_replace('<method>', $method, self::$_apiEndpoint), 'POST', $args)), true);
+        return json_decode(
+            json_encode(
+                $this->_curlRequest(
+                    str_replace(
+                        '<method>',
+                        $method,
+                        self::$_apiEndpoint
+                    ),
+                    'POST',
+                    $args
+                )
+            ),
+            true
+        );
     }
     /**
      * Send a request to a remote server using cURL.
@@ -141,9 +211,25 @@ class SlackHandler extends Slack
      *
      * @return object Response.
      */
-    private function _curlRequest($url, $method, $data = null, $sendAsJSON = false, $auth = true)
-    {
-        $data = self::$FOGURLRequests->process($url, $method, $data, $sendAsJSON, ($auth ? $this->_apiToken : false), $this->_curlCallback);
+    private function _curlRequest(
+        $url,
+        $method,
+        $data = null,
+        $sendAsJSON = false,
+        $auth = true
+    ) {
+        $data = self::$FOGURLRequests->process(
+            $url,
+            $method,
+            $data,
+            $sendAsJSON,
+            (
+                $auth ?
+                $this->_apiToken :
+                false
+            ),
+            $this->_curlCallback
+        );
         return json_decode($data[0]);
     }
 }

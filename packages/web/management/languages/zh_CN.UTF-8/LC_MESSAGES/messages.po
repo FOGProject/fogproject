@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 18:39-0500\n"
+"POT-Creation-Date: 2018-03-10 20:39-0500\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1527,8 +1527,8 @@ msgid "Group Update Site Fail"
 msgstr "集团创建失败"
 
 #, fuzzy
-msgid "User Role"
-msgstr "用户清理"
+msgid "User Site"
+msgstr "添加新的管理单元"
 
 #, fuzzy
 msgid "User Site Updated!"
@@ -1541,10 +1541,6 @@ msgstr "安装/升级成功！"
 #, fuzzy
 msgid "User Site Update Fail"
 msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "User Site"
-msgstr "添加新的管理单元"
 
 #, fuzzy
 msgid "Export Sites"
@@ -1943,6 +1939,10 @@ msgstr "所有访问控制"
 #, fuzzy
 msgid "Role Association"
 msgstr "图像协会"
+
+#, fuzzy
+msgid "User Role"
+msgstr "用户清理"
 
 #, fuzzy
 msgid "User role updated!"

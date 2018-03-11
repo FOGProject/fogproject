@@ -99,10 +99,16 @@ class SlackManagementPage extends FOGPage
                 true
             )
         ];
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
         self::$HookManager->processEvent(
             'SLACK_ADD_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Slack' => self::getClass('Slack')
             ]
         );
@@ -130,11 +136,7 @@ class SlackManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer with-border">';
-        echo self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary'
-        );
+        echo $buttons;
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -249,6 +251,20 @@ class SlackManagementPage extends FOGPage
         }
         unset($Slack);
         echo $msg;
+        exit;
+    }
+    /**
+     * Gets the slack information of the entry for jQuery.
+     *
+     * @return void
+     */
+    public function getSlackInfo()
+    {
+        header('Content-type: application/json');
+        global $id;
+        echo json_encode(
+            $this->obj->call('auth.test')
+        );
         exit;
     }
 }

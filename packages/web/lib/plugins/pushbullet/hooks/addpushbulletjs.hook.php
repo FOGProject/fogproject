@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category AddAccessControlJS
+ * @category AddPushbulletJS
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,26 +13,26 @@
 /**
  * Sets the javascript files up for this plugin.
  *
- * @category AddAccessControlJS
+ * @category AddPushbulletJS
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class AddAccessControlJS extends Hook
+class AddPushbulletJS extends Hook
 {
     /**
      * The name of this hook.
      *
      * @var string
      */
-    public $name = 'AddAccessControlJS';
+    public $name = 'AddPushbulletJS';
     /**
      * The description.
      *
      * @var string
      */
-    public $description = 'Add Access Control JS files.';
+    public $description = 'Add Pushbullet JS files.';
     /**
      * For posterity.
      *
@@ -44,7 +44,7 @@ class AddAccessControlJS extends Hook
      *
      * @var string
      */
-    public $node = 'accesscontrol';
+    public $node = 'pushbullet';
     /**
      * Initialize object.
      *
@@ -56,10 +56,11 @@ class AddAccessControlJS extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        self::$HookManager->register(
-            'PAGE_JS_FILES',
-            [$this, 'injectJSFiles']
-        );
+        self::$HookManager
+            ->register(
+                'PAGE_JS_FILES',
+                [$this, 'injectJSFiles']
+            );
     }
     /**
      * The files we need to inject.
@@ -87,25 +88,12 @@ class AddAccessControlJS extends Hook
             $subset
         );
         switch ($node) {
-        case 'accesscontrol':
-        case 'accesscontrolrule':
+        case 'pushbullet':
             if (empty($subset)) {
                 $filepaths = ["../lib/plugins/{$this->node}/js/fog.{$node}.js"];
             } else {
                 $filepaths = [
                     "../lib/plugins/{$this->node}/js/fog.{$node}.{$subset}.js"
-                ];
-            }
-            break;
-        case 'user':
-            if (empty($subset)) {
-                $filepaths = [
-                    "../lib/plugins/{$this->node}/js/fog.{$this->node}.{$node}.js"
-                ];
-            } else {
-                $filepaths = [
-                    "../lib/plugins/{$this->node}/js/"
-                    . "fog.{$this->node}.{$node}.{$subset}.js"
                 ];
             }
             break;
