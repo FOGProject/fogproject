@@ -452,7 +452,7 @@ abstract class FOGPage extends FOGBase
             self::redirect('../management/index.php');
         }
 
-        $main = self::buildMenuStructure($menu);
+        $main = self::_buildMenuStructure($menu);
         return $main;
     }
     /**
@@ -462,7 +462,7 @@ abstract class FOGPage extends FOGBase
      *
      * @return string
      */
-    public static function buildMenuStructure($menu)
+    private static function _buildMenuStructure($menu)
     {
         if (count($menu ?: []) < 1) {
             return;
@@ -478,7 +478,7 @@ abstract class FOGPage extends FOGBase
             $activelink = ($node == $link);
             $activelink = ($node == $link);
             $subItems = array_filter(
-                FOGPage::buildSubMenuItems($link)
+                self::_buildSubMenuItems($link)
             );
             echo '<li class="'
                 . (
@@ -545,7 +545,7 @@ abstract class FOGPage extends FOGBase
      *
      * @return array
      */
-    public static function buildSubMenuItems($refNode = '')
+    private static function _buildSubMenuItems($refNode = '')
     {
         $node = strtolower($refNode);
         $refNode = ucfirst($refNode);
@@ -794,7 +794,7 @@ abstract class FOGPage extends FOGBase
      *
      * @return string
      */
-    public function makeTabUpdateURL($tab, $id = -1)
+    public static function makeTabUpdateURL($tab, $id = -1)
     {
         global $node;
         global $sub;
@@ -814,7 +814,7 @@ abstract class FOGPage extends FOGBase
      *
      * @return void
      */
-    public function displayAlert(
+    public static function displayAlert(
         $title,
         $body,
         $type,
@@ -858,7 +858,7 @@ abstract class FOGPage extends FOGBase
      *
      * @return string
      */
-    public function makeButton($id, $text, $class, $props = '')
+    public static function makeButton($id, $text, $class, $props = '')
     {
         ob_start();
         echo '<button';
@@ -892,7 +892,7 @@ abstract class FOGPage extends FOGBase
      *
      * @return string
      */
-    public function makeModal(
+    public static function makeModal(
         $id,
         $header,
         $body,
@@ -1545,25 +1545,7 @@ abstract class FOGPage extends FOGBase
             echo '</div>';
             echo '</div>';
             echo '</div>';
-            // Cron elements
-            $specialCrons = [
-                ''=>_('Select a cron type'),
-                'yearly'=>sprintf('%s/%s', _('Yearly'), _('Annually')),
-                'monthly'=>_('Monthly'),
-                'weekly'=>_('Weekly'),
-                'daily'=>sprintf('%s/%s', _('Daily'), _('Midnight')),
-                'hourly'=>_('Hourly'),
-            ];
-            ob_start();
-            foreach ($specialCrons as $val => &$name) {
-                echo '<option value="'
-                    . $val
-                    . '">'
-                    . $name
-                    . '</option>';
-                unset($name);
-            }
-            $cronOpts = ob_get_clean();
+            // Cron
             echo '<div class="hideFromDebug">';
             echo '<div class="radio">';
             echo '<label for="scheduleCron">';
@@ -2270,6 +2252,8 @@ abstract class FOGPage extends FOGBase
                 . $this->node
                 . '&sub=deploy&id='
                 . $id
+                . '&type='
+                . $TaskType->id
                 . '"><i class="fa '
                 . 'fa-'
                 . $TaskType->icon
@@ -2279,7 +2263,7 @@ abstract class FOGPage extends FOGBase
             ] = $TaskType->description;
             unset($TaskType);
         };
-        Route::listem('tasktype', 'id');
+        Route::listem('tasktype');
         $items = json_decode(Route::getData());
         $items = $items->data;
         $advanced = 0;
@@ -2760,58 +2744,6 @@ abstract class FOGPage extends FOGBase
             echo $e->getMessage();
         }
         self::$FOGFTP->close();
-    }
-    /**
-     * Hands out the login information
-     * such as version and number of users
-     *
-     * @return void
-     */
-    public function loginInfo()
-    {
-        $urls = [
-            'https://fogproject.org/globalusers',
-            'https://fogproject.org/version/index.php?stable&dev&svn'
-        ];
-        $resp = self::$FOGURLRequests->process($urls);
-        $data['sites'] = $resp[0];
-        $data['version'] = $resp[1];
-        echo json_encode($data);
-        exit;
-    }
-    /**
-     * Gets the associated info from the mac addresses
-     *
-     * @return void
-     */
-    public function getmacman()
-    {
-        try {
-            if (!self::getMACLookupCount()) {
-                throw new Exception(
-                    sprintf(
-                        '<a href="?node=about&sub=maclist">%s</a>',
-                        _('Load MAC Vendors')
-                    )
-                );
-            }
-            $pref = filter_input(INPUT_POST, 'prefix');
-            $MAC = self::getClass('MACAddress', $pref);
-            $prefix = $MAC->getMACPrefix();
-            if (!$MAC->isValid() || !$prefix) {
-                throw new Exception(_('Unknown'));
-            }
-            $OUI = self::getClass('OUIManager')->find(['prefix'=>$prefix]);
-            $OUI = array_shift($OUI);
-            if (!(($OUI instanceof OUI) && $OUI->isValid())) {
-                throw new Exception(_('Not found'));
-            }
-            $Data = sprintf('%s', $OUI->get('name'));
-        } catch (Exception $e) {
-            $Data = sprintf('%s', $e->getMessage());
-        }
-        echo $Data;
-        exit;
     }
     /**
      * Presents the delete page for the object
@@ -4016,11 +3948,11 @@ abstract class FOGPage extends FOGBase
                 $tabs = $entry['tabs']['tabData'];
                 foreach ($tabs as &$tab) {
                     $name = $tab['name'];
-                    $id = $tab['id'];
+                    $ident = $tab['id'];
                     if (empty($activeId)) {
-                        $activeId = $id;
+                        $activeId = $ident;
                     }
-                    $isActive = ($activeId === $id);
+                    $isActive = ($activeId === $ident);
                     echo '<li class="'
                         . (
                             $isActive ?
@@ -4029,7 +3961,7 @@ abstract class FOGPage extends FOGBase
                         )
                         . '">';
                     echo '<a href="#'
-                        . $id
+                        . $ident
                         . '" data-toggle="tab" ariaexpanded="true">'
                         . $name
                         . '</a>';
@@ -4039,11 +3971,11 @@ abstract class FOGPage extends FOGBase
                 echo '</ul>';
             } else {
                 $name = $entry['name'];
-                $id = $entry['id'];
+                $ident = $entry['id'];
                 if (empty($activeId)) {
-                    $activeId = $id;
+                    $activeId = $ident;
                 }
-                $isActive = ($activeId === $id);
+                $isActive = ($activeId === $ident);
                 echo '<li class="'
                     . (
                         $isActive ?
@@ -4052,7 +3984,7 @@ abstract class FOGPage extends FOGBase
                     )
                     . '">';
                 echo '<a href="#'
-                    . $id
+                    . $ident
                     . '" data-toggle="tab" ariaexpanded="true">'
                     . $name
                     . '</a>';
@@ -4068,10 +4000,10 @@ abstract class FOGPage extends FOGBase
                 foreach ($tabs as &$tab) {
                     $generator = $tab['generator'];
                     $name = $tab['name'];
-                    $id = $tab['id'];
-                    $isActive = ($activeId === $id);
+                    $ident = $tab['id'];
+                    $isActive = ($activeId === $ident);
                     echo '<div id="'
-                        . $id
+                        . $ident
                         . '" class="tab-pane '
                         . (
                             $isActive ?
@@ -4088,10 +4020,10 @@ abstract class FOGPage extends FOGBase
             } else {
                 $generator = $entry['generator'];
                 $name = $entry['name'];
-                $id = $entry['id'];
-                $isActive = ($activeId === $id);
+                $ident = $entry['id'];
+                $isActive = ($activeId === $ident);
                 echo '<div id="'
-                    . $id
+                    . $ident
                     . '" class="tab-pane '
                     . (
                         $isActive ?
@@ -4109,28 +4041,6 @@ abstract class FOGPage extends FOGBase
         echo '</div>';
         echo '</div>';
         return ob_get_clean();
-    }
-    /**
-     * Generalized method to build buttons.
-     *
-     * @param string|array $id    The id to give.
-     * @param string|array $text  The text for the button.
-     * @param string|array $name  The name to give the button
-     * @param string|array $class The class to associate to the button. (CSS)
-     * @param bool|array   $size  To make block or not.
-     *
-     * @return string
-     */
-    public static function btnGenerator(
-        $id,
-        $text,
-        $name = '',
-        $class = '',
-        $size = false
-    ) {
-        // TODO: Make this check array elements
-        // and make sure array elements "line up".
-        // TODO: Make $name = $id field if name is blank.
     }
     /**
      * Function passes to allsearch method so we can have

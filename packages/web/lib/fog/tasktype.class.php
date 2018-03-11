@@ -21,6 +21,26 @@
  */
 class TaskType extends FOGController
 {
+    const DEPLOY = 1;
+    const CAPTURE = 2;
+    const DEBUG = 3;
+    const MEMTEST = 4;
+    const TEST_DISK = 5;
+    const DISK_SURFACE_TEST = 6;
+    const RECOVER = 7;
+    const MULTICAST = 8;
+    const INVENTORY = 10;
+    const PASSWORD_RESET = 11;
+    const ALL_SNAPINS = 12;
+    const SINGLE_SNAPIN = 13;
+    const WAKE_UP = 14;
+    const DEPLOY_DEBUG = 15;
+    const CAPTURE_DEBUG = 16;
+    const DEPLOY_NO_SNAPINS = 17;
+    const FAST_WIPE = 18;
+    const NORMAL_WIPE = 19;
+    const FULL_WIPE = 20;
+
     /**
      * The database table for task type.
      *

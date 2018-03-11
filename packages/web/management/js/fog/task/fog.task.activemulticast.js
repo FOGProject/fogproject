@@ -20,7 +20,7 @@
     }
 
     disableButtons(true);
-    var table = Common.registerTable($('#tasks-active-table'), onSelect, {
+    var table = Common.registerTable($('#active-multicast-table'), onSelect, {
         order: [
             [0, 'asc']
         ],

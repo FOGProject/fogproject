@@ -52,7 +52,7 @@ class FOGPageManager extends FOGBase
      *
      * @return string
      */
-    private function _replaceVariable(&$value)
+    public static function replaceVariable(&$value)
     {
         $value = trim($value);
         $value = preg_replace(
@@ -72,12 +72,12 @@ class FOGPageManager extends FOGBase
         global $node;
         global $sub;
         if (!empty($node)) {
-            $this->classValue = $this->_replaceVariable($node);
+            $this->classValue = self::replaceVariable($node);
         } else {
             $this->classValue = 'home';
         }
         $this->loadPageClasses();
-        $this->methodValue = $this->_replaceVariable($sub);
+        $this->methodValue = self::replaceVariable($sub);
         self::$HookManager->processEvent(
             'SEARCH_PAGES',
             ['searchPages' => &self::$searchPages]
@@ -139,6 +139,7 @@ class FOGPageManager extends FOGBase
     public function render()
     {
         global $node;
+        global $id;
         $nodes = [
             'client',
             'schema',
@@ -164,7 +165,6 @@ class FOGPageManager extends FOGBase
             if (!array_key_exists($this->classValue, $this->_nodes)) {
                 throw new Exception(_('No FOGPage Class found for this node'));
             }
-            $id = filter_input(INPUT_GET, $class->id);
             if ($id) {
                 $this->_arguments = ['id' => $id];
             }
