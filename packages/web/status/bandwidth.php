@@ -41,8 +41,8 @@ $getBytes = function ($dev) {
     }
     $txpath = "/sys/class/net/$dev/statistics/tx_bytes";
     $rxpath = "/sys/class/net/$dev/statistics/rx_bytes";
-    $tx = file_get_contents($txpath);
-    $rx = file_get_contents($rxpath);
+    $tx = (int)file_get_contents($txpath);
+    $rx = (int)file_get_contents($rxpath);
     return [$rx,$tx];
 };
 // Make sure a device is set
@@ -106,8 +106,8 @@ if (!$dev) {
 list($rxlast,$txlast) = $getBytes($dev);
 usleep(100000);
 list($rxcur,$txcur) = $getBytes($dev);
-$rx = round(ceil((int)(($rxcur - $rxlast)) / 1024 * 8 / 100), 2);
-$tx = round(ceil((int)(($txcur - $txlast)) / 1024 * 8 / 100), 2);
+$rx = round(ceil(($rxcur - $rxlast) / 1024 * 8 / 100), 2);
+$tx = round(ceil(($txcur - $txlast) / 1024 * 8 / 100), 2);
 // Setup our return array
 $ret = [
     'dev' => $dev,
