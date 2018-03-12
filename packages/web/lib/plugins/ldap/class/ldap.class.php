@@ -25,6 +25,9 @@
  */
 class LDAP extends FOGController
 {
+    const LDAP_PORTS = [389, 636];
+    const LDAP_PORT = 389;
+    const LDAPS_PORT = 636;
     /**
      * Ldap connection itself
      *
@@ -42,7 +45,7 @@ class LDAP extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'lsID',
         'name' => 'lsName',
         'description' => 'lsDesc',
@@ -60,13 +63,13 @@ class LDAP extends FOGController
         'bindPwd' => 'lsBindPwd',
         'grpSearchDN' => 'lsGrpSearchDN',
         'useGroupMatch' => 'lsUseGroupMatch',
-    );
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name',
         'address',
         'port',
@@ -85,7 +88,7 @@ class LDAP extends FOGController
          */
         // 'adminGroup',
         // 'userGroup',
-    );
+    ];
     /**
      * Magic function to enable ldap_ function calls using
      * an object oriented call structure
@@ -109,7 +112,7 @@ class LDAP extends FOGController
                 )
             );
         }
-        $nonresourcefuncs = array(
+        $nonresourcefuncs = [
             '8859_to_t61',
             'connect',
             'dn2ufn',
@@ -117,7 +120,7 @@ class LDAP extends FOGController
             'escape',
             'explode_dn',
             't61_to_8859',
-        );
+        ];
         if (!in_array($func, $nonresourcefuncs)) {
             array_unshift($args, self::$_ldapconn);
         }
@@ -134,7 +137,7 @@ class LDAP extends FOGController
     private function _ldapUp($timeout = 3)
     {
         $ldap = 'ldap';
-        $ports = array(389, 636);
+        $ports = self::LDAP_PORTS;
         $port = $this->get('port');
         $address = $this->get('address');
         if (!in_array($port, $ports)) {
@@ -155,7 +158,7 @@ class LDAP extends FOGController
             '%s%s://%s',
             $ldap,
             (
-                $port == 636 ?
+                $port == self::LDAPS_PORT ?
                 's' :
                 ''
             ),
@@ -178,7 +181,7 @@ class LDAP extends FOGController
         /**
          * Initialize our out array.
          */
-        $out = array();
+        $out = [];
         /**
          * Loop the parsed information so we get
          * the values in a mroe usable and joinable form.
@@ -407,7 +410,7 @@ class LDAP extends FOGController
             /**
              * Setup bind DN attribute
              */
-            $attr = array('dn');
+            $attr = ['dn'];
             /**
              * Get our results
              */
@@ -508,7 +511,7 @@ class LDAP extends FOGController
                 return false;
             }
         }
-        $attr = array('dn');
+        $attr = ['dn'];
         $filter = sprintf(
             '(&(|(objectcategory=person)(objectclass=person))(%s=%s))',
             $usrNamAttr,
@@ -605,7 +608,8 @@ class LDAP extends FOGController
         $grpSearchDN = $this->get('grpSearchDN');
         if (!$grpSearchDN) {
             $parsedDN = $this->_ldapParseDn($userDN);
-            $grpSearchDN = 'dc='.implode(',dc=', $parsedDN['DC']);
+            $grpSearchDN = 'dc='
+                . implode(',dc=', $parsedDN['DC']);
         }
         /**
          * Setup our new filter
@@ -621,7 +625,7 @@ class LDAP extends FOGController
         /**
          * The attribute to get.
          */
-        $attr = array($grpMemAttr);
+        $attr = [$grpMemAttr];
         /**
          * Read in the attributes
          */
@@ -645,7 +649,7 @@ class LDAP extends FOGController
         /**
          * The attribute to get.
          */
-        $attr = array($grpMemAttr);
+        $attr = [$grpMemAttr];
         /**
          * Execute the ldap query
          */
@@ -666,7 +670,7 @@ class LDAP extends FOGController
         /**
          * The attribute to get.
          */
-        $attr = array($grpMemAttr);
+        $attr = [$grpMemAttr];
         /**
          * Read in the attributes
          */
@@ -857,13 +861,13 @@ class LDAP extends FOGController
      */
     public function get($key = '')
     {
-        $keys = array(
+        $keys = [
             'searchDN',
             'grpSearchDN',
             'bindDN',
             'adminGroup',
             'userGroup'
-        );
+        ];
         if (in_array($key, $keys)) {
             $dn = trim(parent::get($key));
             $dn = strtolower($dn);

@@ -57,28 +57,37 @@ class AddLDAPMenuItem extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'MAIN_MENU_DATA',
-                array(
-                    $this,
-                    'menuData'
-                )
-            )
-            ->register(
-                'SEARCH_PAGES',
-                array(
-                    $this,
-                    'addSearch'
-                )
-            )
-            ->register(
-                'PAGES_WITH_OBJECTS',
-                array(
-                    $this,
-                    'addPageWithObject'
-                )
-            );
+        if (!in_array($this->node, self::$pluginsinstalled)) {
+            return;
+        }
+        self::$HookManager->register(
+            'MAIN_MENU_DATA',
+            [$this, 'menuData']
+        )->register(
+            'SEARCH_PAGES',
+            [$this, 'addSearch']
+        )->register(
+            'PAGES_WITH_OBJECTS',
+            [$this, 'addPageWithObject']
+        )->register(
+            'SUB_MENULINK_DATA',
+            [$this, 'menuUpdate']
+        );
+    }
+    /**
+     * Add the new items beyond list/create.
+     *
+     * @param mixed $arguments The items to modify.
+     *
+     * @return void
+     */
+    public function menuUpdate($arguments)
+    {
+        if ($arguments['node'] != $this->node) {
+            return;
+        }
+        $arguments['menu']['export'] = _('Export LDAP Settings');
+        $arguments['menu']['import'] = _('Import LDAP Settings');
     }
     /**
      * Sets the menu item into the menu
@@ -89,17 +98,11 @@ class AddLDAPMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         self::arrayInsertAfter(
             'storagegroup',
             $arguments['main'],
             $this->node,
-            array(
-                _('LDAP Servers'),
-                'fa fa-key'
-            )
+            [_('LDAP Servers'), 'fa fa-key']
         );
     }
     /**
@@ -111,9 +114,6 @@ class AddLDAPMenuItem extends Hook
      */
     public function addSearch($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         array_push($arguments['searchPages'], $this->node);
     }
     /**
@@ -125,9 +125,6 @@ class AddLDAPMenuItem extends Hook
      */
     public function addPageWithObject($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         array_push($arguments['PagesWithObjects'], $this->node);
     }
 }
