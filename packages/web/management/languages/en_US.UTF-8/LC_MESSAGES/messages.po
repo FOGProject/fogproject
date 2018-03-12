@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-11 03:06-0400\n"
+"POT-Creation-Date: 2018-03-12 15:35-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2090,6 +2090,14 @@ msgid "Rule Update Fail"
 msgstr "Group create failed"
 
 #, fuzzy
+msgid "Export LDAP Settings"
+msgstr "Host Location"
+
+#, fuzzy
+msgid "Import LDAP Settings"
+msgstr "Host Location"
+
+#, fuzzy
 msgid "LDAP Servers"
 msgstr "LDAP Server"
 
@@ -2097,26 +2105,8 @@ msgid "LDAP Management"
 msgstr "LDAP Management"
 
 #, fuzzy
-msgid "Export LDAPs"
-msgstr "Export PDF"
-
-#, fuzzy
-msgid "Import LDAPs"
-msgstr "Import"
-
-#, fuzzy
-msgid "LDAP Connection Name"
-msgstr "Location Name"
-
-msgid "LDAP Server Address"
-msgstr "LDAP Server Address"
-
-#, fuzzy
 msgid "LDAP Connection  Name"
 msgstr "Location Name"
-
-msgid "LDAP Server Description"
-msgstr "LDAP Server Description"
 
 msgid "LDAP Server"
 msgstr "LDAP Server"
@@ -2128,8 +2118,9 @@ msgstr "Port"
 msgid "Admin Group"
 msgstr "Modify Group"
 
-msgid "New LDAP Server"
-msgstr "New LDAP Server"
+#, fuzzy
+msgid "Create New LDAP Server"
+msgstr "Create New %s"
 
 msgid "Base Only"
 msgstr ""
@@ -2140,11 +2131,34 @@ msgstr ""
 msgid "Subree and Below"
 msgstr ""
 
+msgid "Microsoft AD"
+msgstr ""
+
+msgid "OpenLDAP"
+msgstr ""
+
+msgid "Generic LDAP"
+msgstr ""
+
+#, fuzzy
+msgid "LDAP Server Name"
+msgstr "LDAP Server Name"
+
+msgid "LDAP Server Description"
+msgstr "LDAP Server Description"
+
+msgid "LDAP Server Address"
+msgstr "LDAP Server Address"
+
 #, fuzzy
 msgid "LDAP Server Port"
 msgstr "LDAP Server"
 
-msgid "Use Group Matching (recommended)"
+#, fuzzy
+msgid "Group Matching"
+msgstr "Host Location"
+
+msgid "recommended"
 msgstr ""
 
 #, fuzzy
@@ -2156,25 +2170,20 @@ msgid "Group Search DN"
 msgstr "Host Search"
 
 #, fuzzy
-msgid "Mobile Group"
+msgid "Administrator Group"
+msgstr "Modify Group"
+
+#, fuzzy
+msgid "Domain Admins"
+msgstr "Domain name"
+
+#, fuzzy
+msgid "Non-Administrator Group"
 msgstr "Modify Group"
 
 #, fuzzy
 msgid "Initial Template"
 msgstr "Snapin Template"
-
-#, fuzzy
-msgid "Pick a template"
-msgstr "Snapin Template"
-
-msgid "Microsoft AD"
-msgstr ""
-
-msgid "OpenLDAP"
-msgstr ""
-
-msgid "Generic LDAP"
-msgstr ""
 
 #, fuzzy
 msgid "User Name Attribute"
@@ -2195,14 +2204,8 @@ msgid "Bind Password"
 msgstr "Domain Password"
 
 #, fuzzy
-msgid "Create New LDAP"
-msgstr "Create New %s"
-
-msgid "Not able to add"
-msgstr "Not able to add"
-
-msgid "Please enter a name for this LDAP server."
-msgstr "Please enter a name for this LDAP server."
+msgid "An LDAP server name is required!"
+msgstr "An image name is required!"
 
 msgid "Please enter a LDAP server address"
 msgstr "Please enter a LDAP server address"
@@ -2232,7 +2235,7 @@ msgid "Please enter a Group Member Attribute"
 msgstr "Please enter a LDAP server address"
 
 #, fuzzy
-msgid "A LDAP setup already exists with this name!"
+msgid "An LDAP server already exists with this name!"
 msgstr "An image already exists with this name!"
 
 #, fuzzy
@@ -2251,25 +2254,28 @@ msgstr "User created"
 msgid "LDAP Create Fail"
 msgstr "User created"
 
-#, fuzzy
-msgid "LDAP General"
-msgstr "General"
+msgid "Please enter a name for this LDAP server."
+msgstr "Please enter a name for this LDAP server."
 
 #, fuzzy
-msgid "Update LDAP server failed!"
-msgstr "Add snapin failed!"
+msgid "A LDAP setup already exists with this name!"
+msgstr "An image already exists with this name!"
+
+#, fuzzy
+msgid "LDAP Server update failed!"
+msgstr "LDAP Server Name"
 
 #, fuzzy
 msgid "LDAP Server updated!"
 msgstr "LDAP Server Name"
 
 #, fuzzy
-msgid "LDAP Update Success"
-msgstr "Install / Update Successful!"
+msgid "LDAP Server Update Success"
+msgstr "User created"
 
 #, fuzzy
-msgid "LDAP Update Fail"
-msgstr "Snapin update failed"
+msgid "LDAP Server Update Fail"
+msgstr "LDAP Server Name"
 
 #, fuzzy
 msgid "Function does not exist"
@@ -3735,38 +3741,11 @@ msgstr "Task Name"
 msgid "Hosts in tasking"
 msgstr "Hosts in Task"
 
-msgid "Edit Host"
-msgstr "Edit Host"
-
 msgid "Host/Group Name"
 msgstr "Host/Group Name"
 
 msgid "Is Group"
 msgstr "Is Group"
-
-#, fuzzy
-msgid "All snapins"
-msgstr "All Snap-ins"
-
-#, fuzzy
-msgid "Invalid snapin"
-msgstr "Invalid Snapin"
-
-#, fuzzy
-msgid "Snapin to be installed"
-msgstr "Snapin Enabled"
-
-msgid "Cron"
-msgstr "Cron"
-
-msgid "Delayed"
-msgstr "Delayed"
-
-msgid "group"
-msgstr "group"
-
-msgid "host"
-msgstr "host"
 
 msgid "Primary MAC"
 msgstr "Primary MAC"
@@ -4286,6 +4265,81 @@ msgstr "Install / Update Successful!"
 #, fuzzy
 msgid "Host Add to Group Fail"
 msgstr "Add to group"
+
+#, fuzzy
+msgid "Task type is invalid"
+msgstr "Task type is not valid"
+
+#, fuzzy
+msgid "Cannot task pending hosts"
+msgstr "Cannot set taskings to pending or invalid items"
+
+#, fuzzy
+msgid "Assigned image is invalid"
+msgstr "User call is invalid"
+
+#, fuzzy
+msgid "Assigned image is not enabled"
+msgstr "Image is not enabled"
+
+#, fuzzy
+msgid "Assigned image is protected"
+msgstr "None selected or item is protected"
+
+#, fuzzy
+msgid "Select Snapin to run"
+msgstr "Snapin History"
+
+#, fuzzy
+msgid "Account Name"
+msgstr "All Access Controls"
+
+#, fuzzy
+msgid "Shutdown when complete"
+msgstr "has been destroyed"
+
+msgid "Wake Up"
+msgstr ""
+
+#, fuzzy
+msgid "Debug Task"
+msgstr "Debug"
+
+#, fuzzy
+msgid "Schedule Immediately"
+msgstr "Schedule"
+
+#, fuzzy
+msgid "Schedule Later"
+msgstr "Scheduler"
+
+#, fuzzy
+msgid "Schedule Crontab Style"
+msgstr "Scheduler"
+
+msgid "Special Crons"
+msgstr ""
+
+msgid "Cron Entry"
+msgstr ""
+
+#, fuzzy
+msgid "min"
+msgstr "minutes"
+
+#, fuzzy
+msgid "hour"
+msgstr "1 hour"
+
+msgid "day"
+msgstr ""
+
+#, fuzzy
+msgid "month"
+msgstr "Monthly"
+
+msgid "weekday"
+msgstr ""
 
 #, fuzzy
 msgid "Create New Group"
@@ -5001,25 +5055,13 @@ msgid "Import Reports"
 msgstr "Import Hosts"
 
 #, fuzzy
-msgid "Import FOG Reports"
-msgstr "About FOG Reports"
-
-#, fuzzy
-msgid "Import Report?"
+msgid "Import Report"
 msgstr "Import Hosts"
 
-#, fuzzy
-msgid "This section allows you to uploade user"
+msgid ""
+"This section allows you to upload user defined reports that may not be a "
+"part of the base FOG install."
 msgstr ""
-"This section allows you to import known mac address makers into the FOG "
-"Database for easier identification."
-
-msgid "defined reports that may not be a part of"
-msgstr ""
-
-#, fuzzy
-msgid "the base FOG install"
-msgstr "Reboot after install"
 
 msgid "About FOG Reports"
 msgstr "About FOG Reports"
@@ -5852,6 +5894,12 @@ msgstr "Completed"
 msgid " * Task Scheduler is globally disabled"
 msgstr ""
 
+msgid "group"
+msgstr "group"
+
+msgid "host"
+msgstr "host"
+
 msgid "Is a"
 msgstr "Is a"
 
@@ -6126,16 +6174,9 @@ msgstr "Invalid storage node"
 msgid "Registered"
 msgstr "Registered"
 
-msgid "day"
-msgstr ""
-
 #, fuzzy
 msgid "hr"
 msgstr "here"
-
-#, fuzzy
-msgid "min"
-msgstr "minutes"
 
 #, fuzzy
 msgid "Running Windows"
@@ -6264,6 +6305,12 @@ msgstr "Hourly"
 
 msgid "Please Select an option"
 msgstr "Please Select an option"
+
+msgid "Cron"
+msgstr "Cron"
+
+msgid "Delayed"
+msgstr "Delayed"
 
 msgid "Could not read tmp file."
 msgstr "Could not read tmp file."
@@ -6412,6 +6459,9 @@ msgstr "No node associated"
 msgid "Host Unassociated Snapins"
 msgstr "No node associated"
 
+msgid "Edit Host"
+msgstr "Edit Host"
+
 msgid "Edit Image"
 msgstr "Edit Image"
 
@@ -6476,16 +6526,8 @@ msgstr "Invalid type"
 msgid "minute"
 msgstr "minutes"
 
-#, fuzzy
-msgid "hour"
-msgstr "1 hour"
-
 msgid "day of month"
 msgstr ""
-
-#, fuzzy
-msgid "month"
-msgstr "Monthly"
 
 msgid "day of week"
 msgstr ""
@@ -6625,12 +6667,6 @@ msgstr "Failed"
 
 msgid "filesize"
 msgstr "filesize"
-
-msgid "Load MAC Vendors"
-msgstr "Load MAC Vendors"
-
-msgid "Not found"
-msgstr "Not found"
 
 #, fuzzy
 msgid "Delete hosts within"

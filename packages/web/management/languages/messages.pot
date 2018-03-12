@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-11 03:06-0400\n"
+"POT-Creation-Date: 2018-03-12 15:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1859,28 +1859,19 @@ msgstr ""
 msgid "Rule Update Fail"
 msgstr ""
 
+msgid "Export LDAP Settings"
+msgstr ""
+
+msgid "Import LDAP Settings"
+msgstr ""
+
 msgid "LDAP Servers"
 msgstr ""
 
 msgid "LDAP Management"
 msgstr ""
 
-msgid "Export LDAPs"
-msgstr ""
-
-msgid "Import LDAPs"
-msgstr ""
-
-msgid "LDAP Connection Name"
-msgstr ""
-
-msgid "LDAP Server Address"
-msgstr ""
-
 msgid "LDAP Connection  Name"
-msgstr ""
-
-msgid "LDAP Server Description"
 msgstr ""
 
 msgid "LDAP Server"
@@ -1892,7 +1883,7 @@ msgstr ""
 msgid "Admin Group"
 msgstr ""
 
-msgid "New LDAP Server"
+msgid "Create New LDAP Server"
 msgstr ""
 
 msgid "Base Only"
@@ -1904,10 +1895,31 @@ msgstr ""
 msgid "Subree and Below"
 msgstr ""
 
+msgid "Microsoft AD"
+msgstr ""
+
+msgid "OpenLDAP"
+msgstr ""
+
+msgid "Generic LDAP"
+msgstr ""
+
+msgid "LDAP Server Name"
+msgstr ""
+
+msgid "LDAP Server Description"
+msgstr ""
+
+msgid "LDAP Server Address"
+msgstr ""
+
 msgid "LDAP Server Port"
 msgstr ""
 
-msgid "Use Group Matching (recommended)"
+msgid "Group Matching"
+msgstr ""
+
+msgid "recommended"
 msgstr ""
 
 msgid "Search Base DN"
@@ -1916,22 +1928,16 @@ msgstr ""
 msgid "Group Search DN"
 msgstr ""
 
-msgid "Mobile Group"
+msgid "Administrator Group"
+msgstr ""
+
+msgid "Domain Admins"
+msgstr ""
+
+msgid "Non-Administrator Group"
 msgstr ""
 
 msgid "Initial Template"
-msgstr ""
-
-msgid "Pick a template"
-msgstr ""
-
-msgid "Microsoft AD"
-msgstr ""
-
-msgid "OpenLDAP"
-msgstr ""
-
-msgid "Generic LDAP"
 msgstr ""
 
 msgid "User Name Attribute"
@@ -1949,13 +1955,7 @@ msgstr ""
 msgid "Bind Password"
 msgstr ""
 
-msgid "Create New LDAP"
-msgstr ""
-
-msgid "Not able to add"
-msgstr ""
-
-msgid "Please enter a name for this LDAP server."
+msgid "An LDAP server name is required!"
 msgstr ""
 
 msgid "Please enter a LDAP server address"
@@ -1979,7 +1979,7 @@ msgstr ""
 msgid "Please enter a Group Member Attribute"
 msgstr ""
 
-msgid "A LDAP setup already exists with this name!"
+msgid "An LDAP server already exists with this name!"
 msgstr ""
 
 msgid "Add LDAP server failed!"
@@ -1994,19 +1994,22 @@ msgstr ""
 msgid "LDAP Create Fail"
 msgstr ""
 
-msgid "LDAP General"
+msgid "Please enter a name for this LDAP server."
 msgstr ""
 
-msgid "Update LDAP server failed!"
+msgid "A LDAP setup already exists with this name!"
+msgstr ""
+
+msgid "LDAP Server update failed!"
 msgstr ""
 
 msgid "LDAP Server updated!"
 msgstr ""
 
-msgid "LDAP Update Success"
+msgid "LDAP Server Update Success"
 msgstr ""
 
-msgid "LDAP Update Fail"
+msgid "LDAP Server Update Fail"
 msgstr ""
 
 msgid "Function does not exist"
@@ -3283,34 +3286,10 @@ msgstr ""
 msgid "Hosts in tasking"
 msgstr ""
 
-msgid "Edit Host"
-msgstr ""
-
 msgid "Host/Group Name"
 msgstr ""
 
 msgid "Is Group"
-msgstr ""
-
-msgid "All snapins"
-msgstr ""
-
-msgid "Invalid snapin"
-msgstr ""
-
-msgid "Snapin to be installed"
-msgstr ""
-
-msgid "Cron"
-msgstr ""
-
-msgid "Delayed"
-msgstr ""
-
-msgid "group"
-msgstr ""
-
-msgid "host"
 msgstr ""
 
 msgid "Primary MAC"
@@ -3749,6 +3728,66 @@ msgid "Host Add to Group Success"
 msgstr ""
 
 msgid "Host Add to Group Fail"
+msgstr ""
+
+msgid "Task type is invalid"
+msgstr ""
+
+msgid "Cannot task pending hosts"
+msgstr ""
+
+msgid "Assigned image is invalid"
+msgstr ""
+
+msgid "Assigned image is not enabled"
+msgstr ""
+
+msgid "Assigned image is protected"
+msgstr ""
+
+msgid "Select Snapin to run"
+msgstr ""
+
+msgid "Account Name"
+msgstr ""
+
+msgid "Shutdown when complete"
+msgstr ""
+
+msgid "Wake Up"
+msgstr ""
+
+msgid "Debug Task"
+msgstr ""
+
+msgid "Schedule Immediately"
+msgstr ""
+
+msgid "Schedule Later"
+msgstr ""
+
+msgid "Schedule Crontab Style"
+msgstr ""
+
+msgid "Special Crons"
+msgstr ""
+
+msgid "Cron Entry"
+msgstr ""
+
+msgid "min"
+msgstr ""
+
+msgid "hour"
+msgstr ""
+
+msgid "day"
+msgstr ""
+
+msgid "month"
+msgstr ""
+
+msgid "weekday"
 msgstr ""
 
 msgid "Create New Group"
@@ -4350,19 +4389,12 @@ msgstr ""
 msgid "Import Reports"
 msgstr ""
 
-msgid "Import FOG Reports"
+msgid "Import Report"
 msgstr ""
 
-msgid "Import Report?"
-msgstr ""
-
-msgid "This section allows you to uploade user"
-msgstr ""
-
-msgid "defined reports that may not be a part of"
-msgstr ""
-
-msgid "the base FOG install"
+msgid ""
+"This section allows you to upload user defined reports that may not be a "
+"part of the base FOG install."
 msgstr ""
 
 msgid "About FOG Reports"
@@ -5067,6 +5099,12 @@ msgstr ""
 msgid " * Task Scheduler is globally disabled"
 msgstr ""
 
+msgid "group"
+msgstr ""
+
+msgid "host"
+msgstr ""
+
 msgid "Is a"
 msgstr ""
 
@@ -5301,13 +5339,7 @@ msgstr ""
 msgid "Registered"
 msgstr ""
 
-msgid "day"
-msgstr ""
-
 msgid "hr"
-msgstr ""
-
-msgid "min"
 msgstr ""
 
 msgid "Running Windows"
@@ -5422,6 +5454,12 @@ msgid "Hourly"
 msgstr ""
 
 msgid "Please Select an option"
+msgstr ""
+
+msgid "Cron"
+msgstr ""
+
+msgid "Delayed"
 msgstr ""
 
 msgid "Could not read tmp file."
@@ -5550,6 +5588,9 @@ msgstr ""
 msgid "Host Unassociated Snapins"
 msgstr ""
 
+msgid "Edit Host"
+msgstr ""
+
 msgid "Edit Image"
 msgstr ""
 
@@ -5601,13 +5642,7 @@ msgstr ""
 msgid "minute"
 msgstr ""
 
-msgid "hour"
-msgstr ""
-
 msgid "day of month"
-msgstr ""
-
-msgid "month"
 msgstr ""
 
 msgid "day of week"
@@ -5728,12 +5763,6 @@ msgid "Failed"
 msgstr ""
 
 msgid "filesize"
-msgstr ""
-
-msgid "Load MAC Vendors"
-msgstr ""
-
-msgid "Not found"
 msgstr ""
 
 msgid "Delete hosts within"

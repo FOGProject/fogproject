@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-11 03:06-0400\n"
+"POT-Creation-Date: 2018-03-12 15:35-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2087,6 +2087,14 @@ msgid "Rule Update Fail"
 msgstr "集团创建失败"
 
 #, fuzzy
+msgid "Export LDAP Settings"
+msgstr "主机位置"
+
+#, fuzzy
+msgid "Import LDAP Settings"
+msgstr "主机位置"
+
+#, fuzzy
 msgid "LDAP Servers"
 msgstr "LDAP服务器"
 
@@ -2094,26 +2102,8 @@ msgid "LDAP Management"
 msgstr "LDAP管理"
 
 #, fuzzy
-msgid "Export LDAPs"
-msgstr "导出PDF"
-
-#, fuzzy
-msgid "Import LDAPs"
-msgstr "进口"
-
-#, fuzzy
-msgid "LDAP Connection Name"
-msgstr "地点名称"
-
-msgid "LDAP Server Address"
-msgstr "LDAP服务器地址"
-
-#, fuzzy
 msgid "LDAP Connection  Name"
 msgstr "地点名称"
-
-msgid "LDAP Server Description"
-msgstr "LDAP服务器说明"
 
 msgid "LDAP Server"
 msgstr "LDAP服务器"
@@ -2125,8 +2115,9 @@ msgstr "港口"
 msgid "Admin Group"
 msgstr "修改组"
 
-msgid "New LDAP Server"
-msgstr "新建LDAP服务器"
+#, fuzzy
+msgid "Create New LDAP Server"
+msgstr "新建%s"
 
 msgid "Base Only"
 msgstr ""
@@ -2137,11 +2128,34 @@ msgstr ""
 msgid "Subree and Below"
 msgstr ""
 
+msgid "Microsoft AD"
+msgstr ""
+
+msgid "OpenLDAP"
+msgstr ""
+
+msgid "Generic LDAP"
+msgstr ""
+
+#, fuzzy
+msgid "LDAP Server Name"
+msgstr "LDAP服务器名称"
+
+msgid "LDAP Server Description"
+msgstr "LDAP服务器说明"
+
+msgid "LDAP Server Address"
+msgstr "LDAP服务器地址"
+
 #, fuzzy
 msgid "LDAP Server Port"
 msgstr "LDAP服务器"
 
-msgid "Use Group Matching (recommended)"
+#, fuzzy
+msgid "Group Matching"
+msgstr "主机位置"
+
+msgid "recommended"
 msgstr ""
 
 #, fuzzy
@@ -2153,25 +2167,20 @@ msgid "Group Search DN"
 msgstr "主机搜索"
 
 #, fuzzy
-msgid "Mobile Group"
+msgid "Administrator Group"
+msgstr "修改组"
+
+#, fuzzy
+msgid "Domain Admins"
+msgstr "域名"
+
+#, fuzzy
+msgid "Non-Administrator Group"
 msgstr "修改组"
 
 #, fuzzy
 msgid "Initial Template"
 msgstr "模板管理单元"
-
-#, fuzzy
-msgid "Pick a template"
-msgstr "模板管理单元"
-
-msgid "Microsoft AD"
-msgstr ""
-
-msgid "OpenLDAP"
-msgstr ""
-
-msgid "Generic LDAP"
-msgstr ""
 
 #, fuzzy
 msgid "User Name Attribute"
@@ -2192,14 +2201,8 @@ msgid "Bind Password"
 msgstr "域密码"
 
 #, fuzzy
-msgid "Create New LDAP"
-msgstr "新建%s"
-
-msgid "Not able to add"
-msgstr "不能添加"
-
-msgid "Please enter a name for this LDAP server."
-msgstr "这个LDAP服务器输入名称。"
+msgid "An LDAP server name is required!"
+msgstr "图像名是必需的！"
 
 msgid "Please enter a LDAP server address"
 msgstr "请输入LDAP服务器地址"
@@ -2229,7 +2232,7 @@ msgid "Please enter a Group Member Attribute"
 msgstr "请输入LDAP服务器地址"
 
 #, fuzzy
-msgid "A LDAP setup already exists with this name!"
+msgid "An LDAP server already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
@@ -2248,25 +2251,28 @@ msgstr "用户创建"
 msgid "LDAP Create Fail"
 msgstr "用户创建"
 
-#, fuzzy
-msgid "LDAP General"
-msgstr "一般"
+msgid "Please enter a name for this LDAP server."
+msgstr "这个LDAP服务器输入名称。"
 
 #, fuzzy
-msgid "Update LDAP server failed!"
-msgstr "添加管理单元失败！"
+msgid "A LDAP setup already exists with this name!"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+msgid "LDAP Server update failed!"
+msgstr "LDAP服务器名称"
 
 #, fuzzy
 msgid "LDAP Server updated!"
 msgstr "LDAP服务器名称"
 
 #, fuzzy
-msgid "LDAP Update Success"
-msgstr "安装/升级成功！"
+msgid "LDAP Server Update Success"
+msgstr "用户创建"
 
 #, fuzzy
-msgid "LDAP Update Fail"
-msgstr "管理单元更新失败"
+msgid "LDAP Server Update Fail"
+msgstr "LDAP服务器名称"
 
 #, fuzzy
 msgid "Function does not exist"
@@ -3726,38 +3732,11 @@ msgstr "任务名称"
 msgid "Hosts in tasking"
 msgstr "在任务主机"
 
-msgid "Edit Host"
-msgstr "编辑主机"
-
 msgid "Host/Group Name"
 msgstr "主机/组名称"
 
 msgid "Is Group"
 msgstr "是集团"
-
-#, fuzzy
-msgid "All snapins"
-msgstr "所有管理单元"
-
-#, fuzzy
-msgid "Invalid snapin"
-msgstr "无效的管理单元"
-
-#, fuzzy
-msgid "Snapin to be installed"
-msgstr "启用管理单元"
-
-msgid "Cron"
-msgstr "克龙"
-
-msgid "Delayed"
-msgstr "延迟"
-
-msgid "group"
-msgstr "组"
-
-msgid "host"
-msgstr "主办"
 
 msgid "Primary MAC"
 msgstr "主MAC"
@@ -4275,6 +4254,81 @@ msgstr "安装/升级成功！"
 #, fuzzy
 msgid "Host Add to Group Fail"
 msgstr "添加到组"
+
+#, fuzzy
+msgid "Task type is invalid"
+msgstr "任务类型无效"
+
+#, fuzzy
+msgid "Cannot task pending hosts"
+msgstr "无法设置taskings未决的或无效的项目"
+
+#, fuzzy
+msgid "Assigned image is invalid"
+msgstr "用户调用无效"
+
+#, fuzzy
+msgid "Assigned image is not enabled"
+msgstr "图片未启用"
+
+#, fuzzy
+msgid "Assigned image is protected"
+msgstr "未选择或项目被保护"
+
+#, fuzzy
+msgid "Select Snapin to run"
+msgstr "历史管理单元"
+
+#, fuzzy
+msgid "Account Name"
+msgstr "所有访问控制"
+
+#, fuzzy
+msgid "Shutdown when complete"
+msgstr "已被破坏"
+
+msgid "Wake Up"
+msgstr ""
+
+#, fuzzy
+msgid "Debug Task"
+msgstr "调试"
+
+#, fuzzy
+msgid "Schedule Immediately"
+msgstr "时间表"
+
+#, fuzzy
+msgid "Schedule Later"
+msgstr "调度"
+
+#, fuzzy
+msgid "Schedule Crontab Style"
+msgstr "调度"
+
+msgid "Special Crons"
+msgstr ""
+
+msgid "Cron Entry"
+msgstr ""
+
+#, fuzzy
+msgid "min"
+msgstr "分钟"
+
+#, fuzzy
+msgid "hour"
+msgstr "1小时"
+
+msgid "day"
+msgstr ""
+
+#, fuzzy
+msgid "month"
+msgstr "每月一次"
+
+msgid "weekday"
+msgstr ""
 
 #, fuzzy
 msgid "Create New Group"
@@ -4987,23 +5041,13 @@ msgid "Import Reports"
 msgstr "进口主机"
 
 #, fuzzy
-msgid "Import FOG Reports"
+msgid "Import Report"
 msgstr "进口主机"
 
-#, fuzzy
-msgid "Import Report?"
-msgstr "进口主机"
-
-#, fuzzy
-msgid "This section allows you to uploade user"
-msgstr "此设置定义代理用户名使用。"
-
-msgid "defined reports that may not be a part of"
+msgid ""
+"This section allows you to upload user defined reports that may not be a "
+"part of the base FOG install."
 msgstr ""
-
-#, fuzzy
-msgid "the base FOG install"
-msgstr "重启后安装"
 
 msgid "About FOG Reports"
 msgstr "关于FOG报告"
@@ -5836,6 +5880,12 @@ msgstr "完成"
 msgid " * Task Scheduler is globally disabled"
 msgstr ""
 
+msgid "group"
+msgstr "组"
+
+msgid "host"
+msgstr "主办"
+
 msgid "Is a"
 msgstr "是"
 
@@ -6108,16 +6158,9 @@ msgstr "无效的存储节点"
 msgid "Registered"
 msgstr "注册"
 
-msgid "day"
-msgstr ""
-
 #, fuzzy
 msgid "hr"
 msgstr "这里"
-
-#, fuzzy
-msgid "min"
-msgstr "分钟"
 
 #, fuzzy
 msgid "Running Windows"
@@ -6246,6 +6289,12 @@ msgstr "每小时"
 
 msgid "Please Select an option"
 msgstr "请选择一个选项"
+
+msgid "Cron"
+msgstr "克龙"
+
+msgid "Delayed"
+msgstr "延迟"
 
 msgid "Could not read tmp file."
 msgstr "无法读取tmp文件。"
@@ -6394,6 +6443,9 @@ msgstr "无关联的节点"
 msgid "Host Unassociated Snapins"
 msgstr "无关联的节点"
 
+msgid "Edit Host"
+msgstr "编辑主机"
+
 msgid "Edit Image"
 msgstr "编辑图像"
 
@@ -6458,16 +6510,8 @@ msgstr "无效类型"
 msgid "minute"
 msgstr "分钟"
 
-#, fuzzy
-msgid "hour"
-msgstr "1小时"
-
 msgid "day of month"
 msgstr ""
-
-#, fuzzy
-msgid "month"
-msgstr "每月一次"
 
 msgid "day of week"
 msgstr ""
@@ -6608,12 +6652,6 @@ msgstr "失败"
 
 msgid "filesize"
 msgstr "文件大小"
-
-msgid "Load MAC Vendors"
-msgstr "加载MAC供应商"
-
-msgid "Not found"
-msgstr "未找到"
 
 #, fuzzy
 msgid "Delete hosts within"
