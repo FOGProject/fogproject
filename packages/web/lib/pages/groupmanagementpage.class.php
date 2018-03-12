@@ -703,6 +703,7 @@ class GroupManagementPage extends FOGPage
             . _('Delete all PM tasks?')
             . '</label>';
         echo '<div class="col-xs-8">';
+        echo '<div id="delAllPMBox"></div>';
         echo '<button id="delAllPM" type="button" class='
             . '"btn btn-danger btn-block">'
             . _('Delete')
@@ -1000,7 +1001,7 @@ class GroupManagementPage extends FOGPage
         $this->templates = array(
             '<label for="snapin-${snapin_id}">'
             . '<input type="checkbox" name="snapins[]" class='
-            . '"toggle-snapin" id="toggler2" '
+            . '"toggle-snapin" id="toggler3" '
             . 'value="${snapin_id}"/>'
             . '</label>',
             '<a href="?node=snapin&sub=edit&id=${snapin_id}">${snapin_name}</a>',
