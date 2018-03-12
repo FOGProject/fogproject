@@ -95,13 +95,12 @@ class LDAPPluginHook extends Hook
          * our ldap inserted items. If not return as the
          * user is already allowed.
          */
-        $tmpUser = self::getClass('User')
+        $tmpUser = $arguments['user']
             ->set('name', $user)
             ->load('name');
         if ($tmpUser->isValid()) {
             $ldapType = $tmpUser->get('type');
             if (!in_array($ldapType, $ldapTypes)) {
-                $aruments['user'] = $tmpUser;
                 return;
             }
         }
