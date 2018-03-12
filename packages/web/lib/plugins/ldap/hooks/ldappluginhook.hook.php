@@ -133,11 +133,11 @@ class LDAPPluginHook extends Hook
                     ->save();
                 break;
             default:
-                $tmpUser = new User(0);
+                $tmpUser = new User(-1);
             }
+            unset($ldap);
         }
         $arguments['user'] = $tmpUser;
-        unset($ldaps);
     }
     /**
      * Sets our ldap types
@@ -148,10 +148,9 @@ class LDAPPluginHook extends Hook
      */
     public function setLdapType($arguments)
     {
-        $type = (int)$arguments['type'];
-        if ($type === self::LDAP_ADMIN) {
+        if ($arguments['type'] == self::LDAP_ADMIN) {
             $arguments['type'] = 0;
-        } else if ($type === self::LDAP_MOBILE) {
+        } else if ($arguments['type'] == self::LDAP_MOBILE) {
             $arguments['type'] = 1;
         }
     }

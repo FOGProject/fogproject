@@ -1021,7 +1021,7 @@ class LDAPManagementPage extends FOGPage
             ->set('address', $address)
             ->set('searchDN', $searchDN)
             ->set('port', $port)
-            ->set('userNamAttr', $userNamAttr)
+            ->set('userNamAttr', $userNameAttr)
             ->set('grpMemberAttr', $grpMemberAttr)
             ->set('adminGroup', $adminGroup)
             ->set('userGroup', $userGroup)
