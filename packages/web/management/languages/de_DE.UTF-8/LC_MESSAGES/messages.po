@@ -6755,17 +6755,6 @@ msgstr "Erfolgreich"
 msgid "Schedule Power"
 msgstr "plane Power"
 
-#, fuzzy
-msgid "hours"
-msgstr "Stunde"
-
-#, fuzzy
-msgid "dayOfMonth"
-msgstr "Tag (Monat)"
-
-msgid "dayOfWeek"
-msgstr ""
-
 msgid "On Demand"
 msgstr ""
 

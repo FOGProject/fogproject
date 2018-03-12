@@ -6167,17 +6167,6 @@ msgstr "Riuscito"
 msgid "Schedule Power"
 msgstr "Pianifica spegnimento"
 
-#, fuzzy
-msgid "hours"
-msgstr "ora"
-
-#, fuzzy
-msgid "dayOfMonth"
-msgstr "giorno del mese"
-
-msgid "dayOfWeek"
-msgstr ""
-
 msgid "On Demand"
 msgstr ""
 

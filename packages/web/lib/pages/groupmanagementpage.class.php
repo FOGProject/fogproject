@@ -1084,9 +1084,7 @@ class GroupManagementPage extends FOGPage
             $level = filter_input(INPUT_POST, 'level');
             self::getClass('HostManager')
                 ->update(
-                    [
-                        'id' => $this->get('hosts'),
-                    ],
+                    ['id' => $this->get('hosts')],
                     '',
                     ['printerLevel' => $level]
                 );
@@ -1145,8 +1143,6 @@ class GroupManagementPage extends FOGPage
 
         echo '<!-- Snapins -->';
         echo '<div class="box-group" id="snapins">';
-        // =================================================================
-        // Associated Snapins
         $buttons = self::makeButton(
             'snapins-add',
             _('Add selected'),
@@ -1239,9 +1235,6 @@ class GroupManagementPage extends FOGPage
 
         echo '<!-- Modules/Service Settings -->';
         echo '<div class="box-group" id="modules">';
-        // =============================================================
-        // Associated Modules
-        // Buttons for this.
         $buttons = self::makeButton(
             'modules-update',
             _('Update'),

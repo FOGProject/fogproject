@@ -6744,16 +6744,6 @@ msgstr "Successful"
 msgid "Schedule Power"
 msgstr "Scheduler"
 
-#, fuzzy
-msgid "hours"
-msgstr "1 hour"
-
-msgid "dayOfMonth"
-msgstr ""
-
-msgid "dayOfWeek"
-msgstr ""
-
 msgid "On Demand"
 msgstr ""
 
