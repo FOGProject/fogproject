@@ -1018,8 +1018,6 @@ class GroupManagementPage extends FOGPage
         echo '</div>';
         echo '</form>';
 
-        // =========================================================
-        // Associated Printers
         $buttons = self::makeButton(
             'printer-default',
             _('Update default'),
@@ -1049,9 +1047,7 @@ class GroupManagementPage extends FOGPage
             ''
         ];
         $this->attributes = [
-            [
-                'class' => 'col-md-1'
-            ],
+            ['width' => '5'],
             [],
             []
         ];
