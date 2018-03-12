@@ -680,13 +680,19 @@ class GroupManagementPage extends FOGPage
                 $labelClass,
                 'image',
                 _('Group Image')
-            ) => $imageSelection
+            ) => $imageSelector
         ];
+        $buttons = self::makeButton(
+            'image-send',
+            _('Update'),
+            'btn btn-primary'
+        );
 
         self::$HookManager->processEvent(
             'GROUP_IMAGE_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Group' => &$this->obj
             ]
         );
@@ -709,11 +715,7 @@ class GroupManagementPage extends FOGPage
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
-        echo self::makeButton(
-            'image-send',
-            _('Update'),
-            'btn btn-primary'
-        );
+        echo $buttons;
         echo '</div>';
         echo '</div>';
         echo '</form>';
