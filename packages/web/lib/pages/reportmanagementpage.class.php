@@ -166,10 +166,11 @@ class ReportManagementPage extends FOGPage
                 . _('Max Size')
                 . ': '
                 . ini_get('post_max_size')
+                . ')'
             ) => '<div class="input-group">'
             . self::makeLabel(
                 'input-group-btn',
-                '',
+                'import',
                 '<span class="btn btn-info">'
                 . _('Browse')
                 . self::makeInput(
@@ -177,7 +178,9 @@ class ReportManagementPage extends FOGPage
                     'report',
                     '',
                     'file',
-                    'import'
+                    'import',
+                    '',
+                    true
                 )
                 . '</span>'
             )
@@ -195,6 +198,7 @@ class ReportManagementPage extends FOGPage
                 '',
                 true
             )
+            . '</div>'
         ];
         self::$HookManager->processEvent(
             'IMPORT_REPORT_FIELDS',
