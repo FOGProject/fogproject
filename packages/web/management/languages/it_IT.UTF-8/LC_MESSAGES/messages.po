@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-12 15:35-0400\n"
+"POT-Creation-Date: 2018-03-12 19:56-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4134,6 +4134,14 @@ msgstr "Aggiornamento del gruppo completato"
 
 msgid "Group Update Fail"
 msgstr "Aggiornamento gruppo non riuscito"
+
+#, fuzzy
+msgid "There are no hosts to task"
+msgstr "Non ci sono host a cui affidare compiti in questo gruppo"
+
+#, fuzzy
+msgid "Groups cannot create capture tasks"
+msgstr "e non può essere catturato"
 
 #, fuzzy
 msgid "Total Clients"

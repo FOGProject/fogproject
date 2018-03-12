@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-12 15:35-0400\n"
+"POT-Creation-Date: 2018-03-12 19:56-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4467,6 +4467,14 @@ msgstr "Gruppe erfolgreich aktualisiert"
 #, fuzzy
 msgid "Group Update Fail"
 msgstr "Gruppe aktualisieren fehlgeschlagen"
+
+#, fuzzy
+msgid "There are no hosts to task"
+msgstr "Es gibt keine Hosts in dieser Gruppe"
+
+#, fuzzy
+msgid "Groups cannot create capture tasks"
+msgstr "und kann nicht hochgeladen werden"
 
 #, fuzzy
 msgid "Total Clients"

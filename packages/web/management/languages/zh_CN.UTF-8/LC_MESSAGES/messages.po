@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-12 15:35-0400\n"
+"POT-Creation-Date: 2018-03-12 19:56-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4450,6 +4450,13 @@ msgstr "用户创建"
 #, fuzzy
 msgid "Group Update Fail"
 msgstr "集团创建失败"
+
+#, fuzzy
+msgid "There are no hosts to task"
+msgstr "有此服务器上没有组。"
+
+msgid "Groups cannot create capture tasks"
+msgstr ""
 
 #, fuzzy
 msgid "Total Clients"
