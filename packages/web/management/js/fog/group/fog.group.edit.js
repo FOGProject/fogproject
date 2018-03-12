@@ -426,7 +426,7 @@
         printerDefaultBtn.prop('disabled', true);
 
         var method = printerRemoveBtn.attr('method'),
-            action = printerRemoveBtn.attr('method'),
+            action = printerRemoveBtn.attr('action'),
             rows = printersTable.rows({selected: true}),
             toRemove = Common.getSelectedIds(printersTable),
             opts = {
