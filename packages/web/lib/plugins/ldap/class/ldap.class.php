@@ -724,11 +724,17 @@ class LDAP extends FOGController
             /**
              * Tests the presence of our admin group
              */
-            $admin = strpos($dn, $adminGroup);
+            $admin = false;
+            if ($adminGroup) {
+                $admin = strpos($dn, $adminGroup);
+            }
             /**
              * Tests the presence of our mobile group
              */
-            $user = strpos($dn, $userGroup);
+            $user = false;
+            if ($userGroup) {
+                $user = strpos($dn, $userGroup);
+            }
             /**
              * If we can't find our relative dn
              * set go back to top of loop.
