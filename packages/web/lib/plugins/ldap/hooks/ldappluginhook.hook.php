@@ -25,6 +25,9 @@
  */
 class LDAPPluginHook extends Hook
 {
+    const LDAP_TYPES = ['990', '991'];
+    const LDAP_ADMIN = '990';
+    const LDAP_MOBILE = '991';
     /**
      * The name of this hook.
      *
@@ -57,35 +60,22 @@ class LDAPPluginHook extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'USER_LOGGING_IN',
-                array(
-                    $this,
-                    'checkAddUser'
-                )
-            )
-            ->register(
-                'USER_TYPE_HOOK',
-                array(
-                    $this,
-                    'setLdapType'
-                )
-            )
-            ->register(
-                'USER_TYPES_FILTER',
-                array(
-                    $this,
-                    'setTypeFilter'
-                )
-            )
-            ->register(
-                'USER_TYPE_VALID',
-                array(
-                    $this,
-                    'isLdapType'
-                )
-            );
+        if (!in_array($this->node, self::$pluginsinstalled)) {
+            return;
+        }
+        self::$HookManager->register(
+            'USER_LOGGING_IN',
+            [$this, 'checkAddUser']
+        )->register(
+            'USER_TYPE_HOOK',
+            [$this, 'setLdapType']
+        )->register(
+            'USER_TYPES_FILTER',
+            [$this, 'setTypeFilter']
+        )->register(
+            'USER_TYPE_VALID',
+            [$this, 'isLdapType']
+        );
     }
     /**
      * Checks and creates users if they're valid
@@ -97,12 +87,9 @@ class LDAPPluginHook extends Hook
      */
     public function checkAddUser($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         $user = trim($arguments['username']);
         $pass = trim($arguments['password']);
-        $ldapTypes = array(990, 991);
+        $ldapTypes = self::LDAP_TYPES;
         /**
          * Check the user and validate the type is not
          * our ldap inserted items. If not return as the
@@ -121,10 +108,12 @@ class LDAPPluginHook extends Hook
         /**
          * Create our new user (initially at least)
          */
-        foreach ((array)self::getClass('LDAPManager')
-            ->find() as &$ldap
-        ) {
-            $access = $ldap->authLDAP($user, $pass);
+        Route::listem('ldap');
+        $items = json_decode(
+            Route::getData()
+        );
+        foreach ($items->data as &$ldap) {
+            $access = self::getClass('LDAP', $ldap->id)->authLDAP($user, $pass);
             unset($ldap);
             switch ($access) {
             case 2:
@@ -132,7 +121,7 @@ class LDAPPluginHook extends Hook
                 $tmpUser
                     ->set('name', $user)
                     ->set('password', $pass)
-                    ->set('type', 990)
+                    ->set('type', self::LDAP_ADMIN)
                     ->save();
                 break 2;
             case 1:
@@ -140,11 +129,11 @@ class LDAPPluginHook extends Hook
                 $tmpUser
                     ->set('name', $user)
                     ->set('password', $pass)
-                    ->set('type', 991)
+                    ->set('type', self::LDAP_MOBILE)
                     ->save();
                 break;
             default:
-                $tmpUser = new User();
+                $tmpUser = new User(0);
             }
         }
         $arguments['user'] = $tmpUser;
@@ -159,13 +148,10 @@ class LDAPPluginHook extends Hook
      */
     public function setLdapType($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         $type = (int)$arguments['type'];
-        if ($type === 990) {
+        if ($type === self::LDAP_ADMIN) {
             $arguments['type'] = 0;
-        } elseif ($type === 991) {
+        } else if ($type === self::LDAP_MOBILE) {
             $arguments['type'] = 1;
         }
     }
@@ -178,10 +164,7 @@ class LDAPPluginHook extends Hook
      */
     public function setTypeFilter($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        $arguments['types'] = array(990, 991);
+        $arguments['types'] = self::LDAP_TYPES;
     }
     /**
      * Tests if the user is containing the ldap types.
@@ -192,10 +175,7 @@ class LDAPPluginHook extends Hook
      */
     public function isLdapType($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        $types = array(990, 991);
+        $types = self::LDAP_TYPES;
         if (in_array($arguments['type'], $types)) {
             $arguments['typeIsValid'] = false;
         }

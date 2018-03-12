@@ -62,7 +62,7 @@ class User extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'uId',
         'name' => 'uName',
         'password' => 'uPass',
@@ -72,28 +72,28 @@ class User extends FOGController
         'display' => 'uDisplay',
         'api' => 'uAllowAPI',
         'token' => 'uAPIToken'
-    );
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name',
-        'password',
-    );
+        'password'
+    ];
     /**
      * The additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'authID',
         'authIP',
         'authTime',
         'authLastActivity',
-        'authUserAgent',
-    );
+        'authUserAgent'
+    ];
     /**
      * Generates an encrypted hash
      *
@@ -109,7 +109,7 @@ class User extends FOGController
         return password_hash(
             $password,
             PASSWORD_BCRYPT,
-            ['cost'=>$cost]
+            ['cost' => $cost]
         );
     }
     /**
@@ -135,32 +135,27 @@ class User extends FOGController
             $username
         );
         $tmpUser = new User();
-        self::$HookManager
-            ->processEvent(
-                'USER_LOGGING_IN',
-                array(
-                    'username' => $username,
-                    'password' => $password,
-                    'user' => &$tmpUser
-                )
-            );
+        self::$HookManager->processEvent(
+            'USER_LOGGING_IN',
+            [
+                'username' => $username,
+                'password' => $password,
+                'user' => &$tmpUser
+            ]
+        );
         $typeIsValid = true;
         $type = $tmpUser->get('type');
-        self::$HookManager
-            ->processEvent(
-                'USER_TYPE_HOOK',
-                array(
-                    'type' => &$type
-                )
-            );
-        self::$HookManager
-            ->processEvent(
-                'USER_TYPE_VALID',
-                array(
-                    'type' => &$type,
-                    'typeIsValid' => &$typeIsValid
-                )
-            );
+        self::$HookManager->processEvent(
+            'USER_TYPE_HOOK',
+            ['type' => &$type]
+        );
+        self::$HookManager->processEvent(
+            'USER_TYPE_VALID',
+            [
+                'type' => &$type,
+                'typeIsValid' => &$typeIsValid
+            ]
+        );
         if (!$tmpUser->isValid() && $typeIsValid) {
             $tmpUser = self::getClass('User')
                 ->set('name', $username)
@@ -226,14 +221,8 @@ class User extends FOGController
                 $this->_sessionID = session_id();
             }
             $this
-                ->set(
-                    'authUserAgent',
-                    self::$useragent
-                )
-                ->set(
-                    'authIP',
-                    self::$remoteaddr
-                )
+                ->set('authUserAgent', self::$useragent)
+                ->set('authIP', self::$remoteaddr)
                 ->set('authTime', time())
                 ->set('authLastActivity', time())
                 ->set('authID', $this->_sessionID);
@@ -252,17 +241,17 @@ class User extends FOGController
                 0
             );
             $this->_isLoggedIn();
+            return $this;
         } else {
             if (!$test) {
                 return new self(0);
             }
             if (self::$FOGUser->isValid()) {
                 $type = self::$FOGUser->get('type');
-                self::$HookManager
-                    ->processEvent(
-                        'USER_TYPE_HOOK',
-                        array('type' => &$type)
-                    );
+                self::$HookManager->processEvent(
+                    'USER_TYPE_HOOK',
+                    ['type' => &$type]
+                );
                 $this
                     ->set('id', self::$FOGUser->get('id'))
                     ->set('name', self::$FOGUser->get('name'))
@@ -272,14 +261,8 @@ class User extends FOGController
                     $this->_sessionID = session_id();
                 }
                 $this
-                    ->set(
-                        'authUserAgent',
-                        self::$useragent
-                    )
-                    ->set(
-                        'authIP',
-                        self::$remoteaddr
-                    )
+                    ->set('authUserAgent', self::$useragent)
+                    ->set('authIP', self::$remoteaddr)
                     ->set('authTime', time())
                     ->set('authLastActivity', time())
                     ->set('authID', $this->_sessionID);
@@ -314,16 +297,15 @@ class User extends FOGController
             );
             self::$EventManager->notify(
                 'LoginFail',
-                array('Failure' => $username)
+                ['Failure' => $username]
             );
             self::$HookManager->processEvent(
                 'LoginFail',
-                array(
+                [
                     'username' => &$username,
                     'password' => &$password
-                )
+                ]
             );
-            self::setMessage(self::$foglang['InvalidLogin']);
             if (session_status() != PHP_SESSION_NONE) {
                 $_SESSION['OBSOLETE'] = true;
             }
@@ -392,13 +374,13 @@ class User extends FOGController
                 $this->_regenerateSessionTimeout,
             ) = self::getSubObjectIDs(
                 'Service',
-                array(
-                    'name' => array(
+                [
+                    'name' => [
                         'FOG_ALWAYS_LOGGED_IN',
                         'FOG_INACTIVITY_TIMEOUT',
                         'FOG_REGENERATE_TIMEOUT',
-                    )
-                ),
+                    ]
+                ],
                 'value',
                 false,
                 'AND',
@@ -507,6 +489,6 @@ class User extends FOGController
         session_destroy();
         session_write_close();
         session_start();
-        $_SESSION=array();
+        $_SESSION=[];
     }
 }

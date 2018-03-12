@@ -53,13 +53,12 @@ class AddLDAPType extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'REPORT_TYPES',
-                array(
-                    $this,
-                    'reportTypes'
-                )
-            );
+        if (!in_array($this->node, self::$pluginsinstalled)) {
+            return;
+        }
+        self::$HookManager->register(
+            'REPORT_TYPES',
+            [$this, 'reportTypes']
+        );
     }
 }

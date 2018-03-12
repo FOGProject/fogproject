@@ -478,7 +478,7 @@ class ImageManagementPage extends FOGPage
             );
         }
         //header(
-        //    'Location: ../management/index.php?node=host&sub=edit&id='
+        //    'Location: ../management/index.php?node=image&sub=edit&id='
         //    . $Image->get('id')
         //);
         self::$HookManager->processEvent(
@@ -791,17 +791,6 @@ class ImageManagementPage extends FOGPage
             )
         ];
 
-        self::$HookManager
-            ->processEvent(
-                'IMAGE_GENERAL_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'Image' => &$this->obj
-                ]
-            );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
@@ -812,6 +801,17 @@ class ImageManagementPage extends FOGPage
             _('Delete'),
             'btn btn-danger pull-right'
         );
+
+        self::$HookManager->processEvent(
+            'IMAGE_GENERAL_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'Image' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
 
         echo self::makeFormTag(
             'form-horizontal',

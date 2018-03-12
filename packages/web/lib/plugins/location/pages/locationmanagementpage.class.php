@@ -105,14 +105,13 @@ class LocationManagementPage extends FOGPage
             . ')</label>' => '<input type="checkbox" name="bootfrom" '
             . 'class="bootfrom" id="bootfrom" checked/>'
         ];
-        self::$HookManager
-            ->processEvent(
-                'LOCATION_ADD_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'Location' => self::getClass('Location')
-                ]
-            );
+        self::$HookManager->processEvent(
+            'LOCATION_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'Location' => self::getClass('Location')
+            ]
+        );
         $rendered = self::formFields($fields);
         unset($fields);
         echo '<div class="box box-solid" id="location-create">';
