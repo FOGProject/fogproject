@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-11 03:06-0400\n"
+"POT-Creation-Date: 2018-03-12 15:35-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2267,6 +2267,14 @@ msgid "Rule Update Fail"
 msgstr "Grupo Error de creación"
 
 #, fuzzy
+msgid "Export LDAP Settings"
+msgstr "snapins"
+
+#, fuzzy
+msgid "Import LDAP Settings"
+msgstr "snapins"
+
+#, fuzzy
 msgid "LDAP Servers"
 msgstr "servidor TFTP"
 
@@ -2274,26 +2282,8 @@ msgstr "servidor TFTP"
 msgid "LDAP Management"
 msgstr "Gestión de usuarios"
 
-#, fuzzy
-msgid "Export LDAPs"
-msgstr "Exportar PDF"
-
-#, fuzzy
-msgid "Import LDAPs"
-msgstr "Importar"
-
-msgid "LDAP Connection Name"
-msgstr ""
-
-msgid "LDAP Server Address"
-msgstr ""
-
 msgid "LDAP Connection  Name"
 msgstr ""
-
-#, fuzzy
-msgid "LDAP Server Description"
-msgstr "Descripción de la impresora"
 
 #, fuzzy
 msgid "LDAP Server"
@@ -2307,8 +2297,8 @@ msgid "Admin Group"
 msgstr "modificar Grupo"
 
 #, fuzzy
-msgid "New LDAP Server"
-msgstr "Servidor web"
+msgid "Create New LDAP Server"
+msgstr "Crear nuevo grupo"
 
 msgid "Base Only"
 msgstr ""
@@ -2319,11 +2309,35 @@ msgstr ""
 msgid "Subree and Below"
 msgstr ""
 
+msgid "Microsoft AD"
+msgstr ""
+
+msgid "OpenLDAP"
+msgstr ""
+
+msgid "Generic LDAP"
+msgstr ""
+
+#, fuzzy
+msgid "LDAP Server Name"
+msgstr "servidor TFTP"
+
+#, fuzzy
+msgid "LDAP Server Description"
+msgstr "Descripción de la impresora"
+
+msgid "LDAP Server Address"
+msgstr ""
+
 #, fuzzy
 msgid "LDAP Server Port"
 msgstr "Puerto de impresora"
 
-msgid "Use Group Matching (recommended)"
+#, fuzzy
+msgid "Group Matching"
+msgstr "Lista de host"
+
+msgid "recommended"
 msgstr ""
 
 #, fuzzy
@@ -2335,23 +2349,18 @@ msgid "Group Search DN"
 msgstr "Disco de grupo primario"
 
 #, fuzzy
-msgid "Mobile Group"
+msgid "Administrator Group"
+msgstr "modificar Grupo"
+
+#, fuzzy
+msgid "Domain Admins"
+msgstr "Nombre de dominio"
+
+#, fuzzy
+msgid "Non-Administrator Group"
 msgstr "modificar Grupo"
 
 msgid "Initial Template"
-msgstr ""
-
-#, fuzzy
-msgid "Pick a template"
-msgstr "snapin replicador"
-
-msgid "Microsoft AD"
-msgstr ""
-
-msgid "OpenLDAP"
-msgstr ""
-
-msgid "Generic LDAP"
 msgstr ""
 
 #, fuzzy
@@ -2373,15 +2382,8 @@ msgid "Bind Password"
 msgstr "Contraseña de dominio"
 
 #, fuzzy
-msgid "Create New LDAP"
-msgstr "Crear nuevo grupo"
-
-#, fuzzy
-msgid "Not able to add"
-msgstr "Ningún archivo subido"
-
-msgid "Please enter a name for this LDAP server."
-msgstr ""
+msgid "An LDAP server name is required!"
+msgstr "Se requiere un nombre de imagen!"
 
 msgid "Please enter a LDAP server address"
 msgstr ""
@@ -2407,7 +2409,7 @@ msgid "Please enter a Group Member Attribute"
 msgstr ""
 
 #, fuzzy
-msgid "A LDAP setup already exists with this name!"
+msgid "An LDAP server already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
@@ -2426,25 +2428,28 @@ msgstr "creado por el usuario"
 msgid "LDAP Create Fail"
 msgstr "creado por el usuario"
 
-#, fuzzy
-msgid "LDAP General"
-msgstr "General"
+msgid "Please enter a name for this LDAP server."
+msgstr ""
 
 #, fuzzy
-msgid "Update LDAP server failed!"
-msgstr "Añadir fallidos SNAPin!"
+msgid "A LDAP setup already exists with this name!"
+msgstr "Una imagen ya existe con este nombre!"
+
+#, fuzzy
+msgid "LDAP Server update failed!"
+msgstr "Impresora actualiza!"
 
 #, fuzzy
 msgid "LDAP Server updated!"
 msgstr "Impresora actualiza!"
 
 #, fuzzy
-msgid "LDAP Update Success"
-msgstr "actualización de servicio no pudo"
+msgid "LDAP Server Update Success"
+msgstr "creado por el usuario"
 
 #, fuzzy
-msgid "LDAP Update Fail"
-msgstr "actualización de servicio no pudo"
+msgid "LDAP Server Update Fail"
+msgstr "Impresora actualiza!"
 
 #, fuzzy
 msgid "Function does not exist"
@@ -3956,38 +3961,11 @@ msgstr "Nombre de la tarea"
 msgid "Hosts in tasking"
 msgstr "Anfitriones en tareas"
 
-msgid "Edit Host"
-msgstr "Editar anfitrión"
-
 msgid "Host/Group Name"
 msgstr "Host / Nombre del grupo"
 
 msgid "Is Group"
 msgstr "grupo está"
-
-#, fuzzy
-msgid "All snapins"
-msgstr "snapin"
-
-#, fuzzy
-msgid "Invalid snapin"
-msgstr "carpeta no válida"
-
-#, fuzzy
-msgid "Snapin to be installed"
-msgstr "Nombre snapin"
-
-msgid "Cron"
-msgstr "cron"
-
-msgid "Delayed"
-msgstr "Retrasado"
-
-msgid "group"
-msgstr "grupo"
-
-msgid "host"
-msgstr "anfitrión"
 
 #, fuzzy
 msgid "Primary MAC"
@@ -4521,6 +4499,81 @@ msgstr "actualización Valoración falló"
 #, fuzzy
 msgid "Host Add to Group Fail"
 msgstr "Añadir al grupo"
+
+#, fuzzy
+msgid "Task type is invalid"
+msgstr "tipo de tarea no es válida"
+
+#, fuzzy
+msgid "Cannot task pending hosts"
+msgstr "No se puede establecer taskings de pendiente o elementos no válidos"
+
+#, fuzzy
+msgid "Assigned image is invalid"
+msgstr "imagen asignado"
+
+#, fuzzy
+msgid "Assigned image is not enabled"
+msgstr "La imagen no está habilitada"
+
+#, fuzzy
+msgid "Assigned image is protected"
+msgstr "Ninguna seleccionada o artículo está protegido"
+
+#, fuzzy
+msgid "Select Snapin to run"
+msgstr "Camino snapin"
+
+#, fuzzy
+msgid "Account Name"
+msgstr "impresora iPrint"
+
+#, fuzzy
+msgid "Shutdown when complete"
+msgstr "Deben estar cifrados"
+
+msgid "Wake Up"
+msgstr ""
+
+#, fuzzy
+msgid "Debug Task"
+msgstr "Opciones de arranque:"
+
+#, fuzzy
+msgid "Schedule Immediately"
+msgstr "Programar"
+
+#, fuzzy
+msgid "Schedule Later"
+msgstr "Programador"
+
+#, fuzzy
+msgid "Schedule Crontab Style"
+msgstr "Programador"
+
+msgid "Special Crons"
+msgstr ""
+
+msgid "Cron Entry"
+msgstr ""
+
+#, fuzzy
+msgid "min"
+msgstr "minutos"
+
+#, fuzzy
+msgid "hour"
+msgstr "1 hora"
+
+msgid "day"
+msgstr ""
+
+#, fuzzy
+msgid "month"
+msgstr "Mensual"
+
+msgid "weekday"
+msgstr ""
 
 #, fuzzy
 msgid "Create New Group"
@@ -5242,21 +5295,12 @@ msgid "Import Reports"
 msgstr "Importar"
 
 #, fuzzy
-msgid "Import FOG Reports"
+msgid "Import Report"
 msgstr "Importar"
 
-#, fuzzy
-msgid "Import Report?"
-msgstr "Importar"
-
-#, fuzzy
-msgid "This section allows you to uploade user"
-msgstr "Este ajuste define el nombre de usuario proxy para utilizar."
-
-msgid "defined reports that may not be a part of"
-msgstr ""
-
-msgid "the base FOG install"
+msgid ""
+"This section allows you to upload user defined reports that may not be a "
+"part of the base FOG install."
 msgstr ""
 
 msgid "About FOG Reports"
@@ -6093,6 +6137,12 @@ msgstr "suprimido"
 msgid " * Task Scheduler is globally disabled"
 msgstr ""
 
+msgid "group"
+msgstr "grupo"
+
+msgid "host"
+msgstr "anfitrión"
+
 msgid "Is a"
 msgstr ""
 
@@ -6366,16 +6416,9 @@ msgstr "nodo de almacenamiento no válido"
 msgid "Registered"
 msgstr "Registrado"
 
-msgid "day"
-msgstr ""
-
 #, fuzzy
 msgid "hr"
 msgstr "aquí"
-
-#, fuzzy
-msgid "min"
-msgstr "minutos"
 
 #, fuzzy
 msgid "Running Windows"
@@ -6504,6 +6547,12 @@ msgstr "Cada hora"
 
 msgid "Please Select an option"
 msgstr "Por favor seleccione una opción"
+
+msgid "Cron"
+msgstr "cron"
+
+msgid "Delayed"
+msgstr "Retrasado"
 
 msgid "Could not read tmp file."
 msgstr "No se pudo leer el archivo tmp."
@@ -6652,6 +6701,9 @@ msgstr "No nodo asociado"
 msgid "Host Unassociated Snapins"
 msgstr "No nodo asociado"
 
+msgid "Edit Host"
+msgstr "Editar anfitrión"
+
 msgid "Edit Image"
 msgstr "Editar imagen"
 
@@ -6716,16 +6768,8 @@ msgstr "tipo no válido"
 msgid "minute"
 msgstr "minutos"
 
-#, fuzzy
-msgid "hour"
-msgstr "1 hora"
-
 msgid "day of month"
 msgstr ""
-
-#, fuzzy
-msgid "month"
-msgstr "Mensual"
 
 msgid "day of week"
 msgstr ""
@@ -6867,12 +6911,6 @@ msgstr "Ha fallado"
 
 msgid "filesize"
 msgstr "tamaño del archivo"
-
-msgid "Load MAC Vendors"
-msgstr "Los vendedores cargar MAC"
-
-msgid "Not found"
-msgstr "Extraviado"
 
 #, fuzzy
 msgid "Delete hosts within"
