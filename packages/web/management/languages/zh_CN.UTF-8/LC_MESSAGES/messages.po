@@ -6727,16 +6727,6 @@ msgstr "成功"
 msgid "Schedule Power"
 msgstr "调度"
 
-#, fuzzy
-msgid "hours"
-msgstr "1小时"
-
-msgid "dayOfMonth"
-msgstr ""
-
-msgid "dayOfWeek"
-msgstr ""
-
 msgid "On Demand"
 msgstr ""
 

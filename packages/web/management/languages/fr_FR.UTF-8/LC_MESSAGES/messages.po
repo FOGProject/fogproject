@@ -6766,16 +6766,6 @@ msgstr "Réussi"
 msgid "Schedule Power"
 msgstr "Planificateur"
 
-#, fuzzy
-msgid "hours"
-msgstr "1 heure"
-
-msgid "dayOfMonth"
-msgstr ""
-
-msgid "dayOfWeek"
-msgstr ""
-
 msgid "On Demand"
 msgstr ""
 
