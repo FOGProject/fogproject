@@ -161,7 +161,7 @@ class User extends FOGController
                     'typeIsValid' => &$typeIsValid
                 )
             );
-        if (!$tmpUser->isValid() && $typeIsValid) {
+        if ($tmpUser->get('id') > -1 && !$tmpUser->isValid() && $typeIsValid) {
             $tmpUser = self::getClass('User')
                 ->set('name', $username)
                 ->load('name');

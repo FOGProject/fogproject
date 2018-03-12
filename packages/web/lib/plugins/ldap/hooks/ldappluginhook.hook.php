@@ -144,7 +144,7 @@ class LDAPPluginHook extends Hook
                     ->save();
                 break;
             default:
-                $tmpUser = new User();
+                $tmpUser = new User(-1);
             }
         }
         $arguments['user'] = $tmpUser;
