@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-12 19:44-0400\n"
+"POT-Creation-Date: 2018-03-12 19:56-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3883,6 +3883,12 @@ msgid "Group Update Success"
 msgstr ""
 
 msgid "Group Update Fail"
+msgstr ""
+
+msgid "There are no hosts to task"
+msgstr ""
+
+msgid "Groups cannot create capture tasks"
 msgstr ""
 
 msgid "Total Clients"
