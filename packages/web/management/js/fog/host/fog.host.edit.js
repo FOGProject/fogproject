@@ -907,11 +907,11 @@
     var powermanagementForm = $('#host-powermanagement-cron-form'),
         powermanagementFormBtn = $('#powermanagement-send'),
         // Insert Form cron elements.
-        minutes = $('.scheduleCronMin', powermanagementForm),
-        hours = $('.scheduleCronHour', powermanagementForm),
-        dom = $('.scheduleCronDOM', powermanagementForm),
-        month = $('.scheduleCronMonth', powermanagementForm),
-        dow = $('.scheduleCronDOW', powermanagementForm),
+        minutes = $('.cronmin', powermanagementForm),
+        hours = $('.cronhour', powermanagementForm),
+        dom = $('.crondom', powermanagementForm),
+        month = $('.cronmonth', powermanagementForm),
+        dow = $('.crondow', powermanagementForm),
         ondemand = $('#scheduleOnDemand', powermanagementForm),
         specialCrons = $('.specialCrons', powermanagementForm);
 
@@ -959,7 +959,7 @@
                 month.val('*');
                 dow.val('0');
                 break;
-            case 'monthy':
+            case 'monthly':
                 minutes.val('0');
                 hours.val('0');
                 dom.val('1');
@@ -981,6 +981,14 @@
                 dow.val('');
                 break;
         }
+    });
+
+    // When On Demand checked remove the cron layout.
+    ondemand.on('ifChecked', function(e) {
+        $(this).parents('.box-body').find('.form-group:eq(0)').addClass('hidden');
+    });
+    ondemand.on('ifUnchecked', function(e) {
+        $(this).parents('.box-body').find('.form-group:eq(0)').removeClass('hidden');
     });
 
     // The Power Management List element.

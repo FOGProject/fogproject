@@ -3330,37 +3330,73 @@ abstract class FOGPage extends FOGBase
             . $this->childClass
             . ' '
             . _('List');
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="importfile">'
-            . _('Import CSV')
-            . '<br/>('
-            . _('Max Size')
-            . ': '
-            . ini_get('post_max_size')
-            . ')</label>' => '<div class="input-group">'
-            . '<label class="input-group-btn">'
-            . '<span class="btn btn-info">'
-            . _('Browse')
-            . '<input type="file" class="hidden" name="file" id="importfile"/>'
-            . '</span>'
-            . '</label>'
-            . '<input type="text" class="form-control filedisp" readonly/>'
+            self::makeLabel(
+                'col-sm-2 control-label',
+                'import',
+                _('Import CSV')
+                . '<br/>('
+                . _('Max Size')
+                . ': '
+                . ini_get('post_max_size')
+                . ')'
+            ) => '<div class="input-group">'
+            . self::makeLabel(
+                'input-group-btn',
+                'import',
+                '<span class="btn btn-info">'
+                . _('Browse')
+                . self::makeInput(
+                    'hidden',
+                    'file',
+                    '',
+                    'file',
+                    'import',
+                    '',
+                    true
+                ) . '</span>'
+            ) . self::makeInput(
+                'form-control filedisp',
+                '',
+                '',
+                'text',
+                '',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            )
             . '</div>'
         ];
-        self::$HookManager->processEvent(
-            'IMPORT_FIELDS',
-            ['fields' => &$fields]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
         $buttons = self::makeButton(
             'import-send',
             _('Import'),
             'btn btn-primary'
         );
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '" enctype="multipart/form-data" id="import-form">';
+
+        self::$HookManager->processEvent(
+            'IMPORT_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'obj' => self::getClass($this->childClass)
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'import-form',
+            $this->formAction,
+            'post',
+            'multipart/form-data',
+            true
+        );
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -3651,91 +3687,113 @@ abstract class FOGPage extends FOGBase
     public function newPMDisplay()
     {
         global $node;
+
+        $action = filter_input(INPUT_POST, 'action');
+
+        $labelClass = 'col-sm-2 control-label';
+
         // New data
         $fields = [
-            '<label class="col-sm-2 control-label">'
-            . _('Schedule Power')
-            . '</label>' => '<div class="cronOptions">'
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('Schedule Power')
+            ) => '<div class="cronOptions">'
             . FOGCron::buildSpecialCron('specialCrons')
             . '</div>'
-            . '<div class="col-sm-12">'
-            . '<div class="cronInputs">'
-            . '<div class="col-sm-2">'
-            . '<input type="text" name="scheduleCronMin" '
-            . 'placeholder="'
-            . _('minutes')
-            . '" autocomplete="off" class="form-control '
-            . 'scheduleCronMin cronInput"/>'
-            . '</div>'
-            . '<div class="col-sm-2">'
-            . '<input type="text" name="scheduleCronHour" '
-            . 'placeholder="'
-            . _('hours')
-            . '" autocomplete="off" class="form-control '
-            . 'scheduleCronHour cronInput"/>'
-            . '</div>'
-            . '<div class="col-sm-2">'
-            . '<input type="text" name="scheduleCronDOM" '
-            . 'placeholder="'
-            . _('dayOfMonth')
-            . '" autocomplete="off" class="form-control '
-            . 'scheduleCronDOM cronInput"/>'
-            . '</div>'
-            . '<div class="col-sm-2">'
-            . '<input type="text" name="scheduleCronMonth" '
-            . 'placeholder="'
-            . _('month')
-            . '" autocomplete="off" class="form-control '
-            . 'scheduleCronMonth cronInput"/>'
-            . '</div>'
-            . '<div class="col-sm-2">'
-            . '<input type="text" name="scheduleCronDOW" '
-            . 'placeholder="'
-            . _('dayOfWeek')
-            . '" autocomplete="off" class="form-control '
-            . 'scheduleCronDOW cronInput"/>'
-            . '</div>'
-            . '</div>'
-            . '</div>',
-            '<label for="scheduleOnDemand" class="col-sm-2 control-label">'
-            . _('On Demand')
-            . '</label>' => '<input type="checkbox" name="onDemand" id='
-            . '"scheduleOnDemand"'
-            . (
-                isset($_POST['onDemand']) ?
-                ' checked' :
-                ''
+            . self::makeInput(
+                'col-sm-2 croninput cronmin',
+                'scheduleCronMin',
+                _('min'),
+                'text',
+                'cronMin'
             )
-            . '/>',
-            '<label for="action" class="col-sm-2 control-label">'
-            . _('Action')
-            . '</label>' => self::getClass(
-                'PowerManagementManager'
-            )->getActionSelect(
-                filter_input(INPUT_POST, 'action'),
+            . self::makeInput(
+                'col-sm-2 croninput cronhour',
+                'scheduleCronHour',
+                _('hour'),
+                'text',
+                'cronHour'
+            )
+            . self::makeInput(
+                'col-sm-2 croninput crondom',
+                'scheduleCronDOM',
+                _('day'),
+                'text',
+                'cronDom'
+            )
+            . self::makeInput(
+                'col-sm-2 croninput cronmonth',
+                'scheduleCronMonth',
+                _('month'),
+                'text',
+                'cronMonth'
+            )
+            . self::makeInput(
+                'col-sm-2 croninput crondow',
+                'scheduleCronDOW',
+                _('weekday'),
+                'text',
+                'cronDow'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'scheduleOnDemand',
+                _('On Demand')
+            ) => self::makeInput(
+                '',
+                'onDemand',
+                '',
+                'checkbox',
+                'scheduleOnDemand',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                (
+                    isset($_POST['onDemand']) ?
+                    'checked' :
+                    ''
+                )
+            ),
+            self::makeLabel(
+                $labelClass,
+                'action',
+                _('Action')
+            ) => self::getClass('PowerManagementManager')->getActionSelect(
+                $action,
                 false,
                 'action'
             )
         ];
+
+        $buttons = self::makeButton(
+            'powermanagement-send',
+            _('Add'),
+            'btn btn-primary'
+        );
         self::$HookManager->processEvent(
             sprintf('%s_POWERMANAGEMENT_CRON_FIELDS', strtoupper($this->node)),
-            array(
+            [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'obj' => $this->obj
-            )
+            ]
         );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<form id="'
-            . $node
-            . '-powermanagement-cron-form" '
-            . 'class="form-horizontal" method="post" action="'
-            . self::makeTabUpdateURL(
-                $node
-                . '-powermanagement',
+        echo self::makeFormTag(
+            'form-horizontal',
+            $node . '-powermanagement-cron-form',
+            self::makeTabUpdateURL(
+                $node . '-powermanagement',
                 $this->obj->get('id')
-            )
-            . '" novalidate>';
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -3746,10 +3804,15 @@ abstract class FOGPage extends FOGBase
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<input name="pmadd" type="hidden" value="1"/>';
-        echo '<button class="btn btn-primary" id="powermanagement-send">'
-            . _('Add')
-            . '</button>';
+        echo self::makeInput(
+            '',
+            'pmadd',
+            '',
+            'hidden',
+            '',
+            '1'
+        );
+        echo $buttons;
         if ($this->obj instanceof Group) {
             $modaldeleteBtns = self::makeButton(
                 'deletepowermanagementConfirm',

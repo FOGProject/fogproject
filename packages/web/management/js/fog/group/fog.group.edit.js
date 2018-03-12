@@ -707,14 +707,70 @@
         powermanagementDeleteCancelBtn = $('#deletepowermanagementCancel'),
         powermanagementDeleteConfirmBtn = $('#deletepowermanagementConfirm'),
         // Insert Form cron elements.
-        minutes = $('.scheduleCronMin', powermanagementForm),
-        hours = $('.scheduleCronHour', powermanagementForm),
-        dom = $('.scheduleCronDOM', powermanagementForm),
-        month = $('.scheduleCronMonth', powermanagementForm),
-        dow = $('.scheduleCronDOW', powermanagementForm),
+        minutes = $('.cronmin', powermanagementForm),
+        hours = $('.cronhour', powermanagementForm),
+        dom = $('.crondom', powermanagementForm),
+        month = $('.cronmonth', powermanagementForm),
+        dow = $('.crondow', powermanagementForm),
         ondemand = $('#scheduleOnDemand', powermanagementForm),
         specialCrons = $('.specialCrons', powermanagementForm),
         action = $('.pmaction', powermanagementForm);
+
+    specialCrons.on('change focus focusout', function(e) {
+        e.preventDefault();
+        switch (this.value) {
+            case 'hourly':
+                minutes.val('0');
+                hours.val('*');
+                dom.val('*');
+                month.val('*');
+                dow.val('*');
+                break;
+            case 'daily':
+                minutes.val('0');
+                hours.val('0');
+                dom.val('*');
+                month.val('*');
+                dow.val('*');
+                break;
+            case 'weekly':
+                minutes.val('0');
+                hours.val('0');
+                dom.val('*');
+                month.val('*');
+                dow.val('0');
+                break;
+            case 'monthly':
+                minutes.val('0');
+                hours.val('0');
+                dom.val('1');
+                month.val('*');
+                dow.val('*');
+                break;
+            case 'yearly':
+                minutes.val('0');
+                hours.val('0');
+                dom.val('1');
+                month.val('1');
+                dow.val('*');
+                break;
+            default:
+                minutes.val('');
+                hours.val('');
+                dom.val('');
+                month.val('');
+                dow.val('');
+                break;
+        }
+    });
+
+    // When On Demand checked remove the cron layout.
+    ondemand.on('ifChecked', function(e) {
+        $(this).parents('.box-body').find('.form-group:eq(0)').addClass('hidden');
+    });
+    ondemand.on('ifUnchecked', function(e) {
+        $(this).parents('.box-body').find('.form-group:eq(0)').removeClass('hidden');
+    });
 
     powermanagementForm.on('submit', function(e) {
         e.preventDefault();
