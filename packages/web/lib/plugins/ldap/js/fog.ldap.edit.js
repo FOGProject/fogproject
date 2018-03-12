@@ -15,7 +15,10 @@ $(function() {
 
     var generalForm = $('#ldap-general-form'),
         generalFormBtn = $('#general-send'),
-        generalDeleteBtn = $('#general-delete');
+        generalDeleteBtn = $('#general-delete'),
+        templateSel = $('#template'),
+        userNameAttr = $('#userNameAttr'),
+        grpMemberAttr = $('#grpMemberAttr');
 
     generalForm.on('submit',function(e) {
         e.preventDefault();
@@ -46,5 +49,29 @@ $(function() {
             + Common.node
             + '&sub=list';
         });
+    });
+    templateSel.on('change blur focus focusout', function(e) {
+        e.preventDefault();
+        selected = this.value;
+        switch (selected) {
+            case '0':
+                usrAttr = 'samAccountName';
+                grpAttr = 'member';
+                break;
+            case '1':
+                usrAttr = 'cn';
+                grpAttr = 'member';
+                break;
+            case '2':
+                usrAttr = 'uid';
+                grpAttr = 'uniqueMember';
+                break;
+            default:
+                usrAttr = '';
+                grpAttr = '';
+                break;
+        }
+        userNameAttr.val(usrAttr);
+        grpMemberAttr.val(grpAttr);
     });
 });
