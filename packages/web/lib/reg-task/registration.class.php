@@ -221,6 +221,7 @@ class Registration extends FOGBase
                 ->set('name', $host)
                 ->set('description', $this->description)
                 ->set('imageID', $imageid)
+                ->set('enforce', $enforce)
                 ->addModule($this->modulesToJoin)
                 ->addGroup($groupsToJoin)
                 ->addSnapin($snapinsToJoin)
@@ -234,8 +235,7 @@ class Registration extends FOGBase
                     $ADPass,
                     false,
                     true,
-                    $productKey,
-                    $enforce
+                    $productKey
                 );
             if (!self::$Host->save()) {
                 throw new Exception(

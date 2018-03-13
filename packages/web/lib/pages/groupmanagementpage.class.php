@@ -56,9 +56,7 @@ class GroupManagementPage extends FOGPage
         ];
         $this->attributes = [
             [],
-            [
-                'width' => 5
-            ]
+            ['width' => 5]
         ];
     }
     /**
@@ -187,10 +185,16 @@ class GroupManagementPage extends FOGPage
                 $dev
             )
         ];
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
         self::$HookManager->processEvent(
             'GROUP_ADD_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Group' => self::getClass('Group')
             ]
         );
@@ -219,11 +223,7 @@ class GroupManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer with-border">';
-        echo self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary'
-        );
+        echo $buttons;
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -533,16 +533,6 @@ class GroupManagementPage extends FOGPage
                 _('Group EFI Exit')
             ) => $exitEfi
         ];
-        self::$HookManager->processEvent(
-            'GROUP_GENERAL_FIELDS',
-            [
-                'fields' => &$fields,
-                'Group' => &$this->obj
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
         $buttons = '<div class="btn-group">';
         $buttons .= self::makeButton(
             'general-send',
@@ -560,6 +550,17 @@ class GroupManagementPage extends FOGPage
             'btn btn-danger'
         );
         $buttons .= '</div>';
+        self::$HookManager->processEvent(
+            'GROUP_GENERAL_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'Group' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'group-general-form',
@@ -642,9 +643,7 @@ class GroupManagementPage extends FOGPage
             ->set('init', $init);
         self::getClass('HostManager')
             ->update(
-                [
-                    'id' => $this->obj->get('hosts')
-                ],
+                ['id' => $this->obj->get('hosts')],
                 '',
                 [
                     'kernel' => $kern,
@@ -764,14 +763,12 @@ class GroupManagementPage extends FOGPage
                 'domainpassword'
             )
         );
-        $enforce = isset($_POST['enforcesel']);
         $this->obj->setAD(
             $useAD,
             $domain,
             $ou,
             $user,
-            $pass,
-            $enforce
+            $pass
         );
     }
     /**
@@ -1474,7 +1471,90 @@ class GroupManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</form>';
-        
+
+        // Hostname changer reboot/domain join reboot forced.
+        $enforce = (
+            filter_input(INPUT_POST, 'enforce') ?:
+            self::$Host->get('enforce')
+        );
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'enforce',
+                _('Force Reboot')
+            ) => self::makeInput(
+                '',
+                'enforce',
+                '',
+                'checkbox',
+                'enforce',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $enforce
+            )
+        ];
+        $enforcebtn = self::makeButton(
+            'enforcebtn',
+            _('Update'),
+            'btn btn-primary'
+        );
+        self::$HookManager->processEvent(
+            'GROUP_ENFORCE_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$enforcebtn,
+                'Group' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+        echo self::makeFormTag(
+            'form-horizontal',
+            'group-enforce',
+            self::makeTabUpdateURL(
+                'group-service',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="box box-warning">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Enforce Hostname | AD Join Reboots');
+        echo '</h4>';
+        echo '<div>';
+        echo '<p class="help-block">';
+        echo _(
+            'This tells the client to force reboots for host name '
+            . 'changing and AD Joining.'
+        );
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo self::makeInput(
+            '',
+            'enforcesend',
+            '',
+            'hidden',
+            '',
+            '1'
+        );
+        echo $enforcebtn;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
         // End Box Group
         echo '</div>';
     }
@@ -1521,6 +1601,14 @@ class GroupManagementPage extends FOGPage
                 $tme = 0;
             }
             $this->obj->setAlo($tme);
+        }
+        if (isset($_POST['enforcesend'])) {
+            $enforce = isset($_POST['enforce']);
+            self::getClass('HostManager')->update(
+                ['id' => $this->obj->get('hosts')],
+                '',
+                ['enforce' => $enforce]
+            );
         }
     }
     /**
@@ -1620,11 +1708,6 @@ class GroupManagementPage extends FOGPage
         $useAD = (
             $aduse ?
             self::$Host->get('useAD') :
-            ''
-        );
-        $enforce = (
-            $enforcetest ?
-            self::$Host->get('enforce') :
             ''
         );
         $ADDomain = (
@@ -1735,8 +1818,7 @@ class GroupManagementPage extends FOGPage
                                 $ADDomain,
                                 $ADOU,
                                 $ADUser,
-                                $ADPass,
-                                $enforce
+                                $ADPass
                             );
                         }
                     ],

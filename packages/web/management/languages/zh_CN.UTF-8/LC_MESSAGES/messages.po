@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-12 19:56-0400\n"
+"POT-Creation-Date: 2018-03-13 02:05-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3812,6 +3812,9 @@ msgstr "主机列表"
 msgid "Host Primary Disk"
 msgstr "主机主磁盘"
 
+msgid "Enforce Hostname | AD Join Reboots"
+msgstr ""
+
 msgid "Host Bios Exit Type"
 msgstr "主机BIOS退出类型"
 
@@ -4066,6 +4069,14 @@ msgid "Auto Logout Settings"
 msgstr "设置"
 
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
+msgstr ""
+
+#, fuzzy
+msgid "Force Reboot"
+msgstr "重启"
+
+msgid ""
+"This tells the client to force reboots for host name changing and AD Joining."
 msgstr ""
 
 msgid "Cron Schedule"
@@ -6616,30 +6627,24 @@ msgstr "用户创建"
 msgid "Advanced Actions"
 msgstr "高级操作"
 
-#, fuzzy
-msgid "Join Domain after deploy"
-msgstr "图像任务之后加入域"
+msgid "Enable Domain Joining"
+msgstr ""
 
-msgid "Domain name"
-msgstr "域名"
+#, fuzzy
+msgid "Domain Name"
+msgstr "域用户名"
 
 msgid "Organizational Unit"
 msgstr "组织单位"
 
-msgid "Blank for default"
-msgstr "预设为空白"
+msgid "blank for default"
+msgstr ""
 
 msgid "Domain Username"
 msgstr "域用户名"
 
 msgid "Domain Password"
 msgstr "域密码"
-
-msgid "Will auto-encrypt plaintext"
-msgstr "会自动加密明文"
-
-msgid "Name Change/AD Join Forced reboot"
-msgstr ""
 
 #, fuzzy
 msgid "Clear Fields"
