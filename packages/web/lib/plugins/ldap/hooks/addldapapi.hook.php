@@ -59,6 +59,38 @@ class AddLDAPAPI extends Hook
         self::$HookManager->register(
             'API_VALID_CLASSES',
             [$this, 'injectAPIElements']
+        )->register(
+            'API_MASSDATA_MAPPING',
+            [$this, 'adjustMassData']
+        );
+    }
+    /**
+     * Remove the users with ldap types from the list.
+     *
+     * @param mixed $arguments The arguments to modify.
+     *
+     * @return void
+     */
+    public function adjustMassData($arguments)
+    {
+        if ($arguments['classname'] != 'user') {
+            return;
+        }
+        $where = "`users`.`uType` NOT IN ('"
+            . implode("','", LDAPPluginHook::LDAP_TYPES)
+            . "')";
+
+        $arguments['ttlstr'] .= " WHERE $where";
+
+        $arguments['data'] = FOGManagerController::complex(
+            $arguments['pass_vars'],
+            $arguments['table'],
+            $arguments['tableID'],
+            $arguments['columns'],
+            $arguments['sqlstr'],
+            $arguments['fltrstr'],
+            $arguments['ttlstr'],
+            $where
         );
     }
     /**
