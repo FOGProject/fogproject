@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-12 19:56-0400\n"
+"POT-Creation-Date: 2018-03-13 02:05-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3823,6 +3823,9 @@ msgstr "Lista de Host"
 msgid "Host Primary Disk"
 msgstr "Hospedar rígido primário"
 
+msgid "Enforce Hostname | AD Join Reboots"
+msgstr ""
+
 msgid "Host Bios Exit Type"
 msgstr "Hospedar Bios Tipo Exit"
 
@@ -4080,6 +4083,14 @@ msgid "Auto Logout Settings"
 msgstr "Configurações"
 
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
+msgstr ""
+
+#, fuzzy
+msgid "Force Reboot"
+msgstr "reinicialização"
+
+msgid ""
+"This tells the client to force reboots for host name changing and AD Joining."
 msgstr ""
 
 msgid "Cron Schedule"
@@ -6636,30 +6647,24 @@ msgstr "usuário criado"
 msgid "Advanced Actions"
 msgstr "ações avançadas"
 
-#, fuzzy
-msgid "Join Domain after deploy"
-msgstr "Junte-se ao domínio após a tarefa de imagem"
+msgid "Enable Domain Joining"
+msgstr ""
 
-msgid "Domain name"
-msgstr "Nome do domínio"
+#, fuzzy
+msgid "Domain Name"
+msgstr "domínio usuário"
 
 msgid "Organizational Unit"
 msgstr "Unidade organizacional"
 
-msgid "Blank for default"
-msgstr "Em branco para o padrão"
+msgid "blank for default"
+msgstr ""
 
 msgid "Domain Username"
 msgstr "domínio usuário"
 
 msgid "Domain Password"
 msgstr "senha de domínio"
-
-msgid "Will auto-encrypt plaintext"
-msgstr "Will texto simples criptografar-auto"
-
-msgid "Name Change/AD Join Forced reboot"
-msgstr ""
 
 #, fuzzy
 msgid "Clear Fields"

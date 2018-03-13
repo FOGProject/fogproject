@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-12 19:56-0400\n"
+"POT-Creation-Date: 2018-03-13 02:05-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3535,6 +3535,9 @@ msgstr "Host Init"
 msgid "Host Primary Disk"
 msgstr "Host disco principale"
 
+msgid "Enforce Hostname | AD Join Reboots"
+msgstr ""
+
 msgid "Host Bios Exit Type"
 msgstr "Host Bios Tipo Exit"
 
@@ -3778,6 +3781,14 @@ msgid "Auto Logout Settings"
 msgstr "Impostazioni di integrità"
 
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
+msgstr ""
+
+#, fuzzy
+msgid "Force Reboot"
+msgstr "Riavvio"
+
+msgid ""
+"This tells the client to force reboots for host name changing and AD Joining."
 msgstr ""
 
 msgid "Cron Schedule"
@@ -6067,29 +6078,25 @@ msgstr "Eliminato con successo"
 msgid "Advanced Actions"
 msgstr "Azioni Avanzate"
 
-msgid "Join Domain after deploy"
-msgstr "Unire il dominio dopo deploy"
+#, fuzzy
+msgid "Enable Domain Joining"
+msgstr "Abilita invio posizione "
 
-msgid "Domain name"
-msgstr "Nome del dominio"
+#, fuzzy
+msgid "Domain Name"
+msgstr "dominio Nome utente"
 
 msgid "Organizational Unit"
 msgstr "Unità organizzativa"
 
-msgid "Blank for default"
-msgstr "Bianco per il default"
+msgid "blank for default"
+msgstr ""
 
 msgid "Domain Username"
 msgstr "dominio Nome utente"
 
 msgid "Domain Password"
 msgstr "password di dominio"
-
-msgid "Will auto-encrypt plaintext"
-msgstr "Sarà chiaro auto-criptare"
-
-msgid "Name Change/AD Join Forced reboot"
-msgstr "Cambio nome/unione AD Riavvio forzato"
 
 msgid "Clear Fields"
 msgstr "Cancellare campi"

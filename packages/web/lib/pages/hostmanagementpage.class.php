@@ -452,7 +452,9 @@ class HostManagementPage extends FOGPage
         $ou = filter_input(INPUT_POST, 'ou');
         $domainuser = filter_input(INPUT_POST, 'domainuser');
         $domainpassword = filter_input(INPUT_POST, 'domainpassword');
-        $enforcesel = isset($_POST['enforcesel']);
+        $enforce = isset($_POST['enforce']) ?: self::getSetting(
+            'FOG_ENFORCE_HOST_CHANGES'
+        );
 
         // The fields to display
         $fields = [
@@ -512,6 +514,23 @@ class HostManagementPage extends FOGPage
             . '</label>' => '<input type="text" name="dev" value="'
             . $dev
             . '" id="dev" class="form-control"/>',
+            self::makeLabel(
+                $labelClass,
+                'enforce',
+                _('Enforce Hostname | AD Join Reboots')
+            ) => self::makeInput(
+                '',
+                'enforce',
+                '',
+                'checkbox',
+                'enforce',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                ($enforce ? 'checked' : '')
+            ),
             '<label class="col-sm-2 control-label" for="bootTypeExit">'
             . _('Host Bios Exit Type')
             . '</label>' => $this->exitNorm,
@@ -551,18 +570,12 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<!-- Active Directory -->';
-        if (!isset($_POST['enforcesel'])) {
-            $enforcesel = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
-        } else {
-            $enforcesel = true;
-        }
         $fields = $this->adFieldsToDisplay(
             $domain,
             $domainname,
             $ou,
             $domainuser,
             $domainpassword,
-            $enforcesel,
             false,
             true
         );
@@ -632,7 +645,7 @@ class HostManagementPage extends FOGPage
             )
         );
         $productKey = substr($productKey, 0, 29);
-        $enforce = (int)isset($_POST['enforcesel']);
+        $enforce = (int)isset($_POST['enforce']);
         $image = (int)filter_input(INPUT_POST, 'image');
         $kernel = trim(
             filter_input(INPUT_POST, 'kern')
@@ -698,6 +711,7 @@ class HostManagementPage extends FOGPage
                 ->set('biosexit', $bootTypeExit)
                 ->set('efiexit', $efiBootTypeExit)
                 ->set('productKey', $productKey)
+                ->set('enforce', $enforce)
                 ->addModule($ModuleIDs)
                 ->addPriMAC($MAC)
                 ->setAD(
@@ -708,8 +722,7 @@ class HostManagementPage extends FOGPage
                     $pass,
                     true,
                     true,
-                    $productKey,
-                    $enforce
+                    $productKey
                 );
             if (!self::$Host->save()) {
                 $serverFault = true;
@@ -1263,7 +1276,6 @@ class HostManagementPage extends FOGPage
                 'domainpassword'
             )
         );
-        $enforce = isset($_POST['enforcesel']);
         $this->obj->setAD(
             $useAD,
             $domain,
@@ -1272,8 +1284,7 @@ class HostManagementPage extends FOGPage
             $pass,
             true,
             true,
-            $productKey,
-            $enforce
+            $productKey
         );
     }
     /**
@@ -1749,6 +1760,7 @@ class HostManagementPage extends FOGPage
             [],
             []
         ];
+        $labelClass = 'col-sm-2 control-label';
         // Modules Enable/Disable/Selected
         echo '<div class="box box-info">';
         echo '<div class="box-header with-border">';
@@ -1939,6 +1951,83 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</form>';
+        // Hostname changer reboot/domain join reboot forced.
+        $enforce = (
+            filter_input(INPUT_POST, 'enforce') ?:
+            $this->obj->get('enforce')
+        );
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'enforce',
+                _('Force Reboot')
+            ) => self::makeInput(
+                '',
+                'enforce',
+                '',
+                'checkbox',
+                'enforce',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $enforce
+            )
+        ];
+        $enforcebtn = self::makeButton(
+            'enforcebtn',
+            _('Update'),
+            'btn btn-primary'
+        );
+        self::$HookManager->processEvent(
+            'HOST_ENFORCE_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$enforcebtn,
+                'Host' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+        echo self::makeFormTag(
+            'form-horizontal',
+            'host-enforce',
+            self::makeTabUpdateURL(
+                'host-service',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="box box-warning">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Enforce Hostname | AD Join Reboots');
+        echo '</h4>';
+        echo '<div>';
+        echo '<p class="help-block">';
+        echo _(
+            'This tells the client to force reboots for host name '
+            . 'changing and AD Joining.'
+        );
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '<input type="hidden" name="enforcesend" value="1"/>';
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $enforcebtn;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+
         // End Box Group
         echo '</div>';
     }
@@ -1985,6 +2074,10 @@ class HostManagementPage extends FOGPage
                 $tme = 0;
             }
             $this->obj->setAlo($tme);
+        }
+        if (isset($_POST['enforcesend'])) {
+            $enforce = (int)isset($_POST['enforce']);
+            $this->obj->set('enforce', $enforce);
         }
     }
     /**
@@ -2960,8 +3053,7 @@ class HostManagementPage extends FOGPage
                                 $this->obj->get('ADDomain'),
                                 $this->obj->get('ADOU'),
                                 $this->obj->get('ADUser'),
-                                $this->obj->get('ADPass'),
-                                $this->obj->get('enforce')
+                                $this->obj->get('ADPass')
                             );
                         }
                     ],

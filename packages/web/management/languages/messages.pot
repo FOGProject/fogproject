@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-12 19:56-0400\n"
+"POT-Creation-Date: 2018-03-13 02:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3352,6 +3352,9 @@ msgstr ""
 msgid "Host Primary Disk"
 msgstr ""
 
+msgid "Enforce Hostname | AD Join Reboots"
+msgstr ""
+
 msgid "Host Bios Exit Type"
 msgstr ""
 
@@ -3563,6 +3566,13 @@ msgid "Auto Logout Settings"
 msgstr ""
 
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
+msgstr ""
+
+msgid "Force Reboot"
+msgstr ""
+
+msgid ""
+"This tells the client to force reboots for host name changing and AD Joining."
 msgstr ""
 
 msgid "Cron Schedule"
@@ -5729,28 +5739,22 @@ msgstr ""
 msgid "Advanced Actions"
 msgstr ""
 
-msgid "Join Domain after deploy"
+msgid "Enable Domain Joining"
 msgstr ""
 
-msgid "Domain name"
+msgid "Domain Name"
 msgstr ""
 
 msgid "Organizational Unit"
 msgstr ""
 
-msgid "Blank for default"
+msgid "blank for default"
 msgstr ""
 
 msgid "Domain Username"
 msgstr ""
 
 msgid "Domain Password"
-msgstr ""
-
-msgid "Will auto-encrypt plaintext"
-msgstr ""
-
-msgid "Name Change/AD Join Forced reboot"
 msgstr ""
 
 msgid "Clear Fields"

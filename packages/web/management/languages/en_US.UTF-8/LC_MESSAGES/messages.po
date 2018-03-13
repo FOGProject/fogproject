@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-12 19:56-0400\n"
+"POT-Creation-Date: 2018-03-13 02:05-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3821,6 +3821,9 @@ msgstr "Host List"
 msgid "Host Primary Disk"
 msgstr "Host Primary Disk"
 
+msgid "Enforce Hostname | AD Join Reboots"
+msgstr ""
+
 msgid "Host Bios Exit Type"
 msgstr "Host Bios Exit Type"
 
@@ -4077,6 +4080,14 @@ msgid "Auto Logout Settings"
 msgstr "Settings"
 
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
+msgstr ""
+
+#, fuzzy
+msgid "Force Reboot"
+msgstr "Reboot"
+
+msgid ""
+"This tells the client to force reboots for host name changing and AD Joining."
 msgstr ""
 
 msgid "Cron Schedule"
@@ -6632,30 +6643,24 @@ msgstr "User created"
 msgid "Advanced Actions"
 msgstr "Advanced Actions"
 
-#, fuzzy
-msgid "Join Domain after deploy"
-msgstr "Join Domain after image task"
+msgid "Enable Domain Joining"
+msgstr ""
 
-msgid "Domain name"
-msgstr "Domain name"
+#, fuzzy
+msgid "Domain Name"
+msgstr "Domain Username"
 
 msgid "Organizational Unit"
 msgstr "Organizational Unit"
 
-msgid "Blank for default"
-msgstr "Blank for default"
+msgid "blank for default"
+msgstr ""
 
 msgid "Domain Username"
 msgstr "Domain Username"
 
 msgid "Domain Password"
 msgstr "Domain Password"
-
-msgid "Will auto-encrypt plaintext"
-msgstr "Will auto-encrypt plaintext"
-
-msgid "Name Change/AD Join Forced reboot"
-msgstr ""
 
 msgid "Clear Fields"
 msgstr ""

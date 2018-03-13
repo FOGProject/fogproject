@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-12 19:56-0400\n"
+"POT-Creation-Date: 2018-03-13 02:05-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3824,6 +3824,9 @@ msgstr "Host Init"
 msgid "Host Primary Disk"
 msgstr "Primäre Festplatte Host"
 
+msgid "Enforce Hostname | AD Join Reboots"
+msgstr ""
+
 msgid "Host Bios Exit Type"
 msgstr "Host-Bios-Exit-Typ"
 
@@ -4082,6 +4085,14 @@ msgid "Auto Logout Settings"
 msgstr "Integritätseinstellungen"
 
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
+msgstr ""
+
+#, fuzzy
+msgid "Force Reboot"
+msgstr "Neustarten"
+
+msgid ""
+"This tells the client to force reboots for host name changing and AD Joining."
 msgstr ""
 
 msgid "Cron Schedule"
@@ -6646,29 +6657,24 @@ msgid "Advanced Actions"
 msgstr "Erweiterte Aktionen"
 
 #, fuzzy
-msgid "Join Domain after deploy"
-msgstr "Nach der Verteilung einer Domäne beitreten"
+msgid "Enable Domain Joining"
+msgstr "Standort senden aktivieren"
 
-msgid "Domain name"
-msgstr "Domänen-Name"
+#, fuzzy
+msgid "Domain Name"
+msgstr "Domänen-Benutzername"
 
 msgid "Organizational Unit"
 msgstr "Organisationseinheit"
 
-msgid "Blank for default"
-msgstr "Leer für Standard"
+msgid "blank for default"
+msgstr ""
 
 msgid "Domain Username"
 msgstr "Domänen-Benutzername"
 
 msgid "Domain Password"
 msgstr "Domänenkennwort"
-
-msgid "Will auto-encrypt plaintext"
-msgstr "Wird Klartext automatisch verschlüsseln"
-
-msgid "Name Change/AD Join Forced reboot"
-msgstr "Namensänderung/AD-Beitreten erzwingt Reboot"
 
 #, fuzzy
 msgid "Clear Fields"

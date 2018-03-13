@@ -2061,7 +2061,6 @@ class Host extends FOGController
      * @param bool   $override   should the host fields override whats passed
      * @param bool   $nosave     should we save automatically
      * @param string $productKey the product key for the host to activate
-     * @param mixed  $enforce    should the host perform changes forcibly
      *
      * @return object
      */
@@ -2073,8 +2072,7 @@ class Host extends FOGController
         $pass = '',
         $override = false,
         $nosave = false,
-        $productKey = '',
-        $enforce = ''
+        $productKey = ''
     ) {
         if ($this->get('id')) {
             if (!$override) {
@@ -2096,22 +2094,18 @@ class Host extends FOGController
                 if (empty($productKey)) {
                     $productKey = trim($this->get('productKey'));
                 }
-                if (empty($enforce)) {
-                    $enforce = (int)$this->get('enforce');
-                }
             }
         }
         if ($pass) {
             $pass = trim($pass);
         }
-        $this->set('useAD', $useAD)
+        return $this
+            ->set('useAD', $useAD)
             ->set('ADDomain', trim($domain))
             ->set('ADOU', trim($ou))
             ->set('ADUser', trim($user))
             ->set('ADPass', $pass)
-            ->set('productKey', trim($productKey))
-            ->set('enforce', (string)$enforce);
-        return $this;
+            ->set('productKey', trim($productKey));
     }
     /**
      * Returns the hosts image object

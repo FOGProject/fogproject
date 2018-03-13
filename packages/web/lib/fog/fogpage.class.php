@@ -2363,7 +2363,6 @@ abstract class FOGPage extends FOGBase
      * @param string $ADOU       the ou to select
      * @param string $ADUser     the user to use
      * @param string $ADPass     the password
-     * @param mixed  $enforce    enforced selected
      * @param mixed  $ownElement do we need to be our own container
      * @param mixed  $retFields  return just the fields?
      *
@@ -2375,7 +2374,6 @@ abstract class FOGPage extends FOGBase
         $ADOU = '',
         $ADUser = '',
         $ADPass = '',
-        $enforce = '',
         $ownElement = true,
         $retFields = false
     ) {
@@ -2412,11 +2410,11 @@ abstract class FOGPage extends FOGBase
         $optFound = $ADOU;
         if (count($OUs ?: []) > 1) {
             ob_start();
-            printf(
-                '<option value="">- %s -</option>',
-                self::$foglang['PleaseSelect']
-            );
-            foreach ((array)$OUs as &$OU) {
+            echo '<select class="form-control" id="adOU" name="ou">';
+            echo '<option value="">- '
+                . _('Please select an option')
+                . ' -</option>';
+            foreach ($OUs as &$OU) {
                 $OU = trim($OU);
                 $ou = str_replace(';', '', $OU);
                 if (!$optFound && $ou === $ADOU) {
@@ -2425,110 +2423,109 @@ abstract class FOGPage extends FOGBase
                 if (!$optFound && false !== strpos($OU, ';')) {
                     $optFound = $ou;
                 }
-                printf(
-                    '<option value="%s"%s>%s</option>',
-                    $ou,
-                    (
-                        $optFound === $ou ?
-                        ' selected' :
-                        ''
-                    ),
-                    $ou
-                );
+                echo '<option value="'
+                    . $ou
+                    . '"'
+                    . ($optFound == $ou ? ' selected' : '')
+                    . '>'
+                    . $ou
+                    . '</option>';
+                unset($OU);
             }
-            $OUOptions = sprintf(
-                '<select id="adOU" class="form-control" name="ou">'
-                . '%s</select>',
-                ob_get_clean()
-            );
+            echo '</select>';
+            $OUOptions = ob_get_clean();
         } else {
-            $OUOptions = sprintf(
-                '<input id="adOU" class="form-control" type="text" name='
-                . '"ou" value="%s" autocomplete="off"/>',
+            $OUOptions = self::makeInput(
+                'form-control adou-input',
+                'ou',
+                'ou=computers,dc=example,dc=com',
+                'text',
+                'adOU',
                 $ADOU
             );
         }
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            sprintf(
-                '<label class="col-sm-2 control-label" for="adEnabled">%s</label>',
-                _('Join Domain after deploy')
-            ) => sprintf(
-                '<input id="adEnabled" type="checkbox" name="domain"%s/>',
-                (
-                    $useAD ?
-                    ' checked' :
-                    ''
-                )
+            self::makeLabel(
+                $labelClass,
+                'adEnabled',
+                _('Enable Domain Joining')
+            ) => self::makeInput(
+                '',
+                'domain',
+                '',
+                'checkbox',
+                'adEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $useAD ? 'checked' : ''
             ),
-            sprintf(
-                '<label class="col-sm-2 control-label" for="adDomain">%s</label>',
-                _('Domain name')
-            ) => sprintf(
-                '<input id="adDomain" class="form-control" type="text" '
-                . 'name="domainname" value="%s" autocomplete="off"/>',
+            self::makeLabel(
+                $labelClass,
+                'adDomain',
+                _('Domain Name')
+            ) => self::makeInput(
+                'form-control',
+                'domainname',
+                'example.com',
+                'text',
+                'adDomain',
                 $ADDomain
             ),
-            sprintf(
-                '<label class="col-sm-2 control-label" for="adOU">%s'
-                . '<br/>(%s)'
-                . '</label>',
-                _('Organizational Unit'),
-                _('Blank for default')
+            self::makeLabel(
+                $labelClass,
+                'adOU',
+                _('Organizational Unit')
+                . '<br/>('
+                . _('blank for default')
+                . ')'
             ) => $OUOptions,
-            sprintf(
-                '<label class="col-sm-2 control-label" for="adUsername">%s</label>',
+            self::makeLabel(
+                $labelClass,
+                'adUsername',
                 _('Domain Username')
-            ) => sprintf(
-                '<input id="adUsername" class="form-control" type="text" '
-                . 'name="domainuser" value="%s" autocomplete="off"/>',
+            ) => self::makeInput(
+                'form-control',
+                'domainuser',
+                'administrator',
+                'text',
+                'adUsername',
                 $ADUser
             ),
-            sprintf(
-                '<label class="col-sm-2 control-label" for="adPassword">%s'
-                . '<br/>(%s)'
-                . '</label>',
-                _('Domain Password'),
-                _('Will auto-encrypt plaintext')
-            ) => sprintf(
-                '<div class="input-group">'
-                . '<input id="adPassword" class="form-control" type='
-                . '"password" name="domainpassword" value="%s" '
-                . 'autocomplete="off"/></div>',
+            self::makeLabel(
+                $labelClass,
+                'adPassword',
+                _('Domain Password')
+            ) => '<div class="input-group">'
+            . self::makeInput(
+                'form-control',
+                'domainpassword',
+                'password',
+                'password',
+                'adPassword',
                 $ADPass
-            ),
-            sprintf(
-                '<label class="col-sm-2 control-label" for="ensel">'
-                . '%s?'
-                . '</label>',
-                _('Name Change/AD Join Forced reboot')
-            ) =>
-            sprintf(
-                '<input name="enforcesel" type="checkbox" id="'
-                . 'ensel" autocomplete="off"%s/>',
-                (
-                    $enforce ?
-                    ' checked' :
-                    ''
-                )
-            ),
+            )
+            . '</div>'
         ];
         if ($retFields) {
             return $fields;
         }
-        unset(
-            $this->data,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
+        $ucclass = strtoupper($this->childClass);
         self::$HookManager->processEvent(
-            sprintf(
-                '%s_EDIT_AD_FIELDS',
-                strtoupper($this->childClass)
-            ),
-            ['fields' => &$fields]
+            "{$ucclass}_EDIT_AD_FIELDS",
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'obj' => &$this->obj
+            ]
         );
         $rendered = self::formFields($fields);
+        unset($fields);
         echo '<!-- Active Directory -->';
         if ($ownElement) {
             echo '<div class="box box-solid">';

@@ -87,7 +87,6 @@ class HostnameChanger extends FOGClient
             $ADUser = $adUser;
             $ADPass = $password;
         }
-        self::$Host->setAD();
         $val = [
             'enforce' => (bool)$enforce,
             'hostname' => $hostname,
