@@ -539,6 +539,13 @@ class Route extends FOGBase
             'API_MASSDATA_MAPPING',
             [
                 'data' => &self::$data,
+                'pass_vars' => &$pass_vars,
+                'table' => &$table,
+                'tableID' => &$tableID,
+                'columns' => &$columns,
+                'sqlstr' => &$sqlstr,
+                'fltrstr' => &$fltrstr,
+                'ttlstr' => &$ttlstr,
                 'classname' => &$classname,
                 'classman' => &$classman
             ]
