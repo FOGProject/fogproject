@@ -91,7 +91,7 @@ class Initiator
         /**
          * Regex pattern to search for files of type.
          */
-        $regext = '#^.*\.(report|event|class|hook)\.php$#';
+        $regext = '#^.*\.(report|event|class|hook|page)\.php$#';
         /**
          * Use our basepath and find all files that are not dots.
          */
@@ -147,7 +147,9 @@ class Initiator
                 get_include_path()
             )
         );
-        spl_autoload_extensions('.class.php,.event.php,.hook.php,.report.php');
+        spl_autoload_extensions(
+            '.class.php,.page.php,.event.php,.hook.php,.report.php'
+        );
         /**
          * Pass our autoloaded items through our custom loader method.
          */
