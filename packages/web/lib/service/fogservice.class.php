@@ -366,7 +366,7 @@ abstract class FOGService extends FOGBase
                 )
             );
         }
-        if (!$StorageNode->online) {
+        if (!$StorageNode->get('online')) {
             throw new Exception(
                 sprintf(
                     ' * %s',
@@ -461,7 +461,7 @@ abstract class FOGService extends FOGBase
                     )
                 ) as $i => &$PotentialStorageNode
             ) {
-                if (!$PotentialStorageNode->online) {
+                if (!$PotentialStorageNode->get('online')) {
                     self::outall(
                         sprintf(
                             '%s Server does not appear to be online.',
