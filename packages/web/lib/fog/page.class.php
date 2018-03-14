@@ -333,6 +333,7 @@ class Page extends FOGBase
             (array)$pluginfilepaths
         );
         if ($this->isHomepage
+            && self::$FOGUser->isValid()
             && ($node == 'home'
             || !$node)
         ) {

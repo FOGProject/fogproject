@@ -2661,8 +2661,8 @@ abstract class FOGPage extends FOGBase
             'https://fogproject.org/version/index.php?stable&dev&svn'
         );
         $resp = self::$FOGURLRequests->process($urls);
-        $data['sites'] = $resp[0];
-        $data['version'] = $resp[1];
+        $data['sites'] = array_shift($resp);
+        $data['version'] = array_shift($resp);
         echo json_encode($data);
         exit;
     }
@@ -3885,12 +3885,21 @@ abstract class FOGPage extends FOGBase
                         $primac = array_shift($macs);
                         $index = array_search('productKey', $dbkeys) + 1;
                         $test_encryption = self::aesdecrypt($data[$index]);
-                        if ($test_base64 = base64_decode($data[$index])) {
-                            if (mb_detect_encoding($test_base64, 'utf-8', true)) {
-                                $data[$index] = $test_base64;
-                            } elseif (mb_detect_encoding($test_encryption, 'utf-8', true)) {
-                                $data[$index] = $test_encryption;
-                            }
+                        $test_base64 = base64_decode($data[$index]);
+                        $mb_str = mb_detect_encoding(
+                            $test_base64,
+                            'utf-8',
+                            true
+                        );
+                        $mb_enc = mb_detect_encoding(
+                            $test_encryption,
+                            'utf-8',
+                            true
+                        );
+                        if ($test_base64 && $mb_str) {
+                            $data[$index] = $test_base64;
+                        } elseif ($mb_enc) {
+                            $data[$index] = $test_encryption;
                         }
                     }
                     if ($ItemMan->exists($data[$iterator])) {

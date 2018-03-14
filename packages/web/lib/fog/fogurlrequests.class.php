@@ -303,11 +303,10 @@ class FOGURLRequests extends FOGBase
      * If multiple perform _rollingCurl.
      *
      * @param mixed $window_size The window size to allow at run time
-     * @param mixed $available   To test whether or not url is available
      *
      * @return object
      */
-    public function execute($window_size = null, $available = false)
+    public function execute($window_size = null)
     {
         $window_count = count($this->_requests);
         if (empty($window_size)
@@ -320,35 +319,25 @@ class FOGURLRequests extends FOGBase
             return (array) false;
         }
         if ($window_count === 1) {
-            return $this->_singleCurl($available);
+            return $this->_singleCurl();
         }
 
-        return $this->_rollingCurl($window_size, $available);
+        return $this->_rollingCurl($window_size);
     }
     /**
      * Run a single url request.
      *
-     * @param bool $available To simply test if url is available
-     *
      * @return mixed
      */
-    private function _singleCurl($available = false)
+    private function _singleCurl()
     {
         $ch = curl_init();
         $request = array_shift($this->_requests);
-        $options = $this->_getOptions($request, $available);
+        $options = $this->_getOptions($request);
         curl_setopt_array($ch, $options);
         $output = curl_exec($ch);
         $info = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-        if ($available) {
-            $output = true;
-            if ($info < 200
-                || $info >= 400
-            ) {
-                $output = false;
-            }
-        }
         if ($this->_callback && is_callable($this->_callback)) {
             $this->_callback($output, $info, $request);
         }
@@ -359,11 +348,10 @@ class FOGURLRequests extends FOGBase
      * Perform multiple url requests.
      *
      * @param mixed $window_size The customized window size to use
-     * @param mixed $available   To simply test if url is available enmass
      *
      * @return mixed
      */
-    private function _rollingCurl($window_size = null, $available = false)
+    private function _rollingCurl($window_size = null)
     {
         if ($window_size) {
             $this->_windowSize = $window_size;
@@ -375,13 +363,10 @@ class FOGURLRequests extends FOGBase
             throw new Exception(_('Window size must be greater than 1'));
         }
         $timeout = $this->_timeout;
-        if ($available) {
-            $timeout = $this->_aconntimeout / 1000;
-        }
         $master = curl_multi_init();
         for ($i = 0; $i < $this->_windowSize; ++$i) {
             $ch = curl_init();
-            $options = $this->_getOptions($this->_requests[$i], $available);
+            $options = $this->_getOptions($this->_requests[$i]);
             curl_setopt_array($ch, $options);
             curl_multi_add_handle($master, $ch);
             $key = (string) $ch;
@@ -399,18 +384,9 @@ class FOGURLRequests extends FOGBase
             }
             while ($done = curl_multi_info_read($master)) {
                 $info = curl_getinfo($done['handle'], CURLINFO_HTTP_CODE);
-                $key = (string) $done['handle'];
-                if ($available) {
-                    $this->_response[$this->_requestMap[$key]] = true;
-                    if ($info < 200
-                        || $info >= 400
-                    ) {
-                        $this->_response[$this->_requestMap[$key]] = false;
-                    }
-                } else {
-                    $output = curl_multi_getcontent($done['handle']);
-                    $this->_response[$this->_requestMap[$key]] = $output;
-                }
+                $key = (string)$done['handle'];
+                $output = curl_multi_getcontent($done['handle']);
+                $this->_response[$this->_requestMap[$key]] = $output;
                 if ($this->_callback && is_callable($this->_callback)) {
                     $request = $this->_requests[$this->_requestMap[$key]];
                     $this->_callback($output, $info, $request);
@@ -420,7 +396,7 @@ class FOGURLRequests extends FOGBase
                     && isset($this->_requests[$i])
                 ) {
                     $ch = curl_init();
-                    $options = $this->_getOptions($this->_requests[$i], $available);
+                    $options = $this->_getOptions($this->_requests[$i]);
                     curl_setopt_array($ch, $options);
                     curl_multi_add_handle($master, $ch);
                     $key = (string) $ch;
@@ -446,12 +422,11 @@ class FOGURLRequests extends FOGBase
     /**
      * Get options of the request and whole.
      *
-     * @param FOGRollingURL $request   the request to get options from
-     * @param bool          $available if we're checking available.
+     * @param FOGRollingURL $request the request to get options from
      *
      * @return array
      */
-    private function _getOptions($request, $available = false)
+    private function _getOptions($request)
     {
         $options = $this->__get('options');
         if (ini_get('safe_mode') == 'Off' || !ini_get('safe_mode')) {
@@ -471,16 +446,6 @@ class FOGURLRequests extends FOGBase
         if ($headers) {
             $options[CURLOPT_HEADER] = 0;
             $options[CURLOPT_HTTPHEADER] = (array)$headers;
-        }
-        if ($available) {
-            unset($options[CURLOPT_TIMEOUT]);
-            unset($options[CURLOPT_CONNECTTIMEOUT]);
-            $options[CURLOPT_TIMEOUT_MS] = $this->_aconntimeout;
-            $options[CURLOPT_CONNECTTIMEOUT_MS] = $this->_aconntimeout;
-            $options[CURLOPT_RETURNTRANSFER] = true;
-            $options[CURLOPT_NOBODY] = true;
-            $options[CURLOPT_HEADER] = true;
-            $options[CURLOPT_NOSIGNAL] = true;
         }
         list($ip, $password, $port, $username) = self::getSubObjectIDs(
             'Service',
@@ -601,20 +566,24 @@ class FOGURLRequests extends FOGBase
      *
      * @param string $urls    the url to check.
      * @param int    $timeout the timeout value.
+     * @param int    $port    the port to test on.
      *
      * @return void
      */
-    public function isAvailable($urls, $timeout = 30)
+    public function isAvailable($urls, $timeout = 30, $port = -1)
     {
         $this->__destruct();
         $output = array();
+        if ($port == -1 || empty($port) || !$port) {
+            $port = self::$FOGFTP->get('port');
+        }
         if (empty($timeout) || !$timeout || $timeout < 1) {
             $timeout = 30;
         }
         foreach ((array) $urls as &$url) {
             $socket = @fsockopen(
                 $url,
-                self::$FOGFTP->get('port'),
+                $port,
                 $errno,
                 $errstr,
                 $timeout
