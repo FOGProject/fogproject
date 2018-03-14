@@ -459,8 +459,7 @@ class DashboardPage extends FOGPage
             $this->obj->get('ip'),
             base64_encode($this->obj->get('path'))
         );
-        $test = self::$FOGURLRequests->isAvailable($this->obj->get('ip'), 1);
-        if (!array_shift($test)) {
+        if (!$this->obj->online) {
             echo json_encode(
                 [
                     '_labels' => [

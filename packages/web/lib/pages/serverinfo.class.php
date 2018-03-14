@@ -73,9 +73,7 @@ class ServerInfo extends FOGPage
             self::$httpproto,
             $this->obj->get('ip')
         );
-        $test = parse_url($url, PHP_URL_HOST);
-        $test = self::$FOGURLRequests->isAvailable($test, 1);
-        if (!array_shift($test)) {
+        if (!$this->obj->online) {
             echo '<div class="col-md-12">';
             echo '<div class="box box-warning">';
             echo '<div class="box-header with-border">';
