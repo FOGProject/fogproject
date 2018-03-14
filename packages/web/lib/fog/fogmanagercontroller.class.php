@@ -38,31 +38,31 @@ abstract class FOGManagerController extends FOGBase
      *
      * @var array
      */
-    protected $databaseFields = array();
+    protected $databaseFields = [];
     /**
      * The Flipped fields.
      *
      * @var array
      */
-    protected $databaseFieldsFlipped = array();
+    protected $databaseFieldsFlipped = [];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array();
+    protected $databaseFieldsRequired = [];
     /**
      * The Class relationships.
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array();
+    protected $databaseFieldClassRelationships = [];
     /**
      * The additional fields.
      *
      * @var array
      */
-    protected $additionalFields = array();
+    protected $additionalFields = [];
     /**
      * The sql query string
      *
@@ -147,7 +147,7 @@ abstract class FOGManagerController extends FOGBase
             '',
             true
         );
-        $classGet = array(
+        $classGet = [
             'databaseTable',
             'databaseFields',
             'additionalFields',
@@ -156,7 +156,7 @@ abstract class FOGManagerController extends FOGBase
             'sqlQueryStr',
             'sqlFilterStr',
             'sqlTotalStr',
-        );
+        ];
         $this->databaseTable = &$classVars[$classGet[0]];
         $this->databaseFields = &$classVars[$classGet[1]];
         $this->additionalFields = &$classVars[$classGet[2]];
@@ -178,9 +178,9 @@ abstract class FOGManagerController extends FOGBase
      */
     public static function dataOutput($columns, $data)
     {
-        $out = array();
+        $out = [];
         for ($i = 0, $ien=count($data); $i<$ien; $i++) {
-            $row = array();
+            $row = [];
             for ($j=0, $jen=count($columns); $j < $jen; $j++) {
                 $column = $columns[$j];
                 // Is there a formatter?
@@ -244,7 +244,7 @@ abstract class FOGManagerController extends FOGBase
     {
         $order = '';
         if (isset($request['order']) && count($request['order'])) {
-            $orderBy = array();
+            $orderBy = [];
             $dtColumns = self::pluck($columns, 'dt');
             for ($i = 0, $ien = count($request['order']); $i < $ien; $i++) {
                 // Convert the column index into the column data property
@@ -282,20 +282,12 @@ abstract class FOGManagerController extends FOGBase
      */
     public static function filter($request, $columns, &$bindings)
     {
-        $globalSearch = array();
-        $columnSearch = array();
-        $andSearch = array();
+        $globalSearch = [];
+        $columnSearch = [];
+        $andSearch = [];
         $dtColumns = self::pluck($columns, 'dt');
         if (isset($request['search']) && $request['search']['value'] != '') {
             $str = $request['search']['value'];
-            // TODO: Figure out how to get DT smart search here.
-            // Below does the proper striping for us.
-            /*$str_search = preg_split(
-                '/("[^"]*")|\h+/',
-                $str,
-                -1,
-                PREG_SPLIT_NO_EMPTY|PREG_SPLIT_DELIM_CAPTURE
-            );*/
             for ($i=0, $ien = count($request['columns']); $i < $ien; $i++) {
                 $requestColumn = $request['columns'][$i];
                 $columnIdx = array_search($requestColumn['data'], $dtColumns);
@@ -304,24 +296,8 @@ abstract class FOGManagerController extends FOGBase
                     if (!isset($column['db'])) {
                         continue;
                     }
-                    // These two should be commented when doing smart searching.
                     $binding = self::bind($bindings, '%'.$str.'%', PDO::PARAM_STR);
                     $globalSearch[] = "`".$column['db']."` LIKE ".$binding;
-                    //Initial Attempt at smart search looping.
-                    //foreach ((array)$str_search as $ind => &$str) {
-                    //    $str = trim($str, '"');
-                    //    $binding = self::bind(
-                    //        $bindings,
-                    //        '%' . $str . '%',
-                    //        PDO::PARAM_STR
-                    //    );
-                    //    $varSearch = 'globalSearch';
-                    //    if ($ind > 0) {
-                    //        $varSearch = 'andSearch';
-                    //    }
-                    //    $$varSearch[] = "`".$column['db']."` LIKE ".$binding;
-                    //    unset($str);
-                    //}
                 }
             }
         }
@@ -332,17 +308,7 @@ abstract class FOGManagerController extends FOGBase
                 $columnIdx = array_search($requestColumn['data'], $dtColumns);
                 $column = $columns[$columnIdx];
                 $str = $requestColumn['search']['value'];
-                // TODO: Figure out how to get DT smart search here.
-                // Below does the proper striping for us.
-                //$str_search = preg_split(
-                //    '/("[^"]*")|\h+/',
-                //    $str,
-                //    -1,
-                //    PREG_SPLIT_NO_EMPTY|PREG_SPLIT_DELIM_CAPTURE
-                //);
                 if ($requestColumn['searchable'] == 'true') {
-                    // This whole if stanza should be commented
-                    // when doing smart search.
                     if ($str != '') {
                         if (!isset($column['db'])) {
                             continue;
@@ -354,22 +320,6 @@ abstract class FOGManagerController extends FOGBase
                         );
                         $columnSearch[] = "`".$column['db']."` LIKE ".$binding;
                     }
-                    //Initial Attempt at smart search looping.
-                    //foreach ((array)$str_search as $ind => &$str) {
-                    //    $str = trim($str, '"');
-                    //    if ($str != '') {
-                    //        if (!isset($column['db'])) {
-                    //            continue;
-                    //        }
-                    //        $binding = self::bind(
-                    //            $bindings,
-                    //            '%' . trim($str, '"') .'%',
-                    //            PDO::PARAM_STR
-                    //        );
-                    //        $columnSearch[] = "`".$column['db']."` LIKE ".$binding;
-                    //    }
-                    //    unset($str);
-                    //}
                 }
             }
         }
@@ -378,11 +328,6 @@ abstract class FOGManagerController extends FOGBase
         if (count($globalSearch)) {
             $where = '('.implode(' OR ', $globalSearch).')';
         }
-        //if (count($andSearch)) {
-        //    $where = $where === '' ?
-        //        '('.implode(' OR ', $andSearch).')' :
-        //        $where . ' AND ' . '('.implode(' OR ', $andSearch).')';
-        //}
         if (count($columnSearch)) {
             $where = $where === '' ?
                 implode(' AND ', $columnSearch) :
@@ -420,7 +365,7 @@ abstract class FOGManagerController extends FOGBase
         $ttlstr
     ) {
         $db = DatabaseManager::getLink();
-        $bindings = array();
+        $bindings = [];
         if ($primaryKey == 'id') {
             foreach ($columns as $item) {
                 if ($item['dt'] == 'id') {
@@ -464,16 +409,16 @@ abstract class FOGManagerController extends FOGBase
         /*
          * Output
          */
-        return array(
-            "draw" => (
+        return [
+            'draw' => (
                 isset($request['draw']) ?
                 intval($request['draw']) :
                 0
             ),
-            "recordsTotal"    => intval($recordsTotal),
-            "recordsFiltered" => intval($recordsFiltered),
-            "data"            => self::dataOutput($columns, $data)
-        );
+            'recordsTotal' => intval($recordsTotal),
+            'recordsFiltered' => intval($recordsFiltered),
+            'data' => self::dataOutput($columns, $data)
+        ];
     }
     /**
      * The difference between this method and the `simple` one, is that you can
@@ -512,10 +457,10 @@ abstract class FOGManagerController extends FOGBase
         $whereResult = null,
         $whereAll = null
     ) {
-        $bindings = array();
+        $bindings = [];
         $db = DatabaseManager::getLink();
-        $localWhereResult = array();
-        $localWhereAll = array();
+        $localWhereResult = [];
+        $localWhereAll = [];
         $whereAllSql = '';
         if ($primaryKey == 'id') {
             foreach ($columns as $item) {
@@ -574,16 +519,16 @@ abstract class FOGManagerController extends FOGBase
         /*
          * Output
          */
-        return array(
-            "draw" => (
+        return [
+            'draw' => (
                 isset($request['draw']) ?
                 intval($request['draw']) :
                 0
             ),
-            "recordsTotal"    => intval($recordsTotal),
-            "recordsFiltered" => intval($recordsFiltered),
-            "data"            => self::dataOutput($columns, $data)
-        );
+            'recordsTotal' => intval($recordsTotal),
+            'recordsFiltered' => intval($recordsFiltered),
+            'data' => self::dataOutput($columns, $data)
+        ];
     }
     /**
      * Execute an SQL query on the database
@@ -638,9 +583,7 @@ abstract class FOGManagerController extends FOGBase
     public static function fatal($msg)
     {
         echo json_encode(
-            array(
-                'error' => $msg
-            )
+            ['error' => $msg]
         );
         exit(0);
     }
@@ -658,11 +601,11 @@ abstract class FOGManagerController extends FOGBase
     public static function bind(&$a, $val, $type)
     {
         $key = ':binding_'.count($a);
-        $a[] = array(
+        $a[] = [
             'key' => $key,
             'val' => $val,
             'type' => $type
-        );
+        ];
         return $key;
     }
     /**
@@ -676,7 +619,7 @@ abstract class FOGManagerController extends FOGBase
      */
     public static function pluck($a, $prop)
     {
-        $out = array();
+        $out = [];
         for ($i = 0, $len = count($a); $i < $len; $i++) {
             if (!isset($a[$i][$prop])) {
                 continue;
@@ -724,7 +667,7 @@ abstract class FOGManagerController extends FOGBase
      * @return array
      */
     public function find(
-        $findWhere = array(),
+        $findWhere = [],
         $whereOperator = 'AND',
         $orderBy = 'name',
         $sort = 'ASC',
@@ -739,7 +682,7 @@ abstract class FOGManagerController extends FOGBase
     ) {
         // Fail safe defaults
         if (empty($findWhere)) {
-            $findWhere = array();
+            $findWhere = [];
         }
         if (empty($whereOperator)) {
             $whereOperator = 'AND';
@@ -768,18 +711,18 @@ abstract class FOGManagerController extends FOGBase
             ' NOT ' :
             ' '
         );
-        $whereArray = $whereArrayAnd = array();
+        $whereArray = $whereArrayAnd = [];
         if (count($findWhere) > 0) {
             $count = 0;
             foreach ($findWhere as $field => &$value) {
                 $key = trim($field);
                 if (!$value) {
-                    $value = array(
+                    $value = [
                         '0',
                         0,
                         null,
                         '',
-                    );
+                    ];
                 }
                 if (is_array($value) && count($value) > 0) {
                     foreach ($value as $i => &$val) {
@@ -886,7 +829,7 @@ abstract class FOGManagerController extends FOGBase
                 $orderString
             );
         }
-        $join = $whereArrayAnd = array();
+        $join = $whereArrayAnd = [];
         $c = null;
         self::getClass($this->childClass)->buildQuery(
             $join,
@@ -897,11 +840,11 @@ abstract class FOGManagerController extends FOGBase
         );
         $join = array_filter((array) $join);
         $join = implode((array) $join);
-        $knownEnable = array(
+        $knownEnable = [
             'Image',
             'Snapin',
             'StorageNode'
-        );
+        ];
         $nonEnable = !(in_array($this->childClass, $knownEnable));
         $isEnabled = array_key_exists(
             'isEnabled',
@@ -920,7 +863,7 @@ abstract class FOGManagerController extends FOGBase
                 $this->databaseFields['isEnabled']
             );
         }
-        $idFields = array();
+        $idFields = [];
         foreach ((array) $idField as &$id) {
             $id = trim($id);
             $idFields += (array) $this->databaseFields[$id];
@@ -976,7 +919,7 @@ abstract class FOGManagerController extends FOGBase
         $query .= $limit . $offset;
         self::$DB->query(
             $query,
-            array(),
+            [],
             $findVals
         )->fetch(
             '',
@@ -1011,12 +954,12 @@ abstract class FOGManagerController extends FOGBase
      * @return int
      */
     public function count(
-        $findWhere = array(),
+        $findWhere = [],
         $whereOperator = 'AND',
         $compare = '='
     ) {
         if (empty($findWhere)) {
-            $findWhere = array();
+            $findWhere = [];
         }
         if (empty($whereOperator)) {
             $whereOperator = 'AND';
@@ -1024,8 +967,8 @@ abstract class FOGManagerController extends FOGBase
         if (empty($compare)) {
             $compare = '=';
         }
-        $whereArray = array();
-        $countVals = $countKeys = array();
+        $whereArray = [];
+        $countVals = $countKeys = [];
         if (count($findWhere)) {
             foreach ((array) $findWhere as $field => &$value) {
                 $field = trim($field);
@@ -1070,11 +1013,11 @@ abstract class FOGManagerController extends FOGBase
                 unset($value, $field);
             }
         }
-        $knownEnable = array(
+        $knownEnable = [
             'Image',
             'Snapin',
             'StorageNode',
-        );
+        ];
         $nonEnable = !(in_array($this->childClass, $knownEnable));
         $isEnabled = array_key_exists(
             'isEnabled',
@@ -1123,7 +1066,7 @@ abstract class FOGManagerController extends FOGBase
         );
 
         return (int)self::$DB
-            ->query($query, array(), $countVals)
+            ->query($query, [], $countVals)
             ->fetch()
             ->get('total');
     }
@@ -1145,7 +1088,7 @@ abstract class FOGManagerController extends FOGBase
         if ($valuelength < 1) {
             throw new Exception(_('No values passed'));
         }
-        $keys = array();
+        $keys = [];
         foreach ((array) $fields as &$key) {
             $key = $this->databaseFields[$key];
             $keys[] = $key;
@@ -1156,12 +1099,12 @@ abstract class FOGManagerController extends FOGBase
             );
             unset($key);
         }
-        $vals = array();
-        $insertVals = array();
+        $vals = [];
+        $insertVals = [];
         $values = array_chunk($values, 500);
         foreach ((array) $values as $ind => &$v) {
             foreach ((array) $v as $index => &$value) {
-                $insertKeys = array();
+                $insertKeys = [];
                 foreach ((array) $value as $i => &$val) {
                     $key = sprintf(
                         '%s_%d',
@@ -1189,17 +1132,17 @@ abstract class FOGManagerController extends FOGBase
                 implode(',', $vals),
                 implode(',', $dups)
             );
-            self::$DB->query($query, array(), $insertVals);
+            self::$DB->query($query, [], $insertVals);
             if ($ind === 0) {
                 $insertID = (int) self::$DB->insertId();
             }
             $affectedRows += (int) self::$DB->affectedRows();
             unset($v, $vals, $insertVals);
         }
-        return array(
+        return [
             $insertID,
             $affectedRows,
-        );
+        ];
     }
     /**
      * Function deals with enmass updating.
@@ -1211,19 +1154,19 @@ abstract class FOGManagerController extends FOGBase
      * @return bool
      */
     public function update(
-        $findWhere = array(),
+        $findWhere = [],
         $whereOperator = 'AND',
-        $insertData = array()
+        $insertData = []
     ) {
         if (empty($findWhere)) {
-            $findWhere = array();
+            $findWhere = [];
         }
         if (empty($whereOperator)) {
             $whereOperator = 'AND';
         }
-        $insertArray = array();
-        $whereArray = array();
-        $updateVals = array();
+        $insertArray = [];
+        $whereArray = [];
+        $updateVals = [];
         foreach ((array) $insertData as $field => &$value) {
             $field = trim($field);
             $value = trim($value);
@@ -1245,7 +1188,7 @@ abstract class FOGManagerController extends FOGBase
             unset($value);
         }
         unset($updateKey);
-        $findVals = array();
+        $findVals = [];
         if (count($findWhere) > 0) {
             foreach ($findWhere as $field => &$value) {
                 $key = trim($field);
@@ -1324,7 +1267,7 @@ abstract class FOGManagerController extends FOGBase
             (array) $findVals
         );
 
-        return (bool) self::$DB->query($query, array(), $queryVals);
+        return (bool) self::$DB->query($query, [], $queryVals);
     }
     /**
      * Destroys items related to the main object.
@@ -1340,7 +1283,7 @@ abstract class FOGManagerController extends FOGBase
      * @return bool
      */
     public function destroy(
-        $findWhere = array(),
+        $findWhere = [],
         $whereOperator = 'AND',
         $orderBy = 'name',
         $sort = 'ASC',
@@ -1350,7 +1293,7 @@ abstract class FOGManagerController extends FOGBase
     ) {
         // Fail safe defaults
         if (empty($findWhere)) {
-            $findWhere = array();
+            $findWhere = [];
         }
         if (empty($whereOperator)) {
             $whereOperator = 'AND';
@@ -1372,7 +1315,7 @@ abstract class FOGManagerController extends FOGBase
             $not,
             'id'
         );
-        $destroyVals = array();
+        $destroyVals = [];
         $ids = array_chunk($ids, 500);
         foreach ((array)$ids as &$id) {
             foreach ((array) $id as $index => &$id_1) {
@@ -1392,7 +1335,7 @@ abstract class FOGManagerController extends FOGBase
                 implode(',', (array) $destroyKeys)
             );
             unset($destroyKeys);
-            self::$DB->query($query, array(), $destroyVals);
+            self::$DB->query($query, [], $destroyVals);
             unset($destroyVals, $destroyKeys);
         }
 
@@ -1433,7 +1376,7 @@ abstract class FOGManagerController extends FOGBase
         self::$HookManager
             ->processEvent(
                 'SELECT_BUILD',
-                array(
+                [
                     'matchID' => &$matchID,
                     'elementName' => &$elementName,
                     'orderBy' => &$orderBy,
@@ -1441,11 +1384,11 @@ abstract class FOGManagerController extends FOGBase
                     'template' => &$template,
                     'waszero' => &$waszero,
                     'obj' => $this
-                )
+                ]
             );
         foreach ((array)$this
             ->find(
-                $filter ? array('id' => $filter) : '',
+                $filter ? ['id' => $filter] : '',
                 '',
                 $orderBy,
                 '',
@@ -1523,10 +1466,10 @@ abstract class FOGManagerController extends FOGBase
         if (empty($idField)) {
             $idField = 'name';
         }
-        $existVals = array(
+        $existVals = [
             $idField => $val,
             'id' => $id,
-        );
+        ];
         $query = sprintf(
             $this->existsQueryTemplate,
             $this->databaseTable,
@@ -1541,7 +1484,7 @@ abstract class FOGManagerController extends FOGBase
         );
 
         return (bool)self::$DB
-            ->query($query, array(), $existVals)
+            ->query($query, [], $existVals)
             ->fetch()
             ->get('total') > 0;
     }
@@ -1557,12 +1500,12 @@ abstract class FOGManagerController extends FOGBase
      */
     public function distinct(
         $field = '',
-        $findWhere = array(),
+        $findWhere = [],
         $whereOperator = 'AND',
         $compare = '='
     ) {
         if (empty($findWhere)) {
-            $findWhere = array();
+            $findWhere = [];
         }
         if (empty($whereOperator)) {
             $whereOperator = 'AND';
@@ -1570,8 +1513,8 @@ abstract class FOGManagerController extends FOGBase
         if (empty($compare)) {
             $compare = '=';
         }
-        $whereArray = array();
-        $countVals = $countKeys = array();
+        $whereArray = [];
+        $countVals = $countKeys = [];
         if (count($findWhere) > 0) {
             array_walk(
                 $findWhere,
@@ -1657,7 +1600,7 @@ abstract class FOGManagerController extends FOGBase
         );
 
         return (int)self::$DB
-            ->query($query, array(), $countVals)
+            ->query($query, [], $countVals)
             ->fetch()
             ->get('total');
     }
@@ -1674,7 +1617,7 @@ abstract class FOGManagerController extends FOGBase
     /**
      * Gets the columns for this item.
      *
-     * @return array()
+     * @return [] 
      */
     public function getColumns()
     {
@@ -1683,7 +1626,7 @@ abstract class FOGManagerController extends FOGBase
     /**
      * Gets the table for this item.
      *
-     * @return array()
+     * @return []
      */
     public function getTable()
     {

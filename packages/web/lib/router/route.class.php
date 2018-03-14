@@ -425,12 +425,15 @@ class Route extends FOGBase
     /**
      * Presents the equivalent of a page's list all.
      *
-     * @param string $class The class to work with.
+     * @param string $class      The class to work with.
+     * @param mixed  $whereItems Any special things to search for.
      *
      * @return void
      */
-    public static function listem($class) 
-    {
+    public static function listem(
+        $class,
+        $whereItems = false
+    ) {
         parse_str(
             file_get_contents('php://input'),
             $pass_vars
@@ -444,6 +447,23 @@ class Route extends FOGBase
         $fltrstr = $classman->getFilterStr();
         $ttlstr = $classman->getTotalStr();
         $tmpcolumns = $classman->getColumns();
+
+        $where = '';
+        if (count($whereItems ?: []) > 0) {
+            foreach ($whereItems as $key => $item) {
+                if (!$where) {
+                    $where = $key;
+                } else {
+                    $where .= ' AND ' . $key;
+                }
+                if (is_array($item)) {
+                    $where .= " IN ('"
+                        . implode("','", $item);
+                } else if (is_string($item)) {
+                    $where .= " = '$item'";
+                }
+            }
+        }
 
         /**
          * Any custom fields that we need removed
@@ -485,15 +505,15 @@ class Route extends FOGBase
                 $tableID = $real;
             }
             $columns[] = ['db' => $real, 'dt' => $common];
-            //if ($common == 'id') {
-            //    $columns[] = [
-            //        'db' => $real,
-            //        'dt' => 'DT_RowId',
-            //        'formatter' => function($d, $row) {
-            //            return 'row_'.$d;
-            //        }
-            //    ];
-            //}
+            if ($common == 'id') {
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => 'DT_RowId',
+                    'formatter' => function ($d, $row) {
+                        return 'row_'.$d;
+                    }
+                ];
+            }
             unset($real);
         }
         // Any extra columns not in the db fields.
@@ -526,14 +546,15 @@ class Route extends FOGBase
             ['columns' => &$columns]
         );
 
-        self::$data = FOGManagerController::simple(
+        self::$data = FOGManagerController::complex(
             $pass_vars,
             $table,
             $tableID,
             $columns,
             $sqlstr,
             $fltrstr,
-            $ttlstr
+            $ttlstr,
+            $where
         );
         self::$HookManager->processEvent(
             'API_MASSDATA_MAPPING',
