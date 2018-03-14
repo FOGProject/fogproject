@@ -106,6 +106,9 @@ class DashboardPage extends FOGPage
         );
         $Nodes = $Nodes->storagenodes;
         foreach ((array)$Nodes as &$StorageNode) {
+            if (!self::getClass('StorageNode', $StorageNode->id)->online) {
+                continue;
+            }
             $ip = $StorageNode->ip;
             $url = sprintf(
                 '%s/%s/',
@@ -118,7 +121,6 @@ class DashboardPage extends FOGPage
                 $url
             );
             $url = self::$httpproto.'://' . $url;
-            $testurls[] = $ip;
             unset($ip);
             self::$_nodeOpts[] = sprintf(
                 '<option value="%s" urlcall="%s">%s%s ()</option>',
@@ -155,12 +157,6 @@ class DashboardPage extends FOGPage
             );
             unset($StorageGroup);
         }
-        $test = array_filter(
-            self::$FOGURLRequests->isAvailable($testurls)
-        );
-        self::$_nodeOpts = array_intersect_key((array)self::$_nodeOpts, $test);
-        self::$_nodeNames = array_intersect_key((array)self::$_nodeNames, $test);
-        self::$_nodeURLs = array_intersect_key((array)self::$_nodeURLs, $test);
         self::$_nodeOpts = implode((array)self::$_nodeOpts);
         list(
             self::$_bandwidthtime,
@@ -473,8 +469,7 @@ class DashboardPage extends FOGPage
             $this->obj->get('ip'),
             base64_encode($this->obj->get('path'))
         );
-        $test = self::$FOGURLRequests->isAvailable($this->obj->get('ip'), 1);
-        if (!array_shift($test)) {
+        if (!$this->obj->online) {
             echo json_encode(
                 [
                     '_labels' => [

@@ -22,6 +22,25 @@
 class StorageNode extends FOGController
 {
     /**
+     * Is this node online.
+     *
+     * @var bool
+     */
+    public $online = false;
+    /**
+     * Initialize controller
+     *
+     * @param mixed $data The data passed in.
+     *
+     * @return void
+     */
+    public function __construct($data = '')
+    {
+        parent::__construct($data);
+        $test = self::$FOGURLRequests->isAvailable($this->get('ip'), 1);
+        $this->online = array_shift($test);
+    }
+    /**
      * The storage node table.
      *
      * @var string
@@ -52,7 +71,7 @@ class StorageNode extends FOGController
         'key' => 'ngmKey',
         'interface' => 'ngmInterface',
         'bandwidth' => 'ngmBandwidthLimit',
-        'webroot' => 'ngmWebroot',
+        'webroot' => 'ngmWebroot'
     );
     /**
      * The required fields.
@@ -64,7 +83,7 @@ class StorageNode extends FOGController
         'path',
         'ftppath',
         'user',
-        'pass',
+        'pass'
     );
     /**
      * Additional fields.
@@ -76,7 +95,7 @@ class StorageNode extends FOGController
         'snapinfiles',
         'logfiles',
         'usedtasks',
-        'storagegroup',
+        'storagegroup'
     );
     /**
      * Database -> Class field relationships
@@ -104,7 +123,7 @@ class StorageNode extends FOGController
             'ftppath',
             'snapinpath',
             'sslpath',
-            'webroot',
+            'webroot'
         );
         if (in_array($key, $pathvars)) {
             if (trim(parent::get($key)) === '/') {
@@ -170,6 +189,9 @@ class StorageNode extends FOGController
      */
     public function getLogfiles()
     {
+        if (!$this->online) {
+            return;
+        }
         $url = sprintf(
             '%s://%s/fog/status/getfiles.php?path=%s',
             self::$httpproto,
@@ -190,11 +212,7 @@ class StorageNode extends FOGController
             $url,
             urlencode(implode(':', $paths))
         );
-        $test = self::$FOGURLRequests->isAvailable($this->get('ip'));
-        $test = array_shift($test);
-        if ($test) {
-            $paths = self::$FOGURLRequests->process($url);
-        }
+        $paths = self::$FOGURLRequests->process($url);
         foreach ((array)$paths as $index => &$response) {
             $tmppath = self::fastmerge(
                 (array)$tmppath,
@@ -215,9 +233,7 @@ class StorageNode extends FOGController
      */
     private function _getData()
     {
-        $test = self::$FOGURLRequests->isAvailable($this->get('ip'));
-        $test = array_shift($test);
-        if (!$test) {
+        if (!$this->online) {
             return;
         }
         $url = sprintf(

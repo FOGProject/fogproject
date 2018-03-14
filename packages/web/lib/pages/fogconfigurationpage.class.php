@@ -130,9 +130,7 @@ class FOGConfigurationPage extends FOGPage
                 ),
                 FILTER_SANITIZE_URL
             );
-            $test = self::$FOGURLRequests->isAvailable($StorageNode->ip);
-            $test = array_shift($test);
-            if (!$test) {
+            if (!self::getClass('StorageNode', $StorageNode->id)->online) {
                 continue;
             }
             echo '<a id="'
@@ -1192,7 +1190,8 @@ class FOGConfigurationPage extends FOGPage
                 )
             );
             echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading text-center expand_trigger hand" id="pxeItem_'
+            echo '<div class="panel-heading text-center expand_trigger '
+                . 'hand" id="pxeItem_'
                 . $divTab
                 . '">';
             echo '<h4 class="title">';
