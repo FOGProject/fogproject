@@ -57,6 +57,9 @@ class LDAPPluginHook extends Hook
     public function __construct()
     {
         parent::__construct();
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
         self::$HookManager
             ->register(
                 'USER_LOGGING_IN',
@@ -97,9 +100,6 @@ class LDAPPluginHook extends Hook
      */
     public function checkAddUser($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         $user = trim($arguments['username']);
         $pass = trim($arguments['password']);
         $ldapTypes = array(990, 991);
@@ -158,9 +158,6 @@ class LDAPPluginHook extends Hook
      */
     public function setLdapType($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         $type = (int)$arguments['type'];
         if ($type === 990) {
             $arguments['type'] = 0;
@@ -177,9 +174,6 @@ class LDAPPluginHook extends Hook
      */
     public function setTypeFilter($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         $arguments['types'] = array(990, 991);
     }
     /**
@@ -191,9 +185,6 @@ class LDAPPluginHook extends Hook
      */
     public function isLdapType($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         $types = array(990, 991);
         if (in_array($arguments['type'], $types)) {
             $arguments['typeIsValid'] = false;
