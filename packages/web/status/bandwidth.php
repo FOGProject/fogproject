@@ -80,7 +80,6 @@ $interface = preg_grep("#^$dev$#", $interfaces);
 // If our interface isn't found, try getting it directly off the system
 if (count($interface) < 1) {
     include '../commons/base.inc.php';
-    session_write_close();
     ignore_user_abort(true);
     set_time_limit(0);
     // Find our server address

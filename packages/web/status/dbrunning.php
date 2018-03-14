@@ -21,7 +21,6 @@
  */
 require '../commons/base.inc.php';
 header('Content-type: application/json');
-session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
 $link = DatabaseManager::getLink();

@@ -453,6 +453,7 @@ class DashboardPage extends FOGPage
      */
     public function diskusage()
     {
+        header('Content-type: application/json');
         $url = sprintf(
             '%s://%s/fog/status/freespace.php?path=%s',
             self::$httpproto,
@@ -460,6 +461,7 @@ class DashboardPage extends FOGPage
             base64_encode($this->obj->get('path'))
         );
         if (!$this->obj->online) {
+            http_response_code(HTTPResponseCodes::HTTP_NO_CONENT);
             echo json_encode(
                 [
                     '_labels' => [
@@ -504,9 +506,7 @@ class DashboardPage extends FOGPage
      */
     public function get30day()
     {
-        session_write_close();
-        ignore_user_abort(true);
-        set_time_limit(0);
+        header('Content-type: application/json');
         $start = self::niceDate()
             ->setTime(00, 00, 00)
             ->modify('-30 days');

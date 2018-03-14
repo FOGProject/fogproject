@@ -19,7 +19,6 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: application/json');
