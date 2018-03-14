@@ -130,7 +130,7 @@ class FOGConfigurationPage extends FOGPage
                 ),
                 FILTER_SANITIZE_URL
             );
-            if (!self::getClass('StorageNode', $StorageNode->id)->online) {
+            if (!self::getClass('StorageNode', $StorageNode->id)->get('online')) {
                 continue;
             }
             echo '<a id="'

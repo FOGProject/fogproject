@@ -106,7 +106,7 @@ class DashboardPage extends FOGPage
         );
         $Nodes = $Nodes->storagenodes;
         foreach ((array)$Nodes as &$StorageNode) {
-            if (!self::getClass('StorageNode', $StorageNode->id)->online) {
+            if (!self::getClass('StorageNode', $StorageNode->id)->get('online')) {
                 continue;
             }
             $ip = $StorageNode->ip;
@@ -469,7 +469,7 @@ class DashboardPage extends FOGPage
             $this->obj->get('ip'),
             base64_encode($this->obj->get('path'))
         );
-        if (!$this->obj->online) {
+        if (!$this->obj->get('online')) {
             echo json_encode(
                 [
                     '_labels' => [

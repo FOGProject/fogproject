@@ -22,12 +22,6 @@
 class StorageNode extends FOGController
 {
     /**
-     * Is this node online.
-     *
-     * @var bool
-     */
-    public $online = false;
-    /**
      * Initialize controller
      *
      * @param mixed $data The data passed in.
@@ -37,8 +31,6 @@ class StorageNode extends FOGController
     public function __construct($data = '')
     {
         parent::__construct($data);
-        $test = self::$FOGURLRequests->isAvailable($this->get('ip'), 1);
-        $this->online = array_shift($test);
     }
     /**
      * The storage node table.
@@ -95,7 +87,8 @@ class StorageNode extends FOGController
         'snapinfiles',
         'logfiles',
         'usedtasks',
-        'storagegroup'
+        'storagegroup',
+        'online'
     );
     /**
      * Database -> Class field relationships
@@ -155,6 +148,16 @@ class StorageNode extends FOGController
         return $this->get('storagegroup');
     }
     /**
+     * Loads the online status for us.
+     *
+     * @return void
+     */
+    public function loadOnline()
+    {
+        $test = self::$FOGURLRequests->isAvailable($this->get('ip'), 1);
+        $this->set('online', array_shift($test));
+    }
+    /**
      * Get the node failure.
      *
      * @param int $Host the host id
@@ -189,7 +192,7 @@ class StorageNode extends FOGController
      */
     public function getLogfiles()
     {
-        if (!$this->online) {
+        if (!$this->get('online')) {
             return;
         }
         $url = sprintf(
@@ -233,7 +236,7 @@ class StorageNode extends FOGController
      */
     private function _getData()
     {
-        if (!$this->online) {
+        if (!$this->get('online')) {
             return;
         }
         $url = sprintf(
