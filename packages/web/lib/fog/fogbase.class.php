@@ -2143,7 +2143,7 @@ abstract class FOGBase
                 $retVal
             );
         }
-        $test = self::$FOGURLRequests->isAvailable('http://ipinfo.io/ip');
+        $test = self::$FOGURLRequests->isAvailable('http://ipinfo.io/ip', 10, 80);
         $test = array_shift($test);
         if (false !== $test) {
             $res = self::$FOGURLRequests->process('http://ipinfo.io/ip');

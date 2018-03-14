@@ -22,6 +22,27 @@
 class StorageNode extends FOGController
 {
     /**
+     * Is the node online?
+     *
+     * @var bool
+     */
+    public $online = false;
+    /**
+     * Initialize the controller for this object.
+     *
+     * @param mixed $data The data to set.
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    public function __construct($data = '')
+    {
+        parent::__construct($data);
+        $test = self::$FOGURLRequests->isAvailable($this->get('ip'), 1);
+        $this->online = array_shift($test);
+    }
+    /**
      * The storage node table.
      *
      * @var string
@@ -186,6 +207,9 @@ class StorageNode extends FOGController
      */
     public function getLogfiles()
     {
+        if (!$this->online) {
+            return;
+        }
         $url = sprintf(
             '%s://%s/fog/status/getfiles.php?path=%s',
             self::$httpproto,
@@ -206,11 +230,6 @@ class StorageNode extends FOGController
             $url,
             urlencode(implode(':', $paths))
         );
-        $test = self::$FOGURLRequests->isAvailable($this->get('ip'));
-        $test = array_shift($test);
-        if ($test) {
-            $paths = self::$FOGURLRequests->process($url);
-        }
         foreach ((array)$paths as $index => &$response) {
             $tmppath = self::fastmerge(
                 (array)$tmppath,
@@ -231,9 +250,7 @@ class StorageNode extends FOGController
      */
     private function _getData()
     {
-        $test = self::$FOGURLRequests->isAvailable($this->get('ip'));
-        $test = array_shift($test);
-        if (!$test) {
+        if (!$this->online) {
             return;
         }
         $url = sprintf(
