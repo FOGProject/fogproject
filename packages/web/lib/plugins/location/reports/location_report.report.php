@@ -22,12 +22,38 @@
 class Location_Report extends ReportManagementPage
 {
     /**
-     * What to display.
+     * The page to display.
      *
      * @return void
      */
     public function file()
     {
-        echo 'Here';
+        $this->headerData = [];
+        $this->templates = [];
+        $this->attributes = [];
+
+        $obj = self::getClass('LocationManager');
+        foreach ($obj->getColumns() as $common => &$real) {
+            array_push($this->headerData, $common);
+            array_push($this->templates, '');
+            array_push($this->attributes, []);
+            unset($real);
+        }
+
+        $this->title = _('Export Locations');
+
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Export Locations');
+        echo '</h4>';
+        echo '<p class="help-block">';
+        echo _('Use the selector to choose how many items you want exported');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'location-export-table');
+        echo '</div>';
+        echo '</div>';
     }
 }

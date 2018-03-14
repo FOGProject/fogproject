@@ -4,6 +4,8 @@ var $_GET = getQueryParams(document.location.search),
         sub: $_GET['sub'],
         id: $_GET['id'],
         tab: $_GET['tab'],
+        type: $_GET['type'],
+        f: $_GET['f'],
         debug: $_GET['debug'],
         search: $_GET['search'],
         masks: {
