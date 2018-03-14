@@ -202,9 +202,18 @@ abstract class FOGController extends FOGBase
      */
     public function __toString()
     {
-        $str = sprintf('%s ID: %s', get_class($this), $this->get('id'));
+        $str = sprintf(
+            '%s ID: %s',
+            get_class($this),
+            $this->get('id')
+        );
         if ($this->get('name')) {
-            $str = sprintf('%s %s: %s', $str, _('Name'), $this->get('name'));
+            $str = sprintf(
+                '%s %s: %s',
+                $str,
+                _('Name'),
+                $this->get('name')
+            );
         }
 
         return $str;
