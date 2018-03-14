@@ -274,7 +274,7 @@ class FOGPageManager extends FOGBase
     {
         global $node;
         $regext = sprintf(
-            '#^.+%spages%s.*\.class\.php$#',
+            '#^.+%spages%s.*\.page\.php$#',
             DS,
             DS
         );
@@ -283,7 +283,7 @@ class FOGPageManager extends FOGBase
             DS,
             DS
         );
-        $strlen = -strlen('.class.php');
+        $strlen = -strlen('.page.php');
         $plugins = '';
         $fileitems = function ($element) use ($dirpath, &$plugins) {
             preg_match(
@@ -354,7 +354,7 @@ class FOGPageManager extends FOGBase
         unset($normalfiles, $pluginfiles);
         foreach ($files as &$file) {
             $elementsub = substr($file, $strlen);
-            if (!in_array($elementsub, ['.class.php','.report.php'], true)) {
+            if (!in_array($elementsub, ['.page.php','.report.php'], true)) {
                 return;
             }
             $className = substr(basename($file), 0, $strlen);
