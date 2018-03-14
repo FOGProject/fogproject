@@ -44,7 +44,6 @@ class ClientManagementPage extends FOGPage
     {
         $this->name = 'Client Management';
         parent::__construct($this->name);
-        $this->menu = [];
     }
     /**
      * This is the default method called.  Displays what we want on the
@@ -94,44 +93,26 @@ class ClientManagementPage extends FOGPage
         echo '</p>';
         echo '</div>';
         echo '<div class="box-body">';
-        printf(
-            '%s, %s, %s, %s. ',
-            _('Cross platform'),
-            _('more secure'),
-            _('faster'),
-            _('and much easier on the server')
+        echo _(
+            'Cross platform, more secure, faster, and much easier on the server. '
+            . 'Espeically when your organization has many hosts'
         );
-        printf(
-            '%s.',
-            _('Especially when your organization has many hosts')
-        );
+        echo '<br/><br/>';
+        echo '<a href="'
+            . $url
+            . '?newclient'
+            . '">'
+            . _('MSI -- Network Installer')
+            . '</a>';
         echo '<br/>';
         echo '<a href="'
             . $url
-            . '?newclient" data-toggle="tooltip" data-placement="right" ';
-        printf(
-            'title="%s. %s. %s.">',
-            _('Use this for network installs'),
-            _('For example, a GPO policy to push'),
-            _('This file will only work on Windows')
-        );
-        echo '<br/>';
-        echo _('MSI');
-        echo ' -- ';
-        echo _('Network Installer');
-        echo '<br/>';
-        printf(
-            '<a href="%s?%s" data-toggle="tooltip" data-placement="right" '
-            . 'title="%s. %s, %s, %s.">%s (%s)</a>',
-            $url,
-            'smartinstaller',
-            _('This is the recommended installer to use now'),
-            _('It can be used on Windows'),
-            _('Linux'),
-            _('and Mac OS X'),
-            _('Smart Installer'),
-            _('Recommended')
-        );
+            . '?smartinstaller">'
+            . _('Smart Installer')
+            . ' ('
+            . _('recommended')
+            . ')'
+            . '</a>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -151,35 +132,20 @@ class ClientManagementPage extends FOGPage
         echo '</p>';
         echo '</div>';
         echo '<div class="box-body">';
-        printf(
-            '%s. %s: %s %s.<br/><br/>',
-            _('Use the links below if you need assistance'),
-            _('NOTE'),
-            _('Forums are the most common and fastest method of getting'),
-            _('help with any aspect of FOG')
-        );
+        echo _('Use the links below if you need assistance.');
         echo '<br/>';
-        printf(
-            '<a href="'
-            . 'https://wiki.fogproject.org/wiki/index.php?title=FOG_client'
-            . '" data-toggle="tooltip" data-placement="right" '
-            . 'title="%s. %s">%s</a><br/>',
-            _('Detailed documentation'),
-            _('It is primarily geared for the smart installer methodology now'),
-            _('FOG Client Wiki')
+        echo _(
+            'NOTE: Forums are the most command fastest method of '
+            . 'getting help with any aspect of FOG.'
         );
-        printf(
-            '<a href="'
-            . 'https://forums.fogproject.org'
-            . '" data-toggle="tooltip" data-placement="right" '
-            . 'title="%s? %s. %s %s. %s.">%s</a>',
-            _('Need more support'),
-            _('Somebody will be able to help in some form'),
-            _('Use the forums to post issues so others'),
-            _('may see the issue and help and/or use the solutions'),
-            _('Chat is also available on the forums for more realtime help'),
-            _('FOG Forums')
-        );
+        echo '<br/><br/><br/>';
+        echo '<a href="https://wiki.fogproject.org/wiki/index.php?title=FOG_client">'
+            . _('FOG Client Wiki')
+            . '</a>';
+        echo '<br/>';
+        echo '<a href="https://forums.fogproject.org">'
+            . _('FOG Forums')
+            . '</a>';
         echo '</div>';
         echo '</div>';
         echo '</div>';

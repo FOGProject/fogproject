@@ -2228,7 +2228,6 @@ abstract class FOGBase
         if (!is_array($macs)) {
             $macs = [$macs];
         }
-        session_write_close();
         ignore_user_abort(true);
         set_time_limit(0);
         $macs = self::parseMacList($macs);

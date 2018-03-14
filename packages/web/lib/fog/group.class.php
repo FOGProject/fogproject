@@ -747,7 +747,6 @@ class Group extends FOGController
             }
         }
         if ($wol) {
-            session_write_close();
             ignore_user_abort(true);
             set_time_limit(0);
             $this->wakeOnLAN();
@@ -888,11 +887,11 @@ class Group extends FOGController
     /**
      * Sets all hosts AD information.
      *
-     * @param int    $useAD   tells whether to enable/disable AD
-     * @param string $domain  the domain to associate
-     * @param string $ou      the ou to associate
-     * @param string $user    the user to join domain with
-     * @param string $pass    the user password for domain join
+     * @param int    $useAD  tells whether to enable/disable AD
+     * @param string $domain the domain to associate
+     * @param string $ou     the ou to associate
+     * @param string $user   the user to join domain with
+     * @param string $pass   the user password for domain join
      *
      * @return object
      */

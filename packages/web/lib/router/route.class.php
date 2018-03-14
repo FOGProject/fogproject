@@ -184,7 +184,6 @@ class Route extends FOGBase
          * Ensure api has unlimited time.
          */
         ignore_user_abort(true);
-        session_write_close();
         set_time_limit(0);
         /**
          * Define the event so plugins/hooks can modify what/when/where.
