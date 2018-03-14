@@ -145,25 +145,7 @@ class User extends FOGController
                 )
             );
         $typeIsValid = true;
-        $type = $tmpUser->get('type');
-        self::$HookManager
-            ->processEvent(
-                'USER_TYPE_HOOK',
-                array(
-                    'type' => &$type
-                )
-            );
-        self::$HookManager
-            ->processEvent(
-                'USER_TYPE_VALID',
-                array(
-                    'type' => &$type,
-                    'typeIsValid' => &$typeIsValid
-                )
-            );
-        if ($tmpUser->get('id') < 0) {
-            return false;
-        }
+        $ident = (int)$tmpUser->get('id');
         if (!$tmpUser->isValid() && $typeIsValid) {
             $tmpUser = self::getClass('User')
                 ->set('name', $username)
@@ -181,7 +163,27 @@ class User extends FOGController
             $password,
             $tmpUser->get('password')
         );
+        $type = $tmpUser->get('type');
+        self::$HookManager
+            ->processEvent(
+                'USER_TYPE_HOOK',
+                array(
+                    'type' => &$type
+                )
+            );
+        self::$HookManager
+            ->processEvent(
+                'USER_TYPE_VALID',
+                array(
+                    'type' => &$type,
+                    'typeIsValid' => &$typeIsValid
+                )
+            );
+        if ($typeIsValid && !in_array($type, array(0, 1))) {
+            $typeIsValid = false;
+        }
         if (!$test
+            || $ident < 0
             || !$tmpUser->isValid()
             || !$typeIsValid
             || !$passValid

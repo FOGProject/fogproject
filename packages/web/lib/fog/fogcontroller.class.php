@@ -134,6 +134,8 @@ abstract class FOGController extends FOGBase
             $this->databaseFieldsFlipped = array_flip($this->databaseFields);
             if (is_numeric($data) && $data > 0) {
                 $this->set('id', $data)->load();
+            } elseif (is_numeric($data)) {
+                $this->set('id', $data);
             } elseif (is_array($data)) {
                 $this->setQuery($data);
             }
@@ -249,9 +251,6 @@ abstract class FOGController extends FOGBase
             }
             if (!$this->isLoaded($key)) {
                 $this->loadItem($key);
-            }
-            if (is_numeric($value) && $value < ($key == 'id' ? 1 : -1)) {
-                throw new Exception(_('Invalid numeric entry'));
             }
             $msg = sprintf(
                 '%s: %s, $s: %s',
