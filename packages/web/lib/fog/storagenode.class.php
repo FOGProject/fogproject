@@ -22,17 +22,6 @@
 class StorageNode extends FOGController
 {
     /**
-     * Initialize controller
-     *
-     * @param mixed $data The data passed in.
-     *
-     * @return void
-     */
-    public function __construct($data = '')
-    {
-        parent::__construct($data);
-    }
-    /**
      * The storage node table.
      *
      * @var string
