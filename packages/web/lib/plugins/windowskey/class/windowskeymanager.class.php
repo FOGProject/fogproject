@@ -38,42 +38,42 @@ class WindowsKeyManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'wkID',
                 'wkName',
                 'wkDesc',
                 'wkCreatedBy',
                 'wkCreatedTime',
                 'wkKey'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'VARCHAR(255)',
                 'LONGTEXT',
                 'VARCHAR(40)',
                 'TIMESTAMP',
                 'VARCHAR(200)'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false,
                 'CURRENT_TIMESTAMP',
                 false
-            ),
-            array(
+            ],
+            [
                 'wkKey',
                 'wkName'
-            ),
+            ],
             'MyISAM',
             'utf8',
             'wkID',
@@ -111,7 +111,7 @@ class WindowsKeyManager extends FOGManagerController
      * @return parent::destroy
      */
     public function destroy(
-        $findWhere = array(),
+        $findWhere = [],
         $whereOperator = 'AND',
         $orderBy = 'name',
         $sort = 'ASC',
@@ -129,7 +129,7 @@ class WindowsKeyManager extends FOGManagerController
             $not
         );
         if (isset($findWhere['id'])) {
-            $findWhere = array('windowskeyID' => $findWhere['id']);
+            $findWhere = ['windowskeyID' => $findWhere['id']];
         }
         self::getClass('WindowsKeyAssociationManager')->destroy($findWhere);
         return true;

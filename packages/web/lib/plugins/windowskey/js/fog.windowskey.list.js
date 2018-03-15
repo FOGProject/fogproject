@@ -4,7 +4,7 @@
         passwordField = $('#deletePassword'),
         confirmDelete = $('#confirmDeleteModal'),
         cancelDelete = $('#closeDeleteModal'),
-        numWindowsKeyString = confirmDelete.val();
+        numRolesString = confirmDelete.val();
 
     function disableButtons(disable) {
         deleteSelected.prop('disabled', disable);
@@ -55,7 +55,7 @@
 
     deleteSelected.on('click',function() {
         disableButtons(true);
-        confirmDelete.val(numWindowsKeyString.format(''));
+        confirmDelete.val(numGroupString.format(''));
         Common.massDelete(null, function(err) {
             if (err.status == 401) {
                 deleteModal.modal('show');

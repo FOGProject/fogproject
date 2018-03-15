@@ -32,46 +32,46 @@ class WindowsKeyAssociation extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'wkaID',
         'imageID' => 'wkaImageID',
-        'windowskeyID' => 'wkaKeyID',
-    );
+        'windowskeyID' => 'wkaKeyID'
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'imageID',
-        'windowskeyID',
-    );
+        'windowskeyID'
+    ];
     /**
      * Additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'key',
         'image'
-    );
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'WindowsKey' => array(
+    protected $databaseFieldClassRelationships = [
+        'WindowsKey' => [
             'id',
             'windowskeyID',
             'key'
-        ),
-        'Image' => array(
+        ],
+        'Image' => [
             'id',
             'imageID',
             'image'
-        )
-    );
+        ]
+    ];
     /**
      * Return the associated image.
      *

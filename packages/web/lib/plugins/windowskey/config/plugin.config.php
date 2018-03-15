@@ -7,7 +7,6 @@
  * @category Config
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @author   George Rowlett <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -17,11 +16,10 @@
  * @category Config
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @author   Lee Rowlett <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-$fog_plugin = array();
+$fog_plugin = [];
 $fog_plugin['name'] = 'windowskey';
 $fog_plugin['description'] = sprintf(
     '%s %s. %s %s. %s %s. %s: %s %s.',

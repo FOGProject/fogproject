@@ -56,19 +56,16 @@ class AddSiteGroup extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        self::$HookManager
-            ->register(
-                'PLUGINS_INJECT_TABDATA',
-                [$this, 'groupTabData']
-            )
-            ->register(
-                'GROUP_EDIT_SUCCESS',
-                [$this, 'groupAddSiteEdit']
-            )
-            ->register(
-                'GROUP_ADD_FIELDS',
-                [$this, 'groupAddSiteField']
-            );
+        self::$HookManager->register(
+            'PLUGINS_INJECT_TABDATA',
+            [$this, 'groupTabData']
+        )->register(
+            'GROUP_EDIT_SUCCESS',
+            [$this, 'groupAddSiteEdit']
+        )->register(
+            'GROUP_ADD_FIELDS',
+            [$this, 'groupAddSiteField']
+        );
     }
     /**
      * The group tab data.
@@ -113,29 +110,49 @@ class AddSiteGroup extends Hook
             . _('Group Site')
             . '</label>' => &$siteSelector
         ];
-        self::$HookManager
-            ->processEvent(
-                'GROUP_SITE_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'Group' => &$obj
-                ]
-            );
+        $buttons = FOGPage::makeButton(
+            'site-send',
+            _('Update'),
+            'btn btn-primary'
+        );
+
+        self::$HookManager->processEvent(
+            'GROUP_SITE_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'Group' => &$obj
+            ]
+        );
+
         $rendered = FOGPage::formFields($fields);
+        unset($fields);
+
+        echo FOGPage::makeFormTag(
+            'form-horizontal',
+            'group-site-form',
+            FOGPage::makeTabUpdateURL(
+                'group-site',
+                $obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Site');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
-        echo '<form id="group-site-form" class="form-horizontal" method="post" action="'
-            . FOGPage::makeTabUpdateURL('group-site', $obj->get('id'))
-            . '" novalidate>';
         echo $rendered;
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="site-send">'
-            . _('Update')
-            . '</button>';
+        echo $buttons;
         echo '</div>';
         echo '</div>';
+        echo '</form>';
     }
     /**
      * The site updater element.
@@ -152,7 +169,6 @@ class AddSiteGroup extends Hook
                 'site'
             )
         );
-        $Site = new Site($siteID);
         $insert_fields = ['hostID', 'siteID'];
         $insert_values = [];
         $hosts = $obj->get('hosts');
@@ -198,7 +214,7 @@ class AddSiteGroup extends Hook
             default:
                 return;
             }
-            $arguments['code'] = 201;
+            $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
             $argumetns['hook'] = 'GROUP_EDIT_SITE_SUCCESS';
             $arguments['msg'] = json_encode(
                 [
@@ -232,9 +248,12 @@ class AddSiteGroup extends Hook
         }
         $siteID = (int)filter_input(INPUT_POST, 'site');
         $arguments['fields'][
-            '<label for="site" class="col-sm-2 control-label">'
-            . _('Group Site')
-            . '</label>'] = self::getClass('SiteManager')
-            ->buildSelectBox($siteID, 'site');
+            FOGPage::makeLabel(
+                'col-sm-2 control-label',
+                'site',
+                _('Group Site')
+            )
+        ] = FOGPage::getClass('SiteManager')
+        ->buildSelectBox($siteID, 'site');
     }
 }

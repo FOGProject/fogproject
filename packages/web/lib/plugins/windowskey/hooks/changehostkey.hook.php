@@ -8,7 +8,6 @@
  * @category ChangeHostKey
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @author   Lee Rowlett <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -19,7 +18,6 @@
  * @category ChangeHostKey
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @author   Lee Rowlett <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -57,14 +55,13 @@ class ChangeHostKey extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'HOST_TASKING_COMPLETE',
-                array(
-                    $this,
-                    'changeHostProductKey'
-                )
-            );
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        self::$HookManager->register(
+            'HOST_TASKING_COMPLETE',
+            [$this, 'changeHostProductKey']
+        );
     }
     /**
      * Changes the host's product key
@@ -75,41 +72,30 @@ class ChangeHostKey extends Hook
      */
     public function changeHostProductKey($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         if (!$arguments['Task']->isDeploy()) {
             return;
         }
         $WindowsKey = self::getSubObjectIDs(
             'WindowsKeyAssociation',
-            array(
-                'imageID' => $arguments['Task']
-                    ->getImage()
-                    ->get('id')
-            ),
+            ['imageID' => $arguments['Task']->getImage()->get('id')],
             'windowskeyID'
         );
         $cnt = self::getClass('WindowsKeyManager')->count(
-            array(
-                'id' => $WindowsKey
-            )
+            ['id' => $WindowsKey]
         );
         if ($cnt !== 1) {
             return;
         }
         $WindowsKey = self::getSubObjectIDs(
             'WindowsKey',
-            array('id' => $WindowsKey),
+            ['id' => $WindowsKey],
             'key'
         );
         $productKey = trim(
             array_shift($WindowsKey)
         );
         $arguments['Host']
-            ->set(
-                'productKey',
-                $productKey
-            )->save();
+            ->set('productKey', $productKey)
+            ->save();
     }
 }

@@ -7,7 +7,6 @@
  * @category AddWindowsKeyMenuItem
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @author   Lee Rowlett <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -17,7 +16,6 @@
  * @category AddWindowsKeyMenuItem
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @author   Lee Rowlett <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -100,10 +98,7 @@ class AddWindowsKeyMenuItem extends Hook
             'storagegroup',
             $arguments['main'],
             $this->node,
-            array(
-                _('Windows Keys'),
-                'fa fa-windows'
-            )
+            [_('Windows Keys'), 'fa fa-windows']
         );
     }
     /**
