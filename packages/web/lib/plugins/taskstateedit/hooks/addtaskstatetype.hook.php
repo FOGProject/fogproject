@@ -53,13 +53,9 @@ class AddTaskStateType extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'REPORT_TYPES',
-                array(
-                    $this,
-                    'reportTypes'
-                )
-            );
+        self::$HookManager->register(
+            'REPORT_TYPES',
+            [$this, 'reportTypes']
+        );
     }
 }

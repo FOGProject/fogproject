@@ -84,7 +84,7 @@ class TaskType extends FOGController
     {
         $selected = trim($selected);
         $fh = fopen(
-            '../management/scss/_variables.scss',
+            '../management/other/_variables.scss',
             'rb'
         );
         if (!$fh) {
@@ -121,9 +121,10 @@ class TaskType extends FOGController
         echo '<select class="form-control fa" id="icon" name="icon">';
         foreach ((array) $icons as $name => &$unicode) {
             printf(
-                '<option value="%s"%s> %s</option>',
+                '<option value="%s"%s>%s %s</option>',
                 $name,
                 $selected == $name ? ' selected' : '',
+                $unicode,
                 $name
             );
             unset($unicode, $name);
