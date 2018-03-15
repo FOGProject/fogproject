@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-13 02:05-0400\n"
+"POT-Creation-Date: 2018-03-14 20:31-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1313,6 +1313,9 @@ msgstr "pas dans ce"
 msgid "Export Locations"
 msgstr "hôte Lieu"
 
+msgid "Use the selector to choose how many items you want exported"
+msgstr ""
+
 #, fuzzy
 msgid "Import Locations"
 msgstr "hôte Lieu"
@@ -1672,16 +1675,16 @@ msgid "Link Pushbullet Account Fail"
 msgstr "Compte Lien Pushbullet"
 
 #, fuzzy
+msgid "Export Broadcasts"
+msgstr "Les hôtes à l'exportation"
+
+#, fuzzy
+msgid "Import Broadcasts"
+msgstr "Hôtes d'importation"
+
+#, fuzzy
 msgid "WOL Broadcasts"
 msgstr "Tous les Broadcasts"
-
-#, fuzzy
-msgid "Export WOLBroadcasts"
-msgstr "hôte Lieu"
-
-#, fuzzy
-msgid "Import WOLBroadcasts"
-msgstr "hôte Lieu"
 
 msgid "Broadcast Name"
 msgstr "Nom de diffusion"
@@ -1689,15 +1692,16 @@ msgstr "Nom de diffusion"
 msgid "Broadcast IP"
 msgstr "IP de diffusion"
 
-msgid "New Broadcast Address"
-msgstr "Nouvelle Adresse de diffusion"
+#, fuzzy
+msgid "Create New Broadcast"
+msgstr "Créer un nouveau %s"
 
 #, fuzzy
-msgid "Create WOL Broadcast?"
-msgstr "Tous les Broadcasts"
+msgid "Broadcast Address"
+msgstr "Nom de diffusion"
 
 #, fuzzy
-msgid "A name is required!"
+msgid "A broadcast name is required!"
 msgstr "Un nom de l'image est nécessaire!"
 
 #, fuzzy
@@ -1705,11 +1709,12 @@ msgid "A broadcast already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
 
 #, fuzzy
-msgid "A broadcast address is required"
+msgid "A broadcast address is required!"
 msgstr "Adresse MAC est nécessaire"
 
-msgid "Please enter a valid ip"
-msgstr "S'il vous plaît entrer une adresse IP valide"
+#, fuzzy
+msgid "A valid IP is required!"
+msgstr "%s est requis"
 
 #, fuzzy
 msgid "Add broadcast failed!"
@@ -1726,14 +1731,6 @@ msgstr "hôte Créé"
 #, fuzzy
 msgid "Broadcast Create Fail"
 msgstr "Hôte créer échoué"
-
-#, fuzzy
-msgid "WOL Broadcast General"
-msgstr "Tous les Broadcasts"
-
-#, fuzzy
-msgid "Make Changes?"
-msgstr "Sauvegarder les modifications"
 
 #, fuzzy
 msgid "A broadcast already exists with this name"
@@ -1754,6 +1751,16 @@ msgstr "Installation / Mise à jour réussie!"
 #, fuzzy
 msgid "Broadcast Update Fail"
 msgstr "Diffusion Mise à jour"
+
+msgid "Use the selector to choose how many items you want exported."
+msgstr ""
+
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
+msgstr ""
 
 msgid "Task Types"
 msgstr "Types de tâches"
@@ -1814,6 +1821,10 @@ msgstr "utilisateur créé"
 #, fuzzy
 msgid "Task Type Create Fail"
 msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "Sauvegarder les modifications"
 
 #, fuzzy
 msgid "Task Type General"
@@ -2016,16 +2027,6 @@ msgstr "utilisateur créé"
 #, fuzzy
 msgid "Role Update Fail"
 msgstr "Groupe create a échoué"
-
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
 
 #, fuzzy
 msgid "Rule Name"
@@ -2280,6 +2281,10 @@ msgid "LDAP Server Update Fail"
 msgstr "Serveur LDAP Nom"
 
 #, fuzzy
+msgid "Export LDAPs"
+msgstr "hôte Lieu"
+
+#, fuzzy
 msgid "Function does not exist"
 msgstr "Méthode n'existe pas"
 
@@ -2428,40 +2433,16 @@ msgstr "Export CSV"
 msgid "Export PDF"
 msgstr "Export PDF"
 
-msgid "Pending MAC Export"
-msgstr "En attente MAC Export"
-
-msgid "Host name"
-msgstr "Nom d'hôte"
-
-msgid "Host Primary MAC"
-msgstr "Hôte MAC primaire"
-
-msgid "Host Desc"
-msgstr "hôte Desc"
-
-msgid "Host Pending MAC"
-msgstr "Hôte en attente MAC"
+msgid "ID"
+msgstr "ID"
 
 #, fuzzy
-msgid "Approve All Pending MACs for All Hosts"
-msgstr "Approuver Tous les MACs en attente pour tous les hôtes"
+msgid "MAC Address"
+msgstr "MAC Address List"
 
 #, fuzzy
-msgid "Pending MAC Actions"
-msgstr "en attente MACs"
-
-#, fuzzy
-msgid "Approve Selected MACs"
-msgstr "Approuver hôtes sélectionnés"
-
-#, fuzzy
-msgid "Approve"
-msgstr "hôte approuvé"
-
-#, fuzzy
-msgid "Delete Selected MACs"
-msgstr "Supprimer sélectionnée"
+msgid "Export Pending MAC Addresses"
+msgstr "MAC Address List"
 
 msgid "FOG Equipment Loan Form"
 msgstr "Équipement FOG Formulaire de prêt"
@@ -2565,6 +2546,9 @@ msgstr "Format"
 msgid "Full Inventory Export"
 msgstr "Inventaire complet Export"
 
+msgid "Host name"
+msgstr "Nom d'hôte"
+
 msgid "Memory"
 msgstr "Mémoire"
 
@@ -2573,6 +2557,9 @@ msgstr "système produit"
 
 msgid "System Serial"
 msgstr "Serial System"
+
+msgid "Host Desc"
+msgstr "hôte Desc"
 
 msgid "Host Listing Export"
 msgstr "Hôte Liste Export"
@@ -2830,10 +2817,6 @@ msgid "Computer Model"
 msgstr "Modèle d'imprimante"
 
 #, fuzzy
-msgid "MAC Address"
-msgstr "MAC Address List"
-
-#, fuzzy
 msgid "Image Used"
 msgstr "imager"
 
@@ -2878,118 +2861,423 @@ msgid "VNC"
 msgstr ""
 
 #, fuzzy
-msgid "FOG Client Installers"
-msgstr "FOG client Télécharger"
+msgid "Server Information"
+msgstr "Informations générales"
+
+msgid "Invalid Server Information!"
+msgstr "Informations sur le serveur invalide!"
+
+msgid "Server appears to be offline or unavailable!"
+msgstr ""
+
+msgid "General Information"
+msgstr "Informations générales"
 
 #, fuzzy
-msgid "The installers for the fog client"
-msgstr "Ce paramètre définit le nom d'utilisateur utilisé pour le client ssh."
+msgid "Unable to find basic information!"
+msgstr "Impossible de trouver des informations de base"
+
+msgid "TX"
+msgstr "TX"
+
+msgid "RX"
+msgstr "RX"
+
+msgid "Dropped"
+msgstr "Chuté"
+
+msgid "Uptime"
+msgstr "uptime"
+
+msgid "CPU Type"
+msgstr "Type de processeur"
+
+msgid "CPU Count"
+msgstr "Nombre de CPU"
+
+msgid "CPU Model"
+msgstr "CPU Model"
+
+msgid "CPU Speed"
+msgstr "Vitesse du processeur"
+
+msgid "CPU Cache"
+msgstr "Cache du CPU"
+
+msgid "Total Memory"
+msgstr "Mémoire totale"
+
+msgid "Used Memory"
+msgstr "Mémoire utilisée"
+
+msgid "Free Memory"
+msgstr "Mémoire libre"
+
+msgid "Total Disk Space"
+msgstr "Espace disque total"
+
+msgid "Used Disk Space"
+msgstr "Espace disque occasion"
 
 #, fuzzy
-msgid "Client Version"
-msgstr "CPU Version"
+msgid "Free Disk Space"
+msgstr "Espace disque occasion"
 
-msgid "Cross platform"
+msgid "File System Information"
+msgstr "Informations sur les fichiers système"
+
+msgid "Network Information"
+msgstr "Réseau d'information"
+
+#, fuzzy
+msgid "Total Clients"
+msgstr "Les clients de Max"
+
+#, fuzzy
+msgid "Create New Storage Group"
+msgstr "nœud de stockage"
+
+#, fuzzy
+msgid "Storage Group name"
+msgstr "Nom du groupe de stockage"
+
+#, fuzzy
+msgid "Storage Group Create Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Storage Group Create Fail"
+msgstr "Groupe de stockage Créé"
+
+#, fuzzy
+msgid "Update Master Node"
+msgstr "Node Master"
+
+#, fuzzy
+msgid "Storage Node Master"
+msgstr "Nom du nœud de stockage"
+
+#, fuzzy
+msgid "Storage Node Associated"
+msgstr "Nœud de stockage Créé"
+
+#, fuzzy
+msgid "Storage Group Update Failed"
+msgstr "Groupe de stockage Mise à jour"
+
+#, fuzzy
+msgid "Storage Group updated!"
+msgstr "Groupe de stockage Mise à jour"
+
+#, fuzzy
+msgid "Storage Group Update Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Storage Group Update Fail"
+msgstr "Groupe de stockage Mise à jour"
+
+msgid ""
+"All columns less the id field will be exported. Column visibility does not "
+"affect the exported items."
 msgstr ""
 
 #, fuzzy
-msgid "more secure"
-msgstr "Importer des utilisateurs"
+msgid "Login Failed"
+msgstr "Échec du chargement: %s"
 
 #, fuzzy
-msgid "faster"
-msgstr "date"
+msgid "Login successful!"
+msgstr "Réussi"
 
-msgid "and much easier on the server"
+#, fuzzy
+msgid "Login Success"
+msgstr "Installation / Mise à jour réussie!"
+
+msgid "Sign in to start your session"
 msgstr ""
 
-msgid "Especially when your organization has many hosts"
-msgstr ""
-
-msgid "Use this for network installs"
-msgstr ""
-
-msgid "For example, a GPO policy to push"
-msgstr ""
-
-msgid "This file will only work on Windows"
-msgstr ""
-
-msgid "MSI"
+msgid "Remember Me"
 msgstr ""
 
 #, fuzzy
-msgid "Network Installer"
-msgstr "Imprimante réseau"
+msgid "Sign In"
+msgstr "Signé"
+
+msgid "Protected"
+msgstr "Protégé"
 
 #, fuzzy
-msgid "This is the recommended installer to use now"
+msgid "Is Pack"
+msgstr "Est un"
+
+#, fuzzy
+msgid "Create New Snapin"
+msgstr "Créer un nouveau %s"
+
+#, fuzzy
+msgid "Normal Snapin"
+msgstr "Invalid Snapin"
+
+#, fuzzy
+msgid "Snapin Pack"
+msgstr "snapin Chemin"
+
+#, fuzzy
+msgid "Snapin Type"
+msgstr "snapin Template"
+
+msgid "Snapin Template"
+msgstr "snapin Template"
+
+#, fuzzy
+msgid "Snapin Pack Template"
+msgstr "snapin Template"
+
+#, fuzzy
+msgid "Snapin Pack File"
+msgstr "snapin fichier"
+
+msgid "Snapin Run With Argument"
+msgstr "Snapin Run With Argument"
+
+#, fuzzy
+msgid "Snapin Pack Arguments"
+msgstr "Arguments SnapIn"
+
+msgid "Max Size"
+msgstr "Max Taille"
+
+msgid "Browse"
 msgstr ""
-"Ceci est le programme d'installation recommandé d'utiliser maintenant. Il "
-"peut être utilisé sur Windows, Linux et Mac OS X."
 
-msgid "It can be used on Windows"
-msgstr ""
+msgid "Snapin File (exists)"
+msgstr "Snapin fichier (existe)"
 
-msgid "Linux"
-msgstr "Linux"
+msgid "Snapin Arguments"
+msgstr "Arguments SnapIn"
 
-msgid "and Mac OS X"
+msgid "Snapin Enabled"
+msgstr "snapin Enabled"
+
+#, fuzzy
+msgid "Snapin Arguments Hidden"
+msgstr "Arguments SnapIn"
+
+#, fuzzy
+msgid "Snapin Timeout (seconds)"
+msgstr "Menu Délai (en secondes)"
+
+#, fuzzy
+msgid "Replicate"
+msgstr "Reproduire?"
+
+msgid "Reboot after install"
+msgstr "Redémarrez après l'installation"
+
+msgid "Shutdown after install"
+msgstr "Arrêt après l'installation"
+
+msgid "Snapin Command"
+msgstr "commande snapin"
+
+msgid "read-only"
 msgstr ""
 
 #, fuzzy
-msgid "Smart Installer"
-msgstr "Installer intelligent (recommandé)"
+msgid "A snapin name is required!"
+msgstr "Un nom de l'image est nécessaire!"
 
-msgid "Recommended"
+#, fuzzy
+msgid "A snapin already exists with this name!"
+msgstr "Une image existe déjà avec ce nom!"
+
+#, fuzzy
+msgid "A file"
+msgstr "Fichier"
+
+msgid "either already selected or uploaded"
 msgstr ""
 
 #, fuzzy
-msgid "Help and Guides"
-msgstr "Aide et Guide"
-
-msgid "Where to get help and guides"
-msgstr ""
-
-msgid "Use the links below if you need assistance"
-msgstr ""
-
-msgid "Forums are the most common and fastest method of getting"
-msgstr ""
-
-msgid "help with any aspect of FOG"
-msgstr ""
+msgid "must be specified"
+msgstr "Aucune image spécifiée"
 
 #, fuzzy
-msgid "Detailed documentation"
-msgstr "Échec de la création Session"
+msgid "Please choose a different name"
+msgstr "S'il vous plaît choisir une image"
 
 #, fuzzy
-msgid "It is primarily geared for the smart installer methodology now"
+msgid "this one is reserved for FOG"
+msgstr "S'il vous plaît choisir un autre nom, celui-ci est réservé pour FOG."
+
+msgid "FTP Connection has failed"
+msgstr "Connexion FTP a échoué"
+
+#, fuzzy
+msgid "Failed to add snapin"
+msgstr "Impossible d'ajouter le fichier de snapin / mise à jour"
+
+msgid "Failed to add/update snapin file"
+msgstr "Impossible d'ajouter le fichier de snapin / mise à jour"
+
+msgid "Add snapin failed!"
+msgstr "Ajouter SnapIn a échoué!"
+
+#, fuzzy
+msgid "Snapin added!"
+msgstr "Nom snapin"
+
+#, fuzzy
+msgid "Snapin Create Success"
+msgstr "snapin mise à jour"
+
+#, fuzzy
+msgid "Snapin Create Fail"
+msgstr "snapin mise à jour"
+
+#, fuzzy
+msgid "Snapin Protected"
+msgstr "snapin mise à jour"
+
+#, fuzzy
+msgid "Update Primary Group"
+msgstr "Mise à jour de groupe principal"
+
+#, fuzzy
+msgid "Storage Group Primary"
+msgstr "Nom du groupe de stockage"
+
+#, fuzzy
+msgid "Storage Group Associated"
+msgstr "Nœud de stockage Créé"
+
+#, fuzzy
+msgid "Storage Groups"
+msgstr "Groupe de stockage"
+
+#, fuzzy
+msgid "Snapin update failed!"
+msgstr "mise à jour a échoué Snapin"
+
+#, fuzzy
+msgid "Snapin updated!"
+msgstr "snapin mise à jour"
+
+#, fuzzy
+msgid "Snapin Update Success"
+msgstr "Installation / Mise à jour réussie!"
+
+#, fuzzy
+msgid "Snapin Update Fail"
+msgstr "mise à jour a échoué Snapin"
+
+msgid "Plugin Name"
+msgstr "Nom Plugin"
+
+msgid "Unable to determine plugin details."
+msgstr "Impossible de déterminer les détails du plugin."
+
+msgid "Plugin Description"
+msgstr "Plugin description de"
+
+msgid "Plugin Installation"
+msgstr "Installation Plugin"
+
+#, fuzzy
+msgid "This plugin is not installed"
 msgstr ""
-"Une documentation détaillée. Elle est principalement axée sur la "
-"méthodologie d'installation intelligente maintenant."
+"Ce plugin est actuellement pas installé, souhaitez-vous l'installer "
+"maintenant?"
 
-msgid "FOG Client Wiki"
-msgstr "FOG client Wiki"
-
-msgid "Need more support"
+#, fuzzy
+msgid "would you ilke to install it now"
 msgstr ""
+"Ce plugin est actuellement pas installé, souhaitez-vous l'installer "
+"maintenant?"
 
-msgid "Somebody will be able to help in some form"
-msgstr ""
+#, fuzzy
+msgid "Install Plugin"
+msgstr "Installer Plugins"
 
-msgid "Use the forums to post issues so others"
-msgstr ""
+#, fuzzy
+msgid "Install"
+msgstr "Installation / mise à jour a échoué!"
 
-msgid "may see the issue and help and/or use the solutions"
-msgstr ""
+msgid "Reboot after deploy"
+msgstr "Reboot après déploiement"
 
-msgid "Chat is also available on the forums for more realtime help"
-msgstr ""
+msgid "Shutdown after deploy"
+msgstr "Arrêt après déploiement"
 
-msgid "FOG Forums"
-msgstr "BROUILLARD Forums"
+#, fuzzy
+msgid "Basic Settings"
+msgstr "Paramètres"
+
+msgid "DMI Field"
+msgstr "DMI Champ"
+
+#, fuzzy
+msgid "After image Action"
+msgstr "Groupe Lieu"
+
+#, fuzzy
+msgid "Image Associations"
+msgstr "Association Image"
+
+msgid "Image Definition"
+msgstr "image Définition"
+
+msgid "DMI Result"
+msgstr "DMI Résultat"
+
+#, fuzzy
+msgid "Image to DMI Mappings"
+msgstr "Ajouter une image aux associations DMI"
+
+msgid "DMI Key"
+msgstr "DMI Key"
+
+#, fuzzy
+msgid "Current Associations"
+msgstr "Association Image"
+
+#, fuzzy
+msgid "Remove Selected?"
+msgstr "Retirer snapins sélectionnés"
+
+#, fuzzy
+msgid "Remove Associations"
+msgstr "Association Image"
+
+msgid "Invalid Plugin Passed"
+msgstr "Plugin Invalid Passed"
+
+msgid "Failed to install plugin"
+msgstr "Impossible d'installer le plugin"
+
+msgid "Failed to save plugin"
+msgstr "Impossible d'enregistrer le plugin"
+
+msgid "Plugin Installed!"
+msgstr "Plugin installé!"
+
+#, fuzzy
+msgid "Must have an image associated"
+msgstr "Doit avoir SnapIn associé à un groupe"
+
+msgid "Failed to save assignment"
+msgstr "Impossible d'enregistrer la cession"
+
+msgid "Assignment saved successfully"
+msgstr "Cession enregistré avec succès"
+
+#, fuzzy
+msgid "Destroyed assignments"
+msgstr "cession Destroyed"
+
+msgid "Destroyed assignment"
+msgstr "cession Destroyed"
 
 msgid "FOG Version Information"
 msgstr "FOG Informations de version"
@@ -3478,9 +3766,6 @@ msgstr "Aucune image spécifiée"
 msgid "Reset Token"
 msgstr "Jeton d'accès"
 
-msgid "Browse"
-msgstr ""
-
 msgid "No Image specified"
 msgstr "Pas d'image spécifiée"
 
@@ -3573,9 +3858,6 @@ msgstr "date"
 msgid "Import Database?"
 msgstr "date"
 
-msgid "Max Size"
-msgstr "Max Taille"
-
 msgid "Import"
 msgstr "Importer"
 
@@ -3615,147 +3897,6 @@ msgstr "Mise à jour de base de données a échoué"
 msgid "Errors on revert detected!"
 msgstr "Erreurs sur revert détectées"
 
-#, fuzzy
-msgid "Storage Node Management"
-msgstr "Gestion du stockage"
-
-#, fuzzy
-msgid "Create New Storage Node"
-msgstr "nœud de stockage"
-
-#, fuzzy
-msgid "Storage Node Web Root"
-msgstr "Nom du nœud de stockage"
-
-#, fuzzy
-msgid "Storage Node Master"
-msgstr "Nom du nœud de stockage"
-
-#, fuzzy
-msgid "Storage Node Enabled"
-msgstr "Nom du nœud de stockage"
-
-#, fuzzy
-msgid "Network Interface"
-msgstr "Imprimante réseau"
-
-msgid "Kbps"
-msgstr ""
-
-#, fuzzy
-msgid "Multicast Bitrate"
-msgstr "Multicast"
-
-#, fuzzy
-msgid "Storage Node Image Path"
-msgstr "Noeud de stockage IP"
-
-#, fuzzy
-msgid "Storage Node FTP Path"
-msgstr "Noeud de stockage IP"
-
-#, fuzzy
-msgid "Storage Node Snapin Path"
-msgstr "Nœud de stockage Mise à jour"
-
-#, fuzzy
-msgid "Storage Node SSL Path"
-msgstr "Noeud de stockage IP"
-
-#, fuzzy
-msgid "Storage Node FTP User"
-msgstr "Nœud de stockage Nom d'utilisateur"
-
-#, fuzzy
-msgid "Storage Node FTP Password"
-msgstr "Nœud de stockage Mot de passe"
-
-msgid "Bandwidth should be numeric and greater than 0"
-msgstr "La bande passante doit être numérique et supérieur à 0"
-
-#, fuzzy
-msgid "Add storage node failed!"
-msgstr "Ajouter SnapIn a échoué!"
-
-#, fuzzy
-msgid "Storage Node added!"
-msgstr "Nom du nœud de stockage"
-
-#, fuzzy
-msgid "Storage Node Create Success"
-msgstr "Nœud de stockage Créé"
-
-#, fuzzy
-msgid "Storage Node Create Fail"
-msgstr "Nœud de stockage Créé"
-
-#, fuzzy
-msgid "Storage Node Update Failed"
-msgstr "Nœud de stockage Mise à jour"
-
-#, fuzzy
-msgid "Storage Node updated!"
-msgstr "Nœud de stockage Mise à jour"
-
-#, fuzzy
-msgid "Storage Node Update Success"
-msgstr "Nœud de stockage Mise à jour"
-
-#, fuzzy
-msgid "Storage Node Update Fail"
-msgstr "Nœud de stockage Mise à jour"
-
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
-
-#, fuzzy
-msgid "Started By"
-msgstr "Créé par"
-
-msgid "Progress"
-msgstr ""
-
-msgid "Resume Reload"
-msgstr ""
-
-msgid "Pause Reload"
-msgstr ""
-
-#, fuzzy
-msgid "Cancel Selected"
-msgstr "Supprimer sélectionnée"
-
-#, fuzzy
-msgid "Selected tasks cancelled!"
-msgstr "a été mis à jour avec succès"
-
-#, fuzzy
-msgid "Task Cancel Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Task Cancel Fail"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Active Multi-cast Tasks"
-msgstr "Tâches Multicast actifs"
-
-msgid "Task Name"
-msgstr "Nom de la tâche"
-
-#, fuzzy
-msgid "Hosts in tasking"
-msgstr "Hôtes sur Task"
-
-msgid "Host/Group Name"
-msgstr "Hôte / Nom de groupe"
-
-msgid "Is Group"
-msgstr "Is Group"
-
 msgid "Primary MAC"
 msgstr "MAC primaire"
 
@@ -3780,6 +3921,10 @@ msgstr "Approuver hôtes sélectionnés"
 #, fuzzy
 msgid "Delete selected"
 msgstr "Supprimer sélectionnée"
+
+#, fuzzy
+msgid "Approve"
+msgstr "hôte approuvé"
 
 #, fuzzy
 msgid "Approve Pending Hosts"
@@ -4364,724 +4509,6 @@ msgid "weekday"
 msgstr ""
 
 #, fuzzy
-msgid "Create New Group"
-msgstr "nœud de stockage"
-
-msgid "Group Description"
-msgstr "Description du groupe"
-
-msgid "Group Kernel"
-msgstr "Groupe Kernel"
-
-msgid "Group Kernel Arguments"
-msgstr "Arguments Groupe Kernel"
-
-#, fuzzy
-msgid "Group Init"
-msgstr "Export SnapIns"
-
-msgid "Group Primary Disk"
-msgstr "Primary Disk Group"
-
-#, fuzzy
-msgid "A group name is required!"
-msgstr "Un nom de l'image est nécessaire!"
-
-#, fuzzy
-msgid "A group already exists with this name!"
-msgstr "Une image existe déjà avec ce nom!"
-
-#, fuzzy
-msgid "Add group failed!"
-msgstr "Ajouter SnapIn a échoué!"
-
-#, fuzzy
-msgid "Group added!"
-msgstr "Groupe ajouté"
-
-#, fuzzy
-msgid "Group Create Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Group Create Fail"
-msgstr "Groupe create a échoué"
-
-msgid "Group Product Key"
-msgstr "Groupe clé de produit"
-
-#, fuzzy
-msgid "Group BIOS Exit"
-msgstr "Export SnapIns"
-
-#, fuzzy
-msgid "Group EFI Exit"
-msgstr "Export SnapIns"
-
-#, fuzzy
-msgid "Please use another group name"
-msgstr "S'il vous plaît entrer un nom d'hôte"
-
-#, fuzzy
-msgid "Group Image"
-msgstr "Nom de groupe"
-
-#, fuzzy
-msgid "Group Hosts"
-msgstr "Groupes"
-
-#, fuzzy
-msgid "Group Printer Configuration"
-msgstr "Configuration du service"
-
-msgid ""
-"This setting turns off all FOG Printer Management. Although there are "
-"multiple levels already, this  is just another level if needed."
-msgstr ""
-
-#, fuzzy
-msgid "Add/Remove Managed Printers"
-msgstr "Imprimantes BROUILLARD Géré"
-
-#, fuzzy
-msgid "All Printers"
-msgstr "Imprimantes"
-
-#, fuzzy
-msgid ""
-"This setting will only allow FO GAssigned printers to be added to the host. "
-"Any printer that is not assigned will be removed including non-FOG managed "
-"printers."
-msgstr ""
-"Ce paramètre ne permettra imprimantes BROUILLARD Assigné à être ajoutés à "
-"l'hôte. Toute imprimante qui est non affecté sera supprimé, y compris les "
-"imprimantes gérées non-FOG."
-
-#, fuzzy
-msgid "Group Snapins"
-msgstr "snapin Histoire"
-
-#, fuzzy
-msgid "Module Association"
-msgstr "Association Image"
-
-#, fuzzy
-msgid "Group module settings"
-msgstr "hôte description de"
-
-#, fuzzy
-msgid "Group update failed!"
-msgstr "mise à jour de l'utilisateur a échoué"
-
-#, fuzzy
-msgid "Group updated!"
-msgstr "Groupe ajouté"
-
-#, fuzzy
-msgid "Group Update Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Group Update Fail"
-msgstr "Groupe create a échoué"
-
-#, fuzzy
-msgid "There are no hosts to task"
-msgstr "Il n'y a pas de groupes sur ce serveur."
-
-msgid "Groups cannot create capture tasks"
-msgstr ""
-
-#, fuzzy
-msgid "Total Clients"
-msgstr "Les clients de Max"
-
-#, fuzzy
-msgid "Create New Storage Group"
-msgstr "nœud de stockage"
-
-#, fuzzy
-msgid "Storage Group name"
-msgstr "Nom du groupe de stockage"
-
-#, fuzzy
-msgid "Storage Group Create Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Storage Group Create Fail"
-msgstr "Groupe de stockage Créé"
-
-#, fuzzy
-msgid "Update Master Node"
-msgstr "Node Master"
-
-#, fuzzy
-msgid "Storage Node Associated"
-msgstr "Nœud de stockage Créé"
-
-#, fuzzy
-msgid "Storage Group Update Failed"
-msgstr "Groupe de stockage Mise à jour"
-
-#, fuzzy
-msgid "Storage Group updated!"
-msgstr "Groupe de stockage Mise à jour"
-
-#, fuzzy
-msgid "Storage Group Update Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Storage Group Update Fail"
-msgstr "Groupe de stockage Mise à jour"
-
-msgid "Printer Name"
-msgstr "Nom de l'imprimante"
-
-#, fuzzy
-msgid "Config File"
-msgstr "Printer Config File"
-
-#, fuzzy
-msgid "Create New Printer"
-msgstr "Créer un nouveau %s"
-
-msgid "TCP/IP Port Printer"
-msgstr "TCP / IP Port imprimante"
-
-msgid "iPrint Printer"
-msgstr "iPrint Printer"
-
-msgid "Network Printer"
-msgstr "Imprimante réseau"
-
-msgid "CUPS Printer"
-msgstr "CUPS Printer"
-
-#, fuzzy
-msgid "Copy from existing"
-msgstr "Impossible de créer l'imprimante"
-
-#, fuzzy
-msgid "Printer Name/Alias"
-msgstr "imprimante Alias"
-
-msgid "e.g."
-msgstr ""
-
-msgid "Printer Description"
-msgstr "Printer description"
-
-#, fuzzy
-msgid "Printer Configuration File"
-msgstr "Configuration du service"
-
-msgid "Printer Port"
-msgstr "Port d'imprimante"
-
-msgid "Printer INF File"
-msgstr "Imprimante INF Fichier"
-
-msgid "Printer IP"
-msgstr "imprimante IP"
-
-msgid "Printer Model"
-msgstr "Modèle d'imprimante"
-
-#, fuzzy
-msgid "A printer name is required!"
-msgstr "Un nom de l'image est nécessaire!"
-
-#, fuzzy
-msgid "A printer already exists with this name!"
-msgstr "Une image existe déjà avec ce nom!"
-
-#, fuzzy
-msgid "Add printer failed!"
-msgstr "Ajouter SnapIn a échoué!"
-
-#, fuzzy
-msgid "Printer added!"
-msgstr "Nom de l'imprimante"
-
-#, fuzzy
-msgid "Printer Create Success"
-msgstr "Imprimante existe déjà"
-
-#, fuzzy
-msgid "Printer Create Fail"
-msgstr "mise à jour de l'imprimante a échoué!"
-
-#, fuzzy
-msgid "Update Default"
-msgstr "Mise à jour de l'imprimante"
-
-#, fuzzy
-msgid "Default Printer"
-msgstr "Point par défaut:"
-
-msgid "Printer update failed!"
-msgstr "mise à jour de l'imprimante a échoué!"
-
-msgid "Printer updated!"
-msgstr "Imprimante mis à jour!"
-
-#, fuzzy
-msgid "Printer Update Success"
-msgstr "Imprimante mis à jour!"
-
-#, fuzzy
-msgid "Printer Update Fail"
-msgstr "mise à jour de l'imprimante a échoué!"
-
-msgid "Plugin Name"
-msgstr "Nom Plugin"
-
-msgid "Unable to determine plugin details."
-msgstr "Impossible de déterminer les détails du plugin."
-
-msgid "Plugin Description"
-msgstr "Plugin description de"
-
-msgid "Plugin Installation"
-msgstr "Installation Plugin"
-
-#, fuzzy
-msgid "This plugin is not installed"
-msgstr ""
-"Ce plugin est actuellement pas installé, souhaitez-vous l'installer "
-"maintenant?"
-
-#, fuzzy
-msgid "would you ilke to install it now"
-msgstr ""
-"Ce plugin est actuellement pas installé, souhaitez-vous l'installer "
-"maintenant?"
-
-#, fuzzy
-msgid "Install Plugin"
-msgstr "Installer Plugins"
-
-#, fuzzy
-msgid "Install"
-msgstr "Installation / mise à jour a échoué!"
-
-msgid "Reboot after deploy"
-msgstr "Reboot après déploiement"
-
-msgid "Shutdown after deploy"
-msgstr "Arrêt après déploiement"
-
-#, fuzzy
-msgid "Basic Settings"
-msgstr "Paramètres"
-
-msgid "DMI Field"
-msgstr "DMI Champ"
-
-#, fuzzy
-msgid "After image Action"
-msgstr "Groupe Lieu"
-
-#, fuzzy
-msgid "Image Associations"
-msgstr "Association Image"
-
-msgid "Image Definition"
-msgstr "image Définition"
-
-msgid "DMI Result"
-msgstr "DMI Résultat"
-
-#, fuzzy
-msgid "Image to DMI Mappings"
-msgstr "Ajouter une image aux associations DMI"
-
-msgid "DMI Key"
-msgstr "DMI Key"
-
-#, fuzzy
-msgid "Current Associations"
-msgstr "Association Image"
-
-#, fuzzy
-msgid "Remove Selected?"
-msgstr "Retirer snapins sélectionnés"
-
-#, fuzzy
-msgid "Remove Associations"
-msgstr "Association Image"
-
-msgid "Invalid Plugin Passed"
-msgstr "Plugin Invalid Passed"
-
-msgid "Failed to install plugin"
-msgstr "Impossible d'installer le plugin"
-
-msgid "Failed to save plugin"
-msgstr "Impossible d'enregistrer le plugin"
-
-msgid "Plugin Installed!"
-msgstr "Plugin installé!"
-
-#, fuzzy
-msgid "Must have an image associated"
-msgstr "Doit avoir SnapIn associé à un groupe"
-
-msgid "Failed to save assignment"
-msgstr "Impossible d'enregistrer la cession"
-
-msgid "Assignment saved successfully"
-msgstr "Cession enregistré avec succès"
-
-#, fuzzy
-msgid "Destroyed assignments"
-msgstr "cession Destroyed"
-
-msgid "Destroyed assignment"
-msgstr "cession Destroyed"
-
-msgid "Protected"
-msgstr "Protégé"
-
-#, fuzzy
-msgid "Captured"
-msgstr "Créé"
-
-#, fuzzy
-msgid "Create New Image"
-msgstr "Créer un nouveau %s"
-
-msgid "Partimage"
-msgstr "Partimage"
-
-msgid "Image Description"
-msgstr "Description de l'image"
-
-#, fuzzy
-msgid "Image Compression Rating"
-msgstr "Association Image"
-
-#, fuzzy
-msgid "Image Storage Group"
-msgstr "Groupe de stockage"
-
-#, fuzzy
-msgid "Image Operating System"
-msgstr "Système opérateur"
-
-#, fuzzy
-msgid "Image Partition"
-msgstr "Partition"
-
-msgid "Image Manager"
-msgstr "Image Manager"
-
-msgid "Image Enabled"
-msgstr "Photo Enabled"
-
-#, fuzzy
-msgid "Image Replicate"
-msgstr "image Replicator"
-
-#, fuzzy
-msgid "An image name is required!"
-msgstr "Un nom de l'image est nécessaire!"
-
-msgid "An image already exists with this name!"
-msgstr "Une image existe déjà avec ce nom!"
-
-#, fuzzy
-msgid "Please choose a different filename/path as this is reserved"
-msgstr "S'il vous plaît choisir une image"
-
-msgid "The path requested is already in use by another image!"
-msgstr ""
-
-#, fuzzy
-msgid "Add image failed!"
-msgstr "Ajouter SnapIn a échoué!"
-
-#, fuzzy
-msgid "Image added!"
-msgstr "Nom de l'image"
-
-#, fuzzy
-msgid "Image Create Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Image Create Fail"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Image Protected"
-msgstr "Protégé"
-
-#, fuzzy
-msgid "Update Primary Group"
-msgstr "Mise à jour de groupe principal"
-
-#, fuzzy
-msgid "Storage Group Primary"
-msgstr "Nom du groupe de stockage"
-
-#, fuzzy
-msgid "Storage Group Associated"
-msgstr "Nœud de stockage Créé"
-
-#, fuzzy
-msgid "Storage Groups"
-msgstr "Groupe de stockage"
-
-#, fuzzy
-msgid "Image update failed!"
-msgstr "image mise à jour"
-
-#, fuzzy
-msgid "Image updated!"
-msgstr "image mise à jour"
-
-#, fuzzy
-msgid "Image Update Success"
-msgstr "Installation / Mise à jour réussie!"
-
-#, fuzzy
-msgid "Image Update Fail"
-msgstr "image mise à jour"
-
-msgid "Session Name"
-msgstr "Nom de session"
-
-msgid "Client Count"
-msgstr "Nombre de clients"
-
-#, fuzzy
-msgid "Session Timeout"
-msgstr "Expiration de la session"
-
-msgid "minutes"
-msgstr "minutes"
-
-#, fuzzy
-msgid "Session Image"
-msgstr "Nom de session"
-
-#, fuzzy
-msgid "Cancel Selected Tasks"
-msgstr "Supprimer sélectionnée"
-
-#, fuzzy
-msgid "Cancel the selected tasks."
-msgstr "Supprimer sélectionnée"
-
-#, fuzzy
-msgid "Create new Session Task"
-msgstr "Créer un nouveau %s"
-
-#, fuzzy
-msgid "Multicast Sessions"
-msgstr "Démarrez Multicast session"
-
-msgid "Please choose an image"
-msgstr "S'il vous plaît choisir une image"
-
-#, fuzzy
-msgid "Please select a valid image"
-msgstr "Sélectionnez une image valide"
-
-#, fuzzy
-msgid "Session with that name already exists!"
-msgstr "Un nom d'hôte avec ce nom existe déjà."
-
-msgid "Server is only configured to run "
-msgstr ""
-
-#, fuzzy
-msgid "Session created!"
-msgstr "Nom de session"
-
-#, fuzzy
-msgid "Session Create Success"
-msgstr "snapin mise à jour"
-
-#, fuzzy
-msgid "Session Create Fail"
-msgstr "snapin mise à jour"
-
-msgid "Failed to create Session"
-msgstr "Échec de la création Session"
-
-#, fuzzy
-msgid "Sessions cancelled!"
-msgstr "a été mis à jour avec succès"
-
-#, fuzzy
-msgid "Session Cancel Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Session Cancel Fail"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Server Information"
-msgstr "Informations générales"
-
-msgid "Invalid Server Information!"
-msgstr "Informations sur le serveur invalide!"
-
-msgid "Server appears to be offline or unavailable!"
-msgstr ""
-
-msgid "General Information"
-msgstr "Informations générales"
-
-#, fuzzy
-msgid "Unable to find basic information!"
-msgstr "Impossible de trouver des informations de base"
-
-msgid "TX"
-msgstr "TX"
-
-msgid "RX"
-msgstr "RX"
-
-msgid "Dropped"
-msgstr "Chuté"
-
-msgid "Uptime"
-msgstr "uptime"
-
-msgid "CPU Type"
-msgstr "Type de processeur"
-
-msgid "CPU Count"
-msgstr "Nombre de CPU"
-
-msgid "CPU Model"
-msgstr "CPU Model"
-
-msgid "CPU Speed"
-msgstr "Vitesse du processeur"
-
-msgid "CPU Cache"
-msgstr "Cache du CPU"
-
-msgid "Total Memory"
-msgstr "Mémoire totale"
-
-msgid "Used Memory"
-msgstr "Mémoire utilisée"
-
-msgid "Free Memory"
-msgstr "Mémoire libre"
-
-msgid "Total Disk Space"
-msgstr "Espace disque total"
-
-msgid "Used Disk Space"
-msgstr "Espace disque occasion"
-
-#, fuzzy
-msgid "Free Disk Space"
-msgstr "Espace disque occasion"
-
-msgid "File System Information"
-msgstr "Informations sur les fichiers système"
-
-msgid "Network Information"
-msgstr "Réseau d'information"
-
-msgid "Click"
-msgstr "Cliquez"
-
-msgid "to review."
-msgstr "réviser."
-
-msgid "Pending hosts"
-msgstr "hôtes en attente"
-
-#, fuzzy
-msgid "Pending host"
-msgstr "hôtes en attente"
-
-msgid "Pending macs"
-msgstr "macs en attente"
-
-msgid "Web Server"
-msgstr "Serveur Web"
-
-msgid "Load Average"
-msgstr "charge moyenne"
-
-msgid "System Uptime"
-msgstr "système Uptime"
-
-msgid "System Overview"
-msgstr "Présentation du système"
-
-msgid "Storage Group Activity"
-msgstr "Stockage Activité Groupe"
-
-msgid "Storage Node Disk Usage"
-msgstr "Utilisation Noeud de stockage de disque"
-
-msgid "Imaging Over the last 30 days"
-msgstr "Imaging Au cours des 30 derniers jours"
-
-#, fuzzy
-msgid "Real Time"
-msgstr "Mise à jour de l'hôte a échoué"
-
-msgid "On"
-msgstr ""
-
-msgid "Off"
-msgstr ""
-
-msgid "2 Minutes"
-msgstr "2 minutes"
-
-#, fuzzy
-msgid "5 Minutes"
-msgstr "2 minutes"
-
-msgid "10 Minutes"
-msgstr "10 minutes"
-
-msgid "30 Minutes"
-msgstr "30 minutes"
-
-#, fuzzy
-msgid "1 Hour"
-msgstr "1 heure"
-
-msgid "No activity information available for this group"
-msgstr ""
-
-msgid "Free"
-msgstr ""
-
-#, fuzzy
-msgid "No Data Available"
-msgstr "Indisponible"
-
-msgid "used"
-msgstr ""
-
-#, fuzzy
-msgid "Node is unavailable"
-msgstr "Pas de hachage disponible"
-
-msgid "Node Offline"
-msgstr ""
-
-msgid "Used"
-msgstr ""
-
-#, fuzzy
 msgid "Import Reports"
 msgstr "Hôtes d'importation"
 
@@ -5105,341 +4532,6 @@ msgstr ""
 
 msgid "To view a report, select an item from the menu"
 msgstr ""
-
-#, fuzzy
-msgid "Friendly Name"
-msgstr "Nom Kernel"
-
-msgid "API?"
-msgstr ""
-
-#, fuzzy
-msgid "Create New User"
-msgstr "Créer un nouveau %s"
-
-msgid "User Password"
-msgstr "Mot de passe de l'utilisateur"
-
-#, fuzzy
-msgid "confirm"
-msgstr "tâche non valide"
-
-#, fuzzy
-msgid "User API Enable"
-msgstr "Jeton d'accès"
-
-#, fuzzy
-msgid "A user name is required!"
-msgstr "Un nom de l'image est nécessaire!"
-
-msgid "Username does not meet requirements"
-msgstr ""
-
-msgid "Username must start with a word character"
-msgstr ""
-
-msgid "Username must be at least 3 characters"
-msgstr ""
-
-msgid "Username must be less than 41 characters"
-msgstr ""
-
-msgid "Username cannot contain contiguous special characters"
-msgstr ""
-
-#, fuzzy
-msgid "A username already exists with this name!"
-msgstr "Une image existe déjà avec ce nom!"
-
-#, fuzzy
-msgid "A password is required!"
-msgstr "%s est requis"
-
-#, fuzzy
-msgid "Add user failed!"
-msgstr "Ajouter SnapIn a échoué!"
-
-#, fuzzy
-msgid "User added!"
-msgstr "Nom de l'imprimante"
-
-#, fuzzy
-msgid "User Create Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "User Create Fail"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "A user already exists with this name"
-msgstr "Une image existe déjà avec ce nom!"
-
-#, fuzzy
-msgid "User API Token"
-msgstr "Jeton d'accès"
-
-msgid "API"
-msgstr ""
-
-#, fuzzy
-msgid "User update failed!"
-msgstr "mise à jour de l'utilisateur a échoué"
-
-#, fuzzy
-msgid "User updated!"
-msgstr "mis à jour l'utilisateur"
-
-#, fuzzy
-msgid "User Update Success"
-msgstr "Installation / Mise à jour réussie!"
-
-#, fuzzy
-msgid "User Update Fail"
-msgstr "mise à jour de l'utilisateur a échoué"
-
-msgid "This will allow you to configure how services"
-msgstr ""
-
-msgid "function on client computers."
-msgstr ""
-
-msgid "The settings tend to be global which affects all hosts."
-msgstr ""
-
-msgid "If you are looking to configure settings for a specific host"
-msgstr ""
-
-msgid "please see the hosts service settings section."
-msgstr ""
-
-msgid "To get started please select an item from the menu."
-msgstr ""
-
-msgid "Use the following link to go to the client page."
-msgstr ""
-
-msgid "There you can download utilities such as FOG Prep"
-msgstr ""
-
-msgid "and the FOG client."
-msgstr ""
-
-msgid "Click Here"
-msgstr "Cliquez ici"
-
-#, fuzzy
-msgid "Module Enabled"
-msgstr "Nom du module"
-
-#, fuzzy
-msgid "Enabled by Default"
-msgstr "Mise à jour de l'imprimante"
-
-msgid "Default Width"
-msgstr "Par défaut Largeur"
-
-msgid "Default Height"
-msgstr "Hauteur par défaut"
-
-msgid "Default Refresh Rate"
-msgstr "Par défaut Taux de rafraîchissement"
-
-#, fuzzy
-msgid "Unable to update global setting"
-msgstr "Impossible de mettre à jour"
-
-#, fuzzy
-msgid "Unable to update module default setting"
-msgstr "Impossible d'ouvrir le fichier pour la lecture"
-
-#, fuzzy
-msgid "Auto Log Out Time"
-msgstr "Par défaut déconnecter le temps (en minutes)"
-
-msgid "Active at 5 minutes or more"
-msgstr ""
-
-#, fuzzy
-msgid "Global Module Settings"
-msgstr "hôte description de"
-
-#, fuzzy
-msgid "Module update success!"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Module Update Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "Module Update Fail"
-msgstr "Groupe create a échoué"
-
-#, fuzzy
-msgid "Is Pack"
-msgstr "Est un"
-
-#, fuzzy
-msgid "Create New Snapin"
-msgstr "Créer un nouveau %s"
-
-#, fuzzy
-msgid "Normal Snapin"
-msgstr "Invalid Snapin"
-
-#, fuzzy
-msgid "Snapin Pack"
-msgstr "snapin Chemin"
-
-#, fuzzy
-msgid "Snapin Type"
-msgstr "snapin Template"
-
-msgid "Snapin Template"
-msgstr "snapin Template"
-
-#, fuzzy
-msgid "Snapin Pack Template"
-msgstr "snapin Template"
-
-#, fuzzy
-msgid "Snapin Pack File"
-msgstr "snapin fichier"
-
-msgid "Snapin Run With Argument"
-msgstr "Snapin Run With Argument"
-
-#, fuzzy
-msgid "Snapin Pack Arguments"
-msgstr "Arguments SnapIn"
-
-msgid "Snapin File (exists)"
-msgstr "Snapin fichier (existe)"
-
-msgid "Snapin Arguments"
-msgstr "Arguments SnapIn"
-
-msgid "Snapin Enabled"
-msgstr "snapin Enabled"
-
-#, fuzzy
-msgid "Snapin Arguments Hidden"
-msgstr "Arguments SnapIn"
-
-#, fuzzy
-msgid "Snapin Timeout (seconds)"
-msgstr "Menu Délai (en secondes)"
-
-#, fuzzy
-msgid "Replicate"
-msgstr "Reproduire?"
-
-msgid "Reboot after install"
-msgstr "Redémarrez après l'installation"
-
-msgid "Shutdown after install"
-msgstr "Arrêt après l'installation"
-
-msgid "Snapin Command"
-msgstr "commande snapin"
-
-msgid "read-only"
-msgstr ""
-
-#, fuzzy
-msgid "A snapin name is required!"
-msgstr "Un nom de l'image est nécessaire!"
-
-#, fuzzy
-msgid "A snapin already exists with this name!"
-msgstr "Une image existe déjà avec ce nom!"
-
-#, fuzzy
-msgid "A file"
-msgstr "Fichier"
-
-msgid "either already selected or uploaded"
-msgstr ""
-
-#, fuzzy
-msgid "must be specified"
-msgstr "Aucune image spécifiée"
-
-#, fuzzy
-msgid "Please choose a different name"
-msgstr "S'il vous plaît choisir une image"
-
-#, fuzzy
-msgid "this one is reserved for FOG"
-msgstr "S'il vous plaît choisir un autre nom, celui-ci est réservé pour FOG."
-
-msgid "FTP Connection has failed"
-msgstr "Connexion FTP a échoué"
-
-#, fuzzy
-msgid "Failed to add snapin"
-msgstr "Impossible d'ajouter le fichier de snapin / mise à jour"
-
-msgid "Failed to add/update snapin file"
-msgstr "Impossible d'ajouter le fichier de snapin / mise à jour"
-
-msgid "Add snapin failed!"
-msgstr "Ajouter SnapIn a échoué!"
-
-#, fuzzy
-msgid "Snapin added!"
-msgstr "Nom snapin"
-
-#, fuzzy
-msgid "Snapin Create Success"
-msgstr "snapin mise à jour"
-
-#, fuzzy
-msgid "Snapin Create Fail"
-msgstr "snapin mise à jour"
-
-#, fuzzy
-msgid "Snapin Protected"
-msgstr "snapin mise à jour"
-
-#, fuzzy
-msgid "Snapin update failed!"
-msgstr "mise à jour a échoué Snapin"
-
-#, fuzzy
-msgid "Snapin updated!"
-msgstr "snapin mise à jour"
-
-#, fuzzy
-msgid "Snapin Update Success"
-msgstr "Installation / Mise à jour réussie!"
-
-#, fuzzy
-msgid "Snapin Update Fail"
-msgstr "mise à jour a échoué Snapin"
-
-#, fuzzy
-msgid "Login Failed"
-msgstr "Échec du chargement: %s"
-
-#, fuzzy
-msgid "Login successful!"
-msgstr "Réussi"
-
-#, fuzzy
-msgid "Login Success"
-msgstr "Installation / Mise à jour réussie!"
-
-msgid "Sign in to start your session"
-msgstr ""
-
-msgid "Remember Me"
-msgstr ""
-
-#, fuzzy
-msgid "Sign In"
-msgstr "Signé"
 
 msgid "Database Schema Installer / Updater"
 msgstr "Base de données de schéma d'installation / Updater"
@@ -5597,6 +4689,833 @@ msgstr "Installation / Mise à jour réussie!"
 msgid "Schema Update Fail"
 msgstr "mise à jour de l'imprimante a échoué!"
 
+msgid "Click"
+msgstr "Cliquez"
+
+msgid "to review."
+msgstr "réviser."
+
+msgid "Pending hosts"
+msgstr "hôtes en attente"
+
+#, fuzzy
+msgid "Pending host"
+msgstr "hôtes en attente"
+
+msgid "Pending macs"
+msgstr "macs en attente"
+
+msgid "Web Server"
+msgstr "Serveur Web"
+
+msgid "Load Average"
+msgstr "charge moyenne"
+
+msgid "System Uptime"
+msgstr "système Uptime"
+
+msgid "System Overview"
+msgstr "Présentation du système"
+
+msgid "Storage Group Activity"
+msgstr "Stockage Activité Groupe"
+
+msgid "Storage Node Disk Usage"
+msgstr "Utilisation Noeud de stockage de disque"
+
+msgid "Imaging Over the last 30 days"
+msgstr "Imaging Au cours des 30 derniers jours"
+
+#, fuzzy
+msgid "Real Time"
+msgstr "Mise à jour de l'hôte a échoué"
+
+msgid "On"
+msgstr ""
+
+msgid "Off"
+msgstr ""
+
+msgid "2 Minutes"
+msgstr "2 minutes"
+
+#, fuzzy
+msgid "5 Minutes"
+msgstr "2 minutes"
+
+msgid "10 Minutes"
+msgstr "10 minutes"
+
+msgid "30 Minutes"
+msgstr "30 minutes"
+
+#, fuzzy
+msgid "1 Hour"
+msgstr "1 heure"
+
+msgid "No activity information available for this group"
+msgstr ""
+
+msgid "Free"
+msgstr ""
+
+#, fuzzy
+msgid "No Data Available"
+msgstr "Indisponible"
+
+msgid "used"
+msgstr ""
+
+#, fuzzy
+msgid "Node is unavailable"
+msgstr "Pas de hachage disponible"
+
+msgid "Node Offline"
+msgstr ""
+
+msgid "Used"
+msgstr ""
+
+msgid "This will allow you to configure how services"
+msgstr ""
+
+msgid "function on client computers."
+msgstr ""
+
+msgid "The settings tend to be global which affects all hosts."
+msgstr ""
+
+msgid "If you are looking to configure settings for a specific host"
+msgstr ""
+
+msgid "please see the hosts service settings section."
+msgstr ""
+
+msgid "To get started please select an item from the menu."
+msgstr ""
+
+msgid "Use the following link to go to the client page."
+msgstr ""
+
+msgid "There you can download utilities such as FOG Prep"
+msgstr ""
+
+msgid "and the FOG client."
+msgstr ""
+
+msgid "Click Here"
+msgstr "Cliquez ici"
+
+#, fuzzy
+msgid "Module Enabled"
+msgstr "Nom du module"
+
+#, fuzzy
+msgid "Enabled by Default"
+msgstr "Mise à jour de l'imprimante"
+
+msgid "Default Width"
+msgstr "Par défaut Largeur"
+
+msgid "Default Height"
+msgstr "Hauteur par défaut"
+
+msgid "Default Refresh Rate"
+msgstr "Par défaut Taux de rafraîchissement"
+
+#, fuzzy
+msgid "Unable to update global setting"
+msgstr "Impossible de mettre à jour"
+
+#, fuzzy
+msgid "Unable to update module default setting"
+msgstr "Impossible d'ouvrir le fichier pour la lecture"
+
+#, fuzzy
+msgid "Auto Log Out Time"
+msgstr "Par défaut déconnecter le temps (en minutes)"
+
+msgid "Active at 5 minutes or more"
+msgstr ""
+
+#, fuzzy
+msgid "Global Module Settings"
+msgstr "hôte description de"
+
+#, fuzzy
+msgid "Module update success!"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Module Update Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Module Update Fail"
+msgstr "Groupe create a échoué"
+
+#, fuzzy
+msgid "Friendly Name"
+msgstr "Nom Kernel"
+
+msgid "API?"
+msgstr ""
+
+#, fuzzy
+msgid "Create New User"
+msgstr "Créer un nouveau %s"
+
+msgid "User Password"
+msgstr "Mot de passe de l'utilisateur"
+
+#, fuzzy
+msgid "confirm"
+msgstr "tâche non valide"
+
+#, fuzzy
+msgid "User API Enable"
+msgstr "Jeton d'accès"
+
+#, fuzzy
+msgid "A user name is required!"
+msgstr "Un nom de l'image est nécessaire!"
+
+msgid "Username does not meet requirements"
+msgstr ""
+
+msgid "Username must start with a word character"
+msgstr ""
+
+msgid "Username must be at least 3 characters"
+msgstr ""
+
+msgid "Username must be less than 41 characters"
+msgstr ""
+
+msgid "Username cannot contain contiguous special characters"
+msgstr ""
+
+#, fuzzy
+msgid "A username already exists with this name!"
+msgstr "Une image existe déjà avec ce nom!"
+
+#, fuzzy
+msgid "A password is required!"
+msgstr "%s est requis"
+
+#, fuzzy
+msgid "Add user failed!"
+msgstr "Ajouter SnapIn a échoué!"
+
+#, fuzzy
+msgid "User added!"
+msgstr "Nom de l'imprimante"
+
+#, fuzzy
+msgid "User Create Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "User Create Fail"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "A user already exists with this name"
+msgstr "Une image existe déjà avec ce nom!"
+
+#, fuzzy
+msgid "User API Token"
+msgstr "Jeton d'accès"
+
+msgid "API"
+msgstr ""
+
+#, fuzzy
+msgid "User update failed!"
+msgstr "mise à jour de l'utilisateur a échoué"
+
+#, fuzzy
+msgid "User updated!"
+msgstr "mis à jour l'utilisateur"
+
+#, fuzzy
+msgid "User Update Success"
+msgstr "Installation / Mise à jour réussie!"
+
+#, fuzzy
+msgid "User Update Fail"
+msgstr "mise à jour de l'utilisateur a échoué"
+
+#, fuzzy
+msgid "Create New Group"
+msgstr "nœud de stockage"
+
+msgid "Group Description"
+msgstr "Description du groupe"
+
+msgid "Group Kernel"
+msgstr "Groupe Kernel"
+
+msgid "Group Kernel Arguments"
+msgstr "Arguments Groupe Kernel"
+
+#, fuzzy
+msgid "Group Init"
+msgstr "Export SnapIns"
+
+msgid "Group Primary Disk"
+msgstr "Primary Disk Group"
+
+#, fuzzy
+msgid "A group name is required!"
+msgstr "Un nom de l'image est nécessaire!"
+
+#, fuzzy
+msgid "A group already exists with this name!"
+msgstr "Une image existe déjà avec ce nom!"
+
+#, fuzzy
+msgid "Add group failed!"
+msgstr "Ajouter SnapIn a échoué!"
+
+#, fuzzy
+msgid "Group added!"
+msgstr "Groupe ajouté"
+
+#, fuzzy
+msgid "Group Create Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Group Create Fail"
+msgstr "Groupe create a échoué"
+
+msgid "Group Product Key"
+msgstr "Groupe clé de produit"
+
+#, fuzzy
+msgid "Group BIOS Exit"
+msgstr "Export SnapIns"
+
+#, fuzzy
+msgid "Group EFI Exit"
+msgstr "Export SnapIns"
+
+#, fuzzy
+msgid "Please use another group name"
+msgstr "S'il vous plaît entrer un nom d'hôte"
+
+#, fuzzy
+msgid "Group Image"
+msgstr "Nom de groupe"
+
+#, fuzzy
+msgid "Group Hosts"
+msgstr "Groupes"
+
+#, fuzzy
+msgid "Group Printer Configuration"
+msgstr "Configuration du service"
+
+msgid ""
+"This setting turns off all FOG Printer Management. Although there are "
+"multiple levels already, this  is just another level if needed."
+msgstr ""
+
+#, fuzzy
+msgid "Add/Remove Managed Printers"
+msgstr "Imprimantes BROUILLARD Géré"
+
+#, fuzzy
+msgid "All Printers"
+msgstr "Imprimantes"
+
+#, fuzzy
+msgid ""
+"This setting will only allow FO GAssigned printers to be added to the host. "
+"Any printer that is not assigned will be removed including non-FOG managed "
+"printers."
+msgstr ""
+"Ce paramètre ne permettra imprimantes BROUILLARD Assigné à être ajoutés à "
+"l'hôte. Toute imprimante qui est non affecté sera supprimé, y compris les "
+"imprimantes gérées non-FOG."
+
+#, fuzzy
+msgid "Group Snapins"
+msgstr "snapin Histoire"
+
+#, fuzzy
+msgid "Module Association"
+msgstr "Association Image"
+
+#, fuzzy
+msgid "Group module settings"
+msgstr "hôte description de"
+
+#, fuzzy
+msgid "Group update failed!"
+msgstr "mise à jour de l'utilisateur a échoué"
+
+#, fuzzy
+msgid "Group updated!"
+msgstr "Groupe ajouté"
+
+#, fuzzy
+msgid "Group Update Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Group Update Fail"
+msgstr "Groupe create a échoué"
+
+#, fuzzy
+msgid "There are no hosts to task"
+msgstr "Il n'y a pas de groupes sur ce serveur."
+
+msgid "Groups cannot create capture tasks"
+msgstr ""
+
+#, fuzzy
+msgid "Storage Node Management"
+msgstr "Gestion du stockage"
+
+#, fuzzy
+msgid "Create New Storage Node"
+msgstr "nœud de stockage"
+
+#, fuzzy
+msgid "Storage Node Web Root"
+msgstr "Nom du nœud de stockage"
+
+#, fuzzy
+msgid "Storage Node Enabled"
+msgstr "Nom du nœud de stockage"
+
+#, fuzzy
+msgid "Network Interface"
+msgstr "Imprimante réseau"
+
+msgid "Kbps"
+msgstr ""
+
+#, fuzzy
+msgid "Multicast Bitrate"
+msgstr "Multicast"
+
+#, fuzzy
+msgid "Storage Node Image Path"
+msgstr "Noeud de stockage IP"
+
+#, fuzzy
+msgid "Storage Node FTP Path"
+msgstr "Noeud de stockage IP"
+
+#, fuzzy
+msgid "Storage Node Snapin Path"
+msgstr "Nœud de stockage Mise à jour"
+
+#, fuzzy
+msgid "Storage Node SSL Path"
+msgstr "Noeud de stockage IP"
+
+#, fuzzy
+msgid "Storage Node FTP User"
+msgstr "Nœud de stockage Nom d'utilisateur"
+
+#, fuzzy
+msgid "Storage Node FTP Password"
+msgstr "Nœud de stockage Mot de passe"
+
+msgid "Bandwidth should be numeric and greater than 0"
+msgstr "La bande passante doit être numérique et supérieur à 0"
+
+#, fuzzy
+msgid "Add storage node failed!"
+msgstr "Ajouter SnapIn a échoué!"
+
+#, fuzzy
+msgid "Storage Node added!"
+msgstr "Nom du nœud de stockage"
+
+#, fuzzy
+msgid "Storage Node Create Success"
+msgstr "Nœud de stockage Créé"
+
+#, fuzzy
+msgid "Storage Node Create Fail"
+msgstr "Nœud de stockage Créé"
+
+#, fuzzy
+msgid "Storage Node Update Failed"
+msgstr "Nœud de stockage Mise à jour"
+
+#, fuzzy
+msgid "Storage Node updated!"
+msgstr "Nœud de stockage Mise à jour"
+
+#, fuzzy
+msgid "Storage Node Update Success"
+msgstr "Nœud de stockage Mise à jour"
+
+#, fuzzy
+msgid "Storage Node Update Fail"
+msgstr "Nœud de stockage Mise à jour"
+
+#, fuzzy
+msgid "Started By"
+msgstr "Créé par"
+
+msgid "Progress"
+msgstr ""
+
+msgid "Resume Reload"
+msgstr ""
+
+msgid "Pause Reload"
+msgstr ""
+
+#, fuzzy
+msgid "Cancel Selected"
+msgstr "Supprimer sélectionnée"
+
+#, fuzzy
+msgid "Selected tasks cancelled!"
+msgstr "a été mis à jour avec succès"
+
+#, fuzzy
+msgid "Task Cancel Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Task Cancel Fail"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Active Multi-cast Tasks"
+msgstr "Tâches Multicast actifs"
+
+msgid "Task Name"
+msgstr "Nom de la tâche"
+
+#, fuzzy
+msgid "Hosts in tasking"
+msgstr "Hôtes sur Task"
+
+msgid "Host/Group Name"
+msgstr "Hôte / Nom de groupe"
+
+msgid "Is Group"
+msgstr "Is Group"
+
+msgid "Printer Name"
+msgstr "Nom de l'imprimante"
+
+#, fuzzy
+msgid "Config File"
+msgstr "Printer Config File"
+
+#, fuzzy
+msgid "Create New Printer"
+msgstr "Créer un nouveau %s"
+
+msgid "TCP/IP Port Printer"
+msgstr "TCP / IP Port imprimante"
+
+msgid "iPrint Printer"
+msgstr "iPrint Printer"
+
+msgid "Network Printer"
+msgstr "Imprimante réseau"
+
+msgid "CUPS Printer"
+msgstr "CUPS Printer"
+
+#, fuzzy
+msgid "Copy from existing"
+msgstr "Impossible de créer l'imprimante"
+
+#, fuzzy
+msgid "Printer Name/Alias"
+msgstr "imprimante Alias"
+
+msgid "e.g."
+msgstr ""
+
+msgid "Printer Description"
+msgstr "Printer description"
+
+#, fuzzy
+msgid "Printer Configuration File"
+msgstr "Configuration du service"
+
+msgid "Printer Port"
+msgstr "Port d'imprimante"
+
+msgid "Printer INF File"
+msgstr "Imprimante INF Fichier"
+
+msgid "Printer IP"
+msgstr "imprimante IP"
+
+msgid "Printer Model"
+msgstr "Modèle d'imprimante"
+
+#, fuzzy
+msgid "A printer name is required!"
+msgstr "Un nom de l'image est nécessaire!"
+
+#, fuzzy
+msgid "A printer already exists with this name!"
+msgstr "Une image existe déjà avec ce nom!"
+
+#, fuzzy
+msgid "Add printer failed!"
+msgstr "Ajouter SnapIn a échoué!"
+
+#, fuzzy
+msgid "Printer added!"
+msgstr "Nom de l'imprimante"
+
+#, fuzzy
+msgid "Printer Create Success"
+msgstr "Imprimante existe déjà"
+
+#, fuzzy
+msgid "Printer Create Fail"
+msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+msgid "Update Default"
+msgstr "Mise à jour de l'imprimante"
+
+#, fuzzy
+msgid "Default Printer"
+msgstr "Point par défaut:"
+
+msgid "Printer update failed!"
+msgstr "mise à jour de l'imprimante a échoué!"
+
+msgid "Printer updated!"
+msgstr "Imprimante mis à jour!"
+
+#, fuzzy
+msgid "Printer Update Success"
+msgstr "Imprimante mis à jour!"
+
+#, fuzzy
+msgid "Printer Update Fail"
+msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+msgid "FOG Client Installers"
+msgstr "FOG client Télécharger"
+
+#, fuzzy
+msgid "The installers for the fog client"
+msgstr "Ce paramètre définit le nom d'utilisateur utilisé pour le client ssh."
+
+#, fuzzy
+msgid "Client Version"
+msgstr "CPU Version"
+
+msgid ""
+"Cross platform, more secure, faster, and much easier on the server. "
+"Espeically when your organization has many hosts"
+msgstr ""
+
+#, fuzzy
+msgid "MSI -- Network Installer"
+msgstr "Imprimante réseau"
+
+#, fuzzy
+msgid "Smart Installer"
+msgstr "Installer intelligent (recommandé)"
+
+#, fuzzy
+msgid "Help and Guides"
+msgstr "Aide et Guide"
+
+msgid "Where to get help and guides"
+msgstr ""
+
+msgid "Use the links below if you need assistance."
+msgstr ""
+
+msgid ""
+"NOTE: Forums are the most command fastest method of getting help with any "
+"aspect of FOG."
+msgstr ""
+
+msgid "FOG Client Wiki"
+msgstr "FOG client Wiki"
+
+msgid "FOG Forums"
+msgstr "BROUILLARD Forums"
+
+#, fuzzy
+msgid "Captured"
+msgstr "Créé"
+
+#, fuzzy
+msgid "Create New Image"
+msgstr "Créer un nouveau %s"
+
+msgid "Partimage"
+msgstr "Partimage"
+
+msgid "Image Description"
+msgstr "Description de l'image"
+
+#, fuzzy
+msgid "Image Compression Rating"
+msgstr "Association Image"
+
+#, fuzzy
+msgid "Image Storage Group"
+msgstr "Groupe de stockage"
+
+#, fuzzy
+msgid "Image Operating System"
+msgstr "Système opérateur"
+
+#, fuzzy
+msgid "Image Partition"
+msgstr "Partition"
+
+msgid "Image Manager"
+msgstr "Image Manager"
+
+msgid "Image Enabled"
+msgstr "Photo Enabled"
+
+#, fuzzy
+msgid "Image Replicate"
+msgstr "image Replicator"
+
+#, fuzzy
+msgid "An image name is required!"
+msgstr "Un nom de l'image est nécessaire!"
+
+msgid "An image already exists with this name!"
+msgstr "Une image existe déjà avec ce nom!"
+
+#, fuzzy
+msgid "Please choose a different filename/path as this is reserved"
+msgstr "S'il vous plaît choisir une image"
+
+msgid "The path requested is already in use by another image!"
+msgstr ""
+
+#, fuzzy
+msgid "Add image failed!"
+msgstr "Ajouter SnapIn a échoué!"
+
+#, fuzzy
+msgid "Image added!"
+msgstr "Nom de l'image"
+
+#, fuzzy
+msgid "Image Create Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Image Create Fail"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Image Protected"
+msgstr "Protégé"
+
+#, fuzzy
+msgid "Image update failed!"
+msgstr "image mise à jour"
+
+#, fuzzy
+msgid "Image updated!"
+msgstr "image mise à jour"
+
+#, fuzzy
+msgid "Image Update Success"
+msgstr "Installation / Mise à jour réussie!"
+
+#, fuzzy
+msgid "Image Update Fail"
+msgstr "image mise à jour"
+
+msgid "Session Name"
+msgstr "Nom de session"
+
+msgid "Client Count"
+msgstr "Nombre de clients"
+
+#, fuzzy
+msgid "Session Timeout"
+msgstr "Expiration de la session"
+
+msgid "minutes"
+msgstr "minutes"
+
+#, fuzzy
+msgid "Session Image"
+msgstr "Nom de session"
+
+#, fuzzy
+msgid "Cancel Selected Tasks"
+msgstr "Supprimer sélectionnée"
+
+#, fuzzy
+msgid "Cancel the selected tasks."
+msgstr "Supprimer sélectionnée"
+
+#, fuzzy
+msgid "Create new Session Task"
+msgstr "Créer un nouveau %s"
+
+#, fuzzy
+msgid "Multicast Sessions"
+msgstr "Démarrez Multicast session"
+
+msgid "Please choose an image"
+msgstr "S'il vous plaît choisir une image"
+
+#, fuzzy
+msgid "Please select a valid image"
+msgstr "Sélectionnez une image valide"
+
+#, fuzzy
+msgid "Session with that name already exists!"
+msgstr "Un nom d'hôte avec ce nom existe déjà."
+
+msgid "Server is only configured to run "
+msgstr ""
+
+#, fuzzy
+msgid "Session created!"
+msgstr "Nom de session"
+
+#, fuzzy
+msgid "Session Create Success"
+msgstr "snapin mise à jour"
+
+#, fuzzy
+msgid "Session Create Fail"
+msgstr "snapin mise à jour"
+
+msgid "Failed to create Session"
+msgstr "Échec de la création Session"
+
+#, fuzzy
+msgid "Sessions cancelled!"
+msgstr "a été mis à jour avec succès"
+
+#, fuzzy
+msgid "Session Cancel Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Session Cancel Fail"
+msgstr "utilisateur créé"
+
 msgid "Failed to connect"
 msgstr "Échec de connexion"
 
@@ -5695,6 +5614,9 @@ msgstr "En attente de mysql soit disponible"
 #, fuzzy
 msgid "I am not the master for this group"
 msgstr " * Je ne suis pas le maître"
+
+msgid "I am the master, but I do not appear to be online"
+msgstr ""
 
 msgid "Not syncing"
 msgstr ""
@@ -5904,9 +5826,6 @@ msgstr ""
 #, fuzzy
 msgid "Trying image size for"
 msgstr "snapin Chemin"
-
-msgid "ID"
-msgstr "ID"
 
 #, fuzzy
 msgid "Path is unavailable"
