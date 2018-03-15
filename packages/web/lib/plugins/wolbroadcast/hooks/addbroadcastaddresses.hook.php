@@ -53,14 +53,10 @@ class AddBroadcastAddresses extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'BROADCAST_ADDR',
-                array(
-                    $this,
-                    'addBCaddr'
-                )
-            );
+        self::$HookManager->register(
+            'BROADCAST_ADDR',
+            [$this, 'addBCaddr']
+        );
     }
     /**
      * Adds the broadcast address.
@@ -71,12 +67,9 @@ class AddBroadcastAddresses extends Hook
      */
     public function addBCaddr($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         $arguments['broadcast'] = self::fastmerge(
-            (array) $arguments['broadcast'],
-            (array) self::getSubObjectIDs('Wolbroadcast', '', 'broadcast')
+            (array)$arguments['broadcast'],
+            (array)self::getSubObjectIDs('Wolbroadcast', '', 'broadcast')
         );
     }
 }

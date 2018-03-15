@@ -32,19 +32,19 @@ class Wolbroadcast extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'wbID',
         'name' => 'wbName',
         'description' => 'wbDesc',
-        'broadcast' => 'wbBroadcast',
-    );
+        'broadcast' => 'wbBroadcast'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name',
-        'broadcast',
-    );
+        'broadcast'
+    ];
 }

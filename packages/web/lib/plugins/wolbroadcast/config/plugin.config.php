@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-$fog_plugin = array();
+$fog_plugin = [];
 $fog_plugin['name'] = 'wolbroadcast';
 $fog_plugin['description'] = 'Allows you to create WOL across '
     . 'separate broadcast addresses. '
