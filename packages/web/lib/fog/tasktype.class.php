@@ -52,7 +52,7 @@ class TaskType extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'ttID',
         'name' => 'ttName',
         'description' => 'ttDescription',
@@ -63,16 +63,16 @@ class TaskType extends FOGController
         'isAdvanced' => 'ttIsAdvanced',
         'access' => 'ttIsAccess',
         'initrd' => 'ttInitrd'
-    );
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name',
         'icon',
-    );
+    ];
     /**
      * Gives the list of icons.
      *
@@ -177,19 +177,26 @@ class TaskType extends FOGController
         );
 
         if ($nums) {
-            return array(2, 16);
+            return [
+                self::CAPTURE,
+                self::CAPTURE_DEBUG
+            ];
         }
 
-        return
-            $this->isValid()
+        return $this->isValid()
             && (
-                in_array($this->get($id), array(2, 16))
+                in_array(
+                    $this->get($id),
+                    [
+                        self::CAPTURE,
+                        self::CAPTURE_DEBUG
+                    ]
+                )
                 || preg_match(
                     '#type=(2|16|up)#i',
                     $this->get('kernelArgs')
                 )
-            )
-            ;
+            );
     }
     /**
      * Returns if the task needs the inits.
@@ -209,14 +216,25 @@ class TaskType extends FOGController
         if ($nums) {
             return array_diff(
                 range(1, 24),
-                array(4, 12, 13, 14)
+                [
+                    self::MEMTEST,
+                    self::ALL_SNAPINS,
+                    self::SINGLE_SNAPIN,
+                    self::WAKE_UP
+                ]
             );
         }
 
-        return (
-            $this->isValid()
-            && !in_array($this->get($id), array(4, 12, 13, 14))
-        );
+        return $this->isValid()
+            && !in_array(
+                $this->get($id),
+                [
+                    self::MEMTEST,
+                    self::ALL_SNAPINS,
+                    self::SINGLE_SNAPIN,
+                    self::WAKE_UP
+                ]
+            );
     }
     /**
      * Returns if this is snapin only tasking.
@@ -234,13 +252,20 @@ class TaskType extends FOGController
         );
 
         if ($nums) {
-            return array(12, 13);
+            return [
+                self::ALL_SNAPINS,
+                self::SINGLE_SNAPIN
+            ];
         }
 
-        return (
-            $this->isValid()
-            && in_array($this->get($id), array(12, 13))
-        );
+        return $this->isValid()
+            && in_array(
+                $this->get($id),
+                [
+                    self::ALL_SNAPINS,
+                    self::SINGLE_SNAPIN
+                ]
+            );
     }
     /**
      * Returns if we need to task snapins too.
@@ -255,16 +280,18 @@ class TaskType extends FOGController
             'id'
         );
 
-        return
-            $this->isValid()
+        return$this->isValid()
             && (
-                (
-                    $this->isDeploy()
-                    && $this->get($id) != 17
-                )
-                || in_array($this->get($id), array(12, 13))
+                $this->isDeploy()
+                && $this->get($id) != self::DEPLOY_NO_SNAPINS
             )
-            ;
+            || in_array(
+                $this->get($id),
+                [
+                    self::ALL_SNAPINS,
+                    self::SINGLE_SNAPIN
+                ]
+            );
     }
     /**
      * Returns if this is a deploy tasking.
@@ -282,19 +309,30 @@ class TaskType extends FOGController
         );
 
         if ($nums) {
-            return array(1, 8, 15, 17, 24);
+            return [
+                self::DEPLOY,
+                self::MULTICAST,
+                self::DEPLOY_DEBUG,
+                self::DEPLOY_NO_SNAPINS
+            ];
         }
 
-        return
-            $this->isValid()
+        return $this->isValid()
             && (
-                in_array($this->get($id), array(1, 8, 15, 17, 24))
+                in_array(
+                    $this->get($id),
+                    [
+                        self::DEPLOY,
+                        self::MULTICAST,
+                        self::DEPLOY_DEBUG,
+                        self::DEPLOY_NO_SNAPINS
+                    ]
+                )
                 || preg_match(
                     '#type=(1|8|15|17|24|down)#i',
                     $this->get('kernelArgs')
                 )
-            )
-            ;
+            );
     }
     /**
      * Returns if this is a multicast tasking.
@@ -312,19 +350,20 @@ class TaskType extends FOGController
         );
 
         if ($nums) {
-            return array(8);
+            return [
+                self::MULTICAST
+            ];
         }
 
         return
             $this->isValid()
             && (
-                $this->get($id) == 8
+                $this->get($id) == self::MULTICAST
                 || preg_match(
                     '#(type=8|mc=yes)#i',
                     $this->get('kernelArgs')
                 )
-            )
-            ;
+            );
     }
     /**
      * Returns if this is a debug tasking.
@@ -342,10 +381,15 @@ class TaskType extends FOGController
         return
             $this->isValid()
             && (
-                in_array($this->get($id), array(15, 16))
+                in_array(
+                    $this->get($id),
+                    [
+                        self::DEPLOY_DEBUG,
+                        self::CAPTURE_DEBUG
+                    ]
+                )
                 || preg_match('#mode=debug#i', $this->get('kernelArgs'))
                 || preg_match('#mode=onlydebug#i', $this->get('kernelArgs'))
-            )
-            ;
+            );
     }
 }

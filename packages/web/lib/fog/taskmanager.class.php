@@ -38,26 +38,26 @@ class TaskManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'dcID',
                 'dcPath'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'LONGTEXT'
-            ),
-            array(
+            ],
+            [
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 'dcID',
                 'dcPath'
-            ),
+            ],
             'MyISAM',
             'utf8',
             'dcID',
@@ -79,10 +79,10 @@ class TaskManager extends FOGManagerController
             (array)self::getQueuedStates(),
             (array)self::getProgressState()
         );
-        $findWhere = array(
+        $findWhere = [
             'id' => (array)$taskids,
             'stateID' => $notComplete
-        );
+        ];
         $hostIDs = self::getSubObjectIDs(
             'Task',
             $findWhere,
@@ -91,29 +91,25 @@ class TaskManager extends FOGManagerController
         $this->update(
             $findWhere,
             '',
-            array(
-                'stateID' => $cancelled
-            )
+            ['stateID' => $cancelled]
         );
-        $findWhere = array(
+        $findWhere = [
             'hostID' => $hostIDs,
             'stateID' => $notComplete
-        );
+        ];
         $SnapinJobIDs = self::getSubObjectIDs(
             'SnapinJob',
             $findWhere
         );
-        $findWhere = array(
+        $findWhere = [
             'stateID' => $notComplete,
             'jobID' => $SnapinJobIDs
-        );
+        ];
         $SnapinTaskIDs = self::getSubObjectIDs(
             'SnapinTask',
             $findWhere
         );
-        $findWhere = array(
-            'taskID' => $taskids
-        );
+        $findWhere = ['taskID' => $taskids];
         $MulticastSessionAssocIDs = self::getSubObjectIDs(
             'MulticastSessionAssociation',
             $findWhere
@@ -125,17 +121,17 @@ class TaskManager extends FOGManagerController
         );
         $MulticastSessionIDs = self::getSubObjectIDs(
             'MulticastSession',
-            array(
+            [
                 'stateID' => $notComplete,
                 'id' => $MulticastSessionIDs
-            )
+            ]
         );
         if (count($MulticastSessionAssocIDs) > 0) {
             self::getClass('MulticastSessionAssociationManager')
-                ->destroy(array('id' => $MulticastSessionAssocIDs));
+                ->destroy(['id' => $MulticastSessionAssocIDs]);
         }
         $StillLeft = self::getClass('MulticastSessionAssociationManager')
-            ->count(array('msID' => $MulticastSessionIDs));
+            ->count(['msID' => $MulticastSessionIDs]);
         if (count($SnapinTaskIDs) > 0) {
             self::getClass('SnapinTaskManager')->cancel($SnapinTaskIDs);
         }
