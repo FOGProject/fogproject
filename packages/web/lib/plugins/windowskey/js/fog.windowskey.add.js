@@ -1,10 +1,6 @@
 (function($) {
     var createForm = $('#windowskey-create-form'),
-        createFormBtn = $('#send'),
-        groupSelector = $('#storagegroup'),
-        nodeSelector = $('#storagenode');
-
-    $('#key').inputmask({mask: Common.masks.productKey});
+        createFormBtn = $('#send');
     createForm.on('submit', function(e) {
         e.preventDefault();
     });

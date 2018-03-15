@@ -34,32 +34,32 @@ class WindowsKey extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'wkID',
         'name' => 'wkName',
         'description' => 'wkDesc',
         'createdBy' => 'wkCreatedBy',
         'createdTime' => 'wkCreatedTime',
         'key' => 'wkKey'
-    );
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name',
         'key'
-    );
+    ];
     /**
      * Additional fields.
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'images',
         'imagesnotinme'
-    );
+    ];
     /**
      * Destroy this particular object.
      *
@@ -70,11 +70,7 @@ class WindowsKey extends FOGController
     public function destroy($key = 'id')
     {
         self::getClass('WindowsKeyAssociationManager')
-            ->destroy(
-                array(
-                    'windowskeyID' => $this->get('id')
-                )
-            );
+            ->destroy(['windowskeyID' => $this->get('id')]);
         return parent::destroy($key);
     }
     /**
@@ -127,17 +123,14 @@ class WindowsKey extends FOGController
     {
         $imageIDs = self::getSubObjectIDs(
             'WindowsKeyAssociation',
-            array('windowskeyID' => $this->get('id')),
+            ['windowskeyID' => $this->get('id')],
             'imageID'
         );
         $imageIDs = self::getSubObjectIDs(
             'Image',
-            array('id' => $imageIDs)
+            ['id' => $imageIDs]
         );
-        $this->set(
-            'images',
-            $imageIDs
-        );
+        $this->set('images', $imageIDs);
     }
     /**
      * Load the images not with this key.

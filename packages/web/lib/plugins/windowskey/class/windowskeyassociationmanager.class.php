@@ -40,32 +40,32 @@ class WindowsKeyAssociationManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'wkaID',
                 'wkaImageID',
                 'wkaKeyID'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'INTEGER',
                 'INTEGER'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false
-            ),
-            array(
-                array(
+            ],
+            [
+                [
                     'wkaImageID',
-                    'wkaKeyID',
-                )
-            ),
+                    'wkaKeyID'
+                ]
+            ],
             'MyISAM',
             'utf8',
             'wkaID',

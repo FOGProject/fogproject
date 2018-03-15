@@ -7,7 +7,6 @@
  * @category WindowsKeyManagementPage
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @author   Lee Rowlett <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -17,7 +16,6 @@
  * @category WindowsKeyManagementPage
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @author   Lee Rowlett <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -62,18 +60,9 @@ class WindowsKeyManagementPage extends FOGPage
     {
         $this->title = _('Create New Windows Key');
 
-        $windowskey = filter_input(
-            INPUT_POST,
-            'windowskey'
-        );
-        $description = filter_input(
-            INPUT_POST,
-            'description'
-        );
-        $key = filter_input(
-            INPUT_POST,
-            'key'
-        );
+        $windowskey = filter_input(INPUT_POST, 'windowskey');
+        $description = filter_input(INPUT_POST, 'description');
+        $key = filter_input(INPUT_POST, 'key');
 
         $labelClass = 'col-sm-2 control-label';
 
@@ -116,11 +105,13 @@ class WindowsKeyManagementPage extends FOGPage
                 true
             )
         ];
+
         $buttons = self::makeButton(
             'send',
             _('Create'),
             'btn btn-primary'
         );
+
         self::$HookManager->processEvent(
             'WINDOWSKEY_ADD_FIELDS',
             [
@@ -131,6 +122,7 @@ class WindowsKeyManagementPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'windowskey-create-form',
@@ -167,27 +159,20 @@ class WindowsKeyManagementPage extends FOGPage
     {
         header('Content-type: application/json');
         self::$HookManager->processEvent('WINDOWSKEY_ADD_POST');
-        $windowskey = filter_input(
-            INPUT_POST,
-            'windowskey'
+        $windowskey = trim(
+            filter_input(INPUT_POST, 'windowskey')
         );
-        $description = filter_input(
-            INPUT_POST,
-            'description'
+        $description = trim(
+            filter_input(INPUT_POST, 'description')
         );
-        $key = filter_input(
-            INPUT_POST,
-            'key'
+        $key = trim(
+            filter_input(INPUT_POST, 'key')
         );
+
         $serverFault = false;
         try {
-            if (!$windowskey) {
-                throw new Exception(
-                    _('A windows key name is required!')
-                );
-            }
             $exists = self::getClass('WindowsKeyManager')
-                ->exists($name);
+                ->exists($windowskey);
             if ($exists) {
                 throw new Exception(
                     _('A Windows Key already exists with this name!')
@@ -224,7 +209,7 @@ class WindowsKeyManagementPage extends FOGPage
             );
         }
         //header(
-        //    'Location: ../management/index.php?node=host&sub=edit&id='
+        //    'Location: ../management/index.php?node=windowskey&sub=edit&id='
         //    . $WindowsKey->get('id')
         //);
         self::$HookManager->processEvent(
@@ -267,12 +252,14 @@ class WindowsKeyManagementPage extends FOGPage
                 'key'
             ) ?: $this->obj->get('key')
         );
+        // For compatibility
         $keytest = self::aesdecrypt($key);
-        if ($test_base64 = base64_decode($keytest)) {
-            if (mb_detect_encoding($test_base64, 'utf-8', true)) {
-                $key = $test_base64;
-            }
-        } elseif (mb_detect_encoding($keytest, 'utf-8', true)) {
+        $test_base64 = base64_decode($keytest);
+        $keyb64 = mb_detect_encoding($test_base64, 'utf-8', true);
+        $keyenc = mb_detect_encoding($keytest, 'utf-8', true);
+        if ($keyb64) {
+            $key = $test_base64;
+        } else if ($keyenc) {
             $key = $keytest;
         }
 
@@ -317,6 +304,7 @@ class WindowsKeyManagementPage extends FOGPage
                 true
             )
         ];
+
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
@@ -327,6 +315,7 @@ class WindowsKeyManagementPage extends FOGPage
             _('Delete'),
             'btn btn-danger pull-right'
         );
+
         self::$HookManager->processEvent(
             'WINDOWSKEY_GENERAL_FIELDS',
             [
@@ -335,8 +324,10 @@ class WindowsKeyManagementPage extends FOGPage
                 'WindowsKey' => &$this->obj
             ]
         );
+
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'windowskey-general-form',
@@ -365,26 +356,21 @@ class WindowsKeyManagementPage extends FOGPage
      */
     public function windowsKeyGeneralPost()
     {
-        $windowskey = filter_input(
-            INPUT_POST,
-            'windowskey'
+        $windowskey = trim(
+            filter_input(INPUT_POST, 'windowskey')
         );
-        $description = filter_input(
-            INPUT_POST,
-            'description'
+        $description = trim(
+            filter_input(INPUT_POST, 'description')
         );
-        $key = filter_input(
-            INPUT_POST,
-            'key'
+        $key = trim(
+            filter_input(INPUT_POST, 'key')
         );
-        if (!$windowskey) {
-            throw new Exception(
-                _('A windows key name is required!')
-            );
-        }
+
         $exists = self::getClass('WindowsKeyManager')
-            ->exists($name);
-        if ($exists) {
+            ->exists($windowskey);
+        if ($windowskey != $this->obj->get('name')
+            && $exists
+        ) {
             throw new Exception(
                 _('A Windows Key already exists with this name!')
             );
@@ -393,6 +379,23 @@ class WindowsKeyManagementPage extends FOGPage
             ->set('name', $windowskey)
             ->set('description', $description)
             ->set('key', $key);
+    }
+    /**
+     * Presents the membership information
+     *
+     * @return void
+     */
+    public function windowsKeyImages()
+    {
+        echo 'TODO: Make Functional';
+    }
+    /**
+     * Commonized membership actions
+     *
+     * @return void
+     */
+    public function windowsKeyImagePost()
+    {
     }
     /**
      * Present the windows key to edit the page.
@@ -447,6 +450,7 @@ class WindowsKeyManagementPage extends FOGPage
             'WINDOWSKEY_EDIT_POST',
             ['WindowsKey' => &$this->obj]
         );
+
         $serverFault = false;
         try {
             global $tab;
@@ -458,6 +462,7 @@ class WindowsKeyManagementPage extends FOGPage
                 $this->windowsKeyImagePost();
                 break;
             }
+
             if (!$this->obj->save()) {
                 $serverFault = true;
                 throw new Exception(_('Windows Key update failed!'));
@@ -484,6 +489,7 @@ class WindowsKeyManagementPage extends FOGPage
                 ]
             );
         }
+
         self::$HookManager->processEvent(
             $hook,
             [
@@ -499,20 +505,106 @@ class WindowsKeyManagementPage extends FOGPage
         exit;
     }
     /**
-     * Presents the membership information
+     * Present the export information.
      *
      * @return void
      */
-    public function windowsKeyImages()
+    public function export()
     {
-        echo 'TODO: Make Functional';
+        // The data to use for building our table.
+        $this->headerData = [];
+        $this->templates = [];
+        $this->attributes = [];
+
+        $obj = self::getClass('WindowsKeyManager');
+
+        foreach ($obj->getColumns() as $common => &$real) {
+            if ('id' == $common) {
+                continue;
+            }
+            array_push($this->headerData, $common);
+            array_push($this->templates, '');
+            array_push($this->attributes, []);
+            unset($real);
+        }
+
+        $this->title = _('Export Windows Keys');
+
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Export Windows Keys');
+        echo '</h4>';
+        echo '<p class="help-block">';
+        echo _('Use the selector to choose how many items you want exported.');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo '<p class="help-block">';
+        echo _(
+            'When you click on the item you want to export, it can only select '
+            . 'what is currently viewable on the screen. This includes searched '
+            . 'and the current page. Please use the selector to choose the amount '
+            . 'of items you would like to export.'
+        );
+        echo '</p>';
+        $this->render(12, 'windowskey-export-table');
+        echo '</div>';
+        echo '</div>';
     }
     /**
-     * Commonized membership actions
+     * Present the export list.
      *
      * @return void
      */
-    public function windowsKeyImagePost()
+    public function getExportList()
     {
+        header('Content-type: application/json');
+        $obj = self::getClass('WindowsKeyManager');
+        $table = $obj->getTable();
+        $sqlstr = $obj->getQueryStr();
+        $filterstr = $obj->getFilterStr();
+        $totalstr = $obj->getTotalStr();
+        $dbcolumns = $obj->getColumns();
+        $pass_vars = $columns = [];
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        // Setup our columns for the CSVn.
+        // Automatically removes the id column.
+        foreach ($dbcolumns as $common => &$real) {
+            if ('id' == $common) {
+                $tableID = $real;
+                continue;
+            }
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        self::$HookManager->processEvent(
+            'WINDOWSKEY_EXPORT_ITEMS',
+            [
+                'table' => &$table,
+                'sqlstr' => &$sqlstr,
+                'filterstr' => &$filterstr,
+                'totalstr' => &$totalstr,
+                'columns' => &$columns
+            ]
+        );
+        echo json_encode(
+            FOGManagerController::simple(
+                $pass_vars,
+                $table,
+                $tableID,
+                $columns,
+                $sqlstr,
+                $filterstr,
+                $totalstr
+            )
+        );
+        exit;
     }
 }

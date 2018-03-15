@@ -17,7 +17,6 @@ $(function() {
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete');
 
-    $('#key').inputmask({mask: Common.masks.productKey});
     generalForm.on('submit',function(e) {
         e.preventDefault();
     });
@@ -48,10 +47,6 @@ $(function() {
             + '&sub=list';
         });
     });
-
     // ---------------------------------------------------------------
-    // IMAGES TAB
-
-    if (Common.search && Common.search.length > 0) {
-    }
+    // IMAGE TAB
 });

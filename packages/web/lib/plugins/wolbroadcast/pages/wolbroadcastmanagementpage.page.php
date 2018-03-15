@@ -61,6 +61,7 @@ class WOLBroadcastManagementPage extends FOGPage
         $this->title = _('Create New Broadcast');
 
         $wolbroadcast = filter_input(INPUT_POST, 'wolbroadcast');
+        $description = filter_input(INPUT_POST, 'description');
         $broadcast = filter_input(INPUT_POST, 'broadcast');
 
         $labelClass = 'col-sm-2 control-label';
@@ -78,6 +79,17 @@ class WOLBroadcastManagementPage extends FOGPage
                 'wolbroadcast',
                 $wolbroadcast,
                 true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Broadcast Description')
+            ) => self::makeTextarea(
+                'form-control wolbroadcastdescription-name',
+                'description',
+                _('Broadcast Description'),
+                'description',
+                $description
             ),
             self::makeLabel(
                 $labelClass,
@@ -139,7 +151,7 @@ class WOLBroadcastManagementPage extends FOGPage
         echo '</form>';
     }
     /**
-     * Add post.
+     * Actually create the broadcast.
      *
      * @return void
      */
@@ -150,33 +162,25 @@ class WOLBroadcastManagementPage extends FOGPage
         $wolbroadcast = trim(
             filter_input(INPUT_POST, 'wolbroadcast')
         );
+        $description = trim(
+            filter_input(INPUT_POST, 'description')
+        );
         $broadcast = trim(
             filter_input(INPUT_POST, 'broadcast')
         );
+
         $serverFault = false;
         try {
-            if (!$wolbroadcast) {
-                throw new Exception(
-                    _('A broadcast name is required!')
-                );
-            }
-            if (self::getClass('WOLBroadcastManager')->exists($wolbroadcast)) {
+            $exists = self::getClass('WOLBroadcastManager')
+                ->exists($wolbroadcast);
+            if ($exists) {
                 throw new Exception(
                     _('A broadcast already exists with this name!')
                 );
             }
-            if (!$broadcast) {
-                throw new Exception(
-                    _('A broadcast address is required!')
-                );
-            }
-            if (!filter_var($broadcast, FILTER_VALIDATE_IP)) {
-                throw new Exception(
-                    _('A valid IP is required!')
-                );
-            }
             $WOLBroadcast = self::getClass('WOLBroadcast')
                 ->set('name', $wolbroadcast)
+                ->set('description', $description)
                 ->set('broadcast', $broadcast);
             if (!$WOLBroadcast->save()) {
                 $serverFault = true;
@@ -234,6 +238,10 @@ class WOLBroadcastManagementPage extends FOGPage
             filter_input(INPUT_POST, 'wolbroadcast') ?:
             $this->obj->get('name')
         );
+        $description = (
+            filter_input(INPUT_POST, 'description') ?:
+            $this->obj->get('description')
+        );
         $broadcast = (
             filter_input(INPUT_POST, 'broadcast') ?:
             $this->obj->get('broadcast')
@@ -254,6 +262,17 @@ class WOLBroadcastManagementPage extends FOGPage
                 'wolbroadcast',
                 $wolbroadcast,
                 true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Broadcast Description')
+            ) => self::makeTextarea(
+                'form-control wolbroadcastdescription-input',
+                'description',
+                _('Broadcast Description'),
+                'description',
+                $description
             ),
             self::makeLabel(
                 $labelClass,
@@ -324,23 +343,30 @@ class WOLBroadcastManagementPage extends FOGPage
         $wolbroadcast = trim(
             filter_input(INPUT_POST, 'wolbroadcast')
         );
+        $description = trim(
+            filter_input(INPUT_POST, 'description')
+        );
         $broadcast = trim(
             filter_input(INPUT_POST, 'broadcast')
         );
 
+        $exists = self::getClass('WOLBroadcastManager')
+            ->exists($wolbroadcast);
         if ($wolbroadcast != $this->obj->get('name')
-            && self::getClass('WOLBroadcastManager')->exists($wolbroadcast)
+            && $exists
         ) {
             throw new Exception(
-                _('A broadcast already exists with this name')
+                _('A broadcast already exists with this name!')
             );
         }
+
         $this->obj
             ->set('name', $wolbroadcast)
+            ->set('description', $description)
             ->set('broadcast', $broadcast);
     }
     /**
-     * Edit the current item.
+     * Present the wol broadcast to edit the page.
      *
      * @return void
      */
@@ -366,7 +392,7 @@ class WOLBroadcastManagementPage extends FOGPage
         echo self::tabFields($tabData);
     }
     /**
-     * Update the edit elements.
+     * Actually update the wol broadcast.
      *
      * @return void
      */
@@ -377,6 +403,7 @@ class WOLBroadcastManagementPage extends FOGPage
             'WOLBROADCAST_EDIT_POST',
             ['WOLBroadcast' => &$this->obj]
         );
+
         $serverFault = false;
         try {
             global $tab;
@@ -385,6 +412,7 @@ class WOLBroadcastManagementPage extends FOGPage
                 $this->wolbroadcastGeneralPost();
                 break;
             }
+
             if (!$this->obj->save()) {
                 $serverFault = true;
                 throw new Exception(_('Broadcast update failed!'));
@@ -411,6 +439,7 @@ class WOLBroadcastManagementPage extends FOGPage
                 ]
             );
         }
+
         self::$HookManager->processEvent(
             $hook,
             [

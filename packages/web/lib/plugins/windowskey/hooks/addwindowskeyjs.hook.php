@@ -97,8 +97,7 @@ class AddWindowsKeyJS extends Hook
                 ];
             }
             break;
-        case 'host':
-        case 'group':
+        case 'image':
             if (empty($subset)) {
                 $filepaths = [
                     "../lib/plugins/{$this->node}/js/fog.{$this->node}.{$node}.js"

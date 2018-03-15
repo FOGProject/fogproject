@@ -1,5 +1,5 @@
 (function($) {
-    var exportTable = Common.registerTable($('#wolbroadcast-export-table'), null, {
+    var exportTable = Common.registerTable($('#windowskey-export-table'), null, {
         buttons: [
             'copy',
             {
@@ -20,11 +20,21 @@
         columns: [
             {data: 'name'}, // 0
             {data: 'description'}, // 1
-            {data: 'broadcast'} // 2
+            {data: 'createdBy'}, // 2
+            {data: 'createdTime'}, // 3
+            {data: 'key'} // 4
         ],
-        columnDefs: [
+        columnsDef: [
             {
                 targets: 1,
+                visible: false
+            },
+            {
+                targets: 2,
+                visible: false
+            },
+            {
+                targets: 3,
                 visible: false
             }
         ],
