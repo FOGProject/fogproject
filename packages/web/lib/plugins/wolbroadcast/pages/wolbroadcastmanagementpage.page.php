@@ -37,197 +37,188 @@ class WOLBroadcastManagementPage extends FOGPage
     public function __construct($name = '')
     {
         $this->name = 'WOL Broadcast Management';
-        self::$foglang['ExportWolbroadcast'] = _('Export WOLBroadcasts');
-        self::$foglang['ImportWolbroadcast'] = _('Import WOLBroadcasts');
         parent::__construct($this->name);
-        global $id;
-        if ($id) {
-            $this->subMenu = array(
-                "$this->linkformat#wol-general" => self::$foglang['General'],
-                $this->delformat => self::$foglang['Delete'],
-            );
-            $this->notes = array(
-                _('Broadcast Name') => $this->obj->get('name'),
-                _('IP Address') => $this->obj->get('broadcast'),
-            );
-        }
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction" checked/>',
+        $this->headerData = [
             _('Broadcast Name'),
             _('Broadcast IP')
-        );
-        $this->templates = array(
-            '<label for="toggler">'
-            . '<input type="checkbox" name="wolbroadcast[]" value='
-            . '"${id}" class="toggle-action" checked/>'
-            . '</label>',
-            '<a href="?node=wolbroadcast&sub=edit&id=${id}" title="'
-            . _('Edit')
-            . '">${name}</a>',
-            '${wol_ip}'
-        );
-        $this->attributes = array(
-            array(
-                'class' => 'filter-false',
-                'width' => '16'
-            ),
-            array(),
-            array()
-        );
-        /**
-         * Lambda function to return data either by list or search.
-         *
-         * @param object $WOLBroadcast the object to use
-         *
-         * @return void
-         */
-        self::$returnData = function (&$WOLBroadcast) {
-            $this->data[] = array(
-                'id'    => $WOLBroadcast->id,
-                'name'  => $WOLBroadcast->name,
-                'wol_ip' => $WOLBroadcast->broadcast,
-            );
-            unset($WOLBroadcast);
-        };
+        ];
+        $this->templates = [
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
     }
     /**
-     * Present page to create new WOL entry.
+     * Create new wol broadcast entry.
      *
      * @return void
      */
     public function add()
     {
-        $name = trim(
-            filter_input(INPUT_POST, 'name')
+        $this->title = _('Create New Broadcast');
+
+        $wolbroadcast = filter_input(INPUT_POST, 'wolbroadcast');
+        $broadcast = filter_input(INPUT_POST, 'broadcast');
+
+        $labelClass = 'col-sm-2 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'wolbroadcast',
+                _('Broadcast Name')
+            ) => self::makeInput(
+                'form-control wolbroadcastname-input',
+                'wolbroadcast',
+                _('Broadcast Name'),
+                'text',
+                'wolbroadcast',
+                $wolbroadcast,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'broadcast',
+                _('Broadcast Address')
+            ) => self::makeInput(
+                'form-control wolbroadcastaddress-input',
+                'broadcast',
+                '192.168.1.255',
+                'text',
+                'broadcast',
+                $broadcast,
+                true
+            )
+        ];
+
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
         );
-        $broadcast = trim(
-            filter_input(INPUT_POST, 'broadcast')
-        );
-        $this->title = _('New Broadcast Address');
-        unset($this->headerData);
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $fields = array(
-            '<label for="name">'
-            . _('Broadcast Name')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control wolinput-name" type='
-            . '"text" name="name" id="name" required value="'
-            . $name
-            . '"/>'
-            . '</div>',
-            '<label for="broadcast">'
-            . _('Broadcast IP')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control wolinput-ip" type='
-            . '"text" name="broadcast" id="broadcast" required value="'
-            . $broadcast
-            . '"/>',
-            '<label for="add">'
-            . _('Create WOL Broadcast?')
-            . '</label>' => '<button class="btn btn-info btn-block" name="'
-            . 'add" id="add" type="submit">'
-            . _('Create')
-            . '</button>'
+
+        self::$HookManager->processEvent(
+            'WOLBROADCAST_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'WOLBroadcast' => self::getClass('WOLBroadcast')
+            ]
         );
         $rendered = self::formFields($fields);
-        self::$HookManager
-            ->processEvent(
-                'BROADCAST_ADD',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
         unset($fields);
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'wolbroadcast-create-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="box box-solid" id="role-create">';
+        echo '<div class="box-body">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Create New Broadcast');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '">';
-        $this->render(12);
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
     /**
-     * Actually create the items.
+     * Add post.
      *
      * @return void
      */
     public function addPost()
     {
-        self::$HookManager->processEvent('BROADCAST_ADD_POST');
-        $name = trim(
-            filter_input(INPUT_POST, 'name')
+        header('Content-type: application/json');
+        self::$HookManager->processEvent('WOLBROADCAST_ADD_POST');
+        $wolbroadcast = trim(
+            filter_input(INPUT_POST, 'wolbroadcast')
         );
         $broadcast = trim(
             filter_input(INPUT_POST, 'broadcast')
         );
+        $serverFault = false;
         try {
-            if (!$name) {
+            if (!$wolbroadcast) {
                 throw new Exception(
-                    _('A name is required!')
+                    _('A broadcast name is required!')
                 );
             }
-            if (self::getClass('WolbroadcastManager')->exists($name)) {
+            if (self::getClass('WOLBroadcastManager')->exists($wolbroadcast)) {
                 throw new Exception(
                     _('A broadcast already exists with this name!')
                 );
             }
             if (!$broadcast) {
                 throw new Exception(
-                    _('A broadcast address is required')
+                    _('A broadcast address is required!')
                 );
             }
             if (!filter_var($broadcast, FILTER_VALIDATE_IP)) {
                 throw new Exception(
-                    _('Please enter a valid ip')
+                    _('A valid IP is required!')
                 );
             }
-            $WOLBroadcast = self::getClass('Wolbroadcast')
-                ->set('name', $name)
+            $WOLBroadcast = self::getClass('WOLBroadcast')
+                ->set('name', $wolbroadcast)
                 ->set('broadcast', $broadcast);
             if (!$WOLBroadcast->save()) {
+                $serverFault = true;
                 throw new Exception(_('Add broadcast failed!'));
             }
-            $hook = 'BROADCAST_ADD_SUCCESS';
+            $code = HTTPResponseCodes::HTTP_CREATED;
+            $hook = 'WOLBROADCAST_ADD_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Broadcast added!'),
                     'title' => _('Broadcast Create Success')
-                )
+                ]
             );
         } catch (Exception $e) {
-            $hook = 'BROADCAST_ADD_FAIL';
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'WOLBROADCAST_ADD_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Broadcast Create Fail')
-                )
+                ]
             );
         }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                array('WOLBroadcast' => &$WOLBroadcast)
-            );
+        //header(
+        //    'Location: ../management/index.php?node=wolbroadcast&sub=edit&id='
+        //    $WOLBroadcast->get('id')
+        //);
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'WOLBroadcast' => &$WOLBroadcast,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
+        http_response_code($code);
         unset($WOLBroadcast);
         echo $msg;
         exit;
@@ -237,87 +228,116 @@ class WOLBroadcastManagementPage extends FOGPage
      *
      * @return void
      */
-    public function wolGeneral()
+    public function wolbroadcastGeneral()
     {
-        unset(
-            $this->form,
-            $this->data,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
+        $wolbroadcast = (
+            filter_input(INPUT_POST, 'wolbroadcast') ?:
+            $this->obj->get('name')
         );
-        $name = filter_input(INPUT_POST, 'name') ?:
-            $this->obj->get('name');
-        $broadcast = filter_input(INPUT_POST, 'broadcast') ?:
-            $this->obj->get('broadcast');
-        $this->title = _('WOL Broadcast General');
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
+        $broadcast = (
+            filter_input(INPUT_POST, 'broadcast') ?:
+            $this->obj->get('broadcast')
         );
-        $this->templates = array(
-            '${field}',
-            '${input}',
+
+        $labelClass = 'col-sm-2 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'wolbroadcast',
+                _('Broadcast Name')
+            ) => self::makeInput(
+                'form-control wolbroadcastname-input',
+                'wolbroadcast',
+                _('Broadcast Name'),
+                'text',
+                'wolbroadcast',
+                $wolbroadcast,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'broadcast',
+                _('Broadcast Address')
+            ) => self::makeInput(
+                'form-control wolbroadcastaddress-input',
+                'broadcast',
+                '192.168.1.255',
+                'text',
+                'broadcast',
+                $broadcast,
+                true
+            )
+        ];
+
+        $buttons = self::makeButton(
+            'general-send',
+            _('Update'),
+            'btn btn-primary'
         );
-        $fields = array(
-            '<label for="name">'
-            . _('Broadcast Name')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control wolinput-name" type='
-            . '"text" name="name" id="name" required value="'
-            . $name
-            . '"/>'
-            . '</div>',
-            '<label for="broadcast">'
-            . _('Broadcast IP')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control wolinput-ip" type='
-            . '"text" name="broadcast" id="broadcast" required value="'
-            . $broadcast
-            . '"/>',
-            '<label for="updategen">'
-            . _('Make Changes?')
-            . '</label>' => '<button class="btn btn-info btn-block" name="'
-            . 'updategen" id="updategen" type="submit">'
-            . _('Update')
-            . '</button>'
+        $buttons .= self::makeButton(
+            'general-delete',
+            _('Delete'),
+            'btn btn-danger pull-right'
         );
+
+        self::$HookManager->processEvent(
+            'WOLBROADCAST_GENERAL_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'WOLBroadcast' => &$this->obj
+            ]
+        );
+
         $rendered = self::formFields($fields);
-        self::$HookManager
-            ->processEvent(
-                'BROADCAST_EDIT',
-                array(
-                    'data' => &$this->data,
-                    'headerData' => &$this->headerData,
-                    'attributes' => &$this->attributes,
-                    'templates' => &$this->templates
-                )
-            );
         unset($fields);
-        echo '<!-- General -->';
-        echo '<div class="tab-pane fade in active" id="wol-general">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=wol-general">';
-        $this->render(12);
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->form,
-            $this->data,
-            $this->headerData,
-            $this->attributes,
-            $this->templates
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'wolbroadcast-general-form',
+            self::makeTabUpdateURL(
+                'wolbroadcast-general',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
         );
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+    }
+    /**
+     * Updates the wolbroadcast general elements.
+     *
+     * @return void
+     */
+    public function wolbroadcastGeneralPost()
+    {
+        $wolbroadcast = trim(
+            filter_input(INPUT_POST, 'wolbroadcast')
+        );
+        $broadcast = trim(
+            filter_input(INPUT_POST, 'broadcast')
+        );
+
+        if ($wolbroadcast != $this->obj->get('name')
+            && self::getClass('WOLBroadcastManager')->exists($wolbroadcast)
+        ) {
+            throw new Exception(
+                _('A broadcast already exists with this name')
+            );
+        }
+        $this->obj
+            ->set('name', $wolbroadcast)
+            ->set('broadcast', $broadcast);
     }
     /**
      * Edit the current item.
@@ -326,81 +346,186 @@ class WOLBroadcastManagementPage extends FOGPage
      */
     public function edit()
     {
-        echo '<div class="col-xs-9 tab-content">';
-        $this->wolGeneral();
-        echo '</div>';
+        $this->title = sprintf(
+            '%s: %s',
+            _('Edit'),
+            $this->obj->get('name')
+        );
+
+        $tabData = [];
+
+        // General
+        $tabData[] = [
+            'name' => _('General'),
+            'id' => 'wolbroadcast-general',
+            'generator' => function () {
+                $this->wolbroadcastGeneral();
+            }
+        ];
+
+        echo self::tabFields($tabData);
     }
     /**
-     * WOL General Post()
-     *
-     * @return void
-     */
-    public function wolGeneralPost()
-    {
-        $name = trim(
-            filter_input(INPUT_POST, 'name')
-        );
-        $broadcast = trim(
-            filter_input(INPUT_POST, 'broadcast')
-        );
-        if ($this->obj->get('name') != $name
-            && self::getClass('WOLBroadcastManager')->exists(
-                $name,
-                $this->obj->get('id')
-            )
-        ) {
-            throw new Exception(
-                _('A broadcast already exists with this name')
-            );
-        }
-        $this->obj
-            ->set('name', $name)
-            ->set('broadcast', $broadcast);
-    }
-    /**
-     * Submit the edits.
+     * Update the edit elements.
      *
      * @return void
      */
     public function editPost()
     {
-        self::$HookManager
-            ->processEvent(
-                'BROADCAST_EDIT_POST',
-                array('Broadcast'=> &$this->obj)
-            );
-        try{
+        header('Content-type: application/json');
+        self::$HookManager->processEvent(
+            'WOLBROADCAST_EDIT_POST',
+            ['WOLBroadcast' => &$this->obj]
+        );
+        $serverFault = false;
+        try {
             global $tab;
             switch ($tab) {
-            case 'wol-general':
-                $this->wolGeneralPost();
+            case 'wolbroadcast-general':
+                $this->wolbroadcastGeneralPost();
                 break;
             }
             if (!$this->obj->save()) {
+                $serverFault = true;
                 throw new Exception(_('Broadcast update failed!'));
             }
-            $hook = 'BROADCAST_UPDATE_SUCCESS';
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            $hook = 'WOLBROADCAST_EDIT_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Broadcast updated!'),
                     'title' => _('Broadcast Update Success')
-                )
+                ]
             );
         } catch (Exception $e) {
-            $hook = 'BROADCAST_UPDATE_FAIL';
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'WOLBROADCAST_EDIT_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Broadcast Update Fail')
-                )
+                ]
             );
         }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                array('WOLBroadcast' => &$this->obj)
-            );
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'WOLBroadcast' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
+        http_response_code($code);
         echo $msg;
+        exit;
+    }
+    /**
+     * Present the export information.
+     *
+     * @return void
+     */
+    public function export()
+    {
+        // The data to use for building our table.
+        $this->headerData = [];
+        $this->templates = [];
+        $this->attributes = [];
+
+        $obj = self::getClass('WOLBroadcastManager');
+
+        foreach ($obj->getColumns() as $common => &$real) {
+            if ('id' == $common) {
+                continue;
+            }
+            array_push($this->headerData, $common);
+            array_push($this->templates, '');
+            array_push($this->attributes, []);
+            unset($real);
+        }
+
+        $this->title = _('Export Broadcasts');
+
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Export Broadcasts');
+        echo '</h4>';
+        echo '<p class="help-block">';
+        echo _('Use the selector to choose how many items you want exported.');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo '<p class="help-block">';
+        echo _(
+            'When you click on the item you want to export, it can only select '
+            . 'what is currently viewable on the screen. This includes searched '
+            . 'and the current page. Please use the selector to choose the amount '
+            . 'of items you would like to export.'
+        );
+        echo '</p>';
+        $this->render(12, 'wolbroadcast-export-table');
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Present the export list.
+     *
+     * @return void
+     */
+    public function getExportList()
+    {
+        header('Content-type: application/json');
+        $obj = self::getClass('WOLBroadcastManager');
+        $table = $obj->getTable();
+        $sqlstr = $obj->getQueryStr();
+        $filterstr = $obj->getFilterStr();
+        $totalstr = $obj->getTotalStr();
+        $dbcolumns = $obj->getColumns();
+        $pass_vars = $columns = [];
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        // Setup our columns for the CSVn.
+        // Automatically removes the id column.
+        foreach ($dbcolumns as $common => &$real) {
+            if ('id' == $common) {
+                $tableID = $real;
+                continue;
+            }
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        self::$HookManager->processEvent(
+            'WOLBROADCAST_EXPORT_ITEMS',
+            [
+                'table' => &$table,
+                'sqlstr' => &$sqlstr,
+                'filterstr' => &$filterstr,
+                'totalstr' => &$totalstr,
+                'columns' => &$columns
+            ]
+        );
+        echo json_encode(
+            FOGManagerController::simple(
+                $pass_vars,
+                $table,
+                $tableID,
+                $columns,
+                $sqlstr,
+                $filterstr,
+                $totalstr
+            )
+        );
         exit;
     }
 }

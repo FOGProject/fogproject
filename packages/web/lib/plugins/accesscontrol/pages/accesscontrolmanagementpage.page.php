@@ -95,10 +95,17 @@ class AccessControlManagementPage extends FOGPage
             )
         ];
 
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
+
         self::$HookManager->processEvent(
             'ACCESSCONTROL_ADD_FIELDS',
             [
                 'fields' => &$fields,
+                'button' => &$buttons,
                 'AccessControl' => self::getClass('AccessControl')
             ]
         );
@@ -127,11 +134,7 @@ class AccessControlManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer with-border">';
-        echo self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary'
-        );
+        echo $buttons;
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -256,16 +259,6 @@ class AccessControlManagementPage extends FOGPage
             )
         ];
 
-        self::$HookManager->processEvent(
-            'ACCESSCONTROL_GENERAL_FIELDS',
-            [
-                'fields' => &$fields,
-                'AccessControl' => self::getClass('AccessControl')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
@@ -276,6 +269,18 @@ class AccessControlManagementPage extends FOGPage
             _('Delete'),
             'btn btn-danger pull-right'
         );
+
+        self::$HookManager->processEvent(
+            'ACCESSCONTROL_GENERAL_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'AccessControl' => &$this->obj
+            ]
+        );
+
+        $rendered = self::formFields($fields);
+        unset($fields);
 
         echo self::makeFormTag(
             'form-horizontal',

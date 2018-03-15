@@ -38,33 +38,31 @@ class WolbroadcastManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'wbID',
                 'wbName',
                 'wbDesc',
                 'wbBroadcast'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'VARCHAR(255)',
                 'LONGTEXT',
                 'VARCHAR(16)'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
-                'wbID'
-            ),
+            ],
+            ['wbID'],
             'MyISAM',
             'utf8',
             'wbID',
