@@ -79,10 +79,11 @@ class AddWOLBroadcastMenuItem extends Hook
      */
     public function menuUpdate($arguments)
     {
-        if ($arguments['node'] == $this->node) {
-            $arguments['menu']['export'] = _('Export Broadcasts');
-            $arguments['menu']['import'] = _('Import Broadcasts');
+        if ($arguments['node'] != $this->node) {
+            return;
         }
+        $arguments['menu']['export'] = _('Export Broadcasts');
+        $arguments['menu']['import'] = _('Import Broadcasts');
     }
     /**
      * The menu data to change.

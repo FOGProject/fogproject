@@ -32,21 +32,21 @@ class TaskState extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'tsID',
         'name' => 'tsName',
         'description' => 'tsDescription',
         'order' => 'tsOrder',
-        'icon' => 'tsIcon',
-    );
+        'icon' => 'tsIcon'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
-        'name',
-    );
+    protected $databaseFieldsRequired = [
+        'name'
+    ];
     /**
      * Gets the icon.
      *
@@ -64,11 +64,10 @@ class TaskState extends FOGController
     public static function getQueuedStates()
     {
         $queuedStates = range(0, 2);
-        self::$HookManager
-            ->processEvent(
-                'QUEUED_STATES',
-                array('queuedStates' => &$queuedStates)
-            );
+        self::$HookManager->processEvent(
+            'QUEUED_STATES',
+            ['queuedStates' => &$queuedStates]
+        );
         return $queuedStates;
     }
     /**
@@ -79,11 +78,10 @@ class TaskState extends FOGController
     public static function getQueuedState()
     {
         $queuedState = 1;
-        self::$HookManager
-            ->processEvent(
-                'QUEUED_STATE',
-                array('queuedState' => &$queuedState)
-            );
+        self::$HookManager->processEvent(
+            'QUEUED_STATE',
+            ['queuedState' => &$queuedState]
+        );
         return $queuedState;
     }
     /**
@@ -94,11 +92,10 @@ class TaskState extends FOGController
     public static function getCheckedInState()
     {
         $checkedInState = 2;
-        self::$HookManager
-            ->processEvent(
-                'CHECKEDIN_STATE',
-                array('checkedInState' => &$checkedInState)
-            );
+        self::$HookManager->processEvent(
+            'CHECKEDIN_STATE',
+            ['checkedInState' => &$checkedInState]
+        );
         return $checkedInState;
     }
     /**
@@ -109,11 +106,10 @@ class TaskState extends FOGController
     public static function getProgressState()
     {
         $progressState = 3;
-        self::$HookManager
-            ->processEvent(
-                'PROGRESS_STATE',
-                array('progressState' => &$progressState)
-            );
+        self::$HookManager->processEvent(
+            'PROGRESS_STATE',
+            ['progressState' => &$progressState]
+        );
         return $progressState;
     }
     /**
@@ -124,11 +120,10 @@ class TaskState extends FOGController
     public static function getCompleteState()
     {
         $completeState = 4;
-        self::$HookManager
-            ->processEvent(
-                'COMPLETE_STATE',
-                array('completeState' => &$completeState)
-            );
+        self::$HookManager->processEvent(
+            'COMPLETE_STATE',
+            ['completeState' => &$completeState]
+        );
         return $completeState;
     }
     /**
@@ -139,11 +134,10 @@ class TaskState extends FOGController
     public static function getCancelledState()
     {
         $cancelledState = 5;
-        self::$HookManager
-            ->processEvent(
-                'CANCELLED_STATE',
-                array('cancelledState' => &$cancelledState)
-            );
+        self::$HookManager->processEvent(
+            'CANCELLED_STATE',
+            ['cancelledState' => &$cancelledState]
+        );
         return $cancelledState;
     }
 }
