@@ -38,7 +38,7 @@ class MACAddressAssociationManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'hmID',
                 'hmHostID',
                 'hmMAC',
@@ -47,8 +47,8 @@ class MACAddressAssociationManager extends FOGManagerController
                 'hmPending',
                 'hmIgnoreClient',
                 'hmIgnoreImaging'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'INTEGER',
                 'VARCHAR(17)',
@@ -57,8 +57,8 @@ class MACAddressAssociationManager extends FOGManagerController
                 "ENUM('0', '1')",
                 "ENUM('0', '1')",
                 "ENUM('0', '1')"
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -67,8 +67,8 @@ class MACAddressAssociationManager extends FOGManagerController
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -77,13 +77,13 @@ class MACAddressAssociationManager extends FOGManagerController
                 '0',
                 '0',
                 '0'
-            ),
-            array(
-                array(
+            ],
+            [
+                [
                     'hmMAC',
                     'hmHostID'
-                )
-            ),
+                ]
+            ],
             'MyISAM',
             'utf8',
             'hmID',

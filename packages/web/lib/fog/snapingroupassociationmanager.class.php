@@ -38,26 +38,26 @@ class SnapinGroupAssociationManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'dcID',
                 'dcPath'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'LONGTEXT'
-            ),
-            array(
+            ],
+            [
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 'dcID',
                 'dcPath'
-            ),
+            ],
             'MyISAM',
             'utf8',
             'dcID',

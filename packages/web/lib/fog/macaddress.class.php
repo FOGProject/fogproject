@@ -189,11 +189,11 @@ class MACAddress extends FOGBase
          */
         return strtolower(
             str_replace(
-                array(
+                [
                     ':',
                     '-',
                     '.'
-                ),
+                ],
                 '',
                 $mac[0]
             )
