@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-13 02:05-0400\n"
+"POT-Creation-Date: 2018-03-14 20:31-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1308,6 +1308,9 @@ msgstr "不在此"
 msgid "Export Locations"
 msgstr "主机位置"
 
+msgid "Use the selector to choose how many items you want exported"
+msgstr ""
+
 #, fuzzy
 msgid "Import Locations"
 msgstr "主机位置"
@@ -1667,16 +1670,16 @@ msgid "Link Pushbullet Account Fail"
 msgstr "链接Pushbullet账户"
 
 #, fuzzy
+msgid "Export Broadcasts"
+msgstr "主机出口"
+
+#, fuzzy
+msgid "Import Broadcasts"
+msgstr "进口主机"
+
+#, fuzzy
 msgid "WOL Broadcasts"
 msgstr "所有广播"
-
-#, fuzzy
-msgid "Export WOLBroadcasts"
-msgstr "主机位置"
-
-#, fuzzy
-msgid "Import WOLBroadcasts"
-msgstr "主机位置"
 
 msgid "Broadcast Name"
 msgstr "广播名称"
@@ -1684,15 +1687,16 @@ msgstr "广播名称"
 msgid "Broadcast IP"
 msgstr "广播IP"
 
-msgid "New Broadcast Address"
-msgstr "新的广播地址"
+#, fuzzy
+msgid "Create New Broadcast"
+msgstr "新建%s"
 
 #, fuzzy
-msgid "Create WOL Broadcast?"
-msgstr "所有广播"
+msgid "Broadcast Address"
+msgstr "广播名称"
 
 #, fuzzy
-msgid "A name is required!"
+msgid "A broadcast name is required!"
 msgstr "图像名是必需的！"
 
 #, fuzzy
@@ -1700,11 +1704,12 @@ msgid "A broadcast already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
-msgid "A broadcast address is required"
+msgid "A broadcast address is required!"
 msgstr "MAC地址是必需的"
 
-msgid "Please enter a valid ip"
-msgstr "请输入一个有效的IP"
+#, fuzzy
+msgid "A valid IP is required!"
+msgstr "%s是必需的"
 
 #, fuzzy
 msgid "Add broadcast failed!"
@@ -1721,14 +1726,6 @@ msgstr "主机创建"
 #, fuzzy
 msgid "Broadcast Create Fail"
 msgstr "主机创建失败"
-
-#, fuzzy
-msgid "WOL Broadcast General"
-msgstr "所有广播"
-
-#, fuzzy
-msgid "Make Changes?"
-msgstr "保存更改"
 
 #, fuzzy
 msgid "A broadcast already exists with this name"
@@ -1749,6 +1746,16 @@ msgstr "安装/升级成功！"
 #, fuzzy
 msgid "Broadcast Update Fail"
 msgstr "广播更新"
+
+msgid "Use the selector to choose how many items you want exported."
+msgstr ""
+
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
+msgstr ""
 
 msgid "Task Types"
 msgstr "任务类型"
@@ -1809,6 +1816,10 @@ msgstr "用户创建"
 #, fuzzy
 msgid "Task Type Create Fail"
 msgstr "用户创建"
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "保存更改"
 
 #, fuzzy
 msgid "Task Type General"
@@ -2011,16 +2022,6 @@ msgstr "用户创建"
 #, fuzzy
 msgid "Role Update Fail"
 msgstr "集团创建失败"
-
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
 
 #, fuzzy
 msgid "Rule Name"
@@ -2275,6 +2276,10 @@ msgid "LDAP Server Update Fail"
 msgstr "LDAP服务器名称"
 
 #, fuzzy
+msgid "Export LDAPs"
+msgstr "主机位置"
+
+#, fuzzy
 msgid "Function does not exist"
 msgstr "方法不存在"
 
@@ -2423,40 +2428,16 @@ msgstr "导出CSV"
 msgid "Export PDF"
 msgstr "导出PDF"
 
-msgid "Pending MAC Export"
-msgstr "待MAC出口"
-
-msgid "Host name"
-msgstr "主机名"
-
-msgid "Host Primary MAC"
-msgstr "主机主MAC"
-
-msgid "Host Desc"
-msgstr "主持人说明"
-
-msgid "Host Pending MAC"
-msgstr "主持人待定MAC"
+msgid "ID"
+msgstr "ID"
 
 #, fuzzy
-msgid "Approve All Pending MACs for All Hosts"
-msgstr "批准所有主机的所有待定的MAC"
+msgid "MAC Address"
+msgstr "MAC地址列表"
 
 #, fuzzy
-msgid "Pending MAC Actions"
-msgstr "待定的MAC"
-
-#, fuzzy
-msgid "Approve Selected MACs"
-msgstr "批准选定主机"
-
-#, fuzzy
-msgid "Approve"
-msgstr "主机批准"
-
-#, fuzzy
-msgid "Delete Selected MACs"
-msgstr "删除所选"
+msgid "Export Pending MAC Addresses"
+msgstr "MAC地址列表"
 
 msgid "FOG Equipment Loan Form"
 msgstr "FOG器材信贷形式"
@@ -2560,6 +2541,9 @@ msgstr "格式"
 msgid "Full Inventory Export"
 msgstr "完整清单导出"
 
+msgid "Host name"
+msgstr "主机名"
+
 msgid "Memory"
 msgstr "记忆"
 
@@ -2568,6 +2552,9 @@ msgstr "系统产品"
 
 msgid "System Serial"
 msgstr "系统序列"
+
+msgid "Host Desc"
+msgstr "主持人说明"
 
 msgid "Host Listing Export"
 msgstr "主机上市出口"
@@ -2824,10 +2811,6 @@ msgid "Computer Model"
 msgstr "打印机型号"
 
 #, fuzzy
-msgid "MAC Address"
-msgstr "MAC地址列表"
-
-#, fuzzy
 msgid "Image Used"
 msgstr "成像"
 
@@ -2872,114 +2855,419 @@ msgid "VNC"
 msgstr ""
 
 #, fuzzy
-msgid "FOG Client Installers"
-msgstr "FOG客户端下载"
+msgid "Server Information"
+msgstr "一般信息"
+
+msgid "Invalid Server Information!"
+msgstr "无效的服务器信息！"
+
+msgid "Server appears to be offline or unavailable!"
+msgstr ""
+
+msgid "General Information"
+msgstr "一般信息"
 
 #, fuzzy
-msgid "The installers for the fog client"
-msgstr "此设置定义使用SSH客户端的用户名。"
+msgid "Unable to find basic information!"
+msgstr "无法找到基本信息"
+
+msgid "TX"
+msgstr "TX"
+
+msgid "RX"
+msgstr "RX"
+
+msgid "Dropped"
+msgstr "下降"
+
+msgid "Uptime"
+msgstr "正常运行时间"
+
+msgid "CPU Type"
+msgstr "CPU类型"
+
+msgid "CPU Count"
+msgstr "CPU计数"
+
+msgid "CPU Model"
+msgstr "CPU型号"
+
+msgid "CPU Speed"
+msgstr "CPU速度"
+
+msgid "CPU Cache"
+msgstr "CPU缓存"
+
+msgid "Total Memory"
+msgstr "总内存"
+
+msgid "Used Memory"
+msgstr "使用的内存"
+
+msgid "Free Memory"
+msgstr "可用内存"
+
+msgid "Total Disk Space"
+msgstr "总磁盘空间"
+
+msgid "Used Disk Space"
+msgstr "使用的磁盘空间"
 
 #, fuzzy
-msgid "Client Version"
-msgstr "CPU版本"
+msgid "Free Disk Space"
+msgstr "使用的磁盘空间"
 
-msgid "Cross platform"
+msgid "File System Information"
+msgstr "文件系统信息"
+
+msgid "Network Information"
+msgstr "网络信息"
+
+#, fuzzy
+msgid "Total Clients"
+msgstr "最大客户"
+
+#, fuzzy
+msgid "Create New Storage Group"
+msgstr "存储节点"
+
+#, fuzzy
+msgid "Storage Group name"
+msgstr "存储组名称"
+
+#, fuzzy
+msgid "Storage Group Create Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Storage Group Create Fail"
+msgstr "存储组创建"
+
+#, fuzzy
+msgid "Update Master Node"
+msgstr "主节点"
+
+#, fuzzy
+msgid "Storage Node Master"
+msgstr "存储节点名称"
+
+#, fuzzy
+msgid "Storage Node Associated"
+msgstr "存储节点创建"
+
+#, fuzzy
+msgid "Storage Group Update Failed"
+msgstr "存储组更新"
+
+#, fuzzy
+msgid "Storage Group updated!"
+msgstr "存储组更新"
+
+#, fuzzy
+msgid "Storage Group Update Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Storage Group Update Fail"
+msgstr "存储组更新"
+
+msgid ""
+"All columns less the id field will be exported. Column visibility does not "
+"affect the exported items."
 msgstr ""
 
 #, fuzzy
-msgid "more secure"
-msgstr "导入用户"
+msgid "Login Failed"
+msgstr "加载失败： %s"
 
 #, fuzzy
-msgid "faster"
-msgstr "日期"
+msgid "Login successful!"
+msgstr "成功"
 
-msgid "and much easier on the server"
+#, fuzzy
+msgid "Login Success"
+msgstr "安装/升级成功！"
+
+msgid "Sign in to start your session"
 msgstr ""
 
-msgid "Especially when your organization has many hosts"
-msgstr ""
-
-msgid "Use this for network installs"
-msgstr ""
-
-msgid "For example, a GPO policy to push"
-msgstr ""
-
-msgid "This file will only work on Windows"
-msgstr ""
-
-msgid "MSI"
+msgid "Remember Me"
 msgstr ""
 
 #, fuzzy
-msgid "Network Installer"
-msgstr "网络打印机"
+msgid "Sign In"
+msgstr "签"
+
+msgid "Protected"
+msgstr "受保护"
 
 #, fuzzy
-msgid "This is the recommended installer to use now"
-msgstr "这是推荐的安装程序现在使用。它可以在Windows，Linux和Mac OS X上使用"
+msgid "Is Pack"
+msgstr "是"
 
-msgid "It can be used on Windows"
+#, fuzzy
+msgid "Create New Snapin"
+msgstr "新建%s"
+
+#, fuzzy
+msgid "Normal Snapin"
+msgstr "无效的管理单元"
+
+#, fuzzy
+msgid "Snapin Pack"
+msgstr "管理单元路径"
+
+#, fuzzy
+msgid "Snapin Type"
+msgstr "模板管理单元"
+
+msgid "Snapin Template"
+msgstr "模板管理单元"
+
+#, fuzzy
+msgid "Snapin Pack Template"
+msgstr "模板管理单元"
+
+#, fuzzy
+msgid "Snapin Pack File"
+msgstr "文件管理单元"
+
+msgid "Snapin Run With Argument"
+msgstr "管理单元运行带有参数"
+
+#, fuzzy
+msgid "Snapin Pack Arguments"
+msgstr "管理单元参数"
+
+msgid "Max Size"
+msgstr "最大尺寸"
+
+msgid "Browse"
 msgstr ""
 
-msgid "Linux"
-msgstr "Linux的"
+msgid "Snapin File (exists)"
+msgstr "文件管理单元（存在）"
 
-msgid "and Mac OS X"
+msgid "Snapin Arguments"
+msgstr "管理单元参数"
+
+msgid "Snapin Enabled"
+msgstr "启用管理单元"
+
+#, fuzzy
+msgid "Snapin Arguments Hidden"
+msgstr "管理单元参数"
+
+#, fuzzy
+msgid "Snapin Timeout (seconds)"
+msgstr "菜单超时（以秒为单位）"
+
+#, fuzzy
+msgid "Replicate"
+msgstr "复制？"
+
+msgid "Reboot after install"
+msgstr "重启后安装"
+
+msgid "Shutdown after install"
+msgstr "关机后安装"
+
+msgid "Snapin Command"
+msgstr "管理单元命令"
+
+msgid "read-only"
 msgstr ""
 
 #, fuzzy
-msgid "Smart Installer"
-msgstr "智能安装（推荐）"
+msgid "A snapin name is required!"
+msgstr "图像名是必需的！"
 
-msgid "Recommended"
+#, fuzzy
+msgid "A snapin already exists with this name!"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+msgid "A file"
+msgstr "文件"
+
+msgid "either already selected or uploaded"
 msgstr ""
 
 #, fuzzy
-msgid "Help and Guides"
-msgstr "帮助和引导"
-
-msgid "Where to get help and guides"
-msgstr ""
-
-msgid "Use the links below if you need assistance"
-msgstr ""
-
-msgid "Forums are the most common and fastest method of getting"
-msgstr ""
-
-msgid "help with any aspect of FOG"
-msgstr ""
+msgid "must be specified"
+msgstr "没有指定的图像"
 
 #, fuzzy
-msgid "Detailed documentation"
-msgstr "无法创建会话"
+msgid "Please choose a different name"
+msgstr "请选择一个图像"
 
 #, fuzzy
-msgid "It is primarily geared for the smart installer methodology now"
-msgstr "详细文档。它主要面向的智能安装方法吧。"
+msgid "this one is reserved for FOG"
+msgstr "请选择一个不同的名字，这个人是留给雾。"
 
-msgid "FOG Client Wiki"
-msgstr "FOG客户维基"
+msgid "FTP Connection has failed"
+msgstr "FTP连接失败"
 
-msgid "Need more support"
-msgstr ""
+#, fuzzy
+msgid "Failed to add snapin"
+msgstr "无法添加/更新管理单元文件"
 
-msgid "Somebody will be able to help in some form"
-msgstr ""
+msgid "Failed to add/update snapin file"
+msgstr "无法添加/更新管理单元文件"
 
-msgid "Use the forums to post issues so others"
-msgstr ""
+msgid "Add snapin failed!"
+msgstr "添加管理单元失败！"
 
-msgid "may see the issue and help and/or use the solutions"
-msgstr ""
+#, fuzzy
+msgid "Snapin added!"
+msgstr "管理单元名称"
 
-msgid "Chat is also available on the forums for more realtime help"
-msgstr ""
+#, fuzzy
+msgid "Snapin Create Success"
+msgstr "更新管理单元"
 
-msgid "FOG Forums"
-msgstr "FOG论坛"
+#, fuzzy
+msgid "Snapin Create Fail"
+msgstr "更新管理单元"
+
+#, fuzzy
+msgid "Snapin Protected"
+msgstr "更新管理单元"
+
+#, fuzzy
+msgid "Update Primary Group"
+msgstr "更新主要组"
+
+#, fuzzy
+msgid "Storage Group Primary"
+msgstr "存储组名称"
+
+#, fuzzy
+msgid "Storage Group Associated"
+msgstr "存储节点创建"
+
+#, fuzzy
+msgid "Storage Groups"
+msgstr "存储组"
+
+#, fuzzy
+msgid "Snapin update failed!"
+msgstr "管理单元更新失败"
+
+#, fuzzy
+msgid "Snapin updated!"
+msgstr "更新管理单元"
+
+#, fuzzy
+msgid "Snapin Update Success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "Snapin Update Fail"
+msgstr "管理单元更新失败"
+
+msgid "Plugin Name"
+msgstr "插件名称"
+
+msgid "Unable to determine plugin details."
+msgstr "无法确定插件的详细信息。"
+
+msgid "Plugin Description"
+msgstr "插件说明"
+
+msgid "Plugin Installation"
+msgstr "插件安装"
+
+#, fuzzy
+msgid "This plugin is not installed"
+msgstr "这个插件是当前未安装，你想现在安装？"
+
+#, fuzzy
+msgid "would you ilke to install it now"
+msgstr "这个插件是当前未安装，你想现在安装？"
+
+#, fuzzy
+msgid "Install Plugin"
+msgstr "安装插件"
+
+#, fuzzy
+msgid "Install"
+msgstr "安装/更新失败！"
+
+msgid "Reboot after deploy"
+msgstr "部署后重新启动"
+
+msgid "Shutdown after deploy"
+msgstr "部署后关机"
+
+#, fuzzy
+msgid "Basic Settings"
+msgstr "设置"
+
+msgid "DMI Field"
+msgstr "DMI场"
+
+#, fuzzy
+msgid "After image Action"
+msgstr "集团定位"
+
+#, fuzzy
+msgid "Image Associations"
+msgstr "图像协会"
+
+msgid "Image Definition"
+msgstr "图像清晰度"
+
+msgid "DMI Result"
+msgstr "DMI结果"
+
+#, fuzzy
+msgid "Image to DMI Mappings"
+msgstr "添加图片到DMI协会"
+
+msgid "DMI Key"
+msgstr "DMI关键"
+
+#, fuzzy
+msgid "Current Associations"
+msgstr "图像协会"
+
+#, fuzzy
+msgid "Remove Selected?"
+msgstr "删除选定snapins"
+
+#, fuzzy
+msgid "Remove Associations"
+msgstr "图像协会"
+
+msgid "Invalid Plugin Passed"
+msgstr "无效的插件传递"
+
+msgid "Failed to install plugin"
+msgstr "无法安装插件"
+
+msgid "Failed to save plugin"
+msgstr "无法保存插件"
+
+msgid "Plugin Installed!"
+msgstr "插件安装好了！"
+
+#, fuzzy
+msgid "Must have an image associated"
+msgstr "必须有管理单元与组关联"
+
+msgid "Failed to save assignment"
+msgstr "无法保存分配"
+
+msgid "Assignment saved successfully"
+msgstr "转让成功保存"
+
+#, fuzzy
+msgid "Destroyed assignments"
+msgstr "销毁作业"
+
+msgid "Destroyed assignment"
+msgstr "销毁作业"
 
 msgid "FOG Version Information"
 msgstr "FOG版本信息"
@@ -3460,9 +3748,6 @@ msgstr "没有指定的图像"
 msgid "Reset Token"
 msgstr "访问令牌"
 
-msgid "Browse"
-msgstr ""
-
 msgid "No Image specified"
 msgstr "没有指定的Image"
 
@@ -3555,9 +3840,6 @@ msgstr "日期"
 msgid "Import Database?"
 msgstr "日期"
 
-msgid "Max Size"
-msgstr "最大尺寸"
-
 msgid "Import"
 msgstr "进口"
 
@@ -3597,147 +3879,6 @@ msgstr "数据库更新失败"
 msgid "Errors on revert detected!"
 msgstr "在复归错误检测"
 
-#, fuzzy
-msgid "Storage Node Management"
-msgstr "存储管理"
-
-#, fuzzy
-msgid "Create New Storage Node"
-msgstr "存储节点"
-
-#, fuzzy
-msgid "Storage Node Web Root"
-msgstr "存储节点名称"
-
-#, fuzzy
-msgid "Storage Node Master"
-msgstr "存储节点名称"
-
-#, fuzzy
-msgid "Storage Node Enabled"
-msgstr "存储节点名称"
-
-#, fuzzy
-msgid "Network Interface"
-msgstr "网络打印机"
-
-msgid "Kbps"
-msgstr ""
-
-#, fuzzy
-msgid "Multicast Bitrate"
-msgstr "组播"
-
-#, fuzzy
-msgid "Storage Node Image Path"
-msgstr "存储节点的IP"
-
-#, fuzzy
-msgid "Storage Node FTP Path"
-msgstr "存储节点的IP"
-
-#, fuzzy
-msgid "Storage Node Snapin Path"
-msgstr "存储节点更新"
-
-#, fuzzy
-msgid "Storage Node SSL Path"
-msgstr "存储节点的IP"
-
-#, fuzzy
-msgid "Storage Node FTP User"
-msgstr "存储节点的用户名"
-
-#, fuzzy
-msgid "Storage Node FTP Password"
-msgstr "存储节点密码"
-
-msgid "Bandwidth should be numeric and greater than 0"
-msgstr "带宽应该是数字和大于0"
-
-#, fuzzy
-msgid "Add storage node failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "Storage Node added!"
-msgstr "存储节点名称"
-
-#, fuzzy
-msgid "Storage Node Create Success"
-msgstr "存储节点创建"
-
-#, fuzzy
-msgid "Storage Node Create Fail"
-msgstr "存储节点创建"
-
-#, fuzzy
-msgid "Storage Node Update Failed"
-msgstr "存储节点更新"
-
-#, fuzzy
-msgid "Storage Node updated!"
-msgstr "存储节点更新"
-
-#, fuzzy
-msgid "Storage Node Update Success"
-msgstr "存储节点更新"
-
-#, fuzzy
-msgid "Storage Node Update Fail"
-msgstr "存储节点更新"
-
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
-
-#, fuzzy
-msgid "Started By"
-msgstr "由...制作"
-
-msgid "Progress"
-msgstr ""
-
-msgid "Resume Reload"
-msgstr ""
-
-msgid "Pause Reload"
-msgstr ""
-
-#, fuzzy
-msgid "Cancel Selected"
-msgstr "删除所选"
-
-#, fuzzy
-msgid "Selected tasks cancelled!"
-msgstr "已成功更新"
-
-#, fuzzy
-msgid "Task Cancel Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Task Cancel Fail"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Active Multi-cast Tasks"
-msgstr "活动组播任务"
-
-msgid "Task Name"
-msgstr "任务名称"
-
-#, fuzzy
-msgid "Hosts in tasking"
-msgstr "在任务主机"
-
-msgid "Host/Group Name"
-msgstr "主机/组名称"
-
-msgid "Is Group"
-msgstr "是集团"
-
 msgid "Primary MAC"
 msgstr "主MAC"
 
@@ -3762,6 +3903,10 @@ msgstr "批准选定主机"
 #, fuzzy
 msgid "Delete selected"
 msgstr "删除所选"
+
+#, fuzzy
+msgid "Approve"
+msgstr "主机批准"
 
 #, fuzzy
 msgid "Approve Pending Hosts"
@@ -4342,719 +4487,6 @@ msgid "weekday"
 msgstr ""
 
 #, fuzzy
-msgid "Create New Group"
-msgstr "存储节点"
-
-msgid "Group Description"
-msgstr "团体简介"
-
-msgid "Group Kernel"
-msgstr "集团核心"
-
-msgid "Group Kernel Arguments"
-msgstr "集团内核参数"
-
-#, fuzzy
-msgid "Group Init"
-msgstr "出口Snapins"
-
-msgid "Group Primary Disk"
-msgstr "集团主磁盘"
-
-#, fuzzy
-msgid "A group name is required!"
-msgstr "图像名是必需的！"
-
-#, fuzzy
-msgid "A group already exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "Add group failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "Group added!"
-msgstr "集团补充"
-
-#, fuzzy
-msgid "Group Create Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Group Create Fail"
-msgstr "集团创建失败"
-
-msgid "Group Product Key"
-msgstr "集团产品密钥"
-
-#, fuzzy
-msgid "Group BIOS Exit"
-msgstr "出口Snapins"
-
-#, fuzzy
-msgid "Group EFI Exit"
-msgstr "出口Snapins"
-
-#, fuzzy
-msgid "Please use another group name"
-msgstr "请输入主机名"
-
-#, fuzzy
-msgid "Group Image"
-msgstr "组名称"
-
-#, fuzzy
-msgid "Group Hosts"
-msgstr "组"
-
-#, fuzzy
-msgid "Group Printer Configuration"
-msgstr "服务配置"
-
-msgid ""
-"This setting turns off all FOG Printer Management. Although there are "
-"multiple levels already, this  is just another level if needed."
-msgstr ""
-
-#, fuzzy
-msgid "Add/Remove Managed Printers"
-msgstr "FOG管理的打印机"
-
-#, fuzzy
-msgid "All Printers"
-msgstr "打印机"
-
-#, fuzzy
-msgid ""
-"This setting will only allow FO GAssigned printers to be added to the host. "
-"Any printer that is not assigned will be removed including non-FOG managed "
-"printers."
-msgstr ""
-"此设置仅允许FOG分配的打印机要添加到主机。没有分配任何打印机将包括非FOG管理的"
-"打印机被删除。"
-
-#, fuzzy
-msgid "Group Snapins"
-msgstr "历史管理单元"
-
-#, fuzzy
-msgid "Module Association"
-msgstr "图像协会"
-
-#, fuzzy
-msgid "Group module settings"
-msgstr "主机描述"
-
-#, fuzzy
-msgid "Group update failed!"
-msgstr "用户更新失败"
-
-#, fuzzy
-msgid "Group updated!"
-msgstr "集团补充"
-
-#, fuzzy
-msgid "Group Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Group Update Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "There are no hosts to task"
-msgstr "有此服务器上没有组。"
-
-msgid "Groups cannot create capture tasks"
-msgstr ""
-
-#, fuzzy
-msgid "Total Clients"
-msgstr "最大客户"
-
-#, fuzzy
-msgid "Create New Storage Group"
-msgstr "存储节点"
-
-#, fuzzy
-msgid "Storage Group name"
-msgstr "存储组名称"
-
-#, fuzzy
-msgid "Storage Group Create Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Storage Group Create Fail"
-msgstr "存储组创建"
-
-#, fuzzy
-msgid "Update Master Node"
-msgstr "主节点"
-
-#, fuzzy
-msgid "Storage Node Associated"
-msgstr "存储节点创建"
-
-#, fuzzy
-msgid "Storage Group Update Failed"
-msgstr "存储组更新"
-
-#, fuzzy
-msgid "Storage Group updated!"
-msgstr "存储组更新"
-
-#, fuzzy
-msgid "Storage Group Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Storage Group Update Fail"
-msgstr "存储组更新"
-
-msgid "Printer Name"
-msgstr "打印机名称"
-
-#, fuzzy
-msgid "Config File"
-msgstr "打印机配置文件"
-
-#, fuzzy
-msgid "Create New Printer"
-msgstr "新建%s"
-
-msgid "TCP/IP Port Printer"
-msgstr "TCP / IP端口打印机"
-
-msgid "iPrint Printer"
-msgstr "iPrint的打印机"
-
-msgid "Network Printer"
-msgstr "网络打印机"
-
-msgid "CUPS Printer"
-msgstr "CUPS打印机"
-
-#, fuzzy
-msgid "Copy from existing"
-msgstr "无法创建打印机"
-
-#, fuzzy
-msgid "Printer Name/Alias"
-msgstr "打印机别名"
-
-msgid "e.g."
-msgstr ""
-
-msgid "Printer Description"
-msgstr "打印机说明"
-
-#, fuzzy
-msgid "Printer Configuration File"
-msgstr "服务配置"
-
-msgid "Printer Port"
-msgstr "打印机端口"
-
-msgid "Printer INF File"
-msgstr "打印机INF文件"
-
-msgid "Printer IP"
-msgstr "打印机IP"
-
-msgid "Printer Model"
-msgstr "打印机型号"
-
-#, fuzzy
-msgid "A printer name is required!"
-msgstr "图像名是必需的！"
-
-#, fuzzy
-msgid "A printer already exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "Add printer failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "Printer added!"
-msgstr "打印机名称"
-
-#, fuzzy
-msgid "Printer Create Success"
-msgstr "打印机已经存在"
-
-#, fuzzy
-msgid "Printer Create Fail"
-msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "Update Default"
-msgstr "更新打印机"
-
-#, fuzzy
-msgid "Default Printer"
-msgstr "默认项："
-
-msgid "Printer update failed!"
-msgstr "打印机更新失败！"
-
-msgid "Printer updated!"
-msgstr "打印机更新！"
-
-#, fuzzy
-msgid "Printer Update Success"
-msgstr "打印机更新！"
-
-#, fuzzy
-msgid "Printer Update Fail"
-msgstr "打印机更新失败！"
-
-msgid "Plugin Name"
-msgstr "插件名称"
-
-msgid "Unable to determine plugin details."
-msgstr "无法确定插件的详细信息。"
-
-msgid "Plugin Description"
-msgstr "插件说明"
-
-msgid "Plugin Installation"
-msgstr "插件安装"
-
-#, fuzzy
-msgid "This plugin is not installed"
-msgstr "这个插件是当前未安装，你想现在安装？"
-
-#, fuzzy
-msgid "would you ilke to install it now"
-msgstr "这个插件是当前未安装，你想现在安装？"
-
-#, fuzzy
-msgid "Install Plugin"
-msgstr "安装插件"
-
-#, fuzzy
-msgid "Install"
-msgstr "安装/更新失败！"
-
-msgid "Reboot after deploy"
-msgstr "部署后重新启动"
-
-msgid "Shutdown after deploy"
-msgstr "部署后关机"
-
-#, fuzzy
-msgid "Basic Settings"
-msgstr "设置"
-
-msgid "DMI Field"
-msgstr "DMI场"
-
-#, fuzzy
-msgid "After image Action"
-msgstr "集团定位"
-
-#, fuzzy
-msgid "Image Associations"
-msgstr "图像协会"
-
-msgid "Image Definition"
-msgstr "图像清晰度"
-
-msgid "DMI Result"
-msgstr "DMI结果"
-
-#, fuzzy
-msgid "Image to DMI Mappings"
-msgstr "添加图片到DMI协会"
-
-msgid "DMI Key"
-msgstr "DMI关键"
-
-#, fuzzy
-msgid "Current Associations"
-msgstr "图像协会"
-
-#, fuzzy
-msgid "Remove Selected?"
-msgstr "删除选定snapins"
-
-#, fuzzy
-msgid "Remove Associations"
-msgstr "图像协会"
-
-msgid "Invalid Plugin Passed"
-msgstr "无效的插件传递"
-
-msgid "Failed to install plugin"
-msgstr "无法安装插件"
-
-msgid "Failed to save plugin"
-msgstr "无法保存插件"
-
-msgid "Plugin Installed!"
-msgstr "插件安装好了！"
-
-#, fuzzy
-msgid "Must have an image associated"
-msgstr "必须有管理单元与组关联"
-
-msgid "Failed to save assignment"
-msgstr "无法保存分配"
-
-msgid "Assignment saved successfully"
-msgstr "转让成功保存"
-
-#, fuzzy
-msgid "Destroyed assignments"
-msgstr "销毁作业"
-
-msgid "Destroyed assignment"
-msgstr "销毁作业"
-
-msgid "Protected"
-msgstr "受保护"
-
-#, fuzzy
-msgid "Captured"
-msgstr "创建"
-
-#, fuzzy
-msgid "Create New Image"
-msgstr "新建%s"
-
-msgid "Partimage"
-msgstr "Partimage"
-
-msgid "Image Description"
-msgstr "图片说明"
-
-#, fuzzy
-msgid "Image Compression Rating"
-msgstr "图像协会"
-
-#, fuzzy
-msgid "Image Storage Group"
-msgstr "存储组"
-
-#, fuzzy
-msgid "Image Operating System"
-msgstr "操作系统"
-
-#, fuzzy
-msgid "Image Partition"
-msgstr "划分"
-
-msgid "Image Manager"
-msgstr "图像管理器"
-
-msgid "Image Enabled"
-msgstr "图片启用"
-
-#, fuzzy
-msgid "Image Replicate"
-msgstr "图像复制"
-
-#, fuzzy
-msgid "An image name is required!"
-msgstr "图像名是必需的！"
-
-msgid "An image already exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "Please choose a different filename/path as this is reserved"
-msgstr "请选择一个图像"
-
-msgid "The path requested is already in use by another image!"
-msgstr ""
-
-#, fuzzy
-msgid "Add image failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "Image added!"
-msgstr "图片名称"
-
-#, fuzzy
-msgid "Image Create Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Image Create Fail"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Image Protected"
-msgstr "受保护"
-
-#, fuzzy
-msgid "Update Primary Group"
-msgstr "更新主要组"
-
-#, fuzzy
-msgid "Storage Group Primary"
-msgstr "存储组名称"
-
-#, fuzzy
-msgid "Storage Group Associated"
-msgstr "存储节点创建"
-
-#, fuzzy
-msgid "Storage Groups"
-msgstr "存储组"
-
-#, fuzzy
-msgid "Image update failed!"
-msgstr "图片更新"
-
-#, fuzzy
-msgid "Image updated!"
-msgstr "图片更新"
-
-#, fuzzy
-msgid "Image Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Image Update Fail"
-msgstr "图片更新"
-
-msgid "Session Name"
-msgstr "会话名称"
-
-msgid "Client Count"
-msgstr "客户端计数"
-
-#, fuzzy
-msgid "Session Timeout"
-msgstr "会话超时"
-
-msgid "minutes"
-msgstr "分钟"
-
-#, fuzzy
-msgid "Session Image"
-msgstr "会话名称"
-
-#, fuzzy
-msgid "Cancel Selected Tasks"
-msgstr "删除所选"
-
-#, fuzzy
-msgid "Cancel the selected tasks."
-msgstr "删除所选"
-
-#, fuzzy
-msgid "Create new Session Task"
-msgstr "新建%s"
-
-#, fuzzy
-msgid "Multicast Sessions"
-msgstr "开始多播会话"
-
-msgid "Please choose an image"
-msgstr "请选择一个图像"
-
-#, fuzzy
-msgid "Please select a valid image"
-msgstr "选择一个有效的图像"
-
-#, fuzzy
-msgid "Session with that name already exists!"
-msgstr "使用此名称的主机名已经存在。"
-
-msgid "Server is only configured to run "
-msgstr ""
-
-#, fuzzy
-msgid "Session created!"
-msgstr "会话名称"
-
-#, fuzzy
-msgid "Session Create Success"
-msgstr "更新管理单元"
-
-#, fuzzy
-msgid "Session Create Fail"
-msgstr "更新管理单元"
-
-msgid "Failed to create Session"
-msgstr "无法创建会话"
-
-#, fuzzy
-msgid "Sessions cancelled!"
-msgstr "已成功更新"
-
-#, fuzzy
-msgid "Session Cancel Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Session Cancel Fail"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Server Information"
-msgstr "一般信息"
-
-msgid "Invalid Server Information!"
-msgstr "无效的服务器信息！"
-
-msgid "Server appears to be offline or unavailable!"
-msgstr ""
-
-msgid "General Information"
-msgstr "一般信息"
-
-#, fuzzy
-msgid "Unable to find basic information!"
-msgstr "无法找到基本信息"
-
-msgid "TX"
-msgstr "TX"
-
-msgid "RX"
-msgstr "RX"
-
-msgid "Dropped"
-msgstr "下降"
-
-msgid "Uptime"
-msgstr "正常运行时间"
-
-msgid "CPU Type"
-msgstr "CPU类型"
-
-msgid "CPU Count"
-msgstr "CPU计数"
-
-msgid "CPU Model"
-msgstr "CPU型号"
-
-msgid "CPU Speed"
-msgstr "CPU速度"
-
-msgid "CPU Cache"
-msgstr "CPU缓存"
-
-msgid "Total Memory"
-msgstr "总内存"
-
-msgid "Used Memory"
-msgstr "使用的内存"
-
-msgid "Free Memory"
-msgstr "可用内存"
-
-msgid "Total Disk Space"
-msgstr "总磁盘空间"
-
-msgid "Used Disk Space"
-msgstr "使用的磁盘空间"
-
-#, fuzzy
-msgid "Free Disk Space"
-msgstr "使用的磁盘空间"
-
-msgid "File System Information"
-msgstr "文件系统信息"
-
-msgid "Network Information"
-msgstr "网络信息"
-
-msgid "Click"
-msgstr "点击"
-
-msgid "to review."
-msgstr "回顾。"
-
-msgid "Pending hosts"
-msgstr "待主机"
-
-#, fuzzy
-msgid "Pending host"
-msgstr "待主机"
-
-msgid "Pending macs"
-msgstr "待淅淅沥沥"
-
-msgid "Web Server"
-msgstr "网络服务器"
-
-msgid "Load Average"
-msgstr "平均负载"
-
-msgid "System Uptime"
-msgstr "系统正常运行时间"
-
-msgid "System Overview"
-msgstr "系统总览"
-
-msgid "Storage Group Activity"
-msgstr "存储组活动"
-
-msgid "Storage Node Disk Usage"
-msgstr "存储节点的磁盘使用情况"
-
-msgid "Imaging Over the last 30 days"
-msgstr "成像在过去30天"
-
-#, fuzzy
-msgid "Real Time"
-msgstr "主机更新失败"
-
-msgid "On"
-msgstr ""
-
-msgid "Off"
-msgstr ""
-
-msgid "2 Minutes"
-msgstr "2分钟"
-
-#, fuzzy
-msgid "5 Minutes"
-msgstr "2分钟"
-
-msgid "10 Minutes"
-msgstr "10分钟"
-
-msgid "30 Minutes"
-msgstr "30分钟"
-
-#, fuzzy
-msgid "1 Hour"
-msgstr "1小时"
-
-msgid "No activity information available for this group"
-msgstr ""
-
-msgid "Free"
-msgstr ""
-
-#, fuzzy
-msgid "No Data Available"
-msgstr "不可用"
-
-msgid "used"
-msgstr ""
-
-#, fuzzy
-msgid "Node is unavailable"
-msgstr "没有可用的散列"
-
-msgid "Node Offline"
-msgstr ""
-
-msgid "Used"
-msgstr ""
-
-#, fuzzy
 msgid "Import Reports"
 msgstr "进口主机"
 
@@ -5078,341 +4510,6 @@ msgstr ""
 
 msgid "To view a report, select an item from the menu"
 msgstr ""
-
-#, fuzzy
-msgid "Friendly Name"
-msgstr "内核名称"
-
-msgid "API?"
-msgstr ""
-
-#, fuzzy
-msgid "Create New User"
-msgstr "新建%s"
-
-msgid "User Password"
-msgstr "用户密码"
-
-#, fuzzy
-msgid "confirm"
-msgstr "任务无效"
-
-#, fuzzy
-msgid "User API Enable"
-msgstr "访问令牌"
-
-#, fuzzy
-msgid "A user name is required!"
-msgstr "图像名是必需的！"
-
-msgid "Username does not meet requirements"
-msgstr ""
-
-msgid "Username must start with a word character"
-msgstr ""
-
-msgid "Username must be at least 3 characters"
-msgstr ""
-
-msgid "Username must be less than 41 characters"
-msgstr ""
-
-msgid "Username cannot contain contiguous special characters"
-msgstr ""
-
-#, fuzzy
-msgid "A username already exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "A password is required!"
-msgstr "%s是必需的"
-
-#, fuzzy
-msgid "Add user failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "User added!"
-msgstr "打印机名称"
-
-#, fuzzy
-msgid "User Create Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "User Create Fail"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "A user already exists with this name"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "User API Token"
-msgstr "访问令牌"
-
-msgid "API"
-msgstr ""
-
-#, fuzzy
-msgid "User update failed!"
-msgstr "用户更新失败"
-
-#, fuzzy
-msgid "User updated!"
-msgstr "用户更新"
-
-#, fuzzy
-msgid "User Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "User Update Fail"
-msgstr "用户更新失败"
-
-msgid "This will allow you to configure how services"
-msgstr ""
-
-msgid "function on client computers."
-msgstr ""
-
-msgid "The settings tend to be global which affects all hosts."
-msgstr ""
-
-msgid "If you are looking to configure settings for a specific host"
-msgstr ""
-
-msgid "please see the hosts service settings section."
-msgstr ""
-
-msgid "To get started please select an item from the menu."
-msgstr ""
-
-msgid "Use the following link to go to the client page."
-msgstr ""
-
-msgid "There you can download utilities such as FOG Prep"
-msgstr ""
-
-msgid "and the FOG client."
-msgstr ""
-
-msgid "Click Here"
-msgstr "点击这里"
-
-#, fuzzy
-msgid "Module Enabled"
-msgstr "模块名称"
-
-#, fuzzy
-msgid "Enabled by Default"
-msgstr "更新打印机"
-
-msgid "Default Width"
-msgstr "默认宽度"
-
-msgid "Default Height"
-msgstr "默认高度"
-
-msgid "Default Refresh Rate"
-msgstr "默认刷新频率"
-
-#, fuzzy
-msgid "Unable to update global setting"
-msgstr "无法更新"
-
-#, fuzzy
-msgid "Unable to update module default setting"
-msgstr "无法打开文件进行读取"
-
-#, fuzzy
-msgid "Auto Log Out Time"
-msgstr "默认注销时间（分钟）"
-
-msgid "Active at 5 minutes or more"
-msgstr ""
-
-#, fuzzy
-msgid "Global Module Settings"
-msgstr "主机描述"
-
-#, fuzzy
-msgid "Module update success!"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Module Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Module Update Fail"
-msgstr "集团创建失败"
-
-#, fuzzy
-msgid "Is Pack"
-msgstr "是"
-
-#, fuzzy
-msgid "Create New Snapin"
-msgstr "新建%s"
-
-#, fuzzy
-msgid "Normal Snapin"
-msgstr "无效的管理单元"
-
-#, fuzzy
-msgid "Snapin Pack"
-msgstr "管理单元路径"
-
-#, fuzzy
-msgid "Snapin Type"
-msgstr "模板管理单元"
-
-msgid "Snapin Template"
-msgstr "模板管理单元"
-
-#, fuzzy
-msgid "Snapin Pack Template"
-msgstr "模板管理单元"
-
-#, fuzzy
-msgid "Snapin Pack File"
-msgstr "文件管理单元"
-
-msgid "Snapin Run With Argument"
-msgstr "管理单元运行带有参数"
-
-#, fuzzy
-msgid "Snapin Pack Arguments"
-msgstr "管理单元参数"
-
-msgid "Snapin File (exists)"
-msgstr "文件管理单元（存在）"
-
-msgid "Snapin Arguments"
-msgstr "管理单元参数"
-
-msgid "Snapin Enabled"
-msgstr "启用管理单元"
-
-#, fuzzy
-msgid "Snapin Arguments Hidden"
-msgstr "管理单元参数"
-
-#, fuzzy
-msgid "Snapin Timeout (seconds)"
-msgstr "菜单超时（以秒为单位）"
-
-#, fuzzy
-msgid "Replicate"
-msgstr "复制？"
-
-msgid "Reboot after install"
-msgstr "重启后安装"
-
-msgid "Shutdown after install"
-msgstr "关机后安装"
-
-msgid "Snapin Command"
-msgstr "管理单元命令"
-
-msgid "read-only"
-msgstr ""
-
-#, fuzzy
-msgid "A snapin name is required!"
-msgstr "图像名是必需的！"
-
-#, fuzzy
-msgid "A snapin already exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "A file"
-msgstr "文件"
-
-msgid "either already selected or uploaded"
-msgstr ""
-
-#, fuzzy
-msgid "must be specified"
-msgstr "没有指定的图像"
-
-#, fuzzy
-msgid "Please choose a different name"
-msgstr "请选择一个图像"
-
-#, fuzzy
-msgid "this one is reserved for FOG"
-msgstr "请选择一个不同的名字，这个人是留给雾。"
-
-msgid "FTP Connection has failed"
-msgstr "FTP连接失败"
-
-#, fuzzy
-msgid "Failed to add snapin"
-msgstr "无法添加/更新管理单元文件"
-
-msgid "Failed to add/update snapin file"
-msgstr "无法添加/更新管理单元文件"
-
-msgid "Add snapin failed!"
-msgstr "添加管理单元失败！"
-
-#, fuzzy
-msgid "Snapin added!"
-msgstr "管理单元名称"
-
-#, fuzzy
-msgid "Snapin Create Success"
-msgstr "更新管理单元"
-
-#, fuzzy
-msgid "Snapin Create Fail"
-msgstr "更新管理单元"
-
-#, fuzzy
-msgid "Snapin Protected"
-msgstr "更新管理单元"
-
-#, fuzzy
-msgid "Snapin update failed!"
-msgstr "管理单元更新失败"
-
-#, fuzzy
-msgid "Snapin updated!"
-msgstr "更新管理单元"
-
-#, fuzzy
-msgid "Snapin Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Snapin Update Fail"
-msgstr "管理单元更新失败"
-
-#, fuzzy
-msgid "Login Failed"
-msgstr "加载失败： %s"
-
-#, fuzzy
-msgid "Login successful!"
-msgstr "成功"
-
-#, fuzzy
-msgid "Login Success"
-msgstr "安装/升级成功！"
-
-msgid "Sign in to start your session"
-msgstr ""
-
-msgid "Remember Me"
-msgstr ""
-
-#, fuzzy
-msgid "Sign In"
-msgstr "签"
 
 msgid "Database Schema Installer / Updater"
 msgstr "数据库模式安装/更新"
@@ -5570,6 +4667,832 @@ msgstr "安装/升级成功！"
 msgid "Schema Update Fail"
 msgstr "打印机更新失败！"
 
+msgid "Click"
+msgstr "点击"
+
+msgid "to review."
+msgstr "回顾。"
+
+msgid "Pending hosts"
+msgstr "待主机"
+
+#, fuzzy
+msgid "Pending host"
+msgstr "待主机"
+
+msgid "Pending macs"
+msgstr "待淅淅沥沥"
+
+msgid "Web Server"
+msgstr "网络服务器"
+
+msgid "Load Average"
+msgstr "平均负载"
+
+msgid "System Uptime"
+msgstr "系统正常运行时间"
+
+msgid "System Overview"
+msgstr "系统总览"
+
+msgid "Storage Group Activity"
+msgstr "存储组活动"
+
+msgid "Storage Node Disk Usage"
+msgstr "存储节点的磁盘使用情况"
+
+msgid "Imaging Over the last 30 days"
+msgstr "成像在过去30天"
+
+#, fuzzy
+msgid "Real Time"
+msgstr "主机更新失败"
+
+msgid "On"
+msgstr ""
+
+msgid "Off"
+msgstr ""
+
+msgid "2 Minutes"
+msgstr "2分钟"
+
+#, fuzzy
+msgid "5 Minutes"
+msgstr "2分钟"
+
+msgid "10 Minutes"
+msgstr "10分钟"
+
+msgid "30 Minutes"
+msgstr "30分钟"
+
+#, fuzzy
+msgid "1 Hour"
+msgstr "1小时"
+
+msgid "No activity information available for this group"
+msgstr ""
+
+msgid "Free"
+msgstr ""
+
+#, fuzzy
+msgid "No Data Available"
+msgstr "不可用"
+
+msgid "used"
+msgstr ""
+
+#, fuzzy
+msgid "Node is unavailable"
+msgstr "没有可用的散列"
+
+msgid "Node Offline"
+msgstr ""
+
+msgid "Used"
+msgstr ""
+
+msgid "This will allow you to configure how services"
+msgstr ""
+
+msgid "function on client computers."
+msgstr ""
+
+msgid "The settings tend to be global which affects all hosts."
+msgstr ""
+
+msgid "If you are looking to configure settings for a specific host"
+msgstr ""
+
+msgid "please see the hosts service settings section."
+msgstr ""
+
+msgid "To get started please select an item from the menu."
+msgstr ""
+
+msgid "Use the following link to go to the client page."
+msgstr ""
+
+msgid "There you can download utilities such as FOG Prep"
+msgstr ""
+
+msgid "and the FOG client."
+msgstr ""
+
+msgid "Click Here"
+msgstr "点击这里"
+
+#, fuzzy
+msgid "Module Enabled"
+msgstr "模块名称"
+
+#, fuzzy
+msgid "Enabled by Default"
+msgstr "更新打印机"
+
+msgid "Default Width"
+msgstr "默认宽度"
+
+msgid "Default Height"
+msgstr "默认高度"
+
+msgid "Default Refresh Rate"
+msgstr "默认刷新频率"
+
+#, fuzzy
+msgid "Unable to update global setting"
+msgstr "无法更新"
+
+#, fuzzy
+msgid "Unable to update module default setting"
+msgstr "无法打开文件进行读取"
+
+#, fuzzy
+msgid "Auto Log Out Time"
+msgstr "默认注销时间（分钟）"
+
+msgid "Active at 5 minutes or more"
+msgstr ""
+
+#, fuzzy
+msgid "Global Module Settings"
+msgstr "主机描述"
+
+#, fuzzy
+msgid "Module update success!"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Module Update Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Module Update Fail"
+msgstr "集团创建失败"
+
+#, fuzzy
+msgid "Friendly Name"
+msgstr "内核名称"
+
+msgid "API?"
+msgstr ""
+
+#, fuzzy
+msgid "Create New User"
+msgstr "新建%s"
+
+msgid "User Password"
+msgstr "用户密码"
+
+#, fuzzy
+msgid "confirm"
+msgstr "任务无效"
+
+#, fuzzy
+msgid "User API Enable"
+msgstr "访问令牌"
+
+#, fuzzy
+msgid "A user name is required!"
+msgstr "图像名是必需的！"
+
+msgid "Username does not meet requirements"
+msgstr ""
+
+msgid "Username must start with a word character"
+msgstr ""
+
+msgid "Username must be at least 3 characters"
+msgstr ""
+
+msgid "Username must be less than 41 characters"
+msgstr ""
+
+msgid "Username cannot contain contiguous special characters"
+msgstr ""
+
+#, fuzzy
+msgid "A username already exists with this name!"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+msgid "A password is required!"
+msgstr "%s是必需的"
+
+#, fuzzy
+msgid "Add user failed!"
+msgstr "添加管理单元失败！"
+
+#, fuzzy
+msgid "User added!"
+msgstr "打印机名称"
+
+#, fuzzy
+msgid "User Create Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "User Create Fail"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "A user already exists with this name"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+msgid "User API Token"
+msgstr "访问令牌"
+
+msgid "API"
+msgstr ""
+
+#, fuzzy
+msgid "User update failed!"
+msgstr "用户更新失败"
+
+#, fuzzy
+msgid "User updated!"
+msgstr "用户更新"
+
+#, fuzzy
+msgid "User Update Success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "User Update Fail"
+msgstr "用户更新失败"
+
+#, fuzzy
+msgid "Create New Group"
+msgstr "存储节点"
+
+msgid "Group Description"
+msgstr "团体简介"
+
+msgid "Group Kernel"
+msgstr "集团核心"
+
+msgid "Group Kernel Arguments"
+msgstr "集团内核参数"
+
+#, fuzzy
+msgid "Group Init"
+msgstr "出口Snapins"
+
+msgid "Group Primary Disk"
+msgstr "集团主磁盘"
+
+#, fuzzy
+msgid "A group name is required!"
+msgstr "图像名是必需的！"
+
+#, fuzzy
+msgid "A group already exists with this name!"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+msgid "Add group failed!"
+msgstr "添加管理单元失败！"
+
+#, fuzzy
+msgid "Group added!"
+msgstr "集团补充"
+
+#, fuzzy
+msgid "Group Create Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Group Create Fail"
+msgstr "集团创建失败"
+
+msgid "Group Product Key"
+msgstr "集团产品密钥"
+
+#, fuzzy
+msgid "Group BIOS Exit"
+msgstr "出口Snapins"
+
+#, fuzzy
+msgid "Group EFI Exit"
+msgstr "出口Snapins"
+
+#, fuzzy
+msgid "Please use another group name"
+msgstr "请输入主机名"
+
+#, fuzzy
+msgid "Group Image"
+msgstr "组名称"
+
+#, fuzzy
+msgid "Group Hosts"
+msgstr "组"
+
+#, fuzzy
+msgid "Group Printer Configuration"
+msgstr "服务配置"
+
+msgid ""
+"This setting turns off all FOG Printer Management. Although there are "
+"multiple levels already, this  is just another level if needed."
+msgstr ""
+
+#, fuzzy
+msgid "Add/Remove Managed Printers"
+msgstr "FOG管理的打印机"
+
+#, fuzzy
+msgid "All Printers"
+msgstr "打印机"
+
+#, fuzzy
+msgid ""
+"This setting will only allow FO GAssigned printers to be added to the host. "
+"Any printer that is not assigned will be removed including non-FOG managed "
+"printers."
+msgstr ""
+"此设置仅允许FOG分配的打印机要添加到主机。没有分配任何打印机将包括非FOG管理的"
+"打印机被删除。"
+
+#, fuzzy
+msgid "Group Snapins"
+msgstr "历史管理单元"
+
+#, fuzzy
+msgid "Module Association"
+msgstr "图像协会"
+
+#, fuzzy
+msgid "Group module settings"
+msgstr "主机描述"
+
+#, fuzzy
+msgid "Group update failed!"
+msgstr "用户更新失败"
+
+#, fuzzy
+msgid "Group updated!"
+msgstr "集团补充"
+
+#, fuzzy
+msgid "Group Update Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Group Update Fail"
+msgstr "集团创建失败"
+
+#, fuzzy
+msgid "There are no hosts to task"
+msgstr "有此服务器上没有组。"
+
+msgid "Groups cannot create capture tasks"
+msgstr ""
+
+#, fuzzy
+msgid "Storage Node Management"
+msgstr "存储管理"
+
+#, fuzzy
+msgid "Create New Storage Node"
+msgstr "存储节点"
+
+#, fuzzy
+msgid "Storage Node Web Root"
+msgstr "存储节点名称"
+
+#, fuzzy
+msgid "Storage Node Enabled"
+msgstr "存储节点名称"
+
+#, fuzzy
+msgid "Network Interface"
+msgstr "网络打印机"
+
+msgid "Kbps"
+msgstr ""
+
+#, fuzzy
+msgid "Multicast Bitrate"
+msgstr "组播"
+
+#, fuzzy
+msgid "Storage Node Image Path"
+msgstr "存储节点的IP"
+
+#, fuzzy
+msgid "Storage Node FTP Path"
+msgstr "存储节点的IP"
+
+#, fuzzy
+msgid "Storage Node Snapin Path"
+msgstr "存储节点更新"
+
+#, fuzzy
+msgid "Storage Node SSL Path"
+msgstr "存储节点的IP"
+
+#, fuzzy
+msgid "Storage Node FTP User"
+msgstr "存储节点的用户名"
+
+#, fuzzy
+msgid "Storage Node FTP Password"
+msgstr "存储节点密码"
+
+msgid "Bandwidth should be numeric and greater than 0"
+msgstr "带宽应该是数字和大于0"
+
+#, fuzzy
+msgid "Add storage node failed!"
+msgstr "添加管理单元失败！"
+
+#, fuzzy
+msgid "Storage Node added!"
+msgstr "存储节点名称"
+
+#, fuzzy
+msgid "Storage Node Create Success"
+msgstr "存储节点创建"
+
+#, fuzzy
+msgid "Storage Node Create Fail"
+msgstr "存储节点创建"
+
+#, fuzzy
+msgid "Storage Node Update Failed"
+msgstr "存储节点更新"
+
+#, fuzzy
+msgid "Storage Node updated!"
+msgstr "存储节点更新"
+
+#, fuzzy
+msgid "Storage Node Update Success"
+msgstr "存储节点更新"
+
+#, fuzzy
+msgid "Storage Node Update Fail"
+msgstr "存储节点更新"
+
+#, fuzzy
+msgid "Started By"
+msgstr "由...制作"
+
+msgid "Progress"
+msgstr ""
+
+msgid "Resume Reload"
+msgstr ""
+
+msgid "Pause Reload"
+msgstr ""
+
+#, fuzzy
+msgid "Cancel Selected"
+msgstr "删除所选"
+
+#, fuzzy
+msgid "Selected tasks cancelled!"
+msgstr "已成功更新"
+
+#, fuzzy
+msgid "Task Cancel Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Task Cancel Fail"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Active Multi-cast Tasks"
+msgstr "活动组播任务"
+
+msgid "Task Name"
+msgstr "任务名称"
+
+#, fuzzy
+msgid "Hosts in tasking"
+msgstr "在任务主机"
+
+msgid "Host/Group Name"
+msgstr "主机/组名称"
+
+msgid "Is Group"
+msgstr "是集团"
+
+msgid "Printer Name"
+msgstr "打印机名称"
+
+#, fuzzy
+msgid "Config File"
+msgstr "打印机配置文件"
+
+#, fuzzy
+msgid "Create New Printer"
+msgstr "新建%s"
+
+msgid "TCP/IP Port Printer"
+msgstr "TCP / IP端口打印机"
+
+msgid "iPrint Printer"
+msgstr "iPrint的打印机"
+
+msgid "Network Printer"
+msgstr "网络打印机"
+
+msgid "CUPS Printer"
+msgstr "CUPS打印机"
+
+#, fuzzy
+msgid "Copy from existing"
+msgstr "无法创建打印机"
+
+#, fuzzy
+msgid "Printer Name/Alias"
+msgstr "打印机别名"
+
+msgid "e.g."
+msgstr ""
+
+msgid "Printer Description"
+msgstr "打印机说明"
+
+#, fuzzy
+msgid "Printer Configuration File"
+msgstr "服务配置"
+
+msgid "Printer Port"
+msgstr "打印机端口"
+
+msgid "Printer INF File"
+msgstr "打印机INF文件"
+
+msgid "Printer IP"
+msgstr "打印机IP"
+
+msgid "Printer Model"
+msgstr "打印机型号"
+
+#, fuzzy
+msgid "A printer name is required!"
+msgstr "图像名是必需的！"
+
+#, fuzzy
+msgid "A printer already exists with this name!"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+msgid "Add printer failed!"
+msgstr "添加管理单元失败！"
+
+#, fuzzy
+msgid "Printer added!"
+msgstr "打印机名称"
+
+#, fuzzy
+msgid "Printer Create Success"
+msgstr "打印机已经存在"
+
+#, fuzzy
+msgid "Printer Create Fail"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Update Default"
+msgstr "更新打印机"
+
+#, fuzzy
+msgid "Default Printer"
+msgstr "默认项："
+
+msgid "Printer update failed!"
+msgstr "打印机更新失败！"
+
+msgid "Printer updated!"
+msgstr "打印机更新！"
+
+#, fuzzy
+msgid "Printer Update Success"
+msgstr "打印机更新！"
+
+#, fuzzy
+msgid "Printer Update Fail"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "FOG Client Installers"
+msgstr "FOG客户端下载"
+
+#, fuzzy
+msgid "The installers for the fog client"
+msgstr "此设置定义使用SSH客户端的用户名。"
+
+#, fuzzy
+msgid "Client Version"
+msgstr "CPU版本"
+
+msgid ""
+"Cross platform, more secure, faster, and much easier on the server. "
+"Espeically when your organization has many hosts"
+msgstr ""
+
+#, fuzzy
+msgid "MSI -- Network Installer"
+msgstr "网络打印机"
+
+#, fuzzy
+msgid "Smart Installer"
+msgstr "智能安装（推荐）"
+
+#, fuzzy
+msgid "Help and Guides"
+msgstr "帮助和引导"
+
+msgid "Where to get help and guides"
+msgstr ""
+
+msgid "Use the links below if you need assistance."
+msgstr ""
+
+msgid ""
+"NOTE: Forums are the most command fastest method of getting help with any "
+"aspect of FOG."
+msgstr ""
+
+msgid "FOG Client Wiki"
+msgstr "FOG客户维基"
+
+msgid "FOG Forums"
+msgstr "FOG论坛"
+
+#, fuzzy
+msgid "Captured"
+msgstr "创建"
+
+#, fuzzy
+msgid "Create New Image"
+msgstr "新建%s"
+
+msgid "Partimage"
+msgstr "Partimage"
+
+msgid "Image Description"
+msgstr "图片说明"
+
+#, fuzzy
+msgid "Image Compression Rating"
+msgstr "图像协会"
+
+#, fuzzy
+msgid "Image Storage Group"
+msgstr "存储组"
+
+#, fuzzy
+msgid "Image Operating System"
+msgstr "操作系统"
+
+#, fuzzy
+msgid "Image Partition"
+msgstr "划分"
+
+msgid "Image Manager"
+msgstr "图像管理器"
+
+msgid "Image Enabled"
+msgstr "图片启用"
+
+#, fuzzy
+msgid "Image Replicate"
+msgstr "图像复制"
+
+#, fuzzy
+msgid "An image name is required!"
+msgstr "图像名是必需的！"
+
+msgid "An image already exists with this name!"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+msgid "Please choose a different filename/path as this is reserved"
+msgstr "请选择一个图像"
+
+msgid "The path requested is already in use by another image!"
+msgstr ""
+
+#, fuzzy
+msgid "Add image failed!"
+msgstr "添加管理单元失败！"
+
+#, fuzzy
+msgid "Image added!"
+msgstr "图片名称"
+
+#, fuzzy
+msgid "Image Create Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Image Create Fail"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Image Protected"
+msgstr "受保护"
+
+#, fuzzy
+msgid "Image update failed!"
+msgstr "图片更新"
+
+#, fuzzy
+msgid "Image updated!"
+msgstr "图片更新"
+
+#, fuzzy
+msgid "Image Update Success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "Image Update Fail"
+msgstr "图片更新"
+
+msgid "Session Name"
+msgstr "会话名称"
+
+msgid "Client Count"
+msgstr "客户端计数"
+
+#, fuzzy
+msgid "Session Timeout"
+msgstr "会话超时"
+
+msgid "minutes"
+msgstr "分钟"
+
+#, fuzzy
+msgid "Session Image"
+msgstr "会话名称"
+
+#, fuzzy
+msgid "Cancel Selected Tasks"
+msgstr "删除所选"
+
+#, fuzzy
+msgid "Cancel the selected tasks."
+msgstr "删除所选"
+
+#, fuzzy
+msgid "Create new Session Task"
+msgstr "新建%s"
+
+#, fuzzy
+msgid "Multicast Sessions"
+msgstr "开始多播会话"
+
+msgid "Please choose an image"
+msgstr "请选择一个图像"
+
+#, fuzzy
+msgid "Please select a valid image"
+msgstr "选择一个有效的图像"
+
+#, fuzzy
+msgid "Session with that name already exists!"
+msgstr "使用此名称的主机名已经存在。"
+
+msgid "Server is only configured to run "
+msgstr ""
+
+#, fuzzy
+msgid "Session created!"
+msgstr "会话名称"
+
+#, fuzzy
+msgid "Session Create Success"
+msgstr "更新管理单元"
+
+#, fuzzy
+msgid "Session Create Fail"
+msgstr "更新管理单元"
+
+msgid "Failed to create Session"
+msgstr "无法创建会话"
+
+#, fuzzy
+msgid "Sessions cancelled!"
+msgstr "已成功更新"
+
+#, fuzzy
+msgid "Session Cancel Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Session Cancel Fail"
+msgstr "用户创建"
+
 msgid "Failed to connect"
 msgstr "连接失败"
 
@@ -5668,6 +5591,9 @@ msgstr "等待的MySQL可用"
 #, fuzzy
 msgid "I am not the master for this group"
 msgstr "*我不是高手"
+
+msgid "I am the master, but I do not appear to be online"
+msgstr ""
 
 msgid "Not syncing"
 msgstr ""
@@ -5877,9 +5803,6 @@ msgstr ""
 #, fuzzy
 msgid "Trying image size for"
 msgstr "管理单元路径"
-
-msgid "ID"
-msgstr "ID"
 
 #, fuzzy
 msgid "Path is unavailable"
