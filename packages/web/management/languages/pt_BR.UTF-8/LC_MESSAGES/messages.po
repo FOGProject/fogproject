@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-14 20:31-0400\n"
+"POT-Creation-Date: 2018-03-15 02:00-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1761,8 +1761,13 @@ msgid ""
 "to export."
 msgstr ""
 
-msgid "Task Types"
+#, fuzzy
+msgid "List All Task Types"
 msgstr "Tipos de tarefa"
+
+#, fuzzy
+msgid "Create New Task Type"
+msgstr "Criar novo %s"
 
 #, fuzzy
 msgid "Export Task Types"
@@ -1772,8 +1777,8 @@ msgstr "Tipos de tarefa"
 msgid "Import Task Types"
 msgstr "Tipos de tarefa"
 
-msgid "Task Type"
-msgstr "Tipo de tarefa"
+msgid "Task Types"
+msgstr "Tipos de tarefa"
 
 msgid "Access"
 msgstr "Acesso"
@@ -1781,25 +1786,30 @@ msgstr "Acesso"
 msgid "Kernel Args"
 msgstr "Kernel Args"
 
-msgid "New Task Type"
-msgstr "Novo tipo de tarefa"
+#, fuzzy
+msgid "Task Type Name"
+msgstr "Estado tarefa adicional, a edição"
+
+#, fuzzy
+msgid "Task Type Description"
+msgstr "Descrição da imagem"
+
+#, fuzzy
+msgid "Task Type Icon"
+msgstr "Tipo de tarefa"
 
 msgid "Kernel Arguments"
 msgstr "Argumentos de kernel"
 
-#, fuzzy
-msgid "Init"
-msgstr "Dentro "
+msgid "Init FS"
+msgstr ""
 
-msgid "Is Advanced"
-msgstr "é avançado"
+#, fuzzy
+msgid "Advanced Task"
+msgstr "avançado"
 
 msgid "Accessed By"
 msgstr "acessada por"
-
-#, fuzzy
-msgid "Create Task type"
-msgstr "Estado de Nova Tarefa"
 
 #, fuzzy
 msgid "A task type already exists with this name!"
@@ -1822,16 +1832,8 @@ msgid "Task Type Create Fail"
 msgstr "usuário criado"
 
 #, fuzzy
-msgid "Make Changes?"
-msgstr "Salvar alterações"
-
-#, fuzzy
-msgid "Task Type General"
-msgstr "Estado Task"
-
-#, fuzzy
-msgid "Update task state failed!"
-msgstr "Adicionar snap-in falhou!"
+msgid "Task type update failed!"
+msgstr "atualização do utilizador falhou"
 
 #, fuzzy
 msgid "Task Type Updated!"
@@ -1845,35 +1847,50 @@ msgstr "Instalar / Atualizar sucesso!"
 msgid "Task Type Update Fail"
 msgstr "atualização do utilizador falhou"
 
-msgid "Allows editing/creating of Task Types fog currently has."
-msgstr ""
-
-msgid "Task States"
-msgstr "Unidos Task"
-
 #, fuzzy
 msgid "Export Task States"
 msgstr "Unidos Task"
+
+msgid "Allows editing/creating of Task Types fog currently has."
+msgstr ""
+
+#, fuzzy
+msgid "List All Task States"
+msgstr "Unidos Task"
+
+#, fuzzy
+msgid "Create New Task State"
+msgstr "Criar novo %s"
 
 #, fuzzy
 msgid "Import Task States"
 msgstr "Unidos Task"
 
-msgid "Task State"
-msgstr "Estado Task"
-
-msgid "New Task State"
-msgstr "Estado de Nova Tarefa"
-
-msgid "Additional Icon elements"
-msgstr "Elementos adicionais Ícone"
+msgid "Task States"
+msgstr "Unidos Task"
 
 #, fuzzy
-msgid "Create Task state"
-msgstr "Estado de Nova Tarefa"
+msgid "Task State Name"
+msgstr "Unidos Task"
 
 #, fuzzy
-msgid "A task state already exists with this name!"
+msgid "Task State Description"
+msgstr "Descrição Printer"
+
+#, fuzzy
+msgid "Task State Icon"
+msgstr "Unidos Task"
+
+#, fuzzy
+msgid "Additional Icon Elements"
+msgstr "MACs adicionais"
+
+#, fuzzy
+msgid "A task state name is required!"
+msgstr "Um nome de imagem é necessário!"
+
+#, fuzzy
+msgid "A task state alread exists with this name!"
 msgstr "Uma imagem já existe com este nome!"
 
 #, fuzzy
@@ -1881,11 +1898,11 @@ msgid "Add task state failed!"
 msgstr "Adicionar snap-in falhou!"
 
 #, fuzzy
-msgid "Task State added!"
+msgid "Task state added!"
 msgstr "Estado tarefa adicional, a edição"
 
 #, fuzzy
-msgid "Task State Create Success"
+msgid "Task State Create SUccess"
 msgstr "usuário criado"
 
 #, fuzzy
@@ -1893,8 +1910,12 @@ msgid "Task State Create Fail"
 msgstr "usuário criado"
 
 #, fuzzy
-msgid "Task State General"
-msgstr "Estado Task"
+msgid "A task state already exists with this name!"
+msgstr "Uma imagem já existe com este nome!"
+
+#, fuzzy
+msgid "Task state update failed!"
+msgstr "usuário criado"
 
 #, fuzzy
 msgid "Task State Updated!"
@@ -3216,6 +3237,10 @@ msgstr "DMI campo"
 #, fuzzy
 msgid "After image Action"
 msgstr "grupo Local"
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "Salvar alterações"
 
 #, fuzzy
 msgid "Image Associations"
@@ -5193,6 +5218,9 @@ msgstr "Nome do host / Grupo"
 
 msgid "Is Group"
 msgstr "Grupo está"
+
+msgid "Task Type"
+msgstr "Tipo de tarefa"
 
 msgid "Printer Name"
 msgstr "Nome da impressora"

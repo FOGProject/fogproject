@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-14 20:31-0400\n"
+"POT-Creation-Date: 2018-03-15 02:00-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1932,8 +1932,12 @@ msgid ""
 msgstr ""
 
 #, fuzzy
-msgid "Task Types"
+msgid "List All Task Types"
 msgstr "Tipo de tarea"
+
+#, fuzzy
+msgid "Create New Task Type"
+msgstr "Crear nuevo grupo"
 
 #, fuzzy
 msgid "Export Task Types"
@@ -1943,7 +1947,8 @@ msgstr "Tipo de tarea"
 msgid "Import Task Types"
 msgstr "Tipo de tarea"
 
-msgid "Task Type"
+#, fuzzy
+msgid "Task Types"
 msgstr "Tipo de tarea"
 
 #, fuzzy
@@ -1955,27 +1960,30 @@ msgid "Kernel Args"
 msgstr "Núcleo"
 
 #, fuzzy
-msgid "New Task Type"
+msgid "Task Type Name"
+msgstr "Nombre de la tarea"
+
+#, fuzzy
+msgid "Task Type Description"
+msgstr "Descripción de la imagen"
+
+#, fuzzy
+msgid "Task Type Icon"
 msgstr "Tipo de tarea"
 
 #, fuzzy
 msgid "Kernel Arguments"
 msgstr "Argumentos grupo Kernel"
 
-#, fuzzy
-msgid "Init"
-msgstr "En "
+msgid "Init FS"
+msgstr ""
 
 #, fuzzy
-msgid "Is Advanced"
+msgid "Advanced Task"
 msgstr "Avanzado"
 
 msgid "Accessed By"
 msgstr ""
-
-#, fuzzy
-msgid "Create Task type"
-msgstr "Nombre de la tarea"
 
 #, fuzzy
 msgid "A task type already exists with this name!"
@@ -1998,16 +2006,8 @@ msgid "Task Type Create Fail"
 msgstr "creado por el usuario"
 
 #, fuzzy
-msgid "Make Changes?"
-msgstr "Guardar cambios"
-
-#, fuzzy
-msgid "Task Type General"
-msgstr "Nombre de la tarea"
-
-#, fuzzy
-msgid "Update task state failed!"
-msgstr "Añadir fallidos SNAPin!"
+msgid "Task type update failed!"
+msgstr "actualización Valoración falló"
 
 #, fuzzy
 msgid "Task Type Updated!"
@@ -2021,36 +2021,48 @@ msgstr "Actualizar impresora"
 msgid "Task Type Update Fail"
 msgstr "actualización Valoración falló"
 
+msgid "Export Task States"
+msgstr ""
+
 msgid "Allows editing/creating of Task Types fog currently has."
+msgstr ""
+
+#, fuzzy
+msgid "List All Task States"
+msgstr "Nombre de la tarea"
+
+#, fuzzy
+msgid "Create New Task State"
+msgstr "Crear nuevo grupo"
+
+msgid "Import Task States"
 msgstr ""
 
 #, fuzzy
 msgid "Task States"
 msgstr "Nombre de la tarea"
 
-msgid "Export Task States"
-msgstr ""
-
-msgid "Import Task States"
-msgstr ""
-
 #, fuzzy
-msgid "Task State"
+msgid "Task State Name"
 msgstr "Nombre de la tarea"
 
 #, fuzzy
-msgid "New Task State"
+msgid "Task State Description"
+msgstr "Descripción de la impresora"
+
+#, fuzzy
+msgid "Task State Icon"
 msgstr "Nombre de la tarea"
 
-msgid "Additional Icon elements"
+msgid "Additional Icon Elements"
 msgstr ""
 
 #, fuzzy
-msgid "Create Task state"
-msgstr "Nombre de la tarea"
+msgid "A task state name is required!"
+msgstr "Se requiere un nombre de imagen!"
 
 #, fuzzy
-msgid "A task state already exists with this name!"
+msgid "A task state alread exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
@@ -2058,11 +2070,11 @@ msgid "Add task state failed!"
 msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
-msgid "Task State added!"
+msgid "Task state added!"
 msgstr "Nombre de la tarea"
 
 #, fuzzy
-msgid "Task State Create Success"
+msgid "Task State Create SUccess"
 msgstr "creado por el usuario"
 
 #, fuzzy
@@ -2070,8 +2082,12 @@ msgid "Task State Create Fail"
 msgstr "creado por el usuario"
 
 #, fuzzy
-msgid "Task State General"
-msgstr "Nombre de la tarea"
+msgid "A task state already exists with this name!"
+msgstr "Una imagen ya existe con este nombre!"
+
+#, fuzzy
+msgid "Task state update failed!"
+msgstr "creado por el usuario"
 
 #, fuzzy
 msgid "Task State Updated!"
@@ -3430,6 +3446,10 @@ msgstr ""
 #, fuzzy
 msgid "After image Action"
 msgstr "Asociación para la imagen"
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "Guardar cambios"
 
 #, fuzzy
 msgid "Image Associations"
@@ -5433,6 +5453,9 @@ msgstr "Host / Nombre del grupo"
 
 msgid "Is Group"
 msgstr "grupo está"
+
+msgid "Task Type"
+msgstr "Tipo de tarea"
 
 msgid "Printer Name"
 msgstr "Nombre de la impresora"
