@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-14 20:31-0400\n"
+"POT-Creation-Date: 2018-03-15 02:00-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1685,8 +1685,13 @@ msgid ""
 "to export."
 msgstr ""
 
-msgid "Task Types"
+#, fuzzy
+msgid "List All Task Types"
 msgstr "Tipi di attività"
+
+#, fuzzy
+msgid "Create New Task Type"
+msgstr "Crea nuovo %s"
 
 msgid "Export Task Types"
 msgstr "Esporta tipi di attività"
@@ -1694,8 +1699,8 @@ msgstr "Esporta tipi di attività"
 msgid "Import Task Types"
 msgstr "Importa tipi di attività"
 
-msgid "Task Type"
-msgstr "Tipo attività"
+msgid "Task Types"
+msgstr "Tipi di attività"
 
 msgid "Access"
 msgstr "Accesso"
@@ -1703,23 +1708,30 @@ msgstr "Accesso"
 msgid "Kernel Args"
 msgstr "kernel Args"
 
-msgid "New Task Type"
-msgstr "Nuovo tipo di attività"
+#, fuzzy
+msgid "Task Type Name"
+msgstr "Aggiunta tipo attività riuscita!"
+
+#, fuzzy
+msgid "Task Type Description"
+msgstr "Descrizione dell'immagine"
+
+#, fuzzy
+msgid "Task Type Icon"
+msgstr "Tipo attività"
 
 msgid "Kernel Arguments"
 msgstr "argomenti del kernel"
 
-msgid "Init"
-msgstr "Init"
+msgid "Init FS"
+msgstr ""
 
-msgid "Is Advanced"
-msgstr "è avanzata"
+#, fuzzy
+msgid "Advanced Task"
+msgstr "Avanzate"
 
 msgid "Accessed By"
 msgstr "Si accede da"
-
-msgid "Create Task type"
-msgstr "Crea tipo attività"
 
 msgid "A task type already exists with this name!"
 msgstr "Un tipo di attività esiste già con questo nome!"
@@ -1736,14 +1748,9 @@ msgstr "Aggiunta tipo attività riuscita"
 msgid "Task Type Create Fail"
 msgstr "Aggiunta tipo attività fallita"
 
-msgid "Make Changes?"
-msgstr "Applicare cambiamenti?"
-
-msgid "Task Type General"
-msgstr "Tipo attività Generale"
-
-msgid "Update task state failed!"
-msgstr "Aggiornamento tipo attività fallita!"
+#, fuzzy
+msgid "Task type update failed!"
+msgstr "Aggiornamento tipo attività fallita"
 
 msgid "Task Type Updated!"
 msgstr "Tipi di attività aggiornata!"
@@ -1754,47 +1761,70 @@ msgstr "Aggiornamento tipo attività riuscita"
 msgid "Task Type Update Fail"
 msgstr "Aggiornamento tipo attività fallita"
 
+msgid "Export Task States"
+msgstr "Esporta Stato delle attività"
+
 msgid "Allows editing/creating of Task Types fog currently has."
 msgstr "Consente la modifica / creazione di tipi di attività FOG."
 
-msgid "Task States"
+#, fuzzy
+msgid "List All Task States"
 msgstr "Stati attività"
 
-msgid "Export Task States"
-msgstr "Esporta Stato delle attività"
+#, fuzzy
+msgid "Create New Task State"
+msgstr "Crea nuova stampante"
 
 msgid "Import Task States"
 msgstr "Importa Stato delle attività"
 
-msgid "Task State"
-msgstr "Stato attività"
+msgid "Task States"
+msgstr "Stati attività"
 
-msgid "New Task State"
-msgstr "Stato nuova attività"
+#, fuzzy
+msgid "Task State Name"
+msgstr "Stati attività"
 
-msgid "Additional Icon elements"
-msgstr "elementi di icone aggiuntive"
+#, fuzzy
+msgid "Task State Description"
+msgstr "Descrizione Sito"
 
-msgid "Create Task state"
-msgstr "Crea stato attività"
+#, fuzzy
+msgid "Task State Icon"
+msgstr "Stati attività"
 
-msgid "A task state already exists with this name!"
+#, fuzzy
+msgid "Additional Icon Elements"
+msgstr "MAC aggiuntivi"
+
+#, fuzzy
+msgid "A task state name is required!"
+msgstr "È richiesto un nome host!"
+
+#, fuzzy
+msgid "A task state alread exists with this name!"
 msgstr "Uno stato di attività già esiste con questo nome!"
 
 msgid "Add task state failed!"
 msgstr "Aggiunta stato attività non riuscito!"
 
-msgid "Task State added!"
-msgstr "Stato attività aggiunto!"
+#, fuzzy
+msgid "Task state added!"
+msgstr "Aggiunta tipo attività riuscita!"
 
-msgid "Task State Create Success"
-msgstr "Creazione stato attività riuscita!"
+#, fuzzy
+msgid "Task State Create SUccess"
+msgstr "Aggiunta stato attività riuscito!"
 
 msgid "Task State Create Fail"
 msgstr "Creazione stato attività falita!"
 
-msgid "Task State General"
-msgstr "Stato attività Generale"
+msgid "A task state already exists with this name!"
+msgstr "Uno stato di attività già esiste con questo nome!"
+
+#, fuzzy
+msgid "Task state update failed!"
+msgstr "Aggiunta stato attività fallito"
 
 msgid "Task State Updated!"
 msgstr "Aggiunta stato attività aggiormato!"
@@ -2995,6 +3025,9 @@ msgstr "DMI campo"
 
 msgid "After image Action"
 msgstr "Azione successiva per l'immagine"
+
+msgid "Make Changes?"
+msgstr "Applicare cambiamenti?"
 
 msgid "Image Associations"
 msgstr "Associazioni di immagini"
@@ -4817,6 +4850,9 @@ msgstr "Host / Nome gruppo"
 
 msgid "Is Group"
 msgstr "Il gruppo è"
+
+msgid "Task Type"
+msgstr "Tipo attività"
 
 msgid "Printer Name"
 msgstr "Nome stampante"

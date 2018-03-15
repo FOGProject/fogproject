@@ -37,71 +37,22 @@ class TasktypeeditManagementPage extends FOGPage
     public function __construct($name = '')
     {
         $this->name = 'Task Type Management';
-        self::$foglang['ExportTasktypeedit'] = _('Export Task Types');
-        self::$foglang['ImportTasktypeedit'] = _('Import Task Types');
         parent::__construct($this->name);
-        $this->menu['list'] = sprintf(self::$foglang['ListAll'], _('Task Types'));
-        $this->menu['add'] = sprintf(self::$foglang['CreateNew'], _('Task Type'));
-        global $id;
-        global $sub;
-        if ($id) {
-            $this->subMenu = array(
-                "$this->linkformat#tasktype-gen" => self::$foglang['General'],
-                $this->delformat => self::$foglang['Delete'],
-            );
-            $this->notes = array(
-                _('Name') => $this->obj->get('name'),
-                _('Icon') => sprintf(
-                    '<i class="fa fa-%s"></i>',
-                    $this->obj->get('icon')
-                ),
-                _('Type') => $this->obj->get('type'),
-            );
-        }
-        $this->headerData = array(
-            '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction"/>',
+        $this->headerData = [
             _('Name'),
             _('Access'),
-            _('Kernel Args'),
-        );
-        $this->templates = array(
-            '<input type="checkbox" name="tasktypeedit[]" value='
-            . '"${id}" class="toggle-action"/>',
-            sprintf(
-                '<a href="?node=%s&sub=edit&id=${id}" title='
-                . '"Edit"><i class="fa fa-${icon} fa-1x"> ${name}</i></a>',
-                $this->node
-            ),
-            '${access}',
-            '${args}',
-        );
-        $this->attributes = array(
-            array(
-                'width' => 16,
-                'class' => 'filter-false'
-            ),
-            array(),
-            array(),
-            array()
-        );
-        /**
-         * Lambda function to return data either by list or search.
-         *
-         * @param object $TaskType the object to use
-         *
-         * @return void
-         */
-        self::$returnData = function (&$TaskType) {
-            $this->data[] = array(
-                'icon' => $TaskType->icon,
-                'id' => $TaskType->id,
-                'name' => $TaskType->name,
-                'access' => $TaskType->access,
-                'args' => $TaskType->kernelArgs,
-            );
-            unset($TaskType);
-        };
+            _('Kernel Args')
+        ];
+        $this->templates = [
+            '',
+            '',
+            ''
+        ];
+        $this->attributes = [
+            [],
+            [],
+            []
+        ];
     }
     /**
      * Create new task type.
@@ -110,167 +61,180 @@ class TasktypeeditManagementPage extends FOGPage
      */
     public function add()
     {
-        $this->title = _('New Task Type');
-        unset($this->headerData);
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $name = filter_input(
-            INPUT_POST,
-            'name'
-        );
-        $description = filter_input(
-            INPUT_POST,
-            'description'
-        );
-        $icon = filter_input(
-            INPUT_POST,
-            'icon'
-        );
-        $kernel = filter_input(
-            INPUT_POST,
-            'kernel'
-        );
-        $kernelargs = filter_input(
-            INPUT_POST,
-            'kernelargs'
-        );
-        $initrd = filter_input(
-            INPUT_POST,
-            'initrd'
-        );
-        $type = filter_input(
-            INPUT_POST,
-            'type'
-        );
-        $access = filter_input(
-            INPUT_POST,
-            'access'
-        );
+        $this->title = _('Create New Task Type');
+
+        $tasktype = filter_input(INPUT_POST, 'tasktype');
+        $description = filter_input(INPUT_POST, 'description');
+        $icon = filter_input(INPUT_POST, 'icon');
+        $kernel = filter_input(INPUT_POST, 'kernel');
+        $kernelargs = filter_input(INPUT_POST, 'kernelargs');
+        $initrd = filter_input(INPUT_POST, 'initrd');
+        $type = filter_input(INPUT_POST, 'type');
+        $access = filter_input(INPUT_POST, 'access');
         $advanced = isset($_POST['advanced']);
         $isAd = (
             $advanced ?
             ' checked' :
             ''
         );
-        $accessTypes = array(
+        $accessTypes = [
             'both',
             'host',
             'group'
-        );
+        ];
         $accessSel = self::selectForm(
             'access',
             $accessTypes,
             $access
         );
         unset($accessTypes);
-        $fields = array(
-            '<label for="name">'
-            . _('Name')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="name" id="name" value="'
-            . $name
-            . '" class="form-control" autocomplete="off" '
-            . 'required/>'
-            . '</div>',
-            '<label for="description">'
-            . _('Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" id="description" class="form-control">'
-            . $description
-            . '</textarea>'
-            . '</div>',
-            '<label for="icon">'
-            . _('Icon')
-            . '</label>' => self::getClass('TaskType')->iconlist($icon),
-            '<label for="kernel">'
-            . _('Kernel')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control" type="text" name="kernel" id="kernel" '
-            . 'value="'
-            . $kernel
-            . '"/>'
-            . '</div>',
-            '<label for="kernargs">'
-            . _('Kernel Arguments')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control" type="text" name="kernelargs" id='
-            . '"kernargs" value="'
-            . $kernelargs
-            . '"/>'
-            . '</div>',
-            '<label for="initrd">'
-            . _('Init')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="initrd" class='
-            . '"form-control" id="initrd">'
-            . $initrd
-            . '</textarea>'
-            . '</div>',
-            '<label for="type">'
-            . _('Type')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control" type="text" name="type" id='
-            . '"type" value="'
-            . $type
-            . '"/>'
-            . '</div>',
-            '<label for="isAd">'
-            . _('Is Advanced')
-            . '</label>' => '<input type="checkbox" name="advanced" id='
-            . '"isAd"'
-            . $isAd
-            . '/>',
-            '<label for="access">'
-            . _('Accessed By')
-            . '</label>' => $accessSel,
-            '<label for="add">'
-            . _('Create Task type')
-            . '</label>' => '<button class="btn btn-info btn-block" type="submit" '
-            . 'id="add" name="add">'
-            . _('Add')
-            . '</button>'
+
+        $iconSel = self::getClass('TaskType')->iconlist($icon);
+
+        $labelClass = 'col-sm-2 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'tasktype',
+                _('Task Type Name')
+            ) => self::makeInput(
+                'form-control tasktypename-input',
+                'tasktype',
+                _('Task Type Name'),
+                'text',
+                'tasktype',
+                $tasktype,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Task Type Description')
+            ) => self::makeTextarea(
+                'form-control tasktypedescription-input',
+                'description',
+                _('Task Type Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'icon',
+                _('Task Type Icon')
+            ) => $iconSel,
+            self::makeLabel(
+                $labelClass,
+                'kernel',
+                _('Kernel')
+            ) => self::makeInput(
+                'form-control tasktypekernel-input',
+                'kernel',
+                'bzImage',
+                'text',
+                'kernel',
+                $kernel
+            ),
+            self::makeLabel(
+                $labelClass,
+                'kernelargs',
+                _('Kernel Arguments')
+            ) => self::makeInput(
+                'form-control tasktypekernelargs-input',
+                'kernelargs',
+                'debug acpi=off',
+                'text',
+                'kernelargs',
+                $kernelargs
+            ),
+            self::makeLabel(
+                $labelClass,
+                'initrd',
+                _('Init FS')
+            ) => self::makeInput(
+                'form-control tasktypeinit-input',
+                'initrd',
+                'init.xz',
+                'text',
+                'initrd',
+                $initrd
+            ),
+            self::makeLabel(
+                $labelClass,
+                'type',
+                _('Type')
+            ) => self::makeInput(
+                'form-control tasktypetype-input',
+                'type',
+                'fog',
+                'text',
+                'type',
+                $type
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isAd',
+                _('Advanced Task')
+            ) => self::makeInput(
+                '',
+                'advanced',
+                '',
+                'checkbox',
+                'isAd',
+                false,
+                false,
+                -1,
+                -1,
+                $isAd
+            ),
+            self::makeLabel(
+                $labelClass,
+                'access',
+                _('Accessed By')
+            ) => $accessSel
+        ];
+
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
         );
-        self::$HookManager
-            ->processEvent(
-                'TASKTYPE_FIELDS',
-                array(
-                    'fields' => &$fields,
-                    'TaskType' => self::getClass('TaskType')
-                )
-            );
+        self::$HookManager->processEvent(
+            'TASKTYPEEDIT_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'TaskType' => self::getClass('TaskType')
+            ]
+        );
         $rendered = self::formFields($fields);
-        self::$HookManager
-            ->processEvent(
-                'TASKTYPE_ADD',
-                array(
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                )
-            );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
+        unset($fields);
+        echo self::makeFormTag(
+            'form-horizontal',
+            'tasktype-create-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="box box-solid" id="tasktype-create">';
+        echo '<div class="box-body">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Create New Task Type');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '">';
-        $this->render(12);
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Create the new type.
@@ -279,39 +243,59 @@ class TasktypeeditManagementPage extends FOGPage
      */
     public function addPost()
     {
-        $name = filter_input(
-            INPUT_POST,
-            'name'
+        header('Content-type: application/json');
+        self::$HookManager->processEvent('TASKTYPEEDIT_ADD_POST');
+        $tasktype = trim(
+            filter_input(
+                INPUT_POST,
+                'tasktype'
+            )
         );
-        $description = filter_input(
-            INPUT_POST,
-            'description'
+        $description = trim(
+            filter_input(
+                INPUT_POST,
+                'description'
+            )
         );
-        $icon = filter_input(
-            INPUT_POST,
-            'icon'
+        $icon = trim(
+            filter_input(
+                INPUT_POST,
+                'icon'
+            )
         );
-        $kernel = filter_input(
-            INPUT_POST,
-            'kernel'
+        $kernel = trim(
+            filter_input(
+                INPUT_POST,
+                'kernel'
+            )
         );
-        $kernelargs = filter_input(
-            INPUT_POST,
-            'kernelargs'
+        $kernelargs = trim(
+            filter_input(
+                INPUT_POST,
+                'kernelargs'
+            )
         );
-        $initrd = filter_input(
-            INPUT_POST,
-            'initrd'
+        $initrd = trim(
+            filter_input(
+                INPUT_POST,
+                'initrd'
+            )
         );
-        $type = filter_input(
-            INPUT_POST,
-            'type'
+        $type = trim(
+            filter_input(
+                INPUT_POST,
+                'type'
+            )
         );
-        $access = filter_input(
-            INPUT_POST,
-            'access'
+        $access = trim(
+            filter_input(
+                INPUT_POST,
+                'access'
+            )
         );
         $advanced = isset($_POST['advanced']);
+
+        $serverFault = false;
         try {
             if (self::getClass('TaskTypeManager')->exists($name)) {
                 throw new Exception(
@@ -319,7 +303,7 @@ class TasktypeeditManagementPage extends FOGPage
                 );
             }
             $TaskType = self::getClass('TaskType')
-                ->set('name', $name)
+                ->set('name', $tasktype)
                 ->set('description', $description)
                 ->set('icon', $icon)
                 ->set('kernel', $kernel)
@@ -329,29 +313,46 @@ class TasktypeeditManagementPage extends FOGPage
                 ->set('isAdvanced', $advanced)
                 ->set('access', $access);
             if (!$TaskType->save()) {
+                $serverFault = true;
                 throw new Exception(_('Add task type failed!'));
             }
-            $hook = 'TASK_TYPE_ADD_SUCCESS';
+            $code = HTTPResponseCodes::HTTP_CREATED;
+            $hook = 'TASKTYPEEDIT_ADD_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Task Type added!'),
                     'title' => _('Task Type Create Success')
-                )
+                ]
             );
         } catch (Exception $e) {
-            $hook = 'TASK_TYPE_ADD_FAIL';
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'TASKTYPEEDIT_ADD_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Task Type Create Fail')
-                )
+                ]
             );
         }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                array('TaskType' => &$TaskType)
-            );
+        //header(
+        //    'Location: ../management/index.php?node=tasktypeedit&sub=edit&id='
+        //    . $TaskType->get('id')
+        //);
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'TaskType' => &$TaskType,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
+        http_response_code($code);
         unset($TaskType);
         echo $msg;
         exit;
@@ -361,200 +362,280 @@ class TasktypeeditManagementPage extends FOGPage
      *
      * @return void
      */
-    public function taskTypeGeneral()
+    public function tasktypeGeneral()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->templates,
-            $this->attributes,
-            $this->headerData
-        );
-        $name = (
-            filter_input(
-                INPUT_POST,
-                'name'
-            ) ?: $this->obj->get('name')
+        $tasktype = (
+            filter_input(INPUT_POST, 'tasktype') ?:
+            $this->obj->get('name')
         );
         $description = (
-            filter_input(
-                INPUT_POST,
-                'description'
-            ) ?: $this->obj->get('description')
+            filter_input(INPUT_POST, 'description') ?:
+            $this->obj->get('description')
         );
         $icon = (
-            filter_input(
-                INPUT_POST,
-                'icon'
-            ) ?: $this->obj->get('icon')
+            filter_input(INPUT_POST, 'icon') ?:
+            $this->obj->get('icon')
         );
         $kernel = (
-            filter_input(
-                INPUT_POST,
-                'kernel'
-            ) ?: $this->obj->get('kernel')
+            filter_input(INPUT_POST, 'kernel') ?:
+            $this->obj->get('kernel')
         );
         $kernelargs = (
-            filter_input(
-                INPUT_POST,
-                'kernelargs'
-            ) ?: $this->obj->get('kernelargs')
+            filter_input(INPUT_POST, 'kernelargs') ?:
+            $this->obj->get('kernelArgs')
         );
         $initrd = (
-            filter_input(
-                INPUT_POST,
-                'initrd'
-            ) ?: $this->obj->get('initrd')
+            filter_input(INPUT_POST, 'initrd') ?:
+            $this->obj->get('initrd')
         );
         $type = (
-            filter_input(
-                INPUT_POST,
-                'type'
-            ) ?: $this->obj->get('type')
+            filter_input(INPUT_POST, 'type') ?:
+            $this->obj->get('type')
         );
         $access = (
-            filter_input(
-                INPUT_POST,
-                'access'
-            ) ?: $this->obj->get('access')
+            filter_input(INPUT_POST, 'access') ?:
+            $this->obj->get('access')
         );
         $advanced = (
-            isset($_POST['advanced']) ?: $this->obj->get('advanced')
+            isset($_POST['advanced']) ?:
+            $this->obj->get('isAdvanced')
         );
         $isAd = (
             $advanced ?
             ' checked' :
             ''
         );
-        $accessTypes = array(
+        $accessTypes = [
             'both',
             'host',
             'group'
-        );
+        ];
         $accessSel = self::selectForm(
             'access',
             $accessTypes,
             $access
         );
         unset($accessTypes);
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
+
+        $iconSel = self::getClass('TaskType')->iconlist($icon);
+
+        $labelClass = 'col-sm-2 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'tasktype',
+                _('Task Type Name')
+            ) => self::makeInput(
+                'form-control tasktypename-input',
+                'tasktype',
+                _('Task Type Name'),
+                'text',
+                'tasktype',
+                $tasktype,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Task Type Description')
+            ) => self::makeTextarea(
+                'form-control tasktypedescription-input',
+                'description',
+                _('Task Type Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'icon',
+                _('Task Type Icon')
+            ) => $iconSel,
+            self::makeLabel(
+                $labelClass,
+                'kernel',
+                _('Kernel')
+            ) => self::makeInput(
+                'form-control tasktypekernel-input',
+                'kernel',
+                'bzImage',
+                'text',
+                'kernel',
+                $kernel
+            ),
+            self::makeLabel(
+                $labelClass,
+                'kernelargs',
+                _('Kernel Arguments')
+            ) => self::makeInput(
+                'form-control tasktypekernelargs-input',
+                'kernelargs',
+                'debug acpi=off',
+                'text',
+                'kernelargs',
+                $kernelargs
+            ),
+            self::makeLabel(
+                $labelClass,
+                'initrd',
+                _('Init FS')
+            ) => self::makeInput(
+                'form-control tasktypeinit-input',
+                'initrd',
+                'init.xz',
+                'text',
+                'initrd',
+                $initrd
+            ),
+            self::makeLabel(
+                $labelClass,
+                'type',
+                _('Type')
+            ) => self::makeInput(
+                'form-control tasktypetype-input',
+                'type',
+                'fog',
+                'text',
+                'type',
+                $type
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isAd',
+                _('Advanced Task')
+            ) => self::makeInput(
+                '',
+                'advanced',
+                '',
+                'checkbox',
+                'isAd',
+                false,
+                false,
+                -1,
+                -1,
+                $isAd
+            ),
+            self::makeLabel(
+                $labelClass,
+                'access',
+                _('Accessed By')
+            ) => $accessSel
+        ];
+
+        $buttons = self::makeButton(
+            'general-send',
+            _('Update'),
+            'btn btn-primary'
         );
-        $this->templates = array(
-            '${field}',
-            '${input}',
+        $buttons .= self::makeButton(
+            'general-delete',
+            _('Delete'),
+            'btn btn-danger pull-right'
         );
-        $fields = array(
-            '<label for="name">'
-            . _('Name')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="name" id="name" value="'
-            . $name
-            . '" class="form-control" autocomplete="off" '
-            . 'required/>'
-            . '</div>',
-            '<label for="description">'
-            . _('Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="description" id="description" class="form-control">'
-            . $description
-            . '</textarea>'
-            . '</div>',
-            '<label for="icon">'
-            . _('Icon')
-            . '</label>' => self::getClass('TaskType')->iconlist($icon),
-            '<label for="kernel">'
-            . _('Kernel')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control" type="text" name="kernel" id="kernel" '
-            . 'value="'
-            . $kernel
-            . '"/>'
-            . '</div>',
-            '<label for="kernargs">'
-            . _('Kernel Arguments')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control" type="text" name="kernelargs" id='
-            . '"kernargs" value="'
-            . $kernelargs
-            . '"/>'
-            . '</div>',
-            '<label for="initrd">'
-            . _('Init')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="initrd" class='
-            . '"form-control" id="initrd">'
-            . $initrd
-            . '</textarea>'
-            . '</div>',
-            '<label for="type">'
-            . _('Type')
-            . '</label>' => '<div class="input-group">'
-            . '<input class="form-control" type="text" name="type" id='
-            . '"type" value="'
-            . $type
-            . '"/>'
-            . '</div>',
-            '<label for="isAd">'
-            . _('Is Advanced')
-            . '</label>' => '<input type="checkbox" name="advanced" id='
-            . '"isAd"'
-            . $isAd
-            . '/>',
-            '<label for="access">'
-            . _('Accessed By')
-            . '</label>' => $accessSel,
-            '<label for="update">'
-            . _('Make Changes?')
-            . '</label>' => '<button class="btn btn-info btn-block" type="submit" '
-            . 'id="update" name="update">'
-            . _('Update')
-            . '</button>'
+        self::$HookManager->processEvent(
+            'TASKTYPEEDIT_GENERAL_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'TaskType' => self::getClass('TaskType')
+            ]
         );
-        self::$HookManager
-            ->processEvent(
-                'TASKTYPE_FIELDS',
-                array(
-                    'fields' => &$fields,
-                    'TaskType' => self::getClass('TaskState')
-                )
-            );
         $rendered = self::formFields($fields);
-        self::$HookManager
-            ->processEvent(
-                'TASKTYPE_EDIT',
-                array(
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes,
-                    'headerData' => &$this->headerData
-                )
-            );
-        echo '<!-- General -->';
-        echo '<div class="tab-pane fade in active" id="tasktype-gen">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Task Type General');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab="taskstate-gen">';
-        $this->render(12);
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->templates,
-            $this->attributes,
-            $this->headerData
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'tasktype-general-form',
+            self::makeTabUpdateURL(
+                'tasktype-general',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
         );
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+    }
+    /**
+     * Create the new type.
+     *
+     * @return void
+     */
+    public function tasktypeGeneralPost()
+    {
+        $tasktype = trim(
+            filter_input(
+                INPUT_POST,
+                'tasktype'
+            )
+        );
+        $description = trim(
+            filter_input(
+                INPUT_POST,
+                'description'
+            )
+        );
+        $icon = trim(
+            filter_input(
+                INPUT_POST,
+                'icon'
+            )
+        );
+        $kernel = trim(
+            filter_input(
+                INPUT_POST,
+                'kernel'
+            )
+        );
+        $kernelargs = trim(
+            filter_input(
+                INPUT_POST,
+                'kernelargs'
+            )
+        );
+        $initrd = trim(
+            filter_input(
+                INPUT_POST,
+                'initrd'
+            )
+        );
+        $type = trim(
+            filter_input(
+                INPUT_POST,
+                'type'
+            )
+        );
+        $access = trim(
+            filter_input(
+                INPUT_POST,
+                'access'
+            )
+        );
+        $advanced = isset($_POST['advanced']);
+
+        if (self::getClass('TaskTypeManager')->exists($name)) {
+            throw new Exception(
+                _('A task type already exists with this name!')
+            );
+        }
+        $this->obj
+            ->set('name', $tasktype)
+            ->set('description', $description)
+            ->set('icon', $icon)
+            ->set('kernel', $kernel)
+            ->set('kernelArgs', $kernelargs)
+            ->set('initrd', $initrd)
+            ->set('type', $type)
+            ->set('isAdvanced', $advanced)
+            ->set('access', $access);
     }
     /**
      * Edit the current type.
@@ -563,9 +644,22 @@ class TasktypeeditManagementPage extends FOGPage
      */
     public function edit()
     {
-        echo '<div class="col-xs-9 tab-content">';
-        $this->taskTypeGeneral();
-        echo '</div>';
+        $this->title = sprintf(
+            '%s: %s',
+            _('Edit'),
+            $this->obj->get('name')
+        );
+
+        $tabData = [];
+        $tabData[] = [
+            'name' => _('General'),
+            'id' => 'tasktype-general',
+            'generator' => function () {
+                $this->tasktypeGeneral();
+            }
+        ];
+
+        echo self::tabFields($tabData, $this->obj);
     }
     /**
      * Update the item.
@@ -574,87 +668,159 @@ class TasktypeeditManagementPage extends FOGPage
      */
     public function editPost()
     {
-        self::$HookManager
-            ->processEvent(
-                'TASKTYPE_EDIT_POST',
-                array('TaskType' => &$this->obj)
-            );
-        $name = filter_input(
-            INPUT_POST,
-            'name'
+        header('Content-type: application/json');
+        self::$HookManager->processEvent(
+            'TASKTYPEEDIT_EDIT_POST',
+            ['TaskType' => &$this->obj]
         );
-        $description = filter_input(
-            INPUT_POST,
-            'description'
-        );
-        $icon = filter_input(
-            INPUT_POST,
-            'icon'
-        );
-        $kernel = filter_input(
-            INPUT_POST,
-            'kernel'
-        );
-        $kernelargs = filter_input(
-            INPUT_POST,
-            'kernelargs'
-        );
-        $initrd = filter_input(
-            INPUT_POST,
-            'initrd'
-        );
-        $type = filter_input(
-            INPUT_POST,
-            'type'
-        );
-        $access = filter_input(
-            INPUT_POST,
-            'access'
-        );
-        $advanced = isset($_POST['advanced']);
+        $serverFault = false;
         try {
-            if ($this->obj->get('name') != $name
-                && self::getClass('TaskTypeManager')->exists($name)
-            ) {
-                throw new Exception(
-                    _('A task type already exists with this name!')
-                );
+            global $tab;
+            switch ($tab) {
+            case 'tasktype-general':
+                $this->tasktypeGeneralPost();
+                break;
             }
-            $this->obj
-                ->set('name', $name)
-                ->set('description', $description)
-                ->set('icon', $icon)
-                ->set('kernel', $kernel)
-                ->set('kernelArgs', $kernelargs)
-                ->set('initrd', $initrd)
-                ->set('type', $type)
-                ->set('isAdvanced', $advanced)
-                ->set('access', $access);
             if (!$this->obj->save()) {
-                throw new Exception(_('Update task state failed!'));
+                $serverFault = true;
+                throw new Exception(_('Task type update failed!'));
             }
-            $hook = 'TASK_TYPE_EDIT_SUCCESS';
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            $hook = 'TASKTYPEEDIT_EDIT_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Task Type Updated!'),
                     'title' => _('Task Type Update Success')
-                )
+                ]
             );
         } catch (Exception $e) {
-            $hook = 'TASK_TYPE_EDIT_FAIL';
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResposeCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'TASKTYPEEDIT_EDIT_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Task Type Update Fail')
-                )
+                ]
             );
         }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                array('TaskType' => &$this->obj)
-            );
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'TaskType' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
         echo $msg;
+        exit;
+    }
+    /**
+     * Present the export information.
+     *
+     * @return void
+     */
+    public function export()
+    {
+        // The data to use for building our table.
+        $this->headerData = [];
+        $this->templates = [];
+        $this->attributes = [];
+
+        $obj = self::getClass('TaskTypeManager');
+
+        foreach ($obj->getColumns() as $common => &$real) {
+            if ('id' == $common) {
+                continue;
+            }
+            array_push($this->headerData, $common);
+            array_push($this->templates, '');
+            array_push($this->attributes, []);
+            unset($real);
+        }
+
+        $this->title = _('Export Task Types');
+
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Export Task States');
+        echo '</h4>';
+        echo '<p class="help-block">';
+        echo _('Use the selector to choose how many items you want exported.');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo '<p class="help-block">';
+        echo _(
+            'When you click on the item you want to export, it can only select '
+            . 'what is currently viewable on the screen. This includes searched '
+            . 'and the current page. Please use the selector to choose the amount '
+            . 'of items you would like to export.'
+        );
+        echo '</p>';
+        $this->render(12, 'tasktype-export-table');
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Present the export list.
+     *
+     * @return void
+     */
+    public function getExportList()
+    {
+        header('Content-type: application/json');
+        $obj = self::getClass('TaskTypeManager');
+        $table = $obj->getTable();
+        $sqlstr = $obj->getQueryStr();
+        $filterstr = $obj->getFilterStr();
+        $totalstr = $obj->getTotalStr();
+        $dbcolumns = $obj->getColumns();
+        $pass_vars = $columns = [];
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        // Setup our columns for the CSVn.
+        // Automatically removes the id column.
+        foreach ($dbcolumns as $common => &$real) {
+            if ('id' == $common) {
+                $tableID = $real;
+                continue;
+            }
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        self::$HookManager->processEvent(
+            'TASKTYPEEDIT_EXPORT_ITEMS',
+            [
+                'table' => &$table,
+                'sqlstr' => &$sqlstr,
+                'filterstr' => &$filterstr,
+                'totalstr' => &$totalstr,
+                'columns' => &$columns
+            ]
+        );
+        echo json_encode(
+            FOGManagerController::simple(
+                $pass_vars,
+                $table,
+                $tableID,
+                $columns,
+                $sqlstr,
+                $filterstr,
+                $totalstr
+            )
+        );
         exit;
     }
 }

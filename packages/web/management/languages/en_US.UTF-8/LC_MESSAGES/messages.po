@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-14 20:31-0400\n"
+"POT-Creation-Date: 2018-03-15 02:00-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1760,8 +1760,13 @@ msgid ""
 "to export."
 msgstr ""
 
-msgid "Task Types"
+#, fuzzy
+msgid "List All Task Types"
 msgstr "Task Types"
+
+#, fuzzy
+msgid "Create New Task Type"
+msgstr "Create New %s"
 
 #, fuzzy
 msgid "Export Task Types"
@@ -1771,8 +1776,8 @@ msgstr "Task Types"
 msgid "Import Task Types"
 msgstr "Task Types"
 
-msgid "Task Type"
-msgstr "Task Type"
+msgid "Task Types"
+msgstr "Task Types"
 
 msgid "Access"
 msgstr "Access"
@@ -1780,25 +1785,30 @@ msgstr "Access"
 msgid "Kernel Args"
 msgstr "Kernel Args"
 
-msgid "New Task Type"
-msgstr "New Task Type"
+#, fuzzy
+msgid "Task Type Name"
+msgstr "Task State added, editing"
+
+#, fuzzy
+msgid "Task Type Description"
+msgstr "Image Description"
+
+#, fuzzy
+msgid "Task Type Icon"
+msgstr "Task Type"
 
 msgid "Kernel Arguments"
 msgstr "Kernel Arguments"
 
-#, fuzzy
-msgid "Init"
-msgstr "In "
+msgid "Init FS"
+msgstr ""
 
-msgid "Is Advanced"
-msgstr "Is Advanced"
+#, fuzzy
+msgid "Advanced Task"
+msgstr "Advanced"
 
 msgid "Accessed By"
 msgstr "Accessed By"
-
-#, fuzzy
-msgid "Create Task type"
-msgstr "New Task State"
 
 #, fuzzy
 msgid "A task type already exists with this name!"
@@ -1821,16 +1831,8 @@ msgid "Task Type Create Fail"
 msgstr "User created"
 
 #, fuzzy
-msgid "Make Changes?"
-msgstr "Save Changes"
-
-#, fuzzy
-msgid "Task Type General"
-msgstr "Task State"
-
-#, fuzzy
-msgid "Update task state failed!"
-msgstr "Add snapin failed!"
+msgid "Task type update failed!"
+msgstr "User update failed"
 
 #, fuzzy
 msgid "Task Type Updated!"
@@ -1844,35 +1846,50 @@ msgstr "Install / Update Successful!"
 msgid "Task Type Update Fail"
 msgstr "User update failed"
 
-msgid "Allows editing/creating of Task Types fog currently has."
-msgstr ""
-
-msgid "Task States"
-msgstr "Task States"
-
 #, fuzzy
 msgid "Export Task States"
 msgstr "Task States"
+
+msgid "Allows editing/creating of Task Types fog currently has."
+msgstr ""
+
+#, fuzzy
+msgid "List All Task States"
+msgstr "Task States"
+
+#, fuzzy
+msgid "Create New Task State"
+msgstr "Create New %s"
 
 #, fuzzy
 msgid "Import Task States"
 msgstr "Task States"
 
-msgid "Task State"
-msgstr "Task State"
-
-msgid "New Task State"
-msgstr "New Task State"
-
-msgid "Additional Icon elements"
-msgstr "Additional Icon elements"
+msgid "Task States"
+msgstr "Task States"
 
 #, fuzzy
-msgid "Create Task state"
-msgstr "New Task State"
+msgid "Task State Name"
+msgstr "Task States"
 
 #, fuzzy
-msgid "A task state already exists with this name!"
+msgid "Task State Description"
+msgstr "Printer Description"
+
+#, fuzzy
+msgid "Task State Icon"
+msgstr "Task States"
+
+#, fuzzy
+msgid "Additional Icon Elements"
+msgstr "Additional MACs"
+
+#, fuzzy
+msgid "A task state name is required!"
+msgstr "An image name is required!"
+
+#, fuzzy
+msgid "A task state alread exists with this name!"
 msgstr "An image already exists with this name!"
 
 #, fuzzy
@@ -1880,11 +1897,11 @@ msgid "Add task state failed!"
 msgstr "Add snapin failed!"
 
 #, fuzzy
-msgid "Task State added!"
+msgid "Task state added!"
 msgstr "Task State added, editing"
 
 #, fuzzy
-msgid "Task State Create Success"
+msgid "Task State Create SUccess"
 msgstr "User created"
 
 #, fuzzy
@@ -1892,8 +1909,12 @@ msgid "Task State Create Fail"
 msgstr "User created"
 
 #, fuzzy
-msgid "Task State General"
-msgstr "Task State"
+msgid "A task state already exists with this name!"
+msgstr "An image already exists with this name!"
+
+#, fuzzy
+msgid "Task state update failed!"
+msgstr "User created"
 
 #, fuzzy
 msgid "Task State Updated!"
@@ -3215,6 +3236,10 @@ msgstr "DMI Field"
 #, fuzzy
 msgid "After image Action"
 msgstr "Image Association"
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "Save Changes"
 
 #, fuzzy
 msgid "Image Associations"
@@ -5193,6 +5218,9 @@ msgstr "Host/Group Name"
 
 msgid "Is Group"
 msgstr "Is Group"
+
+msgid "Task Type"
+msgstr "Task Type"
 
 msgid "Printer Name"
 msgstr "Printer Name"

@@ -71,7 +71,7 @@ class TaskType extends FOGController
      */
     protected $databaseFieldsRequired = [
         'name',
-        'icon',
+        'icon'
     ];
     /**
      * Gives the list of icons.

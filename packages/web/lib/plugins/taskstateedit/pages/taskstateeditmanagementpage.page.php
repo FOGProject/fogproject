@@ -164,7 +164,7 @@ class TaskstateeditManagementPage extends FOGPage
     public function addPost()
     {
         header('Content-type: application/json');
-        self::$HookManager->processEvent('TASKSTATE_ADD_POST');
+        self::$HookManager->processEvent('TASKSTATEEDIT_ADD_POST');
         $taskstate = trim(
             filter_input(
                 INPUT_POST,
@@ -490,12 +490,12 @@ class TaskstateeditManagementPage extends FOGPage
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $hook = 'TASK_STATE_EDIT_FAIL';
+            $hook = 'TASKSTATEEDIT_EDIT_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Task State Update Fail')
-                )
+                ]
             );
         }
         self::$HookManager->processEvent(

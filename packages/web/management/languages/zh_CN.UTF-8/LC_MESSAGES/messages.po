@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-14 20:31-0400\n"
+"POT-Creation-Date: 2018-03-15 02:00-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1757,8 +1757,13 @@ msgid ""
 "to export."
 msgstr ""
 
-msgid "Task Types"
+#, fuzzy
+msgid "List All Task Types"
 msgstr "任务类型"
+
+#, fuzzy
+msgid "Create New Task Type"
+msgstr "新建%s"
 
 #, fuzzy
 msgid "Export Task Types"
@@ -1768,7 +1773,7 @@ msgstr "任务类型"
 msgid "Import Task Types"
 msgstr "任务类型"
 
-msgid "Task Type"
+msgid "Task Types"
 msgstr "任务类型"
 
 msgid "Access"
@@ -1777,25 +1782,30 @@ msgstr "访问"
 msgid "Kernel Args"
 msgstr "内核参数数量"
 
-msgid "New Task Type"
-msgstr "键入新任务"
+#, fuzzy
+msgid "Task Type Name"
+msgstr "任务状态添加，编辑"
+
+#, fuzzy
+msgid "Task Type Description"
+msgstr "图片说明"
+
+#, fuzzy
+msgid "Task Type Icon"
+msgstr "任务类型"
 
 msgid "Kernel Arguments"
 msgstr "内核参数"
 
-#, fuzzy
-msgid "Init"
-msgstr "在"
+msgid "Init FS"
+msgstr ""
 
-msgid "Is Advanced"
-msgstr "是Advanced"
+#, fuzzy
+msgid "Advanced Task"
+msgstr "高级"
 
 msgid "Accessed By"
 msgstr "通过访问"
-
-#, fuzzy
-msgid "Create Task type"
-msgstr "新的任务状态"
 
 #, fuzzy
 msgid "A task type already exists with this name!"
@@ -1818,16 +1828,8 @@ msgid "Task Type Create Fail"
 msgstr "用户创建"
 
 #, fuzzy
-msgid "Make Changes?"
-msgstr "保存更改"
-
-#, fuzzy
-msgid "Task Type General"
-msgstr "任务状态"
-
-#, fuzzy
-msgid "Update task state failed!"
-msgstr "添加管理单元失败！"
+msgid "Task type update failed!"
+msgstr "用户更新失败"
 
 #, fuzzy
 msgid "Task Type Updated!"
@@ -1841,35 +1843,50 @@ msgstr "安装/升级成功！"
 msgid "Task Type Update Fail"
 msgstr "用户更新失败"
 
-msgid "Allows editing/creating of Task Types fog currently has."
-msgstr ""
-
-msgid "Task States"
-msgstr "任务的国家"
-
 #, fuzzy
 msgid "Export Task States"
 msgstr "任务的国家"
+
+msgid "Allows editing/creating of Task Types fog currently has."
+msgstr ""
+
+#, fuzzy
+msgid "List All Task States"
+msgstr "任务的国家"
+
+#, fuzzy
+msgid "Create New Task State"
+msgstr "新建%s"
 
 #, fuzzy
 msgid "Import Task States"
 msgstr "任务的国家"
 
-msgid "Task State"
-msgstr "任务状态"
-
-msgid "New Task State"
-msgstr "新的任务状态"
-
-msgid "Additional Icon elements"
-msgstr "其他图标元素"
+msgid "Task States"
+msgstr "任务的国家"
 
 #, fuzzy
-msgid "Create Task state"
-msgstr "新的任务状态"
+msgid "Task State Name"
+msgstr "任务的国家"
 
 #, fuzzy
-msgid "A task state already exists with this name!"
+msgid "Task State Description"
+msgstr "打印机说明"
+
+#, fuzzy
+msgid "Task State Icon"
+msgstr "任务的国家"
+
+#, fuzzy
+msgid "Additional Icon Elements"
+msgstr "附加的MAC"
+
+#, fuzzy
+msgid "A task state name is required!"
+msgstr "图像名是必需的！"
+
+#, fuzzy
+msgid "A task state alread exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
@@ -1877,11 +1894,11 @@ msgid "Add task state failed!"
 msgstr "添加管理单元失败！"
 
 #, fuzzy
-msgid "Task State added!"
+msgid "Task state added!"
 msgstr "任务状态添加，编辑"
 
 #, fuzzy
-msgid "Task State Create Success"
+msgid "Task State Create SUccess"
 msgstr "用户创建"
 
 #, fuzzy
@@ -1889,8 +1906,12 @@ msgid "Task State Create Fail"
 msgstr "用户创建"
 
 #, fuzzy
-msgid "Task State General"
-msgstr "任务状态"
+msgid "A task state already exists with this name!"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+msgid "Task state update failed!"
+msgstr "用户创建"
 
 #, fuzzy
 msgid "Task State Updated!"
@@ -3210,6 +3231,10 @@ msgstr "DMI场"
 #, fuzzy
 msgid "After image Action"
 msgstr "集团定位"
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "保存更改"
 
 #, fuzzy
 msgid "Image Associations"
@@ -5183,6 +5208,9 @@ msgstr "主机/组名称"
 
 msgid "Is Group"
 msgstr "是集团"
+
+msgid "Task Type"
+msgstr "任务类型"
 
 msgid "Printer Name"
 msgstr "打印机名称"

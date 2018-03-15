@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-14 20:31-0400\n"
+"POT-Creation-Date: 2018-03-15 02:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1601,7 +1601,10 @@ msgid ""
 "to export."
 msgstr ""
 
-msgid "Task Types"
+msgid "List All Task Types"
+msgstr ""
+
+msgid "Create New Task Type"
 msgstr ""
 
 msgid "Export Task Types"
@@ -1610,7 +1613,7 @@ msgstr ""
 msgid "Import Task Types"
 msgstr ""
 
-msgid "Task Type"
+msgid "Task Types"
 msgstr ""
 
 msgid "Access"
@@ -1619,22 +1622,25 @@ msgstr ""
 msgid "Kernel Args"
 msgstr ""
 
-msgid "New Task Type"
+msgid "Task Type Name"
+msgstr ""
+
+msgid "Task Type Description"
+msgstr ""
+
+msgid "Task Type Icon"
 msgstr ""
 
 msgid "Kernel Arguments"
 msgstr ""
 
-msgid "Init"
+msgid "Init FS"
 msgstr ""
 
-msgid "Is Advanced"
+msgid "Advanced Task"
 msgstr ""
 
 msgid "Accessed By"
-msgstr ""
-
-msgid "Create Task type"
 msgstr ""
 
 msgid "A task type already exists with this name!"
@@ -1652,13 +1658,7 @@ msgstr ""
 msgid "Task Type Create Fail"
 msgstr ""
 
-msgid "Make Changes?"
-msgstr ""
-
-msgid "Task Type General"
-msgstr ""
-
-msgid "Update task state failed!"
+msgid "Task type update failed!"
 msgstr ""
 
 msgid "Task Type Updated!"
@@ -1670,46 +1670,58 @@ msgstr ""
 msgid "Task Type Update Fail"
 msgstr ""
 
+msgid "Export Task States"
+msgstr ""
+
 msgid "Allows editing/creating of Task Types fog currently has."
 msgstr ""
 
-msgid "Task States"
+msgid "List All Task States"
 msgstr ""
 
-msgid "Export Task States"
+msgid "Create New Task State"
 msgstr ""
 
 msgid "Import Task States"
 msgstr ""
 
-msgid "Task State"
+msgid "Task States"
 msgstr ""
 
-msgid "New Task State"
+msgid "Task State Name"
 msgstr ""
 
-msgid "Additional Icon elements"
+msgid "Task State Description"
 msgstr ""
 
-msgid "Create Task state"
+msgid "Task State Icon"
 msgstr ""
 
-msgid "A task state already exists with this name!"
+msgid "Additional Icon Elements"
+msgstr ""
+
+msgid "A task state name is required!"
+msgstr ""
+
+msgid "A task state alread exists with this name!"
 msgstr ""
 
 msgid "Add task state failed!"
 msgstr ""
 
-msgid "Task State added!"
+msgid "Task state added!"
 msgstr ""
 
-msgid "Task State Create Success"
+msgid "Task State Create SUccess"
 msgstr ""
 
 msgid "Task State Create Fail"
 msgstr ""
 
-msgid "Task State General"
+msgid "A task state already exists with this name!"
+msgstr ""
+
+msgid "Task state update failed!"
 msgstr ""
 
 msgid "Task State Updated!"
@@ -2834,6 +2846,9 @@ msgid "DMI Field"
 msgstr ""
 
 msgid "After image Action"
+msgstr ""
+
+msgid "Make Changes?"
 msgstr ""
 
 msgid "Image Associations"
@@ -4510,6 +4525,9 @@ msgid "Host/Group Name"
 msgstr ""
 
 msgid "Is Group"
+msgstr ""
+
+msgid "Task Type"
 msgstr ""
 
 msgid "Printer Name"
