@@ -38,9 +38,9 @@ class Plugin extends FOGController
         'state' => 'pState',
         'installed' => 'pInstalled',
         'version' => 'pVersion',
-        'icon' => 'pAnon1',
-        'runfile' => 'pAnon2',
-        'location' => 'pAnon3',
+        'icon' => 'pIcon',
+        'runfile' => 'pRunfile',
+        'location' => 'pLocation',
         'panon4' => 'pAnon4',
         'pAnon5' => 'pAnon5'
     ];
