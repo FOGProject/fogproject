@@ -276,6 +276,7 @@ abstract class FOGBase
         'storagenode',
         'storagegroup',
         'snapin',
+        'plugin',
         'printer',
         'task'
     ];
@@ -659,6 +660,7 @@ abstract class FOGBase
      */
     protected static function getActivePlugins()
     {
+        self::getClass('Plugin')->getPlugins();
         $plugins = self::getSubObjectIDs(
             'Plugin',
             [
