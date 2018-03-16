@@ -4118,39 +4118,6 @@ abstract class FOGPage extends FOGBase
         Route::unisearch($search, 5);
     }
     /**
-     * Translates the code to string
-     *
-     * @return string
-     */
-    public function getSocketCodeStr()
-    {
-        $code = filter_input(INPUT_POST, 'code');
-        if (!$code) {
-            $code = filter_input(INPUT_GET, 'code');
-        }
-        $socketstr = socket_strerror($code);
-        $labelType = 'danger';
-
-        if ($code == 0) {
-            // Ping succeeded
-            $labelType = 'success';
-        } else if ($code == 6) {
-            // No such device or address
-            $labelType = 'warning';
-        }
-
-        $strtoupdate = '<span class="label label-'
-            . $labelType
-            . '">'
-            . _($socketstr)
-            . '</span>';
-
-        echo json_encode(
-            ['data'=> $strtoupdate]
-        );
-        exit;
-    }
-    /**
      * Makes a label element.
      *
      * @param string $class The class to give the label.
