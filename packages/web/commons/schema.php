@@ -3783,3 +3783,9 @@ $this->schema[] = [
 $this->schema[] = [
     "ALTER TABLE `groups` ADD COLUMN `groupInit` LONGTEXT AFTER `groupPrimaryDisk`",
 ];
+// 265
+$this->schema[] = [
+    "ALTER TABLE `plugins` CHANGE `pAnon1` `pIcon` LONGTEXT NOT NULL",
+    "ALTER TABLE `plugins` CHANGE `pAnon2` `pRunfile` LONGTEXT NOT NULL",
+    "ALTER TABLE `plugins` CHANGE `pAnon3` `pLocation` LONGTEXT NOT NULL"
+];

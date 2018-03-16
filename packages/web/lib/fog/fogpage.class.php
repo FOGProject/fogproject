@@ -981,7 +981,8 @@ abstract class FOGPage extends FOGBase
                         'deleteModal',
                         _('Confirm password'),
                         '<div class="input-group">'
-                        . '<input id="deletePassword" class="form-control" placeholder="'
+                        . '<input id="deletePassword" class="form-control" '
+                        . 'placeholder="'
                         . _('Password')
                         . '" autocomplete="off" type="password">'
                         . '</div>',
@@ -996,11 +997,11 @@ abstract class FOGPage extends FOGBase
                             _('Delete')
                             . ' {0} '
                             . _('hosts'),
-                                'btn btn-outline'
-                            ),
-                            '',
-                            'danger'
-                        );
+                            'btn btn-outline'
+                        ),
+                        '',
+                        'danger'
+                    );
                 }
             }
             $actionbox .= $buttons;
