@@ -1385,13 +1385,7 @@ class Route extends FOGBase
         case 'plugin':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                [
-                    'location' => $class->getPath(),
-                    'description' => $class->get('description'),
-                    'icon' => $class->getIcon(),
-                    'runinclude' => $class->getRuninclude(md5($class->get('name'))),
-                    'hash' => md5($class->get('name'))
-                ]
+                ['hash' => md5($class->get('name'))]
             );
             break;
         case 'imaginglog':

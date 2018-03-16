@@ -606,10 +606,8 @@ abstract class FOGPage extends FOGBase
             break;
         case 'plugin':
             $menu = [
-                'home' => self::$foglang['Home'],
-                'activate' => self::$foglang['ActivatePlugins'],
-                'install' => self::$foglang['InstallPlugins'],
-                'installed' => self::$foglang['InstalledPlugins']
+                'list' => _('List Available Plugins'),
+                'import' => _('Import a new Plugin')
             ];
             break;
         case 'task':
@@ -973,35 +971,37 @@ abstract class FOGPage extends FOGBase
                         _('Unable to determine status')
                     );
                 }
-                $actionbox .= self::makeButton(
-                    'deleteSelected',
-                    _('Delete selected'),
-                    'btn btn-danger'
-                );
-                $modals .= self::makeModal(
-                    'deleteModal',
-                    _('Confirm password'),
-                    '<div class="input-group">'
-                    . '<input id="deletePassword" class="form-control" placeholder="'
-                    . _('Password')
-                    . '" autocomplete="off" type="password">'
-                    . '</div>',
-                    self::makeButton(
-                        'closeDeleteModal',
-                        _('Cancel'),
-                        'btn btn-outline pull-left',
-                        'data-dismiss="modal"'
-                    )
-                    . self::makeButton(
-                        'confirmDeleteModal',
-                        _('Delete')
-                        . ' {0} '
-                        . _('hosts'),
-                        'btn btn-outline'
-                    ),
-                    '',
-                    'danger'
-                );
+                if ($node != 'plugin') {
+                    $actionbox .= self::makeButton(
+                        'deleteSelected',
+                        _('Delete selected'),
+                        'btn btn-danger'
+                    );
+                    $modals .= self::makeModal(
+                        'deleteModal',
+                        _('Confirm password'),
+                        '<div class="input-group">'
+                        . '<input id="deletePassword" class="form-control" placeholder="'
+                        . _('Password')
+                        . '" autocomplete="off" type="password">'
+                        . '</div>',
+                        self::makeButton(
+                            'closeDeleteModal',
+                            _('Cancel'),
+                            'btn btn-outline pull-left',
+                            'data-dismiss="modal"'
+                        )
+                        . self::makeButton(
+                            'confirmDeleteModal',
+                            _('Delete')
+                            . ' {0} '
+                            . _('hosts'),
+                                'btn btn-outline'
+                            ),
+                            '',
+                            'danger'
+                        );
+                }
             }
             $actionbox .= $buttons;
             self::$HookManager->processEvent(
@@ -1201,440 +1201,6 @@ abstract class FOGPage extends FOGBase
             unset($template);
         }
         return ob_get_clean();
-    }
-    /**
-     * Presents the tasking items and options
-     *
-     * @return void
-     */
-    public function deploy()
-    {
-        global $type;
-        global $id;
-        try {
-            if (!is_numeric($type) || $type < 1) {
-                $type = 1;
-            }
-            $TaskType = new TaskType($type);
-            $imagingTypes = $TaskType->isImagingTask();
-            if ($this->obj instanceof Group) {
-                if ($this->obj->getHostCount() < 1) {
-                    throw new Exception(
-                        _('Cannot set tasking to invalid hosts')
-                    );
-                }
-            }
-            if ($this->obj instanceof Host) {
-                if ($this->obj->get('pending')) {
-                    throw new Exception(
-                        _('Cannot set tasking to pending hosts')
-                    );
-                }
-            }
-            if (!$this->obj instanceof Group
-                && !$this->obj instanceof Host
-            ) {
-                throw new Exception(
-                    _('Invalid object to try tasking')
-                );
-            }
-            if ($imagingTypes
-                && $this->obj instanceof Host
-                && !$this->obj->getImage()->get('isEnabled')
-            ) {
-                throw new Exception(_('Cannot set tasking as image is not enabled'));
-            }
-        } catch (Exception $e) {
-            self::redirect(
-                sprintf(
-                    '../management/index.php?node=%s&sub=edit%s',
-                    $this->node,
-                    (
-                        is_numeric($id) && $id > 0 ?
-                        sprintf(
-                            '&%s=%s',
-                            $this->id,
-                            $id
-                        ) :
-                        ''
-                    )
-                )
-            );
-        }
-        unset($this->headerData);
-        $this->attributes = [
-            [
-                'data-toggle' => 'tooltip',
-                'data-placement' => 'right',
-                'title' => '${host_title}'
-            ],
-            [],
-            [
-                'data-toggle' => 'tooltip',
-                'data-placement' => 'right',
-                'title' => '${image_title}'
-            ]
-        ];
-        $this->templates = [
-            '<a href="${host_link}">${host_name}</a>',
-            '${host_mac}',
-            '<a href="${image_link}">${image_name}</a>'
-            . '<input type="hidden" name="taskhosts[]" value="${host_id}"/>',
-        ];
-        if ($this->obj instanceof Host) {
-            ob_start();
-            echo '<select class="form-control input-group" name="snapin" id="'
-                . 'snapin" autocomplete="off">';
-            echo '<option value="">- ';
-            echo self::$foglang['PleaseSelect'];
-            echo ' -</option>';
-            echo '<option disabled>';
-            echo '---------- '
-                . _('Host Associated Snapins')
-                . ' ----------';
-            echo '</option>';
-            Route::listem(
-                'snapin',
-                'name',
-                false,
-                ['id' => $this->obj->get('snapins')]
-            );
-            $snapins = json_decode(
-                Route::getData()
-            );
-            $snapins = $snapins->snapins;
-            foreach ((array)$snapins as &$Snapin) {
-                echo '<option value="'
-                    . $Snapin->id
-                    . '">';
-                echo $Snapin->name;
-                echo ' - (';
-                echo $Snapin->id;
-                echo ')';
-                echo '</option>';
-                unset($Snapin);
-            }
-            unset($snapins);
-            echo '<option disabled>';
-            echo '---------- '
-                . _('Host Unassociated Snapins')
-                . ' ----------';
-            echo '</option>';
-            Route::listem(
-                'snapin',
-                'name',
-                false,
-                ['id' => $this->obj->get('snapinsnotinme')]
-            );
-            $snapins = json_decode(
-                Route::getData()
-            );
-            $snapins = $snapins->snapins;
-            foreach ((array)$snapins as &$Snapin) {
-                echo '<option value="'
-                    . $Snapin->id
-                    . '">';
-                echo $Snapin->name;
-                echo ' - (';
-                echo $Snapin->id;
-                echo ')';
-                echo '</option>';
-                unset($Snapin);
-            }
-            unset($snapins);
-            $snapselector = ob_get_clean();
-            $this->data[] = [
-                'host_link' => '?node=host&sub=edit&id=${host_id}',
-                'image_link' => '?node=image&sub=edit&id=${image_id}',
-                'host_id' => $this->obj->get('id'),
-                'image_id' => $this->obj->getImage()->get('id'),
-                'host_name' => $this->obj->get('name'),
-                'host_mac' => $this->obj->get('mac'),
-                'image_name' => $this->obj->getImage()->get('name'),
-                'host_title' => _('Edit Host'),
-                'image_title' => _('Edit Image'),
-            ];
-        } elseif ($this->obj instanceof Group) {
-            $snapselector = self::getClass('SnapinManager')->buildSelectBox();
-            Route::listem('host');
-            $Hosts = json_decode(
-                Route::getData()
-            );
-            $Hosts = $Hosts->hosts;
-            foreach ((array)$Hosts as &$Host) {
-                if (!in_array($Host->id, $this->obj->get('hosts'))) {
-                    continue;
-                }
-                $imageID = $imageName = '';
-                if ($TaskType->isImagingTask()) {
-                    $Image = $Host->image;
-                    if (!$Image->isEnabled) {
-                        continue;
-                    }
-                    $imageID = $Image->id;
-                    $imageName = $Image->name;
-                }
-                $this->data[] = [
-                    'host_link' => '?node=host&sub=edit&id=${host_id}',
-                    'host_title' => sprintf(
-                        '%s: ${host_name}',
-                        _('Edit')
-                    ),
-                    'host_id' => $Host->id,
-                    'host_name' => $Host->name,
-                    'host_mac' => $Host->primac,
-                    'image_link' => '?node=image&sub=edit&id=${image_id}',
-                    'image_title' => sprintf(
-                        '%s: ${image_name}',
-                        _('Edit')
-                    ),
-                    'image_id' => $imageID,
-                    'image_name' => $imageName,
-                ];
-                unset(
-                    $index,
-                    $Host,
-                    $Image
-                );
-            }
-        }
-        self::$HookManager->processEvent(
-            sprintf(
-                '%s_DEPLOY',
-                strtoupper($this->childClass)
-            ),
-            [
-                'headerData' => &$this->headerData,
-                'data' => &$this->data,
-                'templates' => &$this->templates,
-                'attributes' => &$this->attributes
-            ]
-        );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Confirm tasking');
-        echo '</h4>';
-        if ($this->obj instanceof Host) {
-            if ($this->obj->getImage()->isValid()) {
-                echo '<h5 class="title">';
-                echo _('Image Associated: ');
-                echo $this->obj->getImage()->get('name');
-                echo '</h5>';
-            }
-        }
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Advanced Settings');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        if ($TaskType->get('id') == 13) {
-            echo '<div class="form-group">';
-            echo '<label class="control-label" for="snapin">';
-            echo _('Please select the snapin you want to install');
-            echo '</label>';
-            echo '<div class="input-group">';
-            echo $snapselector;
-            echo '</div>';
-            echo '</div>';
-        }
-        if ($TaskType->get('id') == 11) {
-            echo '<div class="form-group">';
-            echo '<label class="control-label" for="account">';
-            echo _('Account name to reset');
-            echo '</label>';
-            echo '<div class="input-group">';
-            echo '<input class="form-control" id="account" type="'
-                . 'text" name="account" value="Administrator"/>';
-            echo '</div>';
-            echo '</div>';
-        }
-        if ($TaskType->isInitNeededTasking()
-            && !$TaskType->isDebug()
-        ) {
-            echo '<div class="checkbox hideFromDebug">';
-            echo '<label for="shutdown">';
-            echo '<input type="checkbox" name='
-                . '"shutdown" id="shutdown"'
-                . (
-                    self::getSetting('FOG_TASKING_ADV_SHUTDOWN_ENABLED') ?
-                    ' checked' :
-                    ''
-                )
-                . '/>';
-            echo _('Schedule with shutdown');
-            echo '</label>';
-            echo '</div>';
-        }
-        if ($TaskType->get('id') != 14) {
-            echo '<div class="checkbox">';
-            echo '<label for="wol">';
-            echo '<input type="checkbox" name='
-                . '"wol" id="wol"'
-                . (
-                    $TaskType->isSnapinTasking() ?
-                    '' :
-                    (
-                        self::getSetting('FOG_TASKING_ADV_WOL_ENABLED') ?
-                        ' checked' :
-                        ''
-                    )
-                )
-                . '/>';
-            echo _('Wake on lan?');
-            echo '</label>';
-            echo '</div>';
-        }
-        if (!$TaskType->isDebug()
-            && $TaskType->get('id') != 11
-        ) {
-            if ($TaskType->isInitNeededTasking()
-                && !($this->obj instanceof Group)
-            ) {
-                echo '<div class="checkbox">';
-                echo '<label for="checkDebug">';
-                echo '<input type="checkbox" name='
-                    . '"isDebugTask" id="checkDebug"'
-                    . (
-                        self::getSetting('FOG_TASKING_ADV_DEBUG_ENABLED') ?
-                        ' checked' :
-                        ''
-                    )
-                    . '/>';
-                echo _('Schedule as debug task');
-                echo '</label>';
-                echo '</div>';
-            }
-        }
-        echo '<div class="radio">';
-        echo '<label for="scheduleInstant">';
-        echo '<input type="radio" name='
-            . '"scheduleType" id="scheduleInstant" value="instant"'
-            . 'checked/>';
-        echo _('Schedule instant');
-        echo '</label>';
-        echo '</div>';
-        if (!$TaskType->isDebug()
-            && $TaskType->get('id') != 11
-        ) {
-            // Delayed elements
-            echo '<div class="hideFromDebug">';
-            echo '<div class="radio">';
-            echo '<label for="scheduleSingle">';
-            echo '<input type="radio" name='
-                . '"scheduleType" id="scheduleSingle" value="single"/>';
-            echo _('Schedule delayed');
-            echo '</label>';
-            echo '</div>';
-            echo '<div class="form-group hiddeninitially">';
-            echo '<label for="scheduleSingleTime">';
-            echo _('Date and Time');
-            echo '</label>';
-            echo '<div class="input-group">';
-            echo '<input class="form-control" type="text" name='
-                . '"scheduleSingleTime" id='
-                . '"scheduleSingleTime">';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-            // Cron
-            echo '<div class="hideFromDebug">';
-            echo '<div class="radio">';
-            echo '<label for="scheduleCron">';
-            echo '<input type="radio" name='
-                . '"scheduleType" id="scheduleCron" value="cron"/>';
-            echo _('Schedule cron-style');
-            echo '</label>';
-            echo '</div>';
-            echo '<div class="form-group hiddeninitially">';
-            echo '<div class="cronOptions input-group">';
-            echo FOGCron::buildSpecialCron('specialCrons');
-            echo '</div>';
-            echo '<div class="col-xs-12">';
-            echo '<div class="cronInputs">';
-            echo '<div class="col-xs-2">';
-            echo '<div class="input-group">';
-            echo '<input type="text" name="scheduleCronMin" '
-                . 'placeholder="min" autocomplete="off" '
-                . 'class="form-control scheduleCronMin cronInput"/>';
-            echo '</div>';
-            echo '</div>';
-            echo '<div class="col-xs-2">';
-            echo '<div class="input-group">';
-            echo '<input type="text" name="scheduleCronHour" '
-                . 'placeholder="hour" autocomplete="off" '
-                . 'class="form-control scheduleCronHour cronInput"/>';
-            echo '</div>';
-            echo '</div>';
-            echo '<div class="col-xs-2">';
-            echo '<div class="input-group">';
-            echo '<input type="text" name="scheduleCronDOM" '
-                . 'placeholder="dom" autocomplete="off" '
-                . 'class="form-control scheduleCronDOM cronInput"/>';
-            echo '</div>';
-            echo '</div>';
-            echo '<div class="col-xs-2">';
-            echo '<div class="input-group">';
-            echo '<input type="text" name="scheduleCronMonth" '
-                . 'placeholder="month" autocomplete="off" '
-                . 'class="form-control scheduleCronMonth cronInput"/>';
-            echo '</div>';
-            echo '</div>';
-            echo '<div class="col-xs-2">';
-            echo '<div class="input-group">';
-            echo '<input type="text" name="scheduleCronDOW" '
-                . 'placeholder="dow" autocomplete="off" '
-                . 'class="form-control scheduleCronDOW cronInput"/>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-        }
-        if (count($this->data ?: [])) {
-            echo '<div class="col-xs-12">';
-            echo '<label class="control-label col-xs-4" for="taskingbtn">';
-            echo _('Create');
-            echo ' ';
-            echo $TaskType->get('name');
-            echo ' ';
-            echo _('Tasking');
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo '<button type="submit" class="btn btn-info btn-block" id='
-                . '"taskingbtn">';
-            echo _('Task');
-            echo '</button>';
-            echo '</div>';
-            echo '</div>';
-        }
-        echo '</div>';
-        echo '</div>';
-        if ($this->node != 'host') {
-            echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading text-center">';
-            echo '<h4 class="title">';
-            echo _('Hosts in task');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body text-center">';
-            $this->render(12);
-            echo '</div>';
-            echo '</div>';
-        }
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Actually create the tasking

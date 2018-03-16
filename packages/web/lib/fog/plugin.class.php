@@ -22,54 +22,6 @@
 class Plugin extends FOGController
 {
     /**
-     * The plugin name storage.
-     *
-     * @var string
-     */
-    private $_strName;
-    /**
-     * The Plugin entry point/run file.
-     *
-     * @var string
-     */
-    private $_strEntryPoint;
-    /**
-     * The version of the plugin.
-     *
-     * @var string
-     */
-    private $_strVersion;
-    /**
-     * The path to the plugin.
-     *
-     * @var string
-     */
-    private $_strPath;
-    /**
-     * The icon storage.
-     *
-     * @var string
-     */
-    private $_strIcon;
-    /**
-     * The icon hover storage.
-     *
-     * @var string
-     */
-    private $_strIconHover;
-    /**
-     * Is the plugin installed.
-     *
-     * @var bool
-     */
-    private $_blIsInstalled = false;
-    /**
-     * Is the plugin active.
-     *
-     * @var bool
-     */
-    private $_blIsActive = false;
-    /**
      * The database table to look at.
      *
      * @var string
@@ -86,11 +38,11 @@ class Plugin extends FOGController
         'state' => 'pState',
         'installed' => 'pInstalled',
         'version' => 'pVersion',
-        'pAnon1' => 'pAnon1',
-        'pAnon2' => 'pAnon2',
-        'pAnon3' => 'pAnon3',
-        'pAnon4' => 'pAnon4',
-        'pAnon5' => 'pAnon5',
+        'icon' => 'pAnon1',
+        'runfile' => 'pAnon2',
+        'location' => 'pAnon3',
+        'panon4' => 'pAnon4',
+        'pAnon5' => 'pAnon5'
     ];
     /**
      * The required fields.
@@ -98,7 +50,7 @@ class Plugin extends FOGController
      * @var array
      */
     protected $databaseFieldsRequired = [
-        'name',
+        'name'
     ];
     /**
      * Any additional Fields.
@@ -106,39 +58,8 @@ class Plugin extends FOGController
      * @var array
      */
     protected $additionalFields = [
-        'description',
+        'description'
     ];
-    /**
-     * Gets the needed include files to run.
-     *
-     * @param string $hash the hash to test for
-     *
-     * @return string
-     */
-    public function getRunInclude($hash)
-    {
-        foreach ((array) $this->getPlugins() as &$Plugin) {
-            $name = trim($Plugin->get('name'));
-            $tmpHash = md5($name);
-            $tmpHash = trim($tmpHash);
-            if ($tmpHash !== $hash) {
-                continue;
-            }
-            break;
-        }
-
-        return [$name, $Plugin->_getEntryPoint()];
-    }
-    /**
-     * Sets/gets the active plugins.
-     *
-     * @return void
-     */
-    private function _getActivePlugs()
-    {
-        $this->_blIsActive = (bool) ($this->get('state'));
-        $this->_blIsInstalled = (bool) ($this->get('installed'));
-    }
     /**
      * Gets the directories of plugins.
      *
@@ -200,98 +121,71 @@ class Plugin extends FOGController
                 rtrim($file, '/')
             );
             include $configFile;
-            $Plugin = new self($pluginID);
-            $Plugin
-                ->set('name', $fog_plugin['name'])
-                ->set('description', $fog_plugin['description']);
-            $Plugin->_strPath = $file;
             $runFile = sprintf(
                 '%s%s',
                 $file,
                 $fog_plugin['entrypoint']
             );
-            $Plugin->_strEntryPoint = $runFile;
             $matchIcon = preg_match(
                 '#^fa[-]?#',
                 $fog_plugin['menuicon']
             );
-            if ($matchIcon != false) {
-                $Plugin->_strIcon = sprintf(
-                    '<i class="%s fa-2x" width="%d" height="%d" alt="%s"></i>',
-                    $fog_plugin['menuicon'],
-                    66,
-                    66,
-                    $Plugin->get('name')
+            if (false == $matchIcon) {
+                $icon = sprintf(
+                    '<img src="%s" width="66" height="66"/>',
+                    $fog_plugin['menuicon']
                 );
             } else {
-                $Plugin->_strIcon = sprintf(
-                    '<img src="%s" width="%d" height="%d" alt="%s"/>',
-                    sprintf(
-                        '%s%s',
-                        $file,
-                        $fog_plugin['menuicon']
-                    ),
-                    66,
-                    66,
-                    $Plugin->get('name')
+                $icon = sprintf(
+                    '<i class="%s fa-2x" width="66" height="66"></i>',
+                    $fog_plugin['menuicon']
                 );
             }
-            $matchIconHover = preg_match(
-                '#^fa[-]?#',
-                $fog_plugin['menuicon_hover']
+            $plugin = self::getClass('Plugin', $pluginID)
+                ->set('name', strtolower(basename($file)))
+                ->set('description', $fog_plugin['description'])
+                ->set('location', $file)
+                ->set('runfile', $runFile)
+                ->set('icon', $icon);
+            $plugman = self::getClass('PluginManager');
+            $nameexists = $plugman->exists(
+                $plugin->get('name'),
+                '',
+                'name'
             );
-            if ($matchIconHover != false) {
-                $Plugin->_strIconHover = sprintf(
-                    '<i class="%s" width="%d" height="%d" alt="%s"></i>',
-                    $fog_plugin['menuicon_hover'],
-                    66,
-                    66,
-                    $Plugin->get('name')
-                );
-            } else {
-                $Plugin->_strIconHover = sprintf(
-                    '<img src="%s" width="%d" height="%d" alt="%s"/>',
-                    sprintf(
-                        '%s%s',
-                        $file,
-                        $fog_plugin['menuicon_hover']
-                    ),
-                    66,
-                    66,
-                    $Plugin->get('name')
-                );
+            $descexists = $plugman->exists(
+                $plugin->get('description'),
+                '',
+                'description'
+            );
+            $locexists = $plugman->exists(
+                $plugin->get('location'),
+                '',
+                'location'
+            );
+            $runfileexists = $plugman->exists(
+                $plugin->get('runfile'),
+                '',
+                'runfile'
+            );
+            $iconexists = $plugman->exists(
+                $plugin->get('icon'),
+                '',
+                'icon'
+            );
+            if (!$nameexists
+                || !$descexists
+                || !$locexists
+                || !$runfileexists
+                || !$iconexists
+            ) {
+                $plugin->save();
             }
-            $Plugins[] = $Plugin;
+            $Plugins[] = $plugin;
             unset($file);
         }
 
         return $Plugins;
-    }
-    /**
-     * Activate the matching hash named plugin.
-     *
-     * @param string $hash the hash of the name to activate
-     *
-     * @return object
-     */
-    public function activatePlugin($hash)
-    {
-        $hash = trim($hash);
-        foreach ((array) $this->getPlugins() as &$Plugin) {
-            $name = trim($Plugin->get('name'));
-            $tmpHash = md5($name);
-            $tmpHash = trim($tmpHash);
-            if ($tmpHash !== $hash) {
-                continue;
-            }
-            $Plugin
-                ->set('state', 1)
-                ->set('installed', 0)
-                ->save();
-            unset($Plugin);
-        }
-
-        return $this;
     }
     /**
      * Get's the plugin manager class or plugin's manager class as needed.
@@ -312,63 +206,5 @@ class Plugin extends FOGController
         }
 
         return new $classManager();
-    }
-    /**
-     * Get's the plugin path.
-     *
-     * @return string
-     */
-    public function getPath()
-    {
-        return $this->_strPath;
-    }
-    /**
-     * Get's the plugin run point.
-     *
-     * @return string
-     */
-    private function _getEntryPoint()
-    {
-        return $this->_strEntryPoint;
-    }
-    /**
-     * Get's the plugin's icon.
-     *
-     * @return string
-     */
-    public function getIcon()
-    {
-        return $this->_strIcon;
-    }
-    /**
-     * Get's the installed status of the plugin.
-     *
-     * @return bool
-     */
-    public function isInstalled()
-    {
-        $this->_getActivePlugs();
-
-        return (bool) $this->_blIsInstalled;
-    }
-    /**
-     * Get's the active status of the plugin.
-     *
-     * @return bool
-     */
-    public function isActive()
-    {
-        $this->_getActivePlugs();
-
-        return (bool) $this->_blIsActive;
-    }
-    /**
-     * Get's the plugin's version.
-     *
-     * @return bool
-     */
-    public function getVersion()
-    {
-        return $this->_strVersion;
     }
 }

@@ -498,7 +498,9 @@ abstract class FOGController extends FOGBase
             if (!$this->get('id') || $this->get('id') < 1) {
                 $this->set('id', self::$DB->insertId());
             }
-            if (!$this instanceof History) {
+            if (!$this instanceof History
+                && !$this instanceof Plugin
+            ) {
                 if ($this->get('name')) {
                     $msg = sprintf(
                         '%s %s: %s %s: %s %s.',
