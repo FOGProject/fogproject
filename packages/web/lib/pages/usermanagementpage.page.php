@@ -58,6 +58,15 @@ class UserManagementPage extends FOGPage
             'USER_TYPES_FILTER',
             ['types' => &$types]
         );
+        if ($this->obj instanceof User
+            && $this->obj->isValid()
+            && !$this->obj->get('token')
+        ) {
+            $this->obj
+                ->set('token', self::createSecToken())
+                ->save();
+        }
+
     }
     /**
      * Page to enable creating a new user.
@@ -67,15 +76,12 @@ class UserManagementPage extends FOGPage
     public function add()
     {
         $this->title = _('Create New User');
-        $user = filter_input(
-            INPUT_POST,
-            'user'
-        );
-        $display = filter_input(
-            INPUT_POST,
-            'display'
-        );
+
+        $user = filter_input(INPUT_POST, 'user');
+        $display = filter_input(INPUT_POST, 'display');
+
         $labelClass = 'col-sm-2 control-label';
+
         $fields = [
             self::makeLabel(
                 $labelClass,
@@ -163,16 +169,25 @@ class UserManagementPage extends FOGPage
                 (isset($_POST['apienabled']) ? 'checked' : '')
             )
         ];
+
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
+
         self::$HookManager
             ->processEvent(
                 'USER_ADD_FIELDS',
                 [
                     'fields' => &$fields,
+                    'buttons' => &$buttons,
                     'User' => self::getClass('User')
                 ]
             );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'user-create-form',
@@ -195,11 +210,7 @@ class UserManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer with-border">';
-        echo self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary'
-        );
+        echo $buttons;
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -226,37 +237,14 @@ class UserManagementPage extends FOGPage
         );
         $apien = (int)isset($_POST['apienabled']);
         $token = self::createSecToken();
+
         $serverFault = false;
         try {
-            if (!$user) {
-                throw new Exception(
-                    _('A user name is required!')
-                );
-            }
-            $test = preg_match(
-                '/(?=^.{3,40}$)^[\w][\w0-9]*[._-]?[\w0-9]*[.]?[\w0-9]+$/i',
-                $user
-            );
-            if (!$test) {
-                throw new Exception(
-                    sprintf(
-                        '%s.<br/>%s.<br/>%s.<br/>%s.<br/>%s.',
-                        _('Username does not meet requirements'),
-                        _('Username must start with a word character'),
-                        _('Username must be at least 3 characters'),
-                        _('Username must be less than 41 characters'),
-                        _('Username cannot contain contiguous special characters')
-                    )
-                );
-            }
-            if (self::getClass('UserManager')->exists($user)) {
+            $exists = self::getClass('UserManager')
+                ->exists($user);
+            if ($exists) {
                 throw new Exception(
                     _('A username already exists with this name!')
-                );
-            }
-            if (!$password) {
-                throw new Exception(
-                    _('A password is required!')
                 );
             }
             $User = self::getClass('User')
@@ -268,9 +256,7 @@ class UserManagementPage extends FOGPage
                 ->set('token', $token);
             if (!$User->save()) {
                 $serverFault = true;
-                throw new Exception(
-                    _('Add user failed!')
-                );
+                throw new Exception(_('Add user failed!'));
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'USER_ADD_SUCCESS';
@@ -295,17 +281,16 @@ class UserManagementPage extends FOGPage
                 ]
             );
         }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'User' => &$User,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'User' => &$User,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
         http_response_code($code);
         unset($User);
         echo $msg;
@@ -363,17 +348,6 @@ class UserManagementPage extends FOGPage
             )
         ];
 
-        self::$HookManager->processEvent(
-            'USER_GENERAL_FIELDS',
-            [
-                'fields' => &$fields,
-                'User' => &$this->obj
-            ]
-        );
-
-        $rendered = self::formFields($fields);
-        unset($fields);
-
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
@@ -384,6 +358,17 @@ class UserManagementPage extends FOGPage
             _('Delete'),
             'btn btn-danger pull-right'
         );
+
+        self::$HookManager->processEvent(
+            'USER_GENERAL_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'User' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
 
         echo self::makeFormTag(
             'form-horizontal',
@@ -421,11 +406,10 @@ class UserManagementPage extends FOGPage
         $display = trim(
             filter_input(INPUT_POST, 'display')
         );
-        if ($this->obj->get('name') != $user
-            && self::getClass('UserManager')->exists(
-                $user,
-                $this->obj->get('id')
-            )
+        $exists = self::getClass('UserManager')
+            ->exists($user);
+        if ($user != $this->obj->get('name')
+            && $exists
         ) {
             throw new Exception(
                 _('A user already exists with this name')
@@ -485,22 +469,22 @@ class UserManagementPage extends FOGPage
             . '</div>'
         ];
 
-        self::$HookManager->processEvent(
-            'USER_CHANGEPW_FIELDS',
-            [
-                'fields' => &$fields,
-                'User' => &$this->obj
-            ]
-        );
-
-        $rendered = self::formFields($fields);
-        unset($fields);
-
         $buttons = self::makeButton(
             'changepw-send',
             _('Update'),
             'btn btn-primary'
         );
+
+        self::$HookManager->processEvent(
+            'USER_CHANGEPW_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'User' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
 
         echo self::makeFormTag(
             'form-horizontal',
@@ -552,7 +536,6 @@ class UserManagementPage extends FOGPage
                 ''
             )
         );
-
         $token = base64_encode(
             $this->obj->get('token')
         );
@@ -607,22 +590,22 @@ class UserManagementPage extends FOGPage
             . '</div>'
         ];
 
-        self::$HookManager->processEvent(
-            'USER_API_FIELDS',
-            [
-                'fields' => &$fields,
-                'User' => &$this->obj
-            ]
-        );
-
-        $rendered = self::formFields($fields);
-        unset($fields);
-
         $buttons = self::makeButton(
             'api-send',
             _('Update'),
             'btn btn-primary'
         );
+
+        self::$HookManager->processEvent(
+            'USER_API_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'User' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
 
         echo self::makeFormTag(
             'form-horizontal',
@@ -673,12 +656,6 @@ class UserManagementPage extends FOGPage
             $this->obj->get('name')
         );
 
-        if (!$this->obj->get('token')) {
-            $this->obj
-                ->set('token', self::createSecToken())
-                ->save();
-        }
-
         $tabData = [];
 
         // General
@@ -718,11 +695,11 @@ class UserManagementPage extends FOGPage
     public function editPost()
     {
         header('Content-type: application/json');
-        self::$HookManager
-            ->processEvent(
-                'USER_EDIT_POST',
-                ['User' => &$this->obj]
-            );
+        self::$HookManager->processEvent(
+            'USER_EDIT_POST',
+            ['User' => &$this->obj]
+        );
+
         $serverFault = false;
         try {
             global $tab;
@@ -763,6 +740,7 @@ class UserManagementPage extends FOGPage
                 ]
             );
         }
+
         self::$HookManager
             ->processEvent(
                 $hook,
