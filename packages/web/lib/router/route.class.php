@@ -503,7 +503,35 @@ class Route extends FOGBase
             if ($common == 'id') {
                 $tableID = $real;
             }
-            $columns[] = ['db' => $real, 'dt' => $common];
+            if ($classname == 'host') {
+                if ($common == 'pingstatus') {
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common,
+                        'formatter' => function ($d, $row) {
+                            $socketstr = socket_strerror($d);
+                            $labelType = 'danger';
+                            if ($d == 0) {
+                                $labelType = 'success';
+                            } else if ($d == 6) {
+                                $labelType = 'warning';
+                            }
+                            return '<span class="label label-'
+                                . $labelType
+                                . '">'
+                                . _($socketstr)
+                                . '</span>';
+                        }
+                    ];
+                } else {
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                }
+            } else {
+                $columns[] = ['db' => $real, 'dt' => $common];
+            }
             if ($common == 'id') {
                 $columns[] = [
                     'db' => $real,

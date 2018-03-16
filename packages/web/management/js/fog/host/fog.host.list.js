@@ -16,31 +16,6 @@
         disableButtons(disabled);
     }
 
-    // Common ping codes.
-    var pingcodes = [0, 6, 110],
-        pingstring = [];
-
-    pingstring[-1] = '<span class="label label-info">'
-    + $('#pingundetermined').val()
-    + '</span>';
-
-    // Callback to set our ping string array.
-    function pingStatusCallback(retstring, code) {
-        return pingstring[code] = retstring;
-    }
-
-    $.each(pingcodes, function(index, value) {
-        $.ajax({
-            data: {code: value},
-            dataType: 'json',
-            type: 'post',
-            url: '../management/index.php?sub=getSocketCodeStr',
-            success: function(response) {
-                pingStatusCallback(response.data, value);
-            },
-        });
-    });
-
     disableButtons(true);
     var table = Common.registerTable($('#dataTable'), onSelect, {
         order: [
@@ -49,10 +24,7 @@
         columns: [
             {data: 'name'},
             {data: 'primac'},
-            {
-                data: 'pingstatus',
-                defaultContent: pingstring[-1]
-            },
+            {data: 'pingstatus'},
             {data: 'deployed'},
             {data: 'imagename'},
             {data: 'description'}
@@ -69,13 +41,6 @@
             {
                 responsivePriority: 0,
                 targets: 1
-            },
-            {
-                //searching: false,
-                render: function (data, type, row) {
-                    return pingstring[data];
-                },
-                targets: 2
             },
             {
                 render: function (data, type, row) {
