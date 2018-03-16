@@ -308,7 +308,6 @@ class WOLBroadcastManagementPage extends FOGPage
                 'WOLBroadcast' => &$this->obj
             ]
         );
-
         $rendered = self::formFields($fields);
         unset($fields);
 
@@ -412,7 +411,6 @@ class WOLBroadcastManagementPage extends FOGPage
                 $this->wolbroadcastGeneralPost();
                 break;
             }
-
             if (!$this->obj->save()) {
                 $serverFault = true;
                 throw new Exception(_('Broadcast update failed!'));

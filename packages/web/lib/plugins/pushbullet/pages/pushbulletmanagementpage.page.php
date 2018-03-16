@@ -59,11 +59,10 @@ class PushbulletManagementPage extends FOGPage
     public function add()
     {
         $this->title = _('Link Pushbullet Account');
-        $apiToken = filter_input(
-            INPUT_POST,
-            'apiToken'
-        );
+        $apiToken = filter_input(INPUT_POST, 'apiToken');
+
         $labelClass = 'col-sm-2 control-label';
+
         $fields = [
             self::makeLabel(
                 $labelClass,
@@ -79,11 +78,13 @@ class PushbulletManagementPage extends FOGPage
                 true
             )
         ];
+
         $buttons = self::makeButton(
             'send',
             _('Create'),
             'btn btn-primary'
         );
+
         self::$HookManager->processEvent(
             'PUSHBULLET_ADD_FIELDS',
             [
@@ -94,6 +95,7 @@ class PushbulletManagementPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'pushbullet-create-form',
@@ -128,65 +130,70 @@ class PushbulletManagementPage extends FOGPage
      */
     public function addPost()
     {
+        header('Content-type: application/json');
+        self::$HookManager->processEvent('PUSHBULLET_ADD_POST');
+        $token = trim(
+            filter_input(INPUT_POST, 'apiToken')
+        );
+
+        $serverFault = false;
         try {
-            $token = trim(
-                filter_input(
-                    INPUT_POST,
-                    'apiToken'
-                )
-            );
-            $PushExists = self::getClass('PushbulletManager')
-                ->exists(
-                    $token,
-                    '',
-                    'token'
-                );
-            if ($PushExists) {
-                throw new Exception(
-                    _('Account already linked')
-                );
-            }
-            if (!$token) {
-                throw new Exception(
-                    _('Please enter an access token')
-                );
+            $exists = self::getClass('PushbulletManager')
+                ->exists($token, '', 'token');
+            if ($exists) {
+                throw new Exception(_('Account already linked'));
             }
             $userInfo = self::getClass(
                 'PushbulletHandler',
                 $token
             )->getUserInformation();
-            $Bullet = self::getClass('Pushbullet')
+            $Pushbullet = self::getClass('Pushbullet')
                 ->set('token', $token)
                 ->set('name', $userInfo->name)
                 ->set('email', $userInfo->email);
-            if (!$Bullet->save()) {
-                throw new Exception(
-                    _('Failed to create')
-                );
+            if (!$Pushbullet->save()) {
+                $serverFault = true;
+                throw new Exception(_('Add pushbullet account failed!'));
             }
-            self::getClass(
-                'PushbulletHandler',
-                $token
-            )->pushNote(
+            $userInfo->pushNote(
                 '',
                 'FOG',
                 'Account linked'
             );
+            $code = HTTPResponseCodes::HTTP_CREATED;
+            $hook = 'PUSHBULLET_ADD_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Account successfully added!'),
                     'title' => _('Link Pushbullet Account Success')
-                )
+                ]
             );
         } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'PUSHBULLET_ADD_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Link Pushbullet Account Fail')
-                )
+                ]
             );
         }
-        unset($Bullet);
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Pushbullet' => &$Pushbullet,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
+        http_response_code($code);
+        unset($Pushbullet);
         echo $msg;
         exit;
     }

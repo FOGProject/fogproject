@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-15 02:00-0400\n"
+"POT-Creation-Date: 2018-03-15 23:44-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -1139,17 +1139,8 @@ msgstr ""
 msgid "Create"
 msgstr "Erstellen"
 
-msgid "Must use an"
-msgstr "Es muss ein @ oder # verwendet werden,"
-
-#, fuzzy
-msgid "to signify if this is a user or channel to send to"
+msgid "Must start with an @ or # for user or channel respsectively"
 msgstr ""
-"um anzuzeigen, ob dies ein Benutzer oder Kanal ist, an den gesendet werden "
-"soll"
-
-msgid "Please enter an access token"
-msgstr "Bitte geben Sie ein Zugriffstoken ein"
 
 msgid "Invalid token passed"
 msgstr "Ungültiger Token übergeben"
@@ -1160,8 +1151,9 @@ msgstr "Ungültiger Benutzer und/oder Kanal übergeben"
 msgid "Account already linked"
 msgstr "Konto ist bereits verknüpft"
 
-msgid "Failed to create"
-msgstr "Erstellen fehlgeschlagen"
+#, fuzzy
+msgid "Add slack account failed!"
+msgstr "Standort hinzufügen fehlgeschlagen"
 
 msgid "Account linked to FOG GUI at"
 msgstr "Konto verknüpft mit FOG-GUI unter"
@@ -1187,12 +1179,29 @@ msgstr "Benutzeraufruf ist ungültig"
 msgid "Invalid method called"
 msgstr "Ungültige Methode aufgerufen"
 
-msgid "Operating System"
-msgstr "Betriebssystem"
+#, fuzzy
+msgid "Key Association"
+msgstr "Site Zugehörigkeit"
 
 #, fuzzy
-msgid "Windows Key for Image"
-msgstr "Windows-Schlüssel für Image"
+msgid "Windows Key"
+msgstr "Windows Keys"
+
+#, fuzzy
+msgid "Image Windows Key Updated!"
+msgstr "Windows-Schlüssel aktualisiert"
+
+#, fuzzy
+msgid "Image Windows Key Update Success"
+msgstr "Windows-Schlüssel erfolgreich aktualisiert"
+
+#, fuzzy
+msgid "Image Windows Key Update Fail"
+msgstr "Windows-Schlüssel aktualisieren fehlgeschlagen"
+
+#, fuzzy
+msgid "Image Windows Key"
+msgstr "Windows-Schlüssel importieren"
 
 #, fuzzy
 msgid "Export Windows Keys"
@@ -1229,10 +1238,6 @@ msgstr "Windows-Schlüssel beschreibung"
 #, fuzzy
 msgid "Windows Product key"
 msgstr "Host Produktschlüssel"
-
-#, fuzzy
-msgid "A windows key name is required!"
-msgstr "Ein Hostname ist erforderlich!"
 
 #, fuzzy
 msgid "A Windows Key already exists with this name!"
@@ -1273,6 +1278,16 @@ msgstr "Windows-Schlüssel erfolgreich aktualisiert"
 #, fuzzy
 msgid "Windows Key Update Fail"
 msgstr "Windows-Schlüssel aktualisieren fehlgeschlagen"
+
+msgid "Use the selector to choose how many items you want exported."
+msgstr ""
+
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
+msgstr ""
 
 msgid "Windows keys is a plugin that associates product keys"
 msgstr "Windows Keys ist ein Plugin, das Produktschlüssel für"
@@ -1518,6 +1533,10 @@ msgid "Group Site"
 msgstr "Gruppen-Snapins"
 
 #, fuzzy
+msgid "Site"
+msgstr "Sites"
+
+#, fuzzy
 msgid "Group Site Updated!"
 msgstr "Gruppe aktualisiert"
 
@@ -1662,6 +1681,10 @@ msgid "Pushbullet Token"
 msgstr "Pushbullet Accounts"
 
 #, fuzzy
+msgid "Add pushbullet account failed!"
+msgstr "Verknüpfen eines Pushbullet-Accounts fehlgeschlagen"
+
+#, fuzzy
 msgid "Link Pushbullet Account Success"
 msgstr "Verknüpfen eines Pushbullet-Accounts erfolgreich"
 
@@ -1692,24 +1715,16 @@ msgid "Create New Broadcast"
 msgstr "Neue %s erstellen"
 
 #, fuzzy
+msgid "Broadcast Description"
+msgstr "Host-Beschreibung"
+
+#, fuzzy
 msgid "Broadcast Address"
 msgstr "Broadcast hinzugefügt!"
 
 #, fuzzy
-msgid "A broadcast name is required!"
-msgstr "Ein Hostname ist erforderlich!"
-
-#, fuzzy
 msgid "A broadcast already exists with this name!"
 msgstr "Ein Broadcast mit diesem Namen ist bereits vorhanden!"
-
-#, fuzzy
-msgid "A broadcast address is required!"
-msgstr "MAC-Adresse ist erforderlich"
-
-#, fuzzy
-msgid "A valid IP is required!"
-msgstr "Ein Passwort ist erforderlich!"
 
 #, fuzzy
 msgid "Add broadcast failed!"
@@ -1728,10 +1743,6 @@ msgid "Broadcast Create Fail"
 msgstr "Erstellen eines Broadcasts fehlgeschlagen"
 
 #, fuzzy
-msgid "A broadcast already exists with this name"
-msgstr "Ein Broadcast mit diesem Namen ist bereits vorhanden!"
-
-#, fuzzy
 msgid "Broadcast update failed!"
 msgstr "Aktualisieren des Broadcasts fehlgeschlagen!"
 
@@ -1746,16 +1757,6 @@ msgstr "Broadcast erfolgreich aktualisiert"
 #, fuzzy
 msgid "Broadcast Update Fail"
 msgstr "Aktualisieren des Broadcasts fehlgeschlagen!"
-
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
 
 #, fuzzy
 msgid "List All Task Types"
@@ -1883,11 +1884,7 @@ msgid "Additional Icon Elements"
 msgstr "zusätzliche MACs haben"
 
 #, fuzzy
-msgid "A task state name is required!"
-msgstr "Ein Hostname ist erforderlich!"
-
-#, fuzzy
-msgid "A task state alread exists with this name!"
+msgid "A task state already exists with this name!"
 msgstr "Ein Taskstatus mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
@@ -1905,10 +1902,6 @@ msgstr "Task Status erfolgreich aktualisiert"
 #, fuzzy
 msgid "Task State Create Fail"
 msgstr "Erstellen eines Task Status fehlgeschlagen"
-
-#, fuzzy
-msgid "A task state already exists with this name!"
-msgstr "Ein Taskstatus mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
 msgid "Task state update failed!"
@@ -2226,21 +2219,6 @@ msgid "Bind Password"
 msgstr "Passwort binden"
 
 #, fuzzy
-msgid "An LDAP server name is required!"
-msgstr "Ein Benutzername ist erforderlich!"
-
-msgid "Please enter a LDAP server address"
-msgstr "Bitte geben Sie eine LDAP-Server-Adresse an."
-
-#, fuzzy
-msgid "Please enter a Search Base DN"
-msgstr "Bitte geben Sie eine Such-Basis-DN an"
-
-#, fuzzy
-msgid "Please select an LDAP port to use"
-msgstr "Bitte wählen Sie einen LDAP-Port aus"
-
-#, fuzzy
 msgid "Please select a valid ldap port"
 msgstr "Bitte wählen Sie einen gültigen LDAP-Port aus"
 
@@ -2248,14 +2226,6 @@ msgstr "Bitte wählen Sie einen gültigen LDAP-Port aus"
 msgid "Please Enter an admin or mobile lookup name"
 msgstr ""
 "Bitte geben Sie einen Namen für einen Admin oder einen mobilen Lookup ein."
-
-#, fuzzy
-msgid "Please enter a User Name Attribute"
-msgstr "Bitte geben Sie ein Benutzernamen-Attribut ein"
-
-#, fuzzy
-msgid "Please enter a Group Member Attribute"
-msgstr "Bitte geben Sie ein Gruppenmitglied-Attribut ein"
 
 #, fuzzy
 msgid "An LDAP server already exists with this name!"
@@ -2276,9 +2246,6 @@ msgstr "LDAP-Server erfolgreich hinzugefügt"
 #, fuzzy
 msgid "LDAP Create Fail"
 msgstr "LDAP-Server erstellen fehlgeschlagen"
-
-msgid "Please enter a name for this LDAP server."
-msgstr "Bitte geben Sie einen Namen für den LDAP-Server an."
 
 #, fuzzy
 msgid "A LDAP setup already exists with this name!"

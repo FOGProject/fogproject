@@ -62,15 +62,11 @@ class SlackManagementPage extends FOGPage
     public function add()
     {
         $this->title = _('Link Slack Account');
-        $apiToken = filter_input(
-            INPUT_POST,
-            'apiToken'
-        );
-        $user = filter_input(
-            INPUT_POST,
-            'user'
-        );
+        $apiToken = filter_input(INPUT_POST, 'apiToken');
+        $user = filter_input(INPUT_POST, 'user');
+
         $labelClass = 'col-sm-2 control-label';
+
         $fields = [
             self::makeLabel(
                 $labelClass,
@@ -99,11 +95,13 @@ class SlackManagementPage extends FOGPage
                 true
             )
         ];
+
         $buttons = self::makeButton(
             'send',
             _('Create'),
             'btn btn-primary'
         );
+
         self::$HookManager->processEvent(
             'SLACK_ADD_FIELDS',
             [
@@ -114,6 +112,7 @@ class SlackManagementPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'slack-create-form',
@@ -148,49 +147,29 @@ class SlackManagementPage extends FOGPage
      */
     public function addPost()
     {
+        header('Conten-type: application/json');
+        self::$HookManager->processEvent('SLACK_ADD_POST');
+        $token = trim(
+            filter_input(INPUT_POST, 'apiToken')
+        );
+        $user = trim(
+            filter_input(INPUT_POST, 'user')
+        );
+        $usertype = preg_match('/^[@]/', $user);
+        $channeltype = preg_match('/^[#]/', $user);
+
+        $serverFault = false;
         try {
-            $token = trim(
-                filter_input(
-                    INPUT_POST,
-                    'apiToken'
-                )
-            );
-            $user = trim(
-                filter_input(
-                    INPUT_POST,
-                    'user'
-                )
-            );
-            $usertype = preg_match(
-                '/^[@]/',
-                $user
-            );
-            $channeltype = preg_match(
-                '/^[#]/',
-                $user
-            );
             if (!$usertype && !$channeltype) {
                 throw new Exception(
-                    sprintf(
-                        '%s @ %s # %s!',
-                        _('Must use an'),
-                        _('or'),
-                        _('to signify if this is a user or channel to send to')
-                    )
-                );
-            }
-            if (!$token) {
-                throw new Exception(
-                    _('Please enter an access token')
+                    _('Must start with an @ or # for user or channel respsectively')
                 );
             }
             $Slack = self::getClass('Slack')
                 ->set('token', $token)
                 ->set('name', $user);
             if (!$Slack->verifyToken()) {
-                throw new Exception(
-                    _('Invalid token passed')
-                );
+                throw new Exception(_('Invalid token passed'));
             }
             $search = array_search(
                 $user,
@@ -205,11 +184,7 @@ class SlackManagementPage extends FOGPage
                 );
             }
             $exists = self::getClass('SlackManager')
-                ->exists(
-                    $token,
-                    '',
-                    'token'
-                );
+                ->exists($token, '', 'token');
             $exists2 = self::getClass('SlackManager')
                 ->exists($usersend);
             if ($exists || $exists2) {
@@ -218,8 +193,9 @@ class SlackManagementPage extends FOGPage
                 );
             }
             if (!$Slack->save()) {
+                $serverFault = true;
                 throw new Exception(
-                    _('Failed to create')
+                    _('Add slack account failed!')
                 );
             }
             $args = array(
@@ -235,36 +211,41 @@ class SlackManagementPage extends FOGPage
                 'chat.postMessage',
                 $args
             );
+            $code = HTTPResponseCodes::HTTP_CREATED;
+            $hook = 'SLACK_ADD_SUCCESS';
             $msg = json_encode(
-                array(
+                [
                     'msg' => _('Account successfully added!'),
                     'title' => _('Link Slack Account Success')
-                )
+                ]
             );
         } catch (Exception $e) {
+            $codes = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'SLACK_ADD_FAIL';
             $msg = json_encode(
-                array(
+                [
                     'error' => $e->getMessage(),
                     'title' => _('Link Slack Account Fail')
-                )
+                ]
             );
         }
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Slack' => &$Slack,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
+        http_response_code($code);
         unset($Slack);
         echo $msg;
-        exit;
-    }
-    /**
-     * Gets the slack information of the entry for jQuery.
-     *
-     * @return void
-     */
-    public function getSlackInfo()
-    {
-        header('Content-type: application/json');
-        global $id;
-        echo json_encode(
-            $this->obj->call('auth.test')
-        );
         exit;
     }
 }

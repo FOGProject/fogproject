@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-15 02:00-0400\n"
+"POT-Creation-Date: 2018-03-15 23:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1105,13 +1105,7 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
-msgid "Must use an"
-msgstr ""
-
-msgid "to signify if this is a user or channel to send to"
-msgstr ""
-
-msgid "Please enter an access token"
+msgid "Must start with an @ or # for user or channel respsectively"
 msgstr ""
 
 msgid "Invalid token passed"
@@ -1123,7 +1117,7 @@ msgstr ""
 msgid "Account already linked"
 msgstr ""
 
-msgid "Failed to create"
+msgid "Add slack account failed!"
 msgstr ""
 
 msgid "Account linked to FOG GUI at"
@@ -1147,10 +1141,22 @@ msgstr ""
 msgid "Invalid method called"
 msgstr ""
 
-msgid "Operating System"
+msgid "Key Association"
 msgstr ""
 
-msgid "Windows Key for Image"
+msgid "Windows Key"
+msgstr ""
+
+msgid "Image Windows Key Updated!"
+msgstr ""
+
+msgid "Image Windows Key Update Success"
+msgstr ""
+
+msgid "Image Windows Key Update Fail"
+msgstr ""
+
+msgid "Image Windows Key"
 msgstr ""
 
 msgid "Export Windows Keys"
@@ -1178,9 +1184,6 @@ msgid "Windows Key Description"
 msgstr ""
 
 msgid "Windows Product key"
-msgstr ""
-
-msgid "A windows key name is required!"
 msgstr ""
 
 msgid "A Windows Key already exists with this name!"
@@ -1211,6 +1214,16 @@ msgid "Windows Key Update Success"
 msgstr ""
 
 msgid "Windows Key Update Fail"
+msgstr ""
+
+msgid "Use the selector to choose how many items you want exported."
+msgstr ""
+
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
 msgstr ""
 
 msgid "Windows keys is a plugin that associates product keys"
@@ -1414,6 +1427,9 @@ msgstr ""
 msgid "Group Site"
 msgstr ""
 
+msgid "Site"
+msgstr ""
+
 msgid "Group Site Updated!"
 msgstr ""
 
@@ -1525,6 +1541,9 @@ msgstr ""
 msgid "Pushbullet Token"
 msgstr ""
 
+msgid "Add pushbullet account failed!"
+msgstr ""
+
 msgid "Link Pushbullet Account Success"
 msgstr ""
 
@@ -1549,19 +1568,13 @@ msgstr ""
 msgid "Create New Broadcast"
 msgstr ""
 
+msgid "Broadcast Description"
+msgstr ""
+
 msgid "Broadcast Address"
 msgstr ""
 
-msgid "A broadcast name is required!"
-msgstr ""
-
 msgid "A broadcast already exists with this name!"
-msgstr ""
-
-msgid "A broadcast address is required!"
-msgstr ""
-
-msgid "A valid IP is required!"
 msgstr ""
 
 msgid "Add broadcast failed!"
@@ -1576,9 +1589,6 @@ msgstr ""
 msgid "Broadcast Create Fail"
 msgstr ""
 
-msgid "A broadcast already exists with this name"
-msgstr ""
-
 msgid "Broadcast update failed!"
 msgstr ""
 
@@ -1589,16 +1599,6 @@ msgid "Broadcast Update Success"
 msgstr ""
 
 msgid "Broadcast Update Fail"
-msgstr ""
-
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
 msgstr ""
 
 msgid "List All Task Types"
@@ -1700,10 +1700,7 @@ msgstr ""
 msgid "Additional Icon Elements"
 msgstr ""
 
-msgid "A task state name is required!"
-msgstr ""
-
-msgid "A task state alread exists with this name!"
+msgid "A task state already exists with this name!"
 msgstr ""
 
 msgid "Add task state failed!"
@@ -1716,9 +1713,6 @@ msgid "Task State Create SUccess"
 msgstr ""
 
 msgid "Task State Create Fail"
-msgstr ""
-
-msgid "A task state already exists with this name!"
 msgstr ""
 
 msgid "Task state update failed!"
@@ -1967,28 +1961,10 @@ msgstr ""
 msgid "Bind Password"
 msgstr ""
 
-msgid "An LDAP server name is required!"
-msgstr ""
-
-msgid "Please enter a LDAP server address"
-msgstr ""
-
-msgid "Please enter a Search Base DN"
-msgstr ""
-
-msgid "Please select an LDAP port to use"
-msgstr ""
-
 msgid "Please select a valid ldap port"
 msgstr ""
 
 msgid "Please Enter an admin or mobile lookup name"
-msgstr ""
-
-msgid "Please enter a User Name Attribute"
-msgstr ""
-
-msgid "Please enter a Group Member Attribute"
 msgstr ""
 
 msgid "An LDAP server already exists with this name!"
@@ -2004,9 +1980,6 @@ msgid "LDAP Create Success"
 msgstr ""
 
 msgid "LDAP Create Fail"
-msgstr ""
-
-msgid "Please enter a name for this LDAP server."
 msgstr ""
 
 msgid "A LDAP setup already exists with this name!"

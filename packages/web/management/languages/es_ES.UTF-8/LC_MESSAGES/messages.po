@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-15 02:00-0400\n"
+"POT-Creation-Date: 2018-03-15 23:44-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1312,15 +1312,8 @@ msgstr ""
 msgid "Create"
 msgstr "Crear"
 
-msgid "Must use an"
+msgid "Must start with an @ or # for user or channel respsectively"
 msgstr ""
-
-msgid "to signify if this is a user or channel to send to"
-msgstr ""
-
-#, fuzzy
-msgid "Please enter an access token"
-msgstr "Por favor seleccione una opción"
 
 #, fuzzy
 msgid "Invalid token passed"
@@ -1334,8 +1327,8 @@ msgid "Account already linked"
 msgstr ""
 
 #, fuzzy
-msgid "Failed to create"
-msgstr "No se pudo crear la tarea"
+msgid "Add slack account failed!"
+msgstr "Añadir fallidos SNAPin!"
 
 msgid "Account linked to FOG GUI at"
 msgstr ""
@@ -1360,11 +1353,29 @@ msgstr ""
 msgid "Invalid method called"
 msgstr "Valor no válido Tiempo de espera"
 
-msgid "Operating System"
-msgstr "Sistema operativo"
+#, fuzzy
+msgid "Key Association"
+msgstr "Asociación para la imagen"
 
-msgid "Windows Key for Image"
-msgstr ""
+#, fuzzy
+msgid "Windows Key"
+msgstr "Nombre del núcleo"
+
+#, fuzzy
+msgid "Image Windows Key Updated!"
+msgstr "Nombre del núcleo"
+
+#, fuzzy
+msgid "Image Windows Key Update Success"
+msgstr "Actualizar impresora"
+
+#, fuzzy
+msgid "Image Windows Key Update Fail"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
+msgid "Image Windows Key"
+msgstr "Impresora TCP / IP Port"
 
 #, fuzzy
 msgid "Export Windows Keys"
@@ -1401,10 +1412,6 @@ msgstr "Descripción de la impresora"
 #, fuzzy
 msgid "Windows Product key"
 msgstr "Clave del producto Grupo"
-
-#, fuzzy
-msgid "A windows key name is required!"
-msgstr "Se requiere un nombre de imagen!"
 
 #, fuzzy
 msgid "A Windows Key already exists with this name!"
@@ -1445,6 +1452,16 @@ msgstr "Actualizar impresora"
 #, fuzzy
 msgid "Windows Key Update Fail"
 msgstr "actualización Valoración falló"
+
+msgid "Use the selector to choose how many items you want exported."
+msgstr ""
+
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
+msgstr ""
 
 msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
@@ -1691,6 +1708,10 @@ msgid "Group Site"
 msgstr "snapins"
 
 #, fuzzy
+msgid "Site"
+msgstr "minutos"
+
+#, fuzzy
 msgid "Group Site Updated!"
 msgstr "grupo añadió"
 
@@ -1835,6 +1856,10 @@ msgid "Pushbullet Token"
 msgstr ""
 
 #, fuzzy
+msgid "Add pushbullet account failed!"
+msgstr "Añadir nueva cuenta de usuario"
+
+#, fuzzy
 msgid "Link Pushbullet Account Success"
 msgstr "Añadir nueva cuenta de usuario"
 
@@ -1866,24 +1891,16 @@ msgid "Create New Broadcast"
 msgstr "Crear nuevo grupo"
 
 #, fuzzy
+msgid "Broadcast Description"
+msgstr "Descripción del Grupo"
+
+#, fuzzy
 msgid "Broadcast Address"
 msgstr "Nombre de host"
 
 #, fuzzy
-msgid "A broadcast name is required!"
-msgstr "Se requiere un nombre de imagen!"
-
-#, fuzzy
 msgid "A broadcast already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
-
-#, fuzzy
-msgid "A broadcast address is required!"
-msgstr "Dirección MAC de lista de origen: "
-
-#, fuzzy
-msgid "A valid IP is required!"
-msgstr "%s se requiere"
 
 #, fuzzy
 msgid "Add broadcast failed!"
@@ -1902,10 +1919,6 @@ msgid "Broadcast Create Fail"
 msgstr "Grupo Error de creación"
 
 #, fuzzy
-msgid "A broadcast already exists with this name"
-msgstr "Una imagen ya existe con este nombre!"
-
-#, fuzzy
 msgid "Broadcast update failed!"
 msgstr "Servicio de Actualización!"
 
@@ -1920,16 +1933,6 @@ msgstr "actualización Valoración falló"
 #, fuzzy
 msgid "Broadcast Update Fail"
 msgstr "Servicio de Actualización!"
-
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
 
 #, fuzzy
 msgid "List All Task Types"
@@ -2058,11 +2061,7 @@ msgid "Additional Icon Elements"
 msgstr ""
 
 #, fuzzy
-msgid "A task state name is required!"
-msgstr "Se requiere un nombre de imagen!"
-
-#, fuzzy
-msgid "A task state alread exists with this name!"
+msgid "A task state already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
@@ -2080,10 +2079,6 @@ msgstr "creado por el usuario"
 #, fuzzy
 msgid "Task State Create Fail"
 msgstr "creado por el usuario"
-
-#, fuzzy
-msgid "A task state already exists with this name!"
-msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
 msgid "Task state update failed!"
@@ -2398,30 +2393,10 @@ msgid "Bind Password"
 msgstr "Contraseña de dominio"
 
 #, fuzzy
-msgid "An LDAP server name is required!"
-msgstr "Se requiere un nombre de imagen!"
-
-msgid "Please enter a LDAP server address"
-msgstr ""
-
-msgid "Please enter a Search Base DN"
-msgstr ""
-
-#, fuzzy
-msgid "Please select an LDAP port to use"
-msgstr "Por favor seleccione una opción"
-
-#, fuzzy
 msgid "Please select a valid ldap port"
 msgstr "Por favor seleccione una opción"
 
 msgid "Please Enter an admin or mobile lookup name"
-msgstr ""
-
-msgid "Please enter a User Name Attribute"
-msgstr ""
-
-msgid "Please enter a Group Member Attribute"
 msgstr ""
 
 #, fuzzy
@@ -2443,9 +2418,6 @@ msgstr "creado por el usuario"
 #, fuzzy
 msgid "LDAP Create Fail"
 msgstr "creado por el usuario"
-
-msgid "Please enter a name for this LDAP server."
-msgstr ""
 
 #, fuzzy
 msgid "A LDAP setup already exists with this name!"
