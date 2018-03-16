@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-15 02:00-0400\n"
+"POT-Creation-Date: 2018-03-15 23:44-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1141,15 +1141,8 @@ msgstr ""
 msgid "Create"
 msgstr "创建"
 
-msgid "Must use an"
+msgid "Must start with an @ or # for user or channel respsectively"
 msgstr ""
-
-#, fuzzy
-msgid "to signify if this is a user or channel to send to"
-msgstr "必须使用@或＃来表示，如果这是一个用户或通道发送消息到！"
-
-msgid "Please enter an access token"
-msgstr "请输入访问令牌"
 
 msgid "Invalid token passed"
 msgstr "无效的令牌传递"
@@ -1160,8 +1153,9 @@ msgstr "无效的用户和/或通道通过"
 msgid "Account already linked"
 msgstr "帐户已链接"
 
-msgid "Failed to create"
-msgstr "无法创建"
+#, fuzzy
+msgid "Add slack account failed!"
+msgstr "添加管理单元失败！"
 
 msgid "Account linked to FOG GUI at"
 msgstr "帐户相关联的雾GUI"
@@ -1187,12 +1181,29 @@ msgstr "用户调用无效"
 msgid "Invalid method called"
 msgstr "所谓的无效方法"
 
-msgid "Operating System"
-msgstr "操作系统"
+#, fuzzy
+msgid "Key Association"
+msgstr "图像协会"
 
 #, fuzzy
-msgid "Windows Key for Image"
+msgid "Windows Key"
+msgstr "Windows 8的"
+
+#, fuzzy
+msgid "Image Windows Key Updated!"
 msgstr "用户管理"
+
+#, fuzzy
+msgid "Image Windows Key Update Success"
+msgstr "用户管理"
+
+#, fuzzy
+msgid "Image Windows Key Update Fail"
+msgstr "用户管理"
+
+#, fuzzy
+msgid "Image Windows Key"
+msgstr "Windows 8的"
 
 #, fuzzy
 msgid "Export Windows Keys"
@@ -1229,10 +1240,6 @@ msgstr "主机描述"
 #, fuzzy
 msgid "Windows Product key"
 msgstr "主机产品密钥"
-
-#, fuzzy
-msgid "A windows key name is required!"
-msgstr "图像名是必需的！"
 
 #, fuzzy
 msgid "A Windows Key already exists with this name!"
@@ -1273,6 +1280,16 @@ msgstr "用户管理"
 #, fuzzy
 msgid "Windows Key Update Fail"
 msgstr "用户管理"
+
+msgid "Use the selector to choose how many items you want exported."
+msgstr ""
+
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
+msgstr ""
 
 msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
@@ -1518,6 +1535,10 @@ msgid "Group Site"
 msgstr "出口Snapins"
 
 #, fuzzy
+msgid "Site"
+msgstr "分钟"
+
+#, fuzzy
 msgid "Group Site Updated!"
 msgstr "集团补充"
 
@@ -1662,6 +1683,10 @@ msgid "Pushbullet Token"
 msgstr "Pushbullet账户"
 
 #, fuzzy
+msgid "Add pushbullet account failed!"
+msgstr "链接Pushbullet账户"
+
+#, fuzzy
 msgid "Link Pushbullet Account Success"
 msgstr "链接Pushbullet账户"
 
@@ -1692,24 +1717,16 @@ msgid "Create New Broadcast"
 msgstr "新建%s"
 
 #, fuzzy
+msgid "Broadcast Description"
+msgstr "主机描述"
+
+#, fuzzy
 msgid "Broadcast Address"
 msgstr "广播名称"
 
 #, fuzzy
-msgid "A broadcast name is required!"
-msgstr "图像名是必需的！"
-
-#, fuzzy
 msgid "A broadcast already exists with this name!"
 msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "A broadcast address is required!"
-msgstr "MAC地址是必需的"
-
-#, fuzzy
-msgid "A valid IP is required!"
-msgstr "%s是必需的"
 
 #, fuzzy
 msgid "Add broadcast failed!"
@@ -1728,10 +1745,6 @@ msgid "Broadcast Create Fail"
 msgstr "主机创建失败"
 
 #, fuzzy
-msgid "A broadcast already exists with this name"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
 msgid "Broadcast update failed!"
 msgstr "广播更新"
 
@@ -1746,16 +1759,6 @@ msgstr "安装/升级成功！"
 #, fuzzy
 msgid "Broadcast Update Fail"
 msgstr "广播更新"
-
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
 
 #, fuzzy
 msgid "List All Task Types"
@@ -1882,11 +1885,7 @@ msgid "Additional Icon Elements"
 msgstr "附加的MAC"
 
 #, fuzzy
-msgid "A task state name is required!"
-msgstr "图像名是必需的！"
-
-#, fuzzy
-msgid "A task state alread exists with this name!"
+msgid "A task state already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
@@ -1904,10 +1903,6 @@ msgstr "用户创建"
 #, fuzzy
 msgid "Task State Create Fail"
 msgstr "用户创建"
-
-#, fuzzy
-msgid "A task state already exists with this name!"
-msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
 msgid "Task state update failed!"
@@ -2223,35 +2218,12 @@ msgid "Bind Password"
 msgstr "域密码"
 
 #, fuzzy
-msgid "An LDAP server name is required!"
-msgstr "图像名是必需的！"
-
-msgid "Please enter a LDAP server address"
-msgstr "请输入LDAP服务器地址"
-
-#, fuzzy
-msgid "Please enter a Search Base DN"
-msgstr "请输入主机名"
-
-#, fuzzy
-msgid "Please select an LDAP port to use"
-msgstr "请选择一个选项"
-
-#, fuzzy
 msgid "Please select a valid ldap port"
 msgstr "请输入一个有效的IP"
 
 #, fuzzy
 msgid "Please Enter an admin or mobile lookup name"
 msgstr "这个位置输入名称。"
-
-#, fuzzy
-msgid "Please enter a User Name Attribute"
-msgstr "请输入主机名"
-
-#, fuzzy
-msgid "Please enter a Group Member Attribute"
-msgstr "请输入LDAP服务器地址"
 
 #, fuzzy
 msgid "An LDAP server already exists with this name!"
@@ -2272,9 +2244,6 @@ msgstr "用户创建"
 #, fuzzy
 msgid "LDAP Create Fail"
 msgstr "用户创建"
-
-msgid "Please enter a name for this LDAP server."
-msgstr "这个LDAP服务器输入名称。"
 
 #, fuzzy
 msgid "A LDAP setup already exists with this name!"

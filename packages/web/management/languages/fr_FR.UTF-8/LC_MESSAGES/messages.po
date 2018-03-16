@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-15 02:00-0400\n"
+"POT-Creation-Date: 2018-03-15 23:44-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1144,17 +1144,8 @@ msgstr ""
 msgid "Create"
 msgstr "Créer"
 
-msgid "Must use an"
+msgid "Must start with an @ or # for user or channel respsectively"
 msgstr ""
-
-#, fuzzy
-msgid "to signify if this is a user or channel to send to"
-msgstr ""
-"Doit utiliser un @ ou # pour signifier si cela est un utilisateur ou d'un "
-"canal pour envoyer un message à!"
-
-msgid "Please enter an access token"
-msgstr "S'il vous plaît entrer un jeton d'accès"
 
 msgid "Invalid token passed"
 msgstr "jeton non valide transmis"
@@ -1165,8 +1156,9 @@ msgstr "utilisateur et / ou d'un canal non valide transmis"
 msgid "Account already linked"
 msgstr "Compte déjà lié"
 
-msgid "Failed to create"
-msgstr "Échec de la création"
+#, fuzzy
+msgid "Add slack account failed!"
+msgstr "Ajouter SnapIn a échoué!"
 
 msgid "Account linked to FOG GUI at"
 msgstr "Compte lié à BROUILLARD GUI au"
@@ -1192,12 +1184,29 @@ msgstr "appel de l'utilisateur est invalide"
 msgid "Invalid method called"
 msgstr "Méthode invalide appelé"
 
-msgid "Operating System"
-msgstr "Système opérateur"
+#, fuzzy
+msgid "Key Association"
+msgstr "Association Image"
 
 #, fuzzy
-msgid "Windows Key for Image"
+msgid "Windows Key"
+msgstr "Windows 8"
+
+#, fuzzy
+msgid "Image Windows Key Updated!"
 msgstr "Gestion des utilisateurs"
+
+#, fuzzy
+msgid "Image Windows Key Update Success"
+msgstr "Gestion des utilisateurs"
+
+#, fuzzy
+msgid "Image Windows Key Update Fail"
+msgstr "Gestion des utilisateurs"
+
+#, fuzzy
+msgid "Image Windows Key"
+msgstr "Windows 8"
 
 #, fuzzy
 msgid "Export Windows Keys"
@@ -1234,10 +1243,6 @@ msgstr "hôte description de"
 #, fuzzy
 msgid "Windows Product key"
 msgstr "Hôte clé de produit"
-
-#, fuzzy
-msgid "A windows key name is required!"
-msgstr "Un nom de l'image est nécessaire!"
 
 #, fuzzy
 msgid "A Windows Key already exists with this name!"
@@ -1278,6 +1283,16 @@ msgstr "Gestion des utilisateurs"
 #, fuzzy
 msgid "Windows Key Update Fail"
 msgstr "Gestion des utilisateurs"
+
+msgid "Use the selector to choose how many items you want exported."
+msgstr ""
+
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
+msgstr ""
 
 msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
@@ -1523,6 +1538,10 @@ msgid "Group Site"
 msgstr "Export SnapIns"
 
 #, fuzzy
+msgid "Site"
+msgstr "minutes"
+
+#, fuzzy
 msgid "Group Site Updated!"
 msgstr "Groupe ajouté"
 
@@ -1667,6 +1686,10 @@ msgid "Pushbullet Token"
 msgstr "Comptes Pushbullet"
 
 #, fuzzy
+msgid "Add pushbullet account failed!"
+msgstr "Compte Lien Pushbullet"
+
+#, fuzzy
 msgid "Link Pushbullet Account Success"
 msgstr "Compte Lien Pushbullet"
 
@@ -1697,24 +1720,16 @@ msgid "Create New Broadcast"
 msgstr "Créer un nouveau %s"
 
 #, fuzzy
+msgid "Broadcast Description"
+msgstr "hôte description de"
+
+#, fuzzy
 msgid "Broadcast Address"
 msgstr "Nom de diffusion"
 
 #, fuzzy
-msgid "A broadcast name is required!"
-msgstr "Un nom de l'image est nécessaire!"
-
-#, fuzzy
 msgid "A broadcast already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
-
-#, fuzzy
-msgid "A broadcast address is required!"
-msgstr "Adresse MAC est nécessaire"
-
-#, fuzzy
-msgid "A valid IP is required!"
-msgstr "%s est requis"
 
 #, fuzzy
 msgid "Add broadcast failed!"
@@ -1733,10 +1748,6 @@ msgid "Broadcast Create Fail"
 msgstr "Hôte créer échoué"
 
 #, fuzzy
-msgid "A broadcast already exists with this name"
-msgstr "Une image existe déjà avec ce nom!"
-
-#, fuzzy
 msgid "Broadcast update failed!"
 msgstr "Diffusion Mise à jour"
 
@@ -1751,16 +1762,6 @@ msgstr "Installation / Mise à jour réussie!"
 #, fuzzy
 msgid "Broadcast Update Fail"
 msgstr "Diffusion Mise à jour"
-
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
 
 #, fuzzy
 msgid "List All Task Types"
@@ -1887,11 +1888,7 @@ msgid "Additional Icon Elements"
 msgstr "MACs supplémentaires"
 
 #, fuzzy
-msgid "A task state name is required!"
-msgstr "Un nom de l'image est nécessaire!"
-
-#, fuzzy
-msgid "A task state alread exists with this name!"
+msgid "A task state already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
 
 #, fuzzy
@@ -1909,10 +1906,6 @@ msgstr "utilisateur créé"
 #, fuzzy
 msgid "Task State Create Fail"
 msgstr "utilisateur créé"
-
-#, fuzzy
-msgid "A task state already exists with this name!"
-msgstr "Une image existe déjà avec ce nom!"
 
 #, fuzzy
 msgid "Task state update failed!"
@@ -2228,35 +2221,12 @@ msgid "Bind Password"
 msgstr "domaine Mot de passe"
 
 #, fuzzy
-msgid "An LDAP server name is required!"
-msgstr "Un nom de l'image est nécessaire!"
-
-msgid "Please enter a LDAP server address"
-msgstr "S'il vous plaît entrer une adresse de serveur LDAP"
-
-#, fuzzy
-msgid "Please enter a Search Base DN"
-msgstr "S'il vous plaît entrer un nom d'hôte"
-
-#, fuzzy
-msgid "Please select an LDAP port to use"
-msgstr "veuillez sélectionner une option"
-
-#, fuzzy
 msgid "Please select a valid ldap port"
 msgstr "S'il vous plaît entrer une adresse IP valide"
 
 #, fuzzy
 msgid "Please Enter an admin or mobile lookup name"
 msgstr "S'il vous plaît entrer un nom pour cet emplacement."
-
-#, fuzzy
-msgid "Please enter a User Name Attribute"
-msgstr "S'il vous plaît entrer un nom d'hôte"
-
-#, fuzzy
-msgid "Please enter a Group Member Attribute"
-msgstr "S'il vous plaît entrer une adresse de serveur LDAP"
 
 #, fuzzy
 msgid "An LDAP server already exists with this name!"
@@ -2277,9 +2247,6 @@ msgstr "utilisateur créé"
 #, fuzzy
 msgid "LDAP Create Fail"
 msgstr "utilisateur créé"
-
-msgid "Please enter a name for this LDAP server."
-msgstr "S'il vous plaît entrez un nom pour ce serveur LDAP."
 
 #, fuzzy
 msgid "A LDAP setup already exists with this name!"

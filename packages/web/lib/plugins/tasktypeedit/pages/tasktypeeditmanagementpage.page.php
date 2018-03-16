@@ -87,9 +87,8 @@ class TasktypeeditManagementPage extends FOGPage
             $accessTypes,
             $access
         );
-        unset($accessTypes);
-
         $iconSel = self::getClass('TaskType')->iconlist($icon);
+        unset($accessTypes);
 
         $labelClass = 'col-sm-2 control-label';
 
@@ -199,6 +198,7 @@ class TasktypeeditManagementPage extends FOGPage
             _('Create'),
             'btn btn-primary'
         );
+
         self::$HookManager->processEvent(
             'TASKTYPEEDIT_ADD_FIELDS',
             [
@@ -209,6 +209,7 @@ class TasktypeeditManagementPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'tasktype-create-form',
@@ -246,58 +247,36 @@ class TasktypeeditManagementPage extends FOGPage
         header('Content-type: application/json');
         self::$HookManager->processEvent('TASKTYPEEDIT_ADD_POST');
         $tasktype = trim(
-            filter_input(
-                INPUT_POST,
-                'tasktype'
-            )
+            filter_input(INPUT_POST, 'tasktype')
         );
         $description = trim(
-            filter_input(
-                INPUT_POST,
-                'description'
-            )
+            filter_input(INPUT_POST, 'description')
         );
         $icon = trim(
-            filter_input(
-                INPUT_POST,
-                'icon'
-            )
+            filter_input(INPUT_POST, 'icon')
         );
         $kernel = trim(
-            filter_input(
-                INPUT_POST,
-                'kernel'
-            )
+            filter_input(INPUT_POST, 'kernel')
         );
         $kernelargs = trim(
-            filter_input(
-                INPUT_POST,
-                'kernelargs'
-            )
+            filter_input(INPUT_POST, 'kernelargs')
         );
         $initrd = trim(
-            filter_input(
-                INPUT_POST,
-                'initrd'
-            )
+            filter_input(INPUT_POST, 'initrd')
         );
         $type = trim(
-            filter_input(
-                INPUT_POST,
-                'type'
-            )
+            filter_input(INPUT_POST, 'type')
         );
         $access = trim(
-            filter_input(
-                INPUT_POST,
-                'access'
-            )
+            filter_input(INPUT_POST, 'access')
         );
         $advanced = isset($_POST['advanced']);
 
         $serverFault = false;
         try {
-            if (self::getClass('TaskTypeManager')->exists($name)) {
+            $exists = self::getClass('TaskTypeManager')
+                ->exists($tasktype);
+            if ($exists) {
                 throw new Exception(
                     _('A task type already exists with this name!')
                 );
@@ -415,9 +394,8 @@ class TasktypeeditManagementPage extends FOGPage
             $accessTypes,
             $access
         );
-        unset($accessTypes);
-
         $iconSel = self::getClass('TaskType')->iconlist($icon);
+        unset($accessTypes);
 
         $labelClass = 'col-sm-2 control-label';
 
@@ -532,6 +510,7 @@ class TasktypeeditManagementPage extends FOGPage
             _('Delete'),
             'btn btn-danger pull-right'
         );
+
         self::$HookManager->processEvent(
             'TASKTYPEEDIT_GENERAL_FIELDS',
             [
@@ -572,56 +551,36 @@ class TasktypeeditManagementPage extends FOGPage
     public function tasktypeGeneralPost()
     {
         $tasktype = trim(
-            filter_input(
-                INPUT_POST,
-                'tasktype'
-            )
+            filter_input(INPUT_POST, 'tasktype')
         );
         $description = trim(
-            filter_input(
-                INPUT_POST,
-                'description'
-            )
+            filter_input(INPUT_POST, 'description')
         );
         $icon = trim(
-            filter_input(
-                INPUT_POST,
-                'icon'
-            )
+            filter_input(INPUT_POST, 'icon')
         );
         $kernel = trim(
-            filter_input(
-                INPUT_POST,
-                'kernel'
-            )
+            filter_input(INPUT_POST, 'kernel')
         );
         $kernelargs = trim(
-            filter_input(
-                INPUT_POST,
-                'kernelargs'
-            )
+            filter_input(INPUT_POST, 'kernelargs')
         );
         $initrd = trim(
-            filter_input(
-                INPUT_POST,
-                'initrd'
-            )
+            filter_input(INPUT_POST, 'initrd')
         );
         $type = trim(
-            filter_input(
-                INPUT_POST,
-                'type'
-            )
+            filter_input(INPUT_POST, 'type')
         );
         $access = trim(
-            filter_input(
-                INPUT_POST,
-                'access'
-            )
+            filter_input(INPUT_POST, 'access')
         );
         $advanced = isset($_POST['advanced']);
 
-        if (self::getClass('TaskTypeManager')->exists($name)) {
+        $exists = self::getClass('TaskTypeManager')
+            ->exists($tasktype);
+        if ($tasktype != $this->obj->get('name')
+            && $exists
+        ) {
             throw new Exception(
                 _('A task type already exists with this name!')
             );
@@ -651,6 +610,8 @@ class TasktypeeditManagementPage extends FOGPage
         );
 
         $tabData = [];
+
+        // General
         $tabData[] = [
             'name' => _('General'),
             'id' => 'tasktype-general',
@@ -673,6 +634,7 @@ class TasktypeeditManagementPage extends FOGPage
             'TASKTYPEEDIT_EDIT_POST',
             ['TaskType' => &$this->obj]
         );
+
         $serverFault = false;
         try {
             global $tab;

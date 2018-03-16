@@ -64,7 +64,6 @@ class TaskstateeditManagementPage extends FOGPage
         $description = filter_input(INPUT_POST, 'description');
         $icon = filter_input(INPUT_POST, 'icon');
         $additional = filter_input(INPUT_POST, 'additional');
-
         $iconSel = self::getClass('TaskType')->iconlist($icon);
 
         $labelClass = 'col-sm-2 control-label';
@@ -129,6 +128,7 @@ class TaskstateeditManagementPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'taskstate-create-form',
@@ -166,42 +166,26 @@ class TaskstateeditManagementPage extends FOGPage
         header('Content-type: application/json');
         self::$HookManager->processEvent('TASKSTATEEDIT_ADD_POST');
         $taskstate = trim(
-            filter_input(
-                INPUT_POST,
-                'taskstate'
-            )
+            filter_input(INPUT_POST, 'taskstate')
         );
         $description = trim(
-            filter_input(
-                INPUT_POST,
-                'description'
-            )
+            filter_input(INPUT_POST, 'description')
         );
         $icon = trim(
-            filter_input(
-                INPUT_POST,
-                'icon'
-            )
+            filter_input(INPUT_POST, 'icon')
         );
         $additional = trim(
-            filter_input(
-                INPUT_POST,
-                'additional'
-            )
+            filter_input(INPUT_POST, 'additional')
         );
-
         $iconval = $icon . ' ' . $additional;
 
         $serverFault = false;
         try {
-            if (!$taskstate) {
+            $exists = self::getClass('TaskStateManager')
+                ->exists($taskstate);
+            if ($exists) {
                 throw new Exception(
-                    _('A task state name is required!')
-                );
-            }
-            if (self::getClass('TaskStateManager')->exists($taskstate)) {
-                throw new Exception(
-                    _('A task state alread exists with this name!')
+                    _('A task state already exists with this name!')
                 );
             }
             $TaskState = self::getClass('TaskState')
@@ -265,30 +249,21 @@ class TaskstateeditManagementPage extends FOGPage
             $this->obj->get('icon')
         );
         $taskstate = (
-            filter_input(
-                INPUT_POST,
-                'taskstate'
-            ) ?: $this->obj->get('name')
+            filter_input(INPUT_POST, 'taskstate') ?:
+            $this->obj->get('name')
         );
         $description = (
-            filter_input(
-                INPUT_POST,
-                'description'
-            ) ?: $this->obj->get('description')
+            filter_input(INPUT_POST, 'description') ?:
+            $this->obj->get('description')
         );
         $icon = (
-            filter_input(
-                INPUT_POST,
-                'icon'
-            ) ?: array_shift($iconarr)
+            filter_input(INPUT_POST, 'icon') ?:
+            array_shift($iconarr)
         );
         $additional = (
-            filter_input(
-                INPUT_POST,
-                'additional'
-            ) ?: implode(' ', (array)$iconarr)
+            filter_input(INPUT_POST, 'additional') ?:
+            implode(' ', (array)$iconarr)
         );
-
         $iconSel = self::getClass('TaskType')->iconlist($icon);
 
         $labelClass = 'col-sm-2 control-label';
@@ -388,34 +363,23 @@ class TaskstateeditManagementPage extends FOGPage
     public function taskstateGeneralPost()
     {
         $taskstate = trim(
-            filter_input(
-                INPUT_POST,
-                'taskstate'
-            )
+            filter_input(INPUT_POST, 'taskstate')
         );
         $description = trim(
-            filter_input(
-                INPUT_POST,
-                'description'
-            )
+            filter_input(INPUT_POST, 'description')
         );
         $icon = trim(
-            filter_input(
-                INPUT_POST,
-                'icon'
-            )
+            filter_input(INPUT_POST, 'icon')
         );
         $additional = trim(
-            filter_input(
-                INPUT_POST,
-                'additional'
-            )
+            filter_input(INPUT_POST, 'additional')
         );
-
         $iconval = $icon . ' ' . $additional;
 
-        if ($this->obj->get('name') != $taskstate
-            && self::getClass('TaskStateManager')->exists($taskstate)
+        $exists = self::getClass('TaskTypeManager')
+            ->exists($taskstate);
+        if ($taskstate != $this->obj->get('name')
+            && $exists
         ) {
             throw new Exception(
                 _('A task state already exists with this name!')
@@ -426,7 +390,6 @@ class TaskstateeditManagementPage extends FOGPage
             ->set('description', $description)
             ->set('icon', $iconval);
     }
-
     /**
      * Edit this task state.
      *
@@ -442,6 +405,7 @@ class TaskstateeditManagementPage extends FOGPage
 
         $tabData = [];
 
+        // General
         $tabData[] = [
             'name' => _('General'),
             'id' => 'taskstate-general',
@@ -464,6 +428,7 @@ class TaskstateeditManagementPage extends FOGPage
             'TASKSTATEEDIT_EDIT_POST',
             ['TaskState' => &$this->obj]
         );
+
         $serverFault = false;
         try {
             global $tab;
@@ -498,6 +463,7 @@ class TaskstateeditManagementPage extends FOGPage
                 ]
             );
         }
+
         self::$HookManager->processEvent(
             $hook,
             [

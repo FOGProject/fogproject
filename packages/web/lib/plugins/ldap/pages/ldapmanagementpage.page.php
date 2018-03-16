@@ -71,6 +71,7 @@ class LDAPManagementPage extends FOGPage
     public function add()
     {
         $this->title = _('Create New LDAP Server');
+
         $ldap = filter_input(INPUT_POST, 'ldap');
         $description = filter_input(INPUT_POST, 'description');
         $address = filter_input(INPUT_POST, 'address');
@@ -296,11 +297,13 @@ class LDAPManagementPage extends FOGPage
             )
             . '</div>'
         ];
+
         $buttons = self::makeButton(
             'send',
             _('Create'),
             'btn btn-primary'
         );
+
         self::$HookManager->processEvent(
             'LDAP_FIELDS',
             [
@@ -311,6 +314,7 @@ class LDAPManagementPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'ldap-create-form',
@@ -348,108 +352,50 @@ class LDAPManagementPage extends FOGPage
         header('Content-type: appication/json');
         self::$HookManager->processEvent('LDAP_ADD');
         $ldap = trim(
-            filter_input(
-                INPUT_POST,
-                'ldap'
-            )
+            filter_input(INPUT_POST, 'ldap')
         );
         $description = trim(
-            filter_input(
-                INPUT_POST,
-                'description'
-            )
+            filter_input(INPUT_POST, 'description')
         );
         $address = trim(
-            filter_input(
-                INPUT_POST,
-                'address'
-            )
+            filter_input(INPUT_POST, 'address')
         );
         $port = trim(
-            filter_input(
-                INPUT_POST,
-                'port'
-            )
+            filter_input(INPUT_POST, 'port')
         );
         $searchDN = trim(
-            filter_input(
-                INPUT_POST,
-                'searchDN'
-            )
+            filter_input(INPUT_POST, 'searchDN')
         );
         $grpSearchDN = trim(
-            filter_input(
-                INPUT_POST,
-                'grpSearchDN'
-            )
+            filter_input(INPUT_POST, 'grpSearchDN')
         );
         $adminGroup = trim(
-            filter_input(
-                INPUT_POST,
-                'adminGroup'
-            )
+            filter_input(INPUT_POST, 'adminGroup')
         );
         $userGroup = trim(
-            filter_input(
-                INPUT_POST,
-                'userGroup'
-            )
+            filter_input(INPUT_POST, 'userGroup')
         );
         $userNameAttr = trim(
-            filter_input(
-                INPUT_POST,
-                'userNameAttr'
-            )
+            filter_input(INPUT_POST, 'userNameAttr')
         );
         $grpMemberAttr = trim(
-            filter_input(
-                INPUT_POST,
-                'grpMemberAttr'
-            )
+            filter_input(INPUT_POST, 'grpMemberAttr')
         );
         $searchScope = trim(
-            filter_input(
-                INPUT_POST,
-                'searchScope'
-            )
+            filter_input(INPUT_POST, 'searchScope')
         );
         $bindDN = trim(
-            filter_input(
-                INPUT_POST,
-                'bindDN'
-            )
+            filter_input(INPUT_POST, 'bindDN')
         );
         $bindPwd = trim(
-            filter_input(
-                INPUT_POST,
-                'bindPwd'
-            )
+            filter_input(INPUT_POST, 'bindPwd')
         );
         $useGroupMatch = (int)isset($_POST['useGroupMatch']);
+
         $serverFault = false;
         try {
             if (!is_numeric($searchScope)) {
                 $searchScope = 0;
-            }
-            if (empty($ldap)) {
-                throw new Exception(
-                    _('An LDAP server name is required!')
-                );
-            }
-            if (empty($address)) {
-                throw new Exception(
-                    _('Please enter a LDAP server address')
-                );
-            }
-            if (empty($searchDN)) {
-                throw new Exception(
-                    _('Please enter a Search Base DN')
-                );
-            }
-            if (empty($port)) {
-                throw new Exception(
-                    _('Please select an LDAP port to use')
-                );
             }
             if (!in_array($port, LDAP::LDAP_PORTS)) {
                 throw new Exception(
@@ -461,17 +407,9 @@ class LDAPManagementPage extends FOGPage
                     _('Please Enter an admin or mobile lookup name')
                 );
             }
-            if (empty($userNameAttr)) {
-                throw new Exception(
-                    _('Please enter a User Name Attribute')
-                );
-            }
-            if (empty($grpMemberAttr)) {
-                throw new Exception(
-                    _('Please enter a Group Member Attribute')
-                );
-            }
-            if (self::getClass('LDAPManager')->exists($ldap)) {
+            $exists = self::getClass('LDAPManager')
+                ->exists($ldap);
+            if ($ldap) {
                 throw new Exception(
                     _('An LDAP server already exists with this name!')
                 );
@@ -492,7 +430,7 @@ class LDAPManagementPage extends FOGPage
                 ->set('useGroupMatch', $useGroupMatch)
                 ->set('grpSearchDN', $grpSearchDN);
             if (!$LDAP->save()) {
-                $serverFault = false;
+                $serverFault = true;
                 throw new Exception(_('Add LDAP server failed!'));
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
@@ -544,82 +482,56 @@ class LDAPManagementPage extends FOGPage
     public function ldapGeneral()
     {
         $ldap = (
-            filter_input(
-                INPUT_POST,
-                'ldap'
-            ) ?: $this->obj->get('name')
+            filter_input(INPUT_POST, 'ldap') ?:
+            $this->obj->get('name')
         );
         $description = (
-            filter_input(
-                INPUT_POST,
-                'description'
-            ) ?: $this->obj->get('description')
+            filter_input(INPUT_POST, 'description') ?:
+            $this->obj->get('description')
         );
         $address = (
-            filter_input(
-                INPUT_POST,
-                'address'
-            ) ?: $this->obj->get('address')
+            filter_input(INPUT_POST, 'address') ?:
+            $this->obj->get('address')
         );
         $port = (
-            filter_input(
-                INPUT_POST,
-                'port'
-            ) ?: $this->obj->get('port')
+            filter_input(INPUT_POST, 'port') ?:
+            $this->obj->get('port')
         );
         $searchDN = (
-            filter_input(
-                INPUT_POST,
-                'searchDN'
-            ) ?: $this->obj->get('searchDN')
+            filter_input(INPUT_POST, 'searchDN') ?:
+            $this->obj->get('searchDN')
         );
         $grpSearchDN = (
-            filter_input(
-                INPUT_POST,
-                'grpSearchDN'
-            ) ?: $this->obj->get('grpSearchDN')
+            filter_input(INPUT_POST, 'grpSearchDN') ?:
+            $this->obj->get('grpSearchDN')
         );
         $adminGroup = (
-            filter_input(
-                INPUT_POST,
-                'adminGroup'
-            ) ?: $this->obj->get('adminGroup')
+            filter_input(INPUT_POST, 'adminGroup') ?:
+            $this->obj->get('adminGroup')
         );
         $userGroup = (
-            filter_input(
-                INPUT_POST,
-                'userGroup'
-            ) ?: $this->obj->get('userGroup')
+            filter_input(INPUT_POST, 'userGroup') ?:
+            $this->obj->get('userGroup')
         );
         $userNameAttr = (
-            filter_input(
-                INPUT_POST,
-                'userNameAttr'
-            ) ?: $this->obj->get('userNamAttr')
+            filter_input(INPUT_POST, 'userNameAttr') ?:
+            $this->obj->get('userNamAttr')
         );
         $grpMemberAttr = (
-            filter_input(
-                INPUT_POST,
-                'grpMemberAttr'
-            ) ?: $this->obj->get('grpMemberAttr')
+            filter_input(INPUT_POST, 'grpMemberAttr') ?:
+            $this->obj->get('grpMemberAttr')
         );
         $searchScope = (
-            filter_input(
-                INPUT_POST,
-                'searchScope'
-            ) ?: $this->obj->get('searchScope')
+            filter_input(INPUT_POST, 'searchScope') ?:
+            $this->obj->get('searchScope')
         );
         $bindDN = (
-            filter_input(
-                INPUT_POST,
-                'bindDN'
-            ) ?: $this->obj->get('bindDN')
+            filter_input(INPUT_POST, 'bindDN') ?:
+            $this->obj->get('bindDN')
         );
         $bindPwd = (
-            filter_input(
-                INPUT_POST,
-                'bindPwd'
-            ) ?: $this->obj->get('bindPwd')
+            filter_input(INPUT_POST, 'bindPwd') ?:
+            $this->obj->get('bindPwd')
         );
         $searchScopes = array(
             _('Base Only'),
@@ -856,6 +768,7 @@ class LDAPManagementPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'ldap-general-form',
@@ -887,106 +800,47 @@ class LDAPManagementPage extends FOGPage
     public function ldapGeneralPost()
     {
         $ldap = trim(
-            filter_input(
-                INPUT_POST,
-                'ldap'
-            )
+            filter_input(INPUT_POST, 'ldap')
         );
         $description = trim(
-            filter_input(
-                INPUT_POST,
-                'description'
-            )
+            filter_input(INPUT_POST, 'description')
         );
         $address = trim(
-            filter_input(
-                INPUT_POST,
-                'address'
-            )
+            filter_input(INPUT_POST, 'address')
         );
         $port = trim(
-            filter_input(
-                INPUT_POST,
-                'port'
-            )
+            filter_input(INPUT_POST, 'port')
         );
         $searchDN = trim(
-            filter_input(
-                INPUT_POST,
-                'searchDN'
-            )
+            filter_input(INPUT_POST, 'searchDN')
         );
         $grpSearchDN = trim(
-            filter_input(
-                INPUT_POST,
-                'grpSearchDN'
-            )
+            filter_input(INPUT_POST, 'grpSearchDN')
         );
         $adminGroup = trim(
-            filter_input(
-                INPUT_POST,
-                'adminGroup'
-            )
+            filter_input(INPUT_POST, 'adminGroup')
         );
         $userGroup = trim(
-            filter_input(
-                INPUT_POST,
-                'userGroup'
-            )
+            filter_input(INPUT_POST, 'userGroup')
         );
         $userNameAttr = trim(
-            filter_input(
-                INPUT_POST,
-                'userNameAttr'
-            )
+            filter_input(INPUT_POST, 'userNameAttr')
         );
         $grpMemberAttr = trim(
-            filter_input(
-                INPUT_POST,
-                'grpMemberAttr'
-            )
+            filter_input(INPUT_POST, 'grpMemberAttr')
         );
         $searchScope = trim(
-            filter_input(
-                INPUT_POST,
-                'searchScope'
-            )
+            filter_input(INPUT_POST, 'searchScope')
         );
         $bindDN = trim(
-            filter_input(
-                INPUT_POST,
-                'bindDN'
-            )
+            filter_input(INPUT_POST, 'bindDN')
         );
         $bindPwd = trim(
-            filter_input(
-                INPUT_POST,
-                'bindPwd'
-            )
+            filter_input(INPUT_POST, 'bindPwd')
         );
         $useGroupMatch = (int)isset($_POST['useGroupMatch']);
         if (!is_numeric($searchScope)) {
             $searchScope = 0;
-        }
-        if (empty($ldap)) {
-            throw new Exception(
-                _('Please enter a name for this LDAP server.')
-            );
-        }
-        if (empty($address)) {
-            throw new Exception(
-                _('Please enter a LDAP server address')
-            );
-        }
-        if (empty($searchDN)) {
-            throw new Exception(
-                _('Please enter a Search Base DN')
-            );
-        }
-        if (empty($port)) {
-            throw new Exception(
-                _('Please select an LDAP port to use')
-            );
         }
         if (!in_array($port, LDAP::LDAP_PORTS)) {
             throw new Exception(
@@ -998,18 +852,10 @@ class LDAPManagementPage extends FOGPage
                 _('Please Enter an admin or mobile lookup name')
             );
         }
-        if (empty($userNameAttr)) {
-            throw new Exception(
-                _('Please enter a User Name Attribute')
-            );
-        }
-        if (empty($grpMemberAttr)) {
-            throw new Exception(
-                _('Please enter a Group Member Attribute')
-            );
-        }
-        if ($this->obj->get('name') != $ldap
-            && self::getClass('LDAPManager')->exists($ldap)
+        $exists = self::getClass('LDAPManager')
+            ->exists($ldap);
+        if ($ldap != $this->obj->get('name')
+            && $exists
         ) {
             throw new Exception(
                 _('A LDAP setup already exists with this name!')
@@ -1046,6 +892,7 @@ class LDAPManagementPage extends FOGPage
 
         $tabData = [];
 
+        // General
         $tabData[] = [
             'name' => _('General'),
             'id' => 'ldap-general',
@@ -1068,6 +915,7 @@ class LDAPManagementPage extends FOGPage
             'LDAP_EDIT_POST',
             ['LDAP' => &$this->obj]
         );
+
         $serverFault = false;
         try {
             global $tab;
@@ -1102,6 +950,7 @@ class LDAPManagementPage extends FOGPage
                 ]
             );
         }
+        
         self::$HookManager->processEvent(
             $hook,
             [
