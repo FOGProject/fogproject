@@ -100,10 +100,7 @@ class AddWindowsKeyImage extends Hook
      */
     public function imageWindowskey($obj)
     {
-        $keyID = (int)filter_input(
-            INPUT_POST,
-            'windowskey'
-        );
+        $keyID = (int)filter_input(INPUT_POST, 'windowskey');
         // Image keys
         $windowskeySelector = self::getClass('WindowsKeyManager')
             ->buildSelectBox($keyID, 'windowskey');
@@ -168,12 +165,7 @@ class AddWindowsKeyImage extends Hook
      */
     public function imageWindowskeyPost($obj)
     {
-        $keyID = trim(
-            (int)filter_input(
-                INPUT_POST,
-                'windowskey'
-            )
-        );
+        $keyID = (int)filter_input(INPUT_POST, 'windowskey');
         $insert_fields = ['imageID', 'windowskeyID'];
         $insert_values = [];
         $images = [$obj->get('id')];
