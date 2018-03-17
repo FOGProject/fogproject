@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-16 22:44-0400\n"
+"POT-Creation-Date: 2018-03-16 23:05-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3137,12 +3137,20 @@ msgid "Storage Group name"
 msgstr "Nombre del grupo de almacenamiento"
 
 #, fuzzy
+msgid "A storage group exists with this name!"
+msgstr "Una imagen ya existe con este nombre!"
+
+#, fuzzy
 msgid "Storage Group Create Success"
 msgstr "creado por el usuario"
 
 #, fuzzy
 msgid "Storage Group Create Fail"
 msgstr "Nombre del grupo de almacenamiento"
+
+#, fuzzy
+msgid "A storage group already exists with this name!"
+msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
 msgid "Update Master Node"
@@ -3171,11 +3179,6 @@ msgstr "creado por el usuario"
 #, fuzzy
 msgid "Storage Group Update Fail"
 msgstr "Nombre del grupo de almacenamiento"
-
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
 
 #, fuzzy
 msgid "Login Failed"
@@ -5058,6 +5061,11 @@ msgstr "Actualizar impresora"
 #, fuzzy
 msgid "User Update Fail"
 msgstr "actualización Valoración falló"
+
+msgid ""
+"All columns less the id field will be exported. Column visibility does not "
+"affect the exported items."
+msgstr ""
 
 #, fuzzy
 msgid "Create New Group"

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-16 22:44-0400\n"
+"POT-Creation-Date: 2018-03-16 23:05-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -2928,12 +2928,20 @@ msgid "Storage Group name"
 msgstr "Name der Speichergruppe"
 
 #, fuzzy
+msgid "A storage group exists with this name!"
+msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
+
+#, fuzzy
 msgid "Storage Group Create Success"
 msgstr "Speichergruppe erfolgreich erstellt"
 
 #, fuzzy
 msgid "Storage Group Create Fail"
 msgstr "Erstellen einer Speichergruppe fehlgeschlagen"
+
+#, fuzzy
+msgid "A storage group already exists with this name!"
+msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
 msgid "Update Master Node"
@@ -2962,11 +2970,6 @@ msgstr "Speichergruppe erfolgreich aktualisiert"
 #, fuzzy
 msgid "Storage Group Update Fail"
 msgstr "Aktualisierung der Speichergruppe fehlgeschlagen"
-
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
 
 #, fuzzy
 msgid "Login Failed"
@@ -4833,6 +4836,11 @@ msgstr "Benutzeraktualisierung erfolgreich!"
 #, fuzzy
 msgid "User Update Fail"
 msgstr "Benutzer-Update fehlgeschlagen"
+
+msgid ""
+"All columns less the id field will be exported. Column visibility does not "
+"affect the exported items."
+msgstr ""
 
 #, fuzzy
 msgid "Create New Group"

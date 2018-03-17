@@ -1018,7 +1018,7 @@ class StorageNodeManagementPage extends FOGPage
         }
         $exists = self::getClass('StorageNodeManager')
             ->exists($storagenode, $this->obj->get('id'));
-        if ($this->obj->get('name') != $storagenode
+        if ($storagenode != $this->obj->get('name')
             && $exists
         ) {
             throw new Exception(

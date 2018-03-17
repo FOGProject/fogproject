@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-16 22:44-0400\n"
+"POT-Creation-Date: 2018-03-16 23:05-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -2762,11 +2762,19 @@ msgstr "Creazione Gruppo di archiviazione"
 msgid "Storage Group name"
 msgstr "Nome gruppo di archiviazione"
 
+#, fuzzy
+msgid "A storage group exists with this name!"
+msgstr "Un host già esiste con questo nome!"
+
 msgid "Storage Group Create Success"
 msgstr "Gruppo di archiviazione creato con successo"
 
 msgid "Storage Group Create Fail"
 msgstr "Gruppo di archiviazione creazione fallita"
+
+#, fuzzy
+msgid "A storage group already exists with this name!"
+msgstr "Un host già esiste con questo nome!"
 
 #, fuzzy
 msgid "Update Master Node"
@@ -2792,11 +2800,6 @@ msgstr "Aggiornamento Gruppo di archiviazione completato"
 
 msgid "Storage Group Update Fail"
 msgstr "Aggiornamento Gruppo di archiviazione fallito"
-
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
 
 #, fuzzy
 msgid "Login Failed"
@@ -4499,6 +4502,11 @@ msgstr "Utente aggiornato con successo"
 
 msgid "User Update Fail"
 msgstr "Aggiornamento utente non riuscita"
+
+msgid ""
+"All columns less the id field will be exported. Column visibility does not "
+"affect the exported items."
+msgstr ""
 
 #, fuzzy
 msgid "Create New Group"
