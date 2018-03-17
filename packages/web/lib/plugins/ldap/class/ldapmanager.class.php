@@ -42,7 +42,7 @@ class LDAPManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'lsID',
                 'lsName',
                 'lsDesc',
@@ -60,8 +60,8 @@ class LDAPManager extends FOGManagerController
                 'lsBindPwd',
                 'lsGrpSearchDN',
                 'lsUseGroupMatch'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'VARCHAR(255)',
                 'LONGTEXT',
@@ -79,8 +79,8 @@ class LDAPManager extends FOGManagerController
                 'LONGTEXT',
                 'LONGTEXT',
                 "ENUM('0', '1')",
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -98,8 +98,8 @@ class LDAPManager extends FOGManagerController
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -117,15 +117,15 @@ class LDAPManager extends FOGManagerController
                 false,
                 false,
                 '0'
-            ),
-            array(
+            ],
+            [
                 'lsID',
-                array(
+                [
                     'lsAddress',
                     'lsPort'
-                ),
+                ],
                 'lsName'
-            ),
+            ],
             'MyISAM',
             'utf8',
             'lsID',
@@ -142,11 +142,11 @@ class LDAPManager extends FOGManagerController
     {
         $userIDs = self::getSubObjectIDs(
             'User',
-            array('type' => array(990, 991))
+            ['type' => LDAPPluginHook::LDAP_TYPES]
         );
         if (count($userIDs) > 0) {
             self::getClass('UserManager')
-                ->destroy(array('id' => $userIDs));
+                ->destroy(['id' => $userIDs]);
         }
         return parent::uninstall();
     }
