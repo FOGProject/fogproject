@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 15:19-0400\n"
+"POT-Creation-Date: 2018-03-17 15:39-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1372,20 +1372,12 @@ msgstr "Crea nuova posizione"
 msgid "Location Description"
 msgstr "Associazione Posizione"
 
-#, fuzzy
-msgid "Location Sends Boot"
-msgstr "Posizione aggiunta!"
-
-msgid "Location sends the inits and kernels"
+msgid "Boot files from"
 msgstr ""
 
 #, fuzzy
 msgid "Create New Site"
 msgstr "Crea nuova stampante"
-
-#, fuzzy
-msgid "A location name is required!"
-msgstr "È richiesto un nome di snapin!"
 
 #, fuzzy
 msgid "A location already exists with this name!"
@@ -1423,8 +1415,8 @@ msgid "Host Associated"
 msgstr "Host associato"
 
 #, fuzzy
-msgid "Host Membership"
-msgstr "membri"
+msgid "Host Association"
+msgstr "Host associato"
 
 msgid "Location update failed!"
 msgstr "Aggiornamento posizione non riuscito"
@@ -1437,6 +1429,10 @@ msgstr "Modifica posizione riuscita"
 
 msgid "Location Update Fail"
 msgstr "Aggiornamento posizione fallita"
+
+#, fuzzy
+msgid "Export Broadcasts"
+msgstr "Host Export"
 
 msgid "Location is a plugin that allows your FOG Server"
 msgstr "Luoghi è un plugin che consente al server FOG"
@@ -1578,10 +1574,6 @@ msgid "Site User Associations"
 msgstr "Associazione Sito"
 
 #, fuzzy
-msgid "Host Association"
-msgstr "Host associato"
-
-#, fuzzy
 msgid "User Association"
 msgstr "Associazione Sito"
 
@@ -1627,10 +1619,6 @@ msgstr "Connessione Pushbullet Account completata"
 
 msgid "Link Pushbullet Account Fail"
 msgstr "Connessione Pushbullet Account fallita"
-
-#, fuzzy
-msgid "Export Broadcasts"
-msgstr "Host Export"
 
 #, fuzzy
 msgid "Import Broadcasts"
@@ -2946,6 +2934,10 @@ msgstr "Storage Node Creato"
 #, fuzzy
 msgid "Storage Groups"
 msgstr "gruppo di archiviazione"
+
+#, fuzzy
+msgid "Host Membership"
+msgstr "membri"
 
 msgid "Snapin update failed!"
 msgstr "Aggiornamento Snapin fallito!"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 15:19-0400\n"
+"POT-Creation-Date: 2018-03-17 15:39-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1415,20 +1415,12 @@ msgstr "新建%s"
 msgid "Location Description"
 msgstr "图像协会"
 
-#, fuzzy
-msgid "Location Sends Boot"
-msgstr "地点名称"
-
-msgid "Location sends the inits and kernels"
+msgid "Boot files from"
 msgstr ""
 
 #, fuzzy
 msgid "Create New Site"
 msgstr "新建%s"
-
-#, fuzzy
-msgid "A location name is required!"
-msgstr "图像名是必需的！"
 
 #, fuzzy
 msgid "A location already exists with this name!"
@@ -1470,8 +1462,8 @@ msgid "Host Associated"
 msgstr "无关联的节点"
 
 #, fuzzy
-msgid "Host Membership"
-msgstr "籍"
+msgid "Host Association"
+msgstr "无关联的节点"
 
 #, fuzzy
 msgid "Location update failed!"
@@ -1488,6 +1480,10 @@ msgstr "安装/升级成功！"
 #, fuzzy
 msgid "Location Update Fail"
 msgstr "更新位置"
+
+#, fuzzy
+msgid "Export Broadcasts"
+msgstr "主机出口"
 
 msgid "Location is a plugin that allows your FOG Server"
 msgstr ""
@@ -1635,10 +1631,6 @@ msgid "Site User Associations"
 msgstr "图像协会"
 
 #, fuzzy
-msgid "Host Association"
-msgstr "无关联的节点"
-
-#, fuzzy
 msgid "User Association"
 msgstr "图像协会"
 
@@ -1686,10 +1678,6 @@ msgstr "链接Pushbullet账户"
 #, fuzzy
 msgid "Link Pushbullet Account Fail"
 msgstr "链接Pushbullet账户"
-
-#, fuzzy
-msgid "Export Broadcasts"
-msgstr "主机出口"
 
 #, fuzzy
 msgid "Import Broadcasts"
@@ -3135,6 +3123,10 @@ msgstr "存储节点创建"
 #, fuzzy
 msgid "Storage Groups"
 msgstr "存储组"
+
+#, fuzzy
+msgid "Host Membership"
+msgstr "籍"
 
 #, fuzzy
 msgid "Snapin update failed!"

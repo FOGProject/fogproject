@@ -69,6 +69,7 @@ class LocationManagementPage extends FOGPage
     public function add()
     {
         $this->title = _('Create New Location');
+
         $location = filter_input(INPUT_POST, 'location');
         $description = filter_input(INPUT_POST, 'description');
         $storagegroup = filter_input(INPUT_POST, 'storagegroup');
@@ -77,44 +78,80 @@ class LocationManagementPage extends FOGPage
             ->buildSelectBox($storagegroup);
         $storagenodeSelector = self::getClass('StorageNodeManager')
             ->buildSelectBox($storagenode);
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="location">'
-            . _('Location Name')
-            . '</label>' => '<input type="text" name="location" '
-            . 'value="'
-            . $location
-            . '" class="locationname-input form-control" '
-            . 'id="location" required/>',
-            '<label class="col-sm-2 control-label" for="description">'
-            . _('Location Description')
-            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
-            . 'min-height:50px;" '
-            . 'id="description" name="description">'
-            . $description
-            . '</textarea>',
-            '<label class="col-sm-2 control-label" for="storagegroup">'
-            . _('Storage Group')
-            . '</label>' => $storagegroupSelector,
-            '<label class="col-sm-2 control-label" for="storagenode">'
-            . _('Storage Node')
-            . '</label>' => $storagenodeSelector,
-            '<label class="col-sm-2 control-label" for="bootfrom">'
-            . _('Location Sends Boot')
-            . '<br/>('
-            . _('Location sends the inits and kernels')
-            . ')</label>' => '<input type="checkbox" name="bootfrom" '
-            . 'class="bootfrom" id="bootfrom" checked/>'
+            self::makeLabel(
+                $labelClass,
+                'location',
+                _('Location Name')
+            ) => self::makeInput(
+                'form-control locationname-input',
+                'location',
+                _('Location Name'),
+                'text',
+                'location',
+                $location,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Location Description')
+            ) => self::makeTextarea(
+                'form-control locationdescription-input',
+                'description',
+                _('Location Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'storagegroup',
+                _('Storage Group')
+            ) => $storagegroupSelector,
+            self::makeLabel(
+                $labelClass,
+                'storagenode',
+                _('Storage Node')
+            ) => $storagenodeSelector,
+            self::makeLabel(
+                $labelClass,
+                'bootfrom',
+                _('Boot files from')
+            ) => self::makeInput(
+                '',
+                'bootfrom',
+                '',
+                'checkbox',
+                'bootfrom',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            )
         ];
+
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
+
         self::$HookManager->processEvent(
             'LOCATION_ADD_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Location' => self::getClass('Location')
             ]
         );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<div class="box box-solid" id="location-create">';
+
         echo self::makeFormTag(
             'form-horizontal',
             'location-create-form',
@@ -123,8 +160,8 @@ class LocationManagementPage extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
+        echo '<div class="box box-solid" id="location-create">';
         echo '<div class="box-body">';
-        echo '<!-- Location General -->';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -137,14 +174,10 @@ class LocationManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary'
-        );
+        echo $buttons;
+        echo '</div>';
         echo '</div>';
         echo '</form>';
-        echo '</div>';
     }
     /**
      * Actually create the location.
@@ -168,14 +201,12 @@ class LocationManagementPage extends FOGPage
             filter_input(INPUT_POST, 'storagenode')
         );
         $bootfrom = (int)isset($_POST['bootfrom']);
+
         $serverFault = false;
         try {
-            if (!$location) {
-                throw new Exception(
-                    _('A location name is required!')
-                );
-            }
-            if (self::getClass('LocationManager')->exists($location)) {
+            $exists = self::getClass('LocationManager')
+                ->exists($location);
+            if ($exists) {
                 throw new Exception(
                     _('A location already exists with this name!')
                 );
@@ -224,17 +255,16 @@ class LocationManagementPage extends FOGPage
         //     'Location: ../management/index.php?node=location&sub=edit&id='
         //     . $Location->get('id')
         // );
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'Location' => &$Location,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Location' => &$Location,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
         http_response_code($code);
         unset($Location);
         echo $msg;
@@ -269,53 +299,92 @@ class LocationManagementPage extends FOGPage
             ->buildSelectBox($storagenode);
         $bootfrom = (
             isset($_POST['bootfrom']) ?
-            ' checked' :
+            'checked' :
             (
                 $this->obj->get('tftp') ?
-                ' checked' :
+                'checked' :
                 ''
             )
         );
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="location">'
-            . _('Location Name')
-            . '</label>' => '<input type="text" name="location" '
-            . 'value="'
-            . $location
-            . '" class="locationname-input form-control" '
-            . 'id="location" required/>',
-            '<label class="col-sm-2 control-label" for="description">'
-            . _('Location Description')
-            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
-            . 'min-height:50px;" '
-            . 'id="description" name="description">'
-            . $description
-            . '</textarea>',
-            '<label class="col-sm-2 control-label" for="storagegroup">'
-            . _('Storage Group')
-            . '</label>' => $storagegroupSelector,
-            '<label class="col-sm-2 control-label" for="storagenode">'
-            . _('Storage Node')
-            . '</label>' => $storagenodeSelector,
-            '<label class="col-sm-2 control-label" for="bootfrom">'
-            . _('Location Sends Boot')
-            . '<br/>('
-            . _('Location sends the inits and kernels')
-            . ')</label>' => '<input type="checkbox" name="bootfrom" '
-            . 'class="bootfrom" id="bootfrom"'
-            . $bootfrom
-            . '/>'
+            self::makeLabel(
+                $labelClass,
+                'location',
+                _('Location Name')
+            ) => self::makeInput(
+                'form-control locationname-input',
+                'location',
+                _('Location Name'),
+                'text',
+                'location',
+                $location,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Location Description')
+            ) => self::makeTextarea(
+                'form-control locationdescription-input',
+                'description',
+                _('Location Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'storagegroup',
+                _('Storage Group')
+            ) => $storagegroupSelector,
+            self::makeLabel(
+                $labelClass,
+                'storagenode',
+                _('Storage Node')
+            ) => $storagenodeSelector,
+            self::makeLabel(
+                $labelClass,
+                'bootfrom',
+                _('Boot files from')
+            ) => self::makeInput(
+                '',
+                'bootfrom',
+                '',
+                'checkbox',
+                'bootfrom',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $bootfrom
+            )
         ];
-        self::$HookManager
-            ->processEvent(
-                'LOCATION_GENERAL_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'Location' => self::getClass('Location')
-                ]
-            );
+
+        $buttons = self::makeButton(
+            'general-send',
+            _('Update'),
+            'btn btn-primary'
+        );
+        $buttons .= self::makeButton(
+            'general-delete',
+            _('Delete'),
+            'btn btn-danger pull-right'
+        );
+
+        self::$HookManager->processEvent(
+            'LOCATION_GENERAL_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'Location' => self::getClass('Location')
+            ]
+        );
         $rendered = self::formFields($fields);
-        echo '<div class="box box-solid">';
+        unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'location-general-form',
@@ -327,23 +396,15 @@ class LocationManagementPage extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
+        echo '<div class="box box-solid">';
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
-        echo self::makeButton(
-            'general-send',
-            _('Update'),
-            'btn btn-primary'
-        );
-        echo self::makeButton(
-            'general-delete',
-            _('Delete'),
-            'btn btn-danger pull-right'
-        );
+        echo $buttons;
+        echo '</div>';
         echo '</div>';
         echo '</form>';
-        echo '</div>';
     }
     /**
      * Actually update the general information.
@@ -365,12 +426,15 @@ class LocationManagementPage extends FOGPage
             filter_input(INPUT_POST, 'storagenode')
         );
         $bootfrom = (int)isset($_POST['bootfrom']);
-        if ($location != $this->obj->get('name')) {
-            if ($this->obj->getManager()->exists($location)) {
-                throw new Exception(
-                    _('A location already exists with this name!')
-                );
-            }
+
+        $exists = self::getClass('LocationManager')
+            ->exists($location);
+        if ($location != $this->obj->get('name')
+            && $exists
+        ) {
+            throw new Exception(
+                _('A location already exists with this name!')
+            );
         }
         if (!$storagegroup && !$storagenode) {
             throw new Exception(
@@ -498,9 +562,9 @@ class LocationManagementPage extends FOGPage
             }
         ];
 
-        // Membership
+        // Hosts
         $tabData[] = [
-            'name' => _('Host Membership'),
+            'name' => _('Host Association'),
             'id' => 'location-membership',
             'generator' => function () {
                 $this->locationMembership();
@@ -592,10 +656,8 @@ class LocationManagementPage extends FOGPage
             . $this->obj->get('id')
             . "','associated','dissociated') as `laLocationID`
             FROM `%s`
-            CROSS JOIN `location`
             LEFT OUTER JOIN `locationAssoc`
-            ON `location`.`lID` = `locationAssoc`.`laLocationID`
-            AND `hosts`.`hostID` = `locationAssoc`.`laHostID`
+            ON `hosts`.`hostID` = `locationAssoc`.`laHostID`
             %s
             %s
             %s";
@@ -604,10 +666,8 @@ class LocationManagementPage extends FOGPage
             . $this->obj->get('id')
             . "','associated','dissociated') as `laLocationID`
             FROM `%s`
-            CROSS JOIN `location`
             LEFT OUTER JOIN `locationAssoc`
-            ON `location`.`lID` = `locationAssoc`.`laLocationID`
-            AND `hosts`.`hostID` = `locationAssoc`.`laHostID`
+            ON `hosts`.`hostID` = `locationAssoc`.`laHostID`
             %s";
         $hostsTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`";
@@ -633,6 +693,109 @@ class LocationManagementPage extends FOGPage
                 $hostsSqlStr,
                 $hostsFilterStr,
                 $hostsTotalStr
+            )
+        );
+        exit;
+    }
+    /**
+     * Present the export information.
+     *
+     * @return void
+     */
+    public function export()
+    {
+        // The data to use for building our table.
+        $this->headerData = [];
+        $this->templates = [];
+        $this->attributes = [];
+
+        $obj = self::getClass('LocationManager');
+
+        foreach ($obj->getColumns() as $common => &$real) {
+            if ('id' == $common) {
+                continue;
+            }
+            array_push($this->headerData, $common);
+            array_push($this->templates, '');
+            array_push($this->attributes, []);
+            unset($real);
+        }
+
+        $this->title = _('Export Locations');
+
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Export Locations');
+        echo '</h4>';
+        echo '<p class="help-block">';
+        echo _('Use the selector to choose how many items you want exported.');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo '<p class="help-block">';
+        echo _(
+            'When you click on the item you want to export, it can only select '
+            . 'what is currently viewable on the screen. This includes searched '
+            . 'and the current page. Please use the selector to choose the amount '
+            . 'of items you would like to export.'
+        );
+        echo '</p>';
+        $this->render(12, 'location-export-table');
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Present the export list.
+     *
+     * @return void
+     */
+    public function getExportList()
+    {
+        header('Content-type: application/json');
+        $obj = self::getClass('LocationManager');
+        $table = $obj->getTable();
+        $sqlstr = $obj->getQueryStr();
+        $filterstr = $obj->getFilterStr();
+        $totalstr = $obj->getTotalStr();
+        $dbcolumns = $obj->getColumns();
+        $pass_vars = $columns = [];
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        // Setup our columns for the CSVn.
+        // Automatically removes the id column.
+        foreach ($dbcolumns as $common => &$real) {
+            if ('id' == $common) {
+                $tableID = $real;
+                continue;
+            }
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        self::$HookManager->processEvent(
+            'LOCATION_EXPORT_ITEMS',
+            [
+                'table' => &$table,
+                'sqlstr' => &$sqlstr,
+                'filterstr' => &$filterstr,
+                'totalstr' => &$totalstr,
+                'columns' => &$columns
+            ]
+        );
+        echo json_encode(
+            FOGManagerController::simple(
+                $pass_vars,
+                $table,
+                $tableID,
+                $columns,
+                $sqlstr,
+                $filterstr,
+                $totalstr
             )
         );
         exit;
