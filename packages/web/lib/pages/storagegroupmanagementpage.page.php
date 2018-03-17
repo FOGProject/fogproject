@@ -434,9 +434,7 @@ class StorageGroupManagementPage extends FOGPage
                     'isMaster' => '1'
                 ],
                 '',
-                [
-                    'isMaster' => '0'
-                ]
+                ['isMaster' => '0']
             );
             if ($master) {
                 self::getClass('StorageNodeManager')->update(
@@ -445,9 +443,7 @@ class StorageGroupManagementPage extends FOGPage
                         'id' => $master
                     ],
                     '',
-                    [
-                        'isMaster' => '1'
-                    ]
+                    ['isMaster' => '1']
                 );
             }
         }

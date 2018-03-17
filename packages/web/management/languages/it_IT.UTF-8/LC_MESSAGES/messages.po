@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 16:04-0400\n"
+"POT-Creation-Date: 2018-03-17 18:00-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -2837,9 +2837,6 @@ msgstr "Snap-Run con l'argomento"
 msgid "Snapin Pack Arguments"
 msgstr "Argomenti Snapin Pack"
 
-msgid "Max Size"
-msgstr "Dimensione massima"
-
 msgid "Browse"
 msgstr "Sfoglia"
 
@@ -2852,30 +2849,29 @@ msgstr "Argomenti Snapin"
 msgid "Snapin Enabled"
 msgstr "snap-Enabled"
 
+#, fuzzy
+msgid "Snapin Replicate"
+msgstr "Snapin Replicator"
+
 msgid "Snapin Arguments Hidden"
 msgstr "Snapin Argomenti nascosti"
 
-msgid "Snapin Timeout (seconds)"
-msgstr "Timeout Snapin (in secondi)"
+#, fuzzy
+msgid "Snapin Timeout"
+msgstr "Timeout della sessione"
+
+msgid "in seconds"
+msgstr "in secondi"
 
 #, fuzzy
-msgid "Replicate"
-msgstr "Replicare?"
-
-msgid "Reboot after install"
-msgstr "Riavvio dopo l'installazione"
-
-msgid "Shutdown after install"
-msgstr "Shutdown dopo l'installazione"
+msgid "No Action"
+msgstr "Azione"
 
 msgid "Snapin Command"
 msgstr "Snapin comando"
 
 msgid "read-only"
 msgstr "sola lettura"
-
-msgid "A snapin name is required!"
-msgstr "È richiesto un nome di snapin!"
 
 msgid "A snapin already exists with this name!"
 msgstr "Esiste già un snapin con questo nome!"
@@ -2934,10 +2930,6 @@ msgstr "Storage Node Creato"
 #, fuzzy
 msgid "Storage Groups"
 msgstr "gruppo di archiviazione"
-
-#, fuzzy
-msgid "Host Membership"
-msgstr "membri"
 
 msgid "Snapin update failed!"
 msgstr "Aggiornamento Snapin fallito!"
@@ -3081,9 +3073,6 @@ msgstr "Opzione specifica le associazioni dopo controlli host"
 
 msgid "Menu Timeout"
 msgstr "Timeout menu"
-
-msgid "in seconds"
-msgstr "in secondi"
 
 msgid "Option specifies the menu timeout"
 msgstr "L'opzione specifica il timeout del menu"
@@ -3487,6 +3476,9 @@ msgstr "Esporta database"
 
 msgid "Import Database?"
 msgstr "Importa database?"
+
+msgid "Max Size"
+msgstr "Dimensione massima"
 
 msgid "Import"
 msgstr "Importare"
@@ -4488,11 +4480,6 @@ msgstr "Utente aggiornato con successo"
 msgid "User Update Fail"
 msgstr "Aggiornamento utente non riuscita"
 
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
-
 #, fuzzy
 msgid "Create New Group"
 msgstr "Creazione Gruppo di archiviazione"
@@ -4811,6 +4798,10 @@ msgid "Printer Create Fail"
 msgstr "Creazione stampante fallita"
 
 #, fuzzy
+msgid "Host Membership"
+msgstr "membri"
+
+#, fuzzy
 msgid "Update Default"
 msgstr "Aggiorna la stampante predefinita"
 
@@ -4829,6 +4820,11 @@ msgstr "Aggiornamento stampante riuscito"
 
 msgid "Printer Update Fail"
 msgstr "Aggiornamento della stampante non riuscito"
+
+msgid ""
+"All columns less the id field will be exported. Column visibility does not "
+"affect the exported items."
+msgstr ""
 
 #, fuzzy
 msgid "FOG Client Installers"

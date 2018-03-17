@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 16:04-0400\n"
+"POT-Creation-Date: 2018-03-17 18:00-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3015,9 +3015,6 @@ msgstr "Snapin läuft mit Argument"
 msgid "Snapin Pack Arguments"
 msgstr "Snapin PaketArgumente"
 
-msgid "Max Size"
-msgstr "Max. Größe"
-
 msgid "Browse"
 msgstr "browse"
 
@@ -3031,32 +3028,29 @@ msgid "Snapin Enabled"
 msgstr "Snapin aktiviert"
 
 #, fuzzy
+msgid "Snapin Replicate"
+msgstr "Snapin-Replikator"
+
+#, fuzzy
 msgid "Snapin Arguments Hidden"
 msgstr "Snapin-Argumente versteckt"
 
 #, fuzzy
-msgid "Snapin Timeout (seconds)"
-msgstr "Snapin-Timeout (in Sekunden)"
+msgid "Snapin Timeout"
+msgstr "Session-Timeout"
+
+msgid "in seconds"
+msgstr "in Sekunden"
 
 #, fuzzy
-msgid "Replicate"
-msgstr "Replizieren?"
-
-msgid "Reboot after install"
-msgstr "Nach der Installation neu starten"
-
-msgid "Shutdown after install"
-msgstr "Nach der Installation herunterfahren"
+msgid "No Action"
+msgstr "Aktion"
 
 msgid "Snapin Command"
 msgstr "Snapin Befehl"
 
 msgid "read-only"
 msgstr "nur lesen"
-
-#, fuzzy
-msgid "A snapin name is required!"
-msgstr "Ein Snapinname ist erforderlich!"
 
 #, fuzzy
 msgid "A snapin already exists with this name!"
@@ -3125,10 +3119,6 @@ msgstr "Speicherknoten erstellt"
 #, fuzzy
 msgid "Storage Groups"
 msgstr "Speichergruppe"
-
-#, fuzzy
-msgid "Host Membership"
-msgstr "Mitgliedschaft"
 
 #, fuzzy
 msgid "Snapin update failed!"
@@ -3289,9 +3279,6 @@ msgstr "Diese Option definiert die Paarungen nach der Hostprüfung"
 #, fuzzy
 msgid "Menu Timeout"
 msgstr "Menü-Timeout"
-
-msgid "in seconds"
-msgstr "in Sekunden"
 
 #, fuzzy
 msgid "Option specifies the menu timeout"
@@ -3754,6 +3741,9 @@ msgstr "Datenbank exportieren"
 #, fuzzy
 msgid "Import Database?"
 msgstr "Datenbank importieren?"
+
+msgid "Max Size"
+msgstr "Max. Größe"
 
 msgid "Import"
 msgstr "Import"
@@ -4822,11 +4812,6 @@ msgstr "Benutzeraktualisierung erfolgreich!"
 msgid "User Update Fail"
 msgstr "Benutzer-Update fehlgeschlagen"
 
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
-
 #, fuzzy
 msgid "Create New Group"
 msgstr "Speichergruppe erstellen"
@@ -5174,6 +5159,10 @@ msgid "Printer Create Fail"
 msgstr "Drucker erstellen fehlgeschlagen!"
 
 #, fuzzy
+msgid "Host Membership"
+msgstr "Mitgliedschaft"
+
+#, fuzzy
 msgid "Update Default"
 msgstr "Standarddrucker aktualisieren"
 
@@ -5194,6 +5183,11 @@ msgstr "Drucker aktualisiert!"
 #, fuzzy
 msgid "Printer Update Fail"
 msgstr "Drucker-Update fehlgeschlagen!"
+
+msgid ""
+"All columns less the id field will be exported. Column visibility does not "
+"affect the exported items."
+msgstr ""
 
 #, fuzzy
 msgid "FOG Client Installers"

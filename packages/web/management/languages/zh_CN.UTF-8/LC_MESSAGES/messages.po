@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 16:04-0400\n"
+"POT-Creation-Date: 2018-03-17 18:00-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3013,9 +3013,6 @@ msgstr "管理单元运行带有参数"
 msgid "Snapin Pack Arguments"
 msgstr "管理单元参数"
 
-msgid "Max Size"
-msgstr "最大尺寸"
-
 msgid "Browse"
 msgstr ""
 
@@ -3029,32 +3026,29 @@ msgid "Snapin Enabled"
 msgstr "启用管理单元"
 
 #, fuzzy
+msgid "Snapin Replicate"
+msgstr "管理单元复制"
+
+#, fuzzy
 msgid "Snapin Arguments Hidden"
 msgstr "管理单元参数"
 
 #, fuzzy
-msgid "Snapin Timeout (seconds)"
-msgstr "菜单超时（以秒为单位）"
+msgid "Snapin Timeout"
+msgstr "会话超时"
+
+msgid "in seconds"
+msgstr ""
 
 #, fuzzy
-msgid "Replicate"
-msgstr "复制？"
-
-msgid "Reboot after install"
-msgstr "重启后安装"
-
-msgid "Shutdown after install"
-msgstr "关机后安装"
+msgid "No Action"
+msgstr "行动"
 
 msgid "Snapin Command"
 msgstr "管理单元命令"
 
 msgid "read-only"
 msgstr ""
-
-#, fuzzy
-msgid "A snapin name is required!"
-msgstr "图像名是必需的！"
 
 #, fuzzy
 msgid "A snapin already exists with this name!"
@@ -3123,10 +3117,6 @@ msgstr "存储节点创建"
 #, fuzzy
 msgid "Storage Groups"
 msgstr "存储组"
-
-#, fuzzy
-msgid "Host Membership"
-msgstr "籍"
 
 #, fuzzy
 msgid "Snapin update failed!"
@@ -3285,9 +3275,6 @@ msgstr ""
 #, fuzzy
 msgid "Menu Timeout"
 msgstr "隐藏菜单超时"
-
-msgid "in seconds"
-msgstr ""
 
 #, fuzzy
 msgid "Option specifies the menu timeout"
@@ -3745,6 +3732,9 @@ msgstr "日期"
 #, fuzzy
 msgid "Import Database?"
 msgstr "日期"
+
+msgid "Max Size"
+msgstr "最大尺寸"
 
 msgid "Import"
 msgstr "进口"
@@ -4807,11 +4797,6 @@ msgstr "安装/升级成功！"
 msgid "User Update Fail"
 msgstr "用户更新失败"
 
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
-
 #, fuzzy
 msgid "Create New Group"
 msgstr "存储节点"
@@ -5157,6 +5142,10 @@ msgid "Printer Create Fail"
 msgstr "打印机更新失败！"
 
 #, fuzzy
+msgid "Host Membership"
+msgstr "籍"
+
+#, fuzzy
 msgid "Update Default"
 msgstr "更新打印机"
 
@@ -5177,6 +5166,11 @@ msgstr "打印机更新！"
 #, fuzzy
 msgid "Printer Update Fail"
 msgstr "打印机更新失败！"
+
+msgid ""
+"All columns less the id field will be exported. Column visibility does not "
+"affect the exported items."
+msgstr ""
 
 #, fuzzy
 msgid "FOG Client Installers"

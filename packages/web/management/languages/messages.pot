@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 16:04-0400\n"
+"POT-Creation-Date: 2018-03-17 18:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2663,9 +2663,6 @@ msgstr ""
 msgid "Snapin Pack Arguments"
 msgstr ""
 
-msgid "Max Size"
-msgstr ""
-
 msgid "Browse"
 msgstr ""
 
@@ -2678,28 +2675,25 @@ msgstr ""
 msgid "Snapin Enabled"
 msgstr ""
 
+msgid "Snapin Replicate"
+msgstr ""
+
 msgid "Snapin Arguments Hidden"
 msgstr ""
 
-msgid "Snapin Timeout (seconds)"
+msgid "Snapin Timeout"
 msgstr ""
 
-msgid "Replicate"
+msgid "in seconds"
 msgstr ""
 
-msgid "Reboot after install"
-msgstr ""
-
-msgid "Shutdown after install"
+msgid "No Action"
 msgstr ""
 
 msgid "Snapin Command"
 msgstr ""
 
 msgid "read-only"
-msgstr ""
-
-msgid "A snapin name is required!"
 msgstr ""
 
 msgid "A snapin already exists with this name!"
@@ -2754,9 +2748,6 @@ msgid "Storage Group Associated"
 msgstr ""
 
 msgid "Storage Groups"
-msgstr ""
-
-msgid "Host Membership"
 msgstr ""
 
 msgid "Snapin update failed!"
@@ -2892,9 +2883,6 @@ msgid "Option specifies the pairings after host checks"
 msgstr ""
 
 msgid "Menu Timeout"
-msgstr ""
-
-msgid "in seconds"
 msgstr ""
 
 msgid "Option specifies the menu timeout"
@@ -3288,6 +3276,9 @@ msgid "Export Database"
 msgstr ""
 
 msgid "Import Database?"
+msgstr ""
+
+msgid "Max Size"
 msgstr ""
 
 msgid "Import"
@@ -4193,11 +4184,6 @@ msgstr ""
 msgid "User Update Fail"
 msgstr ""
 
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
-
 msgid "Create New Group"
 msgstr ""
 
@@ -4476,6 +4462,9 @@ msgstr ""
 msgid "Printer Create Fail"
 msgstr ""
 
+msgid "Host Membership"
+msgstr ""
+
 msgid "Update Default"
 msgstr ""
 
@@ -4492,6 +4481,11 @@ msgid "Printer Update Success"
 msgstr ""
 
 msgid "Printer Update Fail"
+msgstr ""
+
+msgid ""
+"All columns less the id field will be exported. Column visibility does not "
+"affect the exported items."
 msgstr ""
 
 msgid "FOG Client Installers"

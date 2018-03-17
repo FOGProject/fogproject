@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 16:04-0400\n"
+"POT-Creation-Date: 2018-03-17 18:00-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3224,10 +3224,6 @@ msgstr ""
 msgid "Snapin Pack Arguments"
 msgstr "Nombre snapin"
 
-#, fuzzy
-msgid "Max Size"
-msgstr "Tamaño máximo:"
-
 msgid "Browse"
 msgstr ""
 
@@ -3242,21 +3238,23 @@ msgstr "Nombre snapin"
 msgid "Snapin Enabled"
 msgstr "Nombre snapin"
 
+#, fuzzy
+msgid "Snapin Replicate"
+msgstr "snapin replicador"
+
 msgid "Snapin Arguments Hidden"
 msgstr ""
 
-msgid "Snapin Timeout (seconds)"
+#, fuzzy
+msgid "Snapin Timeout"
+msgstr "Nombre de sesión"
+
+msgid "in seconds"
 msgstr ""
 
 #, fuzzy
-msgid "Replicate"
-msgstr "¿Reproducir exactamente?"
-
-msgid "Reboot after install"
-msgstr ""
-
-msgid "Shutdown after install"
-msgstr ""
+msgid "No Action"
+msgstr "Acción"
 
 #, fuzzy
 msgid "Snapin Command"
@@ -3264,10 +3262,6 @@ msgstr "Camino snapin"
 
 msgid "read-only"
 msgstr ""
-
-#, fuzzy
-msgid "A snapin name is required!"
-msgstr "Se requiere un nombre de imagen!"
 
 #, fuzzy
 msgid "A snapin already exists with this name!"
@@ -3339,10 +3333,6 @@ msgstr "nodo de almacenamiento"
 #, fuzzy
 msgid "Storage Groups"
 msgstr "Grupo de almacenamiento"
-
-#, fuzzy
-msgid "Host Membership"
-msgstr "miembros"
 
 #, fuzzy
 msgid "Snapin update failed!"
@@ -3504,9 +3494,6 @@ msgstr ""
 #, fuzzy
 msgid "Menu Timeout"
 msgstr "Tiempo de espera Ocultar menú"
-
-msgid "in seconds"
-msgstr ""
 
 #, fuzzy
 msgid "Option specifies the menu timeout"
@@ -3969,6 +3956,10 @@ msgstr "Fecha"
 #, fuzzy
 msgid "Import Database?"
 msgstr "Fecha"
+
+#, fuzzy
+msgid "Max Size"
+msgstr "Tamaño máximo:"
 
 msgid "Import"
 msgstr "Importar"
@@ -5047,11 +5038,6 @@ msgstr "Actualizar impresora"
 msgid "User Update Fail"
 msgstr "actualización Valoración falló"
 
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
-
 #, fuzzy
 msgid "Create New Group"
 msgstr "nodo de almacenamiento"
@@ -5394,6 +5380,10 @@ msgid "Printer Create Fail"
 msgstr "actualización de la impresora ha fallado!"
 
 #, fuzzy
+msgid "Host Membership"
+msgstr "miembros"
+
+#, fuzzy
 msgid "Update Default"
 msgstr "Actualizar impresora"
 
@@ -5414,6 +5404,11 @@ msgstr "Impresora actualiza!"
 #, fuzzy
 msgid "Printer Update Fail"
 msgstr "actualización de la impresora ha fallado!"
+
+msgid ""
+"All columns less the id field will be exported. Column visibility does not "
+"affect the exported items."
+msgstr ""
 
 #, fuzzy
 msgid "FOG Client Installers"
