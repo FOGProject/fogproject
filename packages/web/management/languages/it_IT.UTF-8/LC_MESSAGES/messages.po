@@ -4779,9 +4779,6 @@ msgstr "IP della stampante"
 msgid "Printer Model"
 msgstr "Modello stampante"
 
-msgid "A printer name is required!"
-msgstr "È richiesto un nome di stampante!"
-
 msgid "A printer already exists with this name!"
 msgstr "Nome stampante già esistente on questo nome!"
 
@@ -4796,10 +4793,6 @@ msgstr "Creazione stampante riuscita"
 
 msgid "Printer Create Fail"
 msgstr "Creazione stampante fallita"
-
-#, fuzzy
-msgid "Host Membership"
-msgstr "membri"
 
 #, fuzzy
 msgid "Update Default"
@@ -4820,11 +4813,6 @@ msgstr "Aggiornamento stampante riuscito"
 
 msgid "Printer Update Fail"
 msgstr "Aggiornamento della stampante non riuscito"
-
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
 
 #, fuzzy
 msgid "FOG Client Installers"
@@ -4908,10 +4896,6 @@ msgstr "immagine Abilitato"
 #, fuzzy
 msgid "Image Replicate"
 msgstr "immagine Replicator"
-
-#, fuzzy
-msgid "An image name is required!"
-msgstr "È richiesto un nome!"
 
 msgid "An image already exists with this name!"
 msgstr "Un'immagine esiste già con questo nome!"

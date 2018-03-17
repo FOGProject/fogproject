@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 18:00-0400\n"
+"POT-Creation-Date: 2018-03-17 19:17-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4444,9 +4444,6 @@ msgstr ""
 msgid "Printer Model"
 msgstr ""
 
-msgid "A printer name is required!"
-msgstr ""
-
 msgid "A printer already exists with this name!"
 msgstr ""
 
@@ -4460,9 +4457,6 @@ msgid "Printer Create Success"
 msgstr ""
 
 msgid "Printer Create Fail"
-msgstr ""
-
-msgid "Host Membership"
 msgstr ""
 
 msgid "Update Default"
@@ -4481,11 +4475,6 @@ msgid "Printer Update Success"
 msgstr ""
 
 msgid "Printer Update Fail"
-msgstr ""
-
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
 msgstr ""
 
 msgid "FOG Client Installers"
@@ -4559,9 +4548,6 @@ msgid "Image Enabled"
 msgstr ""
 
 msgid "Image Replicate"
-msgstr ""
-
-msgid "An image name is required!"
 msgstr ""
 
 msgid "An image already exists with this name!"

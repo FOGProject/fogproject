@@ -71,44 +71,52 @@ class PluginManagementPage extends FOGPage
             exit;
         }
         $this->title = _('List All Plugins');
+
         $activate = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'plugin-activate'
             )
             . '" ';
+
         $install = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'plugin-install'
             )
             . '" ';
+
         $deactivate = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'plugin-deactivate'
             )
             . '" ';
+
         $remove = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'plugin-remove'
             )
             . '" ';
+
         $activateBtn = self::makeButton(
             'activate',
             _('Activate selected'),
             'btn btn-primary',
             $activate
         );
+
         $installBtn = self::makeButton(
             'install',
             _('Install selected'),
             'btn btn-success',
             $install
         );
+
         $deactivateBtn = self::makeButton(
             'deactivate',
             _('Deactivate selected'),
             'btn btn-warning',
             $deactivate
         );
+
         $removeBtn = self::makeButton(
             'remove',
             _('Remove selected'),
