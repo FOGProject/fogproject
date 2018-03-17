@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-16 23:05-0400\n"
+"POT-Creation-Date: 2018-03-17 15:19-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1279,9 +1279,6 @@ msgstr ""
 msgid "Slack Accounts"
 msgstr ""
 
-msgid "Account removed from FOG GUI at"
-msgstr ""
-
 msgid "Team"
 msgstr ""
 
@@ -1692,6 +1689,10 @@ msgid "Host Site"
 msgstr "Hospedadores"
 
 #, fuzzy
+msgid "Site"
+msgstr "minutos"
+
+#, fuzzy
 msgid "Host Site Updated!"
 msgstr "Servicio de Actualización!"
 
@@ -1706,10 +1707,6 @@ msgstr "actualización Valoración falló"
 #, fuzzy
 msgid "Group Site"
 msgstr "snapins"
-
-#, fuzzy
-msgid "Site"
-msgstr "minutos"
 
 #, fuzzy
 msgid "Group Site Updated!"
@@ -1837,12 +1834,12 @@ msgstr "actualización de la impresora ha fallado!"
 msgid "Pushbullet Accounts"
 msgstr ""
 
-msgid "Link Pushbullet Account"
-msgstr ""
-
 #, fuzzy
 msgid "Email"
 msgstr "Diariamente"
+
+msgid "Link Pushbullet Account"
+msgstr ""
 
 #, fuzzy
 msgid "Access token"

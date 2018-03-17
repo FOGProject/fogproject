@@ -112,6 +112,7 @@ class AddWindowsKeyImage extends Hook
                 _('Windows Key')
             ) => $windowskeySelector
         ];
+
         $buttons = FOGPage::makeButton(
             'windowskey-send',
             _('Update'),
@@ -126,7 +127,6 @@ class AddWindowsKeyImage extends Hook
                 'Image' => &$obj
             ]
         );
-
         $rendered = FOGPage::formFields($fields);
         unset($fields);
 
@@ -220,7 +220,11 @@ class AddWindowsKeyImage extends Hook
                 ]
             );
         } catch (Exception $e) {
-            $arguments['code'] = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $arguments['code'] = (
+                $arguments['serverFault'] ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $arguments['hook'] = 'IMAGE_EDIT_WINDOWSKEY_FAIL';
             $arguments['msg'] = json_encode(
                 [
@@ -244,13 +248,15 @@ class AddWindowsKeyImage extends Hook
             return;
         }
         $keyID = (int)filter_input(INPUT_POST, 'windowskey');
+        $keySelector = self::getClass('WindowsKeyManager')
+            ->buildSelectBox($keyID, 'windowskey');
+
         $arguments['fields'][
             FOGPage::makeLabel(
                 'col-sm-2 control-label',
                 'windowskey',
                 _('Image Windows Key')
             )
-        ] = FOGPage::getClass('WindowsKeyManager')
-        ->buildSelectBox($keyID, 'windowskey');
+        ] = $keySelector;
     }
 }

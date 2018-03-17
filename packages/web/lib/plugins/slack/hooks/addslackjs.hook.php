@@ -56,11 +56,10 @@ class AddSlackJS extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        self::$HookManager
-            ->register(
-                'PAGE_JS_FILES',
-                [$this, 'injectJSFiles']
-            );
+        self::$HookManager->register(
+            'PAGE_JS_FILES',
+            [$this, 'injectJSFiles']
+        );
     }
     /**
      * The files we need to inject.

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-16 23:05-0400\n"
+"POT-Creation-Date: 2018-03-17 15:19-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1109,9 +1109,6 @@ msgstr ""
 msgid "Slack Accounts"
 msgstr "斯莱克账户"
 
-msgid "Account removed from FOG GUI at"
-msgstr "应收FOG GUI中删除在"
-
 msgid "Team"
 msgstr "球队"
 
@@ -1519,6 +1516,10 @@ msgid "Host Site"
 msgstr "主机列表"
 
 #, fuzzy
+msgid "Site"
+msgstr "分钟"
+
+#, fuzzy
 msgid "Host Site Updated!"
 msgstr "服务更新！"
 
@@ -1533,10 +1534,6 @@ msgstr "主机更新失败"
 #, fuzzy
 msgid "Group Site"
 msgstr "出口Snapins"
-
-#, fuzzy
-msgid "Site"
-msgstr "分钟"
 
 #, fuzzy
 msgid "Group Site Updated!"
@@ -1664,11 +1661,11 @@ msgstr "打印机更新失败！"
 msgid "Pushbullet Accounts"
 msgstr "Pushbullet账户"
 
-msgid "Link Pushbullet Account"
-msgstr "链接Pushbullet账户"
-
 msgid "Email"
 msgstr "电子邮件"
+
+msgid "Link Pushbullet Account"
+msgstr "链接Pushbullet账户"
 
 #, fuzzy
 msgid "Access token"
