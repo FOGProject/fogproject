@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-16 23:05-0400\n"
+"POT-Creation-Date: 2018-03-17 15:19-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -1107,9 +1107,6 @@ msgstr "Remote-Adresse versucht, sich anzumelden"
 msgid "Slack Accounts"
 msgstr "Slack Accounts"
 
-msgid "Account removed from FOG GUI at"
-msgstr "Account von der FOG GUI entfernt"
-
 msgid "Team"
 msgstr "Team"
 
@@ -1517,6 +1514,10 @@ msgid "Host Site"
 msgstr "Hostliste"
 
 #, fuzzy
+msgid "Site"
+msgstr "Sites"
+
+#, fuzzy
 msgid "Host Site Updated!"
 msgstr "Site aktualisiert!"
 
@@ -1531,10 +1532,6 @@ msgstr "Host-Update fehlgeschlagen"
 #, fuzzy
 msgid "Group Site"
 msgstr "Gruppen-Snapins"
-
-#, fuzzy
-msgid "Site"
-msgstr "Sites"
 
 #, fuzzy
 msgid "Group Site Updated!"
@@ -1662,11 +1659,11 @@ msgstr "Drucker-Update fehlgeschlagen!"
 msgid "Pushbullet Accounts"
 msgstr "Pushbullet Accounts"
 
-msgid "Link Pushbullet Account"
-msgstr "Pushbullet-Account verknüpfen"
-
 msgid "Email"
 msgstr "E-Mail"
+
+msgid "Link Pushbullet Account"
+msgstr "Pushbullet-Account verknüpfen"
 
 #, fuzzy
 msgid "Access token"

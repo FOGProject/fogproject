@@ -265,6 +265,7 @@ class AddSiteUser extends Hook
         $siteID = (int)filter_input(INPUT_POST, 'site');
         $siteSelector = self::getClass('SiteManager')
             ->buildSelectBox($siteID, 'site');
+
         $arguments['fields'][
             FOGPage::makeLabel(
                 'col-sm-2 control-label',

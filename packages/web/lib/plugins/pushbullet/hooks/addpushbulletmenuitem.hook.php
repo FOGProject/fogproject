@@ -55,38 +55,16 @@ class AddPushbulletMenuItem extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'MAIN_MENU_DATA',
-                array(
-                    $this,
-                    'menuData'
-                )
-            )
-            ->register(
-                'SEARCH_PAGES',
-                array(
-                    $this,
-                    'addSearch'
-                )
-            )
-            ->register(
-                'PAGES_WITH_OBJECTS',
-                array(
-                    $this,
-                    'addPageWithObject'
-                )
-            )
-            ->register(
-                'SUB_MENULINK_DATA',
-                array(
-                    $this,
-                    'alterSubMenu'
-                )
-            );
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        self::$HookManager->register(
+            'MAIN_MENU_DATA',
+            [$this, 'menuData']
+        );
     }
     /**
-     * Inserts the push bullet menu item
+     * Create menu data.
      *
      * @param array $arguments the arguments to alter
      *
@@ -94,76 +72,11 @@ class AddPushbulletMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         self::arrayInsertAfter(
             'task',
             $arguments['main'],
             $this->node,
-            array(
-                _('Pushbullet Accounts'),
-                'fa fa-bell'
-            )
-        );
-    }
-
-    public function alterSubMenu($arguments)
-    {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        if (strtolower($arguments['node']) != strtolower($this->node)) {
-            return;
-        }
-        $arguments['menu'] = array(
-            'list' => sprintf(
-                self::$foglang['ListAll'],
-                _('Pushbullet Accounts')
-            ),
-            'add' => _('Link Pushbullet Account'),
-
-        );
-    }
-
-    /**
-     * Inserts the pages with objects element
-     *
-     * @param array $arguments the arguments to alter
-     *
-     * @return void
-     */
-    public function addPageWithObject($arguments)
-    {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        if (!isset($arguments['PagesWithObjects'])) {
-            return;
-        }
-        array_push(
-            $arguments['PagesWithObjects'],
-            $this->node
-        );
-    }
-    /**
-     * Inserts the search
-     *
-     * @param array $arguments the arguments to alter
-     *
-     * @return void
-     */
-    public function addSearch($arguments)
-    {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
-        if (!isset($arguments['searchPages'])) {
-            return;
-        }
-        array_push(
-            $arguments['searchPages'],
-            $this->node
+            [_('Pushbullet Accounts'), 'fa fa-bell']
         );
     }
 }

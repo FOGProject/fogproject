@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 14:35-0400\n"
+"POT-Creation-Date: 2018-03-17 15:19-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1075,9 +1075,6 @@ msgstr ""
 msgid "Slack Accounts"
 msgstr ""
 
-msgid "Account removed from FOG GUI at"
-msgstr ""
-
 msgid "Team"
 msgstr ""
 
@@ -1415,6 +1412,9 @@ msgstr ""
 msgid "Host Site"
 msgstr ""
 
+msgid "Site"
+msgstr ""
+
 msgid "Host Site Updated!"
 msgstr ""
 
@@ -1425,9 +1425,6 @@ msgid "Host Update Site Fail"
 msgstr ""
 
 msgid "Group Site"
-msgstr ""
-
-msgid "Site"
 msgstr ""
 
 msgid "Group Site Updated!"
@@ -1526,10 +1523,10 @@ msgstr ""
 msgid "Pushbullet Accounts"
 msgstr ""
 
-msgid "Link Pushbullet Account"
+msgid "Email"
 msgstr ""
 
-msgid "Email"
+msgid "Link Pushbullet Account"
 msgstr ""
 
 msgid "Access token"
