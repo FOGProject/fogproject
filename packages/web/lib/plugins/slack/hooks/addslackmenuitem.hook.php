@@ -59,6 +59,12 @@ class AddSlackMenuItem extends Hook
         self::$HookManager->register(
             'MAIN_MENU_DATA',
             [$this, 'menuData']
+        )->register(
+            'SEARCH_PAGES',
+            [$this, 'addSearch']
+        )->register(
+            'PAGES_WITH_OBJECTS',
+            [$this, 'addPageWithObject']
         );
     }
     /**
@@ -76,5 +82,27 @@ class AddSlackMenuItem extends Hook
             $this->node,
             [_('Slack Accounts'), 'fa fa-slack']
         );
+    }
+    /**
+     * Adds the location page to search elements.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function addSearch($arguments)
+    {
+        array_push($arguments['searchPages'], $this->node);
+    }
+    /**
+     * Adds the location page to objects elements.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function addPageWithObject($arguments)
+    {
+        array_push($arguments['PagesWithObjects'], $this->node);
     }
 }

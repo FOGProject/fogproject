@@ -61,10 +61,16 @@ class AddPushbulletMenuItem extends Hook
         self::$HookManager->register(
             'MAIN_MENU_DATA',
             [$this, 'menuData']
+        )->register(
+            'SEARCH_PAGES',
+            [$this, 'addSearch']
+        )->register(
+            'PAGES_WITH_OBJECTS',
+            [$this, 'addPageWithObject']
         );
     }
     /**
-     * Create menu data.
+     * Inserts the push bullet menu item
      *
      * @param array $arguments the arguments to alter
      *
@@ -78,5 +84,27 @@ class AddPushbulletMenuItem extends Hook
             $this->node,
             [_('Pushbullet Accounts'), 'fa fa-bell']
         );
+    }
+    /**
+     * Adds the pushbullet page to objects elements.
+     *
+     * @param mixed $arguments The arguments to change.
+     *
+     * @return void
+     */
+    public function addPageWithObject($arguments)
+    {
+        array_push($arguments['PagesWithObjects'], $this->node);
+    }
+    /**
+     * Inserts the search
+     *
+     * @param array $arguments the arguments to alter
+     *
+     * @return void
+     */
+    public function addSearch($arguments)
+    {
+        array_push($arguments['searchPages'], $this->node);
     }
 }
