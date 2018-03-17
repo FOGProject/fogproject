@@ -66,6 +66,7 @@ class ImageManagementPage extends FOGPage
     public function add()
     {
         $this->title = _('Create New Image');
+
         $image = filter_input(INPUT_POST, 'image');
         $description = filter_input(INPUT_POST, 'description');
         $storagegroup = (int)filter_input(INPUT_POST, 'storagegroup');
@@ -305,11 +306,13 @@ class ImageManagementPage extends FOGPage
                 'checked'
             )
         ];
+
         $buttons = self::makeButton(
             'send',
             _('Create'),
             'btn btn-primary'
         );
+
         self::$HookManager->processEvent(
             'IMAGE_ADD_FIELDS',
             [
@@ -320,6 +323,7 @@ class ImageManagementPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'image-create-form',
@@ -357,69 +361,40 @@ class ImageManagementPage extends FOGPage
         header('Content-type: application/json');
         self::$HookManager->processEvent('IMAGE_ADD_POST');
         $image = trim(
-            filter_input(
-                INPUT_POST,
-                'image'
-            )
+            filter_input(INPUT_POST, 'image')
         );
         $description = trim(
-            filter_input(
-                INPUT_POST,
-                'description'
-            )
+            filter_input(INPUT_POST, 'description')
         );
         $storagegroup = (int)trim(
-            filter_input(
-                INPUT_POST,
-                'storagegroup'
-            )
+            filter_input(INPUT_POST, 'storagegroup')
         );
         $os = (int)trim(
-            filter_input(
-                INPUT_POST,
-                'os'
-            )
+            filter_input(INPUT_POST, 'os')
         );
         $path = trim(
-            filter_input(
-                INPUT_POST,
-                'path'
-            )
+            filter_input(INPUT_POST, 'path')
         );
         $imagetype = (int)trim(
-            filter_input(
-                INPUT_POST,
-                'imagetype'
-            )
+            filter_input(INPUT_POST, 'imagetype')
         );
         $imagepartitiontype = (int)trim(
-            filter_input(
-                INPUT_POST,
-                'imagepartitiontype'
-            )
+            filter_input(INPUT_POST, 'imagepartitiontype')
         );
         $isEnabled = (int)isset($_POST['isEnabled']);
         $toReplicate = (int)isset($_POST['toReplicate']);
         $compress = (int)trim(
-            filter_input(
-                INPUT_POST,
-                'compress'
-            )
+            filter_input(INPUT_POST, 'compress')
         );
         $imagemanage = (int)trim(
-            filter_input(
-                INPUT_POST,
-                'imagemanage'
-            )
+            filter_input(INPUT_POST, 'imagemanage')
         );
+
         $serverFault = false;
         try {
-            if (!$image) {
-                throw new Exception(
-                    _('An image name is required!')
-                );
-            }
-            if (self::getClass('ImageManager')->exists($image)) {
+            $exists = self::getClass('ImageManager')
+                ->exists($image);
+            if ($exists) {
                 throw new Exception(
                     _('An image already exists with this name!')
                 );
@@ -429,7 +404,9 @@ class ImageManagementPage extends FOGPage
                     _('Please choose a different filename/path as this is reserved')
                 );
             }
-            if (self::getClass('ImageManager')->exists($path, '', 'path')) {
+            $exists = self::getClass('ImageManager')
+                ->exists($path, '', 'path');
+            if ($exists) {
                 throw new Exception(
                     _('The path requested is already in use by another image!')
                 );
@@ -504,92 +481,64 @@ class ImageManagementPage extends FOGPage
     public function imageGeneral()
     {
         $image = (
-            filter_input(
-                INPUT_POST,
-                'image'
-            ) ?: $this->obj->get('name')
+            filter_input(INPUT_POST, 'image') ?:
+            $this->obj->get('name')
         );
         $description = (
-            filter_input(
-                INPUT_POST,
-                'description'
-            ) ?: $this->obj->get('description')
+            filter_input(INPUT_POST, 'description') ?:
+            $this->obj->get('description')
         );
         $StorageNode = $this->obj->getStorageGroup()->getMasterStorageNode();
         $osID = (int)(
-            filter_input(
-                INPUT_POST,
-                'os'
-            ) ?: $this->obj->get('osID')
+            filter_input(INPUT_POST, 'os') ?:
+            $this->obj->get('osID')
         );
         $OSs = self::getClass('OSManager')
-            ->buildSelectBox(
-                $osID,
-                '',
-                'id'
-            );
+            ->buildSelectBox($osID, '', 'id');
         $path = (
-            filter_input(
-                INPUT_POST,
-                'path'
-            ) ?: $this->obj->get('path')
+            filter_input(INPUT_POST, 'path') ?:
+            $this->obj->get('path')
         );
         $itID = (int)(
-            filter_input(
-                INPUT_POST,
-                'imagetype'
-            ) ?: $this->obj->get('imageTypeID')
+            filter_input(INPUT_POST, 'imagetype') ?:
+            $this->obj->get('imageTypeID')
         );
         $ImageTypes = self::getClass('ImageTypeManager')
-            ->buildSelectBox(
-                $itID,
-                '',
-                'id'
-            );
+            ->buildSelectBox($itID, '', 'id');
         $iptID = (int)(
-            filter_input(
-                INPUT_POST,
-                'imagepartitiontype'
-            ) ?: $this->obj->get('imagePartitionTypeID')
+            filter_input(INPUT_POST, 'imagepartitiontype') ?:
+            $this->obj->get('imagePartitionTypeID')
         );
         $ImagePartitionTypes = self::getClass('ImagePartitionTypeManager')
-            ->buildSelectBox(
-                $iptID,
-                '',
-                'id'
-            );
+            ->buildSelectBox($iptID, '', 'id');
         $isprot = (int)isset($_POST['isProtected']) ?:
             $this->obj->get('protected');
         if ($isprot) {
-            $isprot = ' checked';
+            $isprot = 'checked';
         } else {
             $isprot = '';
         }
         $isen = (int)isset($_POST['isEnabled']) ?:
             $this->obj->get('isEnabled');
         if ($isen) {
-            $isen = ' checked';
+            $isen = 'checked';
         } else {
             $isen = '';
         }
         $torep = (int)isset($_POST['toReplicate']) ?:
             $this->obj->get('toReplicate');;
         if ($torep) {
-            $torep = ' checked';
+            $torep = 'checked';
         } else {
             $torep = '';
         }
         $compression = (int)(
-            filter_input(
-                INPUT_POST,
-                'compress'
-            ) ?: $this->obj->get('compress')
+            filter_input(INPUT_POST, 'compress') ?:
+            $this->obj->get('compress')
         );
         $imagemanage = (int)(
-            filter_input(
-                INPUT_POST,
-                'imagemanage'
-            ) ?: $this->obj->get('format')
+            filter_input(INPUT_POST, 'imagemanage') ?:
+            $this->obj->get('format')
         );
         $format = sprintf(
             '<select name="imagemanage" id="imagemanage" class="form-control">'
@@ -842,40 +791,22 @@ class ImageManagementPage extends FOGPage
     public function imageGeneralPost()
     {
         $image = trim(
-            filter_input(
-                INPUT_POST,
-                'image'
-            )
+            filter_input(INPUT_POST, 'image')
         );
         $description = trim(
-            filter_input(
-                INPUT_POST,
-                'description'
-            )
+            filter_input(INPUT_POST, 'description')
         );
         $osID = (int)trim(
-            filter_input(
-                INPUT_POST,
-                'os'
-            )
+            filter_input(INPUT_POST, 'os')
         );
         $path = trim(
-            filter_input(
-                INPUT_POST,
-                'path'
-            )
+            filter_input(INPUT_POST, 'path')
         );
         $itID = (int)trim(
-            filter_input(
-                INPUT_POST,
-                'imagetype'
-            )
+            filter_input(INPUT_POST, 'imagetype')
         );
         $iptID = (int)trim(
-            filter_input(
-                INPUT_POST,
-                'imagepartitiontype'
-            )
+            filter_input(INPUT_POST, 'imagepartitiontype')
         );
         $protected = (int)isset($_POST['isProtected']);
         $isEnabled = (int)isset($_POST['isEnabled']);
@@ -907,10 +838,6 @@ class ImageManagementPage extends FOGPage
             )
             . '" ';
 
-        echo '<!-- Storage Groups -->';
-        echo '<div class="box-group" id="storagegroups">';
-        // =================================================================
-        // Associated Storage Groups
         $buttons = self::makeButton(
             'storagegroups-primary',
             _('Update Primary Group'),
@@ -929,6 +856,7 @@ class ImageManagementPage extends FOGPage
             'btn btn-danger',
             $props
         );
+
         $this->headerData = [
             _('Storage Group Name'),
             _('Storage Group Primary'),
@@ -945,6 +873,8 @@ class ImageManagementPage extends FOGPage
             []
         ];
 
+        echo '<!-- Storage Groups -->';
+        echo '<div class="box-group" id="storagegroups">';
         echo '<div class="box box-solid">';
         echo '<div class="updatestoragegroups" class="">';
         echo '<div class="box-body">';
@@ -1000,9 +930,7 @@ class ImageManagementPage extends FOGPage
                     'primary' => '1'
                 ],
                 '',
-                [
-                    'primary' => '0'
-                ]
+                ['primary' => '0']
             );
             if ($primary) {
                 self::getClass('ImageAssociationManager')->update(
@@ -1011,9 +939,7 @@ class ImageManagementPage extends FOGPage
                         'storagegroupID' => $primary
                     ],
                     '',
-                    [
-                        'primary' => '1'
-                    ]
+                    ['primary' => '1']
                 );
             }
         }
@@ -1032,10 +958,6 @@ class ImageManagementPage extends FOGPage
             )
             . '" ';
 
-        echo '<!-- Hosts -->';
-        echo '<div class="box-group" id="hosts">';
-        // =================================================================
-        // Associated Storage Groups
         $buttons = self::makeButton(
             'host-add',
             _('Add selected'),
@@ -1048,6 +970,7 @@ class ImageManagementPage extends FOGPage
             'btn btn-danger',
             $props
         );
+
         $this->headerData = [
             _('Host Name'),
             _('Host Associated')
@@ -1061,6 +984,8 @@ class ImageManagementPage extends FOGPage
             []
         ];
 
+        echo '<!-- Hosts -->';
+        echo '<div class="box-group" id="hosts">';
         echo '<div class="box box-solid">';
         echo '<div class="updatehost" class="">';
         echo '<div class="box-body">';
@@ -1130,6 +1055,7 @@ class ImageManagementPage extends FOGPage
             'IMAGE_EDIT_POST',
             ['Image' => &$this->obj]
         );
+
         $serverFault = false;
         try {
             global $tab;
@@ -1503,6 +1429,7 @@ class ImageManagementPage extends FOGPage
             'IMAGE_MULTICAST_SESSION_POST'
         );
         global $tab;
+
         $serverFault = false;
         try {
             switch ($tab) {
@@ -1567,20 +1494,14 @@ class ImageManagementPage extends FOGPage
             $pass_vars
         );
 
-        $where = "`images`.`imageID` = '"
-            . $this->obj->get('id')
-            . "'";
-
         // Workable Queries
         $storagegroupsSqlStr = "SELECT `%s`,"
             . "`igaImageID` AS `origID`,IF (`igaImageID` = '"
             . $this->obj->get('id')
             . "','associated','dissociated') AS `igaImageID`,`igaPrimary`,`imageID`
             FROM `%s`
-            CROSS JOIN `images`
             LEFT OUTER JOIN `imageGroupAssoc`
             ON `nfsGroups`.`ngID` = `imageGroupAssoc`.`igaStorageGroupID`
-            AND `images`.`imageID` = `imageGroupAssoc`.`igaImageID`
             %s
             %s
             %s";
@@ -1589,10 +1510,8 @@ class ImageManagementPage extends FOGPage
             . $this->obj->get('id')
             . "','associated','dissociated') AS `igaImageID`,`igaPrimary`,`imageID`
             FROM `%s`
-            CROSS JOIN `images`
             LEFT OUTER JOIN `imageGroupAssoc`
             ON `nfsGroups`.`ngID` = `imageGroupAssoc`.`igaStorageGroupID`
-            AND `images`.`imageID` = `imageGroupAssoc`.`igaImageID`
             %s";
         $storagegroupsTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`";
@@ -1714,9 +1633,7 @@ class ImageManagementPage extends FOGPage
                     'id' => $host
                 ],
                 '',
-                [
-                    'imageID' => $this->obj->get('id')
-                ]
+                ['imageID' => $this->obj->get('id')]
             );
         }
         if (isset($_POST['hostdel'])) {
@@ -1735,9 +1652,7 @@ class ImageManagementPage extends FOGPage
                     'imageID' => $this->obj->get('id')
                 ],
                 '',
-                [
-                    'imageID' => '0'
-                ]
+                ['imageID' => '0']
             );
         }
     }

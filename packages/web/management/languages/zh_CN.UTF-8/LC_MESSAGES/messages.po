@@ -5118,10 +5118,6 @@ msgid "Printer Model"
 msgstr "打印机型号"
 
 #, fuzzy
-msgid "A printer name is required!"
-msgstr "图像名是必需的！"
-
-#, fuzzy
 msgid "A printer already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
@@ -5140,10 +5136,6 @@ msgstr "打印机已经存在"
 #, fuzzy
 msgid "Printer Create Fail"
 msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "Host Membership"
-msgstr "籍"
 
 #, fuzzy
 msgid "Update Default"
@@ -5166,11 +5158,6 @@ msgstr "打印机更新！"
 #, fuzzy
 msgid "Printer Update Fail"
 msgstr "打印机更新失败！"
-
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
 
 #, fuzzy
 msgid "FOG Client Installers"
@@ -5257,10 +5244,6 @@ msgstr "图片启用"
 #, fuzzy
 msgid "Image Replicate"
 msgstr "图像复制"
-
-#, fuzzy
-msgid "An image name is required!"
-msgstr "图像名是必需的！"
 
 msgid "An image already exists with this name!"
 msgstr "图像已经存在具有此名称！"

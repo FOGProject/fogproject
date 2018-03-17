@@ -5124,10 +5124,6 @@ msgid "Printer Model"
 msgstr "Printer Model"
 
 #, fuzzy
-msgid "A printer name is required!"
-msgstr "An image name is required!"
-
-#, fuzzy
 msgid "A printer already exists with this name!"
 msgstr "An image already exists with this name!"
 
@@ -5146,10 +5142,6 @@ msgstr "Printer already exists"
 #, fuzzy
 msgid "Printer Create Fail"
 msgstr "Printer update failed!"
-
-#, fuzzy
-msgid "Host Membership"
-msgstr "Membership"
 
 #, fuzzy
 msgid "Update Default"
@@ -5172,11 +5164,6 @@ msgstr "Printer updated!"
 #, fuzzy
 msgid "Printer Update Fail"
 msgstr "Printer update failed!"
-
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
-msgstr ""
 
 #, fuzzy
 msgid "FOG Client Installers"
@@ -5263,10 +5250,6 @@ msgstr "Image Enabled"
 #, fuzzy
 msgid "Image Replicate"
 msgstr "Image Replicator"
-
-#, fuzzy
-msgid "An image name is required!"
-msgstr "An image name is required!"
 
 msgid "An image already exists with this name!"
 msgstr "An image already exists with this name!"
