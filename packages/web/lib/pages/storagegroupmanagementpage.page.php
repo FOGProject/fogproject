@@ -39,7 +39,7 @@ class StorageGroupManagementPage extends FOGPage
         $this->name = 'Storage Group Management';
         parent::__construct($this->name);
         $this->headerData = [
-            self::$foglang['SG'],
+            _('Storage Group Name'),
             _('Total Clients')
         ];
         $this->templates = [
@@ -60,14 +60,8 @@ class StorageGroupManagementPage extends FOGPage
     {
         $this->title = _('Create New Storage Group');
 
-        $storagegroup = filter_input(
-            INPUT_POST,
-            'storagegroup'
-        );
-        $description = filter_input(
-            INPUT_POST,
-            'description'
-        );
+        $storagegroup = filter_input(INPUT_POST, 'storagegroup');
+        $description = filter_input(INPUT_POST, 'description');
 
         $labelClass = 'col-sm-2 control-label';
 
@@ -98,14 +92,6 @@ class StorageGroupManagementPage extends FOGPage
                 false
             )
         ];
-        self::$HookManager
-            ->processEvent(
-                'STORAGEGROUP_ADD_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'StorageGroup' => self::getClass('StorageGroup')
-                ]
-            );
 
         $buttons = self::makeButton(
             'send',
@@ -113,6 +99,14 @@ class StorageGroupManagementPage extends FOGPage
             'btn btn-primary'
         );
 
+        self::$HookManager->processEvent(
+            'STORAGEGROUP_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'StorageGroup' => self::getClass('StorageGroup')
+            ]
+        );
         $rendered = self::formFields($fields);
         unset($fields);
 
@@ -126,7 +120,6 @@ class StorageGroupManagementPage extends FOGPage
         );
         echo '<div class="box box-solid" id="storagegroup-create">';
         echo '<div class="box-body">';
-        echo '<!-- Storage Group -->';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -135,6 +128,7 @@ class StorageGroupManagementPage extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
@@ -152,15 +146,21 @@ class StorageGroupManagementPage extends FOGPage
     {
         header('Content-Type: application/json');
         self::$HookManager->processEvent('STORAGEGROUP_ADD_POST');
-        $storagegroup = filter_input(INPUT_POST, 'storagegroup');
-        $description = filter_input(INPUT_POST, 'description');
+        $storagegroup = trim(
+            filter_input(INPUT_POST, 'storagegroup')
+        );
+        $description = trim(
+            filter_input(INPUT_POST, 'description')
+        );
+
         $serverFault = false;
         try {
-            if (empty($storagegroup)) {
-                throw new Exception(self::$foglang['SGNameReq']);
-            }
-            if (self::getClass('StorageGroupManager')->exists($storagegroup)) {
-                throw new Exception(self::$foglang['SGExist']);
+            $exists = self::getClass('StorageGroupManager')
+                ->exists($storagegroup);
+            if ($exists) {
+                throw new Exception(
+                    _('A storage group exists with this name!')
+                );
             }
             $StorageGroup = self::getClass('StorageGroup')
                 ->set('name', $storagegroup)
@@ -195,17 +195,16 @@ class StorageGroupManagementPage extends FOGPage
         //    'Location: ../management/index.php?node=storagegroup&sub=edit&id='
         //    . $StorageGroup->get('id')
         //);
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'StorageGroup' => &$StorageGroup,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'StorageGroup' => &$StorageGroup,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
         http_response_code($code);
         unset($StorageGroup);
         echo $msg;
@@ -218,10 +217,14 @@ class StorageGroupManagementPage extends FOGPage
      */
     public function storagegroupGeneral()
     {
-        $storagegroup = filter_input(INPUT_POST, 'storagegroup') ?:
-            $this->obj->get('name');
-        $description = filter_input(INPUT_POST, 'description') ?:
-            $this->obj->get('description');
+        $storagegroup = (
+            filter_input(INPUT_POST, 'storagegroup') ?:
+            $this->obj->get('name')
+        );
+        $description = (
+            filter_input(INPUT_POST, 'description') ?:
+            $this->obj->get('description')
+        );
 
         $labelClass = 'col-sm-2 control-label';
 
@@ -253,17 +256,6 @@ class StorageGroupManagementPage extends FOGPage
             )
         ];
 
-        self::$HookManager
-            ->processEvent(
-                'STORAGEGROUP_GENERAL_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'StorageGroup' => &$this->obj
-                ]
-            );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
@@ -274,6 +266,17 @@ class StorageGroupManagementPage extends FOGPage
             _('Delete'),
             'btn btn-danger pull-right'
         );
+
+        self::$HookManager->processEvent(
+            'STORAGEGROUP_GENERAL_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'StorageGroup' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
 
         echo  self::makeFormTag(
             'form-horizontal',
@@ -309,18 +312,17 @@ class StorageGroupManagementPage extends FOGPage
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
-        $exists = self::getClass('StorageGroupManager')->exists(
-            $storagegroup,
-            $this->obj->get('id')
-        );
-        if (!$storagegroup) {
-            throw new Exception(self::$foglang['SGName']);
-        }
-        if ($this->obj->get('name') != $storagegroup
+
+        $exists = self::getClass('StorageGroupManager')
+            ->exists($storagegroup);
+        if ($storagegroup != $this->obj->get('name')
             && $exists
         ) {
-            throw new Exception(self::$foglang['SGExist']);
+            throw new Exception(
+                _('A storage group already exists with this name!')
+            );
         }
+
         $this->obj
             ->set('name', $storagegroup)
             ->set('description', $description);
@@ -497,6 +499,7 @@ class StorageGroupManagementPage extends FOGPage
             'STORAGEGROUP_EDIT_POST',
             ['StorageGroup' => &$this->obj]
         );
+
         $serverFault = false;
         try{
             global $tab;
@@ -534,17 +537,17 @@ class StorageGroupManagementPage extends FOGPage
                 ]
             );
         }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'StorageGroup' => &$this->obj,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
+
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'StorageGroup' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
         http_response_code($code);
         echo $msg;
         exit;
@@ -656,12 +659,6 @@ class StorageGroupManagementPage extends FOGPage
         echo '</p>';
         echo '</div>';
         echo '<div class="box-body">';
-        echo '<p class="help-block">';
-        echo _(
-            'All columns less the id field will be exported. Column visibility '
-            . 'does not affect the exported items.'
-        );
-        echo '</p>';
         echo '<p class="help-block">';
         echo _(
             'When you click on the item you want to export, it can only select '

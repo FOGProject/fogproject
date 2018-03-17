@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-16 22:44-0400\n"
+"POT-Creation-Date: 2018-03-16 23:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2594,10 +2594,16 @@ msgstr ""
 msgid "Storage Group name"
 msgstr ""
 
+msgid "A storage group exists with this name!"
+msgstr ""
+
 msgid "Storage Group Create Success"
 msgstr ""
 
 msgid "Storage Group Create Fail"
+msgstr ""
+
+msgid "A storage group already exists with this name!"
 msgstr ""
 
 msgid "Update Master Node"
@@ -2619,11 +2625,6 @@ msgid "Storage Group Update Success"
 msgstr ""
 
 msgid "Storage Group Update Fail"
-msgstr ""
-
-msgid ""
-"All columns less the id field will be exported. Column visibility does not "
-"affect the exported items."
 msgstr ""
 
 msgid "Login Failed"
@@ -4202,6 +4203,11 @@ msgid "User Update Success"
 msgstr ""
 
 msgid "User Update Fail"
+msgstr ""
+
+msgid ""
+"All columns less the id field will be exported. Column visibility does not "
+"affect the exported items."
 msgstr ""
 
 msgid "Create New Group"
