@@ -85,7 +85,7 @@ class WOLBroadcastManagementPage extends FOGPage
                 'description',
                 _('Broadcast Description')
             ) => self::makeTextarea(
-                'form-control wolbroadcastdescription-name',
+                'form-control wolbroadcastdescription-input',
                 'description',
                 _('Broadcast Description'),
                 'description',

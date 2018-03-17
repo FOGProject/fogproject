@@ -1595,10 +1595,6 @@ msgid "Site Description"
 msgstr "打印机说明"
 
 #, fuzzy
-msgid "A site name is required!"
-msgstr "图像名是必需的！"
-
-#, fuzzy
 msgid "A site already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 

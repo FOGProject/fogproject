@@ -1596,10 +1596,6 @@ msgid "Site Description"
 msgstr "Printer Description"
 
 #, fuzzy
-msgid "A site name is required!"
-msgstr "An image name is required!"
-
-#, fuzzy
 msgid "A site already exists with this name!"
 msgstr "An image already exists with this name!"
 

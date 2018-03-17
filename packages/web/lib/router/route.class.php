@@ -570,7 +570,11 @@ class Route extends FOGBase
         }
         self::$HookManager->processEvent(
             'CUSTOMIZE_DT_COLUMNS',
-            ['columns' => &$columns]
+            [
+                'columns' => &$columns,
+                'classman' => &$classman,
+                'classname' => &$classname
+            ]
         );
 
         self::$data = FOGManagerController::complex(

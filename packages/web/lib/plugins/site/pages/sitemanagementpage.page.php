@@ -69,27 +69,45 @@ class SiteManagementPage extends FOGPage
     public function add()
     {
         $this->title = _('Create New Site');
-        // Check all the post fields if they've already been set.
+
         $site = filter_input(INPUT_POST, 'site');
         $description = filter_input(INPUT_POST, 'description');
 
-        // The fields to display
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="site">'
-            . _('Site Name')
-            . '</label>' => '<input type="text" name="site" '
-            . 'value="'
-            . $site
-            . '" class="sitename-input form-control" '
-            . 'id="site" required/>',
-            '<label class="col-sm-2 control-label" for="description">'
-            . _('Site Description')
-            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
-            . 'min-height: 50px;" '
-            . 'id="description" name="description">'
-            . $description
-            . '</textarea>'
+            self::makeLabel(
+                $labelClass,
+                'site',
+                _('Site Name')
+            ) => self::makeInput(
+                'form-control sitename-input',
+                'site',
+                _('Site Name'),
+                'text',
+                'site',
+                $site,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Site Description')
+            ) => self::makeTextarea(
+                'form-control sitedescription-input',
+                'description',
+                _('Site Description'),
+                'description',
+                $description
+            )
         ];
+
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
+
         self::$HookManager
             ->processEvent(
                 'SITE_ADD_FIELDS',
@@ -100,7 +118,7 @@ class SiteManagementPage extends FOGPage
             );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<div class="box box-solid" id="site-create">';
+
         echo self::makeFormTag(
             'form-horizontal',
             'site-create-form',
@@ -109,8 +127,8 @@ class SiteManagementPage extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
+        echo '<div class="box box-solid" id="site-create">';
         echo '<div class="box-body">';
-        echo '<!-- Site General -->';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -123,12 +141,10 @@ class SiteManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="send">'
-            . _('Create')
-            . '</button>';
+        echo $buttons;
+        echo '</div>';
         echo '</div>';
         echo '</form>';
-        echo '</div>';
     }
     /**
      * Add post.
@@ -145,14 +161,12 @@ class SiteManagementPage extends FOGPage
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
+
         $serverFault = false;
         try{
-            if (!$site) {
-                throw new Exception(
-                    _('A site name is required!')
-                );
-            }
-            if (self::getClass('SiteManager')->exists($site)) {
+            $exists = self::getClass('SiteManager')
+                ->exists($site);
+            if ($exists) {
                 throw new Exception(
                     _('A site already exists with this name!')
                 );
@@ -190,17 +204,16 @@ class SiteManagementPage extends FOGPage
         //     'Location: ../management/index.php?node=site&sub=edit&id='
         //     . $Site->get('id')
         // );
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'Site' => &$Site,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Site' => &$Site,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
         http_response_code($code);
         unset($Site);
         echo $msg;
@@ -221,22 +234,47 @@ class SiteManagementPage extends FOGPage
             filter_input(INPUT_POST, 'description') ?:
             $this->obj->get('description')
         );
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label for="site" class="col-sm-2 control-label">'
-            . _('Site Name')
-            . '</label>' => '<input id="site" class="form-control" placeholder="'
-            . _('Site Name')
-            . '" type="text" value="'
-            . $site
-            . '" name="site" required/>',
-            '<label for="description" class="col-sm-2 control-label">'
-            . _('Site Description')
-            . '</label>' => '<textarea style="resize:vertical;'
-            . 'min-height:50px;" id="description" '
-            . 'name="description" class="form-control">'
-            . $description
-            . '</textarea>'
+            self::makeLabel(
+                $labelClass,
+                'site',
+                _('Site Name')
+            ) => self::makeInput(
+                'form-control sitename-input',
+                'site',
+                _('Site Name'),
+                'text',
+                'site',
+                $site,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Site Description')
+            ) => self::makeTextarea(
+                'form-control sitedescription-input',
+                'description',
+                _('Site Description'),
+                'description',
+                $description
+            )
         ];
+
+        $buttons = self::makeButton(
+            'general-send',
+            _('Update'),
+            'btn btn-primary'
+        );
+        $buttons .= self::makeButton(
+            'general-delete',
+            _('Delete'),
+            'btn btn-danger pull-right'
+        );
+
         self::$HookManager->processEvent(
             'SITE_GENERAL_FIELDS',
             [
@@ -245,7 +283,8 @@ class SiteManagementPage extends FOGPage
             ]
         );
         $rendered = self::formFields($fields);
-        echo '<div class="box box-solid">';
+        unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'site-general-form',
@@ -257,19 +296,15 @@ class SiteManagementPage extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
+        echo '<div class="box box-solid">';
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="general-send">'
-            . _('Update')
-            . '</button>';
-        echo '<button class="btn btn-danger pull-right" id="general-delete">'
-            . _('Delete')
-            . '</button>';
+        echo $buttons;
+        echo '</div>';
         echo '</div>';
         echo '</form>';
-        echo '</div>';
     }
     /**
      * Site general post element
@@ -284,11 +319,15 @@ class SiteManagementPage extends FOGPage
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
-        if ($site != $this->obj->get('name')) {
-            if ($this->obj->getManager()->exists($site)) {
-                throw new Exception(_('A site already exists with this name!'));
-            }
+
+        $exists = self::getClass('SiteManager')
+            ->exists($site);
+        if ($site != $this->obj->get('name')
+            && $exists
+        ) {
+            throw new Exception(_('A site already exists with this name!'));
         }
+
         $this->obj
             ->set('name', $site)
             ->set('description', $description);
@@ -312,6 +351,7 @@ class SiteManagementPage extends FOGPage
             [],
             ['width' => 16]
         ];
+
         $buttons = self::makeButton(
             'site-host-send',
             _('Add selected'),
@@ -322,6 +362,7 @@ class SiteManagementPage extends FOGPage
             _('Remove selected'),
             'btn btn-danger'
         );
+
         echo self::makeFormTag(
             'form-horizontal',
             'site-host-form',
@@ -376,6 +417,7 @@ class SiteManagementPage extends FOGPage
             [],
             ['width' => 16]
         ];
+
         $buttons = self::makeButton(
             'site-user-send',
             _('Add selected'),
@@ -386,6 +428,7 @@ class SiteManagementPage extends FOGPage
             _('Remove selected'),
             'btn btn-danger'
         );
+
         echo self::makeFormTag(
             'form-horizontal',
             'site-user-form',
@@ -478,11 +521,11 @@ class SiteManagementPage extends FOGPage
     public function editPost()
     {
         header('Content-type: application/json');
-        self::$HookManager
-            ->processEvent(
-                'SITE_EDIT_POST',
-                ['Site' => &$this->obj]
-            );
+        self::$HookManager->processEvent(
+            'SITE_EDIT_POST',
+            ['Site' => &$this->obj]
+        );
+
         $serverFault = false;
         try {
             global $tab;
@@ -523,17 +566,17 @@ class SiteManagementPage extends FOGPage
                 ]
             );
         }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'Site' => &$this->obj,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
+        
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Site' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
         http_response_code($code);
         echo $msg;
         exit;
@@ -556,19 +599,15 @@ class SiteManagementPage extends FOGPage
             . $this->obj->get('id')
             . "','associated','dissociated') as `shaSiteID`
             FROM `%s`
-            CROSS JOIN `site`
             LEFT OUTER JOIN `siteHostAssoc`
             ON `hosts`.`hostID` = `siteHostAssoc`.`shaHostID`
-            AND `site`.`sID` = `siteHostAssoc`.`shaSiteID`
             %s
             %s
             %s";
         $hostsFilterStr = "SELECT COUNT(`%s`)
             FROM `%s`
-            CROSS JOIN `site`
             LEFT OUTER JOIN `siteHostAssoc`
             ON `hosts`.`hostID` = `siteHostAssoc`.`shaHostID`
-            AND `site`.`sID` = `siteHostAssoc`.`shaSiteID`
             %s";
         $hostsTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`";
@@ -620,19 +659,15 @@ class SiteManagementPage extends FOGPage
             . $this->obj->get('id')
             . "','associated','dissociated') as `suaSiteID`
             FROM `%s`
-            CROSS JOIN `site`
             LEFT OUTER JOIN `siteUserAssoc`
             ON `users`.`uID` = `siteUserAssoc`.`suaUserID`
-            AND `site`.`sID` = `siteUserAssoc`.`suaSiteID`
             %s
             %s
             %s";
         $usersFilterStr = "SELECT COUNT(`%s`)
             FROM `%s`
-            CROSS JOIN `site`
             LEFT OUTER JOIN `siteUserAssoc`
             ON `users`.`uID` = `siteUserAssoc`.`suaUserID`
-            AND `site`.`sID` = `siteUserAssoc`.`suaSiteID`
             %s";
         $usersTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`";
@@ -662,6 +697,109 @@ class SiteManagementPage extends FOGPage
                 $usersSqlStr,
                 $usersFilterStr,
                 $usersTotalStr
+            )
+        );
+        exit;
+    }
+    /**
+     * Present the export information.
+     *
+     * @return void
+     */
+    public function export()
+    {
+        // The data to use for building our table.
+        $this->headerData = [];
+        $this->templates = [];
+        $this->attributes = [];
+
+        $obj = self::getClass('SiteManager');
+
+        foreach ($obj->getColumns() as $common => &$real) {
+            if ('id' == $common) {
+                continue;
+            }
+            array_push($this->headerData, $common);
+            array_push($this->templates, '');
+            array_push($this->attributes, []);
+            unset($real);
+        }
+
+        $this->title = _('Export Sites');
+
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Export Sites');
+        echo '</h4>';
+        echo '<p class="help-block">';
+        echo _('Use the selector to choose how many items you want exported.');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo '<p class="help-block">';
+        echo _(
+            'When you click on the item you want to export, it can only select '
+            . 'what is currently viewable on the screen. This includes searched '
+            . 'and the current page. Please use the selector to choose the amount '
+            . 'of items you would like to export.'
+        );
+        echo '</p>';
+        $this->render(12, 'site-export-table');
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Present the export list.
+     *
+     * @return void
+     */
+    public function getExportList()
+    {
+        header('Content-type: application/json');
+        $obj = self::getClass('SiteManager');
+        $table = $obj->getTable();
+        $sqlstr = $obj->getQueryStr();
+        $filterstr = $obj->getFilterStr();
+        $totalstr = $obj->getTotalStr();
+        $dbcolumns = $obj->getColumns();
+        $pass_vars = $columns = [];
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        // Setup our columns for the CSVn.
+        // Automatically removes the id column.
+        foreach ($dbcolumns as $common => &$real) {
+            if ('id' == $common) {
+                $tableID = $real;
+                continue;
+            }
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        self::$HookManager->processEvent(
+            'SITE_EXPORT_ITEMS',
+            [
+                'table' => &$table,
+                'sqlstr' => &$sqlstr,
+                'filterstr' => &$filterstr,
+                'totalstr' => &$totalstr,
+                'columns' => &$columns
+            ]
+        );
+        echo json_encode(
+            FOGManagerController::simple(
+                $pass_vars,
+                $table,
+                $tableID,
+                $columns,
+                $sqlstr,
+                $filterstr,
+                $totalstr
             )
         );
         exit;
