@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 15:19-0400\n"
+"POT-Creation-Date: 2018-03-17 15:39-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1331,16 +1331,10 @@ msgstr ""
 msgid "Location Description"
 msgstr ""
 
-msgid "Location Sends Boot"
-msgstr ""
-
-msgid "Location sends the inits and kernels"
+msgid "Boot files from"
 msgstr ""
 
 msgid "Create New Site"
-msgstr ""
-
-msgid "A location name is required!"
 msgstr ""
 
 msgid "A location already exists with this name!"
@@ -1373,7 +1367,7 @@ msgstr ""
 msgid "Host Associated"
 msgstr ""
 
-msgid "Host Membership"
+msgid "Host Association"
 msgstr ""
 
 msgid "Location update failed!"
@@ -1386,6 +1380,9 @@ msgid "Location Update Success"
 msgstr ""
 
 msgid "Location Update Fail"
+msgstr ""
+
+msgid "Export Broadcasts"
 msgstr ""
 
 msgid "Location is a plugin that allows your FOG Server"
@@ -1502,9 +1499,6 @@ msgstr ""
 msgid "Site User Associations"
 msgstr ""
 
-msgid "Host Association"
-msgstr ""
-
 msgid "User Association"
 msgstr ""
 
@@ -1542,9 +1536,6 @@ msgid "Link Pushbullet Account Success"
 msgstr ""
 
 msgid "Link Pushbullet Account Fail"
-msgstr ""
-
-msgid "Export Broadcasts"
 msgstr ""
 
 msgid "Import Broadcasts"
@@ -2763,6 +2754,9 @@ msgid "Storage Group Associated"
 msgstr ""
 
 msgid "Storage Groups"
+msgstr ""
+
+msgid "Host Membership"
 msgstr ""
 
 msgid "Snapin update failed!"

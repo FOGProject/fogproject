@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 15:19-0400\n"
+"POT-Creation-Date: 2018-03-17 15:39-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1417,20 +1417,12 @@ msgstr "Criar novo %s"
 msgid "Location Description"
 msgstr "Associação imagem"
 
-#, fuzzy
-msgid "Location Sends Boot"
-msgstr "Localização Nome"
-
-msgid "Location sends the inits and kernels"
+msgid "Boot files from"
 msgstr ""
 
 #, fuzzy
 msgid "Create New Site"
 msgstr "Criar novo %s"
-
-#, fuzzy
-msgid "A location name is required!"
-msgstr "Um nome de imagem é necessário!"
 
 #, fuzzy
 msgid "A location already exists with this name!"
@@ -1472,8 +1464,8 @@ msgid "Host Associated"
 msgstr "No nó associado"
 
 #, fuzzy
-msgid "Host Membership"
-msgstr "Membership"
+msgid "Host Association"
+msgstr "No nó associado"
 
 #, fuzzy
 msgid "Location update failed!"
@@ -1490,6 +1482,10 @@ msgstr "Instalar / Atualizar sucesso!"
 #, fuzzy
 msgid "Location Update Fail"
 msgstr "Localização Atualizado"
+
+#, fuzzy
+msgid "Export Broadcasts"
+msgstr "Hosts de exportação"
 
 msgid "Location is a plugin that allows your FOG Server"
 msgstr ""
@@ -1637,10 +1633,6 @@ msgid "Site User Associations"
 msgstr "Associação imagem"
 
 #, fuzzy
-msgid "Host Association"
-msgstr "No nó associado"
-
-#, fuzzy
 msgid "User Association"
 msgstr "Associação imagem"
 
@@ -1688,10 +1680,6 @@ msgstr "Conta ligação Pushbullet"
 #, fuzzy
 msgid "Link Pushbullet Account Fail"
 msgstr "Conta ligação Pushbullet"
-
-#, fuzzy
-msgid "Export Broadcasts"
-msgstr "Hosts de exportação"
 
 #, fuzzy
 msgid "Import Broadcasts"
@@ -3139,6 +3127,10 @@ msgstr "Nó de Armazenamento Criado"
 #, fuzzy
 msgid "Storage Groups"
 msgstr "Grupo de armazenamento"
+
+#, fuzzy
+msgid "Host Membership"
+msgstr "Membership"
 
 #, fuzzy
 msgid "Snapin update failed!"

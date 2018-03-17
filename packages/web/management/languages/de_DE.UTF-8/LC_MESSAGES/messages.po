@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 15:19-0400\n"
+"POT-Creation-Date: 2018-03-17 15:39-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -1413,20 +1413,12 @@ msgstr "Neuen Standort erstellen"
 msgid "Location Description"
 msgstr "Standort Zugehörigkeiten"
 
-#, fuzzy
-msgid "Location Sends Boot"
-msgstr "Standort hinzugefügt"
-
-msgid "Location sends the inits and kernels"
+msgid "Boot files from"
 msgstr ""
 
 #, fuzzy
 msgid "Create New Site"
 msgstr "Neuen Drucker erstellen"
-
-#, fuzzy
-msgid "A location name is required!"
-msgstr "Ein Snapinname ist erforderlich!"
 
 #, fuzzy
 msgid "A location already exists with this name!"
@@ -1468,8 +1460,8 @@ msgid "Host Associated"
 msgstr "zugeordneter Host"
 
 #, fuzzy
-msgid "Host Membership"
-msgstr "Mitgliedschaft"
+msgid "Host Association"
+msgstr "zugeordneter Host"
 
 #, fuzzy
 msgid "Location update failed!"
@@ -1486,6 +1478,10 @@ msgstr "Standort erfolgreich aktualisiert"
 #, fuzzy
 msgid "Location Update Fail"
 msgstr "Standort Aktualisierung fehlgeschlagen"
+
+#, fuzzy
+msgid "Export Broadcasts"
+msgstr "Hosts exportieren"
 
 msgid "Location is a plugin that allows your FOG Server"
 msgstr "Standort ist ein Plugin, mit dem Ihr FOG-Server"
@@ -1633,10 +1629,6 @@ msgid "Site User Associations"
 msgstr "Site Zugehörigkeit"
 
 #, fuzzy
-msgid "Host Association"
-msgstr "zugeordneter Host"
-
-#, fuzzy
 msgid "User Association"
 msgstr "Site Zugehörigkeit"
 
@@ -1684,10 +1676,6 @@ msgstr "Verknüpfen eines Pushbullet-Accounts erfolgreich"
 #, fuzzy
 msgid "Link Pushbullet Account Fail"
 msgstr "Verknüpfen eines Pushbullet-Accounts fehlgeschlagen"
-
-#, fuzzy
-msgid "Export Broadcasts"
-msgstr "Hosts exportieren"
 
 #, fuzzy
 msgid "Import Broadcasts"
@@ -3137,6 +3125,10 @@ msgstr "Speicherknoten erstellt"
 #, fuzzy
 msgid "Storage Groups"
 msgstr "Speichergruppe"
+
+#, fuzzy
+msgid "Host Membership"
+msgstr "Mitgliedschaft"
 
 #, fuzzy
 msgid "Snapin update failed!"
