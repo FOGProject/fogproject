@@ -56,19 +56,16 @@ class AddSiteUser extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        self::$HookManager
-            ->register(
-                'PLUGINS_INJECT_TABDATA',
-                [$this, 'userTabData']
-            )
-            ->register(
-                'USER_EDIT_SUCCESS',
-                [$this, 'userAddSiteEdit']
-            )
-            ->register(
-                'USER_ADD_FIELDS',
-                [$this, 'userAddSiteField']
-            );
+        self::$HookManager->register(
+            'PLUGINS_INJECT_TABDATA',
+            [$this, 'userTabData']
+        )->register(
+            'USER_EDIT_SUCCESS',
+            [$this, 'userAddSiteEdit']
+        )->register(
+            'USER_ADD_FIELDS',
+            [$this, 'userAddSiteField']
+        );
     }
     /**
      * The user tab data.
@@ -114,13 +111,13 @@ class AddSiteUser extends Hook
             }
             unset($item);
         }
-        $siteID = (int)filter_input(
-            INPUT_POST,
-            'site'
-        ) ?: $site;
-        // User sites
+        $siteID = (
+            (int)filter_input(INPUT_POST, 'site') ?:
+            $site
+        );
         $siteSelector = self::getClass('SiteManager')
             ->buildSelectBox($siteID, 'site');
+
         $fields = [
             FOGPage::makeLabel(
                 'col-sm-2 control-label',
@@ -128,11 +125,13 @@ class AddSiteUser extends Hook
                 _('User Site')
             ) => $siteSelector
         ];
+
         $buttons = FOGPage::makeButton(
             'site-send',
             _('Update'),
             'btn btn-primary'
         );
+
         self::$HookManager->processEvent(
             'USER_SITE_FIELDS',
             [
@@ -143,6 +142,7 @@ class AddSiteUser extends Hook
         );
         $rendered = FOGPage::formFields($fields);
         unset($fields);
+
         echo FOGPage::makeFormTag(
             'form-horizontal',
             'user-site-form',
@@ -155,6 +155,11 @@ class AddSiteUser extends Hook
             true
         );
         echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Site');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
@@ -174,10 +179,7 @@ class AddSiteUser extends Hook
     public function userSitePost($obj)
     {
         $siteID = trim(
-            (int)filter_input(
-                INPUT_POST,
-                'site'
-            )
+            (int)filter_input(INPUT_POST, 'site')
         );
         $insert_fields = ['userID', 'siteID'];
         $insert_values = [];
@@ -233,7 +235,11 @@ class AddSiteUser extends Hook
                 ]
             );
         } catch (Exception $e) {
-            $arguments['code'] = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $arguments['code'] = (
+                $arguments['serverFault'] ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $arguments['hook'] = 'USER_EDIT_SITE_FAIL';
             $arguments['msg'] = json_encode(
                 [
@@ -257,15 +263,14 @@ class AddSiteUser extends Hook
             return;
         }
         $siteID = (int)filter_input(INPUT_POST, 'site');
+        $siteSelector = self::getClass('SiteManager')
+            ->buildSelectBox($siteID, 'site');
         $arguments['fields'][
             FOGPage::makeLabel(
                 'col-sm-2 control-label',
                 'site',
                 _('User Site')
             )
-        ] = self::getClass('SiteManager')->buildSelectBox(
-            $siteID,
-            'site'
-        );
+        ] = $siteSelector;
     }
 }
