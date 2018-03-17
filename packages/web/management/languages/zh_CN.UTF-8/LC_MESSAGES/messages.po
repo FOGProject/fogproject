@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-15 23:44-0400\n"
+"POT-Creation-Date: 2018-03-16 22:44-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3159,109 +3159,29 @@ msgstr "管理单元更新失败"
 msgid "Plugin Name"
 msgstr "插件名称"
 
-msgid "Unable to determine plugin details."
-msgstr "无法确定插件的详细信息。"
-
-msgid "Plugin Description"
-msgstr "插件说明"
-
-msgid "Plugin Installation"
-msgstr "插件安装"
+#, fuzzy
+msgid "Activated"
+msgstr "活性"
 
 #, fuzzy
-msgid "This plugin is not installed"
-msgstr "这个插件是当前未安装，你想现在安装？"
+msgid "Installed"
+msgstr "已安装的插件"
 
 #, fuzzy
-msgid "would you ilke to install it now"
-msgstr "这个插件是当前未安装，你想现在安装？"
-
-#, fuzzy
-msgid "Install Plugin"
+msgid "List All Plugins"
 msgstr "安装插件"
 
 #, fuzzy
-msgid "Install"
-msgstr "安装/更新失败！"
-
-msgid "Reboot after deploy"
-msgstr "部署后重新启动"
-
-msgid "Shutdown after deploy"
-msgstr "部署后关机"
+msgid "Activate selected"
+msgstr "打印机"
 
 #, fuzzy
-msgid "Basic Settings"
-msgstr "设置"
-
-msgid "DMI Field"
-msgstr "DMI场"
+msgid "Install selected"
+msgstr "删除所选"
 
 #, fuzzy
-msgid "After image Action"
-msgstr "集团定位"
-
-#, fuzzy
-msgid "Make Changes?"
-msgstr "保存更改"
-
-#, fuzzy
-msgid "Image Associations"
-msgstr "图像协会"
-
-msgid "Image Definition"
-msgstr "图像清晰度"
-
-msgid "DMI Result"
-msgstr "DMI结果"
-
-#, fuzzy
-msgid "Image to DMI Mappings"
-msgstr "添加图片到DMI协会"
-
-msgid "DMI Key"
-msgstr "DMI关键"
-
-#, fuzzy
-msgid "Current Associations"
-msgstr "图像协会"
-
-#, fuzzy
-msgid "Remove Selected?"
-msgstr "删除选定snapins"
-
-#, fuzzy
-msgid "Remove Associations"
-msgstr "图像协会"
-
-msgid "Invalid Plugin Passed"
-msgstr "无效的插件传递"
-
-msgid "Failed to install plugin"
-msgstr "无法安装插件"
-
-msgid "Failed to save plugin"
-msgstr "无法保存插件"
-
-msgid "Plugin Installed!"
-msgstr "插件安装好了！"
-
-#, fuzzy
-msgid "Must have an image associated"
-msgstr "必须有管理单元与组关联"
-
-msgid "Failed to save assignment"
-msgstr "无法保存分配"
-
-msgid "Assignment saved successfully"
-msgstr "转让成功保存"
-
-#, fuzzy
-msgid "Destroyed assignments"
-msgstr "销毁作业"
-
-msgid "Destroyed assignment"
-msgstr "销毁作业"
+msgid "Deactivate selected"
+msgstr "删除所选"
 
 msgid "FOG Version Information"
 msgstr "FOG版本信息"
@@ -3403,6 +3323,10 @@ msgstr "选项​​为隐藏的菜单系统的超时值"
 
 msgid "for the menu background"
 msgstr ""
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "保存更改"
 
 #, fuzzy
 msgid "iPXE Menu Settings"
@@ -4849,31 +4773,8 @@ msgid "User API Enable"
 msgstr "访问令牌"
 
 #, fuzzy
-msgid "A user name is required!"
-msgstr "图像名是必需的！"
-
-msgid "Username does not meet requirements"
-msgstr ""
-
-msgid "Username must start with a word character"
-msgstr ""
-
-msgid "Username must be at least 3 characters"
-msgstr ""
-
-msgid "Username must be less than 41 characters"
-msgstr ""
-
-msgid "Username cannot contain contiguous special characters"
-msgstr ""
-
-#, fuzzy
 msgid "A username already exists with this name!"
 msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
-msgid "A password is required!"
-msgstr "%s是必需的"
 
 #, fuzzy
 msgid "Add user failed!"
@@ -5096,6 +4997,10 @@ msgstr "存储节点的用户名"
 #, fuzzy
 msgid "Storage Node FTP Password"
 msgstr "存储节点密码"
+
+#, fuzzy
+msgid "A storage node already exists with this name!"
+msgstr "图像已经存在具有此名称！"
 
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr "带宽应该是数字和大于0"
@@ -6347,6 +6252,14 @@ msgid "You are only allowed to assign"
 msgstr "您只能分配"
 
 #, fuzzy
+msgid "List Available Plugins"
+msgstr "已安装的插件"
+
+#, fuzzy
+msgid "Import a new Plugin"
+msgstr "已安装的插件"
+
+#, fuzzy
 msgid "Multicast Image"
 msgstr "组播"
 
@@ -6357,88 +6270,6 @@ msgstr "打印机"
 #, fuzzy
 msgid "Unable to determine status"
 msgstr "无法确定插件的详细信息"
-
-#, fuzzy
-msgid "Cannot set tasking to invalid hosts"
-msgstr "无法设置taskings未决的或无效的项目"
-
-#, fuzzy
-msgid "Cannot set tasking to pending hosts"
-msgstr "无法设置taskings未决的或无效的项目"
-
-#, fuzzy
-msgid "Invalid object to try tasking"
-msgstr "无效的对象类型传递"
-
-msgid "Cannot set tasking as image is not enabled"
-msgstr "因为没有启用图像无法设置任务"
-
-#, fuzzy
-msgid "Host Associated Snapins"
-msgstr "无关联的节点"
-
-#, fuzzy
-msgid "Host Unassociated Snapins"
-msgstr "无关联的节点"
-
-msgid "Edit Host"
-msgstr "编辑主机"
-
-msgid "Edit Image"
-msgstr "编辑图像"
-
-#, fuzzy
-msgid "Confirm tasking"
-msgstr "任务无效"
-
-#, fuzzy
-msgid "Image Associated: "
-msgstr "图像协会"
-
-msgid "Advanced Settings"
-msgstr "高级设置"
-
-#, fuzzy
-msgid "Please select the snapin you want to install"
-msgstr "请选择管理单元要部署"
-
-#, fuzzy
-msgid "Account name to reset"
-msgstr "事件必须是字符串"
-
-#, fuzzy
-msgid "Schedule with shutdown"
-msgstr "时间表"
-
-msgid "Wake on lan?"
-msgstr "网络唤醒？"
-
-#, fuzzy
-msgid "Schedule as debug task"
-msgstr "计划任务作为调试任务"
-
-#, fuzzy
-msgid "Schedule instant"
-msgstr "时间表"
-
-#, fuzzy
-msgid "Schedule delayed"
-msgstr "时间表"
-
-#, fuzzy
-msgid "Date and Time"
-msgstr "主机更新失败"
-
-#, fuzzy
-msgid "Schedule cron-style"
-msgstr "调度"
-
-msgid "Tasking"
-msgstr "任务"
-
-#, fuzzy
-msgid "Hosts in task"
-msgstr "在任务主机"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -6459,6 +6290,10 @@ msgstr "任务类型无效"
 
 msgid "Password reset requires a user account to reset"
 msgstr "密码重置需要一个用户帐户重置"
+
+#, fuzzy
+msgid "Cannot set tasking to pending hosts"
+msgstr "无法设置taskings未决的或无效的项目"
 
 #, fuzzy
 msgid "There are no hosts to task in this group"

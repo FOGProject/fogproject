@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-15 23:44-0400\n"
+"POT-Creation-Date: 2018-03-16 22:44-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3161,109 +3161,29 @@ msgstr "Snapin Update fehlgeschlagen"
 msgid "Plugin Name"
 msgstr "Plugin-Name"
 
-msgid "Unable to determine plugin details."
-msgstr "Die Plugin-Details können nicht ermittelt werden"
-
-msgid "Plugin Description"
-msgstr "Plugin-Beschreibung"
-
-msgid "Plugin Installation"
-msgstr "Plugin-Installation"
+#, fuzzy
+msgid "Activated"
+msgstr "Aktiv"
 
 #, fuzzy
-msgid "This plugin is not installed"
-msgstr "Dieses Plugin ist nicht installiert"
+msgid "Installed"
+msgstr "Installierte Plugins"
 
 #, fuzzy
-msgid "would you ilke to install it now"
-msgstr "möchten Sie es jetzt installieren?"
+msgid "List All Plugins"
+msgstr "Plugins installieren"
 
 #, fuzzy
-msgid "Install Plugin"
-msgstr "Plugin installieren"
+msgid "Activate selected"
+msgstr "ausgewählte Images hinzufügen"
 
 #, fuzzy
-msgid "Install"
-msgstr "Installieren"
-
-msgid "Reboot after deploy"
-msgstr "Neustart nach der Verteilung"
-
-msgid "Shutdown after deploy"
-msgstr "Herunterfahren nach der Verteilung"
+msgid "Install selected"
+msgstr "Ausgewählte löschen"
 
 #, fuzzy
-msgid "Basic Settings"
-msgstr "Grundeinstellungen"
-
-msgid "DMI Field"
-msgstr "DMI-Feld"
-
-#, fuzzy
-msgid "After image Action"
-msgstr "Aktion nach dem Bereitstellen"
-
-#, fuzzy
-msgid "Make Changes?"
-msgstr "Änderungen speichern?"
-
-#, fuzzy
-msgid "Image Associations"
-msgstr "Image Zugehörigkeiten"
-
-msgid "Image Definition"
-msgstr "Image Definition"
-
-msgid "DMI Result"
-msgstr "DMI-Ergebnis"
-
-#, fuzzy
-msgid "Image to DMI Mappings"
-msgstr "Abbilden zu DMI Mappings"
-
-msgid "DMI Key"
-msgstr "DMI-Schlüssel"
-
-#, fuzzy
-msgid "Current Associations"
-msgstr "Momentane Zugehörigkeiten"
-
-#, fuzzy
-msgid "Remove Selected?"
-msgstr "Ausgewählte entfernen?"
-
-#, fuzzy
-msgid "Remove Associations"
-msgstr "Zugehörigkeiten entfernen"
-
-msgid "Invalid Plugin Passed"
-msgstr "Ungültiges Plugin übergeben"
-
-msgid "Failed to install plugin"
-msgstr "Fehler beim Installieren des Plugins"
-
-msgid "Failed to save plugin"
-msgstr "Fehler beim Speichern des Plugins"
-
-msgid "Plugin Installed!"
-msgstr "Plugin installiert!"
-
-#, fuzzy
-msgid "Must have an image associated"
-msgstr "Muss mit ein Image verknüpft sein"
-
-msgid "Failed to save assignment"
-msgstr "Speichern der Zuweisung fehlgeschlagen"
-
-msgid "Assignment saved successfully"
-msgstr "Zuweisung erfolgreich gespeichert"
-
-#, fuzzy
-msgid "Destroyed assignments"
-msgstr "Zerstörte Zuordnungen"
-
-msgid "Destroyed assignment"
-msgstr "Zerstörte Zuordnung"
+msgid "Deactivate selected"
+msgstr "Ausgewählte löschen"
 
 msgid "FOG Version Information"
 msgstr "FOG-Versionsinformationen"
@@ -3407,6 +3327,10 @@ msgstr "Die Option definiert das Hintergrundbild"
 
 msgid "for the menu background"
 msgstr "für das Menü"
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "Änderungen speichern?"
 
 #, fuzzy
 msgid "iPXE Menu Settings"
@@ -4863,31 +4787,8 @@ msgid "User API Enable"
 msgstr "API-Zugangstoken"
 
 #, fuzzy
-msgid "A user name is required!"
-msgstr "Ein Benutzername ist erforderlich!"
-
-msgid "Username does not meet requirements"
-msgstr "Benutzername erfüllt nicht die Anforderungen"
-
-msgid "Username must start with a word character"
-msgstr "Benutzername muss mit einem Buchstaben beginnen"
-
-msgid "Username must be at least 3 characters"
-msgstr "Benutzername muss mind. 3 Zeichen haben"
-
-msgid "Username must be less than 41 characters"
-msgstr "Benutzername darf max. 40 Zeichen haben"
-
-msgid "Username cannot contain contiguous special characters"
-msgstr "Benutzername darf keine zusammenhängenden Sonderzeichen enthalten"
-
-#, fuzzy
 msgid "A username already exists with this name!"
 msgstr "Dieser Benutzername ist bereits vorhanden!"
-
-#, fuzzy
-msgid "A password is required!"
-msgstr "Ein Passwort ist erforderlich!"
 
 #, fuzzy
 msgid "Add user failed!"
@@ -5113,6 +5014,10 @@ msgstr "Speicherknoten Benutzername"
 #, fuzzy
 msgid "Storage Node FTP Password"
 msgstr "Speicherknoten Passwort"
+
+#, fuzzy
+msgid "A storage node already exists with this name!"
+msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr "Bandbreite sollte numerisch und größer als 0 sein."
@@ -6370,6 +6275,14 @@ msgid "You are only allowed to assign"
 msgstr "Sie dürfen nur zuweisen"
 
 #, fuzzy
+msgid "List Available Plugins"
+msgstr "Installierte Plugins"
+
+#, fuzzy
+msgid "Import a new Plugin"
+msgstr "Installierte Plugins"
+
+#, fuzzy
 msgid "Multicast Image"
 msgstr "Multicast Image"
 
@@ -6380,90 +6293,6 @@ msgstr "Ausgewählte Speichergruppen hinzufügen"
 #, fuzzy
 msgid "Unable to determine status"
 msgstr "Plugin-Details können nicht ermittelt werden"
-
-#, fuzzy
-msgid "Cannot set tasking to invalid hosts"
-msgstr "Es können keine Tasks auf invalide Hosts ausgeführt werden!"
-
-#, fuzzy
-msgid "Cannot set tasking to pending hosts"
-msgstr "Es können keine Tasks auf ausstehende Hosts ausgeführt werden!"
-
-#, fuzzy
-msgid "Invalid object to try tasking"
-msgstr "Ungültiger Objekttyp für diesen Task"
-
-msgid "Cannot set tasking as image is not enabled"
-msgstr ""
-"Es können keine Tasks ausgeführt werden, solange das Image nicht freigegeben "
-"ist"
-
-#, fuzzy
-msgid "Host Associated Snapins"
-msgstr "Mit Hosts verknüpfte Snapins"
-
-#, fuzzy
-msgid "Host Unassociated Snapins"
-msgstr "Snapins ohne Host"
-
-msgid "Edit Host"
-msgstr "Host bearbeiten"
-
-msgid "Edit Image"
-msgstr "Image bearbeiten"
-
-#, fuzzy
-msgid "Confirm tasking"
-msgstr "Bestätige Task"
-
-#, fuzzy
-msgid "Image Associated: "
-msgstr "verknüpftes Image:"
-
-msgid "Advanced Settings"
-msgstr "Erweiterte Einstellungen"
-
-#, fuzzy
-msgid "Please select the snapin you want to install"
-msgstr "Bitte wählen Sie das Snapin, das Sie installieren wollen"
-
-#, fuzzy
-msgid "Account name to reset"
-msgstr "zurückzustellender Accountname"
-
-#, fuzzy
-msgid "Schedule with shutdown"
-msgstr "Zeitplan"
-
-msgid "Wake on lan?"
-msgstr "Wake-on-LAN?"
-
-#, fuzzy
-msgid "Schedule as debug task"
-msgstr "Planen als Debugaufgabe"
-
-#, fuzzy
-msgid "Schedule instant"
-msgstr "sofort planen"
-
-#, fuzzy
-msgid "Schedule delayed"
-msgstr "verzögert planen"
-
-#, fuzzy
-msgid "Date and Time"
-msgstr "Datum und Zeit"
-
-#, fuzzy
-msgid "Schedule cron-style"
-msgstr "Cron-Style planen"
-
-msgid "Tasking"
-msgstr "Tasking"
-
-#, fuzzy
-msgid "Hosts in task"
-msgstr "Hosts im Task-Prozess"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -6484,6 +6313,10 @@ msgstr "Task-Typ ist nicht gültig"
 
 msgid "Password reset requires a user account to reset"
 msgstr "Zurücksetzen des Kennworts erfordert einen entsprechenden Benutzer"
+
+#, fuzzy
+msgid "Cannot set tasking to pending hosts"
+msgstr "Es können keine Tasks auf ausstehende Hosts ausgeführt werden!"
 
 #, fuzzy
 msgid "There are no hosts to task in this group"
