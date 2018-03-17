@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-15 23:44-0400\n"
+"POT-Creation-Date: 2018-03-16 22:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2785,94 +2785,22 @@ msgstr ""
 msgid "Plugin Name"
 msgstr ""
 
-msgid "Unable to determine plugin details."
+msgid "Activated"
 msgstr ""
 
-msgid "Plugin Description"
+msgid "Installed"
 msgstr ""
 
-msgid "Plugin Installation"
+msgid "List All Plugins"
 msgstr ""
 
-msgid "This plugin is not installed"
+msgid "Activate selected"
 msgstr ""
 
-msgid "would you ilke to install it now"
+msgid "Install selected"
 msgstr ""
 
-msgid "Install Plugin"
-msgstr ""
-
-msgid "Install"
-msgstr ""
-
-msgid "Reboot after deploy"
-msgstr ""
-
-msgid "Shutdown after deploy"
-msgstr ""
-
-msgid "Basic Settings"
-msgstr ""
-
-msgid "DMI Field"
-msgstr ""
-
-msgid "After image Action"
-msgstr ""
-
-msgid "Make Changes?"
-msgstr ""
-
-msgid "Image Associations"
-msgstr ""
-
-msgid "Image Definition"
-msgstr ""
-
-msgid "DMI Result"
-msgstr ""
-
-msgid "Image to DMI Mappings"
-msgstr ""
-
-msgid "DMI Key"
-msgstr ""
-
-msgid "Current Associations"
-msgstr ""
-
-msgid "Remove Selected?"
-msgstr ""
-
-msgid "Remove Associations"
-msgstr ""
-
-msgid "Invalid Plugin Passed"
-msgstr ""
-
-msgid "Failed to install plugin"
-msgstr ""
-
-msgid "Failed to save plugin"
-msgstr ""
-
-msgid "Plugin Installed!"
-msgstr ""
-
-msgid "Must have an image associated"
-msgstr ""
-
-msgid "Failed to save assignment"
-msgstr ""
-
-msgid "Assignment saved successfully"
-msgstr ""
-
-msgid "Destroyed assignments"
-msgstr ""
-
-msgid "Destroyed assignment"
+msgid "Deactivate selected"
 msgstr ""
 
 msgid "FOG Version Information"
@@ -2999,6 +2927,9 @@ msgid "Option specifies the background file to use"
 msgstr ""
 
 msgid "for the menu background"
+msgstr ""
+
+msgid "Make Changes?"
 msgstr ""
 
 msgid "iPXE Menu Settings"
@@ -4237,28 +4168,7 @@ msgstr ""
 msgid "User API Enable"
 msgstr ""
 
-msgid "A user name is required!"
-msgstr ""
-
-msgid "Username does not meet requirements"
-msgstr ""
-
-msgid "Username must start with a word character"
-msgstr ""
-
-msgid "Username must be at least 3 characters"
-msgstr ""
-
-msgid "Username must be less than 41 characters"
-msgstr ""
-
-msgid "Username cannot contain contiguous special characters"
-msgstr ""
-
 msgid "A username already exists with this name!"
-msgstr ""
-
-msgid "A password is required!"
 msgstr ""
 
 msgid "Add user failed!"
@@ -4432,6 +4342,9 @@ msgid "Storage Node FTP User"
 msgstr ""
 
 msgid "Storage Node FTP Password"
+msgstr ""
+
+msgid "A storage node already exists with this name!"
 msgstr ""
 
 msgid "Bandwidth should be numeric and greater than 0"
@@ -5497,6 +5410,12 @@ msgstr ""
 msgid "You are only allowed to assign"
 msgstr ""
 
+msgid "List Available Plugins"
+msgstr ""
+
+msgid "Import a new Plugin"
+msgstr ""
+
 msgid "Multicast Image"
 msgstr ""
 
@@ -5504,72 +5423,6 @@ msgid "Add selected to group"
 msgstr ""
 
 msgid "Unable to determine status"
-msgstr ""
-
-msgid "Cannot set tasking to invalid hosts"
-msgstr ""
-
-msgid "Cannot set tasking to pending hosts"
-msgstr ""
-
-msgid "Invalid object to try tasking"
-msgstr ""
-
-msgid "Cannot set tasking as image is not enabled"
-msgstr ""
-
-msgid "Host Associated Snapins"
-msgstr ""
-
-msgid "Host Unassociated Snapins"
-msgstr ""
-
-msgid "Edit Host"
-msgstr ""
-
-msgid "Edit Image"
-msgstr ""
-
-msgid "Confirm tasking"
-msgstr ""
-
-msgid "Image Associated: "
-msgstr ""
-
-msgid "Advanced Settings"
-msgstr ""
-
-msgid "Please select the snapin you want to install"
-msgstr ""
-
-msgid "Account name to reset"
-msgstr ""
-
-msgid "Schedule with shutdown"
-msgstr ""
-
-msgid "Wake on lan?"
-msgstr ""
-
-msgid "Schedule as debug task"
-msgstr ""
-
-msgid "Schedule instant"
-msgstr ""
-
-msgid "Schedule delayed"
-msgstr ""
-
-msgid "Date and Time"
-msgstr ""
-
-msgid "Schedule cron-style"
-msgstr ""
-
-msgid "Tasking"
-msgstr ""
-
-msgid "Hosts in task"
 msgstr ""
 
 msgid "Invalid scheduling type"
@@ -5588,6 +5441,9 @@ msgid "Task type is not valid"
 msgstr ""
 
 msgid "Password reset requires a user account to reset"
+msgstr ""
+
+msgid "Cannot set tasking to pending hosts"
 msgstr ""
 
 msgid "There are no hosts to task in this group"

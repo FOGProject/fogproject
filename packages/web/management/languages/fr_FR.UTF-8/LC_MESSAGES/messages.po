@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-15 23:44-0400\n"
+"POT-Creation-Date: 2018-03-16 22:44-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3163,113 +3163,29 @@ msgstr "mise à jour a échoué Snapin"
 msgid "Plugin Name"
 msgstr "Nom Plugin"
 
-msgid "Unable to determine plugin details."
-msgstr "Impossible de déterminer les détails du plugin."
-
-msgid "Plugin Description"
-msgstr "Plugin description de"
-
-msgid "Plugin Installation"
-msgstr "Installation Plugin"
+#, fuzzy
+msgid "Activated"
+msgstr "actif"
 
 #, fuzzy
-msgid "This plugin is not installed"
-msgstr ""
-"Ce plugin est actuellement pas installé, souhaitez-vous l'installer "
-"maintenant?"
+msgid "Installed"
+msgstr "Plugins installés"
 
 #, fuzzy
-msgid "would you ilke to install it now"
-msgstr ""
-"Ce plugin est actuellement pas installé, souhaitez-vous l'installer "
-"maintenant?"
-
-#, fuzzy
-msgid "Install Plugin"
+msgid "List All Plugins"
 msgstr "Installer Plugins"
 
 #, fuzzy
-msgid "Install"
-msgstr "Installation / mise à jour a échoué!"
-
-msgid "Reboot after deploy"
-msgstr "Reboot après déploiement"
-
-msgid "Shutdown after deploy"
-msgstr "Arrêt après déploiement"
+msgid "Activate selected"
+msgstr "Imprimante"
 
 #, fuzzy
-msgid "Basic Settings"
-msgstr "Paramètres"
-
-msgid "DMI Field"
-msgstr "DMI Champ"
+msgid "Install selected"
+msgstr "Supprimer sélectionnée"
 
 #, fuzzy
-msgid "After image Action"
-msgstr "Groupe Lieu"
-
-#, fuzzy
-msgid "Make Changes?"
-msgstr "Sauvegarder les modifications"
-
-#, fuzzy
-msgid "Image Associations"
-msgstr "Association Image"
-
-msgid "Image Definition"
-msgstr "image Définition"
-
-msgid "DMI Result"
-msgstr "DMI Résultat"
-
-#, fuzzy
-msgid "Image to DMI Mappings"
-msgstr "Ajouter une image aux associations DMI"
-
-msgid "DMI Key"
-msgstr "DMI Key"
-
-#, fuzzy
-msgid "Current Associations"
-msgstr "Association Image"
-
-#, fuzzy
-msgid "Remove Selected?"
-msgstr "Retirer snapins sélectionnés"
-
-#, fuzzy
-msgid "Remove Associations"
-msgstr "Association Image"
-
-msgid "Invalid Plugin Passed"
-msgstr "Plugin Invalid Passed"
-
-msgid "Failed to install plugin"
-msgstr "Impossible d'installer le plugin"
-
-msgid "Failed to save plugin"
-msgstr "Impossible d'enregistrer le plugin"
-
-msgid "Plugin Installed!"
-msgstr "Plugin installé!"
-
-#, fuzzy
-msgid "Must have an image associated"
-msgstr "Doit avoir SnapIn associé à un groupe"
-
-msgid "Failed to save assignment"
-msgstr "Impossible d'enregistrer la cession"
-
-msgid "Assignment saved successfully"
-msgstr "Cession enregistré avec succès"
-
-#, fuzzy
-msgid "Destroyed assignments"
-msgstr "cession Destroyed"
-
-msgid "Destroyed assignment"
-msgstr "cession Destroyed"
+msgid "Deactivate selected"
+msgstr "Supprimer sélectionnée"
 
 msgid "FOG Version Information"
 msgstr "FOG Informations de version"
@@ -3415,6 +3331,10 @@ msgstr ""
 
 msgid "for the menu background"
 msgstr ""
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "Sauvegarder les modifications"
 
 #, fuzzy
 msgid "iPXE Menu Settings"
@@ -4869,31 +4789,8 @@ msgid "User API Enable"
 msgstr "Jeton d'accès"
 
 #, fuzzy
-msgid "A user name is required!"
-msgstr "Un nom de l'image est nécessaire!"
-
-msgid "Username does not meet requirements"
-msgstr ""
-
-msgid "Username must start with a word character"
-msgstr ""
-
-msgid "Username must be at least 3 characters"
-msgstr ""
-
-msgid "Username must be less than 41 characters"
-msgstr ""
-
-msgid "Username cannot contain contiguous special characters"
-msgstr ""
-
-#, fuzzy
 msgid "A username already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
-
-#, fuzzy
-msgid "A password is required!"
-msgstr "%s est requis"
 
 #, fuzzy
 msgid "Add user failed!"
@@ -5117,6 +5014,10 @@ msgstr "Nœud de stockage Nom d'utilisateur"
 #, fuzzy
 msgid "Storage Node FTP Password"
 msgstr "Nœud de stockage Mot de passe"
+
+#, fuzzy
+msgid "A storage node already exists with this name!"
+msgstr "Une image existe déjà avec ce nom!"
 
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr "La bande passante doit être numérique et supérieur à 0"
@@ -6376,6 +6277,14 @@ msgid "You are only allowed to assign"
 msgstr "Vous êtes seulement autorisé à attribuer"
 
 #, fuzzy
+msgid "List Available Plugins"
+msgstr "Plugins installés"
+
+#, fuzzy
+msgid "Import a new Plugin"
+msgstr "Plugins installés"
+
+#, fuzzy
 msgid "Multicast Image"
 msgstr "Multicast"
 
@@ -6386,90 +6295,6 @@ msgstr "Imprimante"
 #, fuzzy
 msgid "Unable to determine status"
 msgstr "Impossible de déterminer les détails du plugin"
-
-#, fuzzy
-msgid "Cannot set tasking to invalid hosts"
-msgstr ""
-"Impossible de définir les affectations en cours ou éléments non valides"
-
-#, fuzzy
-msgid "Cannot set tasking to pending hosts"
-msgstr ""
-"Impossible de définir les affectations en cours ou éléments non valides"
-
-#, fuzzy
-msgid "Invalid object to try tasking"
-msgstr "type d'objet non valide passé"
-
-msgid "Cannot set tasking as image is not enabled"
-msgstr "Impossible de définir le multitâche que l'image ne soit pas activée"
-
-#, fuzzy
-msgid "Host Associated Snapins"
-msgstr "Aucun noeud associé"
-
-#, fuzzy
-msgid "Host Unassociated Snapins"
-msgstr "Aucun noeud associé"
-
-msgid "Edit Host"
-msgstr "Modifier Host"
-
-msgid "Edit Image"
-msgstr "Modifier l'image"
-
-#, fuzzy
-msgid "Confirm tasking"
-msgstr "tâche non valide"
-
-#, fuzzy
-msgid "Image Associated: "
-msgstr "Association Image"
-
-msgid "Advanced Settings"
-msgstr "Réglages avancés"
-
-#, fuzzy
-msgid "Please select the snapin you want to install"
-msgstr "S'il vous plaît sélectionner le snapin vous souhaitez déployer"
-
-#, fuzzy
-msgid "Account name to reset"
-msgstr "Événement doit être une chaîne"
-
-#, fuzzy
-msgid "Schedule with shutdown"
-msgstr "Programme"
-
-msgid "Wake on lan?"
-msgstr "Wake on lan?"
-
-#, fuzzy
-msgid "Schedule as debug task"
-msgstr "Planifier une tâche comme une tâche de débogage"
-
-#, fuzzy
-msgid "Schedule instant"
-msgstr "Programme"
-
-#, fuzzy
-msgid "Schedule delayed"
-msgstr "Programme"
-
-#, fuzzy
-msgid "Date and Time"
-msgstr "Mise à jour de l'hôte a échoué"
-
-#, fuzzy
-msgid "Schedule cron-style"
-msgstr "Planificateur"
-
-msgid "Tasking"
-msgstr "Tasking"
-
-#, fuzzy
-msgid "Hosts in task"
-msgstr "Hôtes sur Task"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -6492,6 +6317,11 @@ msgid "Password reset requires a user account to reset"
 msgstr ""
 "Mot de passe réinitialisation nécessite un compte d'utilisateur pour "
 "réinitialiser"
+
+#, fuzzy
+msgid "Cannot set tasking to pending hosts"
+msgstr ""
+"Impossible de définir les affectations en cours ou éléments non valides"
 
 #, fuzzy
 msgid "There are no hosts to task in this group"

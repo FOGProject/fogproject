@@ -68,73 +68,37 @@ class StorageNodeManagementPage extends FOGPage
     public function add()
     {
         $this->title = _('Create New Storage Node');
-        $storagenode = filter_input(
-            INPUT_POST,
-            'storagenode'
-        );
-        $description = filter_input(
-            INPUT_POST,
-            'description'
-        );
-        $ip = filter_input(
-            INPUT_POST,
-            'ip'
-        );
-        $webroot = filter_input(
-            INPUT_POST,
-            'webroot'
-        ) ?: '/fog';
-        $maxClients = (int)filter_input(
-            INPUT_POST,
-            'maxClients'
-        ) ?: 10;
+
+        $storagenode = filter_input(INPUT_POST, 'storagenode');
+        $description = filter_input(INPUT_POST, 'description');
+        $ip = filter_input(INPUT_POST, 'ip');
+        $webroot = filter_input(INPUT_POST, 'webroot') ?:
+            '/fog';
+        $maxClients = (int)filter_input(INPUT_POST, 'maxClients') ?:
+            10;
         $isMaster = isset($_POST['isMaster']) ? ' checked' : '';
-        $bandwidth = filter_input(
-            INPUT_POST,
-            'bandwidth'
-        );
-        $storagegroupID = (int)filter_input(
-            INPUT_POST,
-            'storagegroupID'
-        );
+        $bandwidth = filter_input(INPUT_POST, 'bandwidth');
+        $storagegroupID = (int)filter_input(INPUT_POST, 'storagegroupID');
         if (!$storagegroupID) {
             $storagegroupID = @min(
                 self::getSubObjectIDs('StorageGroup')
             );
         }
-        $path = filter_input(
-            INPUT_POST,
-            'path'
-        ) ?: '/images/';
-        $ftppath = filter_input(
-            INPUT_POST,
-            'ftppath'
-        ) ?: '/images/';
-        $snapinpath = filter_input(
-            INPUT_POST,
-            'snapinppath'
-        ) ?: '/opt/fog/snapins/';
-        $sslpath = filter_input(
-            INPUT_POST,
-            'sslpath'
-        ) ?: '/opt/fog/snapins/ssl/';
-        $bitrate = filter_input(
-            INPUT_POST,
-            'bitrate'
-        );
-        $interface = filter_input(
-            INPUT_POST,
-            'interface'
-        );
-        $user = filter_input(
-            INPUT_POST,
-            'user'
-        );
-        $pass = filter_input(
-            INPUT_POST,
-            'pass'
-        );
+        $path = filter_input(INPUT_POST, 'path') ?:
+            '/images/';
+        $ftppath = filter_input(INPUT_POST, 'ftppath') ?:
+            '/images/';
+        $snapinpath = filter_input(INPUT_POST, 'snapinppath') ?:
+            '/opt/fog/snapins/';
+        $sslpath = filter_input(INPUT_POST, 'sslpath') ?:
+            '/opt/fog/snapins/ssl/';
+        $bitrate = filter_input(INPUT_POST, 'bitrate');
+        $interface = filter_input(INPUT_POST, 'interface');
+        $user = filter_input(INPUT_POST, 'user');
+        $pass = filter_input(INPUT_POST, 'pass');
+
         $labelClass = 'col-sm-2 control-label';
+
         $fields = [
             // Basic information
             self::makeLabel(
@@ -392,21 +356,24 @@ class StorageNodeManagementPage extends FOGPage
             )
             . '</div>',
         ];
-        self::$HookManager
-            ->processEvent(
-                'STORAGENODE_ADD_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'StorageNode' => self::getClass('StorageNode')
-                ]
-            );
+
         $buttons = self::makeButton(
             'send',
             _('Create'),
             'btn btn-primary'
         );
+
+        self::$HookManager->processEvent(
+            'STORAGENODE_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'StorageNode' => self::getClass('StorageNode')
+            ]
+        );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'storagenode-create-form',
@@ -417,7 +384,6 @@ class StorageNodeManagementPage extends FOGPage
         );
         echo '<div class="box box-solid" id="storagenode-create">';
         echo '<div class="box-body">';
-        echo '<!-- Storage Node -->';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -426,6 +392,7 @@ class StorageNodeManagementPage extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
@@ -492,28 +459,15 @@ class StorageNodeManagementPage extends FOGPage
         $bitrate = trim(
             filter_input(INPUT_POST, 'bitrate')
         );
+
         $serverFault = false;
         try {
-            if (empty($storagenode)) {
-                throw new Exception(self::$foglang['StorageNameRequired']);
-            }
-            if (self::getClass('StorageNodeManager')->exists($storagenode)) {
-                throw new Exception(self::$foglang['StorageNameExists']);
-            }
-            if (empty($ip)) {
-                throw new Exception(self::$foglang['StorageIPRequired']);
-            }
-            if (empty($maxClients)) {
-                throw new Exception(self::$foglang['StorageClientsRequired']);
-            }
-            if (empty($interface)) {
-                throw new Exception(self::$foglang['StorageIntRequired']);
-            }
-            if (empty($user)) {
-                throw new Exception(self::$foglang['StorageUserRequired']);
-            }
-            if (empty($pass)) {
-                throw new Exception(self::$foglang['StoragePassRequired']);
+            $exists = self::getClass('StorageNodeManager')
+                ->exists($storagenode);
+            if ($exists) {
+                throw new Exception(
+                    _('A storage node already exists with this name!')
+                );
             }
             if (is_numeric($bandwidth)) {
                 if ($bandwidth < 0) {
@@ -572,8 +526,7 @@ class StorageNodeManagementPage extends FOGPage
             $msg = json_encode(
                 [
                     'msg' => _('Storage Node added!'),
-                    'title' => _('Storage Node Create Success'),
-                    'id' => $StorageNode->get('id')
+                    'title' => _('Storage Node Create Success')
                 ]
             );
         } catch (Exception $e) {
@@ -594,17 +547,16 @@ class StorageNodeManagementPage extends FOGPage
         //    'Location: ../management/index.php?node=storagenode&sub=edit&sub='
         //    . $StorageNode->get('id')
         //);
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'StorageNode' => &$StorageNode,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'StorageNode' => &$StorageNode,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
         http_response_code($code);
         unset($StorageNode);
         echo $msg;
@@ -619,108 +571,63 @@ class StorageNodeManagementPage extends FOGPage
     {
         // Post Fields
         $storagenode = (
-            filter_input(
-                INPUT_POST,
-                'storagenode'
-            ) ?:
+            filter_input(INPUT_POST, 'storagenode') ?:
             $this->obj->get('name')
         );
         $description = (
-            filter_input(
-                INPUT_POST,
-                'description'
-            ) ?:
+            filter_input(INPUT_POST, 'description') ?:
             $this->obj->get('description')
         );
         $ip = (
-            filter_input(
-                INPUT_POST,
-                'ip'
-            ) ?:
+            filter_input(INPUT_POST, 'ip') ?:
             $this->obj->get('ip')
         );
         $webroot = (
-            filter_input(
-                INPUT_POST,
-                'webroot'
-            ) ?:
+            filter_input(INPUT_POST, 'webroot') ?:
             $this->obj->get('webroot')
         );
         $maxClients = (
-            (int)filter_input(
-                INPUT_POST,
-                'maxClients'
-            ) ?:
+            (int)filter_input(INPUT_POST, 'maxClients') ?:
             $this->obj->get('maxClients')
         );
         $bandwidth = (
-            filter_input(
-                INPUT_POST,
-                'bandwidth'
-            ) ?:
+            filter_input(INPUT_POST, 'bandwidth') ?:
             $this->obj->get('bandwidth')
         );
         $storagegroupID = (
-            (int)filter_input(
-                INPUT_POST,
-                'storagegroupID'
-            ) ?:
+            (int)filter_input(INPUT_POST, 'storagegroupID') ?:
             $this->obj->get('storagegroupID')
         );
         $path = (
-            filter_input(
-                INPUT_POST,
-                'path'
-            ) ?:
+            filter_input(INPUT_POST, 'path') ?:
             $this->obj->get('path')
         );
         $ftppath = (
-            filter_input(
-                INPUT_POST,
-                'ftppath'
-            ) ?:
+            filter_input(INPUT_POST, 'ftppath') ?:
             $this->obj->get('ftppath')
         );
         $snapinpath = (
-            filter_input(
-                INPUT_POST,
-                'snapinpath'
-            ) ?:
+            filter_input(INPUT_POST, 'snapinpath') ?:
             $this->obj->get('snapinpath')
         );
         $sslpath = (
-            filter_input(
-                INPUT_POST,
-                'sslpath'
-            ) ?:
+            filter_input(INPUT_POST, 'sslpath') ?:
             $this->obj->get('sslpath')
         );
         $bitrate = (
-            filter_input(
-                INPUT_POST,
-                'bitrate'
-            ) ?:
+            filter_input(INPUT_POST, 'bitrate') ?:
             $this->obj->get('bitrate')
         );
         $interface = (
-            filter_input(
-                INPUT_POST,
-                'interface'
-            ) ?:
+            filter_input(INPUT_POST, 'interface') ?:
             $this->obj->get('interface')
         );
         $user = (
-            filter_input(
-                INPUT_POST,
-                'user'
-            ) ?:
+            filter_input(INPUT_POST, 'user') ?:
             $this->obj->get('user')
         );
         $pass = (
-            filter_input(
-                INPUT_POST,
-                'pass'
-            ) ?:
+            filter_input(INPUT_POST, 'pass') ?:
             $this->obj->get('pass')
         );
         $isgren = isset($_POST['isGraphEnabled']) ?:
@@ -744,7 +651,9 @@ class StorageNodeManagementPage extends FOGPage
         } else {
             $isMaster = '';
         }
+
         $labelClass = 'col-sm-2 control-label';
+
         $fields = [
             // Basic information
             self::makeLabel(
@@ -1005,27 +914,27 @@ class StorageNodeManagementPage extends FOGPage
             . '</div>',
         ];
 
-        self::$HookManager->processEvent(
-            'STORAGENODE_GENERAL_FIELDS',
-            [
-                'fields' => &$fields,
-                'StorageNode' => &$this->obj
-            ]
-        );
-
-        $rendered = self::formFields($fields);
-        unset($fields);
-
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
             'btn btn-primary'
         );
-        $buttons .= self::makeButton(
+        $buttons .= self::makeButtons(
             'general-delete',
             _('Delete'),
             'btn btn-danger pull-right'
         );
+
+        self::$HookManager->processEvent(
+            'STORAGENODE_GENERAL_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'StorageNode' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
 
         echo self::makeFormTag(
             'form-horizontal',
@@ -1112,22 +1021,9 @@ class StorageNodeManagementPage extends FOGPage
         if ($this->obj->get('name') != $storagenode
             && $exists
         ) {
-            throw new Exception(self::$foglang['StorageNameExists']);
-        }
-        if (!$ip) {
-            throw new Exception(self::$foglang['StorageIPRequired']);
-        }
-        if ($maxClients < 0) {
-            throw new Exception(self::$foglang['StorageClientRequired']);
-        }
-        if (!$interface) {
-            throw new Exception(self::$foglang['StorageIntRequired']);
-        }
-        if (!$user) {
-            throw new Exception(self::$foglang['StorageUserRequired']);
-        }
-        if (!$pass) {
-            throw new Exception(self::$foglang['StoragePassRequired']);
+            throw new Exception(
+                _('A storage node already exists with this name!')
+            );
         }
         if (is_numeric($bandwidth)) {
             if ($bandwidth < 0) {
@@ -1251,17 +1147,17 @@ class StorageNodeManagementPage extends FOGPage
                 ]
             );
         }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'StorageNode' => &$this->obj,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
+
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'StorageNode' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
         http_response_code($code);
         echo $msg;
         exit;
@@ -1302,12 +1198,6 @@ class StorageNodeManagementPage extends FOGPage
         echo '</p>';
         echo '</div>';
         echo '<div class="box-body">';
-        echo '<p class="help-block">';
-        echo _(
-            'All columns less the id field will be exported. Column visibility '
-            . 'does not affect the exported items.'
-        );
-        echo '</p>';
         echo '<p class="help-block">';
         echo _(
             'When you click on the item you want to export, it can only select '

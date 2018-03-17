@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-15 23:44-0400\n"
+"POT-Creation-Date: 2018-03-16 22:44-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3160,111 +3160,29 @@ msgstr "Snapin update failed"
 msgid "Plugin Name"
 msgstr "Plugin Name"
 
-msgid "Unable to determine plugin details."
-msgstr "Unable to determine plugin details."
-
-msgid "Plugin Description"
-msgstr "Plugin Description"
-
-msgid "Plugin Installation"
-msgstr "Plugin Installation"
+#, fuzzy
+msgid "Activated"
+msgstr "Active"
 
 #, fuzzy
-msgid "This plugin is not installed"
-msgstr ""
-"This plugin is currently not installed, would you like to install it now?"
+msgid "Installed"
+msgstr "Installed Plugins"
 
 #, fuzzy
-msgid "would you ilke to install it now"
-msgstr ""
-"This plugin is currently not installed, would you like to install it now?"
-
-#, fuzzy
-msgid "Install Plugin"
+msgid "List All Plugins"
 msgstr "Install Plugins"
 
 #, fuzzy
-msgid "Install"
-msgstr "Smart Installer (Recommended)"
-
-msgid "Reboot after deploy"
-msgstr "Reboot after deploy"
-
-msgid "Shutdown after deploy"
-msgstr "Shutdown after deploy"
+msgid "Activate selected"
+msgstr "Remove selected printers"
 
 #, fuzzy
-msgid "Basic Settings"
-msgstr "Settings"
-
-msgid "DMI Field"
-msgstr "DMI Field"
+msgid "Install selected"
+msgstr "Delete Selected"
 
 #, fuzzy
-msgid "After image Action"
-msgstr "Image Association"
-
-#, fuzzy
-msgid "Make Changes?"
-msgstr "Save Changes"
-
-#, fuzzy
-msgid "Image Associations"
-msgstr "Image Association"
-
-msgid "Image Definition"
-msgstr "Image Definition"
-
-msgid "DMI Result"
-msgstr "DMI Result"
-
-#, fuzzy
-msgid "Image to DMI Mappings"
-msgstr "Add Image to DMI Associations"
-
-msgid "DMI Key"
-msgstr "DMI Key"
-
-#, fuzzy
-msgid "Current Associations"
-msgstr "Image Association"
-
-#, fuzzy
-msgid "Remove Selected?"
-msgstr "Remove selected snapins"
-
-#, fuzzy
-msgid "Remove Associations"
-msgstr "Image Association"
-
-msgid "Invalid Plugin Passed"
-msgstr "Invalid Plugin Passed"
-
-msgid "Failed to install plugin"
-msgstr "Failed to install plugin"
-
-msgid "Failed to save plugin"
-msgstr "Failed to save plugin"
-
-msgid "Plugin Installed!"
-msgstr "Plugin Installed!"
-
-#, fuzzy
-msgid "Must have an image associated"
-msgstr "Must have snapin associated to a group"
-
-msgid "Failed to save assignment"
-msgstr "Failed to save assignment"
-
-msgid "Assignment saved successfully"
-msgstr "Assignment saved successfully"
-
-#, fuzzy
-msgid "Destroyed assignments"
-msgstr "Destroyed assignment"
-
-msgid "Destroyed assignment"
-msgstr "Destroyed assignment"
+msgid "Deactivate selected"
+msgstr "Delete Selected"
 
 msgid "FOG Version Information"
 msgstr "FOG Version Information"
@@ -3406,6 +3324,10 @@ msgstr "Option specifies the timeout value for the hidden menu system"
 
 msgid "for the menu background"
 msgstr ""
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "Save Changes"
 
 #, fuzzy
 msgid "iPXE Menu Settings"
@@ -4856,31 +4778,8 @@ msgid "User API Enable"
 msgstr "Access Token"
 
 #, fuzzy
-msgid "A user name is required!"
-msgstr "An image name is required!"
-
-msgid "Username does not meet requirements"
-msgstr ""
-
-msgid "Username must start with a word character"
-msgstr ""
-
-msgid "Username must be at least 3 characters"
-msgstr ""
-
-msgid "Username must be less than 41 characters"
-msgstr ""
-
-msgid "Username cannot contain contiguous special characters"
-msgstr ""
-
-#, fuzzy
 msgid "A username already exists with this name!"
 msgstr "An image already exists with this name!"
-
-#, fuzzy
-msgid "A password is required!"
-msgstr "%s is required"
 
 #, fuzzy
 msgid "Add user failed!"
@@ -5104,6 +5003,10 @@ msgstr "Storage Node Username"
 #, fuzzy
 msgid "Storage Node FTP Password"
 msgstr "Storage Node Password"
+
+#, fuzzy
+msgid "A storage node already exists with this name!"
+msgstr "An image already exists with this name!"
 
 msgid "Bandwidth should be numeric and greater than 0"
 msgstr "Bandwidth should be numeric and greater than 0"
@@ -6357,6 +6260,14 @@ msgid "You are only allowed to assign"
 msgstr "You are only allowed to assign"
 
 #, fuzzy
+msgid "List Available Plugins"
+msgstr "Installed Plugins"
+
+#, fuzzy
+msgid "Import a new Plugin"
+msgstr "Installed Plugins"
+
+#, fuzzy
 msgid "Multicast Image"
 msgstr "Multicast"
 
@@ -6367,88 +6278,6 @@ msgstr "Remove selected snapins"
 #, fuzzy
 msgid "Unable to determine status"
 msgstr "Unable to determine plugin details"
-
-#, fuzzy
-msgid "Cannot set tasking to invalid hosts"
-msgstr "Cannot set taskings to pending or invalid items"
-
-#, fuzzy
-msgid "Cannot set tasking to pending hosts"
-msgstr "Cannot set taskings to pending or invalid items"
-
-#, fuzzy
-msgid "Invalid object to try tasking"
-msgstr "Invalid object type passed"
-
-msgid "Cannot set tasking as image is not enabled"
-msgstr "Cannot set tasking as image is not enabled"
-
-#, fuzzy
-msgid "Host Associated Snapins"
-msgstr "No node associated"
-
-#, fuzzy
-msgid "Host Unassociated Snapins"
-msgstr "No node associated"
-
-msgid "Edit Host"
-msgstr "Edit Host"
-
-msgid "Edit Image"
-msgstr "Edit Image"
-
-#, fuzzy
-msgid "Confirm tasking"
-msgstr "Invalid task"
-
-#, fuzzy
-msgid "Image Associated: "
-msgstr "Image Association"
-
-msgid "Advanced Settings"
-msgstr "Advanced Settings"
-
-#, fuzzy
-msgid "Please select the snapin you want to install"
-msgstr "Please select the snapin you want to deploy"
-
-#, fuzzy
-msgid "Account name to reset"
-msgstr "Event must be a string"
-
-#, fuzzy
-msgid "Schedule with shutdown"
-msgstr "Scheduler"
-
-msgid "Wake on lan?"
-msgstr "Wake on lan?"
-
-#, fuzzy
-msgid "Schedule as debug task"
-msgstr "Schedule task as a debug task"
-
-#, fuzzy
-msgid "Schedule instant"
-msgstr "Schedule"
-
-#, fuzzy
-msgid "Schedule delayed"
-msgstr "Schedule"
-
-#, fuzzy
-msgid "Date and Time"
-msgstr "Host Update Failed"
-
-#, fuzzy
-msgid "Schedule cron-style"
-msgstr "Scheduler"
-
-msgid "Tasking"
-msgstr "Tasking"
-
-#, fuzzy
-msgid "Hosts in task"
-msgstr "Hosts in Task"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -6469,6 +6298,10 @@ msgstr "Task type is not valid"
 
 msgid "Password reset requires a user account to reset"
 msgstr "Password reset requires a user account to reset"
+
+#, fuzzy
+msgid "Cannot set tasking to pending hosts"
+msgstr "Cannot set taskings to pending or invalid items"
 
 #, fuzzy
 msgid "There are no hosts to task in this group"
