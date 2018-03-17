@@ -58,19 +58,16 @@ class AddServiceConfiguration extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        self::$HookManager
-            ->register(
-                'SNAPIN_CLIENT_SERVICE',
-                [$this, 'addServiceCheckbox']
-            )
-            ->register(
-                'SNAPIN_CLIENT_SERVICE_POST',
-                [$this, 'updateGlobalSetting']
-            )
-            ->register(
-                'SERVICE_NAMES',
-                [$this, 'addServiceNames']
-            );
+        self::$HookManager->register(
+            'SNAPIN_CLIENT_SERVICE',
+            [$this, 'addServiceCheckbox']
+        )->register(
+            'SNAPIN_CLIENT_SERVICE_POST',
+            [$this, 'updateGlobalSetting']
+        )->register(
+            'SERVICE_NAMES',
+            [$this, 'addServiceNames']
+        );
     }
     /**
      * Add the service checkbox.
@@ -152,6 +149,8 @@ class AddServiceConfiguration extends Hook
         if ($node != 'service') {
             return;
         }
+        $snapinsend = (int)isset($_POST['snapinsend']);
+
         $Service = self::getClass('Service')
             ->set('name', 'FOG_SNAPIN_LOCATION_SEND_ENABLED')
             ->load('name');
@@ -159,9 +158,8 @@ class AddServiceConfiguration extends Hook
             return;
         }
         $Service
-            ->set('value', isset($_REQUEST['snapinsend']))
+            ->set('value', $snapinsend)
             ->save();
-        return true;
     }
     /**
      * Adds service names.

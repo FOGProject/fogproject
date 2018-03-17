@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 15:39-0400\n"
+"POT-Creation-Date: 2018-03-17 16:04-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1430,10 +1430,6 @@ msgstr "Modifica posizione riuscita"
 msgid "Location Update Fail"
 msgstr "Aggiornamento posizione fallita"
 
-#, fuzzy
-msgid "Export Broadcasts"
-msgstr "Host Export"
-
 msgid "Location is a plugin that allows your FOG Server"
 msgstr "Luoghi è un plugin che consente al server FOG"
 
@@ -1619,6 +1615,10 @@ msgstr "Connessione Pushbullet Account completata"
 
 msgid "Link Pushbullet Account Fail"
 msgstr "Connessione Pushbullet Account fallita"
+
+#, fuzzy
+msgid "Export Broadcasts"
+msgstr "Host Export"
 
 #, fuzzy
 msgid "Import Broadcasts"

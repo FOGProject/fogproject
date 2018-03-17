@@ -58,19 +58,16 @@ class AddLocationGroup extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        self::$HookManager
-            ->register(
-                'PLUGINS_INJECT_TABDATA',
-                [$this, 'groupTabData']
-            )
-            ->register(
-                'GROUP_EDIT_SUCCESS',
-                [$this, 'groupAddLocationEdit']
-            )
-            ->register(
-                'GROUP_ADD_FIELDS',
-                [$this, 'groupAddLocationField']
-            );
+        self::$HookManager->register(
+            'PLUGINS_INJECT_TABDATA',
+            [$this, 'groupTabData']
+        )->register(
+            'GROUP_EDIT_SUCCESS',
+            [$this, 'groupAddLocationEdit']
+        )->register(
+            'GROUP_ADD_FIELDS',
+            [$this, 'groupAddLocationField']
+        );
     }
     /**
      * The group tab data.
@@ -104,41 +101,61 @@ class AddLocationGroup extends Hook
      */
     public function groupLocation($obj)
     {
-        $locationID = (int)filter_input(
-            INPUT_POST,
-            'location'
-        );
+        $locationID = (int)filter_input(INPUT_POST, 'location');
         // Group Locations
         $locationSelector = self::getClass('LocationManager')
             ->buildSelectBox($locationID, 'location');
+
         $fields = [
-            '<label for="location" class="col-sm-2 control-label">'
-            . _('Group Location')
-            . '</label>' => &$locationSelector
+            FOGPage::makeLabel(
+                'col-sm-2 control-label',
+                'location',
+                _('Group Location')
+            ) => $locationSelector
         ];
-        self::$HookManager
-            ->processEvent(
-                'GROUP_LOCATION_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'Group' => &$obj
-                ]
-            );
+
+        $buttons = FOGPage::makeButton(
+            'location-send',
+            _('Update'),
+            'btn btn-primary'
+        );
+
+        self::$HookManager->processEvent(
+            'GROUP_LOCATION_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'Group' => &$obj
+            ]
+        );
         $rendered = FOGPage::formFields($fields);
+        unset($fields);
+
+        echo FOGPage::makeFormTag(
+            'form-horizontal',
+            'group-location-form',
+            FOGPage::makeTabUpdateURL(
+                'group-location',
+                $obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Location');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
-        echo '<form id="group-location-form" class="form-horizontal" method="post" action="'
-            . FOGPage::makeTabUpdateURL('group-location', $obj->get('id'))
-            . '" novalidate>';
         echo $rendered;
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="location-send">'
-            . _('Update')
-            . '</button>';
+        echo $buttons;
         echo '</div>';
         echo '</div>';
+        echo '</form>';
     }
     /**
      * The location updater element.
@@ -150,12 +167,8 @@ class AddLocationGroup extends Hook
     public function groupLocationPost($obj)
     {
         $locationID = trim(
-            (int)filter_input(
-                INPUT_POST,
-                'location'
-            )
+            (int)filter_input(INPUT_POST, 'location')
         );
-        $Location = new Location($locationID);
         $insert_fields = ['hostID', 'locationID'];
         $insert_values = [];
         $hosts = $obj->get('hosts');
@@ -199,7 +212,7 @@ class AddLocationGroup extends Hook
             default:
                 return;
             }
-            $arguments['code'] = 201;
+            $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
             $arguments['hook'] = 'GROUP_EDIT_LOCATION_SUCCESS';
             $arguments['msg'] = json_encode(
                 [
@@ -208,7 +221,11 @@ class AddLocationGroup extends Hook
                 ]
             );
         } catch (Exception $e) {
-            $arguments['code'] = 400;
+            $arguments['code'] = (
+                $arguments['serverFault'] ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $arguments['hook'] = 'GROUP_EDIT_LOCATION_FAIL';
             $arguments['msg'] = json_encode(
                 [
@@ -232,10 +249,15 @@ class AddLocationGroup extends Hook
             return;
         }
         $locationID = (int)filter_input(INPUT_POST, 'location');
-        $arguments['fields'][
-            '<label for="location" class="col-sm-2 control-label">'
-            . _('Group Location')
-            . '</label>'] = self::getClass('LocationManager')
+        $locationSelector = self::getClass('LocationManager')
             ->buildSelectBox($locationID, 'location');
+
+        $arguments['fields'][
+            FOGPage::makeLabel(
+                'col-sm-2 control-label',
+                'location',
+                _('Group Location')
+            )
+        ] = $locationSelector;
     }
 }

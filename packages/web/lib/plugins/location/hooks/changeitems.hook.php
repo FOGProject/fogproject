@@ -58,43 +58,34 @@ class ChangeItems extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        self::$HookManager
-            ->register(
-                'SNAPIN_NODE',
-                [$this, 'storageNodeSetting']
-            )
-            ->register(
-                'SNAPIN_GROUP',
-                [$this, 'storageGroupSetting']
-            )
-            ->register(
-                'BOOT_ITEM_NEW_SETTINGS',
-                [$this, 'bootItemSettings']
-            )
-            ->register(
-                'BOOT_TASK_NEW_SETTINGS',
-                [$this, 'storageGroupSetting']
-            )
-            ->register(
-                'HOST_NEW_SETTINGS',
-                [$this, 'storageNodeSetting']
-            )
-            ->register(
-                'HOST_NEW_SETTINGS',
-                [$this, 'storageGroupSetting']
-            )
-            ->register(
-                'BOOT_TASK_NEW_SETTINGS',
-                [$this, 'storageNodeSetting']
-            )
-            ->register(
-                'CHECK_NODE_MASTERS',
-                [$this, 'alterMasters']
-            )
-            ->register(
-                'CHECK_NODE_MASTER',
-                [$this, 'makeMaster']
-            );
+        self::$HookManager->register(
+            'SNAPIN_NODE',
+            [$this, 'storageNodeSetting']
+        )->register(
+            'SNAPIN_GROUP',
+            [$this, 'storageGroupSetting']
+        )->register(
+            'BOOT_ITEM_NEW_SETTINGS',
+            [$this, 'bootItemSettings']
+        )->register(
+            'BOOT_TASK_NEW_SETTINGS',
+            [$this, 'storageGroupSetting']
+        )->register(
+            'HOST_NEW_SETTINGS',
+            [$this, 'storageNodeSetting']
+        )->register(
+            'HOST_NEW_SETTINGS',
+            [$this, 'storageGroupSetting']
+        )->register(
+            'BOOT_TASK_NEW_SETTINGS',
+            [$this, 'storageNodeSetting']
+        )->register(
+            'CHECK_NODE_MASTERS',
+            [$this, 'alterMasters']
+        )->register(
+            'CHECK_NODE_MASTER',
+            [$this, 'makeMaster']
+        );
     }
     /**
      * Sets up storage node.

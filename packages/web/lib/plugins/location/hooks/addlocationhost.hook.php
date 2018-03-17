@@ -58,19 +58,16 @@ class AddLocationHost extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        self::$HookManager
-            ->register(
-                'PLUGINS_INJECT_TABDATA',
-                [$this, 'hostTabData']
-            )
-            ->register(
-                'HOST_EDIT_SUCCESS',
-                [$this, 'hostAddLocationEdit']
-            )
-            ->register(
-                'HOST_ADD_FIELDS',
-                [$this, 'hostAddLocationField']
-            );
+        self::$HookManager->register(
+            'PLUGINS_INJECT_TABDATA',
+            [$this, 'hostTabData']
+        )->register(
+            'HOST_EDIT_SUCCESS',
+            [$this, 'hostAddLocationEdit']
+        )->register(
+            'HOST_ADD_FIELDS',
+            [$this, 'hostAddLocationField']
+        );
     }
     /**
      * The host tab data.
@@ -86,6 +83,7 @@ class AddLocationHost extends Hook
             return;
         }
         $obj = $arguments['obj'];
+
         $arguments['pluginsTabData'][] = [
             'name' => _('Location Association'),
             'id' => 'host-location',
@@ -116,41 +114,63 @@ class AddLocationHost extends Hook
             }
             unset($item);
         }
-        $locationID = (int)filter_input(
-            INPUT_POST,
-            'location'
-        ) ?: $location;
-        // Host Locations
+        $locationID = (
+            (int)filter_input(INPUT_POST, 'location') ?:
+            $location
+        );
         $locationSelector = self::getClass('LocationManager')
             ->buildSelectBox($locationID, 'location');
+
         $fields = [
-            '<label for="location" class="col-sm-2 control-label">'
-            . _('Host Location')
-            . '</label>' => &$locationSelector
+            FOGPage::makeLabel(
+                'col-sm-2 control-label',
+                'location',
+                _('Host Location')
+            ) => $locationSelector
         ];
-        self::$HookManager
-            ->processEvent(
-                'HOST_LOCATION_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'Host' => &$obj
-                ]
-            );
+
+        $buttons = FOGPage::makeButton(
+            'location-send',
+            _('Update'),
+            'btn btn-primary'
+        );
+
+        self::$HookManager->processEvent(
+            'HOST_LOCATION_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'Host' => &$obj
+            ]
+        );
         $rendered = FOGPage::formFields($fields);
+        unset($fields);
+
+        echo FOGPage::makeFormTag(
+            'form-horizontal',
+            'host-location-form',
+            FOGPage::makeTabUpdateURL(
+                'host-location',
+                $obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Location');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
-        echo '<form id="host-location-form" class="form-horizontal" method="post" action="'
-            . FOGPage::makeTabUpdateURL('host-location', $obj->get('id'))
-            . '" novalidate>';
         echo $rendered;
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="location-send">'
-            . _('Update')
-            . '</button>';
+        echo $buttons;
         echo '</div>';
         echo '</div>';
+        echo '</form>';
     }
     /**
      * The location updater element.
@@ -162,12 +182,8 @@ class AddLocationHost extends Hook
     public function hostLocationPost($obj)
     {
         $locationID = trim(
-            (int)filter_input(
-                INPUT_POST,
-                'location'
-            )
+            (int)filter_input(INPUT_POST, 'location')
         );
-        $Location = new Location($locationID);
         $insert_fields = ['hostID', 'locationID'];
         $insert_values = [];
         $hosts = [$obj->get('id')];
@@ -211,7 +227,7 @@ class AddLocationHost extends Hook
             default:
                 return;
             }
-            $arguments['code'] = 201;
+            $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
             $arguments['hook'] = 'HOST_EDIT_LOCATION_SUCCESS';
             $arguments['msg'] = json_encode(
                 [
@@ -220,7 +236,11 @@ class AddLocationHost extends Hook
                 ]
             );
         } catch (Exception $e) {
-            $arguments['code'] = 400;
+            $arguments['code'] = (
+                $arguments['serverFault'] ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $arguments['hook'] = 'HOST_EDIT_LOCATION_FAIL';
             $arguments['msg'] = json_encode(
                 [
@@ -244,15 +264,15 @@ class AddLocationHost extends Hook
             return;
         }
         $locationID = (int)filter_input(INPUT_POST, 'location');
+        $locationSelector = self::getClass('LocationManager')
+            ->buildSelectBox($locationID, 'location');
+
         $arguments['fields'][
             FOGPage::makeLabel(
                 'col-sm-2 control-label',
                 'location',
                 _('Host Location')
             )
-        ] = self::getClass('LocationManager')->buildSelectBox(
-            $locationID,
-            'location'
-        );
+        ] = $locationSelector;
     }
 }
