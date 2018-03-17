@@ -58,23 +58,19 @@ class AddLocationMenuItem extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        self::$HookManager
-            ->register(
-                'MAIN_MENU_DATA',
-                [$this, 'menuData']
-            )
-            ->register(
-                'SEARCH_PAGES',
-                [$this, 'addSearch']
-            )
-            ->register(
-                'PAGES_WITH_OBJECTS',
-                [$this, 'addPageWithObject']
-            )
-            ->register(
-                'SUB_MENULINK_DATA',
-                [$this, 'menuUpdate']
-            );
+        self::$HookManager->register(
+            'MAIN_MENU_DATA',
+            [$this, 'menuData']
+        )->register(
+            'SEARCH_PAGES',
+            [$this, 'addSearch']
+        )->register(
+            'PAGES_WITH_OBJECTS',
+            [$this, 'addPageWithObject']
+        )->register(
+            'SUB_MENULINK_DATA',
+            [$this, 'menuUpdate']
+        );
     }
     /**
      * Add the new items beyond list/create.

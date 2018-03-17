@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 15:39-0400\n"
+"POT-Creation-Date: 2018-03-17 16:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1382,9 +1382,6 @@ msgstr ""
 msgid "Location Update Fail"
 msgstr ""
 
-msgid "Export Broadcasts"
-msgstr ""
-
 msgid "Location is a plugin that allows your FOG Server"
 msgstr ""
 
@@ -1536,6 +1533,9 @@ msgid "Link Pushbullet Account Success"
 msgstr ""
 
 msgid "Link Pushbullet Account Fail"
+msgstr ""
+
+msgid "Export Broadcasts"
 msgstr ""
 
 msgid "Import Broadcasts"

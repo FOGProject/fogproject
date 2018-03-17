@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-17 15:39-0400\n"
+"POT-Creation-Date: 2018-03-17 16:04-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1654,10 +1654,6 @@ msgstr "actualización de servicio no pudo"
 msgid "Location Update Fail"
 msgstr "información de LDAP actualizado!"
 
-#, fuzzy
-msgid "Export Broadcasts"
-msgstr "Editar anfitrión"
-
 msgid "Location is a plugin that allows your FOG Server"
 msgstr ""
 
@@ -1851,6 +1847,10 @@ msgstr "Añadir nueva cuenta de usuario"
 #, fuzzy
 msgid "Link Pushbullet Account Fail"
 msgstr "Añadir nueva cuenta de usuario"
+
+#, fuzzy
+msgid "Export Broadcasts"
+msgstr "Editar anfitrión"
 
 #, fuzzy
 msgid "Import Broadcasts"
