@@ -20,12 +20,10 @@
             case '0':
                 $('.packnotemplate').removeClass('hidden');
                 $('.packtemplate').addClass('hidden');
-                $('.packhide').addClass('hidden');
                 break;
             case '1':
                 $('.packnotemplate').addClass('hidden');
                 $('.packtemplate').removeClass('hidden');
-                $('.packhide').removeClass('hidden');
                 break;
         }
     };

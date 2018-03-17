@@ -794,12 +794,6 @@ class UserManagementPage extends FOGPage
         echo '<div class="box-body">';
         echo '<p class="help-block">';
         echo _(
-            'All columns less the id field will be exported. Column visibility '
-            . 'does not affect the exported items.'
-        );
-        echo '</p>';
-        echo '<p class="help-block">';
-        echo _(
             'When you click on the item you want to export, it can only select '
             . 'what is currently viewable on the screen. This includes searched '
             . 'and the current page. Please use the selector to choose the amount '

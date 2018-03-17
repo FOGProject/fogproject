@@ -200,10 +200,7 @@ class SnapinManagementPage extends FOGPage
     public function add()
     {
         $this->title = _('Create New Snapin');
-        /**
-         * Setup our variables for back up/incorrect settings without
-         * making the user reset entirely
-         */
+
         $snapin = filter_input(INPUT_POST, 'snapin');
         $description = filter_input(INPUT_POST, 'description');
         $storagegroup = filter_input(INPUT_POST, 'storagegroup');
@@ -214,76 +211,28 @@ class SnapinManagementPage extends FOGPage
         $rw = filter_input(INPUT_POST, 'rw');
         $rwa = filter_input(INPUT_POST, 'rwa');
         $args = filter_input(INPUT_POST, 'args');
-        /**
-         * Set the storage group to pre-select.
-         */
+        $timeout = filter_input(INPUT_POST, 'timeout');
         if ($storagegroup > 0) {
             $sgID = $storagegroup;
         } else {
             $sgID = @min(self::getSubObjectIDs('StorageGroup'));
         }
-        /**
-         * Set our storage group object.
-         */
         $StorageGroup = new StorageGroup($sgID);
         $StorageGroups = self::getClass('StorageGroupManager')
-            ->buildSelectBox(
-                $sgID,
-                '',
-                'id'
-            );
-        /**
-         * We'll get the files associated with the selected
-         * group.
-         */
-        /**
-         * Reset our "selected" item for our option list.
-         */
+            ->buildSelectBox($sgID, '', 'id');
         self::$selected = '';
-        /**
-         * If the snapin file exists, set selected item
-         * to this value.
-         */
         self::$selected = $snapinfileexist;
-        /**
-         * Initialize the filelist.
-         */
         $filelist = [];
-        /**
-         * Get the master storage node.
-         */
         $StorageNode = $StorageGroup->getMasterStorageNode();
-        /**
-         * Get the files on this node.
-         */
         $filelist = $StorageNode->get('snapinfiles');
-        /**
-         * Sort our files nicely.
-         *
-         * Naturally sort as snapins in form:
-         * 03x, 01x, 02x, or only numerically named
-         * should present in human natural order.
-         */
         natcasesort($filelist);
-        /**
-         * Filter the list.
-         */
         $filelist = array_values(
             array_unique(
                 array_filter($filelist)
             )
         );
-        /**
-         * Buffer the select box.
-         */
         ob_start();
-        /**
-         * Build our select box based on this file list.
-         */
         array_map(self::$buildSelectBox, $filelist);
-        /**
-         * Create our listing and store in a variable.
-         */
         $selectFiles = '<select class='
             . '"snapinfileexist-input cmdlet3 form-control" '
             . 'name="snapinfileexist" id="snapinfileexist">'
@@ -292,7 +241,6 @@ class SnapinManagementPage extends FOGPage
             . ' -</option>'
             . ob_get_clean()
             . '</select>';
-
         $packtypes = '<select class="form-control" '
             . 'name="packtype" id="snapinpack">'
             . '<option value="0"'
@@ -314,145 +262,290 @@ class SnapinManagementPage extends FOGPage
             . _('Snapin Pack')
             . '</option>'
             . '</select>';
-        /**
-         * Setup the fields to be used to display.
-         */
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="snapin">'
-            . _('Snapin Name')
-            . '</label>' => '<input type="text" name="snapin" '
-            . 'value="'
-            . $snapin
-            . '" class="form-control" id="snapin" '
-            . 'required/>',
-            '<label class="col-sm-2 control-label" for="description">'
-            . _('Snapin Description')
-            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
-            . 'min-height:50px;" '
-            . 'id="description" name="description">'
-            . $description
-            . '</textarea>',
-            '<label class="col-sm-2 control-label" for="storagegroup">'
-            . _('Storage Group')
-            . '</label>' => $StorageGroups,
-            '<label class="col-sm-2 control-label" for="snapinpack">'
-            . _('Snapin Type')
-            . '</label>' => $packtypes,
-            '<label class="packnotemplate hidden col-sm-2 control-label" '
-            . 'for="argTypes">'
-            . _('Snapin Template')
-            . '</label>'
-            . '<label class="packtemplate hidden col-sm-2 control-label" '
-            . 'for="packTypes">'
-            . _('Snapin Pack Template')
-            . '</label>' => self::$_template1
-            . self::$_template2,
-            '<label class="packnotemplate hidden col-sm-2 control-label" '
-            . 'for="snaprw">'
-            . _('Snapin Run With')
-            . '</label>'
-            . '<label class="packtemplate hidden col-sm-2 control-label" '
-            . 'for="snaprw">'
-            . _('Snapin Pack File')
-            . '</label>' => '<input type="text" name="rw" '
-            . 'value="'
-            . $rw
-            . '" class="snapinrw-input cmdlet1 form-control" '
-            . 'id="snaprw"/>',
-            '<label class="packnotemplate hidden col-sm-2 control-label" '
-            . 'for="snaprwa">'
-            . _('Snapin Run With Argument')
-            . '</label>'
-            . '<label class="packtemplate hidden col-sm-2 control-label" '
-            . 'for="snaprwa">'
-            . _('Snapin Pack Arguments')
-            . '</label>' => '<input type="text" name="rwa" '
-            . 'value="'
-            . $rwa
-            . '" class="snapinrwa-input cmdlet2 form-control" '
-            . 'id="snaprwa"/>',
-            '<label class="col-sm-2 control-label" for="snapinfile">'
-            . _('Snapin File')
-            . '<br/>('
-            . _('Max Size')
-            . ': '
-            . ini_get('post_max_size')
-            . ')</label>' => '<div class="input-group">'
-            . '<label class="input-group-btn">'
-            . '<span class="btn btn-info">'
-            . _('Browse')
-            . '<input type="file" class="hidden cmdlet3" name="snapinfile" '
-            . 'id="snapinfile"/>'
-            . '</span>'
-            . '</label>'
-            . '<input type="text" class="form-control filedisp cmdlet3" readonly/>'
+            self::makeLabel(
+                $labelClass,
+                'snapin',
+                _('Snapin Name')
+            ) => self::makeInput(
+                'form-control snapinname-input',
+                'snapin',
+                _('Snapin Name'),
+                'text',
+                'snapin',
+                $snapin,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Snapin Description')
+            ) => self::makeTextarea(
+                'form-control snapindescription-input',
+                'description',
+                _('Snapin Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'storagegroup',
+                _('Storage Group')
+            ) => $StorageGroups,
+            self::makeLabel(
+                $labelClass,
+                'snapinpack',
+                _('Snapin Type')
+            ) => $packtypes,
+            self::makeLabel(
+                $labelClass . ' packnotemplate hidden',
+                'argTypes',
+                _('Snapin Template')
+            )
+            . self::makeLabel(
+                $labelClass . ' packtemplate hidden',
+                'packTypes',
+                _('Snapin Pack Template')
+            ) => self::$_template1 . self::$_template2,
+            self::makeLabel(
+                $labelClass . ' packnotemplate hidden',
+                'snaprw',
+                _('Snapin Run With')
+            )
+            . self::makeLabel(
+                $labelClass . ' packtemplate hidden',
+                'snaprw',
+                _('Snapin Pack File')
+            ) => self::makeInput(
+                'form-control snapinrw-input cmdlet1',
+                'rw',
+                '',
+                'text',
+                'snaprw',
+                $rw
+            ),
+            self::makeLabel(
+                $labelClass . ' packnotemplate hidden',
+                'snaprwa',
+                _('Snapin Run With Argument')
+            )
+            . self::makeLabel(
+                $labelClass . ' packtemplate hidden',
+                'snaprwa',
+                _('Snapin Pack Arguments')
+            ) => self::makeInput(
+                'form-control snapinrwa-input cmdlet2',
+                'rwa',
+                '',
+                'text',
+                'snaprwa',
+                $rwa
+            ),
+            self::makeLabel(
+                $labelClass,
+                'snapinfile',
+                _('Snapin File')
+            ) => '<div class="input-group">'
+            . self::makeLabel(
+                'input-group-btn',
+                'snapinfile',
+                '<span class="btn btn-info">'
+                . _('Browse')
+                . self::makeInput(
+                    'hidden',
+                    'file',
+                    '',
+                    'file',
+                    'snapinfile',
+                    ''
+                ) . '</span>'
+            ) . self::makeInput(
+                'form-control filedisp cmdlet3',
+                '',
+                '',
+                'text',
+                '',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            )
             . '</div>',
             (
                 count($filelist) > 0 ?
-                '<label class="col-sm-2 control-label" for="snapinfileexist">'
-                . _('Snapin File (exists)')
-                . '</label>' :
+                self::makeLabel(
+                    $labelClass,
+                    'snapinfileexist',
+                    _('Snapin File (exists)')
+                ) :
                 ''
             ) => (
                 count($filelist) > 0 ?
                 $selectFiles :
                 ''
             ),
-            '<label class="packhide hidden col-sm-2 control-label" for="args">'
-            . _('Snapin Arguments')
-            . '</label>'
-            . '</span>' => '<input type="text" name="args" '
-            . 'value="'
-            . $args
-            . '" class="packhide hidden snapinargs-input cmdlet4 form-control" '
-            . 'id="args"/>',
-            '<label class="col-sm-2 control-label" for="isen">'
-            . _('Snapin Enabled')
-            . '</label>' => '<input type="checkbox" name="isEnabled" '
-            . 'class="snapinenabled-input" id="isen" checked/>',
-            '<label class="col-sm-2 control-label" for="isHidden">'
-            . _('Snapin Arguments Hidden')
-            . '</label>' => '<input type="checkbox" name="isHidden" '
-            . 'class="snapinhidden-input" id="isHidden"/>',
-            '<label class="col-sm-2 control-label" for="timeout">'
-            . _('Snapin Timeout (seconds)')
-            . '</label>' => '<input type="number" name="timeout" '
-            . 'value="0" class="snapintimeout-input form-control" '
-            . 'id="timeout"/>',
-            '<label class="col-sm-2 control-label" for="toRep">'
-            . _('Replicate')
-            . '</label>' => '<input type="checkbox" '
-            . 'name="toReplicate" id="toRep" checked/>',
-            '<label class="col-sm-2 control-label" for="reboot">'
-            . _('Reboot after install')
-            . '</label>' => '<input type="radio" name="action" '
-            . 'class="snapin-action" id="reboot" value="reboot"/>',
-            '<label class="col-sm-2 control-label" for="shutdown">'
-            . _('Shutdown after install')
-            . '</label>' => '<input type="radio" name="action" '
-            . 'class="snapin-action" id="shutdown" value="shutdown"/>',
-            '<label class="col-sm-2 control-label" for="cmdletin">'
-            . _('Snapin Command')
-            . '<br/>'
-            . _('read-only')
-            . '</label>' => '<textarea class="form-control snapincmd" '
-            . 'name="snapincmd" id="cmdletin" '
-            . 'style="resize:vertical;height:50px;" readonly></textarea>'
+            self::makeLabel(
+                $labelClass . ' packnotemplate hidden',
+                'args',
+                _('Snapin Arguments')
+            ) => self::makeInput(
+                'form-control snapinargs-input packnotemplate cmdlet4',
+                'args',
+                '',
+                'text',
+                'args',
+                $args
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isEnabled',
+                _('Snapin Enabled')
+            ) => self::makeInput(
+                '',
+                'isEnabled',
+                '',
+                'checkbox',
+                'isEnabled',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'toReplicate',
+                _('Snapin Replicate')
+            ) => self::makeInput(
+                '',
+                'toReplicate',
+                '',
+                'checkbox',
+                'toReplicate',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isHidden',
+                _('Snapin Arguments Hidden')
+            ) => self::makeInput(
+                '',
+                'isHidden',
+                '',
+                'checkbox',
+                'isHidden'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'timeout',
+                _('Snapin Timeout')
+                . '<br/>('
+                . _('in seconds')
+                . ')'
+            ) => self::makeInput(
+                'form-control snapintimeout-input',
+                'timeout',
+                '0',
+                'number',
+                'timeout',
+                $timeout
+            ),
+            self::makeLabel(
+                $labelClass,
+                'noaction',
+                _('No Action')
+            ) => self::makeInput(
+                '',
+                'action',
+                '',
+                'radio',
+                'noaction',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'reboot',
+                _('Reboot')
+            ) => self::makeInput(
+                '',
+                'action',
+                '',
+                'radio',
+                'reboot',
+                'reboot'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'shutdown',
+                _('Shutdown')
+            ) => self::makeInput(
+                '',
+                'action',
+                '',
+                'radio',
+                'shutdown',
+                'shutdown'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'cmdletin',
+                _('Snapin Command')
+                . '<br/>('
+                . _('read-only')
+                . ')'
+            ) => self::makeTextarea(
+                'form-control snapincmd',
+                'snapincmd',
+                '',
+                'snapincmd',
+                '',
+                false,
+                false,
+                '',
+                true
+            )
         ];
-        self::$HookManager
-            ->processEvent(
-                'SNAPIN_ADD_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'Snapin' => self::getClass('Snapin')
-                ]
-            );
+
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
+
+        self::$HookManager->processEvent(
+            'SNAPIN_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'Snapin' => self::getClass('Snapin')
+            ]
+        );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<form id="snapin-create-form" class="form-horizontal" '
-            . 'method="post" enctype="multipart/form-data" action="'
-            . $this->formAction
-            . '" novalidate>';
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'snapin-create-form',
+            $this->formAction,
+            'post',
+            'multipart/form-data',
+            true
+        );
         echo '<div class="box box-solid" id="snapin-create">';
         echo '<div class="box-body">';
         echo '<div class="box box-primary">';
@@ -461,16 +554,13 @@ class SnapinManagementPage extends FOGPage
         echo _('Create New Snapin');
         echo '</h4>';
         echo '</div>';
-        echo '<!-- Snapin General -->';
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="send">'
-            . _('Create')
-            . '</button>';
+        echo $buttons;
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -485,47 +575,26 @@ class SnapinManagementPage extends FOGPage
         header('Content-type: application/json');
         self::$HookManager->processEvent('SNAPIN_ADD_POST');
         $snapin = trim(
-            filter_input(
-                INPUT_POST,
-                'snapin'
-            )
+            filter_input(INPUT_POST, 'snapin')
         );
         $description = trim(
-            filter_input(
-                INPUT_POST,
-                'description'
-            )
+            filter_input(INPUT_POST, 'description')
         );
         $packtype = trim(
-            filter_input(
-                INPUT_POST,
-                'packtype'
-            )
+            filter_input(INPUT_POST, 'packtype')
         );
         $runWith = trim(
-            filter_input(
-                INPUT_POST,
-                'rw'
-            )
+            filter_input(INPUT_POST, 'rw')
         );
         $runWithArgs = trim(
-            filter_input(
-                INPUT_POST,
-                'rwa'
-            )
+            filter_input(INPUT_POST, 'rwa')
         );
         $storagegroup = (int)trim(
-            filter_input(
-                INPUT_POST,
-                'storagegroup'
-            )
+            filter_input(INPUT_POST, 'storagegroup')
         );
         $snapinfile = basename(
             trim(
-                filter_input(
-                    INPUT_POST,
-                    'snapinfileexist'
-                )
+                filter_input(INPUT_POST, 'snapinfileexist')
             )
         );
         $uploadfile = basename(
@@ -539,32 +608,21 @@ class SnapinManagementPage extends FOGPage
         $isEnabled = (int)isset($_POST['isEnabled']);
         $toReplicate = (int)isset($_POST['toReplicate']);
         $hide = (int)isset($_POST['isHidden']);
-        $tiemout = (int)trim(
-            filter_input(
-                INPUT_POST,
-                'timeout'
-            )
+        $tiemout = trim(
+            filter_input(INPUT_POST, 'timeout')
         );
         $action = trim(
-            filter_input(
-                INPUT_POST,
-                'action'
-            )
+            filter_input(INPUT_POST, 'action')
         );
         $args = trim(
-            filter_input(
-                INPUT_POST,
-                'args'
-            )
+            filter_input(INPUT_POST, 'args')
         );
+
         $serverFault = false;
         try {
-            if (!$snapin) {
-                throw new Exception(
-                    _('A snapin name is required!')
-                );
-            }
-            if (self::getClass('SnapinManager')->exists($snapin)) {
+            $exists = self::getClass('SnapinManager')
+                ->exists($snapin);
+            if ($exists) {
                 throw new Exception(
                     _('A snapin already exists with this name!')
                 );
@@ -696,17 +754,16 @@ class SnapinManagementPage extends FOGPage
         //    'Location: ../management/index.php?node=snapin&sub=edit&id='
         //    . $Snapin->get('id')
         //);
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'Snapin' => &$Snapin,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Snapin' => &$Snapin,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
         http_response_code($code);
         unset($Snapin);
         echo $msg;
@@ -719,32 +776,50 @@ class SnapinManagementPage extends FOGPage
      */
     public function snapinGeneral()
     {
-        $snapin = filter_input(INPUT_POST, 'snapin') ?:
-            $this->obj->get('name');
-        $description = filter_input(INPUT_POST, 'description') ?:
-            $this->obj->get('description');
-        $packtype = (int)(filter_input(INPUT_POST, 'packtype') ?:
-            $this->obj->get('packtype'));
+        $snapin = (
+            filter_input(INPUT_POST, 'snapin') ?:
+            $this->obj->get('name')
+        );
+        $description = (
+            filter_input(INPUT_POST, 'description') ?:
+            $this->obj->get('description')
+        );
+        $packtype = (
+            (int)filter_input(INPUT_POST, 'packtype') ?:
+            $this->obj->get('packtype')
+        );
         $snapinfileexists = basename(
             filter_input(INPUT_POST, 'snapinfileexist') ?:
             $this->obj->get('file')
         );
-        $rw = filter_input(INPUT_POST, 'rw') ?:
-            $this->obj->get('runWith');
-        $rwa = filter_input(INPUT_POST, 'rwa') ?:
-            $this->obj->get('runWithArgs');
-        $protected = (int)(isset($_POST['protected']) ?:
-            $this->obj->get('protected'));
-        $toReplicate = (int)(isset($_POST['toReplicate']) ?:
-            $this->obj->get('toReplicate'));
-        $isEnabled = (int)(isset($_POST['isEnabled']) ?:
-            $this->obj->get('isEnabled'));
-        $isHidden = (int)(isset($_POST['isHidden']) ?:
-            $this->obj->get('hide'));
-        $ishid = ($isHidden ? ' checked' : '');
-        $isprot = ($protected ? ' checked' : '');
-        $isen = ($isEnabled ? ' checked' : '');
-        $isrep = ($toReplicate ? ' checked' : '');
+        $rw = (
+            filter_input(INPUT_POST, 'rw') ?:
+            $this->obj->get('runWith')
+        );
+        $rwa = (
+            filter_input(INPUT_POST, 'rwa') ?:
+            $this->obj->get('runWithArgs')
+        );
+        $protected = (
+            (int)isset($_POST['protected']) ?:
+            $this->obj->get('protected')
+        );
+        $toReplicate = (
+            (int)isset($_POST['toReplicate']) ?:
+            $this->obj->get('toReplicate')
+        );
+        $isEnabled = (
+            (int)isset($_POST['isEnabled']) ?:
+            $this->obj->get('isEnabled')
+        );
+        $isHidden = (
+            (int)isset($_POST['isHidden']) ?:
+            $this->obj->get('hide')
+        );
+        $ishid = ($isHidden ? 'checked' : '');
+        $isprot = ($protected ? 'checked' : '');
+        $isen = ($isEnabled ? 'checked' : '');
+        $isrep = ($toReplicate ? 'checked' : '');
         $action = filter_input(INPUT_POST, 'action');
         if (!$action) {
             $action = (
@@ -759,11 +834,13 @@ class SnapinManagementPage extends FOGPage
         $reboot = $shutdown = '';
         switch ($action) {
         case 'reboot':
-            $reboot = ' checked';
+            $reboot = 'checked';
             break;
         case 'shutdown':
-            $shutdown = ' checked';
+            $shutdown = 'checked';
             break;
+        default:
+            $noaction = 'checked';
         }
         $args = filter_input(INPUT_POST, 'args') ?:
             $this->obj->get('args');
@@ -812,157 +889,317 @@ class SnapinManagementPage extends FOGPage
             . _('Snapin Pack')
             . '</option>'
             . '</select>';
-        /**
-         * Setup the fields to be used to display.
-         */
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="snapin">'
-            . _('Snapin Name')
-            . '</label>' => '<input type="text" name="snapin" '
-            . 'value="'
-            . $snapin
-            . '" class="form-control" id="snapin" '
-            . 'required/>',
-            '<label class="col-sm-2 control-label" for="description">'
-            . _('Snapin Description')
-            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
-            . 'min-height:50px;" '
-            . 'id="description" name="description">'
-            . $description
-            . '</textarea>',
-            '<label class="col-sm-2 control-label" for="storagegroup">'
-            . _('Storage Group')
-            . '</label>' => $StorageGroups,
-            '<label class="col-sm-2 control-label" for="snapinpack">'
-            . _('Snapin Type')
-            . '</label>' => $packtypes,
-            '<label class="packnotemplate hidden col-sm-2 control-label" '
-            . 'for="argTypes">'
-            . _('Snapin Template')
-            . '</label>'
-            . '<label class="packtemplate hidden col-sm-2 control-label" '
-            . 'for="packTypes">'
-            . _('Snapin Pack Template')
-            . '</label>' => self::$_template1
-            . self::$_template2,
-            '<label class="packnotemplate hidden col-sm-2 control-label" '
-            . 'for="snaprw">'
-            . _('Snapin Run With')
-            . '</label>'
-            . '<label class="packtemplate hidden col-sm-2 control-label" '
-            . 'for="snaprw">'
-            . _('Snapin Pack File')
-            . '</label>' => '<input type="text" name="rw" '
-            . 'value="'
-            . $rw
-            . '" class="snapinrw-input cmdlet1 form-control" '
-            . 'id="snaprw"/>',
-            '<label class="packnotemplate hidden col-sm-2 control-label" '
-            . 'for="snaprwa">'
-            . _('Snapin Run With Argument')
-            . '</label>'
-            . '<label class="packtemplate hidden col-sm-2 control-label" '
-            . 'for="snaprwa">'
-            . _('Snapin Pack Arguments')
-            . '</label>' => '<input type="text" name="rwa" '
-            . 'value="'
-            . $rwa
-            . '" class="snapinrwa-input cmdlet2 form-control" '
-            . 'id="snaprwa"/>',
-            '<label class="col-sm-2 control-label" for="snapinfile">'
-            . _('Snapin File')
-            . '<br/>('
-            . _('Max Size')
-            . ': '
-            . ini_get('post_max_size')
-            . ')</label>' => '<div class="input-group">'
-            . '<label class="input-group-btn">'
-            . '<span class="btn btn-info">'
-            . _('Browse')
-            . '<input type="file" class="hidden cmdlet3" name="snapinfile" '
-            . 'id="snapinfile"/>'
-            . '</span>'
-            . '</label>'
-            . '<input type="text" class="form-control filedisp cmdlet3" readonly/>'
+            self::makeLabel(
+                $labelClass,
+                'snapin',
+                _('Snapin Name')
+            ) => self::makeInput(
+                'form-control snapinname-input',
+                'snapin',
+                _('Snapin Name'),
+                'text',
+                'snapin',
+                $snapin,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Snapin Description')
+            ) => self::makeTextarea(
+                'form-control snapindescription-input',
+                'description',
+                _('Snapin Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'snapinpack',
+                _('Snapin Type')
+            ) => $packtypes,
+            self::makeLabel(
+                $labelClass . ' packnotemplate hidden',
+                'argTypes',
+                _('Snapin Template')
+            )
+            . self::makeLabel(
+                $labelClass . ' packtemplate hidden',
+                'packTypes',
+                _('Snapin Pack Template')
+            ) => self::$_template1 . self::$_template2,
+            self::makeLabel(
+                $labelClass . ' packnotemplate hidden',
+                'snaprw',
+                _('Snapin Run With')
+            )
+            . self::makeLabel(
+                $labelClass . ' packtemplate hidden',
+                'snaprw',
+                _('Snapin Pack File')
+            ) => self::makeInput(
+                'form-control snapinrw-input cmdlet1',
+                'rw',
+                '',
+                'text',
+                'snaprw',
+                $rw
+            ),
+            self::makeLabel(
+                $labelClass . ' packnotemplate hidden',
+                'snaprwa',
+                _('Snapin Run With Argument')
+            )
+            . self::makeLabel(
+                $labelClass . ' packtemplate hidden',
+                'snaprwa',
+                _('Snapin Pack Arguments')
+            ) => self::makeInput(
+                'form-control snapinrwa-input cmdlet2',
+                'rwa',
+                '',
+                'text',
+                'snaprwa',
+                $rwa
+            ),
+            self::makeLabel(
+                $labelClass,
+                'snapinfile',
+                _('Snapin File')
+            ) => '<div class="input-group">'
+            . self::makeLabel(
+                'input-group-btn',
+                'snapinfile',
+                '<span class="btn btn-info">'
+                . _('Browse')
+                . self::makeInput(
+                    'hidden',
+                    'file',
+                    '',
+                    'file',
+                    'snapinfile',
+                    ''
+                ) . '</span>'
+            ) . self::makeInput(
+                'form-control filedisp cmdlet3',
+                '',
+                '',
+                'text',
+                '',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            )
             . '</div>',
             (
                 count($filelist) > 0 ?
-                '<label class="col-sm-2 control-label" for="snapinfileexist">'
-                . _('Snapin File (exists)')
-                . '</label>' :
+                self::makeLabel(
+                    $labelClass,
+                    'snapinfileexist',
+                    _('Snapin File (exists)')
+                ) :
                 ''
             ) => (
                 count($filelist) > 0 ?
                 $selectFiles :
                 ''
             ),
-            '<label class="packhide hidden col-sm-2 control-label" for="args">'
-            . _('Snapin Arguments')
-            . '</label>'
-            . '</span>' => '<input type="text" name="args" '
-            . 'value="'
-            . $args
-            . '" class="packhide hidden snapinargs-input cmdlet4 form-control" '
-            . 'id="args"/>',
-            '<label class="col-sm-2 control-label" for="isprot">'
-            . _('Snapin Protected')
-            . '</label>' => '<input type="checkbox" name="protected" '
-            . 'class="snapinprotected-input" id="isprot"'
-            . $isprot
-            . '/>',
-            '<label class="col-sm-2 control-label" for="isen">'
-            . _('Snapin Enabled')
-            . '</label>' => '<input type="checkbox" name="isEnabled" '
-            . 'class="snapinenabled-input" id="isen"'
-            . $isen
-            . '/>',
-            '<label class="col-sm-2 control-label" for="isHidden">'
-            . _('Snapin Arguments Hidden')
-            . '</label>' => '<input type="checkbox" name="isHidden" '
-            . 'class="snapinhidden-input" id="isHidden"'
-            . $ishid
-            . '/>',
-            '<label class="col-sm-2 control-label" for="timeout">'
-            . _('Snapin Timeout (seconds)')
-            . '</label>' => '<input type="number" name="timeout" '
-            . 'value="0" class="snapintimeout-input form-control" '
-            . 'id="timeout"/>',
-            '<label class="col-sm-2 control-label" for="toRep">'
-            . _('Replicate')
-            . '</label>' => '<input type="checkbox" '
-            . 'name="toReplicate" id="toRep"'
-            . $isrep
-            . '/>',
-            '<label class="col-sm-2 control-label" for="reboot">'
-            . _('Reboot after install')
-            . '</label>' => '<input type="radio" name="action" '
-            . 'class="snapin-action" id="reboot" value="reboot"'
-            . $reboot
-            . '/>',
-            '<label class="col-sm-2 control-label" for="shutdown">'
-            . _('Shutdown after install')
-            . '</label>' => '<input type="radio" name="action" '
-            . 'class="snapin-action" id="shutdown" value="shutdown"'
-            . $shutdown
-            . '/>',
-            '<label class="col-sm-2 control-label" for="cmdletin">'
-            . _('Snapin Command')
-            . '<br/>'
-            . _('read-only')
-            . '</label>' => '<textarea class="form-control snapincmd" '
-            . 'name="snapincmd" id="cmdletin" '
-            . 'style="resize:vertical;height:50px;" readonly></textarea>'
+            self::makeLabel(
+                $labelClass . ' packnotemplate hidden',
+                'args',
+                _('Snapin Arguments')
+            ) => self::makeInput(
+                'form-control snapinargs-input packnotemplate cmdlet4',
+                'args',
+                '',
+                'text',
+                'args',
+                $args
+            ),
+            self::makeLabel(
+                $labelClass,
+                'protected',
+                _('Snapin Protected')
+            ) => self::makeInput(
+                '',
+                'protected',
+                '',
+                'checkbox',
+                'protected',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $isprot
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isEnabled',
+                _('Snapin Enabled')
+            ) => self::makeInput(
+                '',
+                'isEnabled',
+                '',
+                'checkbox',
+                'isEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $isen
+            ),
+            self::makeLabel(
+                $labelClass,
+                'toReplicate',
+                _('Snapin Replicate')
+            ) => self::makeInput(
+                '',
+                'toReplicate',
+                '',
+                'checkbox',
+                'toReplicate',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $isrep
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isHidden',
+                _('Snapin Arguments Hidden')
+            ) => self::makeInput(
+                '',
+                'isHidden',
+                '',
+                'checkbox',
+                'isHidden',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $ishid
+            ),
+            self::makeLabel(
+                $labelClass,
+                'timeout',
+                _('Snapin Timeout')
+                . '<br/>('
+                . _('in seconds')
+                . ')'
+            ) => self::makeInput(
+                'form-control snapintimeout-input',
+                'timeout',
+                '0',
+                'number',
+                'timeout',
+                $timeout
+            ),
+            self::makeLabel(
+                $labelClass,
+                'noaction',
+                _('No Action')
+            ) => self::makeInput(
+                '',
+                'action',
+                '',
+                'radio',
+                'noaction',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $noaction
+            ),
+            self::makeLabel(
+                $labelClass,
+                'reboot',
+                _('Reboot')
+            ) => self::makeInput(
+                '',
+                'action',
+                '',
+                'radio',
+                'reboot',
+                'reboot',
+                false,
+                false,
+                -1,
+                -1,
+                $reboot
+            ),
+            self::makeLabel(
+                $labelClass,
+                'shutdown',
+                _('Shutdown')
+            ) => self::makeInput(
+                '',
+                'action',
+                '',
+                'radio',
+                'shutdown',
+                'shutdown',
+                false,
+                false,
+                -1,
+                -1,
+                $shutdown
+            ),
+            self::makeLabel(
+                $labelClass,
+                'cmdletin',
+                _('Snapin Command')
+                . '<br/>('
+                . _('read-only')
+                . ')'
+            ) => self::makeTextarea(
+                'form-control snapincmd',
+                'snapincmd',
+                '',
+                'snapincmd',
+                '',
+                false,
+                false,
+                '',
+                true
+            )
         ];
-        self::$HookManager
-            ->processEvent(
-                'SNAPIN_GENERAL_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'Snapin' => &$this->obj
-                ]
-            );
+
+        $buttons = self::makeButton(
+            'general-send',
+            _('Update'),
+            'btn btn-primary'
+        );
+        $buttons .= self::makeButton(
+            'general-delete',
+            _('Delete'),
+            'btn btn-danger pull-right'
+        );
+
+        self::$HookManager->processEvent(
+            'SNAPIN_GENERAL_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'Snapin' => &$this->obj
+            ]
+        );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'snapin-general-form',
@@ -979,12 +1216,7 @@ class SnapinManagementPage extends FOGPage
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="general-send">'
-            . _('Update')
-            . '</button>';
-        echo '<button class="btn btn-danger pull-right" id="general-delete">'
-            . _('Delete')
-            . '</button>';
+        echo $buttons;
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -1014,19 +1246,14 @@ class SnapinManagementPage extends FOGPage
         $isEnabled = (int)isset($_POST['isEnabled']);
         $toReplicate = (int)isset($_POST['toReplicate']);
         $hide = (int)isset($_POST['isHidden']);
-        $timeout = (int)filter_input(INPUT_POST, 'timeout');
+        $timeout = filter_input(INPUT_POST, 'timeout');
         $action = filter_input(INPUT_POST, 'action');
         $args = filter_input(INPUT_POST, 'args');
-        if (!$snapin) {
-            throw new Exception(
-                _('A snapin name is required!')
-            );
-        }
-        if ($this->obj->get('name') != $snapin
-            && self::getClass('SnapinManager')->exists(
-                $snapin,
-                $this->obj->get('id')
-            )
+
+        $exists = self::getClass('SnapinManager')
+            ->exists($snapin);
+        if ($snapin != $this->obj->get('name')
+            && $exists
         ) {
             throw new Exception(
                 _('A snapin already exists with this name!')
@@ -1145,10 +1372,6 @@ class SnapinManagementPage extends FOGPage
             . $this->formAction
             . '&tab=snapin-storagegroups" ';
 
-        echo '<!-- Storage Groups -->';
-        echo '<div class="box-group" id="storagegroups">';
-        // =================================================================
-        // Associated Storage Groups
         $buttons = self::makeButton(
             'storagegroups-primary',
             _('Update Primary Group'),
@@ -1167,6 +1390,7 @@ class SnapinManagementPage extends FOGPage
             'btn btn-danger',
             $props
         );
+
         $this->headerData = [
             _('Storage Group Name'),
             _('Storage Group Primary'),
@@ -1183,6 +1407,8 @@ class SnapinManagementPage extends FOGPage
             []
         ];
 
+        echo '<!-- Storage Groups -->';
+        echo '<div class="box-group" id="storagegroups">';
         echo '<div class="box box-solid">';
         echo '<div class="updatestoragegroups" class="">';
         echo '<div class="box-body">';
@@ -1238,9 +1464,7 @@ class SnapinManagementPage extends FOGPage
                     'primary' => '1'
                 ],
                 '',
-                [
-                    'primary' => '0'
-                ]
+                ['primary' => '0']
             );
             if ($primary) {
                 self::getClass('SnapinGroupAssociationManager')->update(
@@ -1249,9 +1473,7 @@ class SnapinManagementPage extends FOGPage
                         'storagegroupID' => $primary
                     ],
                     '',
-                    [
-                        'primary' => '1'
-                    ]
+                    ['primary' => '1']
                 );
             }
         }
@@ -1279,6 +1501,7 @@ class SnapinManagementPage extends FOGPage
             'btn btn-danger',
             $props
         );
+
         $this->headerData = [
             _('Host Name'),
             _('Host Associated')
@@ -1355,6 +1578,7 @@ class SnapinManagementPage extends FOGPage
 
         $tabData = [];
 
+        // General
         $tabData[] = [
             'name' => _('General'),
             'id' => 'snapin-general',
@@ -1363,20 +1587,27 @@ class SnapinManagementPage extends FOGPage
             }
         ];
 
+        // Associations
         $tabData[] = [
-            'name' => _('Storage Groups'),
-            'id' => 'snapin-storagegroups',
-            'generator' => function () {
-                $this->snapinStoragegroups();
-            }
-        ];
-
-        $tabData[] = [
-            'name' => _('Host Membership'),
-            'id' => 'snapin-membership',
-            'generator' => function () {
-                $this->snapinMembership();
-            }
+            'tabs' => [
+                'name' => _('Associations'),
+                'tabData' => [
+                    [
+                        'name' => _('Hosts'),
+                        'id' => 'snapin-membership',
+                        'generator' => function () {
+                            $this->snapinMembership();
+                        }
+                    ],
+                    [
+                        'name' => _('Storage Groups'),
+                        'id' => 'snapin-storagegroups',
+                        'generator' => function () {
+                            $this->snapinStoragegroups();
+                        }
+                    ]
+                ]
+            ]
         ];
 
         echo self::tabFields($tabData, $this->obj);
@@ -1393,6 +1624,7 @@ class SnapinManagementPage extends FOGPage
             'SNAPIN_EDIT_POST',
             ['Snapin' => &$this->obj]
         );
+
         $serverFault = false;
         try {
             global $tab;
@@ -1434,17 +1666,17 @@ class SnapinManagementPage extends FOGPage
                 ]
             );
         }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'Snapin' => &$this->obj,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
+
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Snapin' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
         http_response_code($code);
         echo $msg;
         exit;
@@ -1472,10 +1704,8 @@ class SnapinManagementPage extends FOGPage
             . $this->obj->get('id')
             . "','associated','dissociated') AS `sgaSnapinID`,`sgaPrimary`,`sID`
             FROM `%s`
-            CROSS JOIN `snapins`
             LEFT OUTER JOIN `snapinGroupAssoc`
             ON `nfsGroups`.`ngID` = `snapinGroupAssoc`.`sgaStorageGroupID`
-            AND `snapins`.`sID` = `snapinGroupAssoc`.`sgaSnapinID`
             %s
             %s
             %s";
@@ -1484,10 +1714,8 @@ class SnapinManagementPage extends FOGPage
             . $this->obj->get('id')
             . "','associated','dissociated') AS `sgaSnapinID`,`sgaPrimary`,`sID`
             FROM `%s`
-            CROSS JOIN `snapins`
             LEFT OUTER JOIN `snapinGroupAssoc`
             ON `nfsGroups`.`ngID` = `snapinGroupAssoc`.`sgaStorageGroupID`
-            AND `snapins`.`sID` = `snapinGroupAssoc`.`sgaSnapinID`
             %s";
         $storagegroupsTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`";
@@ -1546,10 +1774,8 @@ class SnapinManagementPage extends FOGPage
             . $this->obj->get('id')
             . "','associated','dissociated') AS `saSnapinID`
             FROM `%s`
-            CROSS JOIN `snapins`
             LEFT OUTER JOIN `snapinAssoc`
-            ON `snapins`.`sID` = `snapinAssoc`.`saSnapinID`
-            AND `hosts`.`hostID` = `snapinAssoc`.`saHostID`
+            ON `hosts`.`hostID` = `snapinAssoc`.`saHostID`
             %s
             %s
             %s";
@@ -1558,10 +1784,8 @@ class SnapinManagementPage extends FOGPage
             . $this->obj->get('id')
             . "','associated','dissociated') AS `saSnapinID`
             FROM `%s`
-            CROSS JOIN `snapins`
             LEFT OUTER JOIN `snapinAssoc`
-            ON `snapins`.`sID` = `snapinAssoc`.`saSnapinID`
-            AND `hosts`.`hostID` = `snapinAssoc`.`saHostID`
+            ON `hosts`.`hostID` = `snapinAssoc`.`saHostID`
             %s";
         $hostsTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`";
