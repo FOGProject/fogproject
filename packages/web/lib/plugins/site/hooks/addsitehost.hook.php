@@ -56,19 +56,16 @@ class AddSiteHost extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        self::$HookManager
-            ->register(
-                'PLUGINS_INJECT_TABDATA',
-                [$this, 'hostTabData']
-            )
-            ->register(
-                'HOST_EDIT_SUCCESS',
-                [$this, 'hostAddSiteEdit']
-            )
-            ->register(
-                'HOST_ADD_FIELDS',
-                [$this, 'hostAddSiteField']
-            );
+        self::$HookManager->register(
+            'PLUGINS_INJECT_TABDATA',
+            [$this, 'hostTabData']
+        )->register(
+            'HOST_EDIT_SUCCESS',
+            [$this, 'hostAddSiteEdit']
+        )->register(
+            'HOST_ADD_FIELDS',
+            [$this, 'hostAddSiteField']
+        );
     }
     /**
      * The host tab data.
@@ -114,41 +111,63 @@ class AddSiteHost extends Hook
             }
             unset($item);
         }
-        $siteID = (int)filter_input(
-            INPUT_POST,
-            'site'
-        ) ?: $site;
-        // Host Sites
+        $siteID = (
+            (int)filter_input(INPUT_POST, 'site') ?:
+            $site
+        );
         $siteSelector = self::getClass('SiteManager')
             ->buildSelectBox($siteID, 'site');
+
         $fields = [
-            '<label for="site" class="col-sm-2 control-label">'
-            . _('Host Site')
-            . '</label>' => &$siteSelector
+            FOGPage::makeLabel(
+                'col-sm-2 control-label',
+                'site',
+                _('Host Site')
+            ) => $siteSelector
         ];
-        self::$HookManager
-            ->processEvent(
-                'HOST_SITE_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'Host' => &$obj
-                ]
-            );
+
+        $buttons = FOGPage::makeButton(
+            'site-send',
+            _('Update'),
+            'btn btn-primary'
+        );
+
+        self::$HookManager->processEvent(
+            'HOST_SITE_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'Host' => &$obj
+            ]
+        );
         $rendered = FOGPage::formFields($fields);
+        unset($fields);
+
+        echo FOGPage::makeFormTag(
+            'form-horizontal',
+            'host-site-form',
+            FOGPage::makeTabUpdateURL(
+                'host-site',
+                $obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-url-encoded',
+            true
+        );
         echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Site');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
-        echo '<form id="host-site-form" class="form-horizontal" method="post" action="'
-            . FOGPage::makeTabUpdateURL('host-site', $obj->get('id'))
-            . '" novalidate>';
         echo $rendered;
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<button class="btn btn-primary" id="site-send">'
-            . _('Update')
-            . '</button>';
+        echo $buttons;
         echo '</div>';
         echo '</div>';
+        echo '</form>';
     }
     /**
      * The site updater element.
@@ -160,12 +179,8 @@ class AddSiteHost extends Hook
     public function hostSitePost($obj)
     {
         $siteID = trim(
-            (int)filter_input(
-                INPUT_POST,
-                'site'
-            )
+            (int)filter_input(INPUT_POST, 'site')
         );
-        $Site = new Site($siteID);
         $insert_fields = ['hostID', 'siteID'];
         $insert_values = [];
         $hosts = [$obj->get('id')];
@@ -211,7 +226,7 @@ class AddSiteHost extends Hook
             default:
                 return;
             }
-            $arguments['code'] = 201;
+            $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
             $arguments['hook'] = 'HOST_EDIT_SITE_SUCCESS';
             $arguments['msg'] = json_encode(
                 [
@@ -220,7 +235,11 @@ class AddSiteHost extends Hook
                 ]
             );
         } catch (Exception $e) {
-            $arguments['code'] = 400;
+            $arguments['code'] = (
+                $arguments['serverFault'] ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $arguments['hook'] = 'HOST_EDIT_SITE_FAIL';
             $arguments['msg'] = json_encode(
                 [
@@ -244,15 +263,14 @@ class AddSiteHost extends Hook
             return;
         }
         $siteID = (int)filter_input(INPUT_POST, 'site');
+        $siteSelector = self::getClass('SiteManager')
+            ->buildSelectBox($siteID, 'site');
         $arguments['fields'][
             FOGPage::makeLabel(
                 'col-sm-2 control-label',
                 'site',
                 _('Host Site')
             )
-        ] = self::getClass('SiteManager')->buildSelectBox(
-            $siteID,
-            'site'
-        );
+        ] = $siteSelector;
     }
 }

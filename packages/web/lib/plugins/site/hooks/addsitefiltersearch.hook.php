@@ -56,15 +56,13 @@ class AddSiteFilterSearch extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        self::$HookManager
-            ->register(
-                'HOST_DATA',
-                [$this, 'hostData']
-            )
-            ->register(
-                'GROUP_DATA',
-                [$this, 'groupData']
-            );
+        self::$HookManager->register(
+            'HOST_DATA',
+            [$this, 'hostData']
+        )->register(
+            'GROUP_DATA',
+            [$this, 'groupData']
+        );
     }
     /**
      * This function modifies the data of the host page.
@@ -89,82 +87,7 @@ class AddSiteFilterSearch extends Hook
             return;
         }
         $siteIDbyUser = $this->getSiteIDbyUser(self::$FOGUser->get('id'));
-        if (empty($siteIDbyUser)) {
-            $arguments['data']=[];
-            return;
-        }
         $siteHosts = $this->getHostIDbySite($siteIDbyUser);
-        switch ($node) {
-        case 'host':
-            switch ($sub) {
-            case 'search':
-                $hostsID = self::getClass('HostManager')->search('');
-                $hosts = self::getSubObjectIDs(
-                    'SiteHostAssociation',
-                    ['hostID' => $hostsID,'siteID'=>$siteIDbyUser],
-                    'hostID'
-                );
-                break;
-            case 'list':
-                $hosts = self::getSubObjectIDs(
-                    'Host',
-                    ['id'=>$siteHosts],
-                    'id'
-                );
-                break;
-            }
-            $arguments['data'] = [];
-            foreach ($hosts as $HostID) {
-                $HostSiteID = self::getSubObjectIDs(
-                    'SiteHostAssociation',
-                    ['hostID' => $HostID],
-                    'siteID'
-                );
-                if ($isLocation) {
-                    $locationID = self::getSubObjectIDs(
-                        'LocationAssociation',
-                        ['hostID' => $HostID],
-                        'locationID'
-                    );
-                    $Location = new Location($locationID);
-                    $locationName = $Location->get('name');
-                } else {
-                    $locationName = '';
-                }
-                $Site = self::getClass('SiteManager')->find(
-                    ['id'=>$HostSiteID]
-                );
-                $Host = new Host($HostID);
-                $arguments['data'][] = [
-                    'id' => $Host->get('id'),
-                    'deployed' => self::formatTime(
-                        $Host->get('deployed'),
-                        'Y-m-d H:i:s'
-                    ),
-                    'host_name' => $Host->get('name'),
-                    'host_mac' => $Host->get('mac')->__toString(),
-                    'host_desc' => $Host->get('description'),
-                    'site' => $Site[0]->get('name'),
-                    'location' => $locationName,
-                    'image_id' => $Host->get('imageID'),
-                    'image_name' => $Host->getImageName(),
-                    'pingstatus' => $Host->getPingCodeStr(),
-                ];
-                unset($Host, $HostID);
-                unset($HostSiteID, $Site);
-            }
-            break;
-        case 'task':
-            foreach ((array)$arguments['data'] as $index => &$data) {
-                if (!in_array($data['host_id'], $siteHosts)) {
-                    unset($arguments['data'][$index]);
-                }
-                unset($data);
-            }
-            break;
-        default:
-            return ;
-        }
     }
 
     /**
@@ -189,31 +112,7 @@ class AddSiteFilterSearch extends Hook
             return;
         }
         $siteIDbyUser = $this->getSiteIDbyUser(self::$FOGUser->get('id'));
-        if (empty($siteIDbyUser)) {
-            $arguments['data']=[];
-            return;
-        }
         $siteGroups = $this->getGroupIDbySite($siteIDbyUser);
-        switch ($sub) {
-        case 'search':
-            $groups = self::getClass('GroupManager')->search('', true);
-            break;
-        case 'list':
-            $groups = self::getClass('GroupManager')->find(['id'=>$siteGroups]);
-            break;
-        }
-        $arguments['data'] = [];
-        foreach ($groups as $Group) {
-            if (in_array($Group->get('id'), $siteGroups)) {
-                $arguments['data'][] = [
-                    'id' => $Group->get('id'),
-                    'name' => $Group->get('name'),
-                    'description' => $Group->get('description'),
-                    'count' => $Group->getHostCount(),
-                ];
-            }
-            unset($Group);
-        }
     }
 
     /**

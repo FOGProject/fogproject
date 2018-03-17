@@ -98,18 +98,18 @@ class AddSiteGroup extends Hook
      */
     public function groupSite($obj)
     {
-        $siteID = (int)filter_input(
-            INPUT_POST,
-            'site'
-        );
-        // Group sites
+        $siteID = (int)filter_input(INPUT_POST, 'site');
         $siteSelector = self::getClass('SiteManager')
             ->buildSelectBox($siteID, 'site');
+
         $fields = [
-            '<label for="site" class="col-sm-2 control-label">'
-            . _('Group Site')
-            . '</label>' => &$siteSelector
+            FOGPage::makeLabel(
+                'col-sm-2 control-label',
+                'site',
+                _('Group Site')
+            ) => $siteSelector
         ];
+
         $buttons = FOGPage::makeButton(
             'site-send',
             _('Update'),
@@ -124,7 +124,6 @@ class AddSiteGroup extends Hook
                 'Group' => &$obj
             ]
         );
-
         $rendered = FOGPage::formFields($fields);
         unset($fields);
 
@@ -164,10 +163,7 @@ class AddSiteGroup extends Hook
     public function groupSitePost($obj)
     {
         $siteID = trim(
-            (int)filter_input(
-                INPUT_POST,
-                'site'
-            )
+            (int)filter_input(INPUT_POST, 'site')
         );
         $insert_fields = ['hostID', 'siteID'];
         $insert_values = [];
@@ -223,7 +219,11 @@ class AddSiteGroup extends Hook
                 ]
             );
         } catch (Exception $e) {
-            $arguments['code'] = 400;
+            $arguments['code'] = (
+                $arguments['serverFault'] ? 
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $arguments['hook'] = 'GROUP_EDIT_SITE_FAIL';
             $arguments['msg'] = json_encode(
                 [
@@ -247,13 +247,14 @@ class AddSiteGroup extends Hook
             return;
         }
         $siteID = (int)filter_input(INPUT_POST, 'site');
+        $siteSelector = self::getClass('SiteManager')
+            ->buildSelectBox($siteID, 'site');
         $arguments['fields'][
             FOGPage::makeLabel(
                 'col-sm-2 control-label',
                 'site',
                 _('Group Site')
             )
-        ] = FOGPage::getClass('SiteManager')
-        ->buildSelectBox($siteID, 'site');
+        ] = $siteSelector;
     }
 }
