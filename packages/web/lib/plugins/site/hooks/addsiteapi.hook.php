@@ -56,19 +56,13 @@ class AddSiteAPI extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
-        self::$HookManager
-            ->register(
-                'API_VALID_CLASSES',
-                [$this, 'injectAPIElements']
-            )
-            ->register(
-                'API_GETTER',
-                [$this, 'adjustGetter']
-            )
-            ->register(
-                'CUSTOMIZE_DT_COLUMNS',
-                [$this, 'customizeDT']
-            );
+        self::$HookManager->register(
+            'API_VALID_CLASSES',
+            [$this, 'injectAPIElements']
+        )->register(
+            'CUSTOMIZE_DT_COLUMNS',
+            [$this, 'customizeDT']
+        );
     }
     /**
      * This adjusts our DT columns for display.
@@ -79,7 +73,7 @@ class AddSiteAPI extends Hook
      */
     public function customizeDT($arguments)
     {
-        if (false === strpos(self::$requesturi, $this->node)) {
+        if (false === strpos($arguments['classname'], $this->node)) {
             return;
         }
         $arguments['columns'][] = [
@@ -107,26 +101,5 @@ class AddSiteAPI extends Hook
             $arguments['validClasses'],
             ['site', 'sitehostassociation']
         );
-    }
-    /**
-     * This function changes the getter to enact on this particular item.
-     *
-     * @param mixed $arguments The arguments to modify.
-     *
-     * @return void
-     */
-    public function adjustGetter($arguments)
-    {
-        switch ($arguments['classname']) {
-        case 'sitehostassociation':
-            $arguments['data'] = FOGCore::fastmerge(
-                $arguments['class']->get(),
-                [
-                    'site' => $arguments['class']->get('site')->get(),
-                    'host' => $arguments['class']->get('host')->get()
-                ]
-            );
-            break;
-        }
     }
 }

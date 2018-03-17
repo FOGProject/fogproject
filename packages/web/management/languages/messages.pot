@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-16 23:05-0400\n"
+"POT-Creation-Date: 2018-03-17 14:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1470,9 +1470,6 @@ msgid "Site Name"
 msgstr ""
 
 msgid "Site Description"
-msgstr ""
-
-msgid "A site name is required!"
 msgstr ""
 
 msgid "A site already exists with this name!"

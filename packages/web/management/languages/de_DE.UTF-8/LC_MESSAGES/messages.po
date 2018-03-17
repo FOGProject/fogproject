@@ -1593,10 +1593,6 @@ msgid "Site Description"
 msgstr "Site Beschreibung"
 
 #, fuzzy
-msgid "A site name is required!"
-msgstr "Ein Hostname ist erforderlich!"
-
-#, fuzzy
 msgid "A site already exists with this name!"
 msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
