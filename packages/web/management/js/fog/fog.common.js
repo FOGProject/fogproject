@@ -45,10 +45,10 @@ var $_GET = getQueryParams(document.location.search),
 
         Common.debugLog(res);
     };
-    Common.validateForm = function(form) {
+    Common.validateForm = function(form, input = ':input') {
         var scrolling = false;
         var isError = false;
-        form.find(":input").each(function(i, e) {
+        form.find(input).each(function(i, e) {
             var isValid = true;
             var invalidReason = undefined;
 
@@ -156,11 +156,11 @@ var $_GET = getQueryParams(document.location.search),
             });
         });
     }
-    Common.processForm = function(form, cb) {
+    Common.processForm = function(form, cb, input = ':input') {
         // Serialize before disabling, so we can read inputs
         var opts = form.serialize();
         Common.setContainerDisable(form, true);
-        if(!Common.validateForm(form)) {
+        if(!Common.validateForm(form, input)) {
             Common.setContainerDisable(form, false);
             if (cb && typeof(cb) === 'function')
                 cb('invalid');

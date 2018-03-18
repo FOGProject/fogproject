@@ -33,10 +33,7 @@
     generalFormBtn.on('click', function() {
         generalFormBtn.prop('disabled', true);
         generalDeleteBtn.prop('disabled', true);
-        var method = generalForm.attr('method'),
-            action = generalForm.attr('action'),
-            opts = generalForm.find(':visible').serialize();
-        Common.apiCall(method,action,opts,function(err) {
+        Common.processForm(generalForm, function(err) {
             generalFormBtn.prop('disabled', false);
             generalDeleteBtn.prop('disabled', false);
             if (err) {
@@ -44,7 +41,7 @@
             }
             updateName($('#printer'+type).val());
             originalName = $('#printer'+type).val();
-        });
+        }, ':input:visible');
     });
     generalDeleteBtn.on('click',function() {
         generalFormBtn.prop('disabled', true);

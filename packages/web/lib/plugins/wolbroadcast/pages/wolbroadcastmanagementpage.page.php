@@ -102,7 +102,11 @@ class WOLBroadcastManagementPage extends FOGPage
                 'text',
                 'broadcast',
                 $broadcast,
-                true
+                true,
+                false,
+                -1,
+                -1,
+                'data-inputmask="\'alias\': \'ip\'"'
             )
         ];
 
@@ -285,7 +289,11 @@ class WOLBroadcastManagementPage extends FOGPage
                 'text',
                 'broadcast',
                 $broadcast,
-                true
+                true,
+                false,
+                -1,
+                -1,
+                'data-inputmask="\'alias\': \'ip\'"'
             )
         ];
 

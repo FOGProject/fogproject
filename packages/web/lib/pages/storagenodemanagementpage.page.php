@@ -147,11 +147,7 @@ class StorageNodeManagementPage extends FOGPage
                 'text',
                 'ip',
                 $ip,
-                true,
-                false,
-                -1,
-                -1,
-                'data-inputmask="\'alias\': \'ip\'"'
+                true
             ),
             self::makeLabel(
                 $labelClass,
@@ -704,11 +700,7 @@ class StorageNodeManagementPage extends FOGPage
                 'text',
                 'ip',
                 $ip,
-                true,
-                false,
-                -1,
-                -1,
-                'data-inputmask="\'alias\': \'ip\'"'
+                true
             ),
             self::makeLabel(
                 $labelClass,
