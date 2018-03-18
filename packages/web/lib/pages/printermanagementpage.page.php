@@ -324,7 +324,11 @@ class PrinterManagementPage extends FOGPage
                 'text',
                 'ipcups',
                 $ip,
-                true
+                true,
+                false,
+                -1,
+                -1,
+                'data-inputmask="\'alias\': \'ip\'"'
             ),
             self::makeLabel(
                 $labelClass,
@@ -416,7 +420,11 @@ class PrinterManagementPage extends FOGPage
                 'text',
                 'iplocal',
                 $ip,
-                true
+                true,
+                false,
+                -1,
+                -1,
+                'data-inputmask="\'alias\': \'ip\'"'
             ),
             self::makeLabel(
                 $labelClass,
@@ -658,6 +666,8 @@ class PrinterManagementPage extends FOGPage
             $config,
             true
         );
+        $printercopySelector = self::getClass('PrinterManager')
+            ->buildSelectBox('', 'printercopy');
 
         $labelClass = 'col-sm-2 control-label';
 
@@ -858,7 +868,11 @@ class PrinterManagementPage extends FOGPage
                 'text',
                 'ipcups',
                 $ip,
-                true
+                true,
+                false,
+                -1,
+                -1,
+                'data-inputmask="\'alias\': \'ip\'"'
             ),
             self::makeLabel(
                 $labelClass,
@@ -950,7 +964,11 @@ class PrinterManagementPage extends FOGPage
                 'text',
                 'iplocal',
                 $ip,
-                true
+                true,
+                false,
+                -1,
+                -1,
+                'data-inputmask="\'alias\': \'ip\'"'
             ),
             self::makeLabel(
                 $labelClass,
