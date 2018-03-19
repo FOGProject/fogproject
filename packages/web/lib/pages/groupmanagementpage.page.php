@@ -100,7 +100,7 @@ class GroupManagementPage extends FOGPage
     public function add()
     {
         $this->title = _('Create New Group');
-        // Check all the post fields if they've already been set.
+
         $group = filter_input(INPUT_POST, 'group');
         $description = filter_input(INPUT_POST, 'description');
         $kern = filter_input(INPUT_POST, 'kern');
@@ -185,11 +185,13 @@ class GroupManagementPage extends FOGPage
                 $dev
             )
         ];
+
         $buttons = self::makeButton(
             'send',
             _('Create'),
             'btn btn-primary'
         );
+
         self::$HookManager->processEvent(
             'GROUP_ADD_FIELDS',
             [
@@ -255,6 +257,7 @@ class GroupManagementPage extends FOGPage
         $dev = trim(
             filter_input(INPUT_POST, 'dev')
         );
+
         $serverFault = false;
         try {
             if (!$group) {
@@ -364,10 +367,12 @@ class GroupManagementPage extends FOGPage
             'efiBootTypeExit'
         );
         $group = (
-            filter_input(INPUT_POST, 'group') ?: $this->obj->get('name')
+            filter_input(INPUT_POST, 'group') ?:
+            $this->obj->get('name')
         );
         $description = (
-            filter_input(INPUT_POST, 'description') ?: $this->obj->get('description')
+            filter_input(INPUT_POST, 'description') ?:
+            $this->obj->get('description')
         );
         $productKey = (
             filter_input(INPUT_POST, 'key') ?: (
@@ -377,11 +382,20 @@ class GroupManagementPage extends FOGPage
             )
         );
         $productKeytest = self::aesdecrypt($productKey);
-        if ($test_base64 = base64_decode($productKeytest)) {
-            if (mb_detect_encoding($test_base64, 'utf-8', true)) {
-                $productKey = $test_base64;
-            }
-        } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
+        $test_base64 = base64_decode($productKeytest);
+        $base64 = mb_detect_encoding(
+            $test_base64,
+            'utf-8',
+            true
+        );
+        $encKey = mb_detect_encoding(
+            $productKeyTest,
+            'utf-8',
+            true
+        );
+        if ($base64) {
+            $productKey = $test_base64;
+        } elseif ($encKey) {
             $productKey = $productKeytest;
         }
         $kern = (
@@ -533,6 +547,7 @@ class GroupManagementPage extends FOGPage
                 _('Group EFI Exit')
             ) => $exitEfi
         ];
+
         $buttons = '<div class="btn-group">';
         $buttons .= self::makeButton(
             'general-send',
@@ -550,6 +565,7 @@ class GroupManagementPage extends FOGPage
             'btn btn-danger'
         );
         $buttons .= '</div>';
+
         self::$HookManager->processEvent(
             'GROUP_GENERAL_FIELDS',
             [
@@ -681,6 +697,7 @@ class GroupManagementPage extends FOGPage
                 _('Group Image')
             ) => $imageSelector
         ];
+
         $buttons = self::makeButton(
             'image-send',
             _('Update'),
@@ -785,9 +802,6 @@ class GroupManagementPage extends FOGPage
             )
             . '" ';
 
-        echo '<!-- Hosts -->';
-        echo '<div class="box-group" id="hosts">';
-
         $buttons = self::makeButton(
             'hosts-add',
             _('Add selected'),
@@ -814,6 +828,8 @@ class GroupManagementPage extends FOGPage
             []
         ];
 
+        echo '<!-- Hosts -->';
+        echo '<div class="box-group" id="hosts">';
         echo '<div class="box box-solid">';
         echo '<div id="updatehosts" class="">';
         echo '<div class="box-header with-border">';
@@ -889,8 +905,6 @@ class GroupManagementPage extends FOGPage
         echo '<!-- Printers -->';
         echo '<div class="box-group" id="printers">';
 
-        // =========================================================
-        // Printer Configuration
         echo self::makeFormTag(
             'form-horizontal',
             'printer-config-form',
@@ -1138,8 +1152,6 @@ class GroupManagementPage extends FOGPage
             )
             . '" ';
 
-        echo '<!-- Snapins -->';
-        echo '<div class="box-group" id="snapins">';
         $buttons = self::makeButton(
             'snapins-add',
             _('Add selected'),
@@ -1165,6 +1177,9 @@ class GroupManagementPage extends FOGPage
             [],
             []
         ];
+
+        echo '<!-- Snapins -->';
+        echo '<div class="box-group" id="snapins">';
 
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
@@ -1230,8 +1245,6 @@ class GroupManagementPage extends FOGPage
             )
             . '" ';
 
-        echo '<!-- Modules/Service Settings -->';
-        echo '<div class="box-group" id="modules">';
         $buttons = self::makeButton(
             'modules-update',
             _('Update'),
@@ -1250,6 +1263,7 @@ class GroupManagementPage extends FOGPage
             'btn btn-danger',
             $props
         );
+
         $this->headerData = [
             _('Module Name'),
             _('Module Association')
@@ -1262,7 +1276,9 @@ class GroupManagementPage extends FOGPage
             [],
             []
         ];
-        // Modules Enable/Disable/Selected
+
+        echo '<!-- Modules/Service Settings -->';
+        echo '<div class="box-group" id="modules">';
         echo '<div class="box box-info">';
         echo '<div class="box-header with-border">';
         echo '<div class="box-tools pull-right">';
@@ -1477,6 +1493,7 @@ class GroupManagementPage extends FOGPage
             filter_input(INPUT_POST, 'enforce') ?:
             self::$Host->get('enforce')
         );
+
         $fields = [
             self::makeLabel(
                 $labelClass,
@@ -1496,11 +1513,13 @@ class GroupManagementPage extends FOGPage
                 $enforce
             )
         ];
+
         $enforcebtn = self::makeButton(
             'enforcebtn',
             _('Update'),
             'btn btn-primary'
         );
+
         self::$HookManager->processEvent(
             'GROUP_ENFORCE_FIELDS',
             [
@@ -1511,6 +1530,7 @@ class GroupManagementPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'group-enforce',
@@ -1866,6 +1886,7 @@ class GroupManagementPage extends FOGPage
             'GROUP_EDIT_POST',
             ['Group' => &$this->obj]
         );
+
         $serverFault = false;
         try {
             global $tab;
@@ -2012,21 +2033,18 @@ class GroupManagementPage extends FOGPage
             $pass_vars
         );
 
-        // Workable queries
-        $printersSqlStr = "SELECT `%s`
-            FROM `%s`
-            %s
-            %s
-            %s";
-        $printersFilterStr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            %s";
-        $printersTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
+        $obj = self::getClass('PrinterManager');
 
-        foreach (self::getClass('PrinterManager')
-            ->getColumns() as $common => &$real
-        ) {
+        // Workable queries
+        $printersTable = $obj->getTable();
+        $printersSqlStr = $obj->getQueryStr();
+        $printersFilterStr = $obj->getFilterStr();
+        $printersTotalStr = $obj->getTotalStr();
+
+        foreach ($obj->getColumns() as $common => &$real) {
+            if ('id' == $common) {
+                $tableID = $real;
+            }
             $columns[] = [
                 'db' => $real,
                 'dt' => $common
@@ -2036,13 +2054,12 @@ class GroupManagementPage extends FOGPage
         echo json_encode(
             FOGManagerController::complex(
                 $pass_vars,
-                'printers',
-                'pID',
+                $printersTable,
+                $tableID,
                 $columns,
                 $printersSqlStr,
                 $printersFilterStr,
-                $printersTotalStr,
-                $where
+                $printersTotalStr
             )
         );
         exit;
@@ -2060,21 +2077,20 @@ class GroupManagementPage extends FOGPage
             $pass_vars
         );
 
+        $obj = self::getClass('SnapinManager');
+
         // Workable queries
-        $snapinsSqlStr = "SELECT `%s`
-            FROM `%s`
-            %s
-            %s
-            %s";
-        $snapinsFilterStr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            %s";
-        $snapinsTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
+        $snapinsTable = $obj->getTable();
+        $snapinsSqlStr = $obj->getQueryStr();
+        $snapinsFilterStr = $obj->getFilterStr();
+        $snapinsTotalStr = $obj->getTotalStr();
 
         foreach (self::getClass('SnapinManager')
             ->getColumns() as $common => &$real
         ) {
+            if ('id' == $common) {
+                $tableID = $real;
+            }
             $columns[] = [
                 'db' => $real,
                 'dt' => $common
@@ -2084,8 +2100,8 @@ class GroupManagementPage extends FOGPage
         echo json_encode(
             FOGManagerController::complex(
                 $pass_vars,
-                'snapins',
-                'sID',
+                $snapinsTable,
+                $tableID,
                 $columns,
                 $snapinsSqlStr,
                 $snapinsFilterStr,
@@ -2129,25 +2145,22 @@ class GroupManagementPage extends FOGPage
             . implode("','", $keys)
             . "')";
 
+        $obj = self::getClass('ModuleManager');
+
         // Workable queries
-        $modulesSqlStr = "SELECT `%s`
-            FROM `%s`
-            %s
-            %s
-            %s";
-        $modulesFilterStr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            %s";
-        $modulesTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            WHERE `modules`.`short_name` "
+        $modulesTable = $obj->getTable();
+        $modulesSqlStr = $obj->getQueryStr();
+        $modulesFilterStr = $obj->getFilterStr();
+        $modulesTotalStr = $obj->getTotalStr() .
+            "WHERE `modules`.`short_name` "
             . "NOT IN ('"
             . implode("','", $notWhere)
             . "')";
 
-        foreach (self::getClass('ModuleManager')
-            ->getColumns() as $common => &$real
-        ) {
+        foreach ($obj->getColumns() as $common => &$real) {
+            if ('id' == $common) {
+                $tableID = $real;
+            }
             $columns[] = [
                 'db' => $real,
                 'dt' => $common
@@ -2157,13 +2170,12 @@ class GroupManagementPage extends FOGPage
         echo json_encode(
             FOGManagerController::complex(
                 $pass_vars,
-                'modules',
-                'id',
+                $modulesTable,
+                $tableID,
                 $columns,
                 $modulesSqlStr,
                 $modulesFilterStr,
-                $modulesTotalStr,
-                $where
+                $modulesTotalStr
             )
         );
         exit;
@@ -2293,17 +2305,11 @@ class GroupManagementPage extends FOGPage
                 . $this->obj->get('name');
 
             $imagingTypes = $TaskType->isImagingTask();
-
             $iscapturetask = $TaskType->isCapture();
-
             $issnapintask = $TaskType->isSnapinTasking();
-
             $isinitneeded = $TaskType->isInitNeededTasking();
-
             $isdebug = $TaskType->isDebug();
-
             $hosts = $this->obj->get('hosts');
-
             //$image = $this->obj->getImage();
 
             if (!$TaskType->isValid()) {
@@ -2315,8 +2321,11 @@ class GroupManagementPage extends FOGPage
             if ($iscapturetask) {
                 throw new Exception(_('Groups cannot create capture tasks'));
             }
+
             $labelClass = 'col-sm-2 control-label';
+
             $fields = [];
+
             if ($issnapintask
                 && TaskType::SINGLE_SNAPIN == $type
             ) {
@@ -2561,6 +2570,7 @@ class GroupManagementPage extends FOGPage
                 _('Create'),
                 'btn btn-primary'
             );
+
             self::$HookManager->processEvent(
                 'GROUP_CREATE_TASKING',
                 [
@@ -2571,6 +2581,7 @@ class GroupManagementPage extends FOGPage
             );
             $rendered = self::formFields($fields);
             unset($fields);
+
             echo self::makeFormTag(
                 'form-horizontal',
                 'group-deploy-form',
