@@ -896,6 +896,8 @@ class SnapinManagementPage extends FOGPage
             (int)$this->obj->get('isEnabled');
         $isHidden = (int)isset($_POST['isHidden']) ?:
             (int)$this->obj->get('hide');
+        $timeout = (int)filter_input(INPUT_POST, 'timeout') ?:
+            (int)$this->obj->get('timeout');
         $ishid = (
             $isHidden > 0 ? ' checked' : ''
         );
@@ -1102,7 +1104,9 @@ class SnapinManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="number" class='
             . '"snapintimeout-input form-control" name="timeout" '
-            . 'id="timeout" value="0"/>'
+            . 'id="timeout" value="'
+            . $timeout
+            . '"/>'
             . '</div>',
             '<label for="toRep">'
             . _('Replicate?')
