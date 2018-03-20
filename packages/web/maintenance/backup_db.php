@@ -20,4 +20,4 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-FOGCore::getClass('ReportMaker')->outputReport();
+FOGCore::getClass('ReportMaker')->outputReport(3, true);
