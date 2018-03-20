@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-12 18:25-0400\n"
+"POT-Creation-Date: 2018-03-20 17:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5297,6 +5297,9 @@ msgid "Waiting for mysql to be available"
 msgstr ""
 
 msgid "I am not the master for this group"
+msgstr ""
+
+msgid "I am the master node, but I do not appear to be online"
 msgstr ""
 
 msgid "Not syncing"
