@@ -61,12 +61,10 @@ if [[ ! -d $backupPath ]]; then
     handleError "Path must be an existing directory" 8
 fi
 backupDate=$(date +"%Y%m%d");
-backupDirO="$backupPath/$backupDate"
 backupDir="$backupPath/$backupDate"
-while [[ -d $backupDir ]]; do
-    countBackup=`ls | grep $backupDirO | wc -l`
-    backupDir="${backupDir}_$countBackup"
-done
+cd $backupPath
+countBackup=`ls | grep $backupDate | wc -l`
+backupDir="${backupDir}_$countBackup"
 [[ ! -d $backupDir ]] && mkdir -p $backupDir/{images,mysql,snapins,reports,logs} >/dev/null 2>&1
 [[ ! -d $backupDir/images || $backupDir/mysql || $backupDir/snapins || $backupDir/reports || $backupDir/logs ]] && mkdir -p $backupDir/{images,mysql,snapins,reports,logs} >/dev/null 2>&1
 backupDB() {
