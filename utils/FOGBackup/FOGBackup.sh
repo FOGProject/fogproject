@@ -71,13 +71,12 @@ done
 [[ ! -d $backupDir/images || $backupDir/mysql || $backupDir/snapins || $backupDir/reports || $backupDir/logs ]] && mkdir -p $backupDir/{images,mysql,snapins,reports,logs} >/dev/null 2>&1
 backupDB() {
     dots "Backing up database"
-    wget --no-check-certificate -O $backupDir/mysql/fog.sql "http://$ipaddress/$webroot/management/export.php?type=sql" 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
+    curl -Lko $backupDir/mysql/fog.sql "$httpproto://$ipaddress/$webroot/management/export.php?type=sql" -d "nojson=1" 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
     stat=$?
     if [[ ! $stat -eq 0 ]]; then
         echo "Failed"
         handleError "Could not create/download sql backup file" 12
     fi
-    echo "Done"
 }
 backupImages() {
     imageLocation=$storageLocation
@@ -115,10 +114,10 @@ backupReports() {
     echo "Done"
 }
 starttime=$(date +%D%t%r)
-echo "Started backup at: $starttime"
+echo " * Started backup at: $starttime"
 backupDB
 backupReports
 backupSnapins
 backupImages
 endtime=$(date +%D%t%r)
-echo "Completed backup at: $endtime"
+echo " * Completed backup at: $endtime"
