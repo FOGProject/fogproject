@@ -210,6 +210,7 @@ class ServiceConfigurationPage extends FOGPage
                 $r
             )
         ];
+
         self::$HookManager->processEvent(
             'MODULE_DISPLAYMANAGER_FIELDS',
             [
@@ -374,6 +375,7 @@ class ServiceConfigurationPage extends FOGPage
                 $tme
             )
         ];
+
         self::$HookManager->processEvent(
             'MODULE_AUTOLOGOUT_FIELDS',
             [
@@ -384,6 +386,7 @@ class ServiceConfigurationPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'autologoutupdate-form',
@@ -515,6 +518,7 @@ class ServiceConfigurationPage extends FOGPage
                 ($Module->isDefault ? ' checked' : '')
             )
         ];
+
         self::$HookManager->processEvent(
             'MODUL_SNAPINCLIENT_FIELDS',
             [
@@ -525,6 +529,7 @@ class ServiceConfigurationPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'snapinclientupdate-form',
@@ -654,6 +659,7 @@ class ServiceConfigurationPage extends FOGPage
                 ($Module->isDefault ? ' checked' : '')
             )
         ];
+
         self::$HookManager->processEvent(
             'MODUL_HOSTREGISTER_FIELDS',
             [
@@ -664,6 +670,7 @@ class ServiceConfigurationPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'hostregisterupdate-form',
@@ -784,8 +791,9 @@ class ServiceConfigurationPage extends FOGPage
                 ($Module->isDefault ? ' checked' : '')
             )
         ];
+
         self::$HookManager->processEvent(
-            'MODUL_HOSTNAMECHANGER_FIELDS',
+            'MODULE_HOSTNAMECHANGER_FIELDS',
             [
                 'fields' => &$fields,
                 'buttons' => &$buttons,
@@ -794,6 +802,7 @@ class ServiceConfigurationPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'hostnamechangerupdate-form',
@@ -914,6 +923,7 @@ class ServiceConfigurationPage extends FOGPage
                 ($Module->isDefault ? ' checked' : '')
             )
         ];
+
         self::$HookManager->processEvent(
             'MODULE_PRINTERMANAGER_FIELDS',
             [
@@ -924,6 +934,7 @@ class ServiceConfigurationPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'printermanagerupdate-form',
@@ -1044,6 +1055,7 @@ class ServiceConfigurationPage extends FOGPage
                 ($Module->isDefault ? ' checked' : '')
             )
         ];
+
         self::$HookManager->processEvent(
             'MODULE_TASKREBOOT_FIELDS',
             [
@@ -1054,6 +1066,7 @@ class ServiceConfigurationPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'taskrebootupdate-form',
@@ -1174,6 +1187,7 @@ class ServiceConfigurationPage extends FOGPage
                 ($Module->isDefault ? ' checked' : '')
             )
         ];
+
         self::$HookManager->processEvent(
             'MODULE_USERTRACKER_FIELDS',
             [
@@ -1184,6 +1198,7 @@ class ServiceConfigurationPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'usertrackerupdate-form',
@@ -1284,7 +1299,7 @@ class ServiceConfigurationPage extends FOGPage
                 false,
                 -1,
                 -1,
-                (self::$_moduleName['powermanagement'] ? ' checked' : '')
+                (self::$_moduleName['powermanagement'] ? 'checked' : '')
             ),
             self::makeLabel(
                 $labelClass,
@@ -1301,9 +1316,10 @@ class ServiceConfigurationPage extends FOGPage
                 false,
                 -1,
                 -1,
-                ($Module->isDefault ? ' checked' : '')
+                ($Module->isDefault ? 'checked' : '')
             )
         ];
+
         self::$HookManager->processEvent(
             'MODULE_POWERMANAGEMENT_FIELDS',
             [
@@ -1314,6 +1330,7 @@ class ServiceConfigurationPage extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'powermanagementupdate-form',

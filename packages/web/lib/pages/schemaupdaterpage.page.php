@@ -268,24 +268,24 @@ class SchemaUpdaterPage extends FOGPage
                             _('Update ID'),
                             $version + 1
                         )
-                            . ' '
-                            . sprintf(
-                                "%s: %s\n",
-                                _('Database Error'),
-                                self::$DB->error
-                            )
-                            . ' '
-                            . sprintf(
-                                "%s: %s\n",
-                                _('Variable contains'),
-                                print_r($this->schema[$version], 1)
-                            )
-                            . ' '
-                            . sprintf(
-                                "%s: %s\n",
-                                _('Database SQL'),
-                                $update
-                            );
+                        . ' '
+                        . sprintf(
+                            "%s: %s\n",
+                            _('Database Error'),
+                            self::$DB->error
+                        )
+                        . ' '
+                        . sprintf(
+                            "%s: %s\n",
+                            _('Variable contains'),
+                            print_r($this->schema[$version], 1)
+                        )
+                        . ' '
+                        . sprintf(
+                            "%s: %s\n",
+                            _('Database SQL'),
+                            $update
+                        );
 
                         error_log(
                             sprintf(
