@@ -2557,4 +2557,129 @@ abstract class FOGBase
             }
         }
     }
+    /**
+     * Get the file items.
+     *
+     * @param string $extension The file extension.
+     * @param string $dirpath   The folder path to scan within.
+     * @param bool   $split     Do we need to split the normal/plugin files?
+     * @param bool   $needplug  Do we need plugins?
+     *
+     * @return string
+     */
+    public static function fileitems(
+        $extension = '.class.php',
+        $dirpath = 'fog',
+        $split = false,
+        $needplug = true
+    ) {
+        // Quote the regex strings in this string (e.g. . becomes \.)
+        $regex_ext = preg_quote($extension);
+        // Set our pathing directory separators to that of this system.
+        $regex_dir = str_replace(['\\','/'], [DS,DS], $dirpath);
+        // Set our pathing directory for plugins with the directory separator also.
+        $regex_pdir = DS . 'plugins' . DS;
+        // Main regex string.
+        $regext = "#^.+{$regex_dir}.*{$regex_ext}$#";
+        // Preg Grep Regex.
+        $regex_pgrep = '#'
+            . DS
+            . '('
+            . implode('|', self::$pluginsinstalled)
+            . ')'
+            . DS
+            . '#';
+        // initialize plugin regex caller.
+        $plugins = '';
+
+        // Get all of our files.
+        $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
+            BASEPATH,
+            FileSystemIterator::SKIP_DOTS
+        );
+        $RecursiveIteratorIterator = new RecursiveIteratorIterator(
+            $RecursiveDirectoryIterator
+        );
+        $RegexIterator = new RegexIterator(
+            $RecursiveIteratorIterator,
+            $regext,
+            RegexIterator::GET_MATCH
+        );
+        $files = iterator_to_array($RegexIterator, false);
+        if (!$needplug) {
+            natcasesort($files);
+            return $files;
+        }
+        unset(
+            $RecursiveDirectoryIterator,
+            $RecursiveIteratorIterator,
+            $RegexIterator
+        );
+
+        // Closure so we can use a common function call.
+        $fileitems = function ($element) use (
+            $regex_dir,
+            $regex_pdir,
+            &$plugins
+        ) {
+            preg_match(
+                "#^($plugins.+{$regex_pdir})(?=.*{$regex_dir}).*$#",
+                $element[0],
+                $match
+            );
+            return $match[0];
+        };
+
+        $normalfiles = [];
+        $pluginfiles = [];
+        foreach ($files as &$file) {
+            $plugins = '?!';
+            $normalfiles[] = $fileitems($file);
+            $plugins = '?=';
+            $pluginfiles[] = $fileitems($file);
+            unset($file);
+        }
+
+        $pluginfiles = preg_grep(
+            $regex_pgrep,
+            $pluginfiles
+        );
+
+        $files = self::fastmerge(
+            $normalfiles,
+            $pluginfiles
+        );
+        if ($split) {
+            natcasesort($normalfiles);
+            natcasesort($pluginfiles);
+            $normalfiles = array_values(
+                array_filter(
+                    array_unique(
+                        $normalfiles
+                    )
+                )
+            );
+            $pluginfiles = array_values(
+                array_filter(
+                    array_unique(
+                        $pluginfiles
+                    )
+                )
+            );
+
+            return [$normalfiles, $pluginfiles];
+        }
+        unset($normalfiles, $pluginfiles);
+
+        natcasesort($files);
+        $files = array_values(
+            array_filter(
+                array_unique(
+                    $files
+                )
+            )
+        );
+
+        return $files;
+    }
 }

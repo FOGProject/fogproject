@@ -76,31 +76,21 @@ class Plugin extends FOGController
             return preg_replace('#config/plugin\.config\.php$#i', '', $element[0]);
         };
         $regext = '#^.+/config/plugin\.config\.php$#i';
-        $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
-            $dir,
-            FileSystemIterator::SKIP_DOTS
+        return array_values(
+            array_unique(
+                array_filter(
+                    array_map(
+                        $patternReplacer,
+                        self::fileitems(
+                            '.config.php',
+                            'config',
+                            false,
+                            false
+                        )
+                    )
+                )
+            )
         );
-        $RecursiveIteratorIterator = new RecursiveIteratorIterator(
-            $RecursiveDirectoryIterator
-        );
-        $RegexIterator = new RegexIterator(
-            $RecursiveIteratorIterator,
-            $regext,
-            RegexIterator::GET_MATCH
-        );
-        $files = iterator_to_array($RegexIterator, false);
-        unset(
-            $RecursiveDirectoryIterator,
-            $RecursiveIteratorIterator,
-            $RegexIterator
-        );
-        $files = array_map($patternReplacer, (array) $files);
-        natcasesort($files);
-        $files = array_filter($files);
-        $files = array_unique($files);
-        $files = array_values($files);
-
-        return $files;
     }
     /**
      * Gets plugins.

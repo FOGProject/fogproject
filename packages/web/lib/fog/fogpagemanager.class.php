@@ -273,89 +273,17 @@ class FOGPageManager extends FOGBase
     public function loadPageClasses()
     {
         global $node;
-        $regext = sprintf(
-            '#^.+%spages%s.*\.page\.php$#',
-            DS,
-            DS
+        $extension = '.page.php';
+        $strlen = -strlen($extension);
+        $files = self::fileitems(
+            $extension,
+            'pages'
         );
-        $dirpath = sprintf(
-            '%spages%s',
-            DS,
-            DS
-        );
-        $strlen = -strlen('.page.php');
-        $plugins = '';
-        $fileitems = function ($element) use ($dirpath, &$plugins) {
-            preg_match(
-                sprintf(
-                    "#^($plugins.+%splugins%s)(?=.*$dirpath).*$#",
-                    DS,
-                    DS
-                ),
-                $element[0],
-                $match
-            );
-            return $match[0];
-        };
-        $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
-            BASEPATH,
-            FileSystemIterator::SKIP_DOTS
-        );
-        $RecursiveIteratorIterator = new RecursiveIteratorIterator(
-            $RecursiveDirectoryIterator
-        );
-        $RegexIterator = new RegexIterator(
-            $RecursiveIteratorIterator,
-            $regext,
-            RegexIterator::GET_MATCH
-        );
-        $files = iterator_to_array($RegexIterator, false);
-        unset(
-            $RecursiveDirectoryIterator,
-            $RecursiveIteratorIterator,
-            $RegexIterator
-        );
-        $plugins = '?!';
-        $normalfiles = array_values(
-            array_filter(
-                array_map(
-                    $fileitems,
-                    (array)$files
-                )
-            )
-        );
-        $plugins = '?=';
-        $pluginfiles = array_values(
-            array_filter(
-                preg_grep(
-                    sprintf(
-                        '#%s(%s)%s#',
-                        DS,
-                        implode('|', self::$pluginsinstalled),
-                        DS
-                    ),
-                    array_map(
-                        $fileitems,
-                        (array)$files
-                    )
-                )
-            )
-        );
-        $files = array_values(
-            array_filter(
-                array_unique(
-                    self::fastmerge(
-                        $normalfiles,
-                        $pluginfiles
-                    )
-                )
-            )
-        );
-        unset($normalfiles, $pluginfiles);
+
         foreach ($files as &$file) {
             $elementsub = substr($file, $strlen);
             if (!in_array($elementsub, ['.page.php','.report.php'], true)) {
-                return;
+                continue;
             }
             $className = substr(basename($file), 0, $strlen);
             if ($node == 'report') {

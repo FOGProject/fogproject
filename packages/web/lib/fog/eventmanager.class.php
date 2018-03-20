@@ -189,98 +189,24 @@ class EventManager extends FOGBase
     public function load()
     {
         // Sets up regex and paths to scan for
-        if ($this instanceof self) {
-            $regext = sprintf(
-                '#^.+%sevents%s.*\.event\.php$#',
-                DS,
-                DS
-            );;
-            $dirpath = sprintf(
-                '%sevents%s',
-                DS,
-                DS
-            );
-            $strlen = -strlen('.event.php');
+        if ($this instanceof EventManager) {
+            $extension = '.event.php';
+            $dirpath = 'events';
         }
         if ($this instanceof HookManager) {
-            $regext = sprintf(
-                '#^.+%shooks%s.*\.hook\.php$#',
-                DS,
-                DS
-            );
-            $dirpath = sprintf(
-                '%shooks%s',
-                DS,
-                DS
-            );
-            $strlen = -strlen('.hook.php');
+            $extension = '.hook.php';
+            $dirpath = 'hooks';
         }
-        // Initiates plugins used in fileitems function
-        $plugins = '';
-        // Function simply returns the files based on the regex and data passed.
-        $fileitems = function ($element) use ($dirpath, &$plugins) {
-            preg_match(
-                sprintf(
-                    "#^($plugins.+%splugins%s)(?=.*$dirpath).*$#",
-                    DS,
-                    DS
-                ),
-                $element[0],
-                $match
-            );
-
-            return $match[0];
-        };
-        // Instantiates our items to get all files based on our regext info.
-        $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
-            BASEPATH,
-            FileSystemIterator::SKIP_DOTS
+        $strlen = -strlen($extension);
+        list(
+            $normalfiles,
+            $pluginfiles
+        ) = self::fileitems(
+            $extension,
+            $dirpath,
+            true
         );
-        $RecursiveIteratorIterator = new RecursiveIteratorIterator(
-            $RecursiveDirectoryIterator
-        );
-        $RegexIterator = new RegexIterator(
-            $RecursiveIteratorIterator,
-            $regext,
-            RegexIterator::GET_MATCH
-        );
-        // Makes all the returned items into an iteratable array
-        $files = iterator_to_array($RegexIterator, false);
-        unset(
-            $RecursiveDirectoryIterator,
-            $RecursiveIteratorIterator,
-            $RegexIterator
-        );
-        // First pass we don't care about plugins, only based files
-        $plugins = '?!';
-        $tFiles = array_map($fileitems, (array) $files);
-        $fFiles = array_filter($tFiles);
-        $normalfiles = array_values($fFiles);
-        unset($tFiles, $fFiles);
-        // Second pass we only care about plugins.
-        $plugins = '?=';
-        $grepString = sprintf(
-            '#%s(%s)%s#',
-            DS,
-            implode(
-                '|',
-                self::$pluginsinstalled
-            ),
-            DS
-        );
-        $tFiles = array_map($fileitems, (array) $files);
-        $fFiles = preg_grep($grepString, $tFiles);
-        $fFiles = array_filter($fFiles);
-        $pluginfiles = array_values($fFiles);
-        unset($tFiles, $fFiles, $files);
-        // All Data is now set, we have normal and plugin files.
-        // startClass simply iterates the passed data and starts the needed
-        // hooks or events.
-        // Plugins don't need to know if the active flag is set either
-        self::startClassFromFiles($pluginfiles, $strlen);
-        // Cleanup the plugin files
-        unset($pluginfiles);
-        // Now scan non plugin files and see if the active flag is set.
+        // Scan non plugin files and see if the active flag is set.
         // If active, start the class, otherwise on to next file.
         $startfiles = [];
         foreach ($normalfiles as &$file) {
@@ -307,6 +233,11 @@ class EventManager extends FOGBase
             fclose($fh);
         }
         unset($normalfiles);
+        $startfiles = self::fastmerge(
+            $pluginfiles,
+            $startfiles
+        );
+        unset($pluginfiles);
         self::startClassFromFiles($startfiles, $strlen);
     }
 }
