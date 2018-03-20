@@ -31,8 +31,13 @@ class SnapinManagementPage extends FOGPage
         'Batch Script' => array('cmd.exe','/c'),
         'Bash Script' => array('/bin/bash'),
         'VB Script' => array('cscript.exe'),
-        'Powershell' => array(
+        'Powershell (default)' => array(
             'powershell.exe',
+            '-ExecutionPolicy Bypass -NoProfile -File'
+        ),
+        'Powershell x64' => array(
+            'powershell.exe &amp;&quot$env:WINDIR\\sysnative\\windowspowershell'
+            . '\\v1.0\\powershell.exe',
             '-ExecutionPolicy Bypass -NoProfile -File'
         ),
         'Mono' => array('mono'),
@@ -333,6 +338,12 @@ class SnapinManagementPage extends FOGPage
             ),
             'PowerShell Script' => array(
                 'powershell.exe',
+                '-ExecutionPolicy Bypass -File &quot;'
+                .'[FOG_SNAPIN_PATH]\MyScript.ps1&quot;'
+            ),
+            'PowerShell x64 Script' => array(
+                'powershell.exe &amp;&quot;$env:WINDIR\sysnative\windowspowershell'
+                . '\v1.0\powershell.exe&quot;',
                 '-ExecutionPolicy Bypass -File &quot;'
                 .'[FOG_SNAPIN_PATH]\MyScript.ps1&quot;'
             ),
