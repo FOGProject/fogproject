@@ -114,10 +114,10 @@ backupReports() {
     echo "Done"
 }
 starttime=$(date +%D%t%r)
-echo "Started backup at: $starttime"
+echo " * Started backup at: $starttime"
 backupDB
 backupReports
 backupSnapins
 backupImages
 endtime=$(date +%D%t%r)
-echo "Completed backup at: $endtime"
+echo " * Completed backup at: $endtime"
