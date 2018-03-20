@@ -34,89 +34,22 @@ class ReportManagementPage extends FOGPage
      */
     public static function loadCustomReports()
     {
-        $regext = sprintf(
-            '#^.+%sreports%s.*\.report\.php$#',
-            DS,
-            DS
+        $extension = '.report.php';
+        $files = self::fileitems(
+            $extension,
+            'reports'
         );
-        $dirpath = sprintf(
-            '%sreports%s',
-            DS,
-            DS
-        );
-        $strlen = -strlen('.report.php');
-        $plugins = '';
-        $fileitems = function ($element) use ($dirpath, &$plugins) {
-            preg_match(
-                sprintf(
-                    "#^($plugins.+%splugins%s)(?=.*$dirpath).*$#",
-                    DS,
-                    DS
-                ),
-                $element[0],
-                $match
-            );
-
-            return $match[0];
-        };
-        $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
-            BASEPATH,
-            FileSystemIterator::SKIP_DOTS
-        );
-        $RecursiveIteratorIterator = new RecursiveIteratorIterator(
-            $RecursiveDirectoryIterator
-        );
-        $RegexIterator = new RegexIterator(
-            $RecursiveIteratorIterator,
-            $regext,
-            RegexIterator::GET_MATCH
-        );
-        $files = iterator_to_array($RegexIterator, false);
-        unset(
-            $RecursiveDirectoryIterator,
-            $RecursiveIteratorIterator,
-            $RegexIterator
-        );
-        $plugins = '?!';
-        $tFiles = array_map($fileitems, (array)$files);
-        $fFiles = array_filter($tFiles);
-        $normalfiles = array_values($fFiles);
-        unset($tFiles, $fFiles);
-        $plugins = '?=';
-        $grepString = sprintf(
-            '#%s(%s)%s#',
-            DS,
-            implode(
-                '|',
-                self::$pluginsinstalled
-            ),
-            DS
-        );
-        $tFiles = array_map($fileitems, (array)$files);
-        $fFiles = preg_grep($grepString, $tFiles);
-        $pluginfiles = array_values($fFiles);
-        unset($tFiles, $fFiles, $files);
-        $files = array_merge(
-            $normalfiles,
-            $pluginfiles
-        );
-        $getNiceNameReports = function ($element) use ($strlen) {
-            return str_replace(
+        $strlen = -strlen($extension);
+        foreach ($files as $i => &$file) {
+            $files[$i] = str_replace(
                 '_',
                 ' ',
-                substr(
-                    basename($element),
-                    0,
-                    $strlen
-                )
+                substr(basename($file), 0, $strlen)
             );
-        };
-        $data = array_map(
-            $getNiceNameReports,
-            (array)$files
-        );
-        natcasesort($data);
-        return $data;
+            unset($file);
+        }
+        natcasesort($files);
+        return $files;
     }
     /**
      * Initializes the report page.
