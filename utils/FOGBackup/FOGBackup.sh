@@ -71,7 +71,7 @@ done
 [[ ! -d $backupDir/images || $backupDir/mysql || $backupDir/snapins || $backupDir/reports || $backupDir/logs ]] && mkdir -p $backupDir/{images,mysql,snapins,reports,logs} >/dev/null 2>&1
 backupDB() {
     dots "Backing up database"
-    curl -Lko $backupDir/mysql/fog.sql "$httpproto://$ipaddress/$webroot/management/export.php?type=sql" -d "nojson=1" 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
+    wget --no-check-certificate --post-data="nojson=1" -O $backupDir/mysql/fog.sql "http://$ipaddress/$webroot/management/export.php?type=sql" 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
     stat=$?
     if [[ ! $stat -eq 0 ]]; then
         echo "Failed"
