@@ -31,8 +31,13 @@ class SnapinManagementPage extends FOGPage
         'Batch Script' => ['cmd.exe','/c'],
         'Bash Script' => ['/bin/bash'],
         'VB Script' => ['cscript.exe'],
-        'Powershell' => [
+        'Powershell (default)' => [
             'powershell.exe',
+            '-ExecutionPolicy Bypass -NoProfile -File'
+        ],
+        'Powershell x64' => [
+            'powershell.exe &amp;&quot;$env:WINDIR\\sysnative\\windowspowershell'
+            . '\\v1.0\\powershell.exe&quot;',
             '-ExecutionPolicy Bypass -NoProfile -File'
         ],
         'Mono' => ['mono']
@@ -157,7 +162,13 @@ class SnapinManagementPage extends FOGPage
             ],
             'PowerShell Script' => [
                 'powershell.exe',
-                '-ExecutionPolicy Bypass -File &quot;'
+                '-ExecutionPolicy Bypass -NoProfile -File &quot;'
+                .'[FOG_SNAPIN_PATH]\MyScript.ps1&quot;'
+            ],
+            'PowerShell x64 Script' => [
+                'powershell.exe &amp;&quot;$env:WINDIR\\sysnative\\windowspowershell'
+                . '\\v1.0\\powershell.exe&quot;',
+                '-ExecutionPolicy Bypass -NoProfile -File &quot;'
                 .'[FOG_SNAPIN_PATH]\MyScript.ps1&quot;'
             ],
             'EXE' => [
@@ -842,8 +853,15 @@ class SnapinManagementPage extends FOGPage
         default:
             $noaction = 'checked';
         }
-        $args = filter_input(INPUT_POST, 'args') ?:
-            $this->obj->get('args');
+        $args = (
+            filter_input(INPUT_POST, 'args') ?:
+            $this->obj->get('args')
+        );
+        $timeout = (
+            filter_input(INPUT_POST, 'timeout') ?:
+            $this->obj->get('timeout')
+        );
+
         self::$selected = $snapinfileexists;
         $filelist = array_values(
             array_unique(
@@ -1694,7 +1712,7 @@ class SnapinManagementPage extends FOGPage
             $pass_vars
         );
 
-        $where = "`snapins`.`sID` = '"
+        $where = "`snapinGroupAssoc`.`sgaSnapinID` = '"
             . $this->obj->get('id')
             . "'";
 
@@ -1702,7 +1720,7 @@ class SnapinManagementPage extends FOGPage
         $storagegroupsSqlStr = "SELECT `%s`,"
             . "`sgaSnapinID` as `origID`,IF (`sgaSnapinID` = '"
             . $this->obj->get('id')
-            . "','associated','dissociated') AS `sgaSnapinID`,`sgaPrimary`,`sID`
+            . "','associated','dissociated') AS `sgaSnapinID`,`sgaPrimary`
             FROM `%s`
             LEFT OUTER JOIN `snapinGroupAssoc`
             ON `nfsGroups`.`ngID` = `snapinGroupAssoc`.`sgaStorageGroupID`
@@ -1712,7 +1730,7 @@ class SnapinManagementPage extends FOGPage
         $storagegroupsFilterStr = "SELECT COUNT(`%s`),"
             . "`sgaSnapinID` AS `origID`,IF (`sgaSnapinID` = '"
             . $this->obj->get('id')
-            . "','associated','dissociated') AS `sgaSnapinID`,`sgaPrimary`,`sID`
+            . "','associated','dissociated') AS `sgaSnapinID`,`sgaPrimary`
             FROM `%s`
             LEFT OUTER JOIN `snapinGroupAssoc`
             ON `nfsGroups`.`ngID` = `snapinGroupAssoc`.`sgaStorageGroupID`
