@@ -256,12 +256,11 @@ class ReportManagementPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        echo _('FOG Reports exist to give you information about what')
-            . ' '
-            . _('is going on with your FOG System')
-            . '. '
-            . _('To view a report, select an item from the menu')
-            . '.';
+        echo _(
+            'FOG Reports exist to give you information about what '
+            . 'is going on with your FOG System. '
+            . 'To view a report, select an item from the menu.'
+        );
         echo '</div>';
         echo '</div>';
         echo '</div>';
