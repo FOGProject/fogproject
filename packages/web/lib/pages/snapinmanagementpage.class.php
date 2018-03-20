@@ -408,6 +408,7 @@ class SnapinManagementPage extends FOGPage
         $rw = filter_input(INPUT_POST, 'rw');
         $rwa = filter_input(INPUT_POST, 'rwa');
         $args = filter_input(INPUT_POST, 'args');
+        $timeout = filter_input(INPUT_POST, 'timeout');
         /**
          * Set the storage group to pre-select.
          */
@@ -628,7 +629,9 @@ class SnapinManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="number" class='
             . '"snapintimeout-input form-control" name="timeout" '
-            . 'id="timeout" value="0"/>'
+            . 'id="timeout" value="'
+            . $timeout
+            . '"/>'
             . '</div>',
             '<label for="toRep">'
             . _('Replicate?')
