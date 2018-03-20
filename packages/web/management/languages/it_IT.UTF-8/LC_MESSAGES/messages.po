@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-10 14:27-0500\n"
+"POT-Creation-Date: 2018-03-20 17:43-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5408,6 +5408,9 @@ msgstr "In attesa di mysql sia disponibile"
 
 msgid "I am not the master for this group"
 msgstr "Non sono il master di questo gruppo"
+
+msgid "I am the master node, but I do not appear to be online"
+msgstr ""
 
 msgid "Not syncing"
 msgstr "Non sincronizzo"

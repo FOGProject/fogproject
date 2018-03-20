@@ -318,15 +318,15 @@ class SnapinManagementPage extends FOGPage
         $args = array(
             'MSI' => array(
                 'msiexec.exe',
-                '/i &quot;[FOG_SNAPIN_PATH]\MyMSI.msi&quot;'
+                '/i &quot;[FOG_SNAPIN_PATH]\\MyMSI.msi&quot;'
             ),
             'MSI + MST' => array(
                 'msiexec.exe',
-                '/i &quot;[FOG_SNAPIN_PATH]\MyMST.mst&quot;'
+                '/i &quot;[FOG_SNAPIN_PATH]\\MyMST.mst&quot;'
             ),
             'Batch Script' => array(
                 'cmd.exe',
-                '/c &quot;[FOG_SNAPIN_PATH]\MyScript.bat&quot;'
+                '/c &quot;[FOG_SNAPIN_PATH]\\MyScript.bat&quot;'
             ),
             'Bash Script' => array(
                 '/bin/bash',
@@ -334,21 +334,21 @@ class SnapinManagementPage extends FOGPage
             ),
             'VB Script' => array(
                 'cscript.exe',
-                '&quot;[FOG_SNAPIN_PATH]\MyScript.vbs&quot;'
+                '&quot;[FOG_SNAPIN_PATH]\\MyScript.vbs&quot;'
             ),
             'PowerShell Script' => array(
                 'powershell.exe',
                 '-ExecutionPolicy Bypass -File &quot;'
-                .'[FOG_SNAPIN_PATH]\MyScript.ps1&quot;'
+                .'[FOG_SNAPIN_PATH]\\MyScript.ps1&quot;'
             ),
             'PowerShell x64 Script' => array(
-                'powershell.exe &amp;&quot;$env:WINDIR\sysnative\windowspowershell'
-                . '\v1.0\powershell.exe&quot;',
+                'powershell.exe &amp;&quot;$env:WINDIR\\sysnative\\windowspowershell'
+                . '\\v1.0\\powershell.exe&quot;',
                 '-ExecutionPolicy Bypass -File &quot;'
-                .'[FOG_SNAPIN_PATH]\MyScript.ps1&quot;'
+                .'[FOG_SNAPIN_PATH]\\MyScript.ps1&quot;'
             ),
             'EXE' => array(
-                '[FOG_SNAPIN_PATH]\MyFile.exe'
+                '[FOG_SNAPIN_PATH]\\MyFile.exe'
             ),
             'Mono' => array(
                 'mono',
