@@ -1,46 +1,49 @@
 <?php
 /**
- * Task state edit page.
+ * Access Control plugin
  *
- * PHP Version 5
+ * PHP version 7
  *
- * @category TaskstateeditManagementPage
+ * @category AccessControlManagement
  * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Fernando Gietz <fernando.gietz@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Task state edit page.
+ * Access Control plugin
  *
- * @category TaskstateeditManagementPage
+ * @category AccessControlManagement
  * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Fernando Gietz <fernando.gietz@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class TaskstateeditManagementPage extends FOGPage
+class AccessControlManagement extends FOGPage
 {
     /**
-     * The node to work from.
+     * The node of this page.
      *
      * @var string
      */
-    public $node = 'taskstateedit';
+    public $node = 'accesscontrol';
     /**
-     * Initialize our page.
+     * Constructor
      *
-     * @param string $name The name to setup.
+     * @param string $name The name for the page.
      *
      * @return void
      */
     public function __construct($name = '')
     {
-        $this->name = 'Task State Management';
+        /**
+         * The name to give.
+         */
+        $this->name = 'Role Management';
         parent::__construct($this->name);
         $this->headerData = [
-            _('Name'),
-            _('Icon')
+            _('Role Name'),
+            _('Role Description')
         ];
         $this->templates = [
             '',
@@ -48,67 +51,47 @@ class TaskstateeditManagementPage extends FOGPage
         ];
         $this->attributes = [
             [],
-            ['width' => 5]
+            []
         ];
     }
     /**
-     * Create new task state entry.
+     * Create new role.
      *
      * @return void
      */
     public function add()
     {
-        $this->title = _('Create New Task State');
+        $this->title = _('Create New Role');
 
-        $taskstate = filter_input(INPUT_POST, 'taskstate');
+        $role = filter_input(INPUT_POST, 'role');
         $description = filter_input(INPUT_POST, 'description');
-        $icon = filter_input(INPUT_POST, 'icon');
-        $additional = filter_input(INPUT_POST, 'additional');
-        $iconSel = self::getClass('TaskType')->iconlist($icon);
 
         $labelClass = 'col-sm-2 control-label';
 
         $fields = [
             self::makeLabel(
                 $labelClass,
-                'taskstate',
-                _('Task State Name')
+                'role',
+                _('Role Name')
             ) => self::makeInput(
-                'form-control taskstatename-input',
-                'taskstate',
-                _('Task State Name'),
+                'form-control rolename-input',
+                'role',
+                _('Access Control Name'),
                 'text',
-                'taskstate',
-                $taskstate,
+                'role',
+                $role,
                 true
             ),
-            self::makeLabel(
+            self::makelabel(
                 $labelClass,
                 'description',
-                _('Task State Description')
+                _('Role Description')
             ) => self::makeTextarea(
-                'form-control taskstatedescription-input',
+                'form-control roledescription-input',
                 'description',
-                _('Task State Description'),
+                _('Role Description'),
                 'description',
                 $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'icon',
-                _('Task State Icon')
-            ) => $iconSel,
-            self::makeLabel(
-                $labelClass,
-                'additional',
-                _('Additional Icon Elements')
-            ) => self::makeInput(
-                'form-control taskstateadditionalicon-input',
-                'additional',
-                'fa-spin',
-                'text',
-                'additional',
-                $additional
             )
         ];
 
@@ -119,11 +102,11 @@ class TaskstateeditManagementPage extends FOGPage
         );
 
         self::$HookManager->processEvent(
-            'TASKSTATEEDIT_ADD_FIELDS',
+            'ACCESSCONTROL_ADD_FIELDS',
             [
                 'fields' => &$fields,
-                'buttons' => &$buttons,
-                'TaskState' => self::getClass('TaskState')
+                'button' => &$buttons,
+                'AccessControl' => self::getClass('AccessControl')
             ]
         );
         $rendered = self::formFields($fields);
@@ -131,18 +114,18 @@ class TaskstateeditManagementPage extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'taskstate-create-form',
+            'role-create-form',
             $this->formAction,
             'post',
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid" id="taskstate-create">';
+        echo '<div class="box box-solid" id="role-create">';
         echo '<div class="box-body">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Create New Task State');
+        echo _('Create New Role');
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
@@ -150,58 +133,52 @@ class TaskstateeditManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
         echo '</form>';
     }
     /**
-     * Actually save the new task state.
+     * Add post.
      *
      * @return void
      */
     public function addPost()
     {
         header('Content-type: application/json');
-        self::$HookManager->processEvent('TASKSTATEEDIT_ADD_POST');
-        $taskstate = trim(
-            filter_input(INPUT_POST, 'taskstate')
+        self::$HookManger->processEvent('ACCESSCONTROL_ADD_POST');
+        $role = trim(
+            filter_input(INPUT_POST, 'role')
         );
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
-        $icon = trim(
-            filter_input(INPUT_POST, 'icon')
-        );
-        $additional = trim(
-            filter_input(INPUT_POST, 'additional')
-        );
-        $iconval = $icon . ' ' . $additional;
-
         $serverFault = false;
         try {
-            $exists = self::getClass('TaskStateManager')
-                ->exists($taskstate);
-            if ($exists) {
+            if (!$role) {
                 throw new Exception(
-                    _('A task state already exists with this name!')
+                    _('A role name is required!')
                 );
             }
-            $TaskState = self::getClass('TaskState')
-                ->set('name', $taskstate)
-                ->set('description', $description)
-                ->set('icon', $iconval);
-            if (!$TaskState->save()) {
+            if (self::getClass('AccessControlManager')->exists($role)) {
+                throw new Exception(
+                    _('A role already exists with this name!')
+                );
+            }
+            $AccessControl = self::getClass('AccessControl')
+                ->set('name', $role)
+                ->set('description', $description);
+            if (!$AccessControl->save()) {
                 $serverFault = true;
-                throw new Exception(_('Add task state failed!'));
+                throw new Exception(_('Add access control failed!'));
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'TASKSTATEEDIT_ADD_SUCCESS';
+            $hook = 'ACCESSCONTROL_ADD_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Task state added!'),
-                    'title' => _('Task State Create SUccess')
+                    'msg' => _('Access Control added!'),
+                    'title' => _('Access Control Create Success')
                 ]
             );
         } catch (Exception $e) {
@@ -210,105 +187,75 @@ class TaskstateeditManagementPage extends FOGPage
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $hook = 'TASKSTATEEDIT_ADD_FAIL';
+            $hook = 'ACCESSCONTROL_ADD_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Task State Create Fail')
+                    'title' => _('Access Control Create Fail')
                 ]
             );
         }
         //header(
-        //    'Location: ../management/index.php?node=taskstateedit&sub=edit&id='
-        //    . $TaskState->get('id')
+        //    'Location: ../management/index.php?node=accesscontrol&sub=edit&id='
+        //    . $AccessControl->get('id')
         //);
         self::$HookManager->processEvent(
             $hook,
             [
-                'TaskState' => &$TaskState,
+                'AccessControl' => &$AccessControl,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
             ]
         );
-        http_response_code($code);
-        unset($TaskState);
+        http_response_Code($code);
+        unset($AccessControl);
         echo $msg;
         exit;
     }
     /**
-     * TaskState Edit General Information.
+     * Displays the access control general tab.
      *
      * @return void
      */
-    public function taskstateGeneral()
+    public function roleGeneral()
     {
-        $iconarr = explode(
-            ' ',
-            $this->obj->get('icon')
-        );
-        $taskstate = (
-            filter_input(INPUT_POST, 'taskstate') ?:
+        $role = (
+            filter_input(INPUT_POST, 'role') ?:
             $this->obj->get('name')
         );
         $description = (
             filter_input(INPUT_POST, 'description') ?:
             $this->obj->get('description')
         );
-        $icon = (
-            filter_input(INPUT_POST, 'icon') ?:
-            array_shift($iconarr)
-        );
-        $additional = (
-            filter_input(INPUT_POST, 'additional') ?:
-            implode(' ', (array)$iconarr)
-        );
-        $iconSel = self::getClass('TaskType')->iconlist($icon);
 
         $labelClass = 'col-sm-2 control-label';
 
         $fields = [
             self::makeLabel(
                 $labelClass,
-                'taskstate',
-                _('Task State Name')
+                'role',
+                _('Role Name')
             ) => self::makeInput(
-                'form-control taskstatename-input',
-                'taskstate',
-                _('Task State Name'),
+                'form-control rolename-input',
+                'role',
+                _('Access Control Name'),
                 'text',
-                'taskstate',
-                $taskstate,
+                'role',
+                $role,
                 true
             ),
-            self::makeLabel(
+            self::makelabel(
                 $labelClass,
                 'description',
-                _('Task State Description')
+                _('Role Description')
             ) => self::makeTextarea(
-                'form-control taskstatedescription-input',
+                'form-control roledescription-input',
                 'description',
-                _('Task State Description'),
+                _('Role Description'),
                 'description',
                 $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'icon',
-                _('Task State Icon')
-            ) => $iconSel,
-            self::makeLabel(
-                $labelClass,
-                'additional',
-                _('Additional Icon Elements')
-            ) => self::makeInput(
-                'form-control taskstateadditionalicon-input',
-                'additional',
-                'fa-spin',
-                'text',
-                'additional',
-                $additional
             )
         ];
 
@@ -324,21 +271,22 @@ class TaskstateeditManagementPage extends FOGPage
         );
 
         self::$HookManager->processEvent(
-            'TASKSTATEEDIT_GENERAL_FIELDS',
+            'ACCESSCONTROL_GENERAL_FIELDS',
             [
                 'fields' => &$fields,
                 'buttons' => &$buttons,
-                'TaskState' => &$this->obj
+                'AccessControl' => &$this->obj
             ]
         );
+
         $rendered = self::formFields($fields);
         unset($fields);
 
         echo self::makeFormTag(
             'form-horizontal',
-            'taskstate-general-form',
+            'role-general-form',
             self::makeTabUpdateURL(
-                'taskstate-general',
+                'role-general',
                 $this->obj->get('id')
             ),
             'post',
@@ -349,49 +297,37 @@ class TaskstateeditManagementPage extends FOGPage
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
         echo '</form>';
     }
     /**
-     * Update the general post
+     * Updates the access control general element.
      *
      * @return void
      */
-    public function taskstateGeneralPost()
+    public function roleGeneralPost()
     {
-        $taskstate = trim(
-            filter_input(INPUT_POST, 'taskstate')
+        $role = trim(
+            filter_input(INPUT_POST, 'role')
         );
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
-        $icon = trim(
-            filter_input(INPUT_POST, 'icon')
-        );
-        $additional = trim(
-            filter_input(INPUT_POST, 'additional')
-        );
-        $iconval = $icon . ' ' . $additional;
 
-        $exists = self::getClass('TaskTypeManager')
-            ->exists($taskstate);
-        if ($taskstate != $this->obj->get('name')
-            && $exists
+        if ($role != $this->obj->get('name')
+            && self::getClass('AccessControlManager')->exists($role)
         ) {
-            throw new Exception(
-                _('A task state already exists with this name!')
-            );
+            throw new Exception(_('A role with this name already exists!'));
         }
         $this->obj
-            ->set('name', $taskstate)
-            ->set('description', $description)
-            ->set('icon', $iconval);
+            ->set('name', $role)
+            ->set('description', $description);
     }
     /**
-     * Edit this task state.
+     * The edit element.
      *
      * @return void
      */
@@ -408,16 +344,16 @@ class TaskstateeditManagementPage extends FOGPage
         // General
         $tabData[] = [
             'name' => _('General'),
-            'id' => 'taskstate-general',
+            'id' => 'role-general',
             'generator' => function () {
-                $this->taskstateGeneral();
+                $this->roleGeneral();
             }
         ];
 
-        echo self::tabFields($tabData, $this->obj);
+        echo self::tabFields($tabData);
     }
     /**
-     * Actually store the update.
+     * Update the edit elements.
      *
      * @return void
      */
@@ -425,28 +361,27 @@ class TaskstateeditManagementPage extends FOGPage
     {
         header('Content-type: application/json');
         self::$HookManager->processEvent(
-            'TASKSTATEEDIT_EDIT_POST',
-            ['TaskState' => &$this->obj]
+            'ROLE_EDIT_POST',
+            ['AccessControl' => &$this->obj]
         );
-
         $serverFault = false;
-        try {
+        try{
             global $tab;
             switch ($tab) {
-            case 'taskstate-general':
-                $this->taskstateGeneralPost();
+            case 'role-general':
+                $this->roleGeneralPost();
                 break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
-                throw new Exception(_('Task state update failed!'));
+                throw new Exception(_('Role update failed!'));
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'TASKSTATEEDIT_EDIT_SUCCESS';
+            $hook = 'ROLE_EDIT_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Task State Updated!'),
-                    'title' => _('Task State Update Success')
+                    'msg' => _('Role updated!'),
+                    'title' => _('Rule Update Success')
                 ]
             );
         } catch (Exception $e) {
@@ -455,19 +390,18 @@ class TaskstateeditManagementPage extends FOGPage
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $hook = 'TASKSTATEEDIT_EDIT_FAIL';
+            $hook = 'ROLE_EDIT_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Task State Update Fail')
+                    'title' => _('Role Update Fail')
                 ]
             );
         }
-
         self::$HookManager->processEvent(
             $hook,
             [
-                'TaskState' => &$this->obj,
+                'AccessControl' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
@@ -490,7 +424,7 @@ class TaskstateeditManagementPage extends FOGPage
         $this->templates = [];
         $this->attributes = [];
 
-        $obj = self::getClass('TaskStateManager');
+        $obj = self::getClass('AccessControlManager');
 
         foreach ($obj->getColumns() as $common => &$real) {
             if ('id' == $common) {
@@ -502,12 +436,12 @@ class TaskstateeditManagementPage extends FOGPage
             unset($real);
         }
 
-        $this->title = _('Export Task States');
+        $this->title = _('Export Rules');
 
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Export Task States');
+        echo _('Export Roles');
         echo '</h4>';
         echo '<p class="help-block">';
         echo _('Use the selector to choose how many items you want exported.');
@@ -522,7 +456,7 @@ class TaskstateeditManagementPage extends FOGPage
             . 'of items you would like to export.'
         );
         echo '</p>';
-        $this->render(12, 'taskstate-export-table');
+        $this->render(12, 'role-export-table');
         echo '</div>';
         echo '</div>';
     }
@@ -534,7 +468,7 @@ class TaskstateeditManagementPage extends FOGPage
     public function getExportList()
     {
         header('Content-type: application/json');
-        $obj = self::getClass('TaskStateManager');
+        $obj = self::getClass('AccessControlManager');
         $table = $obj->getTable();
         $sqlstr = $obj->getQueryStr();
         $filterstr = $obj->getFilterStr();
@@ -559,7 +493,7 @@ class TaskstateeditManagementPage extends FOGPage
             unset($real);
         }
         self::$HookManager->processEvent(
-            'TASKSTATEEDIT_EXPORT_ITEMS',
+            'ROLE_EXPORT_ITEMS',
             [
                 'table' => &$table,
                 'sqlstr' => &$sqlstr,

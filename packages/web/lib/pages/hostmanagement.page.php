@@ -6,7 +6,7 @@
  *
  * The host represented to the GUI
  *
- * @category HostManagementPage
+ * @category HostManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -17,13 +17,13 @@
  *
  * The host represented to the GUI
  *
- * @category HostManagementPage
+ * @category HostManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class HostManagementPage extends FOGPage
+class HostManagement extends FOGPage
 {
     /**
      * The node that uses this class.

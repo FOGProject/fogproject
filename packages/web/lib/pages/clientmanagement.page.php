@@ -7,7 +7,7 @@
  * Presents the client page where users can download the FOG Client and
  * related utilities as needed.
  *
- * @category ClientManagementPage
+ * @category ClientManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -19,13 +19,13 @@
  * Presents the client page where users can download the FOG Client and
  * related utilities as needed.
  *
- * @category ClientManagementPage
+ * @category ClientManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class ClientManagementPage extends FOGPage
+class ClientManagement extends FOGPage
 {
     /**
      * The node that's related to this class

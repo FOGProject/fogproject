@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class Imaging_Log extends ReportManagementPage
+class Imaging_Log extends ReportManagement
 {
     /**
      * Initial display

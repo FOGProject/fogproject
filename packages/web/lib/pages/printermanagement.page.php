@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category PrinterManagementPage
+ * @category PrinterManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,13 +13,13 @@
 /**
  * Printer management page.
  *
- * @category PrinterManagementPage
+ * @category PrinterManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class PrinterManagementPage extends FOGPage
+class PrinterManagement extends FOGPage
 {
     /**
      * The node this page operates from.

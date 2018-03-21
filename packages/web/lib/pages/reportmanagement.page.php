@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category ReportManagementPage
+ * @category ReportManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,13 +13,13 @@
 /**
  * Displays 'reports' for the admins.
  *
- * @category ReportManagementPage
+ * @category ReportManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class ReportManagementPage extends FOGPage
+class ReportManagement extends FOGPage
 {
     /**
      * The node this page displays from.

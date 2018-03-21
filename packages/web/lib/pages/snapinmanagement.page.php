@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category SnapinManagementPage
+ * @category SnapinManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,13 +13,13 @@
 /**
  * Snapin management page
  *
- * @category SnapinManagementPage
+ * @category SnapinManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class SnapinManagementPage extends FOGPage
+class SnapinManagement extends FOGPage
 {
     /**
      * Arg types for snapin template
@@ -36,7 +36,7 @@ class SnapinManagementPage extends FOGPage
             '-ExecutionPolicy Bypass -NoProfile -File'
         ],
         'Powershell x64' => [
-            'powershell.exe &quot;%SYSTEMROOT%\\sysnative\\windowspowershell'
+            'powershell.exe &quot;%WINDIR%\\sysnative\\windowspowershell'
             . '\\v1.0\\powershell.exe&quot;',
             '-ExecutionPolicy Bypass -NoProfile -File'
         ],
@@ -166,7 +166,7 @@ class SnapinManagementPage extends FOGPage
                 .'[FOG_SNAPIN_PATH]\\MyScript.ps1&quot;'
             ],
             'PowerShell x64 Script' => [
-                'powershell.exe &quot;%SYSTEMROOT%\\sysnative\\windowspowershell'
+                'powershell.exe &quot;%WINDIR%\\sysnative\\windowspowershell'
                 . '\\v1.0\\powershell.exe&quot;',
                 '-ExecutionPolicy Bypass -NoProfile -File &quot;'
                 .'[FOG_SNAPIN_PATH]\\MyScript.ps1&quot;'

@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category WOLBroadcastManagementPage
+ * @category WOLBroadcastManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,13 +13,13 @@
 /**
  * The wol broadcast page.
  *
- * @category WOLBroadcastManagementPage
+ * @category WOLBroadcastManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class WOLBroadcastManagementPage extends FOGPage
+class WOLBroadcastManagement extends FOGPage
 {
     /**
      * The node this page displays with.

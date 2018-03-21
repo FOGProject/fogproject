@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class History_Report extends ReportManagementPage
+class History_Report extends ReportManagement
 {
     /**
      * Display page.

@@ -4,7 +4,7 @@
  *
  * PHP Version 5
  *
- * @category TasktypeeditManagementPage
+ * @category TasktypeeditManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,13 +13,13 @@
 /**
  * Task type edit page.
  *
- * @category TasktypeeditManagementPage
+ * @category TasktypeeditManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class TasktypeeditManagementPage extends FOGPage
+class TasktypeeditManagement extends FOGPage
 {
     /**
      * The node to work from.

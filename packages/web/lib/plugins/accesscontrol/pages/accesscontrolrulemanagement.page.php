@@ -1,123 +1,143 @@
 <?php
 /**
- * Windows Keys management page.
+ * Access Control plugin
  *
- * PHP version 5
+ * PHP version 7
  *
- * @category WindowsKeyManagementPage
+ * @category AccessControlRuleManagement
  * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Fernando Gietz <fernando.gietz@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Windows Keys management page.
+ * Access Control plugin
  *
- * @category WindowsKeyManagementPage
+ * @category AccessControlRuleManagement
  * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Fernando Gietz <fernando.gietz@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class WindowsKeyManagementPage extends FOGPage
+class AccessControlRuleManagement extends FOGPage
 {
     /**
-     * The node this page operates on.
+     * The node this works off.
      *
      * @var string
      */
-    public $node = 'windowskey';
+    public $node = 'accesscontrolrule';
     /**
-     * Initializes the Windows key management page.
+     * Constructor
      *
-     * @param string $name Something to lay it out as.
+     * @param string $name The name for the page.
      *
      * @return void
      */
     public function __construct($name = '')
     {
-        $this->name = 'Windows Key Management';
+        /**
+         * The name to give.
+         */
+        $this->name = 'Rule Management';
         parent::__construct($this->name);
         $this->headerData = [
-            _('Windows Key Name'),
-            _('Product Key')
+            _('Rule Name'),
+            _('Rule Parent'),
+            _('Rule Type'),
+            _('Rule Value'),
+            _('Rule Node')
         ];
         $this->templates = [
+            '',
+            '',
+            '',
             '',
             ''
         ];
         $this->attributes = [
             [],
+            [],
+            [],
+            [],
             []
         ];
     }
     /**
-     * Show form for creating a new windows key entry.
+     * Create new role.
      *
      * @return void
      */
     public function add()
     {
-        $this->title = _('Create New Windows Key');
+        $this->title = _('Create New Rule');
 
-        $windowskey = filter_input(INPUT_POST, 'windowskey');
-        $description = filter_input(INPUT_POST, 'description');
-        $key = filter_input(INPUT_POST, 'key');
+        $type = filter_input(INPUT_POST, 'type');
+        $parent = filter_input(INPUT_POST, 'parent');
+        $node = filter_input(INPUT_POST, 'node');
+        $value = filter_input(INPUT_POST, 'value');
 
         $labelClass = 'col-sm-2 control-label';
 
         $fields = [
             self::makeLabel(
                 $labelClass,
-                'windowskey',
-                _('Windows Key Name')
+                'type',
+                _('Rule Type')
             ) => self::makeInput(
-                'form-control windowskeyname-input',
-                'windowskey',
-                _('Windows 10 Professional'),
+                'form-control ruletype-input',
+                'type',
+                _('Rule Type'),
                 'text',
-                'windowskey',
-                $windowskey,
+                'type',
+                $type,
                 true
             ),
             self::makeLabel(
                 $labelClass,
-                'description',
-                _('Windows Key Description')
-            ) => self::makeTextarea(
-                'form-control windowskeydescription-name',
-                'description',
-                _('Windows Key Description'),
-                'description',
-                $description
+                'parent',
+                _('Rule Parent')
+            ) => self::makeInput(
+                'form-control ruleparent-input',
+                'parent',
+                _('Rule Parent'),
+                'text',
+                'parent',
+                $parent,
+                true
             ),
             self::makeLabel(
                 $labelClass,
-                'key',
-                _('Windows Product key')
+                'node',
+                _('Rule Node')
             ) => self::makeInput(
-                'form-control windowsproductkey-input',
-                'key',
-                '',
+                'form-control rulenode-input',
+                'node',
+                _('Rule Node'),
                 'text',
-                'key',
-                $key,
+                'node',
+                $node
+            ),
+            self::makeLabel(
+                $labelClass,
+                'value',
+                _('Rule Value')
+            ) => self::makeInput(
+                'form-control rulevalue-input',
+                'value',
+                _('Rule Value'),
+                'text',
+                'value',
+                $value,
                 true
             )
         ];
 
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary'
-        );
-
         self::$HookManager->processEvent(
-            'WINDOWSKEY_ADD_FIELDS',
+            'ACCESSCONTROLRULE_ADD_FIELDS',
             [
                 'fields' => &$fields,
-                'buttons' => &$buttons,
-                'WindowsKey' => self::getClass('WindowsKey')
+                'AccessControlRule' => self::getClass('AccessControlRule')
             ]
         );
         $rendered = self::formFields($fields);
@@ -125,18 +145,18 @@ class WindowsKeyManagementPage extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'windowskey-create-form',
+            'rule-create-form',
             $this->formAction,
             'post',
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid" id="windowskey-create">';
+        echo '<div class="box box-solid" id="rule-create">';
         echo '<div class="box-body">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Create New Windows Key');
+        echo _('Create New Rule');
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
@@ -144,54 +164,73 @@ class WindowsKeyManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-footer">';
-        echo $buttons;
+        echo '<div class="box-footer with-border">';
+        echo self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
         echo '</div>';
         echo '</div>';
         echo '</form>';
     }
     /**
-     * Actually create the windows key.
+     * Add post.
      *
      * @return void
      */
     public function addPost()
     {
         header('Content-type: application/json');
-        self::$HookManager->processEvent('WINDOWSKEY_ADD_POST');
-        $windowskey = trim(
-            filter_input(INPUT_POST, 'windowskey')
+        self::$HookManger->processEvent('ACCESSCONTROLRULE_ADD_POST');
+        $type = trim(
+            filter_input(INPUT_POST, 'type')
         );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
+        $parent = trim(
+            filter_input(INPUT_POST, 'parent')
         );
-        $key = trim(
-            filter_input(INPUT_POST, 'key')
+        $node = trim(
+            filter_input(INPUT_POST, 'node')
         );
-
+        $value = trim(
+            filter_input(INPUT_POST, 'value')
+        );
         $serverFault = false;
+        $name = $type
+            . '-'
+            . $value;
         try {
-            $exists = self::getClass('WindowsKeyManager')
-                ->exists($windowskey);
-            if ($exists) {
+            if (self::getClass('AccessControlRuleManager')->exists($name)) {
                 throw new Exception(
-                    _('A Windows Key already exists with this name!')
+                    _('A rule already exists with the generated name!')
                 );
             }
-            $WindowsKey = self::getClass('WindowsKey')
-                ->set('name', $windowskey)
-                ->set('description', $description)
-                ->set('key', $key);
-            if (!$WindowsKey->save()) {
+            $exists = self::getClass('AccessControlRuleManager')->exists(
+                $value,
+                '',
+                'value'
+            );
+            if ($exists) {
+                throw new Exception(
+                    _('A rule already exists with this value!')
+                );
+            }
+            $AccessControlRule = self::getClass('AccessControlRule')
+                ->set('type', $type)
+                ->set('value', $value)
+                ->set('parent', $parent)
+                ->set('node', $node)
+                ->set('name', $name);
+            if (!$AccessControlRule->save()) {
                 $serverFault = true;
-                throw new Exception(_('Add windows key failed!'));
+                throw new Exception(_('Add rule failed!'));
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'WINDOWSKEY_ADD_SUCCESS';
+            $hook = 'ACCESSCONTROLRULE_ADD_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Windows Key added!'),
-                    'title' => _('Windows Key Create Success')
+                    'msg' => _('Rule added!'),
+                    'title' => _('Rule Create Success')
                 ]
             );
         } catch (Exception $e) {
@@ -200,110 +239,123 @@ class WindowsKeyManagementPage extends FOGPage
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $hook = 'WINDOWSKEY_ADD_FAIL';
+            $code = ($serverFault ? 500 : 400);
+            $hook = 'ACCESSCONTROLRULE_ADD_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Windows Key Create Fail')
+                    'title' => _('Rule Create Fail')
                 ]
             );
         }
         //header(
-        //    'Location: ../management/index.php?node=windowskey&sub=edit&id='
-        //    . $WindowsKey->get('id')
+        //    'Location: ../management/index.php?node=accesscontrolrule&sub=edit&id='
+        //    . $AccessControlRule->get('id')
         //);
         self::$HookManager->processEvent(
             $hook,
             [
-                'WindowsKey' => &$WindowsKey,
+                'AccessControlRule' => &$AccessControlRule,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
             ]
         );
-        http_response_code($code);
-        unset($WindowsKey);
+        http_response_Code($code);
+        unset($AccessControlRule);
         echo $msg;
         exit;
     }
     /**
-     * Display Windows Key General information.
+     * Displays the access control general tab.
      *
      * @return void
      */
-    public function windowsKeyGeneral()
+    public function ruleGeneral()
     {
-        $windowskey = (
-            filter_input(
-                INPUT_POST,
-                'windowskey'
-            ) ?: $this->obj->get('name')
+        $type = (
+            filter_input(INPUT_POST, 'type') ?:
+            $this->obj->get('type')
         );
-        $description = (
-            filter_input(
-                INPUT_POST,
-                'description'
-            ) ?: $this->obj->get('description')
+        $parent = (
+            filter_input(INPUT_POST, 'parent') ?:
+            $this->obj->get('parent')
         );
-        $key = (
-            filter_input(
-                INPUT_POST,
-                'key'
-            ) ?: $this->obj->get('key')
+        $node = (
+            filter_input(INPUT_POST, 'node') ?:
+            $this->obj->get('node')
         );
-        // For compatibility
-        $keytest = self::aesdecrypt($key);
-        $test_base64 = base64_decode($keytest);
-        $keyb64 = mb_detect_encoding($test_base64, 'utf-8', true);
-        $keyenc = mb_detect_encoding($keytest, 'utf-8', true);
-        if ($keyb64) {
-            $key = $test_base64;
-        } else if ($keyenc) {
-            $key = $keytest;
-        }
+        $value = (
+            filter_input(INPUT_POST, 'value') ?:
+            $this->obj->get('value')
+        );
 
         $labelClass = 'col-sm-2 control-label';
 
         $fields = [
             self::makeLabel(
                 $labelClass,
-                'windowskey',
-                _('Windows Key Name')
+                'type',
+                _('Rule Type')
             ) => self::makeInput(
-                'form-control windowskeyname-input',
-                'windowskey',
-                _('Windows 10 Professional'),
+                'form-control ruletype-input',
+                'type',
+                _('Rule Type'),
                 'text',
-                'windowskey',
-                $windowskey,
+                'type',
+                $type,
                 true
             ),
             self::makeLabel(
                 $labelClass,
-                'description',
-                _('Windows Key Description')
-            ) => self::makeTextarea(
-                'form-control windowskeydescription-name',
-                'description',
-                _('Windows Key Description'),
-                'description',
-                $description
+                'parent',
+                _('Rule Parent')
+            ) => self::makeInput(
+                'form-control ruleparent-input',
+                'parent',
+                _('Rule Parent'),
+                'text',
+                'parent',
+                $parent,
+                true
             ),
             self::makeLabel(
                 $labelClass,
-                'key',
-                _('Windows Product key')
+                'node',
+                _('Rule Node')
             ) => self::makeInput(
-                'form-control windowsproductkey-input',
-                'key',
-                '',
+                'form-control rulenode-input',
+                'node',
+                _('Rule Node'),
                 'text',
-                'key',
-                $key,
+                'node',
+                $node
+            ),
+            self::makeLabel(
+                $labelClass,
+                'value',
+                _('Rule Value')
+            ) => self::makeInput(
+                'form-control rulevalue-input',
+                'value',
+                _('Rule Value'),
+                'text',
+                'value',
+                $value,
                 true
             )
         ];
+
+        self::$HookManager->processEvent(
+            'ACCESSCONTROLRULE_GENERAL_FIELDS',
+            [
+                'fields' => &$fields,
+                'AccessControlRule' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
 
         $buttons = self::makeButton(
             'general-send',
@@ -316,23 +368,11 @@ class WindowsKeyManagementPage extends FOGPage
             'btn btn-danger pull-right'
         );
 
-        self::$HookManager->processEvent(
-            'WINDOWSKEY_GENERAL_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'WindowsKey' => &$this->obj
-            ]
-        );
-
-        $rendered = self::formFields($fields);
-        unset($fields);
-
         echo self::makeFormTag(
             'form-horizontal',
-            'windowskey-general-form',
+            'rule-general-form',
             self::makeTabUpdateURL(
-                'windowskey-general',
+                'rule-general',
                 $this->obj->get('id')
             ),
             'post',
@@ -350,55 +390,52 @@ class WindowsKeyManagementPage extends FOGPage
         echo '</form>';
     }
     /**
-     * Updates the windows key general area.
+     * Updates the access control general element.
      *
      * @return void
      */
-    public function windowsKeyGeneralPost()
+    public function ruleGeneralPost()
     {
-        $windowskey = trim(
-            filter_input(INPUT_POST, 'windowskey')
+        $type = trim(
+            filter_input(INPUT_POST, 'type')
         );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
+        $parent = trim(
+            filter_input(INPUT_POST, 'parent')
         );
-        $key = trim(
-            filter_input(INPUT_POST, 'key')
+        $node = trim(
+            filter_input(INPUT_POST, 'node')
         );
+        $value = trim(
+            filter_input(INPUT_POST, 'value')
+        );
+        $orgname = $this->obj->get('type')
+            . '-'
+            . $this->obj->get('value');
+        $name = $type
+            . '-'
+            . $value;
+        $valexists = $this->obj->getManager()->exists($value, '', 'value');
+        $nameexists = $this->obj->getManager()->exists($name);
 
-        $exists = self::getClass('WindowsKeyManager')
-            ->exists($windowskey);
-        if ($windowskey != $this->obj->get('name')
-            && $exists
+        if ($value != $this->obj->get('value')
+            && $valexists
         ) {
+            throw new Exception(_('A value already exists with this content!'));
+        }
+        if ($orgname != $name && $nameexists) {
             throw new Exception(
-                _('A Windows Key already exists with this name!')
+                _('A name with this type-value pair already exists!')
             );
         }
         $this->obj
-            ->set('name', $windowskey)
-            ->set('description', $description)
-            ->set('key', $key);
+            ->set('type', $type)
+            ->set('value', $value)
+            ->set('parent', $parent)
+            ->set('node', $node)
+            ->set('name', $name);
     }
     /**
-     * Presents the membership information
-     *
-     * @return void
-     */
-    public function windowsKeyImages()
-    {
-        echo 'TODO: Make Functional';
-    }
-    /**
-     * Commonized membership actions
-     *
-     * @return void
-     */
-    public function windowsKeyImagePost()
-    {
-    }
-    /**
-     * Present the windows key to edit the page.
+     * The edit element.
      *
      * @return void
      */
@@ -412,34 +449,19 @@ class WindowsKeyManagementPage extends FOGPage
 
         $tabData = [];
 
+        // General
         $tabData[] = [
             'name' => _('General'),
-            'id' => 'windowskey-general',
+            'id' => 'rule-general',
             'generator' => function () {
-                $this->windowsKeyGeneral();
+                $this->ruleGeneral();
             }
         ];
 
-        // Associations
-        $tabData[] = [
-            'tabs' => [
-                'name' => _('Associations'),
-                'tabData' => [
-                    [
-                        'name' => _('Images'),
-                        'id' => 'windowskey-images',
-                        'generator' => function () {
-                            $this->windowsKeyImages();
-                        }
-                    ]
-                ]
-            ]
-        ];
-
-        echo self::tabFields($tabData, $this->obj);
+        echo self::tabFields($tabData);
     }
     /**
-     * Actually update the windows key.
+     * Update the edit elements.
      *
      * @return void
      */
@@ -447,32 +469,27 @@ class WindowsKeyManagementPage extends FOGPage
     {
         header('Content-type: application/json');
         self::$HookManager->processEvent(
-            'WINDOWSKEY_EDIT_POST',
-            ['WindowsKey' => &$this->obj]
+            'RULE_EDIT_POST',
+            ['AccessControlRule' => &$this->obj]
         );
-
         $serverFault = false;
         try {
             global $tab;
             switch ($tab) {
-            case 'windowskey-general':
-                $this->windowsKeyGeneralPost();
-                break;
-            case 'windowskey-images':
-                $this->windowsKeyImagePost();
+            case 'rule-general':
+                $this->ruleGeneralPost();
                 break;
             }
-
             if (!$this->obj->save()) {
                 $serverFault = true;
-                throw new Exception(_('Windows Key update failed!'));
+                throw new Exception(_('Rule update failed!'));
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'WINDOWSKEY_EDIT_SUCCESS';
+            $hook = 'RULE_EDIT_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Windows Key updated!'),
-                    'title' => _('Windows Key Update Success')
+                    'msg' => _('Rule updated!'),
+                    'title' => _('Rule Update Success')
                 ]
             );
         } catch (Exception $e) {
@@ -481,19 +498,18 @@ class WindowsKeyManagementPage extends FOGPage
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $hook = 'WINDOWSKEY_EDIT_FAIL';
+            $hook = 'RULE_EDIT_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Windows Key Update Fail')
+                    'title' => _('Rule Update Fail')
                 ]
             );
         }
-
         self::$HookManager->processEvent(
             $hook,
             [
-                'WindowsKey' => &$this->obj,
+                'AccessControlRule' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
@@ -516,7 +532,7 @@ class WindowsKeyManagementPage extends FOGPage
         $this->templates = [];
         $this->attributes = [];
 
-        $obj = self::getClass('WindowsKeyManager');
+        $obj = self::getClass('AccessControlRuleManager');
 
         foreach ($obj->getColumns() as $common => &$real) {
             if ('id' == $common) {
@@ -528,12 +544,12 @@ class WindowsKeyManagementPage extends FOGPage
             unset($real);
         }
 
-        $this->title = _('Export Windows Keys');
+        $this->title = _('Export Rules');
 
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Export Windows Keys');
+        echo _('Export Rules');
         echo '</h4>';
         echo '<p class="help-block">';
         echo _('Use the selector to choose how many items you want exported.');
@@ -548,7 +564,7 @@ class WindowsKeyManagementPage extends FOGPage
             . 'of items you would like to export.'
         );
         echo '</p>';
-        $this->render(12, 'windowskey-export-table');
+        $this->render(12, 'rule-export-table');
         echo '</div>';
         echo '</div>';
     }
@@ -560,7 +576,7 @@ class WindowsKeyManagementPage extends FOGPage
     public function getExportList()
     {
         header('Content-type: application/json');
-        $obj = self::getClass('WindowsKeyManager');
+        $obj = self::getClass('AccessControlRuleManager');
         $table = $obj->getTable();
         $sqlstr = $obj->getQueryStr();
         $filterstr = $obj->getFilterStr();
@@ -585,7 +601,7 @@ class WindowsKeyManagementPage extends FOGPage
             unset($real);
         }
         self::$HookManager->processEvent(
-            'WINDOWSKEY_EXPORT_ITEMS',
+            'RULE_EXPORT_ITEMS',
             [
                 'table' => &$table,
                 'sqlstr' => &$sqlstr,

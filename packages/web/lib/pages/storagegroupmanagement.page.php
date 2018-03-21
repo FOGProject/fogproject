@@ -1,76 +1,66 @@
 <?php
 /**
- * Site plugin
+ * Displays the storage group information.
  *
  * PHP version 5
  *
- * @category SiteManagementPage
+ * @category StorageGroupManagement
  * @package  FOGProject
- * @author   Fernando Gietz <fernando.gietz@gmail.com>
+ * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Site plugin
+ * Displays the storage group information.
  *
- * @category SiteManagementPage
+ * @category StorageGroupManagement
  * @package  FOGProject
- * @author   Fernando Gietz <fernando.gietz@gmail.com>
+ * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class SiteManagementPage extends FOGPage
+class StorageGroupManagement extends FOGPage
 {
-    public $node = 'site';
     /**
-     * Constructor
+     * Node this class works from.
      *
-     * @param string $name The name for the page.
+     * @var string
+     */
+    public $node = 'storagegroup';
+    /**
+     * Initializes the storage page.
+     *
+     * @param string $name Name to initialize with.
      *
      * @return void
      */
     public function __construct($name = '')
     {
-        /**
-         * The name to give.
-         */
-        $this->name = 'Site Management';
-        /**
-         * Add this page to the PAGES_WITH_OBJECTS hook event.
-         */
-        self::$HookManager->processEvent(
-            'PAGES_WITH_OBJECTS',
-            ['PagesWithObjects' => &$this->PagesWithObjects]
-        );
+        $this->name = 'Storage Group Management';
         parent::__construct($this->name);
-        self::$foglang['ExportSite'] = _('Export Sites');
-        self::$foglang['ImportSite'] = _('Import Sites');
         $this->headerData = [
-            _('Name'),
-            _('Host Count'),
-            _('User Count')
+            _('Storage Group Name'),
+            _('Total Clients')
         ];
         $this->templates = [
-            '',
             '',
             ''
         ];
         $this->attributes = [
             [],
-            ['width' => 5],
-            ['width' => 5]
+            []
         ];
     }
     /**
-     * Creates new item.
+     * Create a new storage group.
      *
      * @return void
      */
     public function add()
     {
-        $this->title = _('Create New Site');
+        $this->title = _('Create New Storage Group');
 
-        $site = filter_input(INPUT_POST, 'site');
+        $storagegroup = filter_input(INPUT_POST, 'storagegroup');
         $description = filter_input(INPUT_POST, 'description');
 
         $labelClass = 'col-sm-2 control-label';
@@ -78,27 +68,28 @@ class SiteManagementPage extends FOGPage
         $fields = [
             self::makeLabel(
                 $labelClass,
-                'site',
-                _('Site Name')
+                'storagegroup',
+                _('Storage Group Name')
             ) => self::makeInput(
-                'form-control sitename-input',
-                'site',
-                _('Site Name'),
+                'form-control storagegroupname-input',
+                'storagegroup',
+                _('Storage Group name'),
                 'text',
-                'site',
-                $site,
+                'storagegroup',
+                $storagegroup,
                 true
             ),
             self::makeLabel(
                 $labelClass,
                 'description',
-                _('Site Description')
+                _('Storage Group Description')
             ) => self::makeTextarea(
-                'form-control sitedescription-input',
+                'form-control storagegroupdescription-input',
                 'description',
-                _('Site Description'),
+                _('Storage Group Description'),
                 'description',
-                $description
+                $description,
+                false
             )
         ];
 
@@ -108,31 +99,31 @@ class SiteManagementPage extends FOGPage
             'btn btn-primary'
         );
 
-        self::$HookManager
-            ->processEvent(
-                'SITE_ADD_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'Site' => self::getClass('Site')
-                ]
-            );
+        self::$HookManager->processEvent(
+            'STORAGEGROUP_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'StorageGroup' => self::getClass('StorageGroup')
+            ]
+        );
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo self::makeFormTag(
+        self::makeFormTag(
             'form-horizontal',
-            'site-create-form',
-            $this->formAction,
+            'storagegroup-create-form',
+            $this->formAcion,
             'post',
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid" id="site-create">';
+        echo '<div class="box box-solid" id="storagegroup-create">';
         echo '<div class="box-body">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Create New Site');
+        echo _('Create New Storage Group');
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
@@ -147,43 +138,43 @@ class SiteManagementPage extends FOGPage
         echo '</form>';
     }
     /**
-     * Add post.
+     * Actually create the new group.
      *
      * @return void
      */
     public function addPost()
     {
-        header('Content-type: application/json');
-        self::$HookManager->processEvent('SITE_ADD_POST');
-        $site = trim(
-            filter_input(INPUT_POST, 'site')
+        header('Content-Type: application/json');
+        self::$HookManager->processEvent('STORAGEGROUP_ADD_POST');
+        $storagegroup = trim(
+            filter_input(INPUT_POST, 'storagegroup')
         );
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
 
         $serverFault = false;
-        try{
-            $exists = self::getClass('SiteManager')
-                ->exists($site);
+        try {
+            $exists = self::getClass('StorageGroupManager')
+                ->exists($storagegroup);
             if ($exists) {
                 throw new Exception(
-                    _('A site already exists with this name!')
+                    _('A storage group exists with this name!')
                 );
             }
-            $Site = self::getClass('Site')
-                ->set('name', $site)
+            $StorageGroup = self::getClass('StorageGroup')
+                ->set('name', $storagegroup)
                 ->set('description', $description);
-            if (!$Site->save()) {
+            if (!$StorageGroup->save()) {
                 $serverFault = true;
-                throw new Exception(_('Add site failed!'));
+                throw new Exception(self::$foglang['DBupfailed']);
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'SITE_ADD_SUCCESS';
+            $hook = 'STORAGEGROUP_ADD_POST_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Site added!'),
-                    'title' => _('Site Create Success')
+                    'msg' => self::$foglang['SGCreated'],
+                    'title' => _('Storage Group Create Success')
                 ]
             );
         } catch (Exception $e) {
@@ -192,22 +183,22 @@ class SiteManagementPage extends FOGPage
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $hook = 'SITE_ADD_FAIL';
+            $hook = 'STORAGEGROUP_ADD_POST_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Site Create Fail')
+                    'title' => _('Storage Group Create Fail')
                 ]
             );
         }
-        // header(
-        //     'Location: ../management/index.php?node=site&sub=edit&id='
-        //     . $Site->get('id')
-        // );
+        //header(
+        //    'Location: ../management/index.php?node=storagegroup&sub=edit&id='
+        //    . $StorageGroup->get('id')
+        //);
         self::$HookManager->processEvent(
             $hook,
             [
-                'Site' => &$Site,
+                'StorageGroup' => &$StorageGroup,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
@@ -215,19 +206,19 @@ class SiteManagementPage extends FOGPage
             ]
         );
         http_response_code($code);
-        unset($Site);
+        unset($StorageGroup);
         echo $msg;
         exit;
     }
     /**
-     * Displays the site general tab.
+     * Presents the storage group general.
      *
      * @return void
      */
-    public function siteGeneral()
+    public function storagegroupGeneral()
     {
-        $site = (
-            filter_input(INPUT_POST, 'site') ?:
+        $storagegroup = (
+            filter_input(INPUT_POST, 'storagegroup') ?:
             $this->obj->get('name')
         );
         $description = (
@@ -240,27 +231,28 @@ class SiteManagementPage extends FOGPage
         $fields = [
             self::makeLabel(
                 $labelClass,
-                'site',
-                _('Site Name')
+                'storagegroup',
+                _('Storage Group Name')
             ) => self::makeInput(
-                'form-control sitename-input',
-                'site',
-                _('Site Name'),
+                'form-control storagegroupname-input',
+                'storagegroup',
+                _('Storage Group name'),
                 'text',
-                'site',
-                $site,
+                'storagegroup',
+                $storagegroup,
                 true
             ),
             self::makeLabel(
                 $labelClass,
                 'description',
-                _('Site Description')
+                _('Storage Group Description')
             ) => self::makeTextarea(
-                'form-control sitedescription-input',
+                'form-control storagegroupdescription-input',
                 'description',
-                _('Site Description'),
+                _('Storage Group Description'),
                 'description',
-                $description
+                $description,
+                false
             )
         ];
 
@@ -276,20 +268,21 @@ class SiteManagementPage extends FOGPage
         );
 
         self::$HookManager->processEvent(
-            'SITE_GENERAL_FIELDS',
+            'STORAGEGROUP_GENERAL_FIELDS',
             [
                 'fields' => &$fields,
-                'Site' => &$this->obj
+                'buttons' => &$buttons,
+                'StorageGroup' => &$this->obj
             ]
         );
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo self::makeFormTag(
+        echo  self::makeFormTag(
             'form-horizontal',
-            'site-general-form',
+            'storagegroup-general-form',
             self::makeTabUpdateURL(
-                'site-general',
+                'storagegroup-general',
                 $this->obj->get('id')
             ),
             'post',
@@ -307,165 +300,156 @@ class SiteManagementPage extends FOGPage
         echo '</form>';
     }
     /**
-     * Site general post element
+     * Updates the storage group general elements.
      *
      * @return void
      */
-    public function siteGeneralPost()
+    public function storagegroupGeneralPost()
     {
-        $site = trim(
-            filter_input(INPUT_POST, 'site')
+        $storagegroup = trim(
+            filter_input(INPUT_POST, 'storagegroup')
         );
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
 
-        $exists = self::getClass('SiteManager')
-            ->exists($site);
-        if ($site != $this->obj->get('name')
+        $exists = self::getClass('StorageGroupManager')
+            ->exists($storagegroup);
+        if ($storagegroup != $this->obj->get('name')
             && $exists
         ) {
-            throw new Exception(_('A site already exists with this name!'));
+            throw new Exception(
+                _('A storage group already exists with this name!')
+            );
         }
 
         $this->obj
-            ->set('name', $site)
+            ->set('name', $storagegroup)
             ->set('description', $description);
     }
     /**
-     * Presents the hosts list.
+     * Presents the storage group membership.
      *
      * @return void
      */
-    public function siteHosts()
+    public function storagegroupMembership()
     {
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'storagegroup-membership',
+                $this->obj->get('id')
+            )
+            . '" ';
+
+        $buttons = self::makeButton(
+            'membership-master',
+            _('Update Master Node'),
+            'btn btn-primary master',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'membership-add',
+            _('Add selected'),
+            'btn btn-success',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'membership-remove',
+            _('Remove selected'),
+            'btn btn-danger',
+            $props
+        );
+
         $this->headerData = [
-            _('Host Name'),
-            _('Associated')
+            _('Storage Node Name'),
+            _('Storage Node Master'),
+            _('Storage Node Associated')
         ];
         $this->templates = [
+            '',
             '',
             ''
         ];
         $this->attributes = [
             [],
-            ['width' => 16]
-        ];
-
-        $buttons = self::makeButton(
-            'site-host-send',
-            _('Add selected'),
-            'btn btn-primary'
-        );
-        $buttons .= self::makeButton(
-            'site-host-remove',
-            _('Remove selected'),
-            'btn btn-danger'
-        );
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'site-host-form',
-            self::makeTabUpdateURL(
-                'site-host',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Site Host Associations');
-        echo '</h4>';
-        echo '<p class="help-block">';
-        echo 'TODO: Make jQuery Functional';
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'site-host-table', $buttons);
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
-    }
-    /**
-     * Updates site hosts.
-     *
-     * @return void
-     */
-    public function siteHostPost()
-    {
-        throw new Exception('TODO: Make Functional');
-    }
-    /**
-     * Presents the users list.
-     *
-     * @return void
-     */
-    public function siteUsers()
-    {
-        $this->headerData = [
-            _('User Name'),
-            _('Associated')
-        ];
-        $this->templates = [
-            '',
-            ''
-        ];
-        $this->attributes = [
             [],
-            ['width' => 16]
+            []
         ];
 
-        $buttons = self::makeButton(
-            'site-user-send',
-            _('Add selected'),
-            'btn btn-primary'
-        );
-        $buttons .= self::makeButton(
-            'site-user-remove',
-            _('Remove selected'),
-            'btn btn-danger'
-        );
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'site-user-form',
-            self::makeTabUpdateURL(
-                'site-user',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Site User Associations');
-        echo '</h4>';
-        echo '<p class="help-block">';
-        echo 'TODO: Make jQuery Functional';
-        echo '</p>';
-        echo '</div>';
+        echo '<!-- Storage Nodes -->';
+        echo '<div class="box-group" id="membership">';
+        echo '<div class="box box-solid">';
+        echo '<div id="updatestoragenodes" class="">';
         echo '<div class="box-body">';
-        $this->render(12, 'site-user-table', $buttons);
+        $this->render(12, 'storagegroup-membership-table', $buttons);
         echo '</div>';
         echo '</div>';
-        echo '</form>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
-     * Updates site users.
+     * Updates the storage group membership.
      *
      * @return void
      */
-    public function siteUserPost()
+    public function storagegroupMembershipPost()
     {
-        throw new Exception('TODO: Make Functional');
+
+        if (isset($_POST['updatemembership'])) {
+            $membership = filter_input_array(
+                INPUT_POST,
+                [
+                    'membership' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $membership = $membership['membership'];
+            if (count($membership ?: []) > 0) {
+                $this->obj->addNode($membership);
+            }
+        }
+        if (isset($_POST['membershipdel'])) {
+            $membership = filter_input_array(
+                INPUT_POST,
+                [
+                    'membershipRemove' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $membership = $membership['membershipRemove'];
+            if (count($membership ?: []) > 0) {
+                $this->obj->removeNode($membership);
+            }
+        }
+        if (isset($_POST['mastersel'])) {
+            $master = filter_input(
+                INPUT_POST,
+                'master'
+            );
+            self::getClass('StorageNodeManager')->update(
+                [
+                    'storagegroupID' => $this->obj->get('id'),
+                    'isMaster' => '1'
+                ],
+                '',
+                ['isMaster' => '0']
+            );
+            if ($master) {
+                self::getClass('StorageNodeManager')->update(
+                    [
+                        'storagegroupID' => $this->obj->get('id'),
+                        'id' => $master
+                    ],
+                    '',
+                    ['isMaster' => '1']
+                );
+            }
+        }
     }
     /**
-     * Edit.
+     * Edit a storage group.
      *
      * @return void
      */
@@ -482,39 +466,25 @@ class SiteManagementPage extends FOGPage
         // General
         $tabData[] = [
             'name' => _('General'),
-            'id' => 'site-general',
+            'id' => 'storagegroup-general',
             'generator' => function () {
-                $this->siteGeneral();
+                $this->storagegroupGeneral();
             }
         ];
 
-        // Associations
+        // Membership
         $tabData[] = [
-            'tabs' => [
-                'name' => _('Associations'),
-                'tabData' => [
-                    [
-                        'name' => _('Host Association'),
-                        'id' => 'site-host',
-                        'generator' => function () {
-                            $this->siteHosts();
-                        }
-                    ],
-                    [
-                        'name' => _('User Association'),
-                        'id' => 'site-user',
-                        'generator' => function () {
-                            $this->siteUsers();
-                        }
-                    ]
-                ]
-            ]
+            'name' => _('Membership'),
+            'id' => 'storagegroup-membership',
+            'generator' => function () {
+                $this->storagegroupMembership();
+            }
         ];
 
         echo self::tabFields($tabData, $this->obj);
     }
     /**
-     * Edit post.
+     * Actually submit the changes.
      *
      * @return void
      */
@@ -522,34 +492,31 @@ class SiteManagementPage extends FOGPage
     {
         header('Content-type: application/json');
         self::$HookManager->processEvent(
-            'SITE_EDIT_POST',
-            ['Site' => &$this->obj]
+            'STORAGEGROUP_EDIT_POST',
+            ['StorageGroup' => &$this->obj]
         );
 
         $serverFault = false;
-        try {
+        try{
             global $tab;
             switch ($tab) {
-            case 'site-general':
-                $this->siteGeneralPost();
+            case 'storagegroup-general':
+                $this->storagegroupGeneralPost();
                 break;
-            case 'site-host':
-                $this->siteHostPost();
-                break;
-            case 'site-user':
-                $this->siteUserPost();
+            case 'storagegroup-membership':
+                $this->storagegroupMembershipPost();
                 break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
-                throw new Exception(_('Site update failed!'));
+                throw new Exception(_('Storage Group Update Failed'));
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'SITE_EDIT_SUCCESS';
+            $hook = 'STORAGEGROUP_EDIT_POST_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Site updated!'),
-                    'title' => _('Site Update Success')
+                    'msg' => _('Storage Group updated!'),
+                    'title' => _('Storage Group Update Success')
                 ]
             );
         } catch (Exception $e) {
@@ -558,19 +525,19 @@ class SiteManagementPage extends FOGPage
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $hook = 'SITE_EDIT_FAIL';
+            $hook = 'STORAGEGROUP_EDIT_POST_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Site Update Fail')
+                    'title' => _('Storage Group Update Fail')
                 ]
             );
         }
-        
+
         self::$HookManager->processEvent(
             $hook,
             [
-                'Site' => &$this->obj,
+                'StorageGroup' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
@@ -582,11 +549,11 @@ class SiteManagementPage extends FOGPage
         exit;
     }
     /**
-     * Gets the host list.
+     * Presents the Storage nodes list table.
      *
      * @return void
      */
-    public function getHostsList()
+    public function getStorageNodesList()
     {
         header('Content-type: application/json');
         parse_str(
@@ -594,30 +561,34 @@ class SiteManagementPage extends FOGPage
             $pass_vars
         );
 
-        $hostsSqlStr = "SELECT `%s`,"
-            . "IF(`shaSiteID` = '"
+        $where = "`nfsGroups`.`ngID` = '"
             . $this->obj->get('id')
-            . "','associated','dissociated') as `shaSiteID`
+            . "'";
+
+        $storagegroupsSqlStr = "SELECT `%s`,"
+            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `ngmGroupID`
             FROM `%s`
-            LEFT OUTER JOIN `siteHostAssoc`
-            ON `hosts`.`hostID` = `siteHostAssoc`.`shaHostID`
+            CROSS JOIN `nfsGroups`
             %s
             %s
             %s";
-        $hostsFilterStr = "SELECT COUNT(`%s`)
+
+        $storagegroupsFilterStr = "SELECT COUNT(`%s`),"
+            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') AS `ngmGroupID`
             FROM `%s`
-            LEFT OUTER JOIN `siteHostAssoc`
-            ON `hosts`.`hostID` = `siteHostAssoc`.`shaHostID`
+            CROSS JOIN `nfsGroups`
             %s";
-        $hostsTotalStr = "SELECT COUNT(`%s`)
+
+        $storagegroupsTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`";
 
-        foreach (self::getClass('HostManager')
+        foreach (self::getClass('StorageNodeManager')
             ->getColumns() as $common => &$real
         ) {
-            if ('id' == $common) {
-                $tableID = $real;
-            }
             $columns[] = [
                 'db' => $real,
                 'dt' => $common
@@ -625,78 +596,25 @@ class SiteManagementPage extends FOGPage
             unset($real);
         }
         $columns[] = [
-            'db' => 'shaSiteID',
+            'db' => 'ngmGroupID',
             'dt' => 'association'
         ];
-        echo json_encode(
-            FOGManagerController::simple(
-                $pass_vars,
-                'hosts',
-                $tableID,
-                $columns,
-                $hostsSqlStr,
-                $hostsFilterStr,
-                $hostsTotalStr
-            )
-        );
-        exit;
-    }
-    /**
-     * Gets the user list.
-     *
-     * @return void
-     */
-    public function getUsersList()
-    {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $usersSqlStr = "SELECT `%s`,"
-            . "IF(`suaSiteID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') as `suaSiteID`
-            FROM `%s`
-            LEFT OUTER JOIN `siteUserAssoc`
-            ON `users`.`uID` = `siteUserAssoc`.`suaUserID`
-            %s
-            %s
-            %s";
-        $usersFilterStr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            LEFT OUTER JOIN `siteUserAssoc`
-            ON `users`.`uID` = `siteUserAssoc`.`suaUserID`
-            %s";
-        $usersTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
-
-        foreach (self::getClass('UserManager')
-            ->getColumns() as $common => &$real
-        ) {
-            if ('id' == $common) {
-                $tableID = $real;
-            }
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
         $columns[] = [
-            'db' => 'suaSiteID',
-            'dt' => 'association'
+            'db' => 'origID',
+            'dt' => 'origID',
+            'removeFromQuery' => true
         ];
+
         echo json_encode(
-            FOGManagerController::simple(
+            FOGManagerController::complex(
                 $pass_vars,
-                'users',
-                $tableID,
+                'nfsGroupMembers',
+                'ngmID',
                 $columns,
-                $usersSqlStr,
-                $usersFilterStr,
-                $usersTotalStr
+                $storagegroupsSqlStr,
+                $storagegroupsFilterStr,
+                $storagegroupsTotalStr,
+                $where
             )
         );
         exit;
@@ -713,7 +631,7 @@ class SiteManagementPage extends FOGPage
         $this->templates = [];
         $this->attributes = [];
 
-        $obj = self::getClass('SiteManager');
+        $obj = self::getClass('StorageGroupManager');
 
         foreach ($obj->getColumns() as $common => &$real) {
             if ('id' == $common) {
@@ -725,12 +643,12 @@ class SiteManagementPage extends FOGPage
             unset($real);
         }
 
-        $this->title = _('Export Sites');
+        $this->title = _('Export Storage Groups');
 
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Export Sites');
+        echo _('Export Storage Nodes');
         echo '</h4>';
         echo '<p class="help-block">';
         echo _('Use the selector to choose how many items you want exported.');
@@ -745,7 +663,7 @@ class SiteManagementPage extends FOGPage
             . 'of items you would like to export.'
         );
         echo '</p>';
-        $this->render(12, 'site-export-table');
+        $this->render(12, 'storagegroup-export-table');
         echo '</div>';
         echo '</div>';
     }
@@ -757,7 +675,7 @@ class SiteManagementPage extends FOGPage
     public function getExportList()
     {
         header('Content-type: application/json');
-        $obj = self::getClass('SiteManager');
+        $obj = self::getClass('StorageGroupManager');
         $table = $obj->getTable();
         $sqlstr = $obj->getQueryStr();
         $filterstr = $obj->getFilterStr();
@@ -768,7 +686,7 @@ class SiteManagementPage extends FOGPage
             file_get_contents('php://input'),
             $pass_vars
         );
-        // Setup our columns for the CSVn.
+        // Setup our columns for the CSV.
         // Automatically removes the id column.
         foreach ($dbcolumns as $common => &$real) {
             if ('id' == $common) {
@@ -782,7 +700,7 @@ class SiteManagementPage extends FOGPage
             unset($real);
         }
         self::$HookManager->processEvent(
-            'SITE_EXPORT_ITEMS',
+            'STORAGENODE_EXPORT_ITEMS',
             [
                 'table' => &$table,
                 'sqlstr' => &$sqlstr,
