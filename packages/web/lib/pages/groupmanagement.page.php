@@ -1554,6 +1554,12 @@ class GroupManagement extends FOGPage
             . 'changing and AD Joining.'
         );
         echo '</p>';
+        echo '<p class="help-block">';
+        echo _(
+            'If disabled, the client will not make changes until all users '
+            . 'are logged off'
+        );
+        echo '</p>';
         echo '</div>';
         echo '<div class="box-tools pull-right">';
         echo self::$FOGCollapseBox;

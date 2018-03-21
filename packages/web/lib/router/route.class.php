@@ -457,7 +457,8 @@ class Route extends FOGBase
                 }
                 if (is_array($item)) {
                     $where .= " IN ('"
-                        . implode("','", $item);
+                        . implode("','", $item)
+                        . "')";
                 } else if (is_string($item)) {
                     $where .= " = '$item'";
                 }
