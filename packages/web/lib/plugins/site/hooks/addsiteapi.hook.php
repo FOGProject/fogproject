@@ -97,9 +97,14 @@ class AddSiteAPI extends Hook
      */
     public function injectAPIElements($arguments)
     {
-        $arguments['validClasses'] = self::fastmerge(
+
+        array_push(
             $arguments['validClasses'],
-            ['site', 'sitehostassociation']
+            [
+                $this->node,
+                'sitehostassociation',
+                'siteuserassociation'
+            ]
         );
     }
 }

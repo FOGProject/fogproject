@@ -51,9 +51,9 @@ class Pending_MAC_List extends ReportManagement
                 $common = _('MAC Address');
                 break;
             }
-            array_push($this->headerData, $common);
-            array_push($this->templates, '');
-            array_push($this->attributes, []);
+            $this->headerData[] = $common;
+            $this->templates[] = '';
+            $this->attributes[] = [];
             unset($real);
         }
 

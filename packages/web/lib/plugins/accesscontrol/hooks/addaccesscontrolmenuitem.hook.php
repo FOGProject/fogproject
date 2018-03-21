@@ -123,8 +123,10 @@ class AddAccessControlMenuItem extends Hook
      */
     public function addSearch($arguments)
     {
-        array_push($arguments['searchPages'], $this->node);
-        array_push($arguments['searchPages'], 'accesscontrolrule');
+        array_push(
+            $arguments['searchPages'],
+            [$this->node, 'accesscontrolrule']
+        );
     }
     /**
      * Adds the location page to objects elements.
@@ -135,7 +137,9 @@ class AddAccessControlMenuItem extends Hook
      */
     public function addPageWithObject($arguments)
     {
-        array_push($arguments['PagesWithObjects'], $this->node);
-        array_push($arguments['PagesWithObjects'], 'accesscontrolrule');
+        array_push(
+            $arguments['PagesWithObjects'],
+            [$this->node, 'accesscontrolrule']
+        );
     }
 }

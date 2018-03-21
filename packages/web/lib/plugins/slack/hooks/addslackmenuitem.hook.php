@@ -92,7 +92,7 @@ class AddSlackMenuItem extends Hook
      */
     public function addSearch($arguments)
     {
-        array_push($arguments['searchPages'], $this->node);
+        $arguments['searchPages'][] = $this->node;
     }
     /**
      * Adds the location page to objects elements.
@@ -103,6 +103,6 @@ class AddSlackMenuItem extends Hook
      */
     public function addPageWithObject($arguments)
     {
-        array_push($arguments['PagesWithObjects'], $this->node);
+        $arguments['PagesWithObjects'][] = $this->node;
     }
 }

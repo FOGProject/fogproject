@@ -32,40 +32,40 @@ class Capone extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'cID',
         'imageID' => 'cImageID',
         'osID' => 'cOSID',
         'key' => 'cKey'
-    );
+    ];
     /**
      * Additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'image',
         'os',
         'storagegroup',
-        'storagenode',
-    );
+        'storagenode'
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'Image' => array(
+    protected $databaseFieldClassRelationships = [
+        'Image' => [
             'id',
             'imageID',
             'image'
-        ),
-        'OS' => array(
+        ],
+        'OS' => [
             'id',
             'osID',
             'os'
-        )
-    );
+        ]
+    ];
     /**
      * Returns the image object
      *

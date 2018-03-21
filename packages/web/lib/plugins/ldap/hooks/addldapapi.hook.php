@@ -103,9 +103,6 @@ class AddLDAPAPI extends Hook
      */
     public function injectAPIElements($arguments)
     {
-        $arguments['validClasses'] = self::fastmerge(
-            $arguments['validClasses'],
-            ['ldap']
-        );
+        $arguments['validClasses'][] = $this->node;
     }
 }

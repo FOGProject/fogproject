@@ -71,9 +71,6 @@ class AddWOLBroadcastAPI extends Hook
      */
     public function injectAPIElements($arguments)
     {
-        $arguments['validClasses'] = self::fastmerge(
-            $arguments['validClasses'],
-            ['wolbroadcast']
-        );
+        $arguments['validClasses'][] = $this->node;
     }
 }

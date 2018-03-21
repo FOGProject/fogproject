@@ -99,9 +99,6 @@ class AddSlackAPI extends Hook
      */
     public function injectAPIElements($arguments)
     {
-        $arguments['validClasses'] = self::fastmerge(
-            $arguments['validClasses'],
-            ['slack']
-        );
+        $arguments['validClasses'][] = $this->node;
     }
 }

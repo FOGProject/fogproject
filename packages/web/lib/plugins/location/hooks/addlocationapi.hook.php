@@ -98,9 +98,9 @@ class AddLocationAPI extends Hook
      */
     public function injectAPIElements($arguments)
     {
-        $arguments['validClasses'] = self::fastmerge(
+        array_push(
             $arguments['validClasses'],
-            ['location', 'locationassociation']
+            [$this->node, 'locationassociation']
         );
     }
     /**

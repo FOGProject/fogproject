@@ -38,34 +38,34 @@ class CaponeManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'cID',
                 'cImageID',
                 'cOSID',
                 'cKey'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'INTEGER',
                 'INTEGER',
                 'VARCHAR(255)'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 'cID',
                 'cKey'
-            ),
+            ],
             'MyISAM',
             'utf8',
             'cID',
@@ -75,34 +75,34 @@ class CaponeManager extends FOGManagerController
             return false;
         }
         $category = sprintf('Plugin: %s', $name);
-        $insert_fields = array(
+        $insert_fields = [
             'name',
             'description',
             'value',
             'category'
-        );
-        $insert_values = array();
-        $insert_values[] = array(
+        ];
+        $insert_values = [];
+        $insert_values[] = [
             'FOG_PLUGIN_CAPONE_DMI',
             'This setting is used for the capone '
             . 'module to set the DMI field used.',
             '',
             $category
-        );
-        $insert_values[] = array(
+        ];
+        $insert_values[] = [
             'FOG_PLUGIN_CAPONE_REGEX',
             'This setting is used for the capone '
             . 'module to set the reg ex used.',
             '',
             $category
-        );
-        $insert_values[] = array(
+        ];
+        $insert_values[] = [
             'FOG_PLUGIN_CAPONE_SHUTDOWN',
             'This setting is used for the capone '
             . 'module to set the shutdown after imaging.',
             '',
             $category
-        );
+        ];
         self::getClass('ServiceManager')
             ->insertBatch(
                 $insert_fields,
@@ -118,17 +118,9 @@ class CaponeManager extends FOGManagerController
     public function uninstall()
     {
         self::getClass('ServiceManager')
-            ->destroy(
-                array(
-                    'name' => 'FOG_PLUGIN_CAPONE_%'
-                )
-            );
+            ->destroy(['name' => 'FOG_PLUGIN_CAPONE_%']);
         self::getClass('PXEMenuOptionsManager')
-            ->destroy(
-                array(
-                    'name' => 'fog.capone'
-                )
-            );
+            ->destroy(['name' => 'fog.capone']);
         return parent::uninstall();
     }
 }

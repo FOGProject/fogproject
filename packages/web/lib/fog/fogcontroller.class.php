@@ -1164,7 +1164,7 @@ abstract class FOGController extends FOGBase
             $assocstr,
         ];
         if ($assocstr == 'moduleID') {
-            array_push($insert_fields, 'state');
+            $insert_fields[] = 'state';
         }
         $insert_values = [];
         foreach ((array) $this->get($plural) as &$id) {
@@ -1173,7 +1173,7 @@ abstract class FOGController extends FOGBase
                 $id,
             ];
             if ($assocstr == 'moduleID') {
-                array_push($insert_val, 1);
+                $insert_val[] = 1;
             }
             $insert_values[] = $insert_val;
             unset($insert_val, $id);

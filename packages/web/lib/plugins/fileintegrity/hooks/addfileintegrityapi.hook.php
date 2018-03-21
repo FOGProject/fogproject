@@ -71,9 +71,6 @@ class AddFileintegrityAPI extends Hook
      */
     public function injectAPIElements($arguments)
     {
-        $arguments['validClasses'] = self::fastmerge(
-            $arguments['validClasses'],
-            ['fileintegrity']
-        );
+        $arguments['validClasses'][] = $this->node;
     }
 }

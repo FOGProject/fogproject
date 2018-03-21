@@ -71,9 +71,6 @@ class AddPushbulletAPI extends Hook
      */
     public function injectAPIElements($arguments)
     {
-        $arguments['validClasses'] = self::fastmerge(
-            $arguments['validClasses'],
-            ['pushbullet']
-        );
+        $arguments['validClasses'][] = $this->node;
     }
 }

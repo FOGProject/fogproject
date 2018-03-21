@@ -90,34 +90,25 @@ class AddAccessControlJS extends Hook
         case 'accesscontrol':
         case 'accesscontrolrule':
             if (empty($subset)) {
-                $filepaths = ["../lib/plugins/{$this->node}/js/fog.{$node}.js"];
+                $filepaths = "../lib/plugins/{$this->node}/js/fog.{$node}.js";
             } else {
-                $filepaths = [
-                    "../lib/plugins/{$this->node}/js/fog.{$node}.{$subset}.js"
-                ];
+                $filepaths
+                    = "../lib/plugins/{$this->node}/js/fog.{$node}.{$subset}.js";
             }
             break;
         case 'user':
             if (empty($subset)) {
-                $filepaths = [
-                    "../lib/plugins/{$this->node}/js/fog.{$this->node}.{$node}.js"
-                ];
+                $filepaths
+                    = "../lib/plugins/{$this->node}/js/fog.{$this->node}.{$node}.js";
             } else {
-                $filepaths = [
-                    "../lib/plugins/{$this->node}/js/"
-                    . "fog.{$this->node}.{$node}.{$subset}.js"
-                ];
+                $filepaths
+                    = "../lib/plugins/{$this->node}/js/"
+                    . "fog.{$this->node}.{$node}.{$subset}.js";
             }
             break;
         default:
             return;
         }
-        array_map(
-            function (&$jsFilepath) use ($arguments) {
-                array_push($arguments['files'], $jsFilepath);
-                unset($jsFilepath);
-            },
-            (array)$filepaths
-        );
+        $arguments['files'][] = $filepaths;
     }
 }

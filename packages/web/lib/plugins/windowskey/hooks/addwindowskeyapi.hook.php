@@ -71,9 +71,9 @@ class AddWindowskeyAPI extends Hook
      */
     public function injectAPIElements($arguments)
     {
-        $arguments['validClasses'] = self::fastmerge(
+        array_push(
             $arguments['validClasses'],
-            ['windowskey', 'windowskeyassociation']
+            [$this->node, 'windowskeyassociation']
         );
     }
 }

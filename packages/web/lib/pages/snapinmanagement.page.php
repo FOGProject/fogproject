@@ -1851,9 +1851,9 @@ class SnapinManagement extends FOGPage
             if ('id' == $common) {
                 continue;
             }
-            array_push($this->headerData, $common);
-            array_push($this->templates, '');
-            array_push($this->attributes, []);
+            $this->headerData[] = $common;
+            $this->templates[] = '';
+            $this->attributes[] = [];
             unset($real);
         }
 

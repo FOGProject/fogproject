@@ -71,10 +71,10 @@ class AddAccessControlAPI extends Hook
      */
     public function injectAPIElements($arguments)
     {
-        $arguments['validClasses'] = self::fastmerge(
+        array_push(
             $arguments['validClasses'],
             [
-                'accesscontrol',
+                $this->node,
                 'accesscontrolassociation',
                 'accesscontrolrule',
                 'accesscontrolruleassociation'

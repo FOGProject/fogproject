@@ -112,7 +112,7 @@ class AddTasktypeeditMenuItem extends Hook
      */
     public function addSearch($arguments)
     {
-        array_push($arguments['searchPages'], $this->node);
+        $arguments['searchPages'][] = $this->node;
     }
     /**
      * Adds page with object.
@@ -123,6 +123,6 @@ class AddTasktypeeditMenuItem extends Hook
      */
     public function addPageWithObject($arguments)
     {
-        array_push($arguments['PagesWithObjects'], $this->node);
+        $arguments['PagesWithObjects'][] = $this->node;
     }
 }
