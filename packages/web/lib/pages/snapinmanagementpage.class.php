@@ -36,7 +36,7 @@ class SnapinManagementPage extends FOGPage
             '-ExecutionPolicy Bypass -NoProfile -File'
         ),
         'Powershell x64' => array(
-            'powershell.exe &amp;&quot$env:WINDIR\\sysnative\\windowspowershell'
+            '&quot;%SYSTEMROOT%\\sysnative\\windowspowershell'
             . '\\v1.0\\powershell.exe',
             '-ExecutionPolicy Bypass -NoProfile -File'
         ),
@@ -342,7 +342,7 @@ class SnapinManagementPage extends FOGPage
                 .'[FOG_SNAPIN_PATH]\\MyScript.ps1&quot;'
             ),
             'PowerShell x64 Script' => array(
-                'powershell.exe &amp;&quot;$env:WINDIR\\sysnative\\windowspowershell'
+                '&quot;%SYSTEMROOT%\\sysnative\\windowspowershell'
                 . '\\v1.0\\powershell.exe&quot;',
                 '-ExecutionPolicy Bypass -File &quot;'
                 .'[FOG_SNAPIN_PATH]\\MyScript.ps1&quot;'
