@@ -32,7 +32,7 @@ class Host extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'hostID',
         'name' => 'hostName',
         'description' => 'hostDesc',
@@ -62,21 +62,21 @@ class Host extends FOGController
         'biosexit' => 'hostExitBios',
         'efiexit' => 'hostExitEfi',
         'enforce' => 'hostEnforce'
-    );
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name'
-    );
+    ];
     /**
      * Additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'mac',
         'primac',
         'imagename',
@@ -98,40 +98,40 @@ class Host extends FOGController
         'users',
         'fingerprint',
         'powermanagementtasks'
-    );
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'MACAddressAssociation' => array(
+    protected $databaseFieldClassRelationships = [
+        'MACAddressAssociation' => [
             'hostID',
             'id',
             'primac',
-            array('primary' => 1)
-        ),
-        'Image' => array(
+            ['primary' => 1]
+        ],
+        'Image' => [
             'id',
             'imageID',
             'imagename'
-        ),
-        'HostScreenSetting' => array(
+        ],
+        'HostScreenSetting' => [
             'hostID',
             'id',
             'hostscreen'
-        ),
-        'HostAutoLogout' => array(
+        ],
+        'HostAutoLogout' => [
             'hostID',
             'id',
             'hostalo'
-        ),
-        'Inventory' => array(
+        ],
+        'Inventory' => [
             'hostID',
             'id',
             'inventory'
-        )
-    );
+        ]
+    ];
 
     protected $sqlQueryStr = "SELECT `%s`
         FROM `%s`
@@ -163,13 +163,13 @@ class Host extends FOGController
      *
      * @var array
      */
-    private static $_hostscreen = array();
+    private static $_hostscreen = [];
     /**
      * ALO time val
      *
      * @var int
      */
-    private static $_hostalo = array();
+    private static $_hostalo = [];
     /**
      * Set value to key
      *
@@ -244,20 +244,20 @@ class Host extends FOGController
      */
     public function destroy($key = 'id')
     {
-        $find = array('hostID' => $this->get('id'));
+        $find = ['hostID' => $this->get('id')];
         self::getClass('NodeFailureManager')
             ->destroy($find);
         self::getClass('ImagingLogManager')
             ->destroy($find);
         self::getClass('SnapinTaskManager')
             ->destroy(
-                array(
+                [
                     'jobID' => self::getSubObjectIDs(
                         'SnapinJob',
                         $find,
                         'id'
                     )
-                )
+                ]
             );
         self::getClass('SnapinJobManager')
             ->destroy($find);
@@ -283,13 +283,10 @@ class Host extends FOGController
             ->destroy($find);
         self::getClass('PowerManagementManager')
             ->destroy($find);
-        self::$HookManager
-            ->processEvent(
-                'DESTROY_HOST',
-                array(
-                    'Host' => &$this
-                )
-            );
+        self::$HookManager->processEvent(
+            'DESTROY_HOST',
+            ['Host' => &$this]
+        );
         return parent::destroy($key);
     }
     /**
@@ -302,7 +299,7 @@ class Host extends FOGController
      */
     private static function _retValidMacs($macs, &$arr)
     {
-        $addMacs = array();
+        $addMacs = [];
         foreach ((array)$macs as &$mac) {
             if (!($mac instanceof MACAddress)) {
                 $mac = new MACAddress($mac);
@@ -330,10 +327,10 @@ class Host extends FOGController
             $RealPriMAC = $this->get('mac')->__toString();
             $CurrPriMAC = self::getSubObjectIDs(
                 'MACAddressAssociation',
-                array(
+                [
                     'hostID' => $this->get('id'),
                     'primary' => 1
-                ),
+                ],
                 'mac'
             );
             if (count($CurrPriMAC) === 1
@@ -341,20 +338,20 @@ class Host extends FOGController
             ) {
                 self::getClass('MACAddressAssociationManager')
                     ->update(
-                        array(
+                        [
                             'mac' => $CurrPriMAC[0],
                             'hostID' => $this->get('id'),
                             'primary' => 1
-                        ),
+                        ],
                         '',
-                        array('primary' => 0)
+                        ['primary' => 0]
                     );
             }
             $HostWithMAC = array_diff(
                 (array)$this->get('id'),
                 (array)self::getSubObjectIDs(
                     'MACAddressAssociation',
-                    array('mac' => $RealPriMAC),
+                    ['mac' => $RealPriMAC],
                     'hostID'
                 )
             );
@@ -365,10 +362,10 @@ class Host extends FOGController
             }
             $DBPriMACs = self::getSubObjectIDs(
                 'MACAddressAssociation',
-                array(
+                [
                     'hostID' => $this->get('id'),
                     'primary' => 1
-                ),
+                ],
                 'mac'
             );
             $RemoveMAC = array_diff(
@@ -377,16 +374,14 @@ class Host extends FOGController
             );
             if (count($RemoveMAC)) {
                 self::getClass('MACAddressAssociationManager')
-                    ->destroy(
-                        array('mac' => $RemoveMAC)
-                    );
+                    ->destroy(['mac' => $RemoveMAC]);
                 unset($RemoveMAC);
                 $DBPriMACs = self::getSubObjectIDs(
                     'MACAddressAssociation',
-                    array(
+                    [
                         'hostID' => $this->get('id'),
                         'primary' => 1
-                    ),
+                    ],
                     'mac'
                 );
             }
@@ -415,7 +410,7 @@ class Host extends FOGController
             $RealAddMACs = array_filter($RealAddMACs);
             $DBPriMACs = self::getSubObjectIDs(
                 'MACAddressAssociation',
-                array('primary' => 1),
+                ['primary' => 1],
                 'mac'
             );
             foreach ((array)$DBPriMACs as &$mac) {
@@ -429,10 +424,10 @@ class Host extends FOGController
             unset($DBPriMACs);
             $PreOwnedMACs = self::getSubObjectIDs(
                 'MACAddressAssociation',
-                array(
+                [
                     'hostID' => $this->get('id'),
                     'pending' => 1
-                ),
+                ],
                 'mac',
                 true
             );
@@ -443,11 +438,11 @@ class Host extends FOGController
             unset($PreOwnedMACs);
             $DBAddMACs = self::getSubObjectIDs(
                 'MACAddressAssociation',
-                array(
+                [
                     'hostID' => $this->get('id'),
                     'primary' => 0,
                     'pending' => 0
-                ),
+                ],
                 'mac'
             );
             $RemoveAddMAC = array_diff(
@@ -457,40 +452,40 @@ class Host extends FOGController
             if (count($RemoveAddMAC)) {
                 self::getClass('MACAddressAssociationManager')
                     ->destroy(
-                        array(
+                        [
                             'hostID' => $this->get('id'),
                             'mac' => $RemoveAddMAC
-                        )
+                        ]
                     );
                 $DBAddMACs = self::getSubObjectIDs(
                     'MACAddressAssociation',
-                    array(
+                    [
                         'hostID' => $this->get('id'),
                         'primary' => 0,
                         'pending' => 0,
                         'mac'
-                    )
+                    ]
                 );
                 unset($RemoveAddMAC);
             }
-            $insert_fields = array(
+            $insert_fields = [
                 'hostID',
                 'mac',
                 'primary',
                 'pending'
-            );
-            $insert_values = array();
+            ];
+            $insert_values = [];
             $RealAddMACs = array_diff(
                 (array)$RealAddMACs,
                 (array)$DBAddMACs
             );
             foreach ((array)$RealAddMACs as $index => &$mac) {
-                $insert_values[] = array(
+                $insert_values[] = [
                     $this->get('id'),
                     $mac,
                     0,
                     0
-                );
+                ];
                 unset($mac);
             }
             if (count($insert_values) > 0) {
@@ -514,7 +509,7 @@ class Host extends FOGController
             $RealPendMACs = array_filter($RealPendMACs);
             $DBPriMACs = self::getSubObjectIDs(
                 'MACAddressAssociation',
-                array('primary' => 1),
+                ['primary' => 1],
                 'mac'
             );
             foreach ((array)$DBPriMACs as &$mac) {
@@ -528,12 +523,12 @@ class Host extends FOGController
             unset($DBPriMACs);
             $PreOwnedMACs = self::getSubObjectIDs(
                 'MACAddressAssociation',
-                array(
+                [
                     'hostID' => $this->get('id'),
                     'pending' => 0,
                     'mac',
                     true
-                ),
+                ],
                 'mac',
                 true
             );
@@ -544,11 +539,11 @@ class Host extends FOGController
             unset($PreOwnedMACs);
             $DBPendMACs = self::getSubObjectIDs(
                 'MACAddressAssociation',
-                array(
+                [
                     'hostID' => $this->get('id'),
                     'primary' => 0,
                     'pending' => 1,
-                ),
+                ],
                 'mac'
             );
             $RemovePendMAC = array_diff(
@@ -558,39 +553,39 @@ class Host extends FOGController
             if (count($RemovePendMAC)) {
                 self::getClass('MACAddressAssociationManager')
                     ->destroy(
-                        array(
+                        [
                             'hostID' => $this->get('id'),
                             'mac' => $RemovePendMAC
-                        )
+                        ]
                     );
                 $DBPendMACs = self::getSubObjectIDs(
                     'MACAddressAssociation',
-                    array(
+                    [
                         'primary' => 0,
                         'pending' => 1,
-                    ),
+                    ],
                     'mac'
                 );
                 unset($RemovePendMAC);
             }
-            $insert_fields = array(
+            $insert_fields = [
                 'hostID',
                 'mac',
                 'primary',
                 'pending'
-            );
-            $insert_values = array();
+            ];
+            $insert_values = [];
             $RealPendMACs = array_diff(
                 (array)$RealPendMACs,
                 (array)$DBPendMACs
             );
             foreach ((array)$RealPendMACs as &$mac) {
-                $insert_values[] = array(
+                $insert_values[] = [
                     $this->get('id'),
                     $mac,
                     0,
                     1
-                );
+                ];
                 unset($mac);
             }
             if (count($insert_values) > 0) {
@@ -609,7 +604,7 @@ class Host extends FOGController
         if ($this->isLoaded('powermanagementtasks')) {
             $DBPowerManagementIDs = self::getSubObjectIDs(
                 'PowerManagement',
-                array('hostID'=>$this->get('id'))
+                ['hostID'=>$this->get('id')]
             );
             $RemovePowerManagementIDs = array_diff(
                 (array)$DBPowerManagementIDs,
@@ -618,14 +613,14 @@ class Host extends FOGController
             if (count($RemovePowerManagementIDs)) {
                 self::getClass('PowerManagementManager')
                     ->destroy(
-                        array(
+                        [
                             'hostID' => $this->get('id'),
                             'id' => $RemovePowerManagementIDs
-                        )
+                        ]
                     );
                 $DBPowerManagementIDs = self::getSubObjectIDs(
                     'PowerManagement',
-                    array('hostID' => $this->get('id'))
+                    ['hostID' => $this->get('id')]
                 );
                 unset($RemovePowerManagementIDs);
             }
@@ -674,11 +669,11 @@ class Host extends FOGController
     {
         return (bool)self::getClass('PrinterAssociationManager')
             ->count(
-                array(
+                [
                     'hostID' => $this->get('id'),
                     'printerID' => $printerid,
                     'isDefault' => 1
-                )
+                ]
             );
     }
     /**
@@ -693,21 +688,21 @@ class Host extends FOGController
     {
         self::getClass('PrinterAssociationManager')
             ->update(
-                array(
+                [
                     'printerID' => $this->get('printers'),
                     'hostID' => $this->get('id')
-                ),
+                ],
                 '',
-                array('isDefault' => 0)
+                ['isDefault' => 0]
             );
         self::getClass('PrinterAssociationManager')
             ->update(
-                array(
+                [
                     'printerID' => $printerid,
                     'hostID' => $this->get('id')
-                ),
+                ],
                 '',
-                array('isDefault' => $onoff)
+                ['isDefault' => $onoff]
             );
         return $this;
     }
@@ -728,13 +723,13 @@ class Host extends FOGController
                 $height
             ) = self::getSubObjectIDs(
                 'Service',
-                array(
-                    'name' => array(
+                [
+                    'name' => [
                         'FOG_CLIENT_DISPLAYMANAGER_R',
                         'FOG_CLIENT_DISPLAYMANAGER_X',
                         'FOG_CLIENT_DISPLAYMANAGER_Y'
-                    )
-                ),
+                    ]
+                ],
                 'value',
                 false,
                 'AND',
@@ -747,11 +742,11 @@ class Host extends FOGController
             $width = $this->get('hostscreen')->get('width');
             $height = $this->get('hostscreen')->get('height');
         }
-        self::$_hostscreen = array(
+        self::$_hostscreen = [
             'refresh' => $refresh,
             'width' => $width,
             'height' => $height
-        );
+        ];
     }
     /**
      * Gets the display values
@@ -847,11 +842,11 @@ class Host extends FOGController
     {
         $macs = self::getSubObjectIDs(
             'MACAddressAssociation',
-            array(
+            [
                 'hostID' => $this->get('id'),
                 'primary' => 0,
                 'pending' => 0,
-            ),
+            ],
             'mac'
         );
         $this->set('additionalMACs', $macs);
@@ -865,11 +860,11 @@ class Host extends FOGController
     {
         $macs = self::getSubObjectIDs(
             'MACAddressAssociation',
-            array(
+            [
                 'hostID' => $this->get('id'),
                 'primary' => 0,
                 'pending' => 1,
-            ),
+            ],
             'mac'
         );
         $this->set('pendingMACs', $macs);
@@ -883,12 +878,12 @@ class Host extends FOGController
     {
         $groups = self::getSubObjectIDs(
             'GroupAssociation',
-            array('hostID' => $this->get('id')),
+            ['hostID' => $this->get('id')],
             'groupID'
         );
         $groups = self::getSubObjectIDs(
             'Group',
-            array('id' => $groups)
+            ['id' => $groups]
         );
         $this->set('groups', $groups);
     }
@@ -914,12 +909,12 @@ class Host extends FOGController
     {
         $printers = self::getSubObjectIDs(
             'PrinterAssociation',
-            array('hostID' => $this->get('id')),
+            ['hostID' => $this->get('id')],
             'printerID'
         );
         $printers = self::getSubObjectIDs(
             'Printer',
-            array('id' => $printers)
+            ['id' => $printers]
         );
         $this->set('printers', $printers);
     }
@@ -945,12 +940,12 @@ class Host extends FOGController
     {
         $snapins = self::getSubObjectIDs(
             'SnapinAssociation',
-            array('hostID' => $this->get('id')),
+            ['hostID' => $this->get('id')],
             'snapinID'
         );
         $snapins = self::getSubObjectIDs(
             'Snapin',
-            array('id' => $snapins)
+            ['id' => $snapins]
         );
         $this->set('snapins', $snapins);
     }
@@ -976,12 +971,12 @@ class Host extends FOGController
     {
         $modules = self::getSubObjectIDs(
             'ModuleAssociation',
-            array('hostID' => $this->get('id')),
+            ['hostID' => $this->get('id')],
             'moduleID'
         );
         $modules = self::getSubObjectIDs(
             'Module',
-            array('id' => $modules)
+            ['id' => $modules]
         );
         $this->set('modules', $modules);
     }
@@ -994,7 +989,7 @@ class Host extends FOGController
     {
         $pms = self::getSubObjectIDs(
             'PowerManagement',
-            array('hostID' => $this->get('id'))
+            ['hostID' => $this->get('id')]
         );
         $this->set('powermanagementtasks', $pms);
     }
@@ -1007,7 +1002,7 @@ class Host extends FOGController
     {
         $users = self::getSubObjectIDs(
             'UserTracking',
-            array('hostID' => $this->get('id'))
+            ['hostID' => $this->get('id')]
         );
         $this->set('users', $users);
     }
@@ -1020,13 +1015,13 @@ class Host extends FOGController
     {
         $sjID = self::getSubObjectIDs(
             'SnapinJob',
-            array(
+            [
                 'stateID' => self::fastmerge(
                     self::getQueuedStates(),
                     (array)self::getProgressState()
                 ),
                 'hostID' => $this->get('id')
-            )
+            ]
         );
         $SnapinJob = new SnapinJob(@min($sjID));
         $this->set('snapinjob', $SnapinJob);
@@ -1043,10 +1038,10 @@ class Host extends FOGController
             self::getQueuedStates(),
             (array)self::getProgressState()
         );
-        $types = array(
+        $types = [
             'up',
             'down'
-        );
+        ];
         $type = filter_input(INPUT_POST, 'type');
         if (!$type) {
             $type = filter_input(INPUT_GET, 'type');
@@ -1054,15 +1049,15 @@ class Host extends FOGController
         $type = trim($type);
         if (in_array($type, $types)) {
             if ($type === 'up') {
-                $find['typeID'] = array(2, 16);
+                $find['typeID'] = [2, 16];
             } else {
-                $find['typeID'] = array(
+                $find['typeID'] = [
                     1,
                     8,
                     15,
                     17,
                     24
-                );
+                ];
             }
         }
         $taskID = self::getSubObjectIDs(
@@ -1093,13 +1088,13 @@ class Host extends FOGController
      */
     public function getActiveTaskCount()
     {
-        $find = array(
+        $find = [
             'stateID' => self::fastmerge(
                 self::getQueuedStates(),
                 (array)self::getProgressState()
             ),
             'hostID' => $this->get('id')
-        );
+        ];
         $count = self::getClass('TaskManager')
             ->count($find);
         return (int)$count;
@@ -1180,57 +1175,57 @@ class Host extends FOGController
     {
         $SnapinJobs = self::getSubObjectIDs(
             'SnapinJob',
-            array(
+            [
                 'hostID' => $this->get('id'),
                 'stateID' => self::fastmerge(
                     self::getQueuedStates(),
                     (array)self::getProgressState()
                 )
-            )
+            ]
         );
         self::getClass('SnapinTaskManager')
             ->update(
-                array(
+                [
                     'jobID' => $SnapinJobs,
                     'stateID' => self::fastmerge(
                         self::getQueuedStates(),
                         (array)self::getProgressState()
                     )
-                ),
+                ],
                 '',
-                array(
+                [
                     'return' => -9999,
                     'details' => _('Cancelled due to new tasking.'),
                     'stateID' => self::getCancelledState()
-                )
+                ]
             );
         self::getClass('SnapinJobManager')
             ->update(
-                array('id' => $SnapinJobs),
+                ['id' => $SnapinJobs],
                 '',
-                array('stateID' => self::getCancelledState())
+                ['stateID' => self::getCancelledState()]
             );
         $AllTasks = self::getSubObjectIDs(
             'Task',
-            array(
+            [
                 'stateID' => self::fastmerge(
                     self::getQueuedStates(),
                     (array)self::getProgressState()
                 ),
                 'hostID' => $this->get('id')
-            )
+            ]
         );
         $MyTask = $this->get('task')->get('id');
         self::getClass('TaskManager')
             ->update(
-                array(
+                [
                     'id' => array_diff(
                         (array)$AllTasks,
                         (array)$MyTask
                     )
-                ),
+                ],
                 '',
-                array('stateID' => self::getCancelledState())
+                ['stateID' => self::getCancelledState()]
             );
     }
     /**
@@ -1262,17 +1257,17 @@ class Host extends FOGController
                     throw new Exception(_('Failed to create Snapin Job'));
                 }
             }
-            $insert_fields = array('jobID', 'stateID', 'snapinID');
-            $insert_values = array();
+            $insert_fields = ['jobID', 'stateID', 'snapinID'];
+            $insert_values = [];
             if ($snapin == -1) {
                 $snapin = $this->get('snapins');
             }
             foreach ((array)$snapin as &$snapinID) {
-                $insert_values[] = array(
+                $insert_values[] = [
                     $SnapinJob->get('id'),
                     $this->getQUeuedState(),
                     $snapinID
-                );
+                ];
                 unset($snapinID);
             }
             if (count($insert_values) > 0) {
@@ -1335,13 +1330,13 @@ class Host extends FOGController
                     if ($TaskType->get('id') == '13') {
                         $currSnapins = self::getSubObjectIDs(
                             'SnapinTask',
-                            array(
+                            [
                                 'jobID' => $this->get('snapinjob')->get('id'),
                                 'stateID' => self::fastmerge(
                                     (array)$this->getQueuedStates(),
                                     (array)$this->getProgressState()
                                 ),
-                            ),
+                            ],
                             'snapinID'
                         );
                         if (!in_array($deploySnapins, $currSnapins)) {
@@ -1398,11 +1393,11 @@ class Host extends FOGController
                 $imageTaskImgID = $this->get('imageID');
                 $hostsWithImgID = self::getSubObjectIDs(
                     'Host',
-                    array('imageID' => $imageTaskImgID)
+                    ['imageID' => $imageTaskImgID]
                 );
                 $realImageID = self::getSubObjectIDs(
                     'Host',
-                    array('id' => $this->get('id')),
+                    ['id' => $this->get('id')],
                     'imageID'
                 );
                 if (!in_array($this->get('id'), $hostsWithImgID)) {
@@ -1462,19 +1457,19 @@ class Host extends FOGController
                 if ($sessionjoin) {
                     $MCSessions = self::getClass('MulticastSessionManager')
                         ->find(
-                            array(
+                            [
                                 'name' => $taskName,
                                 'stateID' => $showStates
-                            )
+                            ]
                         );
                     $assoc = true;
                 } else {
                     $MCSessions = self::getClass('MulticastSessionManager')
                         ->find(
-                            array(
+                            [
                                 'image' => $Image->get('id'),
                                 'stateID' => $showStates
-                            )
+                            ]
                         );
                 }
                 $MultiSessJoin = array_map(
@@ -1756,9 +1751,7 @@ class Host extends FOGController
         $limit = self::getSetting('FOG_SNAPIN_LIMIT');
         if ($limit > 0) {
             $snapinCount = self::getClass('SnapinManager')
-                ->count(
-                    array('id' => $this->get('snapins'))
-                );
+                ->count(['id' => $this->get('snapins')]);
             if ($snapinCount >= $limit || count($addArray) > $limit) {
                 $limitstr = sprintf(
                     '%s%s %s',
@@ -1869,7 +1862,7 @@ class Host extends FOGController
         if ($justme) {
             return self::getSubObjectIDs(
                 'MACAddressAssociation',
-                array('hostID' => $this->get('id')),
+                ['hostID' => $this->get('id')],
                 'mac'
             );
         }
@@ -1890,7 +1883,7 @@ class Host extends FOGController
     public function ignore($imageIgnore, $clientIgnore)
     {
         $MyMACs = $this->getMyMacs();
-        $myMACs = $igMACs = $cgMACs = array();
+        $myMACs = $igMACs = $cgMACs = [];
         $macaddress = function (&$mac) {
             if (!$mac instanceof MACAddress) {
                 $mac = new MACAddress($mac);
@@ -1911,48 +1904,48 @@ class Host extends FOGController
         $cgMACs = array_unique($cgMACs);
         self::getClass('MACAddressAssociationManager')
             ->update(
-                array(
+                [
                     'mac' => array_diff(
                         (array)$myMACs,
                         (array)$igMACs
                     ),
                     'hostID' => $this->get('id')
-                ),
+                ],
                 '',
-                array('imageIgnore' => 0)
+                ['imageIgnore' => 0]
             );
         self::getClass('MACAddressAssociationManager')
             ->update(
-                array(
+                [
                     'mac' => array_diff(
                         (array)$myMACs,
                         (array)$cgMACs
                     ),
                     'hostID'=>$this->get('id')
-                ),
+                ],
                 '',
-                array('clientIgnore' => 0)
+                ['clientIgnore' => 0]
             );
         if (count($igMACs) > 0) {
             self::getClass('MACAddressAssociationManager')
                 ->update(
-                    array(
+                    [
                         'mac' => $igMACs,
                         'hostID' => $this->get('id')
-                    ),
+                    ],
                     '',
-                    array('imageIgnore' => 1)
+                    ['imageIgnore' => 1]
                 );
         }
         if (count($cgMACs) > 0) {
             self::getClass('MACAddressAssociationManager')
                 ->update(
-                    array(
+                    [
                         'mac' => $cgMACs,
                         'hostID'=>$this->get('id')
-                    ),
+                    ],
                     '',
-                    array('clientIgnore' => 1)
+                    ['clientIgnore' => 1]
                 );
         }
     }

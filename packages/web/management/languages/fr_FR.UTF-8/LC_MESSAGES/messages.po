@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-21 16:52-0400\n"
+"POT-Creation-Date: 2018-03-21 19:33-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1096,8 +1096,142 @@ msgstr ""
 msgid "particular node"
 msgstr ""
 
+msgid "Edit Capone ID"
+msgstr ""
+
+#, fuzzy
+msgid "Global Options"
+msgstr "Options de démarrage:"
+
+#, fuzzy
+msgid "Export Capones"
+msgstr "Export SnapIns"
+
+#, fuzzy
+msgid "Import Capones"
+msgstr "Importer SnapIns"
+
+#, fuzzy
+msgid "Capone"
+msgstr "Capone Déployer"
+
 msgid "Capone Deploy"
 msgstr "Capone Déployer"
+
+msgid "Edit Capone"
+msgstr ""
+
+msgid "Image Name"
+msgstr "Nom de l'image"
+
+#, fuzzy
+msgid "Image OS"
+msgstr "Nom de l'image"
+
+#, fuzzy
+msgid "Search Key"
+msgstr "Chercher"
+
+#, fuzzy
+msgid "Create New Capone"
+msgstr "Créer un nouveau %s"
+
+msgid "Key to match"
+msgstr ""
+
+msgid "Create"
+msgstr "Créer"
+
+#, fuzzy
+msgid "Please select a valid image"
+msgstr "Sélectionnez une image valide"
+
+#, fuzzy
+msgid "The image associated does not have a valid OS!"
+msgstr "Le nœud de stockage des groupes de stockage associé est pas valide"
+
+#, fuzzy
+msgid "Add capone failed!"
+msgstr "Ajouter SnapIn a échoué!"
+
+#, fuzzy
+msgid "Capone added!"
+msgstr "Nom snapin"
+
+#, fuzzy
+msgid "Capone Create Success"
+msgstr "snapin mise à jour"
+
+#, fuzzy
+msgid "Capone Create Fail"
+msgstr "snapin mise à jour"
+
+msgid "Editing Capone ID"
+msgstr ""
+
+#, fuzzy
+msgid "Editing Global Capone Settings"
+msgstr "hôte description de"
+
+msgid "Reboot after deploy"
+msgstr ""
+
+#, fuzzy
+msgid "Shutdown after deploy"
+msgstr "a été détruit"
+
+msgid "DMI Field"
+msgstr ""
+
+#, fuzzy
+msgid "A dmi field must be set!"
+msgstr "Événement doit être une chaîne"
+
+#, fuzzy
+msgid "Unable to set dmi field"
+msgstr "Impossible d'ouvrir le fichier pour la lecture"
+
+#, fuzzy
+msgid "Unable to set action field"
+msgstr "Erreur serveur contactant"
+
+#, fuzzy
+msgid "Global settings updated!"
+msgstr "Emplacement Mise à jour"
+
+#, fuzzy
+msgid "Global Settings Update Success"
+msgstr "Installation / Mise à jour réussie!"
+
+#, fuzzy
+msgid "Global Settings Update Fail"
+msgstr "Paramètres mis à jour"
+
+#, fuzzy
+msgid "Capone update failed!"
+msgstr "mise à jour a échoué Snapin"
+
+#, fuzzy
+msgid "Capone updated!"
+msgstr "snapin mise à jour"
+
+#, fuzzy
+msgid "Capone Update Success"
+msgstr "Installation / Mise à jour réussie!"
+
+#, fuzzy
+msgid "Capone Update Fail"
+msgstr "mise à jour a échoué Snapin"
+
+msgid "Use the selector to choose how many items you want exported."
+msgstr ""
+
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
+msgstr ""
 
 #, fuzzy
 msgid "Completed imaging"
@@ -1137,9 +1271,6 @@ msgstr "Utilisateur / Nom de la chaîne"
 
 msgid "Slack User/Slack Channel"
 msgstr ""
-
-msgid "Create"
-msgstr "Créer"
 
 msgid "Must start with an @ or # for user or channel respsectively"
 msgstr ""
@@ -1280,16 +1411,6 @@ msgstr "Gestion des utilisateurs"
 #, fuzzy
 msgid "Windows Key Update Fail"
 msgstr "Gestion des utilisateurs"
-
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
 
 msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
@@ -2557,9 +2678,6 @@ msgstr "HD Dispositif"
 
 msgid "Image ID"
 msgstr "Image ID"
-
-msgid "Image Name"
-msgstr "Nom de l'image"
 
 msgid "Image Desc"
 msgstr "image Desc"
@@ -4105,10 +4223,6 @@ msgstr "Démarrez Multicast session"
 
 msgid "Please choose an image"
 msgstr "S'il vous plaît choisir une image"
-
-#, fuzzy
-msgid "Please select a valid image"
-msgstr "Sélectionnez une image valide"
 
 #, fuzzy
 msgid "Session with that name already exists!"

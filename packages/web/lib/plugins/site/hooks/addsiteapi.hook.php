@@ -73,7 +73,7 @@ class AddSiteAPI extends Hook
      */
     public function customizeDT($arguments)
     {
-        if (false === strpos($arguments['classname'], $this->node)) {
+        if ($arguments['classname'] != $this->node) {
             return;
         }
         $arguments['columns'][] = [

@@ -67,6 +67,35 @@ class Capone extends FOGController
         ]
     ];
     /**
+     * Gets the capone data for api.
+     *
+     * @var string
+     */
+    protected $sqlQueryStr = "SELECT `%s`
+        FROM `%s`
+        LEFT OUTER JOIN `images`
+        ON `capone`.`cImageID` = `images`.`imageID`
+        LEFT OUTER JOIN `os`
+        ON `images`.`imageOSID` = `os`.`osID`
+        %s
+        %s
+        %s";
+    /**
+     * Gets the filter str.
+     *
+     * @var string
+     */
+    protected $sqlFilterStr = "SELECT COUNT(`%s`)
+        FROM `%s`
+        %s";
+    /**
+     * Gets the total str.
+     *
+     * @var string
+     */
+    protected $sqlTotalStr = "SELECT COUNT(`%s`)
+        FROM `%s`";
+    /**
      * Returns the image object
      *
      * @return object

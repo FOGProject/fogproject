@@ -59,7 +59,68 @@ class AddCaponeAPI extends Hook
         self::$HookManager->register(
             'API_VALID_CLASSES',
             [$this, 'injectAPIElements']
+        )->register(
+            'CUSTOMIZE_DT_COLUMNS',
+            [$this, 'customizeDT']
         );
+    }
+    /**
+     * Customize our new columns.
+     *
+     * @param mixed $arguments The arguments to modify.
+     *
+     * @return void
+     */
+    public function customizeDT($arguments)
+    {
+        if ($arguments['classname'] != $this->node) {
+            return;
+        }
+        $arguments['columns'] = [];
+        foreach (self::getClass('CaponeManager')
+            ->getColumns() as $common => &$real
+        ) {
+            if ('id' == $common) {
+                $arguments['columns'][] = [
+                    'db' => $real,
+                    'dt' => $common,
+                    'formatter' => function ($d, $row) {
+                        return '<a href="../management/index.php?node='
+                            . 'capone&sub=edit&id='
+                            . $row['cID']
+                            . '">'
+                            . _('Edit Capone ID')
+                            . ': '
+                            . $row['cID']
+                            . '</a>';
+                    }
+                ];
+            } else {
+                $arguments['columns'][] = [
+                    'db' => $real,
+                    'dt' => $common
+                ];
+            }
+            unset($real);
+        }
+        foreach (self::getClass('ImageManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $arguments['columns'][] = [
+                'db' => $real,
+                'dt' => 'image' . $common
+            ];
+            unset($real);
+        }
+        foreach (self::getClass('OSManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $arguments['columns'][] = [
+                'db' => $real,
+                'dt' => 'os' . $common
+            ];
+            unset($real);
+        }
     }
     /**
      * This function injects site elements for
