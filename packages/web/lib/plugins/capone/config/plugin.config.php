@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-$fog_plugin = array();
+$fog_plugin = [];
 $fog_plugin['name'] = 'capone';
 $fog_plugin['description'] = 'Capone is a automation plugin for fog.';
 $fog_plugin['menuicon'] = 'fa fa-barcode fa-fw';

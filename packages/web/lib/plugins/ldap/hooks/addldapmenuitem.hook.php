@@ -114,7 +114,7 @@ class AddLDAPMenuItem extends Hook
      */
     public function addSearch($arguments)
     {
-        array_push($arguments['searchPages'], $this->node);
+        $arguments['searchPages'][] = $this->node;
     }
     /**
      * Adds the plugin page to use internalized objects
@@ -125,6 +125,6 @@ class AddLDAPMenuItem extends Hook
      */
     public function addPageWithObject($arguments)
     {
-        array_push($arguments['PagesWithObjects'], $this->node);
+        $arguments['PagesWithObjects'][] = $this->node;
     }
 }

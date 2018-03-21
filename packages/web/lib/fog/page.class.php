@@ -74,13 +74,13 @@ class Page extends FOGBase
      *
      * @var array
      */
-    protected $stylesheets = array();
+    protected $stylesheets = [];
     /**
      * The javascripts to add
      *
      * @var array
      */
-    protected $javascripts = array();
+    protected $javascripts = [];
     /**
      * Initializes the page element
      *
@@ -125,7 +125,7 @@ class Page extends FOGBase
         ) {
             $node = 'home';
         }
-        $homepages = array(
+        $homepages = [
             'home',
             'dashboard',
             'schema',
@@ -133,11 +133,11 @@ class Page extends FOGBase
             'ipxe',
             'login',
             'logout'
-        );
+        ];
         $this->isHomepage = in_array($node, $homepages)
             || !self::$FOGUser->isValid();
         FOGPage::buildMainMenuItems($this->menu);
-        $files = array(
+        $files = [
             'js/jquery.min.js',
             'js/lodash.min.js',
             'js/bootstrap.min.js',
@@ -162,7 +162,7 @@ class Page extends FOGBase
             'js/input-mask/jquery.inputmask.date.extensions.js',
             'js/bootstrap-slider/bootstrap-slider.js',
             'js/fog/fog.common.js',
-        );
+        ];
         if (!self::$FOGUser->isValid()) {
             $files[] = 'js/fog/fog.login.js';
         } else {
@@ -179,54 +179,43 @@ class Page extends FOGBase
             );
             $filepaths = [];
             if (empty($subset)) {
-                $filepaths = ["js/fog/{$node}/fog.{$node}.js"];
+                $filepaths = "js/fog/{$node}/fog.{$node}.js";
             } else {
-                $filepaths = ["js/fog/{$node}/fog.{$node}.{$subset}.js"];
+                $filepaths = "js/fog/{$node}/fog.{$node}.{$subset}.js";
             }
         }
-        array_map(
-            function (&$jsFilepath) use (&$files) {
-                if (file_exists($jsFilepath)) {
-                    array_push($files, $jsFilepath);
-                }
-                unset($jsFilepath);
-            },
-            (array)$filepaths
-        );
+        if (file_exists($filepaths)) {
+            $files[] = $filepaths;
+        }
         if ($this->isHomepage
             && self::$FOGUser->isValid()
             && ($node == 'home'
             || !$node)
         ) {
-            array_push($files, 'js/fog/dashboard/fog.dashboard.js');
+            $files[] = 'js/fog/dashboard/fog.dashboard.js';
             $test = preg_match(
                 '#MSIE [6|7|8|9|10|11]#',
                 self::$useragent
             );
             if ($test) {
-                array_push(
-                    $files,
-                    'js/flot/excanvas.js'
-                );
+                $files[] = 'js/flot/excanvas.js';
             }
         }
         if ($node === 'schema') {
-            array_push($files, 'js/fog/schema/fog.schema.js');
+            $files[] = 'js/fog/schema/fog.schema.js';
         }
         self::$HookManager->processEvent(
             'PAGE_JS_FILES',
             ['files' => &$files]
         );
         $files = array_unique((array)$files);
-        array_map(
-            function (&$path) {
-                if (file_exists($path)) {
-                    $this->addJavascript($path);
-                }
-                unset($path);
-            },
-            (array)$files
-        );
+        foreach ($files as &$path) {
+            if (!file_exists($path)) {
+                continue;
+            }
+            $this->addJavascript($path);
+            unset($path);
+        }
     }
     /**
      * Sets the title

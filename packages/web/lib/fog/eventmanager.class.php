@@ -34,7 +34,7 @@ class EventManager extends FOGBase
      *
      * @var array
      */
-    public $data = array();
+    public $data = [];
     /**
      * The events to work from.
      *
@@ -66,14 +66,14 @@ class EventManager extends FOGBase
                     throw new Exception(_('Class must extend event'));
                 }
                 if (!isset($this->data[$event])) {
-                    $this->data[$event] = array();
+                    $this->data[$event] = [];
                 }
                 array_push($this->data[$event], $listener);
                 break;
             case 'HookManager':
                 if (!is_array($listener) || count($listener) !== 2) {
                     throw new Exception(
-                        _('Second paramater must be in array(class,function)')
+                        _('Second paramater must be in [class,function]')
                     );
                 }
                 if (!($listener[0] instanceof Hook)) {
@@ -127,7 +127,7 @@ class EventManager extends FOGBase
      *
      * @return bool
      */
-    public function notify($event, $eventData = array())
+    public function notify($event, $eventData = [])
     {
         $exists = self::getClass('NotifyEventManager')->exists(
             $event,

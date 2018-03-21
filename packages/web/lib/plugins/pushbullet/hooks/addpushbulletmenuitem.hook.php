@@ -94,7 +94,7 @@ class AddPushbulletMenuItem extends Hook
      */
     public function addPageWithObject($arguments)
     {
-        array_push($arguments['PagesWithObjects'], $this->node);
+        $arguments['PagesWithObjects'][] = $this->node;
     }
     /**
      * Inserts the search
@@ -105,6 +105,6 @@ class AddPushbulletMenuItem extends Hook
      */
     public function addSearch($arguments)
     {
-        array_push($arguments['searchPages'], $this->node);
+        $arguments['searchPages'][] = $this->node;
     }
 }

@@ -34,9 +34,9 @@ class Location_Report extends ReportManagement
 
         $obj = self::getClass('LocationManager');
         foreach ($obj->getColumns() as $common => &$real) {
-            array_push($this->headerData, $common);
-            array_push($this->templates, '');
-            array_push($this->attributes, []);
+            $this->headerData[] = $common;
+            $this->templates[] = '';
+            $this->attributes[] = [];
             unset($real);
         }
 

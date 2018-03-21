@@ -53,14 +53,13 @@ class AddBootMenuItem extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'BOOT_MENU_ITEM',
-                array(
-                    $this,
-                    'addBootMenuItem'
-                )
-            );
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        self::$HookManager->register(
+            'BOOT_MENU_ITEM',
+            [$this, 'addBootMenuItem']
+        );
     }
     /**
      * Creates the storage node.
@@ -69,9 +68,6 @@ class AddBootMenuItem extends Hook
      */
     public function addBootMenuItem()
     {
-        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-            return;
-        }
         $dmi = self::getSetting('FOG_PLUGIN_CAPONE_DMI');
         $shutdown = self::getSetting('FOG_PLUGIN_CAPONE_SHUTDOWN');
         if (!$dmi) {
@@ -94,7 +90,7 @@ class AddBootMenuItem extends Hook
         }
         $setArgs = explode(' ', trim($entry->get('args')));
         $neededArgs = explode(' ', trim($args));
-        $sureArgs = array();
+        $sureArgs = [];
         foreach ((array)$setArgs as &$arg) {
             if (!preg_match('#^dmi=#', $arg)) {
                 $sureArgs[] = $arg;

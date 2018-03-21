@@ -35,16 +35,7 @@ class SiteManagement extends FOGPage
          * The name to give.
          */
         $this->name = 'Site Management';
-        /**
-         * Add this page to the PAGES_WITH_OBJECTS hook event.
-         */
-        self::$HookManager->processEvent(
-            'PAGES_WITH_OBJECTS',
-            ['PagesWithObjects' => &$this->PagesWithObjects]
-        );
         parent::__construct($this->name);
-        self::$foglang['ExportSite'] = _('Export Sites');
-        self::$foglang['ImportSite'] = _('Import Sites');
         $this->headerData = [
             _('Name'),
             _('Host Count'),
@@ -719,9 +710,9 @@ class SiteManagement extends FOGPage
             if ('id' == $common) {
                 continue;
             }
-            array_push($this->headerData, $common);
-            array_push($this->templates, '');
-            array_push($this->attributes, []);
+            $this->headerData[] = $common;
+            $this->templates[] = '';
+            $this->attributes[] = [];
             unset($real);
         }
 

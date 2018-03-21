@@ -111,12 +111,6 @@ class AddWindowsKeyJS extends Hook
         default:
             return;
         }
-        array_map(
-            function (&$jsFilepath) use ($arguments) {
-                array_push($arguments['files'], $jsFilepath);
-                unset($jsFilepath);
-            },
-            (array)$filepaths
-        );
+        $arguments['files'][] = $filepaths;
     }
 }

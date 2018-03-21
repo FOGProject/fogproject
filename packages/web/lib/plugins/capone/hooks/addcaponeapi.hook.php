@@ -21,9 +21,29 @@
  */
 class AddCaponeAPI extends Hook
 {
+    /**
+     * Name of the hook.
+     *
+     * @var string
+     */
     public $name = 'AddCaponeAPI';
+    /**
+     * Description of the hook.
+     *
+     * @var string
+     */
     public $description = 'Add Capone stuff into the api system.';
+    /**
+     * For posterity
+     *
+     * @var bool
+     */
     public $active = true;
+    /**
+     * The node this plugin works with.
+     *
+     * @var string
+     */
     public $node = 'capone';
     /**
      * Initialize object.
@@ -51,9 +71,6 @@ class AddCaponeAPI extends Hook
      */
     public function injectAPIElements($arguments)
     {
-        $arguments['validClasses'] = self::fastmerge(
-            $arguments['validClasses'],
-            ['capone']
-        );
+        $arguments['validClasses'][] = $this->node;
     }
 }
