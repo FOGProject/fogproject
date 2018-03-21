@@ -156,12 +156,6 @@ class FOGPageManager extends FOGBase
             if ($this->classValue == 'schema') {
                 $this->methodValue = 'index';
             }
-            if (empty($method) || !method_exists($class, $method)) {
-                $method = 'index';
-            }
-            $displayScreen = self::$defaultscreen;
-            $displayScreen = strtolower($displayScreen);
-            $displayScreen = trim($displayScreen);
             if (!array_key_exists($this->classValue, $this->_nodes)) {
                 throw new Exception(_('No FOGPage Class found for this node'));
             }
@@ -175,7 +169,6 @@ class FOGPageManager extends FOGBase
             }
             if ($this->classValue != 'schema'
                 && $method == 'index'
-                && $displayScreen != 'list'
                 && $this->methodValue != 'list'
                 && method_exists($class, 'search')
                 && in_array($class->node, self::$searchPages)
@@ -187,6 +180,9 @@ class FOGPageManager extends FOGBase
             }
             if (self::$post && method_exists($class, $method.'Post')) {
                 $method = $this->methodValue.'Post';
+            }
+            if (empty($method) || !method_exists($class, $method)) {
+                $method = 'index';
             }
         } catch (Exception $e) {
             $this->debug(

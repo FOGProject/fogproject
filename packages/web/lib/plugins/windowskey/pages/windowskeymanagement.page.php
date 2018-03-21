@@ -1,49 +1,46 @@
 <?php
 /**
- * Access Control plugin
+ * Windows Keys management page.
  *
- * PHP version 7
+ * PHP version 5
  *
- * @category AccessControlManagementPage
+ * @category WindowsKeyManagement
  * @package  FOGProject
- * @author   Fernando Gietz <fernando.gietz@gmail.com>
+ * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Access Control plugin
+ * Windows Keys management page.
  *
- * @category AccessControlManagementPage
+ * @category WindowsKeyManagement
  * @package  FOGProject
- * @author   Fernando Gietz <fernando.gietz@gmail.com>
+ * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class AccessControlManagementPage extends FOGPage
+class WindowsKeyManagement extends FOGPage
 {
     /**
-     * The node of this page.
+     * The node this page operates on.
      *
      * @var string
      */
-    public $node = 'accesscontrol';
+    public $node = 'windowskey';
     /**
-     * Constructor
+     * Initializes the Windows key management page.
      *
-     * @param string $name The name for the page.
+     * @param string $name Something to lay it out as.
      *
      * @return void
      */
     public function __construct($name = '')
     {
-        /**
-         * The name to give.
-         */
-        $this->name = 'Role Management';
+        $this->name = 'Windows Key Management';
         parent::__construct($this->name);
         $this->headerData = [
-            _('Role Name'),
-            _('Role Description')
+            _('Windows Key Name'),
+            _('Product Key')
         ];
         $this->templates = [
             '',
@@ -55,43 +52,57 @@ class AccessControlManagementPage extends FOGPage
         ];
     }
     /**
-     * Create new role.
+     * Show form for creating a new windows key entry.
      *
      * @return void
      */
     public function add()
     {
-        $this->title = _('Create New Role');
+        $this->title = _('Create New Windows Key');
 
-        $role = filter_input(INPUT_POST, 'role');
+        $windowskey = filter_input(INPUT_POST, 'windowskey');
         $description = filter_input(INPUT_POST, 'description');
+        $key = filter_input(INPUT_POST, 'key');
 
         $labelClass = 'col-sm-2 control-label';
 
         $fields = [
             self::makeLabel(
                 $labelClass,
-                'role',
-                _('Role Name')
+                'windowskey',
+                _('Windows Key Name')
             ) => self::makeInput(
-                'form-control rolename-input',
-                'role',
-                _('Access Control Name'),
+                'form-control windowskeyname-input',
+                'windowskey',
+                _('Windows 10 Professional'),
                 'text',
-                'role',
-                $role,
+                'windowskey',
+                $windowskey,
                 true
             ),
-            self::makelabel(
+            self::makeLabel(
                 $labelClass,
                 'description',
-                _('Role Description')
+                _('Windows Key Description')
             ) => self::makeTextarea(
-                'form-control roledescription-input',
+                'form-control windowskeydescription-name',
                 'description',
-                _('Role Description'),
+                _('Windows Key Description'),
                 'description',
                 $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'key',
+                _('Windows Product key')
+            ) => self::makeInput(
+                'form-control windowsproductkey-input',
+                'key',
+                '',
+                'text',
+                'key',
+                $key,
+                true
             )
         ];
 
@@ -102,11 +113,11 @@ class AccessControlManagementPage extends FOGPage
         );
 
         self::$HookManager->processEvent(
-            'ACCESSCONTROL_ADD_FIELDS',
+            'WINDOWSKEY_ADD_FIELDS',
             [
                 'fields' => &$fields,
-                'button' => &$buttons,
-                'AccessControl' => self::getClass('AccessControl')
+                'buttons' => &$buttons,
+                'WindowsKey' => self::getClass('WindowsKey')
             ]
         );
         $rendered = self::formFields($fields);
@@ -114,18 +125,18 @@ class AccessControlManagementPage extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'role-create-form',
+            'windowskey-create-form',
             $this->formAction,
             'post',
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid" id="role-create">';
+        echo '<div class="box box-solid" id="windowskey-create">';
         echo '<div class="box-body">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Create New Role');
+        echo _('Create New Windows Key');
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
@@ -133,52 +144,54 @@ class AccessControlManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="box-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
         echo '</form>';
     }
     /**
-     * Add post.
+     * Actually create the windows key.
      *
      * @return void
      */
     public function addPost()
     {
         header('Content-type: application/json');
-        self::$HookManger->processEvent('ACCESSCONTROL_ADD_POST');
-        $role = trim(
-            filter_input(INPUT_POST, 'role')
+        self::$HookManager->processEvent('WINDOWSKEY_ADD_POST');
+        $windowskey = trim(
+            filter_input(INPUT_POST, 'windowskey')
         );
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
+        $key = trim(
+            filter_input(INPUT_POST, 'key')
+        );
+
         $serverFault = false;
         try {
-            if (!$role) {
+            $exists = self::getClass('WindowsKeyManager')
+                ->exists($windowskey);
+            if ($exists) {
                 throw new Exception(
-                    _('A role name is required!')
+                    _('A Windows Key already exists with this name!')
                 );
             }
-            if (self::getClass('AccessControlManager')->exists($role)) {
-                throw new Exception(
-                    _('A role already exists with this name!')
-                );
-            }
-            $AccessControl = self::getClass('AccessControl')
-                ->set('name', $role)
-                ->set('description', $description);
-            if (!$AccessControl->save()) {
+            $WindowsKey = self::getClass('WindowsKey')
+                ->set('name', $windowskey)
+                ->set('description', $description)
+                ->set('key', $key);
+            if (!$WindowsKey->save()) {
                 $serverFault = true;
-                throw new Exception(_('Add access control failed!'));
+                throw new Exception(_('Add windows key failed!'));
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'ACCESSCONTROL_ADD_SUCCESS';
+            $hook = 'WINDOWSKEY_ADD_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Access Control added!'),
-                    'title' => _('Access Control Create Success')
+                    'msg' => _('Windows Key added!'),
+                    'title' => _('Windows Key Create Success')
                 ]
             );
         } catch (Exception $e) {
@@ -187,75 +200,108 @@ class AccessControlManagementPage extends FOGPage
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $hook = 'ACCESSCONTROL_ADD_FAIL';
+            $hook = 'WINDOWSKEY_ADD_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Access Control Create Fail')
+                    'title' => _('Windows Key Create Fail')
                 ]
             );
         }
         //header(
-        //    'Location: ../management/index.php?node=accesscontrol&sub=edit&id='
-        //    . $AccessControl->get('id')
+        //    'Location: ../management/index.php?node=windowskey&sub=edit&id='
+        //    . $WindowsKey->get('id')
         //);
         self::$HookManager->processEvent(
             $hook,
             [
-                'AccessControl' => &$AccessControl,
+                'WindowsKey' => &$WindowsKey,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
                 'serverFault' => &$serverFault
             ]
         );
-        http_response_Code($code);
-        unset($AccessControl);
+        http_response_code($code);
+        unset($WindowsKey);
         echo $msg;
         exit;
     }
     /**
-     * Displays the access control general tab.
+     * Display Windows Key General information.
      *
      * @return void
      */
-    public function roleGeneral()
+    public function windowsKeyGeneral()
     {
-        $role = (
-            filter_input(INPUT_POST, 'role') ?:
-            $this->obj->get('name')
+        $windowskey = (
+            filter_input(
+                INPUT_POST,
+                'windowskey'
+            ) ?: $this->obj->get('name')
         );
         $description = (
-            filter_input(INPUT_POST, 'description') ?:
-            $this->obj->get('description')
+            filter_input(
+                INPUT_POST,
+                'description'
+            ) ?: $this->obj->get('description')
         );
+        $key = (
+            filter_input(
+                INPUT_POST,
+                'key'
+            ) ?: $this->obj->get('key')
+        );
+        // For compatibility
+        $keytest = self::aesdecrypt($key);
+        $test_base64 = base64_decode($keytest);
+        $keyb64 = mb_detect_encoding($test_base64, 'utf-8', true);
+        $keyenc = mb_detect_encoding($keytest, 'utf-8', true);
+        if ($keyb64) {
+            $key = $test_base64;
+        } else if ($keyenc) {
+            $key = $keytest;
+        }
 
         $labelClass = 'col-sm-2 control-label';
 
         $fields = [
             self::makeLabel(
                 $labelClass,
-                'role',
-                _('Role Name')
+                'windowskey',
+                _('Windows Key Name')
             ) => self::makeInput(
-                'form-control rolename-input',
-                'role',
-                _('Access Control Name'),
+                'form-control windowskeyname-input',
+                'windowskey',
+                _('Windows 10 Professional'),
                 'text',
-                'role',
-                $role,
+                'windowskey',
+                $windowskey,
                 true
             ),
-            self::makelabel(
+            self::makeLabel(
                 $labelClass,
                 'description',
-                _('Role Description')
+                _('Windows Key Description')
             ) => self::makeTextarea(
-                'form-control roledescription-input',
+                'form-control windowskeydescription-name',
                 'description',
-                _('Role Description'),
+                _('Windows Key Description'),
                 'description',
                 $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'key',
+                _('Windows Product key')
+            ) => self::makeInput(
+                'form-control windowsproductkey-input',
+                'key',
+                '',
+                'text',
+                'key',
+                $key,
+                true
             )
         ];
 
@@ -271,11 +317,11 @@ class AccessControlManagementPage extends FOGPage
         );
 
         self::$HookManager->processEvent(
-            'ACCESSCONTROL_GENERAL_FIELDS',
+            'WINDOWSKEY_GENERAL_FIELDS',
             [
                 'fields' => &$fields,
                 'buttons' => &$buttons,
-                'AccessControl' => &$this->obj
+                'WindowsKey' => &$this->obj
             ]
         );
 
@@ -284,9 +330,9 @@ class AccessControlManagementPage extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'role-general-form',
+            'windowskey-general-form',
             self::makeTabUpdateURL(
-                'role-general',
+                'windowskey-general',
                 $this->obj->get('id')
             ),
             'post',
@@ -297,37 +343,62 @@ class AccessControlManagementPage extends FOGPage
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div class="box-footer">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
         echo '</form>';
     }
     /**
-     * Updates the access control general element.
+     * Updates the windows key general area.
      *
      * @return void
      */
-    public function roleGeneralPost()
+    public function windowsKeyGeneralPost()
     {
-        $role = trim(
-            filter_input(INPUT_POST, 'role')
+        $windowskey = trim(
+            filter_input(INPUT_POST, 'windowskey')
         );
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
+        $key = trim(
+            filter_input(INPUT_POST, 'key')
+        );
 
-        if ($role != $this->obj->get('name')
-            && self::getClass('AccessControlManager')->exists($role)
+        $exists = self::getClass('WindowsKeyManager')
+            ->exists($windowskey);
+        if ($windowskey != $this->obj->get('name')
+            && $exists
         ) {
-            throw new Exception(_('A role with this name already exists!'));
+            throw new Exception(
+                _('A Windows Key already exists with this name!')
+            );
         }
         $this->obj
-            ->set('name', $role)
-            ->set('description', $description);
+            ->set('name', $windowskey)
+            ->set('description', $description)
+            ->set('key', $key);
     }
     /**
-     * The edit element.
+     * Presents the membership information
+     *
+     * @return void
+     */
+    public function windowsKeyImages()
+    {
+        echo 'TODO: Make Functional';
+    }
+    /**
+     * Commonized membership actions
+     *
+     * @return void
+     */
+    public function windowsKeyImagePost()
+    {
+    }
+    /**
+     * Present the windows key to edit the page.
      *
      * @return void
      */
@@ -341,19 +412,34 @@ class AccessControlManagementPage extends FOGPage
 
         $tabData = [];
 
-        // General
         $tabData[] = [
             'name' => _('General'),
-            'id' => 'role-general',
+            'id' => 'windowskey-general',
             'generator' => function () {
-                $this->roleGeneral();
+                $this->windowsKeyGeneral();
             }
         ];
 
-        echo self::tabFields($tabData);
+        // Associations
+        $tabData[] = [
+            'tabs' => [
+                'name' => _('Associations'),
+                'tabData' => [
+                    [
+                        'name' => _('Images'),
+                        'id' => 'windowskey-images',
+                        'generator' => function () {
+                            $this->windowsKeyImages();
+                        }
+                    ]
+                ]
+            ]
+        ];
+
+        echo self::tabFields($tabData, $this->obj);
     }
     /**
-     * Update the edit elements.
+     * Actually update the windows key.
      *
      * @return void
      */
@@ -361,27 +447,32 @@ class AccessControlManagementPage extends FOGPage
     {
         header('Content-type: application/json');
         self::$HookManager->processEvent(
-            'ROLE_EDIT_POST',
-            ['AccessControl' => &$this->obj]
+            'WINDOWSKEY_EDIT_POST',
+            ['WindowsKey' => &$this->obj]
         );
+
         $serverFault = false;
-        try{
+        try {
             global $tab;
             switch ($tab) {
-            case 'role-general':
-                $this->roleGeneralPost();
+            case 'windowskey-general':
+                $this->windowsKeyGeneralPost();
+                break;
+            case 'windowskey-images':
+                $this->windowsKeyImagePost();
                 break;
             }
+
             if (!$this->obj->save()) {
                 $serverFault = true;
-                throw new Exception(_('Role update failed!'));
+                throw new Exception(_('Windows Key update failed!'));
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'ROLE_EDIT_SUCCESS';
+            $hook = 'WINDOWSKEY_EDIT_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Role updated!'),
-                    'title' => _('Rule Update Success')
+                    'msg' => _('Windows Key updated!'),
+                    'title' => _('Windows Key Update Success')
                 ]
             );
         } catch (Exception $e) {
@@ -390,18 +481,19 @@ class AccessControlManagementPage extends FOGPage
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $hook = 'ROLE_EDIT_FAIL';
+            $hook = 'WINDOWSKEY_EDIT_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Role Update Fail')
+                    'title' => _('Windows Key Update Fail')
                 ]
             );
         }
+
         self::$HookManager->processEvent(
             $hook,
             [
-                'AccessControl' => &$this->obj,
+                'WindowsKey' => &$this->obj,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
@@ -424,7 +516,7 @@ class AccessControlManagementPage extends FOGPage
         $this->templates = [];
         $this->attributes = [];
 
-        $obj = self::getClass('AccessControlManager');
+        $obj = self::getClass('WindowsKeyManager');
 
         foreach ($obj->getColumns() as $common => &$real) {
             if ('id' == $common) {
@@ -436,12 +528,12 @@ class AccessControlManagementPage extends FOGPage
             unset($real);
         }
 
-        $this->title = _('Export Rules');
+        $this->title = _('Export Windows Keys');
 
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Export Roles');
+        echo _('Export Windows Keys');
         echo '</h4>';
         echo '<p class="help-block">';
         echo _('Use the selector to choose how many items you want exported.');
@@ -456,7 +548,7 @@ class AccessControlManagementPage extends FOGPage
             . 'of items you would like to export.'
         );
         echo '</p>';
-        $this->render(12, 'role-export-table');
+        $this->render(12, 'windowskey-export-table');
         echo '</div>';
         echo '</div>';
     }
@@ -468,7 +560,7 @@ class AccessControlManagementPage extends FOGPage
     public function getExportList()
     {
         header('Content-type: application/json');
-        $obj = self::getClass('AccessControlManager');
+        $obj = self::getClass('WindowsKeyManager');
         $table = $obj->getTable();
         $sqlstr = $obj->getQueryStr();
         $filterstr = $obj->getFilterStr();
@@ -493,7 +585,7 @@ class AccessControlManagementPage extends FOGPage
             unset($real);
         }
         self::$HookManager->processEvent(
-            'ROLE_EXPORT_ITEMS',
+            'WINDOWSKEY_EXPORT_ITEMS',
             [
                 'table' => &$table,
                 'sqlstr' => &$sqlstr,

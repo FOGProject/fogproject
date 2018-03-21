@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category ImageManagementPage
+ * @category ImageManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,13 +13,13 @@
 /**
  * Image management page
  *
- * @category ImageManagementPage
+ * @category ImageManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class ImageManagementPage extends FOGPage
+class ImageManagement extends FOGPage
 {
     /**
      * The node this works off of.

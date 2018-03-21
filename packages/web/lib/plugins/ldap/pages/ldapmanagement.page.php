@@ -25,7 +25,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class LDAPManagementPage extends FOGPage
+class LDAPManagement extends FOGPage
 {
     /**
      * The node that uses this page

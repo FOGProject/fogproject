@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class Location_Report extends ReportManagementPage
+class Location_Report extends ReportManagement
 {
     /**
      * The page to display.

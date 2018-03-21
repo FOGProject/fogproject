@@ -97,12 +97,14 @@ abstract class FOGPage extends FOGBase
     public $PagesWithObjects = [
         'user',
         'host',
-        'image',
         'group',
-        'snapin',
-        'printer',
+        'image',
         'storagenode',
-        'storagegroup'
+        'storagegroup',
+        'snapin',
+        'plugin',
+        'printer',
+        'task'
     ];
     /**
      * The items table
@@ -644,7 +646,7 @@ abstract class FOGPage extends FOGBase
             $reportlink = "../management/index.php?node={$node}&sub=file&f=";
             $menu = [];
             $menu['home'] = self::$foglang['Home'];
-            foreach (ReportManagementPage::loadCustomReports() as &$report) {
+            foreach (ReportManagement::loadCustomReports() as &$report) {
                 $item = [];
                 foreach (explode(' ', strtolower($report)) as &$rep) {
                     $item[] = ucfirst(trim($rep));

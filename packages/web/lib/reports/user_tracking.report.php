@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class User_Tracking extends ReportManagementPage
+class User_Tracking extends ReportManagement
 {
     /**
      * The page to display.

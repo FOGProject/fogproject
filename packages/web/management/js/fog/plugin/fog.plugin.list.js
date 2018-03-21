@@ -4,10 +4,17 @@
         passwordField = $('#deletePassword'),
         confirmDelete = $('#confirmDeleteModal'),
         cancelDelete = $('#closeDeleteModal'),
-        numUserString = confirmDelete.val();
+        numPluginString = confirmDelete.val(),
+        activateBtn = $('#activate'),
+        installBtn = $('#install'),
+        deactivateBtn = $('#deactivate'),
+        removeBtn = $('#remove');
 
     function disableButtons(disable) {
-        deleteSelected.prop('disabled', disable);
+        activateBtn.prop('disabled', disable);
+        installBtn.prop('disabled', disable);
+        deactivateBtn.prop('disabled', disable);
+        removeBtn.prop('disabled', disable);
     }
     function onSelect(selected) {
         var disabled = selected.count() == 0;
@@ -76,15 +83,84 @@
         table.search(Common.search).draw();
     }
 
-    deleteSelected.on('click', function() {
+    activateBtn.on('click', function(e) {
+        e.preventDefault();
         disableButtons(true);
-        confirmDelete.val(numUserString.format(''));
-        Common.massDelete(null, function(err) {
-            if (err.status == 401) {
-                deleteModal.modal('show');
-            } else {
-                onSelect(table.rows({selected: true}));
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = table.rows({selected: true}),
+            toActivate = Common.getSelectedIds(table),
+            opts = {
+                plugins: toActivate,
+                btnpressed: 1
+            };
+        Common.apiCall(method, action, opts, function(err) {
+            disableButtons(false);
+            if (err) {
+                return;
             }
-        }, table);
+            table.draw(false);
+            table.rows({selected: true}).deselect();
+        });
+    });
+    deactivateBtn.on('click', function(e) {
+        e.preventDefault();
+        disableButtons(true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = table.rows({selected: true}),
+            toDeactivate = Common.getSelectedIds(table),
+            opts = {
+                plugins: toDeactivate,
+                btnpressed: 1
+            };
+        Common.apiCall(method, action, opts, function(err) {
+            disableButtons(false);
+            if (err) {
+                return;
+            }
+            table.draw(false);
+            table.rows({selected: true}).deselect();
+        });
+    });
+    installBtn.on('click', function(e) {
+        e.preventDefault();
+        disableButtons(true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = table.rows({selected: true}),
+            toInstall = Common.getSelectedIds(table),
+            opts = {
+                plugins: toInstall,
+                btnpressed: 1
+            };
+        Common.apiCall(method, action, opts, function(err) {
+            disableButtons(false);
+            if (err) {
+                return;
+            }
+            table.draw(false);
+            table.rows({selected: true}).deselect();
+        });
+    });
+    removeBtn.on('click', function(e) {
+        e.preventDefault();
+        disableButtons(true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = table.rows({selected: true}),
+            toRemove = Common.getSelectedIds(table),
+            opts = {
+                plugins: toRemove,
+                btnpressed: 1
+            };
+        Common.apiCall(method, action, opts, function(err) {
+            disableButtons(false);
+            if (err) {
+                return;
+            }
+            table.draw(false);
+            table.rows({selected: true}).deselect();
+        });
     });
 })(jQuery);

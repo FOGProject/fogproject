@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category UserManagementPage
+ * @category UserManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,13 +13,13 @@
 /**
  * User management page.
  *
- * @category UserManagementPage
+ * @category UserManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class UserManagementPage extends FOGPage
+class UserManagement extends FOGPage
 {
     /**
      * The node this works off of.

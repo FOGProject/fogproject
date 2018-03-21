@@ -6,7 +6,7 @@
  *
  * The group represented to the GUI
  *
- * @category GroupManagementPage
+ * @category GroupManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -17,13 +17,13 @@
  *
  * The group represented to the GUI
  *
- * @category GroupManagementPage
+ * @category GroupManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class GroupManagementPage extends FOGPage
+class GroupManagement extends FOGPage
 {
     private static $_common = [];
     /**

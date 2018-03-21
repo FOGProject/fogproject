@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class Hosts_And_Users extends ReportManagementPage
+class Hosts_And_Users extends ReportManagement
 {
     /**
      * The page to display.

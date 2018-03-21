@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class Product_Keys extends ReportManagementPage
+class Product_Keys extends ReportManagement
 {
     /**
      * The page to display.

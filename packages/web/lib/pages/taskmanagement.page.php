@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category TaskManagementPage
+ * @category TaskManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,13 +13,13 @@
 /**
  * Displays tasks to the user.
  *
- * @category TaskManagementPage
+ * @category TaskManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class TaskManagementPage extends FOGPage
+class TaskManagement extends FOGPage
 {
     /**
      * The buttons elements are more or less common

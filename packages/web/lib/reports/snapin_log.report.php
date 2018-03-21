@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class Snapin_Log extends ReportManagementPage
+class Snapin_Log extends ReportManagement
 {
     /**
      * Initial display
