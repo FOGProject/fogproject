@@ -40,11 +40,13 @@ class PluginManagementPage extends FOGPage
         parent::__construct($this->name);
         $this->headerData = [
             _('Plugin Name'),
+            _('Description'),
             _('Location'),
             _('Activated'),
             _('Installed')
         ];
         $this->templates = [
+            '',
             '',
             '',
             '',
@@ -54,7 +56,8 @@ class PluginManagementPage extends FOGPage
             [],
             [],
             [],
-            []
+            ['width' => 5],
+            ['width' => 5]
         ];
     }
     /**

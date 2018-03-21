@@ -21,15 +21,19 @@
         ],
         columns: [
             {data: 'name'},
+            {data: 'description'},
             {data: 'location'},
             {data: 'state'},
             {data: 'installed'}
         ],
         rowId: 'id',
+        createdRow: function(row, data, dataIndex) {
+            $(row).attr('hash', data.hash);
+        },
         columnDefs: [
             {
                 responsivePriority: -1,
-                targets: 0,
+                targets: 0
             },
             {
                 responsivePriority: 0,
@@ -45,7 +49,7 @@
                         return disabled;
                     }
                 },
-                targets: 2
+                targets: 3
             },
             {
                 render: function(data, type, row) {
@@ -57,7 +61,7 @@
                         return disabled;
                     }
                 },
-                targets: 3
+                targets: 4
             }
         ],
         processing: true,
