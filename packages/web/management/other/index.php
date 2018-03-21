@@ -90,10 +90,13 @@ if (self::$FOGUser->isValid()) {
     echo _('Logout');
     echo '</a>';
 } else {
-    echo '<a href="../management/index.php?node=login">';
-    echo '<i class="fa fa-sign-in"></i> ';
-    echo _('Login');
-    echo '</a>';
+    global $node;
+    if ($node != 'home') {
+        echo '<a href="../management/index.php?node=login">';
+        echo '<i class="fa fa-sign-in"></i> ';
+        echo _('Login');
+        echo '</a>';
+    }
 }
 echo '</li>';
 echo '</ul>';
@@ -201,10 +204,10 @@ if (self::$FOGUser->isValid()) {
     echo '<div class="pull-right hidden-xs">';
     echo '<b>';
     echo _('Channel');
-    echo '</b> ' . FOG_CHANNEL . ' |';
+    echo '</b> ' . FOG_CHANNEL . ' | ';
     echo '<b>';
     echo _('Version');
-    echo '</b> 1.5.0.' . FOG_VERSION;
+    echo '</b> ' . FOG_VERSION;
     echo '</div>';
     echo '<strong>'
         . _('Copyright')

@@ -41,7 +41,7 @@ class Plugin extends FOGController
         'icon' => 'pIcon',
         'runfile' => 'pRunfile',
         'location' => 'pLocation',
-        'panon4' => 'pAnon4',
+        'description' => 'pDescription',
         'pAnon5' => 'pAnon5'
     ];
     /**

@@ -567,6 +567,13 @@ class Route extends FOGBase
             $columns[] = ['db' => 'ngID', 'dt' => 'storagegroupID'];
             $columns[] = ['db' => 'ngName', 'dt' => 'storagegroupName'];
             break;
+        case 'plugin':
+            $columns[] = [
+                'dt' => 'hash',
+                'formatter' => function ($d, $row) {
+                    return md5($row['pName']);
+                }
+            ];
         }
         self::$HookManager->processEvent(
             'CUSTOMIZE_DT_COLUMNS',

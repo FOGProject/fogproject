@@ -3789,3 +3789,7 @@ $this->schema[] = [
     "ALTER TABLE `plugins` CHANGE `pAnon2` `pRunfile` LONGTEXT NOT NULL",
     "ALTER TABLE `plugins` CHANGE `pAnon3` `pLocation` LONGTEXT NOT NULL"
 ];
+// 266
+$this->schema[] = [
+    "ALTER TABLE `plugins` CHANGE `pAnon4` `pDescription` LONGTEXT NOT NULL"
+];
