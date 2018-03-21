@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-21 19:33-0400\n"
+"POT-Creation-Date: 2018-03-21 19:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1021,45 +1021,6 @@ msgstr ""
 msgid "There are no groups on this server"
 msgstr ""
 
-msgid "Integrity Settings"
-msgstr ""
-
-msgid "Export Checksums"
-msgstr ""
-
-msgid "Checksums"
-msgstr ""
-
-msgid "Icon"
-msgstr ""
-
-msgid "Checksum"
-msgstr ""
-
-msgid "Last Updated Time"
-msgstr ""
-
-msgid "Conflicting path/file"
-msgstr ""
-
-msgid "No node associated with any addresses of this system"
-msgstr ""
-
-msgid "Associates the files on nodes"
-msgstr ""
-
-msgid "and stores their respective checksums"
-msgstr ""
-
-msgid "mod dates"
-msgstr ""
-
-msgid "and the location of the file on that"
-msgstr ""
-
-msgid "particular node"
-msgstr ""
-
 msgid "Edit Capone ID"
 msgstr ""
 
@@ -1767,6 +1728,9 @@ msgid "Import Task States"
 msgstr ""
 
 msgid "Task States"
+msgstr ""
+
+msgid "Icon"
 msgstr ""
 
 msgid "Task State Name"
