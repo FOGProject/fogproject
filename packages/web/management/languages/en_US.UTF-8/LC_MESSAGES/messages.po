@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-21 16:52-0400\n"
+"POT-Creation-Date: 2018-03-21 19:33-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1094,8 +1094,142 @@ msgstr ""
 msgid "particular node"
 msgstr ""
 
+msgid "Edit Capone ID"
+msgstr ""
+
+#, fuzzy
+msgid "Global Options"
+msgstr "Boot Options:"
+
+#, fuzzy
+msgid "Export Capones"
+msgstr "Export Snapins"
+
+#, fuzzy
+msgid "Import Capones"
+msgstr "Import Snapins"
+
+#, fuzzy
+msgid "Capone"
+msgstr "Capone Deploy"
+
 msgid "Capone Deploy"
 msgstr "Capone Deploy"
+
+msgid "Edit Capone"
+msgstr ""
+
+msgid "Image Name"
+msgstr "Image Name"
+
+#, fuzzy
+msgid "Image OS"
+msgstr "Image Name"
+
+#, fuzzy
+msgid "Search Key"
+msgstr "Search"
+
+#, fuzzy
+msgid "Create New Capone"
+msgstr "Create New %s"
+
+msgid "Key to match"
+msgstr ""
+
+msgid "Create"
+msgstr "Create"
+
+#, fuzzy
+msgid "Please select a valid image"
+msgstr "Select a valid image"
+
+#, fuzzy
+msgid "The image associated does not have a valid OS!"
+msgstr "The storage groups associated storage node is not valid"
+
+#, fuzzy
+msgid "Add capone failed!"
+msgstr "Add snapin failed!"
+
+#, fuzzy
+msgid "Capone added!"
+msgstr "Snapin Name"
+
+#, fuzzy
+msgid "Capone Create Success"
+msgstr "Snapin updated"
+
+#, fuzzy
+msgid "Capone Create Fail"
+msgstr "Snapin updated"
+
+msgid "Editing Capone ID"
+msgstr ""
+
+#, fuzzy
+msgid "Editing Global Capone Settings"
+msgstr "Update Settings"
+
+msgid "Reboot after deploy"
+msgstr ""
+
+#, fuzzy
+msgid "Shutdown after deploy"
+msgstr "has been destroyed"
+
+msgid "DMI Field"
+msgstr ""
+
+#, fuzzy
+msgid "A dmi field must be set!"
+msgstr "Event must be a string"
+
+#, fuzzy
+msgid "Unable to set dmi field"
+msgstr "Unable to open file for reading"
+
+#, fuzzy
+msgid "Unable to set action field"
+msgstr "Error contacting server"
+
+#, fuzzy
+msgid "Global settings updated!"
+msgstr "Location Updated"
+
+#, fuzzy
+msgid "Global Settings Update Success"
+msgstr "Install / Update Successful!"
+
+#, fuzzy
+msgid "Global Settings Update Fail"
+msgstr "Settings Updated"
+
+#, fuzzy
+msgid "Capone update failed!"
+msgstr "Snapin update failed"
+
+#, fuzzy
+msgid "Capone updated!"
+msgstr "Snapin updated"
+
+#, fuzzy
+msgid "Capone Update Success"
+msgstr "Install / Update Successful!"
+
+#, fuzzy
+msgid "Capone Update Fail"
+msgstr "Snapin update failed"
+
+msgid "Use the selector to choose how many items you want exported."
+msgstr ""
+
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
+msgstr ""
 
 #, fuzzy
 msgid "Completed imaging"
@@ -1135,9 +1269,6 @@ msgstr "User/Channel Name"
 
 msgid "Slack User/Slack Channel"
 msgstr ""
-
-msgid "Create"
-msgstr "Create"
 
 msgid "Must start with an @ or # for user or channel respsectively"
 msgstr ""
@@ -1278,16 +1409,6 @@ msgstr "User Management"
 #, fuzzy
 msgid "Windows Key Update Fail"
 msgstr "User Management"
-
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
 
 msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
@@ -2555,9 +2676,6 @@ msgstr "HD Device"
 
 msgid "Image ID"
 msgstr "Image ID"
-
-msgid "Image Name"
-msgstr "Image Name"
 
 msgid "Image Desc"
 msgstr "Image Desc"
@@ -4096,10 +4214,6 @@ msgstr "Start Multicast Session"
 
 msgid "Please choose an image"
 msgstr "Please choose an image"
-
-#, fuzzy
-msgid "Please select a valid image"
-msgstr "Select a valid image"
 
 #, fuzzy
 msgid "Session with that name already exists!"

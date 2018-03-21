@@ -26,21 +26,21 @@ class CaponeTasking extends FOGBase
      *
      * @var array
      */
-    protected $actions = array(
+    protected $actions = [
         'dmi',
         'imagelookup'
-    );
+    ];
     /**
      * The image types so capone follows.
      *
      * @var array
      */
-    protected $imgTypes = array(
+    protected $imgTypes = [
         1 => 'n',
         2 => 'mps',
         3 => 'mpa',
         4 => 'dd'
-    );
+    ];
     /**
      * Initializes the Capone tasking class.
      *
@@ -49,41 +49,38 @@ class CaponeTasking extends FOGBase
     public function __construct()
     {
         parent::__construct();
-        switch (strtolower($_REQUEST['action'])) {
+        $action = filter_input(INPUT_POST, 'action');
+        switch ($action) {
         case 'dmi':
             echo self::getSetting('FOG_PLUGIN_CAPONE_DMI');
             break;
         case 'imagelookup':
-            if (!isset($_REQUEST['key'])
-                || empty($_REQUEST['key'])
-            ) {
+            $key = filter_input(INPUT_POST, 'key');
+            if (!$key) {
                 break;
             }
             try {
                 $strSetup = "%s|%s|%s|%s|%s|%s|%s";
                 ob_start();
-                foreach ((array)self::getClass('CaponeManager')
-                    ->find(
-                        array(
-                            'key' => trim(base64_decode($_REQUEST['key']))
-                        )
-                    ) as &$Capone
-                ) {
-                    $Image = $Capone->getImage();
-                    if (!$Image->isValid()) {
-                        continue;
-                    }
+                Route::listem(
+                    'capone',
+                    ['cKey' => $keys]
+                );
+                $capones = json_decode(
+                    Route::getData()
+                );
+                foreach ($capones->data as &$Capone) {
+                    $Image = new Image($Capone->imageID);
                     $OS = $Image->getOS();
-                    if (!$OS->isValid()) {
-                        continue;
-                    }
                     $StorageNode = $Image
                         ->getStorageGroup()
                         ->getOptimalStorageNode();
-                    if (!$StorageNode->isValid()) {
+                    if (!$Image->isValid()
+                        || $OS->isValid()
+                        || $StorageNode->isValid()
+                    ) {
                         continue;
                     }
-                    $Image = $Capone->getImage();
                     $path = $Image->get('path');
                     $osid = $Image->get('osID');
                     $itid = $Image->get('imageTypeID');

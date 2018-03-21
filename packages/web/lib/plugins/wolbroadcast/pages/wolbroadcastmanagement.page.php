@@ -135,7 +135,7 @@ class WOLBroadcastManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid" id="role-create">';
+        echo '<div class="box box-solid" id="wolbroadcast-create">';
         echo '<div class="box-body">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';

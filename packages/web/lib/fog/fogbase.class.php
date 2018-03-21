@@ -1980,7 +1980,7 @@ abstract class FOGBase
      */
     public static function setSetting($key, $value)
     {
-        self::getClass('ServiceManager')->update(
+        return self::getClass('ServiceManager')->update(
             ['name' => $key],
             '',
             ['value' => trim($value)]

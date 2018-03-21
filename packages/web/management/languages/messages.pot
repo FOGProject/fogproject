@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-21 17:18-0400\n"
+"POT-Creation-Date: 2018-03-21 19:33-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1060,7 +1060,116 @@ msgstr ""
 msgid "particular node"
 msgstr ""
 
+msgid "Edit Capone ID"
+msgstr ""
+
+msgid "Global Options"
+msgstr ""
+
+msgid "Export Capones"
+msgstr ""
+
+msgid "Import Capones"
+msgstr ""
+
+msgid "Capone"
+msgstr ""
+
 msgid "Capone Deploy"
+msgstr ""
+
+msgid "Edit Capone"
+msgstr ""
+
+msgid "Image Name"
+msgstr ""
+
+msgid "Image OS"
+msgstr ""
+
+msgid "Search Key"
+msgstr ""
+
+msgid "Create New Capone"
+msgstr ""
+
+msgid "Key to match"
+msgstr ""
+
+msgid "Create"
+msgstr ""
+
+msgid "Please select a valid image"
+msgstr ""
+
+msgid "The image associated does not have a valid OS!"
+msgstr ""
+
+msgid "Add capone failed!"
+msgstr ""
+
+msgid "Capone added!"
+msgstr ""
+
+msgid "Capone Create Success"
+msgstr ""
+
+msgid "Capone Create Fail"
+msgstr ""
+
+msgid "Editing Capone ID"
+msgstr ""
+
+msgid "Editing Global Capone Settings"
+msgstr ""
+
+msgid "Reboot after deploy"
+msgstr ""
+
+msgid "Shutdown after deploy"
+msgstr ""
+
+msgid "DMI Field"
+msgstr ""
+
+msgid "A dmi field must be set!"
+msgstr ""
+
+msgid "Unable to set dmi field"
+msgstr ""
+
+msgid "Unable to set action field"
+msgstr ""
+
+msgid "Global settings updated!"
+msgstr ""
+
+msgid "Global Settings Update Success"
+msgstr ""
+
+msgid "Global Settings Update Fail"
+msgstr ""
+
+msgid "Capone update failed!"
+msgstr ""
+
+msgid "Capone updated!"
+msgstr ""
+
+msgid "Capone Update Success"
+msgstr ""
+
+msgid "Capone Update Fail"
+msgstr ""
+
+msgid "Use the selector to choose how many items you want exported."
+msgstr ""
+
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
 msgstr ""
 
 msgid "Completed imaging"
@@ -1097,9 +1206,6 @@ msgid "User/Channel"
 msgstr ""
 
 msgid "Slack User/Slack Channel"
-msgstr ""
-
-msgid "Create"
 msgstr ""
 
 msgid "Must start with an @ or # for user or channel respsectively"
@@ -1211,16 +1317,6 @@ msgid "Windows Key Update Success"
 msgstr ""
 
 msgid "Windows Key Update Fail"
-msgstr ""
-
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
 msgstr ""
 
 msgid "Windows keys is a plugin that associates product keys"
@@ -2262,9 +2358,6 @@ msgid "Host HD Device"
 msgstr ""
 
 msgid "Image ID"
-msgstr ""
-
-msgid "Image Name"
 msgstr ""
 
 msgid "Image Desc"
@@ -3575,9 +3668,6 @@ msgid "Multicast Sessions"
 msgstr ""
 
 msgid "Please choose an image"
-msgstr ""
-
-msgid "Please select a valid image"
 msgstr ""
 
 msgid "Session with that name already exists!"

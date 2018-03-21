@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-21 16:52-0400\n"
+"POT-Creation-Date: 2018-03-21 19:33-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1070,8 +1070,144 @@ msgstr "e la posizione del file su quel"
 msgid "particular node"
 msgstr "particolare nodo"
 
+msgid "Edit Capone ID"
+msgstr ""
+
+#, fuzzy
+msgid "Global Options"
+msgstr "Opzioni di avvio:"
+
+#, fuzzy
+msgid "Export Capones"
+msgstr "Export Snapins"
+
+#, fuzzy
+msgid "Import Capones"
+msgstr "Importa Snapins"
+
+#, fuzzy
+msgid "Capone"
+msgstr "Capone Deploy"
+
 msgid "Capone Deploy"
 msgstr "Capone Deploy"
+
+msgid "Edit Capone"
+msgstr ""
+
+msgid "Image Name"
+msgstr "Nome immagine"
+
+#, fuzzy
+msgid "Image OS"
+msgstr "Dimensioni immagine"
+
+#, fuzzy
+msgid "Search Key"
+msgstr "Ricerca"
+
+#, fuzzy
+msgid "Create New Capone"
+msgstr "Crea nuovo snapin"
+
+#, fuzzy
+msgid "Key to match"
+msgstr "I file non corrispondono"
+
+msgid "Create"
+msgstr "Creare"
+
+#, fuzzy
+msgid "Please select a valid image"
+msgstr "Selezionare un'immagine valida"
+
+#, fuzzy
+msgid "The image associated does not have a valid OS!"
+msgstr ""
+"Il nodo di archiviazione gruppi di archiviazione associato non è valido"
+
+#, fuzzy
+msgid "Add capone failed!"
+msgstr "Aggiunta posizione non riuscita!"
+
+#, fuzzy
+msgid "Capone added!"
+msgstr "Snapin aggiunto!"
+
+#, fuzzy
+msgid "Capone Create Success"
+msgstr "Creazione Snapin completata"
+
+#, fuzzy
+msgid "Capone Create Fail"
+msgstr "Creazione Snapin fallita"
+
+msgid "Editing Capone ID"
+msgstr ""
+
+#, fuzzy
+msgid "Editing Global Capone Settings"
+msgstr "Impostazioni modulo del gruppo"
+
+msgid "Reboot after deploy"
+msgstr ""
+
+#, fuzzy
+msgid "Shutdown after deploy"
+msgstr "è stato completato"
+
+msgid "DMI Field"
+msgstr ""
+
+#, fuzzy
+msgid "A dmi field must be set!"
+msgstr "Campo chiave deve essere una stringa"
+
+#, fuzzy
+msgid "Unable to set dmi field"
+msgstr "Impossibile aprire il file per la lettura"
+
+#, fuzzy
+msgid "Unable to set action field"
+msgstr "Impossibile contattare il server"
+
+#, fuzzy
+msgid "Global settings updated!"
+msgstr "Posizione aggiornata!"
+
+#, fuzzy
+msgid "Global Settings Update Success"
+msgstr "Modifica Impostazioni completata"
+
+#, fuzzy
+msgid "Global Settings Update Fail"
+msgstr "Aggiornamento Impostazioni non riuscito"
+
+#, fuzzy
+msgid "Capone update failed!"
+msgstr "Aggiornamento Snapin fallito!"
+
+#, fuzzy
+msgid "Capone updated!"
+msgstr "Snap-in aggiornato!"
+
+#, fuzzy
+msgid "Capone Update Success"
+msgstr "Modifica Snapin riuscita"
+
+#, fuzzy
+msgid "Capone Update Fail"
+msgstr "Aggiornamento Snapin fallito"
+
+msgid "Use the selector to choose how many items you want exported."
+msgstr ""
+
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
+msgstr ""
 
 msgid "Completed imaging"
 msgstr "Imaging completato"
@@ -1110,9 +1246,6 @@ msgstr "Utente / Nome canale"
 
 msgid "Slack User/Slack Channel"
 msgstr ""
-
-msgid "Create"
-msgstr "Creare"
 
 msgid "Must start with an @ or # for user or channel respsectively"
 msgstr ""
@@ -1245,16 +1378,6 @@ msgstr "Chiave di Windows Aggiornata"
 #, fuzzy
 msgid "Windows Key Update Fail"
 msgstr "Chiave di Windows Aggiornata"
-
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
 
 msgid "Windows keys is a plugin that associates product keys"
 msgstr "Tasti di Windows è un plugin che associa le chiavi di prodotto"
@@ -2417,9 +2540,6 @@ msgstr "Host Dispositivo HD"
 
 msgid "Image ID"
 msgstr "ID immagine"
-
-msgid "Image Name"
-msgstr "Nome immagine"
 
 msgid "Image Desc"
 msgstr "immagine Desc"
@@ -3819,10 +3939,6 @@ msgstr "Sessione multicast non valida"
 
 msgid "Please choose an image"
 msgstr "Scegliere un immagine"
-
-#, fuzzy
-msgid "Please select a valid image"
-msgstr "Selezionare un'immagine valida"
 
 #, fuzzy
 msgid "Session with that name already exists!"

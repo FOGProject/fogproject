@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-21 16:52-0400\n"
+"POT-Creation-Date: 2018-03-21 19:33-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1093,8 +1093,142 @@ msgstr ""
 msgid "particular node"
 msgstr ""
 
+msgid "Edit Capone ID"
+msgstr ""
+
+#, fuzzy
+msgid "Global Options"
+msgstr "启动选项："
+
+#, fuzzy
+msgid "Export Capones"
+msgstr "出口Snapins"
+
+#, fuzzy
+msgid "Import Capones"
+msgstr "进口Snapins"
+
+#, fuzzy
+msgid "Capone"
+msgstr "卡波恩部署"
+
 msgid "Capone Deploy"
 msgstr "卡波恩部署"
+
+msgid "Edit Capone"
+msgstr ""
+
+msgid "Image Name"
+msgstr "图片名称"
+
+#, fuzzy
+msgid "Image OS"
+msgstr "图片名称"
+
+#, fuzzy
+msgid "Search Key"
+msgstr "搜索"
+
+#, fuzzy
+msgid "Create New Capone"
+msgstr "新建%s"
+
+msgid "Key to match"
+msgstr ""
+
+msgid "Create"
+msgstr "创建"
+
+#, fuzzy
+msgid "Please select a valid image"
+msgstr "选择一个有效的图像"
+
+#, fuzzy
+msgid "The image associated does not have a valid OS!"
+msgstr "存储组相关联的存储节点无效"
+
+#, fuzzy
+msgid "Add capone failed!"
+msgstr "添加管理单元失败！"
+
+#, fuzzy
+msgid "Capone added!"
+msgstr "管理单元名称"
+
+#, fuzzy
+msgid "Capone Create Success"
+msgstr "更新管理单元"
+
+#, fuzzy
+msgid "Capone Create Fail"
+msgstr "更新管理单元"
+
+msgid "Editing Capone ID"
+msgstr ""
+
+#, fuzzy
+msgid "Editing Global Capone Settings"
+msgstr "主机描述"
+
+msgid "Reboot after deploy"
+msgstr ""
+
+#, fuzzy
+msgid "Shutdown after deploy"
+msgstr "已被破坏"
+
+msgid "DMI Field"
+msgstr ""
+
+#, fuzzy
+msgid "A dmi field must be set!"
+msgstr "事件必须是字符串"
+
+#, fuzzy
+msgid "Unable to set dmi field"
+msgstr "无法打开文件进行读取"
+
+#, fuzzy
+msgid "Unable to set action field"
+msgstr "服务器连接出错"
+
+#, fuzzy
+msgid "Global settings updated!"
+msgstr "更新位置"
+
+#, fuzzy
+msgid "Global Settings Update Success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "Global Settings Update Fail"
+msgstr "设置更新"
+
+#, fuzzy
+msgid "Capone update failed!"
+msgstr "管理单元更新失败"
+
+#, fuzzy
+msgid "Capone updated!"
+msgstr "更新管理单元"
+
+#, fuzzy
+msgid "Capone Update Success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "Capone Update Fail"
+msgstr "管理单元更新失败"
+
+msgid "Use the selector to choose how many items you want exported."
+msgstr ""
+
+msgid ""
+"When you click on the item you want to export, it can only select what is "
+"currently viewable on the screen. This includes searched and the current "
+"page. Please use the selector to choose the amount of items you would like "
+"to export."
+msgstr ""
 
 #, fuzzy
 msgid "Completed imaging"
@@ -1134,9 +1268,6 @@ msgstr "用户/通道名称"
 
 msgid "Slack User/Slack Channel"
 msgstr ""
-
-msgid "Create"
-msgstr "创建"
 
 msgid "Must start with an @ or # for user or channel respsectively"
 msgstr ""
@@ -1277,16 +1408,6 @@ msgstr "用户管理"
 #, fuzzy
 msgid "Windows Key Update Fail"
 msgstr "用户管理"
-
-msgid "Use the selector to choose how many items you want exported."
-msgstr ""
-
-msgid ""
-"When you click on the item you want to export, it can only select what is "
-"currently viewable on the screen. This includes searched and the current "
-"page. Please use the selector to choose the amount of items you would like "
-"to export."
-msgstr ""
 
 msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
@@ -2554,9 +2675,6 @@ msgstr "高清设备"
 
 msgid "Image ID"
 msgstr "图片ID"
-
-msgid "Image Name"
-msgstr "图片名称"
 
 msgid "Image Desc"
 msgstr "图片说明"
@@ -4090,10 +4208,6 @@ msgstr "开始多播会话"
 
 msgid "Please choose an image"
 msgstr "请选择一个图像"
-
-#, fuzzy
-msgid "Please select a valid image"
-msgstr "选择一个有效的图像"
 
 #, fuzzy
 msgid "Session with that name already exists!"
