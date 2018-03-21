@@ -154,6 +154,7 @@ class PluginManagement extends FOGPage
      */
     public function activatePost()
     {
+        header('Content-type: application/json');
         $plugins = filter_input_array(
             INPUT_POST,
             [
@@ -229,6 +230,7 @@ class PluginManagement extends FOGPage
      */
     public function installPost()
     {
+        header('Content-type: application/json');
         $plugins = filter_input_array(
             INPUT_POST,
             [
@@ -338,6 +340,7 @@ class PluginManagement extends FOGPage
      */
     public function deactivatePost()
     {
+        header('Content-type: application/json');
         $plugins = filter_input_array(
             INPUT_POST,
             [
@@ -409,6 +412,7 @@ class PluginManagement extends FOGPage
      */
     public function removePost()
     {
+        header('Content-type: application/json');
         $plugins = filter_input_array(
             INPUT_POST,
             [
