@@ -115,7 +115,8 @@ class PluginManagement extends FOGPage
         $removeBtn = self::makeButton(
             'remove',
             _('Uninstall selected'),
-            'btn btn-danger'
+            'btn btn-danger',
+            $remove
         );
 
         $buttons = '<div class="btn-group">'
@@ -177,7 +178,11 @@ class PluginManagement extends FOGPage
             $hook = 'PLUGIN_ACTIVATE_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Plugin activated!'),
+                    'msg' => (
+                        count($plugins ?: []) == 1 ?
+                        _('Plugin activated!') :
+                        _('Plugins activated!')
+                    ),
                     'title' => _('Plugin Activate Success')
                 ]
             );
@@ -237,11 +242,56 @@ class PluginManagement extends FOGPage
 
         $serverFault = false;
         try {
+            $ids = ['id' => $plugins];
+            $state = ['state' => 1];
+            $install = ['installed' => 1];
+            $PluginManager = self::getClass('PluginManager');
+            if (!$PluginManager->update($ids, '', $state)) {
+                $serverFault = true;
+                throw new Exception(_('Activate plugins failed!'));
+            }
+            Route::listem(
+                'plugin',
+                [
+                    'pID' => $plugins,
+                    'pInstalled' => ['',0,'0']
+                ]
+            );
+            $Plugins = json_decode(
+                Route::getData()
+            );
+            foreach ($Plugins->data as &$Plugin) {
+                $installPlugin = self::getClass(
+                    $Plugin->name
+                    . 'Manager'
+                );
+                if (!method_exists($installPlugin, 'install')) {
+                    $serverFault = true;
+                    throw new Exception(
+                        _('Unable to install, no method exists for ')
+                        . $Plugin->name
+                    );
+                }
+                if (!$installPlugin->install($Plugin->name)) {
+                    throw new Exception(
+                        _('Failed to install ')
+                        . $Plugin->name
+                    );
+                }
+            }
+            if (!$PluginManager->update($ids, '', $install)) {
+                $serverFault = true;
+                throw new Exception(_('Install plugins failed!'));
+            }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'PLUGIN_INSTALL_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Plugin installed!'),
+                    'msg' => (
+                        count($plugins ?: []) == 1 ?
+                        _('Plugin installed!') :
+                        _('Plugins installed!')
+                    ),
                     'title' => _('Plugin Install Success')
                 ]
             );
@@ -372,11 +422,56 @@ class PluginManagement extends FOGPage
 
         $serverFault = false;
         try {
+            $ids = ['id' => $plugins];
+            $state = ['state' => 0];
+            $install = ['installed' => 0];
+            $PluginManager = self::getClass('PluginManager');
+            if (!$PluginManager->update($ids, '', $state)) {
+                $serverFault = true;
+                throw new Exception(_('Deactivate plugins failed!'));
+            }
+            Route::listem(
+                'plugin',
+                [
+                    'pID' => $plugins,
+                    'pInstalled' => 1
+                ]
+            );
+            $Plugins = json_decode(
+                Route::getData()
+            );
+            foreach ($Plugins->data as &$Plugin) {
+                $installPlugin = self::getClass(
+                    $Plugin->name
+                    . 'Manager'
+                );
+                if (!method_exists($installPlugin, 'uninstall')) {
+                    $serverFault = true;
+                    throw new Exception(
+                        _('Unable to uninstall, no method exists for ')
+                        . $Plugin->name
+                    );
+                }
+                if (!$installPlugin->uninstall()) {
+                    throw new Exception(
+                        _('Failed to uninstall ')
+                        . $Plugin->name
+                    );
+                }
+            }
+            if (!$PluginManager->update($ids, '', $install)) {
+                $serverFault = true;
+                throw new Exception(_('Uninstall plugins failed!'));
+            }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'PLUGIN_UNINSTALL_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Plugin uninstalled!'),
+                    'msg' => (
+                        count($plugins ?: []) == 1 ?
+                        _('Plugin uninstalled!') :
+                        _('Plugins uninstalled!')
+                    ),
                     'title' => _('Plugin Uninstall Success')
                 ]
             );

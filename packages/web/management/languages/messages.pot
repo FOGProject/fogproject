@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-20 21:27-0400\n"
+"POT-Creation-Date: 2018-03-21 15:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2570,46 +2570,351 @@ msgstr ""
 msgid "Network Information"
 msgstr ""
 
-msgid "Total Clients"
+msgid "Create New Group"
 msgstr ""
 
-msgid "Create New Storage Group"
+msgid "Group Name"
 msgstr ""
 
-msgid "Storage Group name"
+msgid "Group Description"
 msgstr ""
 
-msgid "A storage group exists with this name!"
+msgid "Group Kernel"
 msgstr ""
 
-msgid "Storage Group Create Success"
+msgid "Group Kernel Arguments"
 msgstr ""
 
-msgid "Storage Group Create Fail"
+msgid "Group Init"
 msgstr ""
 
-msgid "A storage group already exists with this name!"
+msgid "Group Primary Disk"
 msgstr ""
 
-msgid "Update Master Node"
+msgid "A group name is required!"
 msgstr ""
 
-msgid "Storage Node Master"
+msgid "A group already exists with this name!"
 msgstr ""
 
-msgid "Storage Node Associated"
+msgid "Add group failed!"
 msgstr ""
 
-msgid "Storage Group Update Failed"
+msgid "Group added!"
 msgstr ""
 
-msgid "Storage Group updated!"
+msgid "Group Create Success"
 msgstr ""
 
-msgid "Storage Group Update Success"
+msgid "Group Create Fail"
 msgstr ""
 
-msgid "Storage Group Update Fail"
+msgid "Confirm"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Reset Encryption Data"
+msgstr ""
+
+msgid ""
+"Resetting encryption data should only be done if you re-installed the FOG "
+"Client or are using Debugger"
+msgstr ""
+
+msgid "Group Product Key"
+msgstr ""
+
+msgid "Group BIOS Exit"
+msgstr ""
+
+msgid "Group EFI Exit"
+msgstr ""
+
+msgid "Please use another group name"
+msgstr ""
+
+msgid "Group Image"
+msgstr ""
+
+msgid "Group Hosts"
+msgstr ""
+
+msgid "Group Printer Configuration"
+msgstr ""
+
+msgid "No Printer Management"
+msgstr ""
+
+msgid ""
+"This setting turns off all FOG Printer Management. Although there are "
+"multiple levels already, this  is just another level if needed."
+msgstr ""
+
+msgid "Add/Remove Managed Printers"
+msgstr ""
+
+msgid ""
+"This setting only adds and removes printers that are managed by FOG. If the "
+"printer exists in printer management but is not assigned to a host, it will "
+"remove the printer if it exists on the unassigned host. It will add printers "
+"to the host that are assigned."
+msgstr ""
+
+msgid "All Printers"
+msgstr ""
+
+msgid ""
+"This setting will only allow FO GAssigned printers to be added to the host. "
+"Any printer that is not assigned will be removed including non-FOG managed "
+"printers."
+msgstr ""
+
+msgid "Update default"
+msgstr ""
+
+msgid "Default"
+msgstr ""
+
+msgid "Printer Alias"
+msgstr ""
+
+msgid "Printer Type"
+msgstr ""
+
+msgid "Update/Remove printers"
+msgstr ""
+
+msgid "Changes will automatically be saved"
+msgstr ""
+
+msgid "Snapin Created"
+msgstr ""
+
+msgid "Group Snapins"
+msgstr ""
+
+msgid "Enable All"
+msgstr ""
+
+msgid "Disable All"
+msgstr ""
+
+msgid "Module Name"
+msgstr ""
+
+msgid "Module Association"
+msgstr ""
+
+msgid "Group module settings"
+msgstr ""
+
+msgid "Modules disabled globally cannot be enabled here"
+msgstr ""
+
+msgid "Screen Width"
+msgstr ""
+
+msgid "in pixels"
+msgstr ""
+
+msgid "Screen Height"
+msgstr ""
+
+msgid "Screen Refresh Rate"
+msgstr ""
+
+msgid "in Hz"
+msgstr ""
+
+msgid "Display Manager Settings"
+msgstr ""
+
+msgid "Auto Logout Time"
+msgstr ""
+
+msgid "in minutes"
+msgstr ""
+
+msgid "Auto Logout Settings"
+msgstr ""
+
+msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
+msgstr ""
+
+msgid "Force Reboot"
+msgstr ""
+
+msgid "Enforce Hostname | AD Join Reboots"
+msgstr ""
+
+msgid ""
+"This tells the client to force reboots for host name changing and AD Joining."
+msgstr ""
+
+msgid ""
+"If disabled, the client will not make changes until all users are logged off"
+msgstr ""
+
+msgid "You must select an action to perform"
+msgstr ""
+
+msgid "Service Settings"
+msgstr ""
+
+msgid "Client Module Settings"
+msgstr ""
+
+msgid "Group update failed!"
+msgstr ""
+
+msgid "Group updated!"
+msgstr ""
+
+msgid "Group Update Success"
+msgstr ""
+
+msgid "Group Update Fail"
+msgstr ""
+
+msgid "Task type is invalid"
+msgstr ""
+
+msgid "There are no hosts to task"
+msgstr ""
+
+msgid "Groups cannot create capture tasks"
+msgstr ""
+
+msgid "Select Snapin to run"
+msgstr ""
+
+msgid "Account Name"
+msgstr ""
+
+msgid "Shutdown when complete"
+msgstr ""
+
+msgid "Wake Up"
+msgstr ""
+
+msgid "Debug Task"
+msgstr ""
+
+msgid "Schedule Immediately"
+msgstr ""
+
+msgid "Schedule Later"
+msgstr ""
+
+msgid "Schedule Crontab Style"
+msgstr ""
+
+msgid "Special Crons"
+msgstr ""
+
+msgid "Cron Entry"
+msgstr ""
+
+msgid "min"
+msgstr ""
+
+msgid "hour"
+msgstr ""
+
+msgid "day"
+msgstr ""
+
+msgid "month"
+msgstr ""
+
+msgid "weekday"
+msgstr ""
+
+msgid "Import Reports"
+msgstr ""
+
+msgid "Import"
+msgstr ""
+
+msgid "Import Report"
+msgstr ""
+
+msgid "Max Size"
+msgstr ""
+
+msgid "Browse"
+msgstr ""
+
+msgid ""
+"This section allows you to upload user defined reports that may not be a "
+"part of the base FOG install."
+msgstr ""
+
+msgid "About FOG Reports"
+msgstr ""
+
+msgid ""
+"FOG Reports exist to give you information about what is going on with your "
+"FOG System. To view a report, select an item from the menu."
+msgstr ""
+
+msgid "Friendly Name"
+msgstr ""
+
+msgid "API?"
+msgstr ""
+
+msgid "Create New User"
+msgstr ""
+
+msgid "User Password"
+msgstr ""
+
+msgid "confirm"
+msgstr ""
+
+msgid "User API Enable"
+msgstr ""
+
+msgid "A username already exists with this name!"
+msgstr ""
+
+msgid "Add user failed!"
+msgstr ""
+
+msgid "User added!"
+msgstr ""
+
+msgid "User Create Success"
+msgstr ""
+
+msgid "User Create Fail"
+msgstr ""
+
+msgid "A user already exists with this name"
+msgstr ""
+
+msgid "User API Token"
+msgstr ""
+
+msgid "Reset Token"
+msgstr ""
+
+msgid "API"
+msgstr ""
+
+msgid "User update failed!"
+msgstr ""
+
+msgid "User updated!"
+msgstr ""
+
+msgid "User Update Success"
+msgstr ""
+
+msgid "User Update Fail"
 msgstr ""
 
 msgid "Login Failed"
@@ -2628,159 +2933,6 @@ msgid "Remember Me"
 msgstr ""
 
 msgid "Sign In"
-msgstr ""
-
-msgid "Protected"
-msgstr ""
-
-msgid "Is Pack"
-msgstr ""
-
-msgid "Create New Snapin"
-msgstr ""
-
-msgid "Normal Snapin"
-msgstr ""
-
-msgid "Snapin Pack"
-msgstr ""
-
-msgid "Snapin Type"
-msgstr ""
-
-msgid "Snapin Template"
-msgstr ""
-
-msgid "Snapin Pack Template"
-msgstr ""
-
-msgid "Snapin Pack File"
-msgstr ""
-
-msgid "Snapin Run With Argument"
-msgstr ""
-
-msgid "Snapin Pack Arguments"
-msgstr ""
-
-msgid "Browse"
-msgstr ""
-
-msgid "Snapin File (exists)"
-msgstr ""
-
-msgid "Snapin Arguments"
-msgstr ""
-
-msgid "Snapin Enabled"
-msgstr ""
-
-msgid "Snapin Replicate"
-msgstr ""
-
-msgid "Snapin Arguments Hidden"
-msgstr ""
-
-msgid "Snapin Timeout"
-msgstr ""
-
-msgid "in seconds"
-msgstr ""
-
-msgid "No Action"
-msgstr ""
-
-msgid "Snapin Command"
-msgstr ""
-
-msgid "read-only"
-msgstr ""
-
-msgid "A snapin already exists with this name!"
-msgstr ""
-
-msgid "A file"
-msgstr ""
-
-msgid "either already selected or uploaded"
-msgstr ""
-
-msgid "must be specified"
-msgstr ""
-
-msgid "Please choose a different name"
-msgstr ""
-
-msgid "this one is reserved for FOG"
-msgstr ""
-
-msgid "FTP Connection has failed"
-msgstr ""
-
-msgid "Failed to add snapin"
-msgstr ""
-
-msgid "Failed to add/update snapin file"
-msgstr ""
-
-msgid "Add snapin failed!"
-msgstr ""
-
-msgid "Snapin added!"
-msgstr ""
-
-msgid "Snapin Create Success"
-msgstr ""
-
-msgid "Snapin Create Fail"
-msgstr ""
-
-msgid "Snapin Protected"
-msgstr ""
-
-msgid "Update Primary Group"
-msgstr ""
-
-msgid "Storage Group Primary"
-msgstr ""
-
-msgid "Storage Group Associated"
-msgstr ""
-
-msgid "Storage Groups"
-msgstr ""
-
-msgid "Snapin update failed!"
-msgstr ""
-
-msgid "Snapin updated!"
-msgstr ""
-
-msgid "Snapin Update Success"
-msgstr ""
-
-msgid "Snapin Update Fail"
-msgstr ""
-
-msgid "Plugin Name"
-msgstr ""
-
-msgid "Activated"
-msgstr ""
-
-msgid "Installed"
-msgstr ""
-
-msgid "List All Plugins"
-msgstr ""
-
-msgid "Activate selected"
-msgstr ""
-
-msgid "Install selected"
-msgstr ""
-
-msgid "Deactivate selected"
 msgstr ""
 
 msgid "FOG Version Information"
@@ -2883,6 +3035,9 @@ msgid "Option specifies the pairings after host checks"
 msgstr ""
 
 msgid "Menu Timeout"
+msgstr ""
+
+msgid "in seconds"
 msgstr ""
 
 msgid "Option specifies the menu timeout"
@@ -3125,12 +3280,6 @@ msgstr ""
 msgid "MAC Address Manufacturer Listing"
 msgstr ""
 
-msgid "Confirm"
-msgstr ""
-
-msgid "Cancel"
-msgstr ""
-
 msgid "Update MAC List"
 msgstr ""
 
@@ -3195,9 +3344,6 @@ msgid "Partclone Zstd Split 200MiB"
 msgstr ""
 
 msgid "No image specified"
-msgstr ""
-
-msgid "Reset Token"
 msgstr ""
 
 msgid "No Image specified"
@@ -3278,12 +3424,6 @@ msgstr ""
 msgid "Import Database?"
 msgstr ""
 
-msgid "Max Size"
-msgstr ""
-
-msgid "Import"
-msgstr ""
-
 msgid "Import Database"
 msgstr ""
 
@@ -3311,534 +3451,160 @@ msgstr ""
 msgid "Errors on revert detected!"
 msgstr ""
 
-msgid "Primary MAC"
+msgid "Protected"
 msgstr ""
 
-msgid "Ping Status"
+msgid "Captured"
 msgstr ""
 
-msgid "Imaged"
+msgid "Create New Image"
 msgstr ""
 
-msgid "Assigned Image"
+msgid "Partimage"
 msgstr ""
 
-msgid "All Pending Hosts"
+msgid "Image Description"
 msgstr ""
 
-msgid "Approve selected"
+msgid "Image Compression Rating"
 msgstr ""
 
-msgid "Delete selected"
+msgid "Image Storage Group"
 msgstr ""
 
-msgid "Approve"
+msgid "Image Operating System"
 msgstr ""
 
-msgid "Approve Pending Hosts"
+msgid "Image Partition"
 msgstr ""
 
-msgid "Approving the selected pending hosts."
+msgid "Image Manager"
 msgstr ""
 
-msgid "Confirm password"
+msgid "Image Enabled"
 msgstr ""
 
-msgid "Approved selected hosts!"
+msgid "Image Replicate"
 msgstr ""
 
-msgid "Host Approval Success"
+msgid "An image already exists with this name!"
 msgstr ""
 
-msgid "All Pending MACs"
+msgid "Please choose a different filename/path as this is reserved"
 msgstr ""
 
-msgid "Approved selected macss!"
+msgid "The path requested is already in use by another image!"
 msgstr ""
 
-msgid "MAC Approval Success"
+msgid "Add image failed!"
 msgstr ""
 
-msgid "Create New Host"
+msgid "Image added!"
 msgstr ""
 
-msgid "Host Image"
+msgid "Image Create Success"
 msgstr ""
 
-msgid "Host Kernel Arguments"
+msgid "Image Create Fail"
 msgstr ""
 
-msgid "Host Init"
+msgid "Image Protected"
 msgstr ""
 
-msgid "Host Primary Disk"
+msgid "Update Primary Group"
 msgstr ""
 
-msgid "Enforce Hostname | AD Join Reboots"
+msgid "Storage Group Primary"
 msgstr ""
 
-msgid "Host Bios Exit Type"
+msgid "Storage Group Associated"
 msgstr ""
 
-msgid "Host EFI Exit Type"
+msgid "Storage Groups"
 msgstr ""
 
-msgid "A host name is required!"
+msgid "Image update failed!"
 msgstr ""
 
-msgid "A mac address is required!"
+msgid "Image updated!"
 msgstr ""
 
-msgid "A host already exists with this name!"
+msgid "Image Update Success"
 msgstr ""
 
-msgid "MAC Format is invalid"
+msgid "Image Update Fail"
 msgstr ""
 
-msgid "A host with this mac already exists with name"
+msgid "Session Name"
 msgstr ""
 
-msgid "Add host failed!"
+msgid "Client Count"
 msgstr ""
 
-msgid "Host added!"
+msgid "Session Timeout"
 msgstr ""
 
-msgid "Host Create Success"
+msgid "minutes"
 msgstr ""
 
-msgid "Host Create Fail"
+msgid "Session Image"
 msgstr ""
 
-msgid "Host description"
+msgid "Progress"
 msgstr ""
 
-msgid "Reset Encryption Data"
+msgid "Resume Reload"
 msgstr ""
 
-msgid ""
-"Resetting encryption data should only be done if you re-installed the FOG "
-"Client or are using Debugger"
+msgid "Pause Reload"
 msgstr ""
 
-msgid "Please enter a hostname"
+msgid "Cancel Selected"
 msgstr ""
 
-msgid "Please enter a valid hostname"
+msgid "Cancel Selected Tasks"
 msgstr ""
 
-msgid "Please use another hostname"
+msgid "Cancel the selected tasks."
 msgstr ""
 
-msgid "Cannot change image when in tasking"
+msgid "Create new Session Task"
 msgstr ""
 
-msgid "Add New MAC"
+msgid "Multicast Sessions"
 msgstr ""
 
-msgid "Add New MAC Address"
+msgid "Please choose an image"
 msgstr ""
 
-msgid "Update selected"
+msgid "Please select a valid image"
 msgstr ""
 
-msgid "Primary"
+msgid "Session with that name already exists!"
 msgstr ""
 
-msgid "Ignore Imaging"
+msgid "Server is only configured to run "
 msgstr ""
 
-msgid "Ignore Client"
+msgid "Session created!"
 msgstr ""
 
-msgid "Pending"
+msgid "Session Create Success"
 msgstr ""
 
-msgid "Update/Remove MAC addresses"
+msgid "Session Create Fail"
 msgstr ""
 
-msgid "Changes will automatically be saved"
+msgid "Failed to create Session"
 msgstr ""
 
-msgid "MAC Address is required!"
+msgid "Sessions cancelled!"
 msgstr ""
 
-msgid "MAC Address is invalid!"
+msgid "Session Cancel Success"
 msgstr ""
 
-msgid "MAC Address is assigned to another host!"
-msgstr ""
-
-msgid "Group Name"
-msgstr ""
-
-msgid "Group Associated"
-msgstr ""
-
-msgid "Host Groups"
-msgstr ""
-
-msgid "Host Printer Configuration"
-msgstr ""
-
-msgid "This setting turns off all FOG Printer Management"
-msgstr ""
-
-msgid "Although there are multiple levels already"
-msgstr ""
-
-msgid "between host and global settings"
-msgstr ""
-
-msgid "this is just another to ensure safety"
-msgstr ""
-
-msgid "No Printer Management"
-msgstr ""
-
-msgid ""
-"This setting only adds and removes printers that are managed by FOG. If the "
-"printer exists in printer management but is not assigned to a host, it will "
-"remove the printer if it exists on the unassigned host. It will add printers "
-"to the host that are assigned."
-msgstr ""
-
-msgid "FOG Managed Printers"
-msgstr ""
-
-msgid ""
-"This setting will only allow FOG Assigned printers to be added to the host. "
-"Any printer that is not assigned will be removed including non-FOG managed "
-"printers."
-msgstr ""
-
-msgid "Only Assigned Printers"
-msgstr ""
-
-msgid "Update default"
-msgstr ""
-
-msgid "Default"
-msgstr ""
-
-msgid "Printer Alias"
-msgstr ""
-
-msgid "Printer Type"
-msgstr ""
-
-msgid "Printer Associated"
-msgstr ""
-
-msgid "Update/Remove printers"
-msgstr ""
-
-msgid "Snapin Created"
-msgstr ""
-
-msgid "Snapin Associated"
-msgstr ""
-
-msgid "Host Snapins"
-msgstr ""
-
-msgid "Enable All"
-msgstr ""
-
-msgid "Disable All"
-msgstr ""
-
-msgid "Module Name"
-msgstr ""
-
-msgid "Module Associated"
-msgstr ""
-
-msgid "Host module settings"
-msgstr ""
-
-msgid "Modules disabled globally cannot be enabled here"
-msgstr ""
-
-msgid "Screen Width"
-msgstr ""
-
-msgid "in pixels"
-msgstr ""
-
-msgid "Screen Height"
-msgstr ""
-
-msgid "Screen Refresh Rate"
-msgstr ""
-
-msgid "in Hz"
-msgstr ""
-
-msgid "Display Manager Settings"
-msgstr ""
-
-msgid "Auto Logout Time"
-msgstr ""
-
-msgid "in minutes"
-msgstr ""
-
-msgid "Auto Logout Settings"
-msgstr ""
-
-msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
-msgstr ""
-
-msgid "Force Reboot"
-msgstr ""
-
-msgid ""
-"This tells the client to force reboots for host name changing and AD Joining."
-msgstr ""
-
-msgid "Cron Schedule"
-msgstr ""
-
-msgid "Current Power Management Tasks"
-msgstr ""
-
-msgid "You must select an action to perform"
-msgstr ""
-
-msgid "Primary User"
-msgstr ""
-
-msgid "Other Tag #1"
-msgstr ""
-
-msgid "Other Tag #2"
-msgstr ""
-
-msgid "System Manufacturer"
-msgstr ""
-
-msgid "System Version"
-msgstr ""
-
-msgid "System Serial Number"
-msgstr ""
-
-msgid "System UUID"
-msgstr ""
-
-msgid "System Type"
-msgstr ""
-
-msgid "BIOS Vendor"
-msgstr ""
-
-msgid "BIOS Version"
-msgstr ""
-
-msgid "BIOS Date"
-msgstr ""
-
-msgid "Motherboard Manufacturer"
-msgstr ""
-
-msgid "Motherboard Product Name"
-msgstr ""
-
-msgid "Motherboard Version"
-msgstr ""
-
-msgid "Motherboard Serial Number"
-msgstr ""
-
-msgid "Motherboard Asset Tag"
-msgstr ""
-
-msgid "CPU Manufacturer"
-msgstr ""
-
-msgid "CPU Version"
-msgstr ""
-
-msgid "CPU Normal Speed"
-msgstr ""
-
-msgid "CPU Max Speed"
-msgstr ""
-
-msgid "Hard Disk Model"
-msgstr ""
-
-msgid "Hard Disk Firmware"
-msgstr ""
-
-msgid "Hard Disk Serial Number"
-msgstr ""
-
-msgid "Chassis Manufacturer"
-msgstr ""
-
-msgid "Chassis Version"
-msgstr ""
-
-msgid "Chassis Serial"
-msgstr ""
-
-msgid "Chassis Asset"
-msgstr ""
-
-msgid "Logout not found"
-msgstr ""
-
-msgid "Setting logout to one second prior to next login"
-msgstr ""
-
-msgid "Host Login History"
-msgstr ""
-
-msgid "View History For"
-msgstr ""
-
-msgid "Selected Logins"
-msgstr ""
-
-msgid "History Graph"
-msgstr ""
-
-msgid "Engineer"
-msgstr ""
-
-msgid "Imaged From"
-msgstr ""
-
-msgid "Host Imaging History"
-msgstr ""
-
-msgid "Snapin task not completed"
-msgstr ""
-
-msgid "No complete time recorded"
-msgstr ""
-
-msgid "Host Snapin History"
-msgstr ""
-
-msgid "MAC Addresses"
-msgstr ""
-
-msgid "Service Settings"
-msgstr ""
-
-msgid "Client Module Settings"
-msgstr ""
-
-msgid "History Items"
-msgstr ""
-
-msgid "Imaging History"
-msgstr ""
-
-msgid "Host update failed!"
-msgstr ""
-
-msgid "Host updated!"
-msgstr ""
-
-msgid "Host Update Success"
-msgstr ""
-
-msgid "Host Update Fail"
-msgstr ""
-
-msgid "Failed to create new Group"
-msgstr ""
-
-msgid "Successfully added selected hosts to the group!"
-msgstr ""
-
-msgid "Host Add to Group Success"
-msgstr ""
-
-msgid "Host Add to Group Fail"
-msgstr ""
-
-msgid "Task type is invalid"
-msgstr ""
-
-msgid "Cannot task pending hosts"
-msgstr ""
-
-msgid "Assigned image is invalid"
-msgstr ""
-
-msgid "Assigned image is not enabled"
-msgstr ""
-
-msgid "Assigned image is protected"
-msgstr ""
-
-msgid "Select Snapin to run"
-msgstr ""
-
-msgid "Account Name"
-msgstr ""
-
-msgid "Shutdown when complete"
-msgstr ""
-
-msgid "Wake Up"
-msgstr ""
-
-msgid "Debug Task"
-msgstr ""
-
-msgid "Schedule Immediately"
-msgstr ""
-
-msgid "Schedule Later"
-msgstr ""
-
-msgid "Schedule Crontab Style"
-msgstr ""
-
-msgid "Special Crons"
-msgstr ""
-
-msgid "Cron Entry"
-msgstr ""
-
-msgid "min"
-msgstr ""
-
-msgid "hour"
-msgstr ""
-
-msgid "day"
-msgstr ""
-
-msgid "month"
-msgstr ""
-
-msgid "weekday"
-msgstr ""
-
-msgid "Import Reports"
-msgstr ""
-
-msgid "Import Report"
-msgstr ""
-
-msgid ""
-"This section allows you to upload user defined reports that may not be a "
-"part of the base FOG install."
-msgstr ""
-
-msgid "About FOG Reports"
-msgstr ""
-
-msgid ""
-"FOG Reports exist to give you information about what is going on with your "
-"FOG System. To view a report, select an item from the menu."
+msgid "Session Cancel Fail"
 msgstr ""
 
 msgid "Database Schema Installer / Updater"
@@ -3976,6 +3742,438 @@ msgstr ""
 msgid "Schema Update Fail"
 msgstr ""
 
+msgid "Total Clients"
+msgstr ""
+
+msgid "Create New Storage Group"
+msgstr ""
+
+msgid "Storage Group name"
+msgstr ""
+
+msgid "A storage group exists with this name!"
+msgstr ""
+
+msgid "Storage Group Create Success"
+msgstr ""
+
+msgid "Storage Group Create Fail"
+msgstr ""
+
+msgid "A storage group already exists with this name!"
+msgstr ""
+
+msgid "Update Master Node"
+msgstr ""
+
+msgid "Storage Node Master"
+msgstr ""
+
+msgid "Storage Node Associated"
+msgstr ""
+
+msgid "Storage Group Update Failed"
+msgstr ""
+
+msgid "Storage Group updated!"
+msgstr ""
+
+msgid "Storage Group Update Success"
+msgstr ""
+
+msgid "Storage Group Update Fail"
+msgstr ""
+
+msgid "Started By"
+msgstr ""
+
+msgid "Selected tasks cancelled!"
+msgstr ""
+
+msgid "Task Cancel Success"
+msgstr ""
+
+msgid "Task Cancel Fail"
+msgstr ""
+
+msgid "Active Multi-cast Tasks"
+msgstr ""
+
+msgid "Task Name"
+msgstr ""
+
+msgid "Hosts in tasking"
+msgstr ""
+
+msgid "Host/Group Name"
+msgstr ""
+
+msgid "Is Group"
+msgstr ""
+
+msgid "Task Type"
+msgstr ""
+
+msgid "Primary MAC"
+msgstr ""
+
+msgid "Ping Status"
+msgstr ""
+
+msgid "Imaged"
+msgstr ""
+
+msgid "Assigned Image"
+msgstr ""
+
+msgid "All Pending Hosts"
+msgstr ""
+
+msgid "Approve selected"
+msgstr ""
+
+msgid "Delete selected"
+msgstr ""
+
+msgid "Approve"
+msgstr ""
+
+msgid "Approve Pending Hosts"
+msgstr ""
+
+msgid "Approving the selected pending hosts."
+msgstr ""
+
+msgid "Confirm password"
+msgstr ""
+
+msgid "Approved selected hosts!"
+msgstr ""
+
+msgid "Host Approval Success"
+msgstr ""
+
+msgid "All Pending MACs"
+msgstr ""
+
+msgid "Approved selected macss!"
+msgstr ""
+
+msgid "MAC Approval Success"
+msgstr ""
+
+msgid "Create New Host"
+msgstr ""
+
+msgid "Host Image"
+msgstr ""
+
+msgid "Host Kernel Arguments"
+msgstr ""
+
+msgid "Host Init"
+msgstr ""
+
+msgid "Host Primary Disk"
+msgstr ""
+
+msgid "Host Bios Exit Type"
+msgstr ""
+
+msgid "Host EFI Exit Type"
+msgstr ""
+
+msgid "A host name is required!"
+msgstr ""
+
+msgid "A mac address is required!"
+msgstr ""
+
+msgid "A host already exists with this name!"
+msgstr ""
+
+msgid "MAC Format is invalid"
+msgstr ""
+
+msgid "A host with this mac already exists with name"
+msgstr ""
+
+msgid "Add host failed!"
+msgstr ""
+
+msgid "Host added!"
+msgstr ""
+
+msgid "Host Create Success"
+msgstr ""
+
+msgid "Host Create Fail"
+msgstr ""
+
+msgid "Host description"
+msgstr ""
+
+msgid "Please enter a hostname"
+msgstr ""
+
+msgid "Please enter a valid hostname"
+msgstr ""
+
+msgid "Please use another hostname"
+msgstr ""
+
+msgid "Cannot change image when in tasking"
+msgstr ""
+
+msgid "Add New MAC"
+msgstr ""
+
+msgid "Add New MAC Address"
+msgstr ""
+
+msgid "Update selected"
+msgstr ""
+
+msgid "Primary"
+msgstr ""
+
+msgid "Ignore Imaging"
+msgstr ""
+
+msgid "Ignore Client"
+msgstr ""
+
+msgid "Pending"
+msgstr ""
+
+msgid "Update/Remove MAC addresses"
+msgstr ""
+
+msgid "MAC Address is required!"
+msgstr ""
+
+msgid "MAC Address is invalid!"
+msgstr ""
+
+msgid "MAC Address is assigned to another host!"
+msgstr ""
+
+msgid "Group Associated"
+msgstr ""
+
+msgid "Host Groups"
+msgstr ""
+
+msgid "Host Printer Configuration"
+msgstr ""
+
+msgid "This setting turns off all FOG Printer Management"
+msgstr ""
+
+msgid "Although there are multiple levels already"
+msgstr ""
+
+msgid "between host and global settings"
+msgstr ""
+
+msgid "this is just another to ensure safety"
+msgstr ""
+
+msgid "FOG Managed Printers"
+msgstr ""
+
+msgid ""
+"This setting will only allow FOG Assigned printers to be added to the host. "
+"Any printer that is not assigned will be removed including non-FOG managed "
+"printers."
+msgstr ""
+
+msgid "Only Assigned Printers"
+msgstr ""
+
+msgid "Printer Associated"
+msgstr ""
+
+msgid "Snapin Associated"
+msgstr ""
+
+msgid "Host Snapins"
+msgstr ""
+
+msgid "Module Associated"
+msgstr ""
+
+msgid "Host module settings"
+msgstr ""
+
+msgid "Cron Schedule"
+msgstr ""
+
+msgid "Current Power Management Tasks"
+msgstr ""
+
+msgid "Primary User"
+msgstr ""
+
+msgid "Other Tag #1"
+msgstr ""
+
+msgid "Other Tag #2"
+msgstr ""
+
+msgid "System Manufacturer"
+msgstr ""
+
+msgid "System Version"
+msgstr ""
+
+msgid "System Serial Number"
+msgstr ""
+
+msgid "System UUID"
+msgstr ""
+
+msgid "System Type"
+msgstr ""
+
+msgid "BIOS Vendor"
+msgstr ""
+
+msgid "BIOS Version"
+msgstr ""
+
+msgid "BIOS Date"
+msgstr ""
+
+msgid "Motherboard Manufacturer"
+msgstr ""
+
+msgid "Motherboard Product Name"
+msgstr ""
+
+msgid "Motherboard Version"
+msgstr ""
+
+msgid "Motherboard Serial Number"
+msgstr ""
+
+msgid "Motherboard Asset Tag"
+msgstr ""
+
+msgid "CPU Manufacturer"
+msgstr ""
+
+msgid "CPU Version"
+msgstr ""
+
+msgid "CPU Normal Speed"
+msgstr ""
+
+msgid "CPU Max Speed"
+msgstr ""
+
+msgid "Hard Disk Model"
+msgstr ""
+
+msgid "Hard Disk Firmware"
+msgstr ""
+
+msgid "Hard Disk Serial Number"
+msgstr ""
+
+msgid "Chassis Manufacturer"
+msgstr ""
+
+msgid "Chassis Version"
+msgstr ""
+
+msgid "Chassis Serial"
+msgstr ""
+
+msgid "Chassis Asset"
+msgstr ""
+
+msgid "Logout not found"
+msgstr ""
+
+msgid "Setting logout to one second prior to next login"
+msgstr ""
+
+msgid "Host Login History"
+msgstr ""
+
+msgid "View History For"
+msgstr ""
+
+msgid "Selected Logins"
+msgstr ""
+
+msgid "History Graph"
+msgstr ""
+
+msgid "Engineer"
+msgstr ""
+
+msgid "Imaged From"
+msgstr ""
+
+msgid "Host Imaging History"
+msgstr ""
+
+msgid "Snapin task not completed"
+msgstr ""
+
+msgid "No complete time recorded"
+msgstr ""
+
+msgid "Host Snapin History"
+msgstr ""
+
+msgid "MAC Addresses"
+msgstr ""
+
+msgid "History Items"
+msgstr ""
+
+msgid "Imaging History"
+msgstr ""
+
+msgid "Host update failed!"
+msgstr ""
+
+msgid "Host updated!"
+msgstr ""
+
+msgid "Host Update Success"
+msgstr ""
+
+msgid "Host Update Fail"
+msgstr ""
+
+msgid "Failed to create new Group"
+msgstr ""
+
+msgid "Successfully added selected hosts to the group!"
+msgstr ""
+
+msgid "Host Add to Group Success"
+msgstr ""
+
+msgid "Host Add to Group Fail"
+msgstr ""
+
+msgid "Cannot task pending hosts"
+msgstr ""
+
+msgid "Assigned image is invalid"
+msgstr ""
+
+msgid "Assigned image is not enabled"
+msgstr ""
+
+msgid "Assigned image is protected"
+msgstr ""
+
 msgid "Click"
 msgstr ""
 
@@ -4055,341 +4253,6 @@ msgid "Node Offline"
 msgstr ""
 
 msgid "Used"
-msgstr ""
-
-msgid "This will allow you to configure how services"
-msgstr ""
-
-msgid "function on client computers."
-msgstr ""
-
-msgid "The settings tend to be global which affects all hosts."
-msgstr ""
-
-msgid "If you are looking to configure settings for a specific host"
-msgstr ""
-
-msgid "please see the hosts service settings section."
-msgstr ""
-
-msgid "To get started please select an item from the menu."
-msgstr ""
-
-msgid "Use the following link to go to the client page."
-msgstr ""
-
-msgid "There you can download utilities such as FOG Prep"
-msgstr ""
-
-msgid "and the FOG client."
-msgstr ""
-
-msgid "Click Here"
-msgstr ""
-
-msgid "Module Enabled"
-msgstr ""
-
-msgid "Enabled by Default"
-msgstr ""
-
-msgid "Default Width"
-msgstr ""
-
-msgid "Default Height"
-msgstr ""
-
-msgid "Default Refresh Rate"
-msgstr ""
-
-msgid "Unable to update global setting"
-msgstr ""
-
-msgid "Unable to update module default setting"
-msgstr ""
-
-msgid "Auto Log Out Time"
-msgstr ""
-
-msgid "Active at 5 minutes or more"
-msgstr ""
-
-msgid "Global Module Settings"
-msgstr ""
-
-msgid "Module update success!"
-msgstr ""
-
-msgid "Module Update Success"
-msgstr ""
-
-msgid "Module Update Fail"
-msgstr ""
-
-msgid "Friendly Name"
-msgstr ""
-
-msgid "API?"
-msgstr ""
-
-msgid "Create New User"
-msgstr ""
-
-msgid "User Password"
-msgstr ""
-
-msgid "confirm"
-msgstr ""
-
-msgid "User API Enable"
-msgstr ""
-
-msgid "A username already exists with this name!"
-msgstr ""
-
-msgid "Add user failed!"
-msgstr ""
-
-msgid "User added!"
-msgstr ""
-
-msgid "User Create Success"
-msgstr ""
-
-msgid "User Create Fail"
-msgstr ""
-
-msgid "A user already exists with this name"
-msgstr ""
-
-msgid "User API Token"
-msgstr ""
-
-msgid "API"
-msgstr ""
-
-msgid "User update failed!"
-msgstr ""
-
-msgid "User updated!"
-msgstr ""
-
-msgid "User Update Success"
-msgstr ""
-
-msgid "User Update Fail"
-msgstr ""
-
-msgid "Create New Group"
-msgstr ""
-
-msgid "Group Description"
-msgstr ""
-
-msgid "Group Kernel"
-msgstr ""
-
-msgid "Group Kernel Arguments"
-msgstr ""
-
-msgid "Group Init"
-msgstr ""
-
-msgid "Group Primary Disk"
-msgstr ""
-
-msgid "A group name is required!"
-msgstr ""
-
-msgid "A group already exists with this name!"
-msgstr ""
-
-msgid "Add group failed!"
-msgstr ""
-
-msgid "Group added!"
-msgstr ""
-
-msgid "Group Create Success"
-msgstr ""
-
-msgid "Group Create Fail"
-msgstr ""
-
-msgid "Group Product Key"
-msgstr ""
-
-msgid "Group BIOS Exit"
-msgstr ""
-
-msgid "Group EFI Exit"
-msgstr ""
-
-msgid "Please use another group name"
-msgstr ""
-
-msgid "Group Image"
-msgstr ""
-
-msgid "Group Hosts"
-msgstr ""
-
-msgid "Group Printer Configuration"
-msgstr ""
-
-msgid ""
-"This setting turns off all FOG Printer Management. Although there are "
-"multiple levels already, this  is just another level if needed."
-msgstr ""
-
-msgid "Add/Remove Managed Printers"
-msgstr ""
-
-msgid "All Printers"
-msgstr ""
-
-msgid ""
-"This setting will only allow FO GAssigned printers to be added to the host. "
-"Any printer that is not assigned will be removed including non-FOG managed "
-"printers."
-msgstr ""
-
-msgid "Group Snapins"
-msgstr ""
-
-msgid "Module Association"
-msgstr ""
-
-msgid "Group module settings"
-msgstr ""
-
-msgid "Group update failed!"
-msgstr ""
-
-msgid "Group updated!"
-msgstr ""
-
-msgid "Group Update Success"
-msgstr ""
-
-msgid "Group Update Fail"
-msgstr ""
-
-msgid "There are no hosts to task"
-msgstr ""
-
-msgid "Groups cannot create capture tasks"
-msgstr ""
-
-msgid "Storage Node Management"
-msgstr ""
-
-msgid "Create New Storage Node"
-msgstr ""
-
-msgid "Storage Node Web Root"
-msgstr ""
-
-msgid "Storage Node Enabled"
-msgstr ""
-
-msgid "Network Interface"
-msgstr ""
-
-msgid "Kbps"
-msgstr ""
-
-msgid "Multicast Bitrate"
-msgstr ""
-
-msgid "Storage Node Image Path"
-msgstr ""
-
-msgid "Storage Node FTP Path"
-msgstr ""
-
-msgid "Storage Node Snapin Path"
-msgstr ""
-
-msgid "Storage Node SSL Path"
-msgstr ""
-
-msgid "Storage Node FTP User"
-msgstr ""
-
-msgid "Storage Node FTP Password"
-msgstr ""
-
-msgid "A storage node already exists with this name!"
-msgstr ""
-
-msgid "Bandwidth should be numeric and greater than 0"
-msgstr ""
-
-msgid "Add storage node failed!"
-msgstr ""
-
-msgid "Storage Node added!"
-msgstr ""
-
-msgid "Storage Node Create Success"
-msgstr ""
-
-msgid "Storage Node Create Fail"
-msgstr ""
-
-msgid "Storage Node Update Failed"
-msgstr ""
-
-msgid "Storage Node updated!"
-msgstr ""
-
-msgid "Storage Node Update Success"
-msgstr ""
-
-msgid "Storage Node Update Fail"
-msgstr ""
-
-msgid "Started By"
-msgstr ""
-
-msgid "Progress"
-msgstr ""
-
-msgid "Resume Reload"
-msgstr ""
-
-msgid "Pause Reload"
-msgstr ""
-
-msgid "Cancel Selected"
-msgstr ""
-
-msgid "Selected tasks cancelled!"
-msgstr ""
-
-msgid "Task Cancel Success"
-msgstr ""
-
-msgid "Task Cancel Fail"
-msgstr ""
-
-msgid "Active Multi-cast Tasks"
-msgstr ""
-
-msgid "Task Name"
-msgstr ""
-
-msgid "Hosts in tasking"
-msgstr ""
-
-msgid "Host/Group Name"
-msgstr ""
-
-msgid "Is Group"
-msgstr ""
-
-msgid "Task Type"
 msgstr ""
 
 msgid "Printer Name"
@@ -4473,6 +4336,75 @@ msgstr ""
 msgid "Printer Update Fail"
 msgstr ""
 
+msgid "This will allow you to configure how services"
+msgstr ""
+
+msgid "function on client computers."
+msgstr ""
+
+msgid "The settings tend to be global which affects all hosts."
+msgstr ""
+
+msgid "If you are looking to configure settings for a specific host"
+msgstr ""
+
+msgid "please see the hosts service settings section."
+msgstr ""
+
+msgid "To get started please select an item from the menu."
+msgstr ""
+
+msgid "Use the following link to go to the client page."
+msgstr ""
+
+msgid "There you can download utilities such as FOG Prep"
+msgstr ""
+
+msgid "and the FOG client."
+msgstr ""
+
+msgid "Click Here"
+msgstr ""
+
+msgid "Module Enabled"
+msgstr ""
+
+msgid "Enabled by Default"
+msgstr ""
+
+msgid "Default Width"
+msgstr ""
+
+msgid "Default Height"
+msgstr ""
+
+msgid "Default Refresh Rate"
+msgstr ""
+
+msgid "Unable to update global setting"
+msgstr ""
+
+msgid "Unable to update module default setting"
+msgstr ""
+
+msgid "Auto Log Out Time"
+msgstr ""
+
+msgid "Active at 5 minutes or more"
+msgstr ""
+
+msgid "Global Module Settings"
+msgstr ""
+
+msgid "Module update success!"
+msgstr ""
+
+msgid "Module Update Success"
+msgstr ""
+
+msgid "Module Update Fail"
+msgstr ""
+
 msgid "FOG Client Installers"
 msgstr ""
 
@@ -4513,133 +4445,277 @@ msgstr ""
 msgid "FOG Forums"
 msgstr ""
 
-msgid "Captured"
+msgid "Plugin Name"
 msgstr ""
 
-msgid "Create New Image"
+msgid "Activated"
 msgstr ""
 
-msgid "Partimage"
+msgid "Installed"
 msgstr ""
 
-msgid "Image Description"
+msgid "List All Plugins"
 msgstr ""
 
-msgid "Image Compression Rating"
+msgid "Activate selected"
 msgstr ""
 
-msgid "Image Storage Group"
+msgid "Install selected"
 msgstr ""
 
-msgid "Image Operating System"
+msgid "Deactivate selected"
 msgstr ""
 
-msgid "Image Partition"
+msgid "Uninstall selected"
 msgstr ""
 
-msgid "Image Manager"
+msgid "Activate plugins failed!"
 msgstr ""
 
-msgid "Image Enabled"
+msgid "Plugin activated!"
 msgstr ""
 
-msgid "Image Replicate"
+msgid "Plugins activated!"
 msgstr ""
 
-msgid "An image already exists with this name!"
+msgid "Plugin Activate Success"
 msgstr ""
 
-msgid "Please choose a different filename/path as this is reserved"
+msgid "Plugin Activate Fail"
 msgstr ""
 
-msgid "The path requested is already in use by another image!"
+msgid "Unable to install, no method exists for "
 msgstr ""
 
-msgid "Add image failed!"
+msgid "Failed to install "
 msgstr ""
 
-msgid "Image added!"
+msgid "Install plugins failed!"
 msgstr ""
 
-msgid "Image Create Success"
+msgid "Plugin installed!"
 msgstr ""
 
-msgid "Image Create Fail"
+msgid "Plugins installed!"
 msgstr ""
 
-msgid "Image Protected"
+msgid "Plugin Install Success"
 msgstr ""
 
-msgid "Image update failed!"
+msgid "Plugin Install Fail"
 msgstr ""
 
-msgid "Image updated!"
+msgid "Deactivate plugins failed!"
 msgstr ""
 
-msgid "Image Update Success"
+msgid "Plugin deactivated!"
 msgstr ""
 
-msgid "Image Update Fail"
+msgid "Plugin Deactivate Success"
 msgstr ""
 
-msgid "Session Name"
+msgid "Plugin Deactivate Fail"
 msgstr ""
 
-msgid "Client Count"
+msgid "Unable to uninstall, no method exists for "
 msgstr ""
 
-msgid "Session Timeout"
+msgid "Failed to uninstall "
 msgstr ""
 
-msgid "minutes"
+msgid "Uninstall plugins failed!"
 msgstr ""
 
-msgid "Session Image"
+msgid "Plugin uninstalled!"
 msgstr ""
 
-msgid "Cancel Selected Tasks"
+msgid "Plugins uninstalled!"
 msgstr ""
 
-msgid "Cancel the selected tasks."
+msgid "Plugin Uninstall Success"
 msgstr ""
 
-msgid "Create new Session Task"
+msgid "Plugin Uninstall Fail"
 msgstr ""
 
-msgid "Multicast Sessions"
+msgid "Storage Node Management"
 msgstr ""
 
-msgid "Please choose an image"
+msgid "Create New Storage Node"
 msgstr ""
 
-msgid "Please select a valid image"
+msgid "Storage Node Web Root"
 msgstr ""
 
-msgid "Session with that name already exists!"
+msgid "Storage Node Enabled"
 msgstr ""
 
-msgid "Server is only configured to run "
+msgid "Network Interface"
 msgstr ""
 
-msgid "Session created!"
+msgid "Kbps"
 msgstr ""
 
-msgid "Session Create Success"
+msgid "Multicast Bitrate"
 msgstr ""
 
-msgid "Session Create Fail"
+msgid "Storage Node Image Path"
 msgstr ""
 
-msgid "Failed to create Session"
+msgid "Storage Node FTP Path"
 msgstr ""
 
-msgid "Sessions cancelled!"
+msgid "Storage Node Snapin Path"
 msgstr ""
 
-msgid "Session Cancel Success"
+msgid "Storage Node SSL Path"
 msgstr ""
 
-msgid "Session Cancel Fail"
+msgid "Storage Node FTP User"
+msgstr ""
+
+msgid "Storage Node FTP Password"
+msgstr ""
+
+msgid "A storage node already exists with this name!"
+msgstr ""
+
+msgid "Bandwidth should be numeric and greater than 0"
+msgstr ""
+
+msgid "Add storage node failed!"
+msgstr ""
+
+msgid "Storage Node added!"
+msgstr ""
+
+msgid "Storage Node Create Success"
+msgstr ""
+
+msgid "Storage Node Create Fail"
+msgstr ""
+
+msgid "Storage Node Update Failed"
+msgstr ""
+
+msgid "Storage Node updated!"
+msgstr ""
+
+msgid "Storage Node Update Success"
+msgstr ""
+
+msgid "Storage Node Update Fail"
+msgstr ""
+
+msgid "Is Pack"
+msgstr ""
+
+msgid "Create New Snapin"
+msgstr ""
+
+msgid "Normal Snapin"
+msgstr ""
+
+msgid "Snapin Pack"
+msgstr ""
+
+msgid "Snapin Type"
+msgstr ""
+
+msgid "Snapin Template"
+msgstr ""
+
+msgid "Snapin Pack Template"
+msgstr ""
+
+msgid "Snapin Pack File"
+msgstr ""
+
+msgid "Snapin Run With Argument"
+msgstr ""
+
+msgid "Snapin Pack Arguments"
+msgstr ""
+
+msgid "Snapin File (exists)"
+msgstr ""
+
+msgid "Snapin Arguments"
+msgstr ""
+
+msgid "Snapin Enabled"
+msgstr ""
+
+msgid "Snapin Replicate"
+msgstr ""
+
+msgid "Snapin Arguments Hidden"
+msgstr ""
+
+msgid "Snapin Timeout"
+msgstr ""
+
+msgid "No Action"
+msgstr ""
+
+msgid "Snapin Command"
+msgstr ""
+
+msgid "read-only"
+msgstr ""
+
+msgid "A snapin already exists with this name!"
+msgstr ""
+
+msgid "A file"
+msgstr ""
+
+msgid "either already selected or uploaded"
+msgstr ""
+
+msgid "must be specified"
+msgstr ""
+
+msgid "Please choose a different name"
+msgstr ""
+
+msgid "this one is reserved for FOG"
+msgstr ""
+
+msgid "FTP Connection has failed"
+msgstr ""
+
+msgid "Failed to add snapin"
+msgstr ""
+
+msgid "Failed to add/update snapin file"
+msgstr ""
+
+msgid "Add snapin failed!"
+msgstr ""
+
+msgid "Snapin added!"
+msgstr ""
+
+msgid "Snapin Create Success"
+msgstr ""
+
+msgid "Snapin Create Fail"
+msgstr ""
+
+msgid "Snapin Protected"
+msgstr ""
+
+msgid "Snapin update failed!"
+msgstr ""
+
+msgid "Snapin updated!"
+msgstr ""
+
+msgid "Snapin Update Success"
+msgstr ""
+
+msgid "Snapin Update Fail"
 msgstr ""
 
 msgid "Failed to connect"
