@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-21 19:33-0400\n"
+"POT-Creation-Date: 2018-03-21 19:43-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1031,45 +1031,6 @@ msgstr "Il MAC primario associato è"
 msgid "There are no groups on this server"
 msgstr "Non ci sono gruppi su questo server"
 
-msgid "Integrity Settings"
-msgstr "Impostazioni di integrità"
-
-msgid "Export Checksums"
-msgstr "Esporta Checksum"
-
-msgid "Checksums"
-msgstr "Checksums"
-
-msgid "Icon"
-msgstr "Icona"
-
-msgid "Checksum"
-msgstr "Checksum"
-
-msgid "Last Updated Time"
-msgstr "Ultimo aggiornamento"
-
-msgid "Conflicting path/file"
-msgstr "Percorso / file in conflitto"
-
-msgid "No node associated with any addresses of this system"
-msgstr "Nessun nodo associato a nessun indirizzo di questo sistema"
-
-msgid "Associates the files on nodes"
-msgstr "Associare i file sui nodi"
-
-msgid "and stores their respective checksums"
-msgstr "e memorizza i loro rispettivi controlli"
-
-msgid "mod dates"
-msgstr "date di mod"
-
-msgid "and the location of the file on that"
-msgstr "e la posizione del file su quel"
-
-msgid "particular node"
-msgstr "particolare nodo"
-
 msgid "Edit Capone ID"
 msgstr ""
 
@@ -1890,6 +1851,9 @@ msgstr "Importa Stato delle attività"
 
 msgid "Task States"
 msgstr "Stati attività"
+
+msgid "Icon"
+msgstr "Icona"
 
 #, fuzzy
 msgid "Task State Name"
