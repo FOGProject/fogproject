@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-21 19:43-0400\n"
+"POT-Creation-Date: 2018-03-22 16:11-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3001,10 +3001,6 @@ msgid "Group Primary Disk"
 msgstr "Primäre Festplatte der Gruppe"
 
 #, fuzzy
-msgid "A group name is required!"
-msgstr "Ein Gruppenname ist erforderlich!"
-
-#, fuzzy
 msgid "A group already exists with this name!"
 msgstr "Eine Gruppe mit diesem Namen ist bereits vorhanden!"
 
@@ -3072,7 +3068,7 @@ msgstr "Keine Druckerverwaltung"
 
 msgid ""
 "This setting turns off all FOG Printer Management. Although there are "
-"multiple levels already, this  is just another level if needed."
+"multiple levels already, this is just another level if needed."
 msgstr ""
 
 #, fuzzy
@@ -4547,19 +4543,12 @@ msgstr "Host Init"
 msgid "Host Primary Disk"
 msgstr "Primäre Festplatte Host"
 
-msgid "Host Bios Exit Type"
-msgstr "Host-Bios-Exit-Typ"
+#, fuzzy
+msgid "Host BIOS Exit Type"
+msgstr "Host-EFI-Exit-Typ"
 
 msgid "Host EFI Exit Type"
 msgstr "Host-EFI-Exit-Typ"
-
-#, fuzzy
-msgid "A host name is required!"
-msgstr "Ein Hostname ist erforderlich!"
-
-#, fuzzy
-msgid "A mac address is required!"
-msgstr "MAC-Adresse ist erforderlich"
 
 #, fuzzy
 msgid "A host already exists with this name!"
@@ -4587,13 +4576,6 @@ msgstr "Host erfolgreich erstellt"
 #, fuzzy
 msgid "Host Create Fail"
 msgstr "Host erstellen fehlgeschlagen"
-
-#, fuzzy
-msgid "Host description"
-msgstr "Host-Beschreibung"
-
-msgid "Please enter a hostname"
-msgstr "Bitte geben Sie einen Hostnamen ein"
 
 msgid "Please enter a valid hostname"
 msgstr "Bitte geben Sie einen gültigen Hostnamen ein"
@@ -4637,10 +4619,6 @@ msgid "Update/Remove MAC addresses"
 msgstr "Drucker Aktualisieren/Entfernen"
 
 #, fuzzy
-msgid "MAC Address is required!"
-msgstr "MAC-Adresse ist erforderlich"
-
-#, fuzzy
 msgid "MAC Address is invalid!"
 msgstr "MAC-Format ist ungültig"
 
@@ -4660,21 +4638,6 @@ msgstr "Gruppen exportieren"
 msgid "Host Printer Configuration"
 msgstr "Druckerkonfiguration"
 
-msgid "This setting turns off all FOG Printer Management"
-msgstr "Diese Einstellung schaltet FOG Druckerverwaltung aus"
-
-msgid "Although there are multiple levels already"
-msgstr "Obwohl es bereits mehrere Ebenen zwischen"
-
-msgid "between host and global settings"
-msgstr "Host- und globalen Einstellungen gibt,"
-
-msgid "this is just another to ensure safety"
-msgstr "ist diese eine weitere, um die Sicherheit zu erhöhen"
-
-msgid "FOG Managed Printers"
-msgstr "FOG-verwaltete Drucker"
-
 msgid ""
 "This setting will only allow FOG Assigned printers to be added to the host. "
 "Any printer that is not assigned will be removed including non-FOG managed "
@@ -4683,9 +4646,6 @@ msgstr ""
 "Diese Einstellung erlaubt, nur von FOG zugewiesene Drucker an den Host "
 "hinzuzufügen. Jeder Drucker, der nicht zugeordnet ist, wird entfernt, "
 "einschließlich nicht FOG-verwaltete Drucker."
-
-msgid "Only Assigned Printers"
-msgstr "Nur zugewiesene Drucker"
 
 #, fuzzy
 msgid "Printer Associated"
@@ -4711,6 +4671,10 @@ msgid "Cron Schedule"
 msgstr "Cron-Zeitplan"
 
 #, fuzzy
+msgid "Create New"
+msgstr "Neue %s erstellen"
+
+#, fuzzy
 msgid "Current Power Management Tasks"
 msgstr "Power Management"
 
@@ -4728,9 +4692,6 @@ msgstr "Systemhersteller"
 
 msgid "System Version"
 msgstr "Systemversion"
-
-msgid "System Serial Number"
-msgstr "Seriennummer des Systems"
 
 #, fuzzy
 msgid "System UUID"
@@ -4775,14 +4736,16 @@ msgstr "CPU Normalgeschwindigkeit"
 msgid "CPU Max Speed"
 msgstr "CPU-Höchstgeschwindigkeit"
 
-msgid "Hard Disk Model"
-msgstr "Festplattenmodell"
+#, fuzzy
+msgid "Hard Drive Model"
+msgstr "Druckermodell"
 
-msgid "Hard Disk Firmware"
-msgstr "Festplatten-Firmware"
+msgid "Hard Drive Firmware"
+msgstr ""
 
-msgid "Hard Disk Serial Number"
-msgstr "Seriennummer der Festplatte"
+#, fuzzy
+msgid "Hard Drive Serial Number"
+msgstr "Seriennummer"
 
 msgid "Chassis Manufacturer"
 msgstr "Gehäuse-Hersteller"
@@ -4790,33 +4753,16 @@ msgstr "Gehäuse-Hersteller"
 msgid "Chassis Version"
 msgstr "Gehäuse-Version"
 
-msgid "Chassis Serial"
-msgstr "Gehäuse-Serien"
-
-msgid "Chassis Asset"
-msgstr "Gehäuse-Asset"
+#, fuzzy
+msgid "Chassis Serial Number"
+msgstr "Seriennummer"
 
 #, fuzzy
-msgid "Logout not found"
-msgstr "Logout nicht gefunden"
-
-msgid "Setting logout to one second prior to next login"
-msgstr "Logout vor dem nächsten Login auf eine Sekunde setzen"
+msgid "Chassis Asset Tag"
+msgstr "Mainboard Asset-Tag"
 
 msgid "Host Login History"
 msgstr "Host-Login-Verlauf"
-
-#, fuzzy
-msgid "View History For"
-msgstr "Verlauf anzeigen für"
-
-#, fuzzy
-msgid "Selected Logins"
-msgstr "ausgewählte Logins"
-
-#, fuzzy
-msgid "History Graph"
-msgstr "Verlaufsgrafik"
 
 msgid "Engineer"
 msgstr "Ingenieur"
@@ -4825,15 +4771,9 @@ msgstr "Ingenieur"
 msgid "Imaged From"
 msgstr "Abgebildet von"
 
-msgid "Host Imaging History"
-msgstr "Host Imagingverlauf"
-
 #, fuzzy
-msgid "Snapin task not completed"
-msgstr "Snapin Task ist nicht vollständig"
-
-msgid "No complete time recorded"
-msgstr "Keine vollständige Zeit aufgezeichnet"
+msgid "Host Image History"
+msgstr "Image-Verlauf"
 
 #, fuzzy
 msgid "Host Snapin History"

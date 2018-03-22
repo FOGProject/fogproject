@@ -103,7 +103,7 @@ class GroupManagement extends FOGPage
 
         $group = filter_input(INPUT_POST, 'group');
         $description = filter_input(INPUT_POST, 'description');
-        $kern = filter_input(INPUT_POST, 'kern');
+        $kernel = filter_input(INPUT_POST, 'kernel');
         $args = filter_input(INPUT_POST, 'args');
         $init = filter_input(INPUT_POST, 'init');
         $dev = filter_input(INPUT_POST, 'dev');
@@ -138,15 +138,15 @@ class GroupManagement extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
-                'kern',
+                'kernel',
                 _('Group Kernel')
             ) => self::makeInput(
                 'form-control groupkernel-input',
-                'kern',
+                'kernel',
                 'customBzimage',
                 'text',
-                'kern',
-                $kern
+                'kernel',
+                $kernel
             ),
             self::makeLabel(
                 $labelClass,
@@ -245,8 +245,8 @@ class GroupManagement extends FOGPage
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
-        $kern = trim(
-            filter_input(INPUT_POST, 'kern')
+        $kernel = trim(
+            filter_input(INPUT_POST, 'kernel')
         );
         $args = trim(
             filter_input(INPUT_POST, 'args')
@@ -260,12 +260,9 @@ class GroupManagement extends FOGPage
 
         $serverFault = false;
         try {
-            if (!$group) {
-                throw new Exception(
-                    _('A group name is required!')
-                );
-            }
-            if (self::getClass('GroupManager')->exists($group)) {
+            $exists = self::getClass('GroupManager')
+                ->exists($group);
+            if ($exists) {
                 throw new Exception(
                     _('A group already exists with this name!')
                 );
@@ -273,7 +270,7 @@ class GroupManagement extends FOGPage
             $Group = self::getClass('Group')
                 ->set('name', $group)
                 ->set('description', $description)
-                ->set('kernel', $kern)
+                ->set('kernel', $kernel)
                 ->set('kernelArgs', $args)
                 ->set('kernelDevice', $dev)
                 ->set('init', $init);
@@ -948,9 +945,9 @@ class GroupManagement extends FOGPage
             . _('No Printer Management'),
             'data-toggle="tooltip" data-placement="right" title="'
             . _(
-                'This setting turns off all FOG Printer Management.'
-                . ' Although there are multiple levels already, this '
-                . ' is just another level if needed.'
+                'This setting turns off all FOG Printer Management. '
+                . 'Although there are multiple levels already, this '
+                . 'is just another level if needed.'
             )
             . '"'
         );

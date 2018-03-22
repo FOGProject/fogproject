@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-21 19:43-0400\n"
+"POT-Creation-Date: 2018-03-22 16:11-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2648,9 +2648,6 @@ msgstr ""
 msgid "Group Primary Disk"
 msgstr ""
 
-msgid "A group name is required!"
-msgstr ""
-
 msgid "A group already exists with this name!"
 msgstr ""
 
@@ -2706,7 +2703,7 @@ msgstr ""
 
 msgid ""
 "This setting turns off all FOG Printer Management. Although there are "
-"multiple levels already, this  is just another level if needed."
+"multiple levels already, this is just another level if needed."
 msgstr ""
 
 msgid "Add/Remove Managed Printers"
@@ -3931,16 +3928,10 @@ msgstr ""
 msgid "Host Primary Disk"
 msgstr ""
 
-msgid "Host Bios Exit Type"
+msgid "Host BIOS Exit Type"
 msgstr ""
 
 msgid "Host EFI Exit Type"
-msgstr ""
-
-msgid "A host name is required!"
-msgstr ""
-
-msgid "A mac address is required!"
 msgstr ""
 
 msgid "A host already exists with this name!"
@@ -3962,12 +3953,6 @@ msgid "Host Create Success"
 msgstr ""
 
 msgid "Host Create Fail"
-msgstr ""
-
-msgid "Host description"
-msgstr ""
-
-msgid "Please enter a hostname"
 msgstr ""
 
 msgid "Please enter a valid hostname"
@@ -4003,9 +3988,6 @@ msgstr ""
 msgid "Update/Remove MAC addresses"
 msgstr ""
 
-msgid "MAC Address is required!"
-msgstr ""
-
 msgid "MAC Address is invalid!"
 msgstr ""
 
@@ -4021,28 +4003,10 @@ msgstr ""
 msgid "Host Printer Configuration"
 msgstr ""
 
-msgid "This setting turns off all FOG Printer Management"
-msgstr ""
-
-msgid "Although there are multiple levels already"
-msgstr ""
-
-msgid "between host and global settings"
-msgstr ""
-
-msgid "this is just another to ensure safety"
-msgstr ""
-
-msgid "FOG Managed Printers"
-msgstr ""
-
 msgid ""
 "This setting will only allow FOG Assigned printers to be added to the host. "
 "Any printer that is not assigned will be removed including non-FOG managed "
 "printers."
-msgstr ""
-
-msgid "Only Assigned Printers"
 msgstr ""
 
 msgid "Printer Associated"
@@ -4063,6 +4027,9 @@ msgstr ""
 msgid "Cron Schedule"
 msgstr ""
 
+msgid "Create New"
+msgstr ""
+
 msgid "Current Power Management Tasks"
 msgstr ""
 
@@ -4079,9 +4046,6 @@ msgid "System Manufacturer"
 msgstr ""
 
 msgid "System Version"
-msgstr ""
-
-msgid "System Serial Number"
 msgstr ""
 
 msgid "System UUID"
@@ -4126,13 +4090,13 @@ msgstr ""
 msgid "CPU Max Speed"
 msgstr ""
 
-msgid "Hard Disk Model"
+msgid "Hard Drive Model"
 msgstr ""
 
-msgid "Hard Disk Firmware"
+msgid "Hard Drive Firmware"
 msgstr ""
 
-msgid "Hard Disk Serial Number"
+msgid "Hard Drive Serial Number"
 msgstr ""
 
 msgid "Chassis Manufacturer"
@@ -4141,28 +4105,13 @@ msgstr ""
 msgid "Chassis Version"
 msgstr ""
 
-msgid "Chassis Serial"
+msgid "Chassis Serial Number"
 msgstr ""
 
-msgid "Chassis Asset"
-msgstr ""
-
-msgid "Logout not found"
-msgstr ""
-
-msgid "Setting logout to one second prior to next login"
+msgid "Chassis Asset Tag"
 msgstr ""
 
 msgid "Host Login History"
-msgstr ""
-
-msgid "View History For"
-msgstr ""
-
-msgid "Selected Logins"
-msgstr ""
-
-msgid "History Graph"
 msgstr ""
 
 msgid "Engineer"
@@ -4171,13 +4120,7 @@ msgstr ""
 msgid "Imaged From"
 msgstr ""
 
-msgid "Host Imaging History"
-msgstr ""
-
-msgid "Snapin task not completed"
-msgstr ""
-
-msgid "No complete time recorded"
+msgid "Host Image History"
 msgstr ""
 
 msgid "Host Snapin History"

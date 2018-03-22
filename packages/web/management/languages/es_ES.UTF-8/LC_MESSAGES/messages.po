@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-21 19:43-0400\n"
+"POT-Creation-Date: 2018-03-22 16:11-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3206,10 +3206,6 @@ msgid "Group Primary Disk"
 msgstr "Disco de grupo primario"
 
 #, fuzzy
-msgid "A group name is required!"
-msgstr "Se requiere un nombre de imagen!"
-
-#, fuzzy
 msgid "A group already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
@@ -3277,7 +3273,7 @@ msgstr "Sin administración de la impresora"
 
 msgid ""
 "This setting turns off all FOG Printer Management. Although there are "
-"multiple levels already, this  is just another level if needed."
+"multiple levels already, this is just another level if needed."
 msgstr ""
 
 #, fuzzy
@@ -4748,20 +4744,12 @@ msgid "Host Primary Disk"
 msgstr "Disco de grupo primario"
 
 #, fuzzy
-msgid "Host Bios Exit Type"
-msgstr "Grupo Bios Tipo de salida"
+msgid "Host BIOS Exit Type"
+msgstr "Grupo EFI Tipo de salida"
 
 #, fuzzy
 msgid "Host EFI Exit Type"
 msgstr "Grupo EFI Tipo de salida"
-
-#, fuzzy
-msgid "A host name is required!"
-msgstr "Se requiere un nombre de imagen!"
-
-#, fuzzy
-msgid "A mac address is required!"
-msgstr "Dirección MAC de lista de origen: "
 
 #, fuzzy
 msgid "A host already exists with this name!"
@@ -4789,14 +4777,6 @@ msgstr "Creado"
 #, fuzzy
 msgid "Host Create Fail"
 msgstr "Grupo Error de creación"
-
-#, fuzzy
-msgid "Host description"
-msgstr "Descripción del Grupo"
-
-#, fuzzy
-msgid "Please enter a hostname"
-msgstr "Por favor introduce un nombre de sesión"
 
 #, fuzzy
 msgid "Please enter a valid hostname"
@@ -4841,10 +4821,6 @@ msgid "Update/Remove MAC addresses"
 msgstr "Eliminar todos los elementos seleccionados"
 
 #, fuzzy
-msgid "MAC Address is required!"
-msgstr "Dirección MAC de lista de origen: "
-
-#, fuzzy
 msgid "MAC Address is invalid!"
 msgstr "Dirección MAC de lista de origen: "
 
@@ -4864,30 +4840,11 @@ msgstr "Exportar"
 msgid "Host Printer Configuration"
 msgstr "Configuración de servicio"
 
-msgid "This setting turns off all FOG Printer Management"
-msgstr ""
-
-msgid "Although there are multiple levels already"
-msgstr ""
-
-msgid "between host and global settings"
-msgstr ""
-
-msgid "this is just another to ensure safety"
-msgstr ""
-
-msgid "FOG Managed Printers"
-msgstr "Impresoras FOG Managed"
-
 msgid ""
 "This setting will only allow FOG Assigned printers to be added to the host. "
 "Any printer that is not assigned will be removed including non-FOG managed "
 "printers."
 msgstr ""
-
-#, fuzzy
-msgid "Only Assigned Printers"
-msgstr "Impresoras Sólo la Asignación"
 
 #, fuzzy
 msgid "Printer Associated"
@@ -4913,6 +4870,10 @@ msgid "Cron Schedule"
 msgstr "cron Horario"
 
 #, fuzzy
+msgid "Create New"
+msgstr "Crear nuevo grupo"
+
+#, fuzzy
 msgid "Current Power Management Tasks"
 msgstr "Gestión de usuarios"
 
@@ -4932,10 +4893,6 @@ msgstr "sistema Fabricante"
 
 msgid "System Version"
 msgstr "Versión del sistema"
-
-#, fuzzy
-msgid "System Serial Number"
-msgstr "sistema de serie"
 
 #, fuzzy
 msgid "System UUID"
@@ -4984,14 +4941,13 @@ msgid "CPU Max Speed"
 msgstr "Velocidad máxima de la CPU"
 
 #, fuzzy
-msgid "Hard Disk Model"
-msgstr "Modelo HD"
+msgid "Hard Drive Model"
+msgstr "Modelo de impresora"
 
-#, fuzzy
-msgid "Hard Disk Firmware"
-msgstr "HD firmware"
+msgid "Hard Drive Firmware"
+msgstr ""
 
-msgid "Hard Disk Serial Number"
+msgid "Hard Drive Serial Number"
 msgstr ""
 
 msgid "Chassis Manufacturer"
@@ -5000,31 +4956,14 @@ msgstr "chasis Fabricante"
 msgid "Chassis Version"
 msgstr "Versión chasis"
 
-msgid "Chassis Serial"
-msgstr "de serie del chasis"
-
-msgid "Chassis Asset"
-msgstr "chasis de Activos"
-
 #, fuzzy
-msgid "Logout not found"
-msgstr "Registro no encontrado, error: %s"
+msgid "Chassis Serial Number"
+msgstr "Versión chasis"
 
-msgid "Setting logout to one second prior to next login"
+msgid "Chassis Asset Tag"
 msgstr ""
 
 msgid "Host Login History"
-msgstr ""
-
-#, fuzzy
-msgid "View History For"
-msgstr "replicador de imagen"
-
-#, fuzzy
-msgid "Selected Logins"
-msgstr "Impresora"
-
-msgid "History Graph"
 msgstr ""
 
 msgid "Engineer"
@@ -5035,16 +4974,8 @@ msgid "Imaged From"
 msgstr "Nombre de la imagen"
 
 #, fuzzy
-msgid "Host Imaging History"
-msgstr "Lista de host"
-
-#, fuzzy
-msgid "Snapin task not completed"
-msgstr "después de la realización de tareas"
-
-#, fuzzy
-msgid "No complete time recorded"
-msgstr "Sin grupo seleccionado y ningún nuevo nombre de grupo entró"
+msgid "Host Image History"
+msgstr "replicador de imagen"
 
 #, fuzzy
 msgid "Host Snapin History"
