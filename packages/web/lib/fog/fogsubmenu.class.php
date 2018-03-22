@@ -23,14 +23,14 @@
  * Add "Main Menu" items for node:
  * self::$FOGSubMenu->addItems(
  *     'node',
- *     array('Title' => 'link')
+ *     ['Title' => 'link']
  * );
  *
  * Add "Node Menu" items for node:
  * Local Node node and id url vars are set.
  * self::$FOGSubMenu->addItems(
  *     'node',
- *     array('Title' => 'link'),
+ *     ['Title' => 'link'],
  *     'nodeid',
  *     'Node Menu'
  * );
@@ -39,7 +39,7 @@
  * Node and ID url vars are set, custom external link.
  * self::$FOGSubMenu->addItems(
  *     'node',
- *     array('Title' => 'http://www.example.com'),
+ *     ['Title' => 'http://www.example.com'],
  *     'nodeid',
  *     'Node Menu'
  * );
@@ -48,7 +48,7 @@
  * Node and ID set, custom node link, nodeid appended.
  * self::$FOGSubMenu->addItems(
  *     'node',
- *     array('Title' => '?node=blah'),
+ *     ['Title' => '?node=blah'],
  *     'nodeid',
  *     'Node Menu'
  * );
@@ -57,7 +57,7 @@
  * Node ID set, custom internal link, nodeid is appended.
  * self::$FOGSubMenu->addItems(
  *     'node',
- *     array('Title' => '/blah/index.php'),
+ *     ['Title' => '/blah/index.php'],
  *     'nodeid',
  *     'Node Menu'
  * );
@@ -68,7 +68,7 @@
  * Add static note:
  * self::$FOGSubMenu->addNotes(
  *     'node',
- *     array('Title' => 'Information'),
+ *     ['Title' => 'Information'],
  *     'id variable'
  * );
  *
@@ -76,7 +76,7 @@
  * self::$FOGSubMenu->addNotes(
  *     'node',
  *     function() {
- *         return array('banana' => 'chicken');
+ *         return ['banana' => 'chicken'];
  *     },
  *     'id variable'
  * );
@@ -100,23 +100,23 @@ class FOGSubMenu extends FOGBase
      *
      * @var array
      */
-    public $defaultSubs = array(
+    public $defaultSubs = [
         'host' => 'edit',
         'group' => 'edit',
-        'user' => 'edit',
-    );
+        'user' => 'edit'
+    ];
     /**
      * Stores items.
      *
      * @var array
      */
-    public $items = array();
+    public $items = [];
     /**
      * Stores main itesm.
      *
      * @var array
      */
-    public $mainitems = array();
+    public $mainitems = [];
     /**
      * Add items into the side menu stuff.
      *

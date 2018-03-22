@@ -32,31 +32,31 @@ class Module extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'id',
         'name' => 'name',
         'shortName' => 'short_name',
         'description' => 'description',
-        'isDefault' => 'default',
-    );
+        'isDefault' => 'default'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name',
-        'shortName',
-    );
+        'shortName'
+    ];
     /**
      * Additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'hosts',
         'hostsnotinme'
-    );
+    ];
     /**
      * Alters valid method.
      *
@@ -77,11 +77,7 @@ class Module extends FOGController
     public function destroy($key = 'id')
     {
         self::getClass('ModuleAssociationManager')
-            ->destroy(
-                array(
-                    'moduleID' => $this->get('id')
-                )
-            );
+            ->destroy(['moduleID' => $this->get('id')]);
         return parent::destroy($key);
     }
     /**
@@ -106,12 +102,12 @@ class Module extends FOGController
     {
         $hosts = self::getSubObjectIDs(
             'ModuleAssociation',
-            array('moduleID' => $this->get('id')),
+            ['moduleID' => $this->get('id')],
             'hostID'
         );
         $hosts = self::getSubObjectIDs(
             'Host',
-            array('id' => $hosts)
+            ['id' => $hosts]
         );
         $this->set('hosts', $hosts);
     }

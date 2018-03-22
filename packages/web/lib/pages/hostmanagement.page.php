@@ -3172,7 +3172,7 @@ class HostManagement extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'host-login-history');
+        $this->render(12, 'host-login-table');
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -3186,17 +3186,13 @@ class HostManagement extends FOGPage
     {
         $this->headerData = [
             _('Engineer'),
-            _('Imaged From'),
             _('Start'),
             _('End'),
             _('Duration'),
             _('Image'),
-            _('Type'),
-            _('State')
+            _('Type')
         ];
         $this->templates = [
-            '',
-            '',
             '',
             '',
             '',
@@ -3205,8 +3201,6 @@ class HostManagement extends FOGPage
             ''
         ];
         $this->attributes = [
-            [],
-            [],
             [],
             [],
             [],
@@ -3223,7 +3217,7 @@ class HostManagement extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'host-image-history');
+        $this->render(12, 'host-image-table');
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -3265,7 +3259,7 @@ class HostManagement extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'host-snapin-history');
+        $this->render(12, 'host-snapin-table');
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -4649,5 +4643,193 @@ class HostManagement extends FOGPage
                 false
             );
         }
+    }
+    /**
+     * Get the login history for this host.
+     *
+     * @return void
+     */
+    public function getLoginHist()
+    {
+        header('Content-type: application:json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $where = "`userTracking`.`utHostID` = '"
+            . $this->obj->get('id')
+            . "'";
+
+        $sqlstr = "SELECT `%s`
+            FROM `%s`
+            %s
+            %s
+            %s";
+
+        $filterstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            %s";
+
+        $totalstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            WHERE $where";
+
+        $dbcolumns = self::getClass('UserTrackingManager')->getColumns();
+
+        $columns = [];
+
+        foreach ($dbcolumns as $common => &$real) {
+            switch ($common) {
+            case 'datetime':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common,
+                    'formatter' => function ($d, $row) {
+                        return self::niceDate($d)->format('Y-m-d H:i:s');
+                    }
+                ];
+                break;
+            case 'action':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common,
+                    'formatter' => function ($d, $row) {
+                        switch ($d) {
+                        case '0':
+                            return _('Logout');
+                        case '1':
+                            return _('Login');
+                        case '99':
+                            return _('Service Start');
+                        }
+                    }
+                ];
+                break;
+            case 'id':
+                $tableID = $real;
+            default:
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common
+                ];
+                break;
+            }
+            unset($real);
+        }
+
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'userTracking',
+                $tableID,
+                $columns,
+                $sqlstr,
+                $filterstr,
+                $totalstr,
+                $where
+            )
+        );
+        exit;
+    }
+    /**
+     * Get the image history for this host.
+     *
+     * @return void
+     */
+    public function getImageHist()
+    {
+        header('Content-type: application:json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $where = "`imagingLog`.`ilHostID` = '"
+            . $this->obj->get('id')
+            . "'";
+
+        $sqlstr = "SELECT `%s`
+            FROM `%s`
+            %s
+            %s
+            %s";
+
+        $filterstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            %s";
+
+        $totalstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            WHERE $where";
+
+        $dbcolumns = self::getClass('ImagingLogManager')->getColumns();
+
+        $columns = [];
+
+        foreach ($dbcolumns as $common => &$real) {
+            switch ($common) {
+            case 'start':
+            case 'finish':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common,
+                    'formatter' => function ($d, $row) {
+                        return self::niceDate($d)->format('Y-m-d H:i:s');
+                    }
+                ];
+                break;
+            case 'image':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common,
+                    'formatter' => function ($d, $row) {
+                        $Image = self::getClass('Image')
+                            ->set('name', $d)
+                            ->load('name');
+                        if ($Image->isValid()) {
+                            return '<a href="../management/index.php'
+                                . '?node=image&sub=edit&id='
+                                . $Image->get('id')
+                                . '">'
+                                . $d
+                                . '</a>';
+                        } else {
+                            return $d;
+                        }
+                    }
+                ];
+                break;
+            case 'id':
+                $tableID = $real;
+            default:
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common
+                ];
+                break;
+            }
+            unset($real);
+        }
+        $columns[] = [
+            'dt' => 'duration',
+            'formatter' => function ($d, $row) {
+                return self::diff($row['ilStartTime'], $row['ilFinishTime']);
+            }
+        ];
+
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'imagingLog',
+                $tableID,
+                $columns,
+                $sqlstr,
+                $filterstr,
+                $totalstr,
+                $where
+            )
+        );
+        exit;
     }
 }

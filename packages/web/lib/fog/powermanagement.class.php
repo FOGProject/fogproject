@@ -32,7 +32,7 @@ class PowerManagement extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'pmID',
         'hostID' => 'pmHostID',
         'min' => 'pmMin',
@@ -41,30 +41,30 @@ class PowerManagement extends FOGController
         'month' => 'pmMonth',
         'dow' => 'pmDow',
         'onDemand' => 'pmOndemand',
-        'action' => 'pmAction',
-    );
+        'action' => 'pmAction'
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'hostID',
         'min',
         'hour',
         'dom',
         'month',
         'dow',
-        'action',
-    );
+        'action'
+    ];
     /**
      * Any additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
-        'hosts',
-    );
+    protected $additionalFields = [
+        'hosts'
+    ];
     /**
      * Add new hosts to the powermanagement system
      *
@@ -98,8 +98,7 @@ class PowerManagement extends FOGController
             'hosts',
             self::getSubObjectIDs(
                 'PowerManagement',
-                array(
-                    'id' => $this->get('id')),
+                ['id' => $this->get('id')],
                 'hostID'
             )
         );

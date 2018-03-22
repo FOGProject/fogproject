@@ -4766,10 +4766,6 @@ msgid "Engineer"
 msgstr "Ingénieur"
 
 #, fuzzy
-msgid "Imaged From"
-msgstr "imager"
-
-#, fuzzy
 msgid "Host Image History"
 msgstr "Histoire de l'image"
 

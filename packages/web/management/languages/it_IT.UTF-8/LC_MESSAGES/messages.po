@@ -4459,9 +4459,6 @@ msgstr "Host Accesso Storia"
 msgid "Engineer"
 msgstr "Ingegnere"
 
-msgid "Imaged From"
-msgstr "Immagini da"
-
 #, fuzzy
 msgid "Host Image History"
 msgstr "Storia immagine"

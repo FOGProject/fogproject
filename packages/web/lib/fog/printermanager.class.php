@@ -22,50 +22,6 @@
 class PrinterManager extends FOGManagerController
 {
     /**
-     * The base table name.
-     *
-     * @var string
-     */
-    public $tablename = 'dirCleaner';
-    /**
-     * Install our table.
-     *
-     * @return bool
-     */
-    public function install()
-    {
-        $this->uninstall();
-        $sql = Schema::createTable(
-            $this->tablename,
-            true,
-            array(
-                'dcID',
-                'dcPath'
-            ),
-            array(
-                'INTEGER',
-                'LONGTEXT'
-            ),
-            array(
-                false,
-                false
-            ),
-            array(
-                false,
-                false
-            ),
-            array(
-                'dcID',
-                'dcPath'
-            ),
-            'MyISAM',
-            'utf8',
-            'dcID',
-            'dcID'
-        );
-        return self::$DB->query($sql);
-    }
-    /**
      * Removes fields.
      *
      * Customized for hosts
@@ -81,7 +37,7 @@ class PrinterManager extends FOGManagerController
      * @return parent::destroy
      */
     public function destroy(
-        $findWhere = array(),
+        $findWhere = [],
         $whereOperator = 'AND',
         $orderBy = 'name',
         $sort = 'ASC',
@@ -105,7 +61,7 @@ class PrinterManager extends FOGManagerController
          * Setup for alternate removals
          */
         if (isset($findWhere['id'])) {
-            $findWhere = array('printerID' => $findWhere['id']);
+            $findWhere = ['printerID' => $findWhere['id']];
         }
         /**
          * Remove any printer associations

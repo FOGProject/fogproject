@@ -43,64 +43,64 @@ class NodeFailure extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'nfID',
         'storagenodeID' => 'nfNodeID',
         'taskID' => 'nfTaskID',
         'hostID' => 'nfHostID',
         'storagegroupID' => 'nfGroupID',
         'failureTime' => 'nfDateTime'
-    );
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'storagenodeID',
         'taskID',
         'hostID',
         'storagegroupID',
         'failureTime'
-    );
+    ];
     /**
      * Additional fields.
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'storagenode',
         'storagegroup',
         'host',
         'task'
-    );
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'StorageNode' => array(
+    protected $databaseFieldClassRelationships = [
+        'StorageNode' => [
             'id',
             'storagenodeID',
             'storagenode'
-        ),
-        'StorageGroup' => array(
+        ],
+        'StorageGroup' => [
             'id',
             'storagegroupID',
             'storagegroup'
-        ),
-        'Host' => array(
+        ],
+        'Host' => [
             'id',
             'hostID',
             'host'
-        ),
-        'Task' => array(
+        ],
+        'Task' => [
             'id',
             'taskID',
             'task'
-        )
-    );
+        ]
+    ];
     /**
      * Returns storage node object.
      *
