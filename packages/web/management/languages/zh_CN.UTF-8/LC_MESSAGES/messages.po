@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-21 19:43-0400\n"
+"POT-Creation-Date: 2018-03-22 16:11-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2997,10 +2997,6 @@ msgid "Group Primary Disk"
 msgstr "集团主磁盘"
 
 #, fuzzy
-msgid "A group name is required!"
-msgstr "图像名是必需的！"
-
-#, fuzzy
 msgid "A group already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
@@ -3068,7 +3064,7 @@ msgstr "没有打印机管理"
 
 msgid ""
 "This setting turns off all FOG Printer Management. Although there are "
-"multiple levels already, this  is just another level if needed."
+"multiple levels already, this is just another level if needed."
 msgstr ""
 
 #, fuzzy
@@ -4530,19 +4526,12 @@ msgstr "主机列表"
 msgid "Host Primary Disk"
 msgstr "主机主磁盘"
 
-msgid "Host Bios Exit Type"
-msgstr "主机BIOS退出类型"
+#, fuzzy
+msgid "Host BIOS Exit Type"
+msgstr "主持人EFI退出类型"
 
 msgid "Host EFI Exit Type"
 msgstr "主持人EFI退出类型"
-
-#, fuzzy
-msgid "A host name is required!"
-msgstr "图像名是必需的！"
-
-#, fuzzy
-msgid "A mac address is required!"
-msgstr "MAC地址是必需的"
 
 #, fuzzy
 msgid "A host already exists with this name!"
@@ -4570,13 +4559,6 @@ msgstr "主机创建"
 #, fuzzy
 msgid "Host Create Fail"
 msgstr "主机创建失败"
-
-#, fuzzy
-msgid "Host description"
-msgstr "主机描述"
-
-msgid "Please enter a hostname"
-msgstr "请输入主机名"
 
 msgid "Please enter a valid hostname"
 msgstr "请输入一个有效的主机名"
@@ -4620,10 +4602,6 @@ msgid "Update/Remove MAC addresses"
 msgstr "删除选定的打印机"
 
 #, fuzzy
-msgid "MAC Address is required!"
-msgstr "MAC地址是必需的"
-
-#, fuzzy
 msgid "MAC Address is invalid!"
 msgstr "MAC格式无效"
 
@@ -4643,21 +4621,6 @@ msgstr "出口组"
 msgid "Host Printer Configuration"
 msgstr "服务配置"
 
-msgid "This setting turns off all FOG Printer Management"
-msgstr ""
-
-msgid "Although there are multiple levels already"
-msgstr ""
-
-msgid "between host and global settings"
-msgstr ""
-
-msgid "this is just another to ensure safety"
-msgstr ""
-
-msgid "FOG Managed Printers"
-msgstr "FOG管理的打印机"
-
 msgid ""
 "This setting will only allow FOG Assigned printers to be added to the host. "
 "Any printer that is not assigned will be removed including non-FOG managed "
@@ -4665,9 +4628,6 @@ msgid ""
 msgstr ""
 "此设置仅允许FOG分配的打印机要添加到主机。没有分配任何打印机将包括非FOG管理的"
 "打印机被删除。"
-
-msgid "Only Assigned Printers"
-msgstr "只有分配打印机"
 
 #, fuzzy
 msgid "Printer Associated"
@@ -4693,6 +4653,10 @@ msgid "Cron Schedule"
 msgstr "Cron排程"
 
 #, fuzzy
+msgid "Create New"
+msgstr "新建%s"
+
+#, fuzzy
 msgid "Current Power Management Tasks"
 msgstr "用户管理"
 
@@ -4710,9 +4674,6 @@ msgstr "系统制造商"
 
 msgid "System Version"
 msgstr "系统版本"
-
-msgid "System Serial Number"
-msgstr "系统序列号"
 
 #, fuzzy
 msgid "System UUID"
@@ -4757,14 +4718,16 @@ msgstr "CPU正常速度"
 msgid "CPU Max Speed"
 msgstr "CPU最大速度"
 
-msgid "Hard Disk Model"
-msgstr "硬盘型号"
+#, fuzzy
+msgid "Hard Drive Model"
+msgstr "打印机型号"
 
-msgid "Hard Disk Firmware"
-msgstr "硬盘的固件"
+msgid "Hard Drive Firmware"
+msgstr ""
 
-msgid "Hard Disk Serial Number"
-msgstr "硬盘序列号"
+#, fuzzy
+msgid "Hard Drive Serial Number"
+msgstr "序列号"
 
 msgid "Chassis Manufacturer"
 msgstr "机箱制造商"
@@ -4772,33 +4735,16 @@ msgstr "机箱制造商"
 msgid "Chassis Version"
 msgstr "机箱版本"
 
-msgid "Chassis Serial"
-msgstr "机箱序列"
-
-msgid "Chassis Asset"
-msgstr "机箱资产"
+#, fuzzy
+msgid "Chassis Serial Number"
+msgstr "序列号"
 
 #, fuzzy
-msgid "Logout not found"
-msgstr "未发现记录，错误： %s"
-
-msgid "Setting logout to one second prior to next login"
-msgstr ""
+msgid "Chassis Asset Tag"
+msgstr "主板资产标签"
 
 msgid "Host Login History"
 msgstr "主机登录历史"
-
-#, fuzzy
-msgid "View History For"
-msgstr "查看历史记录"
-
-#, fuzzy
-msgid "Selected Logins"
-msgstr "打印机"
-
-#, fuzzy
-msgid "History Graph"
-msgstr "查看历史记录"
 
 msgid "Engineer"
 msgstr "工程师"
@@ -4807,15 +4753,9 @@ msgstr "工程师"
 msgid "Imaged From"
 msgstr "成像"
 
-msgid "Host Imaging History"
-msgstr "主持人成像历史"
-
 #, fuzzy
-msgid "Snapin task not completed"
-msgstr "管理单元无效"
-
-msgid "No complete time recorded"
-msgstr ""
+msgid "Host Image History"
+msgstr "历史形象"
 
 #, fuzzy
 msgid "Host Snapin History"

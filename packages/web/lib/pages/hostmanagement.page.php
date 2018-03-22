@@ -84,29 +84,23 @@ class HostManagement extends FOGPage
             $this->templates[] = '';
             $this->attributes[] = [];
         }
-        $this->headerData = self::fastmerge(
+        array_push(
             $this->headerData,
-            [
-                _('Imaged'),
-                _('Assigned Image'),
-                _('Description')
-            ]
+            _('Imaged'),
+            _('Assigned Image'),
+            _('Description')
         );
-        $this->templates = self::fastmerge(
+        array_push(
             $this->templates,
-            [
-                '',
-                '',
-                ''
-            ]
+            '',
+            '',
+            ''
         );
-        $this->attributes = self::fastmerge(
+        array_push(
             $this->attributes,
-            [
-                [],
-                [],
-                []
-            ]
+            [],
+            [],
+            []
         );
     }
     /**
@@ -189,9 +183,15 @@ class HostManagement extends FOGPage
             'deleteModal',
             _('Confirm password'),
             '<div class="input-group">'
-            . '<input id="deletePassword" class="form-control" placeholder="'
-            . _('Password')
-            . '" autocomplete="off" type="password">'
+            . self::makeInput(
+                'form-control',
+                'deletePassword',
+                _('Password'),
+                'password',
+                'deletePassword',
+                '',
+                true
+            )
             . '</div>',
             $modalDeleteBtns
         );
@@ -350,9 +350,15 @@ class HostManagement extends FOGPage
             'deleteModal',
             _('Confirm password'),
             '<div class="input-group">'
-            . '<input id="deletePassword" class="form-control" placeholder="'
-            . _('Password')
-            . '" autocomplete="off" type="password">'
+            . self::makeInput(
+                'form-control',
+                'deletePassword',
+                _('Password'),
+                'password',
+                'deletePassword',
+                '',
+                true
+            )
             . '</div>',
             $modalDeleteBtns
         );
@@ -443,7 +449,7 @@ class HostManagement extends FOGPage
         $description = filter_input(INPUT_POST, 'description');
         $key = filter_input(INPUT_POST, 'key');
         $image = filter_input(INPUT_POST, 'image');
-        $kern = filter_input(INPUT_POST, 'kern');
+        $kernel = filter_input(INPUT_POST, 'kernel');
         $args = filter_input(INPUT_POST, 'args');
         $init = filter_input(INPUT_POST, 'init');
         $dev = filter_input(INPUT_POST, 'dev');
@@ -455,65 +461,126 @@ class HostManagement extends FOGPage
         $enforce = isset($_POST['enforce']) ?: self::getSetting(
             'FOG_ENFORCE_HOST_CHANGES'
         );
+        $imageSelector = self::getClass('ImageManager')
+            ->buildSelectBox($image, '', 'id');
 
-        // The fields to display
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label class="col-sm-2 control-label" for="host">'
-            . _('Host Name')
-            . '</label>' => '<input type="text" name="host" '
-            . 'value="'
-            . $host
-            . '" maxlength="15" '
-            . 'class="hostname-input form-control" '
-            . 'id="host" required/>',
-            '<label class="col-sm-2 control-label" for="mac">'
-            . _('Primary MAC')
-            . '</label>' => '<input type="text" name="mac" '
-            . 'class="macaddr form-control" '
-            . 'id="mac" value="'
-            . $mac
-            . '" maxlength="17" exactlength="12" required/>',
-            '<label class="col-sm-2 control-label" for="description">'
-            . _('Host Description')
-            . '</label>' => '<textarea class="form-control" style="resize:vertical;'
-            . 'min-height:50px;" '
-            . 'id="description" name="description">'
-            . $description
-            . '</textarea>',
-            '<label class="col-sm-2 control-label" for="key">'
-            . _('Host Product Key')
-            . '</label>' => '<input id="key" type="text" '
-            . 'name="key" value="'
-            . $key
-            . '" class="form-control" maxlength="29" exactlength="25"/>',
-            '<label class="col-sm-2 control-label" for="image">'
-            . _('Host Image')
-            . '</label>' => self::getClass('ImageManager')->buildSelectBox(
-                $image,
-                '',
-                'id'
+            self::makeLabel(
+                $labelClass,
+                'host',
+                _('Host Name')
+            ) => self::makeInput(
+                'form-control hostname-input',
+                'host',
+                _('Host Name'),
+                'text',
+                'host',
+                $host,
+                true,
+                false,
+                -1,
+                15
             ),
-            '<label class="col-sm-2 control-label" for="kern">'
-            . _('Host Kernel')
-            . '</label>' => '<input type="text" name="kern" '
-            . 'value="'
-            . $kern
-            . '" class="form-control" id="kern"/>',
-            '<label class="col-sm-2 control-label" for="args">'
-            . _('Host Kernel Arguments')
-            . '</label>' => '<input type="text" name="args" id="args" value="'
-            . $args
-            . '" class="form-control"/>',
-            '<label class="col-sm-2 control-label" for="init">'
-            . _('Host Init')
-            . '</label>' => '<input type="text" name="init" value="'
-            . $init
-            . '" id="init" class="form-control"/>',
-            '<label class="col-sm-2 control-label" for="dev">'
-            . _('Host Primary Disk')
-            . '</label>' => '<input type="text" name="dev" value="'
-            . $dev
-            . '" id="dev" class="form-control"/>',
+            self::makeLabel(
+                $labelClass,
+                'mac',
+                _('MAC Address')
+            ) => self::makeInput(
+                'form-control hostmac-input',
+                'mac',
+                '00:00:00:00:00:00',
+                'text',
+                'mac',
+                $mac,
+                true,
+                false,
+                -1,
+                17,
+                'exactlength="12"'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Host Description')
+            ) => self::makeTextarea(
+                'form-control hostdescription-input',
+                'description',
+                _('Host Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'key',
+                _('Host Product Key')
+            ) => self::makeInput(
+                'form-control hostkey-input',
+                'key',
+                'ABCDE-FGHIJ-KLMNO-PQRST-UVWXY',
+                'text',
+                'key',
+                $key,
+                false,
+                false,
+                -1,
+                29,
+                'exactlength="25"'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'image',
+                _('Host Image')
+            ) => $imageSelector,
+            self::makeLabel(
+                $labelClass,
+                'kernel',
+                _('Host Kernel')
+            ) => self::makeInput(
+                'form-control hostkernel-input',
+                'kernel',
+                'bzImage_Custom',
+                'text',
+                'kernel',
+                $kernel
+            ),
+            self::makeLabel(
+                $labelClass,
+                'args',
+                _('Host Kernel Arguments')
+            ) => self::makeInput(
+                'form-control hostargs-input',
+                'args',
+                'debug acpi=off',
+                'text',
+                'args',
+                $args
+            ),
+            self::makeLabel(
+                $labelClass,
+                'init',
+                _('Host Init')
+            ) => self::makeInput(
+                'form-control hostinit-input',
+                'init',
+                'customInit.xz',
+                'text',
+                'init',
+                $init
+            ),
+            self::makeLabel(
+                $labelClass,
+                'dev',
+                _('Host Primary Disk')
+            ) => self::makeInput(
+                'form-control hostdev-input',
+                'dev',
+                '/dev/md0',
+                'text',
+                'dev',
+                $dev
+            ),
             self::makeLabel(
                 $labelClass,
                 'enforce',
@@ -531,24 +598,55 @@ class HostManagement extends FOGPage
                 -1,
                 ($enforce ? 'checked' : '')
             ),
-            '<label class="col-sm-2 control-label" for="bootTypeExit">'
-            . _('Host Bios Exit Type')
-            . '</label>' => $this->exitNorm,
-            '<label class="col-sm-2 control-label" for="efiBootTypeExit">'
-            . _('Host EFI Exit Type')
-            . '</label>' => $this->exitEfi,
+            self::makeLabel(
+                $labelClass,
+                'bootTypeExit',
+                _('Host BIOS Exit Type')
+            ) => $this->exitNorm,
+            self::makeLabel(
+                $labelClass,
+                'efiBootTypeExit',
+                _('Host EFI Exit Type')
+            ) => $this->exitEfi
         ];
-        self::$HookManager
-            ->processEvent(
-                'HOST_ADD_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'Host' => self::getClass('Host')
-                ]
-            );
+
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary'
+        );
+
+        self::$HookManager->processEvent(
+            'HOST_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'Host' => self::getClass('Host')
+            ]
+        );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<div class="box box-solid" id="host-create">';
+
+        $fieldads = $this->adFieldsToDisplay(
+            $domain,
+            $domainname,
+            $ou,
+            $domainuser,
+            $domainpassword,
+            false,
+            true
+        );
+
+        self::$HookManager->processEvent(
+            'HOST_ADD_AD_FIELDS',
+            [
+                'fields' => &$fieldads,
+                'Host' => self::getClass('Host')
+            ]
+        );
+        $renderedad = self::formFields($fieldads);
+        unset($fieldads);
+
         echo self::makeFormTag(
             'form-horizontal',
             'host-create-form',
@@ -557,8 +655,8 @@ class HostManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
+        echo '<div class="box box-solid" id="host-create">';
         echo '<div class="box-body">';
-        echo '<!-- Host General -->';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -569,17 +667,7 @@ class HostManagement extends FOGPage
         echo $rendered;
         echo '</div>';
         echo '</div>';
-        echo '<!-- Active Directory -->';
-        $fields = $this->adFieldsToDisplay(
-            $domain,
-            $domainname,
-            $ou,
-            $domainuser,
-            $domainpassword,
-            false,
-            true
-        );
-        $rendered = self::formFields($fields);
+
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -587,18 +675,14 @@ class HostManagement extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        echo $rendered;
+        echo $renderedad;
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary'
-        );
+        echo $buttons;
+        echo '</div>';
         echo '</div>';
         echo '</form>';
-        echo '</div>';
     }
     /**
      * Handles the forum submission process.
@@ -615,7 +699,7 @@ class HostManagement extends FOGPage
         $mac = trim(
             filter_input(INPUT_POST, 'mac')
         );
-        $desc = trim(
+        $description = trim(
             filter_input(INPUT_POST, 'description')
         );
         $password = trim(
@@ -648,7 +732,7 @@ class HostManagement extends FOGPage
         $enforce = (int)isset($_POST['enforce']);
         $image = (int)filter_input(INPUT_POST, 'image');
         $kernel = trim(
-            filter_input(INPUT_POST, 'kern')
+            filter_input(INPUT_POST, 'kernel')
         );
         $kernelArgs = trim(
             filter_input(INPUT_POST, 'args')
@@ -665,19 +749,12 @@ class HostManagement extends FOGPage
         $efiBootTypeExit = trim(
             filter_input(INPUT_POST, 'efiBootTypeExit')
         );
+
         $serverFault = false;
         try {
-            if (!$host) {
-                throw new Exception(
-                    _('A host name is required!')
-                );
-            }
-            if (!$mac) {
-                throw new Exception(
-                    _('A mac address is required!')
-                );
-            }
-            if (self::getClass('HostManager')->exists($host)) {
+            $exists = self::getClass('HostManager')
+                ->exists($host);
+            if ($exists) {
                 throw new Exception(
                     _('A host already exists with this name!')
                 );
@@ -702,7 +779,7 @@ class HostManagement extends FOGPage
             );
             self::$Host
                 ->set('name', $host)
-                ->set('description', $desc)
+                ->set('description', $description)
                 ->set('imageID', $image)
                 ->set('kernel', $kernel)
                 ->set('kernelArgs', $kernelArgs)
@@ -777,94 +854,181 @@ class HostManagement extends FOGPage
      */
     public function hostGeneral()
     {
-        $image = filter_input(INPUT_POST, 'image') ?: $this->obj->get('imageID');
-        $imageSelect = self::getClass('ImageManager')
+        $image = (
+            filter_input(INPUT_POST, 'image') ?:
+            $this->obj->get('imageID')
+        );
+        $imageSelector = self::getClass('ImageManager')
             ->buildSelectBox($image);
         // Either use the passed in or get the objects info.
         $host = (
-            filter_input(INPUT_POST, 'host') ?: $this->obj->get('name')
+            filter_input(INPUT_POST, 'host') ?:
+            $this->obj->get('name')
         );
-        $desc = (
-            filter_input(INPUT_POST, 'description') ?: $this->obj->get('description')
+        $description = (
+            filter_input(INPUT_POST, 'description') ?:
+            $this->obj->get('description')
         );
         $productKey = (
-            filter_input(INPUT_POST, 'key') ?: $this->obj->get('productKey')
+            filter_input(INPUT_POST, 'key') ?:
+            $this->obj->get('productKey')
         );
         $productKeytest = self::aesdecrypt($productKey);
-        if ($test_base64 = base64_decode($productKeytest)) {
-            if (mb_detect_encoding($test_base64, 'utf-8', true)) {
-                $productKey = $test_base64;
-            }
-        } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
+        $test_base64 = base64_decode($productKeytest);
+        $base64 = mb_detect_encoding($test_base64, 'utf-8', true);
+        $enctest = mb_detect_encoding($productKeytest, 'utf-8', true);
+        if ($base64) {
+            $productKey = $test_base64;
+        } elseif ($enctest) {
             $productKey = $productKeytest;
         }
-        $kern = (
-            filter_input(INPUT_POST, 'kern') ?: $this->obj->get('kernel')
+        $kernel = (
+            filter_input(INPUT_POST, 'kernel') ?:
+            $this->obj->get('kernel')
         );
         $args = (
-            filter_input(INPUT_POST, 'args') ?: $this->obj->get('kernelArgs')
+            filter_input(INPUT_POST, 'args') ?:
+            $this->obj->get('kernelArgs')
         );
         $init = (
-            filter_input(INPUT_POST, 'init') ?: $this->obj->get('init')
+            filter_input(INPUT_POST, 'init') ?:
+            $this->obj->get('init')
         );
         $dev = (
-            filter_input(INPUT_POST, 'dev') ?: $this->obj->get('kernelDevice')
+            filter_input(INPUT_POST, 'dev') ?:
+            $this->obj->get('kernelDevice')
         );
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label for="name" class="col-sm-2 control-label">'
-            . _('Host Name')
-            . '</label>' => '<input id="name" class="form-control" placeholder="'
-            . _('Host Name')
-            . '" type="text" value="'
-            . $host
-            . '" maxlength="15" name="host" required>',
-            '<label for="description" class="col-sm-2 control-label">'
-            . _('Host description')
-            . '</label>' => '<textarea style="resize:vertical;'
-            . 'min-height:50px;" id="description" '
-            . 'name="description" class="form-control">'
-            . $desc
-            . '</textarea>',
-            '<label for="productKey" class="col-sm-2 control-label">'
-            . _('Host Product Key')
-            . '</label>' => '<input id="productKey" name="key" class="form-control" '
-            . 'value="'
-            . $productKey
-            . '" maxlength="29" exactlength="25">',
-            '<label class="col-sm-2 control-label" for="image">'
-            . _('Host Image')
-            . '</label>' => $imageSelect,
-            '<label for="kern" class="col-sm-2 control-label">'
-            . _('Host Kernel')
-            . '</label>' => '<input id="kern" name="kern" class="form-control" '
-            . 'placeholder="" type="text" value="'
-            . $kern
-            . '">',
-            '<label for="args" class="col-sm-2 control-label">'
-            . _('Host Kernel Arguments')
-            . '</label>' => '<input id="args" name="args" class="form-control" '
-            . 'placeholder="" type="text" value="'
-            . $args
-            . '">',
-            '<label for="init" class="col-sm-2 control-label">'
-            . _('Host Init')
-            . '</label>' => '<input id="init" name="init" class="form-control" '
-            . 'placeholder="" type="text" value="'
-            . $init
-            . '">',
-            '<label for="dev" class="col-sm-2 control-label">'
-            . _('Host Primary Disk')
-            . '</label>' => '<input id="dev" name="dev" class="form-control" '
-            . 'placeholder="" type="text" value="'
-            . $dev
-            . '">',
-            '<label for="bootTypeExit" class="col-sm-2 control-label">'
-            . _('Host Bios Exit Type')
-            . '</label>' => $this->exitNorm,
-            '<label for="efiBootTypeExit" class="col-sm-2 control-label">'
-            . _('Host EFI Exit Type')
-            . '</label>' => $this->exitEfi
+            self::makeLabel(
+                $labelClass,
+                'host',
+                _('Host Name')
+            ) => self::makeInput(
+                'form-control hostname-input',
+                'host',
+                _('Host Name'),
+                'text',
+                'host',
+                $host,
+                true,
+                false,
+                -1,
+                15
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Host Description')
+            ) => self::makeTextarea(
+                'form-control hostdescription-input',
+                'description',
+                _('Host Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'key',
+                _('Host Product Key')
+            ) => self::makeInput(
+                'form-control hostkey-input',
+                'key',
+                'ABCDE-FGHIJ-KLMNO-PQRST-UVWXY',
+                'text',
+                'key',
+                $key,
+                false,
+                false,
+                -1,
+                29,
+                'exactlength="25"'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'image',
+                _('Host Image')
+            ) => $imageSelector,
+            self::makeLabel(
+                $labelClass,
+                'kernel',
+                _('Host Kernel')
+            ) => self::makeInput(
+                'form-control hostkernel-input',
+                'kernel',
+                'bzImage_Custom',
+                'text',
+                'kernel',
+                $kernel
+            ),
+            self::makeLabel(
+                $labelClass,
+                'args',
+                _('Host Kernel Arguments')
+            ) => self::makeInput(
+                'form-control hostargs-input',
+                'args',
+                'debug acpi=off',
+                'text',
+                'args',
+                $args
+            ),
+            self::makeLabel(
+                $labelClass,
+                'init',
+                _('Host Init')
+            ) => self::makeInput(
+                'form-control hostinit-input',
+                'init',
+                'customInit.xz',
+                'text',
+                'init',
+                $init
+            ),
+            self::makeLabel(
+                $labelClass,
+                'dev',
+                _('Host Primary Disk')
+            ) => self::makeInput(
+                'form-control hostdev-input',
+                'dev',
+                '/dev/md0',
+                'text',
+                'dev',
+                $dev
+            ),
+            self::makeLabel(
+                $labelClass,
+                'bootTypeExit',
+                _('Host BIOS Exit Type')
+            ) => $this->exitNorm,
+            self::makeLabel(
+                $labelClass,
+                'efiBootTypeExit',
+                _('Host EFI Exit Type')
+            ) => $this->exitEfi
         ];
+
+        $buttons = '<div class="btn-group">';
+        $buttons .= self::makeButton(
+            'general-send',
+            _('Update'),
+            'btn btn-primary'
+        );
+        $buttons .= self::makeButton(
+            'reset-encryption-data',
+            _('Reset Encryption Data'),
+            'btn btn-warning'
+        );
+        $buttons .= self::makeButton(
+            'general-delete',
+            _('Delete'),
+            'btn btn-danger'
+        );
+        $buttons .= '</div>';
+
         self::$HookManager->processEvent(
             'HOST_GENERAL_FIELDS',
             [
@@ -875,6 +1039,7 @@ class HostManagement extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         $modalresetBtn = self::makeButton(
             'resetencryptionConfirm',
             _('Confirm'),
@@ -911,23 +1076,7 @@ class HostManagement extends FOGPage
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
-        echo '<div class="btn-group">';
-        echo self::makeButton(
-            'general-send',
-            _('Update'),
-            'btn btn-primary'
-        );
-        echo self::makeButton(
-            'reset-encryption-data',
-            _('Reset Encryption Data'),
-            'btn btn-warning'
-        );
-        echo self::makeButton(
-            'general-delete',
-            _('Delete'),
-            'btn btn-danger'
-        );
-        echo '</div>';
+        echo $buttons;
         echo $modalreset;
         echo '</div>';
         echo '</div>';
@@ -943,7 +1092,7 @@ class HostManagement extends FOGPage
         $host = trim(
             filter_input(INPUT_POST, 'host')
         );
-        $desc = trim(
+        $description = trim(
             filter_input(INPUT_POST, 'description')
         );
         $imageID = trim(
@@ -964,8 +1113,8 @@ class HostManagement extends FOGPage
             )
         );
         $productKey = substr($productKey, 0, 29);
-        $kern = trim(
-            filter_input(INPUT_POST, 'kern')
+        $kernel = trim(
+            filter_input(INPUT_POST, 'kernel')
         );
         $args = trim(
             filter_input(INPUT_POST, 'args')
@@ -982,11 +1131,7 @@ class HostManagement extends FOGPage
         $ebte = trim(
             filter_input(INPUT_POST, 'efiBootTypeExit')
         );
-        if (empty($host)) {
-            throw new Exception(_('Please enter a hostname'));
-        }
-        if ($host != $this->obj->get('name')
-        ) {
+        if ($host != $this->obj->get('name')) {
             if (!$this->obj->isHostnameSafe($host)) {
                 throw new Exception(_('Please enter a valid hostname'));
             }
@@ -1000,12 +1145,11 @@ class HostManagement extends FOGPage
         ) {
             throw new Exception(_('Cannot change image when in tasking'));
         }
-        $this
-            ->obj
+        $this->obj
             ->set('name', $host)
-            ->set('description', $desc)
+            ->set('description', $description)
             ->set('imageID', $imageID)
-            ->set('kernel', $kern)
+            ->set('kernel', $kernel)
             ->set('kernelArgs', $args)
             ->set('kernelDevice', $dev)
             ->set('init', $init)
@@ -1025,30 +1169,44 @@ class HostManagement extends FOGPage
         );
 
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=host-macaddress" ';
+            . self::makeTabUpdateURL(
+                'host-macaddress',
+                $this->obj->get('id')
+            )
+            . '" ';
 
         $fields = [
-            '<label class="col-sm-2 control-label" for="newMac">'
-            . _('Add New MAC')
-            . '</label>' => '<input type="text" name="newMac" value="'
-            . $newMac
-            . '" id="newMac" class="form-control" required/>'
+            self::makeLabel(
+                'col-sm-2 control-label',
+                'newMac',
+                _('Add New MAC')
+            ) => self::makeInput(
+                'form-control hostmac-input',
+                'newMac',
+                '00:00:00:00:00:00',
+                'text',
+                'newMac',
+                $newMac,
+                true
+            )
         ];
-        self::$HookManager->processEvent(
-            'HOST_MACADDRESS_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'Host' => &$this->obj
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
+
         $buttons = self::makeButton(
             'newmac-send',
             _('Add'),
             'btn btn-primary'
         );
+
+        self::$HookManager->processEvent(
+            'HOST_MACADDRESS_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'Host' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
 
         // =========================================================
         // New MAC Address add.
@@ -1064,9 +1222,17 @@ class HostManagement extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div id="newmacadd" class="">';
-        echo '<form id="macaddress-add-form" class="form-horizontal"'
-            . $props
-            . 'novalidate>';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'macaddress-add-form',
+            self::makeTabUpdateURL(
+                'host-macaddress',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
@@ -1074,7 +1240,14 @@ class HostManagement extends FOGPage
         echo '<div class="box-footer">';
         echo $buttons;
         echo '</div>';
-        echo '<input type="hidden" name="macadd" value="1"/>';
+        echo self::makeInput(
+            '',
+            'macadd',
+            '',
+            'hidden',
+            '',
+            '1'
+        );
         echo '</form>';
         echo '</div>';
 
@@ -1148,9 +1321,6 @@ class HostManagement extends FOGPage
                     'newMac'
                 )
             );
-            if (!$mac) {
-                throw new Exception(_('MAC Address is required!'));
-            }
             $mact = new MACAddress($mac);
             if (!$mact->isValid()) {
                 throw new Exception(_('MAC Address is invalid!'));
@@ -1253,28 +1423,16 @@ class HostManagement extends FOGPage
     {
         $useAD = isset($_POST['domain']);
         $domain = trim(
-            filter_input(
-                INPUT_POST,
-                'domainname'
-            )
+            filter_input(INPUT_POST, 'domainname')
         );
         $ou = trim(
-            filter_input(
-                INPUT_POST,
-                'ou'
-            )
+            filter_input(INPUT_POST, 'ou')
         );
         $user = trim(
-            filter_input(
-                INPUT_POST,
-                'domainuser'
-            )
+            filter_input(INPUT_POST, 'domainuser')
         );
         $pass = trim(
-            filter_input(
-                INPUT_POST,
-                'domainpassword'
-            )
+            filter_input(INPUT_POST, 'domainpassword')
         );
         $this->obj->setAD(
             $useAD,
@@ -1295,13 +1453,12 @@ class HostManagement extends FOGPage
     public function hostGroups()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=host-groups" ';
+            . self::makeTabUpdateURL(
+                'host-groups',
+                $this->obj->get('id')
+            )
+            . '" ';
 
-        echo '<!-- Groups -->';
-        echo '<div class="box-group" id="groups">';
-        // =================================================================
-        // Associated Snapins
         $buttons = self::makeButton(
             'groups-add',
             _('Add selected'),
@@ -1328,6 +1485,8 @@ class HostManagement extends FOGPage
             []
         ];
 
+        echo '<!-- Groups -->';
+        echo '<div class="box-group" id="groups">';
         echo '<div class="box box-solid">';
         echo '<div id="updategroups" class="">';
         echo '<div class="box-header with-border">';
@@ -1386,11 +1545,15 @@ class HostManagement extends FOGPage
     public function hostPrinters()
     {
         $printerLevel = (
-            filter_input(INPUT_POST, 'level') ?: $this->obj->get('printerLevel')
+            filter_input(INPUT_POST, 'level') ?:
+            $this->obj->get('printerLevel')
         );
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=host-printers" ';
+            . self::makeTabUpdateURL(
+                'host-printers',
+                $this->obj->get('id')
+            )
+            . '" ';
 
         // =========================================================
         // Printer Configuration
@@ -1419,30 +1582,53 @@ class HostManagement extends FOGPage
         );
         echo '<div class="box-body">';
         echo '<div class="radio">';
-        echo '<label for="nolevel" data-toggle="tooltip" data-placement="left" '
-            . 'title="'
-            . _('This setting turns off all FOG Printer Management')
-            . '. '
-            . _('Although there are multiple levels already')
-            . ' '
-            . _('between host and global settings')
-            . ', '
-            . _('this is just another to ensure safety')
-            . '.">';
-        echo '<input type="radio" name="level" value="0" '
-            . 'id="nolevel"'
-            . (
-                $printerLevel == 0 ?
-                ' checked' :
-                ''
+        echo self::makeLabel(
+            '',
+            'noLevel',
+            self::makeInput(
+                'printer-nolevel',
+                'level',
+                '',
+                'radio',
+                'noLevel',
+                '0',
+                false,
+                false,
+                -1,
+                -1,
+                ($printerLevel == 0 ? 'checked' : '')
             )
-            . '/> ';
-        echo _('No Printer Management');
-        echo '</label>';
+            . ' '
+            . _('No Printer Management'),
+            'data-toggle="tooltip" data-placement="right" title="'
+            . _(
+                'This setting turns off all FOG Printer Management. '
+                . 'Although there are multiple levels already, this '
+                . 'is just another level if needed.'
+            )
+            . '"'
+        );
         echo '</div>';
         echo '<div class="radio">';
-        echo '<label for="addlevel" data-toggle="tooltip" data-placement="left" '
-            . 'title="'
+        echo self::makeLabel(
+            '',
+            'addlevel',
+            self::makeInput(
+                'printer-addlevel',
+                'level',
+                '',
+                'radio',
+                'addlevel',
+                '1',
+                false,
+                false,
+                -1,
+                -1,
+                ($printerLevel == 1 ? 'checked' : '')
+            )
+            . ' '
+            . _('Add/Remove Managed Printers'),
+            'data-toggle="tooltip" data-placement="right" title="'
             . _(
                 'This setting only adds and removes '
                 . 'printers that are managed by FOG. '
@@ -1453,38 +1639,37 @@ class HostManagement extends FOGPage
                 . 'It will add printers to the host '
                 . 'that are assigned.'
             )
-            . '">';
-        echo '<input type="radio" name="level" value="1" '
-            . 'id="addlevel"'
-            . (
-                $printerLevel == 1 ?
-                ' checked' :
-                ''
-            )
-            . '/> ';
-        echo _('FOG Managed Printers');
-        echo '</label>';
+            . '"'
+        );
         echo '</div>';
         echo '<div class="radio">';
-        echo '<label for="alllevel" data-toggle="tooltip" data-placement="left" '
-            . 'title="'
+        echo self::makeLabel(
+            '',
+            'alllevel',
+            self::makeInput(
+                'printer-alllevel',
+                'level',
+                '',
+                'radio',
+                'alllevel',
+                '2',
+                false,
+                false,
+                -1,
+                -1,
+                ($printerLevel == 2 ? 'checked' : '')
+            )
+            . ' '
+            . _('All Printers'),
+            'data-toggle="tooltip" data-placement="right" title="'
             . _(
                 'This setting will only allow FOG Assigned '
                 . 'printers to be added to the host. Any '
                 . 'printer that is not assigned will be '
                 . 'removed including non-FOG managed printers.'
             )
-            . '">';
-        echo '<input type="radio" name="level" value="2" '
-            . 'id="alllevel"'
-            . (
-                $printerLevel == 2 ?
-                ' checked' :
-                ''
-            )
-            . '/> ';
-        echo _('Only Assigned Printers');
-        echo '</label>';
+            . '"'
+        );
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer">';
@@ -1498,8 +1683,6 @@ class HostManagement extends FOGPage
         echo '</div>';
         echo '</div>';
 
-        // =========================================================
-        // Associated Printers
         $buttons = self::makeButton(
             'printer-default',
             _('Update default'),
@@ -1867,25 +2050,35 @@ class HostManagement extends FOGPage
                 break;
             }
             $fields[
-                '<label for="'
-                . $name
-                . '" class="col-sm-2 control-label">'
-                . $get[1]
-                . '</label>'
-            ] = '<input type="number" id="'
-            . $name
-            . '" class="form-control" name="'
-            . $name
-            . '" value="'
-            . $val
-             . '"/>';
+                self::makeLabel(
+                    'col-sm-2 control-label',
+                    $name,
+                    $get[1]
+                )
+            ] = self::makeInput(
+                'form-control',
+                $name,
+                '',
+                'number',
+                $name,
+                $val
+            );
             unset($get);
         }
+
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<form id="host-dispman" class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=host-service" novalidate>';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'host-dispman',
+            self::makeTabUpdateURL(
+                'host-service',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -1897,7 +2090,14 @@ class HostManagement extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
-        echo '<input type="hidden" name="dispmansend" value="1"/>';
+        echo self::makeInput(
+            '',
+            'dispmansend',
+            '',
+            'hidden',
+            '',
+            '1'
+        );
         echo '</div>';
         echo '<div class="box-footer">';
         echo $dispBtn;
@@ -1914,20 +2114,37 @@ class HostManagement extends FOGPage
             $tme = 0;
         }
         $fields = [
-            '<label for="tme" class="col-sm-2 control-label">'
-            . _('Auto Logout Time')
-            . '<br/>('
-            . _('in minutes')
-            . ')</label>' => '<input type="number" name="tme" class="form-control" '
-            . 'value="'
-            . $tme
-            . '" id="tme" required/>'
+            self::makeLabel(
+                'col-sm-2 control-label',
+                'tme',
+                _('Auto Logout Time')
+                . '<br/>('
+                . _('in minutes')
+                . ')'
+            ) => self::makeInput(
+                'form-control',
+                'tme',
+                '',
+                'number',
+                'tme',
+                $tme
+            )
         ];
+
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<form id="host-alo" class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=host-service" novalidate>';
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'host-alo',
+            self::makeTabUpdateURL(
+                'host-service',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo '<div class="box box-warning">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -1944,13 +2161,21 @@ class HostManagement extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
-        echo '<input type="hidden" name="alosend" value="1"/>';
+        echo self::makeInput(
+            '',
+            'alosend',
+            '',
+            'hidden',
+            '',
+            1
+        );
         echo '</div>';
         echo '<div class="box-footer">';
         echo $aloBtn;
         echo '</div>';
         echo '</div>';
         echo '</form>';
+
         // Hostname changer reboot/domain join reboot forced.
         $enforce = (
             filter_input(INPUT_POST, 'enforce') ?:
@@ -1980,6 +2205,7 @@ class HostManagement extends FOGPage
             _('Update'),
             'btn btn-primary'
         );
+
         self::$HookManager->processEvent(
             'HOST_ENFORCE_FIELDS',
             [
@@ -1990,6 +2216,7 @@ class HostManagement extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'host-enforce',
@@ -2026,9 +2253,16 @@ class HostManagement extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
-        echo '<input type="hidden" name="enforcesend" value="1"/>';
         echo '</div>';
         echo '<div class="box-footer">';
+        echo self::makeInput(
+            '',
+            'enforcesend',
+            '',
+            'hidden',
+            '',
+            '1'
+        );
         echo $enforcebtn;
         echo '</div>';
         echo '</div>';
@@ -2108,6 +2342,21 @@ class HostManagement extends FOGPage
             [],
             []
         ];
+        $buttons = self::makeButton(
+            'pm-new',
+            _('Create New'),
+            'btn btn-primary'
+        );
+        $buttons .= self::makeButton(
+            'pm-update',
+            _('Update selected'),
+            'btn btn-success'
+        );
+        $buttons .= self::makeButton(
+            'pm-delete',
+            _('Delete selected'),
+            'btn btn-danger'
+        );
         echo '<div class="box box-info">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -2312,165 +2561,533 @@ class HostManagement extends FOGPage
         $casever = $Inv->get('caseversion');
         $caseser = $Inv->get('caseserial');
         $caseast = $Inv->get('caseasset');
+
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
-            '<label for="pu" class="col-sm-2 control-label">'
-            . _('Primary User')
-            . '</label>' => '<input class="form-control" type="text" value="'
-            . $puser
-            . '" name="pu" id="pu"/>',
-            '<label for="other1" class="col-sm-2 control-label"/>'
-            . _('Other Tag #1')
-            . '</label>' => '<input class="form-control" type="text" value="'
-            . $other1
-            . '" name="other1" id="other1"/>',
-            '<label for="other2" class="col-sm-2 control-label"/>'
-            . _('Other Tag #2')
-            . '</label>' => '<input class="form-control" type="text" value="'
-            . $other2
-            . '" name="other2" id="other2"/>',
-            '<label class="col-sm-2 control-label">'
-            . _('System Manufacturer')
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $sysman
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('System Product')
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $sysprod
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('System Version')
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $sysver
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('System Serial Number')
-            . '</label>' => '<input type="text"  class="form-control" value="'
-            . $sysser
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('System UUID') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $sysuuid
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('System Type') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $systype
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('BIOS Vendor') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $biosven
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('BIOS Version') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $biosver
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('BIOS Date') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $biosdate
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('Motherboard Manufacturer') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $mbman
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('Motherboard Product Name') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $mbprod
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('Motherboard Version') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $mbver
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('Motherboard Serial Number') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $mbser
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('Motherboard Asset Tag') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $mbast
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('CPU Manufacturer') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $cpuman
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('CPU Version') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $cpuver
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('CPU Normal Speed') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $cpucur
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('CPU Max Speed') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $cpumax
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('Memory') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $mem
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('Hard Disk Model') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $hdmod
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('Hard Disk Firmware') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $hdfirm
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('Hard Disk Serial Number') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $hdser
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('Chassis Manufacturer') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $caseman
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('Chassis Version') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $casever
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('Chassis Serial') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $caseser
-            . '" readonly/>',
-            '<label class="col-sm-2 control-label">'
-            . _('Chassis Asset') 
-            . '</label>' => '<input type="text" class="form-control" value="'
-            . $caseast
-            . '" readonly/>'
+            self::makeLabel(
+                $labelClass,
+                'pu',
+                _('Primary User')
+            ) => self::makeInput(
+                'form-control',
+                'pu',
+                _('Primary User'),
+                'text',
+                'pu',
+                $puser
+            ),
+            self::makeLabel(
+                $labelClass,
+                'other1',
+                _('Other Tag #1')
+            ) => self::makeInput(
+                'form-control',
+                'other1',
+                '',
+                'text',
+                'other1',
+                $other1
+            ),
+            self::makeLabel(
+                $labelClass,
+                'other2',
+                _('Other Tag #2')
+            ) => self::makeInput(
+                'form-control',
+                'other2',
+                '',
+                'text',
+                'other2',
+                $other2
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('System Manufacturer')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $sysman,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('System Product')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $sysprod,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('System Version')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $sysver,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('System Serial')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $sysser,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('System UUID')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $sysuuid,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('System Type')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $systype,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('BIOS Vendor')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $biosven,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('BIOS Version')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $biosver,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('BIOS Date')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $biosdate,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('Motherboard Manufacturer')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $mbman,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('Motherboard Product Name')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $mbprod,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('Motherboard Version')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $mbver,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('Motherboard Serial Number')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $mbser,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('Motherboard Asset Tag')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $mbast,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('CPU Manufacturer')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $cpuman,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('CPU Version')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $cpuver,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('CPU Normal Speed')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $cpucur,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('CPU Max Speed')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $cpumax,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('Memory')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $mem,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('Hard Drive Model')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $hdmod,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('Hard Drive Firmware')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $hdfirm,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('Hard Drive Serial Number')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $hdser,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('Chassis Manufacturer')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $caseman,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('Chassis Version')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $casever,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('Chassis Serial Number')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $caseser,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                '',
+                _('Chassis Asset Tag')
+            ) => self::makeInput(
+                'form-control',
+                '',
+                '',
+                'text',
+                '',
+                $caseast,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            )
         ];
-        self::$HookManager
-            ->processEvent(
-                'HOST_INVENTORY_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'Host' => &$this->obj
-                ]
-            );
+
+        $buttons = self::makeButton(
+            'inventory-send',
+            _('Update'),
+            'btn btn-primary'
+        );
+
+        self::$HookManager->processEvent(
+            'HOST_INVENTORY_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'Host' => &$this->obj
+            ]
+        );
         $rendered = self::formFields($fields);
-        echo '<!-- Inventory -->';
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
+        unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'host-inventory-form',
@@ -2482,18 +3099,24 @@ class HostManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
+        echo '<!-- Inventory -->';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
         echo $rendered;
-        echo '<input type="hidden" name="updateinv" value="1"/>';
-        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo self::makeButton(
-            'inventory-send',
-            _('Update'),
-            'btn btn-primary'
+        echo self::makeInput(
+            '',
+            'updateinv',
+            '',
+            'hidden',
+            '',
+            '1'
         );
+        echo $buttons;
         echo '</div>';
         echo '</div>';
+        echo '</form>';
     }
     /**
      * Actually submit inventory data.
@@ -2522,13 +3145,6 @@ class HostManagement extends FOGPage
      */
     public function hostLoginHistory()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
         $this->headerData = [
             _('Time'),
             _('Action'),
@@ -2542,158 +3158,24 @@ class HostManagement extends FOGPage
             []
         ];
         $this->templates = [
-            '${user_time}',
-            '${action}',
-            '${user_name}',
-            '${user_desc}',
+            '',
+            '',
+            '',
+            ''
         ];
-        $dte = filter_input(INPUT_GET, 'dte');
-        if (!$dte) {
-            self::niceDate()->format('Y-m-d');
-        }
-        $Dates = self::getSubObjectIDs(
-            'UserTracking',
-            ['id' => $this->obj->get('users')],
-            'date'
-        );
-        if (count($Dates) > 0) {
-            rsort($Dates);
-            $dateSel = self::selectForm(
-                'dte',
-                $Dates,
-                $dte,
-                false,
-                'loghist-date'
-            );
-        }
-        Route::listem(
-            'usertracking',
-            'name',
-            false,
-            [
-                'hostID' => $this->obj->get('id'),
-                'date' => $dte,
-                'action' => ['', 0, 1]
-            ]
-        );
-        $UserLogins = json_decode(
-            Route::getData()
-        );
-        $UserLogins = $UserLogins->usertrackings;
-        $Data = [];
-        foreach ((array)$UserLogins as &$UserLogin) {
-            $time = self::niceDate(
-                $UserLogin->datetime
-            )->format('U');
-            if (!isset($Data[$UserLogin->username])) {
-                $Data[$UserLogin->username] = [];
-            }
-            if (array_key_exists('login', $Data[$UserLogin->username])) {
-                if ($UserLogin->action > 0) {
-                    $this->data[] = [
-                        'action' => _('Logout'),
-                        'user_name' => $UserLogin->username,
-                        'user_time' => (
-                            self::niceDate()
-                            ->setTimestamp($time - 1)
-                            ->format('Y-m-d H:i:s')
-                        ),
-                        'user_desc' => _('Logout not found')
-                        . '<br/>'
-                        . _('Setting logout to one second prior to next login')
-                    ];
-                    $Data[$UserLogin->username] = [];
-                }
-            }
-            if ($UserLogin->action > 0) {
-                $Data[$UserLogin->username]['login'] = true;
-                $this->data[] = [
-                    'action' => _('Login'),
-                    'user_name' => $UserLogin->username,
-                    'user_time' => (
-                        self::niceDate()
-                        ->setTimestamp($time)
-                        ->format('Y-m-d H:i:s')
-                    ),
-                    'user_desc' => $UserLogin->description
-                ];
-            } elseif ($UserLogin->action < 1) {
-                $this->data[] = [
-                    'action' => _('Logout'),
-                    'user_name' => $UserLogin->username,
-                    'user_time' => (
-                        self::niceDate()
-                        ->setTimestamp($time)
-                        ->format('Y-m-d H:i:s')
-                    ),
-                    'user_desc' => $UserLogin->description
-                ];
-                $Data[$UserLogin->username] = [];
-            }
-            unset($UserLogin);
-        }
-        self::$HookManager
-            ->processEvent(
-                'HOST_USER_LOGIN',
-                [
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                ]
-            );
-        echo '<!-- Login History -->';
-        echo '<div class="tab-pane fade" id="host-login-history">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
+        echo '<!-- Host Login History -->';
+        echo '<div class="box-group" id="loginhistory">';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
         echo _('Host Login History');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=host-login-history" novalidate>';
-        if (count($Dates) > 0) {
-            echo '<div class="form-group">';
-            echo '<label class="control-label col-xs-4" for="dte">';
-            echo _('View History For');
-            echo '</label>';
-            echo '<div class="col-xs-8">';
-            echo $dateSel;
-            echo '</div>';
-            echo '</div>';
-        }
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Selected Logins');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('History Graph');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body" id="login-history">';
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
+        echo '<div class="box-body">';
+        $this->render(12, 'host-login-history');
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
     }
     /**
      * Display host imaging history.
@@ -2702,13 +3184,6 @@ class HostManagement extends FOGPage
      */
     public function hostImageHistory()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
         $this->headerData = [
             _('Engineer'),
             _('Imaged From'),
@@ -2717,22 +3192,17 @@ class HostManagement extends FOGPage
             _('Duration'),
             _('Image'),
             _('Type'),
-            _('State'),
+            _('State')
         ];
         $this->templates = [
-            '${createdBy}',
-            sprintf(
-                '<small>%s: ${group_name}</small><br/><small>%s: '
-                . '${node_name}</small>',
-                _('Storage Group'),
-                _('Storage Node')
-            ),
-            '<small>${start_date}</small><br/><small>${start_time}</small>',
-            '<small>${end_date}</small><br/><small>${end_time}</small>',
-            '${duration}',
-            '${image_name}',
-            '${type}',
-            '${state}',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            ''
         ];
         $this->attributes = [
             [],
@@ -2744,114 +3214,19 @@ class HostManagement extends FOGPage
             [],
             []
         ];
-        Route::listem(
-            'imaginglog',
-            'name',
-            false,
-            ['hostID' => $this->obj->get('id')]
-        );
-        $Logs = json_decode(
-            Route::getData()
-        );
-        $Logs = $Logs->data;
-        $imgTypes = [
-            'up' => _('Capture'),
-            'down' => _('Deploy'),
-        ];
-        foreach ((array)$Logs as &$Log) {
-            $start = $Log->start;
-            $finish = $Log->finish;
-            if (!self::validDate($start)
-                || !self::validDate($finish)
-            ) {
-                continue;
-            }
-            $diff = self::diff($start, $finish);
-            $start = self::niceDate($start);
-            $finish = self::niceDate($finish);
-            $TaskIDs = self::getSubObjectIDs(
-                'Task',
-                [
-                    'checkInTime' => $Log->start,
-                    'hostID' => $this->obj->get('id')
-                ]
-            );
-            $taskID = @max($TaskIDs);
-            if (!$taskID) {
-                continue;
-            }
-            Route::indiv('task', $taskID);
-            $Task = json_decode(
-                Route::getData()
-            );
-            $groupName = $Task->storagegroup->name;
-            $nodeName = $Task->storagenode->name;
-            $typeName = $Task->type->name;
-            if (!$typeName) {
-                $typeName = $Log->type;
-            }
-            if (in_array($typeName, ['up', 'down'])) {
-                $typeName = $imgTypes[$typeName];
-            }
-            $stateName = $Task->state->name;
-            unset($Task);
-            $createdBy = (
-                $log->createdBy ?:
-                self::$FOGUser->get('name')
-            );
-            $Image = $Log->image;
-            if (!$Image->id) {
-                $imgName = $Image;
-                $imgPath = _('N/A');
-            } else {
-                $imgName = $Image->name;
-                $imgPath = $Image->path;
-            }
-            $this->data[] = [
-                'createdBy' => $createdBy,
-                'group_name' => $groupName,
-                'node_name' => $nodeName,
-                'start_date' => $start->format('Y-m-d'),
-                'start_time' => $start->format('H:i:s'),
-                'end_date' => $finish->format('Y-m-d'),
-                'end_time' => $finish->format('H:i:s'),
-                'duration' => $diff,
-                'image_name' => $imgName,
-                'type' => $typeName,
-                'state' => $stateName,
-            ];
-            unset($Image, $Log);
-        }
-        self::$HookManager
-            ->processEvent(
-                'HOST_IMAGE_HIST',
-                [
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                ]
-            );
-        echo '<!-- Image History -->';
-        echo '<div class="tab-pane fade" id="host-image-history">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Host Imaging History');
+        echo '<!-- Host Image History -->';
+        echo '<div class="box-group" id="imagehistory">';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Host Image History');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
+        echo '<div class="box-body">';
+        $this->render(12, 'host-image-history');
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
     }
     /**
      * Display host snapin history
@@ -2860,13 +3235,6 @@ class HostManagement extends FOGPage
      */
     public function hostSnapinHistory()
     {
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
         $this->headerData = [
             _('Snapin Name'),
             _('Start Time'),
@@ -2875,11 +3243,11 @@ class HostManagement extends FOGPage
             _('Return Code')
         ];
         $this->templates = [
-            '${snapin_name}',
-            '${snapin_start}',
-            '${snapin_end}',
-            '${snapin_duration}',
-            '${snapin_return}'
+            '',
+            '',
+            '',
+            '',
+            ''
         ];
         $this->attributes = [
             [],
@@ -2888,81 +3256,19 @@ class HostManagement extends FOGPage
             [],
             []
         ];
-        $SnapinJobIDs = self::getSubObjectIDs(
-            'SnapinJob',
-            ['hostID' => $this->obj->get('id')]
-        );
-        $doneStates = [
-            self::getCompleteState(),
-            self::getCancelledState()
-        ];
-        Route::listem(
-            'snapintask',
-            'name',
-            false,
-            ['jobID' => $SnapinJobIDs]
-        );
-        $SnapinTasks = json_decode(
-            Route::getData()
-        );
-        $SnapinTasks = $SnapinTasks->snapintasks;
-        foreach ((array)$SnapinTasks as &$SnapinTask) {
-            $Snapin = $SnapinTask->snapin;
-            $start = self::niceDate($SnapinTask->checkin);
-            $end = self::niceDate($SnapinTask->complete);
-            if (!self::validDate($start)) {
-                continue;
-            }
-            if (!in_array($SnapinTask->stateID, $doneStates)) {
-                $diff = _('Snapin task not completed');
-            } elseif (!self::validDate($end)) {
-                $diff = _('No complete time recorded');
-            } else {
-                $diff = self::diff($start, $end);
-            }
-            $this->data[] = [
-                'snapin_name' => $Snapin->name,
-                'snapin_start' => $start->format('Y-m-d H:i:s'),
-                'snapin_end' => sprintf(
-                    '<span data-toggle="tooltip" data-placement="left" '
-                    . 'class="icon" title="%s">%s</span>',
-                    $end->format('Y-m-d H:i:s'),
-                    $SnapinTask->state->name
-                ),
-                'snapin_duration' => $diff,
-                'snapin_return'=> $SnapinTask->return,
-            ];
-            unset($SnapinTask);
-        }
-        self::$HookManager
-            ->processEvent(
-                'HOST_SNAPIN_HIST',
-                [
-                    'headerData' => &$this->headerData,
-                    'data' => &$this->data,
-                    'templates' => &$this->templates,
-                    'attributes' => &$this->attributes
-                ]
-            );
-        echo '<div class="tab-pane fade" id="host-snapin-history">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
+        echo '<!-- Host Snapin History -->';
+        echo '<div class="box-group" id="snapinhistory">';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
         echo _('Host Snapin History');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        $this->render(12);
+        echo '<div class="box-body">';
+        $this->render(12, 'host-snapin-history');
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
     }
     /**
      * Edits an existing item.
@@ -3092,24 +3398,21 @@ class HostManagement extends FOGPage
                         'name' => _('Login History'),
                         'id' => 'host-login-history',
                         'generator' => function () {
-                            //$this->hostLoginHistory();
-                            echo 'TODO: Make functional';
+                            $this->hostLoginHistory();
                         }
                     ],
                     [
                         'name' => _('Imaging History'),
                         'id' => 'host-image-history',
                         'generator' => function () {
-                            //$this->hostImageHistory();
-                            echo 'TODO: Make functional';
+                            $this->hostImageHistory();
                         }
                     ],
                     [
                         'name' => _('Snapin History'),
                         'id' => 'host-snapin-history',
                         'generator' => function () {
-                            //$this->hostSnapinHistory();
-                            echo 'TODO: Make functional';
+                            $this->hostSnapinHistory();
                         }
                     ],
                 ]
