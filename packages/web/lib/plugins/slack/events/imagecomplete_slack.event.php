@@ -68,14 +68,14 @@ class ImageComplete_Slack extends Event
         foreach ((array)self::getClass('SlackManager')
             ->find() as &$Token
         ) {
-            $args = array(
+            $args = [
                 'channel' => $Token->get('name'),
                 'text' => sprintf(
                     '%s %s',
                     $data['HostName'],
                     _('Completed imaging')
                 )
-            );
+            ];
             $Token->call('chat.postMessage', $args);
             unset($Token);
         }

@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-$fog_plugin = array();
+$fog_plugin = [];
 $fog_plugin['name'] = 'persistentgroups';
 $fog_plugin['description'] = 'Enable persistent groups.';
 $fog_plugin['menuicon'] = 'fa fa-id-card fa-fw';

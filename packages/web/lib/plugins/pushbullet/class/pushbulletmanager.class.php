@@ -37,34 +37,34 @@ class PushbulletManager extends FOGManagerController
     public function install()
     {
         $this->uninstall();
-        $fields = array(
+        $fields = [
             'pID',
             'pToken',
             'pName',
             'pEmail'
-        );
-        $types = array(
+        ];
+        $types = [
             'INTEGER',
             'VARCHAR(255)',
             'VARCHAR(255)',
             'VARCHAR(255)'
-        );
-        $notnulls = array(
+        ];
+        $notnulls = [
             false,
             false,
             false,
             false
-        );
-        $defaults = array(
+        ];
+        $defaults = [
             false,
             false,
             false,
             false
-        );
-        $keys = array(
+        ];
+        $keys = [
             'pID',
             'pToken'
-        );
+        ];
         $sql = Schema::createTable(
             $this->tablename,
             true,

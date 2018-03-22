@@ -34,20 +34,20 @@ class Pushbullet extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'pID',
         'token' => 'pToken',
         'name' => 'pName',
-        'email' => 'pEmail',
-    );
+        'email' => 'pEmail'
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'token',
         'name',
-        'email',
-    );
+        'email'
+    ];
 }

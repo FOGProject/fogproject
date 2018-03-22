@@ -67,7 +67,7 @@ class LoginFailure_Slack extends Event
         foreach ((array)self::getClass('SlackManager')
             ->find() as &$Token
         ) {
-            $args = array(
+            $args = [
                 'channel' => $Token->get('name'),
                 'text' => sprintf(
                     '%s %s. %s: %s',
@@ -76,7 +76,7 @@ class LoginFailure_Slack extends Event
                     _('Remote address attempting to login'),
                     filter_input(INPUT_SERVER, 'REMOTE_ADDR')
                 ),
-            );
+            ];
             $Token->call('chat.postMessage', $args);
             unset($Token);
         }

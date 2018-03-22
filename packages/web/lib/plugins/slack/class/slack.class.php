@@ -55,7 +55,7 @@ class Slack extends FOGController
      */
     public function getChannels()
     {
-        $channels = array();
+        $channels = [];
         $channelnames = $this->call('channels.list');
         if (!$channelnames['ok']) {
             throw new SlackException(_('Channel call is invalid'));
@@ -78,7 +78,7 @@ class Slack extends FOGController
      */
     public function getUsers()
     {
-        $users = array();
+        $users = [];
         $usernames = $this->call('users.list');
         if (!$usernames['ok']) {
             throw new SlackException(_('User call is invalid'));

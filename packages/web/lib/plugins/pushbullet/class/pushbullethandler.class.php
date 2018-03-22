@@ -72,7 +72,7 @@ class PushbulletHandler extends Pushbullet
         $title,
         $body = null
     ) {
-        $data = array();
+        $data = [];
         PushbulletHandler::_parseRecipient(
             $recipient,
             $data
@@ -103,7 +103,7 @@ class PushbulletHandler extends Pushbullet
         $url,
         $body = null
     ) {
-        $data = array();
+        $data = [];
         PushbulletHandler::_parseRecipient(
             $recipient,
             $data
@@ -133,7 +133,7 @@ class PushbulletHandler extends Pushbullet
         $name,
         $address
     ) {
-        $data = array();
+        $data = [];
         PushbulletHandler::_parseRecipient(
             $recipient,
             $data
@@ -162,7 +162,7 @@ class PushbulletHandler extends Pushbullet
         $title,
         array $items
     ) {
-        $data = array();
+        $data = [];
         PushbulletHandler::_parseRecipient(
             $recipient,
             $data
@@ -187,7 +187,8 @@ class PushbulletHandler extends Pushbullet
      * @param string $body        The body of the push notification.
      * @param string $altFileName Alternative file name to use instead
      *                            of the original one.
-     *                            For example, you might want to push 'someFile.tmp' as 'image.jpg'.
+     *                            For example, you might want to push
+     *                            'someFile.tmp' as 'image.jpg'.
      *
      * @return object Response.
      * @throws PushbulletException
@@ -200,7 +201,7 @@ class PushbulletHandler extends Pushbullet
         $body = null,
         $altFileName = null
     ) {
-        $data = array();
+        $data = [];
         $fullFilePath = realpath($filePath);
         if (!is_readable($fullFilePath)) {
             throw new PushbulletException(
@@ -259,8 +260,8 @@ class PushbulletHandler extends Pushbullet
      *                              this UNIX timestamp.
      * @param string $cursor        Request the next page via its
      *                              cursor from a previous response. See the API
-     *                              documentation (https://docs.pushbullet.com/http/) for a
-     *                              detailed description.
+     *                              documentation (https://docs.pushbullet.com/http/)
+     *                              for a detailed description.
      * @param int    $limit         Maximum number of objects on each page.
      *
      * @return object Response.
@@ -271,7 +272,7 @@ class PushbulletHandler extends Pushbullet
         $cursor = null,
         $limit = null
     ) {
-        $data = array();
+        $data = [];
         $data['modified_after'] = $modifiedAfter;
         if ($cursor !== null) {
             $data['cursor'] = $cursor;
@@ -298,7 +299,7 @@ class PushbulletHandler extends Pushbullet
         return $this->_curlRequest(
             self::URL_PUSHES . '/' . $pushIden,
             'POST',
-            array('dismissed' => true)
+            ['dismissed' => true]
         );
     }
     /**
@@ -335,7 +336,7 @@ class PushbulletHandler extends Pushbullet
         $cursor = null,
         $limit = null
     ) {
-        $data = array();
+        $data = [];
         $data['modified_after'] = $modifiedAfter;
         if ($cursor !== null) {
             $data['cursor'] = $cursor;
@@ -380,10 +381,10 @@ class PushbulletHandler extends Pushbullet
                 'Create contact: Invalid email address.'
             );
         }
-        $queryData = array(
+        $queryData = [
             'name'  => $name,
             'email' => $email
-        );
+        ];
         return $this->_curlRequest(
             self::URL_CONTACTS,
             'POST',
@@ -397,8 +398,8 @@ class PushbulletHandler extends Pushbullet
      *                              this UNIX timestamp.
      * @param string $cursor        Request the next page via its
      *                              cursor from a previous response. See the API
-     *                              documentation (https://docs.pushbullet.com/http/) for
-     *                              a detailed description.
+     *                              documentation (https://docs.pushbullet.com/http/)
+     *                              for a detailed description.
      * @param int    $limit         Maximum number of objects on each page.
      *
      * @return object Response.
@@ -409,7 +410,7 @@ class PushbulletHandler extends Pushbullet
         $cursor = null,
         $limit = null
     ) {
-        $data = array();
+        $data = [];
         $data['modified_after'] = $modifiedAfter;
         if ($cursor !== null) {
             $data['cursor'] = $cursor;
@@ -437,7 +438,7 @@ class PushbulletHandler extends Pushbullet
         return $this->_curlRequest(
             self::URL_CONTACTS . '/' . $contactIden,
             'POST',
-            array('name' => $name)
+            ['name' => $name]
         );
     }
     /**
@@ -478,7 +479,7 @@ class PushbulletHandler extends Pushbullet
         return $this->_curlRequest(
             self::URL_USERS . '/me',
             'POST',
-            array('preferences' => $preferences)
+            ['preferences' => $preferences]
         );
     }
     /**
@@ -494,7 +495,7 @@ class PushbulletHandler extends Pushbullet
         return $this->_curlRequest(
             self::URL_SUBSCRIPTIONS,
             'POST',
-            array('channel_tag' => $channelTag)
+            ['channel_tag' => $channelTag]
         );
     }
     /**
@@ -535,16 +536,18 @@ class PushbulletHandler extends Pushbullet
         return $this->_curlRequest(
             self::URL_CHANNEL_INFO,
             'GET',
-            array('tag' => $channelTag)
+            ['tag' => $channelTag]
         );
     }
     /**
      * Send an SMS message.
      *
      * @param string $fromDeviceIden device_iden of the device
-     *                               that should send the SMS message. Only devices which
-     *                               have the 'has_sms' property set to true in their
-     *                               descriptions can send SMS messages. Use {@link getDevices()}
+     *                               that should send the SMS message.
+     *                               Only devices which have the 'has_sms'
+     *                               property set to true in their descriptions
+     *                               can send SMS messages. Use 
+     *                               {@link getDevices()}
      *                               to check if they're capable to do so.
      * @param mixed  $toNumber       Phone number of the recipient.
      * @param string $message        Text of the message.
@@ -554,16 +557,17 @@ class PushbulletHandler extends Pushbullet
      */
     public function sendSms($fromDeviceIden, $toNumber, $message)
     {
-        $data = array(
+        $data = [
             'type' => 'push',
-            'push' => array(
+            'push' => [
                 'type'               => 'messaging_extension_reply',
                 'package_name'       => 'com.pushbullet.android',
                 'source_user_iden'   => $this->getUserInformation()->iden,
                 'target_device_iden' => $fromDeviceIden,
                 'conversation_iden'  => $toNumber,
                 'message'            => $message
-            ));
+            ]
+        ];
 
         return $this->_curlRequest(self::URL_EPHEMERALS, 'POST', $data, true, true);
     }

@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-$fog_plugin = array();
+$fog_plugin = [];
 $fog_plugin['name'] = 'accesscontrol';
 $fog_plugin['description'] = 'The access control can restrict using'
     . ' different roles and rules.';

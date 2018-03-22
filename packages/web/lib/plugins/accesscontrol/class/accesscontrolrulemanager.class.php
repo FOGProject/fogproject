@@ -43,7 +43,7 @@ class AccessControlRuleManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'ruleID',
                 'ruleName',
                 'ruleType',
@@ -52,8 +52,8 @@ class AccessControlRuleManager extends FOGManagerController
                 'ruleCreatedBy',
                 'ruleCreatedTime',
                 'ruleNode'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'VARCHAR(40)',
                 'VARCHAR(40)',
@@ -62,8 +62,8 @@ class AccessControlRuleManager extends FOGManagerController
                 'VARCHAR(40)',
                 'TIMESTAMP',
                 'VARCHAR(40)'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -72,8 +72,8 @@ class AccessControlRuleManager extends FOGManagerController
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -82,8 +82,8 @@ class AccessControlRuleManager extends FOGManagerController
                 false,
                 'CURRENT_TIMESTAMP',
                 false
-            ),
-            array(),
+            ],
+            [],
             'MyISAM',
             'utf8',
             'ruleID',
