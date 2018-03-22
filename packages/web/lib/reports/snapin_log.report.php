@@ -29,7 +29,7 @@ class Snapin_Log extends ReportManagement
     public function file()
     {
         $this->title = _('FOG Snapin Log');
-        $this->headerData = array(
+        $this->headerData = [
             _('Host Name'),
             _('Snapin Name'),
             _('State'),
@@ -37,8 +37,8 @@ class Snapin_Log extends ReportManagement
             _('Return Desc'),
             _('Checkin Time'),
             _('Complete Time')
-        );
-        $this->templates = array(
+        ];
+        $this->templates = [
             '${host_name}',
             '${snap_name}',
             '${snap_state}',
@@ -46,17 +46,17 @@ class Snapin_Log extends ReportManagement
             '${snap_detail}',
             '${checkin}',
             '${complete}'
-        );
-        $this->attributes = array(
-            array(),
-            array(),
-            array(),
-            array(),
-            array(),
-            array(),
-            array()
-        );
-        $csvHead = array(
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+        $csvHead = [
             _('Host ID'),
             _('Host Name'),
             _('Host MAC'),
@@ -78,7 +78,7 @@ class Snapin_Log extends ReportManagement
             _('Task Checkin Time'),
             _('Task Complete Date'),
             _('Task Complete Time')
-        );
+        ];
         foreach ((array)$csvHead as $i => &$csvHeader) {
             $this->ReportMaker->addCSVCell($csvHeader);
             unset($csvHeader);
@@ -108,7 +108,7 @@ class Snapin_Log extends ReportManagement
                 continue;
             }
             $State = $SnapinTask->state;
-            $this->data[] = array(
+            $this->data[] = [
                 'host_name' => $Host->name,
                 'checkin' => $SnapinTask->checkin,
                 'complete' => $SnapinTask->complete,
@@ -124,7 +124,7 @@ class Snapin_Log extends ReportManagement
                     $Snapin->createdTime,
                     'H:i:s'
                 )
-            );
+            ];
             $this->ReportMaker
                 ->addCSVCell($Host->id)
                 ->addCSVCell($Host->name)
