@@ -32,33 +32,33 @@ class AccessControl extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'rID',
         'name' => 'rName',
         'description' => 'rDesc',
         'createdBy' => 'rCreatedBy',
-        'createdTime' => 'rCreatedTime',
-    );
+        'createdTime' => 'rCreatedTime'
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
-        'name',
-    );
+    protected $databaseFieldsRequired = [
+        'name'
+    ];
     /**
      * Additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'description',
         'users',
         'usersnotinme',
         'accesscontrolrules',
-        'accesscontrolrulesnotinme',
-    );
+        'accesscontrolrulesnotinme'
+    ];
     /**
      * Add user to access control.
      *
@@ -141,17 +141,17 @@ class AccessControl extends FOGController
     {
         $associds = self::getSubObjectIDs(
             'AccessControlAssociation',
-            array('accesscontrolID' => $this->get('id')),
+            ['accesscontrolID' => $this->get('id')],
             'userID'
         );
-        $types = array();
+        $types = [];
         self::$HookManager->processEvent(
             'USER_TYPES_FILTER',
-            array('types' => &$types)
+            ['types' => &$types]
         );
         $userid = self::getSubObjectIDs(
             'User',
-            array('type' => $types)
+            ['type' => $types]
         );
         $associds = array_diff(
             $associds,
@@ -160,7 +160,7 @@ class AccessControl extends FOGController
         unset($userid);
         $userids = self::getSubObjectIDs(
             'User',
-            array('id' => $associds)
+            ['id' => $associds]
         );
         $this->set('users', $userids);
     }
@@ -171,17 +171,17 @@ class AccessControl extends FOGController
      */
     protected function loadUsersnotinme()
     {
-        $find = array('id' => $this->get('users'));
+        $find = ['id' => $this->get('users')];
         $userids = array_diff(
             self::getSubObjectIDs('User'),
             $this->get('users')
         );
-        $types = array();
+        $types = [];
         self::$HookManager->processEvent(
             'USER_TYPES_FILTER',
-            array('types' => &$types)
+            ['types' => &$types]
         );
-        $users = array();
+        $users = [];
         foreach ((array)self::getClass('UserManager')
             ->find(array('id' => $userids)) as &$User
         ) {
@@ -204,12 +204,12 @@ class AccessControl extends FOGController
     {
         $associds = self::getSubObjectIDs(
             'AccessControlRuleAssociation',
-            array('accesscontrolID' => $this->get('id')),
+            ['accesscontrolID' => $this->get('id')],
             'accesscontrolruleID'
         );
         $ruleids = self::getSubObjectIDs(
             'AccessControlRule',
-            array('id' => $associds)
+            ['id' => $associds]
         );
         $this->set('accesscontrolrules', $ruleids);
     }

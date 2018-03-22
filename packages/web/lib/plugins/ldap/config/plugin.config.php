@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-$fog_plugin = array();
+$fog_plugin = [];
 $fog_plugin['name'] = 'LDAP';
 $fog_plugin['description'] = 'LDAP plugin to use a LDAP validation with FOG'
     . '. Ensure you have the php ldap module installed and loaded on your '

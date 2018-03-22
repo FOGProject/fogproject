@@ -38,33 +38,33 @@ class AccessControlRuleAssociationManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'rraID',
                 'rraName',
                 'rraRoleID',
                 'rraRuleID'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'VARCHAR(60)',
                 'INTEGER',
                 'INTEGER'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
-            array('rraRoleID','rraRuleID')
-            ),
+            ],
+            [
+                ['rraRoleID', 'rraRuleID']
+            ],
             'MyISAM',
             'utf8',
             'rraID',
@@ -76,10 +76,5 @@ class AccessControlRuleAssociationManager extends FOGManagerController
             return self::$DB->query($sql);
         }
         return false;
-    }
-    
-    public function uninstall()
-    {
-        return parent::uninstall();
     }
 }

@@ -533,11 +533,11 @@ class LDAPManagement extends FOGPage
             filter_input(INPUT_POST, 'bindPwd') ?:
             $this->obj->get('bindPwd')
         );
-        $searchScopes = array(
+        $searchScopes = [
             _('Base Only'),
             _('Subtree Only'),
             _('Subree and Below')
-        );
+        ];
         $searchSel = self::selectForm(
             'searchScope',
             $searchScopes,

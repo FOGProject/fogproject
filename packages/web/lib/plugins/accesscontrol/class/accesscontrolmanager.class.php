@@ -43,38 +43,38 @@ class AccessControlManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'rID',
                 'rName',
                 'rDesc',
                 'rCreatedBy',
                 'rCreatedTime'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'VARCHAR(255)',
                 'LONGTEXT',
                 'VARCHAR(40)',
                 'TIMESTAMP'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false,
                 'CURRENT_TIMESTAMP'
-            ),
-            array(
+            ],
+            [
                 'rID',
                 'rName'
-            ),
+            ],
             'MyISAM',
             'utf8',
             'rID',

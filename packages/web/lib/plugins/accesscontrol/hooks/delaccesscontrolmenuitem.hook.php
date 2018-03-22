@@ -91,7 +91,7 @@ class DelAccessControlMenuItem extends Hook
 
         /*foreach ((array)self::getClass('AccessControlRuleManager')
             ->find(
-                array('id' => $rules)
+                ['id' => $rules]
             ) as $Rule
         ) {
             unset(

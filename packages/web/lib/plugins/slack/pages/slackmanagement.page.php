@@ -198,7 +198,7 @@ class SlackManagement extends FOGPage
                     _('Add slack account failed!')
                 );
             }
-            $args = array(
+            $args = [
                 'channel' => $Slack->get('name'),
                 'text' => sprintf(
                     '%s %s: %s',
@@ -206,7 +206,7 @@ class SlackManagement extends FOGPage
                     _('Account linked to FOG GUI at'),
                     self::getSetting('FOG_WEB_HOST')
                 )
-            );
+            ];
             $Slack->call(
                 'chat.postMessage',
                 $args

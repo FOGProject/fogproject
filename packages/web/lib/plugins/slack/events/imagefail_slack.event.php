@@ -65,10 +65,10 @@ class ImageFail_Slack extends Event
         foreach ((array)self::getClass('SlackManager')
             ->find() as &$Token
         ) {
-            $args = array(
+            $args = [
                 'channel' => $Token->get('name'),
-                'text' => "{$data[HostName]} Failed imaging",
-            );
+                'text' => "{$data['HostName']} Failed imaging",
+            ];
             $Token->call('chat.postMessage', $args);
             unset($Token);
         }

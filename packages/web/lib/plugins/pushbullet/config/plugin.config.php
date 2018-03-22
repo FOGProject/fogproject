@@ -21,7 +21,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-$fog_plugin = array();
+$fog_plugin = [];
 $fog_plugin['name'] = 'pushbullet';
 $fog_plugin['description'] = 'Adds pushbullet notifications.';
 $fog_plugin['menuicon'] = 'fa fa-bell fa-fw';

@@ -32,19 +32,19 @@ class AccessControlAssociation extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'ruaID',
         'name' => 'ruaName',
         'accesscontrolID' => 'ruaRoleID',
-        'userID' => 'ruaUserID',
-    );
+        'userID' => 'ruaUserID'
+    ];
     /**
      * Required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'accesscontrolID',
-        'userID',
-    );
+        'userID'
+    ];
 }

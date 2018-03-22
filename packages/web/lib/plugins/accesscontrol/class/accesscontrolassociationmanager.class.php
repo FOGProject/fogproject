@@ -38,34 +38,34 @@ class AccessControlAssociationManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'ruaID',
                 'ruaName',
                 'ruaRoleID',
                 'ruaUserID'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'VARCHAR(60)',
                 'INTEGER',
                 'INTEGER'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 'ruaID',
                 'ruaUserID',
-            ),
+            ],
             'MyISAM',
             'utf8',
             'ruaID',
@@ -76,7 +76,7 @@ class AccessControlAssociationManager extends FOGManagerController
         } else {
             $fogUserID = self::getSubObjectIDs(
                 'User',
-                array('name' => 'fog')
+                ['name' => 'fog']
             );
             $sql = sprintf(
                 "INSERT INTO `%s` VALUES (1, '%s', 1, %d)",
