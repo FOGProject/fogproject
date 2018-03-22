@@ -47,21 +47,13 @@ class BootItem extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'IPXE_EDIT',
-                array(
-                    $this,
-                    'tweaktask'
-                )
-            )
-            ->register(
-                'IPXE_EDIT',
-                array(
-                    $this,
-                    'tweakmenu'
-                )
-            );
+        self::$HookManager->register(
+            'IPXE_EDIT',
+            [$this, 'tweaktask']
+        )->register(
+            'IPXE_EDIT',
+            [$this, 'tweakmenu']
+        );
     }
     /**
      * Tweaks the taskings.

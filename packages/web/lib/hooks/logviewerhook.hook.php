@@ -65,21 +65,13 @@ class LogViewerHook extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'LOG_VIEWER_HOOK',
-                array(
-                    $this,
-                    'logViewerAdd'
-                )
-            )
-            ->register(
-                'LOG_FOLDERS',
-                array(
-                    $this,
-                    'logFolderAdd'
-                )
-            );
+        self::$HookManager->register(
+            'LOG_VIEWER_HOOK',
+            [$this, 'logViewerAdd']
+        )->register(
+            'LOG_FOLDERS',
+            [$this, 'logFolderAdd']
+        );
     }
     /**
      * Function to add logs.
@@ -97,7 +89,7 @@ class LogViewerHook extends Hook
         if (!self::$FOGFTP->connect()) {
             return;
         }
-        $fogfiles = array();
+        $fogfiles = [];
         $fogfiles = self::$FOGFTP->nlist('/var/log/');
         self::$FOGFTP->close();
         $systemlog = preg_grep('#(syslog$|messages$)#', $fogfiles);

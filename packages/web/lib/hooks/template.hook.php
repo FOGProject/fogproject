@@ -47,14 +47,10 @@ class Template extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'HOST_DATA',
-                array(
-                    $this,
-                    'HostData'
-                )
-            );
+        self::$HookManager->register(
+            'HOST_DATA',
+            [$this, 'HostData']
+        );
     }
     /**
      * Host data example method.

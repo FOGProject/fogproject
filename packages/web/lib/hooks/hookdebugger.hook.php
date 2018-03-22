@@ -74,10 +74,7 @@ class HookDebugger extends Hook
         ) {
             self::$HookManager->register(
                 $event,
-                array(
-                    $this,
-                    'run'
-                )
+                [$this, 'run']
             );
             unset($event);
         }
