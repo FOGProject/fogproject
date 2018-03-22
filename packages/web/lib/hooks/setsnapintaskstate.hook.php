@@ -55,35 +55,19 @@ class SetSnapinTaskState extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'CHECKEDIN_STATE',
-                array(
-                    $this,
-                    'setCheckedInState'
-                )
-            )
-            ->register(
-                'PROGRESS_STATE',
-                array(
-                    $this,
-                    'setProgressState'
-                )
-            )
-            ->register(
-                'QUEUED_STATES',
-                array(
-                    $this,
-                    'addQueuedState'
-                )
-            )
-            ->register(
-                'TaskActiveSnapinsData',
-                array(
-                    $this,
-                    'setStateWidth'
-                )
-            );
+        self::$HookManager->register(
+            'CHECKEDIN_STATE',
+            [$this, 'setCheckedInState']
+        )->register(
+            'PROGRESS_STATE',
+            [$this, 'setProgressState']
+        )->register(
+            'QUEUED_STATES',
+            [$this, 'addQueuedState']
+        )->register(
+            'TaskActiveSnapinsData',
+            [$this, 'setStateWidth']
+        );
     }
     /**
      * Sets the checkin state
@@ -134,10 +118,10 @@ class SetSnapinTaskState extends Hook
      */
     public function setStateWidth($arguments)
     {
-        $arguments['attributes'][1] = array('width' => 10);
-        $arguments['attributes'][4] = array(
+        $arguments['attributes'][1] = ['width' => 10];
+        $arguments['attributes'][4] = [
             'width' => 165,
             'class' => 'c'
-        );
+        ];
     }
 }

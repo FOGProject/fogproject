@@ -65,14 +65,10 @@ class MainMenuData extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'MAIN_MENU_DATA',
-                array(
-                    $this,
-                    'addToMainMenu'
-                )
-            );
+        self::$HookManager->register(
+            'MAIN_MENU_DATA',
+            [$this, 'addToMainMenu']
+        );
     }
     /**
      * The changer method.
@@ -88,10 +84,7 @@ class MainMenuData extends Hook
             $this->insertAfter,
             $arguments['main'],
             $link,
-            array(
-                _($this->menuitem),
-                'fa ' . $this->icon . ' fa-2x'
-            )
+            [_($this->menuitem), 'fa ' . $this->icon . ' fa-2x']
         );
     }
 }

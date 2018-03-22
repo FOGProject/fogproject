@@ -47,14 +47,10 @@ class BootTask extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'IPXE_EDIT',
-                array(
-                    $this,
-                    'changeTask'
-                )
-            );
+        self::$HookManager->register(
+            'IPXE_EDIT',
+            [$this, 'changeTask']
+        );
     }
     /**
      * Change the task.
@@ -78,7 +74,7 @@ class BootTask extends Hook
         if (!in_array($TaskType->get('id'), $keys)) {
             return;
         }
-        $arguments['ipxe']['task'][$TaskType->get('id')] = array(
+        $arguments['ipxe']['task'][$TaskType->get('id')] = [
             'set path /OS_IMAGES/ubuntu-14.04.3-DVD',
             'set nfs_path /images/OS_IMAGES/ubuntu-14.04.3-DVD',
             'kernel ${boot-url}${path}/install/netboot/ubuntu'
@@ -89,8 +85,8 @@ class BootTask extends Hook
             . '/net-image=${boot-url}${path}/install/filesystem.squashfs '
             . 'ks=${boot-url}/OS_IMAGES/kickstarts/precise_ks.cfg '
             . 'ip=dhcp splash quiet - || read void',
-            'boot || read void',
-        );
+            'boot || read void'
+        ];
         $arguments['Host']
             ->get('task')
             ->set(

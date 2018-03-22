@@ -47,14 +47,10 @@ class ChangeHostname extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'HOST_DATA',
-                array(
-                    $this,
-                    'hostData'
-                )
-            );
+        self::$HookManager->register(
+            'HOST_DATA',
+            [$this, 'hostData']
+        );
     }
     /**
      * The data to alter.
