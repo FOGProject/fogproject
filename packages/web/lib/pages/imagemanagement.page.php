@@ -1498,20 +1498,26 @@ class ImageManagement extends FOGPage
         $storagegroupsSqlStr = "SELECT `%s`,"
             . "`igaImageID` AS `origID`,IF (`igaImageID` = '"
             . $this->obj->get('id')
-            . "','associated','dissociated') AS `igaImageID`,`igaPrimary`,`imageID`
+            . "','associated','dissociated') AS `igaImageID`,`igaPrimary`
             FROM `%s`
             LEFT OUTER JOIN `imageGroupAssoc`
             ON `nfsGroups`.`ngID` = `imageGroupAssoc`.`igaStorageGroupID`
+            AND `imageGroupAssoc`.`igaImageID` = '"
+            . $this->obj->get('id')
+            . "'
             %s
             %s
             %s";
         $storagegroupsFilterStr = "SELECT COUNT(`%s`),"
             . "`igaImageID` AS `origID`,IF (`igaImageID` = '"
             . $this->obj->get('id')
-            . "','associated','dissociated') AS `igaImageID`,`igaPrimary`,`imageID`
+            . "','associated','dissociated') AS `igaImageID`,`igaPrimary`
             FROM `%s`
             LEFT OUTER JOIN `imageGroupAssoc`
             ON `nfsGroups`.`ngID` = `imageGroupAssoc`.`igaStorageGroupID`
+            AND `imageGroupAssoc`.`igaImageID` = '"
+            . $this->obj->get('id')
+            . "'
             %s";
         $storagegroupsTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`";

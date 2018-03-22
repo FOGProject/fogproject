@@ -32,16 +32,16 @@ class HookEvent extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'heID',
         'name' => 'heName'
-    );
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name'
-    );
+    ];
 }

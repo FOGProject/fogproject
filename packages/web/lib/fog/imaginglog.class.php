@@ -32,53 +32,53 @@ class ImagingLog extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'ilID',
         'hostID' => 'ilHostID',
         'start' => 'ilStartTime',
         'finish' => 'ilFinishTime',
         'image' => 'ilImageName',
         'type' => 'ilType',
-        'createdBy' => 'ilCreatedBy',
-    );
+        'createdBy' => 'ilCreatedBy'
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'hostID',
         'start',
         'finish',
         'image',
-        'type',
-    );
+        'type'
+    ];
     /**
      * Additional fields.
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'host',
-        'images',
-    );
+        'images'
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'Host' => array(
+    protected $databaseFieldClassRelationships = [
+        'Host' => [
             'id',
             'hostID',
             'host'
-        ),
-        'Image' => array(
+        ],
+        'Image' => [
             'name',
             'image',
             'images'
-        )
-    );
+        ]
+    ];
     /**
      * Return the host object.
      *

@@ -32,7 +32,7 @@ class SnapinTask extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'stID',
         'jobID' => 'stJobID',
         'stateID' => 'stState',
@@ -40,49 +40,49 @@ class SnapinTask extends FOGController
         'complete' => 'stCompleteDate',
         'snapinID' => 'stSnapinID',
         'return' => 'stReturnCode',
-        'details' => 'stReturnDetails',
-    );
+        'details' => 'stReturnDetails'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'jobID',
-        'snapinID',
-    );
+        'snapinID'
+    ];
     /**
      * Additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'snapin',
         'state',
         'snapinjob'
-    );
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'Snapin' => array(
+    protected $databaseFieldClassRelationships = [
+        'Snapin' => [
             'id',
             'snapinID',
             'snapin'
-        ),
-        'TaskState' => array(
+        ],
+        'TaskState' => [
             'id',
             'stateID',
             'state'
-        ),
-        'SnapinJob' => array(
+        ],
+        'SnapinJob' => [
             'id',
             'jobID',
             'snapinjob'
-        )
-    );
+        ]
+    ];
     /**
      * Return the snapin job object.
      *

@@ -4750,10 +4750,6 @@ msgid "Engineer"
 msgstr "工程师"
 
 #, fuzzy
-msgid "Imaged From"
-msgstr "成像"
-
-#, fuzzy
 msgid "Host Image History"
 msgstr "历史形象"
 

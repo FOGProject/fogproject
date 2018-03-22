@@ -21,48 +21,4 @@
  */
 class SnapinGroupAssociationManager extends FOGManagerController
 {
-    /**
-     * The base table name.
-     *
-     * @var string
-     */
-    public $tablename = 'dirCleaner';
-    /**
-     * Install our table.
-     *
-     * @return bool
-     */
-    public function install()
-    {
-        $this->uninstall();
-        $sql = Schema::createTable(
-            $this->tablename,
-            true,
-            [
-                'dcID',
-                'dcPath'
-            ],
-            [
-                'INTEGER',
-                'LONGTEXT'
-            ],
-            [
-                false,
-                false
-            ],
-            [
-                false,
-                false
-            ],
-            [
-                'dcID',
-                'dcPath'
-            ],
-            'MyISAM',
-            'utf8',
-            'dcID',
-            'dcID'
-        );
-        return self::$DB->query($sql);
-    }
 }

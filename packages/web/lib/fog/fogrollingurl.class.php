@@ -38,19 +38,19 @@ class FOGRollingURL
      *
      * @var array
      */
-    public $postData = array();
+    public $postData = [];
     /**
      * The headers to use for the url.
      *
      * @var array
      */
-    public $headers = array();
+    public $headers = [];
     /**
      * Any special options needed for curl.
      *
      * @var array
      */
-    public $options = array();
+    public $options = [];
     /**
      * Initialize the class at call time.
      *
@@ -63,9 +63,9 @@ class FOGRollingURL
     public function __construct(
         $url,
         $method = 'GET',
-        $postData = array(),
-        $headers = array(),
-        $options = array()
+        $postData = [],
+        $headers = [],
+        $options = [] 
     ) {
         $this->url = $url;
         $this->method = $method;
@@ -80,8 +80,8 @@ class FOGRollingURL
     {
         $this->url = '';
         $this->method = 'GET';
-        $this->postData = array();
-        $this->headers = array();
-        $this->options = array();
+        $this->postData = [];
+        $this->headers = [];
+        $this->options = [];
     }
 }

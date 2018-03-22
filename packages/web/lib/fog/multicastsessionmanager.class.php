@@ -22,50 +22,6 @@
 class MulticastSessionManager extends FOGManagerController
 {
     /**
-     * The base table name.
-     *
-     * @var string
-     */
-    public $tablename = 'dirCleaner';
-    /**
-     * Install our table.
-     *
-     * @return bool
-     */
-    public function install()
-    {
-        $this->uninstall();
-        $sql = Schema::createTable(
-            $this->tablename,
-            true,
-            array(
-                'dcID',
-                'dcPath'
-            ),
-            array(
-                'INTEGER',
-                'LONGTEXT'
-            ),
-            array(
-                false,
-                false
-            ),
-            array(
-                false,
-                false
-            ),
-            array(
-                'dcID',
-                'dcPath'
-            ),
-            'MyISAM',
-            'utf8',
-            'dcID',
-            'dcID'
-        );
-        return self::$DB->query($sql);
-    }
-    /**
      * Cancels all passed tasks.
      *
      * @param mixed $multicastsessionids the id's to cancel
@@ -77,9 +33,7 @@ class MulticastSessionManager extends FOGManagerController
         /**
          * Setup for our finding needs.
          */
-        $findWhere = array(
-            'id' => (array) $multicastsessionids,
-        );
+        $findWhere = ['id' => (array)$multicastsessionids];
         /**
          * Get the current id for cancelled state.
          */
@@ -89,7 +43,7 @@ class MulticastSessionManager extends FOGManagerController
          */
         $taskIDs = self::getSubObjectIDs(
             'MulticastSessionAssociation',
-            array('msID' => $multicastsessionids),
+            ['msID' => $multicastsessionids],
             'taskID'
         );
         /**
@@ -97,11 +51,9 @@ class MulticastSessionManager extends FOGManagerController
          */
         self::getClass('TaskManager')
             ->update(
-                array('id' => $taskIDs),
+                ['id' => $taskIDs],
                 '',
-                array(
-                    'stateID' => self::getCancelledState()
-                )
+                ['stateID' => self::getCancelledState()]
             );
         /*
          * Set our cancelled state
@@ -109,10 +61,10 @@ class MulticastSessionManager extends FOGManagerController
         $this->update(
             $findWhere,
             '',
-            array(
+            [
                 'stateID' => $cancelled,
                 'name' => '',
-            )
+            ]
         );
         /*
          * Perform change for alternative data

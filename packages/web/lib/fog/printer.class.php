@@ -32,7 +32,7 @@ class Printer extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'pID',
         'name' => 'pAlias',
         'description' => 'pDesc',
@@ -45,25 +45,25 @@ class Printer extends FOGController
         'pAnon2' => 'pAnon2',
         'pAnon3' => 'pAnon3',
         'pAnon4' => 'pAnon4',
-        'pAnon5' => 'pAnon5',
-    );
+        'pAnon5' => 'pAnon5'
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
-        'name',
-    );
+    protected $databaseFieldsRequired = [
+        'name'
+    ];
     /**
      * The additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'hosts',
-        'hostsnotinme',
-    );
+        'hostsnotinme'
+    ];
     /**
      * Removes the printer.
      *
@@ -74,7 +74,7 @@ class Printer extends FOGController
     public function destroy($key = 'id')
     {
         self::getClass('PrinterAssociationManager')
-            ->destroy(array('printerID'=>$this->get('id')));
+            ->destroy(['printerID'=>$this->get('id')]);
         return parent::destroy($key);
     }
     /**
@@ -130,7 +130,7 @@ class Printer extends FOGController
             'hosts',
             self::getSubObjectIDs(
                 'PrinterAssociation',
-                array('printerID'=>$this->get('id')),
+                ['printerID'=>$this->get('id')],
                 'hostID'
             )
         );
@@ -160,23 +160,23 @@ class Printer extends FOGController
     {
         $AllHostsPrinter = self::getSubObjectIDs(
             'PrinterAssociation',
-            array('printerID'=>$this->get('id'))
+            ['printerID'=>$this->get('id')]
         );
         self::getClass('PrinterAssociationManager')
             ->update(
-                array(
+                [
                     'id' => $AllHostsPrinter,
                     'isDefault' => 0
-                )
+                ]
             );
         self::getClass('PrinterAssociationManager')
             ->update(
-                array(
+                [
                     'hostID' => $onoff,
                     'printerID' => $this->get('id')
-                ),
+                ],
                 '',
-                array('isDefault' => 1)
+                ['isDefault' => 1]
             );
         return $this;
     }
@@ -187,12 +187,12 @@ class Printer extends FOGController
      */
     public function isValid()
     {
-        $validTypes = array(
+        $validTypes = [
             'iprint',
             'network',
             'local',
-            'cups',
-        );
+            'cups'
+        ];
         $curtype = $this->get('config');
         $curtype = trim($this->get('config'));
         $curtype = strtolower($curtype);
@@ -208,12 +208,12 @@ class Printer extends FOGController
      */
     public static function buildPrinterTypeSelector()
     {
-        $printerTypes = array(
+        $printerTypes = [
             'Local' => _('TCP/IP Port Printer'),
             'iPrint' => _('iPrint Printer'),
             'Network' => _('Network Printer'),
             'Cups' => _('CUPS Printer'),
-        );
+        ];
         ob_start();
         foreach ((array)$printerTypes as $short => &$long) {
             printf(
@@ -237,9 +237,7 @@ class Printer extends FOGController
             . '</select>';
         self::$HookManager->processEvent(
             'PRINTER_TYPE_SELECTOR',
-            array(
-                'optionPrinter' => &$optionPrinter
-            )
+            ['optionPrinter' => &$optionPrinter]
         );
         return $optionPrinter;
     }

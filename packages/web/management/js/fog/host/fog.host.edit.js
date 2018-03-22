@@ -1154,4 +1154,50 @@
 
     // ---------------------------------------------------------------
     // LOGIN HISTORY TAB
+    var loginTable = Common.registerTable($('#host-login-table'), null, {
+        columns: [
+            {data: 'datetime'},
+            {data: 'action'},
+            {data: 'username'},
+            {data: 'description'}
+        ],
+        rowId: 'id',
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+            + Common.node
+            + '&sub=getLoginHist&id='
+            + Common.id,
+            type: 'post'
+        }
+    });
+    if (Common.search && Common.search.length > 0) {
+        loginTable.search(Common.search).draw();
+    }
+    // ---------------------------------------------------------------
+    // IMAGE HISTORY TAB
+    var imageTable = Common.registerTable($('#host-image-table'), null, {
+        columns: [
+            {data: 'createdBy'},
+            {data: 'start'},
+            {data: 'finish'},
+            {data: 'duration'},
+            {data: 'image'},
+            {data: 'type'}
+        ],
+        rowId: 'id',
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+            + Common.node
+            + '&sub=getImageHist&id='
+            + Common.id,
+            type: 'post'
+        }
+    });
+    if (Common.search && Common.search.length > 0) {
+        imageTable.search(Common.search).draw();
+    }
 })(jQuery);
