@@ -1,38 +1,38 @@
 <?php
 /**
- * Injects windows key stuff into the api system.
+ * Injects ou stuff into the api system.
  *
  * PHP version 5
  *
- * @category AddWindowskeyAPI
+ * @category AddOUAPI
  * @package  FOGProject
- * @author   Fernando Gietz <fernando.gietz@gmail.com>
+ * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Injects windows key stuff into the api system.
+ * Injects ou stuff into the api system.
  *
- * @category AddWindowskeyAPI
+ * @category AddOUAPI
  * @package  FOGProject
- * @author   Fernando Gietz <fernando.gietz@gmail.com>
+ * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class AddWindowskeyAPI extends Hook
+class AddOUAPI extends Hook
 {
     /**
      * The name of the hook.
      *
      * @var string
      */
-    public $name = 'AddWindowskeyAPI';
+    public $name = 'AddOUAPI';
     /**
-     * The hooks description.
+     * The description.
      *
      * @var string
      */
-    public $description = 'Add windows key stuff into the api system.';
+    public $description = 'Add OU stuff into the api system.';
     /**
      * For posterity.
      *
@@ -40,11 +40,11 @@ class AddWindowskeyAPI extends Hook
      */
     public $active = true;
     /**
-     * The node the plugin works on.
+     * The node the hook works with.
      *
      * @var string
      */
-    public $node = 'windowskey';
+    public $node = 'ou';
     /**
      * Initialize object.
      *
@@ -62,7 +62,7 @@ class AddWindowskeyAPI extends Hook
         );
     }
     /**
-     * This function injects site elements for
+     * This function injects ou elements for
      * api access.
      *
      * @param mixed $arguments The arguments to modify.
@@ -74,7 +74,7 @@ class AddWindowskeyAPI extends Hook
         array_push(
             $arguments['validClasses'],
             $this->node,
-            'windowskeyassociation'
+            'ouassociation'
         );
     }
 }

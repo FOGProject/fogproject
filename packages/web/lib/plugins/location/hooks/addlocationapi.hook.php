@@ -100,7 +100,8 @@ class AddLocationAPI extends Hook
     {
         array_push(
             $arguments['validClasses'],
-            [$this->node, 'locationassociation']
+            $this->node,
+            'locationassociation'
         );
     }
     /**

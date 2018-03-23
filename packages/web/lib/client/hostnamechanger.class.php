@@ -99,6 +99,13 @@ class HostnameChanger extends FOGClient
         if ($productKey) {
             $val['Key'] = $productKey;
         }
+        self::$HookManager->processEvent(
+            'HOSTNAME_CHANGER_CLIENT',
+            [
+                'val' => &$val,
+                'Host' => &self::$Host
+            ]
+        );
         return $val;
     }
 }

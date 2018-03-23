@@ -100,11 +100,9 @@ class AddSiteAPI extends Hook
 
         array_push(
             $arguments['validClasses'],
-            [
-                $this->node,
-                'sitehostassociation',
-                'siteuserassociation'
-            ]
+            $this->node,
+            'sitehostassociation',
+            'siteuserassociation'
         );
     }
 }

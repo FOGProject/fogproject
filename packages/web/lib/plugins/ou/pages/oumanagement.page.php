@@ -1,10 +1,10 @@
 <?php
 /**
- * Location management page.
+ * OU management page.
  *
  * PHP version 5
  *
- * @category LocationManagement
+ * @category OUManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   Lee Rowlett <nah@nah.com>
@@ -12,25 +12,25 @@
  * @link     https://fogproject.org
  */
 /**
- * Location management page.
+ * OU management page.
  *
- * @category LocationManagement
+ * @category OUManagement
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   Lee Rowlett <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class LocationManagement extends FOGPage
+class OUManagement extends FOGPage
 {
     /**
      * The node this page operates on.
      *
      * @var string
      */
-    public $node = 'location';
+    public $node = 'ou';
     /**
-     * Initializes the Location management page.
+     * Initializes the OU management page.
      *
      * @param string $name Something to lay it out as.
      *
@@ -38,25 +38,17 @@ class LocationManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Location Management';
-        self::$foglang['ExportLocation'] = _('Export Locations');
-        self::$foglang['ImportLocation'] = _('Import Locations');
+        $this->name = 'OU Management';
         parent::__construct($this->name);
         $this->headerData = [
-            _('Location Name'),
-            _('Storage Group'),
-            _('Storage Node'),
-            _('Kernels/Inits from location')
+            _('OU Name'),
+            _('OU DN')
         ];
         $this->templates = [
-            '',
-            '',
             '',
             ''
         ];
         $this->attributes = [
-            [],
-            [],
             [],
             []
         ];
@@ -68,70 +60,51 @@ class LocationManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Location');
+        $this->title = _('Create New OU');
 
-        $location = filter_input(INPUT_POST, 'location');
+        $ou = filter_input(INPUT_POST, 'ou');
         $description = filter_input(INPUT_POST, 'description');
-        $storagegroup = filter_input(INPUT_POST, 'storagegroup');
-        $storagenode = filter_input(INPUT_POST, 'storagenode');
-        $storagegroupSelector = self::getClass('StorageGroupManager')
-            ->buildSelectBox($storagegroup);
-        $storagenodeSelector = self::getClass('StorageNodeManager')
-            ->buildSelectBox($storagenode);
+        $oudn = filter_input(INPUT_POST, 'oudn');
 
         $labelClass = 'col-sm-2 control-label';
 
         $fields = [
             self::makeLabel(
                 $labelClass,
-                'location',
-                _('Location Name')
+                'ou',
+                _('OU Name')
             ) => self::makeInput(
-                'form-control locationname-input',
-                'location',
-                _('Location Name'),
+                'form-control ouname-input',
+                'ou',
+                _('OU Name'),
                 'text',
-                'location',
-                $location,
+                'ou',
+                $ou,
                 true
             ),
             self::makeLabel(
                 $labelClass,
                 'description',
-                _('Location Description')
+                _('OU Description')
             ) => self::makeTextarea(
-                'form-control locationdescription-input',
+                'form-control oudescription-input',
                 'description',
-                _('Location Description'),
+                _('OU Description'),
                 'description',
                 $description
             ),
             self::makeLabel(
                 $labelClass,
-                'storagegroup',
-                _('Storage Group')
-            ) => $storagegroupSelector,
-            self::makeLabel(
-                $labelClass,
-                'storagenode',
-                _('Storage Node')
-            ) => $storagenodeSelector,
-            self::makeLabel(
-                $labelClass,
-                'bootfrom',
-                _('Boot files from')
+                'oudn',
+                _('OU DN')
             ) => self::makeInput(
-                '',
-                'bootfrom',
-                '',
-                'checkbox',
-                'bootfrom',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                'checked'
+                'form-control oudn-input',
+                'oudn',
+                'ou=computers,dc=example,dc=com',
+                'text',
+                'oudn',
+                $oudn,
+                true
             )
         ];
 
@@ -142,11 +115,11 @@ class LocationManagement extends FOGPage
         );
 
         self::$HookManager->processEvent(
-            'LOCATION_ADD_FIELDS',
+            'OU_ADD_FIELDS',
             [
                 'fields' => &$fields,
                 'buttons' => &$buttons,
-                'Location' => self::getClass('Location')
+                'OU' => self::getClass('OU')
             ]
         );
         $rendered = self::formFields($fields);
@@ -154,13 +127,13 @@ class LocationManagement extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'location-create-form',
+            'ou-create-form',
             $this->formAction,
             'post',
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid" id="location-create">';
+        echo '<div class="box box-solid" id="ou-create">';
         echo '<div class="box-body">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
@@ -180,61 +153,47 @@ class LocationManagement extends FOGPage
         echo '</form>';
     }
     /**
-     * Actually create the location.
+     * Actually create the ou.
      *
      * @return void
      */
     public function addPost()
     {
         header('Content-type: application/json');
-        self::$HookManager->processEvent('LOCATION_ADD_POST');
-        $location = trim(
-            filter_input(INPUT_POST, 'location')
+        self::$HookManager->processEvent('OU_ADD_POST');
+        $ou = trim(
+            filter_input(INPUT_POST, 'ou')
         );
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
-        $storagegroup = trim(
-            filter_input(INPUT_POST, 'storagegroup')
+        $oudn = trim(
+            filter_input(INPUT_POST, 'oudn')
         );
-        $storagenode = trim(
-            filter_input(INPUT_POST, 'storagenode')
-        );
-        $bootfrom = (int)isset($_POST['bootfrom']);
 
         $serverFault = false;
         try {
-            $exists = self::getClass('LocationManager')
-                ->exists($location);
+            $exists = self::getClass('OUManager')
+                ->exists($ou);
             if ($exists) {
                 throw new Exception(
-                    _('A location already exists with this name!')
+                    _('An ou already exists with this name!')
                 );
             }
-            if (!$storagegroup && !$storagenode) {
-                throw new Exception(
-                    _('A storage group must be selected.')
-                );
-            }
-            if ($storagenode) {
-                $storagegroup = self::getClass('StorageNode', $storagenode)
-                    ->get('storagegroupID');
-            }
-            $Location = self::getClass('Location')
-                ->set('name', $location)
-                ->set('storagegroupID', $storagegroup)
-                ->set('storagenodeID', $storagenode)
-                ->set('tftp', $bootfrom);
-            if (!$Location->save()) {
+            $OU = self::getClass('OU')
+                ->set('name', $ou)
+                ->set('description', $description)
+                ->set('ou', $oudn);
+            if (!$OU->save()) {
                 $serverFault = false;
-                throw new Exception(_('Add location failed!'));
+                throw new Exception(_('Add ou failed!'));
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'LOCATION_ADD_SUCCESS';
+            $hook = 'OU_ADD_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Location added!'),
-                    'title' => _('Location Create Succes')
+                    'msg' => _('OU added!'),
+                    'title' => _('OU Create Succes')
                 ]
             );
         } catch (Exception $e) {
@@ -243,22 +202,22 @@ class LocationManagement extends FOGPage
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $hook = 'LOCATION_ADD_FAIL';
+            $hook = 'OU_ADD_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Location Create Fail')
+                    'title' => _('OU Create Fail')
                 ]
             );
         }
         // header(
-        //     'Location: ../management/index.php?node=location&sub=edit&id='
-        //     . $Location->get('id')
+        //     'Location: ../management/index.php?node=ou&sub=edit&id='
+        //     . $OU->get('id')
         // );
         self::$HookManager->processEvent(
             $hook,
             [
-                'Location' => &$Location,
+                'OU' => &$OU,
                 'hook' => &$hook,
                 'code' => &$code,
                 'msg' => &$msg,
@@ -266,45 +225,28 @@ class LocationManagement extends FOGPage
             ]
         );
         http_response_code($code);
-        unset($Location);
+        unset($OU);
         echo $msg;
         exit;
     }
     /**
-     * Displays the location general tab.
+     * Displays the ou general tab.
      *
      * @return void
      */
-    public function locationGeneral()
+    public function ouGeneral()
     {
-        $location = (
-            filter_input(INPUT_POST, 'location') ?:
+        $ou = (
+            filter_input(INPUT_POST, 'ou') ?:
             $this->obj->get('name')
         );
         $description = (
             filter_input(INPUT_POST, 'description') ?:
             $this->obj->get('description')
         );
-        $storagegroup = (
-            filter_input(INPUT_POST, 'storagegroup') ?:
-            $this->obj->get('storagegroupID')
-        );
-        $storagenode = (
-            filter_input(INPUT_POST, 'storagenode') ?:
-            $this->obj->get('storagenodeID')
-        );
-        $storagegroupSelector = self::getClass('StorageGroupManager')
-            ->buildSelectBox($storagegroup);
-        $storagenodeSelector = self::getClass('StorageNodeManager')
-            ->buildSelectBox($storagenode);
-        $bootfrom = (
-            isset($_POST['bootfrom']) ?
-            'checked' :
-            (
-                $this->obj->get('tftp') ?
-                'checked' :
-                ''
-            )
+        $oudn = (
+            filter_input(INPUT_POST, 'oudn') ?:
+            $this->obj->get('ou')
         );
 
         $labelClass = 'col-sm-2 control-label';
@@ -312,54 +254,40 @@ class LocationManagement extends FOGPage
         $fields = [
             self::makeLabel(
                 $labelClass,
-                'location',
-                _('Location Name')
+                'ou',
+                _('OU Name')
             ) => self::makeInput(
-                'form-control locationname-input',
-                'location',
-                _('Location Name'),
+                'form-control ouname-input',
+                'ou',
+                _('OU Name'),
                 'text',
-                'location',
-                $location,
+                'ou',
+                $ou,
                 true
             ),
             self::makeLabel(
                 $labelClass,
                 'description',
-                _('Location Description')
+                _('OU Description')
             ) => self::makeTextarea(
-                'form-control locationdescription-input',
+                'form-control oudescription-input',
                 'description',
-                _('Location Description'),
+                _('OU Description'),
                 'description',
                 $description
             ),
             self::makeLabel(
                 $labelClass,
-                'storagegroup',
-                _('Storage Group')
-            ) => $storagegroupSelector,
-            self::makeLabel(
-                $labelClass,
-                'storagenode',
-                _('Storage Node')
-            ) => $storagenodeSelector,
-            self::makeLabel(
-                $labelClass,
-                'bootfrom',
-                _('Boot files from')
+                'oudn',
+                _('OU DN')
             ) => self::makeInput(
-                '',
-                'bootfrom',
-                '',
-                'checkbox',
-                'bootfrom',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                $bootfrom
+                'form-control oudn-input',
+                'oudn',
+                'ou=computers,dc=example,dc=com',
+                'text',
+                'oudn',
+                $oudn,
+                true
             )
         ];
 
@@ -375,11 +303,11 @@ class LocationManagement extends FOGPage
         );
 
         self::$HookManager->processEvent(
-            'LOCATION_GENERAL_FIELDS',
+            'OU_GENERAL_FIELDS',
             [
                 'fields' => &$fields,
                 'buttons' => &$buttons,
-                'Location' => $this->obj
+                'OU' => &$this->obj
             ]
         );
         $rendered = self::formFields($fields);
@@ -387,9 +315,9 @@ class LocationManagement extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'location-general-form',
+            'ou-general-form',
             self::makeTabUpdateURL(
-                'location-general',
+                'ou-general',
                 $this->obj->get('id')
             ),
             'post',
@@ -411,58 +339,43 @@ class LocationManagement extends FOGPage
      *
      * @return void
      */
-    public function locationGeneralPost()
+    public function ouGeneralPost()
     {
-        $location = trim(
-            filter_input(INPUT_POST, 'location')
+        $ou = trim(
+            filter_input(INPUT_POST, 'ou')
         );
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
-        $storagegroup = trim(
-            filter_input(INPUT_POST, 'storagegroup')
+        $oudn = trim(
+            filter_input(INPUT_POST, 'oudn')
         );
-        $storagenode = trim(
-            filter_input(INPUT_POST, 'storagenode')
-        );
-        $bootfrom = (int)isset($_POST['bootfrom']);
 
-        $exists = self::getClass('LocationManager')
-            ->exists($location);
-        if ($location != $this->obj->get('name')
+        $exists = self::getClass('OUManager')
+            ->exists($ou);
+        if ($ou != $this->obj->get('name')
             && $exists
         ) {
             throw new Exception(
-                _('A location already exists with this name!')
+                _('An OU already exists with this name!')
             );
-        }
-        if (!$storagegroup && !$storagenode) {
-            throw new Exception(
-                _('A storage group must be selected.')
-            );
-        }
-        if ($storagenode) {
-            $storagegroup = self::getClass('StorageNode', $storagenode)
-                ->get('storagegroupID');
         }
         $this->obj
-            ->set('name', $location)
+            ->set('name', $ou)
             ->set('description', $description)
-            ->set('storagegroupID', $storagegroup)
-            ->set('storagenodeID', $storagenode)
-            ->set('tftp', $bootfrom);
+            ->set('ou', $oudn);
     }
     /**
      * Present the host membership tab.
      *
      * @return void
      */
-    public function locationMembership()
+    public function ouMembership()
     {
         global $id;
         $props = ' method="post" action="'
             . $this->formAction
-            . '&tab=location-membership" ';
+            . '&tab=ou-membership" ';
 
         $buttons = self::makeButton(
             'membership-add',
@@ -495,7 +408,7 @@ class LocationManagement extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div class="updatemembership" class="">';
         echo '<div class="box-body">';
-        $this->render(12, 'location-membership-table', $buttons);
+        $this->render(12, 'ou-membership-table', $buttons);
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -506,7 +419,7 @@ class LocationManagement extends FOGPage
      *
      * @return void
      */
-    public function locationMembershipPost()
+    public function ouMembershipPost()
     {
         if (isset($_POST['updatemembership'])) {
             $membership = filter_input_array(
@@ -530,16 +443,16 @@ class LocationManagement extends FOGPage
                 ]
             );
             $membership = $membership['membershipRemove'];
-            self::getClass('LocationAssociationManager')->destroy(
+            self::getClass('OUAssociationManager')->destroy(
                 [
-                    'locationID' => $this->obj->get('id'),
+                    'ouID' => $this->obj->get('id'),
                     'hostID' => $membership
                 ]
             );
         }
     }
     /**
-     * Present the location to edit the page.
+     * Present the ou to edit the page.
      *
      * @return void
      */
@@ -556,25 +469,25 @@ class LocationManagement extends FOGPage
         // General
         $tabData[] = [
             'name' => _('General'),
-            'id' => 'location-general',
+            'id' => 'ou-general',
             'generator' => function () {
-                $this->locationGeneral();
+                $this->ouGeneral();
             }
         ];
 
         // Hosts
         $tabData[] = [
             'name' => _('Host Association'),
-            'id' => 'location-membership',
+            'id' => 'ou-membership',
             'generator' => function () {
-                $this->locationMembership();
+                $this->ouMembership();
             }
         ];
 
         echo self::tabFields($tabData, $this->obj);
     }
     /**
-     * Actually update the location.
+     * Actually update the ou.
      *
      * @return void
      */
@@ -583,30 +496,30 @@ class LocationManagement extends FOGPage
         header('Content-type: application/json');
         self::$HookManager
             ->processEvent(
-                'LOCATION_EDIT_POST',
-                ['Location' => &$this->obj]
+                'OU_EDIT_POST',
+                ['OU' => &$this->obj]
             );
         $serverFault = false;
         try {
             global $tab;
             switch ($tab) {
-            case 'location-general':
-                $this->locationGeneralPost();
+            case 'ou-general':
+                $this->ouGeneralPost();
                 break;
-            case 'location-membership':
-                $this->locationMembershipPost();
+            case 'ou-membership':
+                $this->ouMembershipPost();
                 break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
-                throw new Exception(_('Location update failed!'));
+                throw new Exception(_('OU update failed!'));
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'LOCATION_EDIT_SUCCESS';
+            $hook = 'OU_EDIT_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Location updated!'),
-                    'title' => _('Location Update Success')
+                    'msg' => _('OU updated!'),
+                    'title' => _('OU Update Success')
                 ]
             );
         } catch (Exception $e) {
@@ -615,11 +528,11 @@ class LocationManagement extends FOGPage
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $hook = 'LOCATION_EDIT_FAIL';
+            $hook = 'OU_EDIT_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Location Update Fail')
+                    'title' => _('OU Update Fail')
                 ]
             );
         }
@@ -627,7 +540,7 @@ class LocationManagement extends FOGPage
             ->processEvent(
                 $hook,
                 [
-                    'Location' => &$this->obj,
+                    'OU' => &$this->obj,
                     'hook' => &$hook,
                     'code' => &$code,
                     'msg' => &$msg,
@@ -639,7 +552,7 @@ class LocationManagement extends FOGPage
         exit;
     }
     /**
-     * Location -> host membership list
+     * OU -> host membership list
      *
      * @return void
      */
@@ -652,22 +565,22 @@ class LocationManagement extends FOGPage
         );
 
         $hostsSqlStr = "SELECT `%s`,"
-            . "IF(`laLocationID` = '"
+            . "IF(`oaOUID` = '"
             . $this->obj->get('id')
-            . "','associated','dissociated') as `laLocationID`
+            . "','associated','dissociated') as `oaOUID`
             FROM `%s`
-            LEFT OUTER JOIN `locationAssoc`
-            ON `hosts`.`hostID` = `locationAssoc`.`laHostID`
+            LEFT OUTER JOIN `ouAssoc`
+            ON `hosts`.`hostID` = `ouAssoc`.`oaHostID`
             %s
             %s
             %s";
         $hostsFilterStr = "SELECT COUNT(`%s`),"
-            . "IF(`laLocationID` = '"
+            . "IF(`oaOUID` = '"
             . $this->obj->get('id')
-            . "','associated','dissociated') as `laLocationID`
+            . "','associated','dissociated') as `oaOUID`
             FROM `%s`
-            LEFT OUTER JOIN `locationAssoc`
-            ON `hosts`.`hostID` = `locationAssoc`.`laHostID`
+            LEFT OUTER JOIN `ouAssoc`
+            ON `hosts`.`hostID` = `ouAssoc`.`oaHostID`
             %s";
         $hostsTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`";
@@ -681,7 +594,7 @@ class LocationManagement extends FOGPage
             ];
         }
         $columns[] = [
-            'db' => 'laLocationID',
+            'db' => 'oaOUID',
             'dt' => 'association'
         ];
         echo json_encode(
@@ -709,7 +622,7 @@ class LocationManagement extends FOGPage
         $this->templates = [];
         $this->attributes = [];
 
-        $obj = self::getClass('LocationManager');
+        $obj = self::getClass('OUManager');
 
         foreach ($obj->getColumns() as $common => &$real) {
             if ('id' == $common) {
@@ -721,12 +634,12 @@ class LocationManagement extends FOGPage
             unset($real);
         }
 
-        $this->title = _('Export Locations');
+        $this->title = _('Export OUs');
 
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Export Locations');
+        echo _('Export OUs');
         echo '</h4>';
         echo '<p class="help-block">';
         echo _('Use the selector to choose how many items you want exported.');
@@ -741,7 +654,7 @@ class LocationManagement extends FOGPage
             . 'of items you would like to export.'
         );
         echo '</p>';
-        $this->render(12, 'location-export-table');
+        $this->render(12, 'ou-export-table');
         echo '</div>';
         echo '</div>';
     }
@@ -753,7 +666,7 @@ class LocationManagement extends FOGPage
     public function getExportList()
     {
         header('Content-type: application/json');
-        $obj = self::getClass('LocationManager');
+        $obj = self::getClass('OUManager');
         $table = $obj->getTable();
         $sqlstr = $obj->getQueryStr();
         $filterstr = $obj->getFilterStr();
@@ -778,7 +691,7 @@ class LocationManagement extends FOGPage
             unset($real);
         }
         self::$HookManager->processEvent(
-            'LOCATION_EXPORT_ITEMS',
+            'OU_EXPORT_ITEMS',
             [
                 'table' => &$table,
                 'sqlstr' => &$sqlstr,
