@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-23 16:44-0400\n"
+"POT-Creation-Date: 2018-03-23 17:32-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3301,6 +3301,10 @@ msgid "Client Module Settings"
 msgstr "Paramètres"
 
 #, fuzzy
+msgid "Advanced Tasks"
+msgstr "Avancée"
+
+#, fuzzy
 msgid "Group update failed!"
 msgstr "mise à jour de l'utilisateur a échoué"
 
@@ -6065,28 +6069,6 @@ msgstr "Aucune donnée retournés"
 msgid "No items found"
 msgstr "Pas d'icônes trouvées"
 
-#, fuzzy
-msgid "Node must be a string"
-msgstr "Événement doit être une chaîne"
-
-msgid "Items must be an array"
-msgstr ""
-
-msgid "Data must be an array or a callable item."
-msgstr ""
-
-#, fuzzy
-msgid "Info"
-msgstr "Dans "
-
-#, fuzzy
-msgid "Title must be a string"
-msgstr "Événement doit être une chaîne"
-
-#, fuzzy
-msgid "Link must be a string"
-msgstr "Événement doit être une chaîne"
-
 msgid "Event must be a string"
 msgstr "Événement doit être une chaîne"
 
@@ -6453,105 +6435,6 @@ msgid "Unable to determine status"
 msgstr "Impossible de déterminer les détails du plugin"
 
 #, fuzzy
-msgid "Invalid scheduling type"
-msgstr "Type non valide"
-
-#, fuzzy
-msgid "minute"
-msgstr "minutes"
-
-msgid "day of month"
-msgstr ""
-
-msgid "day of week"
-msgstr ""
-
-msgid "Task type is not valid"
-msgstr "Type de tâche n'est pas valide"
-
-msgid "Password reset requires a user account to reset"
-msgstr ""
-"Mot de passe réinitialisation nécessite un compte d'utilisateur pour "
-"réinitialiser"
-
-#, fuzzy
-msgid "Cannot set tasking to pending hosts"
-msgstr ""
-"Impossible de définir les affectations en cours ou éléments non valides"
-
-#, fuzzy
-msgid "There are no hosts to task in this group"
-msgstr "Il n'y a pas de groupes sur ce serveur."
-
-msgid "To perform an imaging task an image must be assigned"
-msgstr ""
-
-#, fuzzy
-msgid "Cannot create tasking as image is not enabled"
-msgstr "Impossible de définir le multitâche que l'image ne soit pas activée"
-
-#, fuzzy
-msgid "The assigned image is protected"
-msgstr "Aucun sélectionné ou un objet est protégé"
-
-msgid "and cannot be captured"
-msgstr ""
-
-msgid "Groups are not allowed to schedule upload tasks"
-msgstr ""
-
-#, fuzzy
-msgid "Multicast tasks from groups"
-msgstr "MulticastTask"
-
-#, fuzzy
-msgid "require all hosts have the same image"
-msgstr "Les hôtes ne possèdent pas la même image assignée"
-
-#, fuzzy
-msgid "No valid hosts found and"
-msgstr "Aucune classe valide envoyé"
-
-#, fuzzy
-msgid "or no valid images specified"
-msgstr "Aucune image spécifiée"
-
-#, fuzzy
-msgid "Tasking Failed"
-msgstr "Tasking"
-
-#, fuzzy
-msgid "Failed to create tasking"
-msgstr "Impossible de créer la tâche"
-
-#, fuzzy
-msgid "Failed to create scheduled tasking"
-msgstr "Impossible de créer la tâche"
-
-#, fuzzy
-msgid "Scheduled tasks successfully created"
-msgstr "a été mis à jour avec succès"
-
-#, fuzzy
-msgid "Failed to start tasking type"
-msgstr "Impossible de démarrer le déploiement multitâche"
-
-msgid "Delayed Start"
-msgstr "Démarrage retardé"
-
-#, fuzzy
-msgid "Tasked Successfully"
-msgstr "sauvegarde réussie"
-
-#, fuzzy
-msgid "Successfully created"
-msgstr "mise à jour réussie"
-
-#, fuzzy
-msgid "Created Tasks For"
-msgstr "Créer un utilisateur"
-
-#, fuzzy
 msgid "Remove these items?"
 msgstr "Retirer snapins sélectionnés"
 
@@ -6562,9 +6445,6 @@ msgstr "mise à jour réussie"
 #, fuzzy
 msgid "Delete Success"
 msgstr "utilisateur créé"
-
-msgid "Advanced Actions"
-msgstr "Actions avancées"
 
 msgid "Enable Domain Joining"
 msgstr ""

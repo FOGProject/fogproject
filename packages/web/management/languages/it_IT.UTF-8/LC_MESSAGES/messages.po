@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-23 16:44-0400\n"
+"POT-Creation-Date: 2018-03-23 17:32-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3130,6 +3130,10 @@ msgstr "Stato servizio"
 msgid "Client Module Settings"
 msgstr "Impostazioni Client"
 
+#, fuzzy
+msgid "Advanced Tasks"
+msgstr "Avanzate"
+
 msgid "Group update failed!"
 msgstr "Aggiornamento del gruppo non riuscito!"
 
@@ -5638,24 +5642,6 @@ msgstr "Nessun dato da inserire"
 msgid "No items found"
 msgstr "Nessun elemento trovato"
 
-msgid "Node must be a string"
-msgstr "Nodo deve essere una stringa"
-
-msgid "Items must be an array"
-msgstr "Gli elementi devono essere un array"
-
-msgid "Data must be an array or a callable item."
-msgstr "Dati deve essere un array o un callable"
-
-msgid "Info"
-msgstr "Info"
-
-msgid "Title must be a string"
-msgstr "Titolo deve essere una stringa"
-
-msgid "Link must be a string"
-msgstr "Collegamento deve essere una stringa"
-
 msgid "Event must be a string"
 msgstr "Evento deve essere una stringa"
 
@@ -5978,86 +5964,6 @@ msgstr "Aggiungi gruppo di archiviazione selezionato"
 msgid "Unable to determine status"
 msgstr "Impossibile determinare i dettagli del plugin"
 
-msgid "Invalid scheduling type"
-msgstr "Tipo di scheduling non valido"
-
-msgid "minute"
-msgstr "minuto"
-
-msgid "day of month"
-msgstr "giorno del mese"
-
-msgid "day of week"
-msgstr "giorno della settimana"
-
-msgid "Task type is not valid"
-msgstr "Tipo di attività non è valido"
-
-msgid "Password reset requires a user account to reset"
-msgstr ""
-"reimpostazione della password richiede un account utente per ripristinare"
-
-msgid "Cannot set tasking to pending hosts"
-msgstr "Impossibile affidare attività ad host in attesa"
-
-msgid "There are no hosts to task in this group"
-msgstr "Non ci sono host a cui affidare compiti in questo gruppo"
-
-msgid "To perform an imaging task an image must be assigned"
-msgstr "Per eseguire l'attività di immagine deve essere assegnata"
-
-msgid "Cannot create tasking as image is not enabled"
-msgstr "Impossibile creare l'attività finché l'immagine non è abilitata"
-
-msgid "The assigned image is protected"
-msgstr "L'immagine assegnata è protetta"
-
-msgid "and cannot be captured"
-msgstr "e non può essere catturato"
-
-msgid "Groups are not allowed to schedule upload tasks"
-msgstr ""
-"I gruppi non sono autorizzati alla programmazione di attività di upload"
-
-msgid "Multicast tasks from groups"
-msgstr "Attività multicast dai gruppi"
-
-msgid "require all hosts have the same image"
-msgstr "necessita che tutti gli host abbiano la stessa immagine"
-
-msgid "No valid hosts found and"
-msgstr "Nessun host valido trovato e"
-
-msgid "or no valid images specified"
-msgstr "o una valida immagine specificata"
-
-msgid "Tasking Failed"
-msgstr "Attività fallite"
-
-msgid "Failed to create tasking"
-msgstr "Impossibile creare un'attività"
-
-msgid "Failed to create scheduled tasking"
-msgstr "Impossibile creare un'attività pianificata"
-
-msgid "Scheduled tasks successfully created"
-msgstr "Attività pianificate create con successo"
-
-msgid "Failed to start tasking type"
-msgstr "Fallito l'avvio di una attività tipo"
-
-msgid "Delayed Start"
-msgstr "Partenza ritardata"
-
-msgid "Tasked Successfully"
-msgstr "Attività Completata"
-
-msgid "Successfully created"
-msgstr "Creato con successo"
-
-msgid "Created Tasks For"
-msgstr "Create attività per"
-
 msgid "Remove these items?"
 msgstr "Rimuovere questi elementi?"
 
@@ -6067,9 +5973,6 @@ msgstr "Creato con successo"
 
 msgid "Delete Success"
 msgstr "Eliminato con successo"
-
-msgid "Advanced Actions"
-msgstr "Azioni Avanzate"
 
 #, fuzzy
 msgid "Enable Domain Joining"

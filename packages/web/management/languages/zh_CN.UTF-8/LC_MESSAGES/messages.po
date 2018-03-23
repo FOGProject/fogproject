@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-23 16:44-0400\n"
+"POT-Creation-Date: 2018-03-23 17:32-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3294,6 +3294,10 @@ msgid "Client Module Settings"
 msgstr "设置"
 
 #, fuzzy
+msgid "Advanced Tasks"
+msgstr "高级"
+
+#, fuzzy
 msgid "Group update failed!"
 msgstr "用户更新失败"
 
@@ -6048,28 +6052,6 @@ msgstr "无数据返回"
 msgid "No items found"
 msgstr "发现没有图标"
 
-#, fuzzy
-msgid "Node must be a string"
-msgstr "事件必须是字符串"
-
-msgid "Items must be an array"
-msgstr ""
-
-msgid "Data must be an array or a callable item."
-msgstr ""
-
-#, fuzzy
-msgid "Info"
-msgstr "在"
-
-#, fuzzy
-msgid "Title must be a string"
-msgstr "事件必须是字符串"
-
-#, fuzzy
-msgid "Link must be a string"
-msgstr "事件必须是字符串"
-
 msgid "Event must be a string"
 msgstr "事件必须是字符串"
 
@@ -6430,102 +6412,6 @@ msgid "Unable to determine status"
 msgstr "无法确定插件的详细信息"
 
 #, fuzzy
-msgid "Invalid scheduling type"
-msgstr "无效类型"
-
-#, fuzzy
-msgid "minute"
-msgstr "分钟"
-
-msgid "day of month"
-msgstr ""
-
-msgid "day of week"
-msgstr ""
-
-msgid "Task type is not valid"
-msgstr "任务类型无效"
-
-msgid "Password reset requires a user account to reset"
-msgstr "密码重置需要一个用户帐户重置"
-
-#, fuzzy
-msgid "Cannot set tasking to pending hosts"
-msgstr "无法设置taskings未决的或无效的项目"
-
-#, fuzzy
-msgid "There are no hosts to task in this group"
-msgstr "有此服务器上没有组。"
-
-msgid "To perform an imaging task an image must be assigned"
-msgstr ""
-
-#, fuzzy
-msgid "Cannot create tasking as image is not enabled"
-msgstr "因为没有启用图像无法设置任务"
-
-#, fuzzy
-msgid "The assigned image is protected"
-msgstr "未选择或项目被保护"
-
-msgid "and cannot be captured"
-msgstr ""
-
-msgid "Groups are not allowed to schedule upload tasks"
-msgstr ""
-
-#, fuzzy
-msgid "Multicast tasks from groups"
-msgstr "MulticastTask"
-
-#, fuzzy
-msgid "require all hosts have the same image"
-msgstr "主机没有分配相同的图像"
-
-#, fuzzy
-msgid "No valid hosts found and"
-msgstr "发送无有效类"
-
-#, fuzzy
-msgid "or no valid images specified"
-msgstr "没有指定的图像"
-
-#, fuzzy
-msgid "Tasking Failed"
-msgstr "任务"
-
-#, fuzzy
-msgid "Failed to create tasking"
-msgstr "无法创建任务"
-
-#, fuzzy
-msgid "Failed to create scheduled tasking"
-msgstr "无法创建任务"
-
-#, fuzzy
-msgid "Scheduled tasks successfully created"
-msgstr "已成功更新"
-
-#, fuzzy
-msgid "Failed to start tasking type"
-msgstr "无法启动部署任务"
-
-msgid "Delayed Start"
-msgstr "延时启动"
-
-#, fuzzy
-msgid "Tasked Successfully"
-msgstr "保存成功"
-
-#, fuzzy
-msgid "Successfully created"
-msgstr "成功更新"
-
-#, fuzzy
-msgid "Created Tasks For"
-msgstr "创建用户"
-
-#, fuzzy
 msgid "Remove these items?"
 msgstr "删除选定snapins"
 
@@ -6536,9 +6422,6 @@ msgstr "成功更新"
 #, fuzzy
 msgid "Delete Success"
 msgstr "用户创建"
-
-msgid "Advanced Actions"
-msgstr "高级操作"
 
 msgid "Enable Domain Joining"
 msgstr ""

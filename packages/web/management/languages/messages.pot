@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-23 16:44-0400\n"
+"POT-Creation-Date: 2018-03-23 17:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2884,6 +2884,9 @@ msgstr ""
 msgid "Client Module Settings"
 msgstr ""
 
+msgid "Advanced Tasks"
+msgstr ""
+
 msgid "Group update failed!"
 msgstr ""
 
@@ -5196,24 +5199,6 @@ msgstr ""
 msgid "No items found"
 msgstr ""
 
-msgid "Node must be a string"
-msgstr ""
-
-msgid "Items must be an array"
-msgstr ""
-
-msgid "Data must be an array or a callable item."
-msgstr ""
-
-msgid "Info"
-msgstr ""
-
-msgid "Title must be a string"
-msgstr ""
-
-msgid "Link must be a string"
-msgstr ""
-
 msgid "Event must be a string"
 msgstr ""
 
@@ -5529,84 +5514,6 @@ msgstr ""
 msgid "Unable to determine status"
 msgstr ""
 
-msgid "Invalid scheduling type"
-msgstr ""
-
-msgid "minute"
-msgstr ""
-
-msgid "day of month"
-msgstr ""
-
-msgid "day of week"
-msgstr ""
-
-msgid "Task type is not valid"
-msgstr ""
-
-msgid "Password reset requires a user account to reset"
-msgstr ""
-
-msgid "Cannot set tasking to pending hosts"
-msgstr ""
-
-msgid "There are no hosts to task in this group"
-msgstr ""
-
-msgid "To perform an imaging task an image must be assigned"
-msgstr ""
-
-msgid "Cannot create tasking as image is not enabled"
-msgstr ""
-
-msgid "The assigned image is protected"
-msgstr ""
-
-msgid "and cannot be captured"
-msgstr ""
-
-msgid "Groups are not allowed to schedule upload tasks"
-msgstr ""
-
-msgid "Multicast tasks from groups"
-msgstr ""
-
-msgid "require all hosts have the same image"
-msgstr ""
-
-msgid "No valid hosts found and"
-msgstr ""
-
-msgid "or no valid images specified"
-msgstr ""
-
-msgid "Tasking Failed"
-msgstr ""
-
-msgid "Failed to create tasking"
-msgstr ""
-
-msgid "Failed to create scheduled tasking"
-msgstr ""
-
-msgid "Scheduled tasks successfully created"
-msgstr ""
-
-msgid "Failed to start tasking type"
-msgstr ""
-
-msgid "Delayed Start"
-msgstr ""
-
-msgid "Tasked Successfully"
-msgstr ""
-
-msgid "Successfully created"
-msgstr ""
-
-msgid "Created Tasks For"
-msgstr ""
-
 msgid "Remove these items?"
 msgstr ""
 
@@ -5614,9 +5521,6 @@ msgid "Successfully deleted"
 msgstr ""
 
 msgid "Delete Success"
-msgstr ""
-
-msgid "Advanced Actions"
 msgstr ""
 
 msgid "Enable Domain Joining"

@@ -118,20 +118,6 @@ class FOGPageManager extends FOGBase
             ->title;
     }
     /**
-     * Gets the side menu
-     *
-     * @return void
-     */
-    public function getSideMenu()
-    {
-        if (!self::$FOGUser->isValid()) {
-            return $this;
-        }
-        $class = $this->getFOGPageClass();
-        self::$FOGSubMenu = self::getClass('FOGSubMenu');
-        return self::$FOGSubMenu->get($this->classValue);
-    }
-    /**
      * Prints the data to the browser/screen
      *
      * @return void

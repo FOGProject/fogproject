@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-23 16:44-0400\n"
+"POT-Creation-Date: 2018-03-23 17:32-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3302,6 +3302,10 @@ msgid "Client Module Settings"
 msgstr "Client Einstellungen"
 
 #, fuzzy
+msgid "Advanced Tasks"
+msgstr "Erweitert"
+
+#, fuzzy
 msgid "Group update failed!"
 msgstr "Gruppenaktualisierung fehlgeschlagen"
 
@@ -6068,28 +6072,6 @@ msgstr "Keine Daten zum Einfügen"
 msgid "No items found"
 msgstr "Keine Elemente gefunden"
 
-#, fuzzy
-msgid "Node must be a string"
-msgstr "Knotenname muss eine Zeichenfolge sein."
-
-msgid "Items must be an array"
-msgstr "Elemente müssen ein Array sein"
-
-msgid "Data must be an array or a callable item."
-msgstr "Die Daten müssen ein Array oder ein abrufbares Element sein"
-
-#, fuzzy
-msgid "Info"
-msgstr "Info"
-
-#, fuzzy
-msgid "Title must be a string"
-msgstr "Titelname muss eine Zeichenfolge sein."
-
-#, fuzzy
-msgid "Link must be a string"
-msgstr "Verknüpfung muss eine Zeichenfolge sein."
-
 msgid "Event must be a string"
 msgstr "Ereignisname muss eine Zeichenfolge sein."
 
@@ -6455,104 +6437,6 @@ msgid "Unable to determine status"
 msgstr "Plugin-Details können nicht ermittelt werden"
 
 #, fuzzy
-msgid "Invalid scheduling type"
-msgstr "Ungültiger Zeitplantyp"
-
-#, fuzzy
-msgid "minute"
-msgstr "Minuten"
-
-msgid "day of month"
-msgstr "Tag (Monat)"
-
-msgid "day of week"
-msgstr "Tag (Woche)"
-
-msgid "Task type is not valid"
-msgstr "Task-Typ ist nicht gültig"
-
-msgid "Password reset requires a user account to reset"
-msgstr "Zurücksetzen des Kennworts erfordert einen entsprechenden Benutzer"
-
-#, fuzzy
-msgid "Cannot set tasking to pending hosts"
-msgstr "Es können keine Tasks auf ausstehende Hosts ausgeführt werden!"
-
-#, fuzzy
-msgid "There are no hosts to task in this group"
-msgstr "Es gibt keine Hosts in dieser Gruppe"
-
-msgid "To perform an imaging task an image must be assigned"
-msgstr "Um ein Task durchzuführen, muss ein Image zugewiesen werden"
-
-#, fuzzy
-msgid "Cannot create tasking as image is not enabled"
-msgstr ""
-"Es können keine Tasks erstellt werden, solange das Image nicht freigegeben "
-"ist"
-
-#, fuzzy
-msgid "The assigned image is protected"
-msgstr "Das zugewiesene Image ist geschützt"
-
-msgid "and cannot be captured"
-msgstr "und kann nicht hochgeladen werden"
-
-msgid "Groups are not allowed to schedule upload tasks"
-msgstr "Gruppen dürfen keine Upload-Tasks planen"
-
-#, fuzzy
-msgid "Multicast tasks from groups"
-msgstr "Multicast-Tasks von Gruppen"
-
-#, fuzzy
-msgid "require all hosts have the same image"
-msgstr "Alle Hosts müssen das gleiche Image haben"
-
-#, fuzzy
-msgid "No valid hosts found and"
-msgstr "Keine gültigen Hosts gefunden und/"
-
-#, fuzzy
-msgid "or no valid images specified"
-msgstr "oder kein gültiges Image angegeben"
-
-#, fuzzy
-msgid "Tasking Failed"
-msgstr "Tasking fehlgeschlagen"
-
-#, fuzzy
-msgid "Failed to create tasking"
-msgstr "Fehler beim Erstellen der Aufgabe (Task)"
-
-#, fuzzy
-msgid "Failed to create scheduled tasking"
-msgstr "Fehler beim Erstellen der geplanten Aufgabe (Task)"
-
-#, fuzzy
-msgid "Scheduled tasks successfully created"
-msgstr "geplante Tasks wurde erfolgreich erstellt"
-
-#, fuzzy
-msgid "Failed to start tasking type"
-msgstr "Fehler beim Starten des Task-Typs"
-
-msgid "Delayed Start"
-msgstr "Verzögerter Start"
-
-#, fuzzy
-msgid "Tasked Successfully"
-msgstr "erfolgreich beauftragt"
-
-#, fuzzy
-msgid "Successfully created"
-msgstr "erfolgreich erstellt"
-
-#, fuzzy
-msgid "Created Tasks For"
-msgstr "Erstellte Aufgaben für"
-
-#, fuzzy
 msgid "Remove these items?"
 msgstr "Diese Objekte entfernen?"
 
@@ -6563,9 +6447,6 @@ msgstr "erfolgreich gelöscht"
 #, fuzzy
 msgid "Delete Success"
 msgstr "erfolgreich gelöscht"
-
-msgid "Advanced Actions"
-msgstr "Erweiterte Aktionen"
 
 #, fuzzy
 msgid "Enable Domain Joining"
