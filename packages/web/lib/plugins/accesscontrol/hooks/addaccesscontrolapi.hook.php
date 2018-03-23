@@ -73,12 +73,10 @@ class AddAccessControlAPI extends Hook
     {
         array_push(
             $arguments['validClasses'],
-            [
-                $this->node,
-                'accesscontrolassociation',
-                'accesscontrolrule',
-                'accesscontrolruleassociation'
-            ]
+            $this->node,
+            'accesscontrolassociation',
+            'accesscontrolrule',
+            'accesscontrolruleassociation'
         );
     }
 }

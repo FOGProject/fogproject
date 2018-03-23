@@ -1,38 +1,40 @@
 <?php
 /**
- * Adds the Access control menu item.
+ * Adds the ou menu item.
  *
  * PHP version 5
  *
- * @category AddAccessControlMenuItem
+ * @category AddOUMenuItem
  * @package  FOGProject
- * @author   Fernando Gietz <fernando.gietz@gmail.com>
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Lee Rowlett <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Adds the Access control menu item.
+ * Adds the ou menu item.
  *
- * @category AddAccessControlMenuItem
+ * @category AddOUMenuItem
  * @package  FOGProject
- * @author   Fernando Gietz <fernando.gietz@gmail.com>
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Lee Rowlett <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class AddAccessControlMenuItem extends Hook
+class AddOUMenuItem extends Hook
 {
     /**
      * The name of this hook.
      *
      * @var string
      */
-    public $name = 'AddAccessControlMenuItem';
+    public $name = 'AddOUMenuItem';
     /**
      * The description of this hook.
      *
      * @var string
      */
-    public $description = 'Add menu item for access control';
+    public $description = 'Add menu item for ou';
     /**
      * The active flag.
      *
@@ -44,7 +46,7 @@ class AddAccessControlMenuItem extends Hook
      *
      * @var string
      */
-    public $node = 'accesscontrol';
+    public $node = 'ou';
     /**
      * Initialize object.
      *
@@ -71,7 +73,7 @@ class AddAccessControlMenuItem extends Hook
         );
     }
     /**
-     * Add the enw items beyond list/create.
+     * Add the new items beyond list/create.
      *
      * @param mixed $arguments The items to modify.
      *
@@ -79,18 +81,11 @@ class AddAccessControlMenuItem extends Hook
      */
     public function menuUpdate($arguments)
     {
-        if ($arguments['node'] == $this->node) {
-            $arguments['menu']['list'] = _('List All Roles');
-            $arguments['menu']['add'] = _('Create New Role');
-            $arguments['menu']['export'] = _('Export Roles');
-            $arguments['menu']['import'] = _('Import Roles');
+        if ($arguments['node'] != $this->node) {
+            return;
         }
-        if ($arguments['node'] == 'accesscontrolrule') {
-            $arguments['menu']['list'] = _('List All Rules');
-            $arguments['menu']['add'] = _('Create New Rule');
-            $arguments['menu']['export'] = _('Export Rules');
-            $arguments['menu']['import'] = _('Import Rules');
-        }
+        $arguments['menu']['export'] = _('Export OUs');
+        $arguments['menu']['import'] = _('Import OUs');
     }
     /**
      * The menu data to change.
@@ -105,17 +100,11 @@ class AddAccessControlMenuItem extends Hook
             'storagegroup',
             $arguments['main'],
             $this->node,
-            [_('Access Controls'), 'fa fa-user-secret']
-        );
-        self::arrayInsertAfter(
-            $this->node,
-            $arguments['main'],
-            'accesscontrolrule',
-            [_('Access Control Rules'), 'fa fa-user-times']
+            [_('OUs'), 'fa fa-bullseye']
         );
     }
     /**
-     * Adds the Access Control page to search elements.
+     * Adds the ou page to search elements.
      *
      * @param mixed $arguments The arguments to change.
      *
@@ -123,14 +112,10 @@ class AddAccessControlMenuItem extends Hook
      */
     public function addSearch($arguments)
     {
-        array_push(
-            $arguments['searchPages'],
-            $this->node,
-            'accesscontrolrule'
-        );
+        $arguments['searchPages'][] = $this->node;
     }
     /**
-     * Adds the access page to objects elements.
+     * Adds the ou page to objects elements.
      *
      * @param mixed $arguments The arguments to change.
      *
@@ -138,10 +123,6 @@ class AddAccessControlMenuItem extends Hook
      */
     public function addPageWithObject($arguments)
     {
-        array_push(
-            $arguments['PagesWithObjects'],
-            $this->node,
-            'accesscontrolrule'
-        );
+        $arguments['PagesWithObjects'][] = $this->node;
     }
 }
