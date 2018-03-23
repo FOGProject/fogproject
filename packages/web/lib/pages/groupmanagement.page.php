@@ -50,10 +50,6 @@ class GroupManagement extends FOGPage
             _('Name'),
             _('Members')
         ];
-        $this->templates = [
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             ['width' => 5]
@@ -816,10 +812,6 @@ class GroupManagement extends FOGPage
             _('Host Name'),
             _('Associated')
         ];
-        $this->templates = [
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             []
@@ -1049,11 +1041,6 @@ class GroupManagement extends FOGPage
             _('Printer Alias'),
             _('Printer Type')
         ];
-        $this->templates = [
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             ['width' => '5'],
             [],
@@ -1166,10 +1153,6 @@ class GroupManagement extends FOGPage
             _('Snapin Name'),
             _('Snapin Created')
         ];
-        $this->templates = [
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             []
@@ -1264,10 +1247,6 @@ class GroupManagement extends FOGPage
         $this->headerData = [
             _('Module Name'),
             _('Module Association')
-        ];
-        $this->templates = [
-            '',
-            ''
         ];
         $this->attributes = [
             [],
@@ -2192,7 +2171,6 @@ class GroupManagement extends FOGPage
     {
         // The data to use for building our table.
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('GroupManager');
@@ -2202,7 +2180,6 @@ class GroupManagement extends FOGPage
                 continue;
             }
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }

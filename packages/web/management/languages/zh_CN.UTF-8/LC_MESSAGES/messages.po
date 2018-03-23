@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-22 16:11-0400\n"
+"POT-Creation-Date: 2018-03-23 16:44-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1048,6 +1048,10 @@ msgid "The primary mac associated is"
 msgstr ""
 
 #, fuzzy
+msgid "There are no ous on this server"
+msgstr "有此服务器上没有组。"
+
+#, fuzzy
 msgid "There are no groups on this server"
 msgstr "有此服务器上没有组。"
 
@@ -1444,24 +1448,7 @@ msgstr "安装/升级成功！"
 msgid "Host Update Location Fail"
 msgstr "主机更新失败"
 
-#, fuzzy
-msgid "Snapin Locations"
-msgstr "位置"
-
-msgid "This area will allow the host checking in to tell"
-msgstr ""
-
-#, fuzzy
-msgid "where to download the snapin"
-msgstr "无法找到该管理单元文件"
-
-msgid "This is useful in the case of slow links between"
-msgstr ""
-
-msgid "the main and the host"
-msgstr ""
-
-msgid "Enable location Sending"
+msgid "Enable Sending via Location"
 msgstr ""
 
 #, fuzzy
@@ -1819,6 +1806,115 @@ msgstr "安装/升级成功！"
 #, fuzzy
 msgid "Broadcast Update Fail"
 msgstr "广播更新"
+
+#, fuzzy
+msgid "Export OUs"
+msgstr "导出用户"
+
+#, fuzzy
+msgid "OU Association"
+msgstr "图像协会"
+
+#, fuzzy
+msgid "Group OU"
+msgstr "组"
+
+msgid "OU"
+msgstr ""
+
+#, fuzzy
+msgid "Group OU Updated!"
+msgstr "集团补充"
+
+#, fuzzy
+msgid "Group OU Update Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Group Update OU Fail"
+msgstr "集团创建失败"
+
+#, fuzzy
+msgid "Import OUs"
+msgstr "导入用户"
+
+msgid "OUs"
+msgstr ""
+
+#, fuzzy
+msgid "Host OU"
+msgstr "主机ID"
+
+#, fuzzy
+msgid "Host OU Updated!"
+msgstr "用户更新"
+
+#, fuzzy
+msgid "Host OU Update Success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "Host Update OU Fail"
+msgstr "主机更新失败"
+
+#, fuzzy
+msgid "OU Name"
+msgstr "操作系统名称"
+
+msgid "OU DN"
+msgstr ""
+
+#, fuzzy
+msgid "Create New OU"
+msgstr "新建%s"
+
+#, fuzzy
+msgid "OU Description"
+msgstr "描述"
+
+#, fuzzy
+msgid "An ou already exists with this name!"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+msgid "Add ou failed!"
+msgstr "添加管理单元失败！"
+
+#, fuzzy
+msgid "OU added!"
+msgstr "打印机名称"
+
+#, fuzzy
+msgid "OU Create Succes"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "OU Create Fail"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "An OU already exists with this name!"
+msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+msgid "OU update failed!"
+msgstr "用户更新失败"
+
+#, fuzzy
+msgid "OU updated!"
+msgstr "用户更新"
+
+#, fuzzy
+msgid "OU Update Success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "OU Update Fail"
+msgstr "用户更新失败"
+
+msgid ""
+"OU is a plugin that allows you to predefine OU's and associate with hosts."
+msgstr ""
 
 #, fuzzy
 msgid "List All Task Types"
@@ -2894,15 +2990,6 @@ msgstr "无法更新任务"
 #, fuzzy
 msgid "Failed to update imaging log"
 msgstr "无法更新/创建图像日志"
-
-msgid "Serial"
-msgstr "串行"
-
-msgid "Open VNC connection to"
-msgstr "打开VNC连接"
-
-msgid "VNC"
-msgstr ""
 
 #, fuzzy
 msgid "Server Information"

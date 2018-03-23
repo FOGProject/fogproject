@@ -29,13 +29,11 @@ class OU_Report extends ReportManagement
     public function file()
     {
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('OUManager');
         foreach ($obj->getColumns() as $common => &$real) {
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }

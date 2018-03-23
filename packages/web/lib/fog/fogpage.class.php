@@ -78,12 +78,6 @@ abstract class FOGPage extends FOGBase
      */
     public $data = [];
     /**
-     * Template data to replace
-     *
-     * @var array
-     */
-    public $templates = [];
-    /**
      * Attributes such as class, id, etc...
      *
      * @var array
@@ -1031,7 +1025,7 @@ abstract class FOGPage extends FOGBase
                 echo '<thead><tr class="header"></tr></thead>';
                 echo '<tbody>';
                 $tablestr = '<tr><td colspan="'
-                    . count($this->templates ?: [])
+                    . count($this->headerData ?: [])
                     . '">';
                 $tablestr .= (
                     is_array($this->data['error']) ?
@@ -1663,17 +1657,8 @@ abstract class FOGPage extends FOGBase
             $this->data,
             $this->form,
             $this->headerData,
-            $this->templates,
             $this->attributes
         );
-        $this->templates = [
-            '${field}',
-            '${input}'
-        ];
-        $this->attributes = [
-            ['class' => 'col-xs-4'],
-            ['class' => 'col-xs-8 form-group']
-        ];
         $reqID = $node
             . 'IDArray';
         $items = filter_input(
@@ -2324,14 +2309,6 @@ abstract class FOGPage extends FOGBase
             $this->obj->get('name')
         );
         unset($this->headerData);
-        $this->attributes = [
-            ['class' => 'col-xs-4'],
-            ['class' => 'col-xs-8 form-group'],
-        ];
-        $this->templates = [
-            '${field}',
-            '${input}',
-        ];
         if ($this->obj instanceof Group) {
             $fieldsg = [
                 '<label for="massDel">'
@@ -2384,7 +2361,6 @@ abstract class FOGPage extends FOGBase
             [
                 'data' => &$this->data,
                 'headerData' => &$this->headerData,
-                'templates' => &$this->templates,
                 'attributes' => &$this->attributes,
                 $this->childClass => &$this->obj
             ]
@@ -3141,14 +3117,6 @@ abstract class FOGPage extends FOGBase
             _('Results')
         );
         unset($this->headerData);
-        $this->templates = [
-            '${field}',
-            '${input}',
-        ];
-        $this->attributes = [
-            [],
-            []
-        ];
         $fields = [
             _('Total Rows') => $totalRows,
             sprintf(
@@ -3178,7 +3146,6 @@ abstract class FOGPage extends FOGBase
         $arr = [
             'headerData' => &$this->headerData,
             'data' => &$this->data,
-            'templates' => &$this->templates,
             'attributes' => &$this->attributes
         ];
         self::$HookManager->processEvent(

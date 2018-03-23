@@ -59,10 +59,10 @@ class AddServiceConfiguration extends Hook
             return;
         }
         self::$HookManager->register(
-            'SNAPIN_CLIENT_SERVICE',
+            'MODULE_SNAPINCLIENT_FIELDS',
             [$this, 'addServiceCheckbox']
         )->register(
-            'SNAPIN_CLIENT_SERVICE_POST',
+            'MODULE_SNAPINCLIENT_POST',
             [$this, 'updateGlobalSetting']
         )->register(
             'SERVICE_NAMES',
@@ -82,59 +82,37 @@ class AddServiceConfiguration extends Hook
         if ($node != 'service') {
             return;
         }
-        printf('<h2>%s</h2>', _('Snapin Locations'));
-        printf(
-            '%s %s. %s %s.',
-            _('This area will allow the host checking in to tell'),
-            _('where to download the snapin'),
-            _('This is useful in the case of slow links between'),
-            _('the main and the host')
+        $snapinsend = (
+            isset($_POST['snapinsend']) ?
+            'checked' :
+            (
+                self::getSetting('FOG_SNAPIN_LOCATION_SEND_ENABLED') ?
+                'checked' :
+                ''
+            )
         );
-        echo '<br/><br/>';
-        $fields = [
-            _('Enable location Sending') => sprintf(
-                '<input type="checkbox" name="snapinsend" id="snapsend"%s/>'
-                . '<label for="snapsend"></label>',
-                (
-                    isset($_REQUEST['snapinsend']) ?
-                    ' checked' :
-                    (
-                        self::getSetting('FOG_SNAPIN_LOCATION_SEND_ENABLED') ?
-                        ' checked' :
-                        ''
-                    )
-                )
-            ),
-            '&nbsp;' => sprintf(
-                '<input type="submit" name="updateglobal" value="%s"/>',
-                _('Update')
-            ),
-        ];
-        unset(
-            $arguments['page']->headerData,
-            $arguments['page']->data
+
+        $labelClass = 'col-sm-2 control-label';
+
+        $arguments['fields'][
+            FOGPage::makeLabel(
+                $labelClass,
+                'snapinsend',
+                _('Enable Sending via Location')
+            )
+        ] = FOGPage::makeInput(
+            '',
+            'snapinsend',
+            '',
+            'checkbox',
+            'snapinsend',
+            '',
+            false,
+            false,
+            -1,
+            -1,
+            $snapinsend
         );
-        $arguments['page']->attributes = [
-            ['class' => 'col-xs-4'],
-            ['class' => 'col-xs-8 form-group']
-        ];
-        $arguments['page']->templates = [
-            '${field}',
-            '${input}'
-        ];
-        foreach ($fields as $field => &$input) {
-            $arguments['page']->data[] = [
-                'field' => $field,
-                'input' => $input
-            ];
-            unset($input);
-        }
-        printf(
-            '<form method="post" action="?node=service&sub=edit&tab=%s">',
-            'snapinclient'
-        );
-        $arguments['page']->render();
-        echo '</form>';
     }
     /**
      * Updates the global setting for location sending.
@@ -149,17 +127,10 @@ class AddServiceConfiguration extends Hook
         if ($node != 'service') {
             return;
         }
+
         $snapinsend = (int)isset($_POST['snapinsend']);
 
-        $Service = self::getClass('Service')
-            ->set('name', 'FOG_SNAPIN_LOCATION_SEND_ENABLED')
-            ->load('name');
-        if (!$Service->isValid()) {
-            return;
-        }
-        $Service
-            ->set('value', $snapinsend)
-            ->save();
+        self::setSetting('FOG_SNAPIN_LOCATION_SEND_ENABLED', $snapinsend);
     }
     /**
      * Adds service names.

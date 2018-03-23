@@ -42,10 +42,6 @@ class WindowsKeyManagement extends FOGPage
             _('Windows Key Name'),
             _('Product Key')
         ];
-        $this->templates = [
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             []
@@ -513,7 +509,6 @@ class WindowsKeyManagement extends FOGPage
     {
         // The data to use for building our table.
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('WindowsKeyManager');
@@ -523,7 +518,6 @@ class WindowsKeyManagement extends FOGPage
                 continue;
             }
             $this->headerData[] =  $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }

@@ -29,15 +29,6 @@ class Equipment_Loan extends ReportManagement
     public function file()
     {
         $this->title = _('FOG Equipment Loan Form');
-        unset($this->headerData);
-        $this->templates = array(
-            '${field}',
-            '${input}',
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group'),
-        );
         Route::listem('inventory');
         $Inventories = json_decode(
             Route::getData()

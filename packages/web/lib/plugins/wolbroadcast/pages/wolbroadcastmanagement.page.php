@@ -42,10 +42,6 @@ class WOLBroadcastManagement extends FOGPage
             _('Broadcast Name'),
             _('Broadcast IP')
         ];
-        $this->templates = [
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             []
@@ -469,7 +465,6 @@ class WOLBroadcastManagement extends FOGPage
     {
         // The data to use for building our table.
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('WOLBroadcastManager');
@@ -479,7 +474,6 @@ class WOLBroadcastManagement extends FOGPage
                 continue;
             }
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }

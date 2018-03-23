@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-22 16:11-0400\n"
+"POT-Creation-Date: 2018-03-23 16:44-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1214,6 +1214,10 @@ msgid "The primary mac associated is"
 msgstr "Error, es una imagen asociada con este anfitrión"
 
 #, fuzzy
+msgid "There are no ous on this server"
+msgstr "No hay grupos en este servidor."
+
+#, fuzzy
 msgid "There are no groups on this server"
 msgstr "No hay grupos en este servidor."
 
@@ -1611,25 +1615,7 @@ msgstr "actualización de servicio no pudo"
 msgid "Host Update Location Fail"
 msgstr "actualización Valoración falló"
 
-#, fuzzy
-msgid "Snapin Locations"
-msgstr "snapin replicador"
-
-#, fuzzy
-msgid "This area will allow the host checking in to tell"
-msgstr "Este ajuste define el nombre de usuario proxy para utilizar."
-
-#, fuzzy
-msgid "where to download the snapin"
-msgstr "Haga clic en el botón para exportar la base de datos."
-
-msgid "This is useful in the case of slow links between"
-msgstr ""
-
-msgid "the main and the host"
-msgstr ""
-
-msgid "Enable location Sending"
+msgid "Enable Sending via Location"
 msgstr ""
 
 #, fuzzy
@@ -1990,6 +1976,115 @@ msgstr "actualización Valoración falló"
 #, fuzzy
 msgid "Broadcast Update Fail"
 msgstr "Servicio de Actualización!"
+
+#, fuzzy
+msgid "Export OUs"
+msgstr "Exportar"
+
+#, fuzzy
+msgid "OU Association"
+msgstr "Asociación para la imagen"
+
+#, fuzzy
+msgid "Group OU"
+msgstr "Grupo"
+
+msgid "OU"
+msgstr ""
+
+#, fuzzy
+msgid "Group OU Updated!"
+msgstr "grupo añadió"
+
+#, fuzzy
+msgid "Group OU Update Success"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "Group Update OU Fail"
+msgstr "Grupo Error de creación"
+
+#, fuzzy
+msgid "Import OUs"
+msgstr "Importar"
+
+msgid "OUs"
+msgstr ""
+
+#, fuzzy
+msgid "Host OU"
+msgstr "ID de host"
+
+#, fuzzy
+msgid "Host OU Updated!"
+msgstr "el usuario actualiza"
+
+#, fuzzy
+msgid "Host OU Update Success"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
+msgid "Host Update OU Fail"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
+msgid "OU Name"
+msgstr "Nombre"
+
+msgid "OU DN"
+msgstr ""
+
+#, fuzzy
+msgid "Create New OU"
+msgstr "Crear nuevo grupo"
+
+#, fuzzy
+msgid "OU Description"
+msgstr "Descripción:"
+
+#, fuzzy
+msgid "An ou already exists with this name!"
+msgstr "Una imagen ya existe con este nombre!"
+
+#, fuzzy
+msgid "Add ou failed!"
+msgstr "Añadir fallidos SNAPin!"
+
+#, fuzzy
+msgid "OU added!"
+msgstr "Nombre de la impresora"
+
+#, fuzzy
+msgid "OU Create Succes"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "OU Create Fail"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "An OU already exists with this name!"
+msgstr "Una imagen ya existe con este nombre!"
+
+#, fuzzy
+msgid "OU update failed!"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
+msgid "OU updated!"
+msgstr "el usuario actualiza"
+
+#, fuzzy
+msgid "OU Update Success"
+msgstr "Actualizar impresora"
+
+#, fuzzy
+msgid "OU Update Fail"
+msgstr "actualización Valoración falló"
+
+msgid ""
+"OU is a plugin that allows you to predefine OU's and associate with hosts."
+msgstr ""
 
 #, fuzzy
 msgid "List All Task Types"
@@ -3102,16 +3197,6 @@ msgstr "No se pudo crear la tarea"
 #, fuzzy
 msgid "Failed to update imaging log"
 msgstr "No se pudo crear Complemento de empleo"
-
-#, fuzzy
-msgid "Serial"
-msgstr "serie MB"
-
-msgid "Open VNC connection to"
-msgstr ""
-
-msgid "VNC"
-msgstr ""
 
 #, fuzzy
 msgid "Server Information"

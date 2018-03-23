@@ -78,9 +78,6 @@ class SnapinManagement extends FOGPage
          */
         parent::__construct($name);
         /**
-         * Generate our snapin arg templates.
-         */
-        /**
          * Start a new buffer (last one ended anyway)
          * to create our template non-pack.
          */
@@ -103,9 +100,6 @@ class SnapinManagement extends FOGPage
         }
         echo '</select>';
         self::$_template1 = ob_get_clean();
-        /**
-         * Store the pack based template.
-         */
         self::$_template2 = $this->_maker();
         $this->headerData = [
             _('Snapin Name'),
@@ -113,18 +107,6 @@ class SnapinManagement extends FOGPage
             _('Enabled'),
             _('Is Pack')
         ];
-        /**
-         * The template for the list/search elements.
-         */
-        $this->templates = [
-            '',
-            '',
-            '',
-            ''
-        ];
-        /**
-         * The attributes for the table items.
-         */
         $this->attributes = [
             [],
             [],
@@ -1414,11 +1396,6 @@ class SnapinManagement extends FOGPage
             _('Storage Group Primary'),
             _('Storage Group Associated')
         ];
-        $this->templates = [
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],
@@ -1523,10 +1500,6 @@ class SnapinManagement extends FOGPage
         $this->headerData = [
             _('Host Name'),
             _('Host Associated')
-        ];
-        $this->templates = [
-            '',
-            ''
         ];
         $this->attributes = [
             [],
@@ -1842,7 +1815,6 @@ class SnapinManagement extends FOGPage
     {
         // The data to use for building our table.
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('SnapinManager');
@@ -1852,7 +1824,6 @@ class SnapinManagement extends FOGPage
                 continue;
             }
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }

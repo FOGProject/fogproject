@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-22 16:11-0400\n"
+"POT-Creation-Date: 2018-03-23 16:44-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -1028,6 +1028,10 @@ msgstr "Un nome host con questo nome esiste già"
 msgid "The primary mac associated is"
 msgstr "Il MAC primario associato è"
 
+#, fuzzy
+msgid "There are no ous on this server"
+msgstr "Non ci sono gruppi su questo server"
+
 msgid "There are no groups on this server"
 msgstr "Non ci sono gruppi su questo server"
 
@@ -1409,23 +1413,8 @@ msgstr "Modifica posizione riuscita"
 msgid "Host Update Location Fail"
 msgstr "Aggiornamento Host completato"
 
-msgid "Snapin Locations"
-msgstr "Snapin Luoghi"
-
-msgid "This area will allow the host checking in to tell"
-msgstr "Questa area consentirà all'host di controllare di indicare"
-
-msgid "where to download the snapin"
-msgstr "dove scaricare lo snapin"
-
-msgid "This is useful in the case of slow links between"
-msgstr "Questo è utile nel caso di legami lenti tra"
-
-msgid "the main and the host"
-msgstr "Il principale e l'host"
-
-msgid "Enable location Sending"
-msgstr "Abilita invio posizione "
+msgid "Enable Sending via Location"
+msgstr ""
 
 #, fuzzy
 msgid "Group Location"
@@ -1755,6 +1744,115 @@ msgstr "Aggiornamento Broadcast completata"
 
 msgid "Broadcast Update Fail"
 msgstr "Aggiornamento Broadcast fallita"
+
+#, fuzzy
+msgid "Export OUs"
+msgstr "Esporta utenti"
+
+#, fuzzy
+msgid "OU Association"
+msgstr "Associazione Sito"
+
+#, fuzzy
+msgid "Group OU"
+msgstr "Gruppo"
+
+msgid "OU"
+msgstr ""
+
+#, fuzzy
+msgid "Group OU Updated!"
+msgstr "Gruppo aggiornato!"
+
+#, fuzzy
+msgid "Group OU Update Success"
+msgstr "Aggiornamento del gruppo completato"
+
+#, fuzzy
+msgid "Group Update OU Fail"
+msgstr "Aggiornamento gruppo non riuscito"
+
+#, fuzzy
+msgid "Import OUs"
+msgstr "Importa utenti"
+
+msgid "OUs"
+msgstr ""
+
+#, fuzzy
+msgid "Host OU"
+msgstr "Host AD OU"
+
+#, fuzzy
+msgid "Host OU Updated!"
+msgstr "Host aggiornato!"
+
+#, fuzzy
+msgid "Host OU Update Success"
+msgstr "Aggiornamento host completato!"
+
+#, fuzzy
+msgid "Host Update OU Fail"
+msgstr "Aggiornamento Host completato"
+
+#, fuzzy
+msgid "OU Name"
+msgstr "Nome OS"
+
+msgid "OU DN"
+msgstr ""
+
+#, fuzzy
+msgid "Create New OU"
+msgstr "Crea nuovo %s"
+
+#, fuzzy
+msgid "OU Description"
+msgstr "Descrizione"
+
+#, fuzzy
+msgid "An ou already exists with this name!"
+msgstr "Esiste già un gruppo con questo nome!"
+
+#, fuzzy
+msgid "Add ou failed!"
+msgstr "Aggiunta gruppo non riuscito!"
+
+#, fuzzy
+msgid "OU added!"
+msgstr "Utente aggiunto!"
+
+#, fuzzy
+msgid "OU Create Succes"
+msgstr "Creazione utente riuscita"
+
+#, fuzzy
+msgid "OU Create Fail"
+msgstr "Creazione utente fallita"
+
+#, fuzzy
+msgid "An OU already exists with this name!"
+msgstr "Un'immagine esiste già con questo nome!"
+
+#, fuzzy
+msgid "OU update failed!"
+msgstr "Aggiornamento utente non riuscita"
+
+#, fuzzy
+msgid "OU updated!"
+msgstr "Utente aggiornato"
+
+#, fuzzy
+msgid "OU Update Success"
+msgstr "Utente aggiornato con successo"
+
+#, fuzzy
+msgid "OU Update Fail"
+msgstr "Aggiornamento utente non riuscita"
+
+msgid ""
+"OU is a plugin that allows you to predefine OU's and associate with hosts."
+msgstr ""
 
 #, fuzzy
 msgid "List All Task Types"
@@ -2738,15 +2836,6 @@ msgstr "Impossibile aggiornare il registro attività"
 
 msgid "Failed to update imaging log"
 msgstr "Impossibile aggiornare il registro di imaging"
-
-msgid "Serial"
-msgstr "Seriale"
-
-msgid "Open VNC connection to"
-msgstr "connessione VNC aperta a"
-
-msgid "VNC"
-msgstr "VNC"
 
 #, fuzzy
 msgid "Server Information"

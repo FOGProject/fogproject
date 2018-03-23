@@ -43,11 +43,6 @@ class UserManagement extends FOGPage
             _('Friendly Name'),
             _('API?')
         ];
-        $this->templates = [
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],
@@ -765,7 +760,6 @@ class UserManagement extends FOGPage
     {
         // The data to use for building our table.
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('UserManager');
@@ -775,7 +769,6 @@ class UserManagement extends FOGPage
                 continue;
             }
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }

@@ -29,21 +29,6 @@ class User_Tracking extends ReportManagement
     public function file()
     {
         $this->title = _('FOG User tracking - Search');
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->templates,
-            $this->attributes
-        );
-        $this->templates = array(
-            '${field}',
-            '${input}'
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group')
-        );
         $UserNames = self::getSubObjectIDs(
             'UserTracking',
             '',
@@ -142,31 +127,6 @@ class User_Tracking extends ReportManagement
             INPUT_POST,
             'usersearch'
         );
-        $this->templates = array(
-            sprintf(
-                '<a href="%s%s%s">${host_name}</a>',
-                str_replace(
-                    'sub=file',
-                    'sub=filedisp',
-                    $this->formAction
-                ),
-                $hostsearch ? '&hostID=${host_id}' : '',
-                $usersearch ? '&userID=${user_id}' : ''
-            ),
-            sprintf(
-                '<a href="%s%s&userID=${user_id}">${user_name}</a>',
-                str_replace(
-                    'sub=file',
-                    'sub=filedisp',
-                    $this->formAction
-                ),
-                $hostsearch ? '&hostID=${host_id}' : ''
-            )
-        );
-        $this->attributes = array(
-            array('class' => 'col-xs-4'),
-            array('class' => 'col-xs-8 form-group')
-        );
         if (!$hostsearch) {
             $hostsearch = '%';
         }
@@ -237,13 +197,6 @@ class User_Tracking extends ReportManagement
             _('Hostname'),
             _('Time'),
             _('Description')
-        );
-        $this->templates = array(
-            '${action}',
-            '${username}',
-            '${hostname}',
-            '${time}',
-            '${desc}'
         );
         $this->attributes = array(
             array(),

@@ -29,7 +29,6 @@ class Pending_MAC_List extends ReportManagement
     public function file()
     {
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('MACAddressAssociationManager');
@@ -52,7 +51,6 @@ class Pending_MAC_List extends ReportManagement
                 break;
             }
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }

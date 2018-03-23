@@ -196,7 +196,7 @@ class FOGPageManager extends FOGBase
         /**
          * As a new method is being called, ensure the
          * alternate methods are clean of their constructed
-         * data of header, attributes, data, and templates.
+         * data of header, attributes, and data.
          */
         $nonresetmethods = [
             'index',
@@ -213,7 +213,6 @@ class FOGPageManager extends FOGBase
             unset(
                 $class->headerData,
                 $class->data,
-                $class->templates,
                 $class->attributes
             );
         }

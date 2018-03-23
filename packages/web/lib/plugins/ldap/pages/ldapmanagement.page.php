@@ -50,12 +50,6 @@ class LDAPManagement extends FOGPage
             _('Port'),
             _('Admin Group'),
         ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],
@@ -974,7 +968,6 @@ class LDAPManagement extends FOGPage
     {
         // The data to use for building our table.
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('LDAPManager');
@@ -984,7 +977,6 @@ class LDAPManagement extends FOGPage
                 continue;
             }
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }

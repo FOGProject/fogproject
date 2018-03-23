@@ -45,13 +45,6 @@ class StorageNodeManagement extends FOGPage
             self::$foglang['MasterNode'],
             _('Max Clients')
         ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],
@@ -1163,7 +1156,6 @@ class StorageNodeManagement extends FOGPage
     {
         // The data to use for building our table.
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('StorageNodeManager');
@@ -1173,7 +1165,6 @@ class StorageNodeManagement extends FOGPage
                 continue;
             }
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }
