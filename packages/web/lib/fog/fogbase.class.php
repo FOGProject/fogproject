@@ -204,12 +204,6 @@ abstract class FOGBase
      */
     protected static $FOGURLRequests;
     /**
-     * Side/Sub menu manager.
-     *
-     * @var object
-     */
-    protected static $FOGSubMenu;
-    /**
      * Current request uri.
      *
      * @var string

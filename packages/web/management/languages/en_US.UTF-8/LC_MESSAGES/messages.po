@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-23 16:44-0400\n"
+"POT-Creation-Date: 2018-03-23 17:32-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3298,6 +3298,10 @@ msgid "Client Module Settings"
 msgstr "Settings"
 
 #, fuzzy
+msgid "Advanced Tasks"
+msgstr "Advanced"
+
+#, fuzzy
 msgid "Group update failed!"
 msgstr "User update failed"
 
@@ -6054,28 +6058,6 @@ msgstr "No data returned"
 msgid "No items found"
 msgstr "No icons found"
 
-#, fuzzy
-msgid "Node must be a string"
-msgstr "Event must be a string"
-
-msgid "Items must be an array"
-msgstr ""
-
-msgid "Data must be an array or a callable item."
-msgstr ""
-
-#, fuzzy
-msgid "Info"
-msgstr "In "
-
-#, fuzzy
-msgid "Title must be a string"
-msgstr "Event must be a string"
-
-#, fuzzy
-msgid "Link must be a string"
-msgstr "Event must be a string"
-
 msgid "Event must be a string"
 msgstr "Event must be a string"
 
@@ -6438,102 +6420,6 @@ msgid "Unable to determine status"
 msgstr "Unable to determine plugin details"
 
 #, fuzzy
-msgid "Invalid scheduling type"
-msgstr "Invalid type"
-
-#, fuzzy
-msgid "minute"
-msgstr "minutes"
-
-msgid "day of month"
-msgstr ""
-
-msgid "day of week"
-msgstr ""
-
-msgid "Task type is not valid"
-msgstr "Task type is not valid"
-
-msgid "Password reset requires a user account to reset"
-msgstr "Password reset requires a user account to reset"
-
-#, fuzzy
-msgid "Cannot set tasking to pending hosts"
-msgstr "Cannot set taskings to pending or invalid items"
-
-#, fuzzy
-msgid "There are no hosts to task in this group"
-msgstr "There are no groups on this server."
-
-msgid "To perform an imaging task an image must be assigned"
-msgstr ""
-
-#, fuzzy
-msgid "Cannot create tasking as image is not enabled"
-msgstr "Cannot set tasking as image is not enabled"
-
-#, fuzzy
-msgid "The assigned image is protected"
-msgstr "None selected or item is protected"
-
-msgid "and cannot be captured"
-msgstr ""
-
-msgid "Groups are not allowed to schedule upload tasks"
-msgstr ""
-
-#, fuzzy
-msgid "Multicast tasks from groups"
-msgstr "MulticastTask"
-
-#, fuzzy
-msgid "require all hosts have the same image"
-msgstr "Hosts do not have the same image assigned"
-
-#, fuzzy
-msgid "No valid hosts found and"
-msgstr "No valid class sent"
-
-#, fuzzy
-msgid "or no valid images specified"
-msgstr "No image specified"
-
-#, fuzzy
-msgid "Tasking Failed"
-msgstr "Tasking"
-
-#, fuzzy
-msgid "Failed to create tasking"
-msgstr "Failed to create task"
-
-#, fuzzy
-msgid "Failed to create scheduled tasking"
-msgstr "Failed to create task"
-
-#, fuzzy
-msgid "Scheduled tasks successfully created"
-msgstr "has been successfully updated"
-
-#, fuzzy
-msgid "Failed to start tasking type"
-msgstr "Failed to start deployment tasking"
-
-msgid "Delayed Start"
-msgstr "Delayed Start"
-
-#, fuzzy
-msgid "Tasked Successfully"
-msgstr "saved successfully"
-
-#, fuzzy
-msgid "Successfully created"
-msgstr "successfully updated"
-
-#, fuzzy
-msgid "Created Tasks For"
-msgstr "Create User"
-
-#, fuzzy
 msgid "Remove these items?"
 msgstr "Remove selected printers"
 
@@ -6544,9 +6430,6 @@ msgstr "successfully updated"
 #, fuzzy
 msgid "Delete Success"
 msgstr "User created"
-
-msgid "Advanced Actions"
-msgstr "Advanced Actions"
 
 msgid "Enable Domain Joining"
 msgstr ""

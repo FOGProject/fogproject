@@ -3230,7 +3230,7 @@ class HostManagement extends FOGPage
                 'name' =>  _('Tasks'),
                 'id' => 'host-tasks',
                 'generator' => function () {
-                    $this->basictasksOptions();
+                    $this->hostTasks();
                 }
             ];
         }
@@ -4224,6 +4224,125 @@ class HostManagement extends FOGPage
             )
         );
         exit;
+    }
+    /**
+     * The host tasks items.
+     *
+     * @return void
+     */
+    public function hostTasks()
+    {
+        // Predefine needed variables for closure function.
+        global $id;
+        $data = [];
+        // The closure we want to use.
+        $taskTypeIterator = function (&$TaskType, $advanced) use (
+            &$data,
+            $id
+        ) {
+            if ($advanced != $TaskType->isAdvanced) {
+                return;
+            }
+            $data['<a href="?node=host&sub=deploy&id='
+                . $id
+                . '&type='
+                . $TaskType->id
+                . '"><i class="fa fa-'
+                . $TaskType->icon
+                . ' fa-2x"></i><br/>'
+                . $TaskType->name
+                . '</a>'
+            ] = $TaskType->description;
+            unset($TaskTYpe);
+        };
+        // The keys we need to search for.
+        $key = [
+            'ttIsAccess' => [
+                'host',
+                'both'
+            ]
+        ];
+        // The items we're getting.
+        Route::listem(
+            'tasktype',
+            $key
+        );
+        $items = json_decode(Route::getData());
+        // Loop 1, the basic non-advanced tasks.
+        foreach ($items->data as &$TaskType) {
+            $taskTypeIterator($TaskType, 0);
+            unset($TaskType);
+        }
+        self::$HookManager->processEvent(
+            'HOST_BASICTASKS_DATA',
+            ['data' => &$data]
+        );
+        $basic = self::stripedTable($data);
+
+        $data = [];
+        $advanced = 1;
+        // Loop 2, the advanced tasks.
+        foreach ($items->data as &$TaskType) {
+            $taskTypeIterator($TaskType, 1);
+            unset($TaskType);
+        }
+        self::$HookManager->processEvent(
+            'HOST_ADVANCEDTASKS_DATA',
+            ['data' => &$data]
+        );
+        $advanced = self::stripedTable($data);
+        unset($data);
+        unset($items);
+
+        echo '<div class="box box-solid" id="host-tasks">';
+        echo '<div class="box-body">';
+        echo '<div id="taskAccordian" class="box-group">';
+
+        // Basic Tasks
+        echo '<div class="panel box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo '<a href="#tasksBasic" class="" data-toggle="collapse" '
+            . 'data-parent="#taskAccordian">';
+        echo _('Basic Tasks');
+        echo '</a>';
+        echo '</h4>';
+        echo '</div>';
+        echo '<div id="tasksBasic" class="panel-collapse collapse in">';
+        echo '<div class="box-body">';
+        echo '<table class="table table-striped">';
+        echo '<tbody>';
+        echo $basic;
+        echo '</tbody>';
+        echo '</table>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+
+        // Advanced Tasks
+        echo '<div class="panel box box-warning">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo '<a href="#tasksAdvanced" class="" data-toggle="collapse" '
+            . 'data-parent="#taskAccordian">';
+        echo _('Advanced Tasks');
+        echo '</a>';
+        echo '</h4>';
+        echo '</div>';
+        echo '<div id="tasksAdvanced" class="panel-collapse collapse">';
+        echo '<div class="box-body">';
+        echo '<table class="table table-striped">';
+        echo '<tbody>';
+        echo $advanced;
+        echo '</tbody>';
+        echo '</table>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Tasking for this host.
