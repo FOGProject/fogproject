@@ -53,15 +53,6 @@ class PrinterManagement extends FOGPage
             _('IP'),
             _('Config File')
         ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],
@@ -1192,11 +1183,6 @@ class PrinterManagement extends FOGPage
             _('Default Printer'),
             _('Host Associated')
         ];
-        $this->templates = [
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],
@@ -1422,7 +1408,6 @@ class PrinterManagement extends FOGPage
     {
         // The data to use for building our table.
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('PrinterManager');
@@ -1432,7 +1417,6 @@ class PrinterManagement extends FOGPage
                 continue;
             }
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }

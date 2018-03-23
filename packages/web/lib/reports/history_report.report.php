@@ -43,12 +43,6 @@ class History_Report extends ReportManagement
             _('Time'),
             _('IP')
         );
-        $this->templates = array(
-            '${createdBy}',
-            '${info}',
-            '${createdTime}',
-            '${ip}'
-        );
         $this->attributes = array(
             array(),
             array(),

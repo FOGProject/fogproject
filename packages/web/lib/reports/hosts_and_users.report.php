@@ -57,12 +57,6 @@ class Hosts_And_Users extends ReportManagement
             _('Image Name'),
             _('Login Users')
         );
-        $this->templates = array(
-            '${host_name}',
-            '${host_mac}',
-            '${image_name}',
-            '${users}'
-        );
         Route::listem('host');
         $Hosts = json_decode(
             Route::getData()

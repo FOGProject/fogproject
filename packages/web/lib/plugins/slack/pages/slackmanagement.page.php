@@ -43,11 +43,6 @@ class SlackManagement extends FOGPage
             _('Created By'),
             _('User/Channel Name')
         ];
-        $this->templates = [
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],

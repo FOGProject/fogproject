@@ -38,15 +38,6 @@ class Snapin_Log extends ReportManagement
             _('Checkin Time'),
             _('Complete Time')
         ];
-        $this->templates = [
-            '${host_name}',
-            '${snap_name}',
-            '${snap_state}',
-            '${snap_return}',
-            '${snap_detail}',
-            '${checkin}',
-            '${complete}'
-        ];
         $this->attributes = [
             [],
             [],

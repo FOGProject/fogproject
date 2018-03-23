@@ -57,12 +57,6 @@ class Product_Keys extends ReportManagement
             _('Host Product Key'),
             _('Image Name')
         );
-        $this->templates = array(
-            '${host_name}',
-            '${host_mac}',
-            '${host_productKey}',
-            '${image_name}'
-        );
         Route::listem('host');
         $Hosts = json_decode(
             Route::getData()

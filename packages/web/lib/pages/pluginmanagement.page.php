@@ -45,13 +45,6 @@ class PluginManagement extends FOGPage
             _('Activated'),
             _('Installed')
         ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],

@@ -44,12 +44,6 @@ class ImageManagement extends FOGPage
             _('Enabled'),
             _('Captured')
         ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],
@@ -862,11 +856,6 @@ class ImageManagement extends FOGPage
             _('Storage Group Primary'),
             _('Storage Group Associated')
         ];
-        $this->templates = [
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],
@@ -974,10 +963,6 @@ class ImageManagement extends FOGPage
         $this->headerData = [
             _('Host Name'),
             _('Host Associated')
-        ];
-        $this->templates = [
-            '',
-            ''
         ];
         $this->attributes = [
             [],
@@ -1222,12 +1207,6 @@ class ImageManagement extends FOGPage
             [],
             ['width' => 5],
             []
-        ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            ''
         ];
 
         echo '<div class="box box-solid">';
@@ -1671,7 +1650,6 @@ class ImageManagement extends FOGPage
     {
         // The data to use for building our table.
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('ImageManager');
@@ -1681,7 +1659,6 @@ class ImageManagement extends FOGPage
                 continue;
             }
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }

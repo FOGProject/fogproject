@@ -55,11 +55,6 @@ class Host_List extends ReportManagement
             _('Host MAC'),
             _('Image Name'),
         );
-        $this->templates = array(
-            '${host_name}',
-            '${host_mac}',
-            '${image_name}',
-        );
         Route::listem('host');
         $Hosts = json_decode(
             Route::getData()

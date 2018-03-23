@@ -44,12 +44,6 @@ class CaponeManagement extends FOGPage
             _('Image OS'),
             _('Search Key')
         ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],
@@ -624,7 +618,6 @@ class CaponeManagement extends FOGPage
     {
         // The data to use for building our table.
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('CaponeManager');
@@ -634,7 +627,6 @@ class CaponeManagement extends FOGPage
                 continue;
             }
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }

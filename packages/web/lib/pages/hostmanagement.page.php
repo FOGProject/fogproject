@@ -71,17 +71,12 @@ class HostManagement extends FOGPage
             _('Host'),
             _('Primary MAC')
         ];
-        $this->templates = [
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             []
         ];
         if (self::$fogpingactive) {
             $this->headerData[] = _('Ping Status');
-            $this->templates[] = '';
             $this->attributes[] = [];
         }
         array_push(
@@ -89,12 +84,6 @@ class HostManagement extends FOGPage
             _('Imaged'),
             _('Assigned Image'),
             _('Description')
-        );
-        array_push(
-            $this->templates,
-            '',
-            '',
-            ''
         );
         array_push(
             $this->attributes,
@@ -122,10 +111,7 @@ class HostManagement extends FOGPage
             $this->headerData[4],
             $this->attributes[2],
             $this->attributes[3],
-            $this->attributes[4],
-            $this->templates[2],
-            $this->templates[3],
-            $this->templates[4]
+            $this->attributes[4]
         );
 
         // Reorder the arrays
@@ -134,9 +120,6 @@ class HostManagement extends FOGPage
         );
         $this->attributes = array_values(
             $this->attributes
-        );
-        $this->templates = array_values(
-            $this->templates
         );
 
         $buttons = self::makeButton(
@@ -284,10 +267,6 @@ class HostManagement extends FOGPage
             _('Host Name'),
             _('MAC Address')
         ];
-        $this->templates = [
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             []
@@ -296,7 +275,6 @@ class HostManagement extends FOGPage
         self::$HookManager->processEvent(
             'HOST_PENDING_MAC_DATA',
             [
-                'templates' => &$this->templates,
                 'attributes' => &$this->attributes,
                 'headerData' => &$this->headerData
             ]
@@ -1271,13 +1249,6 @@ class HostManagement extends FOGPage
             _('Ignore Client'),
             _('Pending')
         ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             ['width' => 16],
@@ -1475,10 +1446,6 @@ class HostManagement extends FOGPage
         $this->headerData = [
             _('Group Name'),
             _('Group Associated')
-        ];
-        $this->templates = [
-            '',
-            ''
         ];
         $this->attributes = [
             [],
@@ -1707,12 +1674,6 @@ class HostManagement extends FOGPage
             _('Printer Type'),
             _('Printer Associated')
         ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [
                 'class' => 'col-md-1'
@@ -1825,11 +1786,6 @@ class HostManagement extends FOGPage
             _('Snapin Created'),
             _('Snapin Associated')
         ];
-        $this->templates = [
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],
@@ -1934,10 +1890,6 @@ class HostManagement extends FOGPage
         $this->headerData = [
             _('Module Name'),
             _('Module Associated')
-        ];
-        $this->templates = [
-            '',
-            ''
         ];
         $this->attributes = [
             [],
@@ -2333,10 +2285,6 @@ class HostManagement extends FOGPage
         $this->headerData = [
             _('Cron Schedule'),
             _('Action')
-        ];
-        $this->templates = [
-            '',
-            ''
         ];
         $this->attributes = [
             [],
@@ -3157,12 +3105,6 @@ class HostManagement extends FOGPage
             [],
             []
         ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            ''
-        ];
         echo '<!-- Host Login History -->';
         echo '<div class="box-group" id="loginhistory">';
         echo '<div class="box box-solid">';
@@ -3191,14 +3133,6 @@ class HostManagement extends FOGPage
             _('Duration'),
             _('Image'),
             _('Type')
-        ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            '',
-            '',
-            ''
         ];
         $this->attributes = [
             [],
@@ -3235,13 +3169,6 @@ class HostManagement extends FOGPage
             _('Complete'),
             _('Duration'),
             _('Return Code')
-        ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            '',
-            ''
         ];
         $this->attributes = [
             [],
@@ -3984,9 +3911,6 @@ class HostManagement extends FOGPage
         $this->headerData = [
             'primac'
         ];
-        $this->templates = [
-            ''
-        ];
         $this->attributes = [
             []
         ];
@@ -3998,7 +3922,6 @@ class HostManagement extends FOGPage
                 continue;
             }
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }

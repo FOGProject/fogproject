@@ -42,10 +42,6 @@ class PushbulletManagement extends FOGPage
             _('Name'),
             _('Email'),
         ];
-        $this->templates = [
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             []

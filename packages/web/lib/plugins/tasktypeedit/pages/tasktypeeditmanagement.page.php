@@ -43,11 +43,6 @@ class TasktypeeditManagement extends FOGPage
             _('Access'),
             _('Kernel Args')
         ];
-        $this->templates = [
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],
@@ -691,7 +686,6 @@ class TasktypeeditManagement extends FOGPage
     {
         // The data to use for building our table.
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('TaskTypeManager');
@@ -701,7 +695,6 @@ class TasktypeeditManagement extends FOGPage
                 continue;
             }
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }

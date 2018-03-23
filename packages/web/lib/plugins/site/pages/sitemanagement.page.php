@@ -41,11 +41,6 @@ class SiteManagement extends FOGPage
             _('Host Count'),
             _('User Count')
         ];
-        $this->templates = [
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             ['width' => 5],
@@ -334,10 +329,6 @@ class SiteManagement extends FOGPage
             _('Host Name'),
             _('Associated')
         ];
-        $this->templates = [
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             ['width' => 16]
@@ -399,10 +390,6 @@ class SiteManagement extends FOGPage
         $this->headerData = [
             _('User Name'),
             _('Associated')
-        ];
-        $this->templates = [
-            '',
-            ''
         ];
         $this->attributes = [
             [],
@@ -701,7 +688,6 @@ class SiteManagement extends FOGPage
     {
         // The data to use for building our table.
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('SiteManager');
@@ -711,7 +697,6 @@ class SiteManagement extends FOGPage
                 continue;
             }
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }

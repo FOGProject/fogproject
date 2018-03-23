@@ -52,13 +52,6 @@ class TaskManagement extends FOGPage
             _('Status'),
             _('Progress')
         ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],
@@ -406,12 +399,6 @@ class TaskManagement extends FOGPage
             _('Start Time'),
             _('Status')
         ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],
@@ -513,12 +500,6 @@ class TaskManagement extends FOGPage
             _('Start Time'),
             _('State')
         ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],
@@ -606,15 +587,6 @@ class TaskManagement extends FOGPage
             _('Start Time'),
             _('Active'),
             _('Type')
-        ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            ''
         ];
         $this->attributes = [
             [],

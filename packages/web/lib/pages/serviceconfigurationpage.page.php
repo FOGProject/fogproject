@@ -257,6 +257,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceDisplaymanagerPost()
     {
+        self::$HookManager->processEvent('MODULE_DISPLAYMANAGER_POST');
         Route::search(
             'module',
             'display manager'
@@ -422,6 +423,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceAutologoutPost()
     {
+        self::$HookManager->processEvent('MODULE_AUTOLOGOUT_POST');
         Route::search('module', 'auto log out');
         $Modules = json_decode(
             Route::getData()
@@ -520,7 +522,7 @@ class ServiceConfigurationPage extends FOGPage
         ];
 
         self::$HookManager->processEvent(
-            'MODUL_SNAPINCLIENT_FIELDS',
+            'MODULE_SNAPINCLIENT_FIELDS',
             [
                 'fields' => &$fields,
                 'buttons' => &$buttons,
@@ -565,6 +567,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceSnapinclientPost()
     {
+        self::$HookManager->processEvent('MODULE_SNAPINCLIENT_POST');
         Route::search(
             'module',
             'snapins'
@@ -661,7 +664,7 @@ class ServiceConfigurationPage extends FOGPage
         ];
 
         self::$HookManager->processEvent(
-            'MODUL_HOSTREGISTER_FIELDS',
+            'MODULE_HOSTREGISTER_FIELDS',
             [
                 'fields' => &$fields,
                 'buttons' => &$buttons,
@@ -706,6 +709,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceHostregisterPost()
     {
+        self::$HookManager->processEvent('MODULE_HOSTREGISTER_POST');
         Route::search('module', 'host registration');
         $Modules = json_decode(
             Route::getData()
@@ -838,6 +842,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceHostnamechangerPost()
     {
+        self::$HookManager->processEvent('MODULE_HOSTNAMECHANGER_POST');
         Route::search('module', 'hostname changer');
         $Modules = json_decode(
             Route::getData()
@@ -970,6 +975,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function servicePrintermanagerPost()
     {
+        self::$HookManager->processEvent('MODULE_PRINTERMANAGER_POST');
         Route::search('module', 'printer manager');
         $Modules = json_decode(
             Route::getData()
@@ -1102,6 +1108,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceTaskrebootPost()
     {
+        self::$HookManager->processEvent('MODULE_TASKREBOOT_POST');
         Route::search('module', 'task reboot');
         $Modules = json_decode(
             Route::getData()
@@ -1234,6 +1241,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function serviceUsertrackerPost()
     {
+        self::$HookManager->processEvent('MODULE_USERTRACKER_POST');
         Route::search('module', 'user tracker');
         $Modules = json_decode(
             Route::getData()
@@ -1366,6 +1374,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function servicePowermanagementPost()
     {
+        self::$HookManager->processEvent('MODULE_POWERMANAGEMENT_POST');
         Route::search('module', 'power management');
         $Modules = json_decode(
             Route::getData()

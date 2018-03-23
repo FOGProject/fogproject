@@ -42,10 +42,6 @@ class TaskstateeditManagement extends FOGPage
             _('Name'),
             _('Icon')
         ];
-        $this->templates = [
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             ['width' => 5]
@@ -487,7 +483,6 @@ class TaskstateeditManagement extends FOGPage
     {
         // The data to use for building our table.
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('TaskStateManager');
@@ -497,7 +492,6 @@ class TaskstateeditManagement extends FOGPage
                 continue;
             }
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }

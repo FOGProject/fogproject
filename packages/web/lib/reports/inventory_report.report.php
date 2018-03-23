@@ -43,12 +43,6 @@ class Inventory_Report extends ReportManagement
             _('System Product'),
             _('System Serial')
         );
-        $this->templates = array(
-            '${host_name}<br/><small>${host_mac}</small>',
-            '${memory}',
-            '${sysprod}',
-            '${sysser}'
-        );
         $this->attributes = array(
             array(),
             array(),

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-22 17:49-0400\n"
+"POT-Creation-Date: 2018-03-23 16:44-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1018,6 +1018,9 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr ""
 
+msgid "There are no ous on this server"
+msgstr ""
+
 msgid "There are no groups on this server"
 msgstr ""
 
@@ -1346,22 +1349,7 @@ msgstr ""
 msgid "Host Update Location Fail"
 msgstr ""
 
-msgid "Snapin Locations"
-msgstr ""
-
-msgid "This area will allow the host checking in to tell"
-msgstr ""
-
-msgid "where to download the snapin"
-msgstr ""
-
-msgid "This is useful in the case of slow links between"
-msgstr ""
-
-msgid "the main and the host"
-msgstr ""
-
-msgid "Enable location Sending"
+msgid "Enable Sending via Location"
 msgstr ""
 
 msgid "Group Location"
@@ -1641,6 +1629,91 @@ msgid "Broadcast Update Success"
 msgstr ""
 
 msgid "Broadcast Update Fail"
+msgstr ""
+
+msgid "Export OUs"
+msgstr ""
+
+msgid "OU Association"
+msgstr ""
+
+msgid "Group OU"
+msgstr ""
+
+msgid "OU"
+msgstr ""
+
+msgid "Group OU Updated!"
+msgstr ""
+
+msgid "Group OU Update Success"
+msgstr ""
+
+msgid "Group Update OU Fail"
+msgstr ""
+
+msgid "Import OUs"
+msgstr ""
+
+msgid "OUs"
+msgstr ""
+
+msgid "Host OU"
+msgstr ""
+
+msgid "Host OU Updated!"
+msgstr ""
+
+msgid "Host OU Update Success"
+msgstr ""
+
+msgid "Host Update OU Fail"
+msgstr ""
+
+msgid "OU Name"
+msgstr ""
+
+msgid "OU DN"
+msgstr ""
+
+msgid "Create New OU"
+msgstr ""
+
+msgid "OU Description"
+msgstr ""
+
+msgid "An ou already exists with this name!"
+msgstr ""
+
+msgid "Add ou failed!"
+msgstr ""
+
+msgid "OU added!"
+msgstr ""
+
+msgid "OU Create Succes"
+msgstr ""
+
+msgid "OU Create Fail"
+msgstr ""
+
+msgid "An OU already exists with this name!"
+msgstr ""
+
+msgid "OU update failed!"
+msgstr ""
+
+msgid "OU updated!"
+msgstr ""
+
+msgid "OU Update Success"
+msgstr ""
+
+msgid "OU Update Fail"
+msgstr ""
+
+msgid ""
+"OU is a plugin that allows you to predefine OU's and associate with hosts."
 msgstr ""
 
 msgid "List All Task Types"
@@ -2550,15 +2623,6 @@ msgid "Failed to update task log"
 msgstr ""
 
 msgid "Failed to update imaging log"
-msgstr ""
-
-msgid "Serial"
-msgstr ""
-
-msgid "Open VNC connection to"
-msgstr ""
-
-msgid "VNC"
 msgstr ""
 
 msgid "Server Information"

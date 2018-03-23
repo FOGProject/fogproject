@@ -48,12 +48,6 @@ class LocationManagement extends FOGPage
             _('Storage Node'),
             _('Kernels/Inits from location')
         ];
-        $this->templates = [
-            '',
-            '',
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             [],
@@ -481,10 +475,6 @@ class LocationManagement extends FOGPage
             _('Host Name'),
             _('Host Associated')
         ];
-        $this->templates = [
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             []
@@ -706,7 +696,6 @@ class LocationManagement extends FOGPage
     {
         // The data to use for building our table.
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('LocationManager');
@@ -716,7 +705,6 @@ class LocationManagement extends FOGPage
                 continue;
             }
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }

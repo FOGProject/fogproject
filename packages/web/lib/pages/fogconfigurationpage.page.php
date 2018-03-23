@@ -377,11 +377,6 @@ class FOGConfigurationPage extends FOGPage
             [],
             []
         ];
-        $this->templates = [
-            '${field}',
-            '${input}',
-            '${span}'
-        ];
         $ServicesToSee = [
             'FOG_ADVANCED_MENU_LOGIN',
             'FOG_BOOT_EXIT_TYPE',
@@ -602,7 +597,6 @@ class FOGConfigurationPage extends FOGPage
             'IPXE_MENU_SETTINGS',
             [
                 'data' => &$this->data,
-                'templates' => &$this->templates,
                 'attributes' => &$this->attributes
             ]
         );
@@ -709,7 +703,6 @@ class FOGConfigurationPage extends FOGPage
             'IPXE_HIDENOMENU_SETTINGS',
             [
                 'data' => &$this->data,
-                'templates' => &$this->templates,
                 'attributes' => &$this->attributes
             ]
         );
@@ -758,7 +751,6 @@ class FOGConfigurationPage extends FOGPage
             'IPXE_EXITTYPE_SETTINGS',
             [
                 'data' => &$this->data,
-                'templates' => &$this->templates,
                 'attributes' => &$this->attributes
             ]
         );
@@ -829,7 +821,6 @@ class FOGConfigurationPage extends FOGPage
             'IPXE_ADVANCED_SETTINGS',
             [
                 'data' => &$this->data,
-                'templates' => &$this->templates,
                 'attributes' => &$this->attributes
             ]
         );
@@ -1004,10 +995,6 @@ class FOGConfigurationPage extends FOGPage
     public function customizepxe()
     {
         $this->title = self::$foglang['PXEMenuCustomization'];
-        $this->templates = [
-            '${field}',
-            '${input}'
-        ];
         Route::listem('pxemenuoptions');
         $Menus = json_decode(
             Route::getData()
@@ -1194,7 +1181,6 @@ class FOGConfigurationPage extends FOGPage
                 ),
                 [
                     'data' => &$this->data,
-                    'templates' => &$this->templates,
                     'attributes' => &$this->attributes,
                     'headerData' => &$this->headerData
                 ]
@@ -1356,10 +1342,6 @@ class FOGConfigurationPage extends FOGPage
     public function newMenu()
     {
         $this->title = _('Create New iPXE Menu Entry');
-        $this->templates = [
-            '${field}',
-            '${input}',
-        ];
         $menu_item = filter_input(
             INPUT_POST,
             'menu_item'
@@ -1477,7 +1459,6 @@ class FOGConfigurationPage extends FOGPage
                 'BOOT_ITEMS_ADD',
                 [
                     'data' => &$this->data,
-                    'templates' => &$this->templates,
                     'attributes' => &$this->attributes,
                     'headerData' => &$this->headerData
                 ]
@@ -1820,7 +1801,6 @@ class FOGConfigurationPage extends FOGPage
             $this->data,
             $this->form,
             $this->headerData,
-            $this->templates,
             $this->attributes
         );
         echo '<div class="col-xs-9">';
@@ -1847,11 +1827,6 @@ class FOGConfigurationPage extends FOGPage
             [],
             [],
             []
-        ];
-        $this->templates = [
-            '${field}',
-            '${input}',
-            '${span}',
         ];
         echo '<div class="col-xs-12">';
         echo '<div class="panel panel-info">';
@@ -2299,7 +2274,6 @@ class FOGConfigurationPage extends FOGPage
                     ),
                     [
                         'data' => &$this->data,
-                        'templates' => &$this->templates,
                         'attributes' => &$this->attributes
                     ]
                 );
@@ -3019,16 +2993,11 @@ class FOGConfigurationPage extends FOGPage
             $this->data,
             $this->form,
             $this->headerData,
-            $this->templates,
             $this->attributes
         );
         $this->attributes = [
             [],
             []
-        ];
-        $this->templates = [
-            '${field}',
-            '${input}',
         ];
         $this->data[] = [
             'field' => '<label for="export">'

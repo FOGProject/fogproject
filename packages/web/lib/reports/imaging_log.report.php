@@ -38,15 +38,6 @@ class Imaging_Log extends ReportManagement
             _('Image'),
             _('Type')
         );
-        $this->templates = array(
-            '${createdBy}',
-            '${host_name}',
-            '<small>${start_date} ${start_time}</small>',
-            '<small>${end_date} ${end_time}</small>',
-            '${duration}',
-            '${image_name}',
-            '${type}'
-        );
         $csvHead = array(
             _('Created By'),
             _('Host ID'),

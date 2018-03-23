@@ -44,10 +44,6 @@ class OUManagement extends FOGPage
             _('OU Name'),
             _('OU DN')
         ];
-        $this->templates = [
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             []
@@ -394,10 +390,6 @@ class OUManagement extends FOGPage
             _('Host Name'),
             _('Host Associated')
         ];
-        $this->templates = [
-            '',
-            ''
-        ];
         $this->attributes = [
             [],
             []
@@ -619,7 +611,6 @@ class OUManagement extends FOGPage
     {
         // The data to use for building our table.
         $this->headerData = [];
-        $this->templates = [];
         $this->attributes = [];
 
         $obj = self::getClass('OUManager');
@@ -629,7 +620,6 @@ class OUManagement extends FOGPage
                 continue;
             }
             $this->headerData[] = $common;
-            $this->templates[] = '';
             $this->attributes[] = [];
             unset($real);
         }
