@@ -90,7 +90,7 @@ class GroupManagement extends FOGPage
             self::$_common[] = (bool)($tmp == 1);
             unset($idField);
         }
-        self::$Host = new Host(max($hostids));
+        self::$Host = new Host(@max($hostids));
     }
     /**
      * Create a new group.

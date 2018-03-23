@@ -911,7 +911,7 @@ class StorageNodeManagement extends FOGPage
             _('Update'),
             'btn btn-primary'
         );
-        $buttons .= self::makeButtons(
+        $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
             'btn btn-danger pull-right'
