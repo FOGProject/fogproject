@@ -153,22 +153,14 @@ class FOGPageManager extends FOGBase
             } else {
                 self::resetRequest();
             }
-            if ($this->classValue != 'schema'
-                && $method == 'index'
-                && $this->methodValue != 'list'
-                && method_exists($class, 'search')
-                && in_array($class->node, self::$searchPages)
-            ) {
-                $method = 'search';
+            if (empty($method) || !method_exists($class, $method)) {
+                $method = 'index';
             }
             if (self::$ajax && method_exists($class, $method.'Ajax')) {
                 $method = $this->methodValue.'Ajax';
             }
             if (self::$post && method_exists($class, $method.'Post')) {
                 $method = $this->methodValue.'Post';
-            }
-            if (empty($method) || !method_exists($class, $method)) {
-                $method = 'index';
             }
         } catch (Exception $e) {
             $this->debug(
