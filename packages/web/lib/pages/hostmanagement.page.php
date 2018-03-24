@@ -4235,7 +4235,17 @@ class HostManagement extends FOGPage
         // Predefine needed variables for closure function.
         global $id;
         $data = [];
-        // The closure we want to use.
+        /**
+         * Closure allowing us to iterate from a common point.
+         *
+         * @param stdClass $TaskType The Task Type data.
+         * @param int      $advanced The advanced flag.
+         *
+         * @uses array $data The data to store into.
+         * @uses int   $id   The id of the object we are on.
+         *
+         * @return void
+         */
         $taskTypeIterator = function (&$TaskType, $advanced) use (
             &$data,
             $id
