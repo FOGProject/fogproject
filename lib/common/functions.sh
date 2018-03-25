@@ -531,10 +531,11 @@ configureMinHttpd() {
 }
 addUbuntuRepo() {
     find /etc/apt/sources.list.d/ -name '*ondrej*' -exec rm -rf {} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common ntpdate >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    add-apt-repository -y ppa:ondrej/$repo >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    add-apt-repository -y ppa:ondrej/apache2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    locale-gen 'en_US.UTF-8' >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/apache2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     return $?
 }
 installPackages() {
@@ -584,9 +585,9 @@ installPackages() {
         2)
             packages="${packages// libapache2-mod-fastcgi/}"
             packages="${packages// libapache2-mod-evasive/}"
+            packages="${packages} php${php_ver}-bcmath bc"
             case $linuxReleaseName in
                 *[Bb][Ii][Aa][Nn]*)
-                    packages="$packages php$php_ver-bcmath bc"
                     if [[ $OSVersion -eq 7 ]]; then
                         debcode="wheezy"
                         grep -l "deb http://packages.dotdeb.org $debcode-php56 all" "/etc/apt/sources.list" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -597,25 +598,8 @@ installPackages() {
                     ;;
                 *)
                     if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; then
-                        packages="$packages php$php_ver-bcmath bc"
                         addUbuntuRepo
-                        if [[ $? != 0 ]]; then
-                            apt-get update >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                            apt-get -yq install python-software-properties ntpdate >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                            ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                            locale-gen 'en_US.UTF-8' >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                            LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        fi
                     fi
-                    apt-get update >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common ntpdate >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    locale-gen 'en_US.UTF-8' >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    case $linuxReleaseName in
-                        *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Mm][Ii][Nn][Tt]*)
-                            LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                            ;;
-                    esac
                     ;;
             esac
             ;;
