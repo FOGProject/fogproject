@@ -73,7 +73,7 @@ class ServerInfo extends FOGPage
             self::$httpproto,
             $this->obj->get('ip')
         );
-        if (!$this->obj->online) {
+        if (!$this->obj->get('online')) {
             echo '<div class="col-md-12">';
             echo '<div class="box box-warning">';
             echo '<div class="box-header with-border">';

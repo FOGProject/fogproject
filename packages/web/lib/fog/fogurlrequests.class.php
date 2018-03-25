@@ -620,11 +620,7 @@ class FOGURLRequests extends FOGBase
                 $errstr,
                 $timeout
             );
-            if (!$socket) {
-                $output[] = false;
-                continue;
-            }
-            $output[] = true;
+            $output[] = (bool)$socket;
             fclose($socket);
             unset($url);
         }
