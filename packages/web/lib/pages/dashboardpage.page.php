@@ -460,8 +460,8 @@ class DashboardPage extends FOGPage
             $this->obj->get('ip'),
             base64_encode($this->obj->get('path'))
         );
-        if (!$this->obj->online) {
-            http_response_code(HTTPResponseCodes::HTTP_NO_CONENT);
+        if (!$this->obj->get('online')) {
+            http_response_code(HTTPResponseCodes::HTTP_BAD_REQUEST);
             echo json_encode(
                 [
                     '_labels' => [
