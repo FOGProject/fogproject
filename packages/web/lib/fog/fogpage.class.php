@@ -637,16 +637,10 @@ abstract class FOGPage extends FOGBase
             );
             break;
         case 'report':
-            $reportlink = "../management/index.php?node={$node}&sub=file&f=";
+            $reportlink = "file&f=";
             $menu = [];
-            $menu['home'] = self::$foglang['Home'];
             foreach (ReportManagement::loadCustomReports() as &$report) {
-                $item = [];
-                foreach (explode(' ', strtolower($report)) as &$rep) {
-                    $item[] = ucfirst(trim($rep));
-                    unset($rep);
-                }
-                $item = implode(' ', $item);
+                $item = ucwords(strtolower($report));
                 $menu[
                     sprintf(
                         '%s%s',
