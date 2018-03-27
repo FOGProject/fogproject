@@ -28,15 +28,16 @@ class Equipment_Loan extends ReportManagement
      */
     public function file()
     {
-        $this->title = _('FOG Equipment Loan Form');
+        $this->title = _('Equipment Loan');
+
+        $puser = filter_input(INPUT_POST, 'user');
+        $pusers = [];
+
         Route::listem('inventory');
         $Inventories = json_decode(
             Route::getData()
         );
-        $Inventories = $Inventories->inventorys;
-        $pusers = array();
-        $puser = filter_input(INPUT_POST, 'user');
-        foreach ((array)$Inventories as &$Inventory) {
+        foreach ($Inventories->data as &$Inventory) {
             if (!$Inventory->primaryUser) {
                 continue;
             }
@@ -47,36 +48,70 @@ class Equipment_Loan extends ReportManagement
             'user',
             $pusers,
             $puser,
-            true
+            true,
+            'select2'
         );
-        $fields = array(
-            '<label for="user">'
-            . _('Select User')
-            . '</label>' => $selUser,
-            '<label for="createReport">'
-            . _('Create Report?')
-            . '</label>' => '<button class="btn btn-info btn-block" type="submit" '
-            . 'id="createReport">'
-            . _('Generate')
-            . '</button>'
+
+        $labelClass = 'col-sm-2 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'user',
+                _('Select User')
+            ) => $selUser
+        ];
+
+        $buttons = self::makeButton(
+            'selectuser',
+            _('Create Form'),
+            'btn btn-primary'
+        );
+        $buttons .= self::makeButton(
+            'downloadpdf',
+            _('Download PDF'),
+            'btn btn-success hidden'
+        );
+        $buttons .= self::makeButton(
+            'printpdf',
+            _('Print PDF'),
+            'btn btn-warning hidden'
+        );
+
+        self::$HookManager->processEvent(
+            'EQUIPMENTLOAN_SELECT_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons
+            ]
         );
         $rendered = self::formFields($fields);
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'equipmentloan-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Select User');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '">';
-        $this->render(12);
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo '<div class="btn-group">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Post page
@@ -85,35 +120,64 @@ class Equipment_Loan extends ReportManagement
      */
     public function filePost()
     {
-        $Inventory = new Inventory(
+        header('Content-type: application/json');
+        self::$HookManager->processEvent('EQUIPMENTLOAN_POST');
+        $user = trim(
             filter_input(INPUT_POST, 'user')
         );
-        if (!$Inventory->isValid()) {
-            return;
-        }
-        $this->title = _('FOG Equipment Loan Form');
-        list(
-            $coname,
-            $subname,
-            $tos
-        ) = self::getSubObjectIDs(
-            'Service',
-            array(
-                'name' => array(
-                    'FOG_COMPANY_NAME',
-                    'FOG_COMPANY_SUBNAME',
-                    'FOG_COMPANY_TOS'
-                )
-            ),
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
-        $this->ReportMaker->appendHTML(
-            sprintf(
+        try {
+            $Inventory = new Inventory($user);
+            if (!$Inventory->isValid()) {
+                throw new Exception(
+                    _('Selected User is invalid')
+                );
+            }
+            list(
+                $coname,
+                $subname,
+                $tos
+            ) = self::getSubObjectIDs(
+                'Service',
+                array(
+                    'name' => array(
+                        'FOG_COMPANY_NAME',
+                        'FOG_COMPANY_SUBNAME',
+                        'FOG_COMPANY_TOS'
+                    )
+                ),
+                'value',
+                false,
+                'AND',
+                'name',
+                false,
+                ''
+            );
+            $date = self::formatTime('', 'Y-m-d');
+
+            $data = [
+                'msg' => _('Form created!'),
+                'title' => _('Equipment Loan Form'),
+                '_data' => [
+                    'head' => _('Equipment Loan Form'),
+                    'foot' => _('Equipment Loan Form'),
+                    'filename' => 'EquipmentLoan_'
+                    . $Inventory->get('primaryUser')
+                    . '_'
+                    . $date
+                    . '.pdf',
+                    'content' => [
+                        _('Hello World'),
+                        [
+                            'text' => _('Hello World'),
+                            'fontSize' => 15
+                        ]
+                    ]
+                ]
+            ];
+            echo json_encode($data);
+            exit;
+
+            $content = sprintf(
                 '<!-- FOOTER CENTER "$PAGE %s $PAGES - %s: %s" -->'
                 . '<p class="c"><h3>%s</h3></p><hr/><p class="c">'
                 . '<h2>%s</h2></p><p class="c"><h3>%s</h3></p>'
@@ -226,44 +290,28 @@ class Equipment_Loan extends ReportManagement
                 str_repeat('_', 65),
                 str_pad(_('Date'), 25),
                 str_repeat('_', 65)
-            )
-        );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<div class="text-center">';
-        echo '<h4 class="title">';
-        echo '<div id="exportDiv"></div>';
-        echo '<a id="pdfsub" href="../management/export.php?type=pdf&filename='
-            . $Inventory->get('primaryUser')
-            . 'EquipmentLoadForm" alt="'
-            . _('Export PDF')
-            . '" title="'
-            . _('Export PDF')
-            . '" target="_blank" data-toggle="tooltip" data-placement="top">'
-            . self::$pdffile
-            . '</a>';
-        echo '</h4>';
-        echo '</div>';
-        echo _('Your form is ready');
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Form');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        $this->ReportMaker->outputReport(0, true);
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        $_SESSION['foglastreport'] = serialize($this->ReportMaker);
+            );
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            $hook = 'EQUIPMENTLOAN_GENERATE_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Form Generated'),
+                    'title' => _('Equipment Loan Form'),
+                    'content' => $content
+                ]
+            );
+        } catch (Exception $e) {
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $hook = 'EQUIPMENTLOAN_GENERATE_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Generate Form Fail')
+                ]
+            );
+        }
+        http_response_code($code);
+        echo $msg;
+        exit;
     }
 }
