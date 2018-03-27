@@ -165,11 +165,11 @@
                 responsivePriority: -1,
                 render: function(data, type, row) {
                     return data;
-                    return '<input type="text" name="macs[]" macrefid="'
-                        + row.id
-                        + '" value="'
-                        + data
-                        + '" class="form-control macs" required/>';
+                    //return '<input type="text" name="macs[]" macrefid="'
+                    //    + row.id
+                    //    + '" value="'
+                    //    + data
+                    //    + '" class="form-control macs" required/>';
                 },
                 targets: 0
             },

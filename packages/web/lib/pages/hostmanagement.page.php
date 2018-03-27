@@ -3890,6 +3890,7 @@ class HostManagement extends FOGPage
      */
     public function getMacaddressesList()
     {
+        header('Content-type: application/json');
         $where = "`hostMAC`.`hmHostID` = '"
             . $this->obj->get('id')
             . "'";
@@ -4206,7 +4207,7 @@ class HostManagement extends FOGPage
      */
     public function getPowermanagementList()
     {
-        header('Content-type: application:json');
+        header('Content-type: application/json');
         parse_str(
             file_get_contents('php://input'),
             $pass_vars
@@ -4737,7 +4738,7 @@ class HostManagement extends FOGPage
      */
     public function getLoginHist()
     {
-        header('Content-type: application:json');
+        header('Content-type: application/json');
         parse_str(
             file_get_contents('php://input'),
             $pass_vars
@@ -4825,7 +4826,7 @@ class HostManagement extends FOGPage
      */
     public function getImageHist()
     {
-        header('Content-type: application:json');
+        header('Content-type: application/json');
         parse_str(
             file_get_contents('php://input'),
             $pass_vars
