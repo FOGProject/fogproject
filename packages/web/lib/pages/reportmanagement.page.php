@@ -67,15 +67,6 @@ class ReportManagement extends FOGPage
         $this->ReportMaker = self::getClass('ReportMaker');
     }
     /**
-     * Presents when the user hit's the home link.
-     *
-     * @return void
-     */
-    public function home()
-    {
-        $this->index();
-    }
-    /**
      * Allows the user to upload new reports if they created one.
      *
      * @return void
@@ -90,9 +81,11 @@ class ReportManagement extends FOGPage
             'btn btn-primary'
         );
 
+        $labelClass = 'col-sm-2 control-label';
+
         $fields = [
             self::makeLabel(
-                'col-sm-2 control-label',
+                $labelClass,
                 'import',
                 _('Import Report')
                 . '<br/>('
@@ -133,6 +126,7 @@ class ReportManagement extends FOGPage
             )
             . '</div>'
         ];
+
         self::$HookManager->processEvent(
             'IMPORT_REPORT_FIELDS',
             [
@@ -143,6 +137,7 @@ class ReportManagement extends FOGPage
         );
         $rendered = self::formFields($fields);
         unset($fields);
+
         echo self::makeFormTag(
             'form-horizontal',
             'import-form',
@@ -172,30 +167,5 @@ class ReportManagement extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</form>';
-    }
-    /**
-     * The actual index presentation.
-     *
-     * @return void
-     */
-    public function index()
-    {
-        $this->title = _('About FOG Reports');
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo _(
-            'FOG Reports exist to give you information about what '
-            . 'is going on with your FOG System. '
-            . 'To view a report, select an item from the menu.'
-        );
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
 }
