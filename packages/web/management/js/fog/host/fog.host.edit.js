@@ -912,8 +912,26 @@
         dom = $('.crondom', powermanagementForm),
         month = $('.cronmonth', powermanagementForm),
         dow = $('.crondow', powermanagementForm),
-        ondemand = $('#scheduleOnDemand', powermanagementForm),
-        specialCrons = $('.specialCrons', powermanagementForm);
+        instantModal = $('#ondemandModal'),
+        instantBtn = $('#ondemandBtn'),
+        instantModalCancelBtn = $('#ondemandCancelBtn'),
+        instantModalCreateBtn = $('#ondemandCreateBtn'),
+        scheduleModal = $('#scheduleCreate'),
+        scheduleBtn = $('#scheduleCreateBtn'),
+        scheduleModalCancelBtn = $('#scheduleCancelBtn'),
+        scheduleModalCreateBtn = $('#scheduleCreateBtn')
+
+    $('.fogcron').cron({
+        initial: '* * * * *',
+        onChange: function() {
+            vals = $(this).cron('value').split(' ');
+            minutes.val(vals[0]);
+            hours.val(vals[1]);
+            dom.val(vals[2]);
+            month.val(vals[3]);
+            dow.val(vals[4]);
+        }
+    });
 
     powermanagementForm.on('submit', function(e) {
         e.preventDefault();
@@ -934,61 +952,6 @@
             specialCrons.val('');
             ondemand.iCheck('uncheck');
         });
-    });
-    specialCrons.on('change focus focusout', function(e) {
-        e.preventDefault();
-        switch (this.value) {
-            case 'hourly':
-                minutes.val('0');
-                hours.val('*');
-                dom.val('*');
-                month.val('*');
-                dow.val('*');
-                break;
-            case 'daily':
-                minutes.val('0');
-                hours.val('0');
-                dom.val('*');
-                month.val('*');
-                dow.val('*');
-                break;
-            case 'weekly':
-                minutes.val('0');
-                hours.val('0');
-                dom.val('*');
-                month.val('*');
-                dow.val('0');
-                break;
-            case 'monthly':
-                minutes.val('0');
-                hours.val('0');
-                dom.val('1');
-                month.val('*');
-                dow.val('*');
-                break;
-            case 'yearly':
-                minutes.val('0');
-                hours.val('0');
-                dom.val('1');
-                month.val('1');
-                dow.val('*');
-                break;
-            default:
-                minutes.val('');
-                hours.val('');
-                dom.val('');
-                month.val('');
-                dow.val('');
-                break;
-        }
-    });
-
-    // When On Demand checked remove the cron layout.
-    ondemand.on('ifChecked', function(e) {
-        $(this).parents('.box-body').find('.form-group:eq(0)').addClass('hidden');
-    });
-    ondemand.on('ifUnchecked', function(e) {
-        $(this).parents('.box-body').find('.form-group:eq(0)').removeClass('hidden');
     });
 
     // The Power Management List element.
@@ -1029,6 +992,9 @@
         }
     });
 
+    if (Common.search && Common.search.length > 0) {
+        powermanagementTable.search(Common.search).draw();
+    }
     // ---------------------------------------------------------------
     // GROUP MEMBERSHIP TAB
 

@@ -1620,8 +1620,101 @@ class GroupManagement extends FOGPage
      */
     public function groupPowermanagement()
     {
+        $buttons = self::makeButton(
+            'ondemandBtn',
+            _('Create New Immediate'),
+            'btn btn-primary'
+        );
+        $buttons .= self::makeButton(
+            'scheduleCreateBtn',
+            _('Create New Scheduled'),
+            'btn btn-info'
+        );
+        $buttons .= self::makeButton(
+            'powermanagement-delete',
+            _('Delete All'),
+            'btn btn-danger pull-right'
+        );
+        $ondemandModalBtns = self::makeButton(
+            'ondemandCancelBtn',
+            _('Cancel'),
+            'btn btn-outline pull-left',
+            'data-dismiss="modal"'
+        );
+        $ondemandModalBtns .= self::makeButton(
+            'ondemandCreateBtn',
+            _('Create'),
+            'btn btn-primary'
+        );
+        $scheduleModalBtns = self::makeButton(
+            'scheduleCancelBtn',
+            _('Cancel'),
+            'btn btn-outline pull-left',
+            'data-dismiss="modal"'
+        );
+        $scheduleModalBtns .= self::makeButton(
+            'scheduleCreateBtn',
+            _('Create'),
+            'btn btn-primary'
+        );
+        $modaldeleteBtns = self::makeButton(
+            'deletepowermanagementConfirm',
+            _('Confirm'),
+            'btn btn-primary',
+            ' method="post" action="'
+            . $this->formAction
+            . '&tab=group-powermanagement" '
+        );
+        $modaldeleteBtns .= self::makeButton(
+            'deletepowermanagementCancel',
+            _('Cancel'),
+            'btn btn-danger pull-right'
+        );
+        $modalondemand = self::makeModal(
+            'ondemandModal',
+            _('Create Immediate Power task'),
+            $this->newPMDisplay(true),
+            $ondemandModalBtns
+        );
+        $modalschedule = self::makeModal(
+            'scheduleModal',
+            _('Create Scheduled Power task'),
+            $this->newPMDisplay(false),
+            $scheduleModalBtns
+        );
+        $modaldelete = self::makeModal(
+            'deletepowermanagementmodal',
+            _('Delete All Powermanagement Items'),
+            _(
+                'This will delete all powermanagement '
+                . 'items from all hosts in this group'
+            ),
+            $modaldeleteBtns
+        );
         echo '<!-- Power Management -->';
-        echo $this->newPMDisplay();
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Power Management');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo '<p class="help-block">';
+        echo _(
+            'Use the buttons below to create a new power management task to all '
+            . 'hosts in this group.'
+        );
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo '<div class="btn-group">';
+        echo $buttons;
+        echo '</div>';
+        echo $modalondemand;
+        echo $modalschedule;
+        echo $modaldelete;
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Modify the power management stuff.
