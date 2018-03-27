@@ -2279,8 +2279,8 @@ class HostManagement extends FOGPage
      */
     public function hostPowermanagement()
     {
-        echo '<!-- Power Management -->';
-        echo $this->newPMDisplay();
+        //echo '<!-- Power Management -->';
+        //echo $this->newPMDisplay();
         // The powermanagement table.
         $this->headerData = [
             _('Cron Schedule'),
@@ -2291,30 +2291,64 @@ class HostManagement extends FOGPage
             []
         ];
         $buttons = self::makeButton(
-            'pm-new',
-            _('Create New'),
+            'ondemandBtn',
+            _('Create New Immediate'),
             'btn btn-primary'
         );
         $buttons .= self::makeButton(
-            'pm-update',
-            _('Update selected'),
-            'btn btn-success'
+            'scheduleCreateBtn',
+            _('Create New Scheduled'),
+            'btn btn-info'
         );
         $buttons .= self::makeButton(
             'pm-delete',
             _('Delete selected'),
             'btn btn-danger'
         );
+        $ondemandModalBtns = self::makeButton(
+            'ondemandCancelBtn',
+            _('Cancel'),
+            'btn btn-outline pull-left',
+            'data-dismiss="modal"'
+        );
+        $ondemandModalBtns .= self::makeButton(
+            'ondemandCreateBtn',
+            _('Create'),
+            'btn btn-primary'
+        );
+        $scheduleModalBtns = self::makeButton(
+            'scheduleCancelBtn',
+            _('Cancel'),
+            'btn btn-outline pull-left',
+            'data-dismiss="modal"'
+        );
+        $scheduleModalBtns .= self::makeButton(
+            'scheduleCreateBtn',
+            _('Create'),
+            'btn btn-primary'
+        );
         echo '<div class="box box-info">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Current Power Management Tasks');
+        echo _('Scheduled Power Management Tasks');
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
         $this->render(12, 'host-powermanagement-table', $buttons);
         echo '</div>';
         echo '<div class="box-footer">';
+        echo self::makeModal(
+            'ondemandModal',
+            _('Create Immediate Power task'),
+            $this->newPMDisplay(true),
+            $ondemandModalBtns
+        );
+        echo self::makeModal(
+            'scheduleModal',
+            _('Create Scheduled Power task'),
+            $this->newPMDisplay(false),
+            $scheduleModalBtns
+        );
         echo '</div>';
         echo '</div>';
     }

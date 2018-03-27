@@ -2634,9 +2634,11 @@ abstract class FOGPage extends FOGBase
     /**
      * Displays "add" powermanagement item
      *
+     * @param bool $ondemand Whether this is a cron or ondemand task.
+     *
      * @return void
      */
-    public function newPMDisplay()
+    public function newPMDisplay($ondemand = false)
     {
         global $node;
 
@@ -2644,100 +2646,99 @@ abstract class FOGPage extends FOGBase
 
         $labelClass = 'col-sm-2 control-label';
 
-        // New data
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                '',
-                _('Schedule Power')
-            ) => '<div class="cronOptions">'
-            . FOGCron::buildSpecialCron('specialCrons')
-            . '</div>'
-            . self::makeInput(
-                'col-sm-2 croninput cronmin',
-                'scheduleCronMin',
-                _('min'),
-                'text',
-                'cronMin'
-            )
-            . self::makeInput(
-                'col-sm-2 croninput cronhour',
-                'scheduleCronHour',
-                _('hour'),
-                'text',
-                'cronHour'
-            )
-            . self::makeInput(
-                'col-sm-2 croninput crondom',
-                'scheduleCronDOM',
-                _('day'),
-                'text',
-                'cronDom'
-            )
-            . self::makeInput(
-                'col-sm-2 croninput cronmonth',
-                'scheduleCronMonth',
-                _('month'),
-                'text',
-                'cronMonth'
-            )
-            . self::makeInput(
-                'col-sm-2 croninput crondow',
-                'scheduleCronDOW',
-                _('weekday'),
-                'text',
-                'cronDow'
-            ),
-            self::makeLabel(
-                $labelClass,
-                'scheduleOnDemand',
-                _('On Demand')
-            ) => self::makeInput(
-                '',
-                'onDemand',
-                '',
-                'checkbox',
-                'scheduleOnDemand',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                (
-                    isset($_POST['onDemand']) ?
-                    'checked' :
-                    ''
-                )
-            ),
-            self::makeLabel(
-                $labelClass,
-                'action',
-                _('Action')
-            ) => self::getClass('PowerManagementManager')->getActionSelect(
-                $action,
-                false,
-                'action'
-            )
-        ];
+        $actionSelector = self::getClass('PowerManagementManager')->getActionSelect(
+            $action,
+            false,
+            'action'
+            . (int)$ondemand
+        );
 
-        $buttons = self::makeButton(
-            'powermanagement-send',
-            _('Add'),
-            'btn btn-primary'
-        );
-        self::$HookManager->processEvent(
-            sprintf('%s_POWERMANAGEMENT_CRON_FIELDS', strtoupper($this->node)),
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'obj' => $this->obj
-            ]
-        );
+        if ($ondemand) {
+            // New data
+            $fields = [
+                self::makeLabel(
+                    $labelClass,
+                    'action' . (int)$ondemand,
+                    _('Action')
+                ) => $actionSelector
+            ];
+
+            self::$HookManager->processEvent(
+                sprintf(
+                    '%s_POWERMANAGEMENT_ONDEMAND_FIELDS',
+                    strtoupper($this->node)
+                ),
+                [
+                    'fields' => &$fields,
+                    'obj' => $this->obj
+                ]
+            );
+        } else {
+            $fields = [
+                self::makeLabel(
+                    $labelClass,
+                    'action',
+                    _('Action')
+                ) => $actionSelector,
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('Schedule Power')
+                ) => self::makeInput(
+                    'col-sm-2 croninput cronmin',
+                    'scheduleCronMin',
+                    _('min'),
+                    'text',
+                    'cronMin'
+                )
+                . self::makeInput(
+                    'col-sm-2 croninput cronhour',
+                    'scheduleCronHour',
+                    _('hour'),
+                    'text',
+                    'cronHour'
+                )
+                . self::makeInput(
+                    'col-sm-2 croninput crondom',
+                    'scheduleCronDOM',
+                    _('day'),
+                    'text',
+                    'cronDom'
+                )
+                . self::makeInput(
+                    'col-sm-2 croninput cronmonth',
+                    'scheduleCronMonth',
+                    _('month'),
+                    'text',
+                    'cronMonth'
+                )
+                . self::makeInput(
+                    'col-sm-2 croninput crondow',
+                    'scheduleCronDOW',
+                    _('weekday'),
+                    'text',
+                    'cronDow'
+                ),
+            ];
+
+            self::$HookManager->processEvent(
+                sprintf('%s_POWERMANAGEMENT_CRON_FIELDS', strtoupper($this->node)),
+                [
+                    'fields' => &$fields,
+                    'obj' => $this->obj
+                ]
+            );
+        }
         $rendered = self::formFields($fields);
         unset($fields);
+
+        ob_start();
         echo self::makeFormTag(
             'form-horizontal',
-            $node . '-powermanagement-cron-form',
+            $node
+            . '-powermanagement-'
+            . ($ondemand ? 'instant' : 'cron')
+            . '-form',
             self::makeTabUpdateURL(
                 $node . '-powermanagement',
                 $this->obj->get('id')
@@ -2746,54 +2747,16 @@ abstract class FOGPage extends FOGBase
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('New Power Management Task');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
+        if (!$ondemand) {
+            echo '<div class="fogcron">';
+            echo '</div>';
+            echo '<br/>';
+        }
         echo $rendered;
-        echo '</div>';
-        echo '<div class="box-footer">';
-        echo self::makeInput(
-            '',
-            'pmadd',
-            '',
-            'hidden',
-            '',
-            '1'
-        );
-        echo $buttons;
+        echo '</form>';
+        return ob_get_clean();
+
         if ($this->obj instanceof Group) {
-            $modaldeleteBtns = self::makeButton(
-                'deletepowermanagementConfirm',
-                _('Confirm'),
-                'btn btn-primary',
-                ' method="post" action="'
-                . $this->formAction
-                . '&tab=group-powermanagement" '
-            );
-            $modaldeleteBtns .= self::makeButton(
-                'deletepowermanagementCancel',
-                _('Cancel'),
-                'btn btn-danger pull-right'
-            );
-            $modaldelete = self::makeModal(
-                'deletepowermanagementmodal',
-                _('Delete All Powermanagement Items'),
-                _(
-                    'This will delete all powermanagement '
-                    . 'items from all hosts in this group'
-                ),
-                $modaldeleteBtns
-            );
-            echo self::makeButton(
-                'powermanagement-delete',
-                _('Delete All'),
-                'btn btn-danger pull-right'
-            );
-            echo $modaldelete;
         }
         echo '</div>';
         echo '</div>';
