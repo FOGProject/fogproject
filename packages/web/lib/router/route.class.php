@@ -257,6 +257,11 @@ class Route extends FOGBase
                 'active'
             )
             ->get(
+                "${expanded}/names",
+                ['self', 'names'],
+                'names'
+            )
+            ->get(
                 '/bandwidth/[*:dev]',
                 ['self', 'bandwidth'],
                 'bandwidth'
@@ -1542,6 +1547,37 @@ class Route extends FOGBase
                 'tx' => $tx
             ]
         );
+        exit;
+    }
+    /**
+     * Returns only the ids and names of the class.
+     *
+     * @param string $class The class to get list of.
+     *
+     * @return mixed
+     */
+    public function names($class)
+    {
+        header('Content-type: application/json');
+        $data = [];
+        $names = self::getSubObjectIDs(
+            $class,
+            [],
+            'name'
+        );
+        $ids = self::getSubObjectIDs(
+            $class,
+            [],
+            'id'
+        );
+        foreach ($names as $i => &$v) {
+            $data[] = [
+                'id' => $ids[$i],
+                'name' => $v
+            ];
+            unset($v);
+        }
+        echo json_encode($data);
         exit;
     }
 }
