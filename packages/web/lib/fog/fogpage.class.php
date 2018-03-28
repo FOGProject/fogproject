@@ -938,11 +938,6 @@ abstract class FOGPage extends FOGBase
             unset($actionbox);
             global $sub;
             global $node;
-            $defaultScreen = strtolower(self::$defaultscreen);
-            $defaultScreens = [
-                'search',
-                'list'
-            ];
             $actionbox = '';
             $modals = '';
             if ($sub == 'list') {

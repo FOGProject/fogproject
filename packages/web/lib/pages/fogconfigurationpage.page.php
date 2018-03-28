@@ -1977,7 +1977,13 @@ class FOGConfigurationPage extends FOGPage
                     . '</div>';
                 break;
             case 'FOG_VIEW_DEFAULT_SCREEN':
-                $screens = ['SEARCH','LIST'];
+                $screens = [
+                    '10' => 10,
+                    '25' => 25,
+                    '50' => 50,
+                    '100' => 100,
+                    _('All') => -1
+                ];
                 ob_start();
                 foreach ((array)$screens as &$viewop) {
                     printf(
