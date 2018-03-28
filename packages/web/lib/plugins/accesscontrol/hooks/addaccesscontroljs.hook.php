@@ -109,6 +109,10 @@ class AddAccessControlJS extends Hook
         default:
             return;
         }
+        if ($subset && !file_exists($filepaths)) {
+            $arguments['files'][]
+                = "../lib/plugins/{$this->node}/js/fog.{$node}.list.js";
+        }
         $arguments['files'][] = $filepaths;
     }
 }

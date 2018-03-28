@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-25 14:28-0400\n"
+"POT-Creation-Date: 2018-03-27 20:28-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2262,16 +2262,28 @@ msgstr ""
 msgid "Export Pending MAC Addresses"
 msgstr ""
 
-msgid "FOG Equipment Loan Form"
-msgstr ""
-
 msgid "Select User"
 msgstr ""
 
-msgid "Create Report?"
+msgid "Create Form"
 msgstr ""
 
-msgid "Generate"
+msgid "Download PDF"
+msgstr ""
+
+msgid "Print PDF"
+msgstr ""
+
+msgid "Selected User is invalid"
+msgstr ""
+
+msgid "Form created!"
+msgstr ""
+
+msgid "Equipment Loan Form"
+msgstr ""
+
+msgid "Hello World"
 msgstr ""
 
 msgid "of"
@@ -2349,10 +2361,10 @@ msgstr ""
 msgid "Signed"
 msgstr ""
 
-msgid "Your form is ready"
+msgid "Form Generated"
 msgstr ""
 
-msgid "Form"
+msgid "Generate Form Fail"
 msgstr ""
 
 msgid "Full Inventory Export"
@@ -2875,6 +2887,32 @@ msgid ""
 "If disabled, the client will not make changes until all users are logged off"
 msgstr ""
 
+msgid "Create New Immediate"
+msgstr ""
+
+msgid "Create New Scheduled"
+msgstr ""
+
+msgid "Delete All"
+msgstr ""
+
+msgid "Create Immediate Power task"
+msgstr ""
+
+msgid "Create Scheduled Power task"
+msgstr ""
+
+msgid "Delete All Powermanagement Items"
+msgstr ""
+
+msgid "This will delete all powermanagement items from all hosts in this group"
+msgstr ""
+
+msgid ""
+"Use the buttons below to create a new power management task to all hosts in "
+"this group."
+msgstr ""
+
 msgid "You must select an action to perform"
 msgstr ""
 
@@ -2971,14 +3009,6 @@ msgstr ""
 msgid ""
 "This section allows you to upload user defined reports that may not be a "
 "part of the base FOG install."
-msgstr ""
-
-msgid "About FOG Reports"
-msgstr ""
-
-msgid ""
-"FOG Reports exist to give you information about what is going on with your "
-"FOG System. To view a report, select an item from the menu."
 msgstr ""
 
 msgid "Friendly Name"
@@ -4094,10 +4124,7 @@ msgstr ""
 msgid "Cron Schedule"
 msgstr ""
 
-msgid "Create New"
-msgstr ""
-
-msgid "Current Power Management Tasks"
+msgid "Scheduled Power Management Tasks"
 msgstr ""
 
 msgid "Primary User"
@@ -5620,21 +5647,6 @@ msgid "Successful"
 msgstr ""
 
 msgid "Schedule Power"
-msgstr ""
-
-msgid "On Demand"
-msgstr ""
-
-msgid "New Power Management Task"
-msgstr ""
-
-msgid "Delete All Powermanagement Items"
-msgstr ""
-
-msgid "This will delete all powermanagement items from all hosts in this group"
-msgstr ""
-
-msgid "Delete All"
 msgstr ""
 
 msgid "Table not defined for this class"

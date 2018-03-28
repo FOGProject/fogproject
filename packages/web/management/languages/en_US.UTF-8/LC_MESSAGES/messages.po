@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-23 17:32-0400\n"
+"POT-Creation-Date: 2018-03-27 20:28-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2589,19 +2589,35 @@ msgstr "MAC Address List"
 msgid "Export Pending MAC Addresses"
 msgstr "MAC Address List"
 
-msgid "FOG Equipment Loan Form"
-msgstr "FOG Equipment Loan Form"
-
 msgid "Select User"
 msgstr "Select User"
 
 #, fuzzy
-msgid "Create Report?"
-msgstr "Create Report"
+msgid "Create Form"
+msgstr "Create"
 
 #, fuzzy
-msgid "Generate"
-msgstr "General"
+msgid "Download PDF"
+msgstr "Download Failed"
+
+#, fuzzy
+msgid "Print PDF"
+msgstr "Printer IP"
+
+#, fuzzy
+msgid "Selected User is invalid"
+msgstr "User call is invalid"
+
+#, fuzzy
+msgid "Form created!"
+msgstr "Session Name"
+
+#, fuzzy
+msgid "Equipment Loan Form"
+msgstr "Equipment Loan"
+
+msgid "Hello World"
+msgstr ""
 
 msgid "of"
 msgstr "of"
@@ -2681,12 +2697,12 @@ msgid "Signed"
 msgstr "Signed"
 
 #, fuzzy
-msgid "Your form is ready"
-msgstr "Your form is ready."
+msgid "Form Generated"
+msgstr "FOG General Help"
 
 #, fuzzy
-msgid "Form"
-msgstr "Format"
+msgid "Generate Form Fail"
+msgstr "General Information"
 
 msgid "Full Inventory Export"
 msgstr "Full Inventory Export"
@@ -3286,6 +3302,36 @@ msgid ""
 msgstr ""
 
 #, fuzzy
+msgid "Create New Immediate"
+msgstr "Create New %s"
+
+#, fuzzy
+msgid "Create New Scheduled"
+msgstr "Create New %s"
+
+#, fuzzy
+msgid "Delete All"
+msgstr "Delete file data"
+
+msgid "Create Immediate Power task"
+msgstr ""
+
+#, fuzzy
+msgid "Create Scheduled Power task"
+msgstr "Scheduler"
+
+msgid "Delete All Powermanagement Items"
+msgstr ""
+
+msgid "This will delete all powermanagement items from all hosts in this group"
+msgstr ""
+
+msgid ""
+"Use the buttons below to create a new power management task to all hosts in "
+"this group."
+msgstr ""
+
+#, fuzzy
 msgid "You must select an action to perform"
 msgstr "You must specify the alias and port"
 
@@ -3403,14 +3449,6 @@ msgstr ""
 msgid ""
 "This section allows you to upload user defined reports that may not be a "
 "part of the base FOG install."
-msgstr ""
-
-msgid "About FOG Reports"
-msgstr "About FOG Reports"
-
-msgid ""
-"FOG Reports exist to give you information about what is going on with your "
-"FOG System. To view a report, select an item from the menu."
 msgstr ""
 
 #, fuzzy
@@ -4750,11 +4788,7 @@ msgid "Cron Schedule"
 msgstr "Cron Schedule"
 
 #, fuzzy
-msgid "Create New"
-msgstr "Create New %s"
-
-#, fuzzy
-msgid "Current Power Management Tasks"
+msgid "Scheduled Power Management Tasks"
 msgstr "User Management"
 
 msgid "Primary User"
@@ -6543,23 +6577,6 @@ msgstr "Successful"
 #, fuzzy
 msgid "Schedule Power"
 msgstr "Scheduler"
-
-msgid "On Demand"
-msgstr ""
-
-#, fuzzy
-msgid "New Power Management Task"
-msgstr "User Management"
-
-msgid "Delete All Powermanagement Items"
-msgstr ""
-
-msgid "This will delete all powermanagement items from all hosts in this group"
-msgstr ""
-
-#, fuzzy
-msgid "Delete All"
-msgstr "Delete file data"
 
 #, fuzzy
 msgid "Table not defined for this class"

@@ -89,11 +89,14 @@ class AddSlackJS extends Hook
         switch ($node) {
         case 'slack':
             if (empty($subset)) {
-                $filepaths = ["../lib/plugins/{$this->node}/js/fog.{$node}.js"];
+                $filepaths = "../lib/plugins/{$this->node}/js/fog.{$node}.js";
             } else {
-                $filepaths = [
-                    "../lib/plugins/{$this->node}/js/fog.{$node}.{$subset}.js"
-                ];
+                $filepaths
+                    = "../lib/plugins/{$this->node}/js/fog.{$node}.{$subset}.js";
+            }
+            if ($subset && !file_exists($filepaths)) {
+                $arguments['files'][]
+                    = "../lib/plugins/{$this->node}/js/fog.{$node}.list.js";
             }
             break;
         default:

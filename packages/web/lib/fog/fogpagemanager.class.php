@@ -40,12 +40,6 @@ class FOGPageManager extends FOGBase
      */
     protected $methodValue;
     /**
-     * Any arguments
-     *
-     * @var mixed
-     */
-    private $_arguments;
-    /**
      * Replaces the variable passed with nicer names
      *
      * @param string $value the valu
@@ -125,7 +119,7 @@ class FOGPageManager extends FOGBase
     public function render()
     {
         global $node;
-        global $id;
+        global $sub;
         $nodes = [
             'client',
             'schema',
@@ -138,29 +132,28 @@ class FOGPageManager extends FOGBase
         }
         $method = $this->methodValue;
         try {
-            $class = $this->getFOGPageClass();
-            if ($this->classValue == 'schema') {
-                $this->methodValue = 'index';
-            }
             if (!array_key_exists($this->classValue, $this->_nodes)) {
                 throw new Exception(_('No FOGPage Class found for this node'));
             }
-            if ($id) {
-                $this->_arguments = ['id' => $id];
+            $class = $this->getFOGPageClass();
+            if ($this->classValue == 'schema'
+                || !method_exists($class, $method)
+                || empty($method)
+            ) {
+                $method = 'index';
+                self::getClass('Page')
+                    ->addJavascript("js/fog/{$node}/fog.{$node}.list.js");
+            }
+            if (self::$ajax && method_exists($class, $method.'Ajax')) {
+                $method .= 'Ajax';
+            }
+            if (self::$post && method_exists($class, $method.'Post')) {
+                $method .= 'Post';
             }
             if (self::$post) {
                 self::setRequest();
             } else {
                 self::resetRequest();
-            }
-            if (empty($method) || !method_exists($class, $method)) {
-                $method = 'index';
-            }
-            if (self::$ajax && method_exists($class, $method.'Ajax')) {
-                $method = $this->methodValue.'Ajax';
-            }
-            if (self::$post && method_exists($class, $method.'Post')) {
-                $method = $this->methodValue.'Post';
             }
         } catch (Exception $e) {
             $this->debug(
@@ -171,32 +164,7 @@ class FOGPageManager extends FOGBase
                 ]
             );
         }
-        /**
-         * As a new method is being called, ensure the
-         * alternate methods are clean of their constructed
-         * data of header, attributes, and data.
-         */
-        $nonresetmethods = [
-            'index',
-            'search',
-            'active',
-            'pending',
-        ];
-        $test = str_replace('Post', '', $method);
-        $methodTest = preg_grep("#$test#i", $nonresetmethods);
-        global $node;
-        if ($node !== 'plugin'
-            && count($methodTest) < 1
-        ) {
-            unset(
-                $class->headerData,
-                $class->data,
-                $class->attributes
-            );
-        }
-        if (method_exists($class, $method)) {
-            $class->{$method}();
-        }
+        $class->{$method}();
         self::resetRequest();
     }
     /**

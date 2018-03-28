@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-23 17:32-0400\n"
+"POT-Creation-Date: 2018-03-27 20:28-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2588,19 +2588,35 @@ msgstr "MAC地址列表"
 msgid "Export Pending MAC Addresses"
 msgstr "MAC地址列表"
 
-msgid "FOG Equipment Loan Form"
-msgstr "FOG器材信贷形式"
-
 msgid "Select User"
 msgstr "选择用户"
 
 #, fuzzy
-msgid "Create Report?"
-msgstr "创建报告"
+msgid "Create Form"
+msgstr "创建"
 
 #, fuzzy
-msgid "Generate"
-msgstr "一般"
+msgid "Download PDF"
+msgstr "下载失败"
+
+#, fuzzy
+msgid "Print PDF"
+msgstr "打印机IP"
+
+#, fuzzy
+msgid "Selected User is invalid"
+msgstr "用户调用无效"
+
+#, fuzzy
+msgid "Form created!"
+msgstr "会话名称"
+
+#, fuzzy
+msgid "Equipment Loan Form"
+msgstr "器材信贷"
+
+msgid "Hello World"
+msgstr ""
 
 msgid "of"
 msgstr "的"
@@ -2680,12 +2696,12 @@ msgid "Signed"
 msgstr "签"
 
 #, fuzzy
-msgid "Your form is ready"
-msgstr "您的表单已准备就绪。"
+msgid "Form Generated"
+msgstr "FOG一般帮助"
 
 #, fuzzy
-msgid "Form"
-msgstr "格式"
+msgid "Generate Form Fail"
+msgstr "一般信息"
 
 msgid "Full Inventory Export"
 msgstr "完整清单导出"
@@ -3282,6 +3298,36 @@ msgid ""
 msgstr ""
 
 #, fuzzy
+msgid "Create New Immediate"
+msgstr "新建%s"
+
+#, fuzzy
+msgid "Create New Scheduled"
+msgstr "新建%s"
+
+#, fuzzy
+msgid "Delete All"
+msgstr "删除的文件数据"
+
+msgid "Create Immediate Power task"
+msgstr ""
+
+#, fuzzy
+msgid "Create Scheduled Power task"
+msgstr "调度"
+
+msgid "Delete All Powermanagement Items"
+msgstr ""
+
+msgid "This will delete all powermanagement items from all hosts in this group"
+msgstr ""
+
+msgid ""
+"Use the buttons below to create a new power management task to all hosts in "
+"this group."
+msgstr ""
+
+#, fuzzy
 msgid "You must select an action to perform"
 msgstr "您必须指定别名和端口"
 
@@ -3399,14 +3445,6 @@ msgstr ""
 msgid ""
 "This section allows you to upload user defined reports that may not be a "
 "part of the base FOG install."
-msgstr ""
-
-msgid "About FOG Reports"
-msgstr "关于FOG报告"
-
-msgid ""
-"FOG Reports exist to give you information about what is going on with your "
-"FOG System. To view a report, select an item from the menu."
 msgstr ""
 
 #, fuzzy
@@ -4744,11 +4782,7 @@ msgid "Cron Schedule"
 msgstr "Cron排程"
 
 #, fuzzy
-msgid "Create New"
-msgstr "新建%s"
-
-#, fuzzy
-msgid "Current Power Management Tasks"
+msgid "Scheduled Power Management Tasks"
 msgstr "用户管理"
 
 msgid "Primary User"
@@ -6534,23 +6568,6 @@ msgstr "成功"
 #, fuzzy
 msgid "Schedule Power"
 msgstr "调度"
-
-msgid "On Demand"
-msgstr ""
-
-#, fuzzy
-msgid "New Power Management Task"
-msgstr "用户管理"
-
-msgid "Delete All Powermanagement Items"
-msgstr ""
-
-msgid "This will delete all powermanagement items from all hosts in this group"
-msgstr ""
-
-#, fuzzy
-msgid "Delete All"
-msgstr "删除的文件数据"
 
 #, fuzzy
 msgid "Table not defined for this class"
