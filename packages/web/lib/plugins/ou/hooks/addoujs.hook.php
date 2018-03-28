@@ -96,6 +96,10 @@ class AddOUJS extends Hook
                 $filepaths
                     = "../lib/plugins/{$this->node}/js/fog.{$node}.{$subset}.js";
             }
+            if ($subset && !file_exists($filepaths)) {
+                $arguments['files'][]
+                    = "../lib/plugins/{$this->node}/js/fog.{$node}.list.js";
+            }
             break;
         case 'report':
         case 'host':

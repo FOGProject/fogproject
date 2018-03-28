@@ -180,12 +180,15 @@ class Page extends FOGBase
                 '-',
                 $subset
             );
-            $filepaths = [];
+            $filepaths = '';
             if (empty($subset)) {
                 $filepaths = "js/fog/{$node}/fog.{$node}.js";
             } else {
                 $filepaths = "js/fog/{$node}/fog.{$node}.{$subset}.js";
             }
+        }
+        if ($subset && !file_exists($filepaths)) {
+            $files[] = "js/fog/{$node}/fog.{$node}.list.js";
         }
         if (file_exists($filepaths)) {
             $files[] = $filepaths;

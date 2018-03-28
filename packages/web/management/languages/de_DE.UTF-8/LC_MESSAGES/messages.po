@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-23 17:32-0400\n"
+"POT-Creation-Date: 2018-03-27 20:28-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -2592,19 +2592,35 @@ msgstr "MAC-Adresse"
 msgid "Export Pending MAC Addresses"
 msgstr "MAC-Adresse"
 
-msgid "FOG Equipment Loan Form"
-msgstr "FOG-Equipment Leihformular"
-
 msgid "Select User"
 msgstr "Wählen Sie einen Benutzer"
 
 #, fuzzy
-msgid "Create Report?"
-msgstr "Bericht erstellen?"
+msgid "Create Form"
+msgstr "Erstellen"
 
 #, fuzzy
-msgid "Generate"
-msgstr "Generieren"
+msgid "Download PDF"
+msgstr "Download fehlgeschlagen"
+
+#, fuzzy
+msgid "Print PDF"
+msgstr "Drucker IP"
+
+#, fuzzy
+msgid "Selected User is invalid"
+msgstr "Benutzeraufruf ist ungültig"
+
+#, fuzzy
+msgid "Form created!"
+msgstr "Sitzungsname"
+
+#, fuzzy
+msgid "Equipment Loan Form"
+msgstr "Equipmentleihe"
+
+msgid "Hello World"
+msgstr ""
 
 msgid "of"
 msgstr "der"
@@ -2684,12 +2700,12 @@ msgid "Signed"
 msgstr "Unterschrift"
 
 #, fuzzy
-msgid "Your form is ready"
-msgstr "Ihr Formular ist fertig."
+msgid "Form Generated"
+msgstr "FOG Hilfe"
 
 #, fuzzy
-msgid "Form"
-msgstr "Formular"
+msgid "Generate Form Fail"
+msgstr "Allgemeine Informationen"
 
 msgid "Full Inventory Export"
 msgstr "Vollständiger Inventur-Export"
@@ -3290,6 +3306,36 @@ msgid ""
 msgstr ""
 
 #, fuzzy
+msgid "Create New Immediate"
+msgstr "Neuen Schlüssel erstellen"
+
+#, fuzzy
+msgid "Create New Scheduled"
+msgstr "Neuen Schlüssel erstellen"
+
+#, fuzzy
+msgid "Delete All"
+msgstr "Löschen fehlgeschlagen"
+
+msgid "Create Immediate Power task"
+msgstr ""
+
+#, fuzzy
+msgid "Create Scheduled Power task"
+msgstr "plane Power"
+
+msgid "Delete All Powermanagement Items"
+msgstr ""
+
+msgid "This will delete all powermanagement items from all hosts in this group"
+msgstr ""
+
+msgid ""
+"Use the buttons below to create a new power management task to all hosts in "
+"this group."
+msgstr ""
+
+#, fuzzy
 msgid "You must select an action to perform"
 msgstr "Sie müssen eine Aktion auswählen, die ausgeführt werden soll"
 
@@ -3408,14 +3454,6 @@ msgstr "browse"
 msgid ""
 "This section allows you to upload user defined reports that may not be a "
 "part of the base FOG install."
-msgstr ""
-
-msgid "About FOG Reports"
-msgstr "Über FOG-Berichte"
-
-msgid ""
-"FOG Reports exist to give you information about what is going on with your "
-"FOG System. To view a report, select an item from the menu."
 msgstr ""
 
 #, fuzzy
@@ -4762,11 +4800,7 @@ msgid "Cron Schedule"
 msgstr "Cron-Zeitplan"
 
 #, fuzzy
-msgid "Create New"
-msgstr "Neue %s erstellen"
-
-#, fuzzy
-msgid "Current Power Management Tasks"
+msgid "Scheduled Power Management Tasks"
 msgstr "Power Management"
 
 msgid "Primary User"
@@ -6560,23 +6594,6 @@ msgstr "Erfolgreich"
 #, fuzzy
 msgid "Schedule Power"
 msgstr "plane Power"
-
-msgid "On Demand"
-msgstr ""
-
-#, fuzzy
-msgid "New Power Management Task"
-msgstr "Power Management"
-
-msgid "Delete All Powermanagement Items"
-msgstr ""
-
-msgid "This will delete all powermanagement items from all hosts in this group"
-msgstr ""
-
-#, fuzzy
-msgid "Delete All"
-msgstr "Löschen fehlgeschlagen"
 
 #, fuzzy
 msgid "Table not defined for this class"
