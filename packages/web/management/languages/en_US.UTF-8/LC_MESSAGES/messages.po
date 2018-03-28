@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-27 20:28-0400\n"
+"POT-Creation-Date: 2018-03-28 15:55-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -991,6 +991,11 @@ msgid "Forums"
 msgstr "FOG Forums"
 
 msgid "Wiki"
+msgstr ""
+
+msgid ""
+"This setting defines the number of items to display when listing/searching "
+"elements. The default value is 10."
 msgstr ""
 
 msgid "Channel"
@@ -4085,67 +4090,43 @@ msgid "FOG Log Viewer"
 msgstr "FOG Log Viewer"
 
 #, fuzzy
-msgid "Lines"
-msgstr "Line"
-
-msgid "Reverse the file: (newest on top)"
-msgstr "Reverse the file: (newest on top)"
+msgid "Resume"
+msgstr "Results"
 
 #, fuzzy
 msgid "Pause"
 msgstr "User"
 
 #, fuzzy
+msgid "Lines"
+msgstr "Line"
+
+msgid "Reverse"
+msgstr ""
+
+#, fuzzy
 msgid "Configuration Import/Export"
 msgstr "Configuration"
-
-#, fuzzy
-msgid "Export Database?"
-msgstr "Date"
-
-#, fuzzy
-msgid "Export Database"
-msgstr "Date"
-
-#, fuzzy
-msgid "Import Database?"
-msgstr "Date"
 
 #, fuzzy
 msgid "Import Database"
 msgstr "Date"
 
 #, fuzzy
-msgid "Import Successful"
-msgstr "Successful"
+msgid "Import failed!"
+msgstr "Image updated"
 
 #, fuzzy
-msgid "Database imported and added successfully!"
-msgstr "Database Imported and added successfully"
+msgid "Imported successfully!"
+msgstr "Install / Update Successful!"
 
 #, fuzzy
-msgid "Import Failed"
-msgstr "Import Printers"
+msgid "Import Database Success"
+msgstr "Date"
 
 #, fuzzy
-msgid "There were errors during import!"
-msgstr "There were errors during import"
-
-#, fuzzy
-msgid "Database Reverted"
-msgstr "Database changes reverted"
-
-#, fuzzy
-msgid "Database changes reverted!"
-msgstr "Database changes reverted"
-
-#, fuzzy
-msgid "Database Failure"
-msgstr "Database Update Failed"
-
-#, fuzzy
-msgid "Errors on revert detected!"
-msgstr "Errors on revert detected"
+msgid "Import Database Fail"
+msgstr "Date"
 
 msgid "Protected"
 msgstr "Protected"

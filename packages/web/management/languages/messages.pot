@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-27 21:56-0400\n"
+"POT-Creation-Date: 2018-03-28 15:55-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -968,6 +968,11 @@ msgid "Forums"
 msgstr ""
 
 msgid "Wiki"
+msgstr ""
+
+msgid ""
+"This setting defines the number of items to display when listing/searching "
+"elements. The default value is 10."
 msgstr ""
 
 msgid "Channel"
@@ -3554,52 +3559,34 @@ msgstr ""
 msgid "FOG Log Viewer"
 msgstr ""
 
-msgid "Lines"
-msgstr ""
-
-msgid "Reverse the file: (newest on top)"
+msgid "Resume"
 msgstr ""
 
 msgid "Pause"
 msgstr ""
 
+msgid "Lines"
+msgstr ""
+
+msgid "Reverse"
+msgstr ""
+
 msgid "Configuration Import/Export"
-msgstr ""
-
-msgid "Export Database?"
-msgstr ""
-
-msgid "Export Database"
-msgstr ""
-
-msgid "Import Database?"
 msgstr ""
 
 msgid "Import Database"
 msgstr ""
 
-msgid "Import Successful"
+msgid "Import failed!"
 msgstr ""
 
-msgid "Database imported and added successfully!"
+msgid "Imported successfully!"
 msgstr ""
 
-msgid "Import Failed"
+msgid "Import Database Success"
 msgstr ""
 
-msgid "There were errors during import!"
-msgstr ""
-
-msgid "Database Reverted"
-msgstr ""
-
-msgid "Database changes reverted!"
-msgstr ""
-
-msgid "Database Failure"
-msgstr ""
-
-msgid "Errors on revert detected!"
+msgid "Import Database Fail"
 msgstr ""
 
 msgid "Protected"

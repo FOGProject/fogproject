@@ -273,6 +273,7 @@ var $_GET = getQueryParams(document.location.search),
             pagingType: 'simple_numbers',
             select: { style: 'multi+shift' },
             dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>B<'row'<'col-sm-12'tr>><'row'<'col-sm-5'i><'col-sm-7'p>>",
+            pageLength: $('#pageLength').val()
         });
 
         var table = e.DataTable(opts);
