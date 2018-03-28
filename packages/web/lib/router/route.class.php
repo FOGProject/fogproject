@@ -563,6 +563,24 @@ class Route extends FOGBase
             ];
             break;
         case 'storagegroup':
+            $StorageGroup = new StorageGroup();
+            $columns[] = [
+                'dt' => 'enablednodes',
+                'formatter' => function ($d, $row) use (&$StorageGroup) {
+                    return $StorageGroup->set('id', $row['ngID'])
+                        ->load()
+                        ->get('enablednodes');
+                }
+            ];
+            $columns[] = [
+                'dt' => 'masternode',
+                'formatter' => function ($d, $row) use (&$StorageGroup) {
+                    return self::getter(
+                        'storagenode',
+                        $StorageGroup->getMasterStorageNode()
+                    );
+                }
+            ];
             $columns[] = [
                 'db' => 'totalclients',
                 'dt' => 'totalclients',
@@ -1365,6 +1383,7 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 [
+                    'online' => $class->get('online'),
                     'logfiles' => $class->get('logfiles'),
                     'snapinfiles' => $class->get('snapinfiles'),
                     'images' => $class->get('images'),

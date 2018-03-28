@@ -32,7 +32,7 @@ class StorageNode extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'ngmID',
         'name' => 'ngmMemberName',
         'description' => 'ngmMemberDescription',
@@ -52,45 +52,45 @@ class StorageNode extends FOGController
         'key' => 'ngmKey',
         'interface' => 'ngmInterface',
         'bandwidth' => 'ngmBandwidthLimit',
-        'webroot' => 'ngmWebroot',
-    );
+        'webroot' => 'ngmWebroot'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'ip',
         'path',
         'ftppath',
         'user',
-        'pass',
-    );
+        'pass'
+    ];
     /**
      * Additional fields.
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'images',
         'snapinfiles',
         'logfiles',
         'usedtasks',
         'storagegroup',
         'online'
-    );
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'StorageGroup' => array(
+    protected $databaseFieldClassRelationships = [
+        'StorageGroup' => [
             'id',
             'storagegroupID',
             'storagegroup'
-        )
-    );
+        ]
+    ];
     protected $sqlQueryStr = "SELECT `%s`,`ngID`,`ngName`
         FROM `%s`
         LEFT OUTER JOIN `nfsGroups`
@@ -116,27 +116,30 @@ class StorageNode extends FOGController
      */
     public function get($key = '')
     {
-        $pathvars = array(
+        $pathvars = [
             'path',
             'ftppath',
             'snapinpath',
             'sslpath',
-            'webroot',
-        );
+            'webroot'
+        ];
         if (in_array($key, $pathvars)) {
             if (trim(parent::get($key)) === '/') {
                 return parent::get($key);
             }
             return rtrim(parent::get($key), '/');
         }
-        $loaders = array(
+        $loaders = [
             'snapinfiles' => 'getSnapinfiles',
             'images' => 'getImages',
             'logfiles' => 'getLogfiles'
-        );
+        ];
         if (in_array($key, array_keys($loaders))
             && !$this->isLoaded($key)
         ) {
+            if (!$this->get('online')) {
+                return parent::get($key);
+            }
             $func = $loaders[$key];
             $this->{$func}();
         }
@@ -173,10 +176,10 @@ class StorageNode extends FOGController
     {
         foreach ((array)self::getClass('NodeFailureManager')
             ->find(
-                array(
+                [
                     'storagenodeID' => $this->get('id'),
                     'hostID' => $Host,
-                )
+                ]
             ) as &$Failed
         ) {
             $curr = self::niceDate();
@@ -197,16 +200,13 @@ class StorageNode extends FOGController
      */
     public function getLogfiles()
     {
-        if (!$this->get('online')) {
-            return;
-        }
         $url = sprintf(
             '%s://%s/fog/status/getfiles.php?path=%s',
             self::$httpproto,
             $this->get('ip'),
             '%s'
         );
-        $paths = array(
+        $paths = [
             '/var/log/nginx',
             '/var/log/httpd',
             '/var/log/apache2',
@@ -215,11 +215,12 @@ class StorageNode extends FOGController
             '/var/log/php-fpm',
             '/var/log/php5-fpm',
             '/var/log/php5.6-fpm',
-        );
+        ];
         $url = sprintf(
             $url,
             urlencode(implode(':', $paths))
         );
+        $paths = self::$FOGURLRequests->process($url);
         foreach ((array)$paths as $index => &$response) {
             $tmppath = self::fastmerge(
                 (array)$tmppath,
@@ -240,19 +241,16 @@ class StorageNode extends FOGController
      */
     private function _getData()
     {
-        if (!$this->get('online')) {
-            return;
-        }
         $url = sprintf(
             '%s://%s/fog/status/getfiles.php',
             self::$httpproto,
             $this->get('ip')
         );
-        $keys = array(
+        $keys = [
             'images' => urlencode($this->get('path')),
             'snapinfiles' => urlencode($this->get('snapinpath'))
-        );
-        $urls = array();
+        ];
+        $urls = [];
         foreach ((array)$keys as $key => &$data) {
             $urls[] = sprintf(
                 '%s?path=%s',
@@ -263,7 +261,7 @@ class StorageNode extends FOGController
         }
         $paths = self::$FOGURLRequests->process($urls);
         $pat = '#dev|postdownloadscripts|ssl#';
-        $values = array();
+        $values = [];
         $index = 0;
         foreach ((array)$keys as $key => &$data) {
             $values = $paths[$index];
@@ -284,7 +282,7 @@ class StorageNode extends FOGController
             if ($key === 'images') {
                 $values = self::getSubObjectIDs(
                     'Image',
-                    array('path' => $values)
+                    ['path' => $values]
                 );
             }
             $this->set($key, $values);
@@ -338,11 +336,11 @@ class StorageNode extends FOGController
     {
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
         if (count($used) < 1) {
-            $used = array(
-                1,
-                15,
-                17,
-            );
+            $used = [
+                TaskType::DEPLOY,
+                TaskType::DEPLOY_CAPTURE,
+                TaskType::DEPLOY_NO_SNAPINS
+            ];
         }
         $this->set('usedtasks', $used);
     }
@@ -355,11 +353,11 @@ class StorageNode extends FOGController
     {
         $countTasks = 0;
         $usedtasks = $this->get('usedtasks');
-        $findTasks = array(
+        $findTasks = [
             'stateID' => self::getProgressState(),
             'storagenodeID' => $this->get('id'),
             'typeID' => $usedtasks,
-        );
+        ];
         $countTasks = self::getClass('TaskManager')->count($findTasks);
         $index = array_search(8, $usedtasks);
         if ($index === false) {
@@ -367,15 +365,15 @@ class StorageNode extends FOGController
         }
         $MulticastCount = self::getSubObjectIDs(
             'MulticastSessionAssociation',
-            array(
+            [
                 'taskID' => self::getSubObjectIDs(
                     'Task',
-                    array(
+                    [
                         'stateID' => self::getProgressState(),
                         'typeID' => 8,
-                    )
+                    ]
                 ),
-            ),
+            ],
             'msID'
         );
         $countTasks += count($MulticastCount);
@@ -391,11 +389,11 @@ class StorageNode extends FOGController
     {
         $countTasks = 0;
         $usedtasks = $this->get('usedtasks');
-        $findTasks = array(
+        $findTasks = [
             'stateID' => self::getQueuedStates(),
             'storagenodeID' => $this->get('id'),
-            'typeID' => $usedtasks,
-        );
+            'typeID' => $usedtasks
+        ];
         $countTasks = self::getClass('TaskManager')->count($findTasks);
         $index = array_search(8, $usedtasks);
         if ($index === false) {
@@ -403,15 +401,15 @@ class StorageNode extends FOGController
         }
         $MulticastCount = self::getSubObjectIDs(
             'MulticastSessionAssociation',
-            array(
+            [
                 'taskID' => self::getSubObjectIDs(
                     'Task',
-                    array(
+                    [
                         'stateID' => self::getQueuedStates(),
-                        'typeID' => 8,
-                    )
+                        'typeID' => 8
+                    ]
                 ),
-            ),
+            ],
             'msID'
         );
         $countTasks += count($MulticastCount);

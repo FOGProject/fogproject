@@ -2659,19 +2659,13 @@ class FOGConfigurationPage extends FOGPage
         $StorageGroups = json_decode(
             Route::getData()
         );
-        $StorageGroups = $StorageGroups->storagegroups;
-        foreach ((array)$StorageGroups as &$StorageGroup) {
-            if (count($StorageGroup->enablednodes) < 1) {
+
+        foreach ($StorageGroups->data as &$StorageGroup) {
+            if (count($StorageGroup->enablednodes ?: []) < 1) {
                 continue;
             }
-            Route::indiv(
-                'storagenode',
-                $StorageGroup->masternode->id
-            );
-            $StorageNode = json_decode(
-                Route::getData()
-            );
-            if (!$StorageNode->isEnabled) {
+            $StorageNode = $StorageGroup->masternode;
+            if ($StorageNode->isEnabled < 1) {
                 continue;
             }
             $fogfiles = json_decode(
@@ -2680,11 +2674,11 @@ class FOGConfigurationPage extends FOGPage
             );
             try {
                 $apacheerrlog = preg_grep(
-                    '#(error\.log$|.*error_log$)#i',
+                    '#(error[\_|\.]log$)#i',
                     $fogfiles
                 );
                 $apacheacclog = preg_grep(
-                    '#(access\.log$|.*access_log$)#i',
+                    '#(access[\_|\.]log$)#i',
                     $fogfiles
                 );
                 $multicastlog = preg_grep(
@@ -2871,19 +2865,19 @@ class FOGConfigurationPage extends FOGPage
                 ];
             }
             $ip[$StorageNode->name] = $StorageNode->ip;
-            self::$HookManager
-                ->processEvent(
-                    'LOG_VIEWER_HOOK',
-                    [
-                        'files' => &$files,
-                        'StorageNode' => &$StorageNode
-                    ]
-                );
+            self::$HookManager->processEvent(
+                'LOG_VIEWER_HOOK',
+                [
+                    'files' => &$files,
+                    'StorageNode' => &$StorageNode
+                ]
+            );
             unset($StorageGroup);
         }
         unset($StorageGroups);
         ob_start();
-        foreach ((array)$files as $nodename => &$filearray) {
+        echo '<select name="logtype" class="select2" id="logToView">';
+        foreach ($files as $nodename => &$filearray) {
             $first = true;
             foreach ((array)$filearray as $value => &$file) {
                 if ($first) {
@@ -2909,17 +2903,19 @@ class FOGConfigurationPage extends FOGPage
             unset($filearray);
         }
         unset($files);
-        $logOpts = ob_get_clean();
+        echo '</select>';
+        $logSelector = ob_get_clean();
         $vals = [
-            20,
+            10,
+            25,
             50,
             100,
-            200,
-            400,
+            250,
             500,
             1000
         ];
         ob_start();
+        echo '<select name="n" class="form-control" id="linesToView">';
         foreach ((array)$vals as $i => &$value) {
             printf(
                 '<option value="%s"%s>%s</option>',
@@ -2934,55 +2930,77 @@ class FOGConfigurationPage extends FOGPage
             unset($value);
         }
         unset($vals);
-        $lineOpts = ob_get_clean();
+        echo '</select>';
+        $lineSelector = ob_get_clean();
+
         $this->title = _('FOG Log Viewer');
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
+
+        $buttons = self::makeButton(
+            'logresume',
+            _('Resume'),
+            'btn btn-success'
+        );
+        $buttons .= self::makeButton(
+            'logpause',
+            _('Pause'),
+            'btn btn-warning'
+        );
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'logviewer-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
         echo $this->title;
         echo '</h4>';
+        echo '<hr/>';
+        echo '<div class="col-sm-4">';
+        echo self::makeLabel(
+            'col-sm-2 control-label',
+            'logToView',
+            _('File')
+        );
+        echo $logSelector;
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '" novalidate>';
-        echo '<div class="col-xs-4">';
-        echo '<label class="control-label" for="logToView">';
-        echo _('File') .': ';
-        echo '</label>';
-        echo '<select name="logtype" class="form-control" id="logToView">';
-        echo $logOpts;
-        echo '</select>';
+        echo '<div class="col-sm-4">';
+        echo self::makeLabel(
+            'col-sm-2 control-label',
+            'linesToView',
+            _('Lines')
+        );
+        echo $lineSelector;
         echo '</div>';
-        echo '<div class="col-xs-4">';
-        echo '<label class="control-label" for="linesToView">';
-        echo _('Lines') .': ';
-        echo '</label>';
-        echo '<select name="n" class="form-control" id="linesToView">';
-        echo $lineOpts;
-        echo '</select>';
-        echo '</div>';
-        echo '<div class="col-xs-2">';
-        echo '<div class="checkbox">';
-        echo '<label for="reverse">';
-        echo '<input type="checkbox" name="reverse" id="reverse"/>';
-        echo _('Reverse the file: (newest on top)');
-        echo '</label>';
+        echo '<div class="col-sm-4">';
+        echo self::makeLabel(
+            'col-sm-2 control-label',
+            'reverse',
+            _('Reverse')
+            . ' '
+            . self::makeInput(
+                '',
+                'reverse',
+                '',
+                'checkbox',
+                'reverse'
+            )
+        );
         echo '</div>';
         echo '</div>';
-        echo '<div class="col-xs-2">';
-        echo '<button type="button" id="logpause" class="btn btn-info btn-block">';
-        echo _('Pause');
-        echo '</button>';
+        echo '<div class="box-body" id="logsGoHere">';
         echo '</div>';
-        echo '<div class="col-xs-12">';
-        echo '<div id="logsGoHere"></div>';
+        echo '<div class="box-footer with-border">';
+        echo '<div class="btn-group">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Present the config screen.

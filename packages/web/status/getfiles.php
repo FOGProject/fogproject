@@ -40,7 +40,6 @@ foreach ((array)$paths as &$decodedPath) {
         && file_exists($decodedPath)
         && is_readable($decodedPath))
     ) {
-        $files[] = json_encode(_('Path is unavailable'));
         continue;
     }
     $replaced_dir_sep = str_replace(
@@ -57,8 +56,8 @@ foreach ((array)$paths as &$decodedPath) {
         DS
     );
     $files = FOGCore::fastmerge(
-        (array) $files,
-        (array) glob($glob_str)
+        (array)$files,
+        (array)glob($glob_str)
     );
 }
 echo json_encode(
