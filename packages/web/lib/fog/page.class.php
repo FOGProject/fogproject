@@ -186,6 +186,9 @@ class Page extends FOGBase
             } else {
                 $filepaths = "js/fog/{$node}/fog.{$node}.{$subset}.js";
             }
+            if ('about' == $node && 'settings' == $sub) {
+                $files[] = 'js/jscolor.js';
+            }
         }
         if ($subset && !file_exists($filepaths)) {
             $files[] = "js/fog/{$node}/fog.{$node}.list.js";

@@ -32,51 +32,21 @@ class Service extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'settingID',
         'name' => 'settingKey',
         'description' => 'settingDesc',
         'value' => 'settingValue',
-        'category' => 'settingCategory',
-    );
+        'category' => 'settingCategory'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
-        'name',
-    );
-    /**
-     * Adds a directory for directory cleaner.
-     *
-     * @param string $dir The directory to add.
-     *
-     * @return void
-     */
-    public function addDir($dir)
-    {
-        $dircount = self::getClass('DirCleanerManager')
-            ->count(array('path' => $dir));
-        if ($dircount > 0) {
-            throw new Exception(self::$foglang['n/a']);
-        }
-        self::getClass('DirCleaner')
-            ->set('path', $dir)
-            ->save();
-    }
-    /**
-     * Removes a directory for directory cleaner.
-     *
-     * @param int $dir The directory to remove.
-     *
-     * @return void
-     */
-    public function remDir($dir)
-    {
-        self::getClass('DirCleanerManager')
-            ->destroy(array('id' => $dir));
-    }
+    protected $databaseFieldsRequired = [
+        'name'
+    ];
     /**
      * Set the display settings.
      *
@@ -91,99 +61,15 @@ class Service extends FOGController
         $y,
         $r
     ) {
-        $keySettings = array(
+        $keySettings = [
             'FOG_CLIENT_DISPLAYMANAGER_X' => $x,
             'FOG_CLIENT_DISPLAYMANAGER_Y' => $y,
             'FOG_CLIENT_DISPLAYMANAGER_R' => $r,
-        );
+        ];
         foreach ($keySettings as $name => &$value) {
             self::setSetting($name, $value);
             unset($value);
         }
-    }
-    /**
-     * Sets the green fog.
-     *
-     * @param int    $h The hour to run 0 - 23
-     * @param int    $m The minute to run 0-59
-     * @param string $t The type shutdown/reboot.
-     *
-     * @return void
-     */
-    public function setGreenFog($h, $m, $t)
-    {
-        $gfcount = self::getClass('GreenFogManager')
-            ->count(
-                array(
-                    'hour' => $h,
-                    'min' => $m
-                )
-            );
-        if ($gfcount > 0) {
-            throw new Exception(self::$foglang['TimeExists']);
-        } else {
-            self::getClass('GreenFog')
-                ->set('hour', $h)
-                ->set('min', $m)
-                ->set('action', $t)
-                ->save();
-        }
-    }
-    /**
-     * Removes green fog.
-     *
-     * @param int $gf The green fog to remove
-     *
-     * @return void
-     */
-    public function remGF($gf)
-    {
-        self::getClass('GreenFogManager')
-            ->destroy(
-                array(
-                    'id' => $gf
-                )
-            );
-    }
-    /**
-     * Add a user to prevent cleanup.
-     *
-     * @param string $user The user to add.
-     *
-     * @return object
-     */
-    public function addUser($user)
-    {
-        $usercount = self::getClass('UserCleanupManager')
-            ->count(
-                array(
-                    'name' => $user
-                )
-            );
-        if ($usercount > 0) {
-            throw new Exception(self::$foglang['UserExists']);
-        }
-        foreach ((array)$user as &$name) {
-            self::getClass('UserCleanup')
-                ->set('name', $name)
-                ->load('name')
-                ->save();
-            unset($name);
-        }
-        return $this;
-    }
-    /**
-     * Remove a user.
-     *
-     * @param int $id The user cleanup id to remove.
-     *
-     * @return void
-     */
-    public function remUser($id)
-    {
-        self::getClass('UserCleanupManager')->destroy(
-            array('id' => $id)
-        );
     }
     /**
      * Builds the exit type selectors for us.
@@ -204,7 +90,7 @@ class Service extends FOGController
         if (empty($name)) {
             $name = $this->get('name');
         }
-        $types = array(
+        $types = [
             'sanboot',
             'grub',
             'grub_first_hdd',
@@ -212,7 +98,7 @@ class Service extends FOGController
             'grub_first_found_windows',
             'refind_efi',
             'exit',
-        );
+        ];
         if ($nullField) {
             array_unshift(
                 $types,

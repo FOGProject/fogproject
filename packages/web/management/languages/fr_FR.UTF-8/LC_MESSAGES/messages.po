@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-28 15:55-0400\n"
+"POT-Creation-Date: 2018-03-28 19:56-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3992,20 +3992,22 @@ msgstr "Impossible de lire le fichier temporaire"
 msgid "FOG System Settings"
 msgstr "Paramètres système FOG"
 
-#, fuzzy
-msgid "This section allows you to customize or alter"
-msgstr "Ce paramètre définit le nom d'utilisateur proxy à utiliser."
-
-msgid "the way in which FOG operates"
+msgid ""
+"This section allows you to customize the way in which FOG operates. Please "
+"be very careful changing these settings as they can cause issues that are "
+"difficult to troubleshoot."
 msgstr ""
 
-msgid "Please be very careful changing any of the following settings"
+msgid "10"
 msgstr ""
 
-msgid "as they can cause issues that are difficult to troubleshoot"
+msgid "25"
 msgstr ""
 
-msgid "Expand All"
+msgid "50"
+msgstr ""
+
+msgid "100"
 msgstr ""
 
 #, fuzzy
@@ -4019,7 +4021,7 @@ msgid "Partclone Uncompressed"
 msgstr ""
 
 #, fuzzy
-msgid "Partclone Uncompressed Split 200MiB"
+msgid "Partclone Uncompressed 200MiB"
 msgstr "partclone"
 
 #, fuzzy
@@ -4150,6 +4152,10 @@ msgstr "Créer un nouveau %s"
 
 msgid "Partimage"
 msgstr "Partimage"
+
+#, fuzzy
+msgid "Partclone Uncompressed Split 200MiB"
+msgstr "partclone"
 
 msgid "Image Description"
 msgstr "Description de l'image"

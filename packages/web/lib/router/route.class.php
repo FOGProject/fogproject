@@ -456,7 +456,7 @@ class Route extends FOGBase
         if (count($whereItems ?: []) > 0) {
             foreach ($whereItems as $key => $item) {
                 if (!$where) {
-                    $where = $key;
+                    $where = "`$key`";
                 } else {
                     $where .= ' AND ' . $key;
                 }
