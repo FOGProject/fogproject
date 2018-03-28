@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-28 15:55-0400\n"
+"POT-Creation-Date: 2018-03-28 19:56-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3753,21 +3753,23 @@ msgstr "Impossibile leggere il file temporaneo"
 msgid "FOG System Settings"
 msgstr "Impostazioni di sistema della nebbia"
 
-msgid "This section allows you to customize or alter"
-msgstr "Questa sezione consente di personalizzare o modificare "
-
-msgid "the way in which FOG operates"
-msgstr "il modo in cui funziona FOG"
-
-msgid "Please be very careful changing any of the following settings"
+msgid ""
+"This section allows you to customize the way in which FOG operates. Please "
+"be very careful changing these settings as they can cause issues that are "
+"difficult to troubleshoot."
 msgstr ""
-"Si prega di essere molto attenti a modificare una delle seguenti impostazioni"
 
-msgid "as they can cause issues that are difficult to troubleshoot"
-msgstr "poiché possono causare problemi difficili da risolvere"
+msgid "10"
+msgstr ""
 
-msgid "Expand All"
-msgstr "Espandi tutti"
+msgid "25"
+msgstr ""
+
+msgid "50"
+msgstr ""
+
+msgid "100"
+msgstr ""
 
 msgid "Partclone Gzip"
 msgstr "Partclone Gzip"
@@ -3778,7 +3780,8 @@ msgstr "Partclone Gzip diviso per 200MiB"
 msgid "Partclone Uncompressed"
 msgstr " Partclone non compressa"
 
-msgid "Partclone Uncompressed Split 200MiB"
+#, fuzzy
+msgid "Partclone Uncompressed 200MiB"
 msgstr "Partclone non compressa diviso per 200MiB"
 
 msgid "Partclone Zstd"
@@ -3894,6 +3897,9 @@ msgstr "Crea nuovo %s"
 
 msgid "Partimage"
 msgstr "partimage"
+
+msgid "Partclone Uncompressed Split 200MiB"
+msgstr "Partclone non compressa diviso per 200MiB"
 
 msgid "Image Description"
 msgstr "Descrizione dell'immagine"

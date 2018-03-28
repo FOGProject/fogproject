@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-28 15:55-0400\n"
+"POT-Creation-Date: 2018-03-28 19:56-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3981,22 +3981,22 @@ msgstr "Could not read temp file"
 msgid "FOG System Settings"
 msgstr "FOG System Settings"
 
-#, fuzzy
-msgid "This section allows you to customize or alter"
-msgstr ""
-"This section allows you to import known mac address makers into the FOG "
-"Database for easier identification."
-
-msgid "the way in which FOG operates"
+msgid ""
+"This section allows you to customize the way in which FOG operates. Please "
+"be very careful changing these settings as they can cause issues that are "
+"difficult to troubleshoot."
 msgstr ""
 
-msgid "Please be very careful changing any of the following settings"
+msgid "10"
 msgstr ""
 
-msgid "as they can cause issues that are difficult to troubleshoot"
+msgid "25"
 msgstr ""
 
-msgid "Expand All"
+msgid "50"
+msgstr ""
+
+msgid "100"
 msgstr ""
 
 #, fuzzy
@@ -4010,7 +4010,7 @@ msgid "Partclone Uncompressed"
 msgstr ""
 
 #, fuzzy
-msgid "Partclone Uncompressed Split 200MiB"
+msgid "Partclone Uncompressed 200MiB"
 msgstr "Partclone"
 
 #, fuzzy
@@ -4141,6 +4141,10 @@ msgstr "Create New %s"
 
 msgid "Partimage"
 msgstr "Partimage"
+
+#, fuzzy
+msgid "Partclone Uncompressed Split 200MiB"
+msgstr "Partclone"
 
 msgid "Image Description"
 msgstr "Image Description"

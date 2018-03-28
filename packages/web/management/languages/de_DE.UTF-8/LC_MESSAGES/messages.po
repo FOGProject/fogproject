@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-28 15:55-0400\n"
+"POT-Creation-Date: 2018-03-28 19:56-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3992,23 +3992,23 @@ msgstr "Temporäre Datei konnte nicht gelesen werden."
 msgid "FOG System Settings"
 msgstr "FOG-Systemeinstellungen"
 
-#, fuzzy
-msgid "This section allows you to customize or alter"
-msgstr "Dieser Bereich erlaubt die Anpassung oder Änderung"
-
-msgid "the way in which FOG operates"
-msgstr "der Art und Weise, wie FOG arbeitet."
-
-msgid "Please be very careful changing any of the following settings"
+msgid ""
+"This section allows you to customize the way in which FOG operates. Please "
+"be very careful changing these settings as they can cause issues that are "
+"difficult to troubleshoot."
 msgstr ""
-"Seien Sie bitte sehr vorsichtig bei der Änderung der folgenden "
-"Einstellungen, "
 
-msgid "as they can cause issues that are difficult to troubleshoot"
-msgstr "da sie Probleme verursachen kann, die sehr schwierig zu lösen sind."
+msgid "10"
+msgstr ""
 
-msgid "Expand All"
-msgstr "Alle ausklappen"
+msgid "25"
+msgstr ""
+
+msgid "50"
+msgstr ""
+
+msgid "100"
+msgstr ""
 
 #, fuzzy
 msgid "Partclone Gzip"
@@ -4021,7 +4021,7 @@ msgid "Partclone Uncompressed"
 msgstr "Partclone unkomprimiert"
 
 #, fuzzy
-msgid "Partclone Uncompressed Split 200MiB"
+msgid "Partclone Uncompressed 200MiB"
 msgstr "Partclone unkomprimiert gesplittet 200MiB"
 
 #, fuzzy
@@ -4152,6 +4152,10 @@ msgstr "Neuen Schlüssel erstellen"
 
 msgid "Partimage"
 msgstr "Partimage"
+
+#, fuzzy
+msgid "Partclone Uncompressed Split 200MiB"
+msgstr "Partclone unkomprimiert gesplittet 200MiB"
 
 msgid "Image Description"
 msgstr "Imagebeschreibung"
