@@ -58,8 +58,7 @@ class Group extends FOGController
      * @var array
      */
     protected $additionalFields = [
-        'hosts',
-        'hostsnotinme',
+        'hosts'
     ];
     protected $sqlQueryStr = "SELECT `%s`,COUNT(`gmHostID`) AS `gmMembers`
         FROM `%s`
@@ -949,18 +948,5 @@ class Group extends FOGController
             )
         );
         $this->getHostCount();
-    }
-    /**
-     * Loads hosts not in this group.
-     *
-     * @return void
-     */
-    protected function loadHostsnotinme()
-    {
-        $hosts = array_diff(
-            self::getSubObjectIDs('Host'),
-            $this->get('hosts')
-        );
-        $this->set('hostsnotinme', $hosts);
     }
 }

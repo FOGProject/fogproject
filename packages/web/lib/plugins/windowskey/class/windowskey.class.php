@@ -57,8 +57,7 @@ class WindowsKey extends FOGController
      * @var array
      */
     protected $additionalFields = [
-        'images',
-        'imagesnotinme'
+        'images'
     ];
     /**
      * Destroy this particular object.
@@ -131,18 +130,5 @@ class WindowsKey extends FOGController
             ['id' => $imageIDs]
         );
         $this->set('images', $imageIDs);
-    }
-    /**
-     * Load the images not with this key.
-     *
-     * @return void
-     */
-    protected function loadImagesnotinme()
-    {
-        $images = array_diff(
-            self::getSubObjectIDs('Image'),
-            $this->get('images')
-        );
-        $this->set('imagesnotinme', $images);
     }
 }

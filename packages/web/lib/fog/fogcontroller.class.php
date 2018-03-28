@@ -1083,9 +1083,7 @@ abstract class FOGController extends FOGBase
      */
     public function getManager()
     {
-        $class = sprintf('%sManager', get_class($this));
-
-        return new $class();
+        return new get_class($this).'Manager';
     }
     /**
      * Set's values for associative fields.

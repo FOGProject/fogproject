@@ -72,9 +72,7 @@ class Image extends FOGController
      */
     protected $additionalFields = array(
         'hosts',
-        'hostsnotinme',
         'storagegroups',
-        'storagegroupsnotinme',
         'os',
         'imagepartitiontype',
         'imagetype',
@@ -289,19 +287,6 @@ class Image extends FOGController
         );
     }
     /**
-     * Loads items not with this object
-     *
-     * @return void
-     */
-    protected function loadHostsnotinme()
-    {
-        $hosts = array_diff(
-            self::getSubObjectIDs('Host'),
-            $this->get('hosts')
-        );
-        $this->set('hostsnotinme', $hosts);
-    }
-    /**
      * Loads storage groups with this object
      *
      * @return void
@@ -353,20 +338,6 @@ class Image extends FOGController
             (array)$removeArray,
             'diff'
         );
-    }
-    /**
-     * Loads groups not with this image
-     *
-     * @return void
-     */
-    protected function loadStoragegroupsnotinme()
-    {
-        $find = array('id' => $this->get('storagegroups'));
-        $storagegroups = array_diff(
-            self::getSubObjectIDs('StorageGroup'),
-            $this->get('storagegroups')
-        );
-        $this->set('storagegroupsnotinme', $storagegroups);
     }
     /**
      * Gets the storage group

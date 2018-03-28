@@ -61,8 +61,7 @@ class Printer extends FOGController
      * @var array
      */
     protected $additionalFields = [
-        'hosts',
-        'hostsnotinme'
+        'hosts'
     ];
     /**
      * Removes the printer.
@@ -134,19 +133,6 @@ class Printer extends FOGController
                 'hostID'
             )
         );
-    }
-    /**
-     * Loads the hosts not assigned to this object.
-     *
-     * @return void
-     */
-    protected function loadHostsnotinme()
-    {
-        $hosts = array_diff(
-            self::getSubObjectIDs('Host'),
-            $this->get('hosts')
-        );
-        $this->set('hostsnotinme', $hosts);
     }
     /**
      * Update the default printer for the host.

@@ -83,14 +83,11 @@ class Host extends FOGController
         'additionalMACs',
         'pendingMACs',
         'groups',
-        'groupsnotinme',
         'hostscreen',
         'hostalo',
         'optimalStorageNode',
         'printers',
-        'printersnotinme',
         'snapins',
-        'snapinsnotinme',
         'modules',
         'inventory',
         'task',
@@ -888,19 +885,6 @@ class Host extends FOGController
         $this->set('groups', $groups);
     }
     /**
-     * Loads any groups this host is not in
-     *
-     * @return void
-     */
-    protected function loadGroupsnotinme()
-    {
-        $groups = array_diff(
-            self::getSubObjectIDs('Group'),
-            $this->get('groups')
-        );
-        $this->set('groupsnotinme', $groups);
-    }
-    /**
      * Loads any printers those host has
      *
      * @return void
@@ -919,19 +903,6 @@ class Host extends FOGController
         $this->set('printers', $printers);
     }
     /**
-     * Loads any printers this host does not have
-     *
-     * @return void
-     */
-    protected function loadPrintersnotinme()
-    {
-        $printers = array_diff(
-            self::getSubObjectIDs('Printer'),
-            $this->get('printers')
-        );
-        $this->set('printersnotinme', $printers);
-    }
-    /**
      * Loads any snapins this host has
      *
      * @return void
@@ -948,19 +919,6 @@ class Host extends FOGController
             ['id' => $snapins]
         );
         $this->set('snapins', $snapins);
-    }
-    /**
-     * Loads any snapins this host does not have
-     *
-     * @return void
-     */
-    protected function loadSnapinsnotinme()
-    {
-        $snapins = array_diff(
-            self::getSubObjectIDs('Snapin'),
-            $this->get('snapins')
-        );
-        $this->set('snapinsnotinme', $snapins);
     }
     /**
      * Loads any modules this host has
