@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-27 20:28-0400\n"
+"POT-Creation-Date: 2018-03-28 15:55-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -978,6 +978,11 @@ msgid "Forums"
 msgstr "FOG Forum"
 
 msgid "Wiki"
+msgstr ""
+
+msgid ""
+"This setting defines the number of items to display when listing/searching "
+"elements. The default value is 10."
 msgstr ""
 
 msgid "Channel"
@@ -3842,53 +3847,40 @@ msgstr "Snapin registro trasferimenti"
 msgid "FOG Log Viewer"
 msgstr "FOG Log Viewer"
 
-msgid "Lines"
-msgstr "Linee"
-
-msgid "Reverse the file: (newest on top)"
-msgstr "Invertire il file: (più recente in alto)"
+#, fuzzy
+msgid "Resume"
+msgstr "Risultati"
 
 msgid "Pause"
 msgstr "Pausa"
 
+msgid "Lines"
+msgstr "Linee"
+
+msgid "Reverse"
+msgstr ""
+
 msgid "Configuration Import/Export"
 msgstr "Configurazione Importazione/Esportazione"
-
-msgid "Export Database?"
-msgstr "Esporta database?"
-
-msgid "Export Database"
-msgstr "Esporta database"
-
-msgid "Import Database?"
-msgstr "Importa database?"
 
 msgid "Import Database"
 msgstr "Importa database"
 
-msgid "Import Successful"
-msgstr "Importazione riuscita"
+#, fuzzy
+msgid "Import failed!"
+msgstr "immagine aggiornata"
 
-msgid "Database imported and added successfully!"
-msgstr "Database importati e aggiunti con successo"
+#, fuzzy
+msgid "Imported successfully!"
+msgstr "Impostazioni iPXE aggiornate correttamente!"
 
-msgid "Import Failed"
-msgstr "Importazione fallita"
+#, fuzzy
+msgid "Import Database Success"
+msgstr "Importa database"
 
-msgid "There were errors during import!"
-msgstr "Si sono verificati errori durante l'importazione"
-
-msgid "Database Reverted"
-msgstr "Database ripristinato"
-
-msgid "Database changes reverted!"
-msgstr "Modifiche al database ripristinate"
-
-msgid "Database Failure"
-msgstr "Fallimento del database"
-
-msgid "Errors on revert detected!"
-msgstr "Errori su Revert rilevati"
+#, fuzzy
+msgid "Import Database Fail"
+msgstr "Importa database"
 
 msgid "Protected"
 msgstr "Protetta"

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-27 20:28-0400\n"
+"POT-Creation-Date: 2018-03-28 15:55-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -988,6 +988,11 @@ msgid "Forums"
 msgstr "FOG-Forum"
 
 msgid "Wiki"
+msgstr ""
+
+msgid ""
+"This setting defines the number of items to display when listing/searching "
+"elements. The default value is 10."
 msgstr ""
 
 msgid "Channel"
@@ -4096,67 +4101,43 @@ msgid "FOG Log Viewer"
 msgstr "FOG Logviewer"
 
 #, fuzzy
-msgid "Lines"
-msgstr "Zeilen"
-
-msgid "Reverse the file: (newest on top)"
-msgstr "Datei umkehren (neueste oben)"
+msgid "Resume"
+msgstr "Ergebnis"
 
 #, fuzzy
 msgid "Pause"
 msgstr "Pause"
 
 #, fuzzy
+msgid "Lines"
+msgstr "Zeilen"
+
+msgid "Reverse"
+msgstr ""
+
+#, fuzzy
 msgid "Configuration Import/Export"
 msgstr "Konfiguration Import/Export"
-
-#, fuzzy
-msgid "Export Database?"
-msgstr "Datenbank exportieren?"
-
-#, fuzzy
-msgid "Export Database"
-msgstr "Datenbank exportieren"
-
-#, fuzzy
-msgid "Import Database?"
-msgstr "Datenbank importieren?"
 
 #, fuzzy
 msgid "Import Database"
 msgstr "Datenbank importieren"
 
 #, fuzzy
-msgid "Import Successful"
-msgstr "Import erfolgreich"
+msgid "Import failed!"
+msgstr "Image aktualisiert"
 
 #, fuzzy
-msgid "Database imported and added successfully!"
-msgstr "Datenbank erfolgreich importiert und hinzugefügt"
+msgid "Imported successfully!"
+msgstr "iPXE-Einstellungen erfolgreich aktualisiert!"
 
 #, fuzzy
-msgid "Import Failed"
-msgstr "Import fehlgeschlagen"
+msgid "Import Database Success"
+msgstr "Datenbank importieren"
 
 #, fuzzy
-msgid "There were errors during import!"
-msgstr "Es gab Fehler während des Imports!"
-
-#, fuzzy
-msgid "Database Reverted"
-msgstr "Datenbank wurde zurückgesetzt."
-
-#, fuzzy
-msgid "Database changes reverted!"
-msgstr "Datenbankänderungen rückgängig gemacht"
-
-#, fuzzy
-msgid "Database Failure"
-msgstr "Datenbankfehler!"
-
-#, fuzzy
-msgid "Errors on revert detected!"
-msgstr "Fehler beim Zurücksetzen erkannt!"
+msgid "Import Database Fail"
+msgstr "Datenbank importieren"
 
 msgid "Protected"
 msgstr "Geschützt"

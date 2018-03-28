@@ -188,6 +188,30 @@ if (self::$FOGUser->isValid()) {
         'reAuthDelete',
         self::getSetting('FOG_REAUTH_ON_DELETE')
     );
+    $pageLength = self::getSetting('FOG_VIEW_DEFAULT_SCREEN');
+    if (in_array(strtolower($pageLength), ['search','list'])) {
+        $pageLength = 10;
+        $Service = self::getClass('Service')
+            ->set('name', 'FOG_VIEW_DEFAULT_SCREEN')
+            ->load('name')
+            ->set(
+                'description',
+                _(
+                    'This setting defines the number of items to display '
+                    . 'when listing/searching elements. The default value is 10.'
+                )
+            )->set('value', $pageLength)
+            ->save();
+        unset($Service);
+    }
+    echo FOGPage::makeInput(
+        'pageLength',
+        'pageLength',
+        '',
+        'hidden',
+        'pageLength',
+        self::getSetting('FOG_VIEW_DEFAULT_SCREEN')
+    );
     echo '<section class="content-header">';
     echo '<h1 id="sectionTitle">';
     echo $this->sectionTitle;

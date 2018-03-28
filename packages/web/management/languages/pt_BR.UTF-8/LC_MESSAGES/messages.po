@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-27 20:28-0400\n"
+"POT-Creation-Date: 2018-03-28 15:55-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -992,6 +992,11 @@ msgid "Forums"
 msgstr "FOG Fóruns"
 
 msgid "Wiki"
+msgstr ""
+
+msgid ""
+"This setting defines the number of items to display when listing/searching "
+"elements. The default value is 10."
 msgstr ""
 
 msgid "Channel"
@@ -4086,67 +4091,43 @@ msgid "FOG Log Viewer"
 msgstr "FOG Visualizador de Log"
 
 #, fuzzy
-msgid "Lines"
-msgstr "Linha"
-
-msgid "Reverse the file: (newest on top)"
-msgstr "Reverter o arquivo: (a mais recente no topo)"
+msgid "Resume"
+msgstr "Resultados"
 
 #, fuzzy
 msgid "Pause"
 msgstr "Do utilizador"
 
 #, fuzzy
+msgid "Lines"
+msgstr "Linha"
+
+msgid "Reverse"
+msgstr ""
+
+#, fuzzy
 msgid "Configuration Import/Export"
 msgstr "Configuração"
-
-#, fuzzy
-msgid "Export Database?"
-msgstr "Encontro"
-
-#, fuzzy
-msgid "Export Database"
-msgstr "Encontro"
-
-#, fuzzy
-msgid "Import Database?"
-msgstr "Encontro"
 
 #, fuzzy
 msgid "Import Database"
 msgstr "Encontro"
 
 #, fuzzy
-msgid "Import Successful"
-msgstr "Bem sucedido"
+msgid "Import failed!"
+msgstr "imagem atualizada"
 
 #, fuzzy
-msgid "Database imported and added successfully!"
-msgstr "Banco de dados importado e adicionado com sucesso"
+msgid "Imported successfully!"
+msgstr "Instalar / Atualizar sucesso!"
 
 #, fuzzy
-msgid "Import Failed"
-msgstr "importação Impressoras"
+msgid "Import Database Success"
+msgstr "Encontro"
 
 #, fuzzy
-msgid "There were errors during import!"
-msgstr "Ocorreram erros durante a importação"
-
-#, fuzzy
-msgid "Database Reverted"
-msgstr "alterações banco de dados revertido"
-
-#, fuzzy
-msgid "Database changes reverted!"
-msgstr "alterações banco de dados revertido"
-
-#, fuzzy
-msgid "Database Failure"
-msgstr "Atualização de banco de dados falhou"
-
-#, fuzzy
-msgid "Errors on revert detected!"
-msgstr "Erros em revert detectado"
+msgid "Import Database Fail"
+msgstr "Encontro"
 
 msgid "Protected"
 msgstr "Protegido"
