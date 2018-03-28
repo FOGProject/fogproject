@@ -55,9 +55,7 @@ class AccessControl extends FOGController
     protected $additionalFields = [
         'description',
         'users',
-        'usersnotinme',
-        'accesscontrolrules',
-        'accesscontrolrulesnotinme'
+        'accesscontrolrules'
     ];
     /**
      * Add user to access control.
@@ -165,37 +163,6 @@ class AccessControl extends FOGController
         $this->set('users', $userids);
     }
     /**
-     * Load items not with this object
-     *
-     * @return void
-     */
-    protected function loadUsersnotinme()
-    {
-        $find = ['id' => $this->get('users')];
-        $userids = array_diff(
-            self::getSubObjectIDs('User'),
-            $this->get('users')
-        );
-        $types = [];
-        self::$HookManager->processEvent(
-            'USER_TYPES_FILTER',
-            ['types' => &$types]
-        );
-        $users = [];
-        foreach ((array)self::getClass('UserManager')
-            ->find(array('id' => $userids)) as &$User
-        ) {
-            if (in_array($User->get('type'), $types)) {
-                continue;
-            }
-            $users[] = $User->get('id');
-            unset($User);
-        }
-        unset($userids, $types);
-        $this->set('usersnotinme', $users);
-        unset($users);
-    }
-    /**
      * Load rules
      *
      * @return void
@@ -212,18 +179,5 @@ class AccessControl extends FOGController
             ['id' => $associds]
         );
         $this->set('accesscontrolrules', $ruleids);
-    }
-    /**
-     * Load items not with this object
-     *
-     * @return void
-     */
-    protected function loadAccesscontrolrulesnotinme()
-    {
-        $rules = array_diff(
-            self::getSubObjectIDs('AccessControlRule'),
-            $this->get('accesscontrolrules')
-        );
-        $this->set('accesscontrolrulesnotinme', $rules);
     }
 }

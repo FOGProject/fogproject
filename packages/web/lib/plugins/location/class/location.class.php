@@ -60,7 +60,6 @@ class Location extends FOGController
      */
     protected $additionalFields = [
         'hosts',
-        'hostsnotinme',
         'storagenode',
         'storagegroup'
     ];
@@ -197,18 +196,5 @@ class Location extends FOGController
             'hosts',
             $hostIDs
         );
-    }
-    /**
-     * Load the hosts not with this hosts in me.
-     *
-     * @return void
-     */
-    protected function loadHostsnotinme()
-    {
-        $hosts = array_diff(
-            self::getSubObjectIDs('Host'),
-            $this->get('hosts')
-        );
-        $this->set('hostsnotinme', $hosts);
     }
 }

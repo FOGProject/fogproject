@@ -55,8 +55,7 @@ class OU extends FOGController
      * @var array
      */
     protected $additionalFields = [
-        'hosts',
-        'hostsnotinme'
+        'hosts'
     ];
     /**
      * Destroy this particular object.
@@ -133,18 +132,5 @@ class OU extends FOGController
             'hosts',
             $hostIDs
         );
-    }
-    /**
-     * Load the hosts not with this hosts in me.
-     *
-     * @return void
-     */
-    protected function loadHostsnotinme()
-    {
-        $hosts = array_diff(
-            self::getSubObjectIDs('Host'),
-            $this->get('hosts')
-        );
-        $this->set('hostsnotinme', $hosts);
     }
 }

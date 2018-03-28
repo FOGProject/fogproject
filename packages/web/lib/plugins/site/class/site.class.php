@@ -53,11 +53,10 @@ class Site extends FOGController
     protected $additionalFields = [
         'description',
         'users',
-        'usersnotinme',
-        'hosts',
-        'hostsnotinme'
+        'hosts'
     ];
-    protected $sqlQueryStr = "SELECT COUNT(`shaHostID`) `shaMembers`,COUNT(`suaUserID`) `suaMembers`, `%s`
+    protected $sqlQueryStr = "SELECT
+        COUNT(`shaHostID`) `shaMembers`,COUNT(`suaUserID`) `suaMembers`, `%s`
         FROM `%s`
         LEFT OUTER JOIN `siteHostAssoc`
         ON `site`.`sID` = `siteHostAssoc`.`shaSiteID`
@@ -164,41 +163,6 @@ class Site extends FOGController
         $this->set('users', $userids);
     }
     /**
-     * Load items not with this object
-     *
-     * @return void
-     */
-    protected function loadUsersnotinme()
-    {
-        $userids = array_diff(
-            self::getSubObjectIDs('User'),
-            $this->get('users')
-        );
-        $types = [];
-        self::$HookManager->processEvent(
-            'USER_TYPES_FILTER',
-            ['types' => &$types]
-        );
-        Route::listem('user');
-        $users = json_decode(
-            Route::getData()
-        );
-        $users = $users->data;
-        $usersnotinme = [];
-        foreach ((array)$users as $user) {
-            if (in_array($user->type, $types)) {
-                continue;
-            }
-            if (in_array($user->id, $this->get('users'))) {
-                continue;
-            }
-            $usersnotinme[] = $user->id;
-            unset($user);
-        }
-        unset($users, $types);
-        $this->set('usersnotinme', $usersnotinme);
-    }
-    /**
      * Load hosts
      *
      * @param mixed $ids The ids to pass in.
@@ -222,34 +186,5 @@ class Site extends FOGController
             ['id' => $associds]
         );
         $this->set('hosts', $hostids);
-    }
-    /**
-     * Load hosts not in this object.
-     *
-     * @param mixed $ids The ids to pass in.
-     *
-     * @return void
-     */
-    public function loadHostsnotinme($ids = null)
-    {
-        if (is_null($ids)) {
-            $siteIDs = $this->get('id');
-        } else {
-            $siteIDs = $ids;
-        }
-        $associds = self::getSubObjectIDs(
-            'SiteHostAssociation',
-            ['siteID' => $siteIDs],
-            'hostID'
-        );
-        $hostids = self::getSubObjectIDs(
-            'Host',
-            ['id' => $associds]
-        );
-        $hostids = array_diff(
-            self::getSubObjectIDs('Host'),
-            $hostids
-        );
-        $this->set('hostsnotinme', $hostids);
     }
 }

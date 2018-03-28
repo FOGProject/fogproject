@@ -54,8 +54,7 @@ class Module extends FOGController
      * @var array
      */
     protected $additionalFields = [
-        'hosts',
-        'hostsnotinme'
+        'hosts'
     ];
     /**
      * Alters valid method.
@@ -79,19 +78,6 @@ class Module extends FOGController
         self::getClass('ModuleAssociationManager')
             ->destroy(['moduleID' => $this->get('id')]);
         return parent::destroy($key);
-    }
-    /**
-     * Loads any hosts this module is not associated with.
-     *
-     * @return void
-     */
-    protected function loadHostsnotinme()
-    {
-        $hosts = array_diff(
-            self::getSubObjectIDs('Host'),
-            $this->get('hosts')
-        );
-        $this->set('hostsnotinme', $hosts);
     }
     /**
      * Loads any hosts this module has

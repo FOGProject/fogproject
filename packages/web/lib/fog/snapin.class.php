@@ -70,9 +70,7 @@ class Snapin extends FOGController
      */
     protected $additionalFields = array(
         'hosts',
-        'hostsnotinme',
         'storagegroups',
-        'storagegroupsnotinme',
         'path',
     );
     /**
@@ -243,19 +241,6 @@ class Snapin extends FOGController
         );
     }
     /**
-     * Loads items not with this object.
-     *
-     * @return void
-     */
-    protected function loadHostsnotinme()
-    {
-        $hosts = array_diff(
-            self::getSubObjectIDs('Host'),
-            $this->get('hosts')
-        );
-        $this->set('hostsnotinme', $hosts);
-    }
-    /**
      * Loads storage groups with this object.
      *
      * @return void
@@ -307,19 +292,6 @@ class Snapin extends FOGController
             (array) $removeArray,
             'diff'
         );
-    }
-    /**
-     * Loads groups not with this snapin.
-     *
-     * @return void
-     */
-    protected function loadStoragegroupsnotinme()
-    {
-        $storagegroups = array_diff(
-            self::getSubObjectIDs('StorageGroup'),
-            $this->get('storagegroups')
-        );
-        $this->set('storagegroupsnotinme', $storagegroups);
     }
     /**
      * Gets the storage group.
