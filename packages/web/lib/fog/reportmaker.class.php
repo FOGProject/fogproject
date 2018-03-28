@@ -26,19 +26,19 @@ class ReportMaker extends FOGBase
      *
      * @var array
      */
-    private $_strHTML = array();
+    private $_strHTML = [];
     /**
      * Store the csv entries.
      *
      * @var array
      */
-    private $_strCSV = array();
+    private $_strCSV = []; 
     /**
      * Stores the line.
      *
      * @var array
      */
-    private $_strLine = array();
+    private $_strLine = [];
     /**
      * Stores the filename to use.
      *
@@ -50,7 +50,7 @@ class ReportMaker extends FOGBase
      *
      * @var array
      */
-    public $types = array(
+    public $types = [
         'html' => 0,
         'csv' => 1,
         'pdf' => 2,
@@ -62,18 +62,17 @@ class ReportMaker extends FOGBase
         'snapin' => 4,
         'printer' => 4,
         'sqldump' => 5,
-    );
+    ];
     /**
      * Initializes our report object.
      */
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->processEvent(
-                'REPORT_TYPES',
-                array('types' => &$this->types)
-            );
+        self::$HookManager->processEvent(
+            'REPORT_TYPES',
+            ['types' => &$this->types]
+        );
     }
     /**
      * Appends html as/where required.
@@ -153,9 +152,7 @@ class ReportMaker extends FOGBase
         }
         if (!in_array($type, $keys)) {
             echo json_encode(
-                array(
-                    'error' => _('Invalid Type')
-                )
+                ['error' => _('Invalid Type')]
             );
             exit;
         }
@@ -182,6 +179,37 @@ class ReportMaker extends FOGBase
             ) :
             0
         );
+        switch($intType) {
+        case 3:
+            header('Content-type: application/json');
+            $backup_name = sprintf(
+                'fog_backup_%s.sql',
+                self::formatTime('', 'Ymd_His')
+            );
+            $tmpfile = '/tmp/' . $backup_name;
+            $data = '';
+            $dump = self::getClass('Mysqldump');
+            $dump->start($tmpfile);
+            if (!file_exists($tmpfile) || !is_readable($tmpfile)) {
+                throw new Exception(_('Could not read tmp file.'));
+            }
+            $fh = fopen($tmpfile, 'rb');
+            while (feof($fh) === false) {
+                $data .= fread($fh, 4096);
+            }
+            fclose($fh);
+            unlink($tmpfile);
+            echo json_encode(
+                [
+                    'title' => _('Export Success'),
+                    'msg' => _('Export Complete'),
+                    '_filename' => $backup_name,
+                    '_content' => $data
+                ]
+            );
+            exit;
+            break;
+        }
         if (isset($_POST['nojson']) || true === $nojson) {
             switch ($intType) {
             case 0:
@@ -224,7 +252,7 @@ class ReportMaker extends FOGBase
                         )
                     );
                 }
-                $cmd = array(
+                $cmd = [
                     'htmldoc',
                     '--webpage',
                     '--quiet',
@@ -236,7 +264,7 @@ class ReportMaker extends FOGBase
                     '-t pdf14',
                     '--no-compression',
                     $htmlfile
-                );
+                ];
                 $cmd = implode(' ', (array)$cmd);
                 if (!$handle = fopen($htmlfile, 'w')) {
                     break;
@@ -261,13 +289,6 @@ class ReportMaker extends FOGBase
                 );
                 break;
             case 3:
-                $SchemaSave = self::getClass('Schema');
-                $backup_name = sprintf(
-                    'fog_backup_%s.sql',
-                    self::formatTime('', 'Ymd_His')
-                );
-                $SchemaSave->exportdb($backup_name);
-                unset($SchemaSave);
                 break;
             case 4:
                 header('Content-Type: application/octet-stream');
@@ -329,10 +350,10 @@ class ReportMaker extends FOGBase
             }
         } else {
             echo json_encode(
-                array(
+                [
                     'title' => _('Export Success'),
                     'msg' => _('Export Complete')
-                )
+                ]
             );
         }
     }

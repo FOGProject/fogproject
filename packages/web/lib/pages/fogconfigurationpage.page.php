@@ -2991,97 +2991,96 @@ class FOGConfigurationPage extends FOGPage
      */
     public function config()
     {
-        self::$HookManager->processEvent('IMPORT');
+        self::$HookManager->processEvent('CONFIGURATION');
+
         $this->title = _('Configuration Import/Export');
-        $report = self::getClass('ReportMaker');
-        $_SESSION['foglastreport'] = serialize($report);
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes
+
+        $labelClass = 'col-sm-2 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'import',
+                _('Import Database')
+            ) => '<div class="input-group">'
+            . self::makeLabel(
+                'input-group-btn',
+                'import',
+                '<span class="btn btn-info">'
+                . _('Browse')
+                . self::makeInput(
+                    'hidden',
+                    'report',
+                    '',
+                    'file',
+                    'import',
+                    '',
+                    true
+                )
+                . '</span>'
+            )
+            . self::makeInput(
+                'form-control filedisp',
+                '',
+                '',
+                'text',
+                '',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            )
+            . '</div>'
+        ];
+
+        $buttons = self::makeButton(
+            'exportdb',
+            _('Export'),
+            'btn btn-primary'
         );
-        $this->attributes = [
-            [],
-            []
-        ];
-        $this->data[] = [
-            'field' => '<label for="export">'
-            . _('Export Database?')
-            . '</label>',
-            'input' => '<div class="hiddeninitially" id="exportDiv"></div>'
-            . '<button type="submit" name="export" class="'
-            . 'btn btn-info btn-block" id="export">'
-            . _('Export')
-            . '</button>'
-        ];
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
+        $buttons .= self::makeButton(
+            'importdb',
+            _('Import'),
+            'btn btn-warning'
+        );
+
+        self::$HookManager->processEvent(
+            'IMPORT_DB_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'import-form',
+            $this->formAction,
+            'post',
+            'multipart/form-data',
+            true
+        );
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
         echo $this->title;
         echo '</h4>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Export Database');
-        echo '</h4>';
+        echo '<div class="box-body">';
+        echo $rendered;
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action='
-            . '"export.php?type=sql" novalidate>';
-        $this->render(12);
-        $this->data = [];;
-        $this->data[] = [
-            'field' => '<label for="import">'
-            . _('Import Database?')
-            . '<br/>'
-            . _('Max Size')
-            . ': '
-            . ini_get('post_max_size')
-            . '</label>',
-            'input' => '<div class="input-group">'
-            . '<label class="input-group-btn">'
-            . '<span class="btn btn-info">'
-            . _('Browse')
-            . '<input type="file" class="hidden" name='
-            . '"dbFile" id="import"/>'
-            . '</span>'
-            . '</label>'
-            . '<input type="text" class="form-control filedisp" readonly/>'
-            . '</div>'
-        ];
-        $this->data[] = [
-            'field' => '<label for="importbtn">'
-            . _('Import Database?')
-            . '</label>',
-            'input' => '<button type="submit" name="importbtn" class="'
-            . 'btn btn-info btn-block" id="importbtn">'
-            . _('Import')
-            . '</button>'
-        ];
+        echo '<div class="box-footer with-border">';
+        echo '<div class="btn-group">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('Import Database');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '" enctype="multipart/form-data" novalidate>';
-        $this->render(12);
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Process import of config data
@@ -3092,87 +3091,58 @@ class FOGConfigurationPage extends FOGPage
     {
         self::$HookManager->processEvent('IMPORT_POST');
         $Schema = self::getClass('Schema');
+        $serverFault = false;
         try {
-            if ($_FILES['dbFile']['error'] > 0) {
-                throw new UploadException($_FILES['dbFile']['error']);
-            }
-            $original = $Schema->exportdb('', false);
-            $tmp_name = htmlentities(
-                $_FILES['dbFile']['tmp_name'],
-                ENT_QUOTES,
-                'utf-8'
-            );
-            $dir_name = dirname($tmp_name);
-            $tmp_name = basename($tmp_name);
-            $filename = sprintf(
-                '%s%s%s',
-                $dir_name,
-                DS,
-                $tmp_name
-            );
-            $result = self::getClass('Schema')->importdb($filename);
-            echo '<div class="col-xs-9">';
-            if ($result === true) {
-                echo '<div class="panel panel-success">';
-                echo '<div class="panel-heading text-center">';
-                echo '<h4 class="title">';
-                echo _('Import Successful');
-                echo '</h4>';
-                echo '</div>';
-                echo '<div class="panel-body">';
-                echo _('Database imported and added successfully!');
-                echo '</div>';
-                echo '</div>';
+            if (isset($_POST['toExport'])) {
+                self::getClass('ReportMaker')->outputReport(3);
             } else {
-                $origres = $result;
-                $result = $Schema->importdb($original);
-                unlink($original);
-                unset($original);
-                echo '<div class="panel panel-warning">';
-                echo '<div class="panel-heading text-center">';
-                echo '<h4 class="title">';
-                echo _('Import Failed');
-                echo '</h4>';
-                echo '</div>';
-                echo '<div class="panel-body">';
-                echo _('There were errors during import!');
-                echo '<br/>';
-                echo '<br/>';
-                echo '<pre>';
-                echo $origres;
-                echo '</pre>';
-                if ($result === true) {
-                    echo '<div class="panel panel-success">';
-                    echo '<div class="panel-heading text-center">';
-                    echo _('Database Reverted');
-                    echo '</div>';
-                    echo '<div class="panel-body">';
-                    echo _('Database changes reverted!');
-                    echo '</div>';
-                    echo '</div>';
-                } else {
-                    echo '<div class="panel panel-danger">';
-                    echo '<div class="panel-heading text-center">';
-                    echo '<h4 class="title">';
-                    echo _('Database Failure');
-                    echo '</h4>';
-                    echo '</div>';
-                    echo '<div class="panel-body">';
-                    echo _('Errors on revert detected!');
-                    echo '<br/>';
-                    echo '<br/>';
-                    echo '<pre>';
-                    echo $result;
-                    echo '</pre>';
-                    echo '</div>';
-                    echo '</div>';
+                if ($_FILES['dbFile']['error'] > 0) {
+                    throw new UploadException($_FILES['dbFile']['error']);
                 }
-                echo '</div>';
-                echo '</div>';
+                $original = $Schema->exportdb('', false);
+                $tmp_name = htmlentities(
+                    $_FILES['dbFile']['tmp_name'],
+                    ENT_QUOTES,
+                    'utf-8'
+                );
+                $dir_name = dirname($tmp_name);
+                $tmp_name = basename($tmp_name);
+                $filename = sprintf(
+                    '%s%s%s',
+                    $dir_name,
+                    DS,
+                    $tmp_name
+                );
+                $result = self::getClass('Schema')->importdb($filename);
+                if (!$result) {
+                    $serverFault = true;
+                    throw new Exception(_('Import failed!'));
+                }
+                $code = HTTPResponseCodes::HTTP_ACCEPTED;
+                $hook = 'CONFIG_IMPORT_SUCCESS';
+                $msg = json_encode(
+                    [
+                        'msg' => _('Imported successfully!'),
+                        'title' => _('Import Database Success')
+                    ]
+                );
             }
-            echo '</div>';
         } catch (Exception $e) {
-            self::redirect($this->formAction);
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'CONFIG_IMPORT_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Import Database Fail')
+                ]
+            );
         }
+        http_response_code($code);
+        echo $msg;
+        exit;
     }
 }
