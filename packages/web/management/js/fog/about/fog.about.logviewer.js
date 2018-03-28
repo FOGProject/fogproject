@@ -1,79 +1,124 @@
-var LogToView;
-var LinesToView;
-var LogTimer;
-var logdata;
-/**
- * Main Function.
- */
 (function($) {
-    LogToView = $('#logToView').val();
-    LinesToView = $('#linesToView').val();
-    LogGetData();
-    $("input[name='reverse']:checkbox").on('change', LogGetData);
-    $('#logpause').on('click', function(e) {
-        if ($(this).hasClass('activenow')) {
-            $(this).removeClass('activenow').text('Pause');
-            LogGetData();
-        } else {
-            $(this).addClass('activenow').text('Continue');
-            clearTimeout(LogTimer);
-        }
+    var logSelect = $('#logToView'),
+        lineSelect = $('#linesToView'),
+        reverse = $('#reverse:checkbox'),
+        pauseBtn = $('#logpause'),
+        resumeBtn = $('#logresume'),
+        logviewerForm = $('#logviewer-form'),
+        logsGoHere = $('#logsGoHere'),
+        selectedLog = logSelect.val(),
+        selectedLines = lineSelect.val(),
+        splitLogItems = selectedLog.split('||'),
+        reverseChecked = 0,
+        logTimer,
+        ip = splitLogItems[0],
+        file = splitLogItems[1];
+
+    logviewerForm.on('submit', function(e) {
         e.preventDefault();
     });
-    $('#logToView, #linesToView').on('change', function(e) {
-        LogToView = $('#logToView').val();
-        LinesToView = $('#linesToView').val();
-        if ($('#logpause').hasClass('activenow')) {
-            $('#logpause').removeClass('activenow').text('Pause');
-        }
-        LogGetData();
-        e.preventDefault();
-    });
-})(jQuery);
-/**
- * Log data getter.
- */
-function LogGetData() {
-    if ($('#logpause').hasClass('activenow')) {
-        return;
+    pauseBtn.prop('disabled', false);
+    resumeBtn.prop('disabled', true);
+
+    function getLogData(ip, file, length, reversed) {
+        var logdata,
+            opts = {
+                ip: ip,
+                file: file,
+                lines: length,
+                reverse: reversed
+            };
+        Pace.ignore(function() {
+            $.post(
+                '../status/logtoview.php',
+                opts,
+                function(data) {
+                    logdata = '<pre>' + data + '</pre>';
+                },
+                'json'
+            ).done(function() {
+                logsGoHere.html(
+                    '<div class="box box-primary">'
+                    + '<div class="box-header with-border">'
+                    + '<h4 class="box-title">'
+                    + file
+                    + '</h4>'
+                    + '</div>'
+                    + '<div class="box-body">'
+                    + logdata
+                    + '</div>'
+                    + '</div>'
+                );
+            });
+        });
+        logTimer = setTimeout(function() {
+            getLogData(ip, file, length, reverse)
+        }, 10000);
     }
-    LogToView = $('#logToView').val();
-    LinesToView = $('#linesToView').val();
-    splitUs = LogToView.split('||');
-    ip = splitUs[0];
-    file = splitUs[1];
-    reverse = $('[name=reverse]').is(':checked') ? 1 : 0;
-    $.post(
-        '../status/logtoview.php',
-        {
-            ip: ip,
-            file: file,
-            lines: LinesToView,
-            reverse: reverse
-        },
-        displayLog,
-        'json'
-    ).done(function() {
-        $('#logsGoHere').html(
-            '<div class="panel panel-info">'
-            + '<div class="panel-heading text-center">'
-            + '<h4 class="title">'
-            + file
-            + '</h4>'
-            + '</div>'
-            + '<div class="panel-body">'
-            + logdata
-            + '</div>'
-            + '</div>'
-        );
-        LogTimer = setTimeout(LogGetData,10000)
+
+    // Log file handling.
+    logSelect.on('change', function(e) {
+        e.preventDefault();
+        selectedLog = this.value;
+        splitLogItems = selectedLog.split('||');
+        ip = splitLogItems[0];
+        file = splitLogItems[1];
+        if (logTimer) {
+            clearTimeout(logTimer);
+        }
+        getLogData(ip, file, selectedLines, reverseChecked);
     });
-}
-/**
- * Display log data.
- */
-function displayLog(gdata) {
-    logdata = '<pre>'
-        + gdata
-        + '</pre>';
-}
+
+    // Line handling.
+    lineSelect.on('change', function(e) {
+        e.preventDefault();
+        selectedLines = this.value;
+        if (logTimer) {
+            clearTimeout(logTimer);
+        }
+        getLogData(ip, file, selectedLines, reverseChecked);
+    });
+
+    // Reverse file handling.
+    reverse.on('ifChecked', function(e) {
+        // Present newest first
+        e.preventDefault();
+        reverseChecked = 1;
+        if (logTimer) {
+            clearTimeout(logTimer);
+        }
+        getLogData(ip, file, selectedLines, reverseChecked);
+    }).on('ifUnchecked', function(e) {
+        // Present oldest first
+        e.preventDefault();
+        reverseChecked = 0;
+        if (logTimer) {
+            clearTimeout(logTimer);
+        }
+        getLogData(ip, file, selectedLines, reverseChecked);
+    });
+
+    // Pause Button Clicked.
+    pauseBtn.on('click', function(e) {
+        e.preventDefault();
+        resumeBtn.prop('disabled', false);
+        $(this).prop('disabled', true);
+        if (logTimer) {
+            clearTimeout(logTimer);
+        }
+    });
+
+    // Resume Button Clicked.
+    resumeBtn.on('click', function(e) {
+        e.preventDefault();
+        pauseBtn.prop('disabled', false);
+        $(this).prop('disabled', true);
+        if (logTimer) {
+            clearTimeout(logTimer);
+        }
+        getLogData(ip, file, selectedLines, reverseChecked);
+    });
+
+    // Start the reading!
+    getLogData(ip, file, selectedLines, reverseChecked);
+})(jQuery);

@@ -144,13 +144,13 @@ var $_GET = getQueryParams(document.location.search),
                 success: function(res) {
                     Common.notifyFromAPI(res, false);
                     if (cb && typeof(cb) === 'function') {
-                        cb();
+                        cb(null,res);
                     }
                 },
                 error: function(res) {
                     Common.notifyFromAPI(res.responseJSON, true);
                     if (cb && typeof(cb) === 'function') {
-                        cb(res);
+                        cb(res,res.responseJSON);
                     }
                 }
             });
@@ -163,15 +163,15 @@ var $_GET = getQueryParams(document.location.search),
         if(!Common.validateForm(form, input)) {
             Common.setContainerDisable(form, false);
             if (cb && typeof(cb) === 'function')
-                cb('invalid');
+                cb('invalid','');
             return;
         }
         var method = form.attr('method'),
             action = form.attr('action');
-        Common.apiCall(method,action,opts,function(err) {
+        Common.apiCall(method,action,opts,function(err,data) {
             Common.setContainerDisable(form, false);
             if (cb && typeof(cb) === 'function')
-                cb(err);
+                cb(err,data);
         });
     };
     Common.massExport = function(password, cb) {
