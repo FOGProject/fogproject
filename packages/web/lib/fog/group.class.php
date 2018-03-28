@@ -65,15 +65,12 @@ class Group extends FOGController
         LEFT OUTER JOIN `groupMembers`
         ON `groups`.`groupID` = `groupMembers`.`gmGroupID`
         %s
-        GROUP BY (`groupMembers`.`gmGroupID`)
+        GROUP BY (`groups`.`groupID`)
         %s
         %s";
     protected $sqlFilterStr = "SELECT COUNT(`%s`)
         FROM `%s`
-        LEFT OUTER JOIN `groupMembers`
-        ON `groups`.`groupID` = `groupMembers`.`gmGroupID`
-        %s
-        GROUP BY (`groupMembers`.`gmGroupID`)";
+        %s";
     protected $sqlTotalStr = "SELECT COUNT(`%s`)
         FROM `%s`";
     /**
