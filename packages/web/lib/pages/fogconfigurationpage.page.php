@@ -151,8 +151,35 @@ class FOGConfigurationPage extends FOGPage
     public function license()
     {
         $this->title = _('GNU General Public License');
-        $file = './languages/'
-            . self::$locale
+
+        $lang = '';
+        switch (self::$locale) {
+        case 'de':
+            $lang = 'de_DE';
+            break;
+        case 'en':
+            $lang = 'en_US';
+            break;
+        case 'es':
+            $lang = 'es_ES';
+            break;
+        case 'fr':
+            $lang = 'fr_FR';
+            break;
+        case 'it':
+            $lang = 'it_IT';
+            break;
+        case 'pt':
+            $lang = 'pt_BR';
+            break;
+        case 'zh':
+            $lang = 'zh_CN';
+            break;
+        default:
+            $lang = 'en_US';
+        }
+        $file = BASEPATH . 'management/languages/'
+            . $lang
             . '.UTF-8/gpl-3.0.txt';
         $contents = nl2br(
             file_get_contents($file)
