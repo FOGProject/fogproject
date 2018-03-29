@@ -4,8 +4,6 @@ var $_GET = getQueryParams(document.location.search),
         sub: $_GET['sub'],
         id: $_GET['id'],
         tab: $_GET['tab'],
-        type: $_GET['type'],
-        f: $_GET['f'],
         debug: $_GET['debug'],
         search: $_GET['search'],
         masks: {
@@ -17,6 +15,11 @@ var $_GET = getQueryParams(document.location.search),
     };
 
 (function($) {
+    var shouldReAuth;
+    var reAuthModal;
+    var deleteConfirmButton;
+    var deleteLang = 'Delete';
+
     Common.debugLog = function(obj) {
         if(Common.debug) {
             console.log(obj);
@@ -45,10 +48,10 @@ var $_GET = getQueryParams(document.location.search),
 
         Common.debugLog(res);
     };
-    Common.validateForm = function(form, input = ':input') {
+    Common.validateForm = function(form) {
         var scrolling = false;
         var isError = false;
-        form.find(input).each(function(i, e) {
+        form.find(":input").each(function(i, e) {
             var isValid = true;
             var invalidReason = undefined;
 
@@ -134,44 +137,44 @@ var $_GET = getQueryParams(document.location.search),
 
         return !isError;
     },
-    Common.apiCall = function(method, url, opts, cb) {
+    Common.apiCall = function(method, url, data, cb) {
         Pace.track(function(){
             $.ajax('', {
                 type: method,
                 url: url,
                 async: true,
-                data: opts,
+                data: data,
                 success: function(res) {
                     Common.notifyFromAPI(res, false);
                     if (cb && typeof(cb) === 'function') {
-                        cb(null,res);
+                        cb();
                     }
                 },
                 error: function(res) {
                     Common.notifyFromAPI(res.responseJSON, true);
                     if (cb && typeof(cb) === 'function') {
-                        cb(res,res.responseJSON);
+                        cb(res);
                     }
                 }
             });
         });
     }
-    Common.processForm = function(form, cb, input = ':input') {
+    Common.processForm = function(form, cb) {
         // Serialize before disabling, so we can read inputs
         var opts = form.serialize();
         Common.setContainerDisable(form, true);
-        if(!Common.validateForm(form, input)) {
+        if(!Common.validateForm(form)) {
             Common.setContainerDisable(form, false);
             if (cb && typeof(cb) === 'function')
-                cb('invalid','');
+                cb('invalid');
             return;
         }
         var method = form.attr('method'),
             action = form.attr('action');
-        Common.apiCall(method,action,opts,function(err,data) {
+        Common.apiCall(method,action,opts,function(err) {
             Common.setContainerDisable(form, false);
             if (cb && typeof(cb) === 'function')
-                cb(err,data);
+                cb(err);
         });
     };
     Common.massExport = function(password, cb) {
@@ -258,6 +261,133 @@ var $_GET = getQueryParams(document.location.search),
             });
         });
     };
+
+    Common.deleteSelected = function(table, cb, opts) {
+        opts = opts || {};
+        opts = _.defaults(opts, {
+            node: Common.node,
+            rows: table.rows({selected: true}),
+            password: undefined
+        });
+        opts = _.defaults(opts, {
+            ids: opts.rows.ids().toArray()
+        });
+
+        var ajaxOpts = {
+            fogguipass: opts.password,
+            confirmdel: 1,
+            remitems: opts.ids 
+        };
+
+        var numItems = ajaxOpts.remitems.length;
+
+        // If we know in advance that the user should reauth,
+        // prompt them with a modal to do so instead of wasting
+        // an API call
+        if (opts.password === undefined && shouldReAuth) {
+            Common.reAuth(numItems, function(err, password) {
+                if (err) {
+                    if (cb && typeof(cb) === 'function') {
+                        cb(err);
+                    }
+                    return;
+                }
+                opts.password = password;
+                Common.deleteSelected(table, cb, opts);
+            });
+            return;
+        }
+
+        Pace.track(function(){
+            $.ajax('', {
+                type: 'post',
+                url: '../management/index.php?node='
+                + opts.node
+                + '&sub=deletemulti',
+                async: true,
+                data: ajaxOpts,
+                success: function(res) {
+                    if (table !== undefined) {
+                        opts.rows.remove().draw(false);
+                        table.rows({selected: true}).deselect();
+                    }
+                    Common.finishReAuth();
+                    Common.notifyFromAPI(res, false);
+                    if (cb && typeof(cb) === 'function') {
+                        cb();
+                    }
+                },
+                error: function(res) {
+                    if (res.status == 401) {
+                        Common.notifyFromAPI(res.responseJSON, true);
+                        Common.reAuth(numItems, function(err, password) {
+                            if (err) {
+                                if (cb && typeof(cb) === 'function') {
+                                    cb(err);
+                                }
+                                return;
+                            }
+                            opts.password = password;
+                            Common.deleteSelected(table, cb, opts);
+                        });
+                        return;
+                    } else {
+                        Common.finishReAuth();
+                        Common.notifyFromAPI(res.responseJSON, true);
+                        if (cb && typeof(cb) === 'function') {
+                            cb(res);
+                        }
+                    }
+                }
+            });
+        });
+    };
+
+    Common.reAuth = function(count, cb) {
+        deleteConfirmButton.text(deleteLang.replace('{0}', count));
+        
+        // enable all buttons / focus on the input box incase 
+        //   the modal is already being shown
+        Common.setContainerDisable(reAuthModal, false);
+        $("#deletePassword").trigger('focus');
+
+        Common.registerModal(reAuthModal, 
+            // On show
+            function(e) {
+                $("#deletePassword").val('');
+                $("#deletePassword").trigger('focus');
+                Common.setContainerDisable(reAuthModal, false);
+            }, 
+            // On close
+            function(e) {
+                $("#deletePassword").val('');
+                cb('authClose');
+            }
+        );
+        // The auth modal is not a form, so 
+        //   the enter key must be manually bound 
+        //   to submit the password
+        $("#deletePassword").off('keypress');
+        $('#deletePassword').keypress(function (e) {
+            if (e.which == 13) {
+                Common.setContainerDisable(reAuthModal, true);
+                cb(null, $("#deletePassword").val());
+                return false;
+            }
+        });
+
+        deleteConfirmButton.off('click');
+        deleteConfirmButton.on('click', function(e) {
+            Common.setContainerDisable(reAuthModal, true);
+            cb(null, $("#deletePassword").val());
+        });
+        reAuthModal.modal('show');
+    };
+
+    Common.finishReAuth = function() {
+        reAuthModal.modal('hide');
+    };
+
     Common.registerTable = function(e, onSelect, opts) {
         opts = opts || {};
         opts = _.defaults(opts, {
@@ -269,11 +399,14 @@ var $_GET = getQueryParams(document.location.search),
             stateSave: false,
             autoWidth: false,
             responsive: true,
+            lengthMenu: [
+                [10, 25, 50, 100, -1],
+                [10, 25, 50, 100, 'All']
+            ],
             buttons: ['selectAll', 'selectNone'],
             pagingType: 'simple_numbers',
             select: { style: 'multi+shift' },
             dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>B<'row'<'col-sm-12'tr>><'row'<'col-sm-5'i><'col-sm-7'p>>",
-            pageLength: $('#pageLength').val()
         });
 
         var table = e.DataTable(opts);
@@ -296,6 +429,11 @@ var $_GET = getQueryParams(document.location.search),
         if(disabled !== false) {
             disabled = true;
         }
+        if (container === undefined) {
+            Common.debugLog("Was requested to disable an undefined container's children");
+            return;
+        }
+
         // Use native DOM query to select all the nested inputs
         // as it is faster
         var native = container[0];
@@ -325,6 +463,30 @@ var $_GET = getQueryParams(document.location.search),
         }
     }
 
+    Common.registerModal = function(e, onOpen, onClose, opts) {
+
+        if (e._modalInit === undefined || !e._modalInit) {
+            opts = opts || {};
+            opts = _.defaults(opts, {
+                backdrop: true,
+                keyboard: true,
+                focus: true,
+                show: false
+            });
+    
+            e.modal(opts);
+            e._modalInit = true;
+        }
+        e.off('show.bs.modal');
+        e.off('shown.bs.modal');
+        e.off('hidden.bs.modal');
+
+        if (onOpen && typeof(onOpen) === 'function')
+            e.on('shown.bs.modal', onOpen);
+        if (onClose && typeof(onClose) === 'function')
+            e.on('hidden.bs.modal', onClose);
+    }
+
     Common.iCheck = function(match) {
         match = match || 'input'
         $(match).iCheck({
@@ -342,6 +504,16 @@ var $_GET = getQueryParams(document.location.search),
     disableFormDefaults();
     setupPasswordReveal();
     setupUniversalSearch();
+
+    // Reauth
+    // =============
+    // Detect if the user should be re-prompted for their password for certain tasks
+    // Note, if this is false, but the server still rejects a request and requires re-auth,
+    // then the password prompt modal will still be shown.
+    shouldReAuth = ($("#reAuthDelete").val() == '1') ? true : false;
+    reAuthModal = $("#deleteModal");
+    deleteConfirmButton = $("#confirmDeleteModal");
+    deleteLang = deleteConfirmButton.text();
 })(jQuery);
 
 function setupIntegrations() {
