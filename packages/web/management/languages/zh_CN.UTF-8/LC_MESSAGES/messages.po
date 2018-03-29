@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-28 19:56-0400\n"
+"POT-Creation-Date: 2018-03-28 22:21-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4023,11 +4023,29 @@ msgstr "没有指定的图像"
 msgid "No Image specified"
 msgstr "没有指定的Image"
 
+#, fuzzy
+msgid "value must be numeric"
+msgstr "您必须输入一个名称"
+
+msgid "value is not in the required range"
+msgstr ""
+
+msgid "value must be a valid IP Address"
+msgstr ""
+
+#, fuzzy
+msgid "Memory limit cannot be less than 128"
+msgstr "菜单项或标题不能为空"
+
 msgid "Width must be 650 pixels."
 msgstr ""
 
 msgid "Height must be 120 pixels."
 msgstr ""
+
+#, fuzzy
+msgid "Settings update failed!"
+msgstr "设置更新"
 
 #, fuzzy
 msgid "Settings successfully stored!"
@@ -4038,19 +4056,7 @@ msgid "Settings Update Success"
 msgstr "安装/升级成功！"
 
 #, fuzzy
-msgid "Service Setting Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Rebranding element has been successfully updated!"
-msgstr "已成功更新"
-
-#, fuzzy
 msgid "Settings Update Fail"
-msgstr "设置更新"
-
-#, fuzzy
-msgid "Service Setting Update Failed"
 msgstr "设置更新"
 
 msgid "Service Master"

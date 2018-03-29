@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-28 19:56-0400\n"
+"POT-Creation-Date: 2018-03-28 22:21-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4030,11 +4030,29 @@ msgstr "Nenhuma imagem especificada"
 msgid "No Image specified"
 msgstr "Sem Imagem do especificado"
 
+#, fuzzy
+msgid "value must be numeric"
+msgstr "Você deve digitar um nome"
+
+msgid "value is not in the required range"
+msgstr ""
+
+msgid "value must be a valid IP Address"
+msgstr ""
+
+#, fuzzy
+msgid "Memory limit cannot be less than 128"
+msgstr "Artigo ou título de menu não pode ficar em branco"
+
 msgid "Width must be 650 pixels."
 msgstr ""
 
 msgid "Height must be 120 pixels."
 msgstr ""
+
+#, fuzzy
+msgid "Settings update failed!"
+msgstr "Configurações atualizadas"
 
 #, fuzzy
 msgid "Settings successfully stored!"
@@ -4045,19 +4063,7 @@ msgid "Settings Update Success"
 msgstr "Instalar / Atualizar sucesso!"
 
 #, fuzzy
-msgid "Service Setting Update Success"
-msgstr "Instalar / Atualizar sucesso!"
-
-#, fuzzy
-msgid "Rebranding element has been successfully updated!"
-msgstr "foi atualizado com sucesso"
-
-#, fuzzy
 msgid "Settings Update Fail"
-msgstr "Configurações atualizadas"
-
-#, fuzzy
-msgid "Service Setting Update Failed"
 msgstr "Configurações atualizadas"
 
 msgid "Service Master"

@@ -1807,14 +1807,6 @@ class FOGConfigurationPage extends FOGPage
             'category',
             'category'
         );
-        echo self::makeFormTag(
-            'form-horizontal',
-            'settings-form',
-            $this->formAction,
-            'post',
-            'multipart/form-data"',
-            true
-        );
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -1842,6 +1834,14 @@ class FOGConfigurationPage extends FOGPage
                 Route::getData()
             );
             $cat = preg_replace('#\s|[^\w+]#', '_', strtolower($Category));
+            echo self::makeFormTag(
+                'form-horizontal',
+                $cat . '-form',
+                $this->formAction,
+                'post',
+                'multipart/form-data"',
+                true
+            );
             echo '<div class="panel box box-info">';
             echo '<div class="box-header with-border">';
             echo '<h4 class="box-title">';
@@ -2132,7 +2132,7 @@ class FOGConfigurationPage extends FOGPage
                         )
                         . self::makeInput(
                             'form-control filedisp',
-                            '',
+                            'banner',
                             '',
                             'text',
                             '',
@@ -2183,7 +2183,7 @@ class FOGConfigurationPage extends FOGPage
                             '',
                             'text',
                             $Service->name,
-                            $Service->value,
+                            base64_encode($Service->value),
                             false,
                             false,
                             -1,
@@ -2338,18 +2338,26 @@ class FOGConfigurationPage extends FOGPage
             echo self::makeButton(
                 $cat . '-send',
                 _('Update'),
-                'btn btn-primary'
+                'btn btn-primary servicesend'
             );
             echo '</div>';
             echo '</div>';
             echo '</div>';
+            echo self::makeInput(
+                '',
+                'category',
+                '',
+                'hidden',
+                $cat.'-name',
+                $Category
+            );
+            echo '</form>';
         }
 
         echo '</div>';
         echo '<div class="box-footer">';
         echo '</div>';
         echo '</div>';
-        echo '</form>';
     }
     /**
      * Gets the osid information
@@ -2373,28 +2381,64 @@ class FOGConfigurationPage extends FOGPage
      */
     public function settingsPost()
     {
-        $checkbox = [0,1];
+        header('Content-type: application/json');
+        self::$HookManager->processEvent('SETTINGS_POST');
         $regenrange = range(0, 24, .25);
         $viewvals = [-1, 10, 25, 50, 100];
         array_shift($regenrange);
+        $checkbox = [
+            'FOG_ENFORCE_HOST_CHANGES' => true,
+            'FOG_API_ENABLED' => true,
+            'FOG_PXE_MENU_HIDDEN' => true,
+            'FOG_NO_MENU' => true,
+            'FOG_ADVANCED_MENU_LOGIN' => true,
+            'FOG_KERNEL_DEBUG' => true,
+            'FOG_REGISTRATION_ENABLED' => true,
+            'FOG_IMAGE_LIST_MENU' => true,
+            'FOG_EMAIL_ACTION' => true,
+            'FOG_QUICKREG_AUTOPOP' => true,
+            'FOG_QUICKREG_PROD_KEY_BIOS' => true,
+            'FOG_CLIENT_AUTOUPDATE' => true,
+            'FOG_CLIENT_AUTOLOGOFF_ENABLED' => true,
+            'FOG_CLIENT_CLIENTUPDATER_ENABLED' => true,
+            'FOG_CLIENT_DIRECTORYCLEANER_ENABLED' => true,
+            'FOG_CLIENT_DISPLAYMANAGER_ENABLED' => true,
+            'FOG_CLIENT_GREENFOG_ENABLED' => true,
+            'FOG_CLIENT_HOSTREGISTER_ENABLED' => true,
+            'FOG_CLIENT_HOSTNAMECHANGER_ENABLED' => true,
+            'FOG_CLIENT_POWERMANAGEMENT_ENABLED' => true,
+            'FOG_CLIENT_PRINTERMANAGER_ENABLED' => true,
+            'FOG_CLIENT_SNAPIN_ENABLED' => true,
+            'FOG_CLIENT_TASKREBOOT_ENABLED' => true,
+            'FOG_TASK_FORCE_ENABLED' => true,
+            'FOG_CLIENT_USERCLEANUP_ENABLED' => true,
+            'FOG_CLIENT_USERTRACKER_ENABLED' => true,
+            'FOG_USE_SLOPPY_NAME_LOOKUPS' => true,
+            'FOG_CAPTUREIGNOREPAGEHIBER' => true,
+            'FOG_USE_ANIMATION_EFFECTS' => true,
+            'FOG_USE_LEGACY_TASKLIST' => true,
+            'FOG_HOST_LOOKUP' => true,
+            'FOG_ADVANCED_STATISTICS' => true,
+            'FOG_DISABLE_CHKDSK' => true,
+            'FOG_CHANGE_HOSTNAME_EARLY' => true,
+            'FOG_FORMAT_FLAG_IN_GUI' => true,
+            'FOG_FTP_IMAGE_SIZE' => true,
+            'FOG_TASKING_ADV_SHUTDOWN_ENABLED' => true,
+            'FOG_TASKING_ADV_WOL_ENABLED' => true,
+            'FOG_TASKING_ADV_DEBUG_ENABLED' => true,
+            'FOG_REAUTH_ON_DELETE' => true,
+            'FOG_REAUTH_ON_EXPORT' => true,
+            'FOG_ALWAYS_LOGGED_IN' => true,
+            'FOG_PLUGINSYS_ENABLED' => true
+        ];
         $needstobenumeric = [
-            // API System
-            'FOG_API_ENABLED' => $checkbox,
             // FOG Boot Settings
             'FOG_PXE_MENU_TIMEOUT' => true,
-            'FOG_PXE_MENU_HIDDEN' => $checkbox,
             'FOG_PIGZ_COMP' => range(0, 22),
             'FOG_KEY_SEQUENCE' => range(1, 35),
-            'FOG_NO_MENU' => $checkbox,
-            'FOG_ADVANCED_MENU_LOGIN' => $checkbox,
-            'FOG_KERNEL_DEBUG' => $checkbox,
             'FOG_PXE_HIDDENMENU_TIMEOUT' => true,
-            'FOG_REGISTRATION_ENABLED' => $checkbox,
             'FOG_KERNEL_LOGLEVEL' => range(0, 7),
             'FOG_WIPE_TIMEOUT' => true,
-            'FOG_IMAGE_LIST_MENU' => $checkbox,
-            // FOG Email Settings
-            'FOG_EMAIL_ACTION' => $checkbox,
             // FOG Linux Service Logs
             'SERVICE_LOG_SIZE' => true,
             // FOG Linux Service Sleep Times
@@ -2405,7 +2449,6 @@ class FOGConfigurationPage extends FOGPage
             'IMAGEREPSLEEPTIME' => true,
             'MULTICASESLEEPTIME' => true,
             // FOG Quick Registration
-            'FOG_QUICKREG_AUTOPOP' => $checkbox,
             'FOG_QUICKREG_IMG_ID' => self::fastmerge(
                 (array)0,
                 self::getSubObjectIDs('Image')
@@ -2415,79 +2458,37 @@ class FOGConfigurationPage extends FOGPage
                 (array)0,
                 self::getSubObjectIDs('Group')
             ),
-            'FOG_QUICKREG_PROD_KEY_BIOS' => $checkbox,
             // FOG Service
             'FOG_CLIENT_CHECKIN_TIME' => true,
             'FOG_CLIENT_MAXSIZE' => true,
             'FOG_GRACE_TIMEOUT' => true,
-            'FOG_CLIENT_AUTOUPDATE' => $checkbox,
             // FOG Service - Auto Log Off
-            'FOG_CLIENT_AUTOLOGOFF_ENABLED' => $checkbox,
             'FOG_CLIENT_AUTOLOGOFF_MIN' => true,
-            // FOG Service - Client Updater
-            'FOG_CLIENT_CLIENTUPDATER_ENABLED' => $checkbox,
-            // FOG Service - Directory Cleaner
-            'FOG_CLIENT_DIRECTORYCLEANER_ENABLED' => $checkbox,
             // FOG Service - Display manager
-            'FOG_CLIENT_DISPLAYMANAGER_ENABLED' => $checkbox,
             'FOG_CLIENT_DISPLAYMANAGER_X' => true,
             'FOG_CLIENT_DISPLAYMANAGER_Y' => true,
             'FOG_CLIENT_DISPLAYMANAGER_R' => true,
-            // FOG Service - Green Fog
-            'FOG_CLIENT_GREENFOG_ENABLED' => $checkbox,
             // FOG Service - Host Register
-            'FOG_CLIENT_HOSTREGISTER_ENABLED' => $checkbox,
             'FOG_QUICKREG_MAX_PENDING_MACS' => true,
-            // FOG Service - Hostname Changer
-            'FOG_CLIENT_HOSTNAMECHANGER_ENABLED' => $checkbox,
-            // FOG Service - Power Management
-            'FOG_CLIENT_POWERMANAGEMENT_ENABLED' => $checkbox,
-            // FOG Service - Printer Manager
-            'FOG_CLIENT_PRINTERMANAGER_ENABLED' => $checkbox,
-            // FOG Service - Snapins
-            'FOG_CLIENT_SNAPIN_ENABLED' => $checkbox,
-            // FOG Service - Task Reboot
-            'FOG_CLIENT_TASKREBOOT_ENABLED' => $checkbox,
-            'FOG_TASK_FORCE_ENABLED' => $checkbox,
-            // FOG Service - User Cleanup
-            'FOG_CLIENT_USERCLEANUP_ENABLED' => $checkbox,
-            // FOG Service - User Tracker
-            'FOG_CLIENT_USERTRACKER_ENABLED' => $checkbox,
             // FOG View Settings
             'FOG_VIEW_DEFAULT_SCREEN' => $viewvals,
             'FOG_DATA_RETURNED' => true,
             // General Settings
-            'FOG_USE_SLOPPY_NAME_LOOKUPS' => $checkbox,
             'FOG_CAPTURERESIZEPCT' => true,
             'FOG_CHECKIN_TIMEOUT' => true,
-            'FOG_CAPTUREIGNOREPAGEHIBER' => $checkbox,
-            'FOG_USE_ANIMATION_EFFECTS' => $checkbox,
-            'FOG_USE_LEGACY_TASKLIST' => $checkbox,
-            'FOG_HOST_LOOKUP' => $checkbox,
-            'FOG_ADVANCED_STATISTICS' => $checkbox,
-            'FOG_DISABLE_CHKDSK' => $checkbox,
-            'FOG_CHANGE_HOSTNAME_EARLY' => $checkbox,
-            'FOG_FORMAT_FLAG_IN_GUI' => $checkbox,
             'FOG_MEMORY_LIMIT' => true,
             'FOG_SNAPIN_LIMIT' => true,
-            'FOG_FTP_IMAGE_SIZE' => $checkbox,
             'FOG_FTP_PORT' => range(1, 65535),
             'FOG_FTP_TIMEOUT' => true,
             'FOG_BANDWIDTH_TIME' => true,
             'FOG_URL_BASE_CONNECT_TIMEOUT' => true,
             'FOG_URL_BASE_TIMEOUT' => true,
             'FOG_URL_AVAILABLE_TIMEOUT' => true,
-            'FOG_TASKING_ADV_SHUTDOWN_ENABLED' => $checkbox,
-            'FOG_TASKING_ADV_WOL_ENABLED' => $checkbox,
-            'FOG_TASKING_ADV_DEBUG_ENABLED' => $checkbox,
             'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT' => self::fastmerge(
                 (array)0,
                 range(2, 6)
             ),
-            'FOG_REAUTH_ON_DELETE' => $checkbox,
-            'FOG_REAUTH_ON_EXPORT' => $checkbox,
             // Login Settings
-            'FOG_ALWAYS_LOGGED_IN' => $checkbox,
             'FOG_INACTIVITY_TIMEOUT' => range(1, 24),
             'FOG_REGENERATE_TIMEOUT' => $regenrange,
             // Multicast Settings
@@ -2495,8 +2496,6 @@ class FOGConfigurationPage extends FOGPage
             'FOG_MULTICASE_MAX_SESSIONS' => true,
             'FOG_UDPCAST_MAXWAIT' => true,
             'FOG_MULTICAST_PORT_OVERRIDE' => range(0, 65535),
-            // Plugin System
-            'FOG_PLUGINSYS_ENABLED' => $checkbox,
             // Proxy Settings
             'FOG_PROXY_PORT' => range(0, 65535),
             // User Management
@@ -2510,21 +2509,17 @@ class FOGConfigurationPage extends FOGPage
             'FOG_PROXY_IP' => true,
         ];
         unset($findWhere, $setWhere);
-        Route::listem('service', 'id', true);
+        $pName = filter_input(INPUT_POST, 'category');
+        Route::listem(
+            'service',
+            ['settingCategory' => $pName]
+        );
         $Services = json_decode(
             Route::getData()
         );
-        $Services = $Services->services;
+        $serverFault = false;
         try {
-            foreach ((array)$Services as $index => &$Service) {
-                $divTab = preg_replace(
-                    '#[^\w\-]#',
-                    '_',
-                    $Service->category
-                );
-                if (!isset($_POST[$divTab])) {
-                    continue;
-                }
+            foreach ($Services->data as &$Service) {
                 $key = trim(
                     $Service->id
                 );
@@ -2535,22 +2530,37 @@ class FOGConfigurationPage extends FOGPage
                     $Service->name
                 );
                 $set = filter_var($_POST[$key]);
+                if (isset($checkbox[$name])) {
+                    $set = (int)isset($_POST[$key]);
+                }
                 if (isset($needstobenumeric[$name])) {
-                    if ($needstobenumeric[$name] === true
-                        && !is_numeric($set)
-                    ) {
-                        $set = 0;
-                    }
-                    if ($needstobenumeric[$name] !== true
-                        && !in_array($set, $needstobenumeric[$name])
-                    ) {
-                        $set = 0;
+                    switch ($needstobenumeric[$name]) {
+                    case ($needstobenumeric[$name] === true):
+                        if (!is_numeric($set)) {
+                            throw new Exception(
+                                $name . ' ' . _('value must be numeric')
+                            );
+                        }
+                        break;
+                    default:
+                        if (!is_numeric($set)) {
+                            throw new Exception(
+                                $name . ' ' . _('value must be numeric')
+                            );
+                        }
+                        if (!in_array($set, $needstobenumeric[$name])) {
+                            throw new Exception(
+                                $name . ' ' . _('value is not in the required range')
+                            );
+                        }
                     }
                 }
-                if (isset($needstobeip[$name])
-                    && !filter_var($set, FILTER_VALIDATE_IP)
-                ) {
-                    $set = '';
+                if (isset($needstobeip[$name])) {
+                    if (!filter_var($set, FILTER_VALIDATE_IP)) {
+                        throw new Exception(
+                            $name . ' ' . _('value must be a valid IP Address')
+                        );
+                    }
                 }
                 switch ($name) {
                 case 'FOG_API_TOKEN':
@@ -2558,10 +2568,10 @@ class FOGConfigurationPage extends FOGPage
                     break;
                 case 'FOG_MEMORY_LIMIT':
                     if ($set < 128) {
-                        $set = 128;
+                        throw new Exception(
+                            _('Memory limit cannot be less than 128')
+                        );
                     }
-                    break;
-                case 'FOG_AD_DEFAULT_PASSWORD':
                     break;
                 case 'FOG_CLIENT_BANNER_SHA':
                     continue 2;
@@ -2623,71 +2633,41 @@ class FOGConfigurationPage extends FOGPage
                     break;
                 }
                 $items[] = [$key, $name, $set];
-                unset($Service, $index);
+                unset($Service);
             }
             if (count($items) > 0) {
-                self::getClass('ServiceManager')
-                    ->insertBatch(
-                        [
-                            'id',
-                            'name',
-                            'value'
-                        ],
-                        $items
-                    );
+                $ServiceMan = self::getClass('ServiceManager');
+                $insert_fields = [
+                    'id',
+                    'name',
+                    'value'
+                ];
+                if (!$ServiceMan->insertBatch($insert_fields, $items)) {
+                    $serverFault = true;
+                    throw new Exception(_('Settings update failed!'));
+                }
             }
-            $code = HTTPResponseCode::HTTP_ACCEPTED;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $msg = json_encode(
                 [
                     'msg' => _('Settings successfully stored!'),
                     'title' => _('Settings Update Success')
                 ]
             );
-            if (isset($_POST['Rebranding'])) {
-                echo '<div class="col-xs-9">';
-                echo '<div class="panel panel-success">';
-                echo '<div class="panel-heading text-center">';
-                echo '<h4 class="title">';
-                echo _('Service Setting Update Success');
-                echo '</h4>';
-                echo '</div>';
-                echo '<div class="panel-body">';
-                echo _('Rebranding element has been successfully updated!');
-                echo '</div>';
-                echo '</div>';
-                echo '</div>';
-                return;
-            }
         } catch (Exception $e) {
-            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
                     'title' => _('Settings Update Fail')
                 ]
             );
-            if (isset($_POST['Rebranding'])) {
-                echo '<div class="col-xs-9">';
-                echo '<div class="panel panel-warning">';
-                echo '<div class="panel-heading text-center">';
-                echo '<h4 class="title">';
-                echo _('Service Setting Update Failed');
-                echo '</h4>';
-                echo '</div>';
-                echo '<div class="panel-body">';
-                echo $e->getMessage();
-                echo '</div>';
-                echo '</div>';
-                echo '</div>';
-                return;
-            }
         }
         http_response_code($code);
-        if (isset($_POST['Rebranding'])) {
-            self::redirect(
-                $this->formAction
-            );
-        }
         echo $msg;
         exit;
     }
