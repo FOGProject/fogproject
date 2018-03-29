@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-28 19:56-0400\n"
+"POT-Creation-Date: 2018-03-28 22:21-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3508,10 +3508,25 @@ msgstr ""
 msgid "No Image specified"
 msgstr ""
 
+msgid "value must be numeric"
+msgstr ""
+
+msgid "value is not in the required range"
+msgstr ""
+
+msgid "value must be a valid IP Address"
+msgstr ""
+
+msgid "Memory limit cannot be less than 128"
+msgstr ""
+
 msgid "Width must be 650 pixels."
 msgstr ""
 
 msgid "Height must be 120 pixels."
+msgstr ""
+
+msgid "Settings update failed!"
 msgstr ""
 
 msgid "Settings successfully stored!"
@@ -3520,16 +3535,7 @@ msgstr ""
 msgid "Settings Update Success"
 msgstr ""
 
-msgid "Service Setting Update Success"
-msgstr ""
-
-msgid "Rebranding element has been successfully updated!"
-msgstr ""
-
 msgid "Settings Update Fail"
-msgstr ""
-
-msgid "Service Setting Update Failed"
 msgstr ""
 
 msgid "Service Master"

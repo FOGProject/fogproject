@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-28 19:56-0400\n"
+"POT-Creation-Date: 2018-03-28 22:21-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3796,11 +3796,29 @@ msgstr "Nessun immagine specificata"
 msgid "No Image specified"
 msgstr "Nessuna immagine specificata"
 
+#, fuzzy
+msgid "value must be numeric"
+msgstr "Il parametro Diff deve essere numerico"
+
+msgid "value is not in the required range"
+msgstr ""
+
+msgid "value must be a valid IP Address"
+msgstr ""
+
+#, fuzzy
+msgid "Memory limit cannot be less than 128"
+msgstr "Voce di menu o il titolo non può essere vuoto"
+
 msgid "Width must be 650 pixels."
 msgstr "Larghezza deve essere di 650 pixel."
 
 msgid "Height must be 120 pixels."
 msgstr "Altezza deve essere di 120 pixel."
+
+#, fuzzy
+msgid "Settings update failed!"
+msgstr "Aggiornamento Impostazioni non riuscito"
 
 msgid "Settings successfully stored!"
 msgstr "Le impostazioni sono state memorizzate correttamente!"
@@ -3808,17 +3826,8 @@ msgstr "Le impostazioni sono state memorizzate correttamente!"
 msgid "Settings Update Success"
 msgstr "Modifica Impostazioni completata"
 
-msgid "Service Setting Update Success"
-msgstr "Agiormaento Impostazioni del servizio completato"
-
-msgid "Rebranding element has been successfully updated!"
-msgstr "L'elemento Rebranding è stato aggiornato con successo!"
-
 msgid "Settings Update Fail"
 msgstr "Aggiornamento Impostazioni non riuscito"
-
-msgid "Service Setting Update Failed"
-msgstr "Aggiornamento impostazione servizio non riuscito"
 
 msgid "Service Master"
 msgstr "Service master"

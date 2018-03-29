@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-28 19:56-0400\n"
+"POT-Creation-Date: 2018-03-28 22:21-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4038,11 +4038,29 @@ msgstr "Kein Image angegeben"
 msgid "No Image specified"
 msgstr "Kein Image angegeben"
 
+#, fuzzy
+msgid "value must be numeric"
+msgstr "Diff Parameter muss numerisch sein"
+
+msgid "value is not in the required range"
+msgstr ""
+
+msgid "value must be a valid IP Address"
+msgstr ""
+
+#, fuzzy
+msgid "Memory limit cannot be less than 128"
+msgstr "Menüpunkt oder Titel darf nicht leer sein."
+
 msgid "Width must be 650 pixels."
 msgstr "Breite muss 650 Pixel betragen"
 
 msgid "Height must be 120 pixels."
 msgstr "Höhe muss 120 Pixel betragen"
+
+#, fuzzy
+msgid "Settings update failed!"
+msgstr "Update der Einstellungen fehlgeschlagen"
 
 #, fuzzy
 msgid "Settings successfully stored!"
@@ -4053,20 +4071,8 @@ msgid "Settings Update Success"
 msgstr "Einstellungen erfolgreich aktualisiert"
 
 #, fuzzy
-msgid "Service Setting Update Success"
-msgstr "Service Settings erfoglreich aktualisiert!"
-
-#, fuzzy
-msgid "Rebranding element has been successfully updated!"
-msgstr "Rebrandingelement wurde erfolgreich aktualisiert"
-
-#, fuzzy
 msgid "Settings Update Fail"
 msgstr "Update der Einstellungen fehlgeschlagen"
-
-#, fuzzy
-msgid "Service Setting Update Failed"
-msgstr "Update der Service Settings fehlgeschlagen"
 
 msgid "Service Master"
 msgstr "Service-Master"
