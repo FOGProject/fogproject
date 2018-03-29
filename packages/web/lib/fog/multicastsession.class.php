@@ -107,20 +107,44 @@ class MulticastSession extends FOGController
             ['msID' => $this->get('id')],
             'taskID'
         );
-        self::getClass('TaskManager')
-            ->update(
-                ['id' => $taskIDs],
-                '',
-                ['stateID' => self::getCancelledState()]
-            );
+        self::getClass('TaskManager')->update(
+            ['id' => $taskIDs],
+            '',
+            ['stateID' => self::getCancelledState()]
+        );
         self::getClass('MulticastSessionAssociationManager')
             ->destroy(['msID' => $this->get('id')]);
-        return $this->set(
-            'stateID',
-            self::getCancelledState()
-        )->set(
-            'name',
-            ''
-        )->save();
+        return $this
+            ->set('stateID', self::getCancelledState())
+            ->set('name', '')
+            ->set('clients', 0)
+            ->set('completetime', self::niceDate()->format('Y-m-d H:i:s'))
+            ->save();
+    }
+    /**
+     * Completes this particular session.
+     *
+     * @return void
+     */
+    public function complete()
+    {
+        $taskIDs = self::getSubObjectIDs(
+            'MulticastSessionAssociation',
+            ['msID' => $this->get('id')],
+            'taskID'
+        );
+        self::getClass('TaskManager')->update(
+            ['id' => $taskIDs],
+            '',
+            ['stateID' => self::getCompleteState()]
+        );
+        self::getClass('MulticastSessionAssociationManager')
+            ->destroy(['msID' => $this->get('id')]);
+        return $this
+            ->set('stateID', self::getCompleteState())
+            ->set('name', '')
+            ->set('clients', 0)
+            ->set('completetime', self::niceDate()->format('Y-m-d H:i:s'))
+            ->save();
     }
 }
