@@ -65,7 +65,10 @@ class FOGConfigurationPage extends FOGPage
         );
         $StorageNodes = $StorageNodes->data;
         ob_start();
-        foreach ((array)$StorageNodes as &$StorageNode) {
+        foreach ($StorageNodes as &$StorageNode) {
+            if (!$StorageNode->online) {
+                continue;
+            }
             $url = filter_var(
                 sprintf(
                     '%s://%s/fog/status/kernelvers.php',

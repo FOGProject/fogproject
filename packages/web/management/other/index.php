@@ -229,9 +229,12 @@ if (self::$FOGUser->isValid()) {
     echo '<b>';
     echo _('Channel');
     echo '</b> ' . FOG_CHANNEL . ' | ';
+    echo '<a href="../management/index.php?node=about&sub=home" '
+        . 'style="text-decoration: none">';
     echo '<b>';
     echo _('Version');
     echo '</b> ' . FOG_VERSION;
+    echo '</a>';
     echo '</div>';
     echo '<strong>'
         . _('Copyright')
