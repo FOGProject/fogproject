@@ -174,12 +174,8 @@ class BootMenu extends FOGBase
             false,
             ''
         );
-        $curroot = trim($curroot, '/');
-        $webroot = sprintf(
-            '/%s',
-            (strlen($curroot) > 1 ? sprintf('%s/', $curroot) : '')
-        );
-        $this->_web = sprintf('%s://%s%s', self::$httpproto, $webserver, $webroot);
+        $curroot = '/fog/';
+        $this->_web = sprintf('%s://%s%s', self::$httpproto, $webserver, $curroot);
         $Send['booturl'] = [
             '#!ipxe',
             "set fog-ip $webserver",
@@ -1941,7 +1937,7 @@ class BootMenu extends FOGBase
         $Send['default'] = [$this->_defaultChoice];
         array_map(
             function (&$Menu) use (&$Send) {
-                $Send["choice-{$Menu->get(name)}"] = $this->_menuOpt(
+                $Send['choice-'.$Menu->get('name')] = $this->_menuOpt(
                     $Menu,
                     trim($Menu->get('args'))
                 );

@@ -1200,33 +1200,26 @@ class Route extends FOGBase
     public static function active($class)
     {
         $classname = strtolower($class);
-        $classman = self::getClass($class)->getManager();
-        $find = self::getsearchbody($classname);
-        $states = self::fastmerge(
-            (array)self::getQueuedStates(),
-            (array)self::getProgressState()
-        );
+        $states = self::getQueuedStates();
+        $states[] = self::getProgressState();
         switch ($classname) {
         case 'scheduledtask':
-            $find['isActive'] = 1;
+            $find = ['stActive' => 1];
             break;
         case 'multicastsession':
+            $find = ['msState' => $states];
+            break;
         case 'snapinjob':
+            $find = ['sjStateID' => $states];
+            break;
         case 'snapintask':
+            $find = ['stState' => $states];
+            break;
         case 'task':
-            $find['stateID'] = $states;
+            $find = ['taskStateID' => $states];
+            break;
         }
-        self::$data = [];
-        self::$data['count'] = 0;
-        self::$data[$classname.'s'] = [];
-        foreach ((array)$classman->find($find) as &$class) {
-            self::$data[$classname.'s'][] = self::getter(
-                $classname,
-                $class
-            );
-            self::$data['count']++;
-            unset($class);
-        }
+        self::listem($class, $find);
     }
     /**
      * Deletes an element.

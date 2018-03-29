@@ -58,14 +58,11 @@ class MulticastTask extends FOGService
             )
         );
         unset($StorageNode);
-        $find = ['msState' => $queuedStates];
-        Route::listem(
-            'multicastsession',
-            $find
-        );
+        Route::active('multicastsession');
         $Tasks = json_decode(
             Route::getData()
         );
+        $NewTasks = [];
         foreach ($Tasks->data as &$Task) {
             $taskIDs = self::getSubObjectIDs(
                 'MulticastSessionAssociation',
@@ -74,7 +71,7 @@ class MulticastTask extends FOGService
             );
             $count = count($taskIDs ?: []);
             if ($count < 1) {
-                $count = $MultiSess->sessclients;
+                $count = $Task->sessclients;
             }
             if ($count < 1) {
                 self::getClass('MulticastSessionManager')->update(
@@ -104,7 +101,7 @@ class MulticastTask extends FOGService
             if (!file_exists($fullPath)) {
                 continue;
             }
-            $Tasks[] = new self(
+            $NewTasks[] = new self(
                 $Task->id,
                 $Task->name,
                 $Task->port,
@@ -118,7 +115,7 @@ class MulticastTask extends FOGService
             );
             unset($Task);
         }
-        return array_filter($Tasks);
+        return array_filter($NewTasks);
     }
     /**
      * Session ID
