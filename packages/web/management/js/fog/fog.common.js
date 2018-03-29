@@ -4,6 +4,8 @@ var $_GET = getQueryParams(document.location.search),
         sub: $_GET['sub'],
         id: $_GET['id'],
         tab: $_GET['tab'],
+        type: $_GET['type'],
+        f: $_GET['f'],
         debug: $_GET['debug'],
         search: $_GET['search'],
         masks: {
@@ -15,10 +17,10 @@ var $_GET = getQueryParams(document.location.search),
     };
 
 (function($) {
-    var shouldReAuth;
-    var reAuthModal;
-    var deleteConfirmButton;
-    var deleteLang = 'Delete';
+    var shouldReAuth,
+        reAuthModal,
+        deleteConfirmButton,
+        deleteLang = 'Delete';
 
     Common.debugLog = function(obj) {
         if(Common.debug) {
@@ -48,10 +50,10 @@ var $_GET = getQueryParams(document.location.search),
 
         Common.debugLog(res);
     };
-    Common.validateForm = function(form) {
+    Common.validateForm = function(form, input = ':input') {
         var scrolling = false;
         var isError = false;
-        form.find(":input").each(function(i, e) {
+        form.find(input).each(function(i, e) {
             var isValid = true;
             var invalidReason = undefined;
 
@@ -136,7 +138,7 @@ var $_GET = getQueryParams(document.location.search),
         });
 
         return !isError;
-    },
+    };
     Common.apiCall = function(method, url, data, cb) {
         Pace.track(function(){
             $.ajax('', {
@@ -147,34 +149,34 @@ var $_GET = getQueryParams(document.location.search),
                 success: function(res) {
                     Common.notifyFromAPI(res, false);
                     if (cb && typeof(cb) === 'function') {
-                        cb();
+                        cb(null, res);
                     }
                 },
                 error: function(res) {
                     Common.notifyFromAPI(res.responseJSON, true);
                     if (cb && typeof(cb) === 'function') {
-                        cb(res);
+                        cb(res,res.responseJSON);
                     }
                 }
             });
         });
-    }
-    Common.processForm = function(form, cb) {
+    };
+    Common.processForm = function(form, cb, input = ':input') {
         // Serialize before disabling, so we can read inputs
         var opts = form.serialize();
         Common.setContainerDisable(form, true);
-        if(!Common.validateForm(form)) {
+        if(!Common.validateForm(form, input)) {
             Common.setContainerDisable(form, false);
             if (cb && typeof(cb) === 'function')
-                cb('invalid');
+                cb('invalid', null);
             return;
         }
         var method = form.attr('method'),
             action = form.attr('action');
-        Common.apiCall(method,action,opts,function(err) {
+        Common.apiCall(method,action,opts,function(err,data) {
             Common.setContainerDisable(form, false);
             if (cb && typeof(cb) === 'function')
-                cb(err);
+                cb(err,data);
         });
     };
     Common.massExport = function(password, cb) {
@@ -243,18 +245,18 @@ var $_GET = getQueryParams(document.location.search),
                     }
                     Common.notifyFromAPI(res, false);
                     if (cb && typeof(cb) === 'function') {
-                        cb();
+                        cb(null,res);
                     }
                 },
                 error: function(res) {
                     if (res.status == 401) {
                         if (cb && typeof(cb) === 'function') {
-                            cb(res);
+                            cb(res,res.responseJSON);
                         }
                     } else {
                         Common.notifyFromAPI(res.responseJSON, true);
                         if (cb && typeof(cb) === 'function') {
-                            cb(res);
+                            cb(res,res.responseJSON);
                         }
                     }
                 }
@@ -276,7 +278,7 @@ var $_GET = getQueryParams(document.location.search),
         var ajaxOpts = {
             fogguipass: opts.password,
             confirmdel: 1,
-            remitems: opts.ids 
+            remitems: opts.ids
         };
 
         var numItems = ajaxOpts.remitems.length;
@@ -314,7 +316,7 @@ var $_GET = getQueryParams(document.location.search),
                     Common.finishReAuth();
                     Common.notifyFromAPI(res, false);
                     if (cb && typeof(cb) === 'function') {
-                        cb();
+                        cb(null,res);
                     }
                 },
                 error: function(res) {
@@ -323,7 +325,7 @@ var $_GET = getQueryParams(document.location.search),
                         Common.reAuth(numItems, function(err, password) {
                             if (err) {
                                 if (cb && typeof(cb) === 'function') {
-                                    cb(err);
+                                    cb(err,res.responseJSON);
                                 }
                                 return;
                             }
@@ -335,7 +337,7 @@ var $_GET = getQueryParams(document.location.search),
                         Common.finishReAuth();
                         Common.notifyFromAPI(res.responseJSON, true);
                         if (cb && typeof(cb) === 'function') {
-                            cb(res);
+                            cb(res,res.responseJSON);
                         }
                     }
                 }
@@ -345,27 +347,27 @@ var $_GET = getQueryParams(document.location.search),
 
     Common.reAuth = function(count, cb) {
         deleteConfirmButton.text(deleteLang.replace('{0}', count));
-        
-        // enable all buttons / focus on the input box incase 
+
+        // enable all buttons / focus on the input box incase
         //   the modal is already being shown
         Common.setContainerDisable(reAuthModal, false);
         $("#deletePassword").trigger('focus');
 
-        Common.registerModal(reAuthModal, 
+        Common.registerModal(reAuthModal,
             // On show
             function(e) {
                 $("#deletePassword").val('');
                 $("#deletePassword").trigger('focus');
                 Common.setContainerDisable(reAuthModal, false);
-            }, 
+            },
             // On close
             function(e) {
                 $("#deletePassword").val('');
                 cb('authClose');
             }
         );
-        // The auth modal is not a form, so 
-        //   the enter key must be manually bound 
+        // The auth modal is not a form, so
+        //   the enter key must be manually bound
         //   to submit the password
         $("#deletePassword").off('keypress');
         $('#deletePassword').keypress(function (e) {
@@ -403,6 +405,7 @@ var $_GET = getQueryParams(document.location.search),
                 [10, 25, 50, 100, -1],
                 [10, 25, 50, 100, 'All']
             ],
+            pageLength: $('#pageLength').val(),
             buttons: ['selectAll', 'selectNone'],
             pagingType: 'simple_numbers',
             select: { style: 'multi+shift' },
@@ -473,7 +476,7 @@ var $_GET = getQueryParams(document.location.search),
                 focus: true,
                 show: false
             });
-    
+
             e.modal(opts);
             e._modalInit = true;
         }
@@ -612,8 +615,8 @@ function setupUniversalSearch() {
 
 function setupPasswordReveal() {
     $(':password')
-    .not('.fakes, [name="upass"]')
-    .before('<span class="input-group-addon"><i class="fa fa-eye-slash fogpasswordeye"></i></span>');
+        .not('.fakes, [name="upass"]')
+        .before('<span class="input-group-addon"><i class="fa fa-eye-slash fogpasswordeye"></i></span>');
     $(document).on('click', '.fogpasswordeye', function(e) {
         e.preventDefault();
         if (!$(this).hasClass('clicked')) {
@@ -637,9 +640,9 @@ function setupPasswordReveal() {
         var input = $(this),
             numFiles = input.get(0).files ? input.get(0).files.length : 1,
             label = input
-                .val()
-                .replace(/\\/g, '/')
-                .replace(/.*\//, '');
+            .val()
+            .replace(/\\/g, '/')
+            .replace(/.*\//, '');
         input.trigger('fileselect', [numFiles, label]);
         /**
          * If only one file display the value in the text field.

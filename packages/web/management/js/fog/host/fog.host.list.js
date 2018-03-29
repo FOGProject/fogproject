@@ -96,7 +96,7 @@
                     return;
                 }
                 var $result = $("<span></span>");
-                
+
                 $result.text(data.text);
                 if (data.newOption) {
                     $result.append(" <em><b>(new)</b></em>");
@@ -111,11 +111,11 @@
 
 
 
-    Common.registerModal(groupModal, 
+    Common.registerModal(groupModal,
         // On show
         function(e) {
 
-        }, 
+        },
         // On close
         function(e) {
             // Clear the group selector and data

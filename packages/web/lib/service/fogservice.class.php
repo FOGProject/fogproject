@@ -116,31 +116,38 @@ abstract class FOGService extends FOGBase
     protected function checkIfNodeMaster()
     {
         self::getIPAddress();
-        $StorageNodes = array();
-        foreach ((array)self::getClass('StorageNodeManager')
-            ->find(
-                array(
-                    'isMaster' => 1,
-                    'isEnabled' => 1
-                )
-            ) as &$StorageNode
-        ) {
+        Route::listem(
+            'storagenode',
+            [
+                'ngmIsMasterNode' => 1,
+                'ngmIsEnabled' => 1
+            ]
+        );
+        $StorageNodes = [];
+        $StorageNodesFound = json_decode(
+            Route::getData()
+        );
+        foreach ($StorageNodesFound->data as &$StorageNode) {
+            if (!$StorageNode->online) {
+                continue;
+            }
             $ip = self::resolveHostname(
-                $StorageNode->get('ip')
+                $StorageNode->ip
             );
             if (!in_array($ip, self::$ips)) {
                 continue;
             }
             $StorageNodes[] = $StorageNode;
-            $MasterIDs[] = $StorageNode->get('id');
+            $MasterIDs[] = $StorageNode->id;
+            unset($StorageNode);
         }
         self::$HookManager->processEvent(
             'CHECK_NODE_MASTERS',
-            array(
+            [
                 'StorageNodes' => &$StorageNodes,
                 'FOGServiceClass' => &$this,
                 'MasterIDs' => &$MasterIDs
-            )
+            ]
         );
         if (count($StorageNodes) > 0) {
             return $StorageNodes;

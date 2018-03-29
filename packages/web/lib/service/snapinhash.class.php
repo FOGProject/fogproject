@@ -47,13 +47,13 @@ class SnapinHash extends FOGService
             $zzz
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'SNAPINHASHDEVICEOUTPUT',
                     'SNAPINHASHLOGFILENAME',
                     self::$sleeptime
-                )
-            ),
+                ]
+            ],
             'value',
             false,
             'AND',
@@ -101,10 +101,16 @@ class SnapinHash extends FOGService
             if (self::$_hashOn < 1) {
                 throw new Exception(_(' * Snapin hash is globally disabled'));
             }
-            foreach ((array)$this->checkIfNodeMaster() as &$StorageNode) {
-                $myStorageGroupID = $StorageNode->get('storagegroupID');
-                $myStorageNodeID = $StorageNode->get('id');
-                $StorageGroup = $StorageNode->getStorageGroup();
+            foreach ($this->checkIfNodeMaster() as &$StorageNode) {
+                $myStorageGroupID = $StorageNode->storagegroupID;
+                $myStorageNodeID = $StorageNode->id;
+                Route::indiv(
+                    'storagegroup',
+                    $myStorageGroupID
+                );
+                $StorageGroup = json_decode(
+                    Route::getData()
+                );
                 self::outall(
                     sprintf(
                         ' * %s.',
@@ -115,18 +121,18 @@ class SnapinHash extends FOGService
                     sprintf(
                         ' * %s: %d. %s: %s',
                         _('We are group ID'),
-                        $StorageGroup->get('id'),
+                        $StorageGroup->id,
                         _('We are group name'),
-                        $StorageGroup->get('name')
+                        $StorageGroup->name
                     )
                 );
                 self::outall(
                     sprintf(
                         ' * %s: %d. %s: %s',
                         _('We are node ID'),
-                        $StorageNode->get('id'),
+                        $StorageNode->id,
                         _('We are node name'),
-                        $StorageNode->get('name')
+                        $StorageNode->name
                     )
                 );
                 self::outall(
@@ -139,18 +145,20 @@ class SnapinHash extends FOGService
                 );
                 $snapinIDs = self::getSubObjectIDs(
                     'SnapinGroupAssociation',
-                    array(
+                    [
                         'primary' => 1,
                         'storagegroupID' => $myStorageGroupID
-                    ),
+                    ],
                     'snapinID'
                 );
-                $SnapinCount = self::getClass('SnapinManager')->count(
-                    array(
+                $snapinIDs = self::getSubObjectIDs(
+                    'Snapin',
+                    [
                         'id' => $snapinIDs,
                         'isEnabled' => 1
-                    )
+                    ]
                 );
+                $SnapinCount = count($snapinIDs ?: []);
                 if ($SnapinCount < 1) {
                     self::outall(
                         sprintf(
@@ -173,28 +181,28 @@ class SnapinHash extends FOGService
                         _('to update hash values as needed')
                     )
                 );
-                foreach ((array)self::getClass('SnapinManager')
-                    ->find(
-                        array(
-                            'id' => $snapinIDs,
-                            'isEnabled' => 1
-                        )
-                    ) as &$Snapin
-                ) {
+                Route::listem(
+                    'snapin',
+                    ['sID' => $snapinIDs]
+                );
+                $Snapins = json_encode(
+                    Route::getData()
+                );
+                foreach ($Snapins->data as &$Snapin) {
                     self::outall(
                         sprintf(
                             ' * %s: %s, %s: %d',
                             _('Trying Snapin hash for'),
-                            $Snapin->get('name'),
+                            $Snapin->name,
                             _('ID'),
-                            $Snapin->get('id')
+                            $Snapin->id
                         )
                     );
                     $path = sprintf(
                         '/%s',
-                        trim($StorageNode->get('snapinpath'), '/')
+                        trim($StorageNode->snapinpath, '/')
                     );
-                    $file = basename($Snapin->get('file'));
+                    $file = basename($Snapin->file);
                     $filepath = sprintf(
                         '%s/%s',
                         $path,
@@ -204,7 +212,7 @@ class SnapinHash extends FOGService
                         sprintf(
                             ' * %s: %s.',
                             _('Getting snapin hash and size for'),
-                            $Snapin->get('name')
+                            $Snapin->name
                         )
                     );
                     $hash = hash_file('sha512', $filepath);
@@ -217,7 +225,7 @@ class SnapinHash extends FOGService
                             $hash
                         )
                     );
-                    $Snapin
+                    self::getClass('Snapin', $Snapin->id)
                         ->set('hash', $hash)
                         ->set('size', $size)
                         ->save();
@@ -232,7 +240,6 @@ class SnapinHash extends FOGService
                     _('Completed')
                 )
             );
-            unset($StorageNodes);
         } catch (Exception $e) {
             self::outall(
                 sprintf(

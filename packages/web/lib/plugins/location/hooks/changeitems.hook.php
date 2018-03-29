@@ -250,20 +250,27 @@ class ChangeItems extends Hook
             '',
             'storagenodeID'
         );
-        $storagenodeIDs = self::fastmerge(
-            (array) $storagenodeIDs,
-            (array) $arguments['MasterIDs']
+        $storagenodeIDs = array_unique(
+            array_filter(
+                self::fastmerge(
+                    $storagenodeIDs,
+                    $arguments['MasterIDs']
+                )
+            )
         );
-        $storagenodeIDs = array_filter($storagenodeIDs);
-        $storagenodeIDs = array_unique($storagenodeIDs);
-        $arguments['StorageNodes'] = self::getClass('StorageNodeManager')
-            ->find(['id' => $storagenodeIDs]);
-        foreach ($arguments['StorageNodes'] as &$StorageNode) {
-            if (!$StorageNode->isValid()) {
+        Route::listem(
+            'storagenode',
+            ['ngmID' => $storagenodeIDs]
+        );
+        $arguments['StorageNodes'] = json_decode(
+            Route::getData()
+        );
+        foreach ($arguments['StorageNodes']->data as $ind => &$StorageNode) {
+            if (!$StorageNode->online) {
                 continue;
             }
-            if (!$StorageNode->get('isMaster')) {
-                $StorageNode->set('isMaster', 1);
+            if (!$StorageNode->isMaster) {
+                $arguments['StorageNodes']->data[$ind]->isMaster = 1;
             }
             unset($StorageNode);
         }
@@ -277,9 +284,9 @@ class ChangeItems extends Hook
      */
     public function makeMaster($arguments)
     {
-        if (!$arguments['FOGServiceClass'] instanceof MulticastTask) {
+        if (!$arguments['FOGServiceClass'] != 'MulticastTask') {
             return;
         }
-        $arguments['StorageNode']->set('isMaster', 1);
+        $arguments['StorageNode']->isMaster = 1;
     }
 }

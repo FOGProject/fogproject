@@ -719,7 +719,7 @@ class SnapinManagement extends FOGPage
              * During snapin creation we only allow a single group anyway.
              * This will set it to be the primary master.
              */
-            $Snapin->setPrimaryGroup($storagegroup);
+            Snapin::setPrimaryGroup($storagegroup, $Snapin->get('id'));
             $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'SNAPIN_ADD_SUCCESS';
             $msg = json_encode(

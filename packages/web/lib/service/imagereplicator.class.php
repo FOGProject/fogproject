@@ -47,13 +47,13 @@ class ImageReplicator extends FOGService
             $zzz
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'IMAGEREPLICATORDEVICEOUTPUT',
                     'IMAGEREPLICATORLOGFILENAME',
                     self::$sleeptime
-                )
-            ),
+                ]
+            ],
             'value',
             false,
             'AND',
@@ -102,7 +102,7 @@ class ImageReplicator extends FOGService
             if (self::$_repOn < 1) {
                 throw new Exception(_(' * Image replication is globally disabled'));
             }
-            foreach ((array)$this->checkIfNodeMaster() as &$StorageNode) {
+            foreach ($this->checkIfNodeMaster() as &$StorageNode) {
                 self::wlog(
                     sprintf(
                         '* %s',
@@ -110,9 +110,15 @@ class ImageReplicator extends FOGService
                     ),
                     '/opt/fog/log/groupmanager.log'
                 );
-                $myStorageGroupID = $StorageNode->get('storagegroupID');
-                $myStorageNodeID = $StorageNode->get('id');
-                $StorageGroup = $StorageNode->getStorageGroup();
+                $myStorageGroupID = $StorageNode->storagegroupID;
+                $myStorageNodeID = $StorageNode->id;
+                Route::indiv(
+                    'storagegroup',
+                    $myStorageGroupID
+                );
+                $StorageGroup = json_decode(
+                    Route::getData()
+                );
                 self::outall(
                     sprintf(
                         ' * %s.',
@@ -123,18 +129,18 @@ class ImageReplicator extends FOGService
                     sprintf(
                         ' * %s: %d. %s: %s',
                         _('We are group ID'),
-                        $StorageGroup->get('id'),
+                        $StorageGroup->id,
                         _('We are group name'),
-                        $StorageGroup->get('name')
+                        $StorageGroup->name
                     )
                 );
                 self::outall(
                     sprintf(
                         ' * %s: %d. %s: %s',
                         _('We are node ID'),
-                        $StorageNode->get('id'),
+                        $StorageNode->id,
                         _('We are node name'),
-                        $StorageNode->get('name')
+                        $StorageNode->name
                     )
                 );
                 /**
@@ -153,14 +159,14 @@ class ImageReplicator extends FOGService
                 /**
                  * Get the image ids that are valid.
                  */
-                $ImageIDs = self::getSubObjectIDs('Image');
+                $imageIDs = self::getSubObjectIDs('Image');
                 /**
                  * Find any images that are no longer valid within
                  * fog, but still existing in the group assoc.
                  */
                 $ImageAssocs = self::getSubObjectIDs(
                     'ImageAssociation',
-                    array('imageID' => $ImageIDs),
+                    ['imageID' => $imageIDs],
                     'imageID',
                     true
                 );
@@ -169,30 +175,31 @@ class ImageReplicator extends FOGService
                  */
                 if (count($ImageAssocs)) {
                     self::getClass('ImageAssociationManager')
-                        ->destroy(array('imageID' => $ImageAssocs));
+                        ->destroy(['imageID' => $ImageAssocs]);
                 }
                 unset($ImageAssocs);
                 /**
                  * Get the image ids that are to be replicated.
                  * NOTE: Must be enabled and have Replication enabled.
                  */
-                $ImageIDs = self::getSubObjectIDs(
+                $imageIDs = self::getSubObjectIDs(
                     'Image',
-                    array(
+                    [
+                        'id' => $imageIDs,
                         'isEnabled'=>1,
                         'toReplicate'=>1
-                    )
+                    ]
                 );
                 $ImageAssocCount = self::getClass('ImageAssociationManager')
                     ->count(
-                        array(
+                        [
                             'storagegroupID' => $myStorageGroupID,
-                            'imageID' => $ImageIDs
-                        )
+                            'imageID' => $imageIDs
+                        ]
                     );
-                $ImageCount = self::getClass('ImageManager')->count();
-                if ($ImageAssocCount <= 0
-                    || $ImageCount <= 0
+                $ImageCount = count($imageIDs ?: []);
+                if ($ImageAssocCount < 1
+                    || $ImageCount < 1
                 ) {
                     $this->outall(
                         sprintf(
@@ -212,14 +219,19 @@ class ImageReplicator extends FOGService
                 unset($ImageAssocCount, $ImageCount);
                 $imageIDs = self::getSubObjectIDs(
                     'ImageAssociation',
-                    array(
+                    [
                         'storagegroupID' => $myStorageGroupID,
-                        'imageID' => $ImageIDs
-                    ),
+                        'imageID' => $imageIDs
+                    ],
                     'imageID'
                 );
-                $Images = (array)self::getClass('ImageManager')
-                    ->find(array('id' => $imageIDs));
+                Route::listem(
+                    'image',
+                    ['imageID' => $imageIDs]
+                );
+                $Images = json_decode(
+                    Route::getData()
+                );
                 /**
                  * Handles replicating of our dev/postinitscripts
                  * and postdownload scripts
@@ -230,10 +242,10 @@ class ImageReplicator extends FOGService
                     'dev',
                     'postinitscripts'
                 );
-                $extrascripts = array(
+                $extrascripts = [
                     $Postdown,
                     $Postinit
-                );
+                ];
                 foreach ($extrascripts as $scripts) {
                     self::outall(
                         sprintf(
@@ -250,13 +262,13 @@ class ImageReplicator extends FOGService
                         $scripts
                     );
                 }
-                foreach ($Images as &$Image) {
-                    if (!$Image->getPrimaryGroup($myStorageGroupID)) {
+                foreach ($Images->data as &$Image) {
+                    if (!Image::getPrimaryGroup($myStorageGroupID, $imageID)) {
                         self::outall(
                             sprintf(
                                 ' | %s: %s',
                                 _('Not syncing Image'),
-                                $Image->get('name')
+                                $Image->name
                             )
                         );
                         self::outall(
@@ -270,7 +282,7 @@ class ImageReplicator extends FOGService
                     $this->replicateItems(
                         $myStorageGroupID,
                         $myStorageNodeID,
-                        $Image,
+                        new Image($Image->id),
                         true
                     );
                     unset($Image);
@@ -288,11 +300,11 @@ class ImageReplicator extends FOGService
                         _('image replication')
                     )
                 );
-                foreach ($Images as &$Image) {
+                foreach ($Images->data as &$Image) {
                     $this->replicateItems(
                         $myStorageGroupID,
                         $myStorageNodeID,
-                        $Image,
+                        new Image($Image->id),
                         false
                     );
                     unset($Image);
@@ -300,7 +312,6 @@ class ImageReplicator extends FOGService
                 unset($Images);
                 unset($StorageNode);
             }
-            unset($StorageNodes);
         } catch (Exception $e) {
             self::outall(
                 sprintf(

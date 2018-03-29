@@ -30,9 +30,9 @@ class MulticastSession extends FOGController
     /**
      * The multicast sessions common and column names.
      *
-     * @var string
+     * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'msID',
         'name' => 'msName',
         'port' => 'msBasePort',
@@ -50,33 +50,33 @@ class MulticastSession extends FOGController
         'anon3' => 'msAnon3',
         'anon4' => 'msAnon4',
         'anon5' => 'msAnon5',
-    );
+    ];
     /**
      * Additional Fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'imagename',
         'state'
-    );
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'Image' => array(
+    protected $databaseFieldClassRelationships = [
+        'Image' => [
             'id',
             'image',
             'imagename'
-        ),
-        'TaskState' => array(
+        ],
+        'TaskState' => [
             'id',
             'stateID',
             'state'
-        )
-    );
+        ]
+    ];
     /**
      * Get's the session's associated image object.
      *
@@ -104,19 +104,17 @@ class MulticastSession extends FOGController
     {
         $taskIDs = self::getSubObjectIDs(
             'MulticastSessionAssociation',
-            array('msID' => $this->get('id')),
+            ['msID' => $this->get('id')],
             'taskID'
         );
         self::getClass('TaskManager')
             ->update(
-                array('id' => $taskIDs),
+                ['id' => $taskIDs],
                 '',
-                array(
-                    'stateID' => self::getCancelledState()
-                )
+                ['stateID' => self::getCancelledState()]
             );
         self::getClass('MulticastSessionAssociationManager')
-            ->destroy(array('msID' => $this->get('id')));
+            ->destroy(['msID' => $this->get('id')]);
         return $this->set(
             'stateID',
             self::getCancelledState()

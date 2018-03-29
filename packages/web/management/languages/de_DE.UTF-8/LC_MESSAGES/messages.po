@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-28 22:21-0400\n"
+"POT-Creation-Date: 2018-03-29 16:19-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -6460,6 +6460,10 @@ msgstr "Ausgewählte Speichergruppen hinzufügen"
 #, fuzzy
 msgid "Unable to determine status"
 msgstr "Plugin-Details können nicht ermittelt werden"
+
+#, fuzzy
+msgid "Add To Group(s)"
+msgstr "Speichergruppe hinzufügen"
 
 #, fuzzy
 msgid "Remove these items?"

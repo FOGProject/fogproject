@@ -193,7 +193,7 @@ class Image extends FOGController
         $this->assocSetter('Image', 'storagegroup');
         if (count($primary) > 0) {
             $primary = array_shift($primary);
-            $this->setPrimaryGroup($primary);
+            self::setPrimaryGroup($primary, $this->get('id'));
         }
         return $this->load();
     }
@@ -358,7 +358,7 @@ class Image extends FOGController
         }
         $primaryGroup = array();
         foreach ((array)$groupids as &$groupid) {
-            if (!$this->getPrimaryGroup($groupid)) {
+            if (!self::getPrimaryGroup($groupid, $this->get('id'))) {
                 continue;
             }
             $primaryGroup[] = $groupid;
@@ -412,35 +412,36 @@ class Image extends FOGController
      * Gets the image's primary group
      *
      * @param int $groupID the group id to check
+     * @param int $imageID the image id to check
      *
      * @return bool
      */
-    public function getPrimaryGroup($groupID)
+    public static function getPrimaryGroup($groupID, $imageID)
     {
         $primaryCount = self::getClass('ImageAssociationManager')
             ->count(
-                array(
-                    'imageID' => $this->get('id'),
+                [
+                    'imageID' => $imageID,
                     'primary' => 1
-                )
+                ]
             );
         if ($primaryCount < 1) {
             $primaryCount = self::getClass('ImageAssociationManager')
                 ->count(
-                    array('imageID' => $this->get('id'))
+                    ['imageID' => $imageID]
                 );
         }
         if ($primaryCount < 1) {
             $groupid = self::getSubObjectIDs('StorageGroup');
             $groupid = @min($groupid);
-            $this->setPrimaryGroup($groupid);
+            self::setPrimaryGroup($groupid, $imageID);
         }
         $assocID = self::getSubObjectIDs(
             'ImageAssociation',
-            array(
+            [
                 'storagegroupID' => $groupID,
-                'imageID' => $this->get('id')
-            )
+                'imageID' => $imageID
+            ]
         );
         $assocID = @min((array) $assocID);
 
@@ -450,48 +451,44 @@ class Image extends FOGController
      * Sets the primary group for the image
      *
      * @param int $groupID the id to set as primary
+     * @param int $imageID the id to use with primary group
      *
      * @return array
      */
-    public function setPrimaryGroup($groupID)
+    public static function setPrimaryGroup($groupID, $imageID)
     {
         $exists = self::getSubObjectIDs(
             'ImageAssociation',
-            array(
-                'imageID' => $this->get('id'),
+            [
+                'imageID' => $imageID,
                 'storagegroupID' => $groupID
-            ),
+            ],
             'storagegroupID'
         );
         if (count($exists) < 1) {
             self::getClass('ImageAssociation')
-                ->set('imageID', $this->get('id'))
+                ->set('imageID', $imageID)
                 ->set('storagegroupID', $groupID)
                 ->save();
         }
         /**
          * Unset all current groups to non-primary
          */
-        self::getClass('ImageAssociationManager')
-            ->update(
-                array(
-                    'imageID' => $this->get('id'),
-                    'storagegroupID' => $this->get('storagegroups')
-                ),
-                '',
-                array('primary' => 0)
-            );
+        self::getClass('ImageAssociationManager')->update(
+            ['imageID' => $imageID],
+            '',
+            ['primary' => 0]
+        );
         /**
          * Set the passed group as primary
          */
-        self::getClass('ImageAssociationManager')
-            ->update(
-                array(
-                    'imageID' => $this->get('id'),
-                    'storagegroupID' => $groupID
-                ),
-                '',
-                array('primary' => 1)
-            );
+        self::getClass('ImageAssociationManager')->update(
+            [
+                'imageID' => $imageID,
+                'storagegroupID' => $groupID
+            ],
+            '',
+            ['primary' => 1]
+        );
     }
 }
