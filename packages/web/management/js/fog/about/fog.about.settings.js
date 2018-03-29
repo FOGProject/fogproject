@@ -1,10 +1,24 @@
 (function($) {
-    var updateButtons = $('.servicesend');
+    var updateButtons = $('.servicesend'),
+        expand = $('#expandAll'),
+        collapse = $('#collapseAll');
 
     $('form').on('submit', function(e) {
         e.preventDefault();
     });
 
+    expand.on('click', function(e) {
+        e.preventDefault();
+        $(this).addClass('hidden');
+        collapse.removeClass('hidden');
+        $('.panel-collapse:not(.in)').addClass('in').slideDown();
+    });
+    collapse.on('click', function(e) {
+        e.preventDefault();
+        $(this).addClass('hidden');
+        expand.removeClass('hidden');
+        $('.panel-collapse.in').removeClass('in').slideUp();
+    });
     updateButtons.on('click', function(e) {
         e.preventDefault();
         var button = $(this),

@@ -163,6 +163,7 @@ class MulticastManager extends FOGService
      */
     private function _serviceLoop()
     {
+        $KnownTasks = [];
         while (true) {
             // Wait until db is ready.
             $this->waitDbReady();
@@ -203,6 +204,28 @@ class MulticastManager extends FOGService
                 }
                 $StorageNodes = $this->checkIfNodeMaster();
                 foreach ($StorageNodes as &$StorageNode) {
+                    // We need to iterate the list of tasks to remove first.
+                    if (count($KnownTasks ?: []) > 0) { 
+                        $RMTasks = [];
+                        foreach ($KnownTasks as &$KnownTask) {
+                            $activeCount = self::getClass('TaskManager')
+                                ->count(
+                                    [
+                                        'id' => $KnownTask->getTaskIDs(),
+                                        'stateID' => $queuedStates
+                                    ]
+                                );
+                            $Task = $KnownTask->getSess();
+                            if ($activeCount < 1
+                                && ($KnownTask->getSessClients() == 0
+                                || in_array($Task->get('stateID'), $doneStates))
+                            ) {
+                                $RMTasks[] = $KnownTask;
+                            }
+                            unset($KnownTask);
+                        }
+                    }
+
                     $allTasks = MulticastTask::getAllMulticastTasks(
                         $myroot,
                         $StorageNode->id,

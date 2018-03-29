@@ -1853,6 +1853,19 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         echo '<div id="serviceAccordian" class="box-group">';
 
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo '<a href="#" id="expandAll">';
+        echo _('Expand All');
+        echo '</a>';
+        echo '<a href="#" id="collapseAll" class="hidden">';
+        echo _('Collapse All');
+        echo '</a>';
+        echo '</h4>';
+        echo '</div>';
+        echo '</div>';
+
         $labelClass = 'col-sm-2 control-label';
 
         foreach ($ServiceCats as &$Category) {
