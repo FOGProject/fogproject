@@ -987,6 +987,26 @@ abstract class FOGPage extends FOGBase
                         '',
                         'danger'
                     );
+                    $modals .= self::makeModal(
+                        'addToGroupModal',
+                        _('Add To Group(s)'),
+                     //   '<div class="input-group">'
+                          '<select id="groupSelect" class="" name="" multiple="multiple">'
+                        . '</select>',
+                     //   . '</div>',
+                        self::makeButton(
+                            'closeGroupModal',
+                            _('Cancel'),
+                            'btn btn-default pull-left',
+                            'data-dismiss="modal"'
+                        )
+                        . self::makeButton(
+                            'confirmGroupAdd',
+                            _('Add'),
+                            'btn btn-primary'
+                        ),
+                        ''
+                    );
                 }
             }
             $actionbox .= $buttons;

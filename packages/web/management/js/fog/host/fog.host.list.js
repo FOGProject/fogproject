@@ -1,11 +1,8 @@
 (function($) {
     var addToGroup = $('#addSelectedToGroup'),
         deleteSelected = $('#deleteSelected'),
-        deleteModal = $('#deleteModal'),
-        passwordField = $('#deletePassword'),
-        confirmDelete = $('#confirmDeleteModal'),
-        cancelDelete = $('#closeDeleteModal'),
-        numHostString = confirmDelete.val();
+        groupModal = $('#addToGroupModal'),
+        groupModalSelect = $('#groupSelect');
 
     function disableButtons (disable) {
         addToGroup.prop('disabled', disable);
@@ -70,15 +67,85 @@
         table.search(Common.search).draw();
     }
 
-    deleteSelected.on('click',function() {
+    deleteSelected.on('click', function() {
         disableButtons(true);
-        confirmDelete.val(numHostString.format(''));
-        Common.massDelete(null, function(err) {
-            if (err.status == 401) {
-                deleteModal.modal('show');
-            } else {
-                onSelect(table.rows({selected: true}));
+        Common.deleteSelected(table, function(err) {
+            // if we couldn't delete the items, enable the buttons
+            //   as the rows still exist and are selected
+            if (err) {
+                disableButtons(false);
             }
-        }, table);
+        });
+    });
+
+    function initGroupSelect(data) {
+        groupModalSelect.select2({
+            width: '100%',
+            tags: true,
+            data: data,
+            placeholder: 'Select or create group',
+            createTag: function (params) {
+                return {
+                    id: params.term,
+                    text: params.term,
+                    newOption: true
+                }
+            },
+            templateResult: function (data) {
+                if (!data.text.length) {
+                    return;
+                }
+                var $result = $("<span></span>");
+                
+                $result.text(data.text);
+                if (data.newOption) {
+                    $result.append(" <em><b>(new)</b></em>");
+                }
+                return $result;
+            }
+        });
+        groupModalSelect.val(null).trigger("change");
+    }
+    initGroupSelect();
+
+
+
+
+    Common.registerModal(groupModal, 
+        // On show
+        function(e) {
+
+        }, 
+        // On close
+        function(e) {
+            // Clear the group selector and data
+            initGroupSelect(null);
+        }
+    );
+
+    groupModal.on('show.bs.modal', function(e) {
+        groupModalSelect.prop('disabled', true);
+        Pace.track(function(){
+            $.ajax('', {
+                type: 'GET',
+                url: '../fog/group/names',
+                async: true,
+                success: function(res) {
+                    var mappedData = $.map(res, function (obj) {
+                        obj.text = obj.name;
+                        return obj;
+                    });
+                    initGroupSelect(mappedData);
+                    groupModalSelect.prop('disabled', false);
+                },
+                error: function(res) {
+                    Common.notifyFromAPI(res.responseJSON, true);
+                }
+            });
+        });
+    });
+
+    addToGroup.on('click', function() {
+        groupModal.modal('show');
     });
 })(jQuery);
