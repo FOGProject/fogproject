@@ -990,10 +990,11 @@ abstract class FOGPage extends FOGBase
                     $modals .= self::makeModal(
                         'addToGroupModal',
                         _('Add To Group(s)'),
-                     //   '<div class="input-group">'
-                          '<select id="groupSelect" class="" name="" multiple="multiple">'
+                        //   '<div class="input-group">'
+                        '<select id="groupSelect" class="" '
+                        . 'name="" multiple="multiple">'
                         . '</select>',
-                     //   . '</div>',
+                        //   . '</div>',
                         self::makeButton(
                             'closeGroupModal',
                             _('Cancel'),

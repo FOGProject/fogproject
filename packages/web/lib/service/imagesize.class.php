@@ -47,13 +47,13 @@ class ImageSize extends FOGService
             $zzz
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'IMAGESIZEDEVICEOUTPUT',
                     'IMAGESIZELOGFILENAME',
                     self::$sleeptime
-                )
-            ),
+                ]
+            ],
             'value',
             false,
             'AND',
@@ -101,10 +101,16 @@ class ImageSize extends FOGService
             if (self::$_sizeOn < 1) {
                 throw new Exception(_(' * Image size is globally disabled'));
             }
-            foreach ((array)$this->checkIfNodeMaster() as &$StorageNode) {
-                $myStorageGroupID = $StorageNode->get('storagegroupID');
-                $myStorageNodeID = $StorageNode->get('id');
-                $StorageGroup = $StorageNode->getStorageGroup();
+            foreach ($this->checkIfNodeMaster() as &$StorageNode) {
+                $myStorageGroupID = $StorageNode->storagegroupID;
+                $myStorageNodeID = $StorageNode->id;
+                Route::indiv(
+                    'storagegroup',
+                    $myStorageGroupID
+                );
+                $StorageGroup = json_decode(
+                    Route::getData()
+                );
                 self::outall(
                     sprintf(
                         ' * %s.',
@@ -115,18 +121,18 @@ class ImageSize extends FOGService
                     sprintf(
                         ' * %s: %d. %s: %s',
                         _('We are group ID'),
-                        $StorageGroup->get('id'),
+                        $StorageGroup->id,
                         _('We are group name'),
-                        $StorageGroup->get('name')
+                        $StorageGroup->name
                     )
                 );
                 self::outall(
                     sprintf(
                         ' * %s: %d. %s: %s',
                         _('We are node ID'),
-                        $StorageNode->get('id'),
+                        $StorageNode->id,
                         _('We are node name'),
-                        $StorageNode->get('name')
+                        $StorageNode->name
                     )
                 );
                 self::outall(
@@ -139,18 +145,20 @@ class ImageSize extends FOGService
                 );
                 $imageIDs = self::getSubObjectIDs(
                     'ImageAssociation',
-                    array(
+                    [
                         'primary' => 1,
                         'storagegroupID' => $myStorageGroupID
-                    ),
+                    ],
                     'imageID'
                 );
-                $ImageCount = self::getClass('ImageManager')->count(
-                    array(
+                $imageIDs = self::getSubObjectIDs(
+                    'Image',
+                    [
                         'id' => $imageIDs,
                         'isEnabled' => 1
-                    )
+                    ]
                 );
+                $ImageCount = count($imageIDs ?: []);
                 if ($ImageCount < 1) {
                     self::outall(
                         sprintf(
@@ -173,28 +181,28 @@ class ImageSize extends FOGService
                         _('to update size values as needed')
                     )
                 );
-                foreach ((array)self::getClass('ImageManager')
-                    ->find(
-                        array(
-                            'id' => $imageIDs,
-                            'isEnabled' => 1
-                        )
-                    ) as &$Image
-                ) {
+                Route::listem(
+                    'image',
+                    ['imageID' => $imageIDs]
+                );
+                $Images = json_decode(
+                    Route::getData()
+                );
+                foreach ($Images->data as &$Image) {
                     self::outall(
                         sprintf(
                             ' * %s: %s, %s: %d',
                             _('Trying image size for'),
-                            $Image->get('name'),
+                            $Image->name,
                             _('ID'),
-                            $Image->get('id')
+                            $Image->id
                         )
                     );
                     $path = sprintf(
                         '/%s',
-                        trim($StorageNode->get('path'), '/')
+                        trim($StorageNode->path, '/')
                     );
-                    $file = basename($Image->get('path'));
+                    $file = basename($Image->path);
                     $filepath = sprintf(
                         '%s/%s',
                         $path,
@@ -204,7 +212,7 @@ class ImageSize extends FOGService
                         self::outall(
                             sprintf(
                                 '| %s: %s',
-                                $Image->get('name'),
+                                $Image->name,
                                 _('Path is unavailable')
                             )
                         );
@@ -214,7 +222,7 @@ class ImageSize extends FOGService
                         sprintf(
                             ' * %s: %s.',
                             _('Getting image size for'),
-                            $Image->get('name')
+                            $Image->name
                         )
                     );
                     $size = self::getFilesize($filepath);
@@ -226,7 +234,7 @@ class ImageSize extends FOGService
                             $size
                         )
                     );
-                    $Image
+                    self::getClass('Image', $Image->id)
                         ->set('srvsize', $size)
                         ->save();
                     unset($url, $response, $size);

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-28 22:21-0400\n"
+"POT-Creation-Date: 2018-03-29 16:19-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6443,6 +6443,10 @@ msgstr "Remove selected snapins"
 #, fuzzy
 msgid "Unable to determine status"
 msgstr "Unable to determine plugin details"
+
+#, fuzzy
+msgid "Add To Group(s)"
+msgstr "Add Storage Group"
 
 #, fuzzy
 msgid "Remove these items?"

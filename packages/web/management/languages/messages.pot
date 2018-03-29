@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-28 22:53-0400\n"
+"POT-Creation-Date: 2018-03-29 16:19-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5538,6 +5538,9 @@ msgid "Add selected to group"
 msgstr ""
 
 msgid "Unable to determine status"
+msgstr ""
+
+msgid "Add To Group(s)"
 msgstr ""
 
 msgid "Remove these items?"

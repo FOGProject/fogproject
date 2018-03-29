@@ -53,13 +53,13 @@ class MulticastManager extends FOGService
             $zzz
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'MULTICASTDEVICEOUTPUT',
                     'MULTICASTLOGFILENAME',
                     self::$sleeptime
-                )
-            ),
+                ]
+            ],
             'value',
             false,
             'AND',
@@ -146,7 +146,7 @@ class MulticastManager extends FOGService
         $KnownTasks,
         $id
     ) {
-        $new = array();
+        $new = [];
         foreach ((array)$KnownTasks as $i => $Known) {
             if ($Known->getID() != $id) {
                 $new[] = $Known;
@@ -164,57 +164,59 @@ class MulticastManager extends FOGService
     private function _serviceLoop()
     {
         while (true) {
+            // Wait until db is ready.
+            $this->waitDbReady();
+
+            // Handles the sleep timer for us.
+            $date = self::niceDate();
             if (!isset($nextrun)) {
                 $first = true;
-                $nextrun = self::niceDate()
-                    ->modify(
-                        sprintf(
-                            '+%s second%s',
-                            self::$zzz,
-                            self::$zzz != 1 ? '' : 's'
-                        )
-                    );
+                $nextrun = clone $date;
+                $nextrun->modify('+'.self::$zzz.' seconds');
             }
-            if (self::niceDate() < $nextrun && $first === false) {
+            // Actually holds and loops until the proper sleep time is met.
+            if ($date < $nextrun && $first === false) {
                 usleep(100000);
                 continue;
             }
-            $nextrun = self::niceDate()
-                ->modify(
-                    sprintf(
-                        '+%s second%s',
-                        self::$zzz,
-                        self::$zzz != 1 ? '' : 's'
-                    )
-                );
-            $this->waitDbReady();
+            // Reset the next run time.
+            $nextrun->modify('+'.self::$zzz.' seconds');
+
+            // Sets the Queued States each iteration incase there is a change.
             $queuedStates = self::fastmerge(
                 self::getQueuedStates(),
                 (array)self::getProgressState()
             );
-            $doneStates = array(
+            // Sets the Done States each iteration incase there is a change.
+            $doneStates = [
                 self::getCompleteState(),
                 self::getCancelledState()
-            );
+            ];
             try {
                 // Check if status changed.
                 self::$_mcOn = self::getSetting('MULTICASTGLOBALENABLED');
+                // If disabled, state and restart loop.
                 if (self::$_mcOn < 1) {
                     throw new Exception(
                         _(' * Multicast service is globally disabled')
                     );
                 }
                 $StorageNodes = $this->checkIfNodeMaster();
-                foreach ((array)$this->checkIfNodeMaster() as &$StorageNode) {
-                    $myroot = $StorageNode->get('path');
-                    $RMTasks = array();
+                foreach ($StorageNodes as &$StorageNode) {
+                    $allTasks = MulticastTask::getAllMulticastTasks(
+                        $myroot,
+                        $StorageNode->id,
+                        $queuedStates
+                    );
+                    $myroot = $StorageNode->path;
+                    $RMTasks = [];
                     foreach ((array)$KnownTasks as &$mcTask) {
                         $activeCount = self::getClass('TaskManager')
                             ->count(
-                                array(
+                                [
                                     'id' => $mcTask->getTaskIDs(),
                                     'stateID' => $queuedStates
-                                )
+                                ]
                             );
                         $MultiSess = $mcTask->getSess();
                         if ($activeCount < 1
@@ -259,10 +261,10 @@ class MulticastManager extends FOGService
                             $taskIDs = $RMTask->getTaskIDs();
                             $inTaskIDs = self::getSubObjectIDs(
                                 'Task',
-                                array(
+                                [
                                     'id' => $taskIDs,
                                     'stateID' => self::getCancelledState()
-                                )
+                                ]
                             );
                             $MultiSess = $RMTask->getSess();
                             $SessCancelled = $MultiSess->get('stateID')
@@ -276,11 +278,9 @@ class MulticastManager extends FOGService
                             if ($jobcancelled) {
                                 self::getClass('TaskManager')
                                     ->update(
-                                        array('id' => $taskIDs),
+                                        ['id' => $taskIDs],
                                         '',
-                                        array(
-                                            'stateID' => self::getCancelledState()
-                                        )
+                                        ['stateID' => self::getCancelledState()]
                                     );
                                 $MultiSess
                                     ->set(
@@ -300,11 +300,9 @@ class MulticastManager extends FOGService
                             } else {
                                 self::getClass('TaskManager')
                                     ->update(
-                                        array('id' => $taskIDs),
+                                        ['id' => $taskIDs],
                                         '',
-                                        array(
-                                            'stateID' => self::getCompleteState()
-                                        )
+                                        ['stateID' => self::getCompleteState()]
                                     );
                                 $MultiSess
                                     ->set('stateID', self::getCompleteState())
@@ -326,16 +324,11 @@ class MulticastManager extends FOGService
                             );
                             self::getClass('MulticastSessionAssociationManager')
                                 ->destroy(
-                                    array('msID' => $RTask->getID())
+                                    ['msID' => $RTask->getID()]
                                 );
                             unset($RMTask, $RTask);
                         }
                     }
-                    $allTasks = self::getClass('MulticastTask')
-                        ->getAllMulticastTasks(
-                            $myroot,
-                            $StorageNode->get('id')
-                        );
                     $taskCount = count($allTasks);
                     if ($taskCount < 1
                         || !$taskCount
@@ -347,7 +340,7 @@ class MulticastManager extends FOGService
                             )
                         );
                     }
-                    foreach ((array)$allTasks as &$curTask) {
+                    foreach ($allTasks as &$curTask) {
                         $new = $this->_isMCTaskNew(
                             $KnownTasks,
                             $curTask->getID()
@@ -492,17 +485,17 @@ class MulticastManager extends FOGService
                             $taskIDs = $runningTask->getTaskIDs();
                             $inTaskCancelledIDs = self::getSubObjectIDs(
                                 'Task',
-                                array(
+                                [
                                     'id' => $taskIDs,
                                     'stateID' => self::getCancelledState()
-                                )
+                                ]
                             );
                             $inTaskIDs = self::getSubObjectIDs(
                                 'Task',
-                                array(
+                                [
                                     'id' => $taskIDs,
                                     'stateID' => self::getCompleteState()
-                                )
+                                ]
                             );
                             if (count($inTaskIDs) > 0) {
                                 $jobcompleted = true;

@@ -47,13 +47,13 @@ class SnapinReplicator extends FOGService
             $zzz
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'SNAPINREPLICATORDEVICEOUTPUT',
                     'SNAPINREPLICATORLOGFILENAME',
                     self::$sleeptime
-                )
-            ),
+                ]
+            ],
             'value',
             false,
             'AND',
@@ -101,7 +101,7 @@ class SnapinReplicator extends FOGService
             if (self::$_repOn < 1) {
                 throw new Exception(_(' * Snapin replication is globally disabled'));
             }
-            foreach ((array)$this->checkIfNodeMaster() as &$StorageNode) {
+            foreach ($this->checkIfNodeMaster() as &$StorageNode) {
                 self::wlog(
                     sprintf(
                         ' * %s',
@@ -109,9 +109,15 @@ class SnapinReplicator extends FOGService
                     ),
                     '/opt/fog/log/groupmanager.log'
                 );
-                $myStorageGroupID = $StorageNode->get('storagegroupID');
-                $myStorageNodeID = $StorageNode->get('id');
-                $StorageGroup = $StorageNode->getStorageGroup();
+                $myStorageGroupID = $StorageNode->storagegroupID;
+                $myStorageNodeID = $StorageNode->id;
+                Route::indiv(
+                    'storagegroup',
+                    $myStorageGroupID
+                );
+                $StorageGroup = json_decode(
+                    Route::getData()
+                );
                 self::outall(
                     sprintf(
                         ' * %s.',
@@ -122,18 +128,18 @@ class SnapinReplicator extends FOGService
                     sprintf(
                         ' * %s: %d. %s: %s',
                         _('We are group ID'),
-                        $StorageGroup->get('id'),
+                        $StorageGroup->id,
                         _('We are group name'),
-                        $StorageGroup->get('name')
+                        $StorageGroup->name
                     )
                 );
                 self::outall(
                     sprintf(
                         ' * %s: %d. %s: %s',
                         _('We are node ID'),
-                        $StorageNode->get('id'),
+                        $StorageNode->id,
                         _('We are node name'),
-                        $StorageNode->get('name')
+                        $StorageNode->name
                     )
                 );
                 /**
@@ -152,14 +158,14 @@ class SnapinReplicator extends FOGService
                 /**
                  * Get the snapin ids that are valid.
                  */
-                $SnapinIDs = self::getSubObjectIDs('Snapin');
+                $snapinIDs = self::getSubObjectIDs('Snapin');
                 /**
                  * Find any snapins that are no longer valid within
                  * fog, but still existing in the group assoc.
                  */
                 $SnapinAssocs = self::getSubObjectIDs(
                     'SnapinGroupAssociation',
-                    array('snapinID' => $SnapinIDs),
+                    ['snapinID' => $snapinIDs],
                     'snapinID',
                     true
                 );
@@ -168,28 +174,29 @@ class SnapinReplicator extends FOGService
                  */
                 if (count($SnapinAssocs)) {
                     self::getClass('SnapinGroupAssociationManager')
-                        ->destroy(array('snapinID' => $SnapinAssocs));
+                        ->destroy(['snapinID' => $SnapinAssocs]);
                 }
                 unset($SnapinAssocs);
                 /**
                  * Get the snapin ids that are to be replicated.
                  * NOTE: Must be enabled and have Replication enabled.
                  */
-                $SnapinIDs = self::getSubObjectIDs(
+                $snapinIDs = self::getSubObjectIDs(
                     'Snapin',
-                    array(
+                    [
+                        'id' => $snapinIDs,
                         'isEnabled' => 1,
                         'toReplicate' => 1
-                    )
+                    ]
                 );
                 $SnapinAssocCount = self::getClass('SnapinGroupAssociationManager')
                     ->count(
-                        array(
+                        [
                             'storagegroupID' => $myStorageGroupID,
-                            'snapinID' => $SnapinIDs
-                        )
+                            'snapinID' => $snapinIDs
+                        ]
                     );
-                $SnapinCount = self::getClass('SnapinManager')->count();
+                $SnapinCount = count($snapinIDs ?: []);
                 if ($SnapinAssocCount < 1
                     || $SnapinCount < 1
                 ) {
@@ -211,21 +218,26 @@ class SnapinReplicator extends FOGService
                 unset($SnapinAssocCount, $SnapinCount);
                 $snapinIDs = self::getSubObjectIDs(
                     'SnapinGroupAssociation',
-                    array(
+                    [
                         'storagegroupID' => $myStorageGroupID,
-                        'snapinID' => $SnapinIDs
-                    ),
+                        'snapinID' => $snapinIDs
+                    ],
                     'snapinID'
                 );
-                $Snapins = (array)self::getClass('SnapinManager')
-                    ->find(array('id' => $snapinIDs));
+                Route::listem(
+                    'snapin',
+                    ['snapinID' => $snapinIDs]
+                );
+                $Snapins = json_decode(
+                    Route::getData()
+                );
                 /**
                  * Handles replicating of our ssl folder and contents.
                  */
-                $ssls = array(
+                $ssls = [
                     'ssl/fog.csr',
                     'ssl/CA'
-                );
+                ];
                 self::outall(
                     sprintf(
                         ' | %s',
@@ -241,13 +253,13 @@ class SnapinReplicator extends FOGService
                         $ssl
                     );
                 }
-                foreach ($Snapins as &$Snapin) {
-                    if (!$Snapin->getPrimaryGroup($myStorageGroupID)) {
+                foreach ($Snapins->data as &$Snapin) {
+                    if (!Snapin::getPrimaryGroup($myStorageGroupID, $Snapin->id)) {
                         self::outall(
                             sprintf(
                                 ' | %s: %s',
                                 _('Not syncing Snapin'),
-                                $Snapin->get('name')
+                                $Snapin->name
                             )
                         );
                         self::outall(
@@ -261,7 +273,7 @@ class SnapinReplicator extends FOGService
                     $this->replicateItems(
                         $myStorageGroupID,
                         $myStorageNodeID,
-                        $Snapin,
+                        new Snapin($Snapin->id),
                         true
                     );
                     unset($Snapin);
@@ -279,11 +291,11 @@ class SnapinReplicator extends FOGService
                         _('snapin replication')
                     )
                 );
-                foreach ($Snapins as &$Snapin) {
+                foreach ($Snapins->data as &$Snapin) {
                     $this->replicateItems(
                         $myStorageGroupID,
                         $myStorageNodeID,
-                        $Snapin,
+                        new Snapin($Snapin->id),
                         false
                     );
                     unset($Snapin);
@@ -291,7 +303,6 @@ class SnapinReplicator extends FOGService
                 unset($Snapins);
                 unset($StorageNode);
             }
-            unset($StorageNodes);
         } catch (Exception $e) {
             self::outall(
                 sprintf(

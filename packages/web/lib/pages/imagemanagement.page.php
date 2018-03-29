@@ -425,7 +425,7 @@ class ImageManagement extends FOGPage
              * During image creation we only allow a single group anyway.
              * This will set it to be the primary master.
              */
-            $Image->setPrimaryGroup($storagegroup);
+            Image::setPrimaryGroup($storagegroup, $Image->get('id'));
             $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'IMAGE_ADD_SUCCESS';
             $msg = json_encode(
@@ -1332,6 +1332,9 @@ class ImageManagement extends FOGPage
         }
         if (self::getClass('MulticastSessionManager')->exists($sessionname)) {
             throw new Exception(_('Session with that name already exists!'));
+        }
+        if ($sessioncount < 1) {
+            $sessioncount = self::getClass('HostManager')->count();
         }
         if ($sessiontimeout > 0) {
             self::setSetting('FOG_UDPCAST_MAXWAIT', $sessiontimeout);

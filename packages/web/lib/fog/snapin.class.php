@@ -32,7 +32,7 @@ class Snapin extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'sID',
         'name' => 'sName',
         'description' => 'sDesc',
@@ -52,27 +52,27 @@ class Snapin extends FOGController
         'packtype' => 'sPackType',
         'hash' => 'sHash',
         'size' => 'sSize',
-        'anon3' => 'sAnon3',
-    );
+        'anon3' => 'sAnon3'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name',
-        'file',
-    );
+        'file'
+    ];
     /**
      * Additional fields.
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'hosts',
         'storagegroups',
-        'path',
-    );
+        'path'
+    ];
     /**
      * Removes the item from the database.
      *
@@ -84,7 +84,7 @@ class Snapin extends FOGController
      */
     public function destroy($key = 'id')
     {
-        $find = array('snapinID' => $this->get('id'));
+        $find = ['snapinID' => $this->get('id')];
         $snapinJobIDs = self::getSubObjectIDs(
             'SnapinTask',
             $find,
@@ -94,21 +94,17 @@ class Snapin extends FOGController
             ->destroy($find);
         $snapinJobIDs = self::getSubObjectIDs(
             'SnapinJob',
-            array(
+            [
                 'id' => $snapinJobIDs,
                 'stateID' => self::fastmerge(
                     self::getQueuedStates(),
                     (array)self::getProgressState()
                 ),
-            )
+            ]
         );
-        foreach ((array) $snapinJobIDs as &$sjID) {
+        foreach ((array)$snapinJobIDs as &$sjID) {
             $jobCount = self::getClass('SnapinTaskManager')
-                ->count(
-                    array(
-                        'jobID' => $sjID,
-                    )
-                );
+                ->count(['jobID' => $sjID]);
             if ($jobCount > 0) {
                 continue;
             }
@@ -136,10 +132,10 @@ class Snapin extends FOGController
 
         $primary = self::getSubObjectIDs(
             'SnapinGroupAssociation',
-            array(
+            [
                 'snapinID' => $this->get('id'),
                 'primary' => 1
-            ),
+            ],
             'storagegroupID'
         );
         $this
@@ -147,7 +143,7 @@ class Snapin extends FOGController
             ->assocSetter('SnapinGroup', 'storagegroup');
         if (count($primary) > 0) {
             $primary = array_shift($primary);
-            $this->setPrimaryGroup($primary);
+            self::setPrimaryGroup($primary, $this->get('id'));
         }
         return $this->load();
     }
@@ -163,10 +159,10 @@ class Snapin extends FOGController
         }
         foreach ((array)self::getClass('StorageNodeManager')
             ->find(
-                array(
+                [
                     'storagegroupID' => $this->get('storagegroups'),
                     'isEnabled' => 1
-                )
+                ]
             ) as &$StorageNode
         ) {
             $ftppath = $StorageNode->get('snapinpath');
@@ -201,12 +197,12 @@ class Snapin extends FOGController
     {
         $hostids = self::getSubObjectIDs(
             'SnapinAssociation',
-            array('snapinID' => $this->get('id')),
+            ['snapinID' => $this->get('id')],
             'hostID'
         );
         $hostids = self::getSubObjectIDs(
             'Host',
-            array('id' => $hostids)
+            ['id' => $hostids]
         );
         $this->set('hosts', $hostids);
     }
@@ -249,12 +245,12 @@ class Snapin extends FOGController
     {
         $groupids = self::getSubObjectIDs(
             'SnapinGroupAssociation',
-            array('snapinID' => $this->get('id')),
+            ['snapinID' => $this->get('id')],
             'storagegroupID'
         );
         $groupids = self::getSubObjectIDs(
             'StorageGroup',
-            array('id' => $groupids)
+            ['id' => $groupids]
         );
         $groupids = array_filter($groupids);
         if (count($groupids) < 1) {
@@ -310,9 +306,9 @@ class Snapin extends FOGController
                 throw new Exception(_('No viable storage groups found'));
             }
         }
-        $primaryGroup = array();
+        $primaryGroup = [];
         foreach ((array) $groupids as &$groupid) {
-            if (!$this->getPrimaryGroup($groupid)) {
+            if (!self::getPrimaryGroup($groupid, $this->get('id'))) {
                 continue;
             }
             $primaryGroup[] = $groupid;
@@ -329,36 +325,35 @@ class Snapin extends FOGController
     /**
      * Gets the snapin's primary group.
      *
-     * @param int $groupID the group id to check
+     * @param int $groupID  the group id to check
+     * @param int $snapinID the snapin id to check
      *
      * @return bool
      */
-    public function getPrimaryGroup($groupID)
+    public static function getPrimaryGroup($groupID, $snapinID)
     {
         $primaryCount = self::getClass('SnapinGroupAssociationManager')
             ->count(
-                array(
-                    'snapinID' => $this->get('id'),
-                    'prmary' => 1,
-                )
+                [
+                    'snapinID' => $snapinID,
+                    'primary' => 1,
+                ]
             );
         if ($primaryCount < 1) {
             $primaryCount = self::getClass('SnapinGroupAssociationManager')
-                ->count(
-                    array('snapinID' => $this->get('id'))
-                );
+                ->count(['snapinID' => $snapinID]);
         }
         if ($primaryCount < 1) {
             $groupid = self::getSubObjectIDs('StorageGroup');
             $groupid = @min($groupid);
-            $this->setPrimaryGroup($groupid);
+            self::setPrimaryGroup($groupid, $snapinID);
         }
         $assocID = self::getSubObjectIDs(
             'SnapinGroupAssociation',
-            array(
+            [
                 'storagegroupID' => $groupID,
-                'snapinID' => $this->get('id'),
-            )
+                'snapinID' => $snapinID,
+            ]
         );
         $assocID = @min((array) $assocID);
 
@@ -367,50 +362,46 @@ class Snapin extends FOGController
     /**
      * Sets the primary group for the snapin.
      *
-     * @param int $groupID the id to set as primary
+     * @param int $groupID  the id to set as primary
+     * @param int $snapinID the id to use with primary group
      *
      * @return array
      */
-    public function setPrimaryGroup($groupID)
+    public static function setPrimaryGroup($groupID, $snapinID)
     {
         $exists = self::getSubObjectIDs(
             'SnapinGroupAssociation',
-            array(
-                'snapinID' => $this->get('id'),
+            [
+                'snapinID' => $snapinID,
                 'storagegroupID' => $groupID
-            ),
+            ],
             'storagegroupID'
         );
         if (count($exists) < 1) {
             self::getClass('SnapinGroupAssociation')
-                ->set('snapinID', $this->get('id'))
+                ->set('snapinID', $snapinID)
                 ->set('storagegroupID', $groupID)
                 ->save();
         }
         /**
          * Unset all current groups to non-primary
          */
-        self::getClass('SnapinGroupAssociationManager')
-            ->update(
-                array(
-                    'snapinID' => $this->get('id'),
-                    'storagegroupID' => $this->get('storagegroups')
-                ),
-                '',
-                array('primary' => 0)
-            );
+        self::getClass('SnapinGroupAssociationManager')->update(
+            ['snapinID' => $snapinID],
+            '',
+            ['primary' => 0]
+        );
         /**
          * Set the passed group as primary
          */
-        self::getClass('SnapinGroupAssociationManager')
-            ->update(
-                array(
-                    'snapinID' => $this->get('id'),
-                    'storagegroupID' => $groupID,
-                ),
-                '',
-                array('primary' => 1)
-            );
+        self::getClass('SnapinGroupAssociationManager')->update(
+            [
+                'snapinID' => $snapinID,
+                'storagegroupID' => $groupID,
+            ],
+            '',
+            ['primary' => 1]
+        );
     }
     /**
      * Loads the Path as the file for commonality
