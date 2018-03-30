@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-29 22:06-0400\n"
+"POT-Creation-Date: 2018-03-30 03:25-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5705,10 +5705,10 @@ msgid "Waiting for mysql to be available"
 msgstr "En attente de mysql soit disponible"
 
 #, fuzzy
-msgid "I am not the master for this group"
-msgstr " * Je ne suis pas le maître"
+msgid "This is not the master for this group"
+msgstr " | Cela ne veut pas le groupe principal"
 
-msgid "I am the master, but I do not appear to be online"
+msgid "This does not appear to be online"
 msgstr ""
 
 msgid "Not syncing"
@@ -6532,6 +6532,10 @@ msgstr "Échoué"
 
 msgid "filesize"
 msgstr "taille du fichier"
+
+#, fuzzy
+msgid "Unable to connect to ftp"
+msgstr "Échec de connexion"
 
 #, fuzzy
 msgid "Delete hosts within"
