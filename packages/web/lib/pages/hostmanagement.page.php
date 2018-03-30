@@ -2149,13 +2149,14 @@ class HostManagement extends FOGPage
                 false,
                 -1,
                 -1,
-                $enforce
+                ($enforce ? 'checked' : '')
             )
         ];
         $enforcebtn = self::makeButton(
             'enforcebtn',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary',
+            $props
         );
 
         self::$HookManager->processEvent(
