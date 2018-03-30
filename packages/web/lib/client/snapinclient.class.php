@@ -392,10 +392,9 @@ class SnapinClient extends FOGClient
         $host = $StorageNode->get('ip');
         $user = $StorageNode->get('user');
         $pass = $StorageNode->get('pass');
-        self::$FOGFTP
-            ->set('host', $host)
-            ->set('username', $user)
-            ->set('password', $pass);
+        self::$FOGFTP->username = $user;
+        self::$FOGFTP->password = $pass;
+        self::$FOGFTP->host = $host;
         if (!self::$FOGFTP->connect()) {
             throw new Exception(
                 sprintf(
