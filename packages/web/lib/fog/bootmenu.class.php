@@ -128,6 +128,22 @@ class BootMenu extends FOGBase
         $grubChain = 'chain -ar ${boot-url}/service/ipxe/grub.exe '
             . '--config-file="%s"';
         $sanboot = 'sanboot --no-describe --drive 0x80';
+        $refind = sprintf(
+            'imgfetch ${boot-url}/service/ipxe/refind.conf%s'
+            . 'chain -ar ${boot-url}/service/ipxe/refind.efi',
+            "\n"
+        );
+
+        if(stripos($_REQUEST['arch'], 'arm') !== FALSE){ //user arm boot loaders instead
+            $grubChain = 'chain -ar ${boot-url}/service/ipxe/grub_aa64.exe '
+                . '--config-file="%s"';
+            $refind = sprintf(
+                'imgfetch ${boot-url}/service/ipxe/refind_aa64.conf%s'
+                . 'chain -ar ${boot-url}/service/ipxe/refind_aa64.efi',
+                "\n"
+            );
+        }
+
         $grub = array(
             'basic' => sprintf(
                 $grubChain,
@@ -141,11 +157,6 @@ class BootMenu extends FOGBase
                 $grubChain,
                 'find --set-root /BOOTMGR;chainloader /BOOTMGR"'
             )
-        );
-        $refind = sprintf(
-            'imgfetch ${boot-url}/service/ipxe/refind.conf%s'
-            . 'chain -ar ${boot-url}/service/ipxe/refind.efi',
-            "\n"
         );
         self::$_exitTypes = array(
             'sanboot' => $sanboot,
