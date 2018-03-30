@@ -344,10 +344,11 @@ abstract class FOGPage extends FOGBase
      * Creates the main menu items.
      *
      * @param array $main Items to set.
+     * @param array $hookMain Hook items to set.
      *
      * @return string
      */
-    public static function buildMainMenuItems(&$main = '')
+    public static function buildMainMenuItems(&$main = '', &$hookMain = '')
     {
         global $node;
         global $sub;
@@ -415,7 +416,7 @@ abstract class FOGPage extends FOGBase
                 'plugin',
                 [
                     self::$foglang['Plugins'],
-                    'fa fa-cog'
+                    'fa fa-puzzle-piece'
                 ]
             );
         }
@@ -423,14 +424,25 @@ abstract class FOGPage extends FOGBase
             array_filter($menu),
             SORT_REGULAR
         );
+
+        $hookMenu = (new ArrayObject($menu))->getArrayCopy();
+
         self::$HookManager
             ->processEvent(
                 'MAIN_MENU_DATA',
-                ['main' => &$menu]
+                ['main' => &$hookMenu]
             );
+
+        foreach($hookMenu as $key => $value){
+          if(array_key_exists($key, $menu)){
+            unset($hookMenu[$key]);
+          }
+        }
+
         if (count($menu ?: []) > 0) {
             $links = array_keys($menu);
         }
+
         $links = self::fastmerge(
             (array)$links,
             [
@@ -442,6 +454,7 @@ abstract class FOGPage extends FOGBase
                 'ipxe'
             ]
         );
+
         if ($node
             && !in_array($node, $links)
         ) {
@@ -449,6 +462,7 @@ abstract class FOGPage extends FOGBase
         }
 
         $main = self::_buildMenuStructure($menu);
+        $hookMain = self::_buildMenuStructure($hookMenu);
         return $main;
     }
     /**

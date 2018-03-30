@@ -114,7 +114,7 @@ if (self::$FOGUser->isValid()) {
     //echo '</div>';
     echo '<div class="">';
     echo '<a class="fog-user">'
-        . trim(self::$FOGUser->get('name'))
+        . trim(self::$FOGUser->getDisplayName())
         . '</a>';
     //echo '<a href="#"><i class="fa fa-circle text-success"></i> '
     //    . _('Online')
@@ -139,6 +139,10 @@ if (self::$FOGUser->isValid()) {
     echo _('MAIN NAVIGATION');
     echo '</li>';
     echo $this->menu;
+    echo '<li class="header">';
+    echo _('PLUGIN OPTIONS');
+    echo '</li>';
+    echo $this->menuHook;
     echo '<li class="header">'
         . _('RESOURCES')
         . '</li>';
