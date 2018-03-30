@@ -238,74 +238,66 @@ class Route extends FOGBase
             '/[%s:class]',
             implode('|', self::$validActiveTasks)
         );
-        self::$router
-            ->map(
-                'HEAD|GET',
-                '/system/[status|info]',
-                ['self', 'status'],
-                'status'
-            )
-            ->map(
-                'GET|POST',
-                '/[search|unisearch]/[*:item]/[i:limit]?',
-                ['self', 'unisearch'],
-                'unisearch'
-            )
-            ->get(
-                "${expandeda}/[current|active]",
-                ['self', 'active'],
-                'active'
-            )
-            ->get(
-                "${expanded}/names",
-                ['self', 'names'],
-                'names'
-            )
-            ->get(
-                '/bandwidth/[*:dev]',
-                ['self', 'bandwidth'],
-                'bandwidth'
-            )
-            ->get(
-                "${expanded}/search/[*:item]",
-                ['self', 'search'],
-                'search'
-            )
-            ->get(
-                "${expanded}/[list|all]?",
-                ['self', 'listem'],
-                'list'
-            )
-            ->get(
-                "${expanded}/[i:id]",
-                ['self', 'indiv'],
-                'indiv'
-            )
-            ->put(
-                "${expanded}/[i:id]/[update|edit]?",
-                ['self', 'edit'],
-                'update'
-            )
-            ->post(
-                "${expandedt}/[i:id]/[task]",
-                ['self', 'task'],
-                'task'
-            )
-            ->post(
-                "${expanded}/[create|new]?",
-                ['self', 'create'],
-                'create'
-            )
-            ->delete(
-                "${expandedt}/[i:id]?/[cancel]",
-                ['self', 'cancel'],
-                'cancel'
-            )
-            ->delete(
-                "${expanded}/[i:id]/[delete|remove]?",
-                ['self', 'delete'],
-                'delete'
-            );
+        self::$router->map(
+            'HEAD|GET',
+            '/system/[status|info]',
+            ['self', 'status'],
+            'status'
+        )->map(
+            'GET|POST',
+            '/[search|unisearch]/[*:item]/[i:limit]?',
+            ['self', 'unisearch'],
+            'unisearch'
+        )->map(
+            'PUT|POST',
+            '/[group:class]/join',
+            ['self', 'join'],
+            'join'
+        )->get(
+            "${expandeda}/[current|active]",
+            ['self', 'active'],
+            'active'
+        )->get(
+            "${expanded}/names",
+            ['self', 'names'],
+            'names'
+        )->get(
+            '/bandwidth/[*:dev]',
+            ['self', 'bandwidth'],
+            'bandwidth'
+        )->get(
+            "${expanded}/search/[*:item]",
+            ['self', 'search'],
+            'search'
+        )->get(
+            "${expanded}/[list|all]?",
+            ['self', 'listem'],
+            'list'
+        )->get(
+            "${expanded}/[i:id]",
+            ['self', 'indiv'],
+            'indiv'
+        )->put(
+            "${expanded}/[i:id]/[update|edit]?",
+            ['self', 'edit'],
+            'update'
+        )->post(
+            "${expandedt}/[i:id]/[task]",
+            ['self', 'task'],
+            'task'
+        )->post(
+            "${expanded}/[create|new]?",
+            ['self', 'create'],
+            'create'
+        )->delete(
+            "${expandedt}/[i:id]?/[cancel]",
+            ['self', 'cancel'],
+            'cancel'
+        )->delete(
+            "${expanded}/[i:id]/[delete|remove]?",
+            ['self', 'delete'],
+            'delete'
+        );
     }
     /**
      * Sets the matches variable

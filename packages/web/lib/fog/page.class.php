@@ -91,22 +91,7 @@ class Page extends FOGBase
         global $node;
         global $sub;
         parent::__construct();
-        $this
-            ->addCSS('css/bootstrap.min.css')
-            ->addCSS('css/font-awesome.min.css')
-            ->addCSS('css/select2.min.css')
-            ->addCSS('css/ionicons.min.css')
-            ->addCSS('css/datatables.min.css')
-            ->addCSS('css/slider.css')
-            ->addCSS('css/pnotify.min.css')
-            ->addCSS('css/icheck-square-blue.css')
-            ->addCSS('css/animate.css')
-            ->addCSS('css/pace.min.css')
-            ->addCSS('css/AdminLTE.min.css')
-            ->addCSS('css/adminlte-skins.min.css')
-            ->addCSS('css/font.css')
-            ->addCSS('css/fog-default-ui.min.css');
-        if (!$this->theme) { // Theme added last to override other styles
+        if (!$this->theme) {
             $this->theme = self::getSetting('FOG_THEME');
             if (!$this->theme) {
                 $this->theme = 'default/fog.css';
@@ -121,6 +106,20 @@ class Page extends FOGBase
                 $dispTheme = 'css/default/fog.css';
             }
         }
+        $this
+            ->addCSS('css/bootstrap.min.css')
+            ->addCSS('css/font-awesome.min.css')
+            ->addCSS('css/select2.min.css')
+            ->addCSS('css/ionicons.min.css')
+            ->addCSS('css/datatables.min.css')
+            ->addCSS('css/slider.css')
+            ->addCSS('css/pnotify.min.css')
+            ->addCSS('css/icheck-square-blue.css')
+            ->addCSS('css/animate.css')
+            ->addCSS('css/pace.min.css')
+            ->addCSS('css/AdminLTE.min.css')
+            ->addCSS('css/adminlte-skins.min.css')
+            ->addCSS('css/font.css');
         if (!isset($node)
             || !$node
         ) {

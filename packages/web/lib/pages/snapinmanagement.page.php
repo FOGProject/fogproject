@@ -664,10 +664,9 @@ class SnapinManagement extends FOGPage
                 ),
                 $snapinfile
             );
-            self::$FOGFTP
-                ->set('host', $StorageNode->get('ip'))
-                ->set('username', $StorageNode->get('user'))
-                ->set('password', $StorageNode->get('pass'));
+            self::$FOGFTP->username = $StorageNode->get('user');
+            self::$FOGFTP->password = $StorageNode->get('pass');
+            self::$FOGFTP->host = $StorageNode->get('ip');
             if (!self::$FOGFTP->connect()) {
                 throw new Exception(
                     sprintf(
@@ -1312,10 +1311,9 @@ class SnapinManagement extends FOGPage
             $snapinfile
         );
         if ($uploadfile) {
-            self::$FOGFTP
-                ->set('host', $StorageNode->get('ip'))
-                ->set('username', $StorageNode->get('user'))
-                ->set('password', $StorageNode->get('pass'));
+            self::$FOGFTP->username = $StorageNode->get('user');
+            self::$FOGFTP->password = $StorageNode->get('pass');
+            self::$FOGFTP->host = $StorageNode->get('ip');
             if (!self::$FOGFTP->connect()) {
                 throw new Exception(
                     sprintf(
