@@ -47,7 +47,7 @@ class HostManagement extends FOGPage
             $this->exitEfi = filter_input(INPUT_POST, 'efiBootTypeExit');
         } else {
             $this->exitNorm = (
-                filter_input(INPUT_POST, 'bootTypeExit') ?: 
+                filter_input(INPUT_POST, 'bootTypeExit') ?:
                 $this->obj->get('biosexit')
             );
             $this->exitEfi = (
