@@ -38,7 +38,7 @@ class ScheduledTaskManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'stID',
                 'stName',
                 'stDesc',
@@ -60,8 +60,8 @@ class ScheduledTaskManager extends FOGManagerController
                 'stOther5',
                 'stDateTime',
                 'stActive'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'VARCHAR(250)',
                 'LONGTEXT',
@@ -83,8 +83,8 @@ class ScheduledTaskManager extends FOGManagerController
                 'VARCHAR(255)',
                 'TIMESTAMP',
                 "ENUM('0', '1')"
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -106,8 +106,8 @@ class ScheduledTaskManager extends FOGManagerController
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -129,10 +129,8 @@ class ScheduledTaskManager extends FOGManagerController
                 false,
                 'CURRENT_TIMESTAMP',
                 '1'
-            ),
-            array(
-                'stID'
-            ),
+            ],
+            ['stID'],
             'MyISAM',
             'utf8',
             'stID',
@@ -149,6 +147,6 @@ class ScheduledTaskManager extends FOGManagerController
      */
     public function cancel($scheduledtaskids)
     {
-        $this->destroy(array('id' => $scheduledtaskids));
+        $this->destroy(['id' => $scheduledtaskids]);
     }
 }

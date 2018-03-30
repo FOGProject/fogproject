@@ -32,18 +32,18 @@ class KeySequence extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'ksID',
         'name' => 'ksValue',
-        'ascii' => 'ksAscii',
-    );
+        'ascii' => 'ksAscii'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name',
-        'ascii',
-    );
+        'ascii'
+    ];
 }

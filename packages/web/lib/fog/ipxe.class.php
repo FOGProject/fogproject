@@ -32,7 +32,7 @@ class Ipxe extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'ipxeID',
         'product' => 'ipxeProduct',
         'manufacturer' => 'ipxeManufacturer',
@@ -40,6 +40,6 @@ class Ipxe extends FOGController
         'success' => 'ipxeSuccess',
         'failure' => 'ipxeFailure',
         'file' => 'ipxeFilename',
-        'version' => 'ipxeVersion',
-    );
+        'version' => 'ipxeVersion'
+    ];
 }

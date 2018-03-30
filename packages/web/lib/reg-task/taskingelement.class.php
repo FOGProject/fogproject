@@ -80,11 +80,11 @@ abstract class TaskingElement extends FOGBase
             $this->StorageGroup = $this->StorageNode = null;
             self::$HookManager->processEvent(
                 'HOST_NEW_SETTINGS',
-                array(
+                [
                     'Host' => &self::$Host,
                     'StorageNode' => &$this->StorageNode,
                     'StorageGroup' => &$this->StorageGroup
-                )
+                ]
             );
             if (!$this->StorageGroup
                 || !$this->StorageGroup->isValid()
@@ -124,7 +124,7 @@ abstract class TaskingElement extends FOGBase
                 }
                 $this->StorageNodes = self::getClass('StorageNodeManager')
                     ->find(
-                        array('id' => $this->StorageGroup->get($getter))
+                        ['id' => $this->StorageGroup->get($getter)]
                     );
                 if ($this->Task->isCapture()
                     || $this->Task->isMulticast()
@@ -262,10 +262,10 @@ abstract class TaskingElement extends FOGBase
         if ($checkin === true) {
             self::getClass('ImagingLogManager')
                 ->destroy(
-                    array(
+                    [
                         'hostID' => self::$Host->get('id'),
                         'finish' => '0000-00-00 00:00:00'
-                    )
+                    ]
                 );
             return self::getClass('ImagingLog')
                 ->set('hostID', self::$Host->get('id'))
@@ -277,11 +277,11 @@ abstract class TaskingElement extends FOGBase
         }
         $ilID = self::getSubObjectIDs(
             'ImagingLog',
-            array(
+            [
                 'hostID' => self::$Host->get('id'),
                 'finish' => '0000-00-00 00:00:00',
                 'image' => $this->Image->get('name'),
-            )
+            ]
         );
         $ilID = @max($ilID);
         return self::getClass('ImagingLog', $ilID)

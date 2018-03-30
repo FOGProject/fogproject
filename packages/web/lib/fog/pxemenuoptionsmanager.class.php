@@ -26,7 +26,7 @@ class PXEMenuOptionsManager extends FOGManagerController
      *
      * @var array
      */
-    private static $_regVals = array();
+    private static $_regVals = [];
     /**
      * Builds the array.
      *
@@ -34,7 +34,7 @@ class PXEMenuOptionsManager extends FOGManagerController
      */
     private static function _regText()
     {
-        return self::$_regVals = array(
+        return self::$_regVals = [
             0 => self::$foglang['NotRegHost'],
             1 => self::$foglang['RegHost'],
             2 => self::$foglang['AllHosts'],
@@ -42,8 +42,8 @@ class PXEMenuOptionsManager extends FOGManagerController
             4 => self::$foglang['AdvancedOpts'],
             5 => self::$foglang['AdvancedLogOpts'],
             6 => self::$foglang['PendRegHost'],
-            7 => self::$foglang['DoNotList'],
-        );
+            7 => self::$foglang['DoNotList']
+        ];
     }
     /**
      * The menu select list item.

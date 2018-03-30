@@ -32,7 +32,7 @@ class UserTracking extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'utID',
         'hostID' => 'utHostID',
         'username' => 'utUserName',
@@ -40,35 +40,35 @@ class UserTracking extends FOGController
         'datetime' => 'utDateTime',
         'description' => 'utDesc',
         'date' => 'utDate',
-        'anon3' => 'utAnon3',
-    );
+        'anon3' => 'utAnon3'
+    ];
     /**
      * DatabaseFieldsRequired
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'hostID',
-        'username',
-    );
+        'username'
+    ];
     /**
      * Additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'host'
-    );
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'Host' => array(
+    protected $databaseFieldClassRelationships = [
+        'Host' => [
             'id',
             'hostID',
             'host'
-        )
-    );
+        ]
+    ];
 }

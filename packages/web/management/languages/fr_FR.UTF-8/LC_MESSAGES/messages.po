@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 03:25-0400\n"
+"POT-Creation-Date: 2018-03-30 17:58-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6367,38 +6367,6 @@ msgstr "Champ et les valeurs ne sont pas des paramètres égaux."
 msgid "Need the table name to drop"
 msgstr ""
 
-msgid "No key being requested"
-msgstr "Aucune clé demandée"
-
-msgid "Invalid numeric entry"
-msgstr "entrée numérique non valide"
-
-msgid "Setting Key"
-msgstr "touche de réglage"
-
-msgid "Object"
-msgstr "Objet"
-
-msgid "Array"
-msgstr ""
-
-msgid "Value"
-msgstr "Valeur"
-
-#, fuzzy
-msgid "Set Failed"
-msgstr "Échoué"
-
-#, fuzzy
-msgid "Key"
-msgstr "DMI Key"
-
-msgid "Returning value of key"
-msgstr "De retour valeur de clé"
-
-msgid "Returning array within key"
-msgstr "De retour tableau dans la clé"
-
 #, fuzzy
 msgid "Wake On Lan"
 msgstr "Wake on lan?"
@@ -6623,12 +6591,28 @@ msgstr "Aucun champs définis pour cette classe de base de données"
 msgid "Record not found"
 msgstr "Enregistrement non trouvé, Erreur: %s"
 
+msgid "Returning value of key"
+msgstr "De retour valeur de clé"
+
+msgid "Value"
+msgstr "Valeur"
+
+msgid "No key being requested"
+msgstr "Aucune clé demandée"
+
 msgid "Invalid key being set"
 msgstr "Clé non valide étant réglée"
+
+msgid "Setting Key"
+msgstr "touche de réglage"
 
 #, fuzzy
 msgid "Set failed"
 msgstr "mise à jour du service n'a pas"
+
+#, fuzzy
+msgid "Key"
+msgstr "DMI Key"
 
 msgid "Invalid key being added"
 msgstr "Touche incorrecte ajouté"

@@ -26,7 +26,7 @@ class Registration extends FOGBase
      *
      * @var array
      */
-    protected $MACs = array();
+    protected $MACs = [];
     /**
      * The host's primary mac.
      *
@@ -75,14 +75,14 @@ class Registration extends FOGBase
             $this->PriMAC = array_shift($this->MACs);
             $this->macsimple = strtolower(
                 str_replace(
-                    array(':', '-'),
+                    [':', '-'],
                     '',
                     $this->PriMAC
                 )
             );
             $this->modulesToJoin = self::getSubObjectIDs(
                 'Module',
-                array('isDefault' => 1)
+                ['isDefault' => 1]
             );
             $this->description = sprintf(
                 '%s %s',
@@ -160,13 +160,13 @@ class Registration extends FOGBase
             $other2 = $_REQUEST['other2'];
             $doimage = trim($_REQUEST['doimage']);
             if ($_REQUEST['doad']) {
-                $serviceNames = array(
+                $serviceNames = [
                     'FOG_AD_DEFAULT_DOMAINNAME',
                     'FOG_AD_DEFAULT_OU',
                     'FOG_AD_DEFAULT_PASSWORD',
                     'FOG_AD_DEFAULT_USER',
                     'FOG_ENFORCE_HOST_CHANGES'
-                );
+                ];
                 list(
                     $ADDomain,
                     $OUs,
@@ -175,7 +175,7 @@ class Registration extends FOGBase
                     $enforce
                 ) = self::getSubObjectIDs(
                     'Service',
-                    array('name' => $serviceNames),
+                    ['name' => $serviceNames],
                     'value',
                     false,
                     'AND',
@@ -242,11 +242,10 @@ class Registration extends FOGBase
                     _('Failed to create Host')
                 );
             }
-            self::$HookManager
-                ->processEvent(
-                    'HOST_REGISTER',
-                    array('Host' => &self::$Host)
-                );
+            self::$HookManager->processEvent(
+                'HOST_REGISTER',
+                ['Host' => &self::$Host]
+            );
             try {
                 if (!$doimage) {
                     throw new Exception(
@@ -299,13 +298,13 @@ class Registration extends FOGBase
             if (self::$Host->isValid()) {
                 return;
             }
-            $serviceNames = array(
+            $serviceNames = [
                 'FOG_QUICKREG_GROUP_ASSOC',
                 'FOG_QUICKREG_IMG_ID',
                 'FOG_QUICKREG_IMG_WHEN_REG',
                 'FOG_QUICKREG_SYS_NAME',
                 'FOG_QUICKREG_SYS_NUMBER'
-            );
+            ];
             list(
                 $groupsToJoin,
                 $imageid,
@@ -314,7 +313,7 @@ class Registration extends FOGBase
                 $autoRegSysNumber
             ) = self::getSubObjectIDs(
                 'Service',
-                array('name' => $serviceNames),
+                ['name' => $serviceNames],
                 'value',
                 false,
                 'AND',
@@ -391,11 +390,10 @@ class Registration extends FOGBase
                 $productKey = base64_decode($_REQUEST['productKey']);
                 self::$Host->set('productKey', $productKey);
             }
-            self::$HookManager
-                ->processEvent(
-                    'HOST_REGISTER',
-                    array('Host' => &self::$Host)
-                );
+            self::$HookManager->processEvent(
+                'HOST_REGISTER',
+                ['Host' => &self::$Host]
+            );
             if (!self::$Host->save()) {
                 throw new Exception(_('Failed to create Host'));
             }
@@ -450,11 +448,10 @@ class Registration extends FOGBase
                 $productKey = base64_decode($_REQUEST['productKey']);
                 self::$Host->set('productKey', $productKey);
             }
-            self::$HookManager
-                ->processEvent(
-                    'HOST_REGISTER',
-                    array('Host' => &self::$Host)
-                );
+            self::$HookManager->processEvent(
+                'HOST_REGISTER',
+                ['Host' => &self::$Host]
+            );
             if (!self::$Host->save()) {
                 throw new Exception(
                     _('Failed to create Host')

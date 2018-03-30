@@ -66,36 +66,36 @@ class FOGURLRequests extends FOGBase
      *
      * @var array
      */
-    private $_response = array();
+    private $_response = [];
     /**
      * Curl options to all url requests.
      *
      * @var array
      */
-    public $options = array(
+    public $options = [
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_RETURNTRANSFER => true,
-    );
+    ];
     /**
      * Curl headers to send/request.
      *
      * @var array
      */
-    private $_headers = array();
+    private $_headers = [];
     /**
      * The requests themselves.
      *
      * @var array
      */
-    private $_requests = array();
+    private $_requests = [];
     /**
      * The mapping of requests so we can receive
      * information in the proper order as requested.
      *
      * @var array
      */
-    private $_requestMap = array();
+    private $_requestMap = [];
     /**
      * Initializes our url requests object.
      *
@@ -110,13 +110,13 @@ class FOGURLRequests extends FOGBase
             $timeout
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'FOG_URL_AVAILABLE_TIMEOUT',
                     'FOG_URL_BASE_CONNECT_TIMEOUT',
                     'FOG_URL_BASE_TIMEOUT'
-                )
-            ),
+                ]
+            ],
             'value',
             false,
             'AND',
@@ -154,14 +154,14 @@ class FOGURLRequests extends FOGBase
     {
         $this->_windowSize = 20;
         $this->_callback = '';
-        $this->options = array(
+        $this->options = [
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_RETURNTRANSFER => true,
-        );
-        $this->_response = array();
-        $this->_requests = array();
-        $this->_requestMap = array();
+            CURLOPT_RETURNTRANSFER => true
+        ];
+        $this->_response = [];
+        $this->_requests = [];
+        $this->_requestMap = [];
     }
     /**
      * Magic caller to get specialized methods
@@ -173,7 +173,7 @@ class FOGURLRequests extends FOGBase
      */
     public function __get($name)
     {
-        if (in_array($name, array('headers'))) {
+        if (in_array($name, ['headers'])) {
             $name = sprintf(
                 '_%s',
                 $name
@@ -192,11 +192,11 @@ class FOGURLRequests extends FOGBase
      */
     public function __set($name, $value)
     {
-        $addMethods = array(
+        $addMethods = [
             'options',
-            'headers',
-        );
-        if (in_array($name, array('headers'))) {
+            'headers'
+        ];
+        if (in_array($name, ['headers'])) {
             $name = sprintf(
                 '_%s',
                 $name
@@ -237,9 +237,9 @@ class FOGURLRequests extends FOGBase
     public function request(
         $url,
         $method = 'GET',
-        $postData = array(),
-        $headers = array(),
-        $options = array()
+        $postData = [],
+        $headers = [],
+        $options = []
     ) {
         $this->_requests[] = new FOGRollingURL(
             $url,
@@ -484,14 +484,14 @@ class FOGURLRequests extends FOGBase
         }
         list($ip, $password, $port, $username) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'FOG_PROXY_IP',
                     'FOG_PROXY_PASSWORD',
                     'FOG_PROXY_PORT',
                     'FOG_PROXY_USERNAME',
-                ),
-            ),
+                ],
+            ],
             'value',
             false,
             'AND',
@@ -499,7 +499,7 @@ class FOGURLRequests extends FOGBase
             false,
             false
         );
-        $IPs = self::getSubObjectIDs('StorageNode', array('isEnabled' => 1));
+        $IPs = self::getSubObjectIDs('StorageNode', ['isEnabled' => 1]);
         $pat = sprintf(
             '#%s#i',
             implode('|', $IPs)
@@ -576,11 +576,11 @@ class FOGURLRequests extends FOGBase
             $data2 = json_encode($data);
             $datalen = strlen($data2);
             $this->options[CURLOPT_HEADER] = true;
-            $this->options[CURLOPT_HTTPHEADER] = array(
+            $this->options[CURLOPT_HTTPHEADER] = [
                 'Content-Type: application/json',
                 "Content-Length: $datalen",
                 'Expect:',
-            );
+            ];
         }
         if ($file) {
             $this->options[CURLOPT_FILE] = $file;

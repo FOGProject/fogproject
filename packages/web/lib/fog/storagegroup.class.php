@@ -35,7 +35,7 @@ class StorageGroup extends FOGController
     protected $databaseFields = [
         'id' => 'ngID',
         'name' => 'ngName',
-        'description' => 'ngDesc',
+        'description' => 'ngDesc'
     ];
     /**
      * The required fields
@@ -43,7 +43,7 @@ class StorageGroup extends FOGController
      * @var array
      */
     protected $databaseFieldsRequired = [
-        'name',
+        'name'
     ];
     /**
      * Additional fields
@@ -53,7 +53,7 @@ class StorageGroup extends FOGController
     protected $additionalFields = [
         'allnodes',
         'enablednodes',
-        'usedtasks',
+        'usedtasks'
     ];
 
     protected $sqlQueryStr = "SELECT `%s`,SUM(`nfsGroupMembers`.`ngmMaxClients`)

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 03:25-0400\n"
+"POT-Creation-Date: 2018-03-30 17:58-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6352,38 +6352,6 @@ msgstr "Field and values do not have equal parameters."
 msgid "Need the table name to drop"
 msgstr ""
 
-msgid "No key being requested"
-msgstr "No key being requested"
-
-msgid "Invalid numeric entry"
-msgstr "Invalid numeric entry"
-
-msgid "Setting Key"
-msgstr "Setting Key"
-
-msgid "Object"
-msgstr "Object"
-
-msgid "Array"
-msgstr ""
-
-msgid "Value"
-msgstr "Value"
-
-#, fuzzy
-msgid "Set Failed"
-msgstr "Failed"
-
-#, fuzzy
-msgid "Key"
-msgstr "DMI Key"
-
-msgid "Returning value of key"
-msgstr "Returning value of key"
-
-msgid "Returning array within key"
-msgstr "Returning array within key"
-
 #, fuzzy
 msgid "Wake On Lan"
 msgstr "Wake on lan?"
@@ -6607,12 +6575,28 @@ msgstr "No database fields defined for this class"
 msgid "Record not found"
 msgstr "Record not found, Error: %s"
 
+msgid "Returning value of key"
+msgstr "Returning value of key"
+
+msgid "Value"
+msgstr "Value"
+
+msgid "No key being requested"
+msgstr "No key being requested"
+
 msgid "Invalid key being set"
 msgstr "Invalid key being set"
+
+msgid "Setting Key"
+msgstr "Setting Key"
 
 #, fuzzy
 msgid "Set failed"
 msgstr "Service update failed"
+
+#, fuzzy
+msgid "Key"
+msgstr "DMI Key"
 
 msgid "Invalid key being added"
 msgstr "Invalid key being added"

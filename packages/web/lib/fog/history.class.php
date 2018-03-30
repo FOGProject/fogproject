@@ -32,11 +32,11 @@ class History extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'hID',
         'info' => 'hText',
         'createdBy' => 'hUser',
         'createdTime' => 'hTime',
-        'ip' => 'hIP',
-    );
+        'ip' => 'hIP'
+    ];
 }

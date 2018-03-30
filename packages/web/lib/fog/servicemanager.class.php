@@ -38,38 +38,38 @@ class ServiceManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'settingID',
                 'settingKey',
                 'settingDesc',
                 'settingValue',
                 'settingCategory'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'VARCHAR(255)',
                 'LONGTEXT',
                 'LONGTEXT',
                 'LONGTEXT'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 'settingID',
                 'settingKey'
-            ),
+            ],
             'MyISAM',
             'utf8',
             'settingID',

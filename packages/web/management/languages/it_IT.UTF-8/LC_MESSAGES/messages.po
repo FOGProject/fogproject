@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 03:25-0400\n"
+"POT-Creation-Date: 2018-03-30 17:58-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5938,36 +5938,6 @@ msgstr "Campo e tipo devono avere lo stesso conteggio"
 msgid "Need the table name to drop"
 msgstr "Necessario il nome tabella da cancellare"
 
-msgid "No key being requested"
-msgstr "Nessuna chiave chiede il"
-
-msgid "Invalid numeric entry"
-msgstr "ingresso numerico non valido"
-
-msgid "Setting Key"
-msgstr "Impostazione chiave"
-
-msgid "Object"
-msgstr "Oggetto"
-
-msgid "Array"
-msgstr "array"
-
-msgid "Value"
-msgstr "Valore"
-
-msgid "Set Failed"
-msgstr "Set fallito"
-
-msgid "Key"
-msgstr "Chiave"
-
-msgid "Returning value of key"
-msgstr "Tornando valore della chiave"
-
-msgid "Returning array within key"
-msgstr "Tornando matrice all'interno chiave"
-
 msgid "Wake On Lan"
 msgstr "Wake On LAN"
 
@@ -6168,11 +6138,26 @@ msgstr "Campi del database definiti per questa classe"
 msgid "Record not found"
 msgstr "Record non trovato"
 
+msgid "Returning value of key"
+msgstr "Tornando valore della chiave"
+
+msgid "Value"
+msgstr "Valore"
+
+msgid "No key being requested"
+msgstr "Nessuna chiave chiede il"
+
 msgid "Invalid key being set"
 msgstr "chiave non valido stato impostato"
 
+msgid "Setting Key"
+msgstr "Impostazione chiave"
+
 msgid "Set failed"
 msgstr "Fallita impostazione"
+
+msgid "Key"
+msgstr "Chiave"
 
 msgid "Invalid key being added"
 msgstr "chiave non valido viene aggiunto"

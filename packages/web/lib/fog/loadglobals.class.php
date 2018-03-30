@@ -54,11 +54,11 @@ class LoadGlobals extends FOGBase
         $GLOBALS['EventManager']
             ->load();
         $GLOBALS['FOGURLRequests'] = FOGCore::getClass('FOGURLRequests');
-        $subs = array(
+        $subs = [
             'configure',
             'authorize',
             'requestClientInfo'
-        );
+        ];
         if (in_array($sub, $subs)) {
             new DashboardPage();
             unset($subs);

@@ -32,14 +32,14 @@ class TaskLog extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'id',
         'taskID' => 'taskID',
         'stateID' => 'taskStateID',
         'ip' => 'ip',
         'createdTime' => 'createTime',
-        'createdBy' => 'createdBy',
-    );
+        'createdBy' => 'createdBy'
+    ];
     /**
      * Initializes the class to set the ip from the remote.
      *

@@ -40,7 +40,7 @@ class MACAddressAssociation extends FOGController
         'pending' => 'hmPending',
         'primary' => 'hmPrimary',
         'clientIgnore' => 'hmIgnoreClient',
-        'imageIgnore' => 'hmIgnoreImaging',
+        'imageIgnore' => 'hmIgnoreImaging'
     ];
     /**
      * The fields required for the db
@@ -49,7 +49,7 @@ class MACAddressAssociation extends FOGController
      */
     protected $databaseFieldsRequired = [
         'hostID',
-        'mac',
+        'mac'
     ];
     /**
      * Additional fields

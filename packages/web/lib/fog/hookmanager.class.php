@@ -40,7 +40,7 @@ class HookManager extends EventManager
      *
      * @var array
      */
-    public $events = array();
+    public $events = [];
     /**
      * Processes the system for customizable elements.
      *
@@ -49,7 +49,7 @@ class HookManager extends EventManager
      *
      * @return void
      */
-    public function processEvent($event, $arguments = array())
+    public function processEvent($event, $arguments = [])
     {
         $this->events[] = $event;
         $exists = self::getClass('HookEventManager')->exists(
@@ -81,7 +81,7 @@ class HookManager extends EventManager
                 continue;
             }
             $mergedArr = self::fastmerge(
-                array('event' => $event),
+                ['event' => $event],
                 $arguments
             );
             $function[0]->{$function[1]}($mergedArr);

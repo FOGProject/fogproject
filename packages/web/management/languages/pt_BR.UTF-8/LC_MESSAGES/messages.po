@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 03:25-0400\n"
+"POT-Creation-Date: 2018-03-30 17:58-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6357,38 +6357,6 @@ msgstr "O campo e os valores não têm parâmetros iguais."
 msgid "Need the table name to drop"
 msgstr ""
 
-msgid "No key being requested"
-msgstr "Nenhuma chave que está sendo solicitado"
-
-msgid "Invalid numeric entry"
-msgstr "entrada numérica inválida"
-
-msgid "Setting Key"
-msgstr "Definir Key"
-
-msgid "Object"
-msgstr "Objeto"
-
-msgid "Array"
-msgstr ""
-
-msgid "Value"
-msgstr "Valor"
-
-#, fuzzy
-msgid "Set Failed"
-msgstr "fracassado"
-
-#, fuzzy
-msgid "Key"
-msgstr "DMI Key"
-
-msgid "Returning value of key"
-msgstr "Retornando valor da chave"
-
-msgid "Returning array within key"
-msgstr "Voltando matriz dentro chave"
-
 #, fuzzy
 msgid "Wake On Lan"
 msgstr "Wake on LAN?"
@@ -6612,12 +6580,28 @@ msgstr "Nenhum campo de banco de dados definidos para esta classe"
 msgid "Record not found"
 msgstr "Registro não encontrado, erro: %s"
 
+msgid "Returning value of key"
+msgstr "Retornando valor da chave"
+
+msgid "Value"
+msgstr "Valor"
+
+msgid "No key being requested"
+msgstr "Nenhuma chave que está sendo solicitado"
+
 msgid "Invalid key being set"
 msgstr "Chave inválida sendo definido"
+
+msgid "Setting Key"
+msgstr "Definir Key"
 
 #, fuzzy
 msgid "Set failed"
 msgstr "atualização do Service falhou"
+
+#, fuzzy
+msgid "Key"
+msgstr "DMI Key"
 
 msgid "Invalid key being added"
 msgstr "Chave inválida que está sendo adicionado"

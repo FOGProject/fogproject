@@ -32,7 +32,7 @@ class ScheduledTask extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'stID',
         'name' => 'stName',
         'description' => 'stDesc',
@@ -53,18 +53,18 @@ class ScheduledTask extends FOGController
         'other5' => 'stOther5',
         'scheduleTime' => 'stDateTime',
         'isActive' => 'stActive',
-        'imageID' => 'stImageID',
-    );
+        'imageID' => 'stImageID'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'type',
         'taskType',
-        'hostID',
-    );
+        'hostID'
+    ];
     /**
      * Return the host object.
      *

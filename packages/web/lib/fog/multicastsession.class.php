@@ -49,7 +49,7 @@ class MulticastSession extends FOGController
         'storagegroupID' => 'msNFSGroupID',
         'anon3' => 'msAnon3',
         'anon4' => 'msAnon4',
-        'anon5' => 'msAnon5',
+        'anon5' => 'msAnon5'
     ];
     /**
      * Additional Fields

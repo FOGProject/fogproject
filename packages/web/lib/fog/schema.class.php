@@ -45,10 +45,10 @@ class Schema extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'vID',
-        'version' => 'vValue',
-    );
+        'version' => 'vValue'
+    ];
     /**
      * Simply returns the database name
      *
@@ -91,7 +91,7 @@ class Schema extends FOGController
      */
     public function dropDuplicateData(
         $dbname,
-        $table = array(),
+        $table = [],
         $indexNeeded = false
     ) {
         if (empty($dbname)) {
@@ -100,7 +100,7 @@ class Schema extends FOGController
         if (count($table) < 1) {
             return;
         }
-        $queries = array();
+        $queries = [];
         $tablename = $table[0];
         $indexes = (array)$table[1];
         $dropIndex = $table[2];

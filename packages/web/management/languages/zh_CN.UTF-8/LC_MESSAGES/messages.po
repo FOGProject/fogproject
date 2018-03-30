@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 03:25-0400\n"
+"POT-Creation-Date: 2018-03-30 17:58-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6346,38 +6346,6 @@ msgstr "场和值不具有相等的参数。"
 msgid "Need the table name to drop"
 msgstr ""
 
-msgid "No key being requested"
-msgstr "没有要求的关键"
-
-msgid "Invalid numeric entry"
-msgstr "无效的数字输入"
-
-msgid "Setting Key"
-msgstr "设置键"
-
-msgid "Object"
-msgstr "目的"
-
-msgid "Array"
-msgstr ""
-
-msgid "Value"
-msgstr "值"
-
-#, fuzzy
-msgid "Set Failed"
-msgstr "失败"
-
-#, fuzzy
-msgid "Key"
-msgstr "DMI关键"
-
-msgid "Returning value of key"
-msgstr "返回键的值"
-
-msgid "Returning array within key"
-msgstr "返回键在阵列"
-
 #, fuzzy
 msgid "Wake On Lan"
 msgstr "网络唤醒？"
@@ -6600,12 +6568,28 @@ msgstr "该类定义没有数据库字段"
 msgid "Record not found"
 msgstr "未发现记录，错误： %s"
 
+msgid "Returning value of key"
+msgstr "返回键的值"
+
+msgid "Value"
+msgstr "值"
+
+msgid "No key being requested"
+msgstr "没有要求的关键"
+
 msgid "Invalid key being set"
 msgstr "无效的关键字设定"
+
+msgid "Setting Key"
+msgstr "设置键"
 
 #, fuzzy
 msgid "Set failed"
 msgstr "服务更新失败"
+
+#, fuzzy
+msgid "Key"
+msgstr "DMI关键"
 
 msgid "Invalid key being added"
 msgstr "添加键无效"

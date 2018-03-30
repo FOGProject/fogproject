@@ -32,7 +32,7 @@ class Task extends TaskType
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'taskID',
         'name' => 'taskName',
         'checkInTime' => 'taskCheckIn',
@@ -58,68 +58,68 @@ class Task extends TaskType
         'passreset' => 'taskPassreset',
         'isDebug' => 'taskIsDebug',
         'imageID' => 'taskImageID',
-        'wol' => 'taskWOL',
-    );
+        'wol' => 'taskWOL'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'id',
         'typeID',
-        'hostID',
-    );
+        'hostID'
+    ];
     /**
      * Additional fields.
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'image',
         'host',
         'type',
         'state',
         'storagenode',
         'storagegroup'
-    );
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'Image' => array(
+    protected $databaseFieldClassRelationships = [
+        'Image' => [
             'id',
             'imageID',
             'image'
-        ),
-        'Host' => array(
+        ],
+        'Host' => [
             'id',
             'hostID',
             'host'
-        ),
-        'TaskType' => array(
+        ],
+        'TaskType' => [
             'id',
             'typeID',
             'type'
-        ),
-        'TaskState' => array(
+        ],
+        'TaskState' => [
             'id',
             'stateID',
             'state'
-        ),
-        'StorageNode' => array(
+        ],
+        'StorageNode' => [
             'id',
             'storagenodeID',
             'storagenode'
-        ),
-        'StorageGroup' => array(
+        ],
+        'StorageGroup' => [
             'id',
             'storagegroupID',
             'storagegroup'
-        )
-    );
+        ]
+    ];
     /**
      * Returns the in front of number.
      *
@@ -135,7 +135,7 @@ class Task extends TaskType
             $this->set('checkInTime', $curTime->format('Y-m-d H:i:s'))->save();
         }
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
-        $find = array(
+        $find = [
             'stateID' => self::fastmerge(
                 (array)self::getQueuedStates(),
                 (array)self::getProgressState()
@@ -143,7 +143,7 @@ class Task extends TaskType
             'typeID' => $used,
             'storagegroupID' => $this->get('storagegroupID'),
             'storagenodeID' => $this->get('storagenodeID')
-        );
+        ];
         $checkTime = self::getSetting('FOG_CHECKIN_TIMEOUT');
         foreach ((array)$this->getManager()
             ->find($find) as &$Task
@@ -178,17 +178,14 @@ class Task extends TaskType
         if ($SnapinJob instanceof SnapinJob
             && $SnapinJob->isValid()
         ) {
-            self::getClass('SnapinTaskManager')
-                ->update(
-                    array(
-                        'jobID' => $SnapinJob->get('id')
-                    ),
-                    '',
-                    array(
-                        'complete' => self::niceDate()->format('Y-m-d H:i:s'),
-                        'stateID' => self::getCancelledState()
-                    )
-                );
+            self::getClass('SnapinTaskManager')->update(
+                ['jobID' => $SnapinJob->get('id')],
+                '',
+                [
+                    'complete' => self::niceDate()->format('Y-m-d H:i:s'),
+                    'stateID' => self::getCancelledState()
+                ]
+            );
             $SnapinJob->set(
                 'stateID',
                 self::getCancelledState()
@@ -197,20 +194,18 @@ class Task extends TaskType
         if ($this->isMulticast()) {
             $msIDs = self::getSubObjectIDs(
                 'MulticastSessionAssociation',
-                array(
-                    'taskID' => $this->get('id')
-                ),
+                ['taskID' => $this->get('id')],
                 'jobID'
             );
             self::getClass('MulticastSessionManager')
                 ->update(
-                    array('id' => $msIDs),
+                    ['id' => $msIDs],
                     '',
-                    array(
+                    [
                         'clients' => 0,
                         'completetime' => self::formatTime('now', 'Y-m-d H:i:s'),
                         'stateID' => self::getCancelledState()
-                    )
+                    ]
                 );
         }
         $this->set('stateID', self::getCancelledState())->save();

@@ -32,47 +32,47 @@ class ImageAssociation extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'igaID',
         'imageID' => 'igaImageID',
         'storagegroupID' => 'igaStorageGroupID',
-        'primary' => 'igaPrimary',
-    );
+        'primary' => 'igaPrimary'
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'imageID',
-        'storagegroupID',
-    );
+        'storagegroupID'
+    ];
     /**
      * Additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'image',
         'storagegroup'
-    );
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'Image' => array(
+    protected $databaseFieldClassRelationships = [
+        'Image' => [
             'id',
             'imageID',
             'image'
-        ),
-        'StorageGroup' => array(
+        ],
+        'StorageGroup' => [
             'id',
             'storagegroupID',
             'storagegroup'
-        )
-    );
+        ]
+    ];
     /**
      * Returns the image object
      *

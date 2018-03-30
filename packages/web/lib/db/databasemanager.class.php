@@ -88,11 +88,11 @@ class DatabaseManager extends FOGCore
         /**
          * Files that are okay to get
          */
-        $okayFiles = array(
+        $okayFiles = [
             'dbrunning.php',
             'checkcredentials.php',
             'getversion.php',
-        );
+        ];
         /**
          * The script filename
          */
@@ -112,11 +112,11 @@ class DatabaseManager extends FOGCore
         /**
          * The subs we allow some form of passthru
          */
-        $subs = array(
+        $subs = [
             'configure',
             'authorize',
             'requestClientInfo'
-        );
+        ];
         /**
          * If sub is in the passthru,
          * set the test to true.
@@ -139,9 +139,7 @@ class DatabaseManager extends FOGCore
             if (self::$json) {
                 die(
                     json_encode(
-                        array(
-                            'error' => 'db'
-                        )
+                        ['error' => 'db']
                     )
                 );
             } else {

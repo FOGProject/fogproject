@@ -32,7 +32,7 @@ class Image extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'imageID',
         'name' => 'imageName',
         'description' => 'imageDesc',
@@ -52,53 +52,53 @@ class Image extends FOGController
         'compress' => 'imageCompress',
         'isEnabled' => 'imageEnabled',
         'toReplicate' => 'imageReplicate',
-        'srvsize' => 'imageServerSize',
-    );
+        'srvsize' => 'imageServerSize'
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name',
         'path',
         'imageTypeID',
-        'osID',
-    );
+        'osID'
+    ];
     /**
      * Additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'hosts',
         'storagegroups',
         'os',
         'imagepartitiontype',
-        'imagetype',
-    );
+        'imagetype'
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'OS' => array(
+    protected $databaseFieldClassRelationships = [
+        'OS' => [
             'id',
             'osID',
             'os'
-        ),
-        'ImagePartitionType' => array(
+        ],
+        'ImagePartitionType' => [
             'id',
             'imagePartitionTypeID',
             'imagepartitiontype'
-        ),
-        'ImageType' => array(
+        ],
+        'ImageType' => [
             'id',
             'imageTypeID',
             'imagetype'
-        )
-    );
+        ]
+    ];
     /**
      * Removes the item from the database
      *
@@ -109,22 +109,18 @@ class Image extends FOGController
      */
     public function destroy($key = 'id')
     {
-        $find = array('imageID' => $this->get('id'));
-        self::getClass('HostManager')
-            ->update(
-                $find,
-                '',
-                array('imageID' => 0)
-            );
+        $find = ['imageID' => $this->get('id')];
+        self::getClass('HostManager')->update(
+            $find,
+            '',
+            ['imageID' => 0]
+        );
         self::getClass('ImageAssociationManager')
             ->destroy($find);
-        self::$HookManager
-            ->processEvent(
-                'DESTROY_IMAGE',
-                array(
-                    'Image' => &$this
-                )
-            );
+        self::$HookManager->processEvent(
+            'DESTROY_IMAGE',
+            ['Image' => &$this]
+        );
         return parent::destroy($key);
     }
     /**
@@ -139,12 +135,12 @@ class Image extends FOGController
             if (count($this->get('hosts')) > 0) {
                 $DBIDs = self::getSubObjectIDs(
                     'Host',
-                    array('imageID' => $this->get('id'))
+                    ['imageID' => $this->get('id')]
                 );
             } else {
                 $RemIDs = self::getSubObjectIDs(
                     'Host',
-                    array('imageID' => $this->get('id'))
+                    ['imageID' => $this->get('id')]
                 );
             }
             if (!isset($RemIDs)) {
@@ -161,15 +157,14 @@ class Image extends FOGController
             }
             $RemIDs = array_filter($RemIDs);
             if (count($RemIDs) > 0) {
-                self::getClass('HostManager')
-                    ->update(
-                        array(
-                            'imageID' => $this->get('id'),
-                            'id' => $RemIDs
-                        ),
-                        '',
-                        array('imageID' => 0)
-                    );
+                self::getClass('HostManager')->update(
+                    [
+                        'imageID' => $this->get('id'),
+                        'id' => $RemIDs
+                    ],
+                    '',
+                    ['imageID' => 0]
+                );
                 unset($RemIDs);
             }
             if (count($this->get('hosts')) < 1) {
@@ -177,17 +172,17 @@ class Image extends FOGController
             }
             self::getClass('HostManager')
                 ->update(
-                    array('id' => $this->get('hosts')),
+                    ['id' => $this->get('hosts')],
                     '',
-                    array('imageID' => $this->get('id'))
+                    ['imageID' => $this->get('id')]
                 );
         }
         $primary = self::getSubObjectIDs(
             'ImageAssociation',
-            array(
+            [
                 'imageID' => $this->get('id'),
                 'primary' => 1
-            ),
+            ],
             'storagegroupID'
         );
         $this->assocSetter('Image', 'storagegroup');
@@ -251,7 +246,7 @@ class Image extends FOGController
     {
         $hostids = self::getSubObjectIDs(
             'Host',
-            array('imageID' => $this->get('id'))
+            ['imageID' => $this->get('id')]
         );
         $this->set('hosts', $hostids);
     }
@@ -294,12 +289,12 @@ class Image extends FOGController
     {
         $groupids = self::getSubObjectIDs(
             'ImageAssociation',
-            array('imageID' => $this->get('id')),
+            ['imageID' => $this->get('id')],
             'storagegroupID'
         );
         $groupids = self::getSubObjectIDs(
             'StorageGroup',
-            array('id' => $groupids)
+            ['id' => $groupids]
         );
         $groupids = array_filter($groupids);
         if (count($groupids) < 1) {
@@ -355,7 +350,7 @@ class Image extends FOGController
                 throw new Exception(_('No viable storage groups found'));
             }
         }
-        $primaryGroup = array();
+        $primaryGroup = [];
         foreach ((array)$groupids as &$groupid) {
             if (!self::getPrimaryGroup($groupid, $this->get('id'))) {
                 continue;

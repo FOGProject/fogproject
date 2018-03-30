@@ -88,10 +88,10 @@ class FOGCore extends FOGBase
                 $load = _('Unavailable');
             }
         }
-        return array(
+        return [
             'uptime' => $uptime,
             'load' => $load
-        );
+        ];
     }
     /**
      * Gets the hardware information of the selected item
@@ -191,7 +191,7 @@ class FOGCore extends FOGBase
     public static function setEnv()
     {
         self::$pluginsinstalled = (array)self::getActivePlugins();
-        $getSettings = array(
+        $getSettings = [
             'FOG_DEFAULT_LOCALE',
             'FOG_HOST_LOOKUP',
             'FOG_MEMORY_LIMIT',
@@ -199,7 +199,7 @@ class FOGCore extends FOGBase
             'FOG_REAUTH_ON_EXPORT',
             'FOG_TZ_INFO',
             'FOG_VIEW_DEFAULT_SCREEN',
-        );
+        ];
         list(
             $locale,
             $hostLookup,
@@ -210,7 +210,7 @@ class FOGCore extends FOGBase
             $view
         ) = self::getSubObjectIDs(
             'Service',
-            array('name' => $getSettings),
+            ['name' => $getSettings],
             'value',
             false,
             'AND',
@@ -220,10 +220,10 @@ class FOGCore extends FOGBase
         );
         self::$defaultscreen = $view;
         self::$pendingHosts = self::getClass('HostManager')
-            ->count(array('pending' => 1));
+            ->count(['pending' => 1]);
         if (DatabaseManager::getColumns('hostMAC', 'hmMAC')) {
             self::$pendingMACs = self::getClass('MACAddressAssociationManager')
-                ->count(array('pending' => 1));
+                ->count(['pending' => 1]);
         }
         self::$fogpingactive = $hostLookup;
         self::$fogdeleteactive = $authdelete;

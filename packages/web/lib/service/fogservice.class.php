@@ -50,13 +50,13 @@ abstract class FOGService extends FOGBase
      *
      * @var array
      */
-    public $procRef = array();
+    public $procRef = [];
     /**
      * Process pipes
      *
      * @var array
      */
-    public $procPipes = array();
+    public $procPipes = [];
     /**
      * Tests that the passed files and sizes are the same
      *
@@ -790,10 +790,10 @@ abstract class FOGService extends FOGBase
             $log = static::$log;
         }
         self::wlog(_('Task started'), $logname);
-        $descriptor = array(
-            0 => array('pipe', 'r'),
-            2 => array('file', $log, 'a')
-        );
+        $descriptor = [
+            0 => ['pipe', 'r'],
+            2 => ['file', $log, 'a']
+        ];
         if ($itemType === false) {
             $this->procRef[$index] = proc_open(
                 $cmd,

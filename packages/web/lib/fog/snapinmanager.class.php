@@ -38,7 +38,7 @@ class SnapinManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'sID',
                 'sName',
                 'sDesc',
@@ -59,8 +59,8 @@ class SnapinManager extends FOGManagerController
                 'sPackType',
                 'sHash',
                 'sSize'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'VARCHAR(255)',
                 'LONGTEXT',
@@ -81,8 +81,8 @@ class SnapinManager extends FOGManagerController
                 "ENUM('0', '1')",
                 'VARCHAR(255)',
                 'BIGINT(20)'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -103,8 +103,8 @@ class SnapinManager extends FOGManagerController
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -125,11 +125,11 @@ class SnapinManager extends FOGManagerController
                 '0',
                 false,
                 '0'
-            ),
-            array(
+            ],
+            [
                 'sID',
                 'sName'
-            ),
+            ],
             'MyISAM',
             'utf8',
             'sID',
@@ -153,7 +153,7 @@ class SnapinManager extends FOGManagerController
      * @return parent::destroy
      */
     public function destroy(
-        $findWhere = array(),
+        $findWhere = [],
         $whereOperator = 'AND',
         $orderBy = 'name',
         $sort = 'ASC',
@@ -177,7 +177,7 @@ class SnapinManager extends FOGManagerController
          * Get our other finding portions where/when necessary
          */
         if (isset($findWhere['id'])) {
-            $findWhere = array('snapinID' => $findWhere['id']);
+            $findWhere = ['snapinID' => $findWhere['id']];
         }
         /**
          * Get any snapin jobs with these snapins.
@@ -208,7 +208,7 @@ class SnapinManager extends FOGManagerController
              * Get the snapin task count.
              */
             $jobCount = self::getClass('SnapinTaskManager')
-                ->count(array('jobID' => $jobID));
+                ->count(['jobID' => $jobID]);
             /*
              * If we still have tasks start with the next job ID.
              */
@@ -229,7 +229,7 @@ class SnapinManager extends FOGManagerController
          */
         if (count($snapJobIDs) > 0) {
             self::getClass('SnapinJobManager')
-                ->cancel(array('id' => $snapJobIDs));
+                ->cancel(['id' => $snapJobIDs]);
         }
         /*
          * Remove the storage group associations for these snapins
