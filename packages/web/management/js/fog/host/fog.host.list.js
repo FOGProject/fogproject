@@ -1,19 +1,126 @@
 (function($) {
+    // DEFINE: CUSTOM DATA ADAPTER; FOR FETCHING THE GROUPS
+
+    $.fn.select2.amd.define('select2/data/fetchAdapter', [
+      'select2/data/array',
+      'select2/utils'
+    ], function(ArrayAdapter, Utils){
+        function FetchDataAdapter ($element, options) {
+            FetchDataAdapter.__super__.constructor.call(this, $element, options);
+        }
+
+        Utils.Extend(FetchDataAdapter, ArrayAdapter);
+
+        FetchDataAdapter.prototype.postQuery = function(params, callback, dataStore) {
+          var response = [];
+
+          if(dataStore != undefined){
+            var data = dataStore.results;
+
+            data.forEach(function(element, index){
+              if(params.term == undefined || element.text.toLowerCase().indexOf(params.term.toLowerCase()) !== -1){
+                response.push(element);
+              }
+            });
+
+            callback({
+              results: response
+            });
+          }
+
+          return;
+        }
+
+        FetchDataAdapter.prototype.query = function (params, callback) {
+          if(this.options.options.url == undefined){
+            throw new DOMException("Invalid URL supplied!");
+          }
+
+          if(this.dataStore == undefined){
+            var self = this;
+
+            $.ajax({
+              url: this.options.options.url,
+              dataType: 'json',
+              quietMillis: 200,
+              data: function(params){
+                return params;
+              },
+              success: function(data){
+                var mappedData = $.map(data, function (obj) {
+                    obj.text = obj.name;
+                    return obj;
+                });
+
+                self.dataStore = {
+                  results: mappedData
+                }
+
+                self.postQuery(params, callback, self.dataStore);
+                return;
+              }
+            });
+          }
+
+          this.postQuery(params, callback, this.dataStore);
+        };
+
+        return FetchDataAdapter;
+    });
+
+    // END: CUSTOM DATA ADAPTER
+
+
     var addToGroup = $('#addSelectedToGroup'),
         deleteSelected = $('#deleteSelected'),
         groupModal = $('#addToGroupModal'),
         groupModalSelect = $('#groupSelect');
+    var groupList = [];
 
-    function disableButtons (disable) {
+    function disableButtons(disable) {
         addToGroup.prop('disabled', disable);
         deleteSelected.prop('disabled', disable);
     }
-    function onSelect (selected) {
+    disableButtons(true);
+
+    function onSelect(selected) {
         var disabled = selected.count() == 0;
         disableButtons(disabled);
     }
 
-    disableButtons(true);
+    function loadGroupSelect(){
+      var fetchAdapter = $.fn.select2.amd.require('select2/data/fetchAdapter');
+
+      groupModalSelect.select2({
+        url: '../fog/group/names',
+        dataAdapter: fetchAdapter,
+        width: '100%',
+        tags: true,
+        placeholder: 'Select or create group',
+        createTag: function (params) {
+            return {
+                id: params.term,
+                text: params.term,
+                newOption: true
+            }
+        },
+        templateResult: function (data) {
+            if (!data.text.length) {
+                return;
+            }
+            var $result = $("<span></span>");
+
+            $result.text(data.text);
+            if (data.newOption) {
+                $result.append(" <em><b>(new)</b></em>");
+            }
+            return $result;
+        }
+      });
+
+      groupModalSelect.val(null).trigger("change");
+    }
+
     var table = Common.registerTable($('#dataTable'), onSelect, {
         order: [
             [0, 'asc']
@@ -78,71 +185,20 @@
         });
     });
 
-    function initGroupSelect(data) {
-        groupModalSelect.select2({
-            width: '100%',
-            tags: true,
-            data: data,
-            placeholder: 'Select or create group',
-            createTag: function (params) {
-                return {
-                    id: params.term,
-                    text: params.term,
-                    newOption: true
-                }
-            },
-            templateResult: function (data) {
-                if (!data.text.length) {
-                    return;
-                }
-                var $result = $("<span></span>");
-
-                $result.text(data.text);
-                if (data.newOption) {
-                    $result.append(" <em><b>(new)</b></em>");
-                }
-                return $result;
-            }
-        });
-        groupModalSelect.val(null).trigger("change");
-    }
-    initGroupSelect();
-
-
-
-
     Common.registerModal(groupModal,
         // On show
-        function(e) {
-
-        },
+        null,
         // On close
         function(e) {
             // Clear the group selector and data
-            initGroupSelect(null);
+            groupModalSelect.select2('destroy');
         }
     );
 
     groupModal.on('show.bs.modal', function(e) {
-        groupModalSelect.prop('disabled', true);
-        Pace.track(function(){
-            $.ajax('', {
-                type: 'GET',
-                url: '../fog/group/names',
-                async: true,
-                success: function(res) {
-                    var mappedData = $.map(res, function (obj) {
-                        obj.text = obj.name;
-                        return obj;
-                    });
-                    initGroupSelect(mappedData);
-                    groupModalSelect.prop('disabled', false);
-                },
-                error: function(res) {
-                    Common.notifyFromAPI(res.responseJSON, true);
-                }
-            });
-        });
+      Pace.track(function(){
+        loadGroupSelect();
+      });
     });
 
     addToGroup.on('click', function() {
