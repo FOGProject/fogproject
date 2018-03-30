@@ -250,8 +250,8 @@ class Route extends FOGBase
             'unisearch'
         )->map(
             'PUT|POST',
-            '/[group:class]/join',
-            ['self', 'join'],
+            "${expanded}/join",
+            ['self', 'joining'],
             'join'
         )->get(
             "${expandeda}/[current|active]",
@@ -1590,5 +1590,159 @@ class Route extends FOGBase
         }
         echo json_encode($data);
         exit;
+    }
+    /**
+     * Allows joining items.
+     *
+     * @param string $class The class to join items to.
+     *
+     * @return void
+     */
+    public function joining($class)
+    {
+        $classname = strtolower($class);
+        $classVars = self::getClass(
+            $class,
+            '',
+            true
+        );
+        $vars = json_decode(
+            file_get_contents('php://input')
+        );
+        if ('POST' == self::$reqmethod) {
+            if ($classname != 'group') {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_BAD_REQUEST
+                );
+            }
+        }
+        $classman = self::getClass($class.'Manager');
+        switch (self::$reqmethod) {
+        case 'PUT':
+            foreach ($classman->find(['id' => $vars->ids]) as &$c) {
+                if (!$c->isValid()) {
+                    continue;
+                }
+                foreach ($classVars['databaseFields'] as &$key) {
+                    $key = $c->key($key);
+                    if (!isset($vars->$key)) {
+                        $val = $c->get($key);
+                    } else {
+                        $val = $vars->$key;
+                    }
+                    if ($key == 'id') {
+                        continue;
+                    }
+                    $c->set($key, $val);
+                    unset($key);
+                }
+                switch ($classname) {
+                case 'host':
+                    if (count($vars->macs)) {
+                        $c->addAddMAC($vars->macs);
+                    }
+                    if (count($vars->snapins)) {
+                        $c->addSnapin($vars->snapins);
+                    }
+                    if (count($vars->printers)) {
+                        $c->addPrinter($vars->printers);
+                    }
+                    if (count($vars->modules)) {
+                        $c->addModule($vars->modules);
+                    }
+                    if (count($vars->groups)) {
+                        $c->addGroup($vars->groups);
+                    }
+                    break;
+                case 'group':
+                    if (count($vars->hosts)) {
+                        $c->addHost($vars->hosts);
+                    }
+                    if (count($vars->snapins)) {
+                        $c->addSnapin($vars->snapins);
+                    }
+                    if (count($vars->printers)) {
+                        $c->addPrinter($vars->printers);
+                    }
+                    if (count($vars->modules)) {
+                        $c->addModule($vars->modules);
+                    }
+                    if (count($vars->hosts)) {
+                        $c->addHost($vars->hosts);
+                    }
+                    if ($vars->imageID) {
+                        $c->addImage($vars->imageID);
+                    }
+                    break;
+                case 'image':
+                case 'snapin':
+                    if (count($vars->hosts)) {
+                        $c->addHost($vars->hosts);
+                    }
+                    if (count($vars->storagegroups)) {
+                        $c->addGroup($vars->storagegroups);
+                    }
+                    break;
+                case 'printer':
+                    if (count($vars->hosts)) {
+                        $c->addHost($vars->hosts);
+                    }
+                    break;
+                }
+                // Store the data and recreate.
+                // If failed present so.
+                if (!$c->save()) {
+                    self::sendResponse(
+                        HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                    );
+                }
+                unset($c);
+            }
+            $code = HTTPResponseCodes::HTTP_CREATED;
+            break;
+        case 'POST':
+            $ids = [];
+            foreach ($vars->names as &$name) {
+                $exists = $classman->exists($name);
+                $id = self::getSubObjectIDs(
+                    $classname,
+                    ['name' => $name]
+                );
+                if ($exists) {
+                    foreach ($id as &$i) {
+                        $ids[] = $i;
+                        unset($i);
+                    }
+                    continue;
+                }
+                $c = self::getClass($classname)
+                    ->set('name', $name);
+                if (!$c->save()) {
+                    self::sendResponse(
+                        HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                    );
+                }
+                $ids[] = $c->get('id');
+                unset($name);
+            }
+            foreach ($classman->find(['id' => $ids]) as &$c) {
+                if (count($vars->hosts)) {
+                    $c->addHost($vars->hosts);
+                }
+                // Store the data and recreate.
+                // If failed present so.
+                if (!$c->save()) {
+                    self::sendResponse(
+                        HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                    );
+                }
+                unset($c);
+            }
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            break;
+        default:
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+        }
+        self::sendResponse($code);
     }
 }
