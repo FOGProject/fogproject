@@ -748,7 +748,8 @@
         modulesDisableBtn = $('#modules-disable'),
         modulesUpdateBtn = $('#modules-update'),
         modulesDispBtn = $('#displayman-send'),
-        modulesAloBtn = $('#alo-send');
+        modulesAloBtn = $('#alo-send'),
+        modulesEnforceBtn = $('#enforcebtn');
 
     function onModulesDisable(selected) {
         var disabled = selected.count() == 0;
@@ -895,6 +896,14 @@
         modulesAloBtn.prop('disabled', true);
         Common.processForm(form, function(err) {
             modulesAloBtn.prop('disabled', false);
+        });
+    });
+    modulesEnforceBtn.on('click', function(e) {
+        e.preventDefault();
+        var form = $('#host-enforce');
+        modulesEnforceBtn.prop('disabled', true);
+        Common.processForm(form, function(err) {
+            modulesEnforceBtn.prop('disabled', false);
         });
     });
     if (Common.search && Common.search.length > 0) {
