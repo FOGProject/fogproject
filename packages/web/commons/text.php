@@ -1,6 +1,6 @@
 <?php
 /**
- * This is a starter file. It's purpose, in my eyes, is to contain
+ * This is a starter file. Its purpose, in my eyes, is to contain
  * all the text within fog that needs to be translated for other
  * languages. The idea is to make the translations needed all
  * in one file. You just call the variable and array you need.

@@ -496,4 +496,18 @@ class User extends FOGController
         session_start();
         $_SESSION=[];
     }
+
+    /**
+     * Returns the friendly name of the user.
+     *
+     * @return string
+     */
+    public function getDisplayName(){
+      $displayName = $this->get('display');
+      if(isset($displayName)){
+        return $displayName;
+      }
+
+      return $this->get('name');
+    }
 }
