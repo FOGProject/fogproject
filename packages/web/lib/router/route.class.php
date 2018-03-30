@@ -1698,7 +1698,7 @@ class Route extends FOGBase
                 }
                 unset($c);
             }
-            $code = HTTPResponseCodes::HTTP_CREATED;
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
             break;
         case 'POST':
             $ids = [];
@@ -1738,7 +1738,7 @@ class Route extends FOGBase
                 }
                 unset($c);
             }
-            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            $code = HTTPResponseCodes::HTTP_CREATED;
             break;
         default:
             $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
