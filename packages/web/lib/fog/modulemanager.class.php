@@ -38,38 +38,38 @@ class ModuleManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'id',
                 'name',
                 'short_name',
                 'description',
                 'default'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'VARCHAR(255)',
                 'VARCHAR(255)',
                 'LONGTEXT',
                 'INTEGER'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 'id',
                 'short_name'
-            ),
+            ],
             'MyISAM',
             'utf8',
             'id',

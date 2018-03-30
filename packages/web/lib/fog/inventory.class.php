@@ -32,7 +32,7 @@ class Inventory extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'iID',
         'hostID' => 'iHostID',
         'primaryUser' => 'iPrimaryUser',
@@ -65,24 +65,24 @@ class Inventory extends FOGController
         'caseman' => 'iCaseman',
         'casever' => 'iCasever',
         'caseserial' => 'iCaseserial',
-        'caseasset' => 'iCaseasset',
-    );
+        'caseasset' => 'iCaseasset'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
-        'hostID',
-    );
+    protected $databaseFieldsRequired = [
+        'hostID'
+    ];
     /**
      * Additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'host'
-    );
+    ];
     /**
      * Return the associated host object.
      *

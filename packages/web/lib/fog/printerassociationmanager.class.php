@@ -38,7 +38,7 @@ class PrinterAssociationManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'paID',
                 'paHostID',
                 'paPrinterID',
@@ -48,8 +48,8 @@ class PrinterAssociationManager extends FOGManagerController
                 'paAnon3',
                 'paAnon4',
                 'paAnon5'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'INTEGER',
                 'INTEGER',
@@ -59,8 +59,8 @@ class PrinterAssociationManager extends FOGManagerController
                 'VARCHAR(2)',
                 'VARCHAR(2)',
                 'VARCHAR(2)'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -70,16 +70,15 @@ class PrinterAssociationManager extends FOGManagerController
                 false,
                 false,
                 false
-            ),
-            array(
-            ),
-            array(
+            ],
+            [],
+            [
                 'paID',
-                array(
+                [
                     'paPrinterID',
                     'paHostID'
-                )
-            ),
+                ]
+            ],
             'MyISAM',
             'utf8',
             'paID',

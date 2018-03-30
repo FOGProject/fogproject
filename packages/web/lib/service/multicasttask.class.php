@@ -352,12 +352,12 @@ class MulticastTask extends FOGService
             $logpath
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'MULTICASTLOGFILENAME',
                     'SERVICE_LOG_PATH',
-                )
-            ),
+                ]
+            ],
             'value',
             false,
             'AND',
@@ -414,14 +414,14 @@ class MulticastTask extends FOGService
             $maxwait
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'FOG_MULTICAST_ADDRESS',
                     'FOG_MULTICAST_DUPLEX',
                     'FOG_MULTICAST_RENDEZVOUS',
                     'FOG_UDPCAST_MAXWAIT'
-                )
-            ),
+                ]
+            ],
             'value',
             false,
             'AND',
@@ -429,7 +429,7 @@ class MulticastTask extends FOGService
             false,
             ''
         );
-        $buildcmd = array(
+        $buildcmd = [
             UDPSENDERPATH,
             (
                 $this->getBitrate() ?
@@ -465,7 +465,7 @@ class MulticastTask extends FOGService
             ' --ttl 32',
             ' --nokbd',
             ' --nopointopoint',
-        );
+        ];
         $buildcmd = array_values(array_filter($buildcmd));
         switch ($this->getImageType()) {
         case 1:
@@ -656,13 +656,13 @@ class MulticastTask extends FOGService
      */
     public function updateStats()
     {
-        $find = array(
+        $find = [
             'id' => self::getSubObjectIDs(
                 'MulticastSessionAssociation',
-                array('msID' => $this->_intID),
+                ['msID' => $this->_intID],
                 'taskID'
             )
-        );
+        ];
         foreach ((array)self::getClass('TaskManager')
             ->find($find) as &$Task
         ) {

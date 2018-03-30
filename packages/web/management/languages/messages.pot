@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 16:56-0400\n"
+"POT-Creation-Date: 2018-03-30 17:58-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5462,36 +5462,6 @@ msgstr ""
 msgid "Need the table name to drop"
 msgstr ""
 
-msgid "No key being requested"
-msgstr ""
-
-msgid "Invalid numeric entry"
-msgstr ""
-
-msgid "Setting Key"
-msgstr ""
-
-msgid "Object"
-msgstr ""
-
-msgid "Array"
-msgstr ""
-
-msgid "Value"
-msgstr ""
-
-msgid "Set Failed"
-msgstr ""
-
-msgid "Key"
-msgstr ""
-
-msgid "Returning value of key"
-msgstr ""
-
-msgid "Returning array within key"
-msgstr ""
-
 msgid "Wake On Lan"
 msgstr ""
 
@@ -5678,10 +5648,25 @@ msgstr ""
 msgid "Record not found"
 msgstr ""
 
+msgid "Returning value of key"
+msgstr ""
+
+msgid "Value"
+msgstr ""
+
+msgid "No key being requested"
+msgstr ""
+
 msgid "Invalid key being set"
 msgstr ""
 
+msgid "Setting Key"
+msgstr ""
+
 msgid "Set failed"
+msgstr ""
+
+msgid "Key"
 msgstr ""
 
 msgid "Invalid key being added"

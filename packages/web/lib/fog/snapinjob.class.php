@@ -32,48 +32,48 @@ class SnapinJob extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'sjID',
         'hostID' => 'sjHostID',
         'stateID' => 'sjStateID',
-        'createdTime' => 'sjCreateTime',
-    );
+        'createdTime' => 'sjCreateTime'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'hostID',
-        'stateID',
-    );
+        'stateID'
+    ];
     /**
      * Additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'host',
         'state',
         'snapintasks'
-    );
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'Host' => array(
+    protected $databaseFieldClassRelationships = [
+        'Host' => [
             'id',
             'hostID',
             'host'
-        ),
-        'TaskState' => array(
+        ],
+        'TaskState' => [
             'id',
             'stateID',
             'state'
-        )
-    );
+        ]
+    ];
     /**
      * Load tasks
      *
@@ -83,7 +83,7 @@ class SnapinJob extends FOGController
     {
         $snapintasks = self::getSubObjectIDs(
             'SnapinTask',
-            array('jobID' => $this->get('id'))
+            ['jobID' => $this->get('id')]
         );
         $this->set('snapintasks', $snapintasks);
     }

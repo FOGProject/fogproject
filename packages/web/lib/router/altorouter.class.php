@@ -31,13 +31,13 @@ class AltoRouter
      *
      * @var array
      */
-    protected $routes = array();
+    protected $routes = [];
     /**
      * Array of all named routes.
      *
      * @var array
      */
-    protected $namedRoutes = array();
+    protected $namedRoutes = [];
     /**
      * Can be used to ignore leading part of the request
      * URL (if main file lives in subdirectory of host).
@@ -56,26 +56,26 @@ class AltoRouter
      *
      * @var array
      */
-    protected $matchTypes = array(
+    protected $matchTypes = [
         'i'  => '[0-9]++',
         'a'  => '[0-9A-Za-z]++',
         'h'  => '[0-9A-Fa-f]++',
         '*'  => '.+?',
         '**' => '.++',
         ''   => '[^/\.]++'
-    );
+    ];
     /**
      * Array of default parameters.
      *
      * @var array
      */
-    protected $defaultParams = array();
+    protected $defaultParams = [];
     /**
      * Array of transformers.
      *
      * @var array
      */
-    protected $transformers = array();
+    protected $transformers = [];
     /**
      * Create router in one call from config.
      *
@@ -88,10 +88,10 @@ class AltoRouter
      * @return void
      */
     public function __construct(
-        $routes = array(),
+        $routes = [],
         $basePath = '',
-        $matchTypes = array(),
-        $defaultParams = array(),
+        $matchTypes = [],
+        $defaultParams = [],
         $ignoreCase = false
     ) {
         $this->addRoutes($routes);
@@ -121,7 +121,7 @@ class AltoRouter
         $arguments
     ) {
         $name = strtolower($name);
-        $validTypes = array(
+        $validTypes = [
             'get' => 'GET',
             'put' => 'PUT',
             'head' => 'HEAD',
@@ -129,7 +129,7 @@ class AltoRouter
             'patch' => 'PATCH',
             'delete' => 'DELETE',
             'options' => 'OPTIONS'
-        );
+        ];
         // If method type is invalid don't do anything.
         if (!isset($validTypes[$name])) {
             return;
@@ -141,7 +141,7 @@ class AltoRouter
         );
         // Pass to the map method.
         call_user_func_array(
-            array($this, 'map'),
+            [$this, 'map'],
             $arguments
         );
         return $this;
@@ -196,9 +196,9 @@ class AltoRouter
     /**
      * Add multiple routes at once from array in the following format:
      *
-     *   $routes = array(
-     *      array($method, $route, $target, $name)
-     *   );
+     *   $routes = [
+     *      [$method, $route, $target, $name]
+     *   ];
      *
      * @param array $routes Array of routes you'd like to add.
      *
@@ -221,7 +221,7 @@ class AltoRouter
             throw new \Exception($msg);
         }
         foreach ($routes as $route) {
-            call_user_func_array(array($this, 'map'), $route);
+            call_user_func_array([$this, 'map'], $route);
         }
         return $this;
     }
@@ -321,9 +321,9 @@ class AltoRouter
     ) {
         foreach (explode('|', $method) as $method) {
             if (!isset($this->routes[$method])) {
-                $this->routes[$method] = array();
+                $this->routes[$method] = [];
             }
-            $this->routes[$method][] = array($route, $target, $name);
+            $this->routes[$method][] = [$route, $target, $name];
             unset($method);
         }
         if ($name) {
@@ -360,7 +360,7 @@ class AltoRouter
      */
     public function generate(
         $routeName,
-        array $params = array()
+        array $params = []
     ) {
         // Check if named route exists
         if (!isset($this->namedRoutes[$routeName])) {
@@ -432,7 +432,7 @@ class AltoRouter
         $requestUrl = null,
         $requestMethod = null
     ) {
-        $params = array();
+        $params = [];
         $match = false;
         // set Request Url if it isn't passed as parameter
         if (null === $requestUrl) {
@@ -536,14 +536,14 @@ class AltoRouter
     private function _compileRoute($route)
     {
         $pattern = '`(/|\.|)\[([^:\]]*+)(?::([^:\]]*+))?\](\?|)`';
-        $route = array(
+        $route = [
             'regex' => sprintf(
                 '`^%s$`u%s',
                 $route,
                 ($this->ignoreCase ? 'i' : '')
             ),
-            'types' => array()
-        );
+            'types' => []
+        ];
         if (preg_match_all($pattern, $route['regex'], $matches, PREG_SET_ORDER)) {
             $matchTypes = $this->matchTypes;
             foreach ($matches as $match) {
@@ -612,10 +612,10 @@ class AltoRouter
         $params,
         $name
     ) {
-        return array(
+        return [
             'target' => $target,
             'params' => $params,
             'name' => $name
-        );
+        ];
     }
 }

@@ -32,16 +32,16 @@ class NotifyEvent extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'neID',
         'name' => 'neName'
-    );
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name'
-    );
+    ];
 }

@@ -32,17 +32,17 @@ class OS extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'osID',
         'name' => 'osName',
         'description' => 'osDescription'
-    );
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
-        'name',
-    );
+    protected $databaseFieldsRequired = [
+        'name'
+    ];
 }

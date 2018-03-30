@@ -32,20 +32,20 @@ class MulticastSessionAssociation extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'msaID',
         'msID' => 'msID',
-        'taskID' => 'tID',
-    );
+        'taskID' => 'tID'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'msID',
-        'taskID',
-    );
+        'taskID'
+    ];
     /**
      * Return the multicast session object.
      *

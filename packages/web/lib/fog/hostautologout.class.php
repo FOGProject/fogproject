@@ -32,20 +32,20 @@ class HostAutoLogout extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'haloID',
         'hostID' => 'haloHostID',
-        'time' => 'haloTime',
-    );
+        'time' => 'haloTime'
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'hostID',
-        'time',
-    );
+        'time'
+    ];
     /**
      * Return the host object.
      *

@@ -32,18 +32,18 @@ class OUI extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'ouiID',
         'prefix' => 'ouiMACPrefix',
-        'name' => 'ouiMan',
-    );
+        'name' => 'ouiMan'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'prefix',
-        'name',
-    );
+        'name'
+    ];
 }

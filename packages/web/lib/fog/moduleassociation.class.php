@@ -32,21 +32,21 @@ class ModuleAssociation extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'msID',
         'hostID' => 'msHostID',
         'moduleID' => 'msModuleID',
-        'state' => 'msState',
-    );
+        'state' => 'msState'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'hostID',
-        'moduleID',
-    );
+        'moduleID'
+    ];
     /**
      * Returns the module object.
      *

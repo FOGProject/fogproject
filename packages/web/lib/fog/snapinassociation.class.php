@@ -32,20 +32,20 @@ class SnapinAssociation extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'saID',
         'hostID' => 'saHostID',
-        'snapinID' => 'saSnapinID',
-    );
+        'snapinID' => 'saSnapinID'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'hostID',
-        'snapinID',
-    );
+        'snapinID'
+    ];
     /**
      * Get's the host object.
      *

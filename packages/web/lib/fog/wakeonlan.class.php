@@ -61,9 +61,7 @@ class WakeOnLan extends FOGBase
         );
         self::$HookManager->processEvent(
             'BROADCAST_ADDR',
-            array(
-                'broadcast' => &$BroadCast,
-            )
+            ['broadcast' => &$BroadCast]
         );
         foreach ((array) self::$_arrMAC as &$mac) {
             foreach ((array) $BroadCast as &$SendTo) {

@@ -98,18 +98,18 @@ abstract class Event extends FOGBase
         if (self::$ajax) {
             return;
         }
-        $findArr = array(
+        $findArr = [
             "#\r#",
             "#\n#",
             '#\s+#',
             '# ,#',
-        );
-        $repArr = array(
+        ];
+        $repArr = [
             '',
             ' ',
             ' ',
             ','
-        );
+        ];
         $txt = preg_replace($findArr, $repArr, $txt);
         $txt = trim($txt);
         if (empty($txt)) {

@@ -38,37 +38,37 @@ class ImageAssociationManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'igaID',
                 'igaImageID',
                 'igaStorageGroupID',
                 'igaPrimary'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'INTEGER',
                 'INTEGER',
                 "ENUM('0', '1')"
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 'igaID',
-                array(
+                [
                     'igaImageID',
                     'igaStorageGroupID'
-                )
-            ),
+                ]
+            ],
             'MyISAM',
             'utf8',
             'igaID',

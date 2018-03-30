@@ -38,7 +38,7 @@ class HostScreenSettingManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'hssID',
                 'hssHostID',
                 'hssWidth',
@@ -47,8 +47,8 @@ class HostScreenSettingManager extends FOGManagerController
                 'hssOrientation',
                 'hssOther1',
                 'hssOther2'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'INTEGER',
                 'INTEGER',
@@ -57,8 +57,8 @@ class HostScreenSettingManager extends FOGManagerController
                 'INTEGER',
                 'INTEGER',
                 'INTEGER'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -67,8 +67,8 @@ class HostScreenSettingManager extends FOGManagerController
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -77,11 +77,11 @@ class HostScreenSettingManager extends FOGManagerController
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 'hssID',
                 'hssHostID'
-            ),
+            ],
             'MyISAM',
             'utf8',
             'hssID',

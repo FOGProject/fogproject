@@ -32,7 +32,7 @@ class PrinterAssociation extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'paID',
         'hostID' => 'paHostID',
         'printerID' => 'paPrinterID',
@@ -41,17 +41,17 @@ class PrinterAssociation extends FOGController
         'anon2' => 'paAnon2',
         'anon3' => 'paAnon3',
         'anon4' => 'paAnon4',
-        'anon5' => 'paAnon5',
-    );
+        'anon5' => 'paAnon5'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'hostID',
-        'printerID',
-    );
+        'printerID'
+    ];
     /**
      * Return the host object.
      *

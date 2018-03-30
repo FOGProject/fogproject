@@ -32,47 +32,47 @@ class SnapinGroupAssociation extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'sgaID',
         'snapinID' => 'sgaSnapinID',
         'storagegroupID' => 'sgaStorageGroupID',
-        'primary' => 'sgaPrimary',
-    );
+        'primary' => 'sgaPrimary'
+    ];
     /**
      * The required fiedls
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'snapinID',
-        'storagegroupID',
-    );
+        'storagegroupID'
+    ];
     /**
      * Additional fields
      *
      * @var array
      */
-    protected $additionalFields = array(
+    protected $additionalFields = [
         'snapin',
         'storagegroup'
-    );
+    ];
     /**
      * Database -> Class field relationships
      *
      * @var array
      */
-    protected $databaseFieldClassRelationships = array(
-        'Snapin' => array(
+    protected $databaseFieldClassRelationships = [
+        'Snapin' => [
             'id',
             'snapinID',
             'snapin'
-        ),
-        'StorageGroup' => array(
+        ],
+        'StorageGroup' => [
             'id',
             'storagegroupID',
             'storagegroup'
-        )
-    );
+        ]
+    ];
     /**
      * Get's the snapin object
      *

@@ -42,7 +42,7 @@ class ImageManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'imageID',
                 'imageName',
                 'imageDesc',
@@ -61,8 +61,8 @@ class ImageManager extends FOGManagerController
                 'imageCompress',
                 'imageEnabled',
                 'imageReplicate'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'VARCHAR(40)',
                 'LONGTEXT',
@@ -81,8 +81,8 @@ class ImageManager extends FOGManagerController
                 $compress,
                 "ENUM('0', '1')",
                 "ENUM('0', '1')"
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -101,8 +101,8 @@ class ImageManager extends FOGManagerController
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -121,14 +121,14 @@ class ImageManager extends FOGManagerController
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 'imageID',
-                array(
+                [
                     'imageName',
                     'imageTypeID'
-                )
-            ),
+                ]
+            ],
             'MyISAM',
             'utf8',
             'imageID',
@@ -152,7 +152,7 @@ class ImageManager extends FOGManagerController
      * @return parent::destroy
      */
     public function destroy(
-        $findWhere = array(),
+        $findWhere = [],
         $whereOperator = 'AND',
         $orderBy = 'name',
         $sort = 'ASC',
@@ -176,8 +176,8 @@ class ImageManager extends FOGManagerController
          * Get our other associative areas as needed
          */
         if (isset($findWhere['id'])) {
-            $findWhere = array('imageID' => $findWhere['id']);
-            $msFindWhere = array('image' => $findWhere['id']);
+            $findWhere = ['imageID' => $findWhere['id']];
+            $msFindWhere = ['image' => $findWhere['id']];
         }
         /**
          * Get running task ID's using these images

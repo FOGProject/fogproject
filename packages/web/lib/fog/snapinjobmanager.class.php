@@ -38,34 +38,34 @@ class SnapinJobManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'sjID',
                 'sjHostID',
                 'sjStateID',
                 'sjCreateTime'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'INTEGER',
                 'INTEGER',
                 'TIMESTAMP'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
                 'CURRENT_TIMESTAMP'
-            ),
-            array(
+            ],
+            [
                 'sjID',
                 'sjHostID'
-            ),
+            ],
             'MyISAM',
             'utf8',
             'sjID',
@@ -82,11 +82,11 @@ class SnapinJobManager extends FOGManagerController
      */
     public function cancel($snapinjobids)
     {
-        $findWhere = array('id' => (array) $snapinjobids);
+        $findWhere = ['id' => (array) $snapinjobids];
         $cancelled = self::getCancelledState();
         $snapintaskids = self::getSubObjectIDs(
             'SnapinTask',
-            array('jobID' => $snapinjobids)
+            ['jobID' => $snapinjobids]
         );
         return self::getClass('SnapinTaskManager')
             ->cancel($snapintaskids);

@@ -33,7 +33,7 @@ class FOGCron extends FOGBase
     {
         if (strpos($str, ',')) {
             $arr = explode(',', $str);
-            $test = array();
+            $test = [];
             foreach ((array)$arr as &$ar) {
                 $test[] = (bool)self::_fit($ar, $num);
                 unset($ar);
@@ -291,14 +291,14 @@ class FOGCron extends FOGBase
      */
     public static function buildSpecialCron($id = '')
     {
-        $specialCrons = array(
+        $specialCrons = [
             '' => _('Select a cron type'),
             'yearly' => sprintf('%s/%s', _('Yearly'), _('Annually')),
             'monthly' => _('Monthly'),
             'weekly' => _('Weekly'),
             'daily' => sprintf('%s/%s', _('Daily'), _('Midnight')),
             'hourly' => _('Hourly')
-        );
+        ];
         ob_start();
         foreach ($specialCrons as $val => &$name) {
             echo '<option value="'

@@ -38,33 +38,33 @@ class GroupAssociationManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'gmID',
                 'gmHostID',
                 'gmGroupID'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'INTEGER',
                 'INTEGER'
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 'gmID',
-                array(
+                [
                     'gmHostID',
                     'gmGroupID'
-                )
-            ),
+                ]
+            ],
             'MyISAM',
             'utf8',
             'gmID',

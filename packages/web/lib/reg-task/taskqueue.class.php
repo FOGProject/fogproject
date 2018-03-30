@@ -46,9 +46,7 @@ class TaskQueue extends TaskingElement
                     $msID = @min(
                         self::getSubObjectIDs(
                             'MulticastSessionAssociation',
-                            array(
-                                'taskID' => $this->Task->get('id')
-                            ),
+                            ['taskID' => $this->Task->get('id')],
                             'msID'
                         )
                     );
@@ -80,18 +78,18 @@ class TaskQueue extends TaskingElement
                 } elseif ($this->Task->isForced()) {
                     self::$HookManager->processEvent(
                         'TASK_GROUP',
-                        array(
+                        [
                             'StorageGroup' => &$this->StorageGroup,
                             'Host' => &self::$Host
-                        )
+                        ]
                     );
                     $this->StorageNode = null;
                     self::$HookManager->processEvent(
                         'TASK_NODE',
-                        array(
+                        [
                             'StorageNode' => &$this->StorageNode,
                             'Host' => &self::$Host
-                        )
+                        ]
                     );
                     $method = 'getOptimalStorageNode';
                     if ($this->Task->isCapture()
@@ -170,9 +168,7 @@ class TaskQueue extends TaskingElement
             }
             self::$EventManager->notify(
                 'HOST_CHECKIN',
-                array(
-                    'Host' => &self::$Host
-                )
+                ['Host' => &self::$Host]
             );
             echo '##@GO';
         } catch (Exception $e) {
@@ -193,14 +189,14 @@ class TaskQueue extends TaskingElement
             $fromEmail
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'FOG_EMAIL_ACTION',
                     'FOG_EMAIL_ADDRESS',
                     'FOG_EMAIL_BINARY',
                     'FOG_FROM_EMAIL'
-                )
-            ),
+                ]
+            ],
             'value',
             false,
             'AND',
@@ -217,19 +213,17 @@ class TaskQueue extends TaskingElement
         $SnapinJob = self::$Host->get('snapinjob');
         $SnapinTasks = self::getSubObjectIDs(
             'SnapinTask',
-            array(
+            [
                 'stateID' => self::getQueuedStates(),
                 'jobID' => $SnapinJob->get('id')
-            ),
+            ],
             'snapinID'
         );
-        $SnapinNames = array();
+        $SnapinNames = [];
         if ($SnapinJob->isValid()) {
             $SnapinNames = self::getSubObjectIDs(
                 'Snapin',
-                array(
-                    'id' => $SnapinTasks,
-                ),
+                ['id' => $SnapinTasks],
                 'name'
             );
         }
@@ -269,7 +263,7 @@ class TaskQueue extends TaskingElement
         $mac = self::$Host->get('mac')->__toString();
         $ImageName = $this->Task->getImage()->get('name');
         $Snapins = implode(',', (array)$SnapinNames);
-        $email = array(
+        $email = [
             sprintf("%s:-\n", _('Machine Details')) => '',
             sprintf("\n%s: ", _('Host Name')) => self::$Host->get('name'),
             sprintf("\n%s: ", _('Computer Model')) => $Inventory->get('sysproduct'),
@@ -281,13 +275,13 @@ class TaskQueue extends TaskingElement
             "\n" => '',
             sprintf("\n%s: ", _('Imaged By')) => $engineer,
             sprintf("\n%s: ", _('Imaged For')) => $primaryUser
-        );
+        ];
         self::$HookManager->processEvent(
             'EMAIL_ITEMS',
-            array(
+            [
                 'email' => &$email,
                 'Host' => &self::$Host
-            )
+            ]
         );
         ob_start();
         foreach ((array)$email as $key => &$val) {
@@ -344,11 +338,11 @@ class TaskQueue extends TaskingElement
         }
         $macftp = strtolower(
             str_replace(
-                array(
+                [
                     ':',
                     '-',
                     '.'
-                ),
+                ],
                 '',
                 basename($_REQUEST['mac'])
             )
@@ -432,14 +426,13 @@ class TaskQueue extends TaskingElement
             if (!$this->Task->save()) {
                 throw new Exception(_('Failed to update Task'));
             }
-            self::$HookManager
-                ->processEvent(
-                    'HOST_TASKING_COMPLETE',
-                    array(
-                        'Host' => &self::$Host,
-                        'Task' => &$this->Task
-                    )
-                );
+            self::$HookManager->processEvent(
+                'HOST_TASKING_COMPLETE',
+                [
+                    'Host' => &self::$Host,
+                    'Task' => &$this->Task
+                ]
+            );
             if (!$this->taskLog()) {
                 throw new Exception(_('Failed to update task log'));
             }
@@ -450,9 +443,7 @@ class TaskQueue extends TaskingElement
             }
             self::$EventManager->notify(
                 'HOST_IMAGE_COMPLETE',
-                array(
-                    'HostName' => self::$Host->get('name')
-                )
+                ['HostName' => self::$Host->get('name')]
             );
             echo '##';
         } catch (Exception $e) {

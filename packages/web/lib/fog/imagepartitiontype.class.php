@@ -32,18 +32,18 @@ class ImagePartitionType extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'imagePartitionTypeID',
         'name' => 'imagePartitionTypeName',
-        'type' => 'imagePartitionTypeValue',
-    );
+        'type' => 'imagePartitionTypeValue'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'name',
-        'type',
-    );
+        'type'
+    ];
 }

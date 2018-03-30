@@ -32,7 +32,7 @@ class HostScreenSetting extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'hssID',
         'hostID' => 'hssHostID',
         'width' => 'hssWidth',
@@ -40,16 +40,16 @@ class HostScreenSetting extends FOGController
         'refresh' => 'hssRefresh',
         'orientation' => 'hssOrientation',
         'other1' => 'hssOther1',
-        'other2' => 'hssOther2',
-    );
+        'other2' => 'hssOther2'
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
-        'hostID',
-    );
+    protected $databaseFieldsRequired = [
+        'hostID'
+    ];
     /**
      * Gets the host object.
      *

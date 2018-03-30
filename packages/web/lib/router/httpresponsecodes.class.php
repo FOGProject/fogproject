@@ -130,7 +130,7 @@ class HTTPResponseCodes
      *
      * @var array
      */
-    private static $_messages = array(
+    private static $_messages = [
         // Informational
         100 => '100 Continue',
         101 => '101 Switching Protocols',
@@ -197,7 +197,7 @@ class HTTPResponseCodes
         508 => '508 Loop Detected',
         510 => '510 Not Extended',
         511 => '511 Network Authentication Required'
-    );
+    ];
     /**
      * Returns the server protocol.
      *
@@ -249,7 +249,7 @@ class HTTPResponseCodes
             $code
         );
         $method = filter_input(INPUT_SERVER, 'REQUEST_METHOD');
-        if (in_array($method, array('HEAD', 'OPTIONS'))) {
+        if (in_array($method, ['HEAD', 'OPTIONS'])) {
             header('Content-Length: 0');
         }
         header('Content-Type: application/json');

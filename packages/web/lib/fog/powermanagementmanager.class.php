@@ -38,7 +38,7 @@ class PowerManagementManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'pmID',
                 'pmHostID',
                 'pmMin',
@@ -48,8 +48,8 @@ class PowerManagementManager extends FOGManagerController
                 'pmDow',
                 'pmAction',
                 'pmOndemand'
-            ),
-            array(
+            ],
+            [
                 'INTEGER',
                 'INTEGER',
                 'VARCHAR(255)',
@@ -59,8 +59,8 @@ class PowerManagementManager extends FOGManagerController
                 'VARCHAR(255)',
                 "ENUM('shutdown', 'reboot', 'wol')",
                 "ENUM('0', '1')"
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -70,8 +70,8 @@ class PowerManagementManager extends FOGManagerController
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -81,10 +81,8 @@ class PowerManagementManager extends FOGManagerController
                 false,
                 false,
                 false
-            ),
-            array(
-                'pmID',
-            ),
+            ],
+            ['pmID'],
             'MyISAM',
             'utf8',
             'pmID',
@@ -106,14 +104,14 @@ class PowerManagementManager extends FOGManagerController
         $array = false,
         $id = ''
     ) {
-        $types = array(
+        $types = [
             'shutdown' => _('Shutdown'),
             'reboot' => _('Reboot'),
             'wol' => _('Wake On Lan'),
-        );
+        ];
         self::$HookManager->processEvent(
             'PM_ACTION_TYPES',
-            array('types' => &$types)
+            ['types' => &$types]
         );
         ob_start();
         foreach ((array) $types as $val => &$text) {

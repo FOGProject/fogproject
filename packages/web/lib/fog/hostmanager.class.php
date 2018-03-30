@@ -38,7 +38,7 @@ class HostManager extends FOGManagerController
         $sql = Schema::createTable(
             $this->tablename,
             true,
-            array(
+            [
                 'hostID',
                 'hostName',
                 'hostDesc',
@@ -67,9 +67,9 @@ class HostManager extends FOGManagerController
                 'hostPingCode',
                 'hostExitBios',
                 'hostExitEfi',
-                'hostEnforce',
-            ),
-            array(
+                'hostEnforce'
+            ],
+            [
                 'INTEGER',
                 'VARCHAR(16)',
                 'LONGTEXT',
@@ -99,8 +99,8 @@ class HostManager extends FOGManagerController
                 'LONGTEXT',
                 'LONGTEXT',
                 "ENUM('0', '1')"
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -130,8 +130,8 @@ class HostManager extends FOGManagerController
                 false,
                 false,
                 false
-            ),
-            array(
+            ],
+            [
                 false,
                 false,
                 false,
@@ -161,11 +161,11 @@ class HostManager extends FOGManagerController
                 false,
                 false,
                 '1'
-            ),
-            array(
+            ],
+            [
                 'hostID',
                 'hostName'
-            ),
+            ],
             'MyISAM',
             'utf8',
             'hostID',
@@ -186,10 +186,10 @@ class HostManager extends FOGManagerController
         self::$Host = new Host();
         $MACHost = self::getSubObjectIDs(
             'MACAddressAssociation',
-            array(
-                'pending' => array(0, ''),
+            [
+                'pending' => [0, ''],
                 'mac' => $macs,
-            ),
+            ],
             'hostID'
         );
         if (count($MACHost) < 1) {
@@ -198,11 +198,11 @@ class HostManager extends FOGManagerController
         if (count($MACHost) > 1) {
             $MACHost = self::getSubObjectIDs(
                 'MACAddressAssociation',
-                array(
-                    'pending' => array(0, ''),
+                [
+                    'pending' => [0, ''],
                     'primary' => 1,
                     'mac' => $macs
-                ),
+                ],
                 'hostID'
             );
             if (count($MACHost) > 1) {
@@ -228,7 +228,7 @@ class HostManager extends FOGManagerController
      * @return parent::destroy
      */
     public function destroy(
-        $findWhere = array(),
+        $findWhere = [],
         $whereOperator = 'AND',
         $orderBy = 'name',
         $sort = 'ASC',
@@ -252,17 +252,17 @@ class HostManager extends FOGManagerController
          * Setup for removing associative areas
          */
         if (isset($findWhere['id'])) {
-            $findWhere = array('hostID' => $findWhere['id']);
+            $findWhere = ['hostID' => $findWhere['id']];
         }
         /**
          * Get the snapin job ids associated.
          */
-        $SnapinJobIDs = array(
+        $SnapinJobIDs = [
             'jobID' => self::getSubObjectIDs(
                 'SnapinJob',
                 $findWhere
             ),
-        );
+        ];
         /*
          * Remove any host node failure entries
          */

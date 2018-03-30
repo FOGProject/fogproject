@@ -47,13 +47,13 @@ class TaskScheduler extends FOGService
             $zzz
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'SCHEDULERDEVICEOUTPUT',
                     'SCHEDULERLOGFILENAME',
                     self::$sleeptime
-                )
-            ),
+                ]
+            ],
             'value',
             false,
             'AND',
@@ -96,10 +96,10 @@ class TaskScheduler extends FOGService
             if (self::$_schedOn < 1) {
                 throw new Exception(_(' * Task Scheduler is globally disabled'));
             }
-            $findWhere = array(
+            $findWhere = [
                 'stateID' => self::getQueuedStates(),
                 'wol' => 1
-            );
+            ];
             $taskHostIDs = self::getSubObjectIDs(
                 'Task',
                 $findWhere,
@@ -109,10 +109,10 @@ class TaskScheduler extends FOGService
             if ($hostCount > 0) {
                 $hostMACs = self::getSubObjectIDs(
                     'MACAddressAssociation',
-                    array(
+                    [
                         'hostID' => $taskHostIDs,
-                        'pending' => array(0, ''),
-                    ),
+                        'pending' => [0, ''],
+                    ],
                     'mac'
                 );
                 $hostMACs = self::parseMacList($hostMACs);
@@ -135,17 +135,15 @@ class TaskScheduler extends FOGService
                     self::wakeUp($hostMACs);
                 }
             }
-            $findWhere = array(
-                'isActive' => 1
-            );
+            $findWhere = ['isActive' => 1];
             $taskCount = self::getClass('ScheduledTaskManager')
                 ->count($findWhere);
             $taskCount += self::getClass('PowerManagementManager')
                 ->count(
-                    array(
+                    [
                         'action' => 'wol',
                         'onDemand' => 0
-                    )
+                    ]
                 );
             if ($taskCount < 1) {
                 throw new Exception(' * No tasks found!');
@@ -166,10 +164,10 @@ class TaskScheduler extends FOGService
                 ->find($findWhere);
             $PMs = (array)self::getClass('PowerManagementManager')
                 ->find(
-                    array(
+                    [
                         'action' => 'wol',
-                        'onDemand' => array(0, '')
-                    )
+                        'onDemand' => [0, '']
+                    ]
                 );
             $Tasks = self::fastmerge((array)$Tasks, (array)$PMs);
             foreach ((array)$Tasks as &$Task) {

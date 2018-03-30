@@ -32,7 +32,7 @@ class PXEMenuOptions extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'pxeID',
         'name' => 'pxeName',
         'description' => 'pxeDesc',
@@ -41,14 +41,14 @@ class PXEMenuOptions extends FOGController
         'regMenu' => 'pxeRegOnly',
         'args' => 'pxeArgs',
         'hotkey' => 'pxeHotKeyEnable',
-        'keysequence' => 'pxeKeySequence',
-    );
+        'keysequence' => 'pxeKeySequence'
+    ];
     /**
      * The required fields.
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
-        'name',
-    );
+    protected $databaseFieldsRequired = [
+        'name'
+    ];
 }

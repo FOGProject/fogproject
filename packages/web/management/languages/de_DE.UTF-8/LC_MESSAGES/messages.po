@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 03:25-0400\n"
+"POT-Creation-Date: 2018-03-30 17:58-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -6367,38 +6367,6 @@ msgstr "Feld und Werte müssen gleiches Ergebnis haben"
 msgid "Need the table name to drop"
 msgstr "Der Name der zu entfernenden Tabelle wird benötigt."
 
-msgid "No key being requested"
-msgstr "Kein Schlüssel wurde angefordert"
-
-msgid "Invalid numeric entry"
-msgstr "Ungültige numerische Eingabe"
-
-msgid "Setting Key"
-msgstr "Einstellungen Schlüssel"
-
-msgid "Object"
-msgstr "Objekt"
-
-msgid "Array"
-msgstr "Array"
-
-msgid "Value"
-msgstr "Wert"
-
-#, fuzzy
-msgid "Set Failed"
-msgstr "Set fehlgeschlagen"
-
-#, fuzzy
-msgid "Key"
-msgstr "DMI-Schlüssel"
-
-msgid "Returning value of key"
-msgstr "Wert des Schlüssels zurückgeben"
-
-msgid "Returning array within key"
-msgstr "Array innerhalb des Schlüssels zurückgeben"
-
 #, fuzzy
 msgid "Wake On Lan"
 msgstr "Wake On Lan"
@@ -6624,12 +6592,28 @@ msgstr "Keine Datenbankfelder für diese Klasse definiert"
 msgid "Record not found"
 msgstr "Datensatz wurde nicht gefunden, Fehler: %s"
 
+msgid "Returning value of key"
+msgstr "Wert des Schlüssels zurückgeben"
+
+msgid "Value"
+msgstr "Wert"
+
+msgid "No key being requested"
+msgstr "Kein Schlüssel wurde angefordert"
+
 msgid "Invalid key being set"
 msgstr "Ungültiger Schlüssel wurde gesetzt"
+
+msgid "Setting Key"
+msgstr "Einstellungen Schlüssel"
 
 #, fuzzy
 msgid "Set failed"
 msgstr "Service-Update fehlgeschlagen"
+
+#, fuzzy
+msgid "Key"
+msgstr "DMI-Schlüssel"
 
 msgid "Invalid key being added"
 msgstr "Ungültiger Schlüssel wurde hinzugefügt"

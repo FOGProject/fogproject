@@ -56,14 +56,14 @@ class PingHosts extends FOGService
             $zzz
         ) = self::getSubObjectIDs(
             'Service',
-            array(
-                'name' => array(
+            [
+                'name' => [
                     'FOG_WEB_HOST',
                     'PINGHOSTDEVICEOUTPUT',
                     'PINGHOSTLOGFILENAME',
                     self::$sleeptime
-                )
-            ),
+                ]
+            ],
             'value',
             false,
             'AND',
@@ -152,15 +152,15 @@ class PingHosts extends FOGService
             $hostids = (array)self::getsubObjectIDs('Host');
             $hostnames = (array)self::getSubObjectIDs(
                 'Host',
-                array('id' => $hostids),
+                ['id' => $hostids],
                 'name'
             );
             $hostips = (array)self::getSubObjectIDs(
                 'Host',
-                array(
+                [
                     'id' => $hostids,
                     'name' => $hostnames
-                ),
+                ],
                 'ip',
                 false,
                 'AND',
@@ -186,9 +186,9 @@ class PingHosts extends FOGService
                     ->execute();
                 self::getClass('HostManager')
                     ->update(
-                        array('id' => $hostid),
+                        ['id' => $hostid],
                         '',
-                        array('pingstatus' => $ping)
+                        ['pingstatus' => $ping]
                     );
                 unset($hostid, $index, $hostids[$index]);
             }

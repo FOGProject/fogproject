@@ -227,12 +227,12 @@ class FOGFTP
                 $timeoutOverride
             ) = self::getSubObjectIDs(
                 'Service',
-                array(
-                    'name' => array(
+                [
+                    'name' => [
                         'FOG_FTP_PORT',
                         'FOG_FTP_TIMEOUT'
-                    )
-                ),
+                    ]
+                ],
                 'value',
                 false,
                 'AND',
@@ -294,7 +294,7 @@ class FOGFTP
             $path = trim($path);
             foreach ((array)$rawfilelist as &$file) {
                 $chunk = preg_split("/\s+/", $file);
-                if (in_array($chunk[8], array('.', '..'))) {
+                if (in_array($chunk[8], ['.', '..'])) {
                     continue;
                 }
                 $tmpfile = sprintf(
@@ -662,14 +662,14 @@ class FOGFTP
             $matches,
             PREG_SET_ORDER
         );
-        $result = array();
+        $result = [];
         foreach ((array)$matches as $index => &$line) {
             array_shift($line);
             $name = $line[count($line) - 1];
             $type = $line[0][0];
             $filepath = $path.'/'.$name;
             if ($type == 'd') {
-                if (in_array($name, array('.', '..'))) {
+                if (in_array($name, ['.', '..'])) {
                     continue;
                 }
                 $result = array_merge(
@@ -823,10 +823,10 @@ class FOGFTP
     {
         $tmppath = dirname($path);
         $rawlisting = $this->rawlist("-a $tmppath");
-        $dirlisting = array();
+        $dirlisting = [];
         foreach ((array)$rawlisting as &$file) {
             $chunk = preg_split('/\s+/', $file);
-            if (in_array($chunk[8], array('.', '..'))) {
+            if (in_array($chunk[8], ['.', '..'])) {
                 continue;
             }
             $dirlisting[] = sprintf(

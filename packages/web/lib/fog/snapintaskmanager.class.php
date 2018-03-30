@@ -33,9 +33,9 @@ class SnapinTaskManager extends FOGManagerController
         /**
          * Setup our finders
          */
-        $findWhere = array(
+        $findWhere = [
             'id' => (array)$snapintaskids
-        );
+        ];
         /**
          * Get our cancelled state id
          */
@@ -54,10 +54,10 @@ class SnapinTaskManager extends FOGManagerController
         $this->update(
             $findWhere,
             '',
-            array(
+            [
                 'stateID' => $cancelled,
                 'complete'=> self::formatTime('', 'Y-m-d H:i:s')
-            )
+            ]
         );
         /**
          * Iterate our jobID's to find out if
@@ -69,13 +69,13 @@ class SnapinTaskManager extends FOGManagerController
              */
             $jobCount = self::getClass('SnapinTaskManager')
                 ->count(
-                    array(
+                    [
                         'jobID' => $jobID,
                         'stateID' => self::fastmerge(
                             (array) self::getQueuedStates(),
                             (array) self::getProgressState()
                         )
-                    )
+                    ]
                 );
             /**
              * If we still have tasks start with the next job ID.
@@ -94,9 +94,9 @@ class SnapinTaskManager extends FOGManagerController
         if (count($snapinJobIDs) > 0) {
             self::getClass('SnapinJobManager')
                 ->update(
-                    array('id' => (array)$snapinJobIDs),
+                    ['id' => (array)$snapinJobIDs],
                     '',
-                    array('stateID' => $cancelled)
+                    ['stateID' => $cancelled]
                 );
         }
         return true;

@@ -72,13 +72,13 @@ class PDODB extends DatabaseManager
      *
      * @var array
      */
-    private static $_options = array(
+    private static $_options = [
         PDO::ATTR_PERSISTENT => false,
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES => true,
         PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => false
-    );
+    ];
     /**
      * Initializes the PDODB class
      *
@@ -87,7 +87,7 @@ class PDODB extends DatabaseManager
      * @throws PDOException
      * @return void
      */
-    public function __construct($options = array())
+    public function __construct($options = [])
     {
         ignore_user_abort(true);
         set_time_limit(0);
@@ -245,8 +245,8 @@ class PDODB extends DatabaseManager
      */
     public function query(
         $sql,
-        $data = array(),
-        $paramvals = array()
+        $data = [],
+        $paramvals = []
     ) {
         try {
             if (!self::$_link) {
@@ -254,7 +254,7 @@ class PDODB extends DatabaseManager
             }
             self::$_queryResult = null;
             if (isset($data) && !is_array($data)) {
-                $data = array($data);
+                $data = [$data];
             }
             if (count($data)) {
                 $sql = vsprintf($sql, $data);
@@ -314,7 +314,7 @@ class PDODB extends DatabaseManager
         $params = false
     ) {
         try {
-            self::$_result = array();
+            self::$_result = [];
             if (empty($type)) {
                 $type = PDO::FETCH_ASSOC;
             }
@@ -374,7 +374,7 @@ class PDODB extends DatabaseManager
             if (self::$_result === true) {
                 return self::$_result;
             }
-            $result = array();
+            $result = [];
             if ($field) {
                 foreach ((array)$field as &$key) {
                     $key = trim($key);
@@ -576,7 +576,7 @@ class PDODB extends DatabaseManager
      *
      * @return bool
      */
-    private static function _execute($paramvals = array())
+    private static function _execute($paramvals = [])
     {
         if (count($paramvals ?: []) > 0) {
             foreach ((array)$paramvals as $param => &$value) {

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 03:25-0400\n"
+"POT-Creation-Date: 2018-03-30 17:58-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6570,38 +6570,6 @@ msgstr "El campo y los valores no tienen parámetros iguales."
 msgid "Need the table name to drop"
 msgstr ""
 
-msgid "No key being requested"
-msgstr "se requiere ninguna clave"
-
-msgid "Invalid numeric entry"
-msgstr "entrada numérica no válido"
-
-msgid "Setting Key"
-msgstr "Configuración Tecla"
-
-msgid "Object"
-msgstr "Objeto"
-
-msgid "Array"
-msgstr ""
-
-msgid "Value"
-msgstr "Valor"
-
-#, fuzzy
-msgid "Set Failed"
-msgstr "Ha fallado"
-
-#, fuzzy
-msgid "Key"
-msgstr "DMI clave"
-
-msgid "Returning value of key"
-msgstr "Volviendo valor de clave"
-
-msgid "Returning array within key"
-msgstr "Volviendo matriz dentro clave"
-
 #, fuzzy
 msgid "Wake On Lan"
 msgstr "¿Activación de la LAN?"
@@ -6823,12 +6791,28 @@ msgstr "No hay campos de base de datos definidos para esta clase"
 msgid "Record not found"
 msgstr "Registro no encontrado, error: %s"
 
+msgid "Returning value of key"
+msgstr "Volviendo valor de clave"
+
+msgid "Value"
+msgstr "Valor"
+
+msgid "No key being requested"
+msgstr "se requiere ninguna clave"
+
 msgid "Invalid key being set"
 msgstr "está estableciendo tecla no válida"
+
+msgid "Setting Key"
+msgstr "Configuración Tecla"
 
 #, fuzzy
 msgid "Set failed"
 msgstr "actualización de servicio no pudo"
+
+#, fuzzy
+msgid "Key"
+msgstr "DMI clave"
 
 msgid "Invalid key being added"
 msgstr "añadiéndose tecla no válida"

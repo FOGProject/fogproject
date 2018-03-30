@@ -32,20 +32,20 @@ class GroupAssociation extends FOGController
      *
      * @var array
      */
-    protected $databaseFields = array(
+    protected $databaseFields = [
         'id' => 'gmID',
         'hostID' => 'gmHostID',
-        'groupID' => 'gmGroupID',
-    );
+        'groupID' => 'gmGroupID'
+    ];
     /**
      * The required fields
      *
      * @var array
      */
-    protected $databaseFieldsRequired = array(
+    protected $databaseFieldsRequired = [
         'hostID',
-        'groupID',
-    );
+        'groupID'
+    ];
     /**
      * Gets the group object
      *

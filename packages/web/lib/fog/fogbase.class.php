@@ -1619,7 +1619,7 @@ abstract class FOGBase
         $count = self::getClass('MACAddressAssociationManager')->count(
             [
                 'mac' => $MACs,
-                'pending' => array(0, '')
+                'pending' => [0, '']
             ]
         );
         if ($count > 0) {
