@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-29 16:19-0400\n"
+"POT-Creation-Date: 2018-03-29 22:06-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3998,6 +3998,13 @@ msgid ""
 "difficult to troubleshoot."
 msgstr ""
 
+#, fuzzy
+msgid "Expand All"
+msgstr "Activée"
+
+msgid "Collapse All"
+msgstr ""
+
 msgid "10"
 msgstr ""
 
@@ -5761,69 +5768,56 @@ msgid " * Multicast service is globally disabled"
 msgstr ""
 
 #, fuzzy
-msgid "Cleaning"
-msgstr "Clair"
-
-#, fuzzy
-msgid "task"
+msgid "Task ID"
 msgstr "Tâche"
 
 #, fuzzy
-msgid "as they have been removed"
-msgstr "clé non valide étant retirée"
-
-#, fuzzy
-msgid "is being cleaned"
-msgstr "Virus autorisé"
-
-#, fuzzy
-msgid "has been cancelled"
-msgstr "a été mis à jour avec succès"
-
-#, fuzzy
-msgid "has been completed"
-msgstr "a été détruit"
-
-#, fuzzy
-msgid "No tasks found"
-msgstr "tâche trouvée"
+msgid "No new tasks found"
+msgstr "Aucune classe valide envoyé"
 
 #, fuzzy
 msgid "is new"
 msgstr "Ligne"
 
 #, fuzzy
-msgid "failed to execute"
-msgstr "Échec de la création"
-
-#, fuzzy
-msgid "image file"
-msgstr "Aucune image spécifiée"
+msgid "failed to execute, image file"
+msgstr "Échec de la suppression des fichiers d'image"
 
 #, fuzzy
 msgid "not found on this node"
 msgstr "Image not found sur le noeud"
 
-msgid "no clients are included"
+msgid "failed to execute, there are no clients included"
 msgstr ""
 
-#, fuzzy
-msgid "port must be even and numeric"
-msgstr "Vous devez entrer un nom"
+msgid "failed to execute, port must be even and numeric"
+msgstr ""
 
 #, fuzzy
 msgid "failed to start"
 msgstr "Impossible de détruire"
 
 #, fuzzy
-msgid "has been cleaned"
-msgstr "a été détruit"
+msgid "could not be killed"
+msgstr "Impossible de lire le fichier temporaire"
 
-msgid "image file found"
+#, fuzzy
+msgid "has been killed"
+msgstr "a été mis à jour avec succès"
+
+#, fuzzy
+msgid "unable to be updated"
+msgstr "Impossible de mettre à jour"
+
+msgid "image file found, file"
 msgstr ""
 
 #, fuzzy
 msgid "client"
+msgstr "Client"
+
+#, fuzzy
+msgid "clients"
 msgstr "Client"
 
 #, fuzzy
@@ -5848,6 +5842,30 @@ msgstr ""
 #, fuzzy
 msgid "is no longer running"
 msgstr " n'existe plus"
+
+#, fuzzy
+msgid "has been completed"
+msgstr "a été détruit"
+
+#, fuzzy
+msgid "has been cancelled"
+msgstr "a été mis à jour avec succès"
+
+#, fuzzy
+msgid "is now cancelled"
+msgstr "a été mis à jour avec succès"
+
+#, fuzzy
+msgid "could not be cancelled"
+msgstr "a été mis à jour avec succès"
+
+#, fuzzy
+msgid "is now completed"
+msgstr "a été détruit"
+
+#, fuzzy
+msgid "could not be completed"
+msgstr "Impossible de lire le fichier temporaire"
 
 #, fuzzy
 msgid "Wait time has changed to"
