@@ -80,3 +80,7 @@ packages/web/service/ipxe/bzImage32
 packages/web/service/ipxe/init.xz
 packages/web/service/ipxe/init_32.xz
 rpttmp
+
+# Local Scripts #
+#################
+packages/web/status/injectHosts.php
