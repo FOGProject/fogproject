@@ -363,10 +363,10 @@ class TaskQueue extends TaskingElement
             $this->StorageNode->get('ftppath'),
             $this->Image->get('path')
         );
+        self::$FOGFTP->username = $this->StorageNode->get('user');
+        self::$FOGFTP->password = $this->StorageNode->get('pass');
+        self::$FOGFTP->host = $this->StorageNode->get('ip');
         self::$FOGFTP
-            ->set('host', $this->StorageNode->get('ip'))
-            ->set('username', $this->StorageNode->get('user'))
-            ->set('password', $this->StorageNode->get('pass'))
             ->connect()
             ->delete($dest)
             ->rename($src, $dest)
