@@ -230,10 +230,9 @@ class Image extends FOGController
             $ip = $StorageNode->ip;
             $user = $StorageNode->user;
             $pass = $StorageNode->pass;
-            self::$FOGFTP
-                ->set('host', $ip)
-                ->set('username', $user)
-                ->set('password', $pass);
+            self::$FOGFTP->username = $user;
+            self::$FOGFTP->password = $pass;
+            self::$FOGFTP->host = $ip;
             if (!self::$FOGFTP->connect()) {
                 continue;
             }
