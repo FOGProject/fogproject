@@ -105,6 +105,8 @@ class DashboardPage extends FOGPage
                 $url
             );
             $url = self::$httpproto.'://' . $url;
+            $testurls[] = $ip;
+            unset($ip);
             self::$_nodeOpts[] = sprintf(
                 '<option value="%s">%s%s</option>',
                 $StorageNode->id,

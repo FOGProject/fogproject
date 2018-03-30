@@ -19,22 +19,22 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class FOGFTP
+class FOGFTP extends FOGGetSet
 {
     /**
      * The default data layout
      *
      * @var array
      */
-    protected $data = [
+    protected $data = array(
         'host' => '',
         'username' => '',
         'password' => '',
         'port' => 21,
         'timeout' => 90,
         'passive' => true,
-        'mode' => FTP_BINARY
-    ];
+        'mode' => FTP_BINARY,
+    );
     /**
      * The link to the FTP server
      *
@@ -73,29 +73,6 @@ class FOGFTP
     public function __destruct()
     {
         $this->close();
-    }
-    /**
-     * Sets the variable for us to use later.
-     *
-     * @param string $key   The key to set.
-     * @param mixed  $value The value to set to.
-     *
-     * @return self
-     */
-    public function __set($key, $value)
-    {
-        return $this->data[$key] = $value;
-    }
-    /**
-     * Gets the variable for us to use later.
-     *
-     * @param string $key The key to get.
-     *
-     * @return self
-     */
-    public function __get($key)
-    {
-        return $this->data[$key];
     }
     /**
      * Magic class to do ftp functions.
@@ -168,7 +145,7 @@ class FOGFTP
         $filename
     ) {
         if (!$mode) {
-            $mode = $this->mode;
+            $mode = $this->get('mode');
         }
         ftp_chmod(
             $this->_link,
@@ -220,7 +197,7 @@ class FOGFTP
                 return $this;
             }
             if (!$host) {
-                $host = $this->host;
+                $host = $this->get('host');
             }
             list(
                 $portOverride,
@@ -244,14 +221,14 @@ class FOGFTP
                 if ($portOverride) {
                     $port = $portOverride;
                 } else {
-                    $port = $this->port;
+                    $port = $this->get('port');
                 }
             }
             if (!$timeout) {
                 if ($timeoutOverride) {
                     $timeout = $timeoutOverride;
                 } else {
-                    $timeout = $this->timeout;
+                    $timeout = $this->get('timeout');
                 }
             }
             $this->_link = $connectmethod($host, $port, $timeout);
@@ -260,7 +237,7 @@ class FOGFTP
             }
             if ($autologin) {
                 $this->login();
-                $this->pasv($this->passive);
+                $this->pasv($this->get('passive'));
             }
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
@@ -340,7 +317,7 @@ class FOGFTP
         $resumepos = 0
     ) {
         if (!$mode) {
-            $mode = $this->mode;
+            $mode = $this->get('mode');
         }
         if ($resumepos) {
             return ftp_fget(
@@ -375,7 +352,7 @@ class FOGFTP
         $startpos = 0
     ) {
         if (!$mode) {
-            $mode = $this->mode;
+            $mode = $this->get('mode');
         }
         if ($startpos) {
             return ftp_fput(
@@ -454,7 +431,7 @@ class FOGFTP
         $resumepos = 0
     ) {
         if (!$mode) {
-            $mode = $this->mode;
+            $mode = $this->get('mode');
         }
         if ($resumepos) {
             return ftp_get(
@@ -495,10 +472,10 @@ class FOGFTP
                 return $this;
             }
             if (!$username) {
-                $username = $this->username;
+                $username = $this->get('username');
             }
             if (!$password) {
-                $password = $this->password;
+                $password = $this->get('password');
             }
             if (ftp_login($this->_link, $username, $password) === false) {
                 $this->ftperror($this->data);
@@ -555,7 +532,7 @@ class FOGFTP
     public function pasv($pasv = false)
     {
         if (!$pasv) {
-            $pasv = $this->passive;
+            $pasv = $this->get('passive');
         }
         return ftp_pasv(
             $this->_link,
@@ -579,7 +556,7 @@ class FOGFTP
         $startpos = 0
     ) {
         if (!$mode) {
-            $mode = $this->mode;
+            $mode = $this->get('mode');
         }
         if ($startpos) {
             return ftp_put(

@@ -147,15 +147,6 @@ class BootMenu extends FOGBase
             . 'chain -ar ${boot-url}/service/ipxe/refind.efi',
             "\n"
         );
-        if (false !== stripos($_REQUEST['arch'], 'arm')) {
-            $grubChain = 'chain -ar ${boot-url}/service/ipxe/grub_aa64.exe '
-                . '--configfile="%s"';
-            $refind = sprintf(
-                'imgfetch ${boot-url}/service/ipxe/refind_aa64.conf%s'
-                . 'chain -ar ${boot-url}/service/ipxe/refind_aa64.efi',
-                "\n"
-            );
-        }
         self::$_exitTypes = [
             'sanboot' => $sanboot,
             'grub' => $grub['basic'],
@@ -1935,7 +1926,7 @@ class BootMenu extends FOGBase
         );
         array_map(
             function (&$Menu) use (&$Send) {
-                $Send['item-' . $Menu->get('name')] = $this->_menuItem(
+                $Send["item-{$Menu->get(name)}"] = $this->_menuItem(
                     $Menu,
                     trim($Menu->get('description'))
                 );
