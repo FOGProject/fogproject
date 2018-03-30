@@ -1016,7 +1016,7 @@ abstract class FOGPage extends FOGBase
                 ['actionbox' => &$actionbox]
             );
             if (strlen($actionbox) > 0) {
-                $actionbox = '<div class="btn-group">'
+                $actionbox = '<div class="btn-actionbox">'
                     . $actionbox
                     . '</div>';
             }
@@ -2863,7 +2863,7 @@ abstract class FOGPage extends FOGBase
     }
     /**
      * Build a striped table.
-     * 
+     *
      * @param array $fields The fields to build the array from.
      *
      * @return string
