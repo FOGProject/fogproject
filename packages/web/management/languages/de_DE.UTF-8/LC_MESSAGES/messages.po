@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-29 22:06-0400\n"
+"POT-Creation-Date: 2018-03-30 03:25-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -5706,10 +5706,10 @@ msgid "Waiting for mysql to be available"
 msgstr "Warten auf die Verfügbarkeit von MySQL"
 
 #, fuzzy
-msgid "I am not the master for this group"
-msgstr " * Ich bin nicht der Master für diese Gruppe"
+msgid "This is not the master for this group"
+msgstr "Dies ist nicht die primäre Gruppe"
 
-msgid "I am the master, but I do not appear to be online"
+msgid "This does not appear to be online"
 msgstr ""
 
 msgid "Not syncing"
@@ -6533,6 +6533,10 @@ msgstr "fehlgeschlagen"
 
 msgid "filesize"
 msgstr "Dateigröße"
+
+#, fuzzy
+msgid "Unable to connect to ftp"
+msgstr "Verbindung nicht möglich"
 
 #, fuzzy
 msgid "Delete hosts within"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-29 22:06-0400\n"
+"POT-Creation-Date: 2018-03-30 03:25-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5361,10 +5361,11 @@ msgstr "Interfaccia non pronta, in attesa."
 msgid "Waiting for mysql to be available"
 msgstr "In attesa di mysql sia disponibile"
 
-msgid "I am not the master for this group"
-msgstr "Non sono il master di questo gruppo"
+#, fuzzy
+msgid "This is not the master for this group"
+msgstr "Questo non è il gruppo primario"
 
-msgid "I am the master, but I do not appear to be online"
+msgid "This does not appear to be online"
 msgstr ""
 
 msgid "Not syncing"
@@ -6087,6 +6088,10 @@ msgstr "Fallito"
 
 msgid "filesize"
 msgstr "dimensione del file"
+
+#, fuzzy
+msgid "Unable to connect to ftp"
+msgstr "Connessione fallita"
 
 msgid "Delete hosts within"
 msgstr "Elimina gli host all'interno"

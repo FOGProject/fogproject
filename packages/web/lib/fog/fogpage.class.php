@@ -1706,11 +1706,12 @@ abstract class FOGPage extends FOGBase
                         false,
                         ''
                     );
-                    self::$FOGFTP
-                        ->set('host', $tftpHost)
-                        ->set('username', $tftpUser)
-                        ->set('password', $tftpPass)
-                        ->connect();
+                    self::$FOGFTP->username = $tftpUser;
+                    self::$FOGFTP->password = $tftpPass;
+                    self::$FOGFTP->host = $tftpHost;
+                    if (!self::$FOGFTP->connect()) {
+                        throw new Exception(_('Unable to connect to ftp'));
+                    }
                     if (!self::$FOGFTP->exists($backuppath)) {
                         self::$FOGFTP->mkdir($backuppath);
                     }

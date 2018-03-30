@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-29 22:06-0400\n"
+"POT-Creation-Date: 2018-03-30 03:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4898,10 +4898,10 @@ msgstr ""
 msgid "Waiting for mysql to be available"
 msgstr ""
 
-msgid "I am not the master for this group"
+msgid "This is not the master for this group"
 msgstr ""
 
-msgid "I am the master, but I do not appear to be online"
+msgid "This does not appear to be online"
 msgstr ""
 
 msgid "Not syncing"
@@ -5601,6 +5601,9 @@ msgid "Failed"
 msgstr ""
 
 msgid "filesize"
+msgstr ""
+
+msgid "Unable to connect to ftp"
 msgstr ""
 
 msgid "Delete hosts within"
