@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-29 16:19-0400\n"
+"POT-Creation-Date: 2018-03-29 22:06-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3983,6 +3983,13 @@ msgid ""
 "difficult to troubleshoot."
 msgstr ""
 
+#, fuzzy
+msgid "Expand All"
+msgstr "启用"
+
+msgid "Collapse All"
+msgstr ""
+
 msgid "10"
 msgstr ""
 
@@ -5744,69 +5751,56 @@ msgid " * Multicast service is globally disabled"
 msgstr ""
 
 #, fuzzy
-msgid "Cleaning"
-msgstr "明确"
-
-#, fuzzy
-msgid "task"
+msgid "Task ID"
 msgstr "任务"
 
 #, fuzzy
-msgid "as they have been removed"
-msgstr "关键无效被删除"
-
-#, fuzzy
-msgid "is being cleaned"
-msgstr "病毒清除"
-
-#, fuzzy
-msgid "has been cancelled"
-msgstr "已成功更新"
-
-#, fuzzy
-msgid "has been completed"
-msgstr "已被破坏"
-
-#, fuzzy
-msgid "No tasks found"
-msgstr "发现任务"
+msgid "No new tasks found"
+msgstr "发送无有效类"
 
 #, fuzzy
 msgid "is new"
 msgstr "线"
 
 #, fuzzy
-msgid "failed to execute"
-msgstr "无法创建"
-
-#, fuzzy
-msgid "image file"
-msgstr "没有指定的图像"
+msgid "failed to execute, image file"
+msgstr "无法删除图像文件"
 
 #, fuzzy
 msgid "not found on this node"
 msgstr "图片没有节点发现"
 
-msgid "no clients are included"
+msgid "failed to execute, there are no clients included"
 msgstr ""
 
-#, fuzzy
-msgid "port must be even and numeric"
-msgstr "您必须输入一个名称"
+msgid "failed to execute, port must be even and numeric"
+msgstr ""
 
 #, fuzzy
 msgid "failed to start"
 msgstr "未能摧毁"
 
 #, fuzzy
-msgid "has been cleaned"
-msgstr "已被破坏"
+msgid "could not be killed"
+msgstr "无法读取临时文件"
 
-msgid "image file found"
+#, fuzzy
+msgid "has been killed"
+msgstr "已成功更新"
+
+#, fuzzy
+msgid "unable to be updated"
+msgstr "无法更新"
+
+msgid "image file found, file"
 msgstr ""
 
 #, fuzzy
 msgid "client"
+msgstr "客户"
+
+#, fuzzy
+msgid "clients"
 msgstr "客户"
 
 #, fuzzy
@@ -5831,6 +5825,30 @@ msgstr ""
 #, fuzzy
 msgid "is no longer running"
 msgstr "不复存在"
+
+#, fuzzy
+msgid "has been completed"
+msgstr "已被破坏"
+
+#, fuzzy
+msgid "has been cancelled"
+msgstr "已成功更新"
+
+#, fuzzy
+msgid "is now cancelled"
+msgstr "已成功更新"
+
+#, fuzzy
+msgid "could not be cancelled"
+msgstr "已成功更新"
+
+#, fuzzy
+msgid "is now completed"
+msgstr "已被破坏"
+
+#, fuzzy
+msgid "could not be completed"
+msgstr "无法读取临时文件"
 
 #, fuzzy
 msgid "Wait time has changed to"
