@@ -52,7 +52,7 @@
             });
         });
         logTimer = setTimeout(function() {
-            getLogData(ip, file, length, reversed)
+            getLogData(ip, file, length, reverse)
         }, 10000);
     }
 

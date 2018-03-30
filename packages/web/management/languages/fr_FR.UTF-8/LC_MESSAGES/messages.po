@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 03:25-0400\n"
+"POT-Creation-Date: 2018-03-29 16:19-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3998,13 +3998,6 @@ msgid ""
 "difficult to troubleshoot."
 msgstr ""
 
-#, fuzzy
-msgid "Expand All"
-msgstr "Activée"
-
-msgid "Collapse All"
-msgstr ""
-
 msgid "10"
 msgstr ""
 
@@ -5705,10 +5698,10 @@ msgid "Waiting for mysql to be available"
 msgstr "En attente de mysql soit disponible"
 
 #, fuzzy
-msgid "This is not the master for this group"
-msgstr " | Cela ne veut pas le groupe principal"
+msgid "I am not the master for this group"
+msgstr " * Je ne suis pas le maître"
 
-msgid "This does not appear to be online"
+msgid "I am the master, but I do not appear to be online"
 msgstr ""
 
 msgid "Not syncing"
@@ -5768,56 +5761,69 @@ msgid " * Multicast service is globally disabled"
 msgstr ""
 
 #, fuzzy
-msgid "Task ID"
+msgid "Cleaning"
+msgstr "Clair"
+
+#, fuzzy
+msgid "task"
 msgstr "Tâche"
 
 #, fuzzy
-msgid "No new tasks found"
-msgstr "Aucune classe valide envoyé"
+msgid "as they have been removed"
+msgstr "clé non valide étant retirée"
+
+#, fuzzy
+msgid "is being cleaned"
+msgstr "Virus autorisé"
+
+#, fuzzy
+msgid "has been cancelled"
+msgstr "a été mis à jour avec succès"
+
+#, fuzzy
+msgid "has been completed"
+msgstr "a été détruit"
+
+#, fuzzy
+msgid "No tasks found"
+msgstr "tâche trouvée"
 
 #, fuzzy
 msgid "is new"
 msgstr "Ligne"
 
 #, fuzzy
-msgid "failed to execute, image file"
-msgstr "Échec de la suppression des fichiers d'image"
+msgid "failed to execute"
+msgstr "Échec de la création"
+
+#, fuzzy
+msgid "image file"
+msgstr "Aucune image spécifiée"
 
 #, fuzzy
 msgid "not found on this node"
 msgstr "Image not found sur le noeud"
 
-msgid "failed to execute, there are no clients included"
+msgid "no clients are included"
 msgstr ""
 
-msgid "failed to execute, port must be even and numeric"
-msgstr ""
+#, fuzzy
+msgid "port must be even and numeric"
+msgstr "Vous devez entrer un nom"
 
 #, fuzzy
 msgid "failed to start"
 msgstr "Impossible de détruire"
 
 #, fuzzy
-msgid "could not be killed"
-msgstr "Impossible de lire le fichier temporaire"
+msgid "has been cleaned"
+msgstr "a été détruit"
 
-#, fuzzy
-msgid "has been killed"
-msgstr "a été mis à jour avec succès"
-
-#, fuzzy
-msgid "unable to be updated"
-msgstr "Impossible de mettre à jour"
-
-msgid "image file found, file"
+msgid "image file found"
 msgstr ""
 
 #, fuzzy
 msgid "client"
-msgstr "Client"
-
-#, fuzzy
-msgid "clients"
 msgstr "Client"
 
 #, fuzzy
@@ -5842,30 +5848,6 @@ msgstr ""
 #, fuzzy
 msgid "is no longer running"
 msgstr " n'existe plus"
-
-#, fuzzy
-msgid "has been completed"
-msgstr "a été détruit"
-
-#, fuzzy
-msgid "has been cancelled"
-msgstr "a été mis à jour avec succès"
-
-#, fuzzy
-msgid "is now cancelled"
-msgstr "a été mis à jour avec succès"
-
-#, fuzzy
-msgid "could not be cancelled"
-msgstr "a été mis à jour avec succès"
-
-#, fuzzy
-msgid "is now completed"
-msgstr "a été détruit"
-
-#, fuzzy
-msgid "could not be completed"
-msgstr "Impossible de lire le fichier temporaire"
 
 #, fuzzy
 msgid "Wait time has changed to"
@@ -6532,10 +6514,6 @@ msgstr "Échoué"
 
 msgid "filesize"
 msgstr "taille du fichier"
-
-#, fuzzy
-msgid "Unable to connect to ftp"
-msgstr "Échec de connexion"
 
 #, fuzzy
 msgid "Delete hosts within"

@@ -94,7 +94,7 @@ class MulticastTask extends FOGService
                 'image',
                 $Task->image
             );
-            $Image = json_decode(
+            $Image = json_encode(
                 Route::getData()
             );
             $fullPath = sprintf('%s/%s', $root, $Task->logpath);

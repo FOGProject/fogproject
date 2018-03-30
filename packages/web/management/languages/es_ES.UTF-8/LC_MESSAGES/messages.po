@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 03:25-0400\n"
+"POT-Creation-Date: 2018-03-29 16:19-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4193,13 +4193,6 @@ msgid ""
 "difficult to troubleshoot."
 msgstr ""
 
-#, fuzzy
-msgid "Expand All"
-msgstr "habilitado"
-
-msgid "Collapse All"
-msgstr ""
-
 msgid "10"
 msgstr ""
 
@@ -5921,10 +5914,11 @@ msgstr ""
 msgid "Waiting for mysql to be available"
 msgstr ""
 
-msgid "This is not the master for this group"
-msgstr ""
+#, fuzzy
+msgid "I am not the master for this group"
+msgstr "No hay grupos en este servidor."
 
-msgid "This does not appear to be online"
+msgid "I am the master, but I do not appear to be online"
 msgstr ""
 
 msgid "Not syncing"
@@ -5981,30 +5975,52 @@ msgstr "Nombre de la tarea"
 msgid " * Multicast service is globally disabled"
 msgstr ""
 
-#, fuzzy
-msgid "Task ID"
-msgstr "Tareas"
+msgid "Cleaning"
+msgstr ""
 
 #, fuzzy
-msgid "No new tasks found"
-msgstr "Ninguna clase válida enviado"
+msgid "task"
+msgstr "tareas"
+
+#, fuzzy
+msgid "as they have been removed"
+msgstr "Clave no válida se retira"
+
+msgid "is being cleaned"
+msgstr ""
+
+#, fuzzy
+msgid "has been cancelled"
+msgstr "se ha actualizado correctamente"
+
+#, fuzzy
+msgid "has been completed"
+msgstr "Deben estar cifrados"
+
+#, fuzzy
+msgid "No tasks found"
+msgstr "No se encontraron iconos"
 
 #, fuzzy
 msgid "is new"
 msgstr "Línea"
 
 #, fuzzy
-msgid "failed to execute, image file"
-msgstr "No se pudo crear la tarea"
+msgid "failed to execute"
+msgstr "No se pudo crear el usuario"
+
+#, fuzzy
+msgid "image file"
+msgstr "Nombre de la imagen"
 
 #, fuzzy
 msgid "not found on this node"
 msgstr "No se encontró Clase FOGPage para este nodo"
 
-msgid "failed to execute, there are no clients included"
+msgid "no clients are included"
 msgstr ""
 
-msgid "failed to execute, port must be even and numeric"
+msgid "port must be even and numeric"
 msgstr ""
 
 #, fuzzy
@@ -6012,26 +6028,15 @@ msgid "failed to start"
 msgstr "No se ha podido destruir"
 
 #, fuzzy
-msgid "could not be killed"
-msgstr "No se pudo leer el archivo temporal"
-
-#, fuzzy
-msgid "has been killed"
+msgid "has been cleaned"
 msgstr "se ha actualizado correctamente"
 
 #, fuzzy
-msgid "unable to be updated"
-msgstr "No se ha podido destruir"
-
-msgid "image file found, file"
-msgstr ""
+msgid "image file found"
+msgstr "No se encontraron iconos"
 
 #, fuzzy
 msgid "client"
-msgstr "Clientela"
-
-#, fuzzy
-msgid "clients"
 msgstr "Clientela"
 
 #, fuzzy
@@ -6054,30 +6059,6 @@ msgstr ""
 
 msgid "is no longer running"
 msgstr ""
-
-#, fuzzy
-msgid "has been completed"
-msgstr "Deben estar cifrados"
-
-#, fuzzy
-msgid "has been cancelled"
-msgstr "se ha actualizado correctamente"
-
-#, fuzzy
-msgid "is now cancelled"
-msgstr "se ha actualizado correctamente"
-
-#, fuzzy
-msgid "could not be cancelled"
-msgstr "se ha actualizado correctamente"
-
-#, fuzzy
-msgid "is now completed"
-msgstr "Deben estar cifrados"
-
-#, fuzzy
-msgid "could not be completed"
-msgstr "No se pudo leer el archivo temporal"
 
 #, fuzzy
 msgid "Wait time has changed to"
@@ -6732,10 +6713,6 @@ msgstr "Ha fallado"
 
 msgid "filesize"
 msgstr "tamaño del archivo"
-
-#, fuzzy
-msgid "Unable to connect to ftp"
-msgstr "No se ha podido destruir"
 
 #, fuzzy
 msgid "Delete hosts within"

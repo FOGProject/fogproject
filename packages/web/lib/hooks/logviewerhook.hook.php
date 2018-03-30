@@ -82,9 +82,10 @@ class LogViewerHook extends Hook
      */
     public function logViewerAdd($arguments)
     {
-        self::$FOGFTP->username = $arguments['StorageNode']->get('user');
-        self::$FOGFTP->password = $arguments['StorageNode']->get('pass');
-        self::$FOGFTP->host = $arguments['StorageNode']->get('ip');
+        self::$FOGFTP
+            ->set('host', $arguments['StorageNode']->get('ip'))
+            ->set('username', $arguments['StorageNode']->get('user'))
+            ->set('password', $arguments['StorageNode']->get('pass'));
         if (!self::$FOGFTP->connect()) {
             return;
         }
