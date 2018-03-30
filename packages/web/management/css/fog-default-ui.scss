@@ -1,0 +1,24 @@
+.btn-actionbox {
+  margin: 10px 0;
+  overflow: hidden;
+}
+
+.btn-actionbox .btn:not(.no-pull):not(.btn-danger):not(.btn-warning) {
+  float: right;
+}
+
+.box-footer {
+  overflow: hidden;
+}
+
+.box-footer .btn:not(.no-pull){
+  float: right;
+}
+
+.fog-user {
+  display: block;
+  text-align: center;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
