@@ -113,9 +113,9 @@ if (self::$FOGUser->isValid()) {
     //    . 'class="img-circle" alt="User Image">';
     //echo '</div>';
     echo '<div class="">';
-    echo '<a class="fog-user">'
+    echo '<center><a class="">'
         . trim(self::$FOGUser->get('name'))
-        . '</a>';
+        . '</a></center>';
     //echo '<a href="#"><i class="fa fa-circle text-success"></i> '
     //    . _('Online')
     //    . '</a>';
@@ -143,15 +143,15 @@ if (self::$FOGUser->isValid()) {
         . _('RESOURCES')
         . '</li>';
     echo '<li>';
-    echo '<a href="https://sourceforge.net/donate/index.php?group_id=201099" target="_blank">';
+    echo '<a href="https://sourceforge.net/donate/index.php?group_id=201099">';
     echo '<i class="fa fa-money"></i> ';
     echo '<span>'
         . _('Donate')
         . '</span>';
     echo '</a>';
-    echo '</li>';
+    echo '</li>';    
     echo '<li>';
-    echo '<a href="https://news.fogproject.org" target="_blank">';
+    echo '<a href="https://news.fogproject.org">';
     echo '<i class="fa fa-bullhorn"></i> ';
     echo '<span>';
     echo _('News');
@@ -159,7 +159,7 @@ if (self::$FOGUser->isValid()) {
     echo '</a>';
     echo '</li>';
     echo '<li>';
-    echo '<a href="https://forums.fogproject.org" target="_blank">';
+    echo '<a href="https://forums.fogproject.org">';
     echo '<i class="fa fa-users"></i> ';
     echo '<span>';
     echo _('Forums');
@@ -167,7 +167,7 @@ if (self::$FOGUser->isValid()) {
     echo '</a>';
     echo '</li>';
     echo '<li>';
-    echo '<a href="https://wiki.fogproject.org" target="_blank">';
+    echo '<a href="https://wiki.fogproject.org">';
     echo '<i class="fa fa-book"></i> ';
     echo '<span>';
     echo _('Wiki');
@@ -243,7 +243,7 @@ if (self::$FOGUser->isValid()) {
         . '.</strong> '
         . _('All rights reserved.');
     echo '</footer>';
-
+    
 } else {
     echo $this->body;
 }

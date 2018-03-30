@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-29 16:19-0400\n"
+"POT-Creation-Date: 2018-03-30 03:25-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3987,6 +3987,13 @@ msgid ""
 "difficult to troubleshoot."
 msgstr ""
 
+#, fuzzy
+msgid "Expand All"
+msgstr "Enabled"
+
+msgid "Collapse All"
+msgstr ""
+
 msgid "10"
 msgstr ""
 
@@ -5685,10 +5692,10 @@ msgid "Waiting for mysql to be available"
 msgstr "Waiting for mysql to be available"
 
 #, fuzzy
-msgid "I am not the master for this group"
-msgstr " * I am not the master"
+msgid "This is not the master for this group"
+msgstr " | This is not the primary group"
 
-msgid "I am the master, but I do not appear to be online"
+msgid "This does not appear to be online"
 msgstr ""
 
 msgid "Not syncing"
@@ -5748,69 +5755,56 @@ msgid " * Multicast service is globally disabled"
 msgstr ""
 
 #, fuzzy
-msgid "Cleaning"
-msgstr "Clear"
-
-#, fuzzy
-msgid "task"
+msgid "Task ID"
 msgstr "Task"
 
 #, fuzzy
-msgid "as they have been removed"
-msgstr "Invalid key being removed"
-
-#, fuzzy
-msgid "is being cleaned"
-msgstr "Virus cleared"
-
-#, fuzzy
-msgid "has been cancelled"
-msgstr "has been successfully updated"
-
-#, fuzzy
-msgid "has been completed"
-msgstr "has been destroyed"
-
-#, fuzzy
-msgid "No tasks found"
-msgstr "task found"
+msgid "No new tasks found"
+msgstr "No valid class sent"
 
 #, fuzzy
 msgid "is new"
 msgstr "Line"
 
 #, fuzzy
-msgid "failed to execute"
-msgstr "Failed to create"
-
-#, fuzzy
-msgid "image file"
-msgstr "No image specified"
+msgid "failed to execute, image file"
+msgstr "Failed to delete image files"
 
 #, fuzzy
 msgid "not found on this node"
 msgstr "Image not found on node"
 
-msgid "no clients are included"
+msgid "failed to execute, there are no clients included"
 msgstr ""
 
-#, fuzzy
-msgid "port must be even and numeric"
-msgstr "You must enter a name"
+msgid "failed to execute, port must be even and numeric"
+msgstr ""
 
 #, fuzzy
 msgid "failed to start"
 msgstr "Failed to destroy"
 
 #, fuzzy
-msgid "has been cleaned"
-msgstr "has been destroyed"
+msgid "could not be killed"
+msgstr "Could not read temp file"
 
-msgid "image file found"
+#, fuzzy
+msgid "has been killed"
+msgstr "has been successfully updated"
+
+#, fuzzy
+msgid "unable to be updated"
+msgstr "Failed to update"
+
+msgid "image file found, file"
 msgstr ""
 
 #, fuzzy
 msgid "client"
+msgstr "Client"
+
+#, fuzzy
+msgid "clients"
 msgstr "Client"
 
 #, fuzzy
@@ -5835,6 +5829,30 @@ msgstr ""
 #, fuzzy
 msgid "is no longer running"
 msgstr " no longer exists"
+
+#, fuzzy
+msgid "has been completed"
+msgstr "has been destroyed"
+
+#, fuzzy
+msgid "has been cancelled"
+msgstr "has been successfully updated"
+
+#, fuzzy
+msgid "is now cancelled"
+msgstr "has been successfully updated"
+
+#, fuzzy
+msgid "could not be cancelled"
+msgstr "has been successfully updated"
+
+#, fuzzy
+msgid "is now completed"
+msgstr "has been destroyed"
+
+#, fuzzy
+msgid "could not be completed"
+msgstr "Could not read temp file"
 
 #, fuzzy
 msgid "Wait time has changed to"
@@ -6496,6 +6514,10 @@ msgstr "Failed"
 
 msgid "filesize"
 msgstr "filesize"
+
+#, fuzzy
+msgid "Unable to connect to ftp"
+msgstr "Failed to connect"
 
 #, fuzzy
 msgid "Delete hosts within"

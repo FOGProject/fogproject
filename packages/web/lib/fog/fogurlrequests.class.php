@@ -608,22 +608,19 @@ class FOGURLRequests extends FOGBase
     public function isAvailable($urls, $timeout = 30, $port = -1)
     {
         if ($port == -1 || empty($port)) {
-            $port = self::$FOGFTP->get('port');
+            $port = self::$FOGFTP->port;
         }
         $this->__destruct();
         $output = [];
+        $sockets = [];
         foreach ((array) $urls as &$url) {
-            $socket = @fsockopen(
-                $url,
-                $port,
+            $socket = stream_socket_client(
+                "tcp://$url:$port",
                 $errno,
                 $errstr,
-                $timeout
+                0
             );
             $output[] = (bool)$socket;
-            if ($socket) {
-                fclose($socket);
-            }
             unset($url);
         }
 

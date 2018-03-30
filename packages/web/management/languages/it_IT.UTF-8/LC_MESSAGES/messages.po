@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-29 16:19-0400\n"
+"POT-Creation-Date: 2018-03-30 03:25-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3759,6 +3759,13 @@ msgid ""
 "difficult to troubleshoot."
 msgstr ""
 
+#, fuzzy
+msgid "Expand All"
+msgstr "Abilitato"
+
+msgid "Collapse All"
+msgstr ""
+
 msgid "10"
 msgstr ""
 
@@ -5354,10 +5361,11 @@ msgstr "Interfaccia non pronta, in attesa."
 msgid "Waiting for mysql to be available"
 msgstr "In attesa di mysql sia disponibile"
 
-msgid "I am not the master for this group"
-msgstr "Non sono il master di questo gruppo"
+#, fuzzy
+msgid "This is not the master for this group"
+msgstr "Questo non è il gruppo primario"
 
-msgid "I am the master, but I do not appear to be online"
+msgid "This does not appear to be online"
 msgstr ""
 
 msgid "Not syncing"
@@ -5408,55 +5416,53 @@ msgstr "Attività iniziata"
 msgid " * Multicast service is globally disabled"
 msgstr "* Il servizio Multicast è disabilitato a livello globale"
 
-msgid "Cleaning"
-msgstr "Pulizia"
+#, fuzzy
+msgid "Task ID"
+msgstr "Compito"
 
-msgid "task"
-msgstr "Attività"
-
-msgid "as they have been removed"
-msgstr "poiché sono stati rimossi"
-
-msgid "is being cleaned"
-msgstr "viene pulita"
-
-msgid "has been cancelled"
-msgstr "è stato cancellato"
-
-msgid "has been completed"
-msgstr "è stato completato"
-
-msgid "No tasks found"
-msgstr "Nessun compito trovato"
+#, fuzzy
+msgid "No new tasks found"
+msgstr "Non sono stati trovati compiti validi"
 
 msgid "is new"
 msgstr "è nuovo"
 
-msgid "failed to execute"
-msgstr "Non è stato eseguito"
-
-msgid "image file"
-msgstr "file immagine"
+#, fuzzy
+msgid "failed to execute, image file"
+msgstr "Impossibile eliminare i file di immagine"
 
 msgid "not found on this node"
 msgstr "Non trovato su questo nodo"
 
-msgid "no clients are included"
-msgstr "Nessun client è incluso"
+msgid "failed to execute, there are no clients included"
+msgstr ""
 
-msgid "port must be even and numeric"
-msgstr "La porta deve essere pari e numerica"
+msgid "failed to execute, port must be even and numeric"
+msgstr ""
 
 msgid "failed to start"
 msgstr "non è riuscito a iniziare"
 
-msgid "has been cleaned"
-msgstr "è stato pulito"
+#, fuzzy
+msgid "could not be killed"
+msgstr "Impossibile leggere il file temporaneo"
 
-msgid "image file found"
-msgstr "trovato file immagine"
+#, fuzzy
+msgid "has been killed"
+msgstr "è stato cancellato"
+
+#, fuzzy
+msgid "unable to be updated"
+msgstr "Tra impostazioni host e globali"
+
+msgid "image file found, file"
+msgstr ""
 
 msgid "client"
+msgstr "client"
+
+#, fuzzy
+msgid "clients"
 msgstr "client"
 
 msgid "found"
@@ -5476,6 +5482,28 @@ msgstr "è già in esecuzione con pid"
 
 msgid "is no longer running"
 msgstr "non è più in esecuzione"
+
+msgid "has been completed"
+msgstr "è stato completato"
+
+msgid "has been cancelled"
+msgstr "è stato cancellato"
+
+#, fuzzy
+msgid "is now cancelled"
+msgstr "è stato cancellato"
+
+#, fuzzy
+msgid "could not be cancelled"
+msgstr "è stato cancellato"
+
+#, fuzzy
+msgid "is now completed"
+msgstr "è stato completato"
+
+#, fuzzy
+msgid "could not be completed"
+msgstr "Impossibile leggere il file temporaneo"
 
 msgid "Wait time has changed to"
 msgstr "Il tempo di attesa è cambiato"
@@ -6060,6 +6088,10 @@ msgstr "Fallito"
 
 msgid "filesize"
 msgstr "dimensione del file"
+
+#, fuzzy
+msgid "Unable to connect to ftp"
+msgstr "Connessione fallita"
 
 msgid "Delete hosts within"
 msgstr "Elimina gli host all'interno"
