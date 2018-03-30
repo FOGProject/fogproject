@@ -185,7 +185,7 @@ class SnapinHash extends FOGService
                     'snapin',
                     ['sID' => $snapinIDs]
                 );
-                $Snapins = json_decode(
+                $Snapins = json_encode(
                     Route::getData()
                 );
                 foreach ($Snapins->data as &$Snapin) {

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 03:34-0400\n"
+"POT-Creation-Date: 2018-03-29 16:19-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3472,12 +3472,6 @@ msgid ""
 "difficult to troubleshoot."
 msgstr ""
 
-msgid "Expand All"
-msgstr ""
-
-msgid "Collapse All"
-msgstr ""
-
 msgid "10"
 msgstr ""
 
@@ -4898,10 +4892,10 @@ msgstr ""
 msgid "Waiting for mysql to be available"
 msgstr ""
 
-msgid "This is not the master for this group"
+msgid "I am not the master for this group"
 msgstr ""
 
-msgid "This does not appear to be online"
+msgid "I am the master, but I do not appear to be online"
 msgstr ""
 
 msgid "Not syncing"
@@ -4952,46 +4946,55 @@ msgstr ""
 msgid " * Multicast service is globally disabled"
 msgstr ""
 
-msgid "Task ID"
+msgid "Cleaning"
 msgstr ""
 
-msgid "No new tasks found"
+msgid "task"
+msgstr ""
+
+msgid "as they have been removed"
+msgstr ""
+
+msgid "is being cleaned"
+msgstr ""
+
+msgid "has been cancelled"
+msgstr ""
+
+msgid "has been completed"
+msgstr ""
+
+msgid "No tasks found"
 msgstr ""
 
 msgid "is new"
 msgstr ""
 
-msgid "failed to execute, image file"
+msgid "failed to execute"
+msgstr ""
+
+msgid "image file"
 msgstr ""
 
 msgid "not found on this node"
 msgstr ""
 
-msgid "failed to execute, there are no clients included"
+msgid "no clients are included"
 msgstr ""
 
-msgid "failed to execute, port must be even and numeric"
+msgid "port must be even and numeric"
 msgstr ""
 
 msgid "failed to start"
 msgstr ""
 
-msgid "could not be killed"
+msgid "has been cleaned"
 msgstr ""
 
-msgid "has been killed"
-msgstr ""
-
-msgid "unable to be updated"
-msgstr ""
-
-msgid "image file found, file"
+msgid "image file found"
 msgstr ""
 
 msgid "client"
-msgstr ""
-
-msgid "clients"
 msgstr ""
 
 msgid "found"
@@ -5010,24 +5013,6 @@ msgid "is already running with pid"
 msgstr ""
 
 msgid "is no longer running"
-msgstr ""
-
-msgid "has been completed"
-msgstr ""
-
-msgid "has been cancelled"
-msgstr ""
-
-msgid "is now cancelled"
-msgstr ""
-
-msgid "could not be cancelled"
-msgstr ""
-
-msgid "is now completed"
-msgstr ""
-
-msgid "could not be completed"
 msgstr ""
 
 msgid "Wait time has changed to"
@@ -5601,9 +5586,6 @@ msgid "Failed"
 msgstr ""
 
 msgid "filesize"
-msgstr ""
-
-msgid "Unable to connect to ftp"
 msgstr ""
 
 msgid "Delete hosts within"

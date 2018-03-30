@@ -339,46 +339,51 @@ abstract class FOGService extends FOGBase
         $master = false,
         $fileOverride = false
     ) {
+        unset(
+            $username,
+            $password,
+            $ip,
+            $remItem,
+            $myItem,
+            $limitmain,
+            $limitsend,
+            $limit,
+            $includeFile
+        );
         $itemType = $master ? 'group' : 'node';
         $groupID = $myStorageGroupID;
         if ($master) {
             $groupID = $Obj->get('storagegroups');
         }
-        $find = [
-            'ngmIsEnabled' => 1,
-            'ngmGroupID' => $groupID
-        ];
+        $findWhere = array(
+            'isEnabled' => 1,
+            'storagegroupID' => $groupID,
+        );
         if ($master) {
-            $find['ngmIsMasterNode'] = 1;
+            $findWhere['isMaster'] = 1;
         }
-        Route::indiv(
-            'storagenode',
-            $myStorageNodeID
-        );
-        $StorageNode = json_decode(
-            Route::getData()
-        );
-        if (!$myStorageNode->isMaster) {
+        $StorageNode = self::getClass('StorageNode', $myStorageNodeID);
+        if (!$StorageNode->isValid()
+            || !$StorageNode->get('isMaster')
+        ) {
             throw new Exception(
-                ' * '
-                . _('This is not the master for this group')
+                sprintf(
+                    ' * %s',
+                    _('I am not the master for this group')
+                )
             );
         }
-        if (!$myStorageNode->online) {
+        if (!$StorageNode->get('online')) {
             throw new Exception(
-                ' * '
-                . _('This does not appear to be online')
+                sprintf(
+                    ' * %s',
+                    _('I am the master, but I do not appear to be online')
+                )
             );
         }
-        Route::listem(
-            'storagenode',
-            $find
-        );
-        $StorageNodes = json_decode(
-            Route::getData()
-        );
         $objType = get_class($Obj);
-        $groupOrNodeCount = count($StorageNodes->data ?: []);
+        $groupOrNodeCount = self::getClass('StorageNodeManager')
+            ->count($findWhere);
         $counttest = 2;
         if (!$master) {
             $groupOrNodeCount--;
@@ -437,9 +442,17 @@ abstract class FOGService extends FOGBase
                 $getPathOfItemField = 'snapinpath';
                 $getFileOfItemField = 'file';
             }
+            $PotentialStorageNodes = array_diff(
+                (array)self::getSubObjectIDs(
+                    'StorageNode',
+                    $findWhere,
+                    'id'
+                ),
+                (array)$myStorageNodeID
+            );
             $myDir = sprintf(
                 '/%s/',
-                trim($StorageNode->{$getPathOfItemField}, '/')
+                trim($StorageNode->get($getPathOfItemField), '/')
             );
             if (false === $fileOverride) {
                 $myFile = basename($Obj->get($getFileOfItemField));
@@ -448,21 +461,23 @@ abstract class FOGService extends FOGBase
             }
             $myAdd = "$myDir$myFile";
             $myAddItem = false;
-            foreach ($StorageNodes as &$StorageNode) {
-                if ($StorageNode->id == $myStorageNodeID) {
-                    continue;
-                }
-                unset($StorageNode);
-                if (!$StorageNode->online) {
+            foreach ((array)self::getClass('StorageNodeManager')
+                ->find(
+                    array(
+                        'id' => $PotentialStorageNodes
+                    )
+                ) as $i => &$PotentialStorageNode
+            ) {
+                if (!$PotentialStorageNode->get('online')) {
                     self::outall(
                         sprintf(
-                            ' | %s server does not appear to be online.',
-                            $StorageNode->name
+                            '%s Server does not appear to be online.',
+                            $PotentialStorageNode->get('name')
                         )
                     );
                     continue;
                 }
-                $groupID = $StorageNode->storagegroupID;
+                $groupID = $PotentialStorageNode->get('storagegroupID');
                 if ($master
                     && $groupID == $myStorageGroupID
                 ) {
@@ -526,38 +541,49 @@ abstract class FOGService extends FOGBase
                 $url = sprintf(
                     '%s://%s/fog/status/gethash.php',
                     self::$httpproto,
-                    $StorageNode->ip
+                    $PotentialStorageNode->get('ip')
                 );
-                self::$FOGFTP->username = $StorageNode->user;
-                self::$FOGFTP->password = $StorageNode->pass;
-                self::$FOGFTP->host = $StorageNode->ip;
+                self::$FOGFTP
+                    ->set(
+                        'username',
+                        $PotentialStorageNode->get('user')
+                    )->set(
+                        'password',
+                        $PotentialStorageNode->get('pass')
+                    )->set(
+                        'host',
+                        $PotentialStorageNode->get('ip')
+                    );
+                $ip = self::resolveHostname(
+                    self::$FOGFTP->get('host')
+                );
                 if (!self::$FOGFTP->connect()) {
                     self::outall(
                         sprintf(
                             ' * %s %s',
                             _('Cannot connect to'),
-                            $StorageNode->name
+                            $PotentialStorageNode->get('name')
                         )
                     );
                     continue;
                 }
-                $nodename = $StorageNode->name;
-                $username = self::$FOGFTP->username;
-                $password = self::$FOGFTP->password;
+                $nodename = $PotentialStorageNode->get('name');
+                $username = self::$FOGFTP->get('username');
+                $password = self::$FOGFTP->get('password');
                 $encpassword = urlencode($password);
                 $removeDir = sprintf(
                     '/%s/',
                     trim(
-                        $StorageNode->{$getPathOfItemField},
+                        $PotentialStorageNode->get($getPathOfItemField),
                         '/'
                     )
                 );
                 $removeFile = $myFile;
                 $limitmain = self::byteconvert(
-                    $myStorageNode->bandwidth
+                    $StorageNode->get('bandwidth')
                 );
                 $limitsend = self::byteconvert(
-                    $StorageNode->bandwidth
+                    $PotentialStorageNode->get('bandwidth')
                 );
                 if ($limitmain > 0) {
                     $limitset = "set net:limit-total-rate 0:$limitmain;";
@@ -622,7 +648,9 @@ abstract class FOGService extends FOGBase
                     $res = self::$FOGURLRequests->process(
                         $url,
                         'POST',
-                        ['file' => base64_encode($file)]
+                        array(
+                            'file' => base64_encode($file)
+                        )
                     );
                     $res = array_shift($res);
                     if (!$avail) {
@@ -762,7 +790,7 @@ abstract class FOGService extends FOGBase
                         $name
                     )
                 );
-                unset($StorageNode);
+                unset($PotentialStorageNode);
             }
         }
     }

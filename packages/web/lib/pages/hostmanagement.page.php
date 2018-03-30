@@ -47,7 +47,7 @@ class HostManagement extends FOGPage
             $this->exitEfi = filter_input(INPUT_POST, 'efiBootTypeExit');
         } else {
             $this->exitNorm = (
-                filter_input(INPUT_POST, 'bootTypeExit') ?: 
+                filter_input(INPUT_POST, 'bootTypeExit') ?:
                 $this->obj->get('biosexit')
             );
             $this->exitEfi = (
@@ -2149,14 +2149,13 @@ class HostManagement extends FOGPage
                 false,
                 -1,
                 -1,
-                ($enforce ? 'checked' : '')
+                $enforce
             )
         ];
         $enforcebtn = self::makeButton(
             'enforcebtn',
             _('Update'),
-            'btn btn-primary',
-            $props
+            'btn btn-primary'
         );
 
         self::$HookManager->processEvent(
