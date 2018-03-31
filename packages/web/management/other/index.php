@@ -139,18 +139,20 @@ if (self::$FOGUser->isValid()) {
     echo _('MAIN NAVIGATION');
     echo '</li>';
     echo $this->menu;
-    echo '<li class="header">';
-    echo '<div class="plugin-options-alternate">';
-    echo _('PLUGIN OPTIONS');
-    echo ' ';
-    echo '<a href="#">';
-    echo '<i class="fa fa-minus"></i>';
-    echo '</a>';
-    echo '</div>';
-    echo '</li>';
-    echo '<div class="sidebar-menu plugin-options">';
-    echo $this->menuHook;
-    echo '</div>';
+    if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
+        echo '<li class="header">';
+        echo _('PLUGIN OPTIONS');
+        echo ' ';
+        echo '<span class="pull-right-container">';
+        echo '<a href="#" class="plugin-options-alternate">';
+        echo '<i class="fa fa-minus"></i>';
+        echo '</a>';
+        echo '</span>';
+        echo '</li>';
+        echo '<div class="sidebar-menu plugin-options">';
+        echo $this->menuHook;
+        echo '</div>';
+    }
     echo '<li class="header">'
         . _('RESOURCES')
         . '</li>';
