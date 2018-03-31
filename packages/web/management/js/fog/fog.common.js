@@ -17,6 +17,37 @@ var $_GET = getQueryParams(document.location.search),
     };
 
 (function($) {
+    // Plugin menu hook in.
+    var pluginOptionsOpen = true,
+        pluginOptionsAnimating = false,
+        pluginOptionsHeight = $('.sidebar-menu.plugin-options').height();
+
+    $('.plugin-options-alternate').on('click', function(event){
+        event.preventDefault();
+
+        if(pluginOptionsAnimating){
+            return false;
+        }
+
+        pluginOptionsAnimating = true;
+        $('.sidebar-menu.plugin-options').animate({height: (pluginOptionsOpen ? 0 : pluginOptionsHeight)}, 'fast', function() {
+            pluginOptionsOpen = !pluginOptionsOpen;
+            pluginOptionsAnimating = false;
+            if (pluginOptionsOpen) {
+                $('.plugin-options-alternate .fa')
+                    .removeClass('fa-plus')
+                    .addClass('fa-minus');
+            }
+            if (!pluginOptionsOpen) {
+                $('.plugin-options-alternate .fa')
+                    .removeClass('fa-minus')
+                    .addClass('fa-plus');
+            }
+
+            // To force the admin panel page to resize.
+            //$(window).resize();
+        });
+    });
     var shouldReAuth,
         reAuthModal,
         deleteConfirmButton,

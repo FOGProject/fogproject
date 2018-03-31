@@ -343,7 +343,7 @@ abstract class FOGPage extends FOGBase
     /**
      * Creates the main menu items.
      *
-     * @param array $main Items to set.
+     * @param array $main     Items to set.
      * @param array $hookMain Hook items to set.
      *
      * @return string
@@ -433,10 +433,10 @@ abstract class FOGPage extends FOGBase
                 ['main' => &$hookMenu]
             );
 
-        foreach($hookMenu as $key => $value){
-          if(array_key_exists($key, $menu)){
-            unset($hookMenu[$key]);
-          }
+        foreach ($hookMenu as $key => &$value) {
+            if (array_key_exists($key, $menu)) {
+                unset($hookMenu[$key]);
+            }
         }
 
         if (count($menu ?: []) > 0) {
