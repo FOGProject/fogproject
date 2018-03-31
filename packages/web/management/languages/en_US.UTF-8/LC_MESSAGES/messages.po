@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-31 14:31-0400\n"
+"POT-Creation-Date: 2018-03-31 17:26-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4552,6 +4552,12 @@ msgstr "Storage Group Updated"
 msgid "Started By"
 msgstr "Created By"
 
+msgid "Cron"
+msgstr "Cron"
+
+msgid "Delayed"
+msgstr "Delayed"
+
 #, fuzzy
 msgid "Selected tasks cancelled!"
 msgstr "has been successfully updated"
@@ -4577,9 +4583,6 @@ msgstr "Hosts in Task"
 
 msgid "Host/Group Name"
 msgstr "Host/Group Name"
-
-msgid "Is Group"
-msgstr "Is Group"
 
 msgid "Task Type"
 msgstr "Task Type"
@@ -6326,12 +6329,6 @@ msgstr "Hourly"
 
 msgid "Please Select an option"
 msgstr "Please Select an option"
-
-msgid "Cron"
-msgstr "Cron"
-
-msgid "Delayed"
-msgstr "Delayed"
 
 msgid "Could not read tmp file."
 msgstr "Could not read tmp file."

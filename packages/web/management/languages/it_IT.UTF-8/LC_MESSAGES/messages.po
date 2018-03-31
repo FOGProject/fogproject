@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-31 14:31-0400\n"
+"POT-Creation-Date: 2018-03-31 17:26-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4290,6 +4290,12 @@ msgstr "Aggiornamento Gruppo di archiviazione fallito"
 msgid "Started By"
 msgstr "Creato da"
 
+msgid "Cron"
+msgstr "cron"
+
+msgid "Delayed"
+msgstr "Ritardato"
+
 #, fuzzy
 msgid "Selected tasks cancelled!"
 msgstr "Attività pianificate create con successo"
@@ -4314,9 +4320,6 @@ msgstr "Host in attività"
 
 msgid "Host/Group Name"
 msgstr "Host / Nome gruppo"
-
-msgid "Is Group"
-msgstr "Il gruppo è"
 
 msgid "Task Type"
 msgstr "Tipo attività"
@@ -5913,12 +5916,6 @@ msgstr "ogni ora"
 
 msgid "Please Select an option"
 msgstr "Per favore selezionate un'opzione"
-
-msgid "Cron"
-msgstr "cron"
-
-msgid "Delayed"
-msgstr "Ritardato"
 
 msgid "Could not read tmp file."
 msgstr "Impossibile leggere il file tmp."
