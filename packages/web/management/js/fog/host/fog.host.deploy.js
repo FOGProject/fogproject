@@ -7,7 +7,8 @@
         hours = $('#cronHour', hostDeployForm),
         dom = $('#cronDom', hostDeployForm),
         month = $('#cronMonth', hostDeployForm),
-        dow = $('#cronDow', hostDeployForm);
+        dow = $('#cronDow', hostDeployForm),
+        createTaskBtn = $('#tasking-send');
 
     specialCrons.on('change focus focusout', function(e) {
         e.preventDefault();
@@ -81,5 +82,15 @@
                 $('.croninput').removeClass('hidden');
                 break;
         }
+    });
+
+    createTaskBtn.on('click', function(e) {
+        e.preventDefault();
+        var form = $('#host-deploy-form');
+        Common.processForm(form, function(err) {
+            if (err) {
+                return;
+            }
+        });
     });
 })(jQuery);

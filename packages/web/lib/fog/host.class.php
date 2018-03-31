@@ -1271,6 +1271,7 @@ class Host extends FOGController
         $sessionjoin = false,
         $wol = false
     ) {
+        $stat = true;
         try {
             if (!$this->isValid()) {
                 throw new Exception(self::$foglang['HostNotValid']);
@@ -1382,7 +1383,8 @@ class Host extends FOGController
                     $wol
                 );
                 $Task->set('imageID', $this->get('imageID'));
-                if (!$Task->save()) {
+                $stat = $Task->save();
+                if (!$stat) {
                     throw new Exception(self::$foglang['FailedTask']);
                 }
                 $this->set('task', $Task);
@@ -1459,24 +1461,26 @@ class Host extends FOGController
                         ->set('isDD', $this->getImage()->get('imageTypeID'))
                         ->set('storagegroupID', $StorageNode->get('storagegroupID'))
                         ->set('clients', -1);
-                    if ($MulticastSession->save()) {
-                        $assoc = true;
-                        if (!self::getSetting('FOG_MULTICAST_PORT_OVERRIDE')) {
+                    $stat = $MulticastSession->save();
+                    if (!$stat) {
+                        throw new Exception(_('Failed to create multicast task'));
+                    }
+                    $assoc = true;
+                    if (!self::getSetting('FOG_MULTICAST_PORT_OVERRIDE')) {
+                        $randomnumber = mt_rand(24576, 32766)*2;
+                        while ($randomnumber
+                            == $MulticastSession->get('port')
+                        ) {
                             $randomnumber = mt_rand(24576, 32766)*2;
-                            while ($randomnumber
-                                == $MulticastSession->get('port')
-                            ) {
-                                $randomnumber = mt_rand(24576, 32766)*2;
-                            }
-                            self::setSetting(
-                                'FOG_UDPCAST_STARTINGPORT',
-                                $randomnumber
-                            );
                         }
+                        self::setSetting(
+                            'FOG_UDPCAST_STARTINGPORT',
+                            $randomnumber
+                        );
                     }
                 }
                 if ($assoc) {
-                    self::getClass('MulticastSessionAssociation')
+                    $stat = self::getClass('MulticastSessionAssociation')
                         ->set('msID', $MulticastSession->get('id'))
                         ->set('taskID', $Task->get('id'))
                         ->save();
@@ -1491,14 +1495,7 @@ class Host extends FOGController
         if ($taskTypeID == 14) {
             $Task->destroy();
         }
-        $str = '<li>';
-        $str .= '<a href="#">';
-        $str .= $this->get('name');
-        $str .= ' &ndash; ';
-        $str .= $this->getImage()->get('name');
-        $str .= '</a>';
-        $str .= '</li>';
-        return $str;
+        return $stat;
     }
     /**
      * Returns task if host image is valid

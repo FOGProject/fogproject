@@ -4744,6 +4744,201 @@ class HostManagement extends FOGPage
 
         $serverFault = false;
         try {
+            global $type;
+            if (!is_numeric($type) && $type > 0) {
+                $type = 1;
+            }
+            // Pending check.
+            if ($this->obj->get('pending')) {
+                throw new Exception(_('Pending hosts cannot be tasked'));
+            }
+            // Task Type setup
+            $TaskType = new TaskType($type);
+            if (!$TaskType->isValid()) {
+                throw new Exception(_('Task Type is invalid'));
+            }
+
+            // Password reset setup
+            $passreset = trim(
+                filter_input(INPUT_POST, 'account')
+            );
+            if (TaskType::PASSWORD_RESET == $type
+                && !$passreset
+            ) {
+                throw new Exception(_('Password reset requires a user account'));
+            }
+
+            // Snapin setup
+            $enableSnapins = (int)filter_input(INPUT_POST, 'snapin');
+            if (0 === $enableSnapins) {
+                $enableSnapins = -1;
+            }
+            if (TaskType::DEPLOY_NO_SNAPINS === $type || $enableSnapins < -1) {
+                $enableSnapins = 0;
+            }
+
+            // Generic setup
+            $imagingTasks = $TaskType->isImagingTask();
+            $taskName = sprintf(
+                '%s Task',
+                $TaskType->get('name')
+            );
+
+            // Shutdown setup
+            $shutdown = isset($_POST['shutdown']);
+            if ($shutdown) {
+                $enableShutdown = true;
+            }
+
+            // Debug setup
+            $enableDebug = false;
+            $debug = isset($_POST['debug']);
+            $isdebug = isset($_POST['isDebugTask']);
+            if ($debug || $isdebug) {
+                $enableDebug = true;
+            }
+
+            // WOL setup
+            $wol = false;
+            $wolon = isset($_POST['wol']);
+            if (TaskType::WAKE_UP || $wolon) {
+                $wol = true;
+            }
+
+            // Schedule Type setup
+            $scheduleType = strtolower(
+                filter_input(INPUT_POST, 'scheduleType')
+            );
+            $scheduleTypes = [
+                'cron',
+                'instant',
+                'single'
+            ];
+            self::$HookManager->processEvent(
+                'SCHEDULE_TYPES',
+                ['scheduleTypes' => &$scheduleTypes]
+            );
+            foreach ($scheduleTypes as $ind => &$type) {
+                $scheduleTypes[$ind] = trim(
+                    strtolower(
+                        $type
+                    )
+                );
+                unset($type);
+            }
+            if (!in_array($scheduleType, $scheduleTypes)) {
+                throw new Exception(_('Invalid scheduling type'));
+            }
+            // Schedule Delayed/Cron checks.
+            switch ($scheduleType) {
+            case 'single':
+                $scheduleDeployTime = self::niceDate(
+                    filter_input(INPUT_POST, 'scheduleSingleTime')
+                );
+                if ($scheduleDeployTime < self::niceDate()) {
+                    throw new Exception(_('Scheduled time is in the past'));
+                }
+                break;
+            case 'cron':
+                $min = strval(
+                    filter_input(INPUT_POST, 'scheduleCronMin')
+                );
+                $hour = strval(
+                    filter_input(INPUT_POST, 'scheduleCronHour')
+                );
+                $dom = strval(
+                    filter_input(INPUT_POST, 'scheduleCronDOM')
+                );
+                $month = strval(
+                    filter_input(INPUT_POST, 'scheduleCronMonth')
+                );
+                $dow = strval(
+                    filter_input(INPUT_POST, 'scheduleCronDOW')
+                );
+                $tmin = FOGCron::checkMinutesField($min);
+                $thour = FOGCron::checkHoursField($hour);
+                $tdom = FOGCron::checkDOMField($dom);
+                $tmonth = FOGCron::checkMonthField($month);
+                $tdow = FOGCron::checkDOWField($dow);
+                if (!$tmin) {
+                    throw new Exception(_('Minutes field is invalid'));
+                }
+                if (!$thour) {
+                    throw new Exception(_('Hours field is invalid'));
+                }
+                if (!$tdom) {
+                    throw new Exception(_('Day of Month field is invalid'));
+                }
+                if (!$tmonth) {
+                    throw new Exception(_('Month field is invalid'));
+                }
+                if (!$tdow) {
+                    throw new Exception(_('Day of Week field is invalid'));
+                }
+                break;
+            }
+
+            // Task Type Imaging Checks.
+            if ($TaskType->isImagingTask()) {
+                $Image = $this->obj->getImage();
+                if (!$Image->isValid()) {
+                    throw new Exception(_('Image is invalid'));
+                }
+                if (!$Image->get('isEnabled')) {
+                    throw new Exception(_('Image is not enabled'));
+                }
+                if ($TaskType->isCapture()
+                    && $Image->get('protected')
+                ) {
+                    throw new Exception(_('Image is protected'));
+                }
+            }
+
+            // Actually create tasking
+            if ($scheduleType == 'instant') {
+                $this->obj->createImagePackage(
+                    $type,
+                    $taskName,
+                    $enableShutdown,
+                    $enableDebug,
+                    $enableSnapins,
+                    false,
+                    self::$FOGUser->get('name'),
+                    $passreset,
+                    false,
+                    $wol
+                );
+            } else {
+                $ScheduledTask = self::getClass('ScheduledTask')
+                    ->set('taskType', $TaskType->get('id'))
+                    ->set('name', $taskName)
+                    ->set('hostID', $this->obj->get('id'))
+                    ->set('shutdown', $enableShutdown)
+                    ->set('other2', $enableSnapins)
+                    ->set('type', 'single' == $scheduleType ? 'S' : 'C')
+                    ->set('isGroupTask', 0)
+                    ->set('other3', self::$FOGUser->get('name'))
+                    ->set('isActive', 1)
+                    ->set('other4', $wol);
+                if ($scheduleType == 'single') {
+                    $ScheduledTask->set(
+                        'scheduleTime',
+                        $scheduleDeployTime->getTimestamp()
+                    );
+                } elseif ($scheduleType == 'cron') {
+                    $ScheduledTask
+                        ->set('minute', $min)
+                        ->set('hour', $hour)
+                        ->set('dayOfMonth', $dom)
+                        ->set('month', $month)
+                        ->set('dayOfWeek', $dow);
+                }
+                if (!$ScheduledTask->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Failed to create scheduled task'));
+                }
+            }
+
             $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'HOST_DEPLOY_SUCCESS';
             $msg = json_encode(

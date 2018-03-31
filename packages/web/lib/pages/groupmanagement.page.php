@@ -2817,6 +2817,235 @@ class GroupManagement extends FOGPage
 
         $serverFault = false;
         try {
+            global $type;
+            if (!is_numeric($type) && $type > 0) {
+                $type = 1;
+            }
+            // Host checks:
+            $hosts = $this->obj->get('hosts');
+            $hosts = self::getSubObjectIDs(
+                'Host',
+                [
+                    'id' => $hosts,
+                    'pending' => ['', 0]
+                ]
+            );
+            if (count($hosts ?: []) < 1) {
+                throw new Exception(_('No hosts available to be tasked'));
+            }
+            $nhosts = [];
+            $hostImages = [];
+            Route::listem(
+                'host',
+                ['hostID' => $hosts]
+            );
+            $Hosts = json_decode(
+                Route::getData()
+            );
+            foreach ($Hosts->data as &$host) {
+                if (!$host->imageID) {
+                    continue;
+                }
+                $nhosts[] = $host->id;
+                $hostImages[] = $host->imageID;
+                unset($host);
+            }
+            if (count($nhosts ?: []) < 1) {
+                throw new Exception(_('No hosts are assigned an image'));
+            }
+
+            // Multicast task requires all hosts in the group to have the same
+            // imageID set.
+            if (TaskType::MULTICAST == $type) {
+                $hostImages = array_filter(
+                    array_unique(
+                        $hostImages
+                    )
+                );
+                if (count($hostImages ?: []) != 1) {
+                    throw new Exception(
+                        _('All hosts must have the same image assigned')
+                    );
+                }
+            }
+
+            // Task Type setup
+            $TaskType = new TaskType($type);
+            if (!$TaskType->isValid()) {
+                throw new Exception(_('Task Type is invalid'));
+            }
+
+            // Password reset setup
+            $passreset = trim(
+                filter_input(INPUT_POST, 'account')
+            );
+            if (TaskType::PASSWORD_RESET == $type
+                && !$passreset
+            ) {
+                throw new Exception(_('Password reset requires a user account'));
+            }
+
+            // Snapin setup
+            $enableSnapins = (int)filter_input(INPUT_POST, 'snapin');
+            if (0 === $enableSnapins) {
+                $enableSnapins = -1;
+            }
+            if (TaskType::DEPLOY_NO_SNAPINS === $type || $enableSnapins < -1) {
+                $enableSnapins = 0;
+            }
+
+            // Generic setup
+            $imagingTasks = $TaskType->isImagingTask();
+            $taskName = sprintf(
+                '%s Task',
+                $TaskType->get('name')
+            );
+
+            // Shutdown setup
+            $shutdown = isset($_POST['shutdown']);
+            if ($shutdown) {
+                $enableShutdown = true;
+            }
+
+            // Debug setup
+            $enableDebug = false;
+            $debug = isset($_POST['debug']);
+            $isdebug = isset($_POST['isDebugTask']);
+            if ($debug || $isdebug) {
+                $enableDebug = true;
+            }
+
+            // WOL Setup
+            $wol = false;
+            $wolon = isset($_POST['wol']);
+            if (TaskType::WAKE_UP || $wolon) {
+                $wol = true;
+            }
+
+            // Schedule Type setup
+            $scheduleType = strtolower(
+                filter_input(INPUT_POST, 'scheduleType')
+            );
+            $scheduleTypes = [
+                'cron',
+                'instant',
+                'single'
+            ];
+            self::$HookManager->processEvent(
+                'SCHEDULE_TYPES',
+                ['scheduleTypes' => &$scheduleTypes]
+            );
+            foreach ($scheduleTypes as $ind => &$type) {
+                $scheduleTypes[$ind] = trim(
+                    strtolower(
+                        $type
+                    )
+                );
+                unset($type);
+            }
+            if (!in_array($scheduleType, $scheduleTypes)) {
+                throw new Exception(_('Invalid scheduling type'));
+            }
+            // Schedule Delayed/Cron checks.
+            switch ($scheduleType) {
+            case 'single':
+                $scheduleDeployTime = self::niceDate(
+                    filter_input(INPUT_POST, 'scheduleSingleTime')
+                );
+                if ($scheduleDeployTime < self::niceDate()) {
+                    throw new Exception(_('Scheduled time is in the past'));
+                }
+                break;
+            case 'cron':
+                $min = strval(
+                    filter_input(INPUT_POST, 'scheduleCronMin')
+                );
+                $hour = strval(
+                    filter_input(INPUT_POST, 'scheduleCronHour')
+                );
+                $dom = strval(
+                    filter_input(INPUT_POST, 'scheduleCronDOM')
+                );
+                $month = strval(
+                    filter_input(INPUT_POST, 'scheduleCronMonth')
+                );
+                $dow = strval(
+                    filter_input(INPUT_POST, 'scheduleCronDOW')
+                );
+                $tmin = FOGCron::checkMinutesField($min);
+                $thour = FOGCron::checkHoursField($hour);
+                $tdom = FOGCron::checkDOMField($dom);
+                $tmonth = FOGCron::checkMonthField($month);
+                $tdow = FOGCron::checkDOWField($dow);
+                if (!$tmin) {
+                    throw new Exception(_('Minutes field is invalid'));
+                }
+                if (!$thour) {
+                    throw new Exception(_('Hours field is invalid'));
+                }
+                if (!$tdom) {
+                    throw new Exception(_('Day of Month field is invalid'));
+                }
+                if (!$tmonth) {
+                    throw new Exception(_('Month field is invalid'));
+                }
+                if (!$tdow) {
+                    throw new Exception(_('Day of Week field is invalid'));
+                }
+                break;
+            }
+
+            // Task Type Imaging Checks
+            if ($TaskType->isImagingTask()) {
+                if ($TaskType->isCapture()) {
+                    throw new Exception(_('Groups cannot create capture tasks'));
+                }
+            }
+
+            // Actually create tasking
+            if ($scheduleType == 'instant') {
+                $this->obj->createImagePackage(
+                    $type,
+                    $taskName,
+                    $enableShutdown,
+                    $enableDebug,
+                    $enableSnapins,
+                    true,
+                    self::$FOGUser->get('name'),
+                    $passreset,
+                    false,
+                    $wol
+                );
+            } else {
+                $ScheduledTask = self::getClass('ScheduledTask')
+                    ->set('taskType', $type)
+                    ->set('name', $taskName)
+                    ->set('hostID', $this->obj->get('id'))
+                    ->set('shutdown', $enableShutdown)
+                    ->set('other2', $enableSnapins)
+                    ->set('type', $scheduleType = 'single' ? 'S' : 'C')
+                    ->set('isGroupTask', 1)
+                    ->set('other3', self::$FOGUser->get('name'))
+                    ->set('isActive', 1)
+                    ->set('other4', $wol);
+                if ($scheduleType == 'single') {
+                    $ScheduledTask->set(
+                        'scheduleTime',
+                        $scheduleDeployTime->getTimestamp()
+                    );
+                } elseif ($scheduleType == 'cron') {
+                    $ScheduledTask
+                        ->set('minute', $min)
+                        ->set('hour', $hour)
+                        ->set('dayOfMonth', $dom)
+                        ->set('month', $month)
+                        ->set('dayOfWeek', $dow);
+                }
+                if (!$ScheduledTask->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Failed to create scheduled task'));
+                }
+            }
             $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'GROUP_DEPLOY_SUCCESS';
             $msg = json_encode(

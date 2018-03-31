@@ -492,6 +492,12 @@ class TaskManagement extends FOGPage
                         case 'c':
                             return _('Cron');
                         default:
+                            $columns[] = [
+                                'dt' => 'starttime',
+                                'formatter' => function (&$d, &$row) {
+                                    return self::niceDate($row['stDateTime']);
+                                }
+                            ];
                             return _('Delayed');
                         }
                     }
@@ -499,7 +505,7 @@ class TaskManagement extends FOGPage
                 $columns[] = [
                     'dt' => 'starttime',
                     'formatter' => function ($d, $row) {
-                        $type = strtolower($d);
+                        $type = strtolower($row['stType']);
                         switch ($type) {
                         case 'c':
                             $cronstr = sprintf(
@@ -510,10 +516,14 @@ class TaskManagement extends FOGPage
                                 $row['stMonth'],
                                 $row['stDOW']
                             );
-                            return FOGCron::parse($cronstr);
+                            $date = FOGCron::parse($cronstr);
+                            break;
                         default:
-                            return self::niceDate($row['stMinute']);
+                            $date = $row['stDateTime'];
                         }
+                        return self::niceDate()
+                            ->setTimestamp($date)
+                            ->format('Y-m-d H:i:s');
                     }
                 ];
                 break;

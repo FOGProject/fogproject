@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-31 17:59-0400\n"
+"POT-Creation-Date: 2018-03-31 19:42-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3433,6 +3433,55 @@ msgstr "每月一次"
 msgid "weekday"
 msgstr ""
 
+#, fuzzy
+msgid "No hosts available to be tasked"
+msgstr "在任务主机"
+
+msgid "No hosts are assigned an image"
+msgstr ""
+
+msgid "All hosts must have the same image assigned"
+msgstr ""
+
+#, fuzzy
+msgid "Task Type is invalid"
+msgstr "任务类型无效"
+
+msgid "Password reset requires a user account"
+msgstr ""
+
+#, fuzzy
+msgid "Invalid scheduling type"
+msgstr "无效的对象类型传递"
+
+#, fuzzy
+msgid "Scheduled time is in the past"
+msgstr "预定日期是过去"
+
+#, fuzzy
+msgid "Minutes field is invalid"
+msgstr "分钟值无效"
+
+#, fuzzy
+msgid "Hours field is invalid"
+msgstr "小时值无效"
+
+#, fuzzy
+msgid "Day of Month field is invalid"
+msgstr "月份值的天无效"
+
+#, fuzzy
+msgid "Month field is invalid"
+msgstr "一个月值无效"
+
+#, fuzzy
+msgid "Day of Week field is invalid"
+msgstr "周值的天无效"
+
+#, fuzzy
+msgid "Failed to create scheduled task"
+msgstr "无法创建任务"
+
 msgid "Create tasking succeeded"
 msgstr ""
 
@@ -4958,6 +5007,21 @@ msgstr "图片未启用"
 msgid "Assigned image is protected"
 msgstr "未选择或项目被保护"
 
+#, fuzzy
+msgid "Pending hosts cannot be tasked"
+msgstr "待主机"
+
+#, fuzzy
+msgid "Image is invalid"
+msgstr "图片无效"
+
+msgid "Image is not enabled"
+msgstr "图片未启用"
+
+#, fuzzy
+msgid "Image is protected"
+msgstr "受保护"
+
 msgid "Click"
 msgstr "点击"
 
@@ -6389,9 +6453,6 @@ msgstr "由于新的任务取消。"
 msgid "Failed to create Snapin Job"
 msgstr "无法创建管理单元工作"
 
-msgid "Image is not enabled"
-msgstr "图片未启用"
-
 #, fuzzy
 msgid "Could not find any"
 msgstr "找不到临时文件名"
@@ -6399,6 +6460,10 @@ msgstr "找不到临时文件名"
 #, fuzzy
 msgid "nodes containing this image"
 msgstr "找不到包含该图像的任何节点"
+
+#, fuzzy
+msgid "Failed to create multicast task"
+msgstr "无法创建任务"
 
 #, fuzzy
 msgid "No valid Image defined for this host"

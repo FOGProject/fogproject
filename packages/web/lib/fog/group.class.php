@@ -737,7 +737,7 @@ class Group extends FOGController
                     ];
                 }
                 if (count($batchTask) > 0) {
-                    self::getClass('TaskManager')
+                    $stat = self::getClass('TaskManager')
                         ->insertBatch($batchFields, $batchTask);
                 }
             }
@@ -747,31 +747,7 @@ class Group extends FOGController
             set_time_limit(0);
             $this->wakeOnLAN();
         }
-        Route::listem(
-            'host',
-            'name',
-            false,
-            ['id' => $hostIDs]
-        );
-        $Hosts = json_decode(
-            Route::getData()
-        );
-        $Hosts = $Hosts->hosts;
-        $str = '';
-        foreach ((array)$Hosts as &$Host) {
-            $str .= '<li>';
-            $str .= '<a href="?node=host&sub=edit&id='
-                . $Host->id
-                . '">';
-            $str .= $Host->name;
-            $str .= ' &ndash; ';
-            $str .= $Host->imagename;
-            $str .= '</a>';
-            $str .= '</li>';
-            unset($Host);
-        }
-        unset($Hosts);
-        return $str;
+        return $stat;
     }
     /**
      * Perform wake on lan to all hosts in group.
