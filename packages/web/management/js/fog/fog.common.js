@@ -41,6 +41,8 @@ var $_GET = getQueryParams(document.location.search),
                 .addClass('fa-minus');
         }
         pluginOptionsOpen = !pluginOptionsOpen;
+
+        $(window).resize();
     });
 
     Common.debugLog = function(obj) {
