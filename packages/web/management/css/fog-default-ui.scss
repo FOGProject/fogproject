@@ -28,18 +28,49 @@
 }
 
 /* Sticky navbar */
-body > .wrapper {
-  height: auto;
-  min-height: 100%;
-  overflow: initial;
+header.main-header .mobile-logo {
+  display: none;
 }
 
-body > .wrapper > .content-wrapper {
-  overflow-x: hidden;
-}
+@media(max-width: 767px){
+  body > .wrapper {
+    height: auto;
+    min-height: 100%;
+    overflow: initial;
+  }
 
-header.main-header {
-  position: sticky;
-  top: 0;
-  background-color: #222d32;
+  body > .wrapper > .content-wrapper {
+    overflow-x: hidden;
+  }
+
+  body:not(.login-page) header.main-header {
+    position: sticky;
+    top: 0;
+    background-color: #222d32;
+  }
+
+  header.main-header .logo {
+    display: none;
+  }
+
+  aside.main-sidebar {
+    padding-top: 50px;
+  }
+
+  header.main-header .mobile-logo {
+    display: inline-block;
+    margin: 0;
+    height: 50px;
+    padding: 0 20px;
+  }
+
+  header.main-header .mobile-logo a {
+    color: white;
+    line-height: 50px;
+    font-size: 20pt;
+  }
+
+  .skin-blue .main-header .navbar .sidebar-toggle {
+    background-color: #367fa9;
+  }
 }
