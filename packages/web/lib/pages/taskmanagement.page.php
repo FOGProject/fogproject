@@ -449,9 +449,7 @@ class TaskManagement extends FOGPage
             $mtasks = $tasks;
             $tasks = self::getSubObjectIDs(
                 'MulticastSessionAssociation',
-                [
-                    'msID' => $mtasks
-                ],
+                ['msID' => $mtasks],
                 'taskID'
             );
             self::getClass('TaskManager')->cancel($tasks);
@@ -495,10 +493,10 @@ class TaskManagement extends FOGPage
     {
         $this->title = 'Active Snapin Tasks';
         $this->headerData = [
+            _('Snapin Name'),
             _('Host Name'),
-            _('Snapin'),
             _('Start Time'),
-            _('State')
+            _('Status')
         ];
         $this->attributes = [
             [],
