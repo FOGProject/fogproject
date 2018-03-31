@@ -73,6 +73,7 @@ if (self::$FOGUser->isValid()) {
     echo '</a>';
 }
 echo '<nav class="navbar navbar-static-top">';
+echo '<p class="mobile-logo"><a href="./index.php"><b>FOG</b> Project</a></p>';
 if (self::$FOGUser->isValid()) {
     echo '<a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">';
     echo '<span class="sr-only">Toggle navigation</span>';
@@ -145,7 +146,7 @@ if (self::$FOGUser->isValid()) {
         echo ' ';
         echo '<span class="pull-right-container">';
         echo '<a href="#" class="plugin-options-alternate">';
-        echo '<i class="fa fa-minus pull-right"></i>';
+        echo '<i class="fa fa-minus"></i>';
         echo '</a>';
         echo '</span>';
         echo '</li>';
