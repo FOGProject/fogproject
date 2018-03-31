@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 21:09-0400\n"
+"POT-Creation-Date: 2018-03-31 14:31-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -6009,6 +6009,9 @@ msgstr "Aggiungi gruppo di archiviazione selezionato"
 #, fuzzy
 msgid "Unable to determine status"
 msgstr "Impossibile determinare i dettagli del plugin"
+
+msgid "s"
+msgstr ""
 
 #, fuzzy
 msgid "Add To Group(s)"

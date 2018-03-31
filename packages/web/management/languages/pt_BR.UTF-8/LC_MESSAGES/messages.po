@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 21:09-0400\n"
+"POT-Creation-Date: 2018-03-31 14:31-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6438,6 +6438,9 @@ msgstr "Impressora"
 #, fuzzy
 msgid "Unable to determine status"
 msgstr "Não foi possível determinar detalhes de plugin"
+
+msgid "s"
+msgstr ""
 
 #, fuzzy
 msgid "Add To Group(s)"

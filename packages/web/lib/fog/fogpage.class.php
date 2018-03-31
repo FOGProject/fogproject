@@ -996,7 +996,7 @@ abstract class FOGPage extends FOGBase
                             'confirmDeleteModal',
                             _('Delete')
                             . ' {0} '
-                            . _('hosts'),
+                            . _($node.'s'),
                             'btn btn-outline'
                         ),
                         '',
