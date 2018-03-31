@@ -145,7 +145,7 @@ if (self::$FOGUser->isValid()) {
         echo ' ';
         echo '<span class="pull-right-container">';
         echo '<a href="#" class="plugin-options-alternate">';
-        echo '<i class="fa fa-minus"></i>';
+        echo '<i class="fa fa-minus pull-right"></i>';
         echo '</a>';
         echo '</span>';
         echo '</li>';
