@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-31 14:31-0400\n"
+"POT-Creation-Date: 2018-03-31 17:26-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4758,6 +4758,12 @@ msgstr "Nombre del grupo de almacenamiento"
 msgid "Started By"
 msgstr "Creado"
 
+msgid "Cron"
+msgstr "cron"
+
+msgid "Delayed"
+msgstr "Retrasado"
+
 #, fuzzy
 msgid "Selected tasks cancelled!"
 msgstr "se ha actualizado correctamente"
@@ -4783,9 +4789,6 @@ msgstr "Anfitriones en tareas"
 
 msgid "Host/Group Name"
 msgstr "Host / Nombre del grupo"
-
-msgid "Is Group"
-msgstr "grupo está"
 
 msgid "Task Type"
 msgstr "Tipo de tarea"
@@ -6544,12 +6547,6 @@ msgstr "Cada hora"
 
 msgid "Please Select an option"
 msgstr "Por favor seleccione una opción"
-
-msgid "Cron"
-msgstr "cron"
-
-msgid "Delayed"
-msgstr "Retrasado"
 
 msgid "Could not read tmp file."
 msgstr "No se pudo leer el archivo tmp."

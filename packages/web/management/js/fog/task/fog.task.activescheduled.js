@@ -21,23 +21,16 @@
 
     disableButtons(true);
     var table = Common.registerTable($('#scheduled-task-table'), onSelect, {
-        order: [
-            [0, 'asc']
-        ],
         columns: [
-            {data: 'hostname'},
-            {data: 'snapinname'},
+            {data: 'hostID'},
+            {data: 'taskType'},
             {data: 'starttime'},
-            {data: 'taskstatename'}
+            {data: 'isActive'},
+            {data: 'taskstatename'},
+            {data: 'type'}
         ],
         rowId: 'id',
         columnDefs: [
-            {
-                render: function(data, type, row) {
-                    return '<i class="fa fa-' + row.taskstateicon + '"></i>';
-                },
-                targets: 3
-            }
         ],
         serverSide: true,
         ajax: {

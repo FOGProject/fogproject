@@ -427,6 +427,128 @@ class TaskManagement extends FOGPage
         exit;
     }
     /**
+     * Get the scheduled tasks list.
+     *
+     * @return void
+     */
+    public function getScheduledTasks()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $tasksSqlStr = "SELECT `%s`
+            FROM `%s`
+            %s
+            %s
+            %s";
+        $tasksFilterStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            %s";
+        $tasksTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+        foreach (self::getClass('ScheduledTaskManager')
+            ->getColumns() as $common => &$real
+        ) {
+            switch ($common) {
+            case 'hostID':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common,
+                    'formatter' => function ($d, $row) {
+                        if ($row['stIsGroup']) {
+                            $groupName = self::getClass('Group', $d)->get('name');
+                            return '<a href="'
+                                . '../management/index.php?node=group&sub=edit&id='
+                                . $d
+                                . '">'
+                                . _('Group')
+                                . ': '
+                                . $groupName
+                                . '</a>';
+                        } else {
+                            $hostName = self::getClass('Host', $d)->get('name');
+                            return '<a href="'
+                                . '../management/index.php?node=host&sub=edit&id='
+                                . $d
+                                . '">'
+                                . _('Host')
+                                . ': '
+                                . $hostName
+                                . '</a>';
+                        }
+                    }
+                ];
+                break;
+            case 'type':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common,
+                    'formatter' => function ($d, $row) {
+                        $type = strtolower($d);
+                        switch ($type) {
+                        case 'c':
+                            return _('Cron');
+                        default:
+                            return _('Delayed');
+                        }
+                    }
+                ];
+                $columns[] = [
+                    'dt' => 'starttime',
+                    'formatter' => function ($d, $row) {
+                        $type = strtolower($d);
+                        switch ($type) {
+                        case 'c':
+                            $cronstr = sprintf(
+                                '%s %s %s %s %s',
+                                $row['stMinute'],
+                                $row['stHour'],
+                                $row['stDOM'],
+                                $row['stMonth'],
+                                $row['stDOW']
+                            );
+                            return FOGCron::parse($cronstr);
+                        default:
+                            return self::niceDate($row['stMinute']);
+                        }
+                    }
+                ];
+                break;
+            case 'taskType':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common,
+                    'formatter' => function ($d, $row) {
+                        return self::getClass('TaskType', $d)->get('name');
+                    }
+                ];
+                break;
+            default:
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common
+                ];
+            }
+            unset($real);
+        }
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'scheduledTasks',
+                'stID',
+                $columns,
+                $tasksSqlStr,
+                $tasksFilterStr,
+                $tasksTotalStr,
+                $where
+            )
+        );
+        exit;
+    }
+    /**
      * Display the active tasks.
      *
      * @return void
@@ -741,16 +863,12 @@ class TaskManagement extends FOGPage
         $this->title = _('Scheduled Tasks');
         $this->headerData = [
             _('Host/Group Name'),
-            _('Is Group'),
-            _('Task Name'),
             _('Task Type'),
             _('Start Time'),
             _('Active'),
             _('Type')
         ];
         $this->attributes = [
-            [],
-            [],
             [],
             [],
             [],
