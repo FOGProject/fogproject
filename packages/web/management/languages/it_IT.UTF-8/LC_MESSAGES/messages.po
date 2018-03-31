@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-31 17:59-0400\n"
+"POT-Creation-Date: 2018-03-31 19:42-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3268,6 +3268,55 @@ msgstr "mese"
 msgid "weekday"
 msgstr ""
 
+#, fuzzy
+msgid "No hosts available to be tasked"
+msgstr "Nessun host disponibile per task"
+
+msgid "No hosts are assigned an image"
+msgstr ""
+
+msgid "All hosts must have the same image assigned"
+msgstr ""
+
+#, fuzzy
+msgid "Task Type is invalid"
+msgstr "Tipo di attività non è valido"
+
+msgid "Password reset requires a user account"
+msgstr ""
+
+#, fuzzy
+msgid "Invalid scheduling type"
+msgstr "È passato il tipo di attività non valido"
+
+#, fuzzy
+msgid "Scheduled time is in the past"
+msgstr "Data prevista è nel passato"
+
+#, fuzzy
+msgid "Minutes field is invalid"
+msgstr "valore dei minuti non è valido"
+
+#, fuzzy
+msgid "Hours field is invalid"
+msgstr "il valore ora non è valido"
+
+#, fuzzy
+msgid "Day of Month field is invalid"
+msgstr "Giorno del valore del mese non è valido"
+
+#, fuzzy
+msgid "Month field is invalid"
+msgstr "valore del mese non è valido"
+
+#, fuzzy
+msgid "Day of Week field is invalid"
+msgstr "Giorno della settimana il valore non è valido"
+
+#, fuzzy
+msgid "Failed to create scheduled task"
+msgstr "Impossibile creare un'attività"
+
 msgid "Create tasking succeeded"
 msgstr ""
 
@@ -4681,6 +4730,21 @@ msgstr "L'immagine non è abilitato"
 msgid "Assigned image is protected"
 msgstr "L'immagine assegnata è protetta"
 
+#, fuzzy
+msgid "Pending hosts cannot be tasked"
+msgstr "host in sospeso"
+
+#, fuzzy
+msgid "Image is invalid"
+msgstr "L'immagine non è valida"
+
+msgid "Image is not enabled"
+msgstr "L'immagine non è abilitato"
+
+#, fuzzy
+msgid "Image is protected"
+msgstr "Protetta"
+
 msgid "Click"
 msgstr "Click"
 
@@ -5977,14 +6041,15 @@ msgstr "Annullato a causa della nuova tasking."
 msgid "Failed to create Snapin Job"
 msgstr "Impossibile creare Snapin lavoro"
 
-msgid "Image is not enabled"
-msgstr "L'immagine non è abilitato"
-
 msgid "Could not find any"
 msgstr "Impossibile trovare"
 
 msgid "nodes containing this image"
 msgstr "nodi che contengono questa immagine"
+
+#, fuzzy
+msgid "Failed to create multicast task"
+msgstr "Impossibile creare un'attività"
 
 msgid "No valid Image defined for this host"
 msgstr "Nessuna Imagine valida definita per questo host"

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-31 17:59-0400\n"
+"POT-Creation-Date: 2018-03-31 19:42-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3442,6 +3442,55 @@ msgstr "Monat"
 msgid "weekday"
 msgstr ""
 
+#, fuzzy
+msgid "No hosts available to be tasked"
+msgstr "Keine Hosts für Aufgaben (Task) verfügbar"
+
+msgid "No hosts are assigned an image"
+msgstr ""
+
+msgid "All hosts must have the same image assigned"
+msgstr ""
+
+#, fuzzy
+msgid "Task Type is invalid"
+msgstr "Task-Typ ist nicht gültig"
+
+msgid "Password reset requires a user account"
+msgstr ""
+
+#, fuzzy
+msgid "Invalid scheduling type"
+msgstr "Ungültiger Tasking Typ übergeben"
+
+#, fuzzy
+msgid "Scheduled time is in the past"
+msgstr "geplanter Termin liegt in der Vergangenheit"
+
+#, fuzzy
+msgid "Minutes field is invalid"
+msgstr "Minutenwert ist nicht gültig"
+
+#, fuzzy
+msgid "Hours field is invalid"
+msgstr "Stundenwert ist nicht gültig"
+
+#, fuzzy
+msgid "Day of Month field is invalid"
+msgstr "Der Wert des Monatstags ist nicht gültig"
+
+#, fuzzy
+msgid "Month field is invalid"
+msgstr "Monats-Wert ist nicht gültig"
+
+#, fuzzy
+msgid "Day of Week field is invalid"
+msgstr "Der Wert des Tags der Woche ist nicht gültig"
+
+#, fuzzy
+msgid "Failed to create scheduled task"
+msgstr "Fehler beim Erstellen eines Tasks"
+
 msgid "Create tasking succeeded"
 msgstr ""
 
@@ -4974,6 +5023,21 @@ msgstr "Abbild ist nicht aktiv"
 msgid "Assigned image is protected"
 msgstr "Das zugewiesene Image ist geschützt"
 
+#, fuzzy
+msgid "Pending hosts cannot be tasked"
+msgstr "Ausstehende Hosts"
+
+#, fuzzy
+msgid "Image is invalid"
+msgstr "Image ist nicht gültig"
+
+msgid "Image is not enabled"
+msgstr "Abbild ist nicht aktiv"
+
+#, fuzzy
+msgid "Image is protected"
+msgstr "Geschützt"
+
 msgid "Click"
 msgstr "Klicken Sie"
 
@@ -6412,9 +6476,6 @@ msgstr "Abgebrochen aufgrund neuer Aufgabe (Task)"
 msgid "Failed to create Snapin Job"
 msgstr "Erstellen eines Snapin-Jobs fehlgeschlagen"
 
-msgid "Image is not enabled"
-msgstr "Abbild ist nicht aktiv"
-
 #, fuzzy
 msgid "Could not find any"
 msgstr "Nichts konnte gefunden werden"
@@ -6422,6 +6483,10 @@ msgstr "Nichts konnte gefunden werden"
 #, fuzzy
 msgid "nodes containing this image"
 msgstr "Knoten enthalten dieses Image"
+
+#, fuzzy
+msgid "Failed to create multicast task"
+msgstr "Fehler beim Erstellen eines Tasks"
 
 #, fuzzy
 msgid "No valid Image defined for this host"

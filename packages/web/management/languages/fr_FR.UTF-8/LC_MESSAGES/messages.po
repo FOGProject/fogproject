@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-31 17:59-0400\n"
+"POT-Creation-Date: 2018-03-31 19:42-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3440,6 +3440,55 @@ msgstr "Mensuel"
 msgid "weekday"
 msgstr ""
 
+#, fuzzy
+msgid "No hosts available to be tasked"
+msgstr "Hôtes sur Task"
+
+msgid "No hosts are assigned an image"
+msgstr ""
+
+msgid "All hosts must have the same image assigned"
+msgstr ""
+
+#, fuzzy
+msgid "Task Type is invalid"
+msgstr "Type de tâche n'est pas valide"
+
+msgid "Password reset requires a user account"
+msgstr ""
+
+#, fuzzy
+msgid "Invalid scheduling type"
+msgstr "type d'objet non valide passé"
+
+#, fuzzy
+msgid "Scheduled time is in the past"
+msgstr "Date prévue est dans le passé"
+
+#, fuzzy
+msgid "Minutes field is invalid"
+msgstr "valeur de la minute est pas valide"
+
+#, fuzzy
+msgid "Hours field is invalid"
+msgstr "valeur Heure est pas valide"
+
+#, fuzzy
+msgid "Day of Month field is invalid"
+msgstr "Jour de la valeur du mois est pas valide"
+
+#, fuzzy
+msgid "Month field is invalid"
+msgstr "La valeur du mois est pas valide"
+
+#, fuzzy
+msgid "Day of Week field is invalid"
+msgstr "Jour de la valeur de la semaine est pas valide"
+
+#, fuzzy
+msgid "Failed to create scheduled task"
+msgstr "Impossible de créer la tâche"
+
 msgid "Create tasking succeeded"
 msgstr ""
 
@@ -4975,6 +5024,21 @@ msgstr "L'image est pas activé"
 msgid "Assigned image is protected"
 msgstr "Aucun sélectionné ou un objet est protégé"
 
+#, fuzzy
+msgid "Pending hosts cannot be tasked"
+msgstr "hôtes en attente"
+
+#, fuzzy
+msgid "Image is invalid"
+msgstr "L'image est pas valide"
+
+msgid "Image is not enabled"
+msgstr "L'image est pas activé"
+
+#, fuzzy
+msgid "Image is protected"
+msgstr "Protégé"
+
 msgid "Click"
 msgstr "Cliquez"
 
@@ -6412,9 +6476,6 @@ msgstr "Annulé en raison de nouvelles tâches."
 msgid "Failed to create Snapin Job"
 msgstr "Échec de la création d'emploi Snapin"
 
-msgid "Image is not enabled"
-msgstr "L'image est pas activé"
-
 #, fuzzy
 msgid "Could not find any"
 msgstr "Impossible de trouver le nom de fichier temporaire"
@@ -6422,6 +6483,10 @@ msgstr "Impossible de trouver le nom de fichier temporaire"
 #, fuzzy
 msgid "nodes containing this image"
 msgstr "Impossible de trouver des noeuds contenant cette image"
+
+#, fuzzy
+msgid "Failed to create multicast task"
+msgstr "Impossible de créer la tâche"
 
 #, fuzzy
 msgid "No valid Image defined for this host"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-31 17:59-0400\n"
+"POT-Creation-Date: 2018-03-31 19:42-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3437,6 +3437,55 @@ msgstr "Monthly"
 msgid "weekday"
 msgstr ""
 
+#, fuzzy
+msgid "No hosts available to be tasked"
+msgstr "Hosts in Task"
+
+msgid "No hosts are assigned an image"
+msgstr ""
+
+msgid "All hosts must have the same image assigned"
+msgstr ""
+
+#, fuzzy
+msgid "Task Type is invalid"
+msgstr "Task type is not valid"
+
+msgid "Password reset requires a user account"
+msgstr ""
+
+#, fuzzy
+msgid "Invalid scheduling type"
+msgstr "Invalid object type passed"
+
+#, fuzzy
+msgid "Scheduled time is in the past"
+msgstr "Scheduled date is in the past"
+
+#, fuzzy
+msgid "Minutes field is invalid"
+msgstr "Minute value is not valid"
+
+#, fuzzy
+msgid "Hours field is invalid"
+msgstr "Hour value is not valid"
+
+#, fuzzy
+msgid "Day of Month field is invalid"
+msgstr "Day of month value is not valid"
+
+#, fuzzy
+msgid "Month field is invalid"
+msgstr "Month value is not valid"
+
+#, fuzzy
+msgid "Day of Week field is invalid"
+msgstr "Day of week value is not valid"
+
+#, fuzzy
+msgid "Failed to create scheduled task"
+msgstr "Failed to create task"
+
 msgid "Create tasking succeeded"
 msgstr ""
 
@@ -4962,6 +5011,21 @@ msgstr "Image is not enabled"
 msgid "Assigned image is protected"
 msgstr "None selected or item is protected"
 
+#, fuzzy
+msgid "Pending hosts cannot be tasked"
+msgstr "Pending hosts"
+
+#, fuzzy
+msgid "Image is invalid"
+msgstr "Image is not valid"
+
+msgid "Image is not enabled"
+msgstr "Image is not enabled"
+
+#, fuzzy
+msgid "Image is protected"
+msgstr "Protected"
+
 msgid "Click"
 msgstr "Click"
 
@@ -6395,9 +6459,6 @@ msgstr "Cancelled due to new tasking."
 msgid "Failed to create Snapin Job"
 msgstr "Failed to create Snapin Job"
 
-msgid "Image is not enabled"
-msgstr "Image is not enabled"
-
 #, fuzzy
 msgid "Could not find any"
 msgstr "Could not find temp filename"
@@ -6405,6 +6466,10 @@ msgstr "Could not find temp filename"
 #, fuzzy
 msgid "nodes containing this image"
 msgstr "Could not find any nodes containing this image"
+
+#, fuzzy
+msgid "Failed to create multicast task"
+msgstr "Failed to create task"
 
 #, fuzzy
 msgid "No valid Image defined for this host"

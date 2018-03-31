@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-31 17:59-0400\n"
+"POT-Creation-Date: 2018-03-31 19:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2999,6 +2999,45 @@ msgstr ""
 msgid "weekday"
 msgstr ""
 
+msgid "No hosts available to be tasked"
+msgstr ""
+
+msgid "No hosts are assigned an image"
+msgstr ""
+
+msgid "All hosts must have the same image assigned"
+msgstr ""
+
+msgid "Task Type is invalid"
+msgstr ""
+
+msgid "Password reset requires a user account"
+msgstr ""
+
+msgid "Invalid scheduling type"
+msgstr ""
+
+msgid "Scheduled time is in the past"
+msgstr ""
+
+msgid "Minutes field is invalid"
+msgstr ""
+
+msgid "Hours field is invalid"
+msgstr ""
+
+msgid "Day of Month field is invalid"
+msgstr ""
+
+msgid "Month field is invalid"
+msgstr ""
+
+msgid "Day of Week field is invalid"
+msgstr ""
+
+msgid "Failed to create scheduled task"
+msgstr ""
+
 msgid "Create tasking succeeded"
 msgstr ""
 
@@ -4282,6 +4321,18 @@ msgstr ""
 msgid "Assigned image is protected"
 msgstr ""
 
+msgid "Pending hosts cannot be tasked"
+msgstr ""
+
+msgid "Image is invalid"
+msgstr ""
+
+msgid "Image is not enabled"
+msgstr ""
+
+msgid "Image is protected"
+msgstr ""
+
 msgid "Click"
 msgstr ""
 
@@ -5498,13 +5549,13 @@ msgstr ""
 msgid "Failed to create Snapin Job"
 msgstr ""
 
-msgid "Image is not enabled"
-msgstr ""
-
 msgid "Could not find any"
 msgstr ""
 
 msgid "nodes containing this image"
+msgstr ""
+
+msgid "Failed to create multicast task"
 msgstr ""
 
 msgid "No valid Image defined for this host"
