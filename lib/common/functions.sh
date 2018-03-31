@@ -420,7 +420,7 @@ configureFTP() {
 }
 configureDefaultiPXEfile() {
     [[ -z $webroot ]] && webroot='/'
-    echo -e "#!ipxe\ncpuid --ext 29 && set arch x86_64 || set arch i386\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${httpproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
+	echo -e "#!ipxe\ncpuid --ext 29 && set arch x86_64 || set arch \${buildarch}\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${httpproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
 }
 configureTFTPandPXE() {
     dots "Setting up and starting TFTP and PXE Servers"
@@ -1430,6 +1430,8 @@ EOF
                     echo "    </FilesMatch>" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
                     echo "    RewriteEngine On" >> "$etcconf"
+                    echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
+                    echo "    RewriteRule .* - [F]" >> "$etcconf"
                     echo "    RewriteRule /management/other/ca.cert.der$ - [L]" >> "$etcconf"
                     echo "    RewriteCond %{HTTPS} off" >> "$etcconf"
                     echo "    RewriteRule (.*) https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
@@ -1448,9 +1450,11 @@ EOF
                     echo "    SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt" >> "$etcconf"
                     echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
                     echo "    SSLCertificateChainFile $webdirdest/management/other/ca.cert.der" >> "$etcconf"
+                    echo "    RewriteEngine On" >> "$etcconf"
+                    echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
+                    echo "    RewriteRule .* - [F]" >> "$etcconf"
                     echo "    <Directory $webdirdest>" >> "$etcconf"
                     echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
-                    echo "        RewriteEngine On" >> "$etcconf"
                     echo "        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
                     echo "        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
                     echo "        RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
@@ -1464,9 +1468,11 @@ EOF
                     echo "    KeepAlive Off" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
                     echo "    DocumentRoot $docroot" >> "$etcconf"
+                    echo "    RewriteEngine On" >> "$etcconf"
+                    echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
+                    echo "    RewriteRule .* - [F]" >> "$etcconf"
                     echo "    <Directory $webdirdest>" >> "$etcconf"
                     echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
-                    echo "        RewriteEngine On" >> "$etcconf"
                     echo "        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
                     echo "        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
                     echo "        RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
