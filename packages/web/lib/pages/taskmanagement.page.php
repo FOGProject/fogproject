@@ -286,7 +286,7 @@ class TaskManagement extends FOGPage
         foreach (self::getClass('TaskStateManager')
             ->getColumns() as $common => &$real
         ) {
-            $collumns[] = [
+            $columns[] = [
                 'db' => $real,
                 'dt' => 'taskstate'.$common
             ];
@@ -297,6 +297,126 @@ class TaskManagement extends FOGPage
                 $pass_vars,
                 'multicastSessions',
                 'msID',
+                $columns,
+                $tasksSqlStr,
+                $tasksFilterStr,
+                $tasksTotalStr,
+                $where
+            )
+        );
+        exit;
+    }
+    /**
+     * Get the active snapin tasks
+     *
+     * @return void
+     */
+    public function getActiveSnapinTasks()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $activestates = [
+            'queued',
+            'checked in',
+            'in-progress'
+        ];
+
+        $where = "`taskStates`.`tsName` IN ('"
+            . implode("','", $activestates)
+            . "') AND `taskTypes`.`ttName` IN ('All Snapins','Single Snapin')";
+
+        $tasksSqlStr = "SELECT `%s`
+            FROM `%s`
+            CROSS JOIN `taskTypes`
+            LEFT OUTER JOIN `taskStates`
+            ON `snapinTasks`.`stState` = `taskStates`.`tsID`
+            LEFT OUTER JOIN `snapinJobs`
+            ON `snapinTasks`.`stJobID` = `snapinJobs`.`sjID`
+            LEFT OUTER JOIN `hosts`
+            ON `snapinJobs`.`sjHostID` = `hosts`.`hostID`
+            LEFT OUTER JOIN `snapins`
+            ON `snapinTasks`.`stSnapinID` = `snapins`.`sID`
+            %s
+            %s
+            %s";
+        $tasksFilterStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            CROSS JOIN `taskTypes`
+            LEFT OUTER JOIN `taskStates`
+            ON `snapinTasks`.`stState` = `taskStates`.`tsID`
+            LEFT OUTER JOIN `snapinJobs`
+            ON `snapinTasks`.`stJobID` = `snapinJobs`.`sjID`
+            LEFT OUTER JOIN `hosts`
+            ON `snapinJobs`.`sjHostID` = `hosts`.`hostID`
+            LEFT OUTER JOIN `snapins`
+            ON `snapinTasks`.`stSnapinID` = `snapins`.`sID`
+            %s";
+        $tasksTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            CROSS JOIN `taskTypes`
+            LEFT OUTER JOIN `taskStates`
+            ON `snapinTasks`.`stState` = `taskStates`.`tsID`
+            LEFT OUTER JOIN `snapinJobs`
+            ON `snapinTasks`.`stJobID` = `snapinJobs`.`sjID`
+            LEFT OUTER JOIN `hosts`
+            ON `snapinJobs`.`sjHostID` = `hosts`.`hostID`
+            LEFT OUTER JOIN `snapins`
+            ON `snapinTasks`.`stSnapinID` = `snapins`.`sID`
+            WHERE $where";
+        foreach (self::getClass('SnapinTaskManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        foreach (self::getClass('TaskTypeManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => 'tasktype'.$common
+            ];
+            unset($real);
+        }
+        foreach (self::getClass('TaskStateManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => 'taskstate'.$common
+            ];
+            unset($real);
+        }
+        foreach (self::getClass('HostManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => 'host'.$common
+            ];
+            unset($real);
+        }
+        foreach (self::getClass('SnapinManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => 'snapin'.$common
+            ];
+            unset($real);
+        }
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'snapinTasks',
+                'stID',
                 $columns,
                 $tasksSqlStr,
                 $tasksFilterStr,
@@ -528,45 +648,87 @@ class TaskManagement extends FOGPage
      */
     public function activesnapinsPost()
     {
-        $SnapinTaskIDs = (array)$_POST['task'];
-        if (count($SnapinTaskIDs) > 0) {
+        header('Content-type: application/json');
+        self::$HookManager->processEvent(
+            'TASK_ACTIVESNAPIN'
+        );
+        $serverFault = false;
+        try {
+            if (isset($_POST['cancelconfirm'])) {
+                $tasks = filter_input_array(
+                    INPUT_POST,
+                    [
+                        'tasks' => [
+                            'flags' => FILTER_REQUIRE_ARRAY
+                        ]
+                    ]
+                );
+            }
+            $tasks = $tasks['tasks'];
             $SnapinJobIDs = self::getSubObjectIDs(
                 'SnapinTask',
-                ['id' => $SnapinTaskIDs],
+                ['id' => $tasks],
                 'jobID'
             );
-            self::getClass('SnapinTaskManager')->cancel($SnapinTaskIDs);
-        }
-        if (count($SnapinJobIDs) > 0) {
-            $HostIDs = self::getSubObjectIDs(
-                'SnapinJob',
-                ['id' => $SnapinJobIDs],
-                'hostID'
-            );
-        }
-        if (count($HostIDs) > 0) {
-            $SnapTaskIDs = self::getSubObjectIDs(
-                'SnapinTask',
-                ['jobID' => $SnapinJobIDs]
-            );
-            $TaskIDs = array_diff(
-                $SnapTaskIDs,
-                $SnapinTaskIDs
-            );
-        }
-        if (count($TaskIDs) < 1) {
-            $TaskIDs = self::getSubObjectIDs(
-                'Task',
-                [
-                    'hostID' => $HostIDs,
-                    'typeID' => [
-                        12,
-                        13
+            self::getClass('SnapinTaskManager')->cancel($tasks);
+            if (count($SnapinJobIDs) > 0) {
+                $HostIDs = self::getSubObjectIDs(
+                    'SnapinJob',
+                    ['id' => $SnapinJobIDs],
+                    'hostID'
+                );
+            }
+            if (count($HostIDs) > 0) {
+                $SnapTaskIDs = self::getSubObjectIDs(
+                    'SnapinTask',
+                    ['jobID' => $SnapinJobIDs]
+                );
+                $TaskIDs = array_diff(
+                    $SnapTaskIDs,
+                    $SnapinTaskIDs
+                );
+            }
+            if (count($TaskIDs) < 1) {
+                $TaskIDs = self::getSubObjectIDs(
+                    'Task',
+                    [
+                        'hostID' => $HostIDs,
+                        'typeID' => [
+                            12,
+                            13
+                        ]
                     ]
+                );
+                self::getClass('TaskManager')->cancel($TaskIDs);
+            }
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            $hook = 'TASK_CANCEL_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Selected tasks cancelled!'),
+                    'title' => _('Task Cancel Success')
                 ]
             );
-            self::getClass('TaskManager')->cancel($TaskIDs);
+        } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'TASK_CANCEL_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Task Cancel Fail')
+                ]
+            );
         }
+        http_response_code($code);
+        self::$HookManager
+            ->processEvent(
+                $hook
+            );
+        echo $msg;
         exit;
     }
     /**
