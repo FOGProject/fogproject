@@ -26,7 +26,6 @@
             {data: 'taskType'},
             {data: 'starttime'},
             {data: 'isActive'},
-            {data: 'taskstatename'},
             {data: 'type'}
         ],
         rowId: 'id',
