@@ -96,12 +96,8 @@ class AddTaskstateeditMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        self::arrayInsertAfter(
-            'task',
-            $arguments['main'],
-            $this->node,
-            [_('Task States'), 'fa fa-hourglass-start']
-        );
+        $arguments['main'][$this->node]
+            = [_('Task States'), 'fa fa-hourglass-start'];
     }
     /**
      * Adds search element.

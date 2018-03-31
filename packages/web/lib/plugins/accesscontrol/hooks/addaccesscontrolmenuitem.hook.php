@@ -101,18 +101,10 @@ class AddAccessControlMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        self::arrayInsertAfter(
-            'storagegroup',
-            $arguments['main'],
-            $this->node,
-            [_('Access Controls'), 'fa fa-user-secret']
-        );
-        self::arrayInsertAfter(
-            $this->node,
-            $arguments['main'],
-            'accesscontrolrule',
-            [_('Access Control Rules'), 'fa fa-user-times']
-        );
+        $arguments['main'][$this->node]
+            = [_('Access Controls'), 'fa fa-user-secret'];
+        $arguments['main']['accesscontrolrule']
+            = [_('Access Control Rules'), 'fa fa-user-times'];
     }
     /**
      * Adds the Access Control page to search elements.

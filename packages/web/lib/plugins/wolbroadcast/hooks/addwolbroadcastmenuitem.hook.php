@@ -94,12 +94,7 @@ class AddWOLBroadcastMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        self::arrayInsertAfter(
-            'storagegroup',
-            $arguments['main'],
-            $this->node,
-            [_('WOL Broadcasts'), 'fa fa-plug']
-        );
+        $arguments['main'][$this->node] = [_('WOL Broadcasts'), 'fa fa-plug'];
     }
     /**
      * Adds the wol page to search elements.

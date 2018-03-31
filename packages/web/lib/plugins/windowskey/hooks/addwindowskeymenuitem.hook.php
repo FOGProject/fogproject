@@ -94,12 +94,7 @@ class AddWindowsKeyMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        self::arrayInsertAfter(
-            'storagegroup',
-            $arguments['main'],
-            $this->node,
-            [_('Windows Keys'), 'fa fa-windows']
-        );
+        $arguments['main'][$this->node] = [_('Windows Keys'), 'fa fa-windows'];
     }
     /**
      * Adds the windows key page to search elements.
