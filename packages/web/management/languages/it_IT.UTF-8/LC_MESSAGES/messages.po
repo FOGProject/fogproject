@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-31 17:26-0400\n"
+"POT-Creation-Date: 2018-03-31 17:59-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3267,6 +3267,17 @@ msgstr "mese"
 
 msgid "weekday"
 msgstr ""
+
+msgid "Create tasking succeeded"
+msgstr ""
+
+#, fuzzy
+msgid "Create Task Success"
+msgstr "Creazione utente riuscita"
+
+#, fuzzy
+msgid "Create Task Fail"
+msgstr "Creazione utente fallita"
 
 msgid "Import Reports"
 msgstr "Importa Report"
