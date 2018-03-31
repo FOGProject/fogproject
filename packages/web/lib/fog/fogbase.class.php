@@ -654,6 +654,9 @@ abstract class FOGBase
      */
     protected static function getActivePlugins()
     {
+        if (!self::getSetting('FOG_PLUGINSYS_ENABLED')) {
+            return [];
+        }
         self::getClass('Plugin')->getPlugins();
         $plugins = self::getSubObjectIDs(
             'Plugin',
