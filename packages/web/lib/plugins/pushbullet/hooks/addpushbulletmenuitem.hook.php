@@ -78,12 +78,7 @@ class AddPushbulletMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        self::arrayInsertAfter(
-            'task',
-            $arguments['main'],
-            $this->node,
-            [_('Pushbullet Accounts'), 'fa fa-bell']
-        );
+        $arguments['main'][$this->node] = [_('Pushbullet Accounts'), 'fa fa-bell'];
     }
     /**
      * Adds the pushbullet page to objects elements.

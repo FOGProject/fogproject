@@ -96,12 +96,7 @@ class AddLocationMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        self::arrayInsertAfter(
-            'storagegroup',
-            $arguments['main'],
-            $this->node,
-            [_('Locations'), 'fa fa-globe']
-        );
+        $arguments['main'][$this->node] = [_('Locations'), 'fa fa-globe'];
         $Service = self::getClass('Service')
             ->set(
                 'name',

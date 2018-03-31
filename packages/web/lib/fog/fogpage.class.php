@@ -425,13 +425,14 @@ abstract class FOGPage extends FOGBase
             SORT_REGULAR
         );
 
-        $hookMenu = (new ArrayObject($menu))->getArrayCopy();
+        $hookMenu = [];
 
-        self::$HookManager
-            ->processEvent(
-                'MAIN_MENU_DATA',
-                ['main' => &$hookMenu]
-            );
+        self::$HookManager->processEvent(
+            'MAIN_MENU_DATA',
+            ['main' => &$hookMenu]
+        );
+
+        natcasesort($hookMenu);
 
         foreach ($hookMenu as $key => &$value) {
             if (array_key_exists($key, $menu)) {

@@ -96,12 +96,7 @@ class AddOUMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        self::arrayInsertAfter(
-            'storagegroup',
-            $arguments['main'],
-            $this->node,
-            [_('OUs'), 'fa fa-bullseye']
-        );
+        $arguments['main'][$this->node] = [_('OUs'), 'fa fa-bullseye'];
     }
     /**
      * Adds the ou page to search elements.

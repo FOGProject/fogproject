@@ -94,12 +94,7 @@ class AddSiteMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        self::arrayInsertAfter(
-            'storagegroup',
-            $arguments['main'],
-            $this->node,
-            [_('Sites'), 'fa fa-building']
-        );
+        $arguments['main'][$this->node] = [_('Sites'), 'fa fa-building'];
     }
     /**
      * Adds the Site page to search elements.
