@@ -40,6 +40,12 @@ class Page extends FOGBase
      */
     protected $menu;
     /**
+     * The menu hook container
+     *
+     * @var mixed
+     */
+    protected $menuHook;
+    /**
      * The media container
      *
      * @var mixed
@@ -137,7 +143,7 @@ class Page extends FOGBase
         ];
         $this->isHomepage = in_array($node, $homepages)
             || !self::$FOGUser->isValid();
-        FOGPage::buildMainMenuItems($this->menu);
+        FOGPage::buildMainMenuItems($this->menu, $this->menuHook);
         $files = [
             'js/jquery.min.js',
             'js/lodash.min.js',
