@@ -25,24 +25,24 @@ var $_GET = getQueryParams(document.location.search),
         pluginOptionsAlt = $('.plugin-options-alternate');
 
     // Animate the plugin items.
-    pluginOptionsAlt.on('click', function(event){
+    pluginOptionsAlt.on('click', function(event) {
         event.preventDefault();
-
+        whenDone = function() {
+            $(window).resize();
+        };
         if (pluginOptionsOpen) {
-            $('.plugin-options').slideUp();
+            $('.plugin-options').slideUp('fast', whenDone);
             $('.plugin-options-alternate .fa')
                 .removeClass('fa-minus')
                 .addClass('fa-plus');
         }
         if (!pluginOptionsOpen) {
-            $('.plugin-options').slideDown();
+            $('.plugin-options').slideDown('fast', whenDone);
             $('.plugin-options-alternate .fa')
                 .removeClass('fa-plus')
                 .addClass('fa-minus');
         }
         pluginOptionsOpen = !pluginOptionsOpen;
-
-        $(window).resize();
     });
 
     Common.debugLog = function(obj) {
