@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-31 17:26-0400\n"
+"POT-Creation-Date: 2018-03-31 17:59-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3432,6 +3432,17 @@ msgstr "每月一次"
 
 msgid "weekday"
 msgstr ""
+
+msgid "Create tasking succeeded"
+msgstr ""
+
+#, fuzzy
+msgid "Create Task Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Create Task Fail"
+msgstr "用户创建"
 
 #, fuzzy
 msgid "Import Reports"

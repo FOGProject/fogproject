@@ -4733,6 +4733,55 @@ class HostManagement extends FOGPage
         }
     }
     /**
+     * Actually creates the tasking.
+     *
+     * @return void
+     */
+    public function deployPost()
+    {
+        header('Content-type: application/json');
+        self::$HookManager->processEvent('HOST_DEPLOY_POST');
+
+        $serverFault = false;
+        try {
+            $code = HTTPResponseCodes::HTTP_CREATED;
+            $hook = 'HOST_DEPLOY_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Create tasking succeeded'),
+                    'title' => _('Create Task Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'HOST_DEPLOY_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Create Task Fail')
+                ]
+            );
+        }
+
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Host' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
+        http_response_code($code);
+        echo $msg;
+        exit;
+    }
+    /**
      * Get the login history for this host.
      *
      * @return void

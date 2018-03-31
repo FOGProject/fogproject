@@ -2805,4 +2805,53 @@ class GroupManagement extends FOGPage
             );
         }
     }
+    /**
+     * Actually creates the tasking.
+     *
+     * @return void
+     */
+    public function deployPost()
+    {
+        header('Content-type: application/json');
+        self::$HookManager->processEvent('GROUP_DEPLOY_POST');
+
+        $serverFault = false;
+        try {
+            $code = HTTPResponseCodes::HTTP_CREATED;
+            $hook = 'GROUP_DEPLOY_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Create tasking succeeded'),
+                    'title' => _('Create Task Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'GROUP_DEPLOY_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Create Task Fail')
+                ]
+            );
+        }
+
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Group' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
+        http_response_code($code);
+        echo $msg;
+        exit;
+    }
 }
