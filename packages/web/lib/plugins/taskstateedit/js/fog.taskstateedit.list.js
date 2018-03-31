@@ -35,7 +35,6 @@
             },
             {
                 render: function(data, type, row) {
-                    console.log(data);
                     return '<i class="fa fa-'
                         + data
                         + '"></i>';

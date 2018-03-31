@@ -923,7 +923,8 @@ class TaskManagement extends FOGPage
                         ]
                     ]
                 );
-                self::getClass('ScheduledTaskManager')->destroy($tasks);
+                $tasks = $tasks['tasks'];
+                self::getClass('ScheduledTaskManager')->cancel($tasks);
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'TASK_CANCEL_SUCCESS';
