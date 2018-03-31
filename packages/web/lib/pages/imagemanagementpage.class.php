@@ -1659,6 +1659,9 @@ class ImageManagementPage extends FOGPage
             if (!$name) {
                 throw new Exception(_('Please input a session name'));
             }
+            if (count($count) < 1) {
+                $count = self::getClass('HostManager')->count();
+            }
             if (!$image) {
                 throw new Exception(_('Please choose an image'));
             }
