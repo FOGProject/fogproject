@@ -141,9 +141,12 @@ if (self::$FOGUser->isValid()) {
     echo $this->menu;
     echo '<li class="header">';
     echo _('PLUGIN OPTIONS');
-    echo '</li>';
+    echo '<a href="#" class="plugin-options-alternate" onclick="return false;">';
+    echo '<i class="fa fa-minus"></i>';
+    echo '</a></li>';
+    echo '<div class="sidebar-menu plugin-options">';
     echo $this->menuHook;
-    echo '<li class="header">'
+    echo '</div><li class="header">'
         . _('RESOURCES')
         . '</li>';
     echo '<li>';

@@ -633,3 +633,36 @@ function setupBandwidth() {
         height: '150px'
     });
 }
+
+$(document).ready(function(){
+  var pluginOptionsOpen = true;
+  var pluginOptionsAnimating = false;
+  var pluginOptionsHeight = $(".sidebar-menu.plugin-options").height();
+
+  $(".plugin-options-alternate").click(function(event){
+    event.preventDefault();
+
+    if(pluginOptionsAnimating){
+      return false;
+    }
+
+    pluginOptionsAnimating = true;
+    $(".sidebar-menu.plugin-options").animate({
+    	height: (pluginOptionsOpen ? 0 : pluginOptionsHeight)
+    }, "fast", function(){
+    	pluginOptionsOpen = !pluginOptionsOpen;
+      pluginOptionsAnimating = false;
+
+      $(".plugin-options-alternate .fa")
+        .removeClass('fa-minus')
+        .removeClass('fa-plus');
+
+      $(".plugin-options-alternate .fa")
+        .addClass(pluginOptionsOpen ? 'fa-minus' : 'fa-plus');
+
+      // To force the admin panel page to resize.
+      $(window).resize();
+    });
+
+  });
+});
