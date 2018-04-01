@@ -110,6 +110,83 @@
     });
 
     // ---------------------------------------------------------------
+    // TASKS TAB
+    var taskItem = $('.taskitem'),
+        taskModal = $('#task-modal');
+    taskItem.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('href');
+        Pace.track(function() {
+            $.ajax({
+                type: 'get',
+                url: method,
+                dataType: 'json',
+                success: function(data, textStatus, jqXHR) {
+                    taskModal.modal('show');
+                    $('#task-form-holder').empty().html($.parseHTML(data.msg));
+                    Common.iCheck('#task-form-holder input');
+                    var scheduleType = $('input[name="scheduleType"]'),
+                        groupDeployForm = $('#group-deploy-form'),
+                        minutes = $('#cronMin', groupDeployForm),
+                        hours = $('#cronHour', groupDeploy),
+                        dom = $('#cronDom', groupDeploy),
+                        month = $('#cronMonth', groupDeploy),
+                        dow = $('#cronDow', groupDeploy),
+                        createTaskBtn = $('#tasking-send');
+
+                    $(document).on('ifChecked', '#checkdebug', function(e) {
+                        e.preventDefault();
+                        $('.hideFromDebug,.delayedinput,.croninput').addClass('hidden');
+                        $('.instant').iCheck('check');
+                    }).on('ifUnchecked', '#checkdebug', function(e) {
+                        e.preventDefault();
+                        $('.hideFromDebug').removeClass('hidden');
+                    }).on('ifClicked', 'input[name="scheduleType"]', function(e) {
+                        e.preventDefault();
+                        switch (this.value) {
+                            case 'instant':
+                                $('.delayedinput,.croninput').addClass('hidden');
+                                break;
+                            case 'single':
+                                $('.delayedinput').removeClass('hidden');
+                                $('.croninput').addClass('hidden');
+                                break;
+                            case 'cron':
+                                $('.delayedinput').addClass('hidden');
+                                $('.croninput').removeClass('hidden');
+                                break;
+                        }
+                    }).on('click', '#tasking-send', function(e) {
+                        e.preventDefault();
+                        var form = $('#group-deploy-form');
+                        Common.processForm(form, function(err) {
+                            $(document).find('#host-deploy-form').remove();
+                            if (err) {
+                                return;
+                            }
+                            taskModal.modal('hide');
+                        });
+                    });
+                    $('.fogcron').cron({
+                        initial: '* * * * *',
+                        onChange: function() {
+                            vals = $(this).cron('value').spit(' ');
+                            minutes.val(vals[0]);
+                            hours.val(vals[1]);
+                            dom.val(vals[2]);
+                            month.val(vals[3]);
+                            dow.val(vals[4]);
+                        }
+                    });
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    Common.notifyFromApI(jqXHR.responseJSON, true);
+                }
+            });
+        });
+    });
+
+    // ---------------------------------------------------------------
     // ACTIVE DIRECTORY TAB
     var ADForm = $('#active-directory-form'),
         ADFormBtn = $('#ad-send'),

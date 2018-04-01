@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-01 13:51-0400\n"
+"POT-Creation-Date: 2018-04-01 15:09-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3348,6 +3348,10 @@ msgid "Client Module Settings"
 msgstr "设置"
 
 #, fuzzy
+msgid "Create new tasking"
+msgstr "新建%s"
+
+#, fuzzy
 msgid "Advanced Tasks"
 msgstr "高级"
 
@@ -3409,9 +3413,6 @@ msgstr "调度"
 msgid "Schedule Crontab Style"
 msgstr "调度"
 
-msgid "Special Crons"
-msgstr ""
-
 msgid "Cron Entry"
 msgstr ""
 
@@ -3432,6 +3433,14 @@ msgstr "每月一次"
 
 msgid "weekday"
 msgstr ""
+
+#, fuzzy
+msgid "Create task form success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Create task form fail"
+msgstr "用户创建"
 
 #, fuzzy
 msgid "No hosts available to be tasked"
@@ -4992,10 +5001,6 @@ msgid "Host Add to Group Fail"
 msgstr "添加到组"
 
 #, fuzzy
-msgid "Create new tasking"
-msgstr "新建%s"
-
-#, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "无法设置taskings未决的或无效的项目"
 
@@ -5010,14 +5015,6 @@ msgstr "图片未启用"
 #, fuzzy
 msgid "Assigned image is protected"
 msgstr "未选择或项目被保护"
-
-#, fuzzy
-msgid "Create task form success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Create task form fail"
-msgstr "用户创建"
 
 #, fuzzy
 msgid "Pending hosts cannot be tasked"
@@ -6466,6 +6463,10 @@ msgid "Failed to create Snapin Job"
 msgstr "无法创建管理单元工作"
 
 #, fuzzy
+msgid "Unable to update task"
+msgstr "无法更新任务"
+
+#, fuzzy
 msgid "Could not find any"
 msgstr "找不到临时文件名"
 
@@ -6474,8 +6475,19 @@ msgid "nodes containing this image"
 msgstr "找不到包含该图像的任何节点"
 
 #, fuzzy
+msgid "Could not update host"
+msgstr "无法更新"
+
+#, fuzzy
 msgid "Failed to create multicast task"
 msgstr "无法创建任务"
+
+#, fuzzy
+msgid "Unable to create association"
+msgstr "无法创建会话"
+
+msgid "BreakPoint"
+msgstr ""
 
 #, fuzzy
 msgid "No valid Image defined for this host"
@@ -6832,6 +6844,10 @@ msgstr "在任务主机"
 #, fuzzy
 msgid "Unable to find master Storage Node"
 msgstr "未能摧毁存储节点"
+
+#, fuzzy
+msgid "No nodes available"
+msgstr "没有可用的散列"
 
 msgid "No FOGPage Class found for this node"
 msgstr "没有FOGPage类中找到此节点"

@@ -359,11 +359,10 @@
                 dataType: 'json',
                 success: function(data, textStatus, jqXHR) {
                     taskModal.modal('show');
-                    $('#task-form-holder').html($.parseHTML(data.msg));
+                    $('#task-form-holder').empty().html($.parseHTML(data.msg));
                     Common.iCheck('#task-form-holder input');
                     var scheduleType = $('input[name="scheduleType"]'),
                         hostDeployForm = $('#host-deploy-form'),
-                        debugCheck = $('#checkdebug'),
                         minutes = $('#cronMin', hostDeployForm),
                         hours = $('#cronHour', hostDeployForm),
                         dom = $('#cronDom', hostDeployForm),
@@ -400,6 +399,7 @@
                             if (err) {
                                 return;
                             }
+                            $('#task-form-holder').empty();
                             taskModal.modal('hide');
                         });
                     });

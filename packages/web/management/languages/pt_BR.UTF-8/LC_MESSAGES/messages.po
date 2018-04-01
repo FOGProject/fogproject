@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-01 13:51-0400\n"
+"POT-Creation-Date: 2018-04-01 15:09-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3355,6 +3355,10 @@ msgid "Client Module Settings"
 msgstr "Configurações"
 
 #, fuzzy
+msgid "Create new tasking"
+msgstr "Criar novo %s"
+
+#, fuzzy
 msgid "Advanced Tasks"
 msgstr "avançado"
 
@@ -3416,9 +3420,6 @@ msgstr "Scheduler"
 msgid "Schedule Crontab Style"
 msgstr "Scheduler"
 
-msgid "Special Crons"
-msgstr ""
-
 msgid "Cron Entry"
 msgstr ""
 
@@ -3439,6 +3440,14 @@ msgstr "Por mês"
 
 msgid "weekday"
 msgstr ""
+
+#, fuzzy
+msgid "Create task form success"
+msgstr "usuário criado"
+
+#, fuzzy
+msgid "Create task form fail"
+msgstr "usuário criado"
 
 #, fuzzy
 msgid "No hosts available to be tasked"
@@ -5000,10 +5009,6 @@ msgid "Host Add to Group Fail"
 msgstr "Adicionar ao grupo"
 
 #, fuzzy
-msgid "Create new tasking"
-msgstr "Criar novo %s"
-
-#, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "Não é possível definir taskings para pendente ou artigos inválidos"
 
@@ -5018,14 +5023,6 @@ msgstr "A imagem não está habilitado"
 #, fuzzy
 msgid "Assigned image is protected"
 msgstr "Nenhuma selecionada ou item é protegido"
-
-#, fuzzy
-msgid "Create task form success"
-msgstr "usuário criado"
-
-#, fuzzy
-msgid "Create task form fail"
-msgstr "usuário criado"
 
 #, fuzzy
 msgid "Pending hosts cannot be tasked"
@@ -6478,6 +6475,10 @@ msgid "Failed to create Snapin Job"
 msgstr "Falha ao criar Snapin Job"
 
 #, fuzzy
+msgid "Unable to update task"
+msgstr "Falha ao atualizar tarefa"
+
+#, fuzzy
 msgid "Could not find any"
 msgstr "Não foi possível encontrar temporário filename"
 
@@ -6486,8 +6487,19 @@ msgid "nodes containing this image"
 msgstr "Não foi possível encontrar todos os nós que contêm esta imagem"
 
 #, fuzzy
+msgid "Could not update host"
+msgstr "Falha ao atualizar"
+
+#, fuzzy
 msgid "Failed to create multicast task"
 msgstr "Falha ao criar tarefa"
+
+#, fuzzy
+msgid "Unable to create association"
+msgstr "Falha ao criar sessão"
+
+msgid "BreakPoint"
+msgstr ""
 
 #, fuzzy
 msgid "No valid Image defined for this host"
@@ -6846,6 +6858,10 @@ msgstr "Hotéis em Task"
 #, fuzzy
 msgid "Unable to find master Storage Node"
 msgstr "Falha ao destruir Storage Node"
+
+#, fuzzy
+msgid "No nodes available"
+msgstr "Nenhum de hash disponíveis"
 
 msgid "No FOGPage Class found for this node"
 msgstr "Sem FOGPage classe encontrada para este nó"

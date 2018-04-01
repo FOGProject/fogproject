@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-01 13:51-0400\n"
+"POT-Creation-Date: 2018-04-01 15:12-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2930,6 +2930,9 @@ msgstr ""
 msgid "Client Module Settings"
 msgstr ""
 
+msgid "Create new tasking"
+msgstr ""
+
 msgid "Advanced Tasks"
 msgstr ""
 
@@ -2978,9 +2981,6 @@ msgstr ""
 msgid "Schedule Crontab Style"
 msgstr ""
 
-msgid "Special Crons"
-msgstr ""
-
 msgid "Cron Entry"
 msgstr ""
 
@@ -2997,6 +2997,12 @@ msgid "month"
 msgstr ""
 
 msgid "weekday"
+msgstr ""
+
+msgid "Create task form success"
+msgstr ""
+
+msgid "Create task form fail"
 msgstr ""
 
 msgid "No hosts available to be tasked"
@@ -4309,9 +4315,6 @@ msgstr ""
 msgid "Host Add to Group Fail"
 msgstr ""
 
-msgid "Create new tasking"
-msgstr ""
-
 msgid "Cannot task pending hosts"
 msgstr ""
 
@@ -4322,12 +4325,6 @@ msgid "Assigned image is not enabled"
 msgstr ""
 
 msgid "Assigned image is protected"
-msgstr ""
-
-msgid "Create task form success"
-msgstr ""
-
-msgid "Create task form fail"
 msgstr ""
 
 msgid "Pending hosts cannot be tasked"
@@ -5558,13 +5555,25 @@ msgstr ""
 msgid "Failed to create Snapin Job"
 msgstr ""
 
+msgid "Unable to update task"
+msgstr ""
+
 msgid "Could not find any"
 msgstr ""
 
 msgid "nodes containing this image"
 msgstr ""
 
+msgid "Could not update host"
+msgstr ""
+
 msgid "Failed to create multicast task"
+msgstr ""
+
+msgid "Unable to create association"
+msgstr ""
+
+msgid "BreakPoint"
 msgstr ""
 
 msgid "No valid Image defined for this host"
@@ -5865,6 +5874,9 @@ msgid "No hosts available to task"
 msgstr ""
 
 msgid "Unable to find master Storage Node"
+msgstr ""
+
+msgid "No nodes available"
 msgstr ""
 
 msgid "No FOGPage Class found for this node"
