@@ -1271,7 +1271,7 @@ class Host extends FOGController
         $sessionjoin = false,
         $wol = false
     ) {
-        $stat = true;
+        $serverFault = false;
         try {
             if (!$this->isValid()) {
                 throw new Exception(self::$foglang['HostNotValid']);
@@ -1307,7 +1307,11 @@ class Host extends FOGController
                                 ->set(
                                     'typeID',
                                     12
-                                )->save();
+                                );
+                            if (!$Task->save()) {
+                                $serverFault = true;
+                                throw new Exception(_('Unable to update task'));
+                            }
                         }
                     } elseif ($TaskType->get('id') == '12') {
                         $this->_cancelJobsSnapinsForHost();
@@ -1363,7 +1367,11 @@ class Host extends FOGController
                     $this->set(
                         'imageID',
                         array_shift($realImageID)
-                    )->save();
+                    );
+                    if ($this->save()) {
+                        $serverFault = true;
+                        throw new Exception(_('Could not update host'));
+                    }
                 }
                 $this->set('imageID', $imageTaskImgID);
             }
@@ -1383,8 +1391,8 @@ class Host extends FOGController
                     $wol
                 );
                 $Task->set('imageID', $this->get('imageID'));
-                $stat = $Task->save();
-                if (!$stat) {
+                if (!$Task->save()) {
+                    $serverFault = true;
                     throw new Exception(self::$foglang['FailedTask']);
                 }
                 $this->set('task', $Task);
@@ -1461,8 +1469,8 @@ class Host extends FOGController
                         ->set('isDD', $this->getImage()->get('imageTypeID'))
                         ->set('storagegroupID', $StorageNode->get('storagegroupID'))
                         ->set('clients', -1);
-                    $stat = $MulticastSession->save();
-                    if (!$stat) {
+                    if (!$MulticastSession->save()) {
+                        $serverFault = true;
                         throw new Exception(_('Failed to create multicast task'));
                     }
                     $assoc = true;
@@ -1484,18 +1492,39 @@ class Host extends FOGController
                         ->set('msID', $MulticastSession->get('id'))
                         ->set('taskID', $Task->get('id'))
                         ->save();
+                    if (!$stat) {
+                        $serverFault = true;
+                        throw new Exception(_('Unable to create association'));
+                    }
                 }
             }
             if ($wol) {
                 $this->wakeOnLAN();
             }
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            if ($serverFault) {
+                http_response_code(HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR);
+                echo json_encode(
+                    [
+                        'error' => $e->getMessage(),
+                        'title' => _('Create Task Fail')
+                    ]
+                );
+                exit;
+            }
+            http_response_code(HTTPResponseCodes::HTTP_BAD_REQUEST);
+            echo json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Create Task Fail')
+                ]
+            );
+            exit;
         }
         if ($taskTypeID == 14) {
             $Task->destroy();
         }
-        return $stat;
+        return true;
     }
     /**
      * Returns task if host image is valid

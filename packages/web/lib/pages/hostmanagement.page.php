@@ -4339,6 +4339,23 @@ class HostManagement extends FOGPage
         $advanced = self::stripedTable($data);
         unset($data);
         unset($items);
+        $modalApprovalBtns = self::makeButton(
+            'tasking-send',
+            _('Create'),
+            'btn btn-primary pull-right'
+        );
+        $modalApprovalBtns .= self::makeButton(
+            'tasking-close',
+            _('Cancel'),
+            'btn btn-solid pull-left',
+            'data-dismiss="modal"'
+        );
+        $taskModal = self::makeModal(
+            'task-modal',
+            _('Create new tasking'),
+            '<div id="task-form-holder"></div>',
+            $modalApprovalBtns
+        );
 
         echo '<div class="box box-solid" id="host-tasks">';
         echo '<div class="box-body">';
@@ -4387,6 +4404,9 @@ class HostManagement extends FOGPage
         echo '</div>';
 
         echo '</div>';
+        echo '<div class="box-footer">';
+        echo $taskModal;
+        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
@@ -4397,6 +4417,7 @@ class HostManagement extends FOGPage
      */
     public function deploy()
     {
+        header('Content-type: application/json');
         global $type;
         global $id;
 
@@ -4634,14 +4655,14 @@ class HostManagement extends FOGPage
                             'cron'
                         )
                         . '</div>',
-                        '<div class="croninput hidden">'
+                        '&nbsp;&nbsp;'
                         . self::makeLabel(
-                            $labelClass,
-                            'specialCrons',
-                            _('Special Crons')
-                        ) => FOGCron::buildSpecialCron('specialCrons')
-                        . '</div>',
-                        '<div class="croninput hidden">'
+                            'control-label',
+                            '',
+                            '<div class="croninput fogcron hidden"></div>'
+                            . '<br/>'
+                        )
+                        . '<div class="croninput hidden">'
                         . self::makeLabel(
                             $labelClass,
                             '',
@@ -4686,11 +4707,6 @@ class HostManagement extends FOGPage
                 );
             }
 
-            $buttons = self::makeButton(
-                'tasking-send',
-                _('Create'),
-                'btn btn-primary'
-            );
             self::$HookManager->processEvent(
                 'HOST_CREATE_TASKING',
                 [
@@ -4701,6 +4717,7 @@ class HostManagement extends FOGPage
             );
             $rendered = self::formFields($fields);
             unset($fields);
+            ob_start();
             echo self::makeFormTag(
                 'form-horizontal',
                 'host-deploy-form',
@@ -4709,28 +4726,28 @@ class HostManagement extends FOGPage
                 'application/x-www-form-url-encoded',
                 true
             );
-            echo '<div class="box box-solid">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
-            echo $this->title;
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="box-body">';
             echo $rendered;
-            echo '</div>';
-            echo '<div class="box-footer">';
             echo $buttons;
-            echo '</div>';
-            echo '</div>';
             echo '</form>';
-        } catch (Exception $e) {
-            echo self::displayAlert(
-                'Tasking Cannot Occur',
-                $e->getMessage(),
-                'warning',
-                false
+            $msg = json_encode(
+                [
+                    'msg' => ob_get_clean(),
+                    'title' => _('Create task form success')
+                ]
             );
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
+        } catch (Exception $e) {
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Create task form fail')
+                ]
+            );
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
         }
+        http_response_code($code);
+        echo $msg;
+        exit;
     }
     /**
      * Actually creates the tasking.
@@ -4818,13 +4835,13 @@ class HostManagement extends FOGPage
                 'SCHEDULE_TYPES',
                 ['scheduleTypes' => &$scheduleTypes]
             );
-            foreach ($scheduleTypes as $ind => &$type) {
+            foreach ($scheduleTypes as $ind => &$val) {
                 $scheduleTypes[$ind] = trim(
                     strtolower(
-                        $type
+                        $val
                     )
                 );
-                unset($type);
+                unset($val);
             }
             if (!in_array($scheduleType, $scheduleTypes)) {
                 throw new Exception(_('Invalid scheduling type'));
@@ -4897,7 +4914,7 @@ class HostManagement extends FOGPage
             // Actually create tasking
             if ($scheduleType == 'instant') {
                 $this->obj->createImagePackage(
-                    $type,
+                    $TaskType->get('id'),
                     $taskName,
                     $enableShutdown,
                     $enableDebug,

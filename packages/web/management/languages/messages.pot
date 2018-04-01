@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-31 19:52-0400\n"
+"POT-Creation-Date: 2018-04-01 13:51-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4309,6 +4309,9 @@ msgstr ""
 msgid "Host Add to Group Fail"
 msgstr ""
 
+msgid "Create new tasking"
+msgstr ""
+
 msgid "Cannot task pending hosts"
 msgstr ""
 
@@ -4319,6 +4322,12 @@ msgid "Assigned image is not enabled"
 msgstr ""
 
 msgid "Assigned image is protected"
+msgstr ""
+
+msgid "Create task form success"
+msgstr ""
+
+msgid "Create task form fail"
 msgstr ""
 
 msgid "Pending hosts cannot be tasked"
