@@ -359,8 +359,7 @@
                 dataType: 'json',
                 success: function(data, textStatus, jqXHR) {
                     taskModal.modal('show');
-                    $('#task-form-holder').empty().html($.parseHTML(data.msg));
-                    Common.iCheck('#task-form-holder input');
+                    $('#task-form-holder').html($.parseHTML(data.msg));
                     var scheduleType = $('input[name="scheduleType"]'),
                         hostDeployForm = $('#host-deploy-form'),
                         minutes = $('#cronMin', hostDeployForm),
@@ -369,6 +368,7 @@
                         month = $('#cronMonth', hostDeployForm),
                         dow = $('#cronDow', hostDeployForm),
                         createTaskBtn = $('#tasking-send');
+                    Common.iCheck('#task-form-holder input');
 
                     $(document).on('ifChecked', '#checkdebug', function(e) {
                         e.preventDefault();
@@ -394,19 +394,18 @@
                         }
                     }).on('click', '#tasking-send', function(e) {
                         e.preventDefault();
-                        var form = $('#host-deploy-form');
-                        Common.processForm(form, function(err) {
-                            form.remove();
+                        Common.processForm(hostDeployForm, function(err) {
                             if (err) {
                                 return;
                             }
-                            $('#task-form-holder').empty();
+                            hostDeployForm.remove();
+                            $('#task-form-holder').html('');
                             taskModal.modal('hide');
                         });
                     }).on('click', '#tasking-close', function(e) {
                         e.preventDefault();
-                        $('#host-deploy-form').remove();
-                        $('#task-form-holder').empty();
+                        hostDeployForm.remove();
+                        $('#task-form-holder').html('');
                         taskModal.modal('hide');
                     });
                     $('.fogcron').cron({

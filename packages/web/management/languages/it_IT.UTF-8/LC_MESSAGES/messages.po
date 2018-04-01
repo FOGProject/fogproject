@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-01 15:09-0400\n"
+"POT-Creation-Date: 2018-04-01 15:38-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -6384,6 +6384,10 @@ msgstr "Nessun host disponibile per task"
 
 msgid "Unable to find master Storage Node"
 msgstr "Impossibile trovare il Nodo Archiviazione master"
+
+#, fuzzy
+msgid "No master nodes available"
+msgstr "Percorso non disponibile"
 
 #, fuzzy
 msgid "No nodes available"

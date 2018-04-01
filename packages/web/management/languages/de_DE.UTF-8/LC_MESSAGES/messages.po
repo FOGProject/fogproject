@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-01 15:09-0400\n"
+"POT-Creation-Date: 2018-04-01 15:38-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -6867,6 +6867,10 @@ msgstr "Keine Hosts für Aufgaben (Task) verfügbar"
 #, fuzzy
 msgid "Unable to find master Storage Node"
 msgstr "Fehler beim Finden des Master Storage Nodes"
+
+#, fuzzy
+msgid "No master nodes available"
+msgstr "Pfad ist nicht verfügbar"
 
 #, fuzzy
 msgid "No nodes available"
