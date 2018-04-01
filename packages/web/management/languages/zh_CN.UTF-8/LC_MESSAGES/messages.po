@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-01 15:09-0400\n"
+"POT-Creation-Date: 2018-04-01 15:38-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6841,6 +6841,10 @@ msgstr "在任务主机"
 #, fuzzy
 msgid "Unable to find master Storage Node"
 msgstr "未能摧毁存储节点"
+
+#, fuzzy
+msgid "No master nodes available"
+msgstr "没有可用的散列"
 
 #, fuzzy
 msgid "No nodes available"

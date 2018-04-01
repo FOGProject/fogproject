@@ -226,14 +226,11 @@ class StorageGroup extends FOGController
         $StorageNodes = json_decode(
             Route::getData()
         );
-        foreach ($StorageNode->data as $StorageNode) {
+        foreach ($StorageNodes->data as $StorageNode) {
             if (!$StorageNode->online) {
                 continue;
             }
             if (!$StorageNode->isEnabled) {
-                continue;
-            }
-            if ($StorageNode->maxClients < 1) {
                 continue;
             }
             if ($masternode == null) {
@@ -243,7 +240,7 @@ class StorageGroup extends FOGController
             unset($StorageNode);
         }
         if (empty($masternode)) {
-            throw new Exception(_('No nodes available'));
+            throw new Exception(_('No master nodes available'));
         }
         return new StorageNode($masternode->id);
     }
