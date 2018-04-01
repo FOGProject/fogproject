@@ -6710,9 +6710,6 @@ msgstr "No se pudo crear la tarea"
 msgid "Unable to create association"
 msgstr "No se pudo crear Sesión"
 
-msgid "BreakPoint"
-msgstr ""
-
 #, fuzzy
 msgid "No valid Image defined for this host"
 msgstr "No se ha definido de este alojamiento imagen"

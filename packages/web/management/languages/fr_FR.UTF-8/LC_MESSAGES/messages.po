@@ -6509,9 +6509,6 @@ msgstr "Impossible de créer la tâche"
 msgid "Unable to create association"
 msgstr "Échec de la création Session"
 
-msgid "BreakPoint"
-msgstr ""
-
 #, fuzzy
 msgid "No valid Image defined for this host"
 msgstr "Pas d'image définie pour cet hôte"

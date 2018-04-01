@@ -6486,9 +6486,6 @@ msgstr "无法创建任务"
 msgid "Unable to create association"
 msgstr "无法创建会话"
 
-msgid "BreakPoint"
-msgstr ""
-
 #, fuzzy
 msgid "No valid Image defined for this host"
 msgstr "没有找到主机定义图片"
