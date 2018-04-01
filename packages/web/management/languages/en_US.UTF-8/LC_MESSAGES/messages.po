@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-01 13:51-0400\n"
+"POT-Creation-Date: 2018-04-01 15:09-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3352,6 +3352,10 @@ msgid "Client Module Settings"
 msgstr "Settings"
 
 #, fuzzy
+msgid "Create new tasking"
+msgstr "Create New %s"
+
+#, fuzzy
 msgid "Advanced Tasks"
 msgstr "Advanced"
 
@@ -3413,9 +3417,6 @@ msgstr "Scheduler"
 msgid "Schedule Crontab Style"
 msgstr "Scheduler"
 
-msgid "Special Crons"
-msgstr ""
-
 msgid "Cron Entry"
 msgstr ""
 
@@ -3436,6 +3437,14 @@ msgstr "Monthly"
 
 msgid "weekday"
 msgstr ""
+
+#, fuzzy
+msgid "Create task form success"
+msgstr "User created"
+
+#, fuzzy
+msgid "Create task form fail"
+msgstr "User created"
 
 #, fuzzy
 msgid "No hosts available to be tasked"
@@ -4996,10 +5005,6 @@ msgid "Host Add to Group Fail"
 msgstr "Add to group"
 
 #, fuzzy
-msgid "Create new tasking"
-msgstr "Create New %s"
-
-#, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "Cannot set taskings to pending or invalid items"
 
@@ -5014,14 +5019,6 @@ msgstr "Image is not enabled"
 #, fuzzy
 msgid "Assigned image is protected"
 msgstr "None selected or item is protected"
-
-#, fuzzy
-msgid "Create task form success"
-msgstr "User created"
-
-#, fuzzy
-msgid "Create task form fail"
-msgstr "User created"
 
 #, fuzzy
 msgid "Pending hosts cannot be tasked"
@@ -6472,6 +6469,10 @@ msgid "Failed to create Snapin Job"
 msgstr "Failed to create Snapin Job"
 
 #, fuzzy
+msgid "Unable to update task"
+msgstr "Failed to update task"
+
+#, fuzzy
 msgid "Could not find any"
 msgstr "Could not find temp filename"
 
@@ -6480,8 +6481,19 @@ msgid "nodes containing this image"
 msgstr "Could not find any nodes containing this image"
 
 #, fuzzy
+msgid "Could not update host"
+msgstr "Failed to update"
+
+#, fuzzy
 msgid "Failed to create multicast task"
 msgstr "Failed to create task"
+
+#, fuzzy
+msgid "Unable to create association"
+msgstr "Failed to create Session"
+
+msgid "BreakPoint"
+msgstr ""
 
 #, fuzzy
 msgid "No valid Image defined for this host"
@@ -6841,6 +6853,10 @@ msgstr "Hosts in Task"
 #, fuzzy
 msgid "Unable to find master Storage Node"
 msgstr "Failed to destroy Storage Node"
+
+#, fuzzy
+msgid "No nodes available"
+msgstr "No hash available"
 
 msgid "No FOGPage Class found for this node"
 msgstr "No FOGPage Class found for this node"

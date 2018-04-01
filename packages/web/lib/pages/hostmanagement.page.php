@@ -4727,7 +4727,6 @@ class HostManagement extends FOGPage
                 true
             );
             echo $rendered;
-            echo $buttons;
             echo '</form>';
             $msg = json_encode(
                 [
