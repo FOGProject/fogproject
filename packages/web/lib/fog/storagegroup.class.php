@@ -211,41 +211,41 @@ class StorageGroup extends FOGController
      */
     public function getMasterStorageNode()
     {
-        $masternode = self::getSubObjectIDs(
-            'StorageNode',
+        $getter = 'enablednodes';
+        if (count($this->get('enablednodes')) < 1) {
+            $getter = 'allnodes';
+        }
+        $masternode = null;
+        Route::listem(
+            'storagenode',
             [
-                'id' => $this->get('enablednodes'),
-                'isMaster' => 1,
+                'ngmID' => $this->get($getter),
+                'ngmIsMasterNode' => 1
             ]
         );
-        $masternode = array_shift($masternode);
-        if (!($masternode
-            && is_numeric($masternode)
-            && $masternode > 0)
-        ) {
-            $masternode = @min($this->get('enablednodes'));
-        }
-        if (!$masternode > 0) {
-            $nodeids = self::getSubObjectIDs(
-                'StorageNode',
-                [
-                    'id' => $this->get('allnodes'),
-                    'isEnabled' => 1,
-                    'isMaster' => 1
-                ]
-            );
-            if (count($nodeids) < 1) {
-                $nodeids = self::getSubObjectIDs(
-                    'StorageNode',
-                    [
-                        'id' => $this->get('allnodes'),
-                        'isEnabled' => 1
-                    ]
-                );
+        $StorageNodes = json_decode(
+            Route::getData()
+        );
+        foreach ($StorageNode->data as $StorageNode) {
+            if (!$StorageNode->online) {
+                continue;
             }
-            $masternode = @min($nodeids);
+            if (!$StorageNode->isEnabled) {
+                continue;
+            }
+            if ($StorageNode->maxClients < 1) {
+                continue;
+            }
+            if ($masternode == null) {
+                $masternode = $StorageNode;
+                break;
+            }
+            unset($StorageNode);
         }
-        return new StorageNode($masternode);
+        if (empty($masternode)) {
+            throw new Exception(_('No nodes available'));
+        }
+        return new StorageNode($masternode->id);
     }
     /**
      * Get's the optimal storage node
@@ -259,25 +259,34 @@ class StorageGroup extends FOGController
             $getter = 'allnodes';
         }
         $winner = null;
-        foreach ((array)self::getClass('StorageNodeManager')
-            ->find(
-                ['id' => $this->get($getter)]
-            ) as &$Node
-        ) {
-            if ($Node->get('maxClients') < 1) {
+        Route::listem(
+            'storagenode',
+            ['ngmID' => $this->get($getter)]
+        );
+        $StorageNodes = json_decode(
+            Route::getData()
+        );
+        foreach ($StorageNodes->data as &$StorageNode) {
+            if (!$StorageNode->online) {
+                continue;
+            }
+            if (!$StorageNode->isEnabled) {
+                continue;
+            }
+            if ($StorageNode->maxClients < 1) {
                 continue;
             }
             if ($winner == null
-                || $Node->getClientLoad() < $winner->getClientLoad()
+                || $StorageNode->clientload < $winner->clientload
             ) {
-                $winner = $Node;
+                $winner = $StorageNode;
             }
-            unset($Node);
+            unset($StorageNode);
         }
         if (empty($winner)) {
-            $winner = new StorageNode(@min($this->get('enablednodes')));
+            throw new Exception(_('No nodes available'));
         }
-        return $winner;
+        return new StorageNode($winner->id);
     }
     /**
      * Adds nodes to this storage group
@@ -290,13 +299,9 @@ class StorageGroup extends FOGController
     {
         self::getClass('StorageNodeManager')
             ->update(
-                [
-                    'id' => $addArray
-                ],
+                ['id' => $addArray],
                 '',
-                [
-                    'storagegroupID' => $this->get('id')
-                ]
+                ['storagegroupID' => $this->get('id')]
             );
         $this->loadAllnodes();
         $this->loadEnabledNodes();

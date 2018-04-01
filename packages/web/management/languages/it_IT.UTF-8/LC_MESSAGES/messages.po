@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-31 19:42-0400\n"
+"POT-Creation-Date: 2018-04-01 13:51-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4715,6 +4715,10 @@ msgid "Host Add to Group Fail"
 msgstr "Aggiunta host al gruppo fallita"
 
 #, fuzzy
+msgid "Create new tasking"
+msgstr "Crea nuovo snapin"
+
+#, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "Impossibile affidare attività ad host in attesa"
 
@@ -4729,6 +4733,14 @@ msgstr "L'immagine non è abilitato"
 #, fuzzy
 msgid "Assigned image is protected"
 msgstr "L'immagine assegnata è protetta"
+
+#, fuzzy
+msgid "Create task form success"
+msgstr "Creazione utente riuscita"
+
+#, fuzzy
+msgid "Create task form fail"
+msgstr "Creazione utente fallita"
 
 #, fuzzy
 msgid "Pending hosts cannot be tasked"

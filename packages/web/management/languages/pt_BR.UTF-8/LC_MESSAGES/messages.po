@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-31 19:42-0400\n"
+"POT-Creation-Date: 2018-04-01 13:51-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5000,6 +5000,10 @@ msgid "Host Add to Group Fail"
 msgstr "Adicionar ao grupo"
 
 #, fuzzy
+msgid "Create new tasking"
+msgstr "Criar novo %s"
+
+#, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "Não é possível definir taskings para pendente ou artigos inválidos"
 
@@ -5014,6 +5018,14 @@ msgstr "A imagem não está habilitado"
 #, fuzzy
 msgid "Assigned image is protected"
 msgstr "Nenhuma selecionada ou item é protegido"
+
+#, fuzzy
+msgid "Create task form success"
+msgstr "usuário criado"
+
+#, fuzzy
+msgid "Create task form fail"
+msgstr "usuário criado"
 
 #, fuzzy
 msgid "Pending hosts cannot be tasked"
