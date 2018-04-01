@@ -6072,9 +6072,6 @@ msgstr "Impossibile creare un'attività"
 msgid "Unable to create association"
 msgstr "Impossibile creare Session"
 
-msgid "BreakPoint"
-msgstr ""
-
 msgid "No valid Image defined for this host"
 msgstr "Nessuna Imagine valida definita per questo host"
 

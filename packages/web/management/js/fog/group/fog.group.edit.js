@@ -160,12 +160,17 @@
                         e.preventDefault();
                         var form = $('#group-deploy-form');
                         Common.processForm(form, function(err) {
-                            $(document).find('#host-deploy-form').remove();
+                            form.remove();
                             if (err) {
                                 return;
                             }
                             taskModal.modal('hide');
                         });
+                    }).on('click', '#tasking-close', function(e) {
+                        e.preventDefault();
+                        $('#group-deploy-form').remove();
+                        $('#task-form-holder').empty();
+                        taskModal.modal('hide');
                     });
                     $('.fogcron').cron({
                         initial: '* * * * *',

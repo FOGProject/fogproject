@@ -6492,9 +6492,6 @@ msgstr "Failed to create task"
 msgid "Unable to create association"
 msgstr "Failed to create Session"
 
-msgid "BreakPoint"
-msgstr ""
-
 #, fuzzy
 msgid "No valid Image defined for this host"
 msgstr "No Image defined for this host"

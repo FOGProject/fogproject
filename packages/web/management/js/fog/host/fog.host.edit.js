@@ -396,12 +396,18 @@
                         e.preventDefault();
                         var form = $('#host-deploy-form');
                         Common.processForm(form, function(err) {
+                            form.remove();
                             if (err) {
                                 return;
                             }
                             $('#task-form-holder').empty();
                             taskModal.modal('hide');
                         });
+                    }).on('click', '#tasking-close', function(e) {
+                        e.preventDefault();
+                        $('#host-deploy-form').remove();
+                        $('#task-form-holder').empty();
+                        taskModal.modal('hide');
                     });
                     $('.fogcron').cron({
                         initial: '* * * * *',
