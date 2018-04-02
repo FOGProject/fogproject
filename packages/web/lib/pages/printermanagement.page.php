@@ -1034,6 +1034,7 @@ class PrinterManagement extends FOGPage
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
+        echo $this->deleteModal();
         echo '</div>';
         echo '</div>';
         echo '</form>';

@@ -382,6 +382,7 @@ class UserManagement extends FOGPage
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $buttons;
+        echo $this->deleteModal();
         echo '</div>';
         echo '</div>';
         echo '</form>';
