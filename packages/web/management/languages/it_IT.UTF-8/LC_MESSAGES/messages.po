@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-01 15:38-0400\n"
+"POT-Creation-Date: 2018-04-01 22:01-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -6097,12 +6097,12 @@ msgid "Multicast Image"
 msgstr "Immagine Multicast"
 
 #, fuzzy
-msgid "Add selected to group"
-msgstr "Aggiungi gruppo di archiviazione selezionato"
+msgid "All "
+msgstr "tutti gli host"
 
 #, fuzzy
-msgid "Unable to determine status"
-msgstr "Impossibile determinare i dettagli del plugin"
+msgid "Add selected to group"
+msgstr "Aggiungi gruppo di archiviazione selezionato"
 
 msgid "s"
 msgstr ""
@@ -6110,9 +6110,6 @@ msgstr ""
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "Aggiungere gruppo di archiviazione"
-
-msgid "Remove these items?"
-msgstr "Rimuovere questi elementi?"
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -6163,11 +6160,13 @@ msgstr "dimensione del file"
 msgid "Unable to connect to ftp"
 msgstr "Connessione fallita"
 
-msgid "Delete hosts within"
-msgstr "Elimina gli host all'interno"
+#, fuzzy
+msgid "Delete associated hosts"
+msgstr "Cancella selezionato"
 
-msgid "Delete files"
-msgstr "Cancellare i file"
+#, fuzzy
+msgid "Remove file data"
+msgstr "Rimozione fallita"
 
 msgid "Encryption Data Reset"
 msgstr ""
@@ -6176,14 +6175,21 @@ msgstr ""
 msgid "Reset Encryption Success"
 msgstr "Creazione ruolo riuscita"
 
-msgid "is protected, removal not allowed"
-msgstr "è protetta, la rimozione non consentita"
+#, fuzzy
+msgid "Unable to remove protected items"
+msgstr "Impossibile aggiornare compito"
 
-msgid "Failed to destroy"
-msgstr "Impossibile per distruggere"
+#, fuzzy
+msgid "Failed to remove hosts"
+msgstr "Impossibile creare Host"
 
-msgid "deleted"
-msgstr "eliminata"
+#, fuzzy
+msgid "Unable to delete file data"
+msgstr "Impossibile eliminare il file"
+
+#, fuzzy
+msgid "Failed to remove"
+msgstr "Connessione fallita"
 
 #, fuzzy
 msgid "Delete Fail"

@@ -15,6 +15,9 @@
     var generalForm = $('#group-general-form'),
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
+        generalDeleteModal = $('#deleteModal'),
+        generalDeleteModalConfirm = $('#confirmDeleteModal'),
+        generalDeleteModalCancel = $('#closeDeleteModal'),
         resetEncryptionBtn = $('#reset-encryption-data'),
         resetEncryptionModal = $('#resetencryptionmodal'),
         resetEncryptionCancelBtn = $('#resetencryptionCancel'),
@@ -36,16 +39,31 @@
             originalName = $('#group').val();
         });
     });
-    generalDeleteBtn.on('click',function() {
-        generalFormBtn.prop('disabled', true);
-        generalDeleteBtn.prop('disabled', true);
-        Common.massDelete(null, function(err) {
+    generalDeleteBtn.on('click', function() {
+        generalDeleteModal.modal('show');
+    });
+    $('#andHosts').on('ifChecked', function() {
+        opts = {
+            andHosts: 1
+        };
+    }).on('ifUnchecked', function() {
+        opts = {};
+    });
+    generalDeleteModalConfirm.on('click', function() {
+        var method = 'post',
+            action = '../management/index.php?node='
+                + Common.node
+                + '&sub=delete&id='
+                + Common.id;
+        Common.apiCall(method, action, opts, function(err) {
             if (err) {
-                generalDeleteBtn.prop('disabled', false);
-                generalFormBtn.prop('disabled', false);
                 return;
             }
-            window.location = '../management/index.php?node='+Common.node+'&sub=list';
+            setTimeout(function() {
+                window.location = '../management/index.php?node='
+                    + Common.node
+                    + '&sub=list';
+            }, 2000);
         });
     });
 
@@ -195,12 +213,44 @@
     // ACTIVE DIRECTORY TAB
     var ADForm = $('#active-directory-form'),
         ADFormBtn = $('#ad-send'),
-        ADClearBtn = $('#ad-clear');
+        ADClearBtn = $('#ad-clear'),
+        ADJoinDomain = $('#adEnabled');
+
+    ADJoinDomain.on('ifClicked', function(e) {
+        e.preventDefault();
+        $(this).prop('checked', !this.checked);
+        if (!this.checked) {
+            return;
+        }
+        var indomain = $('#adDomain'),
+            inou = $('#adOU'),
+            inuser = $('#adUsername'),
+            inpass = $('#adPassword');
+        if (indomain.val() && inou.val() && inuser.val() && inpass.val()) {
+            return;
+        }
+        Pace.ignore(function() {
+            $.get('../management/index.php?sub=adInfo', function(data) {
+                if (!indomain.val()) {
+                    indomain.val(data.domainname);
+                }
+                if (!inou.val()) {
+                    inou.val(data.ou)
+                }
+                if (!inuser.val()) {
+                    inuser.val(data.domainuser);
+                }
+                if (!inpass.val()) {
+                    inpass.val(data.domainpass);
+                }
+            }, 'json');
+        });
+    });
 
     ADForm.on('submit',function(e) {
         e.preventDefault();
     });
-    ADFormBtn.on('click', function() {
+    ADFormBtn.on('click',function() {
         ADFormBtn.prop('disabled', true);
         ADClearBtn.prop('disabled', true);
         Common.processForm(ADForm, function(err) {
@@ -208,7 +258,7 @@
             ADClearBtn.prop('disabled', false);
         });
     });
-    ADClearBtn.on('click', function() {
+    ADClearBtn.on('click',function() {
         ADClearBtn.prop('disabled', true);
         ADFormBtn.prop('disabled', true);
 
@@ -218,14 +268,14 @@
             $(e).val('');
             $(e).prop('disabled', true);
         });
-        ADForm.find('input[type="checkbox"]').each(function(i, e) {
+        ADForm.find('input[type=checkbox]').each(function(i, e) {
             restoreMap.push({checkbox: true, e: e, val: $(e).iCheck('update')[0].checked});
             $(e).iCheck('uncheck');
             $(e).iCheck('disable');
         });
 
-        ADForm.find('input[type="text"], input[type="password"], textarea').val('');
-        ADForm.find('input[type="checkbox"]').iCheck('uncheck');
+        ADForm.find('input[type=text], input[type=password], textarea').val('');
+        ADForm.find('input[type=checkbox]').iCheck('uncheck');
 
         Common.processForm(ADForm, function(err) {
             for (var i = 0; i < restoreMap.length; i++) {

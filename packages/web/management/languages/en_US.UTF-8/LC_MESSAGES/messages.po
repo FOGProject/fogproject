@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-01 15:38-0400\n"
+"POT-Creation-Date: 2018-04-01 22:01-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6520,12 +6520,12 @@ msgid "Multicast Image"
 msgstr "Multicast"
 
 #, fuzzy
-msgid "Add selected to group"
-msgstr "Remove selected snapins"
+msgid "All "
+msgstr "All Hosts"
 
 #, fuzzy
-msgid "Unable to determine status"
-msgstr "Unable to determine plugin details"
+msgid "Add selected to group"
+msgstr "Remove selected snapins"
 
 msgid "s"
 msgstr ""
@@ -6533,10 +6533,6 @@ msgstr ""
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "Add Storage Group"
-
-#, fuzzy
-msgid "Remove these items?"
-msgstr "Remove selected printers"
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -6588,12 +6584,12 @@ msgid "Unable to connect to ftp"
 msgstr "Failed to connect"
 
 #, fuzzy
-msgid "Delete hosts within"
-msgstr "Delete all hosts within group"
+msgid "Delete associated hosts"
+msgstr "Delete Selected"
 
 #, fuzzy
-msgid "Delete files"
-msgstr "Delete file data"
+msgid "Remove file data"
+msgstr "Removed"
 
 msgid "Encryption Data Reset"
 msgstr ""
@@ -6602,14 +6598,21 @@ msgstr ""
 msgid "Reset Encryption Success"
 msgstr "User created"
 
-msgid "is protected, removal not allowed"
-msgstr "is protected, removal not allowed"
+#, fuzzy
+msgid "Unable to remove protected items"
+msgstr "Failed to update task"
 
-msgid "Failed to destroy"
-msgstr "Failed to destroy"
+#, fuzzy
+msgid "Failed to remove hosts"
+msgstr "Failed to create Host"
 
-msgid "deleted"
-msgstr "deleted"
+#, fuzzy
+msgid "Unable to delete file data"
+msgstr "Failed to delete file"
+
+#, fuzzy
+msgid "Failed to remove"
+msgstr "Failed to connect"
 
 #, fuzzy
 msgid "Delete Fail"

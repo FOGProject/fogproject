@@ -21,13 +21,6 @@
  */
 require '../commons/base.inc.php';
 $FOGPageManager = FOGCore::getClass('FOGPageManager');
-if (session_status() != PHP_SESSION_NONE) {
-    if (isset($_SESSION['delitems'])
-        && !in_array($sub, ['deletemulti', 'deleteconf'])
-    ) {
-        unset($_SESSION['delitems']);
-    }
-}
 ob_start();
 FOGCore::getClass('ProcessLogin')->processMainLogin();
 $login = ob_get_clean();
