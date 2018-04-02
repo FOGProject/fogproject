@@ -157,35 +157,42 @@ class Snapin extends FOGController
         if ($this->get('protected')) {
             throw new Exception(self::$foglang['ProtectedSnapin']);
         }
-        foreach ((array)self::getClass('StorageNodeManager')
-            ->find(
-                [
-                    'storagegroupID' => $this->get('storagegroups'),
-                    'isEnabled' => 1
-                ]
-            ) as &$StorageNode
-        ) {
-            $ftppath = $StorageNode->get('snapinpath');
-            $ftppath = trim($ftppath, '/');
+        Route::listem(
+            'storagenode',
+            [
+                'ngmGroupID' => $this->get('storagegroups'),
+                'ngmIsEnabled' => 1
+            ]
+        );
+        $StorageNodes = json_decode(
+            Route::getData()
+        );
+        foreach ($StorageNodes->data as &$StorageNode) {
+            $ftppath = trim(
+                $StorageNode->snapinpath,
+                '/'
+            );
             $deleteFile = sprintf(
                 '/%s/%s',
                 $ftppath,
                 $this->get('file')
             );
-            $ip = $StorageNode->get('ip');
-            $user = $StorageNode->get('user');
-            $pass = $StorageNode->get('pass');
+            $ip = $StorageNode->ip;
+            $user = $StorageNode->user;
+            $pass = $StorageNode->pass;
             self::$FOGFTP->username = $user;
             self::$FOGFTP->password = $pass;
             self::$FOGFTP->host = $ip;
             if (!self::$FOGFTP->connect()) {
                 continue;
             }
-            self::$FOGFTP
-                ->delete($deleteFile)
-                ->close();
+            if (!self::$FOGFTP->delete($deleteFile)) {
+                continue;
+            }
+            self::$FOGFTP->close();
             unset($StorageNode);
         }
+        return true;
     }
     /**
      * Loads hosts.

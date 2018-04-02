@@ -17,15 +17,18 @@
     var generalForm = $('#host-general-form'),
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
+        generalDeleteModal = $('#deleteModal'),
+        generalDeleteModalConfirm = $('#confirmDeleteModal'),
+        generalDeleteModalCancel = $('#closeDeleteModal'),
         resetEncryptionBtn = $('#reset-encryption-data'),
         resetEncryptionModal = $('#resetencryptionmodal'),
         resetEncryptionCancelBtn = $('#resetencryptionCancel'),
         resetEncryptionConfirmBtn = $('#resetencryptionConfirm');
 
-    generalForm.on('submit',function(e) {
+    generalForm.on('submit', function(e) {
         e.preventDefault();
     });
-    generalFormBtn.on('click',function() {
+    generalFormBtn.on('click', function() {
         generalFormBtn.prop('disabled', true);
         generalDeleteBtn.prop('disabled', true);
         Common.processForm(generalForm, function(err) {
@@ -38,19 +41,25 @@
             originalName = $('#host').val();
         });
     });
-    generalDeleteBtn.on('click',function() {
-        generalFormBtn.prop('disabled', true);
-        generalDeleteBtn.prop('disabled', true);
-        Common.massDelete(
-            null,
-            function(err) {
-                if (err) {
-                    generalDeleteBtn.prop('disabled', false);
-                    generalFormBtn.prop('disabled', false);
-                    return;
-                }
-                window.location = '../management/index.php?node='+Common.node+'&sub=list';
-            });
+    generalDeleteBtn.on('click', function() {
+        generalDeleteModal.modal('show');
+    });
+    generalDeleteModalConfirm.on('click', function() {
+        var method = 'post',
+            action = '../management/index.php?node='
+                + Common.node
+                + '&sub=delete&id='
+                + Common.id;
+        Common.apiCall(method, action, null, function(err) {
+            if (err) {
+                return;
+            }
+            setTimeout(function() {
+                window.location = '../management/index.php?node='
+                    + Common.node
+                    + '&sub=list';
+            }, 2000);
+        });
     });
 
     // Reset encryption confirmation modal.

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-01 15:38-0400\n"
+"POT-Creation-Date: 2018-04-01 22:01-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6738,12 +6738,12 @@ msgid "Multicast Image"
 msgstr "multidifusión"
 
 #, fuzzy
-msgid "Add selected to group"
-msgstr "Impresora"
+msgid "All "
+msgstr "Hospedadores"
 
 #, fuzzy
-msgid "Unable to determine status"
-msgstr "servidor de ponerse en contacto con el error"
+msgid "Add selected to group"
+msgstr "Impresora"
 
 msgid "s"
 msgstr ""
@@ -6751,10 +6751,6 @@ msgstr ""
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "Grupo de almacenamiento"
-
-#, fuzzy
-msgid "Remove these items?"
-msgstr "Eliminar todos los seleccionados %s s"
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -6806,12 +6802,12 @@ msgid "Unable to connect to ftp"
 msgstr "No se ha podido destruir"
 
 #, fuzzy
-msgid "Delete hosts within"
-msgstr "Borrar todos los hosts dentro del grupo"
+msgid "Delete associated hosts"
+msgstr "Eliminar seleccionado"
 
 #, fuzzy
-msgid "Delete files"
-msgstr "Eliminar los datos del archivo"
+msgid "Remove file data"
+msgstr "Remoto"
 
 msgid "Encryption Data Reset"
 msgstr ""
@@ -6820,14 +6816,21 @@ msgstr ""
 msgid "Reset Encryption Success"
 msgstr "creado por el usuario"
 
-msgid "is protected, removal not allowed"
-msgstr "está protegido, no se permite la eliminación"
+#, fuzzy
+msgid "Unable to remove protected items"
+msgstr "No se pudo crear la tarea"
 
-msgid "Failed to destroy"
+#, fuzzy
+msgid "Failed to remove hosts"
+msgstr "No se pudo crear la tarea"
+
+#, fuzzy
+msgid "Unable to delete file data"
+msgstr "No se pudo crear el usuario"
+
+#, fuzzy
+msgid "Failed to remove"
 msgstr "No se ha podido destruir"
-
-msgid "deleted"
-msgstr "suprimido"
 
 #, fuzzy
 msgid "Delete Fail"

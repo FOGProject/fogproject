@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-01 15:38-0400\n"
+"POT-Creation-Date: 2018-04-01 22:01-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6514,12 +6514,12 @@ msgid "Multicast Image"
 msgstr "组播"
 
 #, fuzzy
-msgid "Add selected to group"
-msgstr "打印机"
+msgid "All "
+msgstr "所有主机"
 
 #, fuzzy
-msgid "Unable to determine status"
-msgstr "无法确定插件的详细信息"
+msgid "Add selected to group"
+msgstr "打印机"
 
 msgid "s"
 msgstr ""
@@ -6527,10 +6527,6 @@ msgstr ""
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "添加存储组"
-
-#, fuzzy
-msgid "Remove these items?"
-msgstr "删除选定snapins"
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -6583,12 +6579,12 @@ msgid "Unable to connect to ftp"
 msgstr "连接失败"
 
 #, fuzzy
-msgid "Delete hosts within"
-msgstr "删除组内的所有主机"
+msgid "Delete associated hosts"
+msgstr "删除所选"
 
 #, fuzzy
-msgid "Delete files"
-msgstr "删除的文件数据"
+msgid "Remove file data"
+msgstr "去除"
 
 msgid "Encryption Data Reset"
 msgstr ""
@@ -6597,14 +6593,21 @@ msgstr ""
 msgid "Reset Encryption Success"
 msgstr "用户创建"
 
-msgid "is protected, removal not allowed"
-msgstr "被保护，去除不允许"
+#, fuzzy
+msgid "Unable to remove protected items"
+msgstr "无法更新任务"
 
-msgid "Failed to destroy"
-msgstr "未能摧毁"
+#, fuzzy
+msgid "Failed to remove hosts"
+msgstr "无法创建主机"
 
-msgid "deleted"
-msgstr "删除"
+#, fuzzy
+msgid "Unable to delete file data"
+msgstr "无法删除文件"
+
+#, fuzzy
+msgid "Failed to remove"
+msgstr "连接失败"
 
 #, fuzzy
 msgid "Delete Fail"

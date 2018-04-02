@@ -588,6 +588,7 @@ class GroupManagement extends FOGPage
         echo '<div class="box-footer">';
         echo $buttons;
         echo $modalreset;
+        echo $this->deleteModal();
         echo '</div>';
         echo '</div>';
         echo '</form>';
