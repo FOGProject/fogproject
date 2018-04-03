@@ -1623,27 +1623,27 @@ class FOGConfigurationPage extends FOGPage
         $modalupdatebtn = self::makeButton(
             'updatemacsConfirm',
             _('Confirm'),
-            'btn btn-success'
+            'btn btn-outline pull-right'
         );
         $modalupdatebtn .= self::makeButton(
             'updatemacsCancel',
             _('Cancel'),
-            'btn btn-danger pull-right'
+            'btn btn-outline pull-left'
         );
         $modaldeletebtn = self::makeButton(
             'deletemacsConfirm',
             _('Confirm'),
-            'btn btn-success'
+            'btn btn-outline pull-right'
         );
         $modaldeletebtn .= self::makeButton(
             'deletemacsCancel',
             _('Cancel'),
-            'btn btn-danger pull-right'
+            'btn btn-outline pull-left'
         );
         $buttons = self::makeButton(
             'updatemacs',
             _('Update MAC List'),
-            'btn btn-primary'
+            'btn btn-outline pull-right'
         );
         $buttons .= self::makeButton(
             'deletemacs',
@@ -1654,13 +1654,17 @@ class FOGConfigurationPage extends FOGPage
             'updatemacsmodal',
             _('Update MAC Listing'),
             _('Confirm that you would like to update the MAC vendor listing'),
-            $modalupdatebtn
+            $modalupdatebtn,
+            '',
+            'primary'
         );
         $modaldelete = self::makeModal(
             'deletemacsmodal',
             _('Delete MAC Listings'),
             _('Confirm that you would like to delete the MAC vendor listing'),
-            $modaldeletebtn
+            $modaldeletebtn,
+            '',
+            'warning'
         );
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';

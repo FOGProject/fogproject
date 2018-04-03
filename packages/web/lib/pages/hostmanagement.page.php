@@ -136,30 +136,32 @@ class HostManagement extends FOGPage
         $modalApprovalBtns = self::makeButton(
             'confirmApproveModal',
             _('Approve'),
-            'btn btn-success pull-right'
+            'btn btn-outline pull-right'
         );
         $modalApprovalBtns .= self::makeButton(
             'cancelApprovalModal',
             _('Cancel'),
-            'btn btn-warning pull-left',
+            'btn btn-outline pull-left',
             'data-dismiss="modal"'
         );
         $approvalModal = self::makeModal(
             'approveModal',
             _('Approve Pending Hosts'),
             _('Approving the selected pending hosts.'),
-            $modalApprovalBtns
+            $modalApprovalBtns,
+            '',
+            'info'
         );
 
         $modalDeleteBtns = self::makeButton(
             'confirmDeleteModal',
             _('Delete'),
-            'btn btn-danger pull-right'
+            'btn btn-outline pull-right'
         );
         $modalDeleteBtns .= self::makeButton(
             'closeDeleteModal',
             _('Cancel'),
-            'btn btn-warning pull-left',
+            'btn btn-outline pull-left',
             'data-dismiss="modal"'
         );
         $deleteModal = self::makeModal(
@@ -176,7 +178,9 @@ class HostManagement extends FOGPage
                 true
             )
             . '</div>',
-            $modalDeleteBtns
+            $modalDeleteBtns,
+            '',
+            'danger'
         );
 
         echo self::makeFormTag(
@@ -298,30 +302,32 @@ class HostManagement extends FOGPage
         $modalApprovalBtns = self::makeButton(
             'confirmApproveModal',
             _('Approve'),
-            'btn btn-success pull-right'
+            'btn btn-outline pull-right'
         );
         $modalApprovalBtns .= self::makeButton(
             'cancelApprovalModal',
             _('Cancel'),
-            'btn btn-warning pull-left',
+            'btn btn-outline pull-left',
             'data-dismiss="modal"'
         );
         $approvalModal = self::makeModal(
             'approveModal',
             _('Approve Pending Hosts'),
             _('Approving the selected pending hosts.'),
-            $modalApprovalBtns
+            $modalApprovalBtns,
+            '',
+            'success'
         );
 
         $modalDeleteBtns = self::makeButton(
             'confirmDeleteModal',
             _('Delete'),
-            'btn btn-danger pull-right'
+            'btn btn-outline pull-right'
         );
         $modalDeleteBtns .= self::makeButton(
             'closeDeleteModal',
             _('Cancel'),
-            'btn btn-warning pull-left',
+            'btn btn-outline pull-left',
             'data-dismiss="modal"'
         );
         $deleteModal = self::makeModal(
@@ -338,7 +344,9 @@ class HostManagement extends FOGPage
                 true
             )
             . '</div>',
-            $modalDeleteBtns
+            $modalDeleteBtns,
+            '',
+            'danger'
         );
 
         echo self::makeFormTag(
@@ -1021,13 +1029,13 @@ class HostManagement extends FOGPage
         $modalresetBtn = self::makeButton(
             'resetencryptionConfirm',
             _('Confirm'),
-            'btn btn-primary',
+            'btn btn-outline pull-right',
             ' method="post" action="../management/index.php?sub=clearAES" '
         );
         $modalresetBtn .= self::makeButton(
             'resetencryptionCancel',
             _('Cancel'),
-            'btn btn-danger pull-right'
+            'btn btn-outline pull-left'
         );
         $modalreset = self::makeModal(
             'resetencryptionmodal',
@@ -1036,7 +1044,9 @@ class HostManagement extends FOGPage
                 'Resetting encryption data should only be done '
                 . 'if you re-installed the FOG Client or are using Debugger'
             ),
-            $modalresetBtn
+            $modalresetBtn,
+            '',
+            'warning'
         );
         echo self::makeFormTag(
             'form-horizontal',
@@ -2316,7 +2326,7 @@ class HostManagement extends FOGPage
         $ondemandModalBtns .= self::makeButton(
             'ondemandCreateBtn',
             _('Create'),
-            'btn btn-primary'
+            'btn btn-outline pull-right'
         );
         $scheduleModalBtns = self::makeButton(
             'scheduleCancelBtn',
@@ -2327,7 +2337,7 @@ class HostManagement extends FOGPage
         $scheduleModalBtns .= self::makeButton(
             'scheduleCreateBtn',
             _('Create'),
-            'btn btn-primary'
+            'btn btn-outline pull-right'
         );
         echo '<div class="box box-info">';
         echo '<div class="box-header with-border">';
@@ -2343,13 +2353,17 @@ class HostManagement extends FOGPage
             'ondemandModal',
             _('Create Immediate Power task'),
             $this->newPMDisplay(true),
-            $ondemandModalBtns
+            $ondemandModalBtns,
+            '',
+            'info'
         );
         echo self::makeModal(
             'scheduleModal',
             _('Create Scheduled Power task'),
             $this->newPMDisplay(false),
-            $scheduleModalBtns
+            $scheduleModalBtns,
+            '',
+            'primary'
         );
         echo '</div>';
         echo '</div>';
@@ -4343,19 +4357,21 @@ class HostManagement extends FOGPage
         $modalApprovalBtns = self::makeButton(
             'tasking-send',
             _('Create'),
-            'btn btn-primary pull-right'
+            'btn btn-outline pull-right'
         );
         $modalApprovalBtns .= self::makeButton(
             'tasking-close',
             _('Cancel'),
-            'btn btn-solid pull-left',
+            'btn btn-outline pull-left',
             'data-dismiss="modal"'
         );
         $taskModal = self::makeModal(
             'task-modal',
             _('Create new tasking'),
             '<div id="task-form-holder"></div>',
-            $modalApprovalBtns
+            $modalApprovalBtns,
+            '',
+            'success'
         );
 
         echo '<div class="box box-solid" id="host-tasks">';

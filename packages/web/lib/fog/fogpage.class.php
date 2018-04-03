@@ -984,7 +984,7 @@ abstract class FOGPage extends FOGBase
                             _('Delete')
                             . ' {0} '
                             . _($node.'s'),
-                            'btn btn-outline'
+                            'btn btn-outline pull-right'
                         ),
                         '',
                         'danger'
@@ -998,15 +998,16 @@ abstract class FOGPage extends FOGBase
                         self::makeButton(
                             'closeGroupModal',
                             _('Cancel'),
-                            'btn btn-default pull-left',
+                            'btn btn-outline pull-left',
                             'data-dismiss="modal"'
                         )
                         . self::makeButton(
                             'confirmGroupAdd',
                             _('Add'),
-                            'btn btn-primary'
+                            'btn btn-outline pull-right'
                         ),
-                        ''
+                        '',
+                        'info'
                     );
                 }
             }
@@ -1680,7 +1681,7 @@ abstract class FOGPage extends FOGBase
             . self::makeButton(
                 'confirmDeleteModal',
                 _('Delete'),
-                'btn btn-outline'
+                'btn btn-outline pull-right'
             ),
             '',
             'danger'

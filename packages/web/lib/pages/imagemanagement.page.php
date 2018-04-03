@@ -1248,25 +1248,25 @@ class ImageManagement extends FOGPage
         $modalBtns = self::makeButton(
             'cancelModalBtn',
             _('Cancel'),
-            'btn btn-warning pull-left',
+            'btn btn-outline pull-left',
             'data-dismiss="modal"'
         );
         $modalBtns .= self::makeButton(
             'confirmModalBtn',
             _('Confirm'),
-            'btn btn-danger'
+            'btn btn-outline pull-right'
         );
 
         $modalCreateBtns = self::makeButton(
             'createCancelModalBtn',
             _('Cancel'),
-            'btn btn-warning pull-left',
+            'btn btn-outline pull-left',
             'data-dismiss="modal"'
         );
         $modalCreateBtns .= self::makeButton(
             'createConfirmModalBtn',
             _('Create'),
-            'btn btn-success',
+            'btn btn-outline pull-right',
             ' method="post" action="'
             . self::makeTabUpdateURL(
                 'session-create'
@@ -1278,13 +1278,17 @@ class ImageManagement extends FOGPage
             'cancelModal',
             _('Cancel Selected Tasks'),
             _('Cancel the selected tasks.'),
-            $modalBtns
+            $modalBtns,
+            '',
+            'danger'
         );
         $buttons .= self::makeModal(
             'createModal',
             _('Create new Session Task'),
             $this->sessionCreateModal(),
-            $modalCreateBtns
+            $modalCreateBtns,
+            '',
+            'success'
         );
 
         echo '<div class="box box-primary">';
