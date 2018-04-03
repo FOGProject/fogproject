@@ -369,6 +369,9 @@ class SiteManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'site-host-table', $buttons);
         echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('host');
+        echo '</div>';
         echo '</div>';
         echo '</form>';
     }
@@ -430,6 +433,9 @@ class SiteManagement extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         $this->render(12, 'site-user-table', $buttons);
+        echo '</div>';
+        echo '<div class="footer with-border">';
+        echo $this->assocDelModal('user');
         echo '</div>';
         echo '</div>';
         echo '</form>';

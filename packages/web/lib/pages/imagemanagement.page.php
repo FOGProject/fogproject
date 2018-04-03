@@ -870,6 +870,9 @@ class ImageManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'image-storagegroups-table', $buttons);
         echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('storagegroup');
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -895,16 +898,16 @@ class ImageManagement extends FOGPage
                 $this->obj->addGroup($storagegroup);
             }
         }
-        if (isset($_POST['storagegroupdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $storagegroup = filter_input_array(
                 INPUT_POST,
                 [
-                    'storagegroupRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $storagegroup = $storagegroup['storagegroupRemove'];
+            $storagegroup = $storagegroup['remitems'];
             if (count($storagegroup ?: []) > 0) {
                 $this->obj->removeGroup($storagegroup);
             }
@@ -976,6 +979,9 @@ class ImageManagement extends FOGPage
         echo '<div class="updatehost" class="">';
         echo '<div class="box-body">';
         $this->render(12, 'image-host-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('host');
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1629,16 +1635,16 @@ class ImageManagement extends FOGPage
                 ['imageID' => $this->obj->get('id')]
             );
         }
-        if (isset($_POST['hostdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $host = filter_input_array(
                 INPUT_POST,
                 [
-                    'hostRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $host = $host['hostRemove'];
+            $host = $host['remitems'];
             self::getClass('HostManager')->update(
                 [
                     'id' => $host,

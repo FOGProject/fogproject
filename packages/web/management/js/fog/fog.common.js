@@ -400,18 +400,22 @@ var $_GET = getQueryParams(document.location.search),
                 data: ajaxOpts,
                 success: function(res) {
                     if (table !== undefined) {
-                        opts.rows.remove().draw(false);
+                        table.$('.associated').each(function() {
+                            if ($.inArray($(this).val(), opts.ids) != -1) {
+                                $(this).iCheck('uncheck');
+                            }
+                        });
                         table.rows({selected: true}).deselect();
                     }
                     Common.notifyFromAPI(res, false);
                     if (cb && typeof(cb) === 'function') {
-                        cb(null,res);
+                        cb(null, res);
                     }
                 },
                 error: function(res) {
                     Common.notifyFromAPI(res.responseJSON, true);
                     if (cb && typeof(cb) === 'function') {
-                        cb(res,res.responseJSON);
+                        cb(res, res.responseJSON);
                     }
                 }
             });
