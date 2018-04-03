@@ -419,13 +419,14 @@ class GroupManagement extends FOGPage
         $modalresetBtn = self::makeButton(
             'resetencryptionConfirm',
             _('Confirm'),
-            'btn btn-primary',
+            'btn btn-outline pull-right',
             ' method="post" action="../management/index.php?sub=clearAES" '
         );
         $modalresetBtn .= self::makeButton(
             'resetencryptionCancel',
             _('Cancel'),
-            'btn btn-danger pull-right'
+            'btn btn-outline pull-left',
+            'data-dismiss="modal"'
         );
         $modalreset = self::makeModal(
             'resetencryptionmodal',
@@ -434,7 +435,9 @@ class GroupManagement extends FOGPage
                 'Resetting encryption data should only be done '
                 . 'if you re-installed the FOG Client or are using Debugger'
             ),
-            $modalresetBtn
+            $modalresetBtn,
+            '',
+            'warning'
         );
 
         $labelClass = 'col-sm-2 control-label';
@@ -1645,7 +1648,7 @@ class GroupManagement extends FOGPage
         $ondemandModalBtns .= self::makeButton(
             'ondemandCreateBtn',
             _('Create'),
-            'btn btn-primary'
+            'btn btn-outline pull-right'
         );
         $scheduleModalBtns = self::makeButton(
             'scheduleCancelBtn',
@@ -1656,32 +1659,40 @@ class GroupManagement extends FOGPage
         $scheduleModalBtns .= self::makeButton(
             'scheduleCreateBtn',
             _('Create'),
-            'btn btn-primary'
+            'btn btn-outline pull-right'
         );
         $modaldeleteBtns = self::makeButton(
             'deletepowermanagementConfirm',
             _('Confirm'),
-            'btn btn-primary',
+            'btn btn-ouline pull-right',
             ' method="post" action="'
-            . $this->formAction
-            . '&tab=group-powermanagement" '
+            . self::makeTabUpdateURL(
+                'group-powermanagement',
+                $this->obj->get('id')
+            )
+            . '" '
         );
         $modaldeleteBtns .= self::makeButton(
             'deletepowermanagementCancel',
             _('Cancel'),
-            'btn btn-danger pull-right'
+            'btn btn-outline pull-left',
+            'data-dismiss="modal"'
         );
         $modalondemand = self::makeModal(
             'ondemandModal',
             _('Create Immediate Power task'),
             $this->newPMDisplay(true),
-            $ondemandModalBtns
+            $ondemandModalBtns,
+            '',
+            'info'
         );
         $modalschedule = self::makeModal(
             'scheduleModal',
             _('Create Scheduled Power task'),
             $this->newPMDisplay(false),
-            $scheduleModalBtns
+            $scheduleModalBtns,
+            '',
+            'primary'
         );
         $modaldelete = self::makeModal(
             'deletepowermanagementmodal',
@@ -1690,7 +1701,9 @@ class GroupManagement extends FOGPage
                 'This will delete all powermanagement '
                 . 'items from all hosts in this group'
             ),
-            $modaldeleteBtns
+            $modaldeleteBtns,
+            '',
+            'warning'
         );
         echo '<!-- Power Management -->';
         echo '<div class="box box-solid">';
@@ -2021,12 +2034,12 @@ class GroupManagement extends FOGPage
         $modalApprovalBtns = self::makeButton(
             'tasking-send',
             _('Create'),
-            'btn btn-primary pull-right'
+            'btn btn-outline pull-right'
         );
         $modalApprovalBtns .= self::makeButton(
             'tasking-close',
             _('Cancel'),
-            'btn btn-solid pull-left',
+            'btn btn-outline pull-left',
             'data-dismiss="modal"'
         );
         $taskModal = self::makeModal(
@@ -2035,7 +2048,9 @@ class GroupManagement extends FOGPage
             . _('Create new tasking')
             . '</h4>',
             '<div id="task-form-holder"></div>',
-            $modalApprovalBtns
+            $modalApprovalBtns,
+            '',
+            'success'
         );
 
         echo '<div class="box box-solid" id="host-tasks">';
