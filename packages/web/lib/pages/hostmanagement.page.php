@@ -4348,7 +4348,8 @@ class HostManagement extends FOGPage
         $modalApprovalBtns .= self::makeButton(
             'tasking-close',
             _('Cancel'),
-            'btn btn-solid pull-left'
+            'btn btn-solid pull-left',
+            'data-dismiss="modal"'
         );
         $taskModal = self::makeModal(
             'task-modal',

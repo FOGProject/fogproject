@@ -145,21 +145,22 @@
                     var scheduleType = $('input[name="scheduleType"]'),
                         groupDeployForm = $('#group-deploy-form'),
                         minutes = $('#cronMin', groupDeployForm),
-                        hours = $('#cronHour', groupDeploy),
-                        dom = $('#cronDom', groupDeploy),
-                        month = $('#cronMonth', groupDeploy),
-                        dow = $('#cronDow', groupDeploy),
+                        hours = $('#cronHour', groupDeployForm),
+                        dom = $('#cronDom', groupDeployForm),
+                        month = $('#cronMonth', groupDeployForm),
+                        dow = $('#cronDow', groupDeployForm),
                         createTaskBtn = $('#tasking-send');
                     Common.iCheck('#task-form-holder input');
 
-                    $(document).on('ifChecked', '#checkdebug', function(e) {
+                    $('#checkdebug').on('ifChecked', function(e) {
                         e.preventDefault();
                         $('.hideFromDebug,.delayedinput,.croninput').addClass('hidden');
                         $('.instant').iCheck('check');
-                    }).on('ifUnchecked', '#checkdebug', function(e) {
+                    }).on('ifUnchecked', function(e) {
                         e.preventDefault();
                         $('.hideFromDebug').removeClass('hidden');
-                    }).on('ifClicked', 'input[name="scheduleType"]', function(e) {
+                    });
+                    $('input[name="scheduleType"]').on('ifClicked', function(e) {
                         e.preventDefault();
                         switch (this.value) {
                             case 'instant':
@@ -168,32 +169,32 @@
                             case 'single':
                                 $('.delayedinput').removeClass('hidden');
                                 $('.croninput').addClass('hidden');
+                                $('#delayedinput').datetimepicker('show');
                                 break;
                             case 'cron':
                                 $('.delayedinput').addClass('hidden');
                                 $('.croninput').removeClass('hidden');
                                 break;
                         }
-                    }).on('click', '#tasking-send', function(e) {
-                        e.preventDefault();
+                    });
+                    $('#tasking-send').on('click', function(e) {
+                        e.stopImmediatePropagation();
                         Common.processForm(groupDeployForm, function(err) {
                             if (err) {
                                 return;
                             }
-                            groupDeployForm.remove();
-                            $('#task-form-holder').html('');
                             taskModal.modal('hide');
                         });
-                    }).on('click', '#tasking-close', function(e) {
-                        e.preventDefault();
-                        groupDeployForm.remove();
-                        $('#task-form-holder').html('');
-                        taskModal.modal('hide');
                     });
+                    taskModal.on('hide.bs.modal', function(e) {
+                        groupDeployForm.remove();
+                        $('#task-form-holder').empty();
+                    });
+                    $('#delayedinput').datetimepicker({format: 'YYYY-MM-DD HH:mm:ss'});
                     $('.fogcron').cron({
                         initial: '* * * * *',
                         onChange: function() {
-                            vals = $(this).cron('value').spit(' ');
+                            vals = $(this).cron('value').split(' ');
                             minutes.val(vals[0]);
                             hours.val(vals[1]);
                             dom.val(vals[2]);
