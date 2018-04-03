@@ -1395,7 +1395,6 @@ class Route extends FOGBase
                 $class->get(),
                 [
                     'totalsupportedclients' => $class->getTotalSupportedClients(),
-                    'masternode' => $class->getMasterStorageNode()->get(),
                     'enablednodes' => $class->get('enablednodes'),
                     'allnodes' => $class->get('allnodes')
                 ]

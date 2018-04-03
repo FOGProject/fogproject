@@ -384,7 +384,47 @@ class WindowsKeyManagement extends FOGPage
      */
     public function windowsKeyImages()
     {
-        echo 'TODO: Make Functional';
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'windowskey-images',
+                $this->obj->get('id')
+            )
+            . '" ';
+
+        $buttons = self::makeButton(
+            'image-add',
+            _('Add selected'),
+            'btn btn-primary pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'image-remove',
+            _('Remove selected'),
+            'btn btn-danger pull-left'
+        );
+
+        $this->headerData = [
+            _('Image Name'),
+            _('Image Associated')
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
+
+        echo '<!-- Images -->';
+        echo '<div class="box-group" id="images">';
+        echo '<div class="box box-solid">';
+        echo '<div class="updateimage" class="">';
+        echo '<div class="box-body">';
+        echo $this->render(12, 'windowskey-image-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('image');
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Commonized membership actions

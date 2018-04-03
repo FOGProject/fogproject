@@ -2761,9 +2761,22 @@ class FOGConfigurationPage extends FOGPage
             if (count($StorageGroup->enablednodes ?: []) < 1) {
                 continue;
             }
-            $StorageNode = $StorageGroup->masternode;
-            if ($StorageNode->isEnabled < 1) {
+            Route::listem(
+                'storagenode',
+                [
+                    'ngmID' => $StorageGroup->enablednodes,
+                    'ngmIsEnabled' => 1,
+                    'ngmIsMasterNode' => 1
+                ]
+            );
+            $StorageNodes = json_decode(
+                Route::getData()
+            );
+            if (count($StorageNodes->data) ?: [] < 1) {
                 continue;
+            }
+            foreach ($StorageNodes->data as &$StorageNode) {
+                break;
             }
             $fogfiles = json_decode(
                 json_encode($StorageNode->logfiles),

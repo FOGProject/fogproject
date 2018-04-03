@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-01 22:01-0400\n"
+"POT-Creation-Date: 2018-04-03 16:57-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1361,6 +1361,18 @@ msgid "Windows Key Create Fail"
 msgstr "User created"
 
 #, fuzzy
+msgid "Add selected"
+msgstr "Remove selected printers"
+
+#, fuzzy
+msgid "Remove selected"
+msgstr "Remove selected snapins"
+
+#, fuzzy
+msgid "Image Associated"
+msgstr "Image Association"
+
+#, fuzzy
 msgid "Associations"
 msgstr "Image Association"
 
@@ -1681,14 +1693,6 @@ msgstr "Printer update failed!"
 #, fuzzy
 msgid "Associated"
 msgstr "No node associated"
-
-#, fuzzy
-msgid "Add selected"
-msgstr "Remove selected printers"
-
-#, fuzzy
-msgid "Remove selected"
-msgstr "Remove selected snapins"
 
 #, fuzzy
 msgid "Site Host Associations"

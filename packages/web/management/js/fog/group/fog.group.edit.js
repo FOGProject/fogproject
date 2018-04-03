@@ -351,9 +351,9 @@
     });
     $('#confirmhostDeleteModal').on('click', function(e) {
         Common.deleteAssociated(hostsTable, hostsRemoveBtn.attr('action'), function(err) {
+            hostsAddBtn.prop('disabled', false);
+            hostsRemoveBtn.prop('disabled', false);
             if (err) {
-                hostsAddBtn.prop('disabled', false);
-                hostsRemoveBtn.prop('disabled', false);
                 return;
             }
             $('#hostDelModal').modal('hide');
