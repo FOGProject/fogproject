@@ -1475,6 +1475,9 @@ class HostManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'host-groups-table', $buttons);
         echo '</div>';
+        echo '<div clas="box-footer with-border">';
+        echo $this->assocDelModal('group');
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1500,16 +1503,16 @@ class HostManagement extends FOGPage
                 $this->obj->addGroup($groups);
             }
         }
-        if (isset($_POST['groupdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $groups = filter_input_array(
                 INPUT_POST,
                 [
-                    'groupRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $groups = $groups['groupRemove'];
+            $groups = $groups['remitems'];
             if (count($groups ?: []) > 0) {
                 $this->obj->removeGroup($groups);
             }
@@ -1711,6 +1714,9 @@ class HostManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'host-printers-table', $buttons);
         echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('printer');
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1749,16 +1755,16 @@ class HostManagement extends FOGPage
                 isset($_POST['default'])
             );
         }
-        if (isset($_POST['printdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $printers = filter_input_array(
                 INPUT_POST,
                 [
-                    'printerRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $printers = $printers['printerRemove'];
+            $printers = $printers['remitems'];
             if (count($printers ?: []) > 0) {
                 $this->obj->removePrinter($printers);
             }
@@ -1775,10 +1781,6 @@ class HostManagement extends FOGPage
             . $this->formAction
             . '&tab=host-snapins" ';
 
-        echo '<!-- Snapins -->';
-        echo '<div class="box-group" id="snapins">';
-        // =================================================================
-        // Associated Snapins
         $buttons = self::makeButton(
             'snapins-add',
             _('Add selected'),
@@ -1803,6 +1805,8 @@ class HostManagement extends FOGPage
             []
         ];
 
+        echo '<!-- Snapins -->';
+        echo '<div class="box-group" id="snapins">';
         echo '<div class="box box-solid">';
         echo '<div id="updatesnapins" class="">';
         echo '<div class="box-header with-border">';
@@ -1812,6 +1816,9 @@ class HostManagement extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         $this->render(12, 'host-snapins-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('snapin');
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1838,16 +1845,16 @@ class HostManagement extends FOGPage
                 $this->obj->addSnapin($snapins);
             }
         }
-        if (isset($_POST['snapdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $snapins = filter_input_array(
                 INPUT_POST,
                 [
-                    'snapinRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $snapins = $snapins['snapinRemove'];
+            $snapins = $snapins['remitems'];
             if (count($snapins ?: []) > 0) {
                 $this->obj->removeSnapin($snapins);
             }
@@ -1863,11 +1870,6 @@ class HostManagement extends FOGPage
         $props = ' method="post" action="'
             . $this->formAction
             . '&tab=host-service" ';
-        echo '<!-- Modules/Service Settings -->';
-        echo '<div class="box-group" id="modules">';
-        // =============================================================
-        // Associated Modules
-        // Buttons for this.
         $buttons = self::makeButton(
             'modules-update',
             _('Update'),
@@ -1908,6 +1910,8 @@ class HostManagement extends FOGPage
         ];
         $labelClass = 'col-sm-2 control-label';
         // Modules Enable/Disable/Selected
+        echo '<!-- Modules/Service Settings -->';
+        echo '<div class="box-group" id="modules">';
         echo '<div class="box box-info">';
         echo '<div class="box-header with-border">';
         echo '<div class="box-tools pull-right">';

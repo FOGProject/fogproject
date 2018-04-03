@@ -1696,11 +1696,10 @@ abstract class FOGPage extends FOGBase
      */
     protected function assocDelModal($item = '')
     {
-        global $node;
         return self::makeModal(
             "{$item}DelModal",
             _("Delete $item Associations"),
-            _("Confirm you would like to delete the selected {$item}s"),
+            _("Confirm you would like to dissociate the selected {$item}s"),
             self::makeButton(
                 "close{$item}DeleteModal",
                 _('Cancel'),

@@ -147,6 +147,7 @@
         Common.iCheck('#image-storagegroups-table input');
         $('#image-storagegroups-table input.primary').on('ifClicked', onRadioSelect);
         $('#image-storagegroups-table input.associated').on('ifClicked', onCheckboxSelect);
+        onStoragegroupsSelect(storagegroupsTable.rows({selected: true}));
     });
     var onRadioSelect = function(event) {
         var id = parseInt($(this).attr('value'));
@@ -291,6 +292,7 @@
     });
     hostTable.on('draw', function() {
         Common.iCheck('#image-host-table input');
+        onHostSelect(hostTable.rows({selected: true}));
     });
     hostAddBtn.on('click', function() {
         hostAddBtn.prop('disabled', true);
@@ -317,18 +319,16 @@
         });
     });
     hostRemoveBtn.on('click', function() {
-        hostAddBtn.prop('disabled', true);
-        hostRemoveBtn.prop('disabled', true);
         $('#hostDelModal').modal('show');
     });
     $('#confirmhostDeleteModal').on('click', function(e) {
         Common.deleteAssociated(hostTable, hostRemoveBtn.attr('action'), function(err) {
-            hostAddBtn.prop('disabled', false);
-            hostRemoveBtn.prop('disabled', false);
             if (err) {
                 return;
             }
             $('#hostDelModal').modal('hide');
+            hostTable.draw(false);
+            hostTable.rows({selected: true}).deselect();
         });
     });
 

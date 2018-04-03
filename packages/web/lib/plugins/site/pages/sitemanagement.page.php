@@ -383,6 +383,34 @@ class SiteManagement extends FOGPage
     public function siteHostPost()
     {
         throw new Exception('TODO: Make Functional');
+        if (isset($_POST['updatehosts'])) {
+            $hosts = filter_input_array(
+                INPUT_POST,
+                [
+                    'host' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $hosts = $hosts['host'];
+            if (count($hosts ?: []) > 0) {
+                $this->obj->addHost($hosts);
+            }
+        }
+        if (isset($_POST['confirmdel'])) {
+            $hosts = filter_input_array(
+                INPUT_POST,
+                [
+                    'remitems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $hosts = $hosts['remitems'];
+            if (count($hosts ?: []) > 0) {
+                $this->obj->removeHost($hosts);
+            }
+        }
     }
     /**
      * Presents the users list.
@@ -434,7 +462,7 @@ class SiteManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'site-user-table', $buttons);
         echo '</div>';
-        echo '<div class="footer with-border">';
+        echo '<div class="box-footer with-border">';
         echo $this->assocDelModal('user');
         echo '</div>';
         echo '</div>';
@@ -447,7 +475,34 @@ class SiteManagement extends FOGPage
      */
     public function siteUserPost()
     {
-        throw new Exception('TODO: Make Functional');
+        if (isset($_POST['updateusers'])) {
+            $users = filter_input_array(
+                INPUT_POST,
+                [
+                    'user' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $users = $users['user'];
+            if (count($users ?: []) > 0) {
+                $this->obj->addUser($users);
+            }
+        }
+        if (isset($_POST['confirmdel'])) {
+            $users = filter_input_array(
+                INPUT_POST,
+                [
+                    'remitems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $users = $users['remitems'];
+            if (count($users ?: []) > 0) {
+                $this->obj->removeUser($users);
+            }
+        }
     }
     /**
      * Edit.

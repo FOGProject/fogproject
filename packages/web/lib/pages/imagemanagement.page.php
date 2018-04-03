@@ -1618,7 +1618,7 @@ class ImageManagement extends FOGPage
     public function imageHostPost()
     {
         if (isset($_POST['updatehost'])) {
-            $host = filter_input_array(
+            $hosts = filter_input_array(
                 INPUT_POST,
                 [
                     'host' => [
@@ -1626,17 +1626,13 @@ class ImageManagement extends FOGPage
                     ]
                 ]
             );
-            $host = $host['host'];
-            self::getClass('HostManager')->update(
-                [
-                    'id' => $host
-                ],
-                '',
-                ['imageID' => $this->obj->get('id')]
-            );
+            $hosts = $hosts['host'];
+            if (count($hosts ?: []) > 0) {
+                $this->obj->addHost($hosts);
+            }
         }
         if (isset($_POST['confirmdel'])) {
-            $host = filter_input_array(
+            $hosts = filter_input_array(
                 INPUT_POST,
                 [
                     'remitems' => [
@@ -1644,15 +1640,10 @@ class ImageManagement extends FOGPage
                     ]
                 ]
             );
-            $host = $host['remitems'];
-            self::getClass('HostManager')->update(
-                [
-                    'id' => $host,
-                    'imageID' => $this->obj->get('id')
-                ],
-                '',
-                ['imageID' => '0']
-            );
+            $hosts = $hosts['remitems'];
+            if (count($hosts ?: []) > 0) {
+                $this->obj->removeHost($hosts);
+            }
         }
     }
     /**
