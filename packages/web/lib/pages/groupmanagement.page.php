@@ -2026,11 +2026,14 @@ class GroupManagement extends FOGPage
         $modalApprovalBtns .= self::makeButton(
             'tasking-close',
             _('Cancel'),
-            'btn btn-solid pull-left'
+            'btn btn-solid pull-left',
+            'data-dismiss="modal"'
         );
         $taskModal = self::makeModal(
             'task-modal',
-            _('Create new tasking'),
+            '<h4 class="box-title">'
+            . _('Create new tasking')
+            . '</h4>',
             '<div id="task-form-holder"></div>',
             $modalApprovalBtns
         );
@@ -2081,6 +2084,9 @@ class GroupManagement extends FOGPage
         echo '</div>';
         echo '</div>';
 
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $taskModal;
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -2775,16 +2781,11 @@ class GroupManagement extends FOGPage
                 );
             }
 
-            $buttons = self::makeButton(
-                'tasking-send',
-                _('Create'),
-                'btn btn-primary'
-            );
-
             self::$HookManager->processEvent(
                 'GROUP_CREATE_TASKING',
                 [
                     'fields' => &$fields,
+                    'buttons' => &$buttons,
                     'Group' => &$this->obj
                 ]
             );
