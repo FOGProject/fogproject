@@ -105,21 +105,20 @@ echo '</div>';
 echo '</nav>';
 echo '</header>';
 if (self::$FOGUser->isValid()) {
+    $userDisp = trim(self::$FOGUser->getDisplayName());
+    if (!$userDisp) {
+        $userDisp = trim(self::$FOGUser->get('name'));
+    }
     // NAVBAR
     echo '<aside class="main-sidebar">';
     echo '<section class="sidebar">';
     echo '<div class="user-panel">';
-    //echo '<div class="pull-left image">';
-    //echo '<img src="dist/img/user2-160x160.jpg" '
-    //    . 'class="img-circle" alt="User Image">';
-    //echo '</div>';
     echo '<div class="">';
-    echo '<a class="fog-user">'
-        . trim(self::$FOGUser->getDisplayName()) ?: self::$FOGUser->get('name')
+    echo '<a href="../management/index.php?node=user&sub=edit&id='
+        . self::$FOGUser->get('id')
+        . '" class="fog-user">'
+        . $userDisp
         . '</a>';
-    //echo '<a href="#"><i class="fa fa-circle text-success"></i> '
-    //    . _('Online')
-    //    . '</a>';
     echo '</div>';
     echo '</div>';
     echo FOGPage::makeFormTag(
