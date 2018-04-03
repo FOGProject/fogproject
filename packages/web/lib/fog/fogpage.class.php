@@ -1688,6 +1688,35 @@ abstract class FOGPage extends FOGBase
         );
     }
     /**
+     * Presents the assoc delete modal.
+     *
+     * @param string $item The item we're working with.
+     *
+     * @return string
+     */
+    protected function assocDelModal($item = '')
+    {
+        global $node;
+        return self::makeModal(
+            "{$item}DelModal",
+            _("Delete $item Associations"),
+            _("Confirm you would like to delete the selected {$item}s"),
+            self::makeButton(
+                "close{$item}DeleteModal",
+                _('Cancel'),
+                'btn btn-outline pull-left',
+                'data-dismiss="modal"'
+            )
+            . self::makeButton(
+                "confirm{$item}DeleteModal",
+                _('Delete'),
+                'btn btn-outline pull-right'
+            ),
+            '',
+            'warning'
+        );
+    }
+    /**
      * Sends the new client the configuration options
      *
      * @return void

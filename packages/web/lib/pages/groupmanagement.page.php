@@ -833,6 +833,9 @@ class GroupManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'group-hosts-table', $buttons);
         echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('host');
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -858,16 +861,16 @@ class GroupManagement extends FOGPage
                 $this->obj->addHost($hosts);
             }
         }
-        if (isset($_POST['hostdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $hosts = filter_input_array(
                 INPUT_POST,
                 [
-                    'hostRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $hosts = $hosts['hostRemove'];
+            $hosts = $hosts['remitems'];
             if (count($hosts ?: []) > 0) {
                 $this->obj->removeHost($hosts);
             }
@@ -1068,6 +1071,9 @@ class GroupManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'group-printers-table', $buttons);
         echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('printer');
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1111,16 +1117,16 @@ class GroupManagement extends FOGPage
                 isset($_POST['default'])
             );
         }
-        if (isset($_POST['printdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $printers = filter_input_array(
                 INPUT_POST,
                 [
-                    'printerRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $printers = $printers['printerRemove'];
+            $printers = $printers['remitems'];
             if (count($printers ?: []) > 0) {
                 $this->obj->removePrinter($printers);
             }
@@ -1175,6 +1181,9 @@ class GroupManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'group-snapins-table', $buttons);
         echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('snapin');
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1200,16 +1209,16 @@ class GroupManagement extends FOGPage
                 $this->obj->addSnapin($snapins);
             }
         }
-        if (isset($_POST['snapdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $snapins = filter_input_array(
                 INPUT_POST,
                 [
-                    'snapinRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $snapins = $snapins['snapinRemove'];
+            $snapins = $snapins['remitems'];
             if (count($snapins ?: []) > 0) {
                 $this->obj->removeSnapin($snapins);
             }
@@ -1630,7 +1639,7 @@ class GroupManagement extends FOGPage
             'btn btn-primary'
         );
         $buttons .= self::makeButton(
-            'scheduleCreateBtn',
+            'scheduleBtn',
             _('Create New Scheduled'),
             'btn btn-info'
         );
