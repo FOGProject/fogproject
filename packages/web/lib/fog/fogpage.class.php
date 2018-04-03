@@ -1698,8 +1698,8 @@ abstract class FOGPage extends FOGBase
     {
         return self::makeModal(
             "{$item}DelModal",
-            _("Delete $item Associations"),
-            _("Confirm you would like to dissociate the selected {$item}s"),
+            _("Remove $item Associations"),
+            _("Please confirm you would like to dissociate the selected {$item}s"),
             self::makeButton(
                 "close{$item}DeleteModal",
                 _('Cancel'),
