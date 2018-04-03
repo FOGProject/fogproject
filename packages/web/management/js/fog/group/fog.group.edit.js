@@ -323,8 +323,6 @@
     });
 
     hostsAddBtn.on('click', function() {
-        hostsAddBtn.prop('disabled', true);
-        hostsRemoveBtn.prop('disabled', true);
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = hostsTable.rows({selected: true}),
@@ -334,8 +332,6 @@
                 host: toAdd
             };
         Common.apiCall(method,action,opts,function(err) {
-            hostsAddBtn.prop('disabled', false);
-            hostsRemoveBtn.prop('disabled', false);
             if (err) {
                 return;
             }
@@ -345,18 +341,16 @@
     });
 
     hostsRemoveBtn.on('click', function() {
-        hostsAddBtn.prop('disabled', true);
-        hostsRemoveBtn.prop('disabled', true);
         $('#hostDelModal').modal('show');
     });
     $('#confirmhostDeleteModal').on('click', function(e) {
         Common.deleteAssociated(hostsTable, hostsRemoveBtn.attr('action'), function(err) {
-            hostsAddBtn.prop('disabled', false);
-            hostsRemoveBtn.prop('disabled', false);
             if (err) {
                 return;
             }
             $('#hostDelModal').modal('hide');
+            hostsTable.draw(false);
+            hostsTable.rows({selected: true}).deselect();
         });
     });
 

@@ -1197,6 +1197,9 @@ class PrinterManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'printer-membership-table', $buttons);
         echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('host');
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1250,16 +1253,16 @@ class PrinterManagement extends FOGPage
             $membership = $membership['membership'];
             $this->obj->addHost($membership);
         }
-        if (isset($_POST['membershipdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $membership = filter_input_array(
                 INPUT_POST,
                 [
-                    'membershipRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $membership = $membership['membershipRemove'];
+            $membership = $membership['remitems'];
             self::getClass('PrinterAssociationManager')->destroy(
                 [
                     'printerID' => $this->obj->get('id'),

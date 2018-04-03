@@ -433,6 +433,34 @@ class WindowsKeyManagement extends FOGPage
      */
     public function windowsKeyImagePost()
     {
+        if (isset($_POST['updateimage'])) {
+            $image = filter_input_array(
+                INPUT_POST,
+                [
+                    'image' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $image = $image['image'];
+            if (count($image ?: []) > 0) {
+                $this->obj->addImage($image);
+            }
+        }
+        if (isset($_POST['confirmdel'])) {
+            $image = filter_input_array(
+                INPUT_POST,
+                [
+                    'remitems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $image = $image['remitems'];
+            if (count($image ?: []) > 0) {
+                $this->obj->removeImage($image);
+            }
+        }
     }
     /**
      * Present the windows key to edit the page.
