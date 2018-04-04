@@ -1,7 +1,8 @@
 (function($) {
     // ----------------------------------------------------
     // GENERAL TAB
-    var originalName = $('#user').val();
+    var originalName = $('#user').val(),
+        originalDisplayName = $('.fog-user').text();
 
     var updateName = function(newName) {
         var e = $('#pageTitle'),
@@ -11,11 +12,18 @@
         e.text(text);
     };
 
+    var updateDisplayName = function(newName) {
+        var e = $('.fog-user'),
+            text = e.text();
+        text = text.replace(originalDisplayName, newName)
+        e.text(text);
+    };
+
     var generalForm = $('#user-general-form'),
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
         generalDeleteModal = $('#deleteModal'),
-        generalDeleteModalConfirm $('#confirmDeleteModal'),
+        generalDeleteModalConfirm = $('#confirmDeleteModal'),
         generalDeleteModalCancel = $('#closeDeleteModal');
 
     generalForm.on('submit',function(e) {
@@ -30,8 +38,23 @@
             if (err) {
                 return;
             }
-            updateName($('#user').val());
-            originalName = $('#user').val();
+            newName = $('#user').val().trim();
+            anchorFields = getQueryParams($('.fog-user').attr('href'));
+            foguser = {
+                node: anchorFields['node'],
+                sub: anchorFields['sub'],
+                id: anchorFields['id']
+            };
+            if (Common.id == foguser.id) {
+                newDisplay = $('#display').val().trim();
+                if (!newDisplay) {
+                    newDisplay = newName;
+                }
+                updateDisplayName(newDisplay);
+                originalDisplayName = newDisplay;
+            }
+            updateName(newName);
+            originalName = newName;
         });
     });
     generalDeleteBtn.on('click', function() {
