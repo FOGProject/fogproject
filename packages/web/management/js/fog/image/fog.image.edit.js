@@ -217,8 +217,6 @@
         });
     });
     storagegroupsRemoveBtn.on('click', function() {
-        storagegroupsAddBtn.prop('disabled', true);
-        $(this).prop('disabled', true);
         $('#storagegroupDelModal').modal('show');
     });
     $('#confirmstoragegroupDeleteModal').on('click', function(e) {
@@ -227,6 +225,8 @@
                 return;
             }
             $('#storagegroupDelModal').modal('hide');
+            storagegroupsTable.draw(false);
+            storagegroupsTable.rows({selected: true}).deselect();
         });
     });
 

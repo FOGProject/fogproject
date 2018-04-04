@@ -612,6 +612,7 @@
     printersTable.on('draw', function() {
         Common.iCheck('#host-printers input');
         $('#host-printers-table input.default').on('ifClicked', onRadioSelect);
+        onPrintersSelect(printersTable.rows({selected: true}));
     });
     printerDefaultBtn.prop('disabled', true);
 
@@ -701,26 +702,15 @@
         });
     });
 
-    printerRemoveBtn.on('click',function() {
-        printerAddBtn.prop('disabled', true);
-        printerRemoveBtn.prop('disabled', true);
-        printerDefaultBtn.prop('disabled', true);
-
-        var method = printerRemoveBtn.attr('method'),
-            action = printerRemoveBtn.attr('action'),
-            rows = printersTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(printersTable),
-            opts = {
-                printdel: 1,
-                printerRemove: toRemove
-            };
-
-        Common.apiCall(method,action,opts,function(err) {
-            printerDefaultBtn.prop('disabled', false);
-            printerRemoveBtn.prop('disabled', false);
+    printerRemoveBtn.on('click', function() {
+        $('#printerDelModal').modal('show');
+    });
+    $('#confirmprinterDeleteModal').on('click', function(e) {
+        Common.deleteAssociated(printersTable, printerRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }
+            $('#printerDelModal').modal('hide');
             printersTable.draw(false);
             printersTable.rows({selected: true}).deselect();
         });
@@ -810,22 +800,15 @@
         });
     });
 
-    snapinsRemoveBtn.on('click',function() {
-        snapinsRemoveBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = snapinsTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(snapinsTable),
-            opts = {
-                snapdel: 1,
-                snapinRemove: toRemove
-            };
-        Common.apiCall(method,action,opts,function(err) {
-            snapinsAddBtn.prop('disabled', false);
-            snapinsRemoveBtn.prop('disabled', false);
+    snapinsRemoveBtn.on('click', function() {
+        $('#snapinDelModal').modal('show');
+    });
+    $('#confirmsnapinDeleteModal').on('click', function(e) {
+        Common.deleteAssociated(snapinsTable, snapinsRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }
+            $('#snapinDelModal').modal('hide');
             snapinsTable.draw(false);
             snapinsTable.rows({selected: true}).deselect();
         });
@@ -1184,22 +1167,15 @@
         });
     });
 
-    groupsRemoveBtn.on('click',function() {
-        groupsRemoveBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = groupsTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(groupsTable),
-            opts = {
-                groupdel: 1,
-                groupRemove: toRemove
-            };
-        Common.apiCall(method,action,opts,function(err) {
-            groupsAddBtn.prop('disabled', false);
-            groupsRemoveBtn.prop('disabled', false);
+    groupsRemoveBtn.on('click', function() {
+        $('#groupDelModal').modal('show');
+    });
+    $('#confirmgroupDeleteModal').on('click', function(e) {
+        Common.deleteAssociated(groupsTable, groupsRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }
+            $('#groupDelModal').modal('hide');
             groupsTable.draw(false);
             groupsTable.rows({selected: true}).deselect();
         });
