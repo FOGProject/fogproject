@@ -57,7 +57,7 @@ class PushbulletManagement extends FOGPage
         $this->title = _('Link Pushbullet Account');
         $apiToken = filter_input(INPUT_POST, 'apiToken');
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(

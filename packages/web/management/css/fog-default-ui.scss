@@ -74,3 +74,70 @@ header.main-header .mobile-logo {
     background-color: #367fa9;
   }
 }
+
+// FIX: iradio buttons shifted up for some reason
+.form-group .iradio_square-blue,
+.form-group .icheckbox_square-blue {
+  margin-top: 7px;
+}
+
+.modal .modal-dialog .modal-body {
+  background-color: #FFFFFF !important;
+  color: #646464 !important;
+}
+
+.modal .modal-dialog .modal-footer {
+  background-color: #dfdfdf !important;
+  border-top-color: #bfbfbf;
+}
+
+.modal .modal-dialog .modal-footer .btn {
+  border-color: #428bca !important;
+  background-color: #428bca !important;
+}
+
+.modal-success .modal-dialog .modal-footer .btn {
+  border-color: #008d4c !important;
+  background-color: #008d4c !important;
+}
+
+.modal-warning .modal-dialog .modal-footer .btn {
+  border-color: #db8b0b !important;
+  background-color: #db8b0b !important;
+}
+
+.modal-danger .modal-dialog .modal-footer .btn {
+  border-color: #d33724 !important;
+  background-color: #d33724 !important;
+}
+
+.modal .modal-dialog .modal-footer .btn.pull-left {
+  border: none;
+  background-color: #FFF !important;
+  color: #646464 !important;
+}
+
+.overlay, #loadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255,255,255,0.3) !important;
+}
+
+.box .overlay>.fa, .overlay-wrapper .overlay>.fa {
+  margin-left: -20px;
+  margin-top: -20px;
+  color: #646464;
+  font-size: 40px;
+
+  &.fa-spin {
+    -webkit-animation: fa-spin 1.5s infinite linear;
+    animation: fa-spin 1.5s infinite linear;
+  }
+}
+
+.task-name:not(:empty)::before {
+  content: ": ";
+}

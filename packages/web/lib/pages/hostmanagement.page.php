@@ -450,7 +450,7 @@ class HostManagement extends FOGPage
         $imageSelector = self::getClass('ImageManager')
             ->buildSelectBox($image, '', 'id');
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -885,7 +885,7 @@ class HostManagement extends FOGPage
             $this->obj->get('kernelDevice')
         );
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -1166,7 +1166,7 @@ class HostManagement extends FOGPage
 
         $fields = [
             self::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'newMac',
                 _('Add New MAC')
             ) => self::makeInput(
@@ -1908,7 +1908,7 @@ class HostManagement extends FOGPage
             [],
             []
         ];
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
         // Modules Enable/Disable/Selected
         echo '<!-- Modules/Service Settings -->';
         echo '<div class="box-group" id="modules">';
@@ -2018,7 +2018,7 @@ class HostManagement extends FOGPage
             }
             $fields[
                 self::makeLabel(
-                    'col-sm-2 control-label',
+                    'col-sm-3 control-label',
                     $name,
                     $get[1]
                 )
@@ -2082,7 +2082,7 @@ class HostManagement extends FOGPage
         }
         $fields = [
             self::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'tme',
                 _('Auto Logout Time')
                 . '<br/>('
@@ -2564,7 +2564,7 @@ class HostManagement extends FOGPage
         $caseser = $Inv->get('caseserial');
         $caseast = $Inv->get('caseasset');
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -4371,7 +4371,9 @@ class HostManagement extends FOGPage
         );
         $taskModal = self::makeModal(
             'task-modal',
-            _('Create new tasking'),
+            '<h4 class="box-title">'
+            . _('Create new tasking')
+            . '<span class="task-name"></span></h4>',
             '<div id="task-form-holder"></div>',
             $modalApprovalBtns,
             '',
@@ -4487,7 +4489,7 @@ class HostManagement extends FOGPage
             ) {
                 throw new Exception(_('Assigned image is protected'));
             }
-            $labelClass = 'col-sm-2 control-label';
+            $labelClass = 'col-sm-3 control-label';
             $fields = [];
             if ($issnapintask
                 && TaskType::SINGLE_SNAPIN == $type

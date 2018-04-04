@@ -90,7 +90,7 @@ class StorageNodeManagement extends FOGPage
         $user = filter_input(INPUT_POST, 'user');
         $pass = filter_input(INPUT_POST, 'pass');
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             // Basic information
@@ -641,7 +641,7 @@ class StorageNodeManagement extends FOGPage
             $isMaster = '';
         }
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             // Basic information

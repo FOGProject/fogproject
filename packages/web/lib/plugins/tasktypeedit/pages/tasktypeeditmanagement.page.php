@@ -85,7 +85,7 @@ class TasktypeeditManagement extends FOGPage
         $iconSel = self::getClass('TaskType')->iconlist($icon);
         unset($accessTypes);
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -392,7 +392,7 @@ class TasktypeeditManagement extends FOGPage
         $iconSel = self::getClass('TaskType')->iconlist($icon);
         unset($accessTypes);
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(

@@ -97,7 +97,7 @@ class AddAccessControlUser extends Hook
             ->buildSelectBox($accesscontrolID, 'accesscontrol');
         $fields = [
             FOGPage::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'accesscontrol',
                 _('User Role')
             ) => $accesscontrolSelector
@@ -233,7 +233,7 @@ class AddAccessControlUser extends Hook
         $accesscontrolID = (int)filter_input(INPUT_POST, 'accesscontrol');
         $arguments['fields'][
             FOGPage::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'accesscontrol',
                 _('User Role')
             )

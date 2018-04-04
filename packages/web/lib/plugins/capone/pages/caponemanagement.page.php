@@ -65,7 +65,7 @@ class CaponeManagement extends FOGPage
         $imageSelector = self::getClass('ImageManager')
             ->buildSelectBox($image);
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -234,7 +234,7 @@ class CaponeManagement extends FOGPage
         $imageSelector = self::getClass('ImageManager')
             ->buildSelectBox($image);
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -433,7 +433,7 @@ class CaponeManagement extends FOGPage
             true
         );
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(

@@ -60,7 +60,7 @@ class WindowsKeyManagement extends FOGPage
         $description = filter_input(INPUT_POST, 'description');
         $key = filter_input(INPUT_POST, 'key');
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -259,7 +259,7 @@ class WindowsKeyManagement extends FOGPage
             $key = $keytest;
         }
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
