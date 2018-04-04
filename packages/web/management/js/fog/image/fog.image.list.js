@@ -1,10 +1,6 @@
 (function($) {
-    var deleteSelected = $('#deleteSelected'),
-        deleteModal = $('#deleteModal'),
-        passwordField = $('#deletePassword'),
-        confirmDelete = $('#confirmDeleteModal'),
-        cancelDelete = $('#closeDeleteModal'),
-        numImageString = confirmDelete.val();
+    var deleteSelected = $('#deleteSelected');
+
     function disableButtons(disable) {
         deleteSelected.prop('disabled', disable);
     }
@@ -70,15 +66,15 @@
     if (Common.search && Common.search.length > 0) {
         table.search(Common.search).draw();
     }
+
     deleteSelected.on('click', function() {
         disableButtons(true);
-        confirmDelete.val(numImageString.format(''));
-        Common.massDelete(null, function(err) {
-            if (err.status == 401) {
-                deleteModal.modal('show');
-            } else {
-                onSelect(table.rows({selected: true}));
+        Common.deleteSelected(table, function(err) {
+            // if we couldn't delete the items, enable the buttons
+            // as the rows still exist and are selected.
+            if (err) {
+                disableButtons(false);
             }
-        }, table);
+        });
     });
 })(jQuery);

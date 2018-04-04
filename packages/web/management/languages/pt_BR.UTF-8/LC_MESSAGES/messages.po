@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 21:09-0400\n"
+"POT-Creation-Date: 2018-04-03 16:57-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1362,6 +1362,18 @@ msgid "Windows Key Create Fail"
 msgstr "usuário criado"
 
 #, fuzzy
+msgid "Add selected"
+msgstr "Impressora"
+
+#, fuzzy
+msgid "Remove selected"
+msgstr "Remover snapins selecionados"
+
+#, fuzzy
+msgid "Image Associated"
+msgstr "Associação imagem"
+
+#, fuzzy
 msgid "Associations"
 msgstr "Associação imagem"
 
@@ -1682,14 +1694,6 @@ msgstr "atualização da impressora falhou!"
 #, fuzzy
 msgid "Associated"
 msgstr "No nó associado"
-
-#, fuzzy
-msgid "Add selected"
-msgstr "Impressora"
-
-#, fuzzy
-msgid "Remove selected"
-msgstr "Remover snapins selecionados"
 
 #, fuzzy
 msgid "Site Host Associations"
@@ -3355,6 +3359,10 @@ msgid "Client Module Settings"
 msgstr "Configurações"
 
 #, fuzzy
+msgid "Create new tasking"
+msgstr "Criar novo %s"
+
+#, fuzzy
 msgid "Advanced Tasks"
 msgstr "avançado"
 
@@ -3416,9 +3424,6 @@ msgstr "Scheduler"
 msgid "Schedule Crontab Style"
 msgstr "Scheduler"
 
-msgid "Special Crons"
-msgstr ""
-
 msgid "Cron Entry"
 msgstr ""
 
@@ -3439,6 +3444,74 @@ msgstr "Por mês"
 
 msgid "weekday"
 msgstr ""
+
+#, fuzzy
+msgid "Create task form success"
+msgstr "usuário criado"
+
+#, fuzzy
+msgid "Create task form fail"
+msgstr "usuário criado"
+
+#, fuzzy
+msgid "No hosts available to be tasked"
+msgstr "Hotéis em Task"
+
+msgid "No hosts are assigned an image"
+msgstr ""
+
+msgid "All hosts must have the same image assigned"
+msgstr ""
+
+#, fuzzy
+msgid "Task Type is invalid"
+msgstr "tipo de tarefa não é válido"
+
+msgid "Password reset requires a user account"
+msgstr ""
+
+#, fuzzy
+msgid "Invalid scheduling type"
+msgstr "tipo de objeto inválido passado"
+
+#, fuzzy
+msgid "Scheduled time is in the past"
+msgstr "Data prevista está no passado"
+
+#, fuzzy
+msgid "Minutes field is invalid"
+msgstr "valor do minuto não é válido"
+
+#, fuzzy
+msgid "Hours field is invalid"
+msgstr "valor da hora não é válido"
+
+#, fuzzy
+msgid "Day of Month field is invalid"
+msgstr "Dia do valor do mês não é válido"
+
+#, fuzzy
+msgid "Month field is invalid"
+msgstr "valor do mês não é válido"
+
+#, fuzzy
+msgid "Day of Week field is invalid"
+msgstr "Dia do valor semana não é válida"
+
+#, fuzzy
+msgid "Failed to create scheduled task"
+msgstr "Falha ao criar tarefa"
+
+msgid "Create tasking succeeded"
+msgstr ""
+
+#, fuzzy
+msgid "Create Task Success"
+msgstr "usuário criado"
+
+#, fuzzy
+msgid "Create Task Fail"
+msgstr "usuário criado"
 
 #, fuzzy
 msgid "Import Reports"
@@ -4555,6 +4628,12 @@ msgstr "Grupo de armazenamento Atualizado"
 msgid "Started By"
 msgstr "Criado por"
 
+msgid "Cron"
+msgstr "cron"
+
+msgid "Delayed"
+msgstr "atrasado"
+
 #, fuzzy
 msgid "Selected tasks cancelled!"
 msgstr "foi atualizado com sucesso"
@@ -4580,9 +4659,6 @@ msgstr "Hotéis em Task"
 
 msgid "Host/Group Name"
 msgstr "Nome do host / Grupo"
-
-msgid "Is Group"
-msgstr "Grupo está"
 
 msgid "Task Type"
 msgstr "Tipo de tarefa"
@@ -4951,6 +5027,21 @@ msgstr "A imagem não está habilitado"
 #, fuzzy
 msgid "Assigned image is protected"
 msgstr "Nenhuma selecionada ou item é protegido"
+
+#, fuzzy
+msgid "Pending hosts cannot be tasked"
+msgstr "anfitriões pendentes"
+
+#, fuzzy
+msgid "Image is invalid"
+msgstr "A imagem não é válida"
+
+msgid "Image is not enabled"
+msgstr "A imagem não está habilitado"
+
+#, fuzzy
+msgid "Image is protected"
+msgstr "Protegido"
 
 msgid "Click"
 msgstr "Clique"
@@ -6332,12 +6423,6 @@ msgstr "de hora em hora"
 msgid "Please Select an option"
 msgstr "Por favor selecione uma opção"
 
-msgid "Cron"
-msgstr "cron"
-
-msgid "Delayed"
-msgstr "atrasado"
-
 msgid "Could not read tmp file."
 msgstr "Não foi possível ler o arquivo tmp."
 
@@ -6393,8 +6478,9 @@ msgstr "Cancelado devido à nova tarefa."
 msgid "Failed to create Snapin Job"
 msgstr "Falha ao criar Snapin Job"
 
-msgid "Image is not enabled"
-msgstr "A imagem não está habilitado"
+#, fuzzy
+msgid "Unable to update task"
+msgstr "Falha ao atualizar tarefa"
 
 #, fuzzy
 msgid "Could not find any"
@@ -6403,6 +6489,18 @@ msgstr "Não foi possível encontrar temporário filename"
 #, fuzzy
 msgid "nodes containing this image"
 msgstr "Não foi possível encontrar todos os nós que contêm esta imagem"
+
+#, fuzzy
+msgid "Could not update host"
+msgstr "Falha ao atualizar"
+
+#, fuzzy
+msgid "Failed to create multicast task"
+msgstr "Falha ao criar tarefa"
+
+#, fuzzy
+msgid "Unable to create association"
+msgstr "Falha ao criar sessão"
 
 #, fuzzy
 msgid "No valid Image defined for this host"
@@ -6432,20 +6530,19 @@ msgid "Multicast Image"
 msgstr "multicast"
 
 #, fuzzy
+msgid "All "
+msgstr "Todos os hosts"
+
+#, fuzzy
 msgid "Add selected to group"
 msgstr "Impressora"
 
-#, fuzzy
-msgid "Unable to determine status"
-msgstr "Não foi possível determinar detalhes de plugin"
+msgid "s"
+msgstr ""
 
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "Adicionar grupo de armazenamento"
-
-#, fuzzy
-msgid "Remove these items?"
-msgstr "Remover snapins selecionados"
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -6498,12 +6595,12 @@ msgid "Unable to connect to ftp"
 msgstr "Falhou ao conectar"
 
 #, fuzzy
-msgid "Delete hosts within"
-msgstr "Excluir todos os hosts dentro do grupo"
+msgid "Delete associated hosts"
+msgstr "Delete Selected"
 
 #, fuzzy
-msgid "Delete files"
-msgstr "Apagar dados de arquivo"
+msgid "Remove file data"
+msgstr "Removido"
 
 msgid "Encryption Data Reset"
 msgstr ""
@@ -6512,14 +6609,21 @@ msgstr ""
 msgid "Reset Encryption Success"
 msgstr "usuário criado"
 
-msgid "is protected, removal not allowed"
-msgstr "é protegido, a remoção não permitidos"
+#, fuzzy
+msgid "Unable to remove protected items"
+msgstr "Falha ao atualizar tarefa"
 
-msgid "Failed to destroy"
-msgstr "Falha ao destruir"
+#, fuzzy
+msgid "Failed to remove hosts"
+msgstr "Falha ao criar o Host"
 
-msgid "deleted"
-msgstr "suprimido"
+#, fuzzy
+msgid "Unable to delete file data"
+msgstr "Falha ao excluir arquivo"
+
+#, fuzzy
+msgid "Failed to remove"
+msgstr "Falhou ao conectar"
 
 #, fuzzy
 msgid "Delete Fail"
@@ -6758,6 +6862,14 @@ msgstr "Hotéis em Task"
 #, fuzzy
 msgid "Unable to find master Storage Node"
 msgstr "Falha ao destruir Storage Node"
+
+#, fuzzy
+msgid "No master nodes available"
+msgstr "Nenhum de hash disponíveis"
+
+#, fuzzy
+msgid "No nodes available"
+msgstr "Nenhum de hash disponíveis"
 
 msgid "No FOGPage Class found for this node"
 msgstr "Sem FOGPage classe encontrada para este nó"

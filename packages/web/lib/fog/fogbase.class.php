@@ -2248,18 +2248,23 @@ abstract class FOGBase
         if ($macCount < 1) {
             return;
         }
-        foreach ((array)self::getClass('StorageNodeManager')
-            ->find(
-                ['isEnabled' => 1]
-            ) as &$Node
-        ) {
-            $ip = $Node->get('ip');
+        Route::listem(
+            'storagenode',
+            ['ngmIsEnabled' => 1]
+        );
+        $StorageNodes = json_decode(
+            Route::getData()
+        );
+        foreach ($StorageNodes->data as &$StorageNode) {
+            if (!$StorageNode->online) {
+                continue;
+            }
             $nodeURLs[] = sprintf(
                 $url,
                 self::$httpproto,
-                $ip
+                $StorageNode->ip
             );
-            unset($Node);
+            unset($StorageNode);
         }
         list(
             $gHost

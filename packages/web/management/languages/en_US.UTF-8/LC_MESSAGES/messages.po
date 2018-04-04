@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 21:09-0400\n"
+"POT-Creation-Date: 2018-04-03 16:57-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1361,6 +1361,18 @@ msgid "Windows Key Create Fail"
 msgstr "User created"
 
 #, fuzzy
+msgid "Add selected"
+msgstr "Remove selected printers"
+
+#, fuzzy
+msgid "Remove selected"
+msgstr "Remove selected snapins"
+
+#, fuzzy
+msgid "Image Associated"
+msgstr "Image Association"
+
+#, fuzzy
 msgid "Associations"
 msgstr "Image Association"
 
@@ -1681,14 +1693,6 @@ msgstr "Printer update failed!"
 #, fuzzy
 msgid "Associated"
 msgstr "No node associated"
-
-#, fuzzy
-msgid "Add selected"
-msgstr "Remove selected printers"
-
-#, fuzzy
-msgid "Remove selected"
-msgstr "Remove selected snapins"
 
 #, fuzzy
 msgid "Site Host Associations"
@@ -3352,6 +3356,10 @@ msgid "Client Module Settings"
 msgstr "Settings"
 
 #, fuzzy
+msgid "Create new tasking"
+msgstr "Create New %s"
+
+#, fuzzy
 msgid "Advanced Tasks"
 msgstr "Advanced"
 
@@ -3413,9 +3421,6 @@ msgstr "Scheduler"
 msgid "Schedule Crontab Style"
 msgstr "Scheduler"
 
-msgid "Special Crons"
-msgstr ""
-
 msgid "Cron Entry"
 msgstr ""
 
@@ -3436,6 +3441,74 @@ msgstr "Monthly"
 
 msgid "weekday"
 msgstr ""
+
+#, fuzzy
+msgid "Create task form success"
+msgstr "User created"
+
+#, fuzzy
+msgid "Create task form fail"
+msgstr "User created"
+
+#, fuzzy
+msgid "No hosts available to be tasked"
+msgstr "Hosts in Task"
+
+msgid "No hosts are assigned an image"
+msgstr ""
+
+msgid "All hosts must have the same image assigned"
+msgstr ""
+
+#, fuzzy
+msgid "Task Type is invalid"
+msgstr "Task type is not valid"
+
+msgid "Password reset requires a user account"
+msgstr ""
+
+#, fuzzy
+msgid "Invalid scheduling type"
+msgstr "Invalid object type passed"
+
+#, fuzzy
+msgid "Scheduled time is in the past"
+msgstr "Scheduled date is in the past"
+
+#, fuzzy
+msgid "Minutes field is invalid"
+msgstr "Minute value is not valid"
+
+#, fuzzy
+msgid "Hours field is invalid"
+msgstr "Hour value is not valid"
+
+#, fuzzy
+msgid "Day of Month field is invalid"
+msgstr "Day of month value is not valid"
+
+#, fuzzy
+msgid "Month field is invalid"
+msgstr "Month value is not valid"
+
+#, fuzzy
+msgid "Day of Week field is invalid"
+msgstr "Day of week value is not valid"
+
+#, fuzzy
+msgid "Failed to create scheduled task"
+msgstr "Failed to create task"
+
+msgid "Create tasking succeeded"
+msgstr ""
+
+#, fuzzy
+msgid "Create Task Success"
+msgstr "User created"
+
+#, fuzzy
+msgid "Create Task Fail"
+msgstr "User created"
 
 #, fuzzy
 msgid "Import Reports"
@@ -4552,6 +4625,12 @@ msgstr "Storage Group Updated"
 msgid "Started By"
 msgstr "Created By"
 
+msgid "Cron"
+msgstr "Cron"
+
+msgid "Delayed"
+msgstr "Delayed"
+
 #, fuzzy
 msgid "Selected tasks cancelled!"
 msgstr "has been successfully updated"
@@ -4577,9 +4656,6 @@ msgstr "Hosts in Task"
 
 msgid "Host/Group Name"
 msgstr "Host/Group Name"
-
-msgid "Is Group"
-msgstr "Is Group"
 
 msgid "Task Type"
 msgstr "Task Type"
@@ -4947,6 +5023,21 @@ msgstr "Image is not enabled"
 #, fuzzy
 msgid "Assigned image is protected"
 msgstr "None selected or item is protected"
+
+#, fuzzy
+msgid "Pending hosts cannot be tasked"
+msgstr "Pending hosts"
+
+#, fuzzy
+msgid "Image is invalid"
+msgstr "Image is not valid"
+
+msgid "Image is not enabled"
+msgstr "Image is not enabled"
+
+#, fuzzy
+msgid "Image is protected"
+msgstr "Protected"
 
 msgid "Click"
 msgstr "Click"
@@ -6327,12 +6418,6 @@ msgstr "Hourly"
 msgid "Please Select an option"
 msgstr "Please Select an option"
 
-msgid "Cron"
-msgstr "Cron"
-
-msgid "Delayed"
-msgstr "Delayed"
-
 msgid "Could not read tmp file."
 msgstr "Could not read tmp file."
 
@@ -6387,8 +6472,9 @@ msgstr "Cancelled due to new tasking."
 msgid "Failed to create Snapin Job"
 msgstr "Failed to create Snapin Job"
 
-msgid "Image is not enabled"
-msgstr "Image is not enabled"
+#, fuzzy
+msgid "Unable to update task"
+msgstr "Failed to update task"
 
 #, fuzzy
 msgid "Could not find any"
@@ -6397,6 +6483,18 @@ msgstr "Could not find temp filename"
 #, fuzzy
 msgid "nodes containing this image"
 msgstr "Could not find any nodes containing this image"
+
+#, fuzzy
+msgid "Could not update host"
+msgstr "Failed to update"
+
+#, fuzzy
+msgid "Failed to create multicast task"
+msgstr "Failed to create task"
+
+#, fuzzy
+msgid "Unable to create association"
+msgstr "Failed to create Session"
 
 #, fuzzy
 msgid "No valid Image defined for this host"
@@ -6426,20 +6524,19 @@ msgid "Multicast Image"
 msgstr "Multicast"
 
 #, fuzzy
+msgid "All "
+msgstr "All Hosts"
+
+#, fuzzy
 msgid "Add selected to group"
 msgstr "Remove selected snapins"
 
-#, fuzzy
-msgid "Unable to determine status"
-msgstr "Unable to determine plugin details"
+msgid "s"
+msgstr ""
 
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "Add Storage Group"
-
-#, fuzzy
-msgid "Remove these items?"
-msgstr "Remove selected printers"
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -6491,12 +6588,12 @@ msgid "Unable to connect to ftp"
 msgstr "Failed to connect"
 
 #, fuzzy
-msgid "Delete hosts within"
-msgstr "Delete all hosts within group"
+msgid "Delete associated hosts"
+msgstr "Delete Selected"
 
 #, fuzzy
-msgid "Delete files"
-msgstr "Delete file data"
+msgid "Remove file data"
+msgstr "Removed"
 
 msgid "Encryption Data Reset"
 msgstr ""
@@ -6505,14 +6602,21 @@ msgstr ""
 msgid "Reset Encryption Success"
 msgstr "User created"
 
-msgid "is protected, removal not allowed"
-msgstr "is protected, removal not allowed"
+#, fuzzy
+msgid "Unable to remove protected items"
+msgstr "Failed to update task"
 
-msgid "Failed to destroy"
-msgstr "Failed to destroy"
+#, fuzzy
+msgid "Failed to remove hosts"
+msgstr "Failed to create Host"
 
-msgid "deleted"
-msgstr "deleted"
+#, fuzzy
+msgid "Unable to delete file data"
+msgstr "Failed to delete file"
+
+#, fuzzy
+msgid "Failed to remove"
+msgstr "Failed to connect"
 
 #, fuzzy
 msgid "Delete Fail"
@@ -6753,6 +6857,14 @@ msgstr "Hosts in Task"
 #, fuzzy
 msgid "Unable to find master Storage Node"
 msgstr "Failed to destroy Storage Node"
+
+#, fuzzy
+msgid "No master nodes available"
+msgstr "No hash available"
+
+#, fuzzy
+msgid "No nodes available"
+msgstr "No hash available"
 
 msgid "No FOGPage Class found for this node"
 msgstr "No FOGPage Class found for this node"

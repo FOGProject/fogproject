@@ -419,13 +419,14 @@ class GroupManagement extends FOGPage
         $modalresetBtn = self::makeButton(
             'resetencryptionConfirm',
             _('Confirm'),
-            'btn btn-primary',
+            'btn btn-outline pull-right',
             ' method="post" action="../management/index.php?sub=clearAES" '
         );
         $modalresetBtn .= self::makeButton(
             'resetencryptionCancel',
             _('Cancel'),
-            'btn btn-danger pull-right'
+            'btn btn-outline pull-left',
+            'data-dismiss="modal"'
         );
         $modalreset = self::makeModal(
             'resetencryptionmodal',
@@ -434,7 +435,9 @@ class GroupManagement extends FOGPage
                 'Resetting encryption data should only be done '
                 . 'if you re-installed the FOG Client or are using Debugger'
             ),
-            $modalresetBtn
+            $modalresetBtn,
+            '',
+            'warning'
         );
 
         $labelClass = 'col-sm-2 control-label';
@@ -588,6 +591,7 @@ class GroupManagement extends FOGPage
         echo '<div class="box-footer">';
         echo $buttons;
         echo $modalreset;
+        echo $this->deleteModal();
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -829,6 +833,9 @@ class GroupManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'group-hosts-table', $buttons);
         echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('host');
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -854,16 +861,16 @@ class GroupManagement extends FOGPage
                 $this->obj->addHost($hosts);
             }
         }
-        if (isset($_POST['hostdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $hosts = filter_input_array(
                 INPUT_POST,
                 [
-                    'hostRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $hosts = $hosts['hostRemove'];
+            $hosts = $hosts['remitems'];
             if (count($hosts ?: []) > 0) {
                 $this->obj->removeHost($hosts);
             }
@@ -1064,6 +1071,9 @@ class GroupManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'group-printers-table', $buttons);
         echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('printer');
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1107,16 +1117,16 @@ class GroupManagement extends FOGPage
                 isset($_POST['default'])
             );
         }
-        if (isset($_POST['printdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $printers = filter_input_array(
                 INPUT_POST,
                 [
-                    'printerRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $printers = $printers['printerRemove'];
+            $printers = $printers['remitems'];
             if (count($printers ?: []) > 0) {
                 $this->obj->removePrinter($printers);
             }
@@ -1171,6 +1181,9 @@ class GroupManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'group-snapins-table', $buttons);
         echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('snapin');
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1196,16 +1209,16 @@ class GroupManagement extends FOGPage
                 $this->obj->addSnapin($snapins);
             }
         }
-        if (isset($_POST['snapdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $snapins = filter_input_array(
                 INPUT_POST,
                 [
-                    'snapinRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $snapins = $snapins['snapinRemove'];
+            $snapins = $snapins['remitems'];
             if (count($snapins ?: []) > 0) {
                 $this->obj->removeSnapin($snapins);
             }
@@ -1626,7 +1639,7 @@ class GroupManagement extends FOGPage
             'btn btn-primary'
         );
         $buttons .= self::makeButton(
-            'scheduleCreateBtn',
+            'scheduleBtn',
             _('Create New Scheduled'),
             'btn btn-info'
         );
@@ -1644,7 +1657,7 @@ class GroupManagement extends FOGPage
         $ondemandModalBtns .= self::makeButton(
             'ondemandCreateBtn',
             _('Create'),
-            'btn btn-primary'
+            'btn btn-outline pull-right'
         );
         $scheduleModalBtns = self::makeButton(
             'scheduleCancelBtn',
@@ -1655,32 +1668,40 @@ class GroupManagement extends FOGPage
         $scheduleModalBtns .= self::makeButton(
             'scheduleCreateBtn',
             _('Create'),
-            'btn btn-primary'
+            'btn btn-outline pull-right'
         );
         $modaldeleteBtns = self::makeButton(
             'deletepowermanagementConfirm',
             _('Confirm'),
-            'btn btn-primary',
+            'btn btn-ouline pull-right',
             ' method="post" action="'
-            . $this->formAction
-            . '&tab=group-powermanagement" '
+            . self::makeTabUpdateURL(
+                'group-powermanagement',
+                $this->obj->get('id')
+            )
+            . '" '
         );
         $modaldeleteBtns .= self::makeButton(
             'deletepowermanagementCancel',
             _('Cancel'),
-            'btn btn-danger pull-right'
+            'btn btn-outline pull-left',
+            'data-dismiss="modal"'
         );
         $modalondemand = self::makeModal(
             'ondemandModal',
             _('Create Immediate Power task'),
             $this->newPMDisplay(true),
-            $ondemandModalBtns
+            $ondemandModalBtns,
+            '',
+            'info'
         );
         $modalschedule = self::makeModal(
             'scheduleModal',
             _('Create Scheduled Power task'),
             $this->newPMDisplay(false),
-            $scheduleModalBtns
+            $scheduleModalBtns,
+            '',
+            'primary'
         );
         $modaldelete = self::makeModal(
             'deletepowermanagementmodal',
@@ -1689,7 +1710,9 @@ class GroupManagement extends FOGPage
                 'This will delete all powermanagement '
                 . 'items from all hosts in this group'
             ),
-            $modaldeleteBtns
+            $modaldeleteBtns,
+            '',
+            'warning'
         );
         echo '<!-- Power Management -->';
         echo '<div class="box box-solid">';
@@ -1971,7 +1994,7 @@ class GroupManagement extends FOGPage
                 . $id
                 . '&type='
                 . $TaskType->id
-                . '"><i class="fa fa-'
+                . '" class="taskitem"><i class="fa fa-'
                 . $TaskType->icon
                 . ' fa-2x"></i><br/>'
                 . $TaskType->name
@@ -2017,6 +2040,27 @@ class GroupManagement extends FOGPage
         $advanced = self::stripedTable($data);
         unset($data);
         unset($items);
+        $modalApprovalBtns = self::makeButton(
+            'tasking-send',
+            _('Create'),
+            'btn btn-outline pull-right'
+        );
+        $modalApprovalBtns .= self::makeButton(
+            'tasking-close',
+            _('Cancel'),
+            'btn btn-outline pull-left',
+            'data-dismiss="modal"'
+        );
+        $taskModal = self::makeModal(
+            'task-modal',
+            '<h4 class="box-title">'
+            . _('Create new tasking')
+            . '</h4>',
+            '<div id="task-form-holder"></div>',
+            $modalApprovalBtns,
+            '',
+            'success'
+        );
 
         echo '<div class="box box-solid" id="host-tasks">';
         echo '<div class="box-body">';
@@ -2064,6 +2108,9 @@ class GroupManagement extends FOGPage
         echo '</div>';
         echo '</div>';
 
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $taskModal;
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -2482,6 +2529,7 @@ class GroupManagement extends FOGPage
      */
     public function deploy()
     {
+        header('Content-type: application/json');
         global $type;
         global $id;
 
@@ -2705,14 +2753,14 @@ class GroupManagement extends FOGPage
                             'cron'
                         )
                         . '</div>',
-                        '<div class="croninput hidden">'
+                        '&nbsp;&nbsp;'
                         . self::makeLabel(
-                            $labelClass,
-                            'specialCrons',
-                            _('Special Crons')
-                        ) => FOGCron::buildSpecialCron('specialCrons')
-                        . '</div>',
-                        '<div class="croninput hidden">'
+                            'control-label',
+                            '',
+                            '<div class="croninput fogcron hidden"></div>'
+                            . '<br/>'
+                        )
+                        . '<div class="croninput hidden">'
                         . self::makeLabel(
                             $labelClass,
                             '',
@@ -2757,23 +2805,17 @@ class GroupManagement extends FOGPage
                 );
             }
 
-            $buttons = self::makeButton(
-                'tasking-send',
-                _('Create'),
-                'btn btn-primary'
-            );
-
             self::$HookManager->processEvent(
                 'GROUP_CREATE_TASKING',
                 [
                     'fields' => &$fields,
                     'buttons' => &$buttons,
-                    'Host' => &$this->obj
+                    'Group' => &$this->obj
                 ]
             );
             $rendered = self::formFields($fields);
             unset($fields);
-
+            ob_start();
             echo self::makeFormTag(
                 'form-horizontal',
                 'group-deploy-form',
@@ -2782,27 +2824,304 @@ class GroupManagement extends FOGPage
                 'application/x-www-form-url-encoded',
                 true
             );
-            echo '<div class="box box-solid">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
-            echo $this->title;
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="box-body">';
             echo $rendered;
-            echo '</div>';
-            echo '<div class="box-footer">';
-            echo $buttons;
-            echo '</div>';
-            echo '</div>';
             echo '</form>';
+            $msg = json_encode(
+                [
+                    'msg' => ob_get_clean(),
+                    'title' => _('Create task form success')
+                ]
+            );
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
         } catch (Exception $e) {
-            echo self::displayAlert(
-                'Tasking Cannot Occur',
-                $e->getMessage(),
-                'warning',
-                false
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Create task form fail')
+                ]
+            );
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+        }
+        http_response_code($code);
+        echo $msg;
+        exit;
+    }
+    /**
+     * Actually creates the tasking.
+     *
+     * @return void
+     */
+    public function deployPost()
+    {
+        header('Content-type: application/json');
+        self::$HookManager->processEvent('GROUP_DEPLOY_POST');
+
+        $serverFault = false;
+        try {
+            global $type;
+            if (!is_numeric($type) && $type > 0) {
+                $type = 1;
+            }
+            // Host checks:
+            $hosts = $this->obj->get('hosts');
+            $hosts = self::getSubObjectIDs(
+                'Host',
+                [
+                    'id' => $hosts,
+                    'pending' => ['', 0]
+                ]
+            );
+            if (count($hosts ?: []) < 1) {
+                throw new Exception(_('No hosts available to be tasked'));
+            }
+            $nhosts = [];
+            $hostImages = [];
+            Route::listem(
+                'host',
+                ['hostID' => $hosts]
+            );
+            $Hosts = json_decode(
+                Route::getData()
+            );
+            foreach ($Hosts->data as &$host) {
+                if (!$host->imageID) {
+                    continue;
+                }
+                $nhosts[] = $host->id;
+                $hostImages[] = $host->imageID;
+                unset($host);
+            }
+            if (count($nhosts ?: []) < 1) {
+                throw new Exception(_('No hosts are assigned an image'));
+            }
+
+            // Multicast task requires all hosts in the group to have the same
+            // imageID set.
+            if (TaskType::MULTICAST == $type) {
+                $hostImages = array_filter(
+                    array_unique(
+                        $hostImages
+                    )
+                );
+                if (count($hostImages ?: []) != 1) {
+                    throw new Exception(
+                        _('All hosts must have the same image assigned')
+                    );
+                }
+            }
+
+            // Task Type setup
+            $TaskType = new TaskType($type);
+            if (!$TaskType->isValid()) {
+                throw new Exception(_('Task Type is invalid'));
+            }
+
+            // Password reset setup
+            $passreset = trim(
+                filter_input(INPUT_POST, 'account')
+            );
+            if (TaskType::PASSWORD_RESET == $type
+                && !$passreset
+            ) {
+                throw new Exception(_('Password reset requires a user account'));
+            }
+
+            // Snapin setup
+            $enableSnapins = (int)filter_input(INPUT_POST, 'snapin');
+            if (0 === $enableSnapins) {
+                $enableSnapins = -1;
+            }
+            if (TaskType::DEPLOY_NO_SNAPINS === $type || $enableSnapins < -1) {
+                $enableSnapins = 0;
+            }
+
+            // Generic setup
+            $imagingTasks = $TaskType->isImagingTask();
+            $taskName = sprintf(
+                '%s Task',
+                $TaskType->get('name')
+            );
+
+            // Shutdown setup
+            $shutdown = isset($_POST['shutdown']);
+            if ($shutdown) {
+                $enableShutdown = true;
+            }
+
+            // Debug setup
+            $enableDebug = false;
+            $debug = isset($_POST['debug']);
+            $isdebug = isset($_POST['isDebugTask']);
+            if ($debug || $isdebug) {
+                $enableDebug = true;
+            }
+
+            // WOL Setup
+            $wol = false;
+            $wolon = isset($_POST['wol']);
+            if (TaskType::WAKE_UP || $wolon) {
+                $wol = true;
+            }
+
+            // Schedule Type setup
+            $scheduleType = strtolower(
+                filter_input(INPUT_POST, 'scheduleType')
+            );
+            $scheduleTypes = [
+                'cron',
+                'instant',
+                'single'
+            ];
+            self::$HookManager->processEvent(
+                'SCHEDULE_TYPES',
+                ['scheduleTypes' => &$scheduleTypes]
+            );
+            foreach ($scheduleTypes as $ind => &$val) {
+                $scheduleTypes[$ind] = trim(
+                    strtolower(
+                        $val
+                    )
+                );
+                unset($val);
+            }
+            if (!in_array($scheduleType, $scheduleTypes)) {
+                throw new Exception(_('Invalid scheduling type'));
+            }
+            // Schedule Delayed/Cron checks.
+            switch ($scheduleType) {
+            case 'single':
+                $scheduleDeployTime = self::niceDate(
+                    filter_input(INPUT_POST, 'scheduleSingleTime')
+                );
+                if ($scheduleDeployTime < self::niceDate()) {
+                    throw new Exception(_('Scheduled time is in the past'));
+                }
+                break;
+            case 'cron':
+                $min = strval(
+                    filter_input(INPUT_POST, 'scheduleCronMin')
+                );
+                $hour = strval(
+                    filter_input(INPUT_POST, 'scheduleCronHour')
+                );
+                $dom = strval(
+                    filter_input(INPUT_POST, 'scheduleCronDOM')
+                );
+                $month = strval(
+                    filter_input(INPUT_POST, 'scheduleCronMonth')
+                );
+                $dow = strval(
+                    filter_input(INPUT_POST, 'scheduleCronDOW')
+                );
+                $tmin = FOGCron::checkMinutesField($min);
+                $thour = FOGCron::checkHoursField($hour);
+                $tdom = FOGCron::checkDOMField($dom);
+                $tmonth = FOGCron::checkMonthField($month);
+                $tdow = FOGCron::checkDOWField($dow);
+                if (!$tmin) {
+                    throw new Exception(_('Minutes field is invalid'));
+                }
+                if (!$thour) {
+                    throw new Exception(_('Hours field is invalid'));
+                }
+                if (!$tdom) {
+                    throw new Exception(_('Day of Month field is invalid'));
+                }
+                if (!$tmonth) {
+                    throw new Exception(_('Month field is invalid'));
+                }
+                if (!$tdow) {
+                    throw new Exception(_('Day of Week field is invalid'));
+                }
+                break;
+            }
+
+            // Task Type Imaging Checks
+            if ($TaskType->isImagingTask()) {
+                if ($TaskType->isCapture()) {
+                    throw new Exception(_('Groups cannot create capture tasks'));
+                }
+            }
+
+            // Actually create tasking
+            if ($scheduleType == 'instant') {
+                $this->obj->createImagePackage(
+                    $type,
+                    $taskName,
+                    $enableShutdown,
+                    $enableDebug,
+                    $enableSnapins,
+                    true,
+                    self::$FOGUser->get('name'),
+                    $passreset,
+                    false,
+                    $wol
+                );
+            } else {
+                $ScheduledTask = self::getClass('ScheduledTask')
+                    ->set('taskType', $type)
+                    ->set('name', $taskName)
+                    ->set('hostID', $this->obj->get('id'))
+                    ->set('shutdown', $enableShutdown)
+                    ->set('other2', $enableSnapins)
+                    ->set('type', $scheduleType = 'single' ? 'S' : 'C')
+                    ->set('isGroupTask', 1)
+                    ->set('other3', self::$FOGUser->get('name'))
+                    ->set('isActive', 1)
+                    ->set('other4', $wol);
+                if ($scheduleType == 'single') {
+                    $ScheduledTask->set(
+                        'scheduleTime',
+                        $scheduleDeployTime->getTimestamp()
+                    );
+                } elseif ($scheduleType == 'cron') {
+                    $ScheduledTask
+                        ->set('minute', $min)
+                        ->set('hour', $hour)
+                        ->set('dayOfMonth', $dom)
+                        ->set('month', $month)
+                        ->set('dayOfWeek', $dow);
+                }
+                if (!$ScheduledTask->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Failed to create scheduled task'));
+                }
+            }
+            $code = HTTPResponseCodes::HTTP_CREATED;
+            $hook = 'GROUP_DEPLOY_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Create tasking succeeded'),
+                    'title' => _('Create Task Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'GROUP_DEPLOY_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Create Task Fail')
+                ]
             );
         }
+
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Group' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
+        http_response_code($code);
+        echo $msg;
+        exit;
     }
 }

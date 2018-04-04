@@ -20,7 +20,10 @@
 
     var generalForm = $('#snapin-general-form'),
         generalFormBtn = $('#general-send'),
-        generalDeleteBtn = $('#general-delete');
+        generalDeleteBtn = $('#general-delete'),
+        generalDeleteModal = $('#deleteModal'),
+        generalDeleteModalConfirm = $('#confirmDeleteModal'),
+        generalDeleteModalCancel = $('#closeDeleteModal');
 
     generalForm.on('submit',function(e) {
         e.preventDefault();
@@ -37,18 +40,35 @@
             originalName = $('#snapin').val();
         });
     });
-    generalDeleteBtn.on('click',function() {
-        generalFormBtn.prop('disabled', true);
-        generalDeleteBtn.prop('disabled', true);
-        Common.massDelete(null, function(err) {
+    generalDeleteBtn.on('click', function() {
+        generalDeleteModal.modal('show');
+    });
+    $('#andFile').on('ifChecked', function() {
+        opts = {
+            andFile: 1
+        };
+    }).on('ifUnchecked', function() {
+        opts = {};
+    });
+    generalDeleteModalConfirm.on('click', function() {
+        var method = 'post',
+            action = '../management/index.php?node='
+                + Common.node
+                + '&sub=delete&id='
+                + Common.id,
+            opts = {};
+        Common.apiCall(method, action, opts, function(err) {
             if (err) {
-                generalDeleteBtn.prop('disabled', false);
-                generalFormBtn.prop('disabled', false);
                 return;
             }
-            window.location = '../management/index.php?node='+Common.node+'&sub=list';
+            setTimeout(function() {
+                window.location = '../management/index.php?node='
+                    + Common.node
+                    + '&sub=list';
+            }, 2000);
         });
     });
+
     // ---------------------------------------------------------------
     // STORAGEGROUPS TAB
     var storagegroupsAddBtn = $('#storagegroups-add'),
@@ -204,36 +224,16 @@
         });
     });
     storagegroupsRemoveBtn.on('click', function() {
-        storagegroupsRemoveBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = storagegroupsTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(storagegroupsTable),
-            opts = {
-                'storagegroupdel': '1',
-                'storagegroupRemove' : toRemove
-            };
-        Common.apiCall(method,action,opts,function(err) {
-            if (!err) {
-                storagegroupsTable.draw(false);
-                storagegroupsTable.rows({selected: true}).deselect();
-                // Set the primary radio as disabled
-                $('#snapin-storagegroups-table').find('.primary').each(function() {
-                    if ($.inArray($(this).val(), toRemove) != -1) {
-                        $(this).iCheck('uncheck');
-                        $(this).prop('disabled', true);
-                        Common.iCheck(this);
-                    }
-                });
-                // Uncheck the associated checkbox.
-                $('#snapin-storagegroup-table').find('.associated').each(function() {
-                    if ($.inArray($(this).val(), toRemove) != -1) {
-                        $(this).iCheck('uncheck');
-                    }
-                });
-            } else {
-                storagegroupsRemoveBtn.prop('disabled', false);
+        $('#storagegroupDelModal').modal('show');
+    });
+    $('#confirmstoragegroupDeleteModal').on('click', function(e) {
+        Common.deleteAssociated(storagegroupsTable, storagegroupsRemoveBtn.attr('action'), function(err) {
+            if (err) {
+                return;
             }
+            $('#storagegroupDelModal').modal('hide');
+            storagegroupsTable.draw(false);
+            storagegroupsTable.rows({selected: true}).deselect();
         });
     });
     if (Common.search && Common.search.length > 0) {
@@ -324,27 +324,14 @@
         });
     });
     membershipRemoveBtn.on('click', function() {
-        membershipAddBtn.prop('disabled', true);
-        membershipRemoveBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = membershipTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(membershipTable),
-            opts = {
-                membershipdel: 1,
-                membershipRemove: toRemove
-            };
-        Common.apiCall(method,action,opts,function(err) {
-            membershipAddBtn.prop('disabled', false);
-            membershipRemoveBtn.prop('disabled', false);
+        $('#hostDelModal').modal('show');
+    });
+    $('#confirmhostDeleteModal').on('click', function(e) {
+        Common.deleteAssociated(membershipTable, membershipRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }
-            $('#snapin-membership-table').find('.associated').each(function() {
-                if ($.inArray($(this).val(), toRemove) != -1) {
-                    $(this).iCheck('uncheck');
-                }
-            });
+            $('#hostDelModal').modal('hide');
             membershipTable.draw(false);
             membershipTable.rows({selected: true}).deselect();
         });

@@ -1623,27 +1623,27 @@ class FOGConfigurationPage extends FOGPage
         $modalupdatebtn = self::makeButton(
             'updatemacsConfirm',
             _('Confirm'),
-            'btn btn-success'
+            'btn btn-outline pull-right'
         );
         $modalupdatebtn .= self::makeButton(
             'updatemacsCancel',
             _('Cancel'),
-            'btn btn-danger pull-right'
+            'btn btn-outline pull-left'
         );
         $modaldeletebtn = self::makeButton(
             'deletemacsConfirm',
             _('Confirm'),
-            'btn btn-success'
+            'btn btn-outline pull-right'
         );
         $modaldeletebtn .= self::makeButton(
             'deletemacsCancel',
             _('Cancel'),
-            'btn btn-danger pull-right'
+            'btn btn-outline pull-left'
         );
         $buttons = self::makeButton(
             'updatemacs',
             _('Update MAC List'),
-            'btn btn-primary'
+            'btn btn-outline pull-right'
         );
         $buttons .= self::makeButton(
             'deletemacs',
@@ -1654,13 +1654,17 @@ class FOGConfigurationPage extends FOGPage
             'updatemacsmodal',
             _('Update MAC Listing'),
             _('Confirm that you would like to update the MAC vendor listing'),
-            $modalupdatebtn
+            $modalupdatebtn,
+            '',
+            'primary'
         );
         $modaldelete = self::makeModal(
             'deletemacsmodal',
             _('Delete MAC Listings'),
             _('Confirm that you would like to delete the MAC vendor listing'),
-            $modaldeletebtn
+            $modaldeletebtn,
+            '',
+            'warning'
         );
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
@@ -1767,64 +1771,134 @@ class FOGConfigurationPage extends FOGPage
      */
     public function settings()
     {
-        $ServiceNames = [
-            'FOG_REGISTRATION_ENABLED',
-            'FOG_PXE_MENU_HIDDEN',
-            'FOG_QUICKREG_AUTOPOP',
-            'FOG_CLIENT_AUTOUPDATE',
-            'FOG_CLIENT_AUTOLOGOFF_ENABLED',
-            'FOG_CLIENT_CLIENTUPDATER_ENABLED',
-            'FOG_CLIENT_DIRECTORYCLEANER_ENABLED',
-            'FOG_CLIENT_DISPLAYMANAGER_ENABLED',
-            'FOG_CLIENT_GREENFOG_ENABLED',
-            'FOG_CLIENT_HOSTREGISTER_ENABLED',
-            'FOG_CLIENT_HOSTNAMECHANGER_ENABLED',
-            'FOG_CLIENT_POWERMANAGEMENT_ENABLED',
-            'FOG_CLIENT_PRINTERMANAGER_ENABLED',
-            'FOG_CLIENT_SNAPIN_ENABLED',
-            'FOG_CLIENT_TASKREBOOT_ENABLED',
-            'FOG_CLIENT_USERCLEANUP_ENABLED',
-            'FOG_CLIENT_USERTRACKER_ENABLED',
-            'FOG_ADVANCED_STATISTICS',
-            'FOG_CHANGE_HOSTNAME_EARLY',
-            'FOG_DISABLE_CHKDSK',
-            'FOG_HOST_LOOKUP',
-            'FOG_CAPTUREIGNOREPAGEHIBER',
-            'FOG_USE_ANIMATION_EFFECTS',
-            'FOG_USE_LEGACY_TASKLIST',
-            'FOG_USE_SLOPPY_NAME_LOOKUPS',
-            'FOG_PLUGINSYS_ENABLED',
-            'FOG_FORMAT_FLAG_IN_GUI',
-            'FOG_NO_MENU',
-            'FOG_ALWAYS_LOGGED_IN',
-            'FOG_ADVANCED_MENU_LOGIN',
-            'FOG_TASK_FORCE_REBOOT',
-            'FOG_EMAIL_ACTION',
-            'FOG_FTP_IMAGE_SIZE',
-            'FOG_KERNEL_DEBUG',
-            'FOG_ENFORCE_HOST_CHANGES',
-            'FOG_LOGIN_INFO_DISPLAY',
-            'MULTICASTGLOBALENABLED',
-            'SCHEDULERGLOBALENABLED',
-            'PINGHOSTGLOBALENABLED',
-            'IMAGESIZEGLOBALENABLED',
-            'IMAGEREPLICATORGLOBALENABLED',
-            'SNAPINREPLICATORGLOBALENABLED',
-            'SNAPINHASHGLOBALENABLED',
-            'FOG_QUICKREG_IMG_WHEN_REG',
-            'FOG_QUICKREG_PROD_KEY_BIOS',
-            'FOG_TASKING_ADV_SHUTDOWN_ENABLED',
-            'FOG_TASKING_ADV_WOL_ENABLED',
-            'FOG_TASKING_ADV_DEBUG_ENABLED',
-            'FOG_API_ENABLED',
-            'FOG_IMAGE_LIST_MENU',
-            'FOG_REAUTH_ON_DELETE',
-            'FOG_REAUTH_ON_EXPORT'
+        $needstobecheckbox = [
+            'FOG_REGISTRATION_ENABLED' => true,
+            'FOG_PXE_MENU_HIDDEN' => true,
+            'FOG_QUICKREG_AUTOPOP' => true,
+            'FOG_CLIENT_AUTOUPDATE' => true,
+            'FOG_CLIENT_AUTOLOGOFF_ENABLED' => true,
+            'FOG_CLIENT_CLIENTUPDATER_ENABLED' => true,
+            'FOG_CLIENT_DIRECTORYCLEANER_ENABLED' => true,
+            'FOG_CLIENT_DISPLAYMANAGER_ENABLED' => true,
+            'FOG_CLIENT_GREENFOG_ENABLED' => true,
+            'FOG_CLIENT_HOSTREGISTER_ENABLED' => true,
+            'FOG_CLIENT_HOSTNAMECHANGER_ENABLED' => true,
+            'FOG_CLIENT_POWERMANAGEMENT_ENABLED' => true,
+            'FOG_CLIENT_PRINTERMANAGER_ENABLED' => true,
+            'FOG_CLIENT_SNAPIN_ENABLED' => true,
+            'FOG_CLIENT_TASKREBOOT_ENABLED' => true,
+            'FOG_CLIENT_USERCLEANUP_ENABLED' => true,
+            'FOG_CLIENT_USERTRACKER_ENABLED' => true,
+            'FOG_ADVANCED_STATISTICS' => true,
+            'FOG_CHANGE_HOSTNAME_EARLY' => true,
+            'FOG_DISABLE_CHKDSK' => true,
+            'FOG_HOST_LOOKUP' => true,
+            'FOG_CAPTUREIGNOREPAGEHIBER' => true,
+            'FOG_USE_ANIMATION_EFFECTS' => true,
+            'FOG_USE_LEGACY_TASKLIST' => true,
+            'FOG_USE_SLOPPY_NAME_LOOKUPS' => true,
+            'FOG_PLUGINSYS_ENABLED' => true,
+            'FOG_FORMAT_FLAG_IN_GUI' => true,
+            'FOG_NO_MENU' => true,
+            'FOG_ALWAYS_LOGGED_IN' => true,
+            'FOG_ADVANCED_MENU_LOGIN' => true,
+            'FOG_TASK_FORCE_REBOOT' => true,
+            'FOG_EMAIL_ACTION' => true,
+            'FOG_FTP_IMAGE_SIZE' => true,
+            'FOG_KERNEL_DEBUG' => true,
+            'FOG_ENFORCE_HOST_CHANGES' => true,
+            'FOG_LOGIN_INFO_DISPLAY' => true,
+            'MULTICASTGLOBALENABLED' => true,
+            'SCHEDULERGLOBALENABLED' => true,
+            'PINGHOSTGLOBALENABLED' => true,
+            'IMAGESIZEGLOBALENABLED' => true,
+            'IMAGEREPLICATORGLOBALENABLED' => true,
+            'SNAPINREPLICATORGLOBALENABLED' => true,
+            'SNAPINHASHGLOBALENABLED' => true,
+            'FOG_QUICKREG_IMG_WHEN_REG' => true,
+            'FOG_QUICKREG_PROD_KEY_BIOS' => true,
+            'FOG_TASKING_ADV_SHUTDOWN_ENABLED' => true,
+            'FOG_TASKING_ADV_WOL_ENABLED' => true,
+            'FOG_TASKING_ADV_DEBUG_ENABLED' => true,
+            'FOG_API_ENABLED' => true,
+            'FOG_IMAGE_LIST_MENU' => true,
+            'FOG_REAUTH_ON_DELETE' => true,
+            'FOG_REAUTH_ON_EXPORT' => true
         ];
         self::$HookManager->processEvent(
-            'SERVICE_NAMES',
-            ['ServiceNames' => &$ServiceNames]
+            'NEEDSTOBECHECKBOX',
+            ['needstobecheckbox' => &$needstobecheckbox]
         );
+        $needstobenumeric = [
+            // FOG Boot Settings
+            'FOG_PXE_MENU_TIMEOUT' => true,
+            'FOG_PIGZ_COMP' => range(0, 22),
+            'FOG_KEY_SEQUENCE' => range(1, 35),
+            'FOG_PXE_HIDDENMENU_TIMEOUT' => true,
+            'FOG_KERNEL_LOGLEVEL' => range(0, 7),
+            'FOG_WIPE_TIMEOUT' => true,
+            // FOG Linux Service Logs
+            'SERVICE_LOG_SIZE' => true,
+            // FOG Linux Service Sleep Times
+            'PINGHOSTSLEEPTIME' => true,
+            'SERVICESLEEPTIME' => true,
+            'SNAPINREPSLEEPTIME' => true,
+            'SCHEDULERSLEEPTIME' => true,
+            'IMAGEREPSLEEPTIME' => true,
+            'MULTICASESLEEPTIME' => true,
+            // FOG Quick Registration
+            'FOG_QUICKREG_IMG_ID' => self::fastmerge(
+                (array)0,
+                self::getSubObjectIDs('Image')
+            ),
+            'FOG_QUICKREG_SYS_NUMBER' => true,
+            'FOG_QUICKREG_GROUP_ASSOC' => self::fastmerge(
+                (array)0,
+                self::getSubObjectIDs('Group')
+            ),
+            // FOG Service
+            'FOG_CLIENT_CHECKIN_TIME' => true,
+            'FOG_CLIENT_MAXSIZE' => true,
+            'FOG_GRACE_TIMEOUT' => true,
+            // FOG Service - Auto Log Off
+            'FOG_CLIENT_AUTOLOGOFF_MIN' => true,
+            // FOG Service - Display manager
+            'FOG_CLIENT_DISPLAYMANAGER_X' => true,
+            'FOG_CLIENT_DISPLAYMANAGER_Y' => true,
+            'FOG_CLIENT_DISPLAYMANAGER_R' => true,
+            // FOG Service - Host Register
+            'FOG_QUICKREG_MAX_PENDING_MACS' => true,
+            // FOG View Settings
+            'FOG_VIEW_DEFAULT_SCREEN' => $viewvals,
+            'FOG_DATA_RETURNED' => true,
+            // General Settings
+            'FOG_CAPTURERESIZEPCT' => true,
+            'FOG_CHECKIN_TIMEOUT' => true,
+            'FOG_MEMORY_LIMIT' => true,
+            'FOG_SNAPIN_LIMIT' => true,
+            'FOG_FTP_PORT' => range(1, 65535),
+            'FOG_FTP_TIMEOUT' => true,
+            'FOG_BANDWIDTH_TIME' => true,
+            'FOG_URL_BASE_CONNECT_TIMEOUT' => true,
+            'FOG_URL_BASE_TIMEOUT' => true,
+            'FOG_URL_AVAILABLE_TIMEOUT' => true,
+            'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT' => self::fastmerge(
+                (array)0,
+                range(2, 6)
+            ),
+            // Login Settings
+            'FOG_INACTIVITY_TIMEOUT' => range(1, 24),
+            'FOG_REGENERATE_TIMEOUT' => $regenrange,
+            // Multicast Settings
+            'FOG_UDPCAST_STARTINGPORT' => range(1, 65535),
+            'FOG_MULTICASE_MAX_SESSIONS' => true,
+            'FOG_UDPCAST_MAXWAIT' => true,
+            'FOG_MULTICAST_PORT_OVERRIDE' => range(0, 65535),
+            // Proxy Settings
+            'FOG_PROXY_PORT' => range(0, 65535),
+            // User Management
+            'FOG_USER_MINPASSLENGTH' => true,
+        ];
 
         $this->title = _('FOG System Settings');
 
@@ -2199,7 +2273,7 @@ class FOGConfigurationPage extends FOGPage
                         $Service->value
                     );
                     break;
-                case (in_array($Service->name, $ServiceNames)):
+                case (isset($needstobecheckbox[$Service->name])):
                     $input = self::makeInput(
                         '',
                         $Service->id,
@@ -2356,11 +2430,15 @@ class FOGConfigurationPage extends FOGPage
                     );
                     break;
                 default:
+                    $type = 'text';
+                    if (isset($needstobenumeric[$Service->name])) {
+                        $type = 'number';
+                    }
                     $input = self::makeInput(
                         'form-control',
                         $Service->id,
                         '',
-                        'text',
+                        $type,
                         $Service->name,
                         $Service->value
                     );
@@ -2757,9 +2835,22 @@ class FOGConfigurationPage extends FOGPage
             if (count($StorageGroup->enablednodes ?: []) < 1) {
                 continue;
             }
-            $StorageNode = $StorageGroup->masternode;
-            if ($StorageNode->isEnabled < 1) {
+            Route::listem(
+                'storagenode',
+                [
+                    'ngmID' => $StorageGroup->enablednodes,
+                    'ngmIsEnabled' => 1,
+                    'ngmIsMasterNode' => 1
+                ]
+            );
+            $StorageNodes = json_decode(
+                Route::getData()
+            );
+            if (count($StorageNodes->data) ?: [] < 1) {
                 continue;
+            }
+            foreach ($StorageNodes->data as &$StorageNode) {
+                break;
             }
             $fogfiles = json_decode(
                 json_encode($StorageNode->logfiles),

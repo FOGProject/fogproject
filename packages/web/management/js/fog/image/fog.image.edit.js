@@ -12,7 +12,10 @@
 
     var generalForm = $('#image-general-form'),
         generalFormBtn = $('#general-send'),
-        generalDeleteBtn = $('#general-delete');
+        generalDeleteBtn = $('#general-delete'),
+        generalDeleteModal = $('#deleteModal'),
+        generalDeleteModalConfirm = $('#confirmDeleteModal'),
+        generalDeleteModalCancel = $('#closeDeleteModal');
 
     generalForm.on('submit',function(e) {
         e.preventDefault();
@@ -29,18 +32,35 @@
             originalName = $('#image').val();
         });
     });
-    generalDeleteBtn.on('click',function() {
-        generalFormBtn.prop('disabled', true);
-        generalDeleteBtn.prop('disabled', true);
-        Common.massDelete(null, function(err) {
+    generalDeleteBtn.on('click', function() {
+        generalDeleteModal.modal('show');
+    });
+    $('#andFile').on('ifChecked', function() {
+        opts = {
+            andFile: 1
+        };
+    }).on('ifUnchecked', function() {
+        opts = {};
+    });
+    generalDeleteModalConfirm.on('click', function() {
+        var method = 'post',
+            action = '../management/index.php?node='
+                + Common.node
+                + '&sub=delete&id='
+                + Common.id,
+            opts = {};
+        Common.apiCall(method, action, opts, function(err) {
             if (err) {
-                generalDeleteBtn.prop('disabled', false);
-                generalFormBtn.prop('disabled', false);
                 return;
             }
-            window.location = '../management/index.php?node='+Common.node+'&sub=list';
+            setTimeout(function() {
+                window.location = '../management/index.php?node='
+                    + Common.node
+                    + '&sub=list';
+            }, 2000);
         });
     });
+
     // ---------------------------------------------------------------
     // STORAGEGROUPS TAB
     var storagegroupsAddBtn = $('#storagegroups-add'),
@@ -127,6 +147,7 @@
         Common.iCheck('#image-storagegroups-table input');
         $('#image-storagegroups-table input.primary').on('ifClicked', onRadioSelect);
         $('#image-storagegroups-table input.associated').on('ifClicked', onCheckboxSelect);
+        onStoragegroupsSelect(storagegroupsTable.rows({selected: true}));
     });
     var onRadioSelect = function(event) {
         var id = parseInt($(this).attr('value'));
@@ -196,38 +217,19 @@
         });
     });
     storagegroupsRemoveBtn.on('click', function() {
-        storagegroupsRemoveBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = storagegroupsTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(storagegroupsTable),
-            opts = {
-                'storagegroupdel': '1',
-                'storagegroupRemove' : toRemove
-            };
-        Common.apiCall(method,action,opts,function(err) {
-            if (!err) {
-                storagegroupsTable.draw(false);
-                storagegroupsTable.rows({selected: true}).deselect();
-                // Set the primary radio as disabled
-                $('#image-storagegroups-table').find('.primary').each(function() {
-                    if ($.inArray($(this).val(), toRemove) != -1) {
-                        $(this).iCheck('uncheck');
-                        $(this).prop('disabled', true);
-                        Common.iCheck(this);
-                    }
-                });
-                // Uncheck the associated checkbox.
-                $('#image-storagegroups-table').find('.associated').each(function() {
-                    if ($.inArray($(this).val(), toRemove) != -1) {
-                        $(this).iCheck('uncheck');
-                    }
-                });
-            } else {
-                storagegroupsRemoveBtn.prop('disabled', false);
+        $('#storagegroupDelModal').modal('show');
+    });
+    $('#confirmstoragegroupDeleteModal').on('click', function(e) {
+        Common.deleteAssociated(storagegroupsTable, storagegroupsRemoveBtn.attr('action'), function(err) {
+            if (err) {
+                return;
             }
+            $('#storagegroupDelModal').modal('hide');
+            storagegroupsTable.draw(false);
+            storagegroupsTable.rows({selected: true}).deselect();
         });
     });
+
     if (Common.search && Common.search.length > 0) {
         storagegroupsTable.search(Common.search).draw();
     }
@@ -281,13 +283,16 @@
         ],
         processing: true,
         ajax: {
-            url: '../management/index.php?node='+Common.node+'&sub=getHostsList&id='+Common.id,
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getHostsList&id='
+                + Common.id,
             type: 'post'
         }
     });
     hostTable.on('draw', function() {
         Common.iCheck('#image-host-table input');
-        $('#image-host-table input.associated').on('ifClicked', onCheckboxSelect);
+        onHostSelect(hostTable.rows({selected: true}));
     });
     hostAddBtn.on('click', function() {
         hostAddBtn.prop('disabled', true);
@@ -314,29 +319,19 @@
         });
     });
     hostRemoveBtn.on('click', function() {
-        hostRemoveBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = hostTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(hostTable),
-            opts = {
-                hostdel: '1',
-                hostRemove : toRemove
-            };
-        Common.apiCall(method,action,opts,function(err) {
-            if (!err) {
-                hostTable.draw(false);
-                hostTable.rows({selected: true}).deselect();
-                $('#image-host-table').find('.associated').each(function() {
-                    if ($.inArray($(this).val(), toRemove) != -1) {
-                        $(this).iCheck('uncheck');
-                    }
-                });
-            } else {
-                hostRemoveBtn.prop('disabled', false);
+        $('#hostDelModal').modal('show');
+    });
+    $('#confirmhostDeleteModal').on('click', function(e) {
+        Common.deleteAssociated(hostTable, hostRemoveBtn.attr('action'), function(err) {
+            if (err) {
+                return;
             }
+            $('#hostDelModal').modal('hide');
+            hostTable.draw(false);
+            hostTable.rows({selected: true}).deselect();
         });
     });
+
     if (Common.search && Common.search.length > 0) {
         hostTable.search(Common.search).draw();
     }

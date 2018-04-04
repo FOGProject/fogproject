@@ -341,6 +341,7 @@ class WindowsKeyManagement extends FOGPage
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
+        echo $this->deleteModal();
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -383,7 +384,47 @@ class WindowsKeyManagement extends FOGPage
      */
     public function windowsKeyImages()
     {
-        echo 'TODO: Make Functional';
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'windowskey-images',
+                $this->obj->get('id')
+            )
+            . '" ';
+
+        $buttons = self::makeButton(
+            'image-add',
+            _('Add selected'),
+            'btn btn-primary pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'image-remove',
+            _('Remove selected'),
+            'btn btn-danger pull-left'
+        );
+
+        $this->headerData = [
+            _('Image Name'),
+            _('Image Associated')
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
+
+        echo '<!-- Images -->';
+        echo '<div class="box-group" id="images">';
+        echo '<div class="box box-solid">';
+        echo '<div class="updateimage" class="">';
+        echo '<div class="box-body">';
+        echo $this->render(12, 'windowskey-image-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('image');
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Commonized membership actions
@@ -392,6 +433,34 @@ class WindowsKeyManagement extends FOGPage
      */
     public function windowsKeyImagePost()
     {
+        if (isset($_POST['updateimage'])) {
+            $image = filter_input_array(
+                INPUT_POST,
+                [
+                    'image' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $image = $image['image'];
+            if (count($image ?: []) > 0) {
+                $this->obj->addImage($image);
+            }
+        }
+        if (isset($_POST['confirmdel'])) {
+            $image = filter_input_array(
+                INPUT_POST,
+                [
+                    'remitems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $image = $image['remitems'];
+            if (count($image ?: []) > 0) {
+                $this->obj->removeImage($image);
+            }
+        }
     }
     /**
      * Present the windows key to edit the page.

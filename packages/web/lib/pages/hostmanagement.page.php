@@ -136,30 +136,32 @@ class HostManagement extends FOGPage
         $modalApprovalBtns = self::makeButton(
             'confirmApproveModal',
             _('Approve'),
-            'btn btn-success pull-right'
+            'btn btn-outline pull-right'
         );
         $modalApprovalBtns .= self::makeButton(
             'cancelApprovalModal',
             _('Cancel'),
-            'btn btn-warning pull-left',
+            'btn btn-outline pull-left',
             'data-dismiss="modal"'
         );
         $approvalModal = self::makeModal(
             'approveModal',
             _('Approve Pending Hosts'),
             _('Approving the selected pending hosts.'),
-            $modalApprovalBtns
+            $modalApprovalBtns,
+            '',
+            'info'
         );
 
         $modalDeleteBtns = self::makeButton(
             'confirmDeleteModal',
             _('Delete'),
-            'btn btn-danger pull-right'
+            'btn btn-outline pull-right'
         );
         $modalDeleteBtns .= self::makeButton(
             'closeDeleteModal',
             _('Cancel'),
-            'btn btn-warning pull-left',
+            'btn btn-outline pull-left',
             'data-dismiss="modal"'
         );
         $deleteModal = self::makeModal(
@@ -176,7 +178,9 @@ class HostManagement extends FOGPage
                 true
             )
             . '</div>',
-            $modalDeleteBtns
+            $modalDeleteBtns,
+            '',
+            'danger'
         );
 
         echo self::makeFormTag(
@@ -298,30 +302,32 @@ class HostManagement extends FOGPage
         $modalApprovalBtns = self::makeButton(
             'confirmApproveModal',
             _('Approve'),
-            'btn btn-success pull-right'
+            'btn btn-outline pull-right'
         );
         $modalApprovalBtns .= self::makeButton(
             'cancelApprovalModal',
             _('Cancel'),
-            'btn btn-warning pull-left',
+            'btn btn-outline pull-left',
             'data-dismiss="modal"'
         );
         $approvalModal = self::makeModal(
             'approveModal',
             _('Approve Pending Hosts'),
             _('Approving the selected pending hosts.'),
-            $modalApprovalBtns
+            $modalApprovalBtns,
+            '',
+            'success'
         );
 
         $modalDeleteBtns = self::makeButton(
             'confirmDeleteModal',
             _('Delete'),
-            'btn btn-danger pull-right'
+            'btn btn-outline pull-right'
         );
         $modalDeleteBtns .= self::makeButton(
             'closeDeleteModal',
             _('Cancel'),
-            'btn btn-warning pull-left',
+            'btn btn-outline pull-left',
             'data-dismiss="modal"'
         );
         $deleteModal = self::makeModal(
@@ -338,7 +344,9 @@ class HostManagement extends FOGPage
                 true
             )
             . '</div>',
-            $modalDeleteBtns
+            $modalDeleteBtns,
+            '',
+            'danger'
         );
 
         echo self::makeFormTag(
@@ -1021,13 +1029,13 @@ class HostManagement extends FOGPage
         $modalresetBtn = self::makeButton(
             'resetencryptionConfirm',
             _('Confirm'),
-            'btn btn-primary',
+            'btn btn-outline pull-right',
             ' method="post" action="../management/index.php?sub=clearAES" '
         );
         $modalresetBtn .= self::makeButton(
             'resetencryptionCancel',
             _('Cancel'),
-            'btn btn-danger pull-right'
+            'btn btn-outline pull-left'
         );
         $modalreset = self::makeModal(
             'resetencryptionmodal',
@@ -1036,7 +1044,9 @@ class HostManagement extends FOGPage
                 'Resetting encryption data should only be done '
                 . 'if you re-installed the FOG Client or are using Debugger'
             ),
-            $modalresetBtn
+            $modalresetBtn,
+            '',
+            'warning'
         );
         echo self::makeFormTag(
             'form-horizontal',
@@ -1056,6 +1066,7 @@ class HostManagement extends FOGPage
         echo '<div class="box-footer">';
         echo $buttons;
         echo $modalreset;
+        echo $this->deleteModal();
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -1464,6 +1475,9 @@ class HostManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'host-groups-table', $buttons);
         echo '</div>';
+        echo '<div clas="box-footer with-border">';
+        echo $this->assocDelModal('group');
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1489,16 +1503,16 @@ class HostManagement extends FOGPage
                 $this->obj->addGroup($groups);
             }
         }
-        if (isset($_POST['groupdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $groups = filter_input_array(
                 INPUT_POST,
                 [
-                    'groupRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $groups = $groups['groupRemove'];
+            $groups = $groups['remitems'];
             if (count($groups ?: []) > 0) {
                 $this->obj->removeGroup($groups);
             }
@@ -1700,6 +1714,9 @@ class HostManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'host-printers-table', $buttons);
         echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('printer');
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1738,16 +1755,16 @@ class HostManagement extends FOGPage
                 isset($_POST['default'])
             );
         }
-        if (isset($_POST['printdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $printers = filter_input_array(
                 INPUT_POST,
                 [
-                    'printerRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $printers = $printers['printerRemove'];
+            $printers = $printers['remitems'];
             if (count($printers ?: []) > 0) {
                 $this->obj->removePrinter($printers);
             }
@@ -1764,10 +1781,6 @@ class HostManagement extends FOGPage
             . $this->formAction
             . '&tab=host-snapins" ';
 
-        echo '<!-- Snapins -->';
-        echo '<div class="box-group" id="snapins">';
-        // =================================================================
-        // Associated Snapins
         $buttons = self::makeButton(
             'snapins-add',
             _('Add selected'),
@@ -1792,6 +1805,8 @@ class HostManagement extends FOGPage
             []
         ];
 
+        echo '<!-- Snapins -->';
+        echo '<div class="box-group" id="snapins">';
         echo '<div class="box box-solid">';
         echo '<div id="updatesnapins" class="">';
         echo '<div class="box-header with-border">';
@@ -1801,6 +1816,9 @@ class HostManagement extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         $this->render(12, 'host-snapins-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('snapin');
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1827,16 +1845,16 @@ class HostManagement extends FOGPage
                 $this->obj->addSnapin($snapins);
             }
         }
-        if (isset($_POST['snapdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $snapins = filter_input_array(
                 INPUT_POST,
                 [
-                    'snapinRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $snapins = $snapins['snapinRemove'];
+            $snapins = $snapins['remitems'];
             if (count($snapins ?: []) > 0) {
                 $this->obj->removeSnapin($snapins);
             }
@@ -1852,11 +1870,6 @@ class HostManagement extends FOGPage
         $props = ' method="post" action="'
             . $this->formAction
             . '&tab=host-service" ';
-        echo '<!-- Modules/Service Settings -->';
-        echo '<div class="box-group" id="modules">';
-        // =============================================================
-        // Associated Modules
-        // Buttons for this.
         $buttons = self::makeButton(
             'modules-update',
             _('Update'),
@@ -1897,6 +1910,8 @@ class HostManagement extends FOGPage
         ];
         $labelClass = 'col-sm-2 control-label';
         // Modules Enable/Disable/Selected
+        echo '<!-- Modules/Service Settings -->';
+        echo '<div class="box-group" id="modules">';
         echo '<div class="box box-info">';
         echo '<div class="box-header with-border">';
         echo '<div class="box-tools pull-right">';
@@ -2315,7 +2330,7 @@ class HostManagement extends FOGPage
         $ondemandModalBtns .= self::makeButton(
             'ondemandCreateBtn',
             _('Create'),
-            'btn btn-primary'
+            'btn btn-outline pull-right'
         );
         $scheduleModalBtns = self::makeButton(
             'scheduleCancelBtn',
@@ -2326,7 +2341,7 @@ class HostManagement extends FOGPage
         $scheduleModalBtns .= self::makeButton(
             'scheduleCreateBtn',
             _('Create'),
-            'btn btn-primary'
+            'btn btn-outline pull-right'
         );
         echo '<div class="box box-info">';
         echo '<div class="box-header with-border">';
@@ -2342,13 +2357,17 @@ class HostManagement extends FOGPage
             'ondemandModal',
             _('Create Immediate Power task'),
             $this->newPMDisplay(true),
-            $ondemandModalBtns
+            $ondemandModalBtns,
+            '',
+            'info'
         );
         echo self::makeModal(
             'scheduleModal',
             _('Create Scheduled Power task'),
             $this->newPMDisplay(false),
-            $scheduleModalBtns
+            $scheduleModalBtns,
+            '',
+            'primary'
         );
         echo '</div>';
         echo '</div>';
@@ -4293,7 +4312,7 @@ class HostManagement extends FOGPage
                 . $id
                 . '&type='
                 . $TaskType->id
-                . '"><i class="fa fa-'
+                . '" class="taskitem"><i class="fa fa-'
                 . $TaskType->icon
                 . ' fa-2x"></i><br/>'
                 . $TaskType->name
@@ -4339,6 +4358,25 @@ class HostManagement extends FOGPage
         $advanced = self::stripedTable($data);
         unset($data);
         unset($items);
+        $modalApprovalBtns = self::makeButton(
+            'tasking-send',
+            _('Create'),
+            'btn btn-outline pull-right'
+        );
+        $modalApprovalBtns .= self::makeButton(
+            'tasking-close',
+            _('Cancel'),
+            'btn btn-outline pull-left',
+            'data-dismiss="modal"'
+        );
+        $taskModal = self::makeModal(
+            'task-modal',
+            _('Create new tasking'),
+            '<div id="task-form-holder"></div>',
+            $modalApprovalBtns,
+            '',
+            'success'
+        );
 
         echo '<div class="box box-solid" id="host-tasks">';
         echo '<div class="box-body">';
@@ -4387,6 +4425,9 @@ class HostManagement extends FOGPage
         echo '</div>';
 
         echo '</div>';
+        echo '<div class="box-footer">';
+        echo $taskModal;
+        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
@@ -4397,6 +4438,7 @@ class HostManagement extends FOGPage
      */
     public function deploy()
     {
+        header('Content-type: application/json');
         global $type;
         global $id;
 
@@ -4634,14 +4676,14 @@ class HostManagement extends FOGPage
                             'cron'
                         )
                         . '</div>',
-                        '<div class="croninput hidden">'
+                        '&nbsp;&nbsp;'
                         . self::makeLabel(
-                            $labelClass,
-                            'specialCrons',
-                            _('Special Crons')
-                        ) => FOGCron::buildSpecialCron('specialCrons')
-                        . '</div>',
-                        '<div class="croninput hidden">'
+                            'control-label',
+                            '',
+                            '<div class="croninput fogcron hidden"></div>'
+                            . '<br/>'
+                        )
+                        . '<div class="croninput hidden">'
                         . self::makeLabel(
                             $labelClass,
                             '',
@@ -4686,11 +4728,6 @@ class HostManagement extends FOGPage
                 );
             }
 
-            $buttons = self::makeButton(
-                'tasking-send',
-                _('Create'),
-                'btn btn-primary'
-            );
             self::$HookManager->processEvent(
                 'HOST_CREATE_TASKING',
                 [
@@ -4701,6 +4738,7 @@ class HostManagement extends FOGPage
             );
             $rendered = self::formFields($fields);
             unset($fields);
+            ob_start();
             echo self::makeFormTag(
                 'form-horizontal',
                 'host-deploy-form',
@@ -4709,28 +4747,271 @@ class HostManagement extends FOGPage
                 'application/x-www-form-url-encoded',
                 true
             );
-            echo '<div class="box box-solid">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
-            echo $this->title;
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="box-body">';
             echo $rendered;
-            echo '</div>';
-            echo '<div class="box-footer">';
-            echo $buttons;
-            echo '</div>';
-            echo '</div>';
             echo '</form>';
+            $msg = json_encode(
+                [
+                    'msg' => ob_get_clean(),
+                    'title' => _('Create task form success')
+                ]
+            );
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
         } catch (Exception $e) {
-            echo self::displayAlert(
-                'Tasking Cannot Occur',
-                $e->getMessage(),
-                'warning',
-                false
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Create task form fail')
+                ]
+            );
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+        }
+        http_response_code($code);
+        echo $msg;
+        exit;
+    }
+    /**
+     * Actually creates the tasking.
+     *
+     * @return void
+     */
+    public function deployPost()
+    {
+        header('Content-type: application/json');
+        self::$HookManager->processEvent('HOST_DEPLOY_POST');
+
+        $serverFault = false;
+        try {
+            global $type;
+            if (!is_numeric($type) && $type > 0) {
+                $type = 1;
+            }
+            // Pending check.
+            if ($this->obj->get('pending')) {
+                throw new Exception(_('Pending hosts cannot be tasked'));
+            }
+            // Task Type setup
+            $TaskType = new TaskType($type);
+            if (!$TaskType->isValid()) {
+                throw new Exception(_('Task Type is invalid'));
+            }
+
+            // Password reset setup
+            $passreset = trim(
+                filter_input(INPUT_POST, 'account')
+            );
+            if (TaskType::PASSWORD_RESET == $type
+                && !$passreset
+            ) {
+                throw new Exception(_('Password reset requires a user account'));
+            }
+
+            // Snapin setup
+            $enableSnapins = (int)filter_input(INPUT_POST, 'snapin');
+            if (0 === $enableSnapins) {
+                $enableSnapins = -1;
+            }
+            if (TaskType::DEPLOY_NO_SNAPINS === $type || $enableSnapins < -1) {
+                $enableSnapins = 0;
+            }
+
+            // Generic setup
+            $imagingTasks = $TaskType->isImagingTask();
+            $taskName = sprintf(
+                '%s Task',
+                $TaskType->get('name')
+            );
+
+            // Shutdown setup
+            $shutdown = isset($_POST['shutdown']);
+            if ($shutdown) {
+                $enableShutdown = true;
+            }
+
+            // Debug setup
+            $enableDebug = false;
+            $debug = isset($_POST['debug']);
+            $isdebug = isset($_POST['isDebugTask']);
+            if ($debug || $isdebug) {
+                $enableDebug = true;
+            }
+
+            // WOL setup
+            $wol = false;
+            $wolon = isset($_POST['wol']);
+            if (TaskType::WAKE_UP || $wolon) {
+                $wol = true;
+            }
+
+            // Schedule Type setup
+            $scheduleType = strtolower(
+                filter_input(INPUT_POST, 'scheduleType')
+            );
+            $scheduleTypes = [
+                'cron',
+                'instant',
+                'single'
+            ];
+            self::$HookManager->processEvent(
+                'SCHEDULE_TYPES',
+                ['scheduleTypes' => &$scheduleTypes]
+            );
+            foreach ($scheduleTypes as $ind => &$val) {
+                $scheduleTypes[$ind] = trim(
+                    strtolower(
+                        $val
+                    )
+                );
+                unset($val);
+            }
+            if (!in_array($scheduleType, $scheduleTypes)) {
+                throw new Exception(_('Invalid scheduling type'));
+            }
+            // Schedule Delayed/Cron checks.
+            switch ($scheduleType) {
+            case 'single':
+                $scheduleDeployTime = self::niceDate(
+                    filter_input(INPUT_POST, 'scheduleSingleTime')
+                );
+                if ($scheduleDeployTime < self::niceDate()) {
+                    throw new Exception(_('Scheduled time is in the past'));
+                }
+                break;
+            case 'cron':
+                $min = strval(
+                    filter_input(INPUT_POST, 'scheduleCronMin')
+                );
+                $hour = strval(
+                    filter_input(INPUT_POST, 'scheduleCronHour')
+                );
+                $dom = strval(
+                    filter_input(INPUT_POST, 'scheduleCronDOM')
+                );
+                $month = strval(
+                    filter_input(INPUT_POST, 'scheduleCronMonth')
+                );
+                $dow = strval(
+                    filter_input(INPUT_POST, 'scheduleCronDOW')
+                );
+                $tmin = FOGCron::checkMinutesField($min);
+                $thour = FOGCron::checkHoursField($hour);
+                $tdom = FOGCron::checkDOMField($dom);
+                $tmonth = FOGCron::checkMonthField($month);
+                $tdow = FOGCron::checkDOWField($dow);
+                if (!$tmin) {
+                    throw new Exception(_('Minutes field is invalid'));
+                }
+                if (!$thour) {
+                    throw new Exception(_('Hours field is invalid'));
+                }
+                if (!$tdom) {
+                    throw new Exception(_('Day of Month field is invalid'));
+                }
+                if (!$tmonth) {
+                    throw new Exception(_('Month field is invalid'));
+                }
+                if (!$tdow) {
+                    throw new Exception(_('Day of Week field is invalid'));
+                }
+                break;
+            }
+
+            // Task Type Imaging Checks.
+            if ($TaskType->isImagingTask()) {
+                $Image = $this->obj->getImage();
+                if (!$Image->isValid()) {
+                    throw new Exception(_('Image is invalid'));
+                }
+                if (!$Image->get('isEnabled')) {
+                    throw new Exception(_('Image is not enabled'));
+                }
+                if ($TaskType->isCapture()
+                    && $Image->get('protected')
+                ) {
+                    throw new Exception(_('Image is protected'));
+                }
+            }
+
+            // Actually create tasking
+            if ($scheduleType == 'instant') {
+                $this->obj->createImagePackage(
+                    $TaskType->get('id'),
+                    $taskName,
+                    $enableShutdown,
+                    $enableDebug,
+                    $enableSnapins,
+                    false,
+                    self::$FOGUser->get('name'),
+                    $passreset,
+                    false,
+                    $wol
+                );
+            } else {
+                $ScheduledTask = self::getClass('ScheduledTask')
+                    ->set('taskType', $TaskType->get('id'))
+                    ->set('name', $taskName)
+                    ->set('hostID', $this->obj->get('id'))
+                    ->set('shutdown', $enableShutdown)
+                    ->set('other2', $enableSnapins)
+                    ->set('type', 'single' == $scheduleType ? 'S' : 'C')
+                    ->set('isGroupTask', 0)
+                    ->set('other3', self::$FOGUser->get('name'))
+                    ->set('isActive', 1)
+                    ->set('other4', $wol);
+                if ($scheduleType == 'single') {
+                    $ScheduledTask->set(
+                        'scheduleTime',
+                        $scheduleDeployTime->getTimestamp()
+                    );
+                } elseif ($scheduleType == 'cron') {
+                    $ScheduledTask
+                        ->set('minute', $min)
+                        ->set('hour', $hour)
+                        ->set('dayOfMonth', $dom)
+                        ->set('month', $month)
+                        ->set('dayOfWeek', $dow);
+                }
+                if (!$ScheduledTask->save()) {
+                    $serverFault = true;
+                    throw new Exception(_('Failed to create scheduled task'));
+                }
+            }
+
+            $code = HTTPResponseCodes::HTTP_CREATED;
+            $hook = 'HOST_DEPLOY_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Create tasking succeeded'),
+                    'title' => _('Create Task Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'HOST_DEPLOY_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Create Task Fail')
+                ]
             );
         }
+
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Host' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
+        http_response_code($code);
+        echo $msg;
+        exit;
     }
     /**
      * Get the login history for this host.

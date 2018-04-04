@@ -1271,6 +1271,7 @@ class Host extends FOGController
         $sessionjoin = false,
         $wol = false
     ) {
+        $serverFault = false;
         try {
             if (!$this->isValid()) {
                 throw new Exception(self::$foglang['HostNotValid']);
@@ -1306,7 +1307,11 @@ class Host extends FOGController
                                 ->set(
                                     'typeID',
                                     12
-                                )->save();
+                                );
+                            if (!$Task->save()) {
+                                $serverFault = true;
+                                throw new Exception(_('Unable to update task'));
+                            }
                         }
                     } elseif ($TaskType->get('id') == '12') {
                         $this->_cancelJobsSnapinsForHost();
@@ -1362,7 +1367,11 @@ class Host extends FOGController
                     $this->set(
                         'imageID',
                         array_shift($realImageID)
-                    )->save();
+                    );
+                    if ($this->save()) {
+                        $serverFault = true;
+                        throw new Exception(_('Could not update host'));
+                    }
                 }
                 $this->set('imageID', $imageTaskImgID);
             }
@@ -1383,6 +1392,7 @@ class Host extends FOGController
                 );
                 $Task->set('imageID', $this->get('imageID'));
                 if (!$Task->save()) {
+                    $serverFault = true;
                     throw new Exception(self::$foglang['FailedTask']);
                 }
                 $this->set('task', $Task);
@@ -1459,46 +1469,62 @@ class Host extends FOGController
                         ->set('isDD', $this->getImage()->get('imageTypeID'))
                         ->set('storagegroupID', $StorageNode->get('storagegroupID'))
                         ->set('clients', -1);
-                    if ($MulticastSession->save()) {
-                        $assoc = true;
-                        if (!self::getSetting('FOG_MULTICAST_PORT_OVERRIDE')) {
+                    if (!$MulticastSession->save()) {
+                        $serverFault = true;
+                        throw new Exception(_('Failed to create multicast task'));
+                    }
+                    $assoc = true;
+                    if (!self::getSetting('FOG_MULTICAST_PORT_OVERRIDE')) {
+                        $randomnumber = mt_rand(24576, 32766)*2;
+                        while ($randomnumber
+                            == $MulticastSession->get('port')
+                        ) {
                             $randomnumber = mt_rand(24576, 32766)*2;
-                            while ($randomnumber
-                                == $MulticastSession->get('port')
-                            ) {
-                                $randomnumber = mt_rand(24576, 32766)*2;
-                            }
-                            self::setSetting(
-                                'FOG_UDPCAST_STARTINGPORT',
-                                $randomnumber
-                            );
                         }
+                        self::setSetting(
+                            'FOG_UDPCAST_STARTINGPORT',
+                            $randomnumber
+                        );
                     }
                 }
                 if ($assoc) {
-                    self::getClass('MulticastSessionAssociation')
+                    $stat = self::getClass('MulticastSessionAssociation')
                         ->set('msID', $MulticastSession->get('id'))
                         ->set('taskID', $Task->get('id'))
                         ->save();
+                    if (!$stat) {
+                        $serverFault = true;
+                        throw new Exception(_('Unable to create association'));
+                    }
                 }
             }
             if ($wol) {
                 $this->wakeOnLAN();
             }
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            if ($serverFault) {
+                http_response_code(HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR);
+                echo json_encode(
+                    [
+                        'error' => $e->getMessage(),
+                        'title' => _('Create Task Fail')
+                    ]
+                );
+                exit;
+            }
+            http_response_code(HTTPResponseCodes::HTTP_BAD_REQUEST);
+            echo json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Create Task Fail')
+                ]
+            );
+            exit;
         }
         if ($taskTypeID == 14) {
             $Task->destroy();
         }
-        $str = '<li>';
-        $str .= '<a href="#">';
-        $str .= $this->get('name');
-        $str .= ' &ndash; ';
-        $str .= $this->getImage()->get('name');
-        $str .= '</a>';
-        $str .= '</li>';
-        return $str;
+        return true;
     }
     /**
      * Returns task if host image is valid

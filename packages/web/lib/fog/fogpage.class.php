@@ -293,10 +293,7 @@ abstract class FOGPage extends FOGBase
             $this->additionalFields
                 = $classVars['additionalFields'];
             unset($classVars);
-            $this->obj = self::getClass(
-                $this->childClass,
-                $id
-            );
+            $this->obj = new $this->childClass($id);
             if (isset($id)) {
                 if ($id === 0 || !is_numeric($id) || !$this->obj->isValid()) {
                     unset($this->obj);
@@ -693,7 +690,6 @@ abstract class FOGPage extends FOGBase
         if (false === self::$showhtml) {
             return;
         }
-        $this->title = _('Search');
         // This is where list/search kind of happens.
         if (in_array($this->node, self::$searchPages)) {
             if (self::$ajax) {
@@ -702,11 +698,7 @@ abstract class FOGPage extends FOGBase
                 echo Route::getData();
                 exit;
             }
-            $this->title = sprintf(
-                '%s %s',
-                _('All'),
-                _("{$this->childClass}s")
-            );
+            $this->title = _('All ' . $this->childClass . 's');
             $this->indexDivDisplay();
         } else {
             $vals = function (&$value, $key) {
@@ -740,7 +732,7 @@ abstract class FOGPage extends FOGBase
      */
     public function set($key, $value)
     {
-        $this->$key = $value;
+        $this->data[$key] = $value;
         return $this;
     }
     /**
@@ -752,7 +744,7 @@ abstract class FOGPage extends FOGBase
      */
     public function get($key)
     {
-        return $this->$key;
+        return $this->data[$key];
     }
     /**
      * Return the information
@@ -962,14 +954,6 @@ abstract class FOGPage extends FOGBase
                         _('Add selected to group'),
                         'btn btn-default'
                     );
-                    $modals .= self::makeInput(
-                        'pingundetermined',
-                        'pingundetermined',
-                        '',
-                        'hidden',
-                        'pingundetermined',
-                        _('Unable to determine status')
-                    );
                 }
                 if ($node != 'plugin') {
                     $actionbox .= self::makeButton(
@@ -981,10 +965,13 @@ abstract class FOGPage extends FOGBase
                         'deleteModal',
                         _('Confirm password'),
                         '<div class="input-group">'
-                        . '<input id="deletePassword" class="form-control" '
-                        . 'placeholder="'
-                        . _('Password')
-                        . '" autocomplete="off" type="password">'
+                        . self::makeInput(
+                            'form-control',
+                            'deletePW',
+                            _('Password'),
+                            'password',
+                            'deletePassword'
+                        )
                         . '</div>',
                         self::makeButton(
                             'closeDeleteModal',
@@ -996,8 +983,8 @@ abstract class FOGPage extends FOGBase
                             'confirmDeleteModal',
                             _('Delete')
                             . ' {0} '
-                            . _('hosts'),
-                            'btn btn-outline'
+                            . _($node.'s'),
+                            'btn btn-outline pull-right'
                         ),
                         '',
                         'danger'
@@ -1005,23 +992,22 @@ abstract class FOGPage extends FOGBase
                     $modals .= self::makeModal(
                         'addToGroupModal',
                         _('Add To Group(s)'),
-                        //   '<div class="input-group">'
                         '<select id="groupSelect" class="" '
                         . 'name="" multiple="multiple">'
                         . '</select>',
-                        //   . '</div>',
                         self::makeButton(
                             'closeGroupModal',
                             _('Cancel'),
-                            'btn btn-default pull-left',
+                            'btn btn-outline pull-left',
                             'data-dismiss="modal"'
                         )
                         . self::makeButton(
                             'confirmGroupAdd',
                             _('Add'),
-                            'btn btn-primary'
+                            'btn btn-outline pull-right'
                         ),
-                        ''
+                        '',
+                        'info'
                     );
                 }
             }
@@ -1225,107 +1211,11 @@ abstract class FOGPage extends FOGBase
         return ob_get_clean();
     }
     /**
-     * Presents the en-mass delete elements
+     * Actually performs the deletion of selected items.
      *
      * @return void
      */
     public function deletemulti()
-    {
-        global $sub;
-        global $node;
-        $this->title = sprintf(
-            "%s's to remove",
-            $this->childClass
-        );
-        unset(
-            $this->data,
-            $this->form,
-            $this->headerData,
-            $this->attributes
-        );
-        $reqID = $node
-            . 'IDArray';
-        $items = filter_input(
-            INPUT_POST,
-            $reqID
-        );
-        $reqID = array_values(
-            array_filter(
-                array_unique(
-                    explode(',', $items)
-                )
-            )
-        );
-        Route::listem($this->childClass);
-        $items = json_decode(
-            Route::getData()
-        );
-        $getme = strtolower($this->childClass).'s';
-        $items = $items->$getme;
-        foreach ((array)$items as &$object) {
-            if (!in_array($object->id, $reqID)
-                || $object->protected
-            ) {
-                continue;
-            }
-            $this->data[] = [
-                'field' => '<input type="hidden" value="'
-                . $object->id
-                . '" name="remitems[]"/>',
-                'input' => '<a href="?node='
-                . $node
-                . '&sub=edit&id='
-                . $object->id
-                . '">'
-                . $object->name
-                . '</a>'
-            ];
-            unset($object);
-        }
-        if (count($this->data ?: []) < 1) {
-            self::redirect("../management/index.php?node=$node");
-        }
-        $this->data[] = [
-            'field' => '<label for="delete">'
-            . _('Remove these items?')
-            . '</label>',
-            'input' => '<button class="btn btn-danger btn-block" type="submit" '
-            . 'name="delete" id="delete">'
-            . _('Delete')
-            . '</button>',
-        ];
-        echo '<!-- Delete Items -->';
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-warning">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<div id="deleteDiv"></div>';
-        echo '<form class="form-horizontal" action="'
-            . $this->formAction
-            . '">';
-        $this->render(12);
-        echo '<input type="hidden" name="storagegroup" value="'
-            . (
-                $this->childClass === 'StorageGroup' ?
-                1 :
-                0
-            )
-            . '"/>';
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-    }
-    /**
-     * Actually performs the deletion actions
-     *
-     * @return void
-     */
-    public function deletemultiAjax()
     {
         header('Content-type: application/json');
         self::checkauth();
@@ -1345,11 +1235,8 @@ abstract class FOGPage extends FOGBase
         if ((int)$_POST['storagegroup'] === 1) {
             $this->childClass = 'StorageGroup';
         }
-        self::getClass($this->childClass)
-            ->getManager()
-            ->destroy(
-                ['id' => $remitems]
-            );
+        self::getClass($this->childClass.'Manager')
+            ->destroy(['id' => $remitems]);
         echo json_encode(
             [
                 'msg' => _('Successfully deleted'),
@@ -1550,10 +1437,6 @@ abstract class FOGPage extends FOGBase
 
             echo '  <div class="box-body">';
         }
-        echo '<input type="text" name="fakeusernameremembered" class='
-            . '"fakes hidden"/>';
-        echo '<input type="password" name="fakepasswordremembered" class='
-            . '"fakes hidden"/>';
         echo $rendered;
         if ($ownElement) {
             $buttons = self::makeButton(
@@ -1582,23 +1465,17 @@ abstract class FOGPage extends FOGBase
      */
     public function adInfo()
     {
-        if (!self::$ajax) {
-            return;
-        }
-        $items = [
-            'DOMAINNAME',
-            'OU',
-            'PASSWORD',
-            'USER',
+        header('Content-type: application/json');
+        $names = [
+            'FOG_AD_DEFAULT_DOMAINNAME',
+            'FOG_AD_DEFAULT_OU',
+            'FOG_AD_DEFAULT_PASSWORD',
+            'FOG_AD_DEFAULT_USER',
         ];
-        $names = [];
-        foreach ((array)$items as &$item) {
-            $names[] = sprintf(
-                'FOG_AD_DEFAULT_%s',
-                $item
-            );
-            unset($item);
-        }
+        self::$HookManager->processEvent(
+            'DEFAULT_AD_INFORMATION',
+            ['names' => &$names]
+        );
         list(
             $domainname,
             $ou,
@@ -1614,6 +1491,7 @@ abstract class FOGPage extends FOGBase
             false,
             ''
         );
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         echo json_encode(
             [
                 'domainname' => $domainname,
@@ -1748,91 +1626,94 @@ abstract class FOGPage extends FOGBase
         self::$FOGFTP->close();
     }
     /**
-     * Presents the delete page for the object
+     * Presents the delete modal.
      *
-     * @return void
+     * @return string
      */
-    public function delete()
+    protected function deleteModal()
     {
-        $this->title = sprintf(
-            '%s: %s',
-            _('Remove'),
-            $this->obj->get('name')
-        );
-        unset($this->headerData);
+        global $node;
+        $extra = '';
         if ($this->obj instanceof Group) {
-            $fieldsg = [
-                '<label for="massDel">'
-                . _('Delete hosts within')
-                . '</label>' => '<div class="input-group checkbox">'
-                . '<input type="checkbox" name="massDelHosts" id="'
-                . 'massDel"/>'
-                . '</div>'
-            ];
-        } elseif ($this->obj instanceof Image || $this->obj instanceof Snapin) {
-            $fieldsi = [
-                '<label for="andFile">'
-                . _('Delete files')
-                . '</label>' => '<div class="input-group checkbox">'
-                . '<input type="checkbox" name="andFile" id="'
-                . 'andFile"/>'
-                . '</div>'
-            ];
+            $extra .= '<br/>';
+            $extra .= self::makeLabel(
+                'control-label',
+                'andHosts',
+                self::makeInput(
+                    '',
+                    'andHosts',
+                    '',
+                    'checkbox',
+                    'andHosts'
+                )
+                . ' '
+                . _('Delete associated hosts')
+            );
+        } else if ($this->obj instanceof Image || $this->obj instanceof Snapin) {
+            $extra .= '<br/>';
+            $extra .= self::makeLabel(
+                'control-label',
+                'andHosts',
+                self::makeInput(
+                    '',
+                    'andHosts',
+                    '',
+                    'checkbox',
+                    'andHosts'
+                )
+                . ' '
+                . _('Remove file data')
+            );
         }
-        $fields = self::fastmerge(
-            (array)$fieldsg,
-            (array)$fieldsi,
-            [
-                '<label for="delete">'
-                . $this->title
-                . '</label>' => '<input type="hidden" name="remitems[]" '
-                . 'value="'
-                . $this->obj->get('id')
-                . '"/>'
-                . '<button type="submit" name="delete" id="delete" '
-                . 'class="btn btn-danger btn-block">'
-                . _('Delete')
-                . '</button>'
-            ]
-        );
-        $fields = array_filter($fields);
-        self::$HookManager->processEvent(
-            sprintf(
-                '%s_DEL_FIELDS',
-                strtoupper($this->node)
+        return self::makeModal(
+            'deleteModal',
+            _('Delete')
+            . ': '
+            . $this->obj->get('name'),
+            _("Confirm you would like to delete this $node")
+            . $extra,
+            self::makeButton(
+                'closeDeleteModal',
+                _('Cancel'),
+                'btn btn-outline pull-left',
+                'data-dismiss="modal"'
+            )
+            . self::makeButton(
+                'confirmDeleteModal',
+                _('Delete'),
+                'btn btn-outline pull-right'
             ),
-            [$this->childClass => &$this->obj]
+            '',
+            'danger'
         );
-        $rendered = self::formFields($fields);
-        self::$HookManager->processEvent(
-            sprintf(
-                '%S_DEL',
-                strtoupper($this->childClass)
+    }
+    /**
+     * Presents the assoc delete modal.
+     *
+     * @param string $item The item we're working with.
+     *
+     * @return string
+     */
+    protected function assocDelModal($item = '')
+    {
+        return self::makeModal(
+            "{$item}DelModal",
+            _("Remove $item Associations"),
+            _("Please confirm you would like to dissociate the selected {$item}s"),
+            self::makeButton(
+                "close{$item}DeleteModal",
+                _('Cancel'),
+                'btn btn-outline pull-left',
+                'data-dismiss="modal"'
+            )
+            . self::makeButton(
+                "confirm{$item}DeleteModal",
+                _('Delete'),
+                'btn btn-outline pull-right'
             ),
-            [
-                'data' => &$this->data,
-                'headerData' => &$this->headerData,
-                'attributes' => &$this->attributes,
-                $this->childClass => &$this->obj
-            ]
+            '',
+            'warning'
         );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-warning">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<div id="deleteDiv"></div>';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '">';
-        $this->render(12);
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Sends the new client the configuration options
@@ -2221,78 +2102,78 @@ abstract class FOGPage extends FOGBase
      *
      * @return void
      */
-    public function deletePost()
+    public function delete()
     {
-        self::checkauth();
+        global $node;
+        header('Content-type: application/json');
+        $ucnode = strtoupper($node);
         self::$HookManager->processEvent(
-            sprintf(
-                '%s_DEL_POST',
-                strtoupper($this->node)
-            ),
-            [$this->childClass => &$this->obj]
+            "{$ucnode}_DELETE_POST",
+            [$this->childClas => &$this->obj]
         );
+
+        $serverFault = false;
         try {
             if ($this->obj->get('protected')) {
-                throw new Exception(
-                    sprintf(
-                        '%s %s',
-                        $this->childClass,
-                        _('is protected, removal not allowed')
-                    )
-                );
+                throw new Exception(_('Unable to remove protected items'));
             }
             if ($this->obj instanceof Group) {
-                if (isset($_POST['massDelHosts'])) {
-                    self::getClass('HostManager')
-                        ->destroy(
-                            ['id' => $this->obj->get('hosts')]
-                        );
+                if (isset($_POST['andHosts'])) {
+                    $del = ['id' => $this->obj->get('hosts')];
+                    $HostMan = self::getClass('HostManager');
+
+                    if (!$HostMan->destroy($del)) {
+                        $serverFault = true;
+                        throw new Exception(_('Failed to remove hosts'));
+                    }
                 }
             }
-            if (isset($_POST['andFile'])) {
-                $this->obj->deleteFile();
+            if ($this->obj instanceof Image || $this->obj instanceof Snapin) {
+                if (isset($_POST['andFile'])) {
+                    if (!$this->obj->deletefile()) {
+                        throw new Exception(_('Unable to delete file data'));
+                    }
+                }
             }
             if (!$this->obj->destroy()) {
+                $serverFault = true;
                 throw new Exception(
-                    _('Failed to destroy')
+                    _('Failed to remove')
+                    . ': '
+                    . $this->obj->get('name')
                 );
             }
-            self::$HookManager->processEvent(
-                sprintf(
-                    '%s_DELETE_SUCCESS',
-                    strtoupper($this->childClass)
-                ),
-                [$this->childClass => &$this->obj]
-            );
-            self::resetRequest();
-            echo json_encode(
+            $hook = "{$ucnode}_DELETE_SUCCESS";
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
+            $msg = json_encode(
                 [
-                    'msg' => sprintf(
-                        '%s %s: %s',
-                        $this->childClass,
-                        _('deleted'),
-                        $this->obj->get('name')
-                    ),
+                    'msg' => _('Successfully deleted')
+                    . ': '
+                    . $this->obj->get('name'),
                     'title' => _('Delete Success')
                 ]
             );
-            exit;
         } catch (Exception $e) {
-            self::$HookManager->processEvent(
-                sprintf(
-                    '%s_DELETE_FAIL',
-                    strtoupper($this->node)
-                ),
-                [$this->childClass => &$this->obj]
+            $hook = "{$ucnode}_DELETE_FAIL";
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            echo json_encode(
+            $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
                     'title' => _('Delete Fail')
                 ]
             );
-            exit;
         }
+        self::$HookManager->processEvent(
+            $hook,
+            [$this->childClass => &$this->obj]
+        );
+        http_response_code($code);
+        echo $msg;
+        exit;
     }
     /**
      * Perform wakeup stuff

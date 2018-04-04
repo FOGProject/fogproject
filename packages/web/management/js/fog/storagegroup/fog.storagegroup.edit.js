@@ -12,7 +12,10 @@
 
     var generalForm = $('#storagegroup-general-form'),
         generalFormBtn = $('#general-send'),
-        generalDeleteBtn = $('#general-delete');
+        generalDeleteBtn = $('#general-delete'),
+        generalDeleteModal = $('#deleteModal'),
+        generalDeleteModalConfirm $('#confirmDeleteModal'),
+        generalDeleteModalCancel = $('#closeDeleteModal');
 
     generalForm.on('submit', function(e) {
         e.preventDefault();
@@ -28,6 +31,26 @@
             }
             updateName($('#storagegroup').val());
             originalName = $('#storagegroup').val();
+        });
+    });
+    generalDeleteBtn.on('click', function() {
+        generalDeleteModal.modal('show');
+    });
+    generalDeleteModalConfirm.on('click', function() {
+        var method = 'post',
+            action = '../management/index.php?node='
+                + Common.node
+                + '&sub=delete&id='
+                + Common.id;
+        Common.apiCall(method, action, null, function(err) {
+            if (err) {
+                return;
+            }
+            setTimeout(function() {
+                window.location = '../management/index.php?node='
+                    + Common.node
+                    + '&sub=list';
+            }, 2000);
         });
     });
 
