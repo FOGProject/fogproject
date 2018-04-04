@@ -75,7 +75,7 @@ class UserManagement extends FOGPage
         $user = filter_input(INPUT_POST, 'user');
         $display = filter_input(INPUT_POST, 'display');
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -308,7 +308,7 @@ class UserManagement extends FOGPage
             $this->obj->get('display')
         );
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -422,7 +422,7 @@ class UserManagement extends FOGPage
      */
     public function userChangePW()
     {
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -536,7 +536,7 @@ class UserManagement extends FOGPage
             $this->obj->get('token')
         );
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(

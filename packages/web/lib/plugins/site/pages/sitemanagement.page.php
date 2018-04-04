@@ -59,7 +59,7 @@ class SiteManagement extends FOGPage
         $site = filter_input(INPUT_POST, 'site');
         $description = filter_input(INPUT_POST, 'description');
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -221,7 +221,7 @@ class SiteManagement extends FOGPage
             $this->obj->get('description')
         );
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(

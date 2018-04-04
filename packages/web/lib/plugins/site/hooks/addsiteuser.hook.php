@@ -120,7 +120,7 @@ class AddSiteUser extends Hook
 
         $fields = [
             FOGPage::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'site',
                 _('User Site')
             ) => $siteSelector
@@ -268,7 +268,7 @@ class AddSiteUser extends Hook
 
         $arguments['fields'][
             FOGPage::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'site',
                 _('User Site')
             )

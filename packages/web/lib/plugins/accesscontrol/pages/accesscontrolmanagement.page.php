@@ -62,7 +62,7 @@ class AccessControlManagement extends FOGPage
         $role = filter_input(INPUT_POST, 'role');
         $description = filter_input(INPUT_POST, 'description');
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -226,7 +226,7 @@ class AccessControlManagement extends FOGPage
             $this->obj->get('description')
         );
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(

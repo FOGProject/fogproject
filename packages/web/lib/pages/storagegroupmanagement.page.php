@@ -59,7 +59,7 @@ class StorageGroupManagement extends FOGPage
         $storagegroup = filter_input(INPUT_POST, 'storagegroup');
         $description = filter_input(INPUT_POST, 'description');
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -222,7 +222,7 @@ class StorageGroupManagement extends FOGPage
             $this->obj->get('description')
         );
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(

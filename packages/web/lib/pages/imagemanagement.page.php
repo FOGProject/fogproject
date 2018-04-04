@@ -168,7 +168,7 @@ class ImageManagement extends FOGPage
             _('Partclone Zstd Split 200MiB')
         );
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             // Input/Textarea elements
@@ -588,7 +588,7 @@ class ImageManagement extends FOGPage
             _('Partclone Zstd Split 200MiB')
         );
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             // Input/Textarea elements
@@ -1118,7 +1118,7 @@ class ImageManagement extends FOGPage
             $image
         );
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(

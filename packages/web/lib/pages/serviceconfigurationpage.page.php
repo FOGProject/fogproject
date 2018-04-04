@@ -127,7 +127,7 @@ class ServiceConfigurationPage extends FOGPage
         );
         unset($disps);
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -320,7 +320,7 @@ class ServiceConfigurationPage extends FOGPage
         $Module = $Modules->modules[0];
         unset($Modules);
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $tme = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
         $fields = [
@@ -482,7 +482,7 @@ class ServiceConfigurationPage extends FOGPage
         $Module = $Modules->modules[0];
         unset($Modules);
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -624,7 +624,7 @@ class ServiceConfigurationPage extends FOGPage
         $Module = $Modules->modules[0];
         unset($Modules);
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -757,7 +757,7 @@ class ServiceConfigurationPage extends FOGPage
         $Module = $Modules->modules[0];
         unset($Modules);
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -890,7 +890,7 @@ class ServiceConfigurationPage extends FOGPage
         $Module = $Modules->modules[0];
         unset($Modules);
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -1023,7 +1023,7 @@ class ServiceConfigurationPage extends FOGPage
         $Module = $Modules->modules[0];
         unset($Modules);
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -1156,7 +1156,7 @@ class ServiceConfigurationPage extends FOGPage
         $Module = $Modules->modules[0];
         unset($Modules);
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -1289,7 +1289,7 @@ class ServiceConfigurationPage extends FOGPage
         $Module = $Modules->modules[0];
         unset($Modules);
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
