@@ -92,7 +92,7 @@ class AddServiceConfiguration extends Hook
             )
         );
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $arguments['fields'][
             FOGPage::makeLabel(

@@ -1336,7 +1336,7 @@ abstract class FOGPage extends FOGBase
             );
         }
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -1708,7 +1708,7 @@ abstract class FOGPage extends FOGBase
             )
             . self::makeButton(
                 "confirm{$item}DeleteModal",
-                _('Delete'),
+                _('Remove'),
                 'btn btn-outline pull-right'
             ),
             '',
@@ -2207,7 +2207,7 @@ abstract class FOGPage extends FOGBase
 
         $fields = [
             self::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'import',
                 _('Import CSV')
                 . '<br/>('
@@ -2557,7 +2557,7 @@ abstract class FOGPage extends FOGBase
 
         $action = filter_input(INPUT_POST, 'action');
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $actionSelector = self::getClass('PowerManagementManager')->getActionSelect(
             $action,
@@ -2749,7 +2749,7 @@ abstract class FOGPage extends FOGBase
         foreach ($fields as $field => &$input) {
             echo '<div class="form-group">';
             echo $field;
-            echo '<div class="col-sm-10">';
+            echo '<div class="col-sm-9">';
             echo $input;
             echo '</div>';
             echo '</div>';

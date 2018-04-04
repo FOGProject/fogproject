@@ -107,7 +107,7 @@ class AddWindowsKeyImage extends Hook
 
         $fields = [
             FOGPage::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'windowskey',
                 _('Windows Key')
             ) => $windowskeySelector
@@ -253,7 +253,7 @@ class AddWindowsKeyImage extends Hook
 
         $arguments['fields'][
             FOGPage::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'windowskey',
                 _('Image Windows Key')
             )

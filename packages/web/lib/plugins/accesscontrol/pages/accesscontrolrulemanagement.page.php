@@ -70,7 +70,7 @@ class AccessControlRuleManagement extends FOGPage
         $node = filter_input(INPUT_POST, 'node');
         $value = filter_input(INPUT_POST, 'value');
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -284,7 +284,7 @@ class AccessControlRuleManagement extends FOGPage
             $this->obj->get('value')
         );
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(

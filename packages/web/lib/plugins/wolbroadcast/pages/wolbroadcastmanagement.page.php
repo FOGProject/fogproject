@@ -60,7 +60,7 @@ class WOLBroadcastManagement extends FOGPage
         $description = filter_input(INPUT_POST, 'description');
         $broadcast = filter_input(INPUT_POST, 'broadcast');
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -247,7 +247,7 @@ class WOLBroadcastManagement extends FOGPage
             $this->obj->get('broadcast')
         );
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(

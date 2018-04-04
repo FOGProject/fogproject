@@ -62,7 +62,7 @@ class TaskstateeditManagement extends FOGPage
         $additional = filter_input(INPUT_POST, 'additional');
         $iconSel = self::getClass('TaskType')->iconlist($icon);
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -262,7 +262,7 @@ class TaskstateeditManagement extends FOGPage
         );
         $iconSel = self::getClass('TaskType')->iconlist($icon);
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(

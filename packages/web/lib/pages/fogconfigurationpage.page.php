@@ -340,7 +340,7 @@ class FOGConfigurationPage extends FOGPage
 
             $fields = [
                 self::makeLabel(
-                    'col-sm-2 control-label',
+                    'col-sm-3 control-label',
                     'dstName',
                     _('Kernel Name')
                 ) => self::makInput(
@@ -1940,7 +1940,7 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         echo '</div>';
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         foreach ($ServiceCats as &$Category) {
             Route::listem(
@@ -3127,7 +3127,7 @@ class FOGConfigurationPage extends FOGPage
         echo '<hr/>';
         echo '<div class="col-sm-4">';
         echo self::makeLabel(
-            'col-sm-2 control-label',
+            'col-sm-3 control-label',
             'logToView',
             _('File')
         );
@@ -3135,7 +3135,7 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         echo '<div class="col-sm-4">';
         echo self::makeLabel(
-            'col-sm-2 control-label',
+            'col-sm-3 control-label',
             'linesToView',
             _('Lines')
         );
@@ -3143,7 +3143,7 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         echo '<div class="col-sm-4">';
         echo self::makeLabel(
-            'col-sm-2 control-label',
+            'col-sm-3 control-label',
             'reverse',
             _('Reverse')
             . ' '
@@ -3178,7 +3178,7 @@ class FOGConfigurationPage extends FOGPage
 
         $this->title = _('Configuration Import/Export');
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(

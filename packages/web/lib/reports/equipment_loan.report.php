@@ -52,7 +52,7 @@ class Equipment_Loan extends ReportManagement
             'select2'
         );
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
