@@ -95,6 +95,7 @@
             if (err) {
                 return;
             }
+            $('.password1-input, .password2-input').val('');
         });
     });
 
