@@ -65,8 +65,8 @@ class AddServiceConfiguration extends Hook
             'MODULE_SNAPINCLIENT_POST',
             [$this, 'updateGlobalSetting']
         )->register(
-            'SERVICE_NAMES',
-            [$this, 'addServiceNames']
+            'NEEDSTOBECHECKBOX',
+            [$this, 'addCheckbox']
         );
     }
     /**
@@ -139,7 +139,7 @@ class AddServiceConfiguration extends Hook
      *
      * @return void
      */
-    public function addServiceNames($arguments)
+    public function addCheckbox($arguments)
     {
         global $node;
         global $sub;
@@ -149,6 +149,6 @@ class AddServiceConfiguration extends Hook
         if ($sub != 'settings') {
             return;
         }
-        $arguments['ServiceNames'][] = 'FOG_SNAPIN_LOCATION_SEND_ENABLED';
+        $arguments['needstobecheckbox']['FOG_SNAPIN_LOCATION_SEND_ENABLED'] = true;
     }
 }
