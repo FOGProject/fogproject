@@ -106,7 +106,7 @@ class AddOUGroup extends Hook
 
         $fields = [
             FOGPage::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'ou',
                 _('Group OU')
             ) => $ouSelector
@@ -252,7 +252,7 @@ class AddOUGroup extends Hook
 
         $arguments['fields'][
             FOGPage::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'ou',
                 _('Group OU')
             )

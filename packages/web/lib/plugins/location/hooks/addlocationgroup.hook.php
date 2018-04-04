@@ -108,7 +108,7 @@ class AddLocationGroup extends Hook
 
         $fields = [
             FOGPage::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'location',
                 _('Group Location')
             ) => $locationSelector
@@ -254,7 +254,7 @@ class AddLocationGroup extends Hook
 
         $arguments['fields'][
             FOGPage::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'location',
                 _('Group Location')
             )

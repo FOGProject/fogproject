@@ -123,7 +123,7 @@ class AddOUHost extends Hook
 
         $fields = [
             FOGPage::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'ou',
                 _('Host OU')
             ) => $ouSelector
@@ -269,7 +269,7 @@ class AddOUHost extends Hook
 
         $arguments['fields'][
             FOGPage::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'ou',
                 _('Host OU')
             )

@@ -62,7 +62,7 @@ class OUManagement extends FOGPage
         $description = filter_input(INPUT_POST, 'description');
         $oudn = filter_input(INPUT_POST, 'oudn');
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -245,7 +245,7 @@ class OUManagement extends FOGPage
             $this->obj->get('ou')
         );
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(

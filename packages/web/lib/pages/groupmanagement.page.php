@@ -104,7 +104,7 @@ class GroupManagement extends FOGPage
         $init = filter_input(INPUT_POST, 'init');
         $dev = filter_input(INPUT_POST, 'dev');
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         // The fields to display
         $fields = [
@@ -440,7 +440,7 @@ class GroupManagement extends FOGPage
             'warning'
         );
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -685,7 +685,7 @@ class GroupManagement extends FOGPage
         $imageSelector = self::getClass('ImageManager')
             ->buildSelectBox($imageID, 'image');
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         $fields = [
             self::makeLabel(
@@ -1330,7 +1330,7 @@ class GroupManagement extends FOGPage
             ]
         ];
 
-        $labelClass = 'col-sm-2 control-label';
+        $labelClass = 'col-sm-3 control-label';
 
         foreach ($names as $name => &$get) {
             switch ($name) {
@@ -2055,7 +2055,7 @@ class GroupManagement extends FOGPage
             'task-modal',
             '<h4 class="box-title">'
             . _('Create new tasking')
-            . '</h4>',
+            . '<span class="task-name"></span></h4>',
             '<div id="task-form-holder"></div>',
             $modalApprovalBtns,
             '',
@@ -2562,7 +2562,7 @@ class GroupManagement extends FOGPage
                 throw new Exception(_('Groups cannot create capture tasks'));
             }
 
-            $labelClass = 'col-sm-2 control-label';
+            $labelClass = 'col-sm-3 control-label';
 
             $fields = [];
 

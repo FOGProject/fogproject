@@ -102,15 +102,39 @@
         taskModal = $('#task-modal');
     taskItem.on('click', function(e) {
         e.preventDefault();
+        var taskName = $(this).text();
         var method = $(this).attr('href');
+
+        // Show Modal loading
+        $('.task-name').text('Loading...');
+        $('#task-form-holder').html("Loading, please wait...");
+        Common.setLoading($('#task-modal .modal-dialog'), true);
+        taskModal.modal('show'); // NOTE: If you remove modal loading UI, you will need to put this after the HTML is added.
+        // END: Show modal loading
+
+        // Interrupt AJAX if modal closed
+        var req;
+        taskModal.on('hidden.bs.modal', function() {
+          if(req != null){
+            req.abort();
+          }
+        });
+        // END: Interrupt AJAX if modal closed
+
         Pace.track(function() {
-            $.ajax({
+            req = $.ajax({
                 type: 'get',
                 url: method,
                 dataType: 'json',
                 success: function(data, textStatus, jqXHR) {
-                    taskModal.modal('show');
                     $('#task-form-holder').html($.parseHTML(data.msg));
+
+                    // Hide modal loading
+                    req = null;
+                    Common.setLoading($('#task-modal .modal-dialog'), false);
+                    $('.task-name').text(taskName);
+                    // END: Hide modal loading
+
                     var scheduleType = $('input[name="scheduleType"]'),
                         groupDeployForm = $('#group-deploy-form'),
                         minutes = $('#cronMin', groupDeployForm),
@@ -173,7 +197,8 @@
                     });
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
-                    Common.notifyFromApI(jqXHR.responseJSON, true);
+                  if(textStatus == 'abort') return; // Do not show error message on abort.
+                  Common.notifyFromApI(jqXHR.responseJSON, true);
                 }
             });
         });

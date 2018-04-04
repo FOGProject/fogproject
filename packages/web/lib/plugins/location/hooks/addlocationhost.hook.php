@@ -123,7 +123,7 @@ class AddLocationHost extends Hook
 
         $fields = [
             FOGPage::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'location',
                 _('Host Location')
             ) => $locationSelector
@@ -269,7 +269,7 @@ class AddLocationHost extends Hook
 
         $arguments['fields'][
             FOGPage::makeLabel(
-                'col-sm-2 control-label',
+                'col-sm-3 control-label',
                 'location',
                 _('Host Location')
             )

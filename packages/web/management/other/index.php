@@ -141,8 +141,9 @@ if (self::$FOGUser->isValid()) {
     echo $this->menu;
     if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
         echo '<li class="header">';
+        echo '<span class="pull-left">';
         echo _('PLUGIN OPTIONS');
-        echo ' ';
+        echo '</span> ';
         echo '<span class="pull-right-container">';
         echo '<a href="#" class="plugin-options-alternate">';
         echo '<i class="fa fa-minus"></i>';
