@@ -8,6 +8,10 @@
         createFormBtn.prop('disabled', true);
         Common.processForm(createForm, function(err) {
             createFormBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            $('.password1-input, .password2-input').val('');
         });
     });
     $('#user').inputmask({mask: Common.masks.username, placeholder: ''});
