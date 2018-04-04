@@ -205,34 +205,16 @@
         });
     });
     membershipRemoveBtn.on('click', function() {
-        membershipRemoveBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = membershipTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(membershipTable),
-            opts = {
-                'membershipdel': '1',
-                'membershipRemove' : toRemove
-            };
-        Common.apiCall(method,action,opts,function(err) {
-            if (!err) {
-                membershipTable.draw(false);
-                membershipTable.rows({selected: true}).deselect();
-                $('#printer-membership-table').find('.default').each(function() {
-                    if ($.inArray($(this).val(), toRemove) != -1) {
-                        $(this).iCheck('uncheck');
-                        $(this).prop('disabled', true);
-                        Common.iCheck(this);
-                    }
-                });
-                $('#printer-membership-table').find('.associated').each(function() {
-                    if ($.inArray($(this).val(), toRemove) != -1) {
-                        $(this).iCheck('uncheck');
-                    }
-                });
-            } else {
-                membershipRemoveBtn.prop('disabled', false);
+        $('#hostDelModal').modal('show');
+    });
+    $('#confirmhostDeleteModal').on('click', function(e) {
+        Common.deleteAssociated(membershipTable, membershipRemoveBtn.attr('action'), function(err) {
+            if (err) {
+                return;
             }
+            $('#hostDelModal').modal('hide');
+            membershipTable.draw(false);
+            membershipTable.rows({selected: true}).deselect();
         });
     });
     if (Common.search && Common.search.length > 0) {
