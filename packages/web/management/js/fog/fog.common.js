@@ -25,17 +25,19 @@ var $_GET = getQueryParams(document.location.search),
         pluginOptionsAlt = $('.plugin-options-alternate');
 
     // Animate the plugin items.
-    pluginOptionsAlt.on('click', function(event){
+    pluginOptionsAlt.on('click', function(event) {
         event.preventDefault();
-
+        whenDone = function() {
+            $(window).resize();
+        };
         if (pluginOptionsOpen) {
-            $('.plugin-options').slideUp();
+            $('.plugin-options').slideUp('fast', whenDone);
             $('.plugin-options-alternate .fa')
                 .removeClass('fa-minus')
                 .addClass('fa-plus');
         }
         if (!pluginOptionsOpen) {
-            $('.plugin-options').slideDown();
+            $('.plugin-options').slideDown('fast', whenDone);
             $('.plugin-options-alternate .fa')
                 .removeClass('fa-plus')
                 .addClass('fa-minus');
@@ -360,6 +362,60 @@ var $_GET = getQueryParams(document.location.search),
                         if (cb && typeof(cb) === 'function') {
                             cb(res,res.responseJSON);
                         }
+                    }
+                }
+            });
+        });
+    };
+
+    /**
+     * Deletes associated elements without authentication requirement.
+     *
+     * @param table = the datatable element to get selected items from.
+     * @param url   = the url to send the form through.
+     * @param cb    = the callback function.
+     * @param opts  = special items to send as a part of the form.
+     *
+     * @return void
+     */
+    Common.deleteAssociated = function(table, url, cb, opts) {
+        opts = opts || {};
+        opts = _.defaults(opts, {
+            rows: table.rows({selected: true})
+        });
+        opts = _.defaults(opts, {
+            ids: opts.rows.ids().toArray()
+        });
+
+        var ajaxOpts = {
+            confirmdel: 1,
+            remitems: opts.ids
+        };
+
+        Pace.track(function(){
+            $.ajax('', {
+                type: 'post',
+                url: url,
+                async: true,
+                data: ajaxOpts,
+                success: function(res) {
+                    if (table !== undefined) {
+                        table.$('.associated').each(function() {
+                            if ($.inArray($(this).val(), opts.ids) != -1) {
+                                $(this).iCheck('uncheck');
+                            }
+                        });
+                        table.rows({selected: true}).deselect();
+                    }
+                    Common.notifyFromAPI(res, false);
+                    if (cb && typeof(cb) === 'function') {
+                        cb(null, res);
+                    }
+                },
+                error: function(res) {
+                    Common.notifyFromAPI(res.responseJSON, true);
+                    if (cb && typeof(cb) === 'function') {
+                        cb(res, res.responseJSON);
                     }
                 }
             });

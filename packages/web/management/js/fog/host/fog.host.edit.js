@@ -17,15 +17,18 @@
     var generalForm = $('#host-general-form'),
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
+        generalDeleteModal = $('#deleteModal'),
+        generalDeleteModalConfirm = $('#confirmDeleteModal'),
+        generalDeleteModalCancel = $('#closeDeleteModal'),
         resetEncryptionBtn = $('#reset-encryption-data'),
         resetEncryptionModal = $('#resetencryptionmodal'),
         resetEncryptionCancelBtn = $('#resetencryptionCancel'),
         resetEncryptionConfirmBtn = $('#resetencryptionConfirm');
 
-    generalForm.on('submit',function(e) {
+    generalForm.on('submit', function(e) {
         e.preventDefault();
     });
-    generalFormBtn.on('click',function() {
+    generalFormBtn.on('click', function() {
         generalFormBtn.prop('disabled', true);
         generalDeleteBtn.prop('disabled', true);
         Common.processForm(generalForm, function(err) {
@@ -38,19 +41,25 @@
             originalName = $('#host').val();
         });
     });
-    generalDeleteBtn.on('click',function() {
-        generalFormBtn.prop('disabled', true);
-        generalDeleteBtn.prop('disabled', true);
-        Common.massDelete(
-            null,
-            function(err) {
-                if (err) {
-                    generalDeleteBtn.prop('disabled', false);
-                    generalFormBtn.prop('disabled', false);
-                    return;
-                }
-                window.location = '../management/index.php?node='+Common.node+'&sub=list';
-            });
+    generalDeleteBtn.on('click', function() {
+        generalDeleteModal.modal('show');
+    });
+    generalDeleteModalConfirm.on('click', function() {
+        var method = 'post',
+            action = '../management/index.php?node='
+                + Common.node
+                + '&sub=delete&id='
+                + Common.id;
+        Common.apiCall(method, action, null, function(err) {
+            if (err) {
+                return;
+            }
+            setTimeout(function() {
+                window.location = '../management/index.php?node='
+                    + Common.node
+                    + '&sub=list';
+            }, 2000);
+        });
     });
 
     // Reset encryption confirmation modal.
@@ -346,6 +355,89 @@
     }
 
     // ---------------------------------------------------------------
+    // TASKING TAB
+    var taskItem = $('.taskitem'),
+        taskModal = $('#task-modal');
+    taskItem.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('href');
+        Pace.track(function() {
+            $.ajax({
+                type: 'get',
+                url: method,
+                dataType: 'json',
+                success: function(data, textStatus, jqXHR) {
+                    taskModal.modal('show');
+                    $('#task-form-holder').html($.parseHTML(data.msg));
+                    var scheduleType = $('input[name="scheduleType"]'),
+                        hostDeployForm = $('#host-deploy-form'),
+                        minutes = $('#cronMin', hostDeployForm),
+                        hours = $('#cronHour', hostDeployForm),
+                        dom = $('#cronDom', hostDeployForm),
+                        month = $('#cronMonth', hostDeployForm),
+                        dow = $('#cronDow', hostDeployForm),
+                        createTaskBtn = $('#tasking-send');
+                    Common.iCheck('#task-form-holder input');
+
+                    $('#checkdebug').on('ifChecked', function(e) {
+                        e.preventDefault();
+                        $('.hideFromDebug,.delayedinput,.croninput').addClass('hidden');
+                        $('.instant').iCheck('check');
+                    }).on('ifUnchecked', function(e) {
+                        e.preventDefault();
+                        $('.hideFromDebug').removeClass('hidden');
+                    });
+                    $('input[name="scheduleType"]').on('ifClicked', function(e) {
+                        e.preventDefault();
+                        switch (this.value) {
+                            case 'instant':
+                                $('.delayedinput,.croninput').addClass('hidden');
+                                break;
+                            case 'single':
+                                $('.delayedinput').removeClass('hidden');
+                                $('.croninput').addClass('hidden');
+                                $('#delayedinput').datetimepicker('show');
+                                break;
+                            case 'cron':
+                                $('.delayedinput').addClass('hidden');
+                                $('.croninput').removeClass('hidden');
+                                break;
+                        }
+                    });
+                    $('#tasking-send').on('click', function(e) {
+                        e.stopImmediatePropagation();
+                        Common.processForm(hostDeployForm, function(err) {
+                            if (err) {
+                                return;
+                            }
+                            taskModal.modal('hide');
+                        });
+                    });
+                    taskModal.on('hidden.bs.modal', function(e) {
+                        hostDeployForm.remove();
+                        $('#task-form-holder').empty();
+                    });
+                    $('#delayedinput').datetimepicker({format: 'YYYY-MM-DD HH:mm:ss'});
+                    $('.fogcron').cron({
+                        initial: '* * * * *',
+                        onChange: function() {
+                            vals = $(this).cron('value').split(' ');
+                            minutes.val(vals[0]);
+                            hours.val(vals[1]);
+                            dom.val(vals[2]);
+                            month.val(vals[3]);
+                            dow.val(vals[4]);
+                        }
+                    });
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    Common.notifyFromAPI(jqXHR.responseJSON, true);
+                }
+            });
+        });
+    });
+
+    // ---------------------------------------------------------------
     // ACTIVE DIRECTORY TAB
     var ADForm = $('#active-directory-form'),
         ADFormBtn = $('#ad-send'),
@@ -520,6 +612,7 @@
     printersTable.on('draw', function() {
         Common.iCheck('#host-printers input');
         $('#host-printers-table input.default').on('ifClicked', onRadioSelect);
+        onPrintersSelect(printersTable.rows({selected: true}));
     });
     printerDefaultBtn.prop('disabled', true);
 
@@ -609,26 +702,15 @@
         });
     });
 
-    printerRemoveBtn.on('click',function() {
-        printerAddBtn.prop('disabled', true);
-        printerRemoveBtn.prop('disabled', true);
-        printerDefaultBtn.prop('disabled', true);
-
-        var method = printerRemoveBtn.attr('method'),
-            action = printerRemoveBtn.attr('action'),
-            rows = printersTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(printersTable),
-            opts = {
-                printdel: 1,
-                printerRemove: toRemove
-            };
-
-        Common.apiCall(method,action,opts,function(err) {
-            printerDefaultBtn.prop('disabled', false);
-            printerRemoveBtn.prop('disabled', false);
+    printerRemoveBtn.on('click', function() {
+        $('#printerDelModal').modal('show');
+    });
+    $('#confirmprinterDeleteModal').on('click', function(e) {
+        Common.deleteAssociated(printersTable, printerRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }
+            $('#printerDelModal').modal('hide');
             printersTable.draw(false);
             printersTable.rows({selected: true}).deselect();
         });
@@ -718,22 +800,15 @@
         });
     });
 
-    snapinsRemoveBtn.on('click',function() {
-        snapinsRemoveBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = snapinsTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(snapinsTable),
-            opts = {
-                snapdel: 1,
-                snapinRemove: toRemove
-            };
-        Common.apiCall(method,action,opts,function(err) {
-            snapinsAddBtn.prop('disabled', false);
-            snapinsRemoveBtn.prop('disabled', false);
+    snapinsRemoveBtn.on('click', function() {
+        $('#snapinDelModal').modal('show');
+    });
+    $('#confirmsnapinDeleteModal').on('click', function(e) {
+        Common.deleteAssociated(snapinsTable, snapinsRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }
+            $('#snapinDelModal').modal('hide');
             snapinsTable.draw(false);
             snapinsTable.rows({selected: true}).deselect();
         });
@@ -930,6 +1005,7 @@
         scheduleModalCancelBtn = $('#scheduleCancelBtn'),
         scheduleModalCreateBtn = $('#scheduleCreateBtn')
 
+    // FOG Cron
     $('.fogcron').cron({
         initial: '* * * * *',
         onChange: function() {
@@ -1091,22 +1167,15 @@
         });
     });
 
-    groupsRemoveBtn.on('click',function() {
-        groupsRemoveBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = groupsTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(groupsTable),
-            opts = {
-                groupdel: 1,
-                groupRemove: toRemove
-            };
-        Common.apiCall(method,action,opts,function(err) {
-            groupsAddBtn.prop('disabled', false);
-            groupsRemoveBtn.prop('disabled', false);
+    groupsRemoveBtn.on('click', function() {
+        $('#groupDelModal').modal('show');
+    });
+    $('#confirmgroupDeleteModal').on('click', function(e) {
+        Common.deleteAssociated(groupsTable, groupsRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }
+            $('#groupDelModal').modal('hide');
             groupsTable.draw(false);
             groupsTable.rows({selected: true}).deselect();
         });

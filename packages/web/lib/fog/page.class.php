@@ -99,6 +99,7 @@ class Page extends FOGBase
         parent::__construct();
         $this
             ->addCSS('css/bootstrap.min.css')
+            ->addCSS('css/bootstrap-datetimepicker.min.css')
             ->addCSS('css/font-awesome.min.css')
             ->addCSS('css/select2.min.css')
             ->addCSS('css/ionicons.min.css')
@@ -149,6 +150,8 @@ class Page extends FOGBase
             'js/lodash.min.js',
             'js/bootstrap.min.js',
             'js/bootstrap-slider.min.js',
+            'js/moment.min.js',
+            'js/bootstrap-datetimepicker.min.js',
             'js/pdfmake.min.js',
             'js/vfs_fonts.js',
             'js/fastclick.js',
@@ -170,7 +173,6 @@ class Page extends FOGBase
             'js/input-mask/jquery.inputmask.regex.extensions.js',
             'js/input-mask/jquery.inputmask.numeric.extensions.js',
             'js/input-mask/jquery.inputmask.date.extensions.js',
-            'js/bootstrap-slider/bootstrap-slider.js',
             'js/fog/fog.common.js',
         ];
         if (!self::$FOGUser->isValid()) {

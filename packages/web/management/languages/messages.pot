@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-31 14:00-0400\n"
+"POT-Creation-Date: 2018-04-04 13:57-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1276,6 +1276,15 @@ msgstr ""
 msgid "Windows Key Create Fail"
 msgstr ""
 
+msgid "Add selected"
+msgstr ""
+
+msgid "Remove selected"
+msgstr ""
+
+msgid "Image Associated"
+msgstr ""
+
 msgid "Associations"
 msgstr ""
 
@@ -1532,12 +1541,6 @@ msgid "Site Create Fail"
 msgstr ""
 
 msgid "Associated"
-msgstr ""
-
-msgid "Add selected"
-msgstr ""
-
-msgid "Remove selected"
 msgstr ""
 
 msgid "Site Host Associations"
@@ -2930,6 +2933,9 @@ msgstr ""
 msgid "Client Module Settings"
 msgstr ""
 
+msgid "Create new tasking"
+msgstr ""
+
 msgid "Advanced Tasks"
 msgstr ""
 
@@ -2978,9 +2984,6 @@ msgstr ""
 msgid "Schedule Crontab Style"
 msgstr ""
 
-msgid "Special Crons"
-msgstr ""
-
 msgid "Cron Entry"
 msgstr ""
 
@@ -2997,6 +3000,60 @@ msgid "month"
 msgstr ""
 
 msgid "weekday"
+msgstr ""
+
+msgid "Create task form success"
+msgstr ""
+
+msgid "Create task form fail"
+msgstr ""
+
+msgid "No hosts available to be tasked"
+msgstr ""
+
+msgid "No hosts are assigned an image"
+msgstr ""
+
+msgid "All hosts must have the same image assigned"
+msgstr ""
+
+msgid "Task Type is invalid"
+msgstr ""
+
+msgid "Password reset requires a user account"
+msgstr ""
+
+msgid "Invalid scheduling type"
+msgstr ""
+
+msgid "Scheduled time is in the past"
+msgstr ""
+
+msgid "Minutes field is invalid"
+msgstr ""
+
+msgid "Hours field is invalid"
+msgstr ""
+
+msgid "Day of Month field is invalid"
+msgstr ""
+
+msgid "Month field is invalid"
+msgstr ""
+
+msgid "Day of Week field is invalid"
+msgstr ""
+
+msgid "Failed to create scheduled task"
+msgstr ""
+
+msgid "Create tasking succeeded"
+msgstr ""
+
+msgid "Create Task Success"
+msgstr ""
+
+msgid "Create Task Fail"
 msgstr ""
 
 msgid "Import Reports"
@@ -3943,6 +4000,12 @@ msgstr ""
 msgid "Started By"
 msgstr ""
 
+msgid "Cron"
+msgstr ""
+
+msgid "Delayed"
+msgstr ""
+
 msgid "Selected tasks cancelled!"
 msgstr ""
 
@@ -3962,9 +4025,6 @@ msgid "Hosts in tasking"
 msgstr ""
 
 msgid "Host/Group Name"
-msgstr ""
-
-msgid "Is Group"
 msgstr ""
 
 msgid "Task Type"
@@ -4268,6 +4328,18 @@ msgid "Assigned image is not enabled"
 msgstr ""
 
 msgid "Assigned image is protected"
+msgstr ""
+
+msgid "Pending hosts cannot be tasked"
+msgstr ""
+
+msgid "Image is invalid"
+msgstr ""
+
+msgid "Image is not enabled"
+msgstr ""
+
+msgid "Image is protected"
 msgstr ""
 
 msgid "Click"
@@ -5438,12 +5510,6 @@ msgstr ""
 msgid "Please Select an option"
 msgstr ""
 
-msgid "Cron"
-msgstr ""
-
-msgid "Delayed"
-msgstr ""
-
 msgid "Could not read tmp file."
 msgstr ""
 
@@ -5492,13 +5558,22 @@ msgstr ""
 msgid "Failed to create Snapin Job"
 msgstr ""
 
-msgid "Image is not enabled"
+msgid "Unable to update task"
 msgstr ""
 
 msgid "Could not find any"
 msgstr ""
 
 msgid "nodes containing this image"
+msgstr ""
+
+msgid "Could not update host"
+msgstr ""
+
+msgid "Failed to create multicast task"
+msgstr ""
+
+msgid "Unable to create association"
 msgstr ""
 
 msgid "No valid Image defined for this host"
@@ -5522,16 +5597,16 @@ msgstr ""
 msgid "Multicast Image"
 msgstr ""
 
+msgid "All "
+msgstr ""
+
 msgid "Add selected to group"
 msgstr ""
 
-msgid "Unable to determine status"
+msgid "s"
 msgstr ""
 
 msgid "Add To Group(s)"
-msgstr ""
-
-msgid "Remove these items?"
 msgstr ""
 
 msgid "Successfully deleted"
@@ -5579,10 +5654,10 @@ msgstr ""
 msgid "Unable to connect to ftp"
 msgstr ""
 
-msgid "Delete hosts within"
+msgid "Delete associated hosts"
 msgstr ""
 
-msgid "Delete files"
+msgid "Remove file data"
 msgstr ""
 
 msgid "Encryption Data Reset"
@@ -5591,13 +5666,16 @@ msgstr ""
 msgid "Reset Encryption Success"
 msgstr ""
 
-msgid "is protected, removal not allowed"
+msgid "Unable to remove protected items"
 msgstr ""
 
-msgid "Failed to destroy"
+msgid "Failed to remove hosts"
 msgstr ""
 
-msgid "deleted"
+msgid "Unable to delete file data"
+msgstr ""
+
+msgid "Failed to remove"
 msgstr ""
 
 msgid "Delete Fail"
@@ -5796,6 +5874,12 @@ msgid "No hosts available to task"
 msgstr ""
 
 msgid "Unable to find master Storage Node"
+msgstr ""
+
+msgid "No master nodes available"
+msgstr ""
+
+msgid "No nodes available"
 msgstr ""
 
 msgid "No FOGPage Class found for this node"

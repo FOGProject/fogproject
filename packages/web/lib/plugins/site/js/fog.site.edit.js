@@ -12,7 +12,10 @@ $(function() {
 
     var generalForm = $('#site-general-form'),
         generalFormBtn = $('#general-send'),
-        generalDeleteBtn = $('#general-delete');
+        generalDeleteBtn = $('#general-delete'),
+        generalDeleteModal = $('#deleteModal'),
+        generalDeleteModalConfirm $('#confirmDeleteModal'),
+        generalDeleteModalCancel = $('#closeDeleteModal');
 
     generalForm.on('submit',function(e) {
         e.preventDefault();
@@ -30,18 +33,24 @@ $(function() {
             originalName = $('#site').val();
         });
     });
-    generalDeleteBtn.on('cilck', function() {
-        generalFormBtn.prop('disabled', true);
-        generalDeleteBtn.prop('disabled', true);
-        Common.massDelete(null, function(err) {
+    generalDeleteBtn.on('click', function() {
+        generalDeleteModal.modal('show');
+    });
+    generalDeleteModalConfirm.on('click', function() {
+        var method = 'post',
+            action = '../management/index.php?node='
+                + Common.node
+                + '&sub=delete&id='
+                + Common.id;
+        Common.apiCall(method, action, null, function(err) {
             if (err) {
-                generalFormBtn.prop('disabled', false);
-                generalDeleteBtn.prop('disabled', false);
                 return;
             }
-            window.location = '../management/index.php?node='
-            + Common.node
-            + '&sub=list';
+            setTimeout(function() {
+                window.location = '../management/index.php?node='
+                    + Common.node
+                    + '&sub=list';
+            }, 2000);
         });
     });
     // ---------------------------------------------------------------
@@ -82,23 +91,7 @@ $(function() {
     });
 
     siteHostRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = siteHostForm.attr('method'),
-            action = siteHostForm.attr('action'),
-            rows = siteHostsTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(siteHostsTable),
-            opts = {
-                remhosts: 1,
-                hostsrem: toRemove
-            };
-        Common.apiCall(method,action,opts,function(err) {
-            disableHostButtons(false);
-            siteHostsTable.rows({selected: true}).deselect();
-            siteHostsTable.draw(false);
-            if (err) {
-                return;
-            }
-        });
+        $('#hostDelModal').modal('show');
     });
 
     var siteHostsTable = Common.registerTable($('#site-host-table'), onHostSelect, {
@@ -156,6 +149,16 @@ $(function() {
         onHostSelect(siteHostsTable.rows({selected: true}));
     });
 
+    $('#confirmhostDeleteModal').on('click', function(e) {
+        Common.deleteAssociated(siteHostsTable, siteHostRemoveBtn.attr('action'), function(err) {
+            if (err) {
+                return;
+            }
+            $('#hostDelModal').modal('hide');
+            siteHostsTable.draw(false);
+            siteHostsTable.rows({selected: true}).deselect();
+        });
+    });
     var onSiteHostCheckboxSelect = function(event) {
     };
 
@@ -201,23 +204,7 @@ $(function() {
     });
 
     siteUserRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = siteUserForm.attr('method'),
-            action = siteUserForm.attr('action'),
-            rows = siteUsersTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(siteUsersTable),
-            opts = {
-                remusers: 1,
-                usersrem: toRemove
-            };
-        Common.apiCall(method,action,opts,function(err) {
-            disableUserButtons(false);
-            siteUsersTable.rows({selected: true}).deselect();
-            siteUsersTable.draw(false);
-            if (err) {
-                return;
-            }
-        });
+        $('#userDelModal').modal('show');
     });
 
     var siteUsersTable = Common.registerTable($('#site-user-table'), onUserSelect, {
@@ -267,6 +254,16 @@ $(function() {
             + Common.id,
             type: 'post'
         }
+    });
+
+    $('#confirmuserDeleteModal').on('click', function(e) {
+        Common.deleteAssociated(siteUsersTable, siteUserRemoveBtn.attr('action'), function(err) {
+            if (err) {
+                return;
+            }
+            siteUsersTable.draw(false);
+            siteUsersTable.rows({selected: true}).deselect();
+        });
     });
 
     siteUsersTable.on('draw', function() {

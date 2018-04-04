@@ -16,6 +16,9 @@ $(function() {
     var generalForm = $('#ldap-general-form'),
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
+        generalDeleteModal = $('#deleteModal'),
+        generalDeleteModalConfirm $('#confirmDeleteModal'),
+        generalDeleteModalCancel = $('#closeDeleteModal'),
         templateSel = $('#template'),
         userNameAttr = $('#userNameAttr'),
         grpMemberAttr = $('#grpMemberAttr');
@@ -36,18 +39,24 @@ $(function() {
             originalName = $('#ldap').val();
         });
     });
-    generalDeleteBtn.on('cilck', function() {
-        generalFormBtn.prop('disabled', true);
-        generalDeleteBtn.prop('disabled', true);
-        Common.massDelete(null, function(err) {
+    generalDeleteBtn.on('click', function() {
+        generalDeleteModal.modal('show');
+    });
+    generalDeleteModalConfirm.on('click', function() {
+        var method = 'post',
+            action = '../management/index.php?node='
+                + Common.node
+                + '&sub=delete&id='
+                + Common.id;
+        Common.apiCall(method, action, null, function(err) {
             if (err) {
-                generalFormBtn.prop('disabled', false);
-                generalDeleteBtn.prop('disabled', false);
                 return;
             }
-            window.location = '../management/index.php?node='
-            + Common.node
-            + '&sub=list';
+            setTimeout(function() {
+                window.location = '../management/index.php?node='
+                    + Common.node
+                    + '&sub=list';
+            }, 2000);
         });
     });
     templateSel.on('change blur focus focusout', function(e) {

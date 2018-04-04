@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-30 21:09-0400\n"
+"POT-Creation-Date: 2018-04-03 16:57-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1360,6 +1360,18 @@ msgid "Windows Key Create Fail"
 msgstr "用户创建"
 
 #, fuzzy
+msgid "Add selected"
+msgstr "打印机"
+
+#, fuzzy
+msgid "Remove selected"
+msgstr "删除选定snapins"
+
+#, fuzzy
+msgid "Image Associated"
+msgstr "图像协会"
+
+#, fuzzy
 msgid "Associations"
 msgstr "图像协会"
 
@@ -1680,14 +1692,6 @@ msgstr "打印机更新失败！"
 #, fuzzy
 msgid "Associated"
 msgstr "无关联的节点"
-
-#, fuzzy
-msgid "Add selected"
-msgstr "打印机"
-
-#, fuzzy
-msgid "Remove selected"
-msgstr "删除选定snapins"
 
 #, fuzzy
 msgid "Site Host Associations"
@@ -3348,6 +3352,10 @@ msgid "Client Module Settings"
 msgstr "设置"
 
 #, fuzzy
+msgid "Create new tasking"
+msgstr "新建%s"
+
+#, fuzzy
 msgid "Advanced Tasks"
 msgstr "高级"
 
@@ -3409,9 +3417,6 @@ msgstr "调度"
 msgid "Schedule Crontab Style"
 msgstr "调度"
 
-msgid "Special Crons"
-msgstr ""
-
 msgid "Cron Entry"
 msgstr ""
 
@@ -3432,6 +3437,74 @@ msgstr "每月一次"
 
 msgid "weekday"
 msgstr ""
+
+#, fuzzy
+msgid "Create task form success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Create task form fail"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "No hosts available to be tasked"
+msgstr "在任务主机"
+
+msgid "No hosts are assigned an image"
+msgstr ""
+
+msgid "All hosts must have the same image assigned"
+msgstr ""
+
+#, fuzzy
+msgid "Task Type is invalid"
+msgstr "任务类型无效"
+
+msgid "Password reset requires a user account"
+msgstr ""
+
+#, fuzzy
+msgid "Invalid scheduling type"
+msgstr "无效的对象类型传递"
+
+#, fuzzy
+msgid "Scheduled time is in the past"
+msgstr "预定日期是过去"
+
+#, fuzzy
+msgid "Minutes field is invalid"
+msgstr "分钟值无效"
+
+#, fuzzy
+msgid "Hours field is invalid"
+msgstr "小时值无效"
+
+#, fuzzy
+msgid "Day of Month field is invalid"
+msgstr "月份值的天无效"
+
+#, fuzzy
+msgid "Month field is invalid"
+msgstr "一个月值无效"
+
+#, fuzzy
+msgid "Day of Week field is invalid"
+msgstr "周值的天无效"
+
+#, fuzzy
+msgid "Failed to create scheduled task"
+msgstr "无法创建任务"
+
+msgid "Create tasking succeeded"
+msgstr ""
+
+#, fuzzy
+msgid "Create Task Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Create Task Fail"
+msgstr "用户创建"
 
 #, fuzzy
 msgid "Import Reports"
@@ -4548,6 +4621,12 @@ msgstr "存储组更新"
 msgid "Started By"
 msgstr "由...制作"
 
+msgid "Cron"
+msgstr "克龙"
+
+msgid "Delayed"
+msgstr "延迟"
+
 #, fuzzy
 msgid "Selected tasks cancelled!"
 msgstr "已成功更新"
@@ -4573,9 +4652,6 @@ msgstr "在任务主机"
 
 msgid "Host/Group Name"
 msgstr "主机/组名称"
-
-msgid "Is Group"
-msgstr "是集团"
 
 msgid "Task Type"
 msgstr "任务类型"
@@ -4943,6 +5019,21 @@ msgstr "图片未启用"
 #, fuzzy
 msgid "Assigned image is protected"
 msgstr "未选择或项目被保护"
+
+#, fuzzy
+msgid "Pending hosts cannot be tasked"
+msgstr "待主机"
+
+#, fuzzy
+msgid "Image is invalid"
+msgstr "图片无效"
+
+msgid "Image is not enabled"
+msgstr "图片未启用"
+
+#, fuzzy
+msgid "Image is protected"
+msgstr "受保护"
 
 msgid "Click"
 msgstr "点击"
@@ -6321,12 +6412,6 @@ msgstr "每小时"
 msgid "Please Select an option"
 msgstr "请选择一个选项"
 
-msgid "Cron"
-msgstr "克龙"
-
-msgid "Delayed"
-msgstr "延迟"
-
 msgid "Could not read tmp file."
 msgstr "无法读取tmp文件。"
 
@@ -6381,8 +6466,9 @@ msgstr "由于新的任务取消。"
 msgid "Failed to create Snapin Job"
 msgstr "无法创建管理单元工作"
 
-msgid "Image is not enabled"
-msgstr "图片未启用"
+#, fuzzy
+msgid "Unable to update task"
+msgstr "无法更新任务"
 
 #, fuzzy
 msgid "Could not find any"
@@ -6391,6 +6477,18 @@ msgstr "找不到临时文件名"
 #, fuzzy
 msgid "nodes containing this image"
 msgstr "找不到包含该图像的任何节点"
+
+#, fuzzy
+msgid "Could not update host"
+msgstr "无法更新"
+
+#, fuzzy
+msgid "Failed to create multicast task"
+msgstr "无法创建任务"
+
+#, fuzzy
+msgid "Unable to create association"
+msgstr "无法创建会话"
 
 #, fuzzy
 msgid "No valid Image defined for this host"
@@ -6420,20 +6518,19 @@ msgid "Multicast Image"
 msgstr "组播"
 
 #, fuzzy
+msgid "All "
+msgstr "所有主机"
+
+#, fuzzy
 msgid "Add selected to group"
 msgstr "打印机"
 
-#, fuzzy
-msgid "Unable to determine status"
-msgstr "无法确定插件的详细信息"
+msgid "s"
+msgstr ""
 
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "添加存储组"
-
-#, fuzzy
-msgid "Remove these items?"
-msgstr "删除选定snapins"
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -6486,12 +6583,12 @@ msgid "Unable to connect to ftp"
 msgstr "连接失败"
 
 #, fuzzy
-msgid "Delete hosts within"
-msgstr "删除组内的所有主机"
+msgid "Delete associated hosts"
+msgstr "删除所选"
 
 #, fuzzy
-msgid "Delete files"
-msgstr "删除的文件数据"
+msgid "Remove file data"
+msgstr "去除"
 
 msgid "Encryption Data Reset"
 msgstr ""
@@ -6500,14 +6597,21 @@ msgstr ""
 msgid "Reset Encryption Success"
 msgstr "用户创建"
 
-msgid "is protected, removal not allowed"
-msgstr "被保护，去除不允许"
+#, fuzzy
+msgid "Unable to remove protected items"
+msgstr "无法更新任务"
 
-msgid "Failed to destroy"
-msgstr "未能摧毁"
+#, fuzzy
+msgid "Failed to remove hosts"
+msgstr "无法创建主机"
 
-msgid "deleted"
-msgstr "删除"
+#, fuzzy
+msgid "Unable to delete file data"
+msgstr "无法删除文件"
+
+#, fuzzy
+msgid "Failed to remove"
+msgstr "连接失败"
 
 #, fuzzy
 msgid "Delete Fail"
@@ -6744,6 +6848,14 @@ msgstr "在任务主机"
 #, fuzzy
 msgid "Unable to find master Storage Node"
 msgstr "未能摧毁存储节点"
+
+#, fuzzy
+msgid "No master nodes available"
+msgstr "没有可用的散列"
+
+#, fuzzy
+msgid "No nodes available"
+msgstr "没有可用的散列"
 
 msgid "No FOGPage Class found for this node"
 msgstr "没有FOGPage类中找到此节点"

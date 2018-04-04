@@ -236,18 +236,7 @@ class HostManager extends FOGManagerController
         $groupBy = false,
         $not = false
     ) {
-        /*
-         * Remove the main host items
-         */
-        parent::destroy(
-            $findWhere,
-            $whereOperator,
-            $orderBy,
-            $sort,
-            $compare,
-            $groupBy,
-            $not
-        );
+        $findMe = $findWhere;
         /*
          * Setup for removing associative areas
          */
@@ -323,5 +312,17 @@ class HostManager extends FOGManagerController
          * Remove any power management entries
          */
         self::getClass('PowerManagementManager')->destroy($findWhere);
+        /*
+         * Remove the main host items
+         */
+        return parent::destroy(
+            $findMe,
+            $whereOperator,
+            $orderBy,
+            $sort,
+            $compare,
+            $groupBy,
+            $not
+        );
     }
 }

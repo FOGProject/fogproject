@@ -773,6 +773,7 @@ class ImageManagement extends FOGPage
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
+        echo $this->deleteModal();
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -869,6 +870,9 @@ class ImageManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'image-storagegroups-table', $buttons);
         echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('storagegroup');
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -894,16 +898,16 @@ class ImageManagement extends FOGPage
                 $this->obj->addGroup($storagegroup);
             }
         }
-        if (isset($_POST['storagegroupdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $storagegroup = filter_input_array(
                 INPUT_POST,
                 [
-                    'storagegroupRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $storagegroup = $storagegroup['storagegroupRemove'];
+            $storagegroup = $storagegroup['remitems'];
             if (count($storagegroup ?: []) > 0) {
                 $this->obj->removeGroup($storagegroup);
             }
@@ -975,6 +979,9 @@ class ImageManagement extends FOGPage
         echo '<div class="updatehost" class="">';
         echo '<div class="box-body">';
         $this->render(12, 'image-host-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('host');
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1247,25 +1254,25 @@ class ImageManagement extends FOGPage
         $modalBtns = self::makeButton(
             'cancelModalBtn',
             _('Cancel'),
-            'btn btn-warning pull-left',
+            'btn btn-outline pull-left',
             'data-dismiss="modal"'
         );
         $modalBtns .= self::makeButton(
             'confirmModalBtn',
             _('Confirm'),
-            'btn btn-danger'
+            'btn btn-outline pull-right'
         );
 
         $modalCreateBtns = self::makeButton(
             'createCancelModalBtn',
             _('Cancel'),
-            'btn btn-warning pull-left',
+            'btn btn-outline pull-left',
             'data-dismiss="modal"'
         );
         $modalCreateBtns .= self::makeButton(
             'createConfirmModalBtn',
             _('Create'),
-            'btn btn-success',
+            'btn btn-outline pull-right',
             ' method="post" action="'
             . self::makeTabUpdateURL(
                 'session-create'
@@ -1277,13 +1284,17 @@ class ImageManagement extends FOGPage
             'cancelModal',
             _('Cancel Selected Tasks'),
             _('Cancel the selected tasks.'),
-            $modalBtns
+            $modalBtns,
+            '',
+            'danger'
         );
         $buttons .= self::makeModal(
             'createModal',
             _('Create new Session Task'),
             $this->sessionCreateModal(),
-            $modalCreateBtns
+            $modalCreateBtns,
+            '',
+            'success'
         );
 
         echo '<div class="box box-primary">';
@@ -1607,7 +1618,7 @@ class ImageManagement extends FOGPage
     public function imageHostPost()
     {
         if (isset($_POST['updatehost'])) {
-            $host = filter_input_array(
+            $hosts = filter_input_array(
                 INPUT_POST,
                 [
                     'host' => [
@@ -1615,33 +1626,24 @@ class ImageManagement extends FOGPage
                     ]
                 ]
             );
-            $host = $host['host'];
-            self::getClass('HostManager')->update(
-                [
-                    'id' => $host
-                ],
-                '',
-                ['imageID' => $this->obj->get('id')]
-            );
+            $hosts = $hosts['host'];
+            if (count($hosts ?: []) > 0) {
+                $this->obj->addHost($hosts);
+            }
         }
-        if (isset($_POST['hostdel'])) {
-            $host = filter_input_array(
+        if (isset($_POST['confirmdel'])) {
+            $hosts = filter_input_array(
                 INPUT_POST,
                 [
-                    'hostRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $host = $host['hostRemove'];
-            self::getClass('HostManager')->update(
-                [
-                    'id' => $host,
-                    'imageID' => $this->obj->get('id')
-                ],
-                '',
-                ['imageID' => '0']
-            );
+            $hosts = $hosts['remitems'];
+            if (count($hosts ?: []) > 0) {
+                $this->obj->removeHost($hosts);
+            }
         }
     }
     /**

@@ -20,30 +20,51 @@
     }
 
     disableButtons(true);
-    var table = Common.registerTable($('#active-snapin-table'), onSelect, {
+    var table = Common.registerTable($('#active-snapintasks-table'), onSelect, {
         order: [
             [0, 'asc']
         ],
         columns: [
-            {data: 'hostname'},
             {data: 'snapinname'},
-            {data: 'starttime'},
+            {data: 'hostname'},
+            {data: 'checkin'},
             {data: 'taskstatename'}
         ],
         rowId: 'id',
         columnDefs: [
             {
                 render: function(data, type, row) {
-                    return '<i class="fa fa-' + row.taskstateicon + '"></i>';
+                    return '<a href="../management/index.php?node=snapin&sub=edit&id='
+                        + row.snapinid
+                        + '">'
+                        + data
+                        + '</a>';
+                },
+                targets: 0
+            },
+            {
+                render: function(data, type, row) {
+                    return '<a href="../management/index.php?node=host&sub=edit&id='
+                        + row.hostid
+                        + '">'
+                        + data
+                        + '</a>';
+                },
+                targets: 1
+            },
+            {
+                render: function(data, type, row) {
+                    return data
+                        + ' <i class="fa fa-'
+                        + row.taskstateicon
+                        + '"></i>';
                 },
                 targets: 3
             }
         ],
         serverSide: true,
         ajax: {
-            url: '../management/index.php?node='
-            + Common.node
-            + '&sub=getActiveSnapinTasks',
+            url: '../management/index.php?node='+Common.node+'&sub=getActiveSnapinTasks',
             type: 'post'
         }
     });
@@ -60,9 +81,6 @@
                 'cancelconfirm': '1',
                 'tasks': toRemove
             };
-        console.log(opts);
-        console.log(cancelSelected.attr('method'));
-        console.log(cancelSelected.attr('action'));
         Common.apiCall(cancelSelected.attr('method'), cancelSelected.attr('action'), opts, function(err) {
             if (!err) {
                 table.draw(false);

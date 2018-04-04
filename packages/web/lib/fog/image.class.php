@@ -202,17 +202,17 @@ class Image extends FOGController
         if ($this->get('protected')) {
             throw new Exception(self::$foglang['ProtectedImage']);
         }
-        Route::listem('storagenode');
+        Route::listem(
+            'storagenode',
+            [
+                'ngmGroupID' => $this->get('storagegroups'),
+                'ngmIsEnabled' => 1
+            ]
+        );
         $StorageNodes = json_decode(
             Route::getData()
         );
-        $StorageNodes = $StorageNodes->storagenodes;
-        foreach ($StorageNodes as &$StorageNode) {
-            if (!in_array($StorageNode->storagegroupID, $this->get('storagegroups'))
-                || $StorageNode->isEnabled
-            ) {
-                continue;
-            }
+        foreach ($StorageNodes->data as &$StorageNode) {
             $ftppath = trim(
                 $StorageNode->ftppath,
                 '/'
@@ -231,11 +231,13 @@ class Image extends FOGController
             if (!self::$FOGFTP->connect()) {
                 continue;
             }
-            self::$FOGFTP
-                ->delete($deleteFile)
-                ->close();
+            if (!self::$FOGFTP->delete($deleteFile)) {
+                continue;
+            }
+            self::$FOGFTP->close();
             unset($StorageNode);
         }
+        return true;
     }
     /**
      * Loads hosts

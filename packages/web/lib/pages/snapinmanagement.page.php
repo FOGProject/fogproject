@@ -1216,6 +1216,7 @@ class SnapinManagement extends FOGPage
         echo '</div>';
         echo '<div class="box-footer">';
         echo $buttons;
+        echo $this->deleteModal();
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -1407,6 +1408,9 @@ class SnapinManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'snapin-storagegroups-table', $buttons);
         echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('storagegroup');
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1432,16 +1436,16 @@ class SnapinManagement extends FOGPage
                 $this->obj->addGroup($storagegroup);
             }
         }
-        if (isset($_POST['storagegroupdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $storagegroup = filter_input_array(
                 INPUT_POST,
                 [
-                    'storagegroupRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $storagegroup = $storagegroup['storagegroupRemove'];
+            $storagegroup = $storagegroup['remitems'];
             if (count($storagegroup ?: []) > 0) {
                 $this->obj->removeGroup($storagegroup);
             }
@@ -1511,6 +1515,9 @@ class SnapinManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'snapin-membership-table', $buttons);
         echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('host');
+        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -1534,16 +1541,16 @@ class SnapinManagement extends FOGPage
             $membership = $membership['membership'];
             $this->obj->addHost($membership);
         }
-        if (isset($_POST['membershipdel'])) {
+        if (isset($_POST['confirmdel'])) {
             $membership = filter_input_array(
                 INPUT_POST,
                 [
-                    'membershipRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $membership = $membership['membershipRemove'];
+            $membership = $membership['remitems'];
             self::getClass('SnapinAssociationManager')->destroy(
                 [
                     'snapinID' => $this->obj->get('id'),
