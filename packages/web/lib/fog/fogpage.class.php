@@ -2347,10 +2347,8 @@ abstract class FOGPage extends FOGBase
             ),
             sprintf(
                 '<label for="adPassword">%s'
-                . '<br/>(%s)'
                 . '</label>',
-                _('Domain Password'),
-                _('Will auto-encrypt plaintext')
+                _('Domain Password')
             ) => sprintf(
                 '<div class="input-group">'
                 . '<input id="adPassword" class="form-control" type='
