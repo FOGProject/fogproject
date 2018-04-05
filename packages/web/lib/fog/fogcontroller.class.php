@@ -83,7 +83,7 @@ abstract class FOGController extends FOGBase
      */
     protected $databaseFieldsToIgnore = [
         'createdBy',
-        'createdTime',
+        'createdTime'
     ];
     /**
      * Not used now, but can be used to setup alternate db aliases.
@@ -648,6 +648,7 @@ abstract class FOGController extends FOGBase
                 $e->getMessage()
             );
             self::debug($str);
+            return false;
         }
 
         return $this;
