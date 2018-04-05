@@ -440,6 +440,9 @@ abstract class FOGPage extends FOGBase
         if (count($menu ?: []) > 0) {
             $links = array_keys($menu);
         }
+        if (count($hookMenu ?: []) > 0) {
+            $links = array_keys($hookMenu);
+        }
 
         $links = self::fastmerge(
             (array)$links,
