@@ -155,7 +155,6 @@ class SlackManagement extends FOGPage
 
         $serverFault = false;
         try {
-            throw new Exception('Here');
             if (!$usertype && !$channeltype) {
                 throw new Exception(
                     _('Please start user/channel with @/# respectively')
