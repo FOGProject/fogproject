@@ -6804,14 +6804,6 @@ msgid "Invalid type, merge to add, diff to remove"
 msgstr "Ungültiger Typ, Zusammenführen zum Hinzufügen, Entfernen zum Entfernen"
 
 #, fuzzy
-msgid "Array type"
-msgstr "Array Typ"
-
-#, fuzzy
-msgid "is not callable"
-msgstr "ist nicht verfügbar"
-
-#, fuzzy
 msgid "Invalid ID passed"
 msgstr "Ungültige ID übergeben"
 
