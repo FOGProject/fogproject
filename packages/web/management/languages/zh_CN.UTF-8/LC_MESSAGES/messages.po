@@ -7242,14 +7242,6 @@ msgid "Invalid type, merge to add, diff to remove"
 msgstr ""
 
 #, fuzzy
-msgid "Array type"
-msgstr "数据数组"
-
-#, fuzzy
-msgid "is not callable"
-msgstr "不可用"
-
-#, fuzzy
 msgid "Invalid ID passed"
 msgstr "无效的单元传递"
 

@@ -2918,9 +2918,19 @@ class FOGConfigurationPage extends FOGPage
             if (count($StorageGroup->enablednodes) < 1) {
                 continue;
             }
+            $nodeIDs = self::getSubObjectIDs(
+                'StorageNode',
+                array(
+                    'id' => $StorageGroup->enablednodes,
+                    'isMaster' => 1
+                )
+            );
+            if (count($nodeIDs ?: []) != 1) {
+                continue;
+            }
             Route::indiv(
                 'storagenode',
-                $StorageGroup->masternode->id
+                array_shift($nodeIDs)
             );
             $StorageNode = json_decode(
                 Route::getData()

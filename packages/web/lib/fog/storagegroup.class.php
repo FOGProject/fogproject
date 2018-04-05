@@ -189,39 +189,36 @@ class StorageGroup extends FOGController
      */
     public function getMasterStorageNode()
     {
-        $masternode = self::getSubObjectIDs(
-            'StorageNode',
-            array(
-                'id' => $this->get('enablednodes'),
-                'isMaster' => 1,
-            )
-        );
-        $masternode = array_shift($masternode);
-        if (!($masternode
-            && is_numeric($masternode)
-            && $masternode > 0)
-        ) {
-            $masternode = @min($this->get('enablednodes'));
+        $getter = 'enablednodes';
+        if (count($this->get('enablednodes')) < 1) {
+            $getter = 'allnodes';
         }
-        if (!$masternode > 0) {
-            $nodeids = self::getSubObjectIDs(
-                'StorageNode',
-                array(
-                    'id' => $this->get('allnodes'),
-                    'isEnabled' => 1,
-                    'isMaster' => 1
-                )
-            );
-            if (count($nodeids) < 1) {
-                $nodeids = self::getSubObjectIDs(
-                    'StorageNode',
-                    array(
-                        'id' => $this->get('allnodes'),
-                        'isEnabled' => 1
-                    )
-                );
+        $masternode = null;
+        $find = [
+            'isEnabled' => 1,
+            'isMaster' => 1
+        ];
+        Route::listem(
+            'storagenode',
+            'name',
+            false,
+            $find
+        );
+        $Nodes = json_decode(
+            Route::getData()
+        );
+        foreach ($Nodes as &$Node) {
+            if (!$Node->online) {
+                continue;
             }
-            $masternode = @min($nodeids);
+            if ($masternode == null) {
+                $masternode = $Node->id;
+                break;
+            }
+            unset($Node);
+        }
+        if (empty($masternode)) {
+            $masternode = @min($this->get($getter));
         }
         return new StorageNode($masternode);
     }
@@ -237,24 +234,36 @@ class StorageGroup extends FOGController
             $getter = 'allnodes';
         }
         $winner = null;
-        foreach ((array)self::getClass('StorageNodeManager')
-            ->find(
-                array('id' => $this->get($getter))
-            ) as &$Node
-        ) {
-            if ($Node->get('maxClients') < 1) {
+        $find = ['isEnabled' => 1];
+        Route::listem(
+            'storagenode',
+            'name',
+            false,
+            $find
+        );
+        $Nodes = json_decode(
+            Route::getData()
+        );
+        $Nodes = $Nodes->storagenodes;
+        foreach ($Nodes as &$Node) {
+            if (!$Node->online) {
+                continue;
+            }
+            if ($Node->maxClients < 1) {
                 continue;
             }
             if ($winner == null
-                || $Node->getClientLoad() < $winner->getClientLoad()
+                || $Node->clientload < $winner->clientload
             ) {
                 $winner = $Node;
             }
             unset($Node);
         }
         if (empty($winner)) {
-            $winner = new StorageNode(@min($this->get('enablednodes')));
+            $winner = @min($this->get($getter));
+        } else {
+            $winner = $winner->id;
         }
-        return $winner;
+        return new StorageNode($winner);
     }
 }

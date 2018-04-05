@@ -7269,14 +7269,6 @@ msgid "Invalid type, merge to add, diff to remove"
 msgstr ""
 
 #, fuzzy
-msgid "Array type"
-msgstr "Matriz de dados"
-
-#, fuzzy
-msgid "is not callable"
-msgstr "Não disponível"
-
-#, fuzzy
 msgid "Invalid ID passed"
 msgstr "unidade inválido passado"
 

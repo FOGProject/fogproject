@@ -6460,12 +6460,6 @@ msgstr "chiave non valida richiesta"
 msgid "Invalid type, merge to add, diff to remove"
 msgstr "Tipo non valido, unione da aggiunta, differenza da rimuovere"
 
-msgid "Array type"
-msgstr "Tipo array"
-
-msgid "is not callable"
-msgstr "Non richiamabile"
-
 msgid "Invalid ID passed"
 msgstr "ID non valido passato"
 
