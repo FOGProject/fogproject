@@ -883,7 +883,7 @@ abstract class FOGController extends FOGBase
             break;
         case 'diff':
             foreach ((array)$array as &$a) {
-                $this->add($key, $a);
+                $this->remove($key, $a);
                 unset($a);
             }
             break;
