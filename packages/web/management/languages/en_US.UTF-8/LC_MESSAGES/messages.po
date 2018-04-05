@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-03 16:57-0400\n"
+"POT-Creation-Date: 2018-04-05 13:59-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1240,14 +1240,19 @@ msgstr "User/Channel Name"
 msgid "Slack User/Slack Channel"
 msgstr ""
 
-msgid "Must start with an @ or # for user or channel respsectively"
+msgid "Please start user/channel with @/# respectively"
 msgstr ""
 
 msgid "Invalid token passed"
 msgstr "Invalid token passed"
 
-msgid "Invalid user and/or channel passed"
-msgstr "Invalid user and/or channel passed"
+#, fuzzy
+msgid "User not found"
+msgstr "Record not found, Error: %s"
+
+#, fuzzy
+msgid "Channel not found"
+msgstr "Record not found, Error: %s"
 
 msgid "Account already linked"
 msgstr "Account already linked"

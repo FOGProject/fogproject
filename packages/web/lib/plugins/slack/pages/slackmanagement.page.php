@@ -142,7 +142,7 @@ class SlackManagement extends FOGPage
      */
     public function addPost()
     {
-        header('Conten-type: application/json');
+        header('Content-type: application/json');
         self::$HookManager->processEvent('SLACK_ADD_POST');
         $token = trim(
             filter_input(INPUT_POST, 'apiToken')
@@ -155,9 +155,10 @@ class SlackManagement extends FOGPage
 
         $serverFault = false;
         try {
+            throw new Exception('Here');
             if (!$usertype && !$channeltype) {
                 throw new Exception(
-                    _('Must start with an @ or # for user or channel respsectively')
+                    _('Please start user/channel with @/# respectively')
                 );
             }
             $Slack = self::getClass('Slack')
@@ -166,17 +167,25 @@ class SlackManagement extends FOGPage
             if (!$Slack->verifyToken()) {
                 throw new Exception(_('Invalid token passed'));
             }
-            $search = array_search(
-                $user,
-                self::fastmerge(
-                    (array)$Slack->getChannels(),
-                    (array)$Slack->getUsers()
-                )
-            );
-            if ($search === false) {
-                throw new Exception(
-                    _('Invalid user and/or channel passed')
+            if ($usertype) {
+                $user = preg_replace('#^[@]#', '', $user);
+                array_search(
+                    $user,
+                    $Slack->getUsers()
                 );
+                if ($search === false) {
+                    throw new Exception(_('User not found'));
+                }
+            }
+            if ($channeltype) {
+                $user = preg_replace('/^[#]/', '', $user);
+                array_search(
+                    $user,
+                    $Slack->getChannels()
+                );
+                if ($search === false) {
+                    throw new Exception(_('Channel not found'));
+                }
             }
             $exists = self::getClass('SlackManager')
                 ->exists($token, '', 'token');
@@ -215,7 +224,7 @@ class SlackManagement extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            $codes = (
+            $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
