@@ -1403,8 +1403,12 @@ abstract class FOGBase
         }
 
         // Pad the plaintext
-        if (strlen($data) % 8) {
-            $data = str_pad($data, strlen($data) + 8 - strlen($data) % 8, "\0");
+        if (strlen($data) % $iv_size) {
+            $data = str_pad(
+                $data,
+                (strlen($data) + $iv_size - strlen($data) % $iv_size),
+                "\0"
+            );
         }
 
         $cipher = openssl_encrypt(
