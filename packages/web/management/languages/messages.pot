@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-05 23:15-0400\n"
+"POT-Creation-Date: 2018-04-06 00:15-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2471,25 +2471,10 @@ msgstr ""
 msgid "Host Product Key"
 msgstr ""
 
-msgid "Full History Export"
+msgid "Full History"
 msgstr ""
 
 msgid "Information"
-msgstr ""
-
-msgid "History ID"
-msgstr ""
-
-msgid "History Info"
-msgstr ""
-
-msgid "History User"
-msgstr ""
-
-msgid "History Time"
-msgstr ""
-
-msgid "History IP"
 msgstr ""
 
 msgid "FOG User tracking - Search"
