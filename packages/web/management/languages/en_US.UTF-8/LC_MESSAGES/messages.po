@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-05 13:59-0400\n"
+"POT-Creation-Date: 2018-04-06 00:11-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2819,31 +2819,11 @@ msgid "Host Product Key"
 msgstr "Host Product Key"
 
 #, fuzzy
-msgid "Full History Export"
-msgstr "Full Inventory Export"
+msgid "Full History"
+msgstr "Login History"
 
 msgid "Information"
 msgstr "Information"
-
-#, fuzzy
-msgid "History ID"
-msgstr "Host ID"
-
-#, fuzzy
-msgid "History Info"
-msgstr "View History for"
-
-#, fuzzy
-msgid "History User"
-msgstr "View History for"
-
-#, fuzzy
-msgid "History Time"
-msgstr "View History for"
-
-#, fuzzy
-msgid "History IP"
-msgstr "View History for"
 
 #, fuzzy
 msgid "FOG User tracking - Search"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-05 13:59-0400\n"
+"POT-Creation-Date: 2018-04-06 00:11-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -2689,31 +2689,11 @@ msgid "Host Product Key"
 msgstr "Host Product Key"
 
 #, fuzzy
-msgid "Full History Export"
-msgstr "Inventario Export completa"
+msgid "Full History"
+msgstr "Accesso Storia"
 
 msgid "Information"
 msgstr "Informazioni"
-
-#, fuzzy
-msgid "History ID"
-msgstr "Grafico storico"
-
-#, fuzzy
-msgid "History Info"
-msgstr "Visualizza la cronologia per"
-
-#, fuzzy
-msgid "History User"
-msgstr "Grafico storico"
-
-#, fuzzy
-msgid "History Time"
-msgstr "Grafico storico"
-
-#, fuzzy
-msgid "History IP"
-msgstr "Grafico storico"
 
 msgid "FOG User tracking - Search"
 msgstr "FOG Tracciamento degli utenti - Cerca"

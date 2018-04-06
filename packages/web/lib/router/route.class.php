@@ -498,45 +498,49 @@ class Route extends FOGBase
 
         // Setup our columns to return
         foreach ((array)$tmpcolumns as $common => &$real) {
-            if ($common == 'id') {
+            switch ($common) {
+            case 'id':
                 $tableID = $real;
-            }
-            if ($classname == 'host') {
-                if ($common == 'pingstatus') {
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common,
-                        'formatter' => function ($d, $row) {
-                            $socketstr = socket_strerror($d);
-                            $labelType = 'danger';
-                            if ($d == 0) {
-                                $labelType = 'success';
-                            } else if ($d == 6) {
-                                $labelType = 'warning';
-                            }
-                            return '<span class="label label-'
-                                . $labelType
-                                . '">'
-                                . _($socketstr)
-                                . '</span>';
-                        }
-                    ];
-                } else {
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                }
-            } else {
-                $columns[] = ['db' => $real, 'dt' => $common];
-            }
-            if ($common == 'id') {
                 $columns[] = [
                     'db' => $real,
                     'dt' => 'DT_RowId',
                     'formatter' => function ($d, $row) {
                         return 'row_'.$d;
                     }
+                ];
+                break;
+            case 'createdTime':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common,
+                    'formatter' => function ($d, $row) {
+                        return self::niceDate($d)->format('Y-m-d H:i:s');
+                    }
+                ];
+                break;
+            case 'pingstatus':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common,
+                    'formatter' => function ($d, $row) {
+                        $socketstr = socket_strerror($d);
+                        $labelType = 'danger';
+                        if ($d == 0) {
+                            $labelType = 'success';
+                        } else if ($d == 6) {
+                            $labelType = 'warning';
+                        }
+                        return '<span class="label label-'
+                            . $labelType
+                            . '">'
+                            . _($socketstr)
+                            . '</span>';
+                    }
+                ];
+            default:
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common
                 ];
             }
             unset($real);

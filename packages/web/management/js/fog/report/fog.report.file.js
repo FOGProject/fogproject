@@ -72,6 +72,36 @@
             break;
         // History Report
         case 'history report':
+            var historyTable = $('#history-table'),
+                table = Common.registerTable(historyTable, null, {
+                    order: [
+                        [1, 'desc']
+                    ],
+                    buttons: [
+                        'copy',
+                        'csv',
+                        'excel',
+                        'pdf',
+                        'print',
+                        'colvis'
+                    ],
+                    columns: [
+                        {data: 'createdBy'},
+                        {data: 'createdTime'},
+                        {data: 'info'},
+                        {data: 'ip'}
+                    ],
+                    rowId: 'id',
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: '../management/index.php?node='
+                            + Common.node
+                            + '&sub=getHistoryList&f='
+                            + Common.f,
+                        type: 'post'
+                    }
+                });
             break;
         // Host List
         case 'host list':

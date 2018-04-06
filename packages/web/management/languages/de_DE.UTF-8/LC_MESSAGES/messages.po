@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-05 13:59-0400\n"
+"POT-Creation-Date: 2018-04-06 00:11-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -2822,31 +2822,11 @@ msgid "Host Product Key"
 msgstr "Host Produktschlüssel"
 
 #, fuzzy
-msgid "Full History Export"
-msgstr "Vollständigen Verlauf exportieren"
+msgid "Full History"
+msgstr "Login-Verlauf"
 
 msgid "Information"
 msgstr "Informationen"
-
-#, fuzzy
-msgid "History ID"
-msgstr "Verlaufs-ID"
-
-#, fuzzy
-msgid "History Info"
-msgstr "Verlaufinformationen"
-
-#, fuzzy
-msgid "History User"
-msgstr "Benutzerverlauf"
-
-#, fuzzy
-msgid "History Time"
-msgstr "Verlaufszeit"
-
-#, fuzzy
-msgid "History IP"
-msgstr "Verlaufs-IP"
 
 #, fuzzy
 msgid "FOG User tracking - Search"
