@@ -334,23 +334,24 @@ class BootMenu extends FOGBase
             . "://{$webserver}/fog/service";
         $this->_memdisk = "kernel $memdisk initrd=$memtest";
         $this->_memtest = "initrd $memtest";
-        $StorageNodes = (array)self::getClass('StorageNodeManager')
-            ->find(
-                [
-                    'ip' => [
-                        $webserver,
-                        self::resolveHostname($webserver)
-                    ]
-                ]
+        Route::listem(
+            'storagenode',
+            ['ngmHostname' => [$webserver, self::resolveHostname($webserver)]]
+        );
+        $StorageNodes = json_decode(
+            Route::getData()
+        );
+        if (count($StorageNodes->data) < 1) {
+            Route::listem('storagenode');
+            $StorageNodes = json_decode(
+                Route::getData()
             );
-        if (count($StorageNodes) < 1) {
-            $StorageNodes = (array)self::getClass('StorageNodeManager')
-                ->find();
-            foreach ($StorageNodes as $StorageNode) {
-                $hostname = self::resolveHostname($StorageNode->get('ip'));
+            foreach ($StorageNodes->data as &$StorageNode) {
+                $hostname = self::resolveHostname($StorageNode->ip);
                 if ($hostname == $webserver
                     || $hostname == self::resolveHostname($webserver)
                 ) {
+                    $StorageNode = self::getClass('StorageNode', $StorageNode->id);
                     break;
                 }
                 $StorageNode = new StorageNode(0);
@@ -368,7 +369,8 @@ class BootMenu extends FOGBase
                 $StorageNode = new StorageNode(@min($storageNodeIDs));
             }
         } else {
-            $StorageNode = current($StorageNodes);
+            $first = array_shift($StorageNodes->data);
+            $StorageNode = new StorageNode($first->id);
         }
         if ($StorageNode->isValid()) {
             $this->_storage = sprintf(
@@ -756,23 +758,28 @@ class BootMenu extends FOGBase
     public function sesscheck()
     {
         $findWhere = [
-            'name' => trim($_REQUEST['sessname']),
-            'stateID' => self::fastmerge(
+            'msName' => trim($_REQUEST['sessname']),
+            'msState' => self::fastmerge(
                 self::getQueuedStates(),
                 (array)self::getProgressState()
             ),
         ];
-        foreach ((array)self::getClass('MulticastSessionManager')
-            ->find($findWhere) as &$MulticastSession
-        ) {
+        Route::listem(
+            'multicastsession',
+            $findWhere
+        );
+        $Sessions = json_decode(
+            Route::getData()
+        );
+        foreach ($Sessions->data as &$MulticastSession) {
             if (!$MulticastSession->isValid()
-                || $MulticastSession->get('sessclients') < 1
+                || $MulticastSession->sessclients < 1
             ) {
                 $MulticastSessionID = 0;
                 unset($MulticastSession);
                 continue;
             }
-            $MulticastSessionID = $MulticastSession->get('id');
+            $MulticastSessionID = $MulticastSession->id;
             unset($MulticastSession);
             break;
         }
@@ -956,20 +963,27 @@ class BootMenu extends FOGBase
         /**
          * Sort a list.
          */
-        $imgFind = ['isEnabled' => 1];
+        $imgFind = ['imageEnabled' => 1];
         if (!self::getSetting('FOG_IMAGE_LIST_MENU')) {
             if (!self::$Host->isValid()
                 || !self::$Host->getImage()->isValid()
             ) {
                 $imgFind = false;
             } else {
-                $imgFind['id'] = self::$Host->getImage()->get('id');
+                $imgFind['imageID'] = self::$Host->getImage()->get('id');
             }
         }
         if ($imgFind === false) {
             $Images = false;
         } else {
-            $Images = self::getClass('ImageManager')->find($imgFind);
+            Route::listem(
+                'image',
+                $imgFind
+            );
+            $Images = json_decode(
+                Route::getData()
+            );
+            $Images = $Images->data;
         }
         if (!$Images) {
             $Send['NoImages'] = [
@@ -982,14 +996,11 @@ class BootMenu extends FOGBase
         } else {
             array_map(
                 function (&$Image) use (&$Send, &$defItem) {
-                    if (!$Image->isValid()) {
-                        return;
-                    }
                     $Send['ImageListing'][] = sprintf(
                         'item %s %s (%s)',
-                        $Image->get('path'),
-                        $Image->get('name'),
-                        $Image->get('id')
+                        $Image->path,
+                        $Image->name,
+                        $Image->id
                     );
                     if (!self::$Host->isValid()) {
                         return;
@@ -997,11 +1008,11 @@ class BootMenu extends FOGBase
                     if (!self::$Host->getImage()->isValid()) {
                         return;
                     }
-                    if (self::$Host->getImage()->get('id') === $Image->get('id')) {
+                    if (self::$Host->getImage()->get('id') === $Image->id) {
                         $defItem = sprintf(
                             'choose --default %s --timeout %d target && '
                             . 'goto ${target}',
-                            $Image->get('path'),
+                            $Image->path,
                             $this->_timeout
                         );
                     }
@@ -1013,20 +1024,17 @@ class BootMenu extends FOGBase
             $Send['ImageListing'][] = $defItem;
             array_map(
                 function (&$Image) use (&$Send) {
-                    if (!$Image->isValid()) {
-                        return;
-                    }
                     $Send[sprintf(
                         'pathofimage%s',
-                        $Image->get('name')
+                        $Image->name
                     )] = [
                         sprintf(
                             ':%s',
-                            $Image->get('path')
+                            $Image->path
                         ),
                         sprintf(
                             'set imageID %d',
-                            $Image->get('id')
+                            $Image->id
                         ),
                         'params',
                         'param mac0 ${net0/mac}',
@@ -1827,7 +1835,11 @@ class BootMenu extends FOGBase
             $this->_chainBoot(true);
             return;
         }
-        $Menus = self::getClass('PXEMenuOptionsManager')->find('', '', 'id');
+
+        Route::listem('pxemenuoptions');
+        $Menus = json_decode(
+            Route::getData()
+        );
         $ipxeGrabs = [
             'FOG_ADVANCED_MENU_LOGIN',
             'FOG_IPXE_BG_FILE',
@@ -1928,31 +1940,37 @@ class BootMenu extends FOGBase
                 4
             );
         }
-        $Menus = self::getClass('PXEMenuOptionsManager')->find(
-            ['regMenu' => $RegArrayOfStuff],
-            '',
-            'id'
+        Route::listem(
+            'pxemenuoptions',
+            ['pxeRegOnly' => $RegArrayOfStuff]
+        );
+        $Menus = json_decode(
+            Route::getData()
         );
         array_map(
             function (&$Menu) use (&$Send) {
-                $Send['item-' . $Menu->get('name')] = $this->_menuItem(
+                $desc = trim($Menu->description);
+                if (!$desc) {
+                    $desc = $Menu->name;
+                }
+                $Send['item-' . $Menu->name] = $this->_menuItem(
                     $Menu,
-                    trim($Menu->get('description'))
+                    $desc
                 );
                 unset($Menu);
             },
-            (array)$Menus
+            $Menus->data
         );
         $Send['default'] = [$this->_defaultChoice];
         array_map(
             function (&$Menu) use (&$Send) {
-                $Send['choice-'.$Menu->get('name')] = $this->_menuOpt(
+                $Send['choice-'.$Menu->name] = $this->_menuOpt(
                     $Menu,
-                    trim($Menu->get('args'))
+                    trim($Menu->args)
                 );
                 unset($Menu);
             },
-            (array)$Menus
+            $Menus->data
         );
         $Send['bootme'] = [
             ':bootme',

@@ -106,15 +106,19 @@ class SnapinClient extends FOGClient
                 }
                 $info = [];
                 $info['snapins'] = [];
-                foreach ((array)self::getClass('SnapinManager')
-                    ->find(
-                        ['id' => $snapinIDs]
-                    ) as &$Snapin
-                ) {
+                Route::listem(
+                    'snapin',
+                    ['sID' => $snapinIDs]
+                );
+                $Snapins = json_decode(
+                    Route::getData()
+                );
+                foreach ($Snapins->data as &$Snapin) {
+                    $Snapin = self::getClass('Snapin', $Snapin->id);
                     $snapinTaskID = self::getSubObjectIDs(
                         'SnapinTask',
                         [
-                            'snapinID' => $Snapin->get('id'),
+                            'snapinID' => $Snapin->id,
                             'jobID' => $SnapinJob->get('id'),
                             'stateID' => self::fastmerge(
                                 self::getQueuedStates(),

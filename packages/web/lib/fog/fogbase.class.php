@@ -624,26 +624,35 @@ abstract class FOGBase
             if ($NodeFailure->isValid()) {
                 return false;
             }
-            $DateTime = self::niceDate($NodeFailure->get('failureTime'));
+            $DateTime = self::niceDate($NodeFailure->failureTime);
             if ($DateTime < $DateInterval) {
-                $NodeFailure->destroy();
-
+                self::getClass('NodeFailure', $NodeFailure->id)->destroy();
                 return false;
             }
 
-            return $NodeFailure->get('id');
+            return $NodeFailure->id;
         };
         $find = [
-            'taskID' => self::$Host->get('task')->get('id'),
-            'hostID' => self::$Host->get('id'),
+            'nfTaskID' => self::$Host->get('task')->get('id'),
+            'nfHostID' => self::$Host->get('id'),
         ];
-        $nodeRet = array_map(
-            $nodeFail,
-            (array)self::getClass('NodeFailureManager')->find($find)
+        Route::listem(
+            'nodefailure',
+            $find
         );
-        $nodeRet = array_filter($nodeRet);
-        $nodeRet = array_unique($nodeRet);
-        $nodeRet = array_values($nodeRet);
+        $NodeFails = json_decode(
+            Route::getData()
+        );
+        $nodeRet = array_values(
+            array_unique(
+                array_filter(
+                    array_map(
+                        $nodeFail,
+                        $NodeFails->data
+                    )
+                )
+            )
+        );
 
         return $nodeRet;
     }
@@ -2483,12 +2492,8 @@ abstract class FOGBase
             $class
         );
         if ($count) {
-            return (int) self::getClass($classman)
-                ->count(
-                    $find,
-                    'OR',
-                    'name'
-                );
+            return (int)self::getClass($classman)
+                ->count($find, 'OR', 'name');
         }
         return self::getClass($classman)->find(
             $find,

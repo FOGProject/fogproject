@@ -120,19 +120,24 @@ class StorageGroup extends FOGController
     protected function loadEnablednodes()
     {
         $find = [
-            'storagegroupID' => $this->get('id'),
-            'id' => $this->get('allnodes'),
-            'isEnabled' => 1
+            'ngmGroupID' => $this->get('id'),
+            'ngmID' => $this->get('allnodes'),
+            'ngmIsEnabled' => 1
         ];
         $nodeids = [];
         $testurls = [];
-        foreach ((array)self::getClass('StorageNodeManager')
-            ->find($find) as &$node
-        ) {
-            if ($node->get('maxClients') < 1) {
+        Route::listem(
+            'storagenode',
+            $find
+        );
+        $StorageNodes = json_decode(
+            Route::getData()
+        );
+        foreach ($StorageNodes->data as &$StorageNode) {
+            if ($StorageNode->maxClients < 1) {
                 continue;
             }
-            $nodeids[] = $node->get('id');
+            $nodeids[] = $StorageNode->id;
             unset($node);
         }
         $this->set('enablednodes', $nodeids);

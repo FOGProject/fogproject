@@ -1411,43 +1411,45 @@ class Host extends FOGController
                 }
             }
             if ($TaskType->isMulticast()) {
-                $multicastTaskReturn = function (&$MulticastSession) {
-                    if (!$MulticastSession->isValid()) {
-                        return;
-                    }
-                    return $MulticastSession;
-                };
                 $assoc = false;
                 $showStates = self::fastmerge(
                     self::getQueuedStates(),
                     (array)self::getProgressState()
                 );
                 if ($sessionjoin) {
-                    $MCSessions = self::getClass('MulticastSessionManager')
-                        ->find(
-                            [
-                                'name' => $taskName,
-                                'stateID' => $showStates
-                            ]
-                        );
+                    Route::listem(
+                        'multicastsession',
+                        [
+                            'msName' => $taskName,
+                            'msState' => $showStates
+                        ]
+                    );
+                    $MCSessions = json_decode(
+                        Route::getData()
+                    );
+                    $MCSessions = $MCSessions->data;
                     $assoc = true;
                 } else {
-                    $MCSessions = self::getClass('MulticastSessionManager')
-                        ->find(
-                            [
-                                'image' => $Image->get('id'),
-                                'stateID' => $showStates
-                            ]
-                        );
+                    Route::listem(
+                        'multicastsession',
+                        [
+                            'msImage' => $Image->get('id'),
+                            'msState' => $showStates
+                        ]
+                    );
+                    $MCSessions = json_decode(
+                        Route::getData()
+                    );
+                    $MCSessions = $MCSessions->data;
                 }
-                $MultiSessJoin = array_map(
-                    $multicastTaskReturn,
-                    $MCSessions
+                $MultiSessJoin = array_values(
+                    array_filter(
+                        $MCSessions
+                    )
                 );
-                $MultiSessJoin = array_filter($MultiSessJoin);
-                $MultiSessJoin = array_values($MultiSessJoin);
-                if (is_array($MultiSessJoin) && count($MultiSessJoin)) {
+                if (count($MultiSessJoin ?: [])) {
                     $MulticastSession = array_shift($MultiSessJoin);
+                    $MulticastSession = new MulticastSession($MulticastSession->id);
                 }
                 unset($MultiSessJoin);
                 if ($MulticastSession instanceof MulticastSession

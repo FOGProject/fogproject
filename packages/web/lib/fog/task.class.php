@@ -136,33 +136,30 @@ class Task extends TaskType
         }
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
         $find = [
-            'stateID' => self::fastmerge(
+            $this->databaseFields['stateID'] => self::fastmerge(
                 (array)self::getQueuedStates(),
                 (array)self::getProgressState()
             ),
-            'typeID' => $used,
-            'storagegroupID' => $this->get('storagegroupID'),
-            'storagenodeID' => $this->get('storagenodeID')
+            $this->databaseFields['typeID'] => $used,
+            $this->databaseFields['storagegroupID'] => $this->get('storagegroupID'),
+            $this->databaseFields['storagenodeID'] => $this->get('storagenodeID')
         ];
         $checkTime = self::getSetting('FOG_CHECKIN_TIMEOUT');
-        foreach ((array)$this->getManager()
-            ->find($find) as &$Task
-        ) {
-            $TaskCheckinTime = self::niceDate($Task->get('checkInTime'));
-            $timeOfLastCheckin = $curTime
-                ->getTimestamp() - $TaskCheckinTime
-                ->getTimestamp();
-            if ($timeOfLastCheckin >= $checkTime) {
-                $Task->set(
-                    'checkInTime',
-                    $curTime->format('Y-m-d H:i:s')
-                )->save();
-            }
-            if ($MyCheckinTime > $TaskCheckinTime) {
+        Route::listem(
+            self,
+            $find
+        );
+        $Tasks = json_decode(
+            Route::getData()
+        );
+        foreach ($Tasks->data as &$Task) {
+            $TaskCheckinTime = self::niceDate($Task->checkInTime);
+            if ($curTime >= $TaskCheckinTime) {
                 ++$count;
             }
             unset($Task);
         }
+
         return $count;
     }
     /**
