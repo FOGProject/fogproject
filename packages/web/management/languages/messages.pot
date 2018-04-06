@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-06 00:15-0400\n"
+"POT-Creation-Date: 2018-04-06 02:53-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1144,15 +1144,6 @@ msgid ""
 "to export."
 msgstr ""
 
-msgid "Completed imaging"
-msgstr ""
-
-msgid "failed to login"
-msgstr ""
-
-msgid "Remote address attempting to login"
-msgstr ""
-
 msgid "Slack Accounts"
 msgstr ""
 
@@ -1568,6 +1559,12 @@ msgid "Site Update Success"
 msgstr ""
 
 msgid "Site Update Fail"
+msgstr ""
+
+msgid "failed to login"
+msgstr ""
+
+msgid "Remote address attempting to login"
 msgstr ""
 
 msgid "Pushbullet Accounts"
@@ -5159,16 +5156,22 @@ msgstr ""
 msgid " * Task Scheduler is globally disabled"
 msgstr ""
 
+msgid "Task run time"
+msgstr ""
+
 msgid "group"
 msgstr ""
 
 msgid "host"
 msgstr ""
 
+msgid "Found a task that should run."
+msgstr ""
+
 msgid "Is a"
 msgstr ""
 
-msgid "based task"
+msgid "based task."
 msgstr ""
 
 msgid "Unicast"
@@ -5177,7 +5180,10 @@ msgstr ""
 msgid "task found"
 msgstr ""
 
-msgid "Tasks started for"
+msgid "Task started for"
+msgstr ""
+
+msgid "Found a wake on lan task that should run."
 msgstr ""
 
 msgid "Task sent to"

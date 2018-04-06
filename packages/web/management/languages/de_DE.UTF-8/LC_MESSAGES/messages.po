@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-06 00:11-0400\n"
+"POT-Creation-Date: 2018-04-06 01:52-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -1200,16 +1200,6 @@ msgid ""
 "to export."
 msgstr ""
 
-#, fuzzy
-msgid "Completed imaging"
-msgstr "Abgeschlossen"
-
-msgid "failed to login"
-msgstr "Anmelden fehlgeschlagen"
-
-msgid "Remote address attempting to login"
-msgstr "Remote-Adresse versucht, sich anzumelden"
-
 msgid "Slack Accounts"
 msgstr "Slack Accounts"
 
@@ -1728,6 +1718,12 @@ msgstr "Host Aktualisierung erfolgreich!"
 #, fuzzy
 msgid "Site Update Fail"
 msgstr "Drucker-Update fehlgeschlagen!"
+
+msgid "failed to login"
+msgstr "Anmelden fehlgeschlagen"
+
+msgid "Remote address attempting to login"
+msgstr "Remote-Adresse versucht, sich anzumelden"
 
 msgid "Pushbullet Accounts"
 msgstr "Pushbullet Accounts"
@@ -6028,17 +6024,24 @@ msgstr "Abgeschlossen"
 msgid " * Task Scheduler is globally disabled"
 msgstr "* Taskplaner ist global deaktiviert"
 
+#, fuzzy
+msgid "Task run time"
+msgstr "Task Eincheckzeit"
+
 msgid "group"
 msgstr "Gruppe"
 
 msgid "host"
 msgstr "Host"
 
+msgid "Found a task that should run."
+msgstr ""
+
 msgid "Is a"
 msgstr "Ist ein"
 
-msgid "based task"
-msgstr "Basis-Task"
+msgid "based task."
+msgstr ""
 
 msgid "Unicast"
 msgstr "Unicast"
@@ -6046,8 +6049,12 @@ msgstr "Unicast"
 msgid "task found"
 msgstr "Task gefunden"
 
-msgid "Tasks started for"
-msgstr "Tasks gestartet um"
+#, fuzzy
+msgid "Task started for"
+msgstr "Task gestartet"
+
+msgid "Found a wake on lan task that should run."
+msgstr ""
 
 #, fuzzy
 msgid "Task sent to"

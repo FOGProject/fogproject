@@ -503,6 +503,10 @@ class Route extends FOGBase
                 $tableID = $real;
                 $columns[] = [
                     'db' => $real,
+                    'dt' => $common
+                ];
+                $columns[] = [
+                    'db' => $real,
                     'dt' => 'DT_RowId',
                     'formatter' => function ($d, $row) {
                         return 'row_'.$d;
@@ -1125,13 +1129,16 @@ class Route extends FOGBase
                     HTTPResponseCodes::HTTP_NOT_FOUND
                 );
             }
-            foreach (self::getClass('HostManager')
-                ->find(['id' => $class->get('hosts')]) as &$Host
-            ) {
-                if ($Host->get('task') instanceof Task) {
-                    $Host->get('task')->cancel();
-                }
-                unset($Host);
+            Route::listem(
+                'task',
+                ['taskHostID' => $class->get('hosts')]
+            );
+            $Tasks = json_decode(
+                Route::getData()
+            );
+            foreach ($Tasks as &$Task) {
+                self::getClass('Task', $Task->id)->cancel();
+                unset($Task);
             }
             break;
         case 'host':
@@ -1629,10 +1636,15 @@ class Route extends FOGBase
         $classman = self::getClass($class.'Manager');
         switch (self::$reqmethod) {
         case 'PUT':
-            foreach ($classman->find(['id' => $vars->ids]) as &$c) {
-                if (!$c->isValid()) {
-                    continue;
-                }
+            Route::listem(
+                $classname,
+                [$classVars['databaseFields']['id'] => $vars->ids]
+            );
+            $classes = json_decode(
+                Route::getData()
+            );
+            foreach ($classes->data as &$c) {
+                $c = self::getClass($classname, $c->id);
                 foreach ($classVars['databaseFields'] as &$key) {
                     $key = $c->key($key);
                     if (!isset($vars->$key)) {
@@ -1735,7 +1747,15 @@ class Route extends FOGBase
                 $ids[] = $c->get('id');
                 unset($name);
             }
-            foreach ($classman->find(['id' => $ids]) as &$c) {
+            Route::listem(
+                $classname,
+                [$classVars['databaseFields']['id'] => $ids]
+            );
+            $classes = json_decode(
+                Route::getData()
+            );
+            foreach ($classes->data as &$c) {
+                $c = self::getClass($classname, $c->id);
                 if (count($vars->hosts)) {
                     $c->addHost($vars->hosts);
                 }

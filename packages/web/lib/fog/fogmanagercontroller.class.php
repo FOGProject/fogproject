@@ -1305,16 +1305,22 @@ abstract class FOGManagerController extends FOGBase
         if (empty($compare)) {
             $compare = '=';
         }
-        $ids = $this->find(
-            $findWhere,
-            $whereOperator,
-            $orderBy,
-            $sort,
-            $compare,
-            $groupBy,
-            $not,
-            'id'
+        $ids = [];
+        foreach ($findWhere as $key => &$vals) {
+            $newfind[$this->databaseFields[$key]] = $vals;
+            unset($vals);
+        }
+        Route::listem(
+            $this->childClass,
+            $newfind
         );
+        $Items = json_decode(
+            Route::getData()
+        );
+        foreach ($Items->data as &$Item) {
+            $ids[] = $Item->id;
+            unset($Item);
+        }
         $destroyVals = [];
         $ids = array_chunk($ids, 500);
         foreach ((array)$ids as &$id) {
@@ -1335,7 +1341,9 @@ abstract class FOGManagerController extends FOGBase
                 implode(',', (array) $destroyKeys)
             );
             unset($destroyKeys);
-            self::$DB->query($query, [], $destroyVals);
+            if (!self::$DB->query($query, [], $destroyVals)) {
+                return false;
+            }
             unset($destroyVals, $destroyKeys);
         }
 
@@ -1371,59 +1379,52 @@ abstract class FOGManagerController extends FOGBase
         if (empty($elementName)) {
             $elementName = strtolower($this->childClass);
         }
-        $this->orderBy($orderBy);
         ob_start();
-        self::$HookManager
-            ->processEvent(
-                'SELECT_BUILD',
-                [
-                    'matchID' => &$matchID,
-                    'elementName' => &$elementName,
-                    'orderBy' => &$orderBy,
-                    'filter' => &$filter,
-                    'template' => &$template,
-                    'waszero' => &$waszero,
-                    'obj' => $this
-                ]
+        self::$HookManager->processEvent(
+            'SELECT_BUILD',
+            [
+                'matchID' => &$matchID,
+                'elementName' => &$elementName,
+                'orderBy' => &$orderBy,
+                'filter' => &$filter,
+                'template' => &$template,
+                'waszero' => &$waszero,
+                'obj' => $this
+            ]
+        );
+        if ($filter) {
+            $find = [$this->databaseFields['id'] => $filter];
+            Route::listem(
+                $this->childClass,
+                $find
             );
-        foreach ((array)$this
-            ->find(
-                $filter ? ['id' => $filter] : '',
-                '',
-                $orderBy,
-                '',
-                '',
-                '',
-                ($filter ? true : false)
-            ) as &$Object
-        ) {
-            if (!$Object->isValid()) {
+        } else {
+            Route::listem($this->childClass);
+        }
+        $Items = json_decode(
+            Route::getData()
+        );
+        foreach ($Items->data as &$Item) {
+            if (isset($Item->isEnabled) && !$Item->isEnabled) {
                 continue;
             }
-            if (array_key_exists('isEnabled', $this->databaseFields)
-                && !$Object->get('isEnabled')
-            ) {
-                continue;
-            }
-            printf(
-                '<option value="%s"%s>%s</option>',
-                $Object->get('id'),
-                (
-                    $matchID == $Object->get('id') ?
+            echo '<option value="'
+                . $Item->id
+                . '"'
+                . (
+                    $matchID == $Item->id ?
                     ' selected' :
                     (
                         $template ?
-                        sprintf('${selected_item%d}', $Object->get('id')) :
+                        '${selected_item' . $Item->id . '}' :
                         ''
                     )
-                ),
-                sprintf(
-                    '%s - (%d)',
-                    $Object->get('name'),
-                    $Object->get('id')
                 )
-            );
-            unset($Object);
+                . '>'
+                . $Item->name
+                . ' - (' . $Item->id . ')'
+                . '</option>';
+            unset($Item);
         }
         $objOpts = ob_get_clean();
         $objOpts = trim($objOpts);

@@ -143,11 +143,13 @@ class BootItem extends Hook
          * inside of the item label is an arrayed item of value [0] containing
          * the label so to tweak:
          */
-        foreach ((array)self::getClass('PXEMenuOptionsManager')
-            ->find() as $i => &$Menu
-        ) {
-            if ($arguments['ipxe']['item-'.$Menu->get('name')]
-                && $Menu->get('name') == 'fog.local'
+        Route::listem('pxemenuoptions');
+        $Menus = json_decode(
+            Route::getData()
+        );
+        foreach ($Menus as &$Menu) {
+            if ($arguments['ipxe']['item-'.$Menu->name]
+                && $Menu->name == 'fog.local'
             ) {
                 $arguments['ipxe']['item-fog.local'][0]
                     = 'item fog.local THIS BOOTS TO DISK';
@@ -156,8 +158,8 @@ class BootItem extends Hook
              * Similar to the item-<label-name>
              * The choices follow similar constructs
              */
-            if ($arguments['ipxe']['choice-'.$Menu->get('name')]
-                && $Menu->get('name') == 'fog.local'
+            if ($arguments['ipxe']['choice-'.$Menu->name]
+                && $Menu->name == 'fog.local'
             ) {
                 $arguments['ipxe']['choice-fog.local'][0]
                     = ':fog.local';

@@ -65,19 +65,17 @@ class ImageComplete_Slack extends Event
      */
     public function onEvent($event, $data)
     {
-        foreach ((array)self::getClass('SlackManager')
-            ->find() as &$Token
-        ) {
+        Route::listem('slack');
+        $Slacks = json_decode(
+            Route::getData()
+        );
+        foreach ($Slacks->data as &$Slack) {
             $args = [
-                'channel' => $Token->get('name'),
-                'text' => sprintf(
-                    '%s %s',
-                    $data['HostName'],
-                    _('Completed imaging')
-                )
+                'channel' => $Slack->name,
+                'text' => _("{$data['HostName']} completed imaging")
             ];
-            $Token->call('chat.postMessage', $args);
-            unset($Token);
+            self::getClass('Slack', $Slack->id)->call('chat.postMessage', $args);
+            unset($Slack);
         }
     }
 }

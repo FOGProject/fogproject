@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class SnapinComplete_Slack extends PushbulletExtends
+class SnapinComplete_Slack extends Event
 {
     /**
      * The name of this event
@@ -62,17 +62,18 @@ class SnapinComplete_Slack extends PushbulletExtends
      */
     public function onEvent($event, $data)
     {
-        foreach ((array)self::getClass('SlackManager')
-            ->find() as &$Token
-        ) {
-            self::$message = sprintf(
-                'Host %s has completed snapin tasking.',
-                $data['Host']->get('name')
-            );
-            self::$shortdesc = 'Snapin(s) Complete';
-            $Token->call('chat.postMessage', $message);
-            unset($Token);
+        Route::listem('slack');
+        $Slacks = json_decode(
+            Route::getData()
+        );
+        $hostname = $data['Host']->get('name');
+        foreach ($Slacks->data as &$Slack) {
+            $args = [
+                'channel' => $Slack->name,
+                'text' => _("{$hostname} has completed snapin tasking.")
+            ];
+            self::getClass('Slack', $Slack->id)->call('chat.postMessage', $args);
+            unset($Slack);
         }
-        parent::onEvent($event, $data);
     }
 }

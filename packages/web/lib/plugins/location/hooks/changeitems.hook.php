@@ -99,35 +99,33 @@ class ChangeItems extends Hook
         if (!$arguments['Host']->isValid()) {
             return;
         }
-        $Locations = self::getClass('LocationAssociationManager')->find(
-            ['hostID' => $arguments['Host']->get('id')]
+        Route::listem(
+            'locationassociation',
+            ['laHostID' => $arguments['Host']->get('id')]
         );
-        $Locations = self::getSubObjectIDs(
-            'LocationAssociation',
-            ['hostID' => $arguments['Host']->get('id')],
-            'locationID'
+        $LocationAssocs = json_decode(
+            Route::getData()
         );
-        $method = false;
-        foreach ((array)self::getClass('LocationManager')
-            ->find(['id' => $Locations]) as $Location
-        ) {
-            $Host =& $arguments['Host'];
-            $Task = $Host->get('task');
-            $TaskType =& $arguments['TaskType'];
+        $Host = $arguments['Host'];
+        $Task = $arguments['Host']->get('task');
+        $TaskType = $arguments['TaskType'];
+        $method = 'getOptimalStorageNode';
+        foreach ($LocationAssocs->data as &$LocationAssoc) {
+            $Location = self::getClass('Location', $LocationAssoc->locationID);
+            if (!$Location->isValid()) {
+                continue;
+            }
             if ($Task->isValid()
-                && ($Task->isCapture()
-                || $Task->isMulticast())
+                && ($Task->isCapture() || $Task->isMulticast())
             ) {
                 $method = 'getMasterStorageNode';
             } elseif ($TaskType instanceof TaskType
                 && $TaskType->isValid()
-                && ($TaskType->isCapture()
-                || $TaskType->isMulticast())
+                && ($TaskType->isCapture() || $TaskType->isMulticast())
             ) {
                 $method = 'getMasterStorageNode';
             }
-            $StorageGroup = $Location
-                ->getStorageGroup();
+            $StorageGroup = $Location->getStorageGroup();
             if ($StorageGroup->isValid()) {
                 if (!isset($arguments['snapin'])
                     || ($arguments['snapin'] === true
@@ -136,14 +134,12 @@ class ChangeItems extends Hook
                     $arguments['StorageNode'] = $Location
                         ->getStorageNode();
                 }
-                if (!$method) {
-                    continue;
-                }
                 $arguments['StorageNode'] = $Location
                     ->getStorageGroup()
                     ->{$method}();
             }
             unset($Location);
+            unset($LocationAssoc);
         }
     }
     /**
@@ -158,21 +154,21 @@ class ChangeItems extends Hook
         if (!$arguments['Host']->isValid()) {
             return;
         }
-        $Locations = self::getSubObjectIDs(
-            'LocationAssociation',
-            ['hostID' => $arguments['Host']->get('id')],
-            'locationID'
+        Route::listem(
+            'locationassociation',
+            ['laHostID' => $arguments['Host']->get('id')]
         );
-        foreach ((array)self::getClass('LocationManager')
-            ->find(['id' => $Locations]) as &$Location
-        ) {
-            $StorageGroup = $Location
+        $LocationAssocs = json_decode(
+            Route::getData()
+        );
+        foreach ($LocationAssocs->data as &$LocationAssoc) {
+            $StorageGroup = self::getClass('Location', $LocationAssoc->locationID)
                 ->getStorageGroup();
-            if (!$StorageGroup->isValid()) {
+            if ($StorageGroup->isValid()) {
                 continue;
             }
             $arguments['StorageGroup'] = $StorageGroup;
-            unset($Location);
+            unset($LocationAssoc);
         }
     }
     /**
@@ -187,28 +183,19 @@ class ChangeItems extends Hook
         if (!$arguments['Host']->isValid()) {
             return;
         }
-        $Locations = self::getSubObjectIDs(
-            'LocationAssociation',
-            ['hostID' => $arguments['Host']->get('id')],
-            'locationID'
+        Route::listem(
+            'locationassociation',
+            ['laHostID' => $arguments['Host']->get('id')]
         );
-        $Locations = self::getSubObjectIDs(
-            'Location',
-            ['id' => $Locations]
+        $LocationAssocs = json_decode(
+            Route::getData()
         );
-        $find = [
-            'hostID' => $arguments['Host']->get('id'),
-            'locationID' => $Locations
-        ];
-        foreach ((array)self::getClass('LocationAssociationManager')
-            ->find($find, 'AND', 'id') as $Location
-        ) {
-            if (!$Location->isTFTP()) {
+        foreach ($LocationAssocs->data as &$LocationAssoc) {
+            $Location = self::getClass('Location', $LocationAssoc->locationID);
+            if (!$Location->get('tftp')) {
                 continue;
             }
-            $StorageNode = $Location
-                ->getLocation()
-                ->getStorageNode();
+            $StorageNode = $Location->getStorageNode();
             if (!$StorageNode->isValid()) {
                 continue;
             }
@@ -231,6 +218,7 @@ class ChangeItems extends Hook
             $arguments['bzImage'] = "http://${ip}/fog/service/ipxe/$bzImage";
             $arguments['imagefile'] = "http://${ip}/fog/service/ipxe/$initrd";
             unset($Location);
+            unset($LocationAssoc);
         }
     }
     /**

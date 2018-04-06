@@ -90,7 +90,7 @@ class DelAccessControlMenuItem extends Hook
         );
 
         /*foreach ((array)self::getClass('AccessControlRuleManager')
-            ->find(
+            ->fnd(
                 ['id' => $rules]
             ) as $Rule
         ) {
@@ -109,6 +109,13 @@ class DelAccessControlMenuItem extends Hook
      */
     public function deleteSubMenuData($arguments)
     {
+        Route::listem(
+            'accesscontrolassociation',
+            ['ruaUserID' => self::$FOGUser->get('id')]
+        );
+        $AccessControlAssocs = json_decode(
+            Route::getData()
+        );
         $userID = self::getSubObjectIDs(
             'User',
             ['name' => self::$FOGUser->get('name')],
@@ -120,7 +127,7 @@ class DelAccessControlMenuItem extends Hook
             'accesscontrolID'
         );
         /*foreach ((array)self::getClass('AccessControlRuleAssociationManager')
-            ->find(array('accesscontrolID' => $acID)) as
+            ->fnd(array('accesscontrolID' => $acID)) as
             &$AccessControlRuleAssociation
         ) {
             $AccessControlRule = new AccessControlRule(

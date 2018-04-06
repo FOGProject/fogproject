@@ -64,21 +64,21 @@ class LoginFailure_Slack extends Event
      */
     public function onEvent($event, $data)
     {
-        foreach ((array)self::getClass('SlackManager')
-            ->find() as &$Token
-        ) {
+        Route::listem('slacks');
+        $Slacks = json_decode(
+            Route::getData()
+        );
+        $ip = filter_input(INPUT_SERVER, 'REMOTE_ADDR');
+        foreach ($Slacks->data as &$Slack) {
             $args = [
-                'channel' => $Token->get('name'),
-                'text' => sprintf(
-                    '%s %s. %s: %s',
-                    $data['Failure'],
-                    _('failed to login'),
-                    _('Remote address attempting to login'),
-                    filter_input(INPUT_SERVER, 'REMOTE_ADDR')
-                ),
+                'channel' => $Slack->name,
+                'text' => _(
+                    "{$data['Failure']} failed to login."
+                    . "Remote address attempting to login $ip"
+                )
             ];
-            $Token->call('chat.postMessage', $args);
-            unset($Token);
+            self::getClass('Slack', $Slack->id)->call('chat.postMessage', $args);
+            unset($Slack);
         }
     }
 }
