@@ -122,10 +122,20 @@ abstract class TaskingElement extends FOGBase
                 if (count($this->StorageGroup->get($getter)) < 1) {
                     $getter = 'allnodes';
                 }
-                $this->StorageNodes = self::getClass('StorageNodeManager')
-                    ->find(
-                        ['id' => $this->StorageGroup->get($getter)]
+                Route::listem(
+                    'storagenode',
+                    ['ngmID' => $this->StorageGroup->get($getter)]
+                );
+                $StorageNodes = json_decode(
+                    Route::getData()
+                );
+                foreach ($StorageNodes->data as &$StorageNode) {
+                    $this->StorageNodes[] = self::getClass(
+                        'StorageNode',
+                        $StorageNode->id
                     );
+                    unset($StorageNode);
+                }
                 if ($this->Task->isCapture()
                     || $this->Task->isMulticast()
                 ) {

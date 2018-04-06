@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-06 00:11-0400\n"
+"POT-Creation-Date: 2018-04-06 01:52-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1201,16 +1201,6 @@ msgid ""
 "to export."
 msgstr ""
 
-#, fuzzy
-msgid "Completed imaging"
-msgstr "Completed"
-
-msgid "failed to login"
-msgstr "failed to login"
-
-msgid "Remote address attempting to login"
-msgstr ""
-
 msgid "Slack Accounts"
 msgstr "Slack Accounts"
 
@@ -1729,6 +1719,12 @@ msgstr "Install / Update Successful!"
 #, fuzzy
 msgid "Site Update Fail"
 msgstr "Printer update failed!"
+
+msgid "failed to login"
+msgstr "failed to login"
+
+msgid "Remote address attempting to login"
+msgstr ""
 
 msgid "Pushbullet Accounts"
 msgstr "Pushbullet Accounts"
@@ -6014,17 +6010,24 @@ msgstr "Completed"
 msgid " * Task Scheduler is globally disabled"
 msgstr ""
 
+#, fuzzy
+msgid "Task run time"
+msgstr "Task Checkin Time"
+
 msgid "group"
 msgstr "group"
 
 msgid "host"
 msgstr "host"
 
+msgid "Found a task that should run."
+msgstr ""
+
 msgid "Is a"
 msgstr "Is a"
 
-msgid "based task"
-msgstr "based task"
+msgid "based task."
+msgstr ""
 
 msgid "Unicast"
 msgstr "Unicast"
@@ -6032,8 +6035,12 @@ msgstr "Unicast"
 msgid "task found"
 msgstr "task found"
 
-msgid "Tasks started for"
-msgstr "Tasks started for"
+#, fuzzy
+msgid "Task started for"
+msgstr "Task Started"
+
+msgid "Found a wake on lan task that should run."
+msgstr ""
 
 #, fuzzy
 msgid "Task sent to"

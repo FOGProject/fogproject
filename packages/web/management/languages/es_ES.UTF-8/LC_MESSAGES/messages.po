@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-06 00:11-0400\n"
+"POT-Creation-Date: 2018-04-06 01:52-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -1367,16 +1367,6 @@ msgid ""
 "to export."
 msgstr ""
 
-msgid "Completed imaging"
-msgstr ""
-
-#, fuzzy
-msgid "failed to login"
-msgstr "el usuario no pudo iniciar sesión"
-
-msgid "Remote address attempting to login"
-msgstr ""
-
 msgid "Slack Accounts"
 msgstr ""
 
@@ -1896,6 +1886,13 @@ msgstr "actualización Valoración falló"
 #, fuzzy
 msgid "Site Update Fail"
 msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+msgid "failed to login"
+msgstr "el usuario no pudo iniciar sesión"
+
+msgid "Remote address attempting to login"
+msgstr ""
 
 msgid "Pushbullet Accounts"
 msgstr ""
@@ -6234,18 +6231,24 @@ msgstr "suprimido"
 msgid " * Task Scheduler is globally disabled"
 msgstr ""
 
+#, fuzzy
+msgid "Task run time"
+msgstr "Nombre de la tarea"
+
 msgid "group"
 msgstr "grupo"
 
 msgid "host"
 msgstr "anfitrión"
 
+msgid "Found a task that should run."
+msgstr ""
+
 msgid "Is a"
 msgstr ""
 
-#, fuzzy
-msgid "based task"
-msgstr "tarea Cancelado"
+msgid "based task."
+msgstr ""
 
 #, fuzzy
 msgid "Unicast"
@@ -6256,8 +6259,11 @@ msgid "task found"
 msgstr "tarea para"
 
 #, fuzzy
-msgid "Tasks started for"
-msgstr "se ha iniciado en el puerto"
+msgid "Task started for"
+msgstr "Nombre de la tarea"
+
+msgid "Found a wake on lan task that should run."
+msgstr ""
 
 msgid "Task sent to"
 msgstr ""

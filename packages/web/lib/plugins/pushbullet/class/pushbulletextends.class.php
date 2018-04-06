@@ -80,7 +80,7 @@ abstract class PushbulletExtends extends Event
         self::$eventloop = function (&$Pushbullet) {
             self::getClass(
                 'PushbulletHandler',
-                $Pushbullet->get('token')
+                $Pushbullet->token
             )->pushNote(
                 '',
                 sprintf(
@@ -103,9 +103,13 @@ abstract class PushbulletExtends extends Event
     public function onEvent($event, $data)
     {
         self::$elements = $data;
-        array_map(
-            self::$eventloop,
-            (array)self::getClass('PushbulletManager')->find()
+        Route::listem('pushbullet');
+        $Pushbullets = json_decode(
+            Route::getData()
         );
+        foreach ($Pushbullets->data as &$Pushbullet) {
+            self::$eventloop($Pushbullet);
+            unset($Pushbullet);
+        }
     }
 }

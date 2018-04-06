@@ -75,16 +75,20 @@ class ChangeItems extends Hook
         if (!$arguments['Host']->isValid()) {
             return;
         }
-        $OUs = self::getSubObjectIDs(
-            'OUAssociation',
-            ['hostID' => $arguments['Host']->get('id')],
-            'ouID'
+        Route::listem(
+            'ouassociation',
+            ['oaHostID' => $arguments['Host']->get('id')]
         );
-        foreach ((array)self::getClass('OUManager')
-            ->find(['id' => $OUs]) as &$OU
-        ) {
-            $arguments['val']['ADOU'] = $OU->get('ou');
-            unset($OU);
+        $OUAssocs = json_decode(
+            Route::getData()
+        );
+        foreach ($OUAssocs as &$OUAssoc) {
+            Route::indiv('ou', $OUAssoc->ouID);
+            $OU = json_decode(
+                Route::getData()
+            );
+            $arguments['val']['ADOU'] = $OU->ou;
+            unset($OUAssoc);
         }
     }
 }
