@@ -174,24 +174,25 @@ class StorageNode extends FOGController
      */
     public function getNodeFailure($Host)
     {
-        foreach ((array)self::getClass('NodeFailureManager')
-            ->find(
-                [
-                    'storagenodeID' => $this->get('id'),
-                    'hostID' => $Host,
-                ]
-            ) as &$Failed
-        ) {
+        Route::listem(
+            'nodefailure',
+            [
+                'nfHostID' => $Host,
+                'nfNodeID' => $this->get('id')
+            ]
+        );
+        $Failures = json_decode(
+            Route::getData()
+        );
+        foreach ($Failures as &$Failed) {
             $curr = self::niceDate();
-            $prev = $Failed->get('failureTime');
-            $prev = self::niceDate($prev);
+            $prev = self::niceDate($Failed->failureTime);
             if ($curr < $prev) {
-                return $Failed;
+                return true;
             }
             unset($Failed);
         }
-
-        return $Failed;
+        return false;
     }
     /**
      * Loads the logfiles available on this node.

@@ -55,27 +55,23 @@ class PM extends FOGClient
                     'hostID' => self::$Host->get('id')
                 ]
             );
-        $PMTasks = self::getClass('PowerManagementManager')
-            ->find(
-                [
-                    'hostID' => self::$Host->get('id'),
-                    'onDemand' => [
-                        '0',
-                        0,
-                        null,
-                        ''
-                    ],
-                    'action' => [
-                        'shutdown',
-                        'reboot',
-                    ]
-                ]
-            );
+        $PMFind = [
+            'pmHostID' => self::$Host->get('id'),
+            'pmOndemand' => [0, ''],
+            'pmAction' => ['shutdown', 'reboot']
+        ];
+        Route::listem(
+            'powermanagement',
+            $PMFind
+        );
+        $PMTasks = json_decode(
+            Route::getData()
+        );
         $data = [
             'onDemand' => $action,
             'tasks' => [],
         ];
-        foreach ((array)$PMTasks as &$PMTask) {
+        foreach ($PMTasks->data as &$PMTask) {
             $min = trim($PMTask->get('min'));
             $hour = trim($PMTask->get('hour'));
             $dom = trim($PMTask->get('dom'));
@@ -94,11 +90,12 @@ class PM extends FOGClient
                 $month,
                 $dow
             );
-            $action = $PMTask->get('action');
+            $action = $PMTask->action;
             $data['tasks'][] = [
                 'cron' => $cron,
                 'action' => $action
             ];
+            unset($PMTask);
         }
         return $data;
     }
