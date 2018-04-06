@@ -57,16 +57,23 @@ if (isset($_POST['newNode'])) {
         ->save();
 } elseif (isset($_POST['nodePass'])) {
     $ip = filter_input(INPUT_POST, 'ip');
-    foreach ((array)FOGCore::getClass('StorageNodeManager')
-        ->find(['ip' => $ip]) as &$Node
-    ) {
-        if ($Node->get('pass') === trim($_POST['pass'])) {
+    $user = filter_input(INPUT_POST, 'user');
+    $pass = filter_input(INPUT_POST, 'pass');
+    Route::listem(
+        'storagenode',
+        ['ngmHostname' => $ip]
+    );
+    $StorageNodes = json_decode(
+        Route::getData()
+    );
+    foreach ($StorageNodes->data as &$StorageNode) {
+        if ($StorageNode->pass === trim($pass)) {
             continue;
         }
-        $Node
-            ->set('pass', trim($_POST['pass']))
-            ->set('user', trim($_POST['user']))
+        self::getClass('StorageNode', $StorageNode->id)
+            ->set('user', $user)
+            ->set('pass', $pass)
             ->save();
-        unset($Node);
+        unset($StorageNode);
     }
 }
