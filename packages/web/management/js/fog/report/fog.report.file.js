@@ -158,6 +158,27 @@
             break;
         // Pending MAC
         case 'pending mac list':
+            var pendingMacTable = $('#pendingmac-table'),
+                table = Common.registerTable(pendingMacTable, null, {
+                    order: [
+                        [0, 'asc']
+                    ],
+                    buttons: reportButtons,
+                    columns: [
+                        {data: 'hostLink'},
+                        {data: 'mac'}
+                    ],
+                    rowGroup: {
+                        dataSrc: 'hostLink'
+                    },
+                    rowId: 'id',
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: '../fog/pendingmacs',
+                        type: 'get'
+                    }
+                });
             break;
         // Product Keys
         case 'product keys':

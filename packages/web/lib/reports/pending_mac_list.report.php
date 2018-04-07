@@ -28,46 +28,25 @@ class Pending_MAC_List extends ReportManagement
      */
     public function file()
     {
-        $this->headerData = [];
-        $this->attributes = [];
+        $this->title = _('Pending MAC Addresses');
 
-        $obj = self::getClass('MACAddressAssociationManager');
-        foreach ($obj->getColumns() as $common => &$real) {
-            switch (strtolower($common)) {
-            case 'id':
-                $common = _('ID');
-                break;
-            case 'hostid':
-                $common = _('Host Name');
-                break;
-            case 'description':
-            case 'pending':
-            case 'primary':
-            case 'clientignore':
-            case 'imageignore':
-                continue 2;
-            case 'mac':
-                $common = _('MAC Address');
-                break;
-            }
-            $this->headerData[] = $common;
-            $this->attributes[] = [];
-            unset($real);
-        }
-
-        $this->title = _('Export Pending MAC Addresses');
+        $this->headerData = [
+            _('Host Name'),
+            _('MAC Address')
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
 
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Export Pending MAC Addresses');
+        echo _('Pending MAC Addresses');
         echo '</h4>';
-        echo '<p class="help-block">';
-        echo _('Use the selector to choose how many items you want exported');
-        echo '</p>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'pending-export-table');
+        $this->render(12, 'pendingmac-table');
         echo '</div>';
         echo '</div>';
     }
