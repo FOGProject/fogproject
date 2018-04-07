@@ -28,6 +28,7 @@
             {data: 'hostname'},
             {data: 'imagename'},
             {data: 'createdBy'},
+            {data: 'tasktypename'},
             {data: 'taskstatename'},
             {data: 'percent'}
         ],
@@ -56,10 +57,17 @@
             },
             {
                 render: function(data, type, row) {
+                    return row.tasktypename
+                        + ' <i class="fa fa-' + row.tasktypeicon + '"></i> '
+                },
+                targets: 3
+            },
+            {
+                render: function(data, type, row) {
                     return row.taskstatename
                         + ' <i class="fa fa-' + row.taskstateicon + '"></i> '
                 },
-                targets: 3
+                targets: 4
             },
             {
                 render: function(data, type, row) {
@@ -89,7 +97,7 @@
                         + '</div>'
                         + '</div>';
                 },
-                targets: 4
+                targets: 5
             }
         ],
         serverSide: true,

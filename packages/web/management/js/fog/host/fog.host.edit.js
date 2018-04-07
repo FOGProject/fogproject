@@ -1225,7 +1225,7 @@
     // LOGIN HISTORY TAB
     var loginTable = Common.registerTable($('#host-login-table'), null, {
         columns: [
-            {data: 'datetime'},
+            {data: 'createdTime'},
             {data: 'action'},
             {data: 'username'},
             {data: 'description'}

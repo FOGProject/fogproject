@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 15:26-0400\n"
+"POT-Creation-Date: 2018-04-07 15:53-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2297,9 +2297,6 @@ msgstr ""
 msgid "Host LIst"
 msgstr ""
 
-msgid "FOG Imaging Log"
-msgstr ""
-
 msgid "Start"
 msgstr ""
 
@@ -3880,6 +3877,9 @@ msgstr ""
 msgid "Started By"
 msgstr ""
 
+msgid "Task Type"
+msgstr ""
+
 msgid "Cron"
 msgstr ""
 
@@ -3905,9 +3905,6 @@ msgid "Hosts in tasking"
 msgstr ""
 
 msgid "Host/Group Name"
-msgstr ""
-
-msgid "Task Type"
 msgstr ""
 
 msgid "Ping Status"

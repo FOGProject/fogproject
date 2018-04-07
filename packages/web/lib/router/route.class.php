@@ -526,6 +526,14 @@ class Route extends FOGBase
                     }
                 ];
                 break;
+            case 'start':
+            case 'finish':
+            case 'failureTime':
+            case 'completetime':
+            case 'starttime':
+            case 'sec_time':
+            case 'checkInTime':
+            case 'scheduledStartTime':
             case 'deployed':
             case 'datetime':
             case 'createdTime':
@@ -728,6 +736,16 @@ class Route extends FOGBase
                 'removeFromQuery' => true
             ];
             break;
+        case 'imaginglog':
+            $columns[] = [
+                'db' => 'ilStartTime',
+                'dt' => 'diff',
+                'formatter' => function ($d, $row) {
+                    $start = $d;
+                    $end = $row['ilFinishTime'];
+                    return self::diff($start, $end);
+                }
+            ];
         case 'storagegroup':
             $StorageGroup = new StorageGroup();
             $columns[] = [

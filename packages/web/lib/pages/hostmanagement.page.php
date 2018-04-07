@@ -5052,7 +5052,7 @@ class HostManagement extends FOGPage
 
         foreach ($dbcolumns as $common => &$real) {
             switch ($common) {
-            case 'datetime':
+            case 'createdTime':
                 $columns[] = [
                     'db' => $real,
                     'dt' => $common,

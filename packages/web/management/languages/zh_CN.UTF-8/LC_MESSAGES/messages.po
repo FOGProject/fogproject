@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 15:26-0400\n"
+"POT-Creation-Date: 2018-04-07 15:53-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2626,9 +2626,6 @@ msgstr "主MAC"
 msgid "Host LIst"
 msgstr "主机列表"
 
-msgid "FOG Imaging Log"
-msgstr "FOG成像测井"
-
 msgid "Start"
 msgstr "开始"
 
@@ -4491,6 +4488,9 @@ msgstr "存储组更新"
 msgid "Started By"
 msgstr "由...制作"
 
+msgid "Task Type"
+msgstr "任务类型"
+
 msgid "Cron"
 msgstr "克龙"
 
@@ -4522,9 +4522,6 @@ msgstr "在任务主机"
 
 msgid "Host/Group Name"
 msgstr "主机/组名称"
-
-msgid "Task Type"
-msgstr "任务类型"
 
 #, fuzzy
 msgid "Ping Status"
