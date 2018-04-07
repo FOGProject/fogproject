@@ -1727,13 +1727,13 @@ class BootMenu extends FOGBase
      */
     private function _menuItem($option, $desc)
     {
-        $name = preg_replace('#[\s]+#', '_', $option->get('name'));
+        $name = preg_replace('#[\s]+#', '_', $option->name);
         $hotkey = ' ';
-        if ($option->get('hotkey')) {
-            if ($option->get('keysequence')) {
+        if ($option->hotkey) {
+            if ($option->keysequence) {
                 $hotkey = sprintf(
                     ' --key %s ',
-                    $option->get('keysequence')
+                    $option->keysequence
                 );
             }
         }
@@ -1749,7 +1749,7 @@ class BootMenu extends FOGBase
      */
     private function _menuOpt($option, $type)
     {
-        $name = preg_replace('#[\s]+#', '_', $option->get('name'));
+        $name = preg_replace('#[\s]+#', '_', $option->name);
         $name = trim(":$name");
         $type = trim($type);
         $Send = [$name];
@@ -1758,7 +1758,7 @@ class BootMenu extends FOGBase
                 'trim',
                 explode(
                     "\n",
-                    $option->get('params')
+                    $option->params
                 )
             )
         );
@@ -1779,7 +1779,7 @@ class BootMenu extends FOGBase
                 . 'param sysuuid ${uuid}';
             $Send = self::fastmerge($Send, [$params]);
         }
-        switch ($option->get('id')) {
+        switch ($option->id) {
         case 1:
             $Send = self::fastmerge(
                 $Send,
