@@ -48,8 +48,9 @@
                     processing: true,
                     serverSide: true,
                     ajax: {
-                        url: '../fog/history',
-                        type: 'get'
+                        url: '../management/index.php?node=report&sub=getList&f='
+                            + Common.f,
+                        type: 'post'
                     }
                 });
             break;
@@ -74,8 +75,9 @@
                     processing: true,
                     serverSide: true,
                     ajax: {
-                        url: '../fog/host',
-                        type: 'get'
+                        url: '../management/index.php?node=report&sub=getList&f='
+                            + Common.f,
+                        type: 'post'
                     }
                 });
             break;
@@ -99,8 +101,9 @@
                     processing: true,
                     serverSide: true,
                     ajax: {
-                        url: '../fog/usertracking',
-                        type: 'get'
+                        url: '../management/index.php?node=report&sub=getList&f='
+                            + Common.f,
+                        type: 'post'
                     }
                 });
             break;
@@ -127,8 +130,9 @@
                     processing: true,
                     serverSide: true,
                     ajax: {
-                        url: '../fog/imaginglog',
-                        type: 'get'
+                        url: '../management/index.php?node=report&sub=getList&f='
+                            + Common.f,
+                        type: 'post'
                     }
                 });
             break;
@@ -151,8 +155,9 @@
                     processing: true,
                     serverSide: true,
                     ajax: {
-                        url: '../fog/inventory',
-                        type: 'get'
+                        url: '../management/index.php?node=report&sub=getList&f='
+                            + Common.f,
+                        type: 'post'
                     }
                 });
             break;
@@ -175,16 +180,60 @@
                     processing: true,
                     serverSide: true,
                     ajax: {
-                        url: '../fog/pendingmacs',
-                        type: 'get'
+                        url: '../management/index.php?node=report&sub=getList&f='
+                            + Common.f,
+                        type: 'post'
                     }
                 });
             break;
         // Product Keys
         case 'product keys':
+            var hostTable = $('#hostkeys-table'),
+                table = Common.registerTable(hostTable, null, {
+                    order: [
+                        [0, 'asc']
+                    ],
+                    buttons: reportButtons,
+                    columns: [
+                        {data: 'mainlink'},
+                        {data: 'primac'},
+                        {data: 'productKey'}
+                    ],
+                    rowGroup: {
+                        dataSrc: 'productKey'
+                    },
+                    rowId: 'id',
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: '../management/index.php?node=report&sub=getList&f='
+                            + Common.f,
+                        type: 'post'
+                    }
+                });
             break;
-        // Snapin Log
-        case 'snapin log':
+        // Snapin List
+        case 'snapin list':
+            var snapinTable = $('#snapinlist-table'),
+                table = Common.registerTable(snapinTable, null, {
+                    order: [
+                        [0, 'asc']
+                    ],
+                    buttons: reportButtons,
+                    columns: [
+                        {data: 'mainlink'},
+                        {data: 'file'},
+                        {data: 'args'}
+                    ],
+                    rowId: 'id',
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: '../management/index.php?node=report&sub=getList&f='
+                            + Common.f,
+                        type: 'post'
+                    }
+                });
             break;
         // User Tracking
         case 'user tracking':

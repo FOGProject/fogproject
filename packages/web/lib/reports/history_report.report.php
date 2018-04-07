@@ -59,7 +59,7 @@ class History_Report extends ReportManagement
      *
      * @return void
      */
-    public function getHistoryList()
+    public function getList()
     {
         header('Content-type: application/json');
         Route::listem('history');

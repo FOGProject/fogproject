@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 18:23-0400\n"
+"POT-Creation-Date: 2018-04-07 19:07-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2505,91 +2505,6 @@ msgstr "搜索"
 msgid "Result"
 msgstr "结果"
 
-msgid "FOG Snapin Log"
-msgstr "FOG管理单元日志"
-
-msgid "Snapin Name"
-msgstr "管理单元名称"
-
-msgid "Return Code"
-msgstr "返回代码"
-
-msgid "Return Desc"
-msgstr "返回说明"
-
-#, fuzzy
-msgid "Checkin Time"
-msgstr "任务登录时间"
-
-#, fuzzy
-msgid "Complete Time"
-msgstr "任务登录时间"
-
-msgid "Host ID"
-msgstr "主机ID"
-
-msgid "Host MAC"
-msgstr "主机的MAC"
-
-msgid "Snapin ID"
-msgstr "管理单元ID"
-
-msgid "Snapin Description"
-msgstr "管理单元说明"
-
-msgid "Snapin File"
-msgstr "文件管理单元"
-
-msgid "Snapin Args"
-msgstr "管理单元参数数量"
-
-msgid "Snapin Run With"
-msgstr "管理单元运行方式"
-
-msgid "Snapin Run With Args"
-msgstr "管理单元运行方式参数数量"
-
-msgid "Snapin State"
-msgstr "国家管理单元"
-
-msgid "Snapin Return Code"
-msgstr "管理单元返回代码"
-
-msgid "Snapin Return Detail"
-msgstr "管理单元返回详细"
-
-msgid "Snapin Creation Date"
-msgstr "管理单元创建日期"
-
-msgid "Snapin Creation Time"
-msgstr "管理单元创建时间"
-
-msgid "Job Create Date"
-msgstr "作业创建日期"
-
-msgid "Job Create Time"
-msgstr "作业创建时间"
-
-msgid "Task Checkin Date"
-msgstr "任务登记入住日期"
-
-msgid "Task Checkin Time"
-msgstr "任务登录时间"
-
-#, fuzzy
-msgid "Task Complete Date"
-msgstr "任务登记入住日期"
-
-#, fuzzy
-msgid "Task Complete Time"
-msgstr "任务登录时间"
-
-msgid "Export CSV"
-msgstr "导出CSV"
-
-msgid "Export PDF"
-msgstr "导出PDF"
-
 #, fuzzy
 msgid "Pending MAC Addresses"
 msgstr "MAC地址列表"
@@ -2616,8 +2531,17 @@ msgid "Primary MAC"
 msgstr "主MAC"
 
 #, fuzzy
-msgid "Host LIst"
-msgstr "主机列表"
+msgid "Snapin List"
+msgstr "历史管理单元"
+
+msgid "Snapin Name"
+msgstr "管理单元名称"
+
+msgid "Snapin File"
+msgstr "文件管理单元"
+
+msgid "Snapin Arguments"
+msgstr "管理单元参数"
 
 msgid "Start Time"
 msgstr "开始时间"
@@ -2632,83 +2556,12 @@ msgstr "为期"
 msgid "Host Product Keys"
 msgstr "主机产品密钥"
 
-msgid "Host Desc"
-msgstr "主持人说明"
-
-msgid "Host Created"
-msgstr "主机创建"
-
-msgid "Host Product Key"
-msgstr "主机产品密钥"
-
-#, fuzzy
-msgid "Host AD Join"
-msgstr "公元加入"
-
-#, fuzzy
-msgid "Host AD OU"
-msgstr "主机ID"
-
-#, fuzzy
-msgid "Host AD Domain"
-msgstr "AD域"
-
-msgid "Host Kernel"
-msgstr "主机内核"
-
-#, fuzzy
-msgid "Host HD Device"
-msgstr "高清设备"
-
-msgid "Image ID"
-msgstr "图片ID"
-
-msgid "Image Desc"
-msgstr "图片说明"
-
-msgid "OS Name"
-msgstr "操作系统名称"
-
-msgid "Yes"
-msgstr "是"
-
-msgid "No"
-msgstr "没有"
-
 #, fuzzy
 msgid "Full History"
 msgstr "登录历史记录"
 
 msgid "Information"
 msgstr "信息"
-
-#, fuzzy
-msgid "FOG User tracking - Search"
-msgstr "FOG用户登录的历史总结 - 搜索"
-
-msgid "Enter a username to search for"
-msgstr "输入用户名搜索"
-
-msgid "Enter a hostname to search for"
-msgstr "输入主机名来搜索"
-
-msgid "Perform search"
-msgstr ""
-
-#, fuzzy
-msgid "Found login information"
-msgstr "FOG版本信息"
-
-#, fuzzy
-msgid "FOG User tracking history"
-msgstr "FOG用户登录历史摘要"
-
-msgid "Host Description"
-msgstr "主机描述"
-
-#, fuzzy
-msgid "Service Start"
-msgstr "服务状态"
 
 #, fuzzy
 msgid "User Logins"
@@ -4561,8 +4414,17 @@ msgstr "主机创建"
 msgid "Create New Host"
 msgstr "新建%s"
 
+msgid "Host Description"
+msgstr "主机描述"
+
+msgid "Host Product Key"
+msgstr "主机产品密钥"
+
 msgid "Host Image"
 msgstr "主机图片"
+
+msgid "Host Kernel"
+msgstr "主机内核"
 
 msgid "Host Kernel Arguments"
 msgstr "主机内核参数"
@@ -4802,6 +4664,9 @@ msgstr "结束"
 msgid "Host Image History"
 msgstr "历史形象"
 
+msgid "Return Code"
+msgstr "返回代码"
+
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "历史管理单元"
@@ -4879,6 +4744,10 @@ msgstr "图片未启用"
 #, fuzzy
 msgid "Image is protected"
 msgstr "受保护"
+
+#, fuzzy
+msgid "Service Start"
+msgstr "服务状态"
 
 msgid "Click"
 msgstr "点击"
@@ -5410,6 +5279,9 @@ msgstr "无效的管理单元"
 msgid "Snapin Pack"
 msgstr "管理单元路径"
 
+msgid "Snapin Description"
+msgstr "管理单元说明"
+
 #, fuzzy
 msgid "Snapin Type"
 msgstr "模板管理单元"
@@ -5420,6 +5292,9 @@ msgstr "模板管理单元"
 #, fuzzy
 msgid "Snapin Pack Template"
 msgstr "模板管理单元"
+
+msgid "Snapin Run With"
+msgstr "管理单元运行方式"
 
 #, fuzzy
 msgid "Snapin Pack File"
@@ -5434,9 +5309,6 @@ msgstr "管理单元参数"
 
 msgid "Snapin File (exists)"
 msgstr "文件管理单元（存在）"
-
-msgid "Snapin Arguments"
-msgstr "管理单元参数"
 
 msgid "Snapin Enabled"
 msgstr "启用管理单元"

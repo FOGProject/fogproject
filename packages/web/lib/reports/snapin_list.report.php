@@ -1,40 +1,49 @@
 <?php
 /**
- * Pending MAC report.
+ * Snapin List report
  *
  * PHP Version 5
  *
- * @category Pending_MAC_List
+ * @category Snapin_List
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Pending MAC report.
+ * Snapin List report
  *
- * @category Pending_MAC_List
+ * @category Snapin_List
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class Pending_MAC_List extends ReportManagement
+class Snapin_List extends ReportManagement
 {
     /**
-     * The page to display.
+     * Initial display
      *
      * @return void
      */
     public function file()
     {
-        $this->title = _('Pending MAC Addresses');
+        $this->title = _('Snapin List');
 
         $this->headerData = [
-            _('Host Name'),
-            _('MAC Address')
+            _('Snapin Name'),
+            _('Snapin File'),
+            _('Snapin Arguments')
         ];
+
         $this->attributes = [
+            [],
+            [],
+            []
+        ];
+
+        $this->attributes = [
+            [],
             [],
             []
         ];
@@ -42,11 +51,11 @@ class Pending_MAC_List extends ReportManagement
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Pending MAC Addresses');
+        echo _('Snapin List');
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'pendingmac-table');
+        echo $this->render(12, 'snapinlist-table');
         echo '</div>';
         echo '</div>';
     }
@@ -58,7 +67,7 @@ class Pending_MAC_List extends ReportManagement
     public function getList()
     {
         header('Content-type: application/json');
-        Route::listem('pendingmacs');
+        Route::listem('snapin');
         http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         echo Route::getData();
         exit;

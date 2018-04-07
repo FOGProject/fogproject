@@ -58,4 +58,17 @@ class Imaging_Log extends ReportManagement
         echo '</div>';
         echo '</div>';
     }
+    /**
+     * Display list of history items.
+     *
+     * @return void
+     */
+    public function getList()
+    {
+        header('Content-type: application/json');
+        Route::listem('imaginglog');
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
+        echo Route::getData();
+        exit;
+    }
 }
