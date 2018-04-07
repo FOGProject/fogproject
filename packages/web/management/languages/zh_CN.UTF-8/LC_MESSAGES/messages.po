@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 15:53-0400\n"
+"POT-Creation-Date: 2018-04-07 17:47-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2626,34 +2626,14 @@ msgstr "主MAC"
 msgid "Host LIst"
 msgstr "主机列表"
 
-msgid "Start"
-msgstr "开始"
-
-msgid "End"
-msgstr "结束"
-
-msgid "Duration"
-msgstr "为期"
-
-msgid "Start Date"
-msgstr "开始日期"
-
 msgid "Start Time"
 msgstr "开始时间"
-
-msgid "End Date"
-msgstr "结束日期"
 
 msgid "End Time"
 msgstr "时间结束"
 
-#, fuzzy
-msgid "Deploy/Capture"
-msgstr "部署"
-
-#, fuzzy
-msgid "Not Valid"
-msgstr "数据无效"
+msgid "Duration"
+msgstr "为期"
 
 #, fuzzy
 msgid "Host Product Keys"
@@ -4816,6 +4796,12 @@ msgstr "主机登录历史"
 
 msgid "Engineer"
 msgstr "工程师"
+
+msgid "Start"
+msgstr "开始"
+
+msgid "End"
+msgstr "结束"
 
 #, fuzzy
 msgid "Host Image History"
