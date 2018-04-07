@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-06 01:52-0400\n"
+"POT-Creation-Date: 2018-04-07 01:25-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2782,127 +2782,6 @@ msgid "Export Pending MAC Addresses"
 msgstr "Dirección MAC de lista de origen: "
 
 #, fuzzy
-msgid "Select User"
-msgstr "Seleccionar imagen"
-
-#, fuzzy
-msgid "Create Form"
-msgstr "Crear"
-
-#, fuzzy
-msgid "Download PDF"
-msgstr "Descarga fracasó"
-
-#, fuzzy
-msgid "Print PDF"
-msgstr "impresora IP"
-
-#, fuzzy
-msgid "Selected User is invalid"
-msgstr "Seleccionar imagen"
-
-#, fuzzy
-msgid "Form created!"
-msgstr "Nombre de sesión"
-
-msgid "Equipment Loan Form"
-msgstr ""
-
-msgid "Hello World"
-msgstr ""
-
-msgid "of"
-msgstr ""
-
-#, fuzzy
-msgid "Printed"
-msgstr "impresora IP"
-
-msgid "PC Check-out Agreement"
-msgstr ""
-
-#, fuzzy
-msgid "Personal Information"
-msgstr "Información general"
-
-msgid "Your Location Here"
-msgstr ""
-
-msgid "Home Address"
-msgstr ""
-
-msgid "City/State/Zip"
-msgstr ""
-
-#, fuzzy
-msgid "Extension"
-msgstr "Versión"
-
-msgid "Home Phone"
-msgstr ""
-
-#, fuzzy
-msgid "Computer Information"
-msgstr "Información general"
-
-msgid "Serial Number"
-msgstr ""
-
-#, fuzzy
-msgid "Service Tag"
-msgstr "Maestro servicio"
-
-msgid "Barcode Numbers"
-msgstr ""
-
-msgid "Date of checkout"
-msgstr ""
-
-#, fuzzy
-msgid "Notes"
-msgstr "no establecido"
-
-msgid "Miscellaneous"
-msgstr ""
-
-msgid "Included Items"
-msgstr ""
-
-msgid "Releasing Staff Initials"
-msgstr ""
-
-msgid "To be released only by"
-msgstr ""
-
-#, fuzzy
-msgid "I have read"
-msgstr "imagen creada"
-
-msgid "understood"
-msgstr ""
-
-msgid "and agree to all the"
-msgstr ""
-
-msgid "Terms and Conditions"
-msgstr ""
-
-msgid "on the following pages of this document"
-msgstr ""
-
-#, fuzzy
-msgid "Signed"
-msgstr "Línea"
-
-#, fuzzy
-msgid "Form Generated"
-msgstr "General"
-
-#, fuzzy
-msgid "Generate Form Fail"
-msgstr "Información general"
-
-#, fuzzy
 msgid "Full Inventory Export"
 msgstr "ID de inventario"
 
@@ -3045,25 +2924,13 @@ msgstr "Descripción del Grupo"
 msgid "Service Start"
 msgstr "Estado del servicio"
 
-msgid "FOG Hosts and Users Login"
-msgstr ""
-
-msgid "AD Join"
-msgstr ""
-
-msgid "AD OU"
-msgstr ""
+#, fuzzy
+msgid "User Login"
+msgstr "Contador de la CPU"
 
 #, fuzzy
-msgid "AD Domain"
-msgstr "Nombre de dominio"
-
-msgid "HD Device"
-msgstr ""
-
-#, fuzzy
-msgid "Login Users"
-msgstr "Línea"
+msgid "User Logins"
+msgstr "Contador de la CPU"
 
 #, fuzzy
 msgid "Invalid Storage Group"
@@ -3171,6 +3038,9 @@ msgstr ""
 #, fuzzy
 msgid "Computer Model"
 msgstr "Modelo de impresora"
+
+msgid "Serial Number"
+msgstr ""
 
 #, fuzzy
 msgid "Image Used"
@@ -4387,6 +4257,18 @@ msgstr "Configuración"
 #, fuzzy
 msgid "Import Database"
 msgstr "Fecha"
+
+#, fuzzy
+msgid "Could not read file from tmp folder."
+msgstr "No se pudo leer el archivo tmp."
+
+#, fuzzy
+msgid "Export Success"
+msgstr "Exitoso"
+
+#, fuzzy
+msgid "Export Complete"
+msgstr "impresora iPrint"
 
 #, fuzzy
 msgid "Import failed!"
@@ -6655,14 +6537,6 @@ msgstr "¿Activación de la LAN?"
 #, fuzzy
 msgid "Invalid Type"
 msgstr "tipo no válido"
-
-#, fuzzy
-msgid "Export Success"
-msgstr "Exitoso"
-
-#, fuzzy
-msgid "Export Complete"
-msgstr "impresora iPrint"
 
 msgid "This MAC Belongs to another host"
 msgstr "Este MAC pertenece a otro host"

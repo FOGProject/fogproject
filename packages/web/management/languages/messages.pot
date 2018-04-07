@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-06 05:51-0400\n"
+"POT-Creation-Date: 2018-04-07 02:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2273,111 +2273,6 @@ msgstr ""
 msgid "Export Pending MAC Addresses"
 msgstr ""
 
-msgid "Select User"
-msgstr ""
-
-msgid "Create Form"
-msgstr ""
-
-msgid "Download PDF"
-msgstr ""
-
-msgid "Print PDF"
-msgstr ""
-
-msgid "Selected User is invalid"
-msgstr ""
-
-msgid "Form created!"
-msgstr ""
-
-msgid "Equipment Loan Form"
-msgstr ""
-
-msgid "Hello World"
-msgstr ""
-
-msgid "of"
-msgstr ""
-
-msgid "Printed"
-msgstr ""
-
-msgid "PC Check-out Agreement"
-msgstr ""
-
-msgid "Personal Information"
-msgstr ""
-
-msgid "Your Location Here"
-msgstr ""
-
-msgid "Home Address"
-msgstr ""
-
-msgid "City/State/Zip"
-msgstr ""
-
-msgid "Extension"
-msgstr ""
-
-msgid "Home Phone"
-msgstr ""
-
-msgid "Computer Information"
-msgstr ""
-
-msgid "Serial Number"
-msgstr ""
-
-msgid "Service Tag"
-msgstr ""
-
-msgid "Barcode Numbers"
-msgstr ""
-
-msgid "Date of checkout"
-msgstr ""
-
-msgid "Notes"
-msgstr ""
-
-msgid "Miscellaneous"
-msgstr ""
-
-msgid "Included Items"
-msgstr ""
-
-msgid "Releasing Staff Initials"
-msgstr ""
-
-msgid "To be released only by"
-msgstr ""
-
-msgid "I have read"
-msgstr ""
-
-msgid "understood"
-msgstr ""
-
-msgid "and agree to all the"
-msgstr ""
-
-msgid "Terms and Conditions"
-msgstr ""
-
-msgid "on the following pages of this document"
-msgstr ""
-
-msgid "Signed"
-msgstr ""
-
-msgid "Form Generated"
-msgstr ""
-
-msgid "Generate Form Fail"
-msgstr ""
-
 msgid "Full Inventory Export"
 msgstr ""
 
@@ -2498,22 +2393,10 @@ msgstr ""
 msgid "Service Start"
 msgstr ""
 
-msgid "FOG Hosts and Users Login"
+msgid "User Login"
 msgstr ""
 
-msgid "AD Join"
-msgstr ""
-
-msgid "AD OU"
-msgstr ""
-
-msgid "AD Domain"
-msgstr ""
-
-msgid "HD Device"
-msgstr ""
-
-msgid "Login Users"
+msgid "User Logins"
 msgstr ""
 
 msgid "Invalid Storage Group"
@@ -2604,6 +2487,9 @@ msgid "Machine Details"
 msgstr ""
 
 msgid "Computer Model"
+msgstr ""
+
+msgid "Serial Number"
 msgstr ""
 
 msgid "Image Used"
@@ -3635,6 +3521,15 @@ msgid "Configuration Import/Export"
 msgstr ""
 
 msgid "Import Database"
+msgstr ""
+
+msgid "Could not read file from tmp folder."
+msgstr ""
+
+msgid "Export Success"
+msgstr ""
+
+msgid "Export Complete"
 msgstr ""
 
 msgid "Import failed!"
@@ -5529,12 +5424,6 @@ msgid "Wake On Lan"
 msgstr ""
 
 msgid "Invalid Type"
-msgstr ""
-
-msgid "Export Success"
-msgstr ""
-
-msgid "Export Complete"
 msgstr ""
 
 msgid "This MAC Belongs to another host"

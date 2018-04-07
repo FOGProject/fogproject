@@ -3272,12 +3272,36 @@ class FOGConfigurationPage extends FOGPage
      */
     public function configPost()
     {
+        header('Content-type: application/json');
         self::$HookManager->processEvent('IMPORT_POST');
         $Schema = self::getClass('Schema');
         $serverFault = false;
         try {
             if (isset($_POST['toExport'])) {
-                self::getClass('ReportMaker')->outputReport(3);
+                $backup_name = 'fog_backup_'
+                    . self::formatTime('', 'Ymd_His');
+                $tmpfile = '/tmp/' . $backup_name;
+                $data = '';
+                self::getClass('Mysqldump')->start($tmpfile);
+                if (!file_exists($tmpfile) || !is_readable($tmpfile)) {
+                    throw new Exception(_('Could not read file from tmp folder.'));
+                }
+                $fh = fopen($tmpfile, 'rb');
+                while (!feof($fh)) {
+                    $data .= fread($fh, 4096);
+                }
+                fclose($fh);
+                unlink($tmpfile);
+                echo json_encode(
+                    [
+                        'title' => _('Export Success'),
+                        'msg' => _('Export Complete'),
+                        '_filename' => $backup_name,
+                        '_content' => $data
+                    ]
+                );
+                unset($data);
+                exit;
             } else {
                 if ($_FILES['dbFile']['error'] > 0) {
                     throw new UploadException($_FILES['dbFile']['error']);

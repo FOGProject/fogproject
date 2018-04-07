@@ -15,8 +15,8 @@
             [0, 'asc']
         ],
         columns: [
-            {data: 'id'},
-            {data: 'imageid'},
+            {data: 'mainlink'},
+            {data: 'imageLink'},
             {data: 'osid'},
             {data: 'key'}
         ],
@@ -28,13 +28,6 @@
             },
             {
                 responsivePriority: 0,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=image&sub=edit&id='
-                        + row.imageID
-                        + '">'
-                        + row.imagename
-                        + '</a>';
-                },
                 targets: 1
             },
             {

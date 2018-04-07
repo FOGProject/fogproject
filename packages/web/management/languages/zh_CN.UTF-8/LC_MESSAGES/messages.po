@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-06 01:52-0400\n"
+"POT-Creation-Date: 2018-04-07 01:25-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2601,121 +2601,6 @@ msgstr "MAC地址列表"
 msgid "Export Pending MAC Addresses"
 msgstr "MAC地址列表"
 
-msgid "Select User"
-msgstr "选择用户"
-
-#, fuzzy
-msgid "Create Form"
-msgstr "创建"
-
-#, fuzzy
-msgid "Download PDF"
-msgstr "下载失败"
-
-#, fuzzy
-msgid "Print PDF"
-msgstr "打印机IP"
-
-#, fuzzy
-msgid "Selected User is invalid"
-msgstr "用户调用无效"
-
-#, fuzzy
-msgid "Form created!"
-msgstr "会话名称"
-
-#, fuzzy
-msgid "Equipment Loan Form"
-msgstr "器材信贷"
-
-msgid "Hello World"
-msgstr ""
-
-msgid "of"
-msgstr "的"
-
-msgid "Printed"
-msgstr "印刷的"
-
-msgid "PC Check-out Agreement"
-msgstr "PC退房协议"
-
-msgid "Personal Information"
-msgstr "个人信息"
-
-msgid "Your Location Here"
-msgstr "您的位置在这里"
-
-msgid "Home Address"
-msgstr "家庭地址"
-
-msgid "City/State/Zip"
-msgstr "邮政编码"
-
-msgid "Extension"
-msgstr "延期"
-
-msgid "Home Phone"
-msgstr "家庭电话"
-
-msgid "Computer Information"
-msgstr "计算机信息"
-
-msgid "Serial Number"
-msgstr "序列号"
-
-msgid "Service Tag"
-msgstr "服务标签"
-
-msgid "Barcode Numbers"
-msgstr "条码号"
-
-msgid "Date of checkout"
-msgstr "结帐日期"
-
-msgid "Notes"
-msgstr "笔记"
-
-msgid "Miscellaneous"
-msgstr "杂"
-
-msgid "Included Items"
-msgstr "包括项目"
-
-msgid "Releasing Staff Initials"
-msgstr "释放员工缩写"
-
-msgid "To be released only by"
-msgstr "如果只公布由"
-
-#, fuzzy
-msgid "I have read"
-msgstr "创建图像"
-
-msgid "understood"
-msgstr ""
-
-msgid "and agree to all the"
-msgstr ""
-
-msgid "Terms and Conditions"
-msgstr "条款和条件"
-
-#, fuzzy
-msgid "on the following pages of this document"
-msgstr "下面的错误发生"
-
-msgid "Signed"
-msgstr "签"
-
-#, fuzzy
-msgid "Form Generated"
-msgstr "FOG一般帮助"
-
-#, fuzzy
-msgid "Generate Form Fail"
-msgstr "一般信息"
-
 msgid "Full Inventory Export"
 msgstr "完整清单导出"
 
@@ -2848,24 +2733,13 @@ msgstr "主机描述"
 msgid "Service Start"
 msgstr "服务状态"
 
-msgid "FOG Hosts and Users Login"
-msgstr "FOG主机和用户登录"
-
-msgid "AD Join"
-msgstr "公元加入"
-
-msgid "AD OU"
-msgstr "AD OU"
-
-msgid "AD Domain"
-msgstr "AD域"
-
-msgid "HD Device"
-msgstr "高清设备"
+#, fuzzy
+msgid "User Login"
+msgstr "CPU计数"
 
 #, fuzzy
-msgid "Login Users"
-msgstr "登录"
+msgid "User Logins"
+msgstr "CPU计数"
 
 msgid "Invalid Storage Group"
 msgstr "无效的存储组"
@@ -2964,6 +2838,9 @@ msgstr "管理单元返回详细"
 #, fuzzy
 msgid "Computer Model"
 msgstr "打印机型号"
+
+msgid "Serial Number"
+msgstr "序列号"
 
 #, fuzzy
 msgid "Image Used"
@@ -4177,6 +4054,18 @@ msgstr "组态"
 #, fuzzy
 msgid "Import Database"
 msgstr "日期"
+
+#, fuzzy
+msgid "Could not read file from tmp folder."
+msgstr "无法读取tmp文件。"
+
+#, fuzzy
+msgid "Export Success"
+msgstr "成功"
+
+#, fuzzy
+msgid "Export Complete"
+msgstr "完成"
 
 #, fuzzy
 msgid "Import failed!"
@@ -6433,14 +6322,6 @@ msgstr "网络唤醒？"
 #, fuzzy
 msgid "Invalid Type"
 msgstr "无效类型"
-
-#, fuzzy
-msgid "Export Success"
-msgstr "成功"
-
-#, fuzzy
-msgid "Export Complete"
-msgstr "完成"
 
 msgid "This MAC Belongs to another host"
 msgstr "该MAC属于另一台主机"

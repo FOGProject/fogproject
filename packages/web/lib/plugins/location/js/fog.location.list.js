@@ -15,48 +15,16 @@
             [0, 'asc']
         ],
         columns: [
-            {data: 'name'},
-            {data: 'storagegroupname'},
-            {data: 'storagenodename'},
+            {data: 'mainlink'},
+            {data: 'storagegroupLink'},
+            {data: 'storagenodeLink'},
             {data: 'tftp'}
         ],
         rowId: 'id',
         columnDefs: [
             {
                 responsivePriority: -1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node='
-                        + Common.node
-                        + '&sub=edit&id='
-                        + row.id
-                        + '">'
-                        + data
-                        + '</a>';
-                },
                 targets: 0,
-            },
-            {
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=storagegroup&sub=edit&id='
-                        + row.storagegroupID
-                        + '">'
-                        + data
-                        + '</a>';
-                },
-                targets: 1
-            },
-            {
-                render: function(data, type, row) {
-                    if (row.storagenodeID > 0) {
-                        return '<a href="../management/index.php?node=storagenode&sub=edit&id='
-                            + row.storagenodeID
-                            + '">'
-                            + data
-                            + '</a>';
-                    }
-                    return '';
-                },
-                targets: 2
             },
             {
                 render: function(data, type, row) {

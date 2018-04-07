@@ -63,8 +63,6 @@ class ReportManagement extends FOGPage
         set_time_limit(0);
         $this->name = 'Report Management';
         parent::__construct($this->name);
-        $_SESSION['foglastreport'] = null;
-        $this->ReportMaker = self::getClass('ReportMaker');
     }
     /**
      * Allows the user to upload new reports if they created one.
@@ -131,8 +129,7 @@ class ReportManagement extends FOGPage
             'IMPORT_REPORT_FIELDS',
             [
                 'fields' => &$fields,
-                'buttons' => &$buttons,
-                'report' => &$this->ReportMaker
+                'buttons' => &$buttons
             ]
         );
         $rendered = self::formFields($fields);

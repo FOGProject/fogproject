@@ -15,8 +15,8 @@
             [0, 'asc']
         ],
         columns: [
-            {data: 'name'},
-            {data: 'storagegroupName'},
+            {data: 'mainlink'},
+            {data: 'storagegroupLink'},
             {data: 'isEnabled'},
             {data: 'isMaster'},
             {data: 'maxClients'}
@@ -25,16 +25,10 @@
         columnDefs: [
             {
                 responsivePriority: -1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node='+Common.node+'&sub=edit&id='+row.id+'">'+data+'</a>';
-                },
                 targets: 0
             },
             {
                 responsivePriority: 0,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=storagegroup&sub=edit&id='+row.storagegroupID+'">'+data+'</a>';
-                },
                 targets: 1
             },
             {
