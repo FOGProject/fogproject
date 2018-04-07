@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 15:26-0400\n"
+"POT-Creation-Date: 2018-04-07 15:53-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2627,9 +2627,6 @@ msgstr "Primary MAC"
 msgid "Host LIst"
 msgstr "Host List"
 
-msgid "FOG Imaging Log"
-msgstr "FOG Imaging Log"
-
 msgid "Start"
 msgstr "Start"
 
@@ -4495,6 +4492,9 @@ msgstr "Storage Group Updated"
 msgid "Started By"
 msgstr "Created By"
 
+msgid "Task Type"
+msgstr "Task Type"
+
 msgid "Cron"
 msgstr "Cron"
 
@@ -4526,9 +4526,6 @@ msgstr "Hosts in Task"
 
 msgid "Host/Group Name"
 msgstr "Host/Group Name"
-
-msgid "Task Type"
-msgstr "Task Type"
 
 #, fuzzy
 msgid "Ping Status"

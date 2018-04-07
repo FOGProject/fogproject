@@ -49,6 +49,7 @@ class TaskManagement extends FOGPage
             _('Host Name'),
             _('Image Name'),
             _('Started By'),
+            _('Task Type'),
             _('Status'),
             _('Progress')
         ];
@@ -174,6 +175,15 @@ class TaskManagement extends FOGPage
             $columns[] = [
                 'db' => $real,
                 'dt' => 'image' . $common
+            ];
+            unset($real);
+        }
+        foreach (self::getClass('TaskTypeManager')
+            ->getColumns() as $common => &$real
+        ) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => 'tasktype' . $common
             ];
             unset($real);
         }

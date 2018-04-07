@@ -28,7 +28,7 @@ class Imaging_Log extends ReportManagement
      */
     public function file()
     {
-        $this->title = _('FOG Imaging Log');
+        $this->title = _('Imaging Log');
         $this->headerData = array(
             _('Created By'),
             _('Host'),
