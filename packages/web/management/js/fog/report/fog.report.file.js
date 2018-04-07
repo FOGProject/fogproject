@@ -1,6 +1,23 @@
 (function($) {
 
-    reportString = window.atob(Common.f);
+    var reportString = window.atob(Common.f),
+        reportButtons = [
+            'copy',
+            'csv',
+            'excel',
+            {
+                extend: 'pdfHtml5',
+                download: 'open',
+                alignment: 'left',
+                customize: function (doc) {
+                    doc.content[1].table.widths =
+                        Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+                }
+            },
+            'print',
+            'colvis'
+        ];
+
     // This will call our respective calls
     // to report the requested data.
     switch (reportString) {
@@ -77,14 +94,7 @@
                     order: [
                         [1, 'desc']
                     ],
-                    buttons: [
-                        'copy',
-                        'csv',
-                        'excel',
-                        'pdf',
-                        'print',
-                        'colvis'
-                    ],
+                    buttons: reportButtons,
                     columns: [
                         {data: 'createdBy'},
                         {data: 'createdTime'},
@@ -113,14 +123,7 @@
                     order: [
                         [0, 'asc']
                     ],
-                    buttons: [
-                        'copy',
-                        'csv',
-                        'excel',
-                        'pdf',
-                        'print',
-                        'colvis'
-                    ],
+                    buttons: reportButtons,
                     columns: [
                         {data: 'username'},
                         {data: 'hostLink'},
