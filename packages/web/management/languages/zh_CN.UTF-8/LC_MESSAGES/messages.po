@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 18:00-0400\n"
+"POT-Creation-Date: 2018-04-07 18:23-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2590,15 +2590,12 @@ msgstr "导出CSV"
 msgid "Export PDF"
 msgstr "导出PDF"
 
-msgid "ID"
-msgstr "ID"
-
 #, fuzzy
-msgid "MAC Address"
+msgid "Pending MAC Addresses"
 msgstr "MAC地址列表"
 
 #, fuzzy
-msgid "Export Pending MAC Addresses"
+msgid "MAC Address"
 msgstr "MAC地址列表"
 
 #, fuzzy
@@ -5858,6 +5855,9 @@ msgstr ""
 #, fuzzy
 msgid "Trying image size for"
 msgstr "管理单元路径"
+
+msgid "ID"
+msgstr "ID"
 
 #, fuzzy
 msgid "Path is unavailable"

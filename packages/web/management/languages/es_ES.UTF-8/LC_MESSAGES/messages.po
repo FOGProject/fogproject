@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 18:00-0400\n"
+"POT-Creation-Date: 2018-04-07 18:23-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2771,15 +2771,12 @@ msgstr "Exportación CSV"
 msgid "Export PDF"
 msgstr "Exportar PDF"
 
-msgid "ID"
-msgstr "CARNÉ DE IDENTIDAD"
+#, fuzzy
+msgid "Pending MAC Addresses"
+msgstr "Dirección MAC de lista de origen: "
 
 msgid "MAC Address"
 msgstr ""
-
-#, fuzzy
-msgid "Export Pending MAC Addresses"
-msgstr "Dirección MAC de lista de origen: "
 
 #, fuzzy
 msgid "Inventory List"
@@ -6072,6 +6069,9 @@ msgstr ""
 
 msgid "Trying image size for"
 msgstr ""
+
+msgid "ID"
+msgstr "CARNÉ DE IDENTIDAD"
 
 #, fuzzy
 msgid "Path is unavailable"

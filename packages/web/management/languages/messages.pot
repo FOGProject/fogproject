@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 18:00-0400\n"
+"POT-Creation-Date: 2018-04-07 18:24-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2264,13 +2264,10 @@ msgstr ""
 msgid "Export PDF"
 msgstr ""
 
-msgid "ID"
+msgid "Pending MAC Addresses"
 msgstr ""
 
 msgid "MAC Address"
-msgstr ""
-
-msgid "Export Pending MAC Addresses"
 msgstr ""
 
 msgid "Inventory List"
@@ -5016,6 +5013,9 @@ msgid "to update size values as needed"
 msgstr ""
 
 msgid "Trying image size for"
+msgstr ""
+
+msgid "ID"
 msgstr ""
 
 msgid "Path is unavailable"

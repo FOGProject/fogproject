@@ -277,6 +277,10 @@ class Route extends FOGBase
             "${expanded}/[i:id]",
             [__CLASS__, 'indiv'],
             'indiv'
+        )->get(
+            '/pendingmacs',
+            [__CLASS__, 'pendingmacs'],
+            'pendingmacs'
         )->put(
             "${expanded}/[i:id]/[update|edit]?",
             [__CLASS__, 'edit'],
@@ -1974,5 +1978,17 @@ class Route extends FOGBase
             $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
         }
         self::sendResponse($code);
+    }
+    /**
+     * Presents pending mac addresses.
+     *
+     * @return void
+     */
+    public static function pendingmacs()
+    {
+        Route::listem(
+            'macaddressassociation',
+            ['hmPending' => [1]]
+        );
     }
 }
