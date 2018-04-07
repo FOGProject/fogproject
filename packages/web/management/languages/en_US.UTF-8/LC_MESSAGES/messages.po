@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 18:23-0400\n"
+"POT-Creation-Date: 2018-04-07 19:07-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2506,91 +2506,6 @@ msgstr "Search"
 msgid "Result"
 msgstr "Results"
 
-msgid "FOG Snapin Log"
-msgstr "FOG Snapin Log"
-
-msgid "Snapin Name"
-msgstr "Snapin Name"
-
-msgid "Return Code"
-msgstr "Return Code"
-
-msgid "Return Desc"
-msgstr "Return Desc"
-
-#, fuzzy
-msgid "Checkin Time"
-msgstr "Task Checkin Time"
-
-#, fuzzy
-msgid "Complete Time"
-msgstr "Task Checkin Time"
-
-msgid "Host ID"
-msgstr "Host ID"
-
-msgid "Host MAC"
-msgstr "Host MAC"
-
-msgid "Snapin ID"
-msgstr "Snapin ID"
-
-msgid "Snapin Description"
-msgstr "Snapin Description"
-
-msgid "Snapin File"
-msgstr "Snapin File"
-
-msgid "Snapin Args"
-msgstr "Snapin Args"
-
-msgid "Snapin Run With"
-msgstr "Snapin Run With"
-
-msgid "Snapin Run With Args"
-msgstr "Snapin Run With Args"
-
-msgid "Snapin State"
-msgstr "Snapin State"
-
-msgid "Snapin Return Code"
-msgstr "Snapin Return Code"
-
-msgid "Snapin Return Detail"
-msgstr "Snapin Return Detail"
-
-msgid "Snapin Creation Date"
-msgstr "Snapin Creation Date"
-
-msgid "Snapin Creation Time"
-msgstr "Snapin Creation Time"
-
-msgid "Job Create Date"
-msgstr "Job Create Date"
-
-msgid "Job Create Time"
-msgstr "Job Create Time"
-
-msgid "Task Checkin Date"
-msgstr "Task Checkin Date"
-
-msgid "Task Checkin Time"
-msgstr "Task Checkin Time"
-
-#, fuzzy
-msgid "Task Complete Date"
-msgstr "Task Checkin Date"
-
-#, fuzzy
-msgid "Task Complete Time"
-msgstr "Task Checkin Time"
-
-msgid "Export CSV"
-msgstr "Export CSV"
-
-msgid "Export PDF"
-msgstr "Export PDF"
-
 #, fuzzy
 msgid "Pending MAC Addresses"
 msgstr "MAC Address List"
@@ -2617,8 +2532,17 @@ msgid "Primary MAC"
 msgstr "Primary MAC"
 
 #, fuzzy
-msgid "Host LIst"
-msgstr "Host List"
+msgid "Snapin List"
+msgstr "Snapin History"
+
+msgid "Snapin Name"
+msgstr "Snapin Name"
+
+msgid "Snapin File"
+msgstr "Snapin File"
+
+msgid "Snapin Arguments"
+msgstr "Snapin Arguments"
 
 msgid "Start Time"
 msgstr "Start Time"
@@ -2633,83 +2557,12 @@ msgstr "Duration"
 msgid "Host Product Keys"
 msgstr "Host Product Key"
 
-msgid "Host Desc"
-msgstr "Host Desc"
-
-msgid "Host Created"
-msgstr "Host Created"
-
-msgid "Host Product Key"
-msgstr "Host Product Key"
-
-#, fuzzy
-msgid "Host AD Join"
-msgstr "AD Join"
-
-#, fuzzy
-msgid "Host AD OU"
-msgstr "Host ID"
-
-#, fuzzy
-msgid "Host AD Domain"
-msgstr "AD Domain"
-
-msgid "Host Kernel"
-msgstr "Host Kernel"
-
-#, fuzzy
-msgid "Host HD Device"
-msgstr "HD Device"
-
-msgid "Image ID"
-msgstr "Image ID"
-
-msgid "Image Desc"
-msgstr "Image Desc"
-
-msgid "OS Name"
-msgstr "OS Name"
-
-msgid "Yes"
-msgstr "Yes"
-
-msgid "No"
-msgstr "No"
-
 #, fuzzy
 msgid "Full History"
 msgstr "Login History"
 
 msgid "Information"
 msgstr "Information"
-
-#, fuzzy
-msgid "FOG User tracking - Search"
-msgstr "FOG User Login History Summary - Search"
-
-msgid "Enter a username to search for"
-msgstr "Enter a username to search for"
-
-msgid "Enter a hostname to search for"
-msgstr "Enter a hostname to search for"
-
-msgid "Perform search"
-msgstr ""
-
-#, fuzzy
-msgid "Found login information"
-msgstr "FOG Version Information"
-
-#, fuzzy
-msgid "FOG User tracking history"
-msgstr "FOG User Login History Summary"
-
-msgid "Host Description"
-msgstr "Host Description"
-
-#, fuzzy
-msgid "Service Start"
-msgstr "Service Status"
 
 #, fuzzy
 msgid "User Logins"
@@ -4565,8 +4418,17 @@ msgstr "Host Created"
 msgid "Create New Host"
 msgstr "Create New %s"
 
+msgid "Host Description"
+msgstr "Host Description"
+
+msgid "Host Product Key"
+msgstr "Host Product Key"
+
 msgid "Host Image"
 msgstr "Host Image"
+
+msgid "Host Kernel"
+msgstr "Host Kernel"
 
 msgid "Host Kernel Arguments"
 msgstr "Host Kernel Arguments"
@@ -4806,6 +4668,9 @@ msgstr "End"
 msgid "Host Image History"
 msgstr "Image History"
 
+msgid "Return Code"
+msgstr "Return Code"
+
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "Snapin History"
@@ -4883,6 +4748,10 @@ msgstr "Image is not enabled"
 #, fuzzy
 msgid "Image is protected"
 msgstr "Protected"
+
+#, fuzzy
+msgid "Service Start"
+msgstr "Service Status"
 
 msgid "Click"
 msgstr "Click"
@@ -5414,6 +5283,9 @@ msgstr "Invalid Snapin"
 msgid "Snapin Pack"
 msgstr "Snapin Path"
 
+msgid "Snapin Description"
+msgstr "Snapin Description"
+
 #, fuzzy
 msgid "Snapin Type"
 msgstr "Snapin Template"
@@ -5424,6 +5296,9 @@ msgstr "Snapin Template"
 #, fuzzy
 msgid "Snapin Pack Template"
 msgstr "Snapin Template"
+
+msgid "Snapin Run With"
+msgstr "Snapin Run With"
 
 #, fuzzy
 msgid "Snapin Pack File"
@@ -5438,9 +5313,6 @@ msgstr "Snapin Arguments"
 
 msgid "Snapin File (exists)"
 msgstr "Snapin File (exists)"
-
-msgid "Snapin Arguments"
-msgstr "Snapin Arguments"
 
 msgid "Snapin Enabled"
 msgstr "Snapin Enabled"

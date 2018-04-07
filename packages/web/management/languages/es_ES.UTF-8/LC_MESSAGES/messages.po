@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 18:23-0400\n"
+"POT-Creation-Date: 2018-04-07 19:07-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2674,104 +2674,6 @@ msgid "Result"
 msgstr "resultados"
 
 #, fuzzy
-msgid "FOG Snapin Log"
-msgstr "Snapin del registro de transacciones"
-
-msgid "Snapin Name"
-msgstr "Nombre snapin"
-
-#, fuzzy
-msgid "Return Code"
-msgstr "Código de retorno"
-
-#, fuzzy
-msgid "Return Desc"
-msgstr "Código de retorno"
-
-#, fuzzy
-msgid "Checkin Time"
-msgstr "Crear usuario"
-
-#, fuzzy
-msgid "Complete Time"
-msgstr "después de la realización de tareas"
-
-msgid "Host ID"
-msgstr "ID de host"
-
-msgid "Host MAC"
-msgstr "Anfitrión MAC"
-
-#, fuzzy
-msgid "Snapin ID"
-msgstr "snapin"
-
-#, fuzzy
-msgid "Snapin Description"
-msgstr "Descripción de la impresora"
-
-#, fuzzy
-msgid "Snapin File"
-msgstr "Nombre snapin"
-
-#, fuzzy
-msgid "Snapin Args"
-msgstr "snapins"
-
-#, fuzzy
-msgid "Snapin Run With"
-msgstr "snapin replicador"
-
-msgid "Snapin Run With Args"
-msgstr ""
-
-#, fuzzy
-msgid "Snapin State"
-msgstr "Nombre snapin"
-
-#, fuzzy
-msgid "Snapin Return Code"
-msgstr "Código de retorno"
-
-msgid "Snapin Return Detail"
-msgstr ""
-
-msgid "Snapin Creation Date"
-msgstr ""
-
-#, fuzzy
-msgid "Snapin Creation Time"
-msgstr "Nombre snapin"
-
-#, fuzzy
-msgid "Job Create Date"
-msgstr "Crear usuario"
-
-#, fuzzy
-msgid "Job Create Time"
-msgstr "Crear usuario"
-
-msgid "Task Checkin Date"
-msgstr ""
-
-msgid "Task Checkin Time"
-msgstr ""
-
-#, fuzzy
-msgid "Task Complete Date"
-msgstr "después de la realización de tareas"
-
-#, fuzzy
-msgid "Task Complete Time"
-msgstr "después de la realización de tareas"
-
-msgid "Export CSV"
-msgstr "Exportación CSV"
-
-msgid "Export PDF"
-msgstr "Exportar PDF"
-
-#, fuzzy
 msgid "Pending MAC Addresses"
 msgstr "Dirección MAC de lista de origen: "
 
@@ -2797,8 +2699,19 @@ msgid "Primary MAC"
 msgstr "usuario principal"
 
 #, fuzzy
-msgid "Host LIst"
-msgstr "Hospedadores"
+msgid "Snapin List"
+msgstr "Camino snapin"
+
+msgid "Snapin Name"
+msgstr "Nombre snapin"
+
+#, fuzzy
+msgid "Snapin File"
+msgstr "Nombre snapin"
+
+#, fuzzy
+msgid "Snapin Arguments"
+msgstr "Nombre snapin"
 
 msgid "Start Time"
 msgstr "Hora de inicio"
@@ -2815,88 +2728,12 @@ msgstr "Configuración"
 msgid "Host Product Keys"
 msgstr "Clave del producto Grupo"
 
-msgid "Host Desc"
-msgstr "sede de la descripción"
-
-#, fuzzy
-msgid "Host Created"
-msgstr "Creado"
-
-#, fuzzy
-msgid "Host Product Key"
-msgstr "Clave del producto Grupo"
-
-#, fuzzy
-msgid "Host AD Join"
-msgstr "Lista de host"
-
-#, fuzzy
-msgid "Host AD OU"
-msgstr "ID de host"
-
-#, fuzzy
-msgid "Host AD Domain"
-msgstr "Nombre de dominio"
-
-#, fuzzy
-msgid "Host Kernel"
-msgstr "Núcleo"
-
-#, fuzzy
-msgid "Host HD Device"
-msgstr "sede de la descripción"
-
-#, fuzzy
-msgid "Image ID"
-msgstr "Imagen"
-
-#, fuzzy
-msgid "Image Desc"
-msgstr "Descripción de la imagen"
-
-#, fuzzy
-msgid "OS Name"
-msgstr "Nombre"
-
-msgid "Yes"
-msgstr "Sí"
-
-msgid "No"
-msgstr "No"
-
 #, fuzzy
 msgid "Full History"
 msgstr "replicador de imagen"
 
 msgid "Information"
 msgstr "Información"
-
-msgid "FOG User tracking - Search"
-msgstr ""
-
-msgid "Enter a username to search for"
-msgstr ""
-
-msgid "Enter a hostname to search for"
-msgstr ""
-
-msgid "Perform search"
-msgstr ""
-
-#, fuzzy
-msgid "Found login information"
-msgstr "FOG Información de la versión"
-
-msgid "FOG User tracking history"
-msgstr ""
-
-#, fuzzy
-msgid "Host Description"
-msgstr "Descripción del Grupo"
-
-#, fuzzy
-msgid "Service Start"
-msgstr "Estado del servicio"
 
 #, fuzzy
 msgid "User Logins"
@@ -4763,8 +4600,20 @@ msgid "Create New Host"
 msgstr "Crear nuevo grupo"
 
 #, fuzzy
+msgid "Host Description"
+msgstr "Descripción del Grupo"
+
+#, fuzzy
+msgid "Host Product Key"
+msgstr "Clave del producto Grupo"
+
+#, fuzzy
 msgid "Host Image"
 msgstr "nombre de host"
+
+#, fuzzy
+msgid "Host Kernel"
+msgstr "Núcleo"
 
 #, fuzzy
 msgid "Host Kernel Arguments"
@@ -5011,6 +4860,10 @@ msgid "Host Image History"
 msgstr "replicador de imagen"
 
 #, fuzzy
+msgid "Return Code"
+msgstr "Código de retorno"
+
+#, fuzzy
 msgid "Host Snapin History"
 msgstr "Camino snapin"
 
@@ -5088,6 +4941,10 @@ msgstr "La imagen no está habilitada"
 #, fuzzy
 msgid "Image is protected"
 msgstr "Protegido"
+
+#, fuzzy
+msgid "Service Start"
+msgstr "Estado del servicio"
 
 msgid "Click"
 msgstr "Hacer clic"
@@ -5620,6 +5477,10 @@ msgid "Snapin Pack"
 msgstr "Camino snapin"
 
 #, fuzzy
+msgid "Snapin Description"
+msgstr "Descripción de la impresora"
+
+#, fuzzy
 msgid "Snapin Type"
 msgstr "Nombre snapin"
 
@@ -5629,6 +5490,10 @@ msgstr "snapin replicador"
 
 #, fuzzy
 msgid "Snapin Pack Template"
+msgstr "snapin replicador"
+
+#, fuzzy
+msgid "Snapin Run With"
 msgstr "snapin replicador"
 
 #, fuzzy
@@ -5644,10 +5509,6 @@ msgstr "Nombre snapin"
 
 msgid "Snapin File (exists)"
 msgstr ""
-
-#, fuzzy
-msgid "Snapin Arguments"
-msgstr "Nombre snapin"
 
 #, fuzzy
 msgid "Snapin Enabled"

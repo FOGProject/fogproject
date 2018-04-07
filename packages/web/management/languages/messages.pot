@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 18:24-0400\n"
+"POT-Creation-Date: 2018-04-07 19:07-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2183,87 +2183,6 @@ msgstr ""
 msgid "Result"
 msgstr ""
 
-msgid "FOG Snapin Log"
-msgstr ""
-
-msgid "Snapin Name"
-msgstr ""
-
-msgid "Return Code"
-msgstr ""
-
-msgid "Return Desc"
-msgstr ""
-
-msgid "Checkin Time"
-msgstr ""
-
-msgid "Complete Time"
-msgstr ""
-
-msgid "Host ID"
-msgstr ""
-
-msgid "Host MAC"
-msgstr ""
-
-msgid "Snapin ID"
-msgstr ""
-
-msgid "Snapin Description"
-msgstr ""
-
-msgid "Snapin File"
-msgstr ""
-
-msgid "Snapin Args"
-msgstr ""
-
-msgid "Snapin Run With"
-msgstr ""
-
-msgid "Snapin Run With Args"
-msgstr ""
-
-msgid "Snapin State"
-msgstr ""
-
-msgid "Snapin Return Code"
-msgstr ""
-
-msgid "Snapin Return Detail"
-msgstr ""
-
-msgid "Snapin Creation Date"
-msgstr ""
-
-msgid "Snapin Creation Time"
-msgstr ""
-
-msgid "Job Create Date"
-msgstr ""
-
-msgid "Job Create Time"
-msgstr ""
-
-msgid "Task Checkin Date"
-msgstr ""
-
-msgid "Task Checkin Time"
-msgstr ""
-
-msgid "Task Complete Date"
-msgstr ""
-
-msgid "Task Complete Time"
-msgstr ""
-
-msgid "Export CSV"
-msgstr ""
-
-msgid "Export PDF"
-msgstr ""
-
 msgid "Pending MAC Addresses"
 msgstr ""
 
@@ -2285,7 +2204,16 @@ msgstr ""
 msgid "Primary MAC"
 msgstr ""
 
-msgid "Host LIst"
+msgid "Snapin List"
+msgstr ""
+
+msgid "Snapin Name"
+msgstr ""
+
+msgid "Snapin File"
+msgstr ""
+
+msgid "Snapin Arguments"
 msgstr ""
 
 msgid "Start Time"
@@ -2300,73 +2228,10 @@ msgstr ""
 msgid "Host Product Keys"
 msgstr ""
 
-msgid "Host Desc"
-msgstr ""
-
-msgid "Host Created"
-msgstr ""
-
-msgid "Host Product Key"
-msgstr ""
-
-msgid "Host AD Join"
-msgstr ""
-
-msgid "Host AD OU"
-msgstr ""
-
-msgid "Host AD Domain"
-msgstr ""
-
-msgid "Host Kernel"
-msgstr ""
-
-msgid "Host HD Device"
-msgstr ""
-
-msgid "Image ID"
-msgstr ""
-
-msgid "Image Desc"
-msgstr ""
-
-msgid "OS Name"
-msgstr ""
-
-msgid "Yes"
-msgstr ""
-
-msgid "No"
-msgstr ""
-
 msgid "Full History"
 msgstr ""
 
 msgid "Information"
-msgstr ""
-
-msgid "FOG User tracking - Search"
-msgstr ""
-
-msgid "Enter a username to search for"
-msgstr ""
-
-msgid "Enter a hostname to search for"
-msgstr ""
-
-msgid "Perform search"
-msgstr ""
-
-msgid "Found login information"
-msgstr ""
-
-msgid "FOG User tracking history"
-msgstr ""
-
-msgid "Host Description"
-msgstr ""
-
-msgid "Service Start"
 msgstr ""
 
 msgid "User Logins"
@@ -3931,7 +3796,16 @@ msgstr ""
 msgid "Create New Host"
 msgstr ""
 
+msgid "Host Description"
+msgstr ""
+
+msgid "Host Product Key"
+msgstr ""
+
 msgid "Host Image"
+msgstr ""
+
+msgid "Host Kernel"
 msgstr ""
 
 msgid "Host Kernel Arguments"
@@ -4138,6 +4012,9 @@ msgstr ""
 msgid "Host Image History"
 msgstr ""
 
+msgid "Return Code"
+msgstr ""
+
 msgid "Host Snapin History"
 msgstr ""
 
@@ -4196,6 +4073,9 @@ msgid "Image is not enabled"
 msgstr ""
 
 msgid "Image is protected"
+msgstr ""
+
+msgid "Service Start"
 msgstr ""
 
 msgid "Click"
@@ -4643,6 +4523,9 @@ msgstr ""
 msgid "Snapin Pack"
 msgstr ""
 
+msgid "Snapin Description"
+msgstr ""
+
 msgid "Snapin Type"
 msgstr ""
 
@@ -4650,6 +4533,9 @@ msgid "Snapin Template"
 msgstr ""
 
 msgid "Snapin Pack Template"
+msgstr ""
+
+msgid "Snapin Run With"
 msgstr ""
 
 msgid "Snapin Pack File"
@@ -4662,9 +4548,6 @@ msgid "Snapin Pack Arguments"
 msgstr ""
 
 msgid "Snapin File (exists)"
-msgstr ""
-
-msgid "Snapin Arguments"
 msgstr ""
 
 msgid "Snapin Enabled"
