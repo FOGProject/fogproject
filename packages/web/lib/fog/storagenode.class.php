@@ -184,7 +184,7 @@ class StorageNode extends FOGController
         $Failures = json_decode(
             Route::getData()
         );
-        foreach ($Failures as &$Failed) {
+        foreach ($Failures->data as &$Failed) {
             $curr = self::niceDate();
             $prev = self::niceDate($Failed->failureTime);
             if ($curr < $prev) {

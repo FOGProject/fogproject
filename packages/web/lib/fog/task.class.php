@@ -146,7 +146,7 @@ class Task extends TaskType
         ];
         $checkTime = self::getSetting('FOG_CHECKIN_TIMEOUT');
         Route::listem(
-            self,
+            __CLASS__,
             $find
         );
         $Tasks = json_decode(

@@ -241,61 +241,61 @@ class Route extends FOGBase
         self::$router->map(
             'HEAD|GET',
             '/system/[status|info]',
-            ['self', 'status'],
+            [__CLASS__, 'status'],
             'status'
         )->map(
             'GET|POST',
             '/[search|unisearch]/[*:item]/[i:limit]?',
-            ['self', 'unisearch'],
+            [__CLASS__, 'unisearch'],
             'unisearch'
         )->map(
             'PUT|POST',
             "${expanded}/join",
-            ['self', 'joining'],
+            [__CLASS__, 'joining'],
             'join'
         )->get(
             "${expandeda}/[current|active]",
-            ['self', 'active'],
+            [__CLASS__, 'active'],
             'active'
         )->get(
             "${expanded}/names",
-            ['self', 'names'],
+            [__CLASS__, 'names'],
             'names'
         )->get(
             '/bandwidth/[*:dev]',
-            ['self', 'bandwidth'],
+            [__CLASS__, 'bandwidth'],
             'bandwidth'
         )->get(
             "${expanded}/search/[*:item]",
-            ['self', 'search'],
+            [__CLASS__, 'search'],
             'search'
         )->get(
             "${expanded}/[list|all]?",
-            ['self', 'listem'],
+            [__CLASS__, 'listem'],
             'list'
         )->get(
             "${expanded}/[i:id]",
-            ['self', 'indiv'],
+            [__CLASS__, 'indiv'],
             'indiv'
         )->put(
             "${expanded}/[i:id]/[update|edit]?",
-            ['self', 'edit'],
+            [__CLASS__, 'edit'],
             'update'
         )->post(
             "${expandedt}/[i:id]/[task]",
-            ['self', 'task'],
+            [__CLASS__, 'task'],
             'task'
         )->post(
             "${expanded}/[create|new]?",
-            ['self', 'create'],
+            [__CLASS__, 'create'],
             'create'
         )->delete(
             "${expandedt}/[i:id]?/[cancel]",
-            ['self', 'cancel'],
+            [__CLASS__, 'cancel'],
             'cancel'
         )->delete(
             "${expanded}/[i:id]/[delete|remove]?",
-            ['self', 'delete'],
+            [__CLASS__, 'delete'],
             'delete'
         );
     }
@@ -437,7 +437,7 @@ class Route extends FOGBase
 
         self::$data = $columns = [];
         $classname = strtolower($class);
-        $classman = self::getClass("{$class}manager");
+        $classman = self::getClass("{$classname}manager");
         $table = $classman->getTable();
         $sqlstr = $classman->getQueryStr();
         $fltrstr = $classman->getFilterStr();
