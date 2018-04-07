@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 15:53-0400\n"
+"POT-Creation-Date: 2018-04-07 17:47-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2627,34 +2627,14 @@ msgstr "Primary MAC"
 msgid "Host LIst"
 msgstr "Host List"
 
-msgid "Start"
-msgstr "Start"
-
-msgid "End"
-msgstr "End"
-
-msgid "Duration"
-msgstr "Duration"
-
-msgid "Start Date"
-msgstr "Start Date"
-
 msgid "Start Time"
 msgstr "Start Time"
-
-msgid "End Date"
-msgstr "End Date"
 
 msgid "End Time"
 msgstr "End Time"
 
-#, fuzzy
-msgid "Deploy/Capture"
-msgstr "Deploy"
-
-#, fuzzy
-msgid "Not Valid"
-msgstr "Invalid data"
+msgid "Duration"
+msgstr "Duration"
 
 #, fuzzy
 msgid "Host Product Keys"
@@ -4820,6 +4800,12 @@ msgstr "Host Login History"
 
 msgid "Engineer"
 msgstr "Engineer"
+
+msgid "Start"
+msgstr "Start"
+
+msgid "End"
+msgstr "End"
 
 #, fuzzy
 msgid "Host Image History"

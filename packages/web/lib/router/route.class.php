@@ -610,6 +610,7 @@ class Route extends FOGBase
                     }
                 ];
                 break;
+            case 'image':
             case 'imageID':
                 $columns[] = [
                     'db' => $real,
@@ -618,16 +619,30 @@ class Route extends FOGBase
                 $columns[] = [
                     'db' => $real,
                     'dt' => 'imageLink',
-                    'formatter' => function ($d, $row) {
+                    'formatter' => function ($d, $row) use ($classname) {
                         if (!$d) {
                             return;
                         }
-                        return '<a href="../management/index.php?node=image&'
-                            . 'sub=edit&id='
-                            . $d
-                            . '">'
-                            . self::getClass('Image', $d)->get('name')
-                            . '</a>';
+                        switch ($classname) {
+                        case 'imaginglog':
+                            $image = self::getClass('Image')
+                                ->set('name', $d)
+                                ->load('name');
+                            $imageName = $d;
+                            break;
+                        default:
+                            $image = self::getClass('Image', $d);
+                            $imageName = $image->get('name');
+                        }
+                        if ($image->isValid()) {
+                            return '<a href="../management/index.php?node=image&'
+                                . 'sub=edit&id='
+                                . $image->get('id')
+                                . '">'
+                                . $imageName
+                                . '</a>';
+                        }
+                        return $imageName;
                     }
                 ];
                 break;
@@ -746,6 +761,7 @@ class Route extends FOGBase
                     return self::diff($start, $end);
                 }
             ];
+            break;
         case 'storagegroup':
             $StorageGroup = new StorageGroup();
             $columns[] = [

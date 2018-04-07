@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 15:53-0400\n"
+"POT-Creation-Date: 2018-04-07 17:47-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -2630,34 +2630,14 @@ msgstr "Primäre MAC"
 msgid "Host LIst"
 msgstr "Hostliste"
 
-msgid "Start"
-msgstr "Start"
-
-msgid "End"
-msgstr "Ende"
-
-msgid "Duration"
-msgstr "Dauer"
-
-msgid "Start Date"
-msgstr "Startdatum"
-
 msgid "Start Time"
 msgstr "Startzeit"
-
-msgid "End Date"
-msgstr "Enddatum"
 
 msgid "End Time"
 msgstr "Endzeit"
 
-#, fuzzy
-msgid "Deploy/Capture"
-msgstr "Verteilen/Upload"
-
-#, fuzzy
-msgid "Not Valid"
-msgstr "nicht gültig"
+msgid "Duration"
+msgstr "Dauer"
 
 #, fuzzy
 msgid "Host Product Keys"
@@ -4832,6 +4812,12 @@ msgstr "Host-Login-Verlauf"
 
 msgid "Engineer"
 msgstr "Ingenieur"
+
+msgid "Start"
+msgstr "Start"
+
+msgid "End"
+msgstr "Ende"
 
 #, fuzzy
 msgid "Host Image History"

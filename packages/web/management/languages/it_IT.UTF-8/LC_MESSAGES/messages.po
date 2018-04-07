@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 15:53-0400\n"
+"POT-Creation-Date: 2018-04-07 17:47-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -2507,32 +2507,14 @@ msgstr "MAC primaria"
 msgid "Host LIst"
 msgstr "Lista Host"
 
-msgid "Start"
-msgstr "Inizio"
-
-msgid "End"
-msgstr "Fine"
-
-msgid "Duration"
-msgstr "Durata"
-
-msgid "Start Date"
-msgstr "Data d'inizio"
-
 msgid "Start Time"
 msgstr "Ora di inizio"
-
-msgid "End Date"
-msgstr "Data di fine"
 
 msgid "End Time"
 msgstr "Fine del tempo"
 
-msgid "Deploy/Capture"
-msgstr "Distribuire/catturare"
-
-msgid "Not Valid"
-msgstr "Non valido"
+msgid "Duration"
+msgstr "Durata"
 
 msgid "Host Product Keys"
 msgstr "Tasti del prodotto host"
@@ -4549,6 +4531,12 @@ msgstr "Host Accesso Storia"
 
 msgid "Engineer"
 msgstr "Ingegnere"
+
+msgid "Start"
+msgstr "Inizio"
+
+msgid "End"
+msgstr "Fine"
 
 #, fuzzy
 msgid "Host Image History"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 16:48-0400\n"
+"POT-Creation-Date: 2018-04-07 17:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2297,31 +2297,13 @@ msgstr ""
 msgid "Host LIst"
 msgstr ""
 
-msgid "Start"
-msgstr ""
-
-msgid "End"
-msgstr ""
-
-msgid "Duration"
-msgstr ""
-
-msgid "Start Date"
-msgstr ""
-
 msgid "Start Time"
-msgstr ""
-
-msgid "End Date"
 msgstr ""
 
 msgid "End Time"
 msgstr ""
 
-msgid "Deploy/Capture"
-msgstr ""
-
-msgid "Not Valid"
+msgid "Duration"
 msgstr ""
 
 msgid "Host Product Keys"
@@ -4151,6 +4133,12 @@ msgid "Host Login History"
 msgstr ""
 
 msgid "Engineer"
+msgstr ""
+
+msgid "Start"
+msgstr ""
+
+msgid "End"
 msgstr ""
 
 msgid "Host Image History"

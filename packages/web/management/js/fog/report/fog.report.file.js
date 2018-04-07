@@ -106,6 +106,31 @@
             break;
         // Imaging Log
         case 'imaging log':
+            var imagingLogTable = $('#imaginglog-table'),
+                table = Common.registerTable(imagingLogTable, null, {
+                    order: [
+                        [0, 'asc']
+                    ],
+                    buttons: reportButtons,
+                    columns: [
+                        {data: 'hostLink'},
+                        {data: 'start'},
+                        {data: 'finish'},
+                        {data: 'diff'},
+                        {data: 'imageLink'},
+                        {data: 'type'}
+                    ],
+                    rowGroup: {
+                        dataSrc: 'hostLink'
+                    },
+                    rowId: 'id',
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: '../fog/imaginglog',
+                        type: 'get'
+                    }
+                });
             break;
         // Inventory Report
         case 'inventory report':
