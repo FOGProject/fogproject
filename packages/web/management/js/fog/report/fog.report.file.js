@@ -108,6 +108,38 @@
             break;
         // Hosts and users
         case 'hosts and users':
+            var userloginTable = $('#userlogin-table'),
+                table = Common.registerTable(userloginTable, null, {
+                    order: [
+                        [0, 'asc']
+                    ],
+                    buttons: [
+                        'copy',
+                        'csv',
+                        'excel',
+                        'pdf',
+                        'print',
+                        'colvis'
+                    ],
+                    columns: [
+                        {data: 'username'},
+                        {data: 'hostLink'},
+                        {data: 'createdTime'}
+                    ],
+                    rowGroup: {
+                        dataSrc: 'hostLink'
+                    },
+                    rowId: 'id',
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: '../management/index.php?node='
+                            + Common.node
+                            + '&sub=getUserloginList&f='
+                            + Common.f,
+                        type: 'post'
+                    }
+                });
             break;
         // Imaging Log
         case 'imaging log':

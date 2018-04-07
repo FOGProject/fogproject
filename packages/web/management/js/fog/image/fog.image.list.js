@@ -14,7 +14,7 @@
             [2, 'asc']
         ],
         columns: [
-            {data: 'name'},
+            {data: 'mainlink'},
             {data: 'protected'},
             {data: 'isEnabled'},
             {data: 'deployed'}
@@ -23,12 +23,10 @@
         columnDefs: [
             {
                 responsivePriority: -1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node='+Common.node+'&sub=edit&id=' + row.id + '">' + data + '</a>';
-                },
                 targets: 0,
             },
             {
+                responsivePriority: 0,
                 render: function(data, type, row) {
                     var lock = '<span class="label label-warning"><i class="fa fa-lock fa-1x"></i></span>';
                     var unlock = '<span class="label label-danger"><i class="fa fa-unlock fa-fx"></i></span>';
@@ -50,10 +48,6 @@
                     return disabled;
                 },
                 targets: 2
-            },
-            {
-                responsivePriority: 0,
-                targets: 1
             }
         ],
         processing: true,

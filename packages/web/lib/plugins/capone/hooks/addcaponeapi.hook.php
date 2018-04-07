@@ -80,10 +80,15 @@ class AddCaponeAPI extends Hook
         foreach (self::getClass('CaponeManager')
             ->getColumns() as $common => &$real
         ) {
-            if ('id' == $common) {
+            switch ($common) {
+            case 'id':
                 $arguments['columns'][] = [
                     'db' => $real,
-                    'dt' => $common,
+                    'dt' => $common
+                ];
+                $arguments['columns'][] = [
+                    'db' => $real,
+                    'dt' => 'mainlink',
                     'formatter' => function ($d, $row) {
                         return '<a href="../management/index.php?node='
                             . 'capone&sub=edit&id='
@@ -95,21 +100,33 @@ class AddCaponeAPI extends Hook
                             . '</a>';
                     }
                 ];
-            } else {
-                $arguments['columns'][] = [
+            case 'imageID':
+                $argument['columns'][] = [
                     'db' => $real,
                     'dt' => $common
                 ];
+                $arguments['columns'][] = [
+                    'db' => $real,
+                    'dt' => 'imageLink',
+                    'formatter' => function ($d, $row) {
+                        if (!$d) {
+                            return;
+                        }
+                        return '<a href="../management/index.php?node=image&'
+                            . 'sub=edit&id='
+                            . $d
+                            . '">'
+                            . self::getClass('Image', $d)->get('name')
+                            . '</a>';
+                    }
+                ];
+                break;
+            default:
+                $arguments['columns'][] = [
+                    'db' => $real,
+                    'dt' =>$common
+                ];
             }
-            unset($real);
-        }
-        foreach (self::getClass('ImageManager')
-            ->getColumns() as $common => &$real
-        ) {
-            $arguments['columns'][] = [
-                'db' => $real,
-                'dt' => 'image' . $common
-            ];
             unset($real);
         }
         foreach (self::getClass('OSManager')

@@ -126,20 +126,17 @@
             [0, 'asc']
         ],
         columns: [
-            {data: 'name'},
+            {data: 'mainlink'},
             {data: 'primac'},
             {data: 'pingstatus'},
             {data: 'deployed'},
-            {data: 'imagename'},
+            {data: 'imageLink'},
             {data: 'description'}
         ],
         rowId: 'id',
         columnDefs: [
             {
                 responsivePriority: -1,
-                render: function (data, type, row) {
-                    return '<a href="../management/index.php?node=host&sub=edit&id=' + row.id + '">' + data + '</a>';
-                },
                 targets: 0
             },
             {
@@ -151,15 +148,6 @@
                     return (data === '0000-00-00 00:00:00') ? '' : data;
                 },
                 targets: 3
-            },
-            {
-                render: function (data, type, row) {
-                    if (data === null) {
-                        return '';
-                    }
-                    return '<a href="../management/index.php?node=image&sub=edit&id=' + row.imageID + '">' + data + '</a>';
-                },
-                targets: 4
             }
         ],
         processing: true,

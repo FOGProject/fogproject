@@ -6,10 +6,6 @@
         cancelApprove = $('#cancelApprovalModal'),
         // Delete
         deleteSelected = $('#delete'),
-        deleteModal = $('#deleteModal'),
-        passwordField = $('#deletePassword'),
-        confirmDelete = $('#confirmDeleteModal'),
-        cancelDelete = $('#closeDeleteModal'),
         // Form to work with.
         pendingForm = $('#host-pending-form'),
         method = pendingForm.attr('method'),
@@ -63,33 +59,13 @@
     }
 
     disableButtons(true);
-    confirmDelete.on('click', function(e) {
-        e.preventDefault();
-        cancelDelete.prop('disabled', true);
-        confirmDelete.prop('disabled', true);
-        Common.massDelete(passwordField.val(), function(err) {
-            if (err) {
-                headerText = deleteModal.find('.modal-header').text();
-                deleteModal.modal('show');
-                deleteModal.find('.modal-header').text(err.responseJSON.error);
-                setTimeout(function() {
-                    deleteModal.find('.modal-header').text(headerText);
-                    passwordField.val('');
-                    confirmDelete.prop('disabled', false);
-                }, 2000);
-            } else {
-                deleteModal.modal('hide');
-                disableButtons(false);
-                table.draw(false);
-                table.rows({selected: true}).deselect();
-            }
-        }, table);
-    });
-
-    deleteSelected.on('click',function(e) {
-        e.preventDefault();
+    deleteSelected.on('click', function(e) {
         disableButtons(true);
-        confirmDelete.trigger('click');
+        Common.deleteSelected(table, function(err) {
+            if (err) {
+                disableButtons(false);
+            }
+        });
     });
 
     approveSelected.on('click', function() {

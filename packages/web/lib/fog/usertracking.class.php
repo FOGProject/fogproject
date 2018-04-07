@@ -37,7 +37,7 @@ class UserTracking extends FOGController
         'hostID' => 'utHostID',
         'username' => 'utUserName',
         'action' => 'utAction',
-        'datetime' => 'utDateTime',
+        'createdTime' => 'utDateTime',
         'description' => 'utDesc',
         'date' => 'utDate',
         'anon3' => 'utAnon3'

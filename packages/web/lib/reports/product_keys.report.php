@@ -143,6 +143,5 @@ class Product_Keys extends ReportManagement
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        $_SESSION['foglastreport'] = serialize($this->ReportMaker);
     }
 }

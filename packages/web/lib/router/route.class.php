@@ -512,6 +512,19 @@ class Route extends FOGBase
                         return 'row_'.$d;
                     }
                 ];
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => 'mainlink',
+                    'formatter' => function ($d, $row) use ($classname) {
+                        return '<a href="../management/index.php?node='
+                            . $classname
+                            . '&sub=edit&id='
+                            . $d
+                            . '">'
+                            . self::getClass($classname, $d)->get('name')
+                            . '</a>';
+                    }
+                ];
                 break;
             case 'createdTime':
                 $columns[] = [
@@ -541,6 +554,154 @@ class Route extends FOGBase
                             . '</span>';
                     }
                 ];
+                break;
+            case 'groupID':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common
+                ];
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => 'groupLink',
+                    'formatter' => function ($d, $row) {
+                        if (!$d) {
+                            return;
+                        }
+                        return '<a href="../management/index.php?node=group&'
+                            . 'sub=edit&id='
+                            . $d
+                            . '">'
+                            . self::getClass('Group', $d)->get('name')
+                            . '</a>';
+                    }
+                ];
+                break;
+            case 'hostID':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common
+                ];
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => 'hostLink',
+                    'formatter' => function ($d, $row) {
+                        if (!$d) {
+                            return;
+                        }
+                        return '<a href="../management/index.php?node=host&'
+                            . 'sub=edit&id='
+                            . $d
+                            . '">'
+                            . self::getClass('Host', $d)->get('name')
+                            . '</a>';
+                    }
+                ];
+                break;
+            case 'imageID':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common
+                ];
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => 'imageLink',
+                    'formatter' => function ($d, $row) {
+                        if (!$d) {
+                            return;
+                        }
+                        return '<a href="../management/index.php?node=image&'
+                            . 'sub=edit&id='
+                            . $d
+                            . '">'
+                            . self::getClass('Image', $d)->get('name')
+                            . '</a>';
+                    }
+                ];
+                break;
+            case 'snapinID':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common
+                ];
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => 'hostLink',
+                    'formatter' => function ($d, $row) {
+                        if (!$d) {
+                            return;
+                        }
+                        return '<a href="../management/index.php?node=snapin&'
+                            . 'sub=edit&id='
+                            . $d
+                            . '">'
+                            . self::getClass('Snapin', $d)->get('name')
+                            . '</a>';
+                    }
+                ];
+                break;
+            case 'storagegroupID':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common
+                ];
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => 'storagegroupLink',
+                    'formatter' => function ($d, $row) {
+                        if (!$d) {
+                            return;
+                        }
+                        return '<a href="../management/index.php?node=storagegroup&'
+                            . 'sub=edit&id='
+                            . $d
+                            . '">'
+                            . self::getClass('StorageGroup', $d)->get('name')
+                            . '</a>';
+                    }
+                ];
+                break;
+            case 'storagenodeID':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common
+                ];
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => 'storagenodeLink',
+                    'formatter' => function ($d, $row) {
+                        if (!$d) {
+                            return;
+                        }
+                        return '<a href="../management/index.php?node=storagenode&'
+                            . 'sub=edit&id='
+                            . $d
+                            . '">'
+                            . self::getClass('StorageNode', $d)->get('name')
+                            . '</a>';
+                    }
+                ];
+                break;
+            case 'userID':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common
+                ];
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => 'userLink',
+                    'formatter' => function ($d, $row) {
+                        if (!$d) {
+                            return;
+                        }
+                        return '<a href="../management/index.php?node=user&'
+                            . 'sub=edit&id='
+                            . $d
+                            . '">'
+                            . self::getClass('User', $d)->get('name')
+                            . '</a>';
+                    }
+                ];
+                break;
             default:
                 $columns[] = [
                     'db' => $real,

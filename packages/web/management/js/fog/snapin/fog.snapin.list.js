@@ -15,7 +15,7 @@
             [2, 'asc']
         ],
         columns: [
-            {data: 'name'},
+            {data: 'mainlink'},
             {data: 'protected'},
             {data: 'isEnabled'},
             {data: 'packtype'}
@@ -24,9 +24,6 @@
         columnDefs: [
             {
                 responsivePriority: -1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node='+Common.node+'&sub=edit&id=' + row.id + '">' + data + '</a>';
-                },
                 targets: 0,
             },
             {

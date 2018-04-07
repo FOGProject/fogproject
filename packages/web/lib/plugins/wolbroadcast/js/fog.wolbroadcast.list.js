@@ -15,23 +15,14 @@
             [0, 'asc']
         ],
         columns: [
-            {data: 'name'},
+            {data: 'mainlink'},
             {data: 'broadcast'}
         ],
         rowId: 'id',
         columnDefs: [
             {
                 responsivePriority: -1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node='
-                        + Common.node
-                        + '&sub=edit&id='
-                        + row.id
-                        + '">'
-                        + data
-                        + '</a>';
-                },
-                targets: 0,
+                targets: 0
             }
         ],
         processing: true,
