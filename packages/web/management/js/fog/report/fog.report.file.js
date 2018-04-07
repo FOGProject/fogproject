@@ -48,16 +48,36 @@
                     processing: true,
                     serverSide: true,
                     ajax: {
-                        url: '../management/index.php?node='
-                            + Common.node
-                            + '&sub=getHistoryList&f='
-                            + Common.f,
-                        type: 'post'
+                        url: '../fog/history',
+                        type: 'get'
                     }
                 });
             break;
         // Host List
         case 'host list':
+            var hostTable = $('#hostlist-table'),
+                table = Common.registerTable(hostTable, null, {
+                    order: [
+                        [0, 'asc']
+                    ],
+                    buttons: reportButtons,
+                    columns: [
+                        {data: 'mainlink'},
+                        {data: 'primac'},
+                        {data: 'deployed'},
+                        {data: 'imageLink'}
+                    ],
+                    rowGroup: {
+                        dataSrc: 'deployed'
+                    },
+                    rowId: 'id',
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: '../fog/host',
+                        type: 'get'
+                    }
+                });
             break;
         // Hosts and users
         case 'hosts and users':
@@ -79,11 +99,8 @@
                     processing: true,
                     serverSide: true,
                     ajax: {
-                        url: '../management/index.php?node='
-                            + Common.node
-                            + '&sub=getUserloginList&f='
-                            + Common.f,
-                        type: 'post'
+                        url: '../fog/usertracking',
+                        type: 'get'
                     }
                 });
             break;

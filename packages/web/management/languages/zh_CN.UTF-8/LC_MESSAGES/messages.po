@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 01:25-0400\n"
+"POT-Creation-Date: 2018-04-07 15:26-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2619,45 +2619,12 @@ msgstr "系统序列"
 msgid "Host Desc"
 msgstr "主持人说明"
 
-msgid "Host Listing Export"
-msgstr "主机上市出口"
-
-msgid "Host Created"
-msgstr "主机创建"
+msgid "Primary MAC"
+msgstr "主MAC"
 
 #, fuzzy
-msgid "Host AD Join"
-msgstr "公元加入"
-
-#, fuzzy
-msgid "Host AD OU"
-msgstr "主机ID"
-
-#, fuzzy
-msgid "Host AD Domain"
-msgstr "AD域"
-
-msgid "Host Kernel"
-msgstr "主机内核"
-
-#, fuzzy
-msgid "Host HD Device"
-msgstr "高清设备"
-
-msgid "Image ID"
-msgstr "图片ID"
-
-msgid "Image Desc"
-msgstr "图片说明"
-
-msgid "OS Name"
-msgstr "操作系统名称"
-
-msgid "Yes"
-msgstr "是"
-
-msgid "No"
-msgstr "没有"
+msgid "Host LIst"
+msgstr "主机列表"
 
 msgid "FOG Imaging Log"
 msgstr "FOG成像测井"
@@ -2695,8 +2662,45 @@ msgstr "数据无效"
 msgid "Host Product Keys"
 msgstr "主机产品密钥"
 
+msgid "Host Created"
+msgstr "主机创建"
+
 msgid "Host Product Key"
 msgstr "主机产品密钥"
+
+#, fuzzy
+msgid "Host AD Join"
+msgstr "公元加入"
+
+#, fuzzy
+msgid "Host AD OU"
+msgstr "主机ID"
+
+#, fuzzy
+msgid "Host AD Domain"
+msgstr "AD域"
+
+msgid "Host Kernel"
+msgstr "主机内核"
+
+#, fuzzy
+msgid "Host HD Device"
+msgstr "高清设备"
+
+msgid "Image ID"
+msgstr "图片ID"
+
+msgid "Image Desc"
+msgstr "图片说明"
+
+msgid "OS Name"
+msgstr "操作系统名称"
+
+msgid "Yes"
+msgstr "是"
+
+msgid "No"
+msgstr "没有"
 
 #, fuzzy
 msgid "Full History"
@@ -2732,10 +2736,6 @@ msgstr "主机描述"
 #, fuzzy
 msgid "Service Start"
 msgstr "服务状态"
-
-#, fuzzy
-msgid "User Login"
-msgstr "CPU计数"
 
 #, fuzzy
 msgid "User Logins"
@@ -4526,9 +4526,6 @@ msgstr "主机/组名称"
 msgid "Task Type"
 msgstr "任务类型"
 
-msgid "Primary MAC"
-msgstr "主MAC"
-
 #, fuzzy
 msgid "Ping Status"
 msgstr "状态"
@@ -5624,6 +5621,9 @@ msgstr "信息"
 msgid "Check that database is running"
 msgstr "检查数据库运行"
 
+msgid "No Data"
+msgstr "没有数据"
+
 #, fuzzy
 msgid "See all results"
 msgstr "列表中的所有%s"
@@ -6186,9 +6186,6 @@ msgstr "事件必须是字符串"
 
 msgid "Key must be an array of keys or a string."
 msgstr ""
-
-msgid "No Data"
-msgstr "没有数据"
 
 msgid "Not a number"
 msgstr "不是一个数字"

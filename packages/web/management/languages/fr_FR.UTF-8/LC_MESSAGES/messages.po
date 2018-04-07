@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 01:25-0400\n"
+"POT-Creation-Date: 2018-04-07 15:26-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2622,45 +2622,12 @@ msgstr "Serial System"
 msgid "Host Desc"
 msgstr "hôte Desc"
 
-msgid "Host Listing Export"
-msgstr "Hôte Liste Export"
-
-msgid "Host Created"
-msgstr "hôte Créé"
+msgid "Primary MAC"
+msgstr "MAC primaire"
 
 #, fuzzy
-msgid "Host AD Join"
-msgstr "AD Rejoignez"
-
-#, fuzzy
-msgid "Host AD OU"
-msgstr "ID d'hôte"
-
-#, fuzzy
-msgid "Host AD Domain"
-msgstr "AD Domain"
-
-msgid "Host Kernel"
-msgstr "hôte Kernel"
-
-#, fuzzy
-msgid "Host HD Device"
-msgstr "HD Dispositif"
-
-msgid "Image ID"
-msgstr "Image ID"
-
-msgid "Image Desc"
-msgstr "image Desc"
-
-msgid "OS Name"
-msgstr "Nom OS"
-
-msgid "Yes"
-msgstr "Oui"
-
-msgid "No"
-msgstr "Non"
+msgid "Host LIst"
+msgstr "Liste des hôtes"
 
 msgid "FOG Imaging Log"
 msgstr "FOG Imaging Log"
@@ -2698,8 +2665,45 @@ msgstr "Données invalides"
 msgid "Host Product Keys"
 msgstr "Hôte clé de produit"
 
+msgid "Host Created"
+msgstr "hôte Créé"
+
 msgid "Host Product Key"
 msgstr "Hôte clé de produit"
+
+#, fuzzy
+msgid "Host AD Join"
+msgstr "AD Rejoignez"
+
+#, fuzzy
+msgid "Host AD OU"
+msgstr "ID d'hôte"
+
+#, fuzzy
+msgid "Host AD Domain"
+msgstr "AD Domain"
+
+msgid "Host Kernel"
+msgstr "hôte Kernel"
+
+#, fuzzy
+msgid "Host HD Device"
+msgstr "HD Dispositif"
+
+msgid "Image ID"
+msgstr "Image ID"
+
+msgid "Image Desc"
+msgstr "image Desc"
+
+msgid "OS Name"
+msgstr "Nom OS"
+
+msgid "Yes"
+msgstr "Oui"
+
+msgid "No"
+msgstr "Non"
 
 #, fuzzy
 msgid "Full History"
@@ -2735,10 +2739,6 @@ msgstr "hôte description de"
 #, fuzzy
 msgid "Service Start"
 msgstr "État du service"
-
-#, fuzzy
-msgid "User Login"
-msgstr "Nombre de CPU"
 
 #, fuzzy
 msgid "User Logins"
@@ -4541,9 +4541,6 @@ msgstr "Hôte / Nom de groupe"
 msgid "Task Type"
 msgstr "type de tâche"
 
-msgid "Primary MAC"
-msgstr "MAC primaire"
-
 #, fuzzy
 msgid "Ping Status"
 msgstr "statut"
@@ -5641,6 +5638,9 @@ msgstr "Message"
 msgid "Check that database is running"
 msgstr "Vérifiez que la base de données est en cours d'exécution"
 
+msgid "No Data"
+msgstr "Pas de données"
+
 #, fuzzy
 msgid "See all results"
 msgstr "Lister tous les %s"
@@ -6207,9 +6207,6 @@ msgstr "Événement doit être une chaîne"
 
 msgid "Key must be an array of keys or a string."
 msgstr ""
-
-msgid "No Data"
-msgstr "Pas de données"
 
 msgid "Not a number"
 msgstr "Pas un certain nombre"

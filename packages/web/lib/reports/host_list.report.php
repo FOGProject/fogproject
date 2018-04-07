@@ -28,104 +28,30 @@ class Host_List extends ReportManagement
      */
     public function file()
     {
-        $this->title = _('Host Listing Export');
-        $csvHead = array(
-            _('Host ID') => 'id',
-            _('Host Name') => 'name',
-            _('Host Desc') => 'description',
-            _('Host MAC') => 'mac',
-            _('Host Created') => 'createdTime',
-            _('Host AD Join') => 'useAD',
-            _('Host AD OU') => 'ADOU',
-            _('Host AD Domain') => 'ADDomain',
-            _('Host Kernel') => 'kernel',
-            _('Host HD Device') => 'kernelDevice',
-            _('Image ID') => 'id',
-            _('Image Name') => 'name',
-            _('Image Desc') => 'description',
-            _('OS Name') => 'name',
-        );
-        foreach ((array)$csvHead as $csvHeader => &$classGet) {
-            $this->ReportMaker->addCSVCell($csvHeader);
-            unset($classGet);
-        }
-        $this->ReportMaker->endCSVLine();
-        $this->headerData = array(
-            _('Hostname'),
-            _('Host MAC'),
-            _('Image Name'),
-        );
-        Route::listem('host');
-        $Hosts = json_decode(
-            Route::getData()
-        );
-        $Hosts = $Hosts->hosts;
-        foreach ((array)$Hosts as &$Host) {
-            $Image = $Host->image;
-            $imgID = $Image->id;
-            $imgName = $Image->name;
-            $imgDesc = $Image->description;
-            unset($Image);
-            $this->data[] = array(
-                'host_name' => $Host->name,
-                'host_mac' => $Host->primac,
-                'image_name' => $imgName,
-            );
-            foreach ((array)$csvHead as $head => &$classGet) {
-                switch ($head) {
-                case _('Image ID'):
-                    $this->ReportMaker->addCSVCell($imgID);
-                    break;
-                case _('Image Name'):
-                    $this->ReportMaker->addCSVCell($imgName);
-                    break;
-                case _('Image Desc'):
-                    $this->ReportMaker->addCSVCell($imgDesc);
-                    break;
-                case _('Host AD Join'):
-                    $this->ReportMaker->addCSVCell(
-                        (
-                            $Host->useAD == 1 ?
-                            _('Yes') :
-                            _('No')
-                        )
-                    );
-                    break;
-                default:
-                    $this->ReportMaker->addCSVCell($Host->$classGet);
-                    break;
-                }
-                unset($classGet);
-            }
-            unset($Host);
-            $this->ReportMaker->endCSVLine();
-        }
-        $this->ReportMaker->appendHTML($this->process(12));
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
+        $this->title = _('Host List');
+
+        $this->headerData = [
+            _('Host Name'),
+            _('Primary MAC'),
+            _('Last Deployed'),
+            _('Image Name')
+        ];
+
+        $this->attributes = [
+            [],
+            [],
+            [],
+            []
+        ];
+
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Host LIst');
         echo '</h4>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        if (count($this->data) > 0) {
-            echo '<div class="text-center">';
-            printf(
-                $this->reportString,
-                'HostList',
-                _('Export CSV'),
-                _('Export CSV'),
-                self::$csvfile,
-                'HostList',
-                _('Export PDF'),
-                _('Export PDF'),
-                self::$pdffile
-            );
-            echo '</div>';
-        }
-        $this->ReportMaker->outputReport(0, true);
-        echo '</div>';
+        echo '<div class="box-body">';
+        echo $this->render(12, 'hostlist-table');
         echo '</div>';
         echo '</div>';
     }
