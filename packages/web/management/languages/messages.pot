@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 14:33-0400\n"
+"POT-Creation-Date: 2018-04-07 15:26-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2291,40 +2291,10 @@ msgstr ""
 msgid "Host Desc"
 msgstr ""
 
-msgid "Host Listing Export"
+msgid "Primary MAC"
 msgstr ""
 
-msgid "Host Created"
-msgstr ""
-
-msgid "Host AD Join"
-msgstr ""
-
-msgid "Host AD OU"
-msgstr ""
-
-msgid "Host AD Domain"
-msgstr ""
-
-msgid "Host Kernel"
-msgstr ""
-
-msgid "Host HD Device"
-msgstr ""
-
-msgid "Image ID"
-msgstr ""
-
-msgid "Image Desc"
-msgstr ""
-
-msgid "OS Name"
-msgstr ""
-
-msgid "Yes"
-msgstr ""
-
-msgid "No"
+msgid "Host LIst"
 msgstr ""
 
 msgid "FOG Imaging Log"
@@ -2360,7 +2330,40 @@ msgstr ""
 msgid "Host Product Keys"
 msgstr ""
 
+msgid "Host Created"
+msgstr ""
+
 msgid "Host Product Key"
+msgstr ""
+
+msgid "Host AD Join"
+msgstr ""
+
+msgid "Host AD OU"
+msgstr ""
+
+msgid "Host AD Domain"
+msgstr ""
+
+msgid "Host Kernel"
+msgstr ""
+
+msgid "Host HD Device"
+msgstr ""
+
+msgid "Image ID"
+msgstr ""
+
+msgid "Image Desc"
+msgstr ""
+
+msgid "OS Name"
+msgstr ""
+
+msgid "Yes"
+msgstr ""
+
+msgid "No"
 msgstr ""
 
 msgid "Full History"
@@ -2391,9 +2394,6 @@ msgid "Host Description"
 msgstr ""
 
 msgid "Service Start"
-msgstr ""
-
-msgid "User Login"
 msgstr ""
 
 msgid "User Logins"
@@ -3910,9 +3910,6 @@ msgstr ""
 msgid "Task Type"
 msgstr ""
 
-msgid "Primary MAC"
-msgstr ""
-
 msgid "Ping Status"
 msgstr ""
 
@@ -4829,6 +4826,9 @@ msgstr ""
 msgid "Check that database is running"
 msgstr ""
 
+msgid "No Data"
+msgstr ""
+
 msgid "See all results"
 msgstr ""
 
@@ -5301,9 +5301,6 @@ msgid "Key must be a string or index"
 msgstr ""
 
 msgid "Key must be an array of keys or a string."
-msgstr ""
-
-msgid "No Data"
 msgstr ""
 
 msgid "Not a number"

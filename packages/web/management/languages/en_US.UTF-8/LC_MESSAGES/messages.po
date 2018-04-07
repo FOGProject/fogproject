@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 01:25-0400\n"
+"POT-Creation-Date: 2018-04-07 15:26-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2620,45 +2620,12 @@ msgstr "System Serial"
 msgid "Host Desc"
 msgstr "Host Desc"
 
-msgid "Host Listing Export"
-msgstr "Host Listing Export"
-
-msgid "Host Created"
-msgstr "Host Created"
+msgid "Primary MAC"
+msgstr "Primary MAC"
 
 #, fuzzy
-msgid "Host AD Join"
-msgstr "AD Join"
-
-#, fuzzy
-msgid "Host AD OU"
-msgstr "Host ID"
-
-#, fuzzy
-msgid "Host AD Domain"
-msgstr "AD Domain"
-
-msgid "Host Kernel"
-msgstr "Host Kernel"
-
-#, fuzzy
-msgid "Host HD Device"
-msgstr "HD Device"
-
-msgid "Image ID"
-msgstr "Image ID"
-
-msgid "Image Desc"
-msgstr "Image Desc"
-
-msgid "OS Name"
-msgstr "OS Name"
-
-msgid "Yes"
-msgstr "Yes"
-
-msgid "No"
-msgstr "No"
+msgid "Host LIst"
+msgstr "Host List"
 
 msgid "FOG Imaging Log"
 msgstr "FOG Imaging Log"
@@ -2696,8 +2663,45 @@ msgstr "Invalid data"
 msgid "Host Product Keys"
 msgstr "Host Product Key"
 
+msgid "Host Created"
+msgstr "Host Created"
+
 msgid "Host Product Key"
 msgstr "Host Product Key"
+
+#, fuzzy
+msgid "Host AD Join"
+msgstr "AD Join"
+
+#, fuzzy
+msgid "Host AD OU"
+msgstr "Host ID"
+
+#, fuzzy
+msgid "Host AD Domain"
+msgstr "AD Domain"
+
+msgid "Host Kernel"
+msgstr "Host Kernel"
+
+#, fuzzy
+msgid "Host HD Device"
+msgstr "HD Device"
+
+msgid "Image ID"
+msgstr "Image ID"
+
+msgid "Image Desc"
+msgstr "Image Desc"
+
+msgid "OS Name"
+msgstr "OS Name"
+
+msgid "Yes"
+msgstr "Yes"
+
+msgid "No"
+msgstr "No"
 
 #, fuzzy
 msgid "Full History"
@@ -2733,10 +2737,6 @@ msgstr "Host Description"
 #, fuzzy
 msgid "Service Start"
 msgstr "Service Status"
-
-#, fuzzy
-msgid "User Login"
-msgstr "CPU Count"
 
 #, fuzzy
 msgid "User Logins"
@@ -4530,9 +4530,6 @@ msgstr "Host/Group Name"
 msgid "Task Type"
 msgstr "Task Type"
 
-msgid "Primary MAC"
-msgstr "Primary MAC"
-
 #, fuzzy
 msgid "Ping Status"
 msgstr "Status"
@@ -5628,6 +5625,9 @@ msgstr "Message"
 msgid "Check that database is running"
 msgstr "Check that database is running"
 
+msgid "No Data"
+msgstr "No Data"
+
 #, fuzzy
 msgid "See all results"
 msgstr "List All %s"
@@ -6192,9 +6192,6 @@ msgstr "Event must be a string"
 
 msgid "Key must be an array of keys or a string."
 msgstr ""
-
-msgid "No Data"
-msgstr "No Data"
 
 msgid "Not a number"
 msgstr "Not a number"

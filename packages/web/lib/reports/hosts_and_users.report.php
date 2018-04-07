@@ -28,7 +28,7 @@ class Hosts_And_Users extends ReportManagement
      */
     public function file()
     {
-        $this->title =_('User Login');
+        $this->title = _('User Logins');
 
         $this->headerData = [
             _('User Name'),
@@ -52,18 +52,5 @@ class Hosts_And_Users extends ReportManagement
         echo $this->render(12, 'userlogin-table');
         echo '</div>';
         echo '</div>';
-    }
-    /**
-     * Display list of user login items.
-     *
-     * @return void
-     */
-    public function getUserloginList()
-    {
-        header('Content-type: application/json');
-        Route::listem('usertracking');
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo Route::getData();
-        exit;
     }
 }

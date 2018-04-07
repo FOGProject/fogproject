@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 01:25-0400\n"
+"POT-Creation-Date: 2018-04-07 15:26-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -2500,41 +2500,12 @@ msgstr "Sistema seriale"
 msgid "Host Desc"
 msgstr "Host Desc"
 
-msgid "Host Listing Export"
-msgstr "Esportazione delle liste host"
+msgid "Primary MAC"
+msgstr "MAC primaria"
 
-msgid "Host Created"
-msgstr "Host Creato"
-
-msgid "Host AD Join"
-msgstr "Host AD Join"
-
-msgid "Host AD OU"
-msgstr "Host AD OU"
-
-msgid "Host AD Domain"
-msgstr "Host AD Dominio"
-
-msgid "Host Kernel"
-msgstr "Host kernel"
-
-msgid "Host HD Device"
-msgstr "Host Dispositivo HD"
-
-msgid "Image ID"
-msgstr "ID immagine"
-
-msgid "Image Desc"
-msgstr "immagine Desc"
-
-msgid "OS Name"
-msgstr "Nome OS"
-
-msgid "Yes"
-msgstr "Sì"
-
-msgid "No"
-msgstr "No"
+#, fuzzy
+msgid "Host LIst"
+msgstr "Lista Host"
 
 msgid "FOG Imaging Log"
 msgstr "FOG Imaging Log"
@@ -2569,8 +2540,41 @@ msgstr "Non valido"
 msgid "Host Product Keys"
 msgstr "Tasti del prodotto host"
 
+msgid "Host Created"
+msgstr "Host Creato"
+
 msgid "Host Product Key"
 msgstr "Host Product Key"
+
+msgid "Host AD Join"
+msgstr "Host AD Join"
+
+msgid "Host AD OU"
+msgstr "Host AD OU"
+
+msgid "Host AD Domain"
+msgstr "Host AD Dominio"
+
+msgid "Host Kernel"
+msgstr "Host kernel"
+
+msgid "Host HD Device"
+msgstr "Host Dispositivo HD"
+
+msgid "Image ID"
+msgstr "ID immagine"
+
+msgid "Image Desc"
+msgstr "immagine Desc"
+
+msgid "OS Name"
+msgstr "Nome OS"
+
+msgid "Yes"
+msgstr "Sì"
+
+msgid "No"
+msgstr "No"
 
 #, fuzzy
 msgid "Full History"
@@ -2602,10 +2606,6 @@ msgstr "Host Descrizione"
 
 msgid "Service Start"
 msgstr "Servizio avviato"
-
-#, fuzzy
-msgid "User Login"
-msgstr "Conte CPU"
 
 #, fuzzy
 msgid "User Logins"
@@ -4270,9 +4270,6 @@ msgstr "Host / Nome gruppo"
 msgid "Task Type"
 msgstr "Tipo attività"
 
-msgid "Primary MAC"
-msgstr "MAC primaria"
-
 #, fuzzy
 msgid "Ping Status"
 msgstr "Stato"
@@ -5303,6 +5300,9 @@ msgstr "Messaggio"
 msgid "Check that database is running"
 msgstr "Controllare che database è in esecuzione"
 
+msgid "No Data"
+msgstr "Nessun dato"
+
 #, fuzzy
 msgid "See all results"
 msgstr "Elencare tutte le regole"
@@ -5791,9 +5791,6 @@ msgstr "Chiave deve essere una stringa o un indice"
 
 msgid "Key must be an array of keys or a string."
 msgstr "Chiave deve essere un array o una stringa."
-
-msgid "No Data"
-msgstr "Nessun dato"
 
 msgid "Not a number"
 msgstr "Non è un numero"

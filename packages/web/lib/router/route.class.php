@@ -526,12 +526,17 @@ class Route extends FOGBase
                     }
                 ];
                 break;
+            case 'deployed':
+            case 'datetime':
             case 'createdTime':
                 $columns[] = [
                     'db' => $real,
                     'dt' => $common,
                     'formatter' => function ($d, $row) {
-                        return self::niceDate($d)->format('Y-m-d H:i:s');
+                        if (self::validDate($d)) {
+                            return self::niceDate($d)->format('Y-m-d H:i:s');
+                        }
+                        return _('No Data');
                     }
                 ];
                 break;

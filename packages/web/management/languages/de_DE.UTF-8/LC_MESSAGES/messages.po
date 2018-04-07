@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 01:25-0400\n"
+"POT-Creation-Date: 2018-04-07 15:26-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -2623,45 +2623,12 @@ msgstr "Seriennummer"
 msgid "Host Desc"
 msgstr "Host-Beschreibung"
 
-msgid "Host Listing Export"
-msgstr "Host-Liste exportieren"
-
-msgid "Host Created"
-msgstr "Host erstellt"
+msgid "Primary MAC"
+msgstr "Primäre MAC"
 
 #, fuzzy
-msgid "Host AD Join"
-msgstr "Host AD-Beitretung"
-
-#, fuzzy
-msgid "Host AD OU"
-msgstr "Host AD OU"
-
-#, fuzzy
-msgid "Host AD Domain"
-msgstr "Host AD-Domäne"
-
-msgid "Host Kernel"
-msgstr "Host-Kernel"
-
-#, fuzzy
-msgid "Host HD Device"
-msgstr "Host HD-Gerät"
-
-msgid "Image ID"
-msgstr "Image-ID"
-
-msgid "Image Desc"
-msgstr "Image-Desc"
-
-msgid "OS Name"
-msgstr "Betriebssystem"
-
-msgid "Yes"
-msgstr "Ja"
-
-msgid "No"
-msgstr "Nein"
+msgid "Host LIst"
+msgstr "Hostliste"
 
 msgid "FOG Imaging Log"
 msgstr "FOG Imaging-Logbuch"
@@ -2699,8 +2666,45 @@ msgstr "nicht gültig"
 msgid "Host Product Keys"
 msgstr "Host-Produkt-Schlüssel"
 
+msgid "Host Created"
+msgstr "Host erstellt"
+
 msgid "Host Product Key"
 msgstr "Host Produktschlüssel"
+
+#, fuzzy
+msgid "Host AD Join"
+msgstr "Host AD-Beitretung"
+
+#, fuzzy
+msgid "Host AD OU"
+msgstr "Host AD OU"
+
+#, fuzzy
+msgid "Host AD Domain"
+msgstr "Host AD-Domäne"
+
+msgid "Host Kernel"
+msgstr "Host-Kernel"
+
+#, fuzzy
+msgid "Host HD Device"
+msgstr "Host HD-Gerät"
+
+msgid "Image ID"
+msgstr "Image-ID"
+
+msgid "Image Desc"
+msgstr "Image-Desc"
+
+msgid "OS Name"
+msgstr "Betriebssystem"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "No"
+msgstr "Nein"
 
 #, fuzzy
 msgid "Full History"
@@ -2736,10 +2740,6 @@ msgstr "Host-Beschreibung"
 #, fuzzy
 msgid "Service Start"
 msgstr "Service-Start"
-
-#, fuzzy
-msgid "User Login"
-msgstr "CPU-Anzahl"
 
 #, fuzzy
 msgid "User Logins"
@@ -4541,9 +4541,6 @@ msgstr "Host/Gruppenname"
 msgid "Task Type"
 msgstr "Task-Typ"
 
-msgid "Primary MAC"
-msgstr "Primäre MAC"
-
 #, fuzzy
 msgid "Ping Status"
 msgstr "Status"
@@ -5642,6 +5639,9 @@ msgstr "Nachricht"
 msgid "Check that database is running"
 msgstr "Überprüfen Sie, ob die Datenbank ausgeführt wird"
 
+msgid "No Data"
+msgstr "Keine Daten"
+
 #, fuzzy
 msgid "See all results"
 msgstr "Alle Regeln auflisten"
@@ -6207,9 +6207,6 @@ msgstr "Schlüsselname muss eine Zeichenfolge sein."
 msgid "Key must be an array of keys or a string."
 msgstr ""
 "Schlüsselname muss ein Array von Schlüsseln sein oder eine Zeichenfolge haben"
-
-msgid "No Data"
-msgstr "Keine Daten"
 
 msgid "Not a number"
 msgstr "Keine Zahl"
