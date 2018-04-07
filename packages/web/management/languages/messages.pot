@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 17:50-0400\n"
+"POT-Creation-Date: 2018-04-07 18:00-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2273,22 +2273,16 @@ msgstr ""
 msgid "Export Pending MAC Addresses"
 msgstr ""
 
-msgid "Full Inventory Export"
-msgstr ""
-
-msgid "Host name"
-msgstr ""
-
-msgid "Memory"
-msgstr ""
-
-msgid "System Product"
+msgid "Inventory List"
 msgstr ""
 
 msgid "System Serial"
 msgstr ""
 
-msgid "Host Desc"
+msgid "System Product"
+msgstr ""
+
+msgid "System UUID"
 msgstr ""
 
 msgid "Primary MAC"
@@ -2307,6 +2301,9 @@ msgid "Duration"
 msgstr ""
 
 msgid "Host Product Keys"
+msgstr ""
+
+msgid "Host Desc"
 msgstr ""
 
 msgid "Host Created"
@@ -4066,9 +4063,6 @@ msgstr ""
 msgid "System Version"
 msgstr ""
 
-msgid "System UUID"
-msgstr ""
-
 msgid "System Type"
 msgstr ""
 
@@ -4106,6 +4100,9 @@ msgid "CPU Normal Speed"
 msgstr ""
 
 msgid "CPU Max Speed"
+msgstr ""
+
+msgid "Memory"
 msgstr ""
 
 msgid "Hard Drive Model"
