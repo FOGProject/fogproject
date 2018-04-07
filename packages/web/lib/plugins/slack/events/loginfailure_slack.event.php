@@ -64,7 +64,7 @@ class LoginFailure_Slack extends Event
      */
     public function onEvent($event, $data)
     {
-        Route::listem('slacks');
+        Route::listem('slack');
         $Slacks = json_decode(
             Route::getData()
         );
