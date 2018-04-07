@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 17:47-0400\n"
+"POT-Creation-Date: 2018-04-07 18:00-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -2482,23 +2482,18 @@ msgstr "Indirizzo MAC"
 msgid "Export Pending MAC Addresses"
 msgstr "Indirizzo MAC"
 
-msgid "Full Inventory Export"
-msgstr "Inventario Export completa"
-
-msgid "Host name"
-msgstr "Nome host"
-
-msgid "Memory"
-msgstr "Memoria"
-
-msgid "System Product"
-msgstr "Sistema prodotto"
+#, fuzzy
+msgid "Inventory List"
+msgstr "Inventario"
 
 msgid "System Serial"
 msgstr "Sistema seriale"
 
-msgid "Host Desc"
-msgstr "Host Desc"
+msgid "System Product"
+msgstr "Sistema prodotto"
+
+msgid "System UUID"
+msgstr "UUID di sistema"
 
 msgid "Primary MAC"
 msgstr "MAC primaria"
@@ -2518,6 +2513,9 @@ msgstr "Durata"
 
 msgid "Host Product Keys"
 msgstr "Tasti del prodotto host"
+
+msgid "Host Desc"
+msgstr "Host Desc"
 
 msgid "Host Created"
 msgstr "Host Creato"
@@ -4459,9 +4457,6 @@ msgstr "Sistema produttore"
 msgid "System Version"
 msgstr "Sistema versione"
 
-msgid "System UUID"
-msgstr "UUID di sistema"
-
 msgid "System Type"
 msgstr "Sistema tipo"
 
@@ -4500,6 +4495,9 @@ msgstr "Velocità CPU Normale"
 
 msgid "CPU Max Speed"
 msgstr "CPU Velocità max"
+
+msgid "Memory"
+msgstr "Memoria"
 
 #, fuzzy
 msgid "Hard Drive Model"

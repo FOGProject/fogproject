@@ -134,6 +134,27 @@
             break;
         // Inventory Report
         case 'inventory report':
+            var inventoryTable = $('#inventory-table'),
+                table = Common.registerTable(inventoryTable, null, {
+                    order: [
+                        [0, 'asc']
+                    ],
+                    buttons: reportButtons,
+                    columns: [
+                        {data: 'hostLink'},
+                        {data: 'sysserial'},
+                        {data: 'sysproduct'},
+                        {data: 'sysuuid'}
+
+                    ],
+                    rowId: 'id',
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: '../fog/inventory',
+                        type: 'get'
+                    }
+                });
             break;
         // Pending MAC
         case 'pending mac list':

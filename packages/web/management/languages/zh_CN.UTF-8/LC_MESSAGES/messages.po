@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 17:47-0400\n"
+"POT-Creation-Date: 2018-04-07 18:00-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2601,23 +2601,19 @@ msgstr "MAC地址列表"
 msgid "Export Pending MAC Addresses"
 msgstr "MAC地址列表"
 
-msgid "Full Inventory Export"
-msgstr "完整清单导出"
-
-msgid "Host name"
-msgstr "主机名"
-
-msgid "Memory"
-msgstr "记忆"
-
-msgid "System Product"
-msgstr "系统产品"
+#, fuzzy
+msgid "Inventory List"
+msgstr "库存"
 
 msgid "System Serial"
 msgstr "系统序列"
 
-msgid "Host Desc"
-msgstr "主持人说明"
+msgid "System Product"
+msgstr "系统产品"
+
+#, fuzzy
+msgid "System UUID"
+msgstr "系统正常运行时间"
 
 msgid "Primary MAC"
 msgstr "主MAC"
@@ -2638,6 +2634,9 @@ msgstr "为期"
 #, fuzzy
 msgid "Host Product Keys"
 msgstr "主机产品密钥"
+
+msgid "Host Desc"
+msgstr "主持人说明"
 
 msgid "Host Created"
 msgstr "主机创建"
@@ -4723,10 +4722,6 @@ msgstr "系统制造商"
 msgid "System Version"
 msgstr "系统版本"
 
-#, fuzzy
-msgid "System UUID"
-msgstr "系统正常运行时间"
-
 msgid "System Type"
 msgstr "系统类型"
 
@@ -4765,6 +4760,9 @@ msgstr "CPU正常速度"
 
 msgid "CPU Max Speed"
 msgstr "CPU最大速度"
+
+msgid "Memory"
+msgstr "记忆"
 
 #, fuzzy
 msgid "Hard Drive Model"

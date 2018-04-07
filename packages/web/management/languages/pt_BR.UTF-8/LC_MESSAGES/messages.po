@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 17:47-0400\n"
+"POT-Creation-Date: 2018-04-07 18:00-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2603,23 +2603,19 @@ msgstr "Lista de endereços MAC"
 msgid "Export Pending MAC Addresses"
 msgstr "Lista de endereços MAC"
 
-msgid "Full Inventory Export"
-msgstr "Exportação inventário completo"
-
-msgid "Host name"
-msgstr "nome do host"
-
-msgid "Memory"
-msgstr "Memória"
-
-msgid "System Product"
-msgstr "sistema de Produto"
+#, fuzzy
+msgid "Inventory List"
+msgstr "Inventário"
 
 msgid "System Serial"
 msgstr "Serial sistema"
 
-msgid "Host Desc"
-msgstr "hospedar desconto"
+msgid "System Product"
+msgstr "sistema de Produto"
+
+#, fuzzy
+msgid "System UUID"
+msgstr "Uptime sistema"
 
 msgid "Primary MAC"
 msgstr "MAC primária"
@@ -2640,6 +2636,9 @@ msgstr "Duração"
 #, fuzzy
 msgid "Host Product Keys"
 msgstr "Hospedar de Chave de Produto"
+
+msgid "Host Desc"
+msgstr "hospedar desconto"
 
 msgid "Host Created"
 msgstr "host criado"
@@ -4731,10 +4730,6 @@ msgstr "sistema Fabricante"
 msgid "System Version"
 msgstr "Versão do sistema"
 
-#, fuzzy
-msgid "System UUID"
-msgstr "Uptime sistema"
-
 msgid "System Type"
 msgstr "Tipo de sistema"
 
@@ -4773,6 +4768,9 @@ msgstr "CPU de velocidade normal"
 
 msgid "CPU Max Speed"
 msgstr "CPU Max Speed"
+
+msgid "Memory"
+msgstr "Memória"
 
 #, fuzzy
 msgid "Hard Drive Model"
