@@ -7,7 +7,7 @@
         columns: [
             {data: 'name'},
             {data: 'inputValue'},
-            {data: 'category'}
+            {data: 'category', visible: false}
         ],
         columnDefs: [
             {
@@ -18,10 +18,6 @@
                 orderable: false,
                 targets: 1
             },
-            {
-                visible: false,
-                targets: 2
-            }
         ],
         select: false,
         rowGroup: {
@@ -38,21 +34,22 @@
         },
     });
     table.on('draw', function() {
-        Common.iCheck('#settings-table :input');
-    });
-    $('.resettoken').on('click', function(e) {
-        e.preventDefault();
-        Pace.ignore(function() {
-            $.ajax({
-                url: '../status/newtoken.php',
-                dataType: 'json',
-                success: function(data, textStatus, jqXHR) {
-                    $('.token').val(data);
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                }
+        $('.slider').slider();
+        $('.resettoken').on('click', function(e) {
+            e.preventDefault();
+            Pace.ignore(function() {
+                $.ajax({
+                    url: '../status/newtoken.php',
+                    dataType: 'json',
+                    success: function(data, textStatus, jqXHR) {
+                        $('.token').val(data);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                    }
+                });
             });
         });
+        $(':password').before('<span class="input-group-addon"><i class="fa fa-eye-slash fogpasswordeye"></i></span>');
+        Common.iCheck('#settings-table :input');
     });
-    $('.slider').slider();
 })(jQuery);
