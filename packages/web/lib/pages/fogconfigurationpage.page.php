@@ -3130,35 +3130,34 @@ class FOGConfigurationPage extends FOGPage
                             ($row['settingValue'] > 0 ? 'checked' : '')
                         );
                         break;
-                    case ('FOG_API_TOKEN' === $row['settingkey']
-                        || (preg_match('#pass#i', $row['settingKey'])
-                        && !preg_match('#(valid|min)#i', $row['settingKey']))):
+                    case 'FOG_API_TOKEN':
+                        $input = '<div class="input-group">';
+                        $input .= self::makeInput(
+                            'form-control token',
+                            $row['settingID'],
+                            '',
+                            'text',
+                            $row['settingKey'],
+                            base64_encode($row['settingValue']),
+                            false,
+                            false,
+                            -1,
+                            -1,
+                            '',
+                            true
+                        );
+                        $input .= '<div class="input-group-btn">';
+                        $input .= self::makeButton(
+                            'resettoken',
+                            _('Reset Token'),
+                            'btn btn-warning resettoken'
+                        );
+                        $input .= '</div>';
+                        $input .= '</div>';
+                        break;
+                    case (preg_match('#pass#i', $row['settingKey'])
+                        && !preg_match('#(valid|min)#i', $row['settingKey'])):
                         switch ($row['settingKey']) {
-                        case 'FOG_API_TOKEN':
-                            $input = '<div class="input-group">';
-                            $input .= self::makeInput(
-                                'form-control token',
-                                $row['settingID'],
-                                '',
-                                'text',
-                                $row['settingKey'],
-                                base64_encode($row['settingValue']),
-                                false,
-                                false,
-                                -1,
-                                -1,
-                                '',
-                                true
-                            );
-                            $input .= '<div class="input-group-btn">';
-                            $input .= self::makeButton(
-                                'resettoken',
-                                _('Reset Token'),
-                                'btn btn-warning resettoken'
-                            );
-                            $input .= '</div>';
-                            $input .= '</div>';
-                            break;
                         case 'FOG_STORAGENODE_MYSQLPASS':
                             $input = self::makeInput(
                                 'form-control',
