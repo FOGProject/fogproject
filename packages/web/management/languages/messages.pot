@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-08 15:04-0400\n"
+"POT-Creation-Date: 2018-04-08 17:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3235,54 +3235,6 @@ msgstr ""
 msgid "Could not read temp file"
 msgstr ""
 
-msgid "FOG System Settings"
-msgstr ""
-
-msgid ""
-"This section allows you to customize the way in which FOG operates. Please "
-"be very careful changing these settings as they can cause issues that are "
-"difficult to troubleshoot."
-msgstr ""
-
-msgid "Expand All"
-msgstr ""
-
-msgid "Collapse All"
-msgstr ""
-
-msgid "10"
-msgstr ""
-
-msgid "25"
-msgstr ""
-
-msgid "50"
-msgstr ""
-
-msgid "100"
-msgstr ""
-
-msgid "Partclone Gzip"
-msgstr ""
-
-msgid "Partclone Gzip Split 200MiB"
-msgstr ""
-
-msgid "Partclone Uncompressed"
-msgstr ""
-
-msgid "Partclone Uncompressed 200MiB"
-msgstr ""
-
-msgid "Partclone Zstd"
-msgstr ""
-
-msgid "Partclone Zstd Split 200MiB"
-msgstr ""
-
-msgid "No image specified"
-msgstr ""
-
 msgid "No Image specified"
 msgstr ""
 
@@ -3314,6 +3266,15 @@ msgid "Settings Update Success"
 msgstr ""
 
 msgid "Settings Update Fail"
+msgstr ""
+
+msgid "Setting"
+msgstr ""
+
+msgid "Value"
+msgstr ""
+
+msgid "Save"
 msgstr ""
 
 msgid "Service Master"
@@ -3383,6 +3344,39 @@ msgid "Import Database Success"
 msgstr ""
 
 msgid "Import Database Fail"
+msgstr ""
+
+msgid "10"
+msgstr ""
+
+msgid "25"
+msgstr ""
+
+msgid "50"
+msgstr ""
+
+msgid "100"
+msgstr ""
+
+msgid "Partclone Gzip"
+msgstr ""
+
+msgid "Partclone Gzip Split 200MiB"
+msgstr ""
+
+msgid "Partclone Uncompressed"
+msgstr ""
+
+msgid "Partclone Uncompressed 200MiB"
+msgstr ""
+
+msgid "Partclone Zstd"
+msgstr ""
+
+msgid "Partclone Zstd Split 200MiB"
+msgstr ""
+
+msgid "No image specified"
 msgstr ""
 
 msgid "Protected"
@@ -5478,9 +5472,6 @@ msgid "Record not found"
 msgstr ""
 
 msgid "Returning value of key"
-msgstr ""
-
-msgid "Value"
 msgstr ""
 
 msgid "No key being requested"

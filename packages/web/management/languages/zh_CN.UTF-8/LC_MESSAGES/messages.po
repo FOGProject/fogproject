@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-08 13:14-0400\n"
+"POT-Creation-Date: 2018-04-08 17:03-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3738,59 +3738,6 @@ msgstr "当前记录"
 msgid "Could not read temp file"
 msgstr "无法读取临时文件"
 
-msgid "FOG System Settings"
-msgstr "FOG系统设置"
-
-msgid ""
-"This section allows you to customize the way in which FOG operates. Please "
-"be very careful changing these settings as they can cause issues that are "
-"difficult to troubleshoot."
-msgstr ""
-
-#, fuzzy
-msgid "Expand All"
-msgstr "启用"
-
-msgid "Collapse All"
-msgstr ""
-
-msgid "10"
-msgstr ""
-
-msgid "25"
-msgstr ""
-
-msgid "50"
-msgstr ""
-
-msgid "100"
-msgstr ""
-
-#, fuzzy
-msgid "Partclone Gzip"
-msgstr "Partclone"
-
-msgid "Partclone Gzip Split 200MiB"
-msgstr ""
-
-msgid "Partclone Uncompressed"
-msgstr ""
-
-#, fuzzy
-msgid "Partclone Uncompressed 200MiB"
-msgstr "Partclone"
-
-#, fuzzy
-msgid "Partclone Zstd"
-msgstr "Partclone"
-
-#, fuzzy
-msgid "Partclone Zstd Split 200MiB"
-msgstr "Partclone"
-
-msgid "No image specified"
-msgstr "没有指定的图像"
-
 msgid "No Image specified"
 msgstr "没有指定的Image"
 
@@ -3829,6 +3776,16 @@ msgstr "安装/升级成功！"
 #, fuzzy
 msgid "Settings Update Fail"
 msgstr "设置更新"
+
+#, fuzzy
+msgid "Setting"
+msgstr "设置"
+
+msgid "Value"
+msgstr "值"
+
+msgid "Save"
+msgstr ""
 
 msgid "Service Master"
 msgstr "服务主"
@@ -3912,6 +3869,43 @@ msgstr "日期"
 #, fuzzy
 msgid "Import Database Fail"
 msgstr "日期"
+
+msgid "10"
+msgstr ""
+
+msgid "25"
+msgstr ""
+
+msgid "50"
+msgstr ""
+
+msgid "100"
+msgstr ""
+
+#, fuzzy
+msgid "Partclone Gzip"
+msgstr "Partclone"
+
+msgid "Partclone Gzip Split 200MiB"
+msgstr ""
+
+msgid "Partclone Uncompressed"
+msgstr ""
+
+#, fuzzy
+msgid "Partclone Uncompressed 200MiB"
+msgstr "Partclone"
+
+#, fuzzy
+msgid "Partclone Zstd"
+msgstr "Partclone"
+
+#, fuzzy
+msgid "Partclone Zstd Split 200MiB"
+msgstr "Partclone"
+
+msgid "No image specified"
+msgstr "没有指定的图像"
 
 msgid "Protected"
 msgstr "受保护"
@@ -6404,9 +6398,6 @@ msgstr "未发现记录，错误： %s"
 
 msgid "Returning value of key"
 msgstr "返回键的值"
-
-msgid "Value"
-msgstr "值"
 
 msgid "No key being requested"
 msgstr "没有要求的关键"

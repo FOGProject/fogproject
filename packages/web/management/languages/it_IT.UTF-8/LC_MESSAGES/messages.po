@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-08 13:14-0400\n"
+"POT-Creation-Date: 2018-04-08 17:03-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3531,56 +3531,6 @@ msgstr "Current Records"
 msgid "Could not read temp file"
 msgstr "Impossibile leggere il file temporaneo"
 
-msgid "FOG System Settings"
-msgstr "Impostazioni di sistema della nebbia"
-
-msgid ""
-"This section allows you to customize the way in which FOG operates. Please "
-"be very careful changing these settings as they can cause issues that are "
-"difficult to troubleshoot."
-msgstr ""
-
-#, fuzzy
-msgid "Expand All"
-msgstr "Abilitato"
-
-msgid "Collapse All"
-msgstr ""
-
-msgid "10"
-msgstr ""
-
-msgid "25"
-msgstr ""
-
-msgid "50"
-msgstr ""
-
-msgid "100"
-msgstr ""
-
-msgid "Partclone Gzip"
-msgstr "Partclone Gzip"
-
-msgid "Partclone Gzip Split 200MiB"
-msgstr "Partclone Gzip diviso per 200MiB"
-
-msgid "Partclone Uncompressed"
-msgstr " Partclone non compressa"
-
-#, fuzzy
-msgid "Partclone Uncompressed 200MiB"
-msgstr "Partclone non compressa diviso per 200MiB"
-
-msgid "Partclone Zstd"
-msgstr "Partclone Zstd"
-
-msgid "Partclone Zstd Split 200MiB"
-msgstr "Partclone zstd diviso per 200MiB"
-
-msgid "No image specified"
-msgstr "Nessun immagine specificata"
-
 msgid "No Image specified"
 msgstr "Nessuna immagine specificata"
 
@@ -3616,6 +3566,16 @@ msgstr "Modifica Impostazioni completata"
 
 msgid "Settings Update Fail"
 msgstr "Aggiornamento Impostazioni non riuscito"
+
+#, fuzzy
+msgid "Setting"
+msgstr "impostazioni"
+
+msgid "Value"
+msgstr "Valore"
+
+msgid "Save"
+msgstr ""
 
 msgid "Service Master"
 msgstr "Service master"
@@ -3692,6 +3652,40 @@ msgstr "Importa database"
 #, fuzzy
 msgid "Import Database Fail"
 msgstr "Importa database"
+
+msgid "10"
+msgstr ""
+
+msgid "25"
+msgstr ""
+
+msgid "50"
+msgstr ""
+
+msgid "100"
+msgstr ""
+
+msgid "Partclone Gzip"
+msgstr "Partclone Gzip"
+
+msgid "Partclone Gzip Split 200MiB"
+msgstr "Partclone Gzip diviso per 200MiB"
+
+msgid "Partclone Uncompressed"
+msgstr " Partclone non compressa"
+
+#, fuzzy
+msgid "Partclone Uncompressed 200MiB"
+msgstr "Partclone non compressa diviso per 200MiB"
+
+msgid "Partclone Zstd"
+msgstr "Partclone Zstd"
+
+msgid "Partclone Zstd Split 200MiB"
+msgstr "Partclone zstd diviso per 200MiB"
+
+msgid "No image specified"
+msgstr "Nessun immagine specificata"
 
 msgid "Protected"
 msgstr "Protetta"
@@ -5994,9 +5988,6 @@ msgstr "Record non trovato"
 
 msgid "Returning value of key"
 msgstr "Tornando valore della chiave"
-
-msgid "Value"
-msgstr "Valore"
 
 msgid "No key being requested"
 msgstr "Nessuna chiave chiede il"
