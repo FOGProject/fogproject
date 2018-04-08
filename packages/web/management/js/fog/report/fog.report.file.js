@@ -10,13 +10,13 @@
                 download: 'open',
                 customize: function (doc) {
                     var colspan = doc.content[1].table.body[0].length,
-                        percent = parseInt(1/colspan * 100);
-                    doc.content[1].table.widths = [];
-                    for (var i = 0; i < doc.content[1].table.body[0].length; i++) {
-                        doc.content[1].table.widths.push(percent + '%');
-                    }
-                    //doc.content[1].table.widths =
-                    //    Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+                        widths = [];
+                    $('table th').each(function() {
+                        var width = $(this).outerWidth(),
+                            percent = Math.round(width / $(this).parent().outerWidth() * 100);
+                        widths.push(percent+'%');
+                    });
+                    doc.content[1].table.widths = widths;
                 }
             },
             'print',
