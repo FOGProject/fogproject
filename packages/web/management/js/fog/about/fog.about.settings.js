@@ -37,6 +37,9 @@
             type: 'post'
         },
     });
+    table.on('draw', function() {
+        Common.iCheck('#settings-table :input');
+    });
     $('.resettoken').on('click', function(e) {
         e.preventDefault();
         Pace.ignore(function() {
