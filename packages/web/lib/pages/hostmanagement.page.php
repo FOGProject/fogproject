@@ -125,12 +125,12 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'approve',
             _('Approve selected'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         $buttons .= self::makeButton(
             'delete',
             _('Delete selected'),
-            'btn btn-danger pull-right'
+            'btn btn-danger pull-left'
         );
 
         $modalApprovalBtns = self::makeButton(
@@ -198,10 +198,9 @@ class HostManagement extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12);
+        $this->render(12, 'dataTable', $buttons);
         echo '</div>';
         echo '<div class="box-footer">';
-        echo $buttons;
         echo $approvalModal;
         echo $deleteModal;
         echo '</div>';
@@ -291,12 +290,12 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'approve',
             _('Approve selected'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         $buttons .= self::makeButton(
             'delete',
             _('Delete selected'),
-            'btn btn-danger pull-right'
+            'btn btn-danger pull-left'
         );
 
         $modalApprovalBtns = self::makeButton(
@@ -364,10 +363,10 @@ class HostManagement extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12);
+        $this->render(12, 'dataTable', $buttons);
         echo '</div>';
         echo '<div class="box-footer">';
-        echo $buttons;
+        //echo $buttons;
         echo $approvalModal;
         echo $deleteModal;
         echo '</div>';
@@ -414,7 +413,7 @@ class HostManagement extends FOGPage
             http_response_code(HTTPResponseCodes::HTTP_ACCEPTED);
             echo json_encode(
                 [
-                    'msg' => _('Approved selected macss!'),
+                    'msg' => _('Approved selected macs!'),
                     'title' => _('MAC Approval Success')
                 ]
             );

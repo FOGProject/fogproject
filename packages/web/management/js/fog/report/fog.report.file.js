@@ -235,8 +235,5 @@
                     }
                 });
             break;
-        // User Tracking
-        case 'user tracking':
-            break;
     }
 })(jQuery);

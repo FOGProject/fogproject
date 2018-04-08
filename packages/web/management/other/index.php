@@ -73,8 +73,15 @@ if (self::$FOGUser->isValid()) {
     echo '</a>';
 }
 echo '<nav class="navbar navbar-static-top">';
-echo '<p class="mobile-logo"><a href="./index.php"><b>FOG</b> Project</a></p>';
 if (self::$FOGUser->isValid()) {
+    echo '<p class="mobile-logo">';
+    echo '<a href="../management/index.php">';
+    echo '<b>'
+        . _('FOG')
+        . '</b> '
+        . _('Project')
+        . '</a>';
+    echo '</p>';
     echo '<a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">';
     echo '<span class="sr-only">Toggle navigation</span>';
     echo '<span class="icon-bar"></span>';
