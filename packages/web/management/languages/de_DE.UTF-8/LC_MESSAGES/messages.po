@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-08 13:14-0400\n"
+"POT-Creation-Date: 2018-04-08 17:03-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3753,59 +3753,6 @@ msgstr "Aktuelle Datensätze"
 msgid "Could not read temp file"
 msgstr "Temporäre Datei konnte nicht gelesen werden."
 
-msgid "FOG System Settings"
-msgstr "FOG-Systemeinstellungen"
-
-msgid ""
-"This section allows you to customize the way in which FOG operates. Please "
-"be very careful changing these settings as they can cause issues that are "
-"difficult to troubleshoot."
-msgstr ""
-
-#, fuzzy
-msgid "Expand All"
-msgstr "Aktiviert"
-
-msgid "Collapse All"
-msgstr ""
-
-msgid "10"
-msgstr ""
-
-msgid "25"
-msgstr ""
-
-msgid "50"
-msgstr ""
-
-msgid "100"
-msgstr ""
-
-#, fuzzy
-msgid "Partclone Gzip"
-msgstr "Partclone Gzip"
-
-msgid "Partclone Gzip Split 200MiB"
-msgstr "Partclone Gzip geteilt 200MiB"
-
-msgid "Partclone Uncompressed"
-msgstr "Partclone unkomprimiert"
-
-#, fuzzy
-msgid "Partclone Uncompressed 200MiB"
-msgstr "Partclone unkomprimiert gesplittet 200MiB"
-
-#, fuzzy
-msgid "Partclone Zstd"
-msgstr "Partclone ZSTD"
-
-#, fuzzy
-msgid "Partclone Zstd Split 200MiB"
-msgstr "Partclone ZSTD gesplittet 200MiB"
-
-msgid "No image specified"
-msgstr "Kein Image angegeben"
-
 msgid "No Image specified"
 msgstr "Kein Image angegeben"
 
@@ -3844,6 +3791,16 @@ msgstr "Einstellungen erfolgreich aktualisiert"
 #, fuzzy
 msgid "Settings Update Fail"
 msgstr "Update der Einstellungen fehlgeschlagen"
+
+#, fuzzy
+msgid "Setting"
+msgstr "Einstellungen"
+
+msgid "Value"
+msgstr "Wert"
+
+msgid "Save"
+msgstr ""
 
 msgid "Service Master"
 msgstr "Service-Master"
@@ -3927,6 +3884,43 @@ msgstr "Datenbank importieren"
 #, fuzzy
 msgid "Import Database Fail"
 msgstr "Datenbank importieren"
+
+msgid "10"
+msgstr ""
+
+msgid "25"
+msgstr ""
+
+msgid "50"
+msgstr ""
+
+msgid "100"
+msgstr ""
+
+#, fuzzy
+msgid "Partclone Gzip"
+msgstr "Partclone Gzip"
+
+msgid "Partclone Gzip Split 200MiB"
+msgstr "Partclone Gzip geteilt 200MiB"
+
+msgid "Partclone Uncompressed"
+msgstr "Partclone unkomprimiert"
+
+#, fuzzy
+msgid "Partclone Uncompressed 200MiB"
+msgstr "Partclone unkomprimiert gesplittet 200MiB"
+
+#, fuzzy
+msgid "Partclone Zstd"
+msgstr "Partclone ZSTD"
+
+#, fuzzy
+msgid "Partclone Zstd Split 200MiB"
+msgstr "Partclone ZSTD gesplittet 200MiB"
+
+msgid "No image specified"
+msgstr "Kein Image angegeben"
 
 msgid "Protected"
 msgstr "Geschützt"
@@ -6428,9 +6422,6 @@ msgstr "Datensatz wurde nicht gefunden, Fehler: %s"
 
 msgid "Returning value of key"
 msgstr "Wert des Schlüssels zurückgeben"
-
-msgid "Value"
-msgstr "Wert"
 
 msgid "No key being requested"
 msgstr "Kein Schlüssel wurde angefordert"

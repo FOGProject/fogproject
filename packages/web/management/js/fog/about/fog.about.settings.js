@@ -1,34 +1,42 @@
 (function($) {
-    var updateButtons = $('.servicesend'),
-        expand = $('#expandAll'),
-        collapse = $('#collapseAll');
-
-    $('form').on('submit', function(e) {
-        e.preventDefault();
+    var table = Common.registerTable($('#settings-table'), null, {
+        order: [
+            [2, 'asc']
+        ],
+        buttons: [],
+        columns: [
+            {data: 'name'},
+            {data: 'inputValue'},
+            {data: 'category'}
+        ],
+        columnDefs: [
+            {
+                orderable: false,
+                targets: 0
+            },
+            {
+                orderable: false,
+                targets: 1
+            },
+            {
+                visible: false,
+                targets: 2
+            }
+        ],
+        select: false,
+        rowGroup: {
+            dataSrc: 'category'
+        },
+        rowId: 'id',
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getSettingsList',
+            type: 'post'
+        },
     });
-
-    expand.on('click', function(e) {
-        e.preventDefault();
-        $(this).addClass('hidden');
-        collapse.removeClass('hidden');
-        $('.panel-collapse:not(.in)').addClass('in').slideDown();
-    });
-    collapse.on('click', function(e) {
-        e.preventDefault();
-        $(this).addClass('hidden');
-        expand.removeClass('hidden');
-        $('.panel-collapse.in').removeClass('in').slideUp();
-    });
-    updateButtons.on('click', function(e) {
-        e.preventDefault();
-        var button = $(this),
-            form = button.parents('form');
-        button.prop('disabled', true);
-        Common.processForm(form, function(err) {
-            button.prop('disabled', false);
-        });
-    });
-
     $('.resettoken').on('click', function(e) {
         e.preventDefault();
         Pace.ignore(function() {

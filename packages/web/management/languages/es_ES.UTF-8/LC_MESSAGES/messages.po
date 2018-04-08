@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-08 13:14-0400\n"
+"POT-Creation-Date: 2018-04-08 17:03-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3922,59 +3922,6 @@ msgstr "Registros actuales"
 msgid "Could not read temp file"
 msgstr "No se pudo leer el archivo temporal"
 
-msgid "FOG System Settings"
-msgstr "Ajustes del sistema FOG"
-
-msgid ""
-"This section allows you to customize the way in which FOG operates. Please "
-"be very careful changing these settings as they can cause issues that are "
-"difficult to troubleshoot."
-msgstr ""
-
-#, fuzzy
-msgid "Expand All"
-msgstr "habilitado"
-
-msgid "Collapse All"
-msgstr ""
-
-msgid "10"
-msgstr ""
-
-msgid "25"
-msgstr ""
-
-msgid "50"
-msgstr ""
-
-msgid "100"
-msgstr ""
-
-#, fuzzy
-msgid "Partclone Gzip"
-msgstr "Partclone"
-
-msgid "Partclone Gzip Split 200MiB"
-msgstr ""
-
-msgid "Partclone Uncompressed"
-msgstr ""
-
-#, fuzzy
-msgid "Partclone Uncompressed 200MiB"
-msgstr "Partclone"
-
-#, fuzzy
-msgid "Partclone Zstd"
-msgstr "Partclone"
-
-#, fuzzy
-msgid "Partclone Zstd Split 200MiB"
-msgstr "Partclone"
-
-msgid "No image specified"
-msgstr "No hay imagen especificada"
-
 msgid "No Image specified"
 msgstr "Sin imagen especificada"
 
@@ -4013,6 +3960,16 @@ msgstr "actualización de servicio no pudo"
 #, fuzzy
 msgid "Settings Update Fail"
 msgstr "Servicio de Actualización!"
+
+#, fuzzy
+msgid "Setting"
+msgstr "Configuración Tecla"
+
+msgid "Value"
+msgstr "Valor"
+
+msgid "Save"
+msgstr ""
 
 msgid "Service Master"
 msgstr "Maestro servicio"
@@ -4096,6 +4053,43 @@ msgstr "Fecha"
 #, fuzzy
 msgid "Import Database Fail"
 msgstr "Fecha"
+
+msgid "10"
+msgstr ""
+
+msgid "25"
+msgstr ""
+
+msgid "50"
+msgstr ""
+
+msgid "100"
+msgstr ""
+
+#, fuzzy
+msgid "Partclone Gzip"
+msgstr "Partclone"
+
+msgid "Partclone Gzip Split 200MiB"
+msgstr ""
+
+msgid "Partclone Uncompressed"
+msgstr ""
+
+#, fuzzy
+msgid "Partclone Uncompressed 200MiB"
+msgstr "Partclone"
+
+#, fuzzy
+msgid "Partclone Zstd"
+msgstr "Partclone"
+
+#, fuzzy
+msgid "Partclone Zstd Split 200MiB"
+msgstr "Partclone"
+
+msgid "No image specified"
+msgstr "No hay imagen especificada"
 
 msgid "Protected"
 msgstr "Protegido"
@@ -6604,9 +6598,6 @@ msgstr "Registro no encontrado, error: %s"
 
 msgid "Returning value of key"
 msgstr "Volviendo valor de clave"
-
-msgid "Value"
-msgstr "Valor"
 
 msgid "No key being requested"
 msgstr "se requiere ninguna clave"
