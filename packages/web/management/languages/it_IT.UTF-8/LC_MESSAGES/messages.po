@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-07 21:48-0400\n"
+"POT-Creation-Date: 2018-04-08 13:14-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4162,7 +4162,7 @@ msgid "All Pending MACs"
 msgstr "sospeso MAC"
 
 #, fuzzy
-msgid "Approved selected macss!"
+msgid "Approved selected macs!"
 msgstr "Approvare MAC selezionati"
 
 #, fuzzy
