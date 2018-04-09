@@ -222,10 +222,43 @@ class FOGConfigurationPage extends FOGPage
      */
     public function kernelUpdate()
     {
-        $url = 'https://fogproject.org/kernels/kernelupdate_bootstrap_fog2.php';
-        $htmlData = self::$FOGURLRequests->process($url);
+        //$url = 'https://fogproject.org/kernels/kernelupdate_bootstrap_fog2.php';
+        $url = 'https://fogproject.org/kernels/kernelupdate_datatables_fog2.php';
+        $jsonData = self::$FOGURLRequests->process($url);
+
+        $jsonData = json_decode(array_shift($jsonData));
 
         $this->title = _('Kernel Update');
+
+        $this->headerData = [
+            _('Version'),
+            _('Architecture'),
+            _('Type'),
+            _('Date')
+        ];
+        /*$this->templates = [
+            '${version}',
+            '${arch}',
+            '${type}',
+            '${date}'
+        ];*/
+        $this->attributes = [
+            [],
+            [],
+            [],
+            []
+        ];
+
+        foreach ($jsonData as &$kernel) {
+            $this->data[] = [
+                'version' => $kernel->version,
+                'arch' => $kernel->arch,
+                'type' => $kernel->type,
+                'date' => $kernel->date,
+                'download' => $kernel->download
+            ];
+            unset($kernel);
+        }
         echo '<!-- Kernel information -->';
         echo '<div class="box-group" id="kernel-update">';
         echo '<div class="box box-solid">';
@@ -256,7 +289,7 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
-        echo $htmlData[0];
+        echo $this->render(12, 'dataTable', '', '', false);
         echo '</div>';
         echo '<div class="box-footer">';
         echo '</div>';
@@ -1922,23 +1955,27 @@ class FOGConfigurationPage extends FOGPage
         $Services = json_decode(
             Route::getData()
         );
+
         $serverFault = false;
         try {
-            foreach ($Services->data as &$Service) {
-                $key = trim(
-                    $Service->id
+            parse_str(
+                file_get_contents('php://input'),
+                $vars
+            );
+            foreach ($vars as $key => &$val) {
+                Route::indiv('service', $key);
+                $set = trim($val);
+                $Service = json_decode(
+                    Route::getData()
                 );
-                $val = trim(
-                    $Service->value
-                );
-                $name = trim(
-                    $Service->name
-                );
-                $set = filter_var($_POST[$key]);
-                if (isset($checkbox[$name])) {
-                    $set = (int)isset($_POST[$key]);
+                $name = trim($Service->name);
+                $val = trim($Service->value);
+                if ($val == $set) {
+                    continue;
                 }
-                if (isset($needstobenumeric[$name])) {
+                if (isset($checkbox[$name])) {
+                    $set = intval($set) < 1 ? 0 : 1;
+                } elseif (isset($needstobenumeric[$name])) {
                     switch ($needstobenumeric[$name]) {
                     case ($needstobenumeric[$name] === true):
                         if (!is_numeric($set)) {
@@ -1959,8 +1996,7 @@ class FOGConfigurationPage extends FOGPage
                             );
                         }
                     }
-                }
-                if (isset($needstobeip[$name])) {
+                } elseif (isset($needstobeip[$name])) {
                     if (!filter_var($set, FILTER_VALIDATE_IP)) {
                         throw new Exception(
                             $name . ' ' . _('value must be a valid IP Address')
