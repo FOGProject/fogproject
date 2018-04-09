@@ -1,29 +1,29 @@
 (function($) {
-    var table = Common.registerTable($('#settings-table'), null, {
+    var saveBtn = $('#service-send'),
+        table = Common.registerTable($('#settings-table'), null, {
+        buttons: [],
         order: [
             [2, 'asc']
         ],
-        buttons: [],
         columns: [
-            {data: 'name'},
-            {data: 'inputValue'},
-            {data: 'category', visible: false}
-        ],
-        columnDefs: [
             {
-                orderable: false,
-                targets: 0
+                data: 'name',
+                orderable: false
             },
             {
-                orderable: false,
-                targets: 1
+                data: 'inputValue',
+                orderable: false
             },
+            {
+                data: 'category',
+                visible: false
+            }
         ],
         select: false,
         rowGroup: {
             dataSrc: 'category'
         },
-        rowId: 'id',
+        rowId: 'name',
         processing: true,
         serverSide: true,
         ajax: {
@@ -34,6 +34,11 @@
         },
     });
     table.on('draw', function() {
+        var action = '../management/index.php?node='
+            + Common.node
+            + '&sub='
+            + Common.sub,
+            method = 'post';
         $('.slider').slider();
         $('.resettoken').on('click', function(e) {
             e.preventDefault();
@@ -43,13 +48,61 @@
                     dataType: 'json',
                     success: function(data, textStatus, jqXHR) {
                         $('.token').val(data);
+                        var opts = $('.token').serialize();
+                        Common.apiCall(method, action, opts, function(err) {
+                            if (err) {
+                                return;
+                            }
+                            table.draw(false);
+                        });
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                     }
                 });
             });
         });
+        table.$('.input-group,.form-control').css({
+            width: '100%'
+        });
         $(':password').before('<span class="input-group-addon"><i class="fa fa-eye-slash fogpasswordeye"></i></span>');
         Common.iCheck('#settings-table :input');
+        $(':input').on('blur, slideStop', function(e) {
+            e.preventDefault();
+            var opts = $(this).serialize();
+            Common.apiCall(method, action, opts, function(err) {
+                if (err) {
+                    return;
+                }
+                table.draw(false);
+            });
+        });
+        $(':checkbox').on('ifChecked', function(e) {
+            e.preventDefault();
+            var key = $(this).attr('name'),
+                val = 1,
+                opts = {};
+            opts[key] = val;
+            Common.apiCall(method, action, opts, function(err) {
+                if (err) {
+                    return;
+                }
+                table.draw(false);
+            });
+        }).on('ifUnchecked', function(e) {
+            e.preventDefault();
+            var key = $(this).attr('name'),
+                val = 0,
+                opts = {};
+            opts[key] = val;
+            Common.apiCall(method, action, opts, function(err) {
+                if (err) {
+                    return;
+                }
+                table.draw(false);
+            });
+        });
     });
+    if (Common.search && Common.search.length > 0) {
+        table.search(Common.search).draw();
+    }
 })(jQuery);
