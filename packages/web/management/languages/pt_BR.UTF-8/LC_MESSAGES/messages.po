@@ -7040,9 +7040,6 @@ msgstr "domínio usuário"
 msgid "Domain Password"
 msgstr "senha de domínio"
 
-msgid "Will auto-encrypt plaintext"
-msgstr "Will texto simples criptografar-auto"
-
 msgid "Domain Password Legacy"
 msgstr "Domínio senha Legado"
 

@@ -7034,9 +7034,6 @@ msgstr "Domain Username"
 msgid "Domain Password"
 msgstr "Domain Password"
 
-msgid "Will auto-encrypt plaintext"
-msgstr "Will auto-encrypt plaintext"
-
 msgid "Domain Password Legacy"
 msgstr "Domain Password Legacy"
 

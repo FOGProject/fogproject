@@ -7057,9 +7057,6 @@ msgstr "Domaine Nom d'utilisateur"
 msgid "Domain Password"
 msgstr "domaine Mot de passe"
 
-msgid "Will auto-encrypt plaintext"
-msgstr "Will plaintext auto-chiffrer"
-
 msgid "Domain Password Legacy"
 msgstr "Domaine Mot de passe Héritage"
 

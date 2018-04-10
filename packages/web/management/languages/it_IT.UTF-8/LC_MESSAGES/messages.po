@@ -6266,9 +6266,6 @@ msgstr "dominio Nome utente"
 msgid "Domain Password"
 msgstr "password di dominio"
 
-msgid "Will auto-encrypt plaintext"
-msgstr "Sarà chiaro auto-criptare"
-
 msgid "Domain Password Legacy"
 msgstr "Password di dominio Legacy"
 

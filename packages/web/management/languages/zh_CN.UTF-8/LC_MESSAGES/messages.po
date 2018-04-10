@@ -7013,9 +7013,6 @@ msgstr "域用户名"
 msgid "Domain Password"
 msgstr "域密码"
 
-msgid "Will auto-encrypt plaintext"
-msgstr "会自动加密明文"
-
 msgid "Domain Password Legacy"
 msgstr "域密码遗产"
 
