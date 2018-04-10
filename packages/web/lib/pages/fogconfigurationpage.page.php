@@ -222,12 +222,6 @@ class FOGConfigurationPage extends FOGPage
      */
     public function kernelUpdate()
     {
-        //$url = 'https://fogproject.org/kernels/kernelupdate_bootstrap_fog2.php';
-        $url = 'https://fogproject.org/kernels/kernelupdate_datatables_fog2.php';
-        $jsonData = self::$FOGURLRequests->process($url);
-
-        $jsonData = json_decode(array_shift($jsonData));
-
         $this->title = _('Kernel Update');
 
         $this->headerData = [
@@ -236,30 +230,12 @@ class FOGConfigurationPage extends FOGPage
             _('Type'),
             _('Date')
         ];
-        /*$this->templates = [
-            '${version}',
-            '${arch}',
-            '${type}',
-            '${date}'
-        ];*/
         $this->attributes = [
             [],
             [],
             [],
             []
         ];
-
-        foreach ($jsonData as &$kernel) {
-            $this->data[] = [
-                'version' => $kernel->version,
-                'arch' => $kernel->arch,
-                'type' => $kernel->type,
-                'date' => $kernel->date,
-                'download' => $kernel->download
-            ];
-            unset($kernel);
-        }
-        echo '<!-- Kernel information -->';
         echo '<div class="box-group" id="kernel-update">';
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
@@ -289,7 +265,7 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
-        echo $this->render(12, 'dataTable', '', '', false);
+        echo $this->render(12);
         echo '</div>';
         echo '<div class="box-footer">';
         echo '</div>';
