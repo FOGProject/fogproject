@@ -254,6 +254,10 @@ class Route extends FOGBase
             [__CLASS__, 'joining'],
             'join'
         )->get(
+            '/availablekernels',
+            [__CLASS__, 'availablekernels'],
+            'kernelUpdate'
+        )->get(
             "${expandeda}/[current|active]",
             [__CLASS__, 'active'],
             'active'
@@ -1990,5 +1994,18 @@ class Route extends FOGBase
             'macaddressassociation',
             ['hmPending' => [1]]
         );
+    }
+    /**
+     * Presents the kernel listing from fogproject.org
+     *
+     * @return void
+     */
+    public static function availablekernels()
+    {
+        $jsonData = self::$FOGURLRequests->process(
+            'https://fogproject.org/kernels/kernelupdate_datatables_fog2.php'
+        );
+        echo array_shift($jsonData);
+        exit;
     }
 }
