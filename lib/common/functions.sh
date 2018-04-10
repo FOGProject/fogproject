@@ -1486,7 +1486,7 @@ EOF
                         phpfpmconf='/etc/php-fpm.d/www.conf';
                         ;;
                     2)
-                        if [[ $php_ver -eq 5 ]]; then
+                        if [[ $php_ver == 5 ]]; then
                             phpfpmconf="/etc/php$php_ver/fpm/pool.d/www.conf"
                         else
                             phpfpmconf="/etc/php/$php_ver/fpm/pool.d/www.conf"
@@ -1502,18 +1502,6 @@ EOF
                 if [[ $osid -eq 2 ]]; then
                     a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2enmod proxy_fcgi setenvif >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                fi
-                if [[ $osid -eq 2 ]]; then
-                    a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2enmod proxy_fcgi setenvif >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    if [[ $php_ver -eq 5 ]]; then
-                        sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' /etc/php$php_ver/fpm/pool.d/www.conf
-                    else
-                        sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' /etc/php/$php_ver/fpm/pool.d/www.conf
-                    fi
                     a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
