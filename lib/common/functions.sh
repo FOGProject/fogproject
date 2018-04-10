@@ -1481,7 +1481,7 @@ EOF
                 fi
                 errorStat $?
                 ln -s $webdirdest $webdirdest/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                case in $osid
+                case $osid in
                     1)
                         phpfpmconf='/etc/php-fpm.d/www.conf';
                         ;;
@@ -1496,7 +1496,9 @@ EOF
                         phpfpmconf=''
                         ;;
                 esac
-                sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' $phpfpmconf >>$workingdif/error_logs/fog_error_${version}.log 2>&1
+                if [[ -n $phpfpmconf ]]; then
+                    sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                fi
                 if [[ $osid -eq 2 ]]; then
                     a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2enmod proxy_fcgi setenvif >>$workingdir/error_logs/fog_error_${version}.log 2>&1
