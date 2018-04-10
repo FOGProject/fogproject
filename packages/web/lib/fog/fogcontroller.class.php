@@ -347,6 +347,9 @@ abstract class FOGController extends FOGBase
                 print_r($value, 1)
             );
             self::info($msg);
+            if (!is_array($this->data[$key])) {
+                $this->data[$key] = [$this->data[$key]];
+            }
             $this->data[$key][] = $value;
         } catch (Exception $e) {
             $str = sprintf(
