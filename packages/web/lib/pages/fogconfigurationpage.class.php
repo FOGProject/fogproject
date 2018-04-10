@@ -130,9 +130,7 @@ class FOGConfigurationPage extends FOGPage
                 ),
                 FILTER_SANITIZE_URL
             );
-            $test = self::$FOGURLRequests->isAvailable($StorageNode->ip);
-            $test = array_shift($test);
-            if (!$test) {
+            if (!self::getClass('StorageNode', $StorageNode->id)->get('online')) {
                 continue;
             }
             echo '<a id="'
@@ -1192,7 +1190,8 @@ class FOGConfigurationPage extends FOGPage
                 )
             );
             echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading text-center expand_trigger hand" id="pxeItem_'
+            echo '<div class="panel-heading text-center expand_trigger '
+                . 'hand" id="pxeItem_'
                 . $divTab
                 . '">';
             echo '<h4 class="title">';
@@ -2919,9 +2918,19 @@ class FOGConfigurationPage extends FOGPage
             if (count($StorageGroup->enablednodes) < 1) {
                 continue;
             }
+            $nodeIDs = self::getSubObjectIDs(
+                'StorageNode',
+                array(
+                    'id' => $StorageGroup->enablednodes,
+                    'isMaster' => 1
+                )
+            );
+            if (count($nodeIDs ?: []) != 1) {
+                continue;
+            }
             Route::indiv(
                 'storagenode',
-                $StorageGroup->masternode->id
+                array_shift($nodeIDs)
             );
             $StorageNode = json_decode(
                 Route::getData()

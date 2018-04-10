@@ -134,6 +134,8 @@ abstract class FOGController extends FOGBase
             $this->databaseFieldsFlipped = array_flip($this->databaseFields);
             if (is_numeric($data) && $data > 0) {
                 $this->set('id', $data)->load();
+            } elseif (is_numeric($data)) {
+                $this->set('id', $data);
             } elseif (is_array($data)) {
                 $this->setQuery($data);
             }
@@ -249,9 +251,6 @@ abstract class FOGController extends FOGBase
             }
             if (!$this->isLoaded($key)) {
                 $this->loadItem($key);
-            }
-            if (is_numeric($value) && $value < ($key == 'id' ? 1 : -1)) {
-                throw new Exception(_('Invalid numeric entry'));
             }
             $msg = sprintf(
                 '%s: %s, $s: %s',
@@ -832,31 +831,21 @@ abstract class FOGController extends FOGBase
                 _('Invalid type, merge to add, diff to remove')
             );
         }
-        $array_type = sprintf(
-            'array_%s',
-            $array_type
-        );
-        if (!is_callable($array_type)) {
-            throw new Exception(
-                sprintf(
-                    '%s %s: %s %s',
-                    _('Array type'),
-                    _('Type'),
-                    $array_type,
-                    _('is not callable')
-                )
-            );
+        switch ($array_type) {
+        case 'merge':
+            foreach ((array)$array as &$a) {
+                $this->add($key, $a);
+                unset($a);
+            }
+            break;
+        case 'diff':
+            foreach ((array)$array as &$a) {
+                $this->remove($key, $array);
+                unset($a);
+            }
+            break;
         }
-        if (count($array) < 1) {
-            return $this;
-        }
-        $array = array_values(
-            $array_type(
-                (array)$this->get($key),
-                (array)$array
-            )
-        );
-        return $this->set($key, $array);
+        return $this;
     }
     /**
      * Tests if an object is valid.

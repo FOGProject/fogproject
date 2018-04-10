@@ -9,8 +9,7 @@
                 regex: /^[-\w!@#$%^()'{}\\\.~ ]{1,255}$/
             },
             ip: {
-                required: true,
-                regex: /^(([1-9]?\d|1\d\d|2[0-5][0-5]|2[0-4]\d)\.){3}([1-9]?\d|1\d\d|2[0-5][0-5]|2[0-4]\d)$/
+                required: true
             },
             storagegroup: {
                 required: true

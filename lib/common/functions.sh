@@ -420,7 +420,7 @@ configureFTP() {
 }
 configureDefaultiPXEfile() {
     [[ -z $webroot ]] && webroot='/'
-    echo -e "#!ipxe\ncpuid --ext 29 && set arch x86_64 || set arch \${buildarch}\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${httpproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
+	echo -e "#!ipxe\ncpuid --ext 29 && set arch x86_64 || set arch \${buildarch}\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${httpproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
 }
 configureTFTPandPXE() {
     dots "Setting up and starting TFTP and PXE Servers"
@@ -531,10 +531,11 @@ configureMinHttpd() {
 }
 addUbuntuRepo() {
     find /etc/apt/sources.list.d/ -name '*ondrej*' -exec rm -rf {} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common ntpdate >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    add-apt-repository -y ppa:ondrej/$repo >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    add-apt-repository -y ppa:ondrej/apache2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    locale-gen 'en_US.UTF-8' >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/apache2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     return $?
 }
 installPackages() {
@@ -584,9 +585,9 @@ installPackages() {
         2)
             packages="${packages// libapache2-mod-fastcgi/}"
             packages="${packages// libapache2-mod-evasive/}"
+            packages="${packages} php${php_ver}-bcmath bc"
             case $linuxReleaseName in
                 *[Bb][Ii][Aa][Nn]*)
-                    packages="$packages php$php_ver-bcmath bc"
                     if [[ $OSVersion -eq 7 ]]; then
                         debcode="wheezy"
                         grep -l "deb http://packages.dotdeb.org $debcode-php56 all" "/etc/apt/sources.list" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -597,25 +598,8 @@ installPackages() {
                     ;;
                 *)
                     if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; then
-                        packages="$packages php$php_ver-bcmath bc"
                         addUbuntuRepo
-                        if [[ $? != 0 ]]; then
-                            apt-get update >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                            apt-get -yq install python-software-properties ntpdate >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                            ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                            locale-gen 'en_US.UTF-8' >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                            LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        fi
                     fi
-                    apt-get update >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common ntpdate >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    locale-gen 'en_US.UTF-8' >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    case $linuxReleaseName in
-                        *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Dd][Ee][Bb][Ii][Aa][Nn]*|*[Mm][Ii][Nn][Tt]*)
-                            LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                            ;;
-                    esac
                     ;;
             esac
             ;;
@@ -1436,19 +1420,27 @@ EOF
             echo "Skipped"
             ;;
         *)
-            if [[ $recreateCA == yes || $recreateKeys == yes || ! -f $etcconf ]]; then
+            if [[ $recreateCA != yes && $recreateKeys != yes && -f $etcconf ]]; then
+                echo "Skipped"
+            else
                 if [[ $httpproto == https ]]; then
-                    echo "NameVirtualHost *:80" > "$etcconf"
-                    echo "NameVirtualHost *:443" >> "$etcconf"
-                    echo "<VirtualHost *:80>" >> "$etcconf"
+                    echo "<VirtualHost *:80>" > "$etcconf"
+                    echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
+                    echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
+                    echo "    </FilesMatch>" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
                     echo "    RewriteEngine On" >> "$etcconf"
+                    echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
+                    echo "    RewriteRule .* - [F]" >> "$etcconf"
                     echo "    RewriteRule /management/other/ca.cert.der$ - [L]" >> "$etcconf"
                     echo "    RewriteCond %{HTTPS} off" >> "$etcconf"
                     echo "    RewriteRule (.*) https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
                     echo "</VirtualHost>" >> "$etcconf"
                     echo "<VirtualHost *:443>" >> "$etcconf"
                     echo "    KeepAlive Off" >> "$etcconf"
+                    echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
+                    echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
+                    echo "    </FilesMatch>" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
                     echo "    DocumentRoot $docroot" >> "$etcconf"
                     echo "    SSLEngine On" >> "$etcconf"
@@ -1458,27 +1450,33 @@ EOF
                     echo "    SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt" >> "$etcconf"
                     echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
                     echo "    SSLCertificateChainFile $webdirdest/management/other/ca.cert.der" >> "$etcconf"
+                    echo "    RewriteEngine On" >> "$etcconf"
+                    echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
+                    echo "    RewriteRule .* - [F]" >> "$etcconf"
                     echo "    <Directory $webdirdest>" >> "$etcconf"
                     echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+                    echo "        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
+                    echo "        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
+                    echo "        RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
                     echo "    </Directory>" >> "$etcconf"
-                    echo "    RewriteEngine On" >> "$etcconf"
-                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
-                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
-                    echo "    RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
                     echo "</VirtualHost>" >> "$etcconf"
                 else
-                    echo "NameVirtualHost *:80" > "$etcconf"
-                    echo "<VirtualHost *:80>" >> "$etcconf"
+                    echo "<VirtualHost *:80>" > "$etcconf"
+                    echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
+                    echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
+                    echo "    </FilesMatch>" >> "$etcconf"
                     echo "    KeepAlive Off" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
                     echo "    DocumentRoot $docroot" >> "$etcconf"
+                    echo "    RewriteEngine On" >> "$etcconf"
+                    echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
+                    echo "    RewriteRule .* - [F]" >> "$etcconf"
                     echo "    <Directory $webdirdest>" >> "$etcconf"
                     echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+                    echo "        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
+                    echo "        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
+                    echo "        RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
                     echo "    </Directory>" >> "$etcconf"
-                    echo "    RewriteEngine On" >> "$etcconf"
-                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
-                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
-                    echo "    RewriteRule ^/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
                     echo "</VirtualHost>" >> "$etcconf"
                 fi
                 errorStat $?
@@ -1486,13 +1484,11 @@ EOF
                 if [[ $osid -eq 2 ]]; then
                     a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2enmod proxy_fcgi setenvif >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2enmod $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' /etc/php/$php_ver/fpm/pool.d/www.conf
                     a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 fi
-            else
-                echo "Skipped"
             fi
             ;;
     esac
@@ -1633,7 +1629,7 @@ configureHttpd() {
     [[ -n $snmysqlhost ]] && options=( "${options[@]}" "--host=$snmysqlhost" )
     [[ -n $snmysqluser ]] && options=( "${options[@]}" "--user=$snmysqluser" )
     [[ -n $snmysqlpass ]] && options=( "${options[@]}" "--password=$snmysqlpass" )
-    sqlescsnmysqlpass=$(echo "${snmysqlpass}" | sed -e s/\'/\'\'/g)   # Replace every ' with '' for full MySQL escaping
+    sqlescsnmysqlpass=$(echo "$snmysqlpass" | sed -e s/\'/\'\'/g)   # Replace every ' with '' for full MySQL escaping
     sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
     mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     mysqlver=$(mysql -V |  sed -n 's/.*Distrib[ ]\(\([0-9]\([.]\|\)\)*\).*\([-]\|\)[,].*/\1/p')
@@ -1644,7 +1640,6 @@ configureHttpd() {
     mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
     runTest=$(echo "$mysqlver < $vertocheck" | bc)
     if [[ $runTest -eq 0 ]]; then
-        echo 'We are resetting password'
         [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
         [[ -z $snmysqluser ]] && snmysqluser='root'
         case $snmysqlhost in
@@ -2039,17 +2034,21 @@ downloadfiles() {
     echo "Done"
 }
 configureDHCP() {
+    case $linuxReleaseName in
+        *[Dd][Ee][Bb][Ii][Aa][Nn]*)
+            if [[ $bldhcp -eq 1 ]]; then
+                dots "Setting up and starting DHCP Server (incl. debian 9 fix)"
+                sed -i.fog "s/INTERFACESv4=\"\"/INTERFACESv4=\"$interface\"/g" /etc/default/isc-dhcp-server
+            else
+                dots "Setting up and starting DHCP Server"
+            fi
+            ;;
+        *)
+            dots "Setting up and starting DHCP Server"
+            ;;
+    esac
     case $bldhcp in
         1)
-            case $linuxReleaseName in
-                *[Dd][Ee][Bb][Ii][Aa][Nn]*)
-                    dots "Setting up and starting DHCP Server (incl. debian 9 fix)"
-                    sed -i.fog "s/INTERFACESv4=\"\"/INTERFACESv4=\"$interface\"/g" /etc/default/isc-dhcp-server
-                    ;;
-                *)
-                    dots "Setting up and starting DHCP Server"
-                    ;;
-            esac
             [[ -f $dhcpconfig ]] && cp -f $dhcpconfig ${dhcpconfig}.fogbackup
             serverip=$(ip -4 -o addr show $interface | awk -F'([ /])+' '/global/ {print $4}')
             [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | grep -oE 'inet[:]? addr[:]?([0-9]{1,3}\.){3}[0-9]{1,3}' | awk -F'(inet[:]? ?addr[:]?)' '{print $2}')
@@ -2199,7 +2198,7 @@ languagemogen() {
     local lang=''
     for lang in ${languages[@]}; do
         [[ ! -d "${langpath}/${lang}.UTF-8" ]] && continue
-        msgfmt --no-hash -l ${lang} -f -o \
+        msgfmt -o \
             "${langpath}/${lang}.UTF-8/LC_MESSAGES/messages.mo" \
             "${langpath}/${lang}.UTF-8/LC_MESSAGES/messages.po" \
             >>$workingdir/error_logs/fog_error_${version}.log 2>&1

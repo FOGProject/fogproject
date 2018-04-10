@@ -1172,30 +1172,29 @@ function buildRow(
                 + '" class="tablesorter-childRow with-progress">'
                 + '<td colspan="'
                 + colspan
-                + '" class="task-progress-td min">'
-                + '<div class="task-progress-fill min" style="width: '
-                + value.width
-                + 'px"></div>'
-                + '<div class="task-progress min">'
-                + '<ul>'
-                + '<li>'
+                + '">'
+                + '<div class="progress">'
+                + '<div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="'
+                + parseInt(value.percent)
+                + '" aria-valuemin="0" aria-valuemax="100" style="width:'
+                + parseInt(value.percent)
+                + '%">'
+                + '<ul><li>'
                 + value.elapsed
                 + '/'
                 + value.remains
-                + '</li>'
-                + '<li>'
+                + '</li><li>'
                 + parseInt(value.percent)
                 + '%'
-                + '</li>'
-                + '<li>'
+                + '</li><li>'
                 + value.copied
                 + ' of '
                 + value.total
                 + ' ('
                 + value.bpm
                 + '/min)'
-                + '</li>'
-                + '</ul>'
+                + '</li></ul>'
+                + '</div>'
                 + '</div>'
                 + '</td>'
                 + '</tr>';

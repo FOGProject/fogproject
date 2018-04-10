@@ -444,6 +444,11 @@ class PDODB extends DatabaseManager
      */
     public function insertId()
     {
+        if (is_bool(self::$_link)) {
+            if (!self::$_link) {
+                die(_('Database connection unavailable'));
+            }
+        }
         return self::$_link->lastInsertId();
     }
     /**
@@ -573,7 +578,7 @@ class PDODB extends DatabaseManager
      */
     private static function _execute($paramvals = array())
     {
-        if (count($paramvals) > 0) {
+        if (count($paramvals ?: []) > 0) {
             foreach ((array)$paramvals as $param => &$value) {
                 if (is_array($value)) {
                     self::_bind($param, $value[0], $value[1]);

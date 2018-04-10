@@ -187,7 +187,6 @@ class TaskManagementPage extends FOGPage
                 'state' => $Task->state->name,
                 'forced' => $Task->isForced,
                 'type' => $Task->type->name,
-                'width' => 600 * intval($Task->percent) / 100,
                 'elapsed' => $Task->timeElapsed,
                 'remains' => $Task->timeRemaining,
                 'percent' => $Task->pct,

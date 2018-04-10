@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-25 01:37-0500\n"
+"POT-Creation-Date: 2018-03-20 17:43-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5489,6 +5489,29 @@ msgstr "30 minutos"
 msgid "1 Hour"
 msgstr "1 hora"
 
+msgid "No activity information available for this group"
+msgstr ""
+
+msgid "Free"
+msgstr ""
+
+#, fuzzy
+msgid "No Data Available"
+msgstr "No disponible"
+
+msgid "used"
+msgstr ""
+
+#, fuzzy
+msgid "Node is unavailable"
+msgstr "No se dispone de hash"
+
+msgid "Node Offline"
+msgstr ""
+
+msgid "Used"
+msgstr ""
+
 #, fuzzy
 msgid "Import Reports"
 msgstr "Importar"
@@ -6229,6 +6252,10 @@ msgstr ""
 msgid "Cannot connect to database"
 msgstr ""
 
+#, fuzzy
+msgid "Database connection unavailable"
+msgstr "actualización de la base no"
+
 msgid "A valid database connection could not be made"
 msgstr ""
 
@@ -6276,6 +6303,9 @@ msgstr ""
 #, fuzzy
 msgid "I am not the master for this group"
 msgstr "No hay grupos en este servidor."
+
+msgid "I am the master node, but I do not appear to be online"
+msgstr ""
 
 msgid "Not syncing"
 msgstr ""
@@ -7267,9 +7297,6 @@ msgstr "Nombre de dominio usuario"
 msgid "Domain Password"
 msgstr "Contraseña de dominio"
 
-msgid "Will auto-encrypt plaintext"
-msgstr "Will texto claro auto-cifrar"
-
 msgid "Domain Password Legacy"
 msgstr "Dominio Contraseña Legado"
 
@@ -7496,14 +7523,6 @@ msgid "Invalid type, merge to add, diff to remove"
 msgstr ""
 
 #, fuzzy
-msgid "Array type"
-msgstr "Matriz de datos"
-
-#, fuzzy
-msgid "is not callable"
-msgstr "No disponible"
-
-#, fuzzy
 msgid "Invalid ID passed"
 msgstr "unidad no válida pasó"
 
@@ -7708,10 +7727,3 @@ msgstr "identificación invalida"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Evento debe ser una cadena"
-
-#, fuzzy
-msgid "File must be a string"
-msgstr "Evento debe ser una cadena"
-
-msgid "Only tx and rx bytes files can be read"
-msgstr ""
