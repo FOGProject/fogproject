@@ -1486,7 +1486,7 @@ EOF
                         phpfpmconf='/etc/php-fpm.d/www.conf';
                         ;;
                     2)
-                        if [[ $php_ver -eq 5 ]]; then
+                        if [[ $php_ver == 5 ]]; then
                             phpfpmconf="/etc/php$php_ver/fpm/pool.d/www.conf"
                         else
                             phpfpmconf="/etc/php/$php_ver/fpm/pool.d/www.conf"
