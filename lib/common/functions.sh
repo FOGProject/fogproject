@@ -1484,7 +1484,11 @@ EOF
                 if [[ $osid -eq 2 ]]; then
                     a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2enmod proxy_fcgi setenvif >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' /etc/php/$php_ver/fpm/pool.d/www.conf
+                    if [[ $php_ver -eq 5 ]]; then
+                        sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' /etc/php$php_ver/fpm/pool.d/www.conf
+                    else
+                        sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' /etc/php/$php_ver/fpm/pool.d/www.conf
+                    fi
                     a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
