@@ -7297,9 +7297,6 @@ msgstr "Nombre de dominio usuario"
 msgid "Domain Password"
 msgstr "Contraseña de dominio"
 
-msgid "Will auto-encrypt plaintext"
-msgstr "Will texto claro auto-cifrar"
-
 msgid "Domain Password Legacy"
 msgstr "Dominio Contraseña Legado"
 

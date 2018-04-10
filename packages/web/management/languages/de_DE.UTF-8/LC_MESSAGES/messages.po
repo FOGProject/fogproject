@@ -7042,9 +7042,6 @@ msgstr "Domänen-Benutzername"
 msgid "Domain Password"
 msgstr "Domänenkennwort"
 
-msgid "Will auto-encrypt plaintext"
-msgstr "Wird Klartext automatisch verschlüsseln"
-
 msgid "Domain Password Legacy"
 msgstr "veraltetes Domänenkennwort"
 

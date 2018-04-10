@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-05 12:49-0400\n"
+"POT-Creation-Date: 2018-04-10 00:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6152,9 +6152,6 @@ msgid "Domain Username"
 msgstr ""
 
 msgid "Domain Password"
-msgstr ""
-
-msgid "Will auto-encrypt plaintext"
 msgstr ""
 
 msgid "Domain Password Legacy"
