@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-09 06:26-0400\n"
+"POT-Creation-Date: 2018-04-10 17:58-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3323,6 +3323,25 @@ msgstr ""
 msgid "Architecture"
 msgstr ""
 
+#, fuzzy
+msgid "Download"
+msgstr "下载失败"
+
+#, fuzzy
+msgid "Confirm Download"
+msgstr "管理密码"
+
+#, fuzzy
+msgid "Confirm you would like to download a new kernel"
+msgstr "错误：无法下载内核"
+
+#, fuzzy
+msgid "to your fog storage node."
+msgstr "无效的存储节点"
+
+msgid "Use the input below to set the name for your new kernel."
+msgstr ""
+
 msgid "This section allows you to update"
 msgstr ""
 
@@ -3359,19 +3378,22 @@ msgid "so if it seems like the process is hanging please be patient"
 msgstr ""
 
 #, fuzzy
-msgid "Downloading Kernel"
-msgstr "下载"
+msgid "A filename is required!"
+msgstr "图像名是必需的！"
+
+msgid "No external data to download the file from"
+msgstr ""
+
+msgid "Starting download"
+msgstr ""
 
 #, fuzzy
-msgid "Starting process"
-msgstr "启动过程中..."
-
-msgid "Kernel Name"
-msgstr "内核名称"
+msgid "Download Starting"
+msgstr "下载失败"
 
 #, fuzzy
-msgid "Save Kernel"
-msgstr "核心"
+msgid "Start Download Fail"
+msgstr "下载失败"
 
 msgid "FOG PXE Boot Menu Configuration"
 msgstr "FOG PXE启动菜单配置"

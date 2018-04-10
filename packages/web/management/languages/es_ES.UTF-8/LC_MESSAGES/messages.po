@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-09 06:26-0400\n"
+"POT-Creation-Date: 2018-04-10 17:58-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3499,6 +3499,25 @@ msgstr ""
 msgid "Architecture"
 msgstr ""
 
+#, fuzzy
+msgid "Download"
+msgstr "Descarga fracasó"
+
+#, fuzzy
+msgid "Confirm Download"
+msgstr "La gestión de contraseñas"
+
+#, fuzzy
+msgid "Confirm you would like to download a new kernel"
+msgstr "Error: No se pudo descargar kernel"
+
+#, fuzzy
+msgid "to your fog storage node."
+msgstr "nodo de almacenamiento no válido"
+
+msgid "Use the input below to set the name for your new kernel."
+msgstr ""
+
 msgid "This section allows you to update"
 msgstr ""
 
@@ -3535,19 +3554,22 @@ msgid "so if it seems like the process is hanging please be patient"
 msgstr ""
 
 #, fuzzy
-msgid "Downloading Kernel"
-msgstr "Nombre de dominio usuario"
+msgid "A filename is required!"
+msgstr "Se requiere un nombre de imagen!"
+
+msgid "No external data to download the file from"
+msgstr ""
+
+msgid "Starting download"
+msgstr ""
 
 #, fuzzy
-msgid "Starting process"
-msgstr "proceso que comienza ..."
-
-msgid "Kernel Name"
-msgstr "Nombre del núcleo"
+msgid "Download Starting"
+msgstr "Descarga fracasó"
 
 #, fuzzy
-msgid "Save Kernel"
-msgstr "Núcleo"
+msgid "Start Download Fail"
+msgstr "Descarga fracasó"
 
 msgid "FOG PXE Boot Menu Configuration"
 msgstr "Configuración del menú de arranque PXE FOG"
