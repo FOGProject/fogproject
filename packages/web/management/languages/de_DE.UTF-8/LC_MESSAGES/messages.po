@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-09 06:26-0400\n"
+"POT-Creation-Date: 2018-04-10 17:58-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3333,6 +3333,25 @@ msgstr ""
 msgid "Architecture"
 msgstr ""
 
+#, fuzzy
+msgid "Download"
+msgstr "Download fehlgeschlagen"
+
+#, fuzzy
+msgid "Confirm Download"
+msgstr "Passwort ändern"
+
+#, fuzzy
+msgid "Confirm you would like to download a new kernel"
+msgstr "Fehler: Herunterladen des Kernels fehlgeschlagen"
+
+#, fuzzy
+msgid "to your fog storage node."
+msgstr "momentanen Speicherknoten löschen."
+
+msgid "Use the input below to set the name for your new kernel."
+msgstr ""
+
 msgid "This section allows you to update"
 msgstr "In diesem Abschnitt können Sie den Linux-Kernel"
 
@@ -3370,19 +3389,22 @@ msgid "so if it seems like the process is hanging please be patient"
 msgstr "Wenn es den Anschein hat, der Prozess hängt, haben Sie bitte Geduld."
 
 #, fuzzy
-msgid "Downloading Kernel"
-msgstr "Download des Kernels"
+msgid "A filename is required!"
+msgstr "Ein Gruppenname ist erforderlich!"
+
+msgid "No external data to download the file from"
+msgstr ""
+
+msgid "Starting download"
+msgstr ""
 
 #, fuzzy
-msgid "Starting process"
-msgstr "wird gestartet..."
-
-msgid "Kernel Name"
-msgstr "Kernel-Name"
+msgid "Download Starting"
+msgstr "Download fehlgeschlagen"
 
 #, fuzzy
-msgid "Save Kernel"
-msgstr "Kernel speichern"
+msgid "Start Download Fail"
+msgstr "Download fehlgeschlagen"
 
 msgid "FOG PXE Boot Menu Configuration"
 msgstr "FOG PXE-Bootmenü-Konfiguration"

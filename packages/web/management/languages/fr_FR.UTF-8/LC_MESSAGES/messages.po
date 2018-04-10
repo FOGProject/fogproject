@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-09 06:26-0400\n"
+"POT-Creation-Date: 2018-04-10 17:58-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3330,6 +3330,25 @@ msgstr ""
 msgid "Architecture"
 msgstr ""
 
+#, fuzzy
+msgid "Download"
+msgstr "Échec du téléchargement"
+
+#, fuzzy
+msgid "Confirm Download"
+msgstr "gestion Mot de passe"
+
+#, fuzzy
+msgid "Confirm you would like to download a new kernel"
+msgstr "Erreur: Impossible de télécharger le noyau"
+
+#, fuzzy
+msgid "to your fog storage node."
+msgstr "nœud de stockage non valide"
+
+msgid "Use the input below to set the name for your new kernel."
+msgstr ""
+
 msgid "This section allows you to update"
 msgstr ""
 
@@ -3366,19 +3385,22 @@ msgid "so if it seems like the process is hanging please be patient"
 msgstr ""
 
 #, fuzzy
-msgid "Downloading Kernel"
-msgstr "Télécharger"
+msgid "A filename is required!"
+msgstr "Un nom de l'image est nécessaire!"
+
+msgid "No external data to download the file from"
+msgstr ""
+
+msgid "Starting download"
+msgstr ""
 
 #, fuzzy
-msgid "Starting process"
-msgstr "processus de départ ..."
-
-msgid "Kernel Name"
-msgstr "Nom Kernel"
+msgid "Download Starting"
+msgstr "Échec du téléchargement"
 
 #, fuzzy
-msgid "Save Kernel"
-msgstr "Noyau"
+msgid "Start Download Fail"
+msgstr "Échec du téléchargement"
 
 msgid "FOG PXE Boot Menu Configuration"
 msgstr "Configuration du menu FOG PXE Boot"

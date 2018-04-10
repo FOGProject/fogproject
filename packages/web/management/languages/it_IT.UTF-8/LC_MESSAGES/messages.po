@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-09 06:26-0400\n"
+"POT-Creation-Date: 2018-04-10 17:58-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3162,6 +3162,25 @@ msgstr ""
 msgid "Architecture"
 msgstr ""
 
+#, fuzzy
+msgid "Download"
+msgstr "Scaricamento fallito"
+
+#, fuzzy
+msgid "Confirm Download"
+msgstr "Cambia password"
+
+#, fuzzy
+msgid "Confirm you would like to download a new kernel"
+msgstr "Errore: Impossibile scaricare il kernel"
+
+#, fuzzy
+msgid "to your fog storage node."
+msgstr "tutti i nodi di archiviazione attivi"
+
+msgid "Use the input below to set the name for your new kernel."
+msgstr ""
+
 msgid "This section allows you to update"
 msgstr "Questa sezione ti consente di aggiornare"
 
@@ -3195,17 +3214,23 @@ msgstr "pr ottenere il Kernel richiesto"
 msgid "so if it seems like the process is hanging please be patient"
 msgstr "se il processo sembra bloccato portate pazienza"
 
-msgid "Downloading Kernel"
-msgstr "Downloading Kernel"
+#, fuzzy
+msgid "A filename is required!"
+msgstr "È richiesto un nome di gruppo!"
 
-msgid "Starting process"
-msgstr "Avvio processo"
+msgid "No external data to download the file from"
+msgstr ""
 
-msgid "Kernel Name"
-msgstr "Nome kernel"
+msgid "Starting download"
+msgstr ""
 
-msgid "Save Kernel"
-msgstr "Save Kernel"
+#, fuzzy
+msgid "Download Starting"
+msgstr "Scaricamento fallito"
+
+#, fuzzy
+msgid "Start Download Fail"
+msgstr "Scaricamento fallito"
 
 msgid "FOG PXE Boot Menu Configuration"
 msgstr "Menu di configurazione di avvio PXE FOG"

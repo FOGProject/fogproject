@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-10 15:19-0400\n"
+"POT-Creation-Date: 2018-04-10 17:58-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2875,6 +2875,21 @@ msgstr ""
 msgid "Architecture"
 msgstr ""
 
+msgid "Download"
+msgstr ""
+
+msgid "Confirm Download"
+msgstr ""
+
+msgid "Confirm you would like to download a new kernel"
+msgstr ""
+
+msgid "to your fog storage node."
+msgstr ""
+
+msgid "Use the input below to set the name for your new kernel."
+msgstr ""
+
 msgid "This section allows you to update"
 msgstr ""
 
@@ -2908,16 +2923,19 @@ msgstr ""
 msgid "so if it seems like the process is hanging please be patient"
 msgstr ""
 
-msgid "Downloading Kernel"
+msgid "A filename is required!"
 msgstr ""
 
-msgid "Starting process"
+msgid "No external data to download the file from"
 msgstr ""
 
-msgid "Kernel Name"
+msgid "Starting download"
 msgstr ""
 
-msgid "Save Kernel"
+msgid "Download Starting"
+msgstr ""
+
+msgid "Start Download Fail"
 msgstr ""
 
 msgid "FOG PXE Boot Menu Configuration"
