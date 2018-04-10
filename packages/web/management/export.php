@@ -20,19 +20,6 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-if (FOGCore::getSetting('FOG_REAUTH_ON_EXPORT')) {
-    $user = $_POST['fogguiuser'];
-    $pass = $_POST['fogguipass'];
-    $tmpUser = FOGCore::getClass('User')->passwordValidate($user, $pass);
-    if (!$tmpUser) {
-        echo json_encode(
-            array(
-                'error' => self::$foglang['InvalidLogin']
-            )
-        );
-        exit;
-    }
-}
 $report = unserialize($_SESSION['foglastreport']);
 if (!($report instanceof ReportMaker)) {
     $report = FOGCore::getClass('ReportMaker');

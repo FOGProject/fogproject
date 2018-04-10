@@ -366,6 +366,14 @@ abstract class FOGService extends FOGBase
                 )
             );
         }
+        if (!$StorageNode->get('online')) {
+            throw new Exception(
+                sprintf(
+                    ' * %s',
+                    _('I am the master node, but I do not appear to be online')
+                )
+            );
+        }
         $objType = get_class($Obj);
         $groupOrNodeCount = self::getClass('StorageNodeManager')
             ->count($findWhere);
@@ -453,6 +461,15 @@ abstract class FOGService extends FOGBase
                     )
                 ) as $i => &$PotentialStorageNode
             ) {
+                if (!$PotentialStorageNode->get('online')) {
+                    self::outall(
+                        sprintf(
+                            '%s Server does not appear to be online.',
+                            $PotentialStorageNode->get('name')
+                        )
+                    );
+                    continue;
+                }
                 $groupID = $PotentialStorageNode->get('storagegroupID');
                 if ($master
                     && $groupID == $myStorageGroupID
@@ -533,23 +550,6 @@ abstract class FOGService extends FOGBase
                 $ip = self::resolveHostname(
                     self::$FOGFTP->get('host')
                 );
-                $socket = @fsockopen(
-                    $ip,
-                    self::$FOGFTP->get('port'),
-                    $errno,
-                    $errstr,
-                    30
-                );
-                if (!$socket) {
-                    self::outall(
-                        sprintf(
-                            '%s Server does not appear to be online.',
-                            $PotentialStorageNode->get('name')
-                        )
-                    );
-                    continue;
-                }
-                fclose($socket);
                 if (!self::$FOGFTP->connect()) {
                     self::outall(
                         sprintf(
@@ -696,16 +696,12 @@ abstract class FOGService extends FOGBase
                                 $nodename
                             )
                         );
-                        if ($test !== false) {
-                            $test = true;
-                        }
+                        self::$FOGFTP->close();
+                        continue;
                     }
                     unset($localfile);
                 }
                 self::$FOGFTP->close();
-                if ($test === true) {
-                    continue;
-                }
                 $logname = sprintf(
                     '%s.%s.transfer.%s.log',
                     rtrim(

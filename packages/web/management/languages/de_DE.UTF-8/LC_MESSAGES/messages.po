@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-25 01:37-0500\n"
+"POT-Creation-Date: 2018-03-20 17:43-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -5231,6 +5231,29 @@ msgstr "30 Minuten"
 msgid "1 Hour"
 msgstr "1 Stunde"
 
+msgid "No activity information available for this group"
+msgstr ""
+
+msgid "Free"
+msgstr ""
+
+#, fuzzy
+msgid "No Data Available"
+msgstr "Nicht verfügbar"
+
+msgid "used"
+msgstr ""
+
+#, fuzzy
+msgid "Node is unavailable"
+msgstr "Pfad ist nicht verfügbar"
+
+msgid "Node Offline"
+msgstr ""
+
+msgid "Used"
+msgstr ""
+
 #, fuzzy
 msgid "Import Reports"
 msgstr "Berichte importieren"
@@ -5958,6 +5981,10 @@ msgstr "Debug"
 msgid "Cannot connect to database"
 msgstr "Kann keine Verbindung zur Datenbank herstellen"
 
+#, fuzzy
+msgid "Database connection unavailable"
+msgstr "Datenbank nicht verfügbar"
+
 msgid "A valid database connection could not be made"
 msgstr "Eine gültige Datenbankverbindung konnte nicht hergestellt werden"
 
@@ -6002,6 +6029,9 @@ msgstr "Warten auf die Verfügbarkeit von MySQL"
 #, fuzzy
 msgid "I am not the master for this group"
 msgstr " * Ich bin nicht der Master für diese Gruppe"
+
+msgid "I am the master node, but I do not appear to be online"
+msgstr ""
 
 msgid "Not syncing"
 msgstr "Nicht synchronisieren"
@@ -7012,9 +7042,6 @@ msgstr "Domänen-Benutzername"
 msgid "Domain Password"
 msgstr "Domänenkennwort"
 
-msgid "Will auto-encrypt plaintext"
-msgstr "Wird Klartext automatisch verschlüsseln"
-
 msgid "Domain Password Legacy"
 msgstr "veraltetes Domänenkennwort"
 
@@ -7242,14 +7269,6 @@ msgid "Invalid type, merge to add, diff to remove"
 msgstr "Ungültiger Typ, Zusammenführen zum Hinzufügen, Entfernen zum Entfernen"
 
 #, fuzzy
-msgid "Array type"
-msgstr "Array Typ"
-
-#, fuzzy
-msgid "is not callable"
-msgstr "ist nicht verfügbar"
-
-#, fuzzy
 msgid "Invalid ID passed"
 msgstr "Ungültige ID übergeben"
 
@@ -7457,10 +7476,3 @@ msgstr "Ungültig"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Gerätename muss eine Zeichenfolge sein."
-
-#, fuzzy
-msgid "File must be a string"
-msgstr "Dateiname muss eine Zeichenfolge sein."
-
-msgid "Only tx and rx bytes files can be read"
-msgstr "Nur tx und rx bytes-Dateien können gelesen werden"

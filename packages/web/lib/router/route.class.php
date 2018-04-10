@@ -215,10 +215,7 @@ class Route extends FOGBase
         }
         self::$router = new AltoRouter(
             array(),
-            rtrim(
-                self::getSetting('FOG_WEB_ROOT'),
-                '/'
-            )
+            '/fog'
         );
         self::defineRoutes();
         self::setMatches();
@@ -1190,7 +1187,12 @@ class Route extends FOGBase
                     'logfiles' => $class->get('logfiles'),
                     'snapinfiles' => $class->get('snapinfiles'),
                     'images' => $class->get('images'),
-                    'storagegroup' => $class->get('storagegroup')->get()
+                    'storagegroup' => self::getter(
+                        'storagegroup',
+                        $class->get('storagegroup')
+                    ),
+                    'clientload' => $class->getClientLoad(),
+                    'online' => $class->get('online')
                 )
             );
             break;
@@ -1199,8 +1201,8 @@ class Route extends FOGBase
                 $class->get(),
                 array(
                     'totalsupportedclients' => $class->getTotalSupportedClients(),
-                    'masternode' => $class->getMasterStorageNode()->get(),
-                    'enablednodes' => $class->get('enablednodes')
+                    'enablednodes' => $class->get('enablednodes'),
+                    'allnodes' => $class->get('allnodes')
                 )
             );
             break;
@@ -1241,8 +1243,6 @@ class Route extends FOGBase
                         $class->get('host')
                     ),
                     'image' => (
-                        $class->get('images')->isValid() ?
-                        $class->get('images')->get() :
                         $class->get('image')
                     )
                 )

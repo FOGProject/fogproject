@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-25 01:37-0500\n"
+"POT-Creation-Date: 2018-03-20 17:43-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4712,6 +4712,29 @@ msgstr "30 minuti"
 msgid "1 Hour"
 msgstr "1 ora"
 
+msgid "No activity information available for this group"
+msgstr ""
+
+msgid "Free"
+msgstr ""
+
+#, fuzzy
+msgid "No Data Available"
+msgstr "Non disponibile"
+
+msgid "used"
+msgstr ""
+
+#, fuzzy
+msgid "Node is unavailable"
+msgstr "Percorso non disponibile"
+
+msgid "Node Offline"
+msgstr ""
+
+msgid "Used"
+msgstr ""
+
 msgid "Import Reports"
 msgstr "Importa Report"
 
@@ -5340,6 +5363,10 @@ msgstr "mettere a punto"
 msgid "Cannot connect to database"
 msgstr "Non è possibile connettersi al database"
 
+#, fuzzy
+msgid "Database connection unavailable"
+msgstr "Database non disponibile"
+
 msgid "A valid database connection could not be made"
 msgstr "Non è possibile effettuare una connessione di database valida"
 
@@ -5381,6 +5408,9 @@ msgstr "In attesa di mysql sia disponibile"
 
 msgid "I am not the master for this group"
 msgstr "Non sono il master di questo gruppo"
+
+msgid "I am the master node, but I do not appear to be online"
+msgstr ""
 
 msgid "Not syncing"
 msgstr "Non sincronizzo"
@@ -6236,9 +6266,6 @@ msgstr "dominio Nome utente"
 msgid "Domain Password"
 msgstr "password di dominio"
 
-msgid "Will auto-encrypt plaintext"
-msgstr "Sarà chiaro auto-criptare"
-
 msgid "Domain Password Legacy"
 msgstr "Password di dominio Legacy"
 
@@ -6430,12 +6457,6 @@ msgstr "chiave non valida richiesta"
 msgid "Invalid type, merge to add, diff to remove"
 msgstr "Tipo non valido, unione da aggiunta, differenza da rimuovere"
 
-msgid "Array type"
-msgstr "Tipo array"
-
-msgid "is not callable"
-msgstr "Non richiamabile"
-
 msgid "Invalid ID passed"
 msgstr "ID non valido passato"
 
@@ -6611,9 +6632,3 @@ msgstr "Non valido"
 
 msgid "Device must be a string"
 msgstr "Dispositivo deve essere una stringa"
-
-msgid "File must be a string"
-msgstr "File deve essere una stringa"
-
-msgid "Only tx and rx bytes files can be read"
-msgstr "Solo file di tx e rx byte possono essere letti"

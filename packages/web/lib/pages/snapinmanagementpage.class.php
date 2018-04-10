@@ -31,8 +31,13 @@ class SnapinManagementPage extends FOGPage
         'Batch Script' => array('cmd.exe','/c'),
         'Bash Script' => array('/bin/bash'),
         'VB Script' => array('cscript.exe'),
-        'Powershell' => array(
+        'Powershell (default)' => array(
             'powershell.exe',
+            '-ExecutionPolicy Bypass -NoProfile -File'
+        ),
+        'Powershell x64' => array(
+            '&quot;%SYSTEMROOT%\\sysnative\\windowspowershell'
+            . '\\v1.0\\powershell.exe',
             '-ExecutionPolicy Bypass -NoProfile -File'
         ),
         'Mono' => array('mono'),
@@ -313,15 +318,15 @@ class SnapinManagementPage extends FOGPage
         $args = array(
             'MSI' => array(
                 'msiexec.exe',
-                '/i &quot;[FOG_SNAPIN_PATH]\MyMSI.msi&quot;'
+                '/i &quot;[FOG_SNAPIN_PATH]\\MyMSI.msi&quot;'
             ),
             'MSI + MST' => array(
                 'msiexec.exe',
-                '/i &quot;[FOG_SNAPIN_PATH]\MyMST.mst&quot;'
+                '/i &quot;[FOG_SNAPIN_PATH]\\MyMST.mst&quot;'
             ),
             'Batch Script' => array(
                 'cmd.exe',
-                '/c &quot;[FOG_SNAPIN_PATH]\MyScript.bat&quot;'
+                '/c &quot;[FOG_SNAPIN_PATH]\\MyScript.bat&quot;'
             ),
             'Bash Script' => array(
                 '/bin/bash',
@@ -329,15 +334,21 @@ class SnapinManagementPage extends FOGPage
             ),
             'VB Script' => array(
                 'cscript.exe',
-                '&quot;[FOG_SNAPIN_PATH]\MyScript.vbs&quot;'
+                '&quot;[FOG_SNAPIN_PATH]\\MyScript.vbs&quot;'
             ),
             'PowerShell Script' => array(
                 'powershell.exe',
                 '-ExecutionPolicy Bypass -File &quot;'
-                .'[FOG_SNAPIN_PATH]\MyScript.ps1&quot;'
+                .'[FOG_SNAPIN_PATH]\\MyScript.ps1&quot;'
+            ),
+            'PowerShell x64 Script' => array(
+                '&quot;%SYSTEMROOT%\\sysnative\\windowspowershell'
+                . '\\v1.0\\powershell.exe&quot;',
+                '-ExecutionPolicy Bypass -File &quot;'
+                .'[FOG_SNAPIN_PATH]\\MyScript.ps1&quot;'
             ),
             'EXE' => array(
-                '[FOG_SNAPIN_PATH]\MyFile.exe'
+                '[FOG_SNAPIN_PATH]\\MyFile.exe'
             ),
             'Mono' => array(
                 'mono',
@@ -408,6 +419,7 @@ class SnapinManagementPage extends FOGPage
         $rw = filter_input(INPUT_POST, 'rw');
         $rwa = filter_input(INPUT_POST, 'rwa');
         $args = filter_input(INPUT_POST, 'args');
+        $timeout = filter_input(INPUT_POST, 'timeout');
         /**
          * Set the storage group to pre-select.
          */
@@ -628,7 +640,9 @@ class SnapinManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="number" class='
             . '"snapintimeout-input form-control" name="timeout" '
-            . 'id="timeout" value="0"/>'
+            . 'id="timeout" value="'
+            . $timeout
+            . '"/>'
             . '</div>',
             '<label for="toRep">'
             . _('Replicate?')
@@ -896,6 +910,8 @@ class SnapinManagementPage extends FOGPage
             (int)$this->obj->get('isEnabled');
         $isHidden = (int)isset($_POST['isHidden']) ?:
             (int)$this->obj->get('hide');
+        $timeout = (int)filter_input(INPUT_POST, 'timeout') ?:
+            (int)$this->obj->get('timeout');
         $ishid = (
             $isHidden > 0 ? ' checked' : ''
         );
@@ -1102,7 +1118,9 @@ class SnapinManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<input type="number" class='
             . '"snapintimeout-input form-control" name="timeout" '
-            . 'id="timeout" value="0"/>'
+            . 'id="timeout" value="'
+            . $timeout
+            . '"/>'
             . '</div>',
             '<label for="toRep">'
             . _('Replicate?')

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-25 01:37-0500\n"
+"POT-Creation-Date: 2018-03-20 17:43-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5232,6 +5232,29 @@ msgstr "30 minutos"
 msgid "1 Hour"
 msgstr "1 hora"
 
+msgid "No activity information available for this group"
+msgstr ""
+
+msgid "Free"
+msgstr ""
+
+#, fuzzy
+msgid "No Data Available"
+msgstr "Não disponível"
+
+msgid "used"
+msgstr ""
+
+#, fuzzy
+msgid "Node is unavailable"
+msgstr "Nenhum de hash disponíveis"
+
+msgid "Node Offline"
+msgstr ""
+
+msgid "Used"
+msgstr ""
+
 #, fuzzy
 msgid "Import Reports"
 msgstr "Hosts de importação"
@@ -5960,6 +5983,10 @@ msgstr "Depurar"
 msgid "Cannot connect to database"
 msgstr "Não é possível conectar ao banco de dados"
 
+#, fuzzy
+msgid "Database connection unavailable"
+msgstr "atualização de banco de dados falhou"
+
 msgid "A valid database connection could not be made"
 msgstr ""
 
@@ -6004,6 +6031,9 @@ msgstr "Esperando mysql para estar disponível"
 #, fuzzy
 msgid "I am not the master for this group"
 msgstr " * Eu não sou o mestre"
+
+msgid "I am the master node, but I do not appear to be online"
+msgstr ""
 
 msgid "Not syncing"
 msgstr ""
@@ -7010,9 +7040,6 @@ msgstr "domínio usuário"
 msgid "Domain Password"
 msgstr "senha de domínio"
 
-msgid "Will auto-encrypt plaintext"
-msgstr "Will texto simples criptografar-auto"
-
 msgid "Domain Password Legacy"
 msgstr "Domínio senha Legado"
 
@@ -7239,14 +7266,6 @@ msgid "Invalid type, merge to add, diff to remove"
 msgstr ""
 
 #, fuzzy
-msgid "Array type"
-msgstr "Matriz de dados"
-
-#, fuzzy
-msgid "is not callable"
-msgstr "Não disponível"
-
-#, fuzzy
 msgid "Invalid ID passed"
 msgstr "unidade inválido passado"
 
@@ -7455,10 +7474,3 @@ msgstr "ID Inválido"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Evento deve ser uma string"
-
-#, fuzzy
-msgid "File must be a string"
-msgstr "Evento deve ser uma string"
-
-msgid "Only tx and rx bytes files can be read"
-msgstr ""

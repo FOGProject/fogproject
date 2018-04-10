@@ -106,6 +106,9 @@ class DashboardPage extends FOGPage
         );
         $Nodes = $Nodes->storagenodes;
         foreach ((array)$Nodes as &$StorageNode) {
+            if (!self::getClass('StorageNode', $StorageNode->id)->get('online')) {
+                continue;
+            }
             $ip = $StorageNode->ip;
             $url = sprintf(
                 '%s/%s/',
@@ -118,7 +121,6 @@ class DashboardPage extends FOGPage
                 $url
             );
             $url = self::$httpproto.'://' . $url;
-            $testurls[] = $ip;
             unset($ip);
             self::$_nodeOpts[] = sprintf(
                 '<option value="%s" urlcall="%s">%s%s ()</option>',
@@ -155,12 +157,6 @@ class DashboardPage extends FOGPage
             );
             unset($StorageGroup);
         }
-        $test = array_filter(
-            self::$FOGURLRequests->isAvailable($testurls)
-        );
-        self::$_nodeOpts = array_intersect_key((array)self::$_nodeOpts, $test);
-        self::$_nodeNames = array_intersect_key((array)self::$_nodeNames, $test);
-        self::$_nodeURLs = array_intersect_key((array)self::$_nodeURLs, $test);
         self::$_nodeOpts = implode((array)self::$_nodeOpts);
         list(
             self::$_bandwidthtime,
@@ -339,21 +335,16 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        // Bandwidth display
-        $bandwidthtime = self::$_bandwidthtime;
-        $datapointshour = (3600 / $bandwidthtime);
-        $bandwidthtime *= 1000;
-        $datapointshalf = ($datapointshour / 2);
-        $datapointsten = ($datapointshour / 6);
-        $datapointstwo = ($datapointshour / 30);
+        $datapointshour = 3600;
+        $datapointshalf = 1800;
+        $datapointsten = 600;
+        $datapointstwo = 120;
         // 30 day row.
         echo '<div class="row">';
         echo '<div class="col-xs-12">';
         printf(
-            '<input type="hidden" id="bandwidthtime" value="%d"/>'
-            . '<input type="hidden" id="bandwidthUrls" type="hidden" value="%s"/>'
+            '<input type="hidden" id="bandwidthUrls" type="hidden" value="%s"/>'
             . '<input type="hidden" id="nodeNames" type="hidden" value="%s"/>',
-            $bandwidthtime,
             implode(',', self::$_nodeURLs),
             implode(',', self::$_nodeNames)
         );
@@ -433,23 +424,34 @@ class DashboardPage extends FOGPage
      */
     public function clientcount()
     {
-        session_write_close();
-        ignore_user_abort(true);
-        set_time_limit(0);
+        header('Content-type: application/json');
         $ActivityActive = $ActivityQueued = $ActivityTotalClients = 0;
         $ActivityTotalClients = $this->obj->getTotalAvailableSlots();
         $ActivityQueued = $this->obj->getQueuedSlots();
         $ActivityActive = $this->obj->getUsedSlots();
-        $data = array(
+        if (!$ActivityActive && !$ActivityTotalClients && !$ActivityQueued) {
+            $error = _('No activity information available for this group');
+        }
+        $data = [
+            '_labels' => [
+                _('Free'),
+                _('Queued'),
+                _('Active')
+            ],
             'ActivityActive' => &$ActivityActive,
             'ActivityQueued' => &$ActivityQueued,
             'ActivitySlots' => &$ActivityTotalClients
-        );
+        ];
+        if ($error) {
+            $data['error'] = $error;
+            $data['title'] = _('No Data Available');
+        }
         unset(
             $ActivityActive,
             $ActivityQueued,
             $ActivityTotalClients
         );
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         echo json_encode($data);
         unset($data);
         exit;
@@ -461,27 +463,47 @@ class DashboardPage extends FOGPage
      */
     public function diskusage()
     {
-        session_write_close();
-        ignore_user_abort(true);
-        set_time_limit(0);
         $url = sprintf(
             '%s://%s/fog/status/freespace.php?path=%s',
             self::$httpproto,
             $this->obj->get('ip'),
             base64_encode($this->obj->get('path'))
         );
+        if (!$this->obj->get('online')) {
+            echo json_encode(
+                [
+                    '_labels' => [
+                        _('Free'),
+                        _('used')
+                    ],
+                    'free' => 0,
+                    'used' => 0,
+                    'error' => _('Node is unavailable'),
+                    'title' => _('Node Offline')
+                ]
+            );
+            exit;
+        }
         $data = self::$FOGURLRequests
             ->process($url);
         $data = json_decode(
-            array_shift($data),
-            true
+            array_shift($data)
         );
-        $data = array(
-            'free' => $data['free'],
-            'used' => $data['used']
-        );
+        $datatmp = [
+            '_labels' => [
+                _('Free'),
+                _('Used')
+            ],
+            'free' => $data->free,
+            'used' => $data->used
+        ];
+        if ($data->error) {
+            $datatmp['error'] = $data->error;
+            $datatmp['title'] = $data->title;
+        }
         unset($url);
-        echo json_encode((array)$data);
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
+        echo json_encode($datatmp);
         unset($data);
         exit;
     }
@@ -512,18 +534,19 @@ class DashboardPage extends FOGPage
         foreach ((array)$dates as $index => &$date) {
             $count = self::getClass('ImagingLogManager')
                 ->count(
-                    array(
+                    [
                         'start' => $date->format('Y-m-d%'),
                         'finish' => $date->format('Y-m-d%')
-                    ),
+                    ],
                     'OR'
                 );
-            $data[] = array(
+            $data[] = [
                 ($date->getTimestamp() * 1000),
                 $count
-            );
+            ];
             unset($date);
         }
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         echo json_encode($data);
         exit;
     }
@@ -534,38 +557,94 @@ class DashboardPage extends FOGPage
      */
     public function bandwidth()
     {
-        session_write_close();
-        ignore_user_abort(true);
-        set_time_limit(0);
+        header('Content-type: application/json');
         $sent = filter_input(
-            INPUT_GET,
+            INPUT_POST,
             'url',
             FILTER_DEFAULT,
             FILTER_REQUIRE_ARRAY
         );
         $names = filter_input(
-            INPUT_GET,
+            INPUT_POST,
             'names',
             FILTER_DEFAULT,
             FILTER_REQUIRE_ARRAY
         );
-        $urls = array();
+        $urls = [];
         foreach ((array)$sent as &$url) {
             $urls[] = $url;
             unset($url);
         }
-        $datas = self::$FOGURLRequests
-            ->process($urls);
-        $dataSet = array();
-        foreach ((array)$datas as &$data) {
-            $dataSet[] = json_decode($data, true);
-            unset($data);
+        $urls = array_values(
+            array_filter($urls)
+        );
+        $datas = self::$FOGURLRequests->process($urls);
+        $dataSet = [];
+        foreach ((array)$datas as $i => &$data) {
+            $d = json_decode($data);
+            $data = [
+                'dev' => $d->dev,
+                'name' => $names[$i],
+                'rx' => $d->rx,
+                'tx' => $d->tx
+            ];
+            $dataSet[] = $data;
+            unset($data, $d);
         }
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
+        echo json_encode($dataSet);
+        exit;
+    }
+    /**
+     * Test if the urls are available.
+     *
+     * @return array
+     */
+    public function testUrls()
+    {
+        header('Content-type: application/json');
+        $sent = filter_input(
+            INPUT_POST,
+            'url',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
+        $names = filter_input(
+            INPUT_POST,
+            'names',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
+        $testurls = [];
+        foreach ((array)$sent as &$url) {
+            $testurls[] = parse_url($url, PHP_URL_HOST);
+            unset($url);
+        }
+        $tests = self::$FOGURLRequests->isAvailable($testurls, 1);
+        unset($testurls);
+        foreach ($tests as $index => &$test) {
+            if (!$test) {
+                unset(
+                    $sent[$index],
+                    $names[$index]
+                );
+            }
+            unset($test);
+        }
+        $names = array_values(
+            array_filter($names)
+        );
+
+        $sent = array_values(
+            array_filter($sent)
+        );
+
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         echo json_encode(
-            array_combine(
-                $names,
-                $dataSet
-            )
+            [
+                'names' => $names,
+                'urls' => $sent
+            ]
         );
         exit;
     }
