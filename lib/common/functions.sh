@@ -1497,7 +1497,7 @@ EOF
                         ;;
                 esac
                 if [[ -n $phpfpmconf ]]; then
-                    sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' $phpfpmconf >>$workingdif/error_logs/fog_error_${version}.log 2>&1
+                    sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 fi
                 if [[ $osid -eq 2 ]]; then
                     a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
