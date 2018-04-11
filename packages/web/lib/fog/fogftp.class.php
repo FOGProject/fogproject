@@ -225,7 +225,7 @@ class FOGFTP
             list(
                 $portOverride,
                 $timeoutOverride
-            ) = self::getSubObjectIDs(
+            ) = FOGCore::getSubObjectIDs(
                 'Service',
                 [
                     'name' => [

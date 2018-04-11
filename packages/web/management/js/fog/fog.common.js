@@ -665,7 +665,7 @@ function disableFormDefaults() {
  * Gets the GET params from the URL.
  */
 function getQueryParams(qs) {
-    qs = qs.split("+").join(" ");
+    qs = qs.replace(/\+/g, ' ');
     var params = {},tokens,re = /[?&]?([^=]+)=([^&]*)/g;
     while (tokens = re.exec(qs)) {
         params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);

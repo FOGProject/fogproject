@@ -44,8 +44,8 @@
                 downloadSelected.on('click', function(e) {
                     e.preventDefault();
                     downloadModal.modal('show');
-                    downloadurl = table.row().id();
-                    downloadparts = getQueryParams(downloadurl);
+                    downloadurl = table.rows({selected: true}).ids();
+                    downloadparts = getQueryParams(downloadurl[0]);
                     parts = {
                         node: downloadparts['node'],
                         sub: downloadparts['sub'],
@@ -60,32 +60,28 @@
                     var dstName = $('#kernel-name').val(),
                         opts = {
                             install: 1,
-                            file: parts.file,
+                            file: parts.url,
                             dstName: dstName
                         },
                         fetchurl = '../management/index.php?node='
-                        + parts.node
+                        + Common.node
                         + '&sub='
-                        + parts.sub;
+                        + parts.sub,
+                        dlurl = '../management/index.php?sub=kernelfetch';
                     Common.apiCall('post', fetchurl, opts, function(err) {
                         if (err) {
                             return;
                         }
-                        Pace.track(function() {
-                            $.post('../management/index.php?sub=kernelfetch', {msg: 'dl'}, function(data, textStatus) {
-                                if (textStatus == 'success') {
-                                    $.post('../management/index.php?sub=kernelfetch', {msg: 'tftp'}, function() {
-                                        if (textStatus == 'success') {
-                                            Common.notifyFromAPI(data, false);
-                                            downloadModal.modal('hide');
-                                        } else {
-                                            Common.notifyFromAPI(data, true);
-                                        }
-                                    }, 'json');
-                                } else {
-                                    Common.notifyFromAPI(data, true);
+                        Common.apiCall('post', dlurl, {msg: 'dl'}, function(err) {
+                            if (err) {
+                                return;
+                            }
+                            Common.apiCall('post', dlurl, {msg: 'tftp'}, function(err) {
+                                if (err) {
+                                    return;
                                 }
-                            }, 'jaon');
+                                downloadModal.modal('hide');
+                            });
                         });
                     });
                 });
