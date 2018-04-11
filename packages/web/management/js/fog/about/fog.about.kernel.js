@@ -4,7 +4,7 @@
     downloadSelected.prop('disabled', true);
     Pace.track(function() {
         $.ajax({
-            url: '../fog/availablekernels',
+            url: '../management/index.php?sub=getKernels',
             type: 'get',
             cache: false,
             dataType: 'json',
