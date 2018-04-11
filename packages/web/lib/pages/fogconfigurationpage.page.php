@@ -207,20 +207,11 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
     }
     /**
-     * Post our kernel download.
-     *
-     * @return void
-     */
-    public function kernel()
-    {
-        $this->kernelUpdatePost();
-    }
-    /**
      * Show the kernel update page.
      *
      * @return void
      */
-    public function kernelUpdate()
+    public function kernel()
     {
         $this->title = _('Kernel Update');
 
@@ -324,7 +315,7 @@ class FOGConfigurationPage extends FOGPage
      *
      * @return void
      */
-    public function kernelUpdatePost()
+    public function kernelPost()
     {
         header('Content-type: application/json');
         $dstName = filter_input(INPUT_POST, 'dstName');
