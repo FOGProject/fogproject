@@ -1515,6 +1515,7 @@ abstract class FOGPage extends FOGBase
      */
     public function kernelfetch()
     {
+        header('Content-type: application/json');
         try {
             $msg = filter_input(INPUT_POST, 'msg');
             if ($_SESSION['allow_ajax_kdl']
@@ -1561,7 +1562,15 @@ abstract class FOGPage extends FOGBase
                             )
                         );
                     }
-                    die('##OK##');
+                    $code = HTTPResponseCodes::HTTP_SUCCESS;
+                    http_response_code($code);
+                    echo json_encode(
+                        [
+                            'msg' => _('File downloaded!'),
+                            'title' => _('Download Complete')
+                        ]
+                    );
+                    exit;
                 } elseif ($msg == 'tftp') {
                     $destfile = $_SESSION['dest-kernel-file'];
                     $tmpfile = $_SESSION['tmp-kernel-file'];
@@ -1622,14 +1631,29 @@ abstract class FOGPage extends FOGBase
                         ->rename($tmpfile, $orig)
                         ->chmod(0755, $orig)
                         ->close();
+                    self::$FOGFTP->close();
                     unlink($tmpfile);
-                    die('##OK##');
+                    $code = HTTPResponseCodes::HTTP_SUCCESS;
+                    http_response_code($code);
+                    echo json_encode(
+                        [
+                            'msg' => _('File uploaded to storage node!'),
+                            'title' => _('Update Kernel Success')
+                        ]
+                    );
+                    exit;
                 }
             }
         } catch (Exception $e) {
-            echo $e->getMessage();
+            http_response_code(HTTPResponseCodes::HTTP_BAD_REQUEST);
+            echo json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Kernel Update Fail')
+                ]
+            );
+            exit;
         }
-        self::$FOGFTP->close();
     }
     /**
      * Presents the delete modal.
