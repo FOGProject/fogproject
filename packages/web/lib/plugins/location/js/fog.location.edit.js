@@ -63,11 +63,19 @@ $(function() {
         e.preventDefault();
         var nodeID = this.value;
         Pace.ignore(function() {
-            $.get('../fog/storagenode/'+nodeID, function(data) {
-                groupSelector.val(data.storagegroupID).select2({
-                    width: '100%'
-                });
-            }, 'json');
+            $.ajax({
+                url: '../management/index.php?sub=getStoragenode',
+                data: {
+                    nodeID: nodeID
+                },
+                dataType: 'json',
+                type: 'post',
+                success: function(data, textStatus, jqXHR) {
+                    groupSelector.val(data.storagegroupID).select2({
+                        width: '100%'
+                    });
+                }
+            });
         });
     });
     // Resets the node selector of the selected group is not
@@ -77,14 +85,22 @@ $(function() {
         var nodeID = nodeSelector.val(),
             groupID = this.value;
         Pace.ignore(function() {
-            $.get('../fog/storagegroup/'+groupID, function(data) {
-                if ($.inArray(nodeID, data.allnodes) != -1) {
-                    return;
+            $.ajax({
+                url: '../management/index.php?sub=getStoragegroup',
+                data: {
+                    groupID: groupID
+                },
+                dataType: 'json',
+                type: 'post',
+                success: function(data, textStatus, jqXHR) {
+                    if ($.inArray(nodeID, data.allnodes) != -1) {
+                        return;
+                    }
+                    nodeSelector.val('').select2({
+                        width: '100%'
+                    });
                 }
-                nodeSelector.val('').select2({
-                    width: '100%'
-                });
-            }, 'json');
+            });
         });
     });
 

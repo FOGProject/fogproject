@@ -1813,8 +1813,7 @@ class Route extends FOGBase
             ];
             unset($v);
         }
-        echo json_encode($data);
-        exit;
+        self::$data = $data;
     }
     /**
      * Allows joining items.

@@ -89,36 +89,36 @@
     }
 
     function loadGroupSelect(){
-      var fetchAdapter = $.fn.select2.amd.require('select2/data/fetchAdapter');
+        var fetchAdapter = $.fn.select2.amd.require('select2/data/fetchAdapter');
 
-      groupModalSelect.select2({
-        url: '../fog/group/names',
-        dataAdapter: fetchAdapter,
-        width: '100%',
-        tags: true,
-        placeholder: 'Select or create group',
-        createTag: function (params) {
-            return {
-                id: params.term,
-                text: params.term,
-                newOption: true
-            }
-        },
-        templateResult: function (data) {
-            if (!data.text.length) {
-                return;
-            }
-            var $result = $("<span></span>");
+        groupModalSelect.select2({
+            url: '../management/index.php?node=group&sub=getNames',
+            dataAdapter: fetchAdapter,
+            width: '100%',
+            tags: true,
+            placeholder: 'Select or create group',
+            createTag: function (params) {
+                return {
+                    id: params.term,
+                    text: params.term,
+                    newOption: true
+                }
+            },
+            templateResult: function (data) {
+                if (!data.text.length) {
+                    return;
+                }
+                var $result = $("<span></span>");
 
-            $result.text(data.text);
-            if (data.newOption) {
-                $result.append(" <em><b>(new)</b></em>");
+                $result.text(data.text);
+                if (data.newOption) {
+                    $result.append(" <em><b>(new)</b></em>");
+                }
+                return $result;
             }
-            return $result;
-        }
-      });
+        });
 
-      groupModalSelect.val(null).trigger("change");
+        groupModalSelect.val(null).trigger("change");
     }
 
     var table = Common.registerTable($('#dataTable'), onSelect, {
@@ -184,9 +184,9 @@
     );
 
     groupModal.on('show.bs.modal', function(e) {
-      Pace.track(function(){
-        loadGroupSelect();
-      });
+        Pace.track(function(){
+            loadGroupSelect();
+        });
     });
 
     addToGroup.on('click', function() {
