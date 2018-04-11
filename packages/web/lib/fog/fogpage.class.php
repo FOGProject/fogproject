@@ -3171,4 +3171,16 @@ abstract class FOGPage extends FOGBase
         );
         exit;
     }
+    /**
+     * Returns the kernels.
+     *
+     * @return void
+     */
+    public function getKernels()
+    {
+        header('Content-type: application/json');
+        Route::availablekernels();
+        echo Route::getData();
+        exit;
+    }
 }

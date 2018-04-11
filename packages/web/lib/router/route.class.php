@@ -2005,7 +2005,6 @@ class Route extends FOGBase
         $jsonData = self::$FOGURLRequests->process(
             'https://fogproject.org/kernels/kernelupdate_datatables_fog2.php'
         );
-        echo array_shift($jsonData);
-        exit;
+        self::$data = json_decode(array_shift($jsonData));
     }
 }
