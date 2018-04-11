@@ -1293,6 +1293,7 @@ class GroupManagementPage extends FOGPage
             );
         echo '<!-- Service Configuration -->';
         echo '<div class="tab-pane fade" id="group-service">';
+
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -1319,9 +1320,11 @@ class GroupManagementPage extends FOGPage
             . 'class="btn btn-info btn-block">';
         echo _('Update');
         echo '</button>';
+        echo '<input type="hidden" name="modulesend" value="1"/>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
+        echo '</form>';
         unset(
             $this->data,
             $this->form,
@@ -1445,6 +1448,9 @@ class GroupManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=group-service">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -1461,9 +1467,11 @@ class GroupManagementPage extends FOGPage
             . 'class="btn btn-info btn-block">';
         echo _('Update');
         echo '</button>';
+        echo '<input type="hidden" name="dispupdate" value="1"/>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
+        echo '</form>';
         unset(
             $this->headerData,
             $this->templates,
@@ -1515,6 +1523,9 @@ class GroupManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=group-service">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -1531,6 +1542,7 @@ class GroupManagementPage extends FOGPage
             . 'class="btn btn-info btn-block">';
         echo _('Update');
         echo '</button>';
+        echo '<input type="hidden" name="alosend" value="1"/>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -2021,11 +2033,17 @@ class GroupManagementPage extends FOGPage
                     (array)$mods,
                     (array)$modOn
                 );
-                $this->obj
-                    ->addModule($modOn)
-                    ->removeModule($modOff)
-                    ->setDisp($x, $y, $r)
-                    ->setAlo($time);
+                if (isset($_POST['modulesend'])) {
+                    $this->obj
+                        ->addModule($modOn)
+                        ->removeModule($modOff);
+                }
+                if (isset($_POST['dispupdate'])) {
+                    $this->obj->setDisp($x, $y, $r);
+                }
+                if (isset($_POST['alosend'])) {
+                    $this->obj->setAlo($time);
+                }
                 break;
             case 'group-powermanagement':
                 if (!$action) {
