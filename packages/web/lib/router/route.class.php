@@ -151,7 +151,7 @@ class Route extends FOGBase
         /**
          * If API is not enabled redirect to home page.
          */
-        if (!self::$_enabled) {
+        if (!self::$ajax && !self::$_enabled) {
             header(
                 sprintf(
                     'Location: %s://%s/fog/management/index.php',

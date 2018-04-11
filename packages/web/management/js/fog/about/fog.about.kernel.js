@@ -1,118 +1,94 @@
 (function($) {
-    $('.currentdlstate').text('Downloading file...');
-    $('.kerninfo').html(
-        '<div class="panel panel-warning">'
-        + '<div class="panel-heading text-center">'
-        + '<h4 class="title">'
-        + 'Download Started'
-        + '</h4>'
-        + '</div>'
-        + '<div class="panel-body">'
-        + 'Download Started!'
-        + '</div>'
-        + '</div>'
-    );
-    $.post(
-        '../management/index.php?sub=kernelfetch',
-        {
-            msg: 'dl'
-        },
-        dlComplete,
-        'text'
-    );
+    var kernelData = {},
+        downloadSelected = $('#download-send');
+    downloadSelected.prop('disabled', true);
+    Pace.track(function() {
+        $.ajax({
+            url: '../fog/availablekernels',
+            type: 'get',
+            cache: false,
+            dataType: 'json',
+            success: function(data, textStatus, jqXHR) {
+                function onSelect(selected) {
+                    var disabled = selected.count() == 0;
+                    downloadSelected.prop('disabled', disabled);
+                };
+                var downloadModal = $('#downloadModal'),
+                    confirmDownloadBtn = $('#confirmDownload'),
+                    table = Common.registerTable($('#dataTable'), onSelect, {
+                        data: data,
+                        select: {
+                            style: 'single'
+                        },
+                        order: [
+                            [3, 'desc']
+                        ],
+                        columns: [
+                            {data: 'version'},
+                            {data: 'arch'},
+                            {data: 'type'},
+                            {data: 'date'}
+                        ],
+                        rowId: 'download',
+                        buttons: [],
+                        rowGroup: {
+                            dataSrc: 'date'
+                        }
+                    });
+                table.on('draw', function() {
+                    onSelect(table.rows({selected: true}));
+                });
+                var downloadurl,
+                    downloadparts,
+                    parts = {};
+                downloadSelected.on('click', function(e) {
+                    e.preventDefault();
+                    downloadModal.modal('show');
+                    downloadurl = table.rows({selected: true}).ids();
+                    downloadparts = getQueryParams(downloadurl[0]);
+                    parts = {
+                        node: downloadparts['node'],
+                        sub: downloadparts['sub'],
+                        url: downloadparts['file'],
+                        arch: downloadparts['arch']
+                    };
+                    val = parts.arch == 32 ? 'bzImage32' : 'bzImage';
+                    $('#kernel-name').prop('placeholder', val).prop('value', val);
+                });
+                confirmDownloadBtn.on('click', function(e) {
+                    e.preventDefault();
+                    var dstName = $('#kernel-name').val(),
+                        opts = {
+                            install: 1,
+                            file: parts.url,
+                            dstName: dstName
+                        },
+                        fetchurl = '../management/index.php?node='
+                        + Common.node
+                        + '&sub='
+                        + parts.sub,
+                        dlurl = '../management/index.php?sub=kernelfetch';
+                    Common.apiCall('post', fetchurl, opts, function(err) {
+                        if (err) {
+                            return;
+                        }
+                        Common.apiCall('post', dlurl, {msg: 'dl'}, function(err) {
+                            if (err) {
+                                return;
+                            }
+                            Common.apiCall('post', dlurl, {msg: 'tftp'}, function(err) {
+                                if (err) {
+                                    return;
+                                }
+                                downloadModal.modal('hide');
+                            });
+                        });
+                    });
+                });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                Common.notifyFromAPI(jqXHR.responseJSON, true);
+            }
+        });
+    });
 })(jQuery);
-/**
- * Download complete message.
- */
-function dlComplete(gdata, textStatus) {
-    if (textStatus == "success") {
-        if (gdata == "##OK##") {
-            $('.kerninfo').html(
-                '<div class="panel panel-success">'
-                + '<div class="panel-heading text-center">'
-                + '<h4 class="title">'
-                + 'Download Succeeded'
-                + '</h4>'
-                + '</div>'
-                + '<div class="panel-body">'
-                + 'Download Complete! Preparing to move to tftp server.'
-                + '</div>'
-                + '</div>'
-            );
-            $.post('?sub=kernelfetch',{msg: "tftp"},mvComplete, "text");
-        } else {
-            $('.kerninfo').html(
-                '<div class="panel panel-danger">'
-                + '<div class="panel-heading text-center">'
-                + '<h4 class="title">'
-                + 'Download Failed'
-                + '</h4>'
-                + '</div>'
-                + '<div class="panel-body">'
-                + gdata
-                + '</div>'
-                + '</div>'
-            );
-        }
-    } else {
-        $('.kerninfo').html(
-            '<div class="panel panel-danger">'
-            + '<div class="panel-heading text-center">'
-            + '<h4 class="title">'
-            + 'Download Failed'
-            + '</h4>'
-            + '</div>'
-            + '<div class="panel-body">'
-            + 'Download Failed!'
-            + '</div>'
-            + '</div>'
-        );
-    }
-}
-/**
- * Move complete message.
- */
-function mvComplete(gdata, textStatus) {
-    if (textStatus == 'success') {
-        if (gdata == "##OK##") {
-            $('.kerninfo').html(
-                '<div class="panel panel-success">'
-                + '<div class="panel-heading text-center">'
-                + '<h4 class="title">'
-                + 'Transfer Succeeded'
-                + '</h4>'
-                + '</div>'
-                + '<div class="panel-body">'
-                + 'Your new FOG Kernel has been installed!'
-                + '</div>'
-                + '</div>'
-            );
-        } else {
-            $('.kerninfo').html(
-                '<div class="panel panel-danger">'
-                + '<div class="panel-heading text-center">'
-                + '<h4 class="title">'
-                + 'Transfer Failed'
-                + '</h4>'
-                + '</div>'
-                + '<div class="panel-body">'
-                + gdata
-                + '</div>'
-                + '</div>'
-            );
-        }
-    } else {
-            $('.kerninfo').html(
-                '<div class="panel panel-danger">'
-                + '<div class="panel-heading text-center">'
-                + '<h4 class="title">'
-                + 'Transfer Failed'
-                + '</h4>'
-                + '</div>'
-                + '<div class="panel-body">'
-                + 'Failed to load new kernel to TFTP Server!'
-                + '</div>'
-                + '</div>'
-            );
-    }
-}
