@@ -147,6 +147,7 @@ class Page extends FOGBase
         FOGPage::buildMainMenuItems($this->menu, $this->menuHook);
         $files = [
             'js/jquery.min.js',
+            'js/jquery.color.min.js',
             'js/lodash.min.js',
             'js/bootstrap.min.js',
             'js/bootstrap-slider.min.js',

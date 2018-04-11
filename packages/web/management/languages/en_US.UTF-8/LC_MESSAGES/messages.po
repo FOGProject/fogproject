@@ -3813,9 +3813,6 @@ msgstr "Settings"
 msgid "Value"
 msgstr "Value"
 
-msgid "Save"
-msgstr ""
-
 msgid "Service Master"
 msgstr "Service Master"
 

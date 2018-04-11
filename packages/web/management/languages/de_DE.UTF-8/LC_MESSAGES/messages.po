@@ -3824,9 +3824,6 @@ msgstr "Einstellungen"
 msgid "Value"
 msgstr "Wert"
 
-msgid "Save"
-msgstr ""
-
 msgid "Service Master"
 msgstr "Service-Master"
 

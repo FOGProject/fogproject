@@ -3809,9 +3809,6 @@ msgstr "设置"
 msgid "Value"
 msgstr "值"
 
-msgid "Save"
-msgstr ""
-
 msgid "Service Master"
 msgstr "服务主"
 
