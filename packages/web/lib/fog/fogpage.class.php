@@ -3183,4 +3183,39 @@ abstract class FOGPage extends FOGBase
         echo Route::getData();
         exit;
     }
+    /**
+     * Returns the class names
+     *
+     * @return void
+     */
+    public function getNames()
+    {
+        Route::names($this->childClass);
+        echo Route::getData();
+        exit;
+    }
+    /**
+     * Get storage node
+     *
+     * @return void
+     */
+    public function getStoragenode()
+    {
+        $nodeID = filter_input(INPUT_POST, 'nodeID');
+        Route::indiv('storagenode', $nodeID);
+        echo Route::getData();
+        exit;
+    }
+    /**
+     * Get storage group
+     *
+     * @return void
+     */
+    public function getStoragegroup()
+    {
+        $groupID = filter_input(INPUT_POST, 'groupID');
+        Route::indiv('storagegroup', $groupID);
+        echo Route::getData();
+        exit;
+    }
 }
