@@ -102,7 +102,7 @@ class ServiceConfigurationPage extends FOGPage
         $buttons = self::makeButton(
             'displaymanager-update',
             _('Update'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         Route::search('module', 'display manager');
@@ -307,7 +307,7 @@ class ServiceConfigurationPage extends FOGPage
         $buttons = self::makeButton(
             'autologout-update',
             _('Update'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         Route::search(
@@ -469,7 +469,7 @@ class ServiceConfigurationPage extends FOGPage
         $buttons = self::makeButton(
             'snapinclient-update',
             _('Update'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         Route::search(
@@ -611,7 +611,7 @@ class ServiceConfigurationPage extends FOGPage
         $buttons = self::makeButton(
             'hostregister-update',
             _('Update'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         Route::search(
@@ -747,7 +747,7 @@ class ServiceConfigurationPage extends FOGPage
         $buttons = self::makeButton(
             'hostnamechanger-update',
             _('Update'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         Route::search('module', 'hostname changer');
@@ -880,7 +880,7 @@ class ServiceConfigurationPage extends FOGPage
         $buttons = self::makeButton(
             'printermanager-update',
             _('Update'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         Route::search('module', 'printer manager');
@@ -1013,7 +1013,7 @@ class ServiceConfigurationPage extends FOGPage
         $buttons = self::makeButton(
             'taskreboot-update',
             _('Update'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         Route::search('module', 'task reboot');
@@ -1146,7 +1146,7 @@ class ServiceConfigurationPage extends FOGPage
         $buttons = self::makeButton(
             'usertracker-update',
             _('Update'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         Route::search('module', 'user tracker');
@@ -1279,7 +1279,7 @@ class ServiceConfigurationPage extends FOGPage
         $buttons = self::makeButton(
             'powermanagement-update',
             _('Update'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         Route::search('module', 'power management');

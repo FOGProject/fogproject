@@ -116,7 +116,7 @@ class AddWindowsKeyImage extends Hook
         $buttons = FOGPage::makeButton(
             'windowskey-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
 
         self::$HookManager->processEvent(

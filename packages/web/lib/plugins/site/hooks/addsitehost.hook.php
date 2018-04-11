@@ -129,7 +129,7 @@ class AddSiteHost extends Hook
         $buttons = FOGPage::makeButton(
             'site-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
 
         self::$HookManager->processEvent(

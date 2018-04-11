@@ -36,9 +36,6 @@ class AccessControlRuleManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        /**
-         * The name to give.
-         */
         $this->name = 'Rule Management';
         parent::__construct($this->name);
         $this->headerData = [
@@ -126,10 +123,17 @@ class AccessControlRuleManagement extends FOGPage
             )
         ];
 
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary pull-right'
+        );
+
         self::$HookManager->processEvent(
             'ACCESSCONTROLRULE_ADD_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'AccessControlRule' => self::getClass('AccessControlRule')
             ]
         );
@@ -158,11 +162,7 @@ class AccessControlRuleManagement extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '<div class="box-footer with-border">';
-        echo self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary'
-        );
+        echo $buttons;
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -188,14 +188,17 @@ class AccessControlRuleManagement extends FOGPage
         $value = trim(
             filter_input(INPUT_POST, 'value')
         );
-        $serverFault = false;
         $name = $type
             . '-'
             . $value;
+
+        $serverFault = false;
         try {
-            if (self::getClass('AccessControlRuleManager')->exists($name)) {
+            $exists = self::getClass('AccessControlRuleManager')
+                ->exists($name);
+            if ($exists) {
                 throw new Exception(
-                    _('A rule already exists with the generated name!')
+                    _('A rule already exists with that type-value pair!')
                 );
             }
             $exists = self::getClass('AccessControlRuleManager')->exists(
@@ -232,7 +235,6 @@ class AccessControlRuleManagement extends FOGPage
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $code = ($serverFault ? 500 : 400);
             $hook = 'ACCESSCONTROLRULE_ADD_FAIL';
             $msg = json_encode(
                 [
@@ -353,12 +355,12 @@ class AccessControlRuleManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-right'
+            'btn btn-danger pull-left'
         );
 
         echo self::makeFormTag(
@@ -466,6 +468,7 @@ class AccessControlRuleManagement extends FOGPage
             'RULE_EDIT_POST',
             ['AccessControlRule' => &$this->obj]
         );
+
         $serverFault = false;
         try {
             global $tab;

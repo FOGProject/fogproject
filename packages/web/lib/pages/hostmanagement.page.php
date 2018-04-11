@@ -598,7 +598,7 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'send',
             _('Create'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
 
         self::$HookManager->processEvent(
@@ -996,21 +996,21 @@ class HostManagement extends FOGPage
             ) => $this->exitEfi
         ];
 
-        $buttons = '<div class="btn-group">';
-        $buttons .= self::makeButton(
+        $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
+        $buttons .= '<div class="btn-group">';
         $buttons .= self::makeButton(
             'reset-encryption-data',
             _('Reset Encryption Data'),
-            'btn btn-warning'
+            'btn btn-warning pull-left'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger'
+            'btn btn-danger pull-left'
         );
         $buttons .= '</div>';
 
@@ -1182,7 +1182,7 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'newmac-send',
             _('Add'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
 
         self::$HookManager->processEvent(
@@ -1243,13 +1243,13 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'macaddress-table-update',
             _('Update selected'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'macaddress-table-delete',
             _('Delete selected'),
-            'btn btn-danger pull-right',
+            'btn btn-danger pull-left',
             $props
         );
         $this->headerData = [
@@ -1443,13 +1443,13 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'groups-add',
             _('Add selected'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'groups-remove',
             _('Remove selected'),
-            'btn btn-danger',
+            'btn btn-danger pull-left',
             $props
         );
 
@@ -1656,7 +1656,7 @@ class HostManagement extends FOGPage
         echo self::makeButton(
             'printer-config-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         echo '</div>';
         echo '</form>';
@@ -1666,19 +1666,19 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'printer-default',
             _('Update default'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'printer-add',
             _('Add selected'),
-            'btn btn-success',
+            'btn btn-success pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'printer-remove',
             _('Remove selected'),
-            'btn btn-danger',
+            'btn btn-danger pull-left',
             $props
         );
         $this->headerData = [
@@ -1783,13 +1783,13 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'snapins-add',
             _('Add selected'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'snapins-remove',
             _('Remove selected'),
-            'btn btn-danger',
+            'btn btn-danger pull-left',
             $props
         );
 
@@ -1872,31 +1872,31 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'modules-update',
             _('Update'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'modules-enable',
             _('Enable All'),
-            'btn btn-success',
+            'btn btn-success pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'modules-disable',
             _('Disable All'),
-            'btn btn-danger',
+            'btn btn-danger pull-left',
             $props
         );
         $dispBtn = self::makeButton(
             'displayman-send',
             _('Update'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         $aloBtn = self::makeButton(
             'alo-send',
             _('Update'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         $this->headerData = [
@@ -2169,7 +2169,7 @@ class HostManagement extends FOGPage
         $enforcebtn = self::makeButton(
             'enforcebtn',
             _('Update'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
 
@@ -2308,17 +2308,17 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'ondemandBtn',
             _('Create New Immediate'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         $buttons .= self::makeButton(
             'scheduleCreateBtn',
             _('Create New Scheduled'),
-            'btn btn-info'
+            'btn btn-info pull-right'
         );
         $buttons .= self::makeButton(
             'pm-delete',
             _('Delete selected'),
-            'btn btn-danger'
+            'btn btn-danger pull-left'
         );
         $ondemandModalBtns = self::makeButton(
             'ondemandCancelBtn',
@@ -3075,7 +3075,7 @@ class HostManagement extends FOGPage
         $buttons = self::makeButton(
             'inventory-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
 
         self::$HookManager->processEvent(

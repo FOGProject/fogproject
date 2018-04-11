@@ -132,7 +132,7 @@ class AddOUHost extends Hook
         $buttons = FOGPage::makeButton(
             'ou-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
 
         self::$HookManager->processEvent(

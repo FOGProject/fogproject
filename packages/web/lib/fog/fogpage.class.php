@@ -958,14 +958,14 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= self::makeButton(
                         'addSelectedToGroup',
                         _('Add selected to group'),
-                        'btn btn-default'
+                        'btn btn-default pull-right'
                     );
                 }
                 if ($node != 'plugin') {
                     $actionbox .= self::makeButton(
                         'deleteSelected',
                         _('Delete selected'),
-                        'btn btn-danger'
+                        'btn btn-danger pull-left'
                     );
                     $modals .= self::makeModal(
                         'deleteModal',
@@ -1448,12 +1448,12 @@ abstract class FOGPage extends FOGBase
             $buttons = self::makeButton(
                 'ad-send',
                 _('Update'),
-                'btn btn-primary'
+                'btn btn-primary pull-right'
             );
             $buttons .= self::makeButton(
                 'ad-clear',
                 _('Clear Fields'),
-                'btn btn-danger pull-right'
+                'btn btn-danger pull-left'
             );
             echo '</div>';
             echo '<div class="box-footer">';
@@ -2279,7 +2279,7 @@ abstract class FOGPage extends FOGBase
         $buttons = self::makeButton(
             'import-send',
             _('Import'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
 
         self::$HookManager->processEvent(

@@ -76,7 +76,7 @@ class ReportManagement extends FOGPage
         $buttons = self::makeButton(
             'import-send',
             _('Import'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
 
         $labelClass = 'col-sm-3 control-label';

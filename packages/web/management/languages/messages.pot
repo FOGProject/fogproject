@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-11 17:04-0400\n"
+"POT-Creation-Date: 2018-04-11 17:54-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1916,22 +1916,19 @@ msgstr ""
 msgid "Access Control Name"
 msgstr ""
 
-msgid "A role name is required!"
-msgstr ""
-
 msgid "A role already exists with this name!"
 msgstr ""
 
-msgid "Add access control failed!"
+msgid "Add role failed!"
 msgstr ""
 
-msgid "Access Control added!"
+msgid "Role added!"
 msgstr ""
 
-msgid "Access Control Create Success"
+msgid "Role Create Success"
 msgstr ""
 
-msgid "Access Control Create Fail"
+msgid "Role Create Fail"
 msgstr ""
 
 msgid "A role with this name already exists!"
@@ -1943,7 +1940,7 @@ msgstr ""
 msgid "Role updated!"
 msgstr ""
 
-msgid "Rule Update Success"
+msgid "Role Update Success"
 msgstr ""
 
 msgid "Role Update Fail"
@@ -1964,7 +1961,7 @@ msgstr ""
 msgid "Rule Node"
 msgstr ""
 
-msgid "A rule already exists with the generated name!"
+msgid "A rule already exists with that type-value pair!"
 msgstr ""
 
 msgid "A rule already exists with this value!"
@@ -1992,6 +1989,9 @@ msgid "Rule update failed!"
 msgstr ""
 
 msgid "Rule updated!"
+msgstr ""
+
+msgid "Rule Update Success"
 msgstr ""
 
 msgid "Rule Update Fail"

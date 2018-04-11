@@ -517,7 +517,7 @@ class SnapinManagement extends FOGPage
         $buttons = self::makeButton(
             'send',
             _('Create'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
 
         self::$HookManager->processEvent(
@@ -1180,12 +1180,12 @@ class SnapinManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-right'
+            'btn btn-danger pull-left'
         );
 
         self::$HookManager->processEvent(
@@ -1374,19 +1374,19 @@ class SnapinManagement extends FOGPage
         $buttons = self::makeButton(
             'storagegroups-primary',
             _('Update Primary Group'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'storagegroups-add',
             _('Add selected'),
-            'btn btn-success',
+            'btn btn-success pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'storagegroups-remove',
             _('Remove selected'),
-            'btn btn-danger',
+            'btn btn-danger pull-left',
             $props
         );
 
@@ -1489,13 +1489,13 @@ class SnapinManagement extends FOGPage
         $buttons = self::makeButton(
             'membership-add',
             _('Add selected'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'membership-remove',
             _('Remove selected'),
-            'btn btn-danger',
+            'btn btn-danger pull-left',
             $props
         );
 

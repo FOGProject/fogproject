@@ -304,7 +304,7 @@ class ImageManagement extends FOGPage
         $buttons = self::makeButton(
             'send',
             _('Create'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
 
         self::$HookManager->processEvent(
@@ -737,12 +737,12 @@ class ImageManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-right'
+            'btn btn-danger pull-left'
         );
 
         self::$HookManager->processEvent(
@@ -836,19 +836,19 @@ class ImageManagement extends FOGPage
         $buttons = self::makeButton(
             'storagegroups-primary',
             _('Update Primary Group'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'storagegroups-add',
             _('Add selected'),
-            'btn btn-success',
+            'btn btn-success pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'storagegroups-remove',
             _('Remove selected'),
-            'btn btn-danger',
+            'btn btn-danger pull-left',
             $props
         );
 
@@ -954,13 +954,13 @@ class ImageManagement extends FOGPage
         $buttons = self::makeButton(
             'host-add',
             _('Add selected'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'host-remove',
             _('Remove selected'),
-            'btn btn-danger',
+            'btn btn-danger pull-left',
             $props
         );
 
@@ -1232,22 +1232,22 @@ class ImageManagement extends FOGPage
         $buttons = self::makeButton(
             'session-create',
             _('Create'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         $buttons .= self::makeButton(
             'session-resume',
             _('Resume Reload'),
-            'btn btn-success'
+            'btn btn-success pull-right'
         );
         $buttons .= self::makeButton(
             'session-pause',
             _('Pause Reload'),
-            'btn btn-warning'
+            'btn btn-warning pull-left'
         );
         $buttons .= self::makeButton(
             'session-cancel',
             _('Cancel Selected'),
-            'btn btn-danger',
+            'btn btn-danger pull-left',
             $props
         );
 

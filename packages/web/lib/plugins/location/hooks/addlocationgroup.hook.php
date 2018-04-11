@@ -117,7 +117,7 @@ class AddLocationGroup extends Hook
         $buttons = FOGPage::makeButton(
             'location-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
 
         self::$HookManager->processEvent(

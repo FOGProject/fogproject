@@ -115,7 +115,7 @@ class AddOUGroup extends Hook
         $buttons = FOGPage::makeButton(
             'ou-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-left'
         );
 
         self::$HookManager->processEvent(

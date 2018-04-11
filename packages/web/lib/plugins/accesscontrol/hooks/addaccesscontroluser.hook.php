@@ -105,7 +105,7 @@ class AddAccessControlUser extends Hook
         $buttons = FOGPage::makeButton(
             'accesscontrol-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         self::$HookManager->processEvent(
             'USER_ACCESSCONTROL_FIELDS',

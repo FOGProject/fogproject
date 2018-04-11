@@ -185,7 +185,7 @@ class GroupManagement extends FOGPage
         $buttons = self::makeButton(
             'send',
             _('Create'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
 
         self::$HookManager->processEvent(
@@ -544,21 +544,21 @@ class GroupManagement extends FOGPage
             ) => $exitEfi
         ];
 
-        $buttons = '<div class="btn-group">';
         $buttons .= self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
+        $buttons .= '<div class="btn-group">';
         $buttons .= self::makeButton(
             'reset-encryption-data',
             _('Reset Encryption Data'),
-            'btn btn-warning'
+            'btn btn-warning pull-left'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger'
+            'btn btn-danger pull-left'
         );
         $buttons .= '</div>';
 
@@ -698,7 +698,7 @@ class GroupManagement extends FOGPage
         $buttons = self::makeButton(
             'image-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
 
         self::$HookManager->processEvent(
@@ -802,13 +802,13 @@ class GroupManagement extends FOGPage
         $buttons = self::makeButton(
             'hosts-add',
             _('Add selected'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'hosts-remove',
             _('Remove selected'),
-            'btn btn-danger',
+            'btn btn-danger pull-left',
             $props
         );
 
@@ -1018,7 +1018,7 @@ class GroupManagement extends FOGPage
         echo self::makeButton(
             'printer-config-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         echo '</div>';
         echo '</div>';
@@ -1028,19 +1028,19 @@ class GroupManagement extends FOGPage
         $buttons = self::makeButton(
             'printer-default',
             _('Update default'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'printer-add',
             _('Add selected'),
-            'btn btn-success',
+            'btn btn-successi pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'printer-remove',
             _('Remove selected'),
-            'btn btn-danger',
+            'btn btn-danger pull-left',
             $props
         );
         $this->headerData = [
@@ -1149,13 +1149,13 @@ class GroupManagement extends FOGPage
         $buttons = self::makeButton(
             'snapins-add',
             _('Add selected'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'snapins-remove',
             _('Remove selected'),
-            'btn btn-danger',
+            'btn btn-danger pull-left',
             $props
         );
 
@@ -1241,19 +1241,19 @@ class GroupManagement extends FOGPage
         $buttons = self::makeButton(
             'modules-update',
             _('Update'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'modules-enable',
             _('Enable All'),
-            'btn btn-success',
+            'btn btn-success pull-right',
             $props
         );
         $buttons .= self::makeButton(
             'modules-disable',
             _('Disable All'),
-            'btn btn-danger',
+            'btn btn-danger pull-left',
             $props
         );
 
@@ -1399,7 +1399,7 @@ class GroupManagement extends FOGPage
         echo self::makeButton(
             'displayman-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         echo '</div>';
         echo '</div>';
@@ -1471,7 +1471,7 @@ class GroupManagement extends FOGPage
         echo self::makeButton(
             'alo-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         echo '</div>';
         echo '</div>';
@@ -1506,7 +1506,7 @@ class GroupManagement extends FOGPage
         $enforcebtn = self::makeButton(
             'enforcebtn',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
 
         self::$HookManager->processEvent(
@@ -1636,17 +1636,17 @@ class GroupManagement extends FOGPage
         $buttons = self::makeButton(
             'ondemandBtn',
             _('Create New Immediate'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         $buttons .= self::makeButton(
             'scheduleBtn',
             _('Create New Scheduled'),
-            'btn btn-info'
+            'btn btn-info pull-right'
         );
         $buttons .= self::makeButton(
             'powermanagement-delete',
             _('Delete All'),
-            'btn btn-danger pull-right'
+            'btn btn-danger pull-left'
         );
         $ondemandModalBtns = self::makeButton(
             'ondemandCancelBtn',

@@ -1618,7 +1618,7 @@ class FOGConfigurationPage extends FOGPage
         $buttons .= self::makeButton(
             'deletemacs',
             _('Delete MAC List'),
-            'btn btn-danger pull-right'
+            'btn btn-danger pull-left'
         );
         $modalupdate = self::makeModal(
             'updatemacsmodal',
@@ -2390,12 +2390,12 @@ class FOGConfigurationPage extends FOGPage
         $buttons = self::makeButton(
             'logresume',
             _('Resume'),
-            'btn btn-success'
+            'btn btn-success pull-right'
         );
         $buttons .= self::makeButton(
             'logpause',
             _('Pause'),
-            'btn btn-warning'
+            'btn btn-warning pull-left'
         );
 
         echo self::makeFormTag(
@@ -2509,12 +2509,12 @@ class FOGConfigurationPage extends FOGPage
         $buttons = self::makeButton(
             'exportdb',
             _('Export'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         $buttons .= self::makeButton(
             'importdb',
             _('Import'),
-            'btn btn-warning'
+            'btn btn-warning pull-left'
         );
 
         self::$HookManager->processEvent(
