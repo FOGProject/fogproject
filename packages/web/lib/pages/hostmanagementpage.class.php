@@ -2147,9 +2147,11 @@ class HostManagementPage extends FOGPage
             . 'class="btn btn-info btn-block">';
         echo _('Update');
         echo '</button>';
+        echo '<input type="hidden" name="modulesend" value="1"/>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
+        echo '</form>';
         unset(
             $this->data,
             $this->form,
@@ -2247,6 +2249,9 @@ class HostManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=host-service">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -2263,9 +2268,11 @@ class HostManagementPage extends FOGPage
             . 'class="btn btn-info btn-block">';
         echo _('Update');
         echo '</button>';
+        echo '<input type="hidden" name="dispupdate" value="1"/>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
+        echo '</form>';
         unset(
             $this->data,
             $this->form,
@@ -2313,6 +2320,9 @@ class HostManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=host-service">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -2329,6 +2339,7 @@ class HostManagementPage extends FOGPage
             . 'class="btn btn-info btn-block">';
         echo _('Update');
         echo '</button>';
+        echo '<input type="hidden" name="alosend" value="1"/>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -3560,10 +3571,16 @@ class HostManagementPage extends FOGPage
             'id',
             true
         );
-        $this->obj->addModule($modOn);
-        $this->obj->removeModule($modOff);
-        $this->obj->setDisp($x, $y, $r);
-        $this->obj->setAlo($tme);
+        if (isset($_POST['modulesend'])) {
+            $this->obj->addModule($modOn);
+            $this->obj->removeModule($modOff);
+        }
+        if (isset($_POST['dispupdate'])) {
+            $this->obj->setDisp($x, $y, $r);
+        }
+        if (isset($_POST['alosend'])) {
+            $this->obj->setAlo($tme);
+        }
     }
     /**
      * Updates the host when form is submitted
