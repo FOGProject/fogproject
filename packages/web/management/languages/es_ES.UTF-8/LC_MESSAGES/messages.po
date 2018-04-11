@@ -3993,9 +3993,6 @@ msgstr "Configuración Tecla"
 msgid "Value"
 msgstr "Valor"
 
-msgid "Save"
-msgstr ""
-
 msgid "Service Master"
 msgstr "Maestro servicio"
 

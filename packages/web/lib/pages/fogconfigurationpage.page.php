@@ -2068,12 +2068,6 @@ class FOGConfigurationPage extends FOGPage
             []
         ];
 
-        $buttons = self::makeButton(
-            'service-send',
-            _('Save'),
-            'btn btn-primary pull-right'
-        );
-
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -2081,7 +2075,7 @@ class FOGConfigurationPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        echo $this->render(12, 'settings-table', $buttons);
+        echo $this->render(12, 'settings-table');
         echo '</div>';
         echo '</div>';
     }

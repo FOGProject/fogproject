@@ -438,7 +438,6 @@ function setupBandwidth() {
     // Bandwidth chart
     function updateBandwidth() {
         var GraphBandwidthOpts = {
-            colors: ['#3c8dbc', '#0073b7'],
             grid: {
                 borderColor: '#f3f3f3',
                 borderWidth: 1,
@@ -446,14 +445,14 @@ function setupBandwidth() {
             },
             series: {
                 shadowSize: 0,
-                colors: ['#3c8dbc', '#0073b7'],
+                //colors: ['#3c8dbc', '#0073b7'],
                 lines: {
                     show: true
                 }
             },
             lines: {
                 fill: false,
-                colors: ['#3c8dbc', '#0073b7']
+                //colors: ['#3c8dbc', '#0073b7']
             },
             xaxis: {
                 mode: 'time',
@@ -473,7 +472,6 @@ function setupBandwidth() {
                 noColumns: 5,
                 labelFormatter: function(label, series) {
                     return label;
-                    //return label.replace('()', '');
                 },
                 position: 'nw'
             }
@@ -495,6 +493,10 @@ function setupBandwidth() {
                 var d = new Date(),
                     n = d.getTime() - (d.getTimezoneOffset() * 60000);
 
+                // Shading our colors.
+                GraphBandwidthOpts.colors = $.map(series, function(o, i) {
+                    return jQuery.Color('#3c8dbc').lightness(0.7 - i / (series.length * 1.2)).toHexString();
+                });
                 // Because we can monitor multiple servers, we must iterate
                 // all of our data.
                 $.each(series, function(index, value) {

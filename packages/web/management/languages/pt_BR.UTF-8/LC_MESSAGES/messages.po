@@ -3816,9 +3816,6 @@ msgstr "Configurações"
 msgid "Value"
 msgstr "Valor"
 
-msgid "Save"
-msgstr ""
-
 msgid "Service Master"
 msgstr "Mestre serviço"
 

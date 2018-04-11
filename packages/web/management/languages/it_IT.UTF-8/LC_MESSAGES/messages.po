@@ -3602,9 +3602,6 @@ msgstr "impostazioni"
 msgid "Value"
 msgstr "Valore"
 
-msgid "Save"
-msgstr ""
-
 msgid "Service Master"
 msgstr "Service master"
 
