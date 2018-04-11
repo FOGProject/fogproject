@@ -58,7 +58,7 @@ class SchemaUpdaterPage extends FOGPage
         $buttons = self::makeButton(
             'schema-send',
             _('Install/Update now'),
-            'btn btn-primary hidden runningdb'
+            'btn btn-primary hidden runningdb pull-right'
         );
 
         echo self::makeFormTag(

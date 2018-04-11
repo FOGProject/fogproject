@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-10 22:57-0400\n"
+"POT-Creation-Date: 2018-04-11 17:45-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2173,28 +2173,24 @@ msgid "Access Control Name"
 msgstr "All Access Controls"
 
 #, fuzzy
-msgid "A role name is required!"
-msgstr "An image name is required!"
-
-#, fuzzy
 msgid "A role already exists with this name!"
 msgstr "An image already exists with this name!"
 
 #, fuzzy
-msgid "Add access control failed!"
-msgstr "All Access Controls"
+msgid "Add role failed!"
+msgstr "Add snapin failed!"
 
 #, fuzzy
-msgid "Access Control added!"
-msgstr "All Access Controls"
+msgid "Role added!"
+msgstr "Printer Name"
 
 #, fuzzy
-msgid "Access Control Create Success"
-msgstr "Snapin updated"
+msgid "Role Create Success"
+msgstr "Printer already exists"
 
 #, fuzzy
-msgid "Access Control Create Fail"
-msgstr "Snapin updated"
+msgid "Role Create Fail"
+msgstr "Printer update failed!"
 
 #, fuzzy
 msgid "A role with this name already exists!"
@@ -2209,7 +2205,7 @@ msgid "Role updated!"
 msgstr "Printer updated!"
 
 #, fuzzy
-msgid "Rule Update Success"
+msgid "Role Update Success"
 msgstr "User created"
 
 #, fuzzy
@@ -2237,7 +2233,7 @@ msgid "Rule Node"
 msgstr "Module Name"
 
 #, fuzzy
-msgid "A rule already exists with the generated name!"
+msgid "A rule already exists with that type-value pair!"
 msgstr "An image already exists with this name!"
 
 #, fuzzy
@@ -2275,6 +2271,10 @@ msgstr "Printer update failed!"
 #, fuzzy
 msgid "Rule updated!"
 msgstr "Printer updated!"
+
+#, fuzzy
+msgid "Rule Update Success"
+msgstr "User created"
 
 #, fuzzy
 msgid "Rule Update Fail"

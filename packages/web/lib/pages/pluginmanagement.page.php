@@ -87,28 +87,28 @@ class PluginManagement extends FOGPage
         $activateBtn = self::makeButton(
             'activate',
             _('Activate selected'),
-            'btn btn-primary',
+            'btn btn-primary pull-right',
             $activate
         );
 
         $installBtn = self::makeButton(
             'install',
             _('Install selected'),
-            'btn btn-success',
+            'btn btn-success pull-right',
             $install
         );
 
         $deactivateBtn = self::makeButton(
             'deactivate',
             _('Deactivate selected'),
-            'btn btn-warning',
+            'btn btn-warning pull-left',
             $deactivate
         );
 
         $removeBtn = self::makeButton(
             'remove',
             _('Uninstall selected'),
-            'btn btn-danger',
+            'btn btn-danger pull-left',
             $remove
         );
 

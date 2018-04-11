@@ -36,9 +36,6 @@ class AccessControlManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        /**
-         * The name to give.
-         */
         $this->name = 'Role Management';
         parent::__construct($this->name);
         $this->headerData = [
@@ -94,14 +91,14 @@ class AccessControlManagement extends FOGPage
         $buttons = self::makeButton(
             'send',
             _('Create'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
 
         self::$HookManager->processEvent(
             'ACCESSCONTROL_ADD_FIELDS',
             [
                 'fields' => &$fields,
-                'button' => &$buttons,
+                'buttons' => &$buttons,
                 'AccessControl' => self::getClass('AccessControl')
             ]
         );
@@ -150,14 +147,12 @@ class AccessControlManagement extends FOGPage
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
+
         $serverFault = false;
         try {
-            if (!$role) {
-                throw new Exception(
-                    _('A role name is required!')
-                );
-            }
-            if (self::getClass('AccessControlManager')->exists($role)) {
+            $exists = self::getClass('AccessControlManager')
+                ->exists($role);
+            if ($exists) {
                 throw new Exception(
                     _('A role already exists with this name!')
                 );
@@ -167,14 +162,14 @@ class AccessControlManagement extends FOGPage
                 ->set('description', $description);
             if (!$AccessControl->save()) {
                 $serverFault = true;
-                throw new Exception(_('Add access control failed!'));
+                throw new Exception(_('Add role failed!'));
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'ACCESSCONTROL_ADD_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Access Control added!'),
-                    'title' => _('Access Control Create Success')
+                    'msg' => _('Role added!'),
+                    'title' => _('Role Create Success')
                 ]
             );
         } catch (Exception $e) {
@@ -187,7 +182,7 @@ class AccessControlManagement extends FOGPage
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Access Control Create Fail')
+                    'title' => _('Role Create Fail')
                 ]
             );
         }
@@ -258,12 +253,12 @@ class AccessControlManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-right'
+            'btn btn-danger pull-left'
         );
 
         self::$HookManager->processEvent(
@@ -314,10 +309,14 @@ class AccessControlManagement extends FOGPage
             filter_input(INPUT_POST, 'description')
         );
 
+        $exists = self::getClass('AccessControlManager')
+            ->exists($role);
         if ($role != $this->obj->get('name')
-            && self::getClass('AccessControlManager')->exists($role)
+            && $exists
         ) {
-            throw new Exception(_('A role with this name already exists!'));
+            throw new Exception(
+                _('A role with this name already exists!')
+            );
         }
         $this->obj
             ->set('name', $role)
@@ -361,6 +360,7 @@ class AccessControlManagement extends FOGPage
             'ROLE_EDIT_POST',
             ['AccessControl' => &$this->obj]
         );
+
         $serverFault = false;
         try{
             global $tab;
@@ -378,7 +378,7 @@ class AccessControlManagement extends FOGPage
             $msg = json_encode(
                 [
                     'msg' => _('Role updated!'),
-                    'title' => _('Rule Update Success')
+                    'title' => _('Role Update Success')
                 ]
             );
         } catch (Exception $e) {

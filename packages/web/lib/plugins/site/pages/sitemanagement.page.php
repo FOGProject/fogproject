@@ -91,7 +91,7 @@ class SiteManagement extends FOGPage
         $buttons = self::makeButton(
             'send',
             _('Create'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
 
         self::$HookManager
@@ -253,12 +253,12 @@ class SiteManagement extends FOGPage
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-right'
+            'btn btn-danger pull-left'
         );
 
         self::$HookManager->processEvent(
@@ -338,12 +338,12 @@ class SiteManagement extends FOGPage
         $buttons = self::makeButton(
             'site-host-send',
             _('Add selected'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         $buttons .= self::makeButton(
             'site-host-remove',
             _('Remove selected'),
-            'btn btn-danger'
+            'btn btn-danger pull-left'
         );
 
         echo self::makeFormTag(
@@ -431,12 +431,12 @@ class SiteManagement extends FOGPage
         $buttons = self::makeButton(
             'site-user-send',
             _('Add selected'),
-            'btn btn-primary'
+            'btn btn-primary pull-right'
         );
         $buttons .= self::makeButton(
             'site-user-remove',
             _('Remove selected'),
-            'btn btn-danger'
+            'btn btn-danger pull-left'
         );
 
         echo self::makeFormTag(

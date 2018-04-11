@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-10 22:57-0400\n"
+"POT-Creation-Date: 2018-04-11 17:45-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2343,28 +2343,24 @@ msgid "Access Control Name"
 msgstr "impresora iPrint"
 
 #, fuzzy
-msgid "A role name is required!"
-msgstr "Se requiere un nombre de imagen!"
-
-#, fuzzy
 msgid "A role already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
-msgid "Add access control failed!"
-msgstr "impresora iPrint"
+msgid "Add role failed!"
+msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
-msgid "Access Control added!"
-msgstr "impresora iPrint"
+msgid "Role added!"
+msgstr "Nombre de la impresora"
 
 #, fuzzy
-msgid "Access Control Create Success"
-msgstr "Nombre snapin"
+msgid "Role Create Success"
+msgstr "Impresora ya existe"
 
 #, fuzzy
-msgid "Access Control Create Fail"
-msgstr "Nombre snapin"
+msgid "Role Create Fail"
+msgstr "actualización de la impresora ha fallado!"
 
 #, fuzzy
 msgid "A role with this name already exists!"
@@ -2379,7 +2375,7 @@ msgid "Role updated!"
 msgstr "Impresora actualiza!"
 
 #, fuzzy
-msgid "Rule Update Success"
+msgid "Role Update Success"
 msgstr "creado por el usuario"
 
 #, fuzzy
@@ -2407,7 +2403,7 @@ msgid "Rule Node"
 msgstr "Nombre del módulo"
 
 #, fuzzy
-msgid "A rule already exists with the generated name!"
+msgid "A rule already exists with that type-value pair!"
 msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
@@ -2445,6 +2441,10 @@ msgstr "actualización de la impresora ha fallado!"
 #, fuzzy
 msgid "Rule updated!"
 msgstr "Impresora actualiza!"
+
+#, fuzzy
+msgid "Rule Update Success"
+msgstr "creado por el usuario"
 
 #, fuzzy
 msgid "Rule Update Fail"

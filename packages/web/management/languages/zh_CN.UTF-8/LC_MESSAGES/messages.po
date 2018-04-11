@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-10 22:57-0400\n"
+"POT-Creation-Date: 2018-04-11 17:45-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2172,28 +2172,24 @@ msgid "Access Control Name"
 msgstr "所有访问控制"
 
 #, fuzzy
-msgid "A role name is required!"
-msgstr "图像名是必需的！"
-
-#, fuzzy
 msgid "A role already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
-msgid "Add access control failed!"
-msgstr "所有访问控制"
+msgid "Add role failed!"
+msgstr "添加管理单元失败！"
 
 #, fuzzy
-msgid "Access Control added!"
-msgstr "所有访问控制"
+msgid "Role added!"
+msgstr "打印机名称"
 
 #, fuzzy
-msgid "Access Control Create Success"
-msgstr "更新管理单元"
+msgid "Role Create Success"
+msgstr "打印机已经存在"
 
 #, fuzzy
-msgid "Access Control Create Fail"
-msgstr "更新管理单元"
+msgid "Role Create Fail"
+msgstr "打印机更新失败！"
 
 #, fuzzy
 msgid "A role with this name already exists!"
@@ -2208,7 +2204,7 @@ msgid "Role updated!"
 msgstr "打印机更新！"
 
 #, fuzzy
-msgid "Rule Update Success"
+msgid "Role Update Success"
 msgstr "用户创建"
 
 #, fuzzy
@@ -2236,7 +2232,7 @@ msgid "Rule Node"
 msgstr "模块名称"
 
 #, fuzzy
-msgid "A rule already exists with the generated name!"
+msgid "A rule already exists with that type-value pair!"
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
@@ -2274,6 +2270,10 @@ msgstr "打印机更新失败！"
 #, fuzzy
 msgid "Rule updated!"
 msgstr "打印机更新！"
+
+#, fuzzy
+msgid "Rule Update Success"
+msgstr "用户创建"
 
 #, fuzzy
 msgid "Rule Update Fail"

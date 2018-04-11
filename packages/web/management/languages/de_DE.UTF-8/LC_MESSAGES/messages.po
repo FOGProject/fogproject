@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-10 22:57-0400\n"
+"POT-Creation-Date: 2018-04-11 17:45-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -2174,28 +2174,24 @@ msgid "Access Control Name"
 msgstr "Zugriffskontrollen"
 
 #, fuzzy
-msgid "A role name is required!"
-msgstr "Ein Gruppenname ist erforderlich!"
-
-#, fuzzy
 msgid "A role already exists with this name!"
 msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
-msgid "Add access control failed!"
-msgstr "Zugriffskontrollregeln"
+msgid "Add role failed!"
+msgstr "Benutzer hinzufügen fehlgeschlagen!"
 
 #, fuzzy
-msgid "Access Control added!"
-msgstr "Zugriffskontrollregeln"
+msgid "Role added!"
+msgstr "Drucker hinzugefügt"
 
 #, fuzzy
-msgid "Access Control Create Success"
-msgstr "Snapin erfolgreich hinzugefügt"
+msgid "Role Create Success"
+msgstr "Drucker hinzufügen erfolgreich."
 
 #, fuzzy
-msgid "Access Control Create Fail"
-msgstr "Snapin erstellen fehlgeschlagen"
+msgid "Role Create Fail"
+msgstr "Drucker erstellen fehlgeschlagen!"
 
 #, fuzzy
 msgid "A role with this name already exists!"
@@ -2210,7 +2206,7 @@ msgid "Role updated!"
 msgstr "Drucker aktualisiert!"
 
 #, fuzzy
-msgid "Rule Update Success"
+msgid "Role Update Success"
 msgstr "Modulupdate erfolgreich"
 
 #, fuzzy
@@ -2238,7 +2234,7 @@ msgid "Rule Node"
 msgstr "Regelname"
 
 #, fuzzy
-msgid "A rule already exists with the generated name!"
+msgid "A rule already exists with that type-value pair!"
 msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
@@ -2276,6 +2272,10 @@ msgstr "Drucker-Update fehlgeschlagen!"
 #, fuzzy
 msgid "Rule updated!"
 msgstr "Drucker aktualisiert!"
+
+#, fuzzy
+msgid "Rule Update Success"
+msgstr "Modulupdate erfolgreich"
 
 #, fuzzy
 msgid "Rule Update Fail"
