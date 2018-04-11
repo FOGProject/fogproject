@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-10 17:58-0400\n"
+"POT-Creation-Date: 2018-04-10 22:57-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5927,8 +5927,28 @@ msgid "filesize"
 msgstr "dimensione del file"
 
 #, fuzzy
+msgid "File downloaded!"
+msgstr "Nessun file è stato caricato"
+
+#, fuzzy
+msgid "Download Complete"
+msgstr "Scaricamento fallito"
+
+#, fuzzy
 msgid "Unable to connect to ftp"
 msgstr "Connessione fallita"
+
+#, fuzzy
+msgid "File uploaded to storage node!"
+msgstr "Impossibile per distruggere il nodo di archiviazione"
+
+#, fuzzy
+msgid "Update Kernel Success"
+msgstr "Utente aggiornato con successo"
+
+#, fuzzy
+msgid "Kernel Update Fail"
+msgstr "Aggiornamento del kernel"
 
 #, fuzzy
 msgid "Delete associated hosts"

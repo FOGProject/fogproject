@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-10 17:58-0400\n"
+"POT-Creation-Date: 2018-04-10 22:57-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6337,8 +6337,28 @@ msgid "filesize"
 msgstr "tamanho do arquivo"
 
 #, fuzzy
+msgid "File downloaded!"
+msgstr "Nenhum arquivo foi transferido"
+
+#, fuzzy
+msgid "Download Complete"
+msgstr "Falha no download"
+
+#, fuzzy
 msgid "Unable to connect to ftp"
 msgstr "Falhou ao conectar"
+
+#, fuzzy
+msgid "File uploaded to storage node!"
+msgstr "Falha ao destruir Storage Node"
+
+#, fuzzy
+msgid "Update Kernel Success"
+msgstr "Instalar / Atualizar sucesso!"
+
+#, fuzzy
+msgid "Kernel Update Fail"
+msgstr "Kernel Atualização"
 
 #, fuzzy
 msgid "Delete associated hosts"

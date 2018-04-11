@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-10 17:58-0400\n"
+"POT-Creation-Date: 2018-04-10 22:57-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5414,7 +5414,22 @@ msgstr ""
 msgid "filesize"
 msgstr ""
 
+msgid "File downloaded!"
+msgstr ""
+
+msgid "Download Complete"
+msgstr ""
+
 msgid "Unable to connect to ftp"
+msgstr ""
+
+msgid "File uploaded to storage node!"
+msgstr ""
+
+msgid "Update Kernel Success"
+msgstr ""
+
+msgid "Kernel Update Fail"
 msgstr ""
 
 msgid "Delete associated hosts"

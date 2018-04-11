@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-10 17:58-0400\n"
+"POT-Creation-Date: 2018-04-10 22:57-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -6349,8 +6349,28 @@ msgid "filesize"
 msgstr "Dateigröße"
 
 #, fuzzy
+msgid "File downloaded!"
+msgstr "Keine Datei wurde hochgeladen"
+
+#, fuzzy
+msgid "Download Complete"
+msgstr "Download fehlgeschlagen"
+
+#, fuzzy
 msgid "Unable to connect to ftp"
 msgstr "Verbindung nicht möglich"
+
+#, fuzzy
+msgid "File uploaded to storage node!"
+msgstr "Zerstören des Speicherknotens fehlgeschlagen"
+
+#, fuzzy
+msgid "Update Kernel Success"
+msgstr "Benutzeraktualisierung erfolgreich!"
+
+#, fuzzy
+msgid "Kernel Update Fail"
+msgstr "Kernel-Update"
 
 #, fuzzy
 msgid "Delete associated hosts"
