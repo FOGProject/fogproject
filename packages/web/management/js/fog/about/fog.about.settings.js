@@ -66,14 +66,21 @@
         });
         $(':password').before('<span class="input-group-addon"><i class="fa fa-eye-slash fogpasswordeye"></i></span>');
         Common.iCheck('#settings-table :input');
-        $(':input').on('blur, slideStop', function(e) {
-            e.preventDefault();
-            var opts = $(this).serialize();
-            Common.apiCall(method, action, opts, function(err) {
-                if (err) {
-                    return;
-                }
-                table.draw(false);
+        $(':input').each(function() {
+            if ($(this).hasClass('slider')) {
+                ev = 'slideStop';
+            } else {
+                ev = 'change';
+            }
+            $(this).on(ev, function(e) {
+                e.preventDefault();
+                var opts = $(this).serialize();
+                Common.apiCall(method, action, opts, function(err) {
+                    if (err) {
+                        return;
+                    }
+                    table.draw(false);
+                });
             });
         });
         $(':checkbox').on('ifChecked', function(e) {
@@ -86,7 +93,6 @@
                 if (err) {
                     return;
                 }
-                table.draw(false);
             });
         }).on('ifUnchecked', function(e) {
             e.preventDefault();
@@ -98,7 +104,6 @@
                 if (err) {
                     return;
                 }
-                table.draw(false);
             });
         });
     });
