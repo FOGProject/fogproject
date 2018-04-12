@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-12 13:21-0400\n"
+"POT-Creation-Date: 2018-04-12 14:35-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -449,7 +449,15 @@ msgstr "添加存储组"
 msgid "Storage Node"
 msgstr "存储节点"
 
+#, fuzzy
+msgid "Storage Nodes"
+msgstr "存储节点"
+
 msgid "Storage Group"
+msgstr "存储组"
+
+#, fuzzy
+msgid "Storage Groups"
 msgstr "存储组"
 
 msgid "Active Tasks"
@@ -2998,16 +3006,16 @@ msgid ""
 msgstr ""
 
 #, fuzzy
+msgid "Delete All"
+msgstr "删除的文件数据"
+
+#, fuzzy
 msgid "Create New Immediate"
 msgstr "新建%s"
 
 #, fuzzy
 msgid "Create New Scheduled"
 msgstr "新建%s"
-
-#, fuzzy
-msgid "Delete All"
-msgstr "删除的文件数据"
 
 msgid "Create Immediate Power task"
 msgstr ""
@@ -4017,10 +4025,6 @@ msgstr "存储组名称"
 #, fuzzy
 msgid "Storage Group Associated"
 msgstr "存储节点创建"
-
-#, fuzzy
-msgid "Storage Groups"
-msgstr "存储组"
 
 #, fuzzy
 msgid "Image update failed!"
@@ -6239,6 +6243,9 @@ msgstr "组播"
 #, fuzzy
 msgid "All "
 msgstr "所有主机"
+
+msgid "Toggle Dropdown"
+msgstr ""
 
 #, fuzzy
 msgid "Add selected to group"
