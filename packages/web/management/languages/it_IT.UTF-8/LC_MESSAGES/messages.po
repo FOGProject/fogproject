@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-12 13:21-0400\n"
+"POT-Creation-Date: 2018-04-12 14:35-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -448,7 +448,15 @@ msgstr "Aggiungere gruppo di archiviazione"
 msgid "Storage Node"
 msgstr "Storage Node"
 
+#, fuzzy
+msgid "Storage Nodes"
+msgstr "Storage Node"
+
 msgid "Storage Group"
+msgstr "gruppo di archiviazione"
+
+#, fuzzy
+msgid "Storage Groups"
 msgstr "gruppo di archiviazione"
 
 msgid "Active Tasks"
@@ -2857,16 +2865,16 @@ msgid ""
 msgstr ""
 
 #, fuzzy
+msgid "Delete All"
+msgstr "Cancellare i file"
+
+#, fuzzy
 msgid "Create New Immediate"
 msgstr "Crea nuovo %s"
 
 #, fuzzy
 msgid "Create New Scheduled"
 msgstr "Crea nuovo %s"
-
-#, fuzzy
-msgid "Delete All"
-msgstr "Cancellare i file"
 
 msgid "Create Immediate Power task"
 msgstr ""
@@ -3794,10 +3802,6 @@ msgstr "Nome gruppo di archiviazione"
 #, fuzzy
 msgid "Storage Group Associated"
 msgstr "Storage Node Creato"
-
-#, fuzzy
-msgid "Storage Groups"
-msgstr "gruppo di archiviazione"
 
 #, fuzzy
 msgid "Image update failed!"
@@ -5842,6 +5846,9 @@ msgstr "Immagine Multicast"
 #, fuzzy
 msgid "All "
 msgstr "tutti gli host"
+
+msgid "Toggle Dropdown"
+msgstr ""
 
 #, fuzzy
 msgid "Add selected to group"

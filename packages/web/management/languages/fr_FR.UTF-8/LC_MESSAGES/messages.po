@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-12 13:21-0400\n"
+"POT-Creation-Date: 2018-04-12 14:35-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -450,7 +450,15 @@ msgstr "Ajouter un groupe de stockage"
 msgid "Storage Node"
 msgstr "nœud de stockage"
 
+#, fuzzy
+msgid "Storage Nodes"
+msgstr "nœud de stockage"
+
 msgid "Storage Group"
+msgstr "Groupe de stockage"
+
+#, fuzzy
+msgid "Storage Groups"
 msgstr "Groupe de stockage"
 
 msgid "Active Tasks"
@@ -3005,16 +3013,16 @@ msgid ""
 msgstr ""
 
 #, fuzzy
+msgid "Delete All"
+msgstr "Supprimer les données de fichiers"
+
+#, fuzzy
 msgid "Create New Immediate"
 msgstr "Créer un nouveau %s"
 
 #, fuzzy
 msgid "Create New Scheduled"
 msgstr "Créer un nouveau %s"
-
-#, fuzzy
-msgid "Delete All"
-msgstr "Supprimer les données de fichiers"
 
 msgid "Create Immediate Power task"
 msgstr ""
@@ -4032,10 +4040,6 @@ msgstr "Nom du groupe de stockage"
 #, fuzzy
 msgid "Storage Group Associated"
 msgstr "Nœud de stockage Créé"
-
-#, fuzzy
-msgid "Storage Groups"
-msgstr "Groupe de stockage"
 
 #, fuzzy
 msgid "Image update failed!"
@@ -6262,6 +6266,9 @@ msgstr "Multicast"
 #, fuzzy
 msgid "All "
 msgstr "Tous les hôtes"
+
+msgid "Toggle Dropdown"
+msgstr ""
 
 #, fuzzy
 msgid "Add selected to group"

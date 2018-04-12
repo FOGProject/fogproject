@@ -549,16 +549,16 @@ class GroupManagement extends FOGPage
             _('Update'),
             'btn btn-primary pull-right'
         );
-        $buttons .= '<div class="btn-group">';
+        $buttons .= '<div class="btn-group pull-left">';
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-left'
+            'btn btn-danger'
         );
         $buttons .= self::makeButton(
             'reset-encryption-data',
             _('Reset Encryption Data'),
-            'btn btn-warning pull-left'
+            'btn btn-warning'
         );
         $buttons .= '</div>';
 
@@ -1025,18 +1025,20 @@ class GroupManagement extends FOGPage
         echo '</div>';
         echo '</form>';
 
-        $buttons = self::makeButton(
-            'printer-default',
-            _('Update default'),
-            'btn btn-primary pull-right',
-            $props
-        );
+        $buttons = '<div class="btn-group pull-right">';
         $buttons .= self::makeButton(
             'printer-add',
             _('Add selected'),
-            'btn btn-successi pull-right',
+            'btn btn-success pull-left',
             $props
         );
+        $buttons .= self::makeButton(
+            'printer-default',
+            _('Update default'),
+            'btn btn-primary',
+            $props
+        );
+        $buttons .= '</div>';
         $buttons .= self::makeButton(
             'printer-remove',
             _('Remove selected'),
@@ -1238,22 +1240,24 @@ class GroupManagement extends FOGPage
             )
             . '" ';
 
-        $buttons = self::makeButton(
-            'modules-update',
-            _('Update'),
-            'btn btn-primary pull-right',
-            $props
-        );
+        $buttons = '<div class="btn-group pull-right">';
         $buttons .= self::makeButton(
             'modules-enable',
             _('Enable All'),
-            'btn btn-success pull-right',
+            'btn btn-success pull-left',
             $props
         );
         $buttons .= self::makeButton(
+            'modules-update',
+            _('Update'),
+            'btn btn-primary',
+            $props
+        );
+        $buttons .= '</div>';
+        $buttons .= self::makeButton(
             'modules-disable',
             _('Disable All'),
-            'btn btn-danger pull-left',
+            'btn btn-danger',
             $props
         );
 
@@ -1634,19 +1638,19 @@ class GroupManagement extends FOGPage
     public function groupPowermanagement()
     {
         $buttons = self::makeButton(
+            'powermanagement-delete',
+            _('Delete All'),
+            'btn btn-danger pull-left'
+        );
+        $buttons .= self::makeButton(
             'ondemandBtn',
             _('Create New Immediate'),
-            'btn btn-primary pull-right'
+            'btn btn-primary'
         );
         $buttons .= self::makeButton(
             'scheduleBtn',
             _('Create New Scheduled'),
-            'btn btn-info pull-right'
-        );
-        $buttons .= self::makeButton(
-            'powermanagement-delete',
-            _('Delete All'),
-            'btn btn-danger pull-left'
+            'btn btn-info'
         );
         $ondemandModalBtns = self::makeButton(
             'ondemandCancelBtn',

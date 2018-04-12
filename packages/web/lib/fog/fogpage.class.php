@@ -374,19 +374,19 @@ abstract class FOGPage extends FOGBase
                 'fa fa-hdd-o'
             ],
             'storagenode' => [
-                self::$foglang['StorageNode'],
+                self::$foglang['StorageNodes'],
                 'fa fa-archive'
             ],
             'storagegroup' => [
-                self::$foglang['StorageGroup'],
+                self::$foglang['StorageGroups'],
                 'fa fa-object-group'
             ],
             'snapin' => [
-                self::$foglang['Snapin'],
-                'fa fa-files-o'
+                self::$foglang['Snapins'],
+                'fa fa-cube'
             ],
             'printer' => [
-                self::$foglang['Printer'],
+                self::$foglang['Printers'],
                 'fa fa-print'
             ],
             'service' => [
@@ -879,6 +879,73 @@ abstract class FOGPage extends FOGBase
         echo '>';
         echo $text;
         echo '</button>';
+        return ob_get_clean();
+    }
+    /**
+     * Helps make a split button.
+     *
+     * @param string $id            The id of the main button
+     * @param string $text          The text for dropdown button.
+     * @param array  $dropdownArray The dropdown items. This item is in order of:
+     *                              [
+     *                              [
+     *                              'id' => 'someID',
+     *                              'text' => 'SomeButtonText',
+     *                              'props' => 'action="SomeAction" method="post"'
+     *                              ],
+     *                              [
+     *                              'divider' => true,
+     *                              'id' => 'idAfterDivider',
+     *                              'text' => 'textAfterDivider'
+     *                              ]
+     *                              ]
+     * @param string $class         The class to give.
+     * @param string $props         Properties for the base button.
+     * 
+     * @return string
+     */
+    public static function makeSplitButton(
+        $id,
+        $text,
+        $dropdownArray,
+        $class = 'default',
+        $props = ''
+    ) {
+        ob_start();
+        echo '<div class="btn-group">';
+        echo '<button type="button" class="btn btn-'
+            . $class['base']['class']
+            . '"'
+            . ($id ? ' id="' . $id . '"' : '')
+            . '>';
+        echo $text['base']['text'];
+        echo '</button>';
+        echo '<button type="button class="btn btn-'
+            . $class
+            . ' dropdown-toggle" data-toggle="dropdown">';
+        echo '<span class="caret"></span>';
+        echo '<span class="sr-only">'
+            . _('Toggle Dropdown')
+            . '</span>';
+        echo '</button>';
+        echo '<ul class="dropdown-menu" role="menu">';
+        foreach ((array)$dropdownArray as &$dropdown) {
+            if ($dropdown['divider']) {
+                echo '<li class="divider"></li>';
+            }
+            echo '<li>';
+            echo '<a href="'
+                . ($dropdown['href'] ?: '#')
+                . '"'
+                . $dropdown['id'] ? ' id="' . $dropdown['id'] . '"' : ''
+                . '>'
+                . $dropdown['text']
+                . '</a>';
+            echo '</li>';
+            unset($dropdown);
+        }
+        echo '</ul>';
+        echo '</div>';
         return ob_get_clean();
     }
     /**

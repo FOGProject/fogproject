@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-12 13:21-0400\n"
+"POT-Creation-Date: 2018-04-12 14:35-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -446,7 +446,15 @@ msgstr "Speichergruppe hinzufügen"
 msgid "Storage Node"
 msgstr "Storage Node"
 
+#, fuzzy
+msgid "Storage Nodes"
+msgstr "Storage Node"
+
 msgid "Storage Group"
+msgstr "Speichergruppe"
+
+#, fuzzy
+msgid "Storage Groups"
 msgstr "Speichergruppe"
 
 msgid "Active Tasks"
@@ -3006,16 +3014,16 @@ msgid ""
 msgstr ""
 
 #, fuzzy
+msgid "Delete All"
+msgstr "Löschen fehlgeschlagen"
+
+#, fuzzy
 msgid "Create New Immediate"
 msgstr "Neuen Schlüssel erstellen"
 
 #, fuzzy
 msgid "Create New Scheduled"
 msgstr "Neuen Schlüssel erstellen"
-
-#, fuzzy
-msgid "Delete All"
-msgstr "Löschen fehlgeschlagen"
 
 msgid "Create Immediate Power task"
 msgstr ""
@@ -4032,10 +4040,6 @@ msgstr "Name der Speichergruppe"
 #, fuzzy
 msgid "Storage Group Associated"
 msgstr "Speicherknoten erstellt"
-
-#, fuzzy
-msgid "Storage Groups"
-msgstr "Speichergruppe"
 
 #, fuzzy
 msgid "Image update failed!"
@@ -6262,6 +6266,9 @@ msgstr "Multicast Image"
 #, fuzzy
 msgid "All "
 msgstr "Alle Hosts"
+
+msgid "Toggle Dropdown"
+msgstr ""
 
 #, fuzzy
 msgid "Add selected to group"

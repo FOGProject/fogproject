@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-12 13:21-0400\n"
+"POT-Creation-Date: 2018-04-12 14:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -444,7 +444,13 @@ msgstr ""
 msgid "Storage Node"
 msgstr ""
 
+msgid "Storage Nodes"
+msgstr ""
+
 msgid "Storage Group"
+msgstr ""
+
+msgid "Storage Groups"
 msgstr ""
 
 msgid "Active Tasks"
@@ -2610,13 +2616,13 @@ msgid ""
 "If disabled, the client will not make changes until all users are logged off"
 msgstr ""
 
+msgid "Delete All"
+msgstr ""
+
 msgid "Create New Immediate"
 msgstr ""
 
 msgid "Create New Scheduled"
-msgstr ""
-
-msgid "Delete All"
 msgstr ""
 
 msgid "Create Immediate Power task"
@@ -3467,9 +3473,6 @@ msgid "Storage Group Primary"
 msgstr ""
 
 msgid "Storage Group Associated"
-msgstr ""
-
-msgid "Storage Groups"
 msgstr ""
 
 msgid "Image update failed!"
@@ -5334,6 +5337,9 @@ msgid "Multicast Image"
 msgstr ""
 
 msgid "All "
+msgstr ""
+
+msgid "Toggle Dropdown"
 msgstr ""
 
 msgid "Add selected to group"
