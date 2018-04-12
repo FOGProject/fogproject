@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-11 17:45-0400\n"
+"POT-Creation-Date: 2018-04-12 13:21-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5748,30 +5748,6 @@ msgstr "Impossibile contattare il server"
 msgid "No viable storage groups found"
 msgstr "Nessun gruppo di storage disponibile trovato"
 
-msgid "Select a cron type"
-msgstr "Selezionare un tipo di cron"
-
-msgid "Yearly"
-msgstr "Annuale"
-
-msgid "Annually"
-msgstr "Annualmente"
-
-msgid "Monthly"
-msgstr "Mensile"
-
-msgid "Weekly"
-msgstr "settimanalmente"
-
-msgid "Daily"
-msgstr "Quotidiano"
-
-msgid "Midnight"
-msgstr "Mezzanotte"
-
-msgid "Hourly"
-msgstr "ogni ora"
-
 msgid "Please Select an option"
 msgstr "Per favore selezionate un'opzione"
 
@@ -6021,6 +5997,30 @@ msgstr "Riuscito"
 
 msgid "Schedule Power"
 msgstr "Pianifica spegnimento"
+
+msgid "Select a cron type"
+msgstr "Selezionare un tipo di cron"
+
+msgid "Yearly"
+msgstr "Annuale"
+
+msgid "Annually"
+msgstr "Annualmente"
+
+msgid "Monthly"
+msgstr "Mensile"
+
+msgid "Weekly"
+msgstr "settimanalmente"
+
+msgid "Daily"
+msgstr "Quotidiano"
+
+msgid "Midnight"
+msgstr "Mezzanotte"
+
+msgid "Hourly"
+msgstr "ogni ora"
 
 msgid "Table not defined for this class"
 msgstr "Tabella del database non definita per questa classe"

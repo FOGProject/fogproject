@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-11 17:45-0400\n"
+"POT-Creation-Date: 2018-04-12 13:21-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -6157,30 +6157,6 @@ msgstr "Authentifizieren nicht möglich"
 msgid "No viable storage groups found"
 msgstr "Keine brauchbaren Speichergruppen gefunden"
 
-msgid "Select a cron type"
-msgstr "Wählen Sie einen Crontyp"
-
-msgid "Yearly"
-msgstr "Jährlich"
-
-msgid "Annually"
-msgstr "Jährlich"
-
-msgid "Monthly"
-msgstr "Monatlich"
-
-msgid "Weekly"
-msgstr "Wöchentlich"
-
-msgid "Daily"
-msgstr "Täglich"
-
-msgid "Midnight"
-msgstr "Mitternacht"
-
-msgid "Hourly"
-msgstr "Stündlich"
-
 msgid "Please Select an option"
 msgstr "Bitte wählen Sie eine Option"
 
@@ -6449,6 +6425,30 @@ msgstr "Erfolgreich"
 #, fuzzy
 msgid "Schedule Power"
 msgstr "plane Power"
+
+msgid "Select a cron type"
+msgstr "Wählen Sie einen Crontyp"
+
+msgid "Yearly"
+msgstr "Jährlich"
+
+msgid "Annually"
+msgstr "Jährlich"
+
+msgid "Monthly"
+msgstr "Monatlich"
+
+msgid "Weekly"
+msgstr "Wöchentlich"
+
+msgid "Daily"
+msgstr "Täglich"
+
+msgid "Midnight"
+msgstr "Mitternacht"
+
+msgid "Hourly"
+msgstr "Stündlich"
 
 #, fuzzy
 msgid "Table not defined for this class"
