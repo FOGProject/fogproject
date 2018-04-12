@@ -899,6 +899,7 @@ abstract class FOGPage extends FOGBase
      *                              'text' => 'textAfterDivider'
      *                              ]
      *                              ]
+     * @param string $pull          Pull the button group.
      * @param string $class         The class to give.
      * @param string $props         Properties for the base button.
      * 
@@ -908,19 +909,23 @@ abstract class FOGPage extends FOGBase
         $id,
         $text,
         $dropdownArray,
+        $pull = 'right',
         $class = 'default',
         $props = ''
     ) {
         ob_start();
-        echo '<div class="btn-group">';
+        echo '<div class="btn-group pull-'
+            . $pull
+            . '">';
         echo '<button type="button" class="btn btn-'
-            . $class['base']['class']
+            . $class
             . '"'
             . ($id ? ' id="' . $id . '"' : '')
+            . ($props ? ' ' . $props : '')
             . '>';
-        echo $text['base']['text'];
+        echo $text;
         echo '</button>';
-        echo '<button type="button class="btn btn-'
+        echo '<button type="button" class="btn btn-'
             . $class
             . ' dropdown-toggle" data-toggle="dropdown">';
         echo '<span class="caret"></span>';
@@ -929,17 +934,23 @@ abstract class FOGPage extends FOGBase
             . '</span>';
         echo '</button>';
         echo '<ul class="dropdown-menu" role="menu">';
-        foreach ((array)$dropdownArray as &$dropdown) {
-            if ($dropdown['divider']) {
+        foreach ($dropdownArray as &$dropdown) {
+            $divider = $dropdown['divider'];
+            if ($divider) {
                 echo '<li class="divider"></li>';
             }
+            $href = $dropdown['href'] ?: '#';
+            $did = $dropdown['id'] ? ' id="' . $dropdown['id'] . '"' : '';
+            $dprops = $dropdown['props'] ? ' ' . $dropdown['props'] . ' ' : '';
+            $dtext = $dropdown['text'];
             echo '<li>';
             echo '<a href="'
-                . ($dropdown['href'] ?: '#')
+                . $href
                 . '"'
-                . $dropdown['id'] ? ' id="' . $dropdown['id'] . '"' : ''
+                . $did
+                . $props
                 . '>'
-                . $dropdown['text']
+                . $dtext
                 . '</a>';
             echo '</li>';
             unset($dropdown);

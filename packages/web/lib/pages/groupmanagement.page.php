@@ -1029,7 +1029,7 @@ class GroupManagement extends FOGPage
         $buttons .= self::makeButton(
             'printer-add',
             _('Add selected'),
-            'btn btn-success pull-left',
+            'btn btn-success',
             $props
         );
         $buttons .= self::makeButton(
@@ -1244,7 +1244,7 @@ class GroupManagement extends FOGPage
         $buttons .= self::makeButton(
             'modules-enable',
             _('Enable All'),
-            'btn btn-success pull-left',
+            'btn btn-success',
             $props
         );
         $buttons .= self::makeButton(
@@ -1642,15 +1642,27 @@ class GroupManagement extends FOGPage
             _('Delete All'),
             'btn btn-danger pull-left'
         );
-        $buttons .= self::makeButton(
+        /*$buttons .= self::makeButton(
             'ondemandBtn',
             _('Create New Immediate'),
             'btn btn-primary'
-        );
-        $buttons .= self::makeButton(
+        );*/
+        /*$buttons .= self::makeButton(
             'scheduleBtn',
             _('Create New Scheduled'),
             'btn btn-info'
+        );*/
+        $splitButtons = self::makeSplitButton(
+            'scheduleBtn',
+            _('Create New Scheduled'),
+            [
+                [
+                    'id' => 'ondemandBtn',
+                    'text' => _('Create New Immediate')
+                ]
+            ],
+            'right',
+            'primary'
         );
         $ondemandModalBtns = self::makeButton(
             'ondemandCancelBtn',
@@ -1734,9 +1746,8 @@ class GroupManagement extends FOGPage
         echo '</p>';
         echo '</div>';
         echo '<div class="box-footer with-border">';
-        echo '<div class="btn-group">';
         echo $buttons;
-        echo '</div>';
+        echo $splitButtons;
         echo $modalondemand;
         echo $modalschedule;
         echo $modaldelete;
