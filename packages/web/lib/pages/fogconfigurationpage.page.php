@@ -1613,7 +1613,7 @@ class FOGConfigurationPage extends FOGPage
         $buttons = self::makeButton(
             'updatemacs',
             _('Update MAC List'),
-            'btn btn-outline pull-right'
+            'btn btn-primary pull-right'
         );
         $buttons .= self::makeButton(
             'deletemacs',
