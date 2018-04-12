@@ -1675,10 +1675,11 @@ class Host extends FOGController
     public function addPriMAC($mac)
     {
         $mac = self::parseMacList($mac);
-        if (count($mac) < 1) {
+        $count = count($mac ?: []);
+        if ($count < 1) {
             throw new Exception(_('No viable macs to use'));
         }
-        if (is_array($mac) && count($mac) > 0) {
+        if (is_array($mac) && $count > 0) {
             $mac = array_shift($mac);
         }
         return $this->set('mac', $mac);
