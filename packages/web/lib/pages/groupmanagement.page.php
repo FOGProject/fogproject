@@ -551,14 +551,14 @@ class GroupManagement extends FOGPage
         );
         $buttons .= '<div class="btn-group">';
         $buttons .= self::makeButton(
-            'reset-encryption-data',
-            _('Reset Encryption Data'),
-            'btn btn-warning pull-left'
-        );
-        $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
             'btn btn-danger pull-left'
+        );
+        $buttons .= self::makeButton(
+            'reset-encryption-data',
+            _('Reset Encryption Data'),
+            'btn btn-warning pull-left'
         );
         $buttons .= '</div>';
 

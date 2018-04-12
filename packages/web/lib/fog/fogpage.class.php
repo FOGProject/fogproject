@@ -371,7 +371,7 @@ abstract class FOGPage extends FOGBase
             ],
             'image' => [
                 self::$foglang['Images'],
-                'fa fa-picture-o'
+                'fa fa-hdd-o'
             ],
             'storagenode' => [
                 self::$foglang['StorageNode'],

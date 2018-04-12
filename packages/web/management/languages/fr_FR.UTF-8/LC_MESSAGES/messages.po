@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-11 17:45-0400\n"
+"POT-Creation-Date: 2018-04-12 13:21-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6157,30 +6157,6 @@ msgstr "Erreur serveur contactant"
 msgid "No viable storage groups found"
 msgstr ""
 
-msgid "Select a cron type"
-msgstr "Sélectionnez un type de cron"
-
-msgid "Yearly"
-msgstr "Annuel"
-
-msgid "Annually"
-msgstr "Annuellement"
-
-msgid "Monthly"
-msgstr "Mensuel"
-
-msgid "Weekly"
-msgstr "Hebdomadaire"
-
-msgid "Daily"
-msgstr "Tous les jours"
-
-msgid "Midnight"
-msgstr "Minuit"
-
-msgid "Hourly"
-msgstr "horaire"
-
 msgid "Please Select an option"
 msgstr "Veuillez sélectionner une option"
 
@@ -6448,6 +6424,30 @@ msgstr "Réussi"
 #, fuzzy
 msgid "Schedule Power"
 msgstr "Planificateur"
+
+msgid "Select a cron type"
+msgstr "Sélectionnez un type de cron"
+
+msgid "Yearly"
+msgstr "Annuel"
+
+msgid "Annually"
+msgstr "Annuellement"
+
+msgid "Monthly"
+msgstr "Mensuel"
+
+msgid "Weekly"
+msgstr "Hebdomadaire"
+
+msgid "Daily"
+msgstr "Tous les jours"
+
+msgid "Midnight"
+msgstr "Minuit"
+
+msgid "Hourly"
+msgstr "horaire"
 
 #, fuzzy
 msgid "Table not defined for this class"

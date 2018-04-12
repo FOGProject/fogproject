@@ -1001,16 +1001,16 @@ class HostManagement extends FOGPage
             _('Update'),
             'btn btn-primary pull-right'
         );
-        $buttons .= '<div class="btn-group">';
-        $buttons .= self::makeButton(
-            'reset-encryption-data',
-            _('Reset Encryption Data'),
-            'btn btn-warning pull-left'
-        );
+        $buttons .= '<div class="btn-group pull-left">';
         $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
-            'btn btn-danger pull-left'
+            'btn btn-danger'
+        );
+        $buttons .= self::makeButton(
+            'reset-encryption-data',
+            _('Reset Encryption Data'),
+            'btn btn-warning'
         );
         $buttons .= '</div>';
 
