@@ -2305,15 +2305,17 @@ class HostManagement extends FOGPage
             [],
             []
         ];
-        $buttons = self::makeButton(
-            'ondemandBtn',
-            _('Create New Immediate'),
-            'btn btn-primary pull-right'
-        );
-        $buttons .= self::makeButton(
-            'scheduleCreateBtn',
+        $splitButtons = self::makeSplitButton(
+            'scheduleBtn',
             _('Create New Scheduled'),
-            'btn btn-info pull-right'
+            [
+                [
+                    'id' => 'ondemandBtn',
+                    'text' => _('Create New Immediate')
+                ]
+            ],
+            'right',
+            'primary'
         );
         $buttons .= self::makeButton(
             'pm-delete',
@@ -2349,7 +2351,7 @@ class HostManagement extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'host-powermanagement-table', $buttons);
+        $this->render(12, 'host-powermanagement-table', $buttons.$splitButtons);
         echo '</div>';
         echo '<div class="box-footer">';
         echo self::makeModal(
@@ -4677,19 +4679,13 @@ class HostManagement extends FOGPage
                             'cron'
                         )
                         . '</div>',
-                        '&nbsp;&nbsp;'
-                        . self::makeLabel(
-                            'control-label',
-                            '',
-                            '<div class="croninput fogcron hidden"></div>'
-                            . '<br/>'
-                        )
-                        . '<div class="croninput hidden">'
+                        '<div class="croninput hidden">'
                         . self::makeLabel(
                             $labelClass,
                             '',
                             _('Cron Entry')
-                        ) => self::makeInput(
+                        ) => '<div class="croninput fogcron hidden"></div><br/>'
+                        . self::makeInput(
                             'col-sm-2 croninput cronmin hidden',
                             'scheduleCronMin',
                             _('min'),

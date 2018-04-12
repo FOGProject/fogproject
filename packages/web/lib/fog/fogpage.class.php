@@ -2705,7 +2705,8 @@ abstract class FOGPage extends FOGBase
                     $labelClass,
                     '',
                     _('Schedule Power')
-                ) => self::makeInput(
+                ) => '<div class="fogcron"></div><br/>'
+                . self::makeInput(
                     'col-sm-2 croninput cronmin',
                     'scheduleCronMin',
                     _('min'),
@@ -2768,11 +2769,6 @@ abstract class FOGPage extends FOGBase
             'application/x-www-form-urlencoded',
             true
         );
-        if (!$ondemand) {
-            echo '<div class="fogcron">';
-            echo '</div>';
-            echo '<br/>';
-        }
         echo $rendered;
         echo '</form>';
         return ob_get_clean();
