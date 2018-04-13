@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-12 15:18-0400\n"
+"POT-Creation-Date: 2018-04-13 18:53-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -4547,8 +4547,14 @@ msgid "MAC Address is invalid!"
 msgstr "MAC-Format ist ungültig"
 
 #, fuzzy
-msgid "MAC Address is assigned to another host!"
-msgstr "Diese MAC gehört zu einem anderen Host"
+msgid "MAC Address already exists"
+msgstr "Liste der MAC-Adressen"
+
+msgid "Cannot delete the primary mac address, please reselect"
+msgstr ""
+
+msgid "No mac addresses to be removed"
+msgstr ""
 
 #, fuzzy
 msgid "Group Associated"

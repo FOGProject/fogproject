@@ -1299,11 +1299,12 @@ class HostManagement extends FOGPage
             if (!$mact->isValid()) {
                 throw new Exception(_('MAC Address is invalid!'));
             }
-            $host = $mact->getHost();
-            if ($host->isValid()
-                && $host->get('id') != $this->obj->get('id')
-            ) {
-                throw new Exception(_('MAC Address is assigned to another host!'));
+            $mace = self::getClass('MACAddressAssociationManager')
+                ->exists($mac, '', 'mac');
+            if ($mace) {
+                throw new Exception(
+                    _('MAC Address already exists')
+                );
             }
             $this->obj->addAddMac($mac);
         }
@@ -1386,6 +1387,48 @@ class HostManagement extends FOGPage
                         ['pending' => 1]
                     );
             }
+        }
+        if (isset($_POST['removeMacs'])) {
+            $toRemove = filter_input_array(
+                INPUT_POST,
+                [
+                    'toRemove' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $toRemove = $toRemove['toRemove'];
+
+            $hasPrimary = self::getSubObjectIDs(
+                'MACAddressAssociation',
+                [
+                    'id' => $toRemove,
+                    'hostID' => $this->obj->get('id'),
+                    'primary' => [1]
+                ]
+            );
+
+            if (count($hasPrimary ?: []) > 0) {
+                throw new Exception(
+                    _('Cannot delete the primary mac address, please reselect')
+                );
+            }
+
+            $toRemove = self::getSubObjectIDs(
+                'MACAddressAssociation',
+                [
+                    'id' => $toRemove,
+                    'hostID' => $this->obj->get('id'),
+                    'primary' => [0, '', '0']
+                ],
+                'mac'
+            );
+            if (count($toRemove ?: []) < 1) {
+                throw new Exception(
+                    _('No mac addresses to be removed')
+                );
+            }
+            $this->obj->removeAddMAC($toRemove);
         }
     }
     /**
