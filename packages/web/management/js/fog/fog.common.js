@@ -101,8 +101,6 @@ var $_GET = getQueryParams(document.location.search),
                 maxLength = parseInt(maxLength) / 2;
                 exactLength = parseInt(exactLength);
 
-                console.log(minLength);
-                console.log(maxLength);
                 if (beEqualTo) beEqualTo = "#" + beEqualTo;
 
                 if (val.length < minLength) {

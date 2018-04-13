@@ -388,6 +388,23 @@
         });
     };
 
+    macDeleteBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                toRemove: Common.getSelectedIds(macsTable),
+                removeMacs: 1
+            };
+        Common.apiCall(method, action, opts, function(err) {
+            if (err) {
+                return;
+            }
+            macsTable.draw(false);
+            macsTable.rows({selected: true}).deselect();
+        });
+    });
+
     // Setup primary mac watcher.
     $('#host-macaddresses-table input.primary').on('ifClicked', onMacsRadioSelect);
     // Setup checkbox watchers.

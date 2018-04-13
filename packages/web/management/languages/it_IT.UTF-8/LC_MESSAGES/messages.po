@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-12 15:18-0400\n"
+"POT-Creation-Date: 2018-04-13 18:53-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -4282,8 +4282,14 @@ msgid "MAC Address is invalid!"
 msgstr "MAC Format non è valido"
 
 #, fuzzy
-msgid "MAC Address is assigned to another host!"
-msgstr "Questo MAC appartiene a un altro host"
+msgid "MAC Address already exists"
+msgstr "MAC Address List"
+
+msgid "Cannot delete the primary mac address, please reselect"
+msgstr ""
+
+msgid "No mac addresses to be removed"
+msgstr ""
 
 #, fuzzy
 msgid "Group Associated"
