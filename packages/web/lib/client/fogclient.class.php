@@ -55,7 +55,7 @@ abstract class FOGClient extends FOGBase
             parent::__construct();
             global $sub;
             global $json;
-            $method = 'send';
+            $method = 'json';
             self::getHostItem(
                 $service,
                 $encoded,
