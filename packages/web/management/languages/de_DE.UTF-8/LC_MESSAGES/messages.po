@@ -4520,10 +4520,6 @@ msgid "Cannot change image when in tasking"
 msgstr "Das Image kann während eines Tasks nicht geändert werden"
 
 #, fuzzy
-msgid "Add New MAC"
-msgstr "Neue Rolle hinzufügen"
-
-#, fuzzy
 msgid "Add New MAC Address"
 msgstr "MAC-Adresse"
 
@@ -4545,10 +4541,6 @@ msgstr "Client"
 #, fuzzy
 msgid "Pending"
 msgstr "Ausstehend..."
-
-#, fuzzy
-msgid "Update/Remove MAC addresses"
-msgstr "Drucker Aktualisieren/Entfernen"
 
 #, fuzzy
 msgid "MAC Address is invalid!"

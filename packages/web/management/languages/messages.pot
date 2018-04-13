@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-13 14:45-0400\n"
+"POT-Creation-Date: 2018-04-13 18:33-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3871,9 +3871,6 @@ msgstr ""
 msgid "Cannot change image when in tasking"
 msgstr ""
 
-msgid "Add New MAC"
-msgstr ""
-
 msgid "Add New MAC Address"
 msgstr ""
 
@@ -3890,9 +3887,6 @@ msgid "Ignore Client"
 msgstr ""
 
 msgid "Pending"
-msgstr ""
-
-msgid "Update/Remove MAC addresses"
 msgstr ""
 
 msgid "MAC Address is invalid!"

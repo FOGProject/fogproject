@@ -1167,7 +1167,7 @@ class HostManagement extends FOGPage
             self::makeLabel(
                 'col-sm-3 control-label',
                 'newMac',
-                _('Add New MAC')
+                _('MAC Address')
             ) => self::makeInput(
                 'form-control hostmac-input',
                 'newMac',
@@ -1175,7 +1175,10 @@ class HostManagement extends FOGPage
                 'text',
                 'newMac',
                 $newMac,
-                true
+                true,
+                false,
+                12,
+                17
             )
         ];
 
@@ -1206,7 +1209,7 @@ class HostManagement extends FOGPage
         // New MAC Address add.
         $macAddModal = self::makeModal(
             'macaddressModal',
-            _('MAC Address'),
+            _('Add New MAC Address'),
             self::makeFormTag(
                 'form-horizontal',
                 'macaddress-add-form',
@@ -1232,7 +1235,6 @@ class HostManagement extends FOGPage
             '',
             'info'
         );
-        echo '<div class="box-group" id="macaddresses">';
 
         // MAC Address Table
         $buttons = '<div class="btn-group pull-right">';
@@ -1268,20 +1270,7 @@ class HostManagement extends FOGPage
             ['width' => 16],
             ['width' => 16]
         ];
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '<h4 class="box-title">';
-        echo _('Update/Remove MAC addresses');
-        echo '</h4>';
-        echo '<div>';
-        echo '<p class="help-block">';
-        echo _('Changes will automatically be saved');
-        echo '</p>';
-        echo '</div>';
-        echo '</div>';
+        echo '<div class="box box-solid">';
         echo '<div id="updatemacaddresses" class="">';
         echo '<div class="box-body">';
         $this->render(12, 'host-macaddresses-table', $buttons);
@@ -1290,8 +1279,6 @@ class HostManagement extends FOGPage
         echo $macAddModal;
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-
         echo '</div>';
     }
     /**
@@ -3922,18 +3909,19 @@ class HostManagement extends FOGPage
             . $this->obj->get('id')
             . "'";
 
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
         // Workable queries
         $macaddressesSqlStr = "SELECT `%s`
             FROM `%s`
-            LEFT OUTER JOIN `hosts`
-            ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
             %s
             %s
             %s";
         $macaddressesFilterStr = "SELECT COUNT(`%s`)
             FROM `%s`
-            LEFT OUTER JOIN `hosts`
-            ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
             %s";
         $macaddressesTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`

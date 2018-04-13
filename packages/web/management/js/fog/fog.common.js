@@ -93,13 +93,16 @@ var $_GET = getQueryParams(document.location.search),
             }
 
             if (required || val.length > 0) {
-                var minLength = $(e).attr("minlength") || "-1";
-                var maxLength = $(e).attr("maxlength") || "-1";
-                var exactLength = $(e).attr("exactlength") || "-1";
+                var minLength = $(e).attr("minlength") || "-1",
+                    maxLength = $(e).attr("maxlength") || "-1",
+                    exactLength = $(e).attr("exactlength") || "-1";
 
                 minLength = parseInt(minLength);
-                maxLength = parseInt(maxLength);
+                maxLength = parseInt(maxLength) / 2;
                 exactLength = parseInt(exactLength);
+
+                console.log(minLength);
+                console.log(maxLength);
                 if (beEqualTo) beEqualTo = "#" + beEqualTo;
 
                 if (val.length < minLength) {

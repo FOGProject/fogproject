@@ -4512,10 +4512,6 @@ msgid "Cannot change image when in tasking"
 msgstr ""
 
 #, fuzzy
-msgid "Add New MAC"
-msgstr "Adicionar nova conta de usuário"
-
-#, fuzzy
 msgid "Add New MAC Address"
 msgstr "Lista de endereços MAC"
 
@@ -4537,10 +4533,6 @@ msgstr "Cliente"
 #, fuzzy
 msgid "Pending"
 msgstr "Pendente..."
-
-#, fuzzy
-msgid "Update/Remove MAC addresses"
-msgstr "Remover impressoras selecionadas"
 
 #, fuzzy
 msgid "MAC Address is invalid!"
