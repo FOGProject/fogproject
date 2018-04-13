@@ -1180,6 +1180,12 @@ class HostManagement extends FOGPage
         ];
 
         $buttons = self::makeButton(
+            'newmac-cancel',
+            _('Cancel'),
+            'btn btn-outline pull-left',
+            'data-dismiss="modal"'
+        );
+        $buttons .= self::makeButton(
             'newmac-send',
             _('Add'),
             'btn btn-primary pull-right'
@@ -1198,54 +1204,50 @@ class HostManagement extends FOGPage
 
         // =========================================================
         // New MAC Address add.
-        echo '<!-- MAC Addresses -->';
+        $macAddModal = self::makeModal(
+            'macaddressModal',
+            _('MAC Address'),
+            self::makeFormTag(
+                'form-horizontal',
+                'macaddress-add-form',
+                self::makeTabUpdateURL(
+                    'host-macaddress',
+                    $this->obj->get('id')
+                ),
+                'post',
+                'application/x-www-form-urlencoded',
+                true
+            )
+            . $rendered
+            . self::makeInput(
+                '',
+                'macadd',
+                '',
+                'hidden',
+                '',
+                '1'
+            )
+            . '</form>',
+            $buttons,
+            '',
+            'info'
+        );
         echo '<div class="box-group" id="macaddresses">';
-        echo '<div class="box box-info">';
-        echo '<div class="box-header with-border">';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '<h4 class="box-title">';
-        echo _('Add New MAC Address');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div id="newmacadd" class="">';
-        echo self::makeFormTag(
-            'form-horizontal',
-            'macaddress-add-form',
-            self::makeTabUpdateURL(
-                'host-macaddress',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="box-body">';
-        echo $rendered;
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-footer">';
-        echo $buttons;
-        echo '</div>';
-        echo self::makeInput(
-            '',
-            'macadd',
-            '',
-            'hidden',
-            '',
-            '1'
-        );
-        echo '</form>';
-        echo '</div>';
 
         // MAC Address Table
-        $buttons = self::makeButton(
+        $buttons = '<div class="btn-group pull-right">';
+        $buttons .= self::makeButton(
+            'macaddress-add',
+            _('Add New MAC Address'),
+            'btn btn-info'
+        );
+        $buttons .= self::makeButton(
             'macaddress-table-update',
             _('Update selected'),
-            'btn btn-primary pull-right',
+            'btn btn-primary',
             $props
         );
+        $buttons .= '</div>';
         $buttons .= self::makeButton(
             'macaddress-table-delete',
             _('Delete selected'),
@@ -1284,8 +1286,12 @@ class HostManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'host-macaddresses-table', $buttons);
         echo '</div>';
+        echo '<div class-"box-footer with-border">';
+        echo $macAddModal;
         echo '</div>';
         echo '</div>';
+        echo '</div>';
+
         echo '</div>';
     }
     /**

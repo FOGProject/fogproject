@@ -125,6 +125,8 @@
     // ---------------------------------------------------------------
     // MAC ADDRESS TAB
     var newmacForm = $('#macaddress-add-form'),
+        newMacModal = $('#macaddressModal'),
+        newMacAddModalBtn = $('#macaddress-add'),
         newmacAddBtn = $('#newmac-send'),
         newmacField = $('#newMac'),
         macTable = $('#host-macaddresses-table'),
@@ -133,6 +135,11 @@
 
     macUpdateBtn.prop('disabled', true);
     macDeleteBtn.prop('disabled', true);
+
+    newMacAddModalBtn.on('click', function(e) {
+        e.preventDefault();
+        newMacModal.modal('show');
+    });
 
     // Make sure we have masking set for mac add field.
     newmacField.inputmask({mask: Common.masks.mac});
@@ -147,6 +154,7 @@
                 return;
             }
             newmacField.val('');
+            newMacModal.modal('hide');
             macsTable.draw(false);
             macsTable.rows({selected: true}).deselect();
         });
