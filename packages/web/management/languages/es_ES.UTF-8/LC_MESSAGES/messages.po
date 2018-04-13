@@ -4698,10 +4698,6 @@ msgid "Cannot change image when in tasking"
 msgstr ""
 
 #, fuzzy
-msgid "Add New MAC"
-msgstr "Añadir nueva cuenta de usuario"
-
-#, fuzzy
 msgid "Add New MAC Address"
 msgstr "Dirección MAC de lista de origen: "
 
@@ -4723,10 +4719,6 @@ msgstr "Clientela"
 #, fuzzy
 msgid "Pending"
 msgstr "macs pendientes"
-
-#, fuzzy
-msgid "Update/Remove MAC addresses"
-msgstr "Eliminar todos los elementos seleccionados"
 
 #, fuzzy
 msgid "MAC Address is invalid!"

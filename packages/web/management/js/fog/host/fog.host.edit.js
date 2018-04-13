@@ -141,8 +141,45 @@
         newMacModal.modal('show');
     });
 
+    Common.registerModal(newMacModal,
+        function(e) {
+            // Disable the add button initially
+            newmacAddBtn.prop('disabled', true);
+
+            // Clear and focus
+            newmacField.val('').trigger('focus');
+
+            // Setup the mask and effects of the mask.
+            newmacField.inputmask(
+                {
+                    mask: Common.masks.mac,
+                    oncleared: function() {
+                        newmacAddBtn.prop('disabled', true);
+                    },
+                    onincomplete: function() {
+                        newmacAddBtn.prop('disabled', true);
+                    },
+                    oncomplete: function() {
+                        newmacAddBtn.prop('disabled', false);
+                    }
+                }
+            );
+
+            // On keypress, if enter submit if able.
+            newmacField.on('keypress', function(e) {
+                if (e.which == 13 && !newmacAddBtn.prop('disabled')) {
+                    newmacAddBtn.trigger('click');
+                }
+            });
+        },
+        function(e) {
+            newmacField.off('keypress');
+            newmacField.val('');
+            $(this).modal('hide');
+        }
+    );
+
     // Make sure we have masking set for mac add field.
-    newmacField.inputmask({mask: Common.masks.mac});
     newmacForm.on('submit', function(e) {
         e.preventDefault();
     });

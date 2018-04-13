@@ -4505,10 +4505,6 @@ msgid "Cannot change image when in tasking"
 msgstr ""
 
 #, fuzzy
-msgid "Add New MAC"
-msgstr "添加新的用户帐户"
-
-#, fuzzy
 msgid "Add New MAC Address"
 msgstr "MAC地址列表"
 
@@ -4530,10 +4526,6 @@ msgstr "客户"
 #, fuzzy
 msgid "Pending"
 msgstr "待..."
-
-#, fuzzy
-msgid "Update/Remove MAC addresses"
-msgstr "删除选定的打印机"
 
 #, fuzzy
 msgid "MAC Address is invalid!"

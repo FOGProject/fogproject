@@ -520,6 +520,12 @@ class Route extends FOGBase
                         return 'row_'.$d;
                     }
                 ];
+                break;
+            case 'name':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common
+                ];
                 $columns[] = [
                     'db' => $real,
                     'dt' => 'mainlink',
@@ -527,9 +533,12 @@ class Route extends FOGBase
                         return '<a href="../management/index.php?node='
                             . $classname
                             . '&sub=edit&id='
-                            . $d
+                            . self::getClass($classname)
+                            ->set('name', $d)
+                            ->load('name')
+                            ->get('id')
                             . '">'
-                            . self::getClass($classname, $d)->get('name')
+                            . $d
                             . '</a>';
                     }
                 ];
