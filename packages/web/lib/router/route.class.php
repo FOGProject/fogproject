@@ -263,6 +263,10 @@ class Route extends FOGBase
             [__CLASS__, 'names'],
             'names'
         )->get(
+            "${expanded}/ids",
+            [__CLASS__, 'ids'],
+            'ids'
+        )->get(
             '/bandwidth/[*:dev]',
             [__CLASS__, 'bandwidth'],
             'bandwidth'
@@ -1792,6 +1796,79 @@ class Route extends FOGBase
         exit;
     }
     /**
+     * Returns only the ids of the class.
+     *
+     * @param string $class      The class to get list of.
+     * @param array  $whereItems The items to filter.
+     *
+     * @return void
+     */
+    public function ids($class, $whereItems = [])
+    {
+        $data = [];
+        $classname = strtolower($class);
+        $classVars = self::getClass(
+            $class,
+            '',
+            true
+        );
+
+        $sql = 'SELECT `'
+            . $classVars['databaseFields']['id']
+            . '` FROM `'
+            . $classVars['databaseTable']
+            . '`';
+
+        $sql = self::_buildSql($sql, $whereItems, $classVars);
+
+        $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
+        foreach ($vals as &$val) {
+            $data[] = [
+                'id' => $val[$classVars['databaseFields']['id']]
+            ];
+            unset($val);
+        }
+        self::$data = $data;
+    }
+    /**
+     * Builds the sql query with the where.
+     *
+     * @param string $sql        The sql string we need to adjust.
+     * @param mixed  $whereItems The where items to build up.
+     * @param array  $classVars  The current class variables.
+     *
+     * @return string
+     */
+    private static function _buildSql($sql, $whereItems, $classVars)
+    {
+        if (count($whereItems) > 0) {
+            $where = '';
+            foreach ($whereItems as $key => &$field) {
+                if (!$where) {
+                    $where = ' WHERE `'
+                        . $classVars['databaseFields'][$key]
+                        . '`';
+                } else {
+                    $where .= ' AND `'
+                        . $classVars['databaseFields'][$key]
+                        . '`';
+                }
+                if (is_array($field)) {
+                    $where .= " IN ('"
+                        . implode("','", $field)
+                        . "')";
+                } else {
+                    $where .= " = '"
+                        . $field
+                        . "'";
+                }
+            }
+            $sql .= $where;
+        }
+
+        return $sql;
+    }
+    /**
      * Returns only the ids and names of the class.
      *
      * @param string $class      The class to get list of.
@@ -1818,30 +1895,7 @@ class Route extends FOGBase
             . $classVars['databaseTable']
             . '`';
 
-        if (count($whereItems) > 0) {
-            $where = '';
-            foreach ($whereItems as $key => &$field) {
-                if (!$where) {
-                    $where = ' WHERE `'
-                        . $classVars['databaseFields'][$key]
-                        . '`';
-                } else {
-                    $where .= ' AND `'
-                        . $classVars['databaseFields'][$key]
-                        . '`';
-                }
-                if (is_array($field)) {
-                    $where .= " IN ('"
-                        . implode("','", $field)
-                        . "')";
-                } else {
-                    $where .= " = '"
-                        . $field
-                        . "'";
-                }
-            }
-            $sql .= $where;
-        }
+        $sql = self::_buildSql($sql, $whereItems, $classVars);
         $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
         foreach ($vals as &$val) {
             $data[] = [
