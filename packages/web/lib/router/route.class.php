@@ -370,21 +370,21 @@ class Route extends FOGBase
      */
     private static function _testAuth()
     {
+        $usertoken = base64_decode(
+            filter_input(INPUT_SERVER, 'HTTP_FOG_USER_TOKEN')
+        );
+        $usertoken = trim($usertoken);
+        $pwtoken = self::getClass('User')
+            ->set('token', $usertoken)
+            ->load('token');
+        if ($pwtoken->isValid() && $pwtoken->get('api')) {
+            return;
+        }
         $auth = self::$FOGUser->passwordValidate(
             $_SERVER['PHP_AUTH_USER'],
             $_SERVER['PHP_AUTH_PW']
         );
         if (!$auth) {
-            $usertoken = base64_decode(
-                filter_input(INPUT_SERVER, 'HTTP_FOG_USER_TOKEN')
-            );
-            $usertoken = trim($usertoken);
-            $pwtoken = self::getClass('User')
-                ->set('token', $usertoken)
-                ->load('token');
-            if ($pwtoken->isValid() && $pwtoken->get('api')) {
-                return;
-            }
             $pwhash = self::getClass('User')
                 ->set('password', $_SERVER['PHP_AUTH_PW'], true)
                 ->load('password');
@@ -1376,12 +1376,9 @@ class Route extends FOGBase
             );
             if (!$class->isValid()) {
                 $classman = $class->getManager();
-                $find = self::getsearchbody($classname, $class);
+                $find = self::getsearchbody($classname);
                 $find['stateID'] = $states;
-                $ids = self::getSubObjectIDs(
-                    $classname,
-                    $find
-                );
+                $ids = self::ids($classname, $find);
                 $classman->cancel($ids);
             } else {
                 if (in_array($class->get('stateID'), $states)) {
@@ -1399,13 +1396,13 @@ class Route extends FOGBase
      */
     public static function getsearchbody($class)
     {
+        $vars = json_decode(
+            file_get_contents('php://input')
+        );
         $classVars = self::getClass(
             $class,
             '',
             true
-        );
-        $vars = json_decode(
-            file_get_contents('php://input')
         );
         $find = [];
         $class = new $class;
@@ -1416,6 +1413,7 @@ class Route extends FOGBase
             }
             unset($key);
         }
+
         return $find;
     }
     /**
@@ -1813,13 +1811,21 @@ class Route extends FOGBase
             true
         );
 
+        if (count($whereItems) < 1) {
+            $whereItems = self::getsearchbody($classname);
+        }
+
         $sql = 'SELECT `'
             . $classVars['databaseFields']['id']
             . '` FROM `'
             . $classVars['databaseTable']
             . '`';
 
-        $sql = self::_buildSql($sql, $whereItems, $classVars);
+        if (count($whereItems) < 1) {
+            $whereItems = self::getsearchbody($classname);
+        }
+
+        $sql = self::_buildSql($sql, $classVars, $whereItems);
 
         $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
         foreach ($vals as &$val) {
@@ -1834,12 +1840,12 @@ class Route extends FOGBase
      * Builds the sql query with the where.
      *
      * @param string $sql        The sql string we need to adjust.
-     * @param mixed  $whereItems The where items to build up.
      * @param array  $classVars  The current class variables.
+     * @param array  $whereItems The where items to build up.
      *
      * @return string
      */
-    private static function _buildSql($sql, $whereItems, $classVars)
+    private static function _buildSql($sql, $classVars, $whereItems = [])
     {
         if (count($whereItems) > 0) {
             $where = '';
@@ -1895,7 +1901,11 @@ class Route extends FOGBase
             . $classVars['databaseTable']
             . '`';
 
-        $sql = self::_buildSql($sql, $whereItems, $classVars);
+        if (count($whereItems) < 1) {
+            $whereItems = self::getsearchbody($classname);
+        }
+
+        $sql = self::_buildSql($sql, $classVars, $whereItems);
         $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
         foreach ($vals as &$val) {
             $data[] = [

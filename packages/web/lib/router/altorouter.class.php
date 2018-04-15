@@ -512,7 +512,7 @@ class AltoRouter
                      * You could do this in the function too but we
                      * already know the method, why not just pass it in?
                      */
-                    $params['method'] = $requestMethod;
+                    //$params['method'] = $requestMethod;
                 }
                 $result = $this->getMatchedResult(
                     $target,
