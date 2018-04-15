@@ -263,16 +263,17 @@ abstract class FOGBase
      * @var array
      */
     protected static $searchPages = [
-        'user',
-        'host',
         'group',
+        'host',
         'image',
-        'storagenode',
-        'storagegroup',
-        'snapin',
         'plugin',
         'printer',
-        'task'
+        'service',
+        'snapin',
+        'storagegroup',
+        'storagenode',
+        'task',
+        'user'
     ];
     /**
      * Is our current element already initialized?
