@@ -596,7 +596,7 @@ function setupUniversalSearch() {
                             "url": (
                                 key != 'service' ?
                                 '../management/index.php?node=' + key + '&sub=list&search=' + data._query :
-                                '../management/index.php?node=about&sub=settings&search=' + data.query
+                                '../management/index.php?node=about&sub=settings&search=' + data._query
                             )
                         });
                     }
