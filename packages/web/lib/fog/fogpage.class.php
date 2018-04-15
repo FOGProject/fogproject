@@ -3412,29 +3412,27 @@ abstract class FOGPage extends FOGBase
         );
         $getType = $objType . 's';
         $getter = $getType . 'notinme';
-        $namesnotinme = array_combine(
-            $this->obj->get($getter),
-            self::getSubObjectIDs(
-                $objType,
-                ['id' => $this->obj->get($getter)],
-                'name'
-            )
+        Route::names(
+            $objType,
+            ['id' => $this->obj->get($getter)]
         );
-        $namesinme = array_combine(
-            $this->obj->get($getType),
-            self::getSubObjectIDs(
-                $objType,
-                ['id' => $this->obj->get($getType)],
-                'name'
-            )
+        $namesnotinme = json_decode(
+            Route::getData()
         );
-        foreach ((array)$namesnotinme as $id => &$name) {
+        Route::names(
+            $objType,
+            ['id' => $this->obj->get($getType)]
+        );
+        $namesinme = json_decode(
+            Route::getData()
+        );
+        foreach ($namesnotinme as &$item) {
             $this->data[] = [
-                'host_id' => $id,
-                'host_name' => $name,
+                'host_id' => $item->id,
+                'host_name' => $item->name,
                 'check_num' => 1
             ];
-            unset($name);
+            unset($item);
         }
         echo '<!-- Membership -->';
         echo '<div class="col-xs-9">';
@@ -3453,7 +3451,7 @@ abstract class FOGPage extends FOGBase
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
-        if (count($this->data) > 0) {
+        if (count($this->data ?: []) > 0) {
             $notInMe = $meShow = $objType;
             $meShow .= 'MeShow';
             $notInMe .= 'NotInMe';
@@ -3524,15 +3522,15 @@ abstract class FOGPage extends FOGBase
             . $objType
             . '&sub=edit&id=${host_id}">${host_name}</a>'
         );
-        foreach ((array)$namesinme as $id => &$name) {
+        foreach ((array)$namesinme as $item) {
             $this->data[] = [
-                'host_id' => $id,
-                'host_name' => $name,
+                'host_id' => $item->id,
+                'host_name' => $item->name,
                 'check_num' => 1
             ];
-            unset($name);
+            unset($item);
         }
-        if (count($this->data) > 0) {
+        if (count($this->data ?: []) > 0) {
             echo '<div class="panel panel-warning">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
