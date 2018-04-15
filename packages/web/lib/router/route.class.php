@@ -267,8 +267,11 @@ class Route extends FOGBase
                 "${expanded}/[i:id]",
                 array('self', 'indiv'),
                 'indiv'
-            )
-            ->put(
+            )->get(
+                "${expanded}/names",
+                [__CLASS__, 'names'],
+                'names'
+            )->put(
                 "${expanded}/[i:id]/[update|edit]?",
                 array('self', 'edit'),
                 'update'
@@ -1342,5 +1345,76 @@ class Route extends FOGBase
                 )
             );
         return $data;
+    }
+    /**
+     * Returns only the ids and names of the class passed in.
+     *
+     * @param string $class      The class to get list of.
+     * @param string $whereItems If we want to filter items.
+     *
+     * @return void
+     */
+    public function names($class, $whereItems = [])
+    {
+        $data = [];
+        $names = self::getSubObjectIDs(
+            $class,
+            [],
+            'name'
+        );
+        $ids = self::getSubObjectIDs(
+            $class,
+            [],
+            'id'
+        );
+        $classname = strtolower($class);
+        $classVars = self::getClass(
+            $class,
+            '',
+            true
+        );
+
+        $sql = 'SELECT `'
+            . $classVars['databaseFields']['id']
+            . '`,`'
+            . $classVars['databaseFields']['name']
+            . '` FROM `'
+            . $classVars['databaseTable']
+            . '`';
+
+        if (count($whereItems) > 0) {
+            $where = '';
+            foreach ($whereItems as $key => &$field) {
+                if (!$where) {
+                    $where = ' WHERE `'
+                        . $classVars['databaseFields'][$key]
+                        . '`';
+                } else {
+                    $where .= ' AND `'
+                        . $classVars['databaseFields'][$key]
+                        . '`';
+                }
+                if (is_array($field)) {
+                    $where .= " IN ('"
+                        . implode("','", $field)
+                        . "')";
+                } else {
+                    $where .= " = '"
+                        . $field
+                        . "'";
+                }
+            }
+            $sql .= $where;
+        }
+        $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
+        foreach ($vals as &$val) {
+            $data[] = [
+                'id' => $val[$classVars['databaseFields']['id']],
+                'name' => $val[$classVars['databaseFields']['name']]
+            ];
+            unset($val);
+        }
+
+        self::$data = $data;
     }
 }
