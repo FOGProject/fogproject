@@ -888,7 +888,11 @@ class Route extends FOGBase
             if ($search == 'task') {
                 continue;
             }
-            $data['_lang'][$search] = _($search);
+            $data['_lang'][$search] = (
+                $search != 'service' ?
+                _($search) :
+                _('settings')
+            );
             $data['_results'][$search] = self::allsearch(
                 $search,
                 $item,

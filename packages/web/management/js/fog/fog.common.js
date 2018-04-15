@@ -579,26 +579,26 @@ function setupUniversalSearch() {
 
                     for (var i = 0; i < obj.length; i++) {
                         var item = obj[i];
-                        if (key != 'service') {
-                            objData.push({
-                                "id": id,
-                                "text": item.name,
-                                "url": '../management/index.php?node=' + key + '&sub=edit&id=' + item.id,
-                            });
-                        } else {
-                            objData.push({
-                                "id": id,
-                                "text": item.name,
-                                "url": '../management/index.php?node=about&sub=settings&search='+item.name
-                            });
-                        }
+                        objData.push({
+                            "id": id,
+                            "text": item.name,
+                            "url": (
+                                key != 'service' ?
+                                '../management/index.php?node=' + key + '&sub=edit&id=' + item.id :
+                                '../management/index.php?node=about&sub=settings&search=' + item.name
+                            )
+                        });
                     }
                     if (obj.length != data._results[key]) {
                         objData.push({
                             "id": id,
                             "text": "--> " + lang.AllResults,
-                            "url": '../management/index.php?node=' + key + '&sub=list&search=' + data._query
-                        })
+                            "url": (
+                                key != 'service' ?
+                                '../management/index.php?node=' + key + '&sub=list&search=' + data._query :
+                                '../management/index.php?node=about&sub=settings&search=' + data.query
+                            )
+                        });
                     }
 
                     results.push({
