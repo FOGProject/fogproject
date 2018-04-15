@@ -138,16 +138,13 @@ class Route extends FOGBase
         list(
             self::$_enabled,
             self::$_token
-        ) = self::getSubObjectIDs(
-            'Service',
+        ) = self::getSetting(
             [
-                'name' => [
-                    'FOG_API_ENABLED',
-                    'FOG_API_TOKEN'
-                ]
-            ],
-            'value'
+                'FOG_API_ENABLED',
+                'FOG_API_TOKEN'
+            ]
         );
+
         /**
          * If API is not enabled redirect to home page.
          */
@@ -1806,16 +1803,6 @@ class Route extends FOGBase
     {
         header('Content-type: application/json');
         $data = [];
-        $names = self::getSubObjectIDs(
-            $class,
-            [],
-            'name'
-        );
-        $ids = self::getSubObjectIDs(
-            $class,
-            [],
-            'id'
-        );
         $classname = strtolower($class);
         $classVars = self::getClass(
             $class,
@@ -1835,9 +1822,13 @@ class Route extends FOGBase
             $where = '';
             foreach ($whereItems as $key => &$field) {
                 if (!$where) {
-                    $where = " WHERE `$key`";
+                    $where = ' WHERE `'
+                        . $classVars['databaseFields'][$key]
+                        . '`';
                 } else {
-                    $where .= " AND `$key`";
+                    $where .= ' AND `'
+                        . $classVars['databaseFields'][$key]
+                        . '`';
                 }
                 if (is_array($field)) {
                     $where .= " IN ('"

@@ -1952,7 +1952,7 @@ abstract class FOGBase
     /**
      * Get global setting value by key.
      *
-     * @param string $key What to get
+     * @param string|array $key What to get
      *
      * @throws Exception
      *
@@ -1960,23 +1960,44 @@ abstract class FOGBase
      */
     public static function getSetting($key)
     {
-        if (!is_string($key)) {
-            throw new Exception(_('Key must be a string'));
+        if (!is_string($key) && !is_array($key)) {
+            throw new Exception(_('Key must be a string or array of strings'));
         }
         $findStr = '\r\n';
         $repStr = "\n";
-        $value = self::getClass('Service')
-            ->set('name', $key)
-            ->load('name')
-            ->get('value');
 
-        return trim(
-            str_replace(
-                $findStr,
-                $repStr,
-                $value
-            )
-        );
+        $sql = "SELECT `settingValue` FROM `globalSettings` WHERE `settingKey` %s";
+
+        $where = '';
+        if (is_array($key)) {
+            $where = " IN ('"
+                . implode("','", $key)
+                . "')";
+        } else {
+            $where = " = '$key'";
+        }
+
+        $sqlStr = sprintf($sql, $where);
+
+        $vals = self::$DB->query(sprintf($sql, $where))
+            ->fetch('', 'fetch_all')->get('settingValue');
+
+        foreach ((array)$vals as $ind => &$val) {
+            $vals[$ind] = trim(
+                str_replace(
+                    $findStr,
+                    $repStr,
+                    trim($val)
+                )
+            );
+            unset($val);
+        }
+
+        if (is_string($key)) {
+            return array_shift($vals);
+        }
+
+        return $vals;
     }
     /**
      * Set global setting value by key.
