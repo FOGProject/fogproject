@@ -207,7 +207,7 @@ class StorageGroup extends FOGController
         $Nodes = json_decode(
             Route::getData()
         );
-        foreach ($Nodes as &$Node) {
+        foreach ($Nodes->storagenodes as &$Node) {
             if (!$Node->online) {
                 continue;
             }

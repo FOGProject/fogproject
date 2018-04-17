@@ -216,7 +216,7 @@ class Image extends FOGController
         $StorageNodes = $StorageNodes->storagenodes;
         foreach ($StorageNodes as &$StorageNode) {
             if (!in_array($StorageNode->storagegroupID, $this->get('storagegroups'))
-                || $StorageNode->isEnabled
+                || !$StorageNode->isEnabled
             ) {
                 continue;
             }
