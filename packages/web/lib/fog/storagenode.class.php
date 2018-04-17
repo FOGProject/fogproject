@@ -320,13 +320,12 @@ class StorageNode extends FOGController
         if ($this->getUsedSlotCount() + $this->getQueuedSlotCount() < 0) {
             return 0;
         }
+        if ($this->get('maxClients') < 1) {
+            return 0;
+        }
         return (float) (
-            $this->getUsedSlotCount()
-            +
-            $this->getQueuedSlotCount()
-        )
-        /
-        $this->get('maxClients');
+            $this->getUsedSlotCount() + $this->getQueuedSlotCount()
+        ) / $this->get('maxClients');
     }
     /**
      * Load used tasks.
