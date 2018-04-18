@@ -1970,6 +1970,11 @@ abstract class FOGPage extends FOGBase
         $getme = strtolower($this->childClass).'s';
         $items = $items->$getme;
         foreach ((array)$items as &$object) {
+            if ($getme == 'plugins') {
+                if (!in_array($object->id, $reqID)) {
+                    continue;
+                }
+            }
             if ($object->protected) {
                 continue;
             }
