@@ -135,46 +135,40 @@ class ChangeItems extends Hook
         if (!$arguments['Host']->isValid()) {
             return;
         }
-        $Locations = self::getClass('LocationAssociationManager')->find(
-            array(
-                'hostID' => $arguments['Host']->get('id')
-            )
+        Route::listem(
+            'locationassociation',
+            'id',
+            false,
+            ['hostID' => $arguments['Host']->get('id')]
         );
-        $Locations = self::getSubObjectIDs(
-            'LocationAssociation',
-            array(
-                'hostID' => $arguments['Host']->get('id')
-            ),
-            'locationID'
+        $LocationAssocs = json_decode(
+            Route::getData()
         );
+        $Task = $arguments['Host']->get('task');
+        $TaskType = $arguments['TaskType'];
         $method = false;
-        foreach ((array)self::getClass('LocationManager')
-            ->find(array('id' => $Locations)) as $Location
-        ) {
-            $Host =& $arguments['Host'];
-            $Task = $Host->get('task');
-            $TaskType =& $arguments['TaskType'];
+        foreach ($LocationAssocs->locationassociations as &$LocationAssoc) {
+            $Location = self::getClass('Location', $LocationAssoc->locationID);
+            if (!$Location->isValid()) {
+                continue;
+            }
             if ($Task->isValid()
-                && ($Task->isCapture()
-                || $Task->isMulticast())
+                && ($Task->isCapture() || $Task->isMulticast())
             ) {
                 $method = 'getMasterStorageNode';
             } elseif ($TaskType instanceof TaskType
                 && $TaskType->isValid()
-                && ($TaskType->isCapture()
-                || $TaskType->isMulticast())
+                && ($TaskType->isCapture() || $TaskType->isMulticast())
             ) {
                 $method = 'getMasterStorageNode';
             }
-            $StorageGroup = $Location
-                ->getStorageGroup();
+            $StorageGroup = $Location->getStorageGroup();
             if ($StorageGroup->isValid()) {
                 if (!isset($arguments['snapin'])
                     || ($arguments['snapin'] === true
                     && self::getSetting('FOG_SNAPIN_LOCATION_SEND_ENABLED') > 0)
                 ) {
-                    $arguments['StorageNode'] = $Location
-                        ->getStorageNode();
+                    $arguments['StorageNode'] = $Location->getStorageNode();
                 }
                 if (!$method) {
                     continue;
@@ -183,7 +177,7 @@ class ChangeItems extends Hook
                     ->getStorageGroup()
                     ->{$method}();
             }
-            unset($Location);
+            unset($LocationAssoc);
         }
     }
     /**
