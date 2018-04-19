@@ -618,7 +618,7 @@ class FOGURLRequests extends FOGBase
                 "tcp://$url:$port",
                 $errno,
                 $errstr,
-                0
+                $timeout
             );
             $output[] = (bool)$socket;
             unset($url);
