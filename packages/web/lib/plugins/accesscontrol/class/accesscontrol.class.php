@@ -162,7 +162,7 @@ class AccessControl extends FOGController
             'User',
             array('id' => $associds)
         );
-        $this->set('users', $userids);
+        $this->set('users', (array)$userids);
     }
     /**
      * Load items not with this object
@@ -192,7 +192,7 @@ class AccessControl extends FOGController
             unset($User);
         }
         unset($userids, $types);
-        $this->set('usersnotinme', $users);
+        $this->set('usersnotinme', (array)$users);
         unset($users);
     }
     /**
@@ -211,7 +211,7 @@ class AccessControl extends FOGController
             'AccessControlRule',
             array('id' => $associds)
         );
-        $this->set('accesscontrolrules', $ruleids);
+        $this->set('accesscontrolrules', (array)$ruleids);
     }
     /**
      * Load items not with this object
@@ -224,6 +224,6 @@ class AccessControl extends FOGController
             self::getSubObjectIDs('AccessControlRule'),
             $this->get('accesscontrolrules')
         );
-        $this->set('accesscontrolrulesnotinme', $rules);
+        $this->set('accesscontrolrulesnotinme', (array)$rules);
     }
 }

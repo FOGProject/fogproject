@@ -96,10 +96,9 @@ class PowerManagement extends FOGController
     {
         $this->set(
             'hosts',
-            self::getSubObjectIDs(
+            (array)self::getSubObjectIDs(
                 'PowerManagement',
-                array(
-                    'id' => $this->get('id')),
+                array('id' => $this->get('id')),
                 'hostID'
             )
         );

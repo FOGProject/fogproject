@@ -147,7 +147,7 @@ class Site extends FOGController
             'User',
             array('id' => $associds)
         );
-        $this->set('users', $userids);
+        $this->set('users', (array)$userids);
     }
     /**
      * Load items not with this object
@@ -176,7 +176,7 @@ class Site extends FOGController
             unset($User);
         }
         unset($userids, $types);
-        $this->set('usersnotinme', $users);
+        $this->set('usersnotinme', (array)$users);
     }
     /**
      * Load hosts
@@ -201,7 +201,7 @@ class Site extends FOGController
             'Host',
             array('id' => $associds)
         );
-        $this->set('hosts', $hostids);
+        $this->set('hosts', (array)$hostids);
     }
     /**
      * Load hosts not in this object.
@@ -230,6 +230,6 @@ class Site extends FOGController
             self::getSubObjectIDs('Host'),
             $hostids
         );
-        $this->set('hostsnotinme', $hostids);
+        $this->set('hostsnotinme', (array)$hostids);
     }
 }

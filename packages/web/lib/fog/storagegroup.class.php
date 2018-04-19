@@ -70,7 +70,7 @@ class StorageGroup extends FOGController
                 17
             );
         }
-        $this->set('usedtasks', $used);
+        $this->set('usedtasks', (array)$used);
     }
     /**
      * Loads all the nodes in the group
@@ -81,11 +81,9 @@ class StorageGroup extends FOGController
     {
         $this->set(
             'allnodes',
-            self::getSubObjectIDs(
+            (array)self::getSubObjectIDs(
                 'StorageNode',
-                array(
-                    'storagegroupID' => $this->get('id'),
-                ),
+                array('storagegroupID' => $this->get('id')),
                 'id'
             )
         );
@@ -113,7 +111,7 @@ class StorageGroup extends FOGController
             $nodeids[] = $node->get('id');
             unset($node);
         }
-        $this->set('enablednodes', $nodeids);
+        $this->set('enablednodes', (array)$nodeids);
     }
     /**
      * Returns total available slots
@@ -234,7 +232,11 @@ class StorageGroup extends FOGController
             $getter = 'allnodes';
         }
         $winner = null;
-        $find = ['isEnabled' => 1];
+        $find = [
+            'storagegroupID' => $this->get('id'),
+            'id' => $this->get($getter),
+            'isEnabled' => 1
+        ];
         Route::listem(
             'storagenode',
             'name',
