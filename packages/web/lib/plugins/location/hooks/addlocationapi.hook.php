@@ -76,7 +76,7 @@ class AddLocationAPI extends Hook
      */
     public function customizeDT($arguments)
     {
-        if (false == strpos(self::$requesturi, $this->node)) {
+        if ($classname != $this->node) {
             return;
         }
         $arguments['columns'][] = [
