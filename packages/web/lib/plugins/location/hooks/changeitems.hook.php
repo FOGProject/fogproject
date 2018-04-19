@@ -106,10 +106,9 @@ class ChangeItems extends Hook
         $LocationAssocs = json_decode(
             Route::getData()
         );
-        $Host = $arguments['Host'];
         $Task = $arguments['Host']->get('task');
         $TaskType = $arguments['TaskType'];
-        $method = 'getOptimalStorageNode';
+        $method = false;
         foreach ($LocationAssocs->data as &$LocationAssoc) {
             $Location = self::getClass('Location', $LocationAssoc->locationID);
             if (!$Location->isValid()) {
@@ -133,6 +132,9 @@ class ChangeItems extends Hook
                 ) {
                     $arguments['StorageNode'] = $Location
                         ->getStorageNode();
+                }
+                if (!$method) {
+                    continue;
                 }
                 $arguments['StorageNode'] = $Location
                     ->getStorageGroup()
