@@ -95,7 +95,7 @@ class Module extends FOGController
             self::getSubObjectIDs('Host'),
             $this->get('hosts')
         );
-        $this->set('hostsnotinme', $hosts);
+        $this->set('hostsnotinme', (array)$hosts);
     }
     /**
      * Loads any hosts this module has
@@ -113,6 +113,6 @@ class Module extends FOGController
             'Host',
             array('id' => $hosts)
         );
-        $this->set('hosts', $hosts);
+        $this->set('hosts', (array)$hosts);
     }
 }

@@ -85,7 +85,7 @@ class SnapinJob extends FOGController
             'SnapinTask',
             array('jobID' => $this->get('id'))
         );
-        $this->set('snapintasks', $snapintasks);
+        $this->set('snapintasks', (array)$snapintasks);
     }
     /**
      * Cancel's the current job.

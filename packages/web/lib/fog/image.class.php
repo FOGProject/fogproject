@@ -256,7 +256,7 @@ class Image extends FOGController
             'Host',
             array('imageID' => $this->get('id'))
         );
-        $this->set('hosts', $hostids);
+        $this->set('hosts', (array)$hostids);
     }
     /**
      * Add hosts to image object
@@ -299,7 +299,7 @@ class Image extends FOGController
             self::getSubObjectIDs('Host'),
             $this->get('hosts')
         );
-        $this->set('hostsnotinme', $hosts);
+        $this->set('hostsnotinme', (array)$hosts);
     }
     /**
      * Loads storage groups with this object
@@ -322,7 +322,7 @@ class Image extends FOGController
             $groupids = self::getSubObjectIDs('StorageGroup');
             $groupids = @min($groupids);
         }
-        $this->set('storagegroups', $groupids);
+        $this->set('storagegroups', (array)$groupids);
     }
     /**
      * Adds groups to this object
@@ -366,7 +366,7 @@ class Image extends FOGController
             self::getSubObjectIDs('StorageGroup'),
             $this->get('storagegroups')
         );
-        $this->set('storagegroupsnotinme', $storagegroups);
+        $this->set('storagegroupsnotinme', (array)$storagegroups);
     }
     /**
      * Gets the storage group

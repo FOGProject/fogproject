@@ -136,7 +136,7 @@ class WindowsKey extends FOGController
         );
         $this->set(
             'images',
-            $imageIDs
+            (array)$imageIDs
         );
     }
     /**
@@ -150,6 +150,6 @@ class WindowsKey extends FOGController
             self::getSubObjectIDs('Image'),
             $this->get('images')
         );
-        $this->set('imagesnotinme', $images);
+        $this->set('imagesnotinme', (array)$images);
     }
 }

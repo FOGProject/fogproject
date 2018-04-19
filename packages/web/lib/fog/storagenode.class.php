@@ -215,7 +215,7 @@ class StorageNode extends FOGController
         $paths = array_filter($tmppath);
         $paths = array_values($paths);
         natcasesort($paths);
-        $this->set('logfiles', $paths);
+        $this->set('logfiles', (array)$paths);
     }
     /**
      * Get's the storage node snapins, logfiles, and images
@@ -328,7 +328,7 @@ class StorageNode extends FOGController
                 17,
             );
         }
-        $this->set('usedtasks', $used);
+        $this->set('usedtasks', (array)$used);
     }
     /**
      * Gets this node's used count.

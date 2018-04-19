@@ -832,7 +832,7 @@ class Host extends FOGController
             ),
             'mac'
         );
-        $this->set('additionalMACs', $macs);
+        $this->set('additionalMACs', (array)$macs);
     }
     /**
      * Loads any pending macs
@@ -850,7 +850,7 @@ class Host extends FOGController
             ),
             'mac'
         );
-        $this->set('pendingMACs', $macs);
+        $this->set('pendingMACs', (array)$macs);
     }
     /**
      * Loads any groups this host is in
@@ -868,7 +868,7 @@ class Host extends FOGController
             'Group',
             array('id' => $groups)
         );
-        $this->set('groups', $groups);
+        $this->set('groups', (array)$groups);
     }
     /**
      * Loads any groups this host is not in
@@ -881,7 +881,7 @@ class Host extends FOGController
             self::getSubObjectIDs('Group'),
             $this->get('groups')
         );
-        $this->set('groupsnotinme', $groups);
+        $this->set('groupsnotinme', (array)$groups);
     }
     /**
      * Loads any printers those host has
@@ -899,7 +899,7 @@ class Host extends FOGController
             'Printer',
             array('id' => $printers)
         );
-        $this->set('printers', $printers);
+        $this->set('printers', (array)$printers);
     }
     /**
      * Loads any printers this host does not have
@@ -912,7 +912,7 @@ class Host extends FOGController
             self::getSubObjectIDs('Printer'),
             $this->get('printers')
         );
-        $this->set('printersnotinme', $printers);
+        $this->set('printersnotinme', (array)$printers);
     }
     /**
      * Loads any snapins this host has
@@ -930,7 +930,7 @@ class Host extends FOGController
             'Snapin',
             array('id' => $snapins)
         );
-        $this->set('snapins', $snapins);
+        $this->set('snapins', (array)$snapins);
     }
     /**
      * Loads any snapins this host does not have
@@ -943,7 +943,7 @@ class Host extends FOGController
             self::getSubObjectIDs('Snapin'),
             $this->get('snapins')
         );
-        $this->set('snapinsnotinme', $snapins);
+        $this->set('snapinsnotinme', (array)$snapins);
     }
     /**
      * Loads any modules this host has
@@ -961,7 +961,7 @@ class Host extends FOGController
             'Module',
             array('id' => $modules)
         );
-        $this->set('modules', $modules);
+        $this->set('modules', (array)$modules);
     }
     /**
      * Loads any powermanagement tasks this host has
@@ -974,7 +974,7 @@ class Host extends FOGController
             'PowerManagement',
             array('hostID' => $this->get('id'))
         );
-        $this->set('powermanagementtasks', $pms);
+        $this->set('powermanagementtasks', (array)$pms);
     }
     /**
      * Loads any users have logged in
@@ -987,7 +987,7 @@ class Host extends FOGController
             'UserTracking',
             array('hostID' => $this->get('id'))
         );
-        $this->set('users', $users);
+        $this->set('users', (array)$users);
     }
     /**
      * Loads the current snapin job

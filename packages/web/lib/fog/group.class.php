@@ -973,7 +973,7 @@ class Group extends FOGController
     {
         $this->set(
             'hosts',
-            self::getSubObjectIDs(
+            (array)self::getSubObjectIDs(
                 'GroupAssociation',
                 array('groupID' => $this->get('id')),
                 'hostID'
@@ -992,6 +992,6 @@ class Group extends FOGController
             self::getSubObjectIDs('Host'),
             $this->get('hosts')
         );
-        $this->set('hostsnotinme', $hosts);
+        $this->set('hostsnotinme', (array)$hosts);
     }
 }

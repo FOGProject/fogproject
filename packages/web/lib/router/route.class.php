@@ -1187,9 +1187,21 @@ class Route extends FOGBase
             $data = FOGCore::fastmerge(
                 $class->get(),
                 array(
-                    'logfiles' => $class->get('logfiles'),
-                    'snapinfiles' => $class->get('snapinfiles'),
-                    'images' => $class->get('images'),
+                    'logfiles' => (
+                        $class->get('online') ?
+                        $class->get('logfiles') :
+                        []
+                    ),
+                    'snapinfiles' => (
+                        $class->get('online') ?
+                        $class->get('snapinfiles') :
+                        []
+                    ),
+                    'images' => (
+                        $class->get('online') ?
+                        $class->get('images') :
+                        []
+                    ),
                     'storagegroup' => self::getter(
                         'storagegroup',
                         $class->get('storagegroup')

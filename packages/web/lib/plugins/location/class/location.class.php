@@ -179,7 +179,7 @@ class Location extends FOGController
         );
         $this->set(
             'hosts',
-            $hostIDs
+            (array)$hostIDs
         );
     }
     /**
@@ -193,6 +193,6 @@ class Location extends FOGController
             self::getSubObjectIDs('Host'),
             $this->get('hosts')
         );
-        $this->set('hostsnotinme', $hosts);
+        $this->set('hostsnotinme', (array)$hosts);
     }
 }

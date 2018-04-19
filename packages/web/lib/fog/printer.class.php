@@ -128,7 +128,7 @@ class Printer extends FOGController
     {
         $this->set(
             'hosts',
-            self::getSubObjectIDs(
+            (array)self::getSubObjectIDs(
                 'PrinterAssociation',
                 array('printerID'=>$this->get('id')),
                 'hostID'
@@ -146,7 +146,7 @@ class Printer extends FOGController
             self::getSubObjectIDs('Host'),
             $this->get('hosts')
         );
-        $this->set('hostsnotinme', $hosts);
+        $this->set('hostsnotinme', (array)$hosts);
     }
     /**
      * Update the default printer for the host.

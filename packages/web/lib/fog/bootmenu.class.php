@@ -134,7 +134,8 @@ class BootMenu extends FOGBase
             "\n"
         );
 
-        if(stripos($_REQUEST['arch'], 'arm') !== FALSE){ //user arm boot loaders instead
+        if (stripos($_REQUEST['arch'], 'arm') !== false) {
+            //user arm boot loaders instead
             $grubChain = 'chain -ar ${boot-url}/service/ipxe/grub_aa64.exe '
                 . '--config-file="%s"';
             $refind = sprintf(
