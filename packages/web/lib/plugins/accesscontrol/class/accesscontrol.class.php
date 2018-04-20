@@ -137,30 +137,36 @@ class AccessControl extends FOGController
      */
     protected function loadUsers()
     {
-        $associds = self::getSubObjectIDs(
-            'AccessControlAssociation',
-            ['accesscontrolID' => $this->get('id')],
+        $find = ['accesscontrolID' => $this->get('id')];
+        Route::ids(
+            'accesscontrolassociation',
+            $find,
             'userID'
+        );
+        $accesscontrols = json_decode(
+            Route::getData(),
+            true
         );
         $types = [];
         self::$HookManager->processEvent(
             'USER_TYPES_FILTER',
             ['types' => &$types]
         );
-        $userid = self::getSubObjectIDs(
-            'User',
-            ['type' => $types]
+        $find = ['types' => $types];
+        Route::ids(
+            'user',
+            $find
+        );
+        $userid = json_decode(
+            Route::getData(),
+            true
         );
         $associds = array_diff(
-            $associds,
+            $accesscontrols,
             $userid
         );
         unset($userid);
-        $userids = self::getSubObjectIDs(
-            'User',
-            ['id' => $associds]
-        );
-        $this->set('users', $userids);
+        $this->set('users', (array)$associds);
     }
     /**
      * Load rules
@@ -169,15 +175,16 @@ class AccessControl extends FOGController
      */
     protected function loadAccesscontrolrules()
     {
-        $associds = self::getSubObjectIDs(
-            'AccessControlRuleAssociation',
-            ['accesscontrolID' => $this->get('id')],
+        $find = ['accesscontrolID' => $this->get('id')];
+        Route::ids(
+            'accesscontrolruleassociation',
+            $find,
             'accesscontrolruleID'
         );
-        $ruleids = self::getSubObjectIDs(
-            'AccessControlRule',
-            ['id' => $associds]
+        $ruleIDs = json_decode(
+            Route::getData(),
+            true
         );
-        $this->set('accesscontrolrules', $ruleids);
+        $this->set('accesscontrolrules', (array)$ruleIDs);
     }
 }

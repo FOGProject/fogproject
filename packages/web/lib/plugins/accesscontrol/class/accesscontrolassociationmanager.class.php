@@ -74,10 +74,15 @@ class AccessControlAssociationManager extends FOGManagerController
         if (!self::$DB->query($sql)) {
             return false;
         } else {
-            $fogUserID = self::getSubObjectIDs(
-                'User',
+            Route::ids(
+                'user',
                 ['name' => 'fog']
             );
+            $fogUserID = json_decode(
+                Route::getData(),
+                true
+            );
+            $fogUserID = array_shift($fogUserID);
             $sql = sprintf(
                 "INSERT INTO `%s` VALUES (1, '%s', 1, %d)",
                 $this->tablename,
