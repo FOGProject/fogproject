@@ -25,45 +25,59 @@ try {
     if (!FOGCore::$Host->isValid()) {
         throw new Exception('#!ih');
     }
-    $SnapinJob = FOGCore::$Host
-        ->get('snapinjob');
+    $SnapinJob = FOGCore::$Host->get('snapinjob');
     if (!$SnapinJob->isValid()) {
         throw new Exception(0);
     }
-    $snapinids = FOGCore::getSubObjectIDs(
-        'SnapinTask',
-        [
-            'stateID' => $FOGCore->getQUeuedStates(),
-            'jobID' => $SnapinJob->get('id')
-        ],
+    $find = [
+        'stateID' => $FOGCore->getQueuedStates(),
+        'jobID' => $SnapinJob->get('id')
+    ];
+    Route::ids(
+        'snapintask',
+        $find,
         'snapinID'
     );
+    $snapins = json_decode(
+        Route::getData()
+    );
+    $snapinIDs = [];
+    foreach ($snapins as &$snapin) {
+        $snapinIDs[] = $snapin->snapinID;
+        unset($snapin);
+    }
     if (isset($_REQUEST['getSnapnames'])) {
-        $snapins = FOGCore::getSubObjectIDs(
-            'Snapin',
-            ['id' => $snapinids],
+        Route::ids(
+            'snapin',
+            ['id' => $snapinIDs],
             'name'
         );
+        $snapins = json_decode(
+            Route::getData()
+        );
+        $snapinnames = [];
+        foreach ($snapins as &$snapin) {
+            $snapinnames[] = $snapin->name;
+            unset($snapin);
+        }
     } elseif (isset($_REQUEST['getSnapargs'])) {
-        $snapins = FOGCore::getSubObjectIDs(
-            'Snapin',
-            ['id' => $snapinids],
+        Route::ids(
+            'snapin',
+            ['id' => $snapinIDs],
             'args'
         );
-    } else {
-        $snapins = (
-            FOGCore::getClass('SnapinTaskManager')
-            ->count(
-                [
-                    'stateID' => FOGCore::getQueuedStates(),
-                    'jobID' => $SnapinJob->get('id')
-                ]
-            ) ?
-            1 :
-            0
+        $snapins = json_decode(
+            Route::getData()
         );
+        $snapinnames = [];
+        foreach ($snapins as &$snapin) {
+            $snapinnames[] = $snapin->args;
+            unset($snapin);
+        }
+    } else {
+        $snapinnames = [count($snapins ?: []) ? 1 : 0];
     }
-    echo implode(' ', (array)$snapins);
+    echo implode(' ', $snapinnames);
 } catch (Exception $e) {
     echo $e->getMessage();
 }

@@ -24,9 +24,9 @@ header('Content-Type: text/plain');
 try {
     FOGCore::getHostItem(false);
     $Task = FOGCore::$Host->get('task');
-    if (FOGCore::$useragent) {
-        throw new Exception(_('Cannot view from browser'));
-    }
+    //if (FOGCore::$useragent) {
+    //    throw new Exception(_('Cannot view from browser'));
+    //}
     if (!$Task->isValid()) {
         throw new Exception(_('Invalid tasking!'));
     }
@@ -37,14 +37,19 @@ try {
     $Image = $Task->getImage();
     if ($TaskType->isInitNeededTasking()) {
         if ($TaskType->isMulticast()) {
+            Route::ids('multicastsessionassociation');
+            $ids = json_decode(
+                Route::getData()
+            );
+            $msIDs = [];
+            foreach ($ids as &$id) {
+                $msIDs[] = $id->id;
+                unset($id);
+            }
+
             $MulticastSession = FOGCore::getClass(
                 'MulticastSession',
-                @max(
-                    FOGCore::getSubObjectIDs(
-                        'MulticastSessionAssociation',
-                        ['taskID' => $Task->get('id')]
-                    )
-                )
+                @max($msIDs)
             );
             $taskImgID = $Task->get('imageID');
             $mcImgID = $MulticastSession->get('image');
@@ -106,28 +111,33 @@ try {
             (bool)$Task
             ->get('shutdown')
         );
+        $find = [
+            'name' => [
+                'FOG_CAPTUREIGNOREPAGEHIBER',
+                'FOG_CAPTURERESIZEPCT',
+                'FOG_CHANGE_HOSTNAME_EARLY',
+                'FOG_TFTP_HOST'
+            ]
+        ];
+        Route::ids(
+            'service',
+            $find,
+            'value'
+        );
+        $items = json_decode(
+            Route::getData()
+        );
+        $values = [];
+        foreach ($items as &$item) {
+            $values[] = $item->value;
+            unset($item);
+        }
         list(
             $ignorepg,
             $pct,
             $hostearly,
             $ftp
-        ) = FOGCore::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'FOG_CAPTUREIGNOREPAGEHIBER',
-                    'FOG_CAPTURERESIZEPCT',
-                    'FOG_CHANGE_HOSTNAME_EARLY',
-                    'FOG_TFTP_HOST'
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = $values;
         $ftp = (
             $StorageNode->isValid() ?
             $StorageNode->get('ip') :

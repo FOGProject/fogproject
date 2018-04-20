@@ -151,16 +151,17 @@ class Site extends FOGController
      */
     protected function loadUsers()
     {
-        $associds = self::getSubObjectIDs(
-            'SiteUserAssociation',
-            ['siteID' => $this->get('id')],
+        $find = ['siteID' => $this->get('id')];
+        Route::ids(
+            'siteuserassociation',
+            $find,
             'userID'
         );
-        $userids = self::getSubObjectIDs(
-            'User',
-            ['id' => $associds]
+        $siteuserassocs = json_decode(
+            Route::getData(),
+            true
         );
-        $this->set('users', $userids);
+        $this->set('users', (array)$siteuserassocs);
     }
     /**
      * Load hosts
@@ -176,15 +177,16 @@ class Site extends FOGController
         } else {
             $siteIDs = $ids;
         }
-        $associds = self::getSubObjectIDs(
-            'SiteHostAssociation',
-            ['siteID' => $siteIDs],
+        $find = ['siteID' => $siteIDs];
+        Route::ids(
+            'sitehostassociation',
+            $find,
             'hostID'
         );
-        $hostids = self::getSubObjectIDs(
-            'Host',
-            ['id' => $associds]
+        $sitehostassocs = json_decode(
+            Route::getData(),
+            true
         );
-        $this->set('hosts', $hostids);
+        $this->set('hosts', (array)$sitehostassocs);
     }
 }

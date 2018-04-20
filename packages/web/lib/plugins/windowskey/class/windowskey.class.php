@@ -120,15 +120,16 @@ class WindowsKey extends FOGController
      */
     protected function loadImages()
     {
-        $imageIDs = self::getSubObjectIDs(
-            'WindowsKeyAssociation',
-            ['windowskeyID' => $this->get('id')],
+        $find = ['windowskeyID' => $this->get('id')];
+        Route::ids(
+            'windowskeyassociation',
+            $find,
             'imageID'
         );
-        $imageIDs = self::getSubObjectIDs(
-            'Image',
-            ['id' => $imageIDs]
+        $images = json_decode(
+            Route::getData(),
+            true
         );
-        $this->set('images', $imageIDs);
+        $this->set('images', (array)$images);
     }
 }

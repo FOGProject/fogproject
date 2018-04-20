@@ -668,16 +668,20 @@ abstract class FOGBase
             return [];
         }
         self::getClass('Plugin')->getPlugins();
-        $plugins = self::getSubObjectIDs(
-            'Plugin',
-            [
-                'installed' => 1,
-                'state' => 1,
-            ],
+        $find = [
+            'installed' => 1,
+            'state' => 1,
+        ];
+        Route::ids(
+            'plugin',
+            $find,
             'name'
         );
-
-        return array_map('strtolower', (array)$plugins);
+        $plugins = json_decode(
+            Route::getData(),
+            true
+        );
+        return array_map('strtolower', $plugins);
     }
     /**
      * Converts our string if needed.
@@ -1937,7 +1941,7 @@ abstract class FOGBase
             }
             return $data;
         }
-        return self::getClass($object)->getManager()->find(
+        return self::getClass($object.'Manager')->find(
             $findWhere,
             $operator,
             $orderBy,

@@ -1030,9 +1030,6 @@ msgstr "Ungültige Einheit"
 msgid "There are no images on this server"
 msgstr "Es gibt keine Images auf diesem Server."
 
-msgid "Cannot view from browser"
-msgstr "Kann vom Browser nicht angezeigt werden"
-
 #, fuzzy
 msgid "Invalid tasking!"
 msgstr "Ungültiger Vorgang"

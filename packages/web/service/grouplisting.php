@@ -21,30 +21,22 @@
  */
 require '../commons/base.inc.php';
 try {
-    $groupCount = FOGCore::getClass('GroupManager')
-        ->count();
-    if ($groupCount < 1) {
+    Route::names('group');
+    $groupnames = json_decode(
+        Route::getData()
+    );
+    if (count($groupnames ?: []) < 1) {
         throw new Exception(
             _('There are no groups on this server')
         );
     }
-    $groupids = FOGCore::getSubObjectIDs('Group');
-    $groupnames = FOGCore::getSubObjectIDs(
-        'Group',
-        ['id' => $groupids],
-        'name'
-    );
-    foreach ((array)$groupids as $index => $groupid) {
+    foreach ($groupnames as $group) {
         printf(
             '\tID# %d\t-\t%s\n',
-            $groupid,
-            $groupnames[$index]
+            $group->id,
+            $group->name
         );
-        unset(
-            $groupid,
-            $groupnames[$index],
-            $groupids[$index]
-        );
+        unset($group);
     }
 } catch (Exception $e) {
     echo $e->getMessage();

@@ -183,18 +183,16 @@ class Location extends FOGController
      */
     protected function loadHosts()
     {
-        $hostIDs = self::getSubObjectIDs(
-            'LocationAssociation',
-            ['locationID' => $this->get('id')],
+        $find = ['locationID' => $this->get('id')];
+        Route::ids(
+            'locationassociation',
+            $find,
             'hostID'
         );
-        $hostIDs = self::getSubObjectIDs(
-            'Host',
-            ['id' => $hostIDs]
+        $hosts = json_decode(
+            Route::getData(),
+            true
         );
-        $this->set(
-            'hosts',
-            $hostIDs
-        );
+        $this->set('hosts', $hosts);
     }
 }

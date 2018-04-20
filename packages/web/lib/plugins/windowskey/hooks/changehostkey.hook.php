@@ -75,27 +75,34 @@ class ChangeHostKey extends Hook
         if (!$arguments['Task']->isDeploy()) {
             return;
         }
-        $WindowsKey = self::getSubObjectIDs(
-            'WindowsKeyAssociation',
-            ['imageID' => $arguments['Task']->getImage()->get('id')],
+        $find = ['imageID' => $arguments['Task']->getImage()->get('id')];
+        Route::ids(
+            'windowskeyassociation',
+            $find,
             'windowskeyID'
         );
-        $cnt = self::getClass('WindowsKeyManager')->count(
-            ['id' => $WindowsKey]
+        $windowskeys = json_decode(
+            Route::getData(),
+            true
         );
+
+        $cnt = count($values ?: []);
         if ($cnt !== 1) {
             return;
         }
-        $WindowsKey = self::getSubObjectIDs(
-            'WindowsKey',
-            ['id' => $WindowsKey],
+        $find = ['id' => $windowskeys];
+        Route::ids(
+            'windowskey',
+            $find,
             'key'
         );
-        $productKey = trim(
-            array_shift($WindowsKey)
+        $windowskeys = json_decode(
+            Route::getData(),
+            true
         );
-        $arguments['Host']
-            ->set('productKey', $productKey)
-            ->save();
+        $productKey = trim(
+            array_shift($windowskeys)
+        );
+        $arguments['Host']->set('productKey', $productKey)->save();
     }
 }

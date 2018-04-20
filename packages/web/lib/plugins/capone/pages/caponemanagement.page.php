@@ -368,20 +368,25 @@ class CaponeManagement extends FOGPage
     public function globalsettings()
     {
         $this->title = _('Editing Global Capone Settings');
-
+        $find = [
+            'name' => [
+                'FOG_PLUGIN_CAPONE_DMI',
+                'FOG_PLUGIN_CAPONE_SHUTDOWN'
+            ]
+        ];
+        Route::ids(
+            'service',
+            $find,
+            'value'
+        );
+        $services = json_decode(
+            Route::getData(),
+            true
+        );
         list(
             $dmiField,
             $actionType
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'FOG_PLUGIN_CAPONE_DMI',
-                    'FOG_PLUGIN_CAPONE_SHUTDOWN'
-                ]
-            ],
-            'value'
-        );
+        ) = $services;
 
         $dmiFields = [
             'bios-vendor',

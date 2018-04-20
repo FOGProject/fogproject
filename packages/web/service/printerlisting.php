@@ -21,28 +21,17 @@
  */
 require '../commons/base.inc.php';
 try {
-    $printerCount = FOGCore::getClass('PrinterManager')
-        ->count();
-    if ($printerCount < 1) {
+    Route::names('printer');
+    $printernames = json_decode(
+        Route::getData()
+    );
+    if (count($printernames ?: []) < 1) {
         throw new Exception("#!np\n");
     }
     echo "#!ok\n";
-    $printerids = FOGCore::getSubObjectIDs('Printer');
-    $printernames = FOGCore::getSubObjectIDs(
-        'Printer',
-        ['id' => $printerids],
-        'name'
-    );
-    foreach ((array)$printerids as $index => $printerid) {
-        $name = $printernames[$index];
-        echo "#printer$index=$name\n";
-        unset(
-            $name,
-            $index,
-            $printerids[$index],
-            $printerid,
-            $printernames[$index]
-        );
+    foreach ((array)$printernames as $index => $printer) {
+        echo "#printer{$index}={$printer->name}\n";
+        unset($printer);
     }
 } catch (Exception $e) {
     echo $e->getMessage();

@@ -21,30 +21,22 @@
  */
 require '../commons/base.inc.php';
 try {
-    $ouCount = FOGCore::getClass('OUManager')
-        ->count();
-    if ($ouCount < 0) {
+    Route::names('ou');
+    $ounames = json_decode(
+        Route::getData()
+    );
+    if (count($ounames ?: []) < 1) {
         throw new Exception(
             _('There are no ous on this server')
         );
     }
-    $ouids = FOGCore::getSubObjectIDs('OU');
-    $ounames = FOGCore::getSubObjectIDs(
-        'OU',
-        ['id' => $ouids],
-        'name'
-    );
-    foreach ((array)$ouids as $index => $ouid) {
+    foreach ($ounames as &$ou) {
         printf(
             '\tID# %d\t-\t%s\n',
-            $ouid,
-            $ounames[$index]
+            $ou->id,
+            $ou->name
         );
-        unset(
-            $ouid,
-            $ounames[$index],
-            $ouids[$index]
-        );
+        unset($ou);
     }
 } catch (Exception $e) {
     echo $e->getMessage();

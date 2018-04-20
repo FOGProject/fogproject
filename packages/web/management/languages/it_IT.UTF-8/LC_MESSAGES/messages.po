@@ -1018,9 +1018,6 @@ msgstr "Unità non valida"
 msgid "There are no images on this server"
 msgstr "Non ci sono immagini su questo server"
 
-msgid "Cannot view from browser"
-msgstr "Impossiible visualizzare nel browser"
-
 msgid "Invalid tasking!"
 msgstr "Compito non valido!"
 

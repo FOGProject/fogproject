@@ -1196,9 +1196,6 @@ msgstr "carpeta no válida"
 msgid "There are no images on this server"
 msgstr "No hay grupos en este servidor."
 
-msgid "Cannot view from browser"
-msgstr ""
-
 #, fuzzy
 msgid "Invalid tasking!"
 msgstr "tarea no válido"
