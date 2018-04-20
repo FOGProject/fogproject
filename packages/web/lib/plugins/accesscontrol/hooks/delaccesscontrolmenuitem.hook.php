@@ -73,32 +73,34 @@ class DelAccessControlMenuItem extends Hook
      */
     public function deleteMenuData($arguments)
     {
-        $userID = self::getSubObjectIDs(
-            'User',
-            ['name' => self::$FOGUser->get('name')],
-            'id'
-        );
-        $acID = self::getSubObjectIDs(
-            'AccessControlAssociation',
-            ['userID' => $userID],
+        $find = ['userID' => self::$FOGUser->get('id')];
+        Route::ids(
+            'accesscontrolassociation',
+            $find,
             'accesscontrolID'
         );
-        $rules = self::getSubObjectIDs(
-            'AccessControl',
-            ['id' => $acID],
-            'accesscontrolrules'
+        $accesscontrols = json_decode(
+            Route::getData(),
+            true
         );
-
-        /*foreach ((array)self::getClass('AccessControlRuleManager')
-            ->fnd(
-                ['id' => $rules]
-            ) as $Rule
-        ) {
+        $find = ['rraRoleID' => $accesscontrols];
+        Route::listem(
+            'accesscontrolruleassociation',
+            $find
+        );
+        $Rules = json_decode(
+            Route::getData()
+        );
+        foreach ($Rules->data as &$Rule) {
+            Route::indiv('accesscontrolrule', $Rule->accesscontrolruleID);
+            $Rule = json_decode(
+                Route::getData()
+            );
             unset(
-                $arguments[$Rule->get('parent')][$Rule->get('value')],
+                $arguments[$Rule->parent][$Rule->value],
                 $Rule
             );
-        }*/
+        }
     }
     /**
      * The menu data to change.
@@ -109,40 +111,31 @@ class DelAccessControlMenuItem extends Hook
      */
     public function deleteSubMenuData($arguments)
     {
-        Route::listem(
+        $find = ['userID' => self::$FOGUser->get('id')];
+        Route::ids(
             'accesscontrolassociation',
-            ['ruaUserID' => self::$FOGUser->get('id')]
-        );
-        $AccessControlAssocs = json_decode(
-            Route::getData()
-        );
-        $userID = self::getSubObjectIDs(
-            'User',
-            ['name' => self::$FOGUser->get('name')],
-            'id'
-        );
-        $acID = self::getSubObjectIDs(
-            'AccessControlAssociation',
-            ['userID' => $userID],
+            $find,
             'accesscontrolID'
         );
-        /*foreach ((array)self::getClass('AccessControlRuleAssociationManager')
-            ->fnd(array('accesscontrolID' => $acID)) as
-            &$AccessControlRuleAssociation
-        ) {
-            $AccessControlRule = new AccessControlRule(
-                $AccessControlRuleAssociation->get('accesscontrolruleID')
+        $accesscontrols = json_decode(
+            Route::getData(),
+            true
+        );
+        $find = ['rraRoleID' => $accesscontrols];
+        Route::listem(
+            'accesscontrolruleassociation',
+            $find
+        );
+        $Rules = json_decode(
+            Route::getData()
+        );
+        foreach ($Rules->data as &$Rule) {
+            Route::indiv('accesscontrolrule', $Rule->accesscontrolruleID);
+            $Rule = json_decode(
+                Route::getData()
             );
-            unset(
-                $arguments[
-                    $AccessControlRule->get('parent')
-                ]
-                [
-                    $AccessControlRule->get('value')
-                ],
-                $AccessControlRule
-            );
+            unset($arguments[$Rule->parent][$Rule->value]);
+            unset($Rule);
         }
-        unset($AccessControlRuleAssociation);*/
     }
 }

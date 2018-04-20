@@ -119,18 +119,16 @@ class OU extends FOGController
      */
     protected function loadHosts()
     {
-        $hostIDs = self::getSubObjectIDs(
-            'OUAssociation',
-            ['OUID' => $this->get('id')],
+        $find = ['OUID' => $this->get('id')];
+        Route::ids(
+            'ouassociation',
+            $find,
             'hostID'
         );
-        $hostIDs = self::getSubObjectIDs(
-            'Host',
-            ['id' => $hostIDs]
+        $hosts = json_decode(
+            Route::getData(),
+            true
         );
-        $this->set(
-            'hosts',
-            $hostIDs
-        );
+        $this->set('hosts', $hosts);
     }
 }
