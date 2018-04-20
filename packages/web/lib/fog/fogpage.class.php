@@ -3038,7 +3038,7 @@ abstract class FOGPage extends FOGBase
         return ob_get_clean();
     }
     /**
-     * Function passes to allsearch method so we can have
+     * Function passes so we can have
      * a paged version of universal searching.
      *
      * @return string
