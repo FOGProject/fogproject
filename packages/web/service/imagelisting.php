@@ -21,30 +21,22 @@
  */
 require '../commons/base.inc.php';
 try {
-    $imageCount = FOGCore::getClass('ImageManager')
-        ->count();
-    if ($imageCount < 1) {
+    Route::names('image');
+    $imagenames = json_decode(
+        Route::getData()
+    );
+    if (count($imagenames ?: []) < 1) {
         throw new Exception(
             _('There are no images on this server')
         );
     }
-    $imageids = FOGCore::getSubObjectIDs('Image');
-    $imagenames = FOGCore::getSubObjectIDs(
-        'Image',
-        ['id' => $imageids],
-        'name'
-    );
-    foreach ((array)$imageids as $index => $imageid) {
+    foreach ($imagenames as &$image) {
         printf(
             '\tID# %d\t-\t%s\n',
-            $imageid,
-            $imagenames[$index]
+            $image->id,
+            $image->name
         );
-        unset(
-            $imageid,
-            $imagenames[$index],
-            $imageids[$index]
-        );
+        unset($image);
     }
 } catch (Exception $e) {
     echo $e->getMessage();

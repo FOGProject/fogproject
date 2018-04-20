@@ -1035,9 +1035,6 @@ msgstr "URL invalide"
 msgid "There are no images on this server"
 msgstr "Il n'y a pas d'images sur ce serveur."
 
-msgid "Cannot view from browser"
-msgstr ""
-
 #, fuzzy
 msgid "Invalid tasking!"
 msgstr "tâche non valide"

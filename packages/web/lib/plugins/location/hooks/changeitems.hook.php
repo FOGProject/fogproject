@@ -235,15 +235,19 @@ class ChangeItems extends Hook
         if (!$arguments['FOGServiceClass'] instanceof MulticastManager) {
             return;
         }
-        $storagenodeIDs = self::getSubObjectIDs(
-            'Location',
-            '',
+        Route::ids(
+            'location',
+            [],
             'storagenodeID'
+        );
+        $storagenodes = json_decode(
+            Route::getData(),
+            true
         );
         $storagenodeIDs = array_unique(
             array_filter(
                 self::fastmerge(
-                    $storagenodeIDs,
+                    $storagenodes,
                     $arguments['MasterIDs']
                 )
             )

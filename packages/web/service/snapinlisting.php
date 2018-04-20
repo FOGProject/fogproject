@@ -21,30 +21,22 @@
  */
 require '../commons/base.inc.php';
 try {
-    $snapinCount = FOGCore::getClass('SnapinManager')
-        ->count();
-    if ($snapinCount < 1) {
+    Route::names('snapin');
+    $snapinnames = json_decode(
+        Route::getData()
+    );
+    if (count($snapinnames ?: []) < 1) {
         throw new Exception(
             _('There are no snapins on this server')
         );
     }
-    $snapinids = FOGCore::getSubObjectIDs('Snapin');
-    $snapinnames = FOGCore::getSubObjectIDs(
-        'Snapin',
-        ['id' => $snapinids],
-        'name'
-    );
-    foreach ((array)$snapinids as $index => $snapinid) {
+    foreach ($snapinnames as &$snapin) {
         printf(
             '\tID# %d\t-\t%s\n',
-            $snapinid,
-            $snapinnames[$index]
+            $snapin->id,
+            $snapin->name
         );
-        unset(
-            $snapinid,
-            $snapinnames[$index],
-            $snapinids[$index]
-        );
+        unset($snapin);
     }
 } catch (Exception $e) {
     echo $e->getMessage();

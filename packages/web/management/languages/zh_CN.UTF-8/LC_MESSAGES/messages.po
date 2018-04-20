@@ -1032,9 +1032,6 @@ msgstr "无效的网址"
 msgid "There are no images on this server"
 msgstr "有此服务器上没有图像。"
 
-msgid "Cannot view from browser"
-msgstr ""
-
 #, fuzzy
 msgid "Invalid tasking!"
 msgstr "任务无效"

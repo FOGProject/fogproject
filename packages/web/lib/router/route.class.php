@@ -671,7 +671,7 @@ class Route extends FOGBase
                 ];
                 $columns[] = [
                     'db' => $real,
-                    'dt' => 'hostLink',
+                    'dt' => 'snapinLink',
                     'formatter' => function ($d, $row) {
                         if (!$d) {
                             return;
@@ -1802,10 +1802,11 @@ class Route extends FOGBase
      *
      * @param string $class      The class to get list of.
      * @param array  $whereItems The items to filter.
+     * @param string $getField   The field to get.
      *
      * @return void
      */
-    public function ids($class, $whereItems = [])
+    public function ids($class, $whereItems = [], $getField = 'id')
     {
         $data = [];
         $classname = strtolower($class);
@@ -1820,7 +1821,7 @@ class Route extends FOGBase
         }
 
         $sql = 'SELECT `'
-            . $classVars['databaseFields']['id']
+            . $classVars['databaseFields'][$getField]
             . '` FROM `'
             . $classVars['databaseTable']
             . '`';
@@ -1833,9 +1834,7 @@ class Route extends FOGBase
 
         $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
         foreach ($vals as &$val) {
-            $data[] = [
-                'id' => $val[$classVars['databaseFields']['id']]
-            ];
+            $data[] = $val[$classVars['databaseFields'][$getField]];
             unset($val);
         }
         self::$data = $data;

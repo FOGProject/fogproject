@@ -124,12 +124,17 @@ class AddSiteFilterSearch extends Hook
      */
     public function isRestricted($userid)
     {
-        $userRestrictions = self::getSubObjectIDs(
-            'SiteUserRestriction',
-            ['userID' => $userid],
+        $find = ['userID' => $userid];
+        Route::ids(
+            'siteuserrestriction',
+            $find,
             'isRestricted'
         );
-        return $userRestrictions[0];
+        $siteuserrestrictions = json_decode(
+            Route::getData(),
+            true
+        );
+        return array_shift($siteuserrestrictions);
     }
     /**
      * Get site IDs where the user is associated.
@@ -141,11 +146,16 @@ class AddSiteFilterSearch extends Hook
     public function getSiteIDbyUser($userID)
     {
         $find = ['userID' => $userID];
-        return self::getSubObjectIDs(
-            'SiteUserAssociation',
+        Route::ids(
+            'siteuserassociation',
             $find,
             'siteID'
         );
+        $siteuserassocs = json_decode(
+            Route::getData(),
+            true
+        );
+        return $siteuserassocs;
     }
 
     /**
@@ -158,11 +168,16 @@ class AddSiteFilterSearch extends Hook
     public function getHostIDbySite($siteIDs)
     {
         $find = ['siteID' => $siteIDs];
-        return self::getSubObjectIDs(
-            'SiteHostAssociation',
+        Route::ids(
+            'sitehostassociation',
             $find,
             'hostID'
         );
+        $sitehostassocs = json_decode(
+            Route::getData(),
+            true
+        );
+        return $sitehostassocs;
     }
     /**
      * Get the group IDs which have one or more hosts of the user locations.
@@ -174,10 +189,16 @@ class AddSiteFilterSearch extends Hook
     public function getGroupIDbySite($siteIDbyUser)
     {
         $siteHosts = $this->getHostIDbySite($siteIDbyUser);
-        return self::getSubObjectIDs(
-            'GroupAssociation',
-            ['hostID' => $siteHosts],
+        $find = ['hostID' => $siteHosts];
+        Route::ids(
+            'groupassociation',
+            $find,
             'groupID'
         );
+        $groupassocs = json_decode(
+            Route::getData(),
+            true
+        );
+        return $groupassocs;
     }
 }

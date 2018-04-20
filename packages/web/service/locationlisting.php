@@ -21,30 +21,22 @@
  */
 require '../commons/base.inc.php';
 try {
-    $locationCount = FOGCore::getClass('LocationManager')
-        ->count();
-    if ($locationCount < 0) {
+    Route::names('location');
+    $locationnames = json_decode(
+        Route::getData()
+    );
+    if (count($locationnames ?: []) < 1) {
         throw new Exception(
             _('There are no locations on this server')
         );
     }
-    $locationids = FOGCore::getSubObjectIDs('Location');
-    $locationnames = FOGCore::getSubObjectIDs(
-        'Location',
-        ['id' => $locationids],
-        'name'
-    );
-    foreach ((array)$locationids as $index => $locationid) {
+    foreach ($locationnames as &$location) {
         printf(
             '\tID# %d\t-\t%s\n',
-            $locationid,
-            $locationnames[$index]
+            $location->id,
+            $location->name
         );
-        unset(
-            $locationid,
-            $locationnames[$index],
-            $locationids[$index]
-        );
+        unset($location);
     }
 } catch (Exception $e) {
     echo $e->getMessage();
