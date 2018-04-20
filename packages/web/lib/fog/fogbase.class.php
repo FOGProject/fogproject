@@ -1017,16 +1017,15 @@ abstract class FOGBase
         if ($names) {
             return $services;
         }
-        // Now lets get their status'
-        $serviceEn = self::getSubObjectIDs(
-            'Service',
-            ['name' => array_values($services)],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            false
+        $find = ['name' => array_values($services)];
+        Route::ids(
+            'service',
+            $find,
+            'value'
+        );
+        $serviceEn = json_decode(
+            Route::getData(),
+            true
         );
 
         return array_combine(array_keys($services), $serviceEn);
@@ -1527,7 +1526,15 @@ abstract class FOGBase
             $padding = OPENSSL_NO_PADDING;
         }
         $tmpssl = [];
-        $sslfile = self::getSubObjectIDs('StorageNode', '', 'sslpath');
+        Route::ids(
+            'storagenode',
+            [],
+            'sslpath'
+        );
+        $sslfile = json_decode(
+            Route::getData(),
+            true
+        );
         foreach ($sslfile as &$path) {
             if (!file_exists($path) || !is_readable($path)) {
                 continue;
@@ -1644,13 +1651,18 @@ abstract class FOGBase
             ]
         );
         if ($count > 0) {
-            $existingMACs = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                [
-                    'mac' => $MACs,
-                    'pending' => [0, '']
-                ],
+            $find = [
+                'mac' => $MACs,
+                'pending' => [0, '']
+            ];
+            Route::ids(
+                'macaddressassociation',
+                $find,
                 'mac'
+            );
+            $existingMACs = json_decode(
+                Route::getData(),
+                true
             );
             $existingMACs = array_map($lowerAndTrim, $existingMACs);
             $existingMACs = array_filter($existingMACs);
@@ -1660,26 +1672,36 @@ abstract class FOGBase
             $MACs = array_unique($MACs);
         }
         if ($client) {
-            $clientIgnored = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                [
-                    'mac' => $MACs,
-                    'clientIgnore' => 1
-                ],
+            $find = [
+                'mac' => $MACs,
+                'clientIgnore' => 1
+            ];
+            Route::ids(
+                'macaddressassociation',
+                $find,
                 'mac'
+            );
+            $clientIgnored = json_decode(
+                Route::getData(),
+                true
             );
             $clientIgnored = array_map($lowerAndTrim, $clientIgnored);
             $MACs = array_diff((array) $MACs, (array) $clientIgnored);
             unset($clientIgnored);
         }
         if ($image) {
-            $imageIgnored = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                [
-                    'mac' => $MACs,
-                    'imageIgnore' => 1
-                ],
+            $find = [
+                'mac' => $MACs,
+                'imageIgnore' => 1
+            ];
+            Route::ids(
+                'macaddressassociation',
+                $find,
                 'mac'
+            );
+            $imageIgnored = json_decode(
+                Route::getData(),
+                true
             );
             $imageIgnored = array_map($lowerAndTrim, (array) $imageIgnored);
             $MACs = array_diff((array) $MACs, (array) $imageIgnored);
@@ -2305,22 +2327,7 @@ abstract class FOGBase
             );
             unset($StorageNode);
         }
-        list(
-            $gHost
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'FOG_WEB_HOST'
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        $gHost = self::getSetting('FOG_WEB_HOST');
         $ip = $gHost;
         $nodeURLs[] = $ip;
         $ret = self::$FOGURLRequests->process(
@@ -2484,55 +2491,6 @@ abstract class FOGBase
                 5000,
                 2000000
             )
-        );
-    }
-    /**
-     * Universal search method.
-     *
-     * @param string $class   What class are we searching in.
-     * @param string $keyword What to search for.
-     * @param int    $limit   Limit results?
-     * @param bool   $count   Return count?.
-     *
-     * @return mixed
-     */
-    public static function allsearch(
-        $class = 'host',
-        $keyword = '%',
-        $limit = 0,
-        $count = false
-    ) {
-        if (empty($keyword)) {
-            $keyword = '%';
-        }
-        $keyword = sprintf(
-            '%%%s%%',
-            $keyword
-        );
-        $find = [
-            'id' => $keyword,
-            'name' => $keyword
-        ];
-        $classman = sprintf(
-            '%sManager',
-            $class
-        );
-        if ($count) {
-            return (int)self::getClass($classman)
-                ->count($find, 'OR', 'name');
-        }
-        return self::getClass($classman)->find(
-            $find,
-            'OR',
-            'name',
-            'ASC',
-            '=',
-            false,
-            false,
-            false,
-            true,
-            'array_unique',
-            $limit
         );
     }
     /**

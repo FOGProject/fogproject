@@ -893,24 +893,31 @@ class Route extends FOGBase
                 _($search) :
                 _('settings')
             );
-            $data['_results'][$search] = self::allsearch(
+            $classVars = self::getClass(
                 $search,
-                $item,
-                $limit,
+                '',
                 true
             );
-            $items = self::allsearch(
-                $search,
-                $item,
-                $limit
-            );
-            $data[$search] = [];
-            foreach ((array)$items as &$obj) {
+            $sql = "SELECT `{$classVars['databaseFields']['id']}`,"
+                . "`{$classVars['databaseFields']['name']}`
+                FROM `{$classVars['databaseTable']}`
+                WHERE `{$classVars['databaseFields']['id']}` LIKE '%"
+                . $item
+                . "%' OR `{$classVars['databaseFields']['name']}` LIKE '%"
+                . $item
+                . "%'";
+            $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
+            $data['_results'][$search] = count($vals ?: []);
+            $vals = self::$DB->query($sql." LIMIT $limit")->fetch(
+                '',
+                'fetch_all'
+            )->get();
+            foreach ($vals as &$val) {
                 $data[$search][] = [
-                    'id' => $obj->get('id'),
-                    'name' => $obj->get('name')
+                    'id' => $val[$classVars['databaseFields']['id']],
+                    'name' => $val[$classVars['databaseFields']['name']]
                 ];
-                unset($obj);
+                unset($val);
             }
             unset($items);
             unset($search);
@@ -938,7 +945,7 @@ class Route extends FOGBase
         self::$data = [];
         self::$data['_lang'] = $classname;
         self::$data['_count'] = 0;
-        $items = self::allsearch(
+        $items = self::unisearch(
             $classname,
             $item
         );
@@ -1075,23 +1082,38 @@ class Route extends FOGBase
             break;
         case 'group':
             if (count($vars->snapins)) {
+                Route::ids('snapin');
+                $snapins = json_decode(
+                    Route::getData(),
+                    true
+                );
                 $class
                     ->removeSnapin(
-                        self::getSubObjectIDs('Snapin')
+                        $snapins
                     )
                     ->addSnapin($vars->snapins);
             }
             if (count($vars->printers)) {
+                Route::ids('printer');
+                $printers = json_decode(
+                    Route::getData(),
+                    true
+                );
                 $class
                     ->removePrinter(
-                        self::getSubObjectIDs('Printer')
+                        $printers
                     )
                     ->addPrinter($vars->printers);
             }
             if (count($vars->modules)) {
+                Route::ids('module');
+                $modules = json_decode(
+                    Route::getData(),
+                    true
+                );
                 $class
                     ->removeModule(
-                        self::getSubObjectIDs('Module')
+                        $modules
                     )
                     ->addModule($vars->modules);
             }
@@ -1162,7 +1184,11 @@ class Route extends FOGBase
                 HTTPResponseCodes::HTTP_NOT_FOUND
             );
         }
-        $tids = self::getSubObjectIDs('TaskType');
+        Route::ids('tasktype');
+        $tids = json_decode(
+            Route::getData(),
+            true
+        );
         $task = json_decode(
             file_get_contents('php://input')
         );
@@ -2038,9 +2064,13 @@ class Route extends FOGBase
             $ids = [];
             foreach ($vars->names as &$name) {
                 $exists = $classman->exists($name);
-                $id = self::getSubObjectIDs(
+                Route::ids(
                     $classname,
                     ['name' => $name]
+                );
+                $id = json_decode(
+                    Route::getData(),
+                    true
                 );
                 if ($exists) {
                     foreach ($id as &$i) {
