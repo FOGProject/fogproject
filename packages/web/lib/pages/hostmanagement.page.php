@@ -778,7 +778,7 @@ class HostManagement extends FOGPage
                 ->set('efiexit', $efiBootTypeExit)
                 ->set('productKey', $productKey)
                 ->set('enforce', $enforce)
-                ->addModule($ModuleIDs)
+                ->set('modules', $ModuleIDs)
                 ->addPriMAC($MAC)
                 ->setAD(
                     $useAD,
@@ -2318,6 +2318,18 @@ class HostManagement extends FOGPage
             );
             $disablemodules = $disablemodules['disablemodules'];
             $this->obj->removeModule($disablemodules);
+        }
+        if (isset($_POST['updatemodulessel'])) {
+            $enablemodules = filter_input_array(
+                INPUT_POST,
+                [
+                    'enablemodules' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $enablemodules = $enablemodules['enablemodules'];
+            $this->obj->set('modules', $enablemodules);
         }
         if (isset($_POST['dispmansend'])) {
             $x = filter_input(INPUT_POST, 'x');

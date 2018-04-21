@@ -1067,9 +1067,7 @@ class Route extends FOGBase
                     ->addPrinter($vars->printers);
             }
             if (count($vars->modules)) {
-                $class
-                    ->removeModule($class->get('modules'))
-                    ->addModule($vars->modules);
+                $class->set('modules', $vars->modules);
             }
             if (count($vars->groups)) {
                 $class
@@ -1285,8 +1283,7 @@ class Route extends FOGBase
                     ->addPrinter($vars->printers);
             }
             if (count($vars->modules)) {
-                $class
-                    ->addModule($vars->modules);
+                $class->set('modules', $vars->modules);
             }
             if (count($vars->groups)) {
                 $class
@@ -2005,7 +2002,7 @@ class Route extends FOGBase
                         $c->addPrinter($vars->printers);
                     }
                     if (count($vars->modules)) {
-                        $c->addModule($vars->modules);
+                        $c->addModules($vars->modules);
                     }
                     if (count($vars->groups)) {
                         $c->addGroup($vars->groups);
