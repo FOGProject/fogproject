@@ -59,7 +59,7 @@ class TaskType extends FOGController
         self::NORMAL_WIPE,
         self::FULL_WIPE
     ];
-    const CAPTURETAKSS = [
+    const CAPTURETASKS = [
         self::CAPTURE,
         self::CAPTURE_DEBUG
     ];

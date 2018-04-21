@@ -22,15 +22,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-$count = FOGCore::getClass('PluginManager')
-    ->count(
-        [
-            'installed' => 1,
-            'state' => 1,
-            'name' => 'location',
-        ]
-    );
-if ($count > 0) {
+if (in_array('location', FOGCore::$pluginsinstalled)) {
     echo '##';
 }
 exit;

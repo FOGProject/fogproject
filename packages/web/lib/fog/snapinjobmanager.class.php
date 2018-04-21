@@ -84,10 +84,11 @@ class SnapinJobManager extends FOGManagerController
     {
         $findWhere = ['id' => (array) $snapinjobids];
         $cancelled = self::getCancelledState();
-        $snapintaskids = self::getSubObjectIDs(
-            'SnapinTask',
+        Route::ids(
+            'snapintask',
             ['jobID' => $snapinjobids]
         );
+        $snapintaskids = json_decode(Route::getData(), true);
         return self::getClass('SnapinTaskManager')
             ->cancel($snapintaskids);
     }

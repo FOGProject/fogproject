@@ -80,8 +80,6 @@ class Host extends FOGController
         'mac',
         'primac',
         'imagename',
-        'additionalMACs',
-        'pendingMACs',
         'groups',
         'hostscreen',
         'hostalo',
@@ -186,16 +184,6 @@ class Host extends FOGController
                 $value = $value->__toString();
             }
             break;
-        case 'additionalMACs':
-        case 'pendingMACs':
-            $newValue = array_map(
-                function (&$mac) {
-                    return new MACAddress($mac);
-                },
-                (array)$value
-            );
-            $value = (array)$newValue;
-            break;
         case 'snapinjob':
             if (!($value instanceof SnapinJob)) {
                 $value = new SnapinJob($value);
@@ -208,28 +196,6 @@ class Host extends FOGController
             break;
         }
         return parent::set($key, $value);
-    }
-    /**
-     * Add value to key (array)
-     *
-     * @param string $key   the key to add to
-     * @param mixed  $value the value to add
-     *
-     * @throws Exception
-     * @return object
-     */
-    public function add($key, $value)
-    {
-        $key = $this->key($key);
-        switch ($key) {
-        case 'additionalMACs':
-        case 'pendingMACs':
-            if (!($value instanceof MACAddress)) {
-                $value = new MACAddress($value);
-            }
-            break;
-        }
-        return parent::add($key, $value);
     }
     /**
      * Removes the item from the database
@@ -284,29 +250,6 @@ class Host extends FOGController
         return parent::destroy($key);
     }
     /**
-     * Returns Valid MACs
-     *
-     * @param array $macs the array of macs
-     * @param array $arr  the array to define
-     *
-     * @return array
-     */
-    private static function _retValidMacs($macs, &$arr)
-    {
-        $addMacs = [];
-        foreach ((array)$macs as &$mac) {
-            if (!($mac instanceof MACAddress)) {
-                $mac = new MACAddress($mac);
-            }
-            if (!$mac->isValid()) {
-                continue;
-            }
-            $addMacs[] = $mac->__toString();
-            unset($mac);
-        }
-        return $arr = $addMacs;
-    }
-    /**
      * Stores data into the database
      *
      * @return bool|object
@@ -315,10 +258,12 @@ class Host extends FOGController
     {
         parent::save();
         if ($this->isLoaded('powermanagementtasks')) {
-            $DBPowerManagementIDs = self::getSubObjectIDs(
-                'PowerManagement',
-                ['hostID'=>$this->get('id')]
+            $find = ['hostID' => $this->get('id')];
+            Route::ids(
+                'powermanagement',
+                $find
             );
+            $DBPowerManagementIDs = json_decode(Route::getData(), true);
             $RemovePowerManagementIDs = array_diff(
                 (array)$DBPowerManagementIDs,
                 (array)$this->get('powermanagementtasks')
@@ -331,10 +276,11 @@ class Host extends FOGController
                             'id' => $RemovePowerManagementIDs
                         ]
                     );
-                $DBPowerManagementIDs = self::getSubObjectIDs(
-                    'PowerManagement',
-                    ['hostID' => $this->get('id')]
+                Route::ids(
+                    'powermanagement',
+                    $find
                 );
+                $DBPowerManagementIDs = json_decode(Route::getData(), true);
                 unset($RemovePowerManagementIDs);
             }
             $objNeeded = false;
@@ -430,26 +376,16 @@ class Host extends FOGController
             return;
         }
         if (!$this->get('hostscreen')->isValid()) {
+            $keys = [
+                'FOG_CLIENT_DISPLAYMANAGER_R',
+                'FOG_CLIENT_DISPLAYMANAGER_X',
+                'FOG_CLIENT_DISPLAYMANAGER_y'
+            ];
             list(
                 $refresh,
                 $width,
                 $height
-            ) = self::getSubObjectIDs(
-                'Service',
-                [
-                    'name' => [
-                        'FOG_CLIENT_DISPLAYMANAGER_R',
-                        'FOG_CLIENT_DISPLAYMANAGER_X',
-                        'FOG_CLIENT_DISPLAYMANAGER_Y'
-                    ]
-                ],
-                'value',
-                false,
-                'AND',
-                'name',
-                false,
-                false
-            );
+            ) = self::getSetting($keys);
         } else {
             $refresh = $this->get('hostscreen')->get('refresh');
             $width = $this->get('hostscreen')->get('width');
@@ -547,58 +483,20 @@ class Host extends FOGController
         $this->set('mac', $mac);
     }
     /**
-     * Loads any additional macs
-     *
-     * @return void
-     */
-    protected function loadAdditionalMACs()
-    {
-        $macs = self::getSubObjectIDs(
-            'MACAddressAssociation',
-            [
-                'hostID' => $this->get('id'),
-                'primary' => 0,
-                'pending' => 0,
-            ],
-            'mac'
-        );
-        $this->set('additionalMACs', $macs);
-    }
-    /**
-     * Loads any pending macs
-     *
-     * @return void
-     */
-    protected function loadPendingMACs()
-    {
-        $macs = self::getSubObjectIDs(
-            'MACAddressAssociation',
-            [
-                'hostID' => $this->get('id'),
-                'primary' => 0,
-                'pending' => 1,
-            ],
-            'mac'
-        );
-        $this->set('pendingMACs', $macs);
-    }
-    /**
      * Loads any groups this host is in
      *
      * @return void
      */
     protected function loadGroups()
     {
-        $groups = self::getSubObjectIDs(
-            'GroupAssociation',
-            ['hostID' => $this->get('id')],
+        $find = ['hostID' => $this->get('id')];
+        Route::ids(
+            'groupassociation',
+            $find,
             'groupID'
         );
-        $groups = self::getSubObjectIDs(
-            'Group',
-            ['id' => $groups]
-        );
-        $this->set('groups', $groups);
+        $groups = json_decode(Route::getData(), true);
+        $this->set('groups', (array)$groups);
     }
     /**
      * Loads any printers those host has
@@ -607,16 +505,14 @@ class Host extends FOGController
      */
     protected function loadPrinters()
     {
-        $printers = self::getSubObjectIDs(
-            'PrinterAssociation',
-            ['hostID' => $this->get('id')],
+        $find = ['hostID' => $this->get('id')];
+        Route::ids(
+            'printerassociation',
+            $find,
             'printerID'
         );
-        $printers = self::getSubObjectIDs(
-            'Printer',
-            ['id' => $printers]
-        );
-        $this->set('printers', $printers);
+        $printers = json_decode(Route::getData(), true);
+        $this->set('printers', (array)$printers);
     }
     /**
      * Loads any snapins this host has
@@ -625,16 +521,14 @@ class Host extends FOGController
      */
     protected function loadSnapins()
     {
-        $snapins = self::getSubObjectIDs(
-            'SnapinAssociation',
-            ['hostID' => $this->get('id')],
+        $find = ['hostID' => $this->get('id')];
+        Route::ids(
+            'snapinassociation',
+            $find,
             'snapinID'
         );
-        $snapins = self::getSubObjectIDs(
-            'Snapin',
-            ['id' => $snapins]
-        );
-        $this->set('snapins', $snapins);
+        $snapins = json_decode(Route::getData(), true);
+        $this->set('snapins', (array)$groups);
     }
     /**
      * Loads any modules this host has
@@ -643,16 +537,14 @@ class Host extends FOGController
      */
     protected function loadModules()
     {
-        $modules = self::getSubObjectIDs(
-            'ModuleAssociation',
-            ['hostID' => $this->get('id')],
+        $find = ['hostID' => $this->get('id')];
+        Route::ids(
+            'moduleassociation',
+            $find,
             'moduleID'
         );
-        $modules = self::getSubObjectIDs(
-            'Module',
-            ['id' => $modules]
-        );
-        $this->set('modules', $modules);
+        $modules = json_decode(Route::getData(), true);
+        $this->set('modules', (array)$modules);
     }
     /**
      * Loads any powermanagement tasks this host has
@@ -661,11 +553,13 @@ class Host extends FOGController
      */
     protected function loadPowermanagementtasks()
     {
-        $pms = self::getSubObjectIDs(
-            'PowerManagement',
-            ['hostID' => $this->get('id')]
+        $find = ['hostID' => $this->get('id')];
+        Route::ids(
+            'powermanagement',
+            $find
         );
-        $this->set('powermanagementtasks', $pms);
+        $pms = json_decode(Route::getData(), true);
+        $this->set('powermanagementtasks', (array)$pms);
     }
     /**
      * Loads any users have logged in
@@ -674,11 +568,13 @@ class Host extends FOGController
      */
     protected function loadUsers()
     {
-        $users = self::getSubObjectIDs(
-            'UserTracking',
-            ['hostID' => $this->get('id')]
+        $find = ['hostID' => $this->get('id')];
+        Route::ids(
+            'usertracking',
+            $find
         );
-        $this->set('users', $users);
+        $users = json_decode(Route::getData(), true);
+        $this->set('users', (array)$users);
     }
     /**
      * Loads the current snapin job
@@ -687,18 +583,18 @@ class Host extends FOGController
      */
     protected function loadSnapinjob()
     {
-        $sjID = self::getSubObjectIDs(
-            'SnapinJob',
-            [
-                'stateID' => self::fastmerge(
-                    self::getQueuedStates(),
-                    (array)self::getProgressState()
-                ),
-                'hostID' => $this->get('id')
-            ]
+        $find = ['hostID' => $this->get('id')];
+        $find['stateID'] = self::fastmerge(
+            self::getQueuedStates(),
+            (array)self::getProgressState()
         );
-        $SnapinJob = new SnapinJob(@min($sjID));
-        $this->set('snapinjob', $SnapinJob);
+        Route::ids(
+            'snapinjob',
+            $find
+        );
+        $snapinjobs = json_decode(Route::getData(), true);
+        $sjID = array_shift($snapinjobs);
+        $this->set('snapinjob', new SnapinJob($sjID));
     }
     /**
      * Loads the current task
@@ -723,21 +619,16 @@ class Host extends FOGController
         $type = trim($type);
         if (in_array($type, $types)) {
             if ($type === 'up') {
-                $find['typeID'] = [2, 16];
+                $find['typeID'] = TaskType::CAPTURETASKS;
             } else {
-                $find['typeID'] = [
-                    1,
-                    8,
-                    15,
-                    17,
-                    24
-                ];
+                $find['typeID'] = TaskType::DEPLOYTASKS;
             }
         }
-        $taskID = self::getSubObjectIDs(
-            'Task',
+        Route::ids(
+            'task',
             $find
         );
+        $taskID = json_decode(Route::getData(), true);
         $taskID = array_shift($taskID);
         $this->set('task', $taskID);
         unset($find);
@@ -847,16 +738,18 @@ class Host extends FOGController
      */
     private function _cancelJobsSnapinsForHost()
     {
-        $SnapinJobs = self::getSubObjectIDs(
-            'SnapinJob',
-            [
-                'hostID' => $this->get('id'),
-                'stateID' => self::fastmerge(
-                    self::getQueuedStates(),
-                    (array)self::getProgressState()
-                )
-            ]
+        $find = [
+            'hostID' => $this->get('id'),
+            'stateID' => self::fastmerge(
+                self::getQueuedStates(),
+                (array)self::getProgressState()
+            )
+        ];
+        Route::ids(
+            'snapinjob',
+            $find
         );
+        $SnapinJobs = json_decode(Route::getData(), true);
         self::getClass('SnapinTaskManager')
             ->update(
                 [
@@ -879,16 +772,11 @@ class Host extends FOGController
                 '',
                 ['stateID' => self::getCancelledState()]
             );
-        $AllTasks = self::getSubObjectIDs(
-            'Task',
-            [
-                'stateID' => self::fastmerge(
-                    self::getQueuedStates(),
-                    (array)self::getProgressState()
-                ),
-                'hostID' => $this->get('id')
-            ]
+        Route::ids(
+            'task',
+            $find
         );
+        $AllTasks = json_decode(Route::getData(), true);
         $MyTask = $this->get('task')->get('id');
         self::getClass('TaskManager')
             ->update(
@@ -1003,17 +891,19 @@ class Host extends FOGController
                     throw new Exception(self::$foglang['InTask']);
                 } elseif ($Task->isSnapinTasking()) {
                     if ($TaskType->get('id') == '13') {
-                        $currSnapins = self::getSubObjectIDs(
-                            'SnapinTask',
-                            [
-                                'jobID' => $this->get('snapinjob')->get('id'),
-                                'stateID' => self::fastmerge(
-                                    (array)$this->getQueuedStates(),
-                                    (array)$this->getProgressState()
-                                ),
-                            ],
+                        $find = [
+                            'jobID' => $this->get('snapinjob')->get('id'),
+                            'stateID' => self::fastmerge(
+                                $this->getQueuedStates(),
+                                (array)$this->getProgressState()
+                            )
+                        ];
+                        Route::ids(
+                            'snapintask',
+                            $find,
                             'snapinID'
                         );
+                        $currSnapins = json_decode(Route::getData(), true);
                         if (!in_array($deploySnapins, $currSnapins)) {
                             $Task
                                 ->set(
@@ -1070,15 +960,17 @@ class Host extends FOGController
                     throw new Exception($msg);
                 }
                 $imageTaskImgID = $this->get('imageID');
-                $hostsWithImgID = self::getSubObjectIDs(
-                    'Host',
+                Route::ids(
+                    'host',
                     ['imageID' => $imageTaskImgID]
                 );
-                $realImageID = self::getSubObjectIDs(
-                    'Host',
+                $hostsWithImgID = json_decode(Route::getData(), true);
+                Route::ids(
+                    'host',
                     ['id' => $this->get('id')],
                     'imageID'
                 );
+                $realImageID = json_decode(Route::getData(), true);
                 if (!in_array($this->get('id'), $hostsWithImgID)) {
                     $this->set(
                         'imageID',
@@ -1299,45 +1191,31 @@ class Host extends FOGController
      * Adds additional macs
      *
      * @param array $addArray the macs to add
-     * @param bool  $pending  should it be added as a pending mac
      *
      * @return object
      */
-    public function addAddMAC($addArray, $pending = false)
+    public function addMAC($addArray)
     {
-        $addArray = array_map('strtolower', (array)$addArray);
+        if (!is_array($addArray)) {
+            $addArray = [$addArray];
+        }
+        $addArray = array_map('strtolower', $addArray);
         $addArray = self::parseMacList($addArray);
-        $addTo = $pending ? 'pendingMACs' : 'additionalMACs';
+        $insert_fields = ['hostID', 'mac'];
+        $insert_values = [];
         foreach ((array)$addArray as &$mac) {
-            $this->add($addTo, $mac);
+            $insert_values[] = [$this->get('id'), $mac];
             unset($mac);
         }
-        return $this;
-    }
-    /**
-     * Moves pending macs to additional macs
-     *
-     * @param array $addArray the macs to move
-     *
-     * @return object
-     */
-    public function addPendtoAdd($addArray = false)
-    {
-        $lowerAndTrim = function (&$MAC) {
-            return trim(strtolower($MAC));
-        };
-        $PendMACs = array_map($lowerAndTrim, (array)$this->get('pendingMACs'));
-        $MACs = array_map($lowerAndTrim, (array)$addArray);
-        if ($addArray === false) {
-            $matched = array_intersect(
-                (array)$PendMACs,
-                (array)$MACs
-            );
-        } else {
-            $matched = $PendMACs;
+        if (count($insert_values) > 0) {
+            self::getClass('MACAddressAssociationManager')
+                ->insertBatch(
+                    $insert_fields,
+                    $insert_values
+                );
         }
-        unset($MACs, $PendMACs);
-        return $this->addAddMAC($matched)->removePendMAC($matched);
+
+        return $this;
     }
     /**
      * Removes additional macs
@@ -1346,39 +1224,15 @@ class Host extends FOGController
      *
      * @return object
      */
-    public function removeAddMAC($removeArray)
+    public function removeMAC($removeArray)
     {
-        foreach ((array)$removeArray as &$mac) {
-            if (!$mac instanceof MACAddress) {
-                $mac = new MACAddress($mac);
-            }
-            if (!$mac->isValid()) {
-                continue;
-            }
-            $this->remove('additionalMACs', $mac);
-            unset($mac);
-        }
-        return $this;
-    }
-    /**
-     * Removes pending macs
-     *
-     * @param array $removeArray the macs to remove
-     *
-     * @return object
-     */
-    public function removePendMAC($removeArray)
-    {
-        foreach ((array)$removeArray as &$mac) {
-            if (!$mac instanceof MACAddress) {
-                $mac = new MACAddress($mac);
-            }
-            if (!$mac->isValid()) {
-                continue;
-            }
-            $this->remove('pendingMACs', $mac);
-            unset($mac);
-        }
+        self::getClass('MACAddressAssociationManager')
+            ->destroy(
+                [
+                    'hostID' => $this->get('id'),
+                    'mac' => (array)$removeArray
+                ]
+            );
         return $this;
     }
     /**
@@ -1398,6 +1252,10 @@ class Host extends FOGController
         if (is_array($mac) && $count > 0) {
             $mac = array_shift($mac);
         }
+        self::getClass('MACAddressAssociation')
+            ->set('mac', $mac)
+            ->set('primary', '1')
+            ->save();
         return $this->set('mac', $mac);
     }
     /**
@@ -1409,7 +1267,26 @@ class Host extends FOGController
      */
     public function addPendMAC($mac)
     {
-        return $this->addAddMAC($mac, true);
+        if (!is_array($mac)) {
+            $mac = [$mac];
+        }
+        $mac = array_map('strtolower', $mac);
+        $mac = self::parseMacList($mac);
+        $insert_fields = ['hostID', 'mac', 'pending'];
+        $insert_values = [];
+        foreach ((array)$mac as &$m) {
+            $insert_values[] = [$this->get('id'), $m, '1'];
+            unset($m);
+        }
+        if (count($insert_values) > 0) {
+            self::getClass('MACAddressAssociationManager')
+                ->insertBatch(
+                    $insert_fields,
+                    $insert_values
+                );
+        }
+
+        return $this;
     }
     /**
      * Adds printers to the host

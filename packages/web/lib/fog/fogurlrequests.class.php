@@ -104,26 +104,16 @@ class FOGURLRequests extends FOGBase
     public function __construct($callback = null)
     {
         parent::__construct();
+        $keys = [
+            'FOG_URL_AVAILABLE_TIMEOUT',
+            'FOG_URL_BASE_CONNECT_TIMEOUT',
+            'FOG_URL_BASE_TIMEOUT'
+        ];
         list(
             $aconntimeout,
             $conntimeout,
             $timeout
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'FOG_URL_AVAILABLE_TIMEOUT',
-                    'FOG_URL_BASE_CONNECT_TIMEOUT',
-                    'FOG_URL_BASE_TIMEOUT'
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($keys);
         if ($aconntimeout
             && is_numeric($aconntimeout)
             && $aconntimeout > 0
@@ -482,24 +472,24 @@ class FOGURLRequests extends FOGBase
             $options[CURLOPT_HEADER] = true;
             $options[CURLOPT_NOSIGNAL] = true;
         }
-        list($ip, $password, $port, $username) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'FOG_PROXY_IP',
-                    'FOG_PROXY_PASSWORD',
-                    'FOG_PROXY_PORT',
-                    'FOG_PROXY_USERNAME',
-                ],
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            false
+        $keys = [
+            'FOG_PROXY_IP',
+            'FOG_PROXY_PASSWORD',
+            'FOG_PROXY_PORT',
+            'FOG_PROXY_USERNAME'
+        ];
+        list(
+            $ip,
+            $password,
+            $port,
+            $username
+        ) = self::getSetting($keys);
+        Route::ids(
+            'storagenode',
+            ['isEnabled' => [1]],
+            'ip'
         );
-        $IPs = self::getSubObjectIDs('StorageNode', ['isEnabled' => 1]);
+        $IPs = json_decode(Route::getData(), true);
         $pat = sprintf(
             '#%s#i',
             implode('|', $IPs)

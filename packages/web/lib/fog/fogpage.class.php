@@ -1565,16 +1565,7 @@ abstract class FOGPage extends FOGBase
             $ou,
             $password,
             $user
-        ) = self::getSubObjectIDs(
-            'Service',
-            ['name' => $names],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($names);
         http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         echo json_encode(
             [
@@ -1672,26 +1663,16 @@ abstract class FOGPage extends FOGBase
                         $destfile,
                         self::formatTime('', 'Ymd_His')
                     );
+                    $keys = [
+                        'FOG_TFTP_FTP_PASSWORD',
+                        'FOG_TFTP_FTP_USERNAME',
+                        'FOG_TFTP_HOST'
+                    ];
                     list(
                         $tftpPass,
                         $tftpUser,
                         $tftpHost
-                    ) = self::getSubObjectIDs(
-                        'Service',
-                        [
-                            'name' => [
-                                'FOG_TFTP_FTP_PASSWORD',
-                                'FOG_TFTP_FTP_USERNAME',
-                                'FOG_TFTP_HOST'
-                            ]
-                        ],
-                        'value',
-                        false,
-                        'AND',
-                        'name',
-                        false,
-                        ''
-                    );
+                    ) = self::getSetting($keys);
                     self::$FOGFTP->username = $tftpUser;
                     self::$FOGFTP->password = $tftpPass;
                     self::$FOGFTP->host = $tftpHost;
@@ -1830,23 +1811,13 @@ abstract class FOGPage extends FOGBase
      */
     public function configure()
     {
-        $Services = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'FOG_CLIENT_CHECKIN_TIME',
-                    'FOG_CLIENT_MAXSIZE',
-                    'FOG_GRACE_TIMEOUT',
-                    'FOG_TASK_FORCE_REBOOT'
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        $keys = [
+            'FOG_CLIENT_CHECKIN_TIME',
+            'FOG_CLIENT_MAXSIZE',
+            'FOG_GRACE_TIMEOUT',
+            'FOG_TASK_FORCE_REBOOT'
+        ];
+        $Services = self::getSetting($keys);
         printf(
             "#!ok\n"
             . "#sleep=%d\n"
@@ -1974,6 +1945,16 @@ abstract class FOGPage extends FOGBase
         if (isset($_POST['configure'])
             || isset($_GET['configure'])
         ) {
+            $keys = [
+                'FOG_CLIENT_BANNER_IMAGE',
+                'FOG_CLIENT_BANNER_SHA',
+                'FOG_CLIENT_CHECKIN_TIME',
+                'FOG_CLIENT_MAXSIZE',
+                'FOG_COMPANY_COLOR',
+                'FOG_COMPANY_NAME',
+                'FOG_GRACE_TIMEOUT',
+                'FOG_TASK_FORCE_REBOOT'
+            ];
             list(
                 $bannerimg,
                 $bannersha,
@@ -1983,27 +1964,7 @@ abstract class FOGPage extends FOGBase
                 $coname,
                 $timeout,
                 $freboot
-            ) = self::getSubObjectIDs(
-                'Service',
-                [
-                    'name' => [
-                        'FOG_CLIENT_BANNER_IMAGE',
-                        'FOG_CLIENT_BANNER_SHA',
-                        'FOG_CLIENT_CHECKIN_TIME',
-                        'FOG_CLIENT_MAXSIZE',
-                        'FOG_COMPANY_COLOR',
-                        'FOG_COMPANY_NAME',
-                        'FOG_GRACE_TIMEOUT',
-                        'FOG_TASK_FORCE_REBOOT'
-                    ]
-                ],
-                'value',
-                false,
-                'AND',
-                'name',
-                false,
-                ''
-            );
+            ) = self::getSetting($keys);
             $vals = [
                 'sleep' => $checkin + mt_rand(1, 91),
                 'maxsize' => $maxsize,
@@ -2067,11 +2028,12 @@ abstract class FOGPage extends FOGBase
                 false,
                 self::$newService || self::$json
             );
-            $hostModules = self::getSubObjectIDs(
-                'Module',
+            Route::ids(
+                'module',
                 ['id' => self::$Host->get('modules')],
                 'shortName'
             );
+            $hostModules = json_decode(Route::getData(), true);
             $hostEnabled = array_diff(
                 (array)$hostModules,
                 (array)$igMods
@@ -2453,10 +2415,11 @@ abstract class FOGPage extends FOGBase
                 $iterator = 1;
             }
             $ItemMan = $Item->getManager();
-            $modules = self::getSubObjectIDs(
-                'Module',
-                ['isDefault' => 1]
+            Route::ids(
+                'module',
+                ['isDefault' => [1]]
             );
+            $modules = json_decode(Route::getData(), true);
             $totalRows = 0;
             while (($data = fgetcsv($fh, 1000, ',')) !== false) {
                 $importCount = count($data ?: []);
@@ -2513,7 +2476,7 @@ abstract class FOGPage extends FOGBase
                         $Item
                             ->addModule($modules)
                             ->addPriMAC($primac)
-                            ->addAddMAC($macs);
+                            ->addMAC($macs);
                     }
                     if ($Item->save()) {
                         $Item->load();

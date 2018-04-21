@@ -373,26 +373,16 @@ class User extends FOGController
             return false;
         }
         if (!$this->_checkedalready) {
+            $keys = [
+                'FOG_ALWAYS_LOGGED_IN',
+                'FOG_INACTIVITY_TIMEOUT',
+                'FOG_REGENERATE_TIMEOUT'
+            ];
             list(
                 $this->_alwaysloggedin,
                 $this->_inactivitySessionTimeout,
                 $this->_regenerateSessionTimeout,
-            ) = self::getSubObjectIDs(
-                'Service',
-                [
-                    'name' => [
-                        'FOG_ALWAYS_LOGGED_IN',
-                        'FOG_INACTIVITY_TIMEOUT',
-                        'FOG_REGENERATE_TIMEOUT',
-                    ]
-                ],
-                'value',
-                false,
-                'AND',
-                'name',
-                false,
-                ''
-            );
+            ) = self::getSetting($keys);
             $this->_checkedalready = true;
         }
         if (session_status() != PHP_SESSION_NONE) {

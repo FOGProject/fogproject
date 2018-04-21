@@ -1124,7 +1124,8 @@ abstract class FOGController extends FOGBase
                 $tmpAssoc = $assocItem;
                 $assocItem = $alterItem;
             }
-            $AllIDs = self::getSubObjectIDs($alterItem);
+            Route::ids($alterItem);
+            $AllIDs = json_decode(Route::getData(), true);
             $DBIDs = $this->get($plural);
             if ($tmpAssoc) {
                 $assocItem = $tmpAssoc;
@@ -1135,7 +1136,8 @@ abstract class FOGController extends FOGBase
                 (array)$DBIDs
             );
         } else {
-            $RemIDs = self::getSubObjectIDs($assoc);
+            Route::ids($assoc);
+            $RemIDs = json_decode(Route::getData(), true);
         }
         $RemIDs = array_values(
             array_filter($RemIDs)

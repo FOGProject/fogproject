@@ -103,14 +103,13 @@ class StorageGroup extends FOGController
      */
     protected function loadAllnodes()
     {
-        $this->set(
-            'allnodes',
-            self::getSubObjectIDs(
-                'StorageNode',
-                ['storagegroupID' => $this->get('id')],
-                'id'
-            )
+        $find = ['storagegroupID' => $this->get('id')];
+        Route::ids(
+            'storagenode',
+            $find
         );
+        $allnodes = json_decode(Route::getData(), true);
+        $this->set('allnodes', (array)$allnodes);
     }
     /**
      * Loads the enabled nodes in the group
@@ -198,16 +197,14 @@ class StorageGroup extends FOGController
      */
     public function getTotalSupportedClients()
     {
-        return self::getSubObjectIDs(
-            'StorageNode',
-            ['id' => $this->get('enablednodes')],
-            'maxClients',
-            false,
-            'AND',
-            'name',
-            false,
-            'array_sum'
+        $find = ['id' => $this->get('enablednodes')];
+        Route::ids(
+            'storagenode',
+            $find,
+            'maxClients'
         );
+        $maxClients = json_decode(Route::getData(), true);
+        return array_sum($maxClients);
     }
     /**
      * Get's the groups master storage node

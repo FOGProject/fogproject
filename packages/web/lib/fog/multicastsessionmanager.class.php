@@ -41,11 +41,12 @@ class MulticastSessionManager extends FOGManagerController
         /**
          * Get sessions's associated task IDs (if any)
          */
-        $taskIDs = self::getSubObjectIDs(
-            'MulticastSessionAssociation',
+        Route::ids(
+            'multicastsessionassociation',
             ['msID' => $multicastsessionids],
             'taskID'
         );
+        $taskIDs = json_decode(Route::getData(), true);
         /**
          * Set tasks to cancelled as the main session was cancelled.
          */

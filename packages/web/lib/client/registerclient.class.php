@@ -54,7 +54,16 @@ class RegisterClient extends FOGClient
             $maxPending
         ) = self::getSetting($keys);
         $hostname = trim($_REQUEST['hostname']);
-        $pendingMACcount = count(self::$Host->get('pendingMACs'));
+        $find = [
+            'hostID' => self::$Host->get('id'),
+            'pending' => [1]
+        ];
+        Route::ids(
+            'macaddressassociation',
+            $find,
+            'mac'
+        );
+        $pendingMACcount = count(json_decode(Route::getData(), true));
         if (!self::$Host->isValid()) {
             self::$Host = self::getClass(
                 'Host',
@@ -88,7 +97,7 @@ class RegisterClient extends FOGClient
                     ->set('enforce', (string)$enforce)
                     ->addModule($modules)
                     ->addPriMAC($PriMAC)
-                    ->addAddMAC($MACs);
+                    ->addMAC($MACs);
                 if (!self::$Host->save()) {
                     return ['error' => 'db'];
                 }

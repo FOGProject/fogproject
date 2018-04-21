@@ -39,11 +39,12 @@ class TaskManager extends FOGManagerController
             'id' => (array)$taskids,
             'stateID' => $notComplete
         ];
-        $hostIDs = self::getSubObjectIDs(
-            'Task',
+        Route::ids(
+            'task',
             $findWhere,
             'hostID'
         );
+        $hostIDs = json_decode(Route::getData(), true);
         $this->update(
             $findWhere,
             '',
@@ -53,35 +54,41 @@ class TaskManager extends FOGManagerController
             'hostID' => $hostIDs,
             'stateID' => $notComplete
         ];
-        $SnapinJobIDs = self::getSubObjectIDs(
-            'SnapinJob',
+        Route::ids(
+            'snapinjob',
             $findWhere
         );
+        $SnapinJobIDs = json_decode(Route::getData(), true);
         $findWhere = [
             'stateID' => $notComplete,
             'jobID' => $SnapinJobIDs
         ];
-        $SnapinTaskIDs = self::getSubObjectIDs(
-            'SnapinTask',
+        Route::ids(
+            'snapintask',
             $findWhere
         );
+        $SnapinTaskIDs = json_decode(Route::getData(), true);
         $findWhere = ['taskID' => $taskids];
-        $MulticastSessionAssocIDs = self::getSubObjectIDs(
-            'MulticastSessionAssociation',
+        Route::ids(
+            'multicastsessionassociation',
             $findWhere
         );
-        $MulticastSessionIDs = self::getSubObjectIDs(
-            'MulticastSessionAssociation',
+        $MulticastSessionAssocIDs = json_decode(Route::getData(), true);
+        Route::ids(
+            'multicastsessionassociation',
             $findWhere,
             'msID'
         );
-        $MulticastSessionIDs = self::getSubObjectIDs(
-            'MulticastSession',
-            [
-                'stateID' => $notComplete,
-                'id' => $MulticastSessionIDs
-            ]
+        $MulticastSessionIDs = json_decode(Route::getData(), true);
+        $findNew = [
+            'stateID' => $notComplete,
+            'id' => $MulticastSessionIDs
+        ];
+        Route::ids(
+            'multicastsession',
+            $findNew
         );
+        $MulticastSessionIDs = json_decode(Route::getData(), true);
         if (count($MulticastSessionAssocIDs) > 0) {
             self::getClass('MulticastSessionAssociationManager')
                 ->destroy(['id' => $MulticastSessionAssocIDs]);
