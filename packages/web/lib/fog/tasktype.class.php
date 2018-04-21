@@ -40,6 +40,29 @@ class TaskType extends FOGController
     const FAST_WIPE = 18;
     const NORMAL_WIPE = 19;
     const FULL_WIPE = 20;
+    const DEBUGTASKS = [
+        self::DEBUG,
+        self::DEPLOY_DEBUG,
+        self::CAPTURE_DEBUG
+    ];
+    const SNAPINTASKS = [
+        self::ALL_SNAPINS,
+        self::SINGLE_SNAPIN
+    ];
+    const DEPLOYTASKS = [
+        self::DEPLOY,
+        self::DEPLOY_DEBUG,
+        self::DEPLOY_NO_SNAPINS
+    ];
+    const WIPETASKS = [
+        self::FAST_WIPE,
+        self::NORMAL_WIPE,
+        self::FULL_WIPE
+    ];
+    const CAPTURETAKSS = [
+        self::CAPTURE,
+        self::CAPTURE_DEBUG
+    ];
 
     /**
      * The database table for task type.

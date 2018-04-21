@@ -132,16 +132,15 @@ class Image extends FOGController
     {
         parent::save();
         if ($this->isLoaded('hosts')) {
+            Route::ids(
+                'host',
+                ['imageID' => $this->get('id')]
+            );
+            $ids = json_decode(Route::getData(), true);
             if (count($this->get('hosts')) > 0) {
-                $DBIDs = self::getSubObjectIDs(
-                    'Host',
-                    ['imageID' => $this->get('id')]
-                );
+                $DBIDs = $ids;
             } else {
-                $RemIDs = self::getSubObjectIDs(
-                    'Host',
-                    ['imageID' => $this->get('id')]
-                );
+                $RemIDs = $ids;
             }
             if (!isset($RemIDs)) {
                 $DBCount = count($DBIDs);
@@ -177,14 +176,16 @@ class Image extends FOGController
                     ['imageID' => $this->get('id')]
                 );
         }
-        $primary = self::getSubObjectIDs(
-            'ImageAssociation',
-            [
-                'imageID' => $this->get('id'),
-                'primary' => 1
-            ],
+        $find = [
+            'imageID' => $this->get('id'),
+            'primary' => 1
+        ];
+        Route::ids(
+            'imageassociation',
+            $find,
             'storagegroupID'
         );
+        $primary = json_decode(Route::getData(), true);
         $this->assocSetter('Image', 'storagegroup');
         if (count($primary) > 0) {
             $primary = array_shift($primary);
@@ -246,11 +247,13 @@ class Image extends FOGController
      */
     protected function loadHosts()
     {
-        $hostids = self::getSubObjectIDs(
-            'Host',
-            ['imageID' => $this->get('id')]
+        $find = ['imageID' => $this->get('id')];
+        Route::ids(
+            'host',
+            $find
         );
-        $this->set('hosts', $hostids);
+        $hosts = json_decode(Route::getData(), true);
+        $this->set('hosts', (array)$hosts);
     }
     /**
      * Add hosts to image object
@@ -289,21 +292,19 @@ class Image extends FOGController
      */
     protected function loadStoragegroups()
     {
-        $groupids = self::getSubObjectIDs(
-            'ImageAssociation',
-            ['imageID' => $this->get('id')],
+        $find = ['imageID' => $this->get('id')];
+        Route::ids(
+            'imageassociation',
+            $find,
             'storagegroupID'
         );
-        $groupids = self::getSubObjectIDs(
-            'StorageGroup',
-            ['id' => $groupids]
-        );
-        $groupids = array_filter($groupids);
-        if (count($groupids) < 1) {
-            $groupids = self::getSubObjectIDs('StorageGroup');
-            $groupids = @min($groupids);
+        $groups = json_decode(Route::getData(), true);
+        if (count($groups) < 1) {
+            Route::ids('storagegroup');
+            $groups = json_decode(Route::getData(), true);
+            $groups = [@min($groups)];
         }
-        $this->set('storagegroups', $groupids);
+        $this->set('storagegroups', $groups);
     }
     /**
      * Adds groups to this object
@@ -346,14 +347,15 @@ class Image extends FOGController
         $groupids = $this->get('storagegroups');
         $count = count($groupids);
         if ($count < 1) {
-            $groupids = self::getSubObjectIDs('StorageGroup');
-            $groupids = @min($groupids);
-            if ($groupids < 1) {
+            Route::ids('storagegroup');
+            $groupids = json_decode(Route::getData(), true);
+            $groupids = [@min($groupids)];
+            if (count($groupids) < 1) {
                 throw new Exception(_('No viable storage groups found'));
             }
         }
         $primaryGroup = [];
-        foreach ((array)$groupids as &$groupid) {
+        foreach ($groupids as &$groupid) {
             if (!self::getPrimaryGroup($groupid, $this->get('id'))) {
                 continue;
             }
@@ -361,7 +363,7 @@ class Image extends FOGController
             unset($groupid);
         }
         if (count($primaryGroup) < 1) {
-            $primaryGroup = @min((array) $groupids);
+            $primaryGroup = @min($groupids);
         } else {
             $primaryGroup = array_shift($primaryGroup);
         }
@@ -423,23 +425,24 @@ class Image extends FOGController
             );
         if ($primaryCount < 1) {
             $primaryCount = self::getClass('ImageAssociationManager')
-                ->count(
-                    ['imageID' => $imageID]
-                );
+                ->count(['imageID' => $imageID]);
         }
         if ($primaryCount < 1) {
-            $groupid = self::getSubObjectIDs('StorageGroup');
+            Route::ids('storagegroup');
+            $groupid = json_decode(Route::getData(), true);
             $groupid = @min($groupid);
             self::setPrimaryGroup($groupid, $imageID);
         }
-        $assocID = self::getSubObjectIDs(
-            'ImageAssociation',
-            [
-                'storagegroupID' => $groupID,
-                'imageID' => $imageID
-            ]
+        $find = [
+            'storagegroupID' => $groupID,
+            'imageID' => $imageID
+        ];
+        Route::ids(
+            'imageassociation',
+            $find
         );
-        $assocID = @min((array) $assocID);
+        $assocID = json_decode(Route::getData(), true);
+        $assocID = @min($assocID);
 
         return self::getClass('ImageAssociation', $assocID)->isPrimary();
     }
@@ -453,14 +456,16 @@ class Image extends FOGController
      */
     public static function setPrimaryGroup($groupID, $imageID)
     {
-        $exists = self::getSubObjectIDs(
-            'ImageAssociation',
-            [
-                'imageID' => $imageID,
-                'storagegroupID' => $groupID
-            ],
+        $find = [
+            'storagegroupID' => $groupID,
+            'imageID' => $imageID
+        ];
+        Route::ids(
+            'imageassociation',
+            $find,
             'storagegroupID'
         );
+        $exists = json_decode(Route::getData(), true);
         if (count($exists) < 1) {
             self::getClass('ImageAssociation')
                 ->set('imageID', $imageID)

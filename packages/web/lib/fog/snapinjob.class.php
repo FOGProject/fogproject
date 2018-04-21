@@ -81,11 +81,13 @@ class SnapinJob extends FOGController
      */
     protected function loadSnapintasks()
     {
-        $snapintasks = self::getSubObjectIDs(
-            'SnapinTask',
-            ['jobID' => $this->get('id')]
+        $find = ['jobID' => $this->get('id')];
+        Route::ids(
+            'snapintask',
+            $find
         );
-        $this->set('snapintasks', $snapintasks);
+        $snapintasks = json_decode(Route::getData(), true);
+        $this->set('snapintasks', (array)$snapintasks);
     }
     /**
      * Cancel's the current job.

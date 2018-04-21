@@ -184,27 +184,27 @@ class HostManager extends FOGManagerController
     public function getHostByMacAddresses($macs)
     {
         self::$Host = new Host();
-        $MACHost = self::getSubObjectIDs(
-            'MACAddressAssociation',
-            [
-                'pending' => [0, ''],
-                'mac' => $macs,
-            ],
+        $find = [
+            'pending' => [0, ''],
+            'mac' => $macs
+        ];
+        Route::ids(
+            'macaddressassociation',
+            $find,
             'hostID'
         );
+        $MACHost = json_decode(Route::getData(), true);
         if (count($MACHost) < 1) {
             return;
         }
         if (count($MACHost) > 1) {
-            $MACHost = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                [
-                    'pending' => [0, ''],
-                    'primary' => 1,
-                    'mac' => $macs
-                ],
+            $find['primary'] = 1;
+            Route::ids(
+                'macaddressassociation',
+                $find,
                 'hostID'
             );
+            $MACHost = json_decode(Route::getData(), true);
             if (count($MACHost) > 1) {
                 throw new Exception(self::$foglang['ErrorMultipleHosts']);
             }
@@ -246,12 +246,11 @@ class HostManager extends FOGManagerController
         /**
          * Get the snapin job ids associated.
          */
-        $SnapinJobIDs = [
-            'jobID' => self::getSubObjectIDs(
-                'SnapinJob',
-                $findWhere
-            ),
-        ];
+        Route::ids(
+            'snapinjob',
+            $findWhere
+        );
+        $SnapinJobIDs = ['jobID' => json_decode(Route::getData(), true)];
         /*
          * Remove any host node failure entries
          */

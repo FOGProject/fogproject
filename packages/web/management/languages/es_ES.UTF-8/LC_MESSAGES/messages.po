@@ -6373,16 +6373,6 @@ msgstr "¿Activación de la LAN?"
 msgid "Invalid Type"
 msgstr "tipo no válido"
 
-msgid "This MAC Belongs to another host"
-msgstr "Este MAC pertenece a otro host"
-
-msgid "Cannot add Primary mac as additional mac"
-msgstr "No se puede agregar primaria como mac mac adicional"
-
-#, fuzzy
-msgid "Cannot add a pre-existing primary mac"
-msgstr "No se puede agregar un MAC primaria preexistente como MAC en espera"
-
 msgid "Cancelled due to new tasking."
 msgstr "Cancelada debido a las nuevas tareas a la vez."
 

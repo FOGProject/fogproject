@@ -182,17 +182,19 @@ class ImageManager extends FOGManagerController
         /**
          * Get running task ID's using these images
          */
-        $taskIDs = self::getSubObjectIDs(
-            'Task',
+        Route::ids(
+            'task',
             $findWhere
         );
+        $taskIDs = json_decode(Route::getData(), true);
         /**
          * Get running multicast tasks using these images
          */
-        $mcTaskIDs = self::getSubObjectIDs(
-            'MulticastSession',
+        Route::ids(
+            'multicastsession',
             $msFindWhere
         );
+        $mcTaskIDs = json_decode(Route::getData(), true);
         /**
          * Cancel any mc tasks using the destroyed images
          */

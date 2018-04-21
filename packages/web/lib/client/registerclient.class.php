@@ -45,24 +45,14 @@ class RegisterClient extends FOGClient
             false,
             true
         );
+        $keys = [
+            'FOG_ENFORCE_HOST_CHANGES',
+            'FOG_QUICKREG_MAX_PENDING_MACS'
+        ];
         list(
             $enforce,
             $maxPending
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'FOG_ENFORCE_HOST_CHANGES',
-                    'FOG_QUICKREG_MAX_PENDING_MACS'
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($keys);
         $hostname = trim($_REQUEST['hostname']);
         $pendingMACcount = count(self::$Host->get('pendingMACs'));
         if (!self::$Host->isValid()) {
@@ -79,6 +69,15 @@ class RegisterClient extends FOGClient
                     return ['error' => 'ih'];
                 }
                 $PriMAC = array_shift($MACs);
+                $find = ['isDefault' => 1];
+                Route::ids(
+                    'module',
+                    $find
+                );
+                $modules = json_decode(
+                    Route::getData(),
+                    true
+                );
                 self::$Host = self::getClass('Host')
                     ->set('name', $hostname)
                     ->set(
@@ -87,12 +86,7 @@ class RegisterClient extends FOGClient
                     )
                     ->set('pending', (string)1)
                     ->set('enforce', (string)$enforce)
-                    ->addModule(
-                        self::getSubObjectIDs(
-                            'Module',
-                            ['isDefault' => 1]
-                        )
-                    )
+                    ->addModule($modules)
                     ->addPriMAC($PriMAC)
                     ->addAddMAC($MACs);
                 if (!self::$Host->save()) {

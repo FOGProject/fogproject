@@ -651,7 +651,6 @@ abstract class FOGController extends FOGBase
                 $e->getMessage()
             );
             self::debug($str);
-            return false;
         }
 
         return $this;

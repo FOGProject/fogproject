@@ -80,9 +80,14 @@ class Registration extends FOGBase
                     $this->PriMAC
                 )
             );
-            $this->modulesToJoin = self::getSubObjectIDs(
-                'Module',
-                ['isDefault' => 1]
+            $find = ['isDefault' => 1];
+            Route::ids(
+                'module',
+                $find
+            );
+            $this->modulesToJoin = json_decode(
+                Route::getData(),
+                true
             );
             $this->description = sprintf(
                 '%s %s',
@@ -173,16 +178,7 @@ class Registration extends FOGBase
                     $ADPass,
                     $ADUser,
                     $enforce
-                ) = self::getSubObjectIDs(
-                    'Service',
-                    ['name' => $serviceNames],
-                    'value',
-                    false,
-                    'AND',
-                    'name',
-                    false,
-                    ''
-                );
+                ) = self::getSetting($serviceNames);
                 $OUs = explode(
                     '|',
                     $OUs
@@ -311,16 +307,7 @@ class Registration extends FOGBase
                 $performimg,
                 $autoRegSysName,
                 $autoRegSysNumber
-            ) = self::getSubObjectIDs(
-                'Service',
-                ['name' => $serviceNames],
-                'value',
-                false,
-                'AND',
-                'name',
-                false,
-                ''
-            );
+            ) = self::getSetting($serviceNames);
             $autoRegSysName = trim($autoRegSysName);
             if (strtoupper($autoRegSysName) == 'MAC') {
                 $hostname = $this->macsimple;

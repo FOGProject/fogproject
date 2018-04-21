@@ -168,21 +168,7 @@ class BootMenu extends FOGBase
         list(
             $webserver,
             $curroot
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'FOG_WEB_HOST',
-                    'FOG_WEB_ROOT',
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting(['FOG_WEB_HOST','FOG_WEB_ROOT']);
         $curroot = '/fog/';
         $this->_web = sprintf('%s://%s%s', self::$httpproto, $webserver, $curroot);
         $Send['booturl'] = [
@@ -209,15 +195,14 @@ class BootMenu extends FOGBase
             $host_field_test = 'efiexit';
             $global_field_test = 'FOG_EFI_BOOT_EXIT_TYPE';
         }
-        $StorageNodeID = @min(
-            self::getSubObjectIDs(
-                'StorageNode',
-                [
-                    'isEnabled' => 1,
-                    'isMaster' => 1,
-                ]
-            )
+        Route::ids(
+            'storagenode',
+            [
+                'isEnabled' => 1,
+                'isMaster' => 1
+            ]
         );
+        $StorageNodeID = @min(json_decode(Route::getData(), true));
         $StorageNode = new StorageNode($StorageNodeID);
         $serviceNames = [
             'FOG_EFI_BOOT_EXIT_TYPE',
@@ -252,16 +237,7 @@ class BootMenu extends FOGBase
             $menuTimeout,
             $bzImage,
             $bzImage32
-        ) = self::getSubObjectIDs(
-            'Service',
-            ['name' => $serviceNames],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($serviceNames);
         $memdisk = 'memdisk';
         $loglevel = $kernelLogLevel;
         $ramsize = $kernelRamDisk;
@@ -357,14 +333,14 @@ class BootMenu extends FOGBase
                 $StorageNode = new StorageNode(0);
             }
             if (!$StorageNode->isValid()) {
-                $storageNodeIDs = (array)self::getSubObjectIDs(
-                    'StorageNode',
+                Route::ids(
+                    'storagenode',
                     ['isMaster' => 1]
                 );
+                $storageNodeIDs = json_decode(Route::getData(), true);
                 if (count($storageNodeIDs) < 1) {
-                    $storageNodeIDs = (array)self::getSubObjectIDs(
-                        'StorageNode'
-                    );
+                    Route::ids('storagenode');
+                    $storageNodeIDs = json_decode(Route::getData(), true);
                 }
                 $StorageNode = new StorageNode(@min($storageNodeIDs));
             }
@@ -402,12 +378,11 @@ class BootMenu extends FOGBase
         $this->_initrd = "imgfetch $imagefile";
         self::$HookManager
             ->processEvent('BOOT_MENU_ITEM');
-        $PXEMenuID = @max(
-            self::getSubObjectIDs(
-                'PXEMenuOptions',
-                ['default' => 1]
-            )
+        Route::ids(
+            'pxemenuoptions',
+            ['default' => 1]
         );
+        $PXEMenuID = @max(json_decode(Route::getData(), true));
         $defaultMenu = new PXEMenuOptions($PXEMenuID);
         $menuname = (
             $defaultMenu->isValid() ?
@@ -481,7 +456,11 @@ class BootMenu extends FOGBase
                 ''
             ),
         ];
-        $id = @max(self::getSubObjectIDs('iPXE', $findWhere));
+        Route::ids(
+            'ipxe',
+            $findWhere
+        );
+        $id = @max(json_decode(Route::getData(), true));
         self::getClass('iPXE', $id)
             ->set('product', $findWhere['product'])
             ->set('manufacturer', $findWhere['manufacturer'])
@@ -865,16 +844,7 @@ class BootMenu extends FOGBase
             $kdebug,
             $mcastrdv,
             $nondev
-        ) = self::getSubObjectIDs(
-            'Service',
-            ['name' => $serviceNames],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($serviceNames);
         $shutdown = false !== stripos(
             'shutdown=1',
             $TaskType->get('kernelArgs')
@@ -1213,21 +1183,10 @@ class BootMenu extends FOGBase
      */
     public function verifyCreds()
     {
-        list($advLogin, $noMenu) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'FOG_ADVANCED_MENU_LOGIN',
-                    'FOG_NO_MENU',
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        list(
+            $advLogin,
+            $noMenu
+        ) = self::getSetting(['FOG_ADVANCED_MENU_LOGIN', 'FOG_NO_MENU']);
         if ($noMenu) {
             $this->noMenu();
         }
@@ -1358,12 +1317,11 @@ class BootMenu extends FOGBase
             $TaskType = $Task->getTaskType();
             $imagingTasks = $TaskType->isImagingTask();
             if ($TaskType->isMulticast()) {
-                $msaID = @max(
-                    self::getSubObjectIDs(
-                        'MulticastSessionAssociation',
-                        ['taskID' => $Task->get('id')]
-                    )
+                Route::ids(
+                    'multicastsessionassociation',
+                    ['taskID' => $Task->get('id')]
                 );
+                $msaID = @max(json_decode(Route::getData(), true));
                 $MulticastSessionAssoc = new MulticastSessionAssociation($msaID);
                 $MulticastSession = $MulticastSessionAssoc->getMulticastSession();
                 if ($MulticastSession && $MulticastSession->isValid()) {
@@ -1438,16 +1396,7 @@ class BootMenu extends FOGBase
                     $pigz,
                     $tftp,
                     $timeout
-                ) = self::getSubObjectIDs(
-                    'Service',
-                    ['name' => $serviceNames],
-                    'value',
-                    false,
-                    'AND',
-                    'name',
-                    false,
-                    ''
-                );
+                ) = self::getSetting($serviceNames);
                 $shutdown = false !== stripos(
                     'shutdown=1',
                     $TaskType->get('kernelArgs')
@@ -1863,16 +1812,7 @@ class BootMenu extends FOGBase
             $hostValid,
             $Advanced,
             $regEnabled
-        ) = self::getSubObjectIDs(
-            'Service',
-            ['name' => $ipxeGrabs],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($ipxeGrabs);
         $Send['head'] = self::fastmerge(
             [
                 'cpuid --ext 29 && set arch x86_64 || set arch i386',

@@ -758,9 +758,13 @@ class HostManagement extends FOGPage
                     )
                 );
             }
-            $ModuleIDs = self::getSubObjectIDs(
-                'Module',
+            Route::ids(
+                'module',
                 ['isDefault' => 1]
+            );
+            $ModuleIDs = json_decode(
+                Route::getData(),
+                true
             );
             self::$Host
                 ->set('name', $host)
@@ -1399,13 +1403,19 @@ class HostManagement extends FOGPage
             );
             $toRemove = $toRemove['toRemove'];
 
-            $hasPrimary = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                [
-                    'id' => $toRemove,
-                    'hostID' => $this->obj->get('id'),
-                    'primary' => [1]
-                ]
+            $find = [
+                'id' => $toRemove,
+                'hostID' => $this->obj->get('id'),
+                'primary' => [1]
+            ];
+
+            Route::ids(
+                'macaddressassociation',
+                $find
+            );
+            $hasPrimary = json_decode(
+                Route::getData(),
+                true
             );
 
             if (count($hasPrimary ?: []) > 0) {
@@ -1414,20 +1424,29 @@ class HostManagement extends FOGPage
                 );
             }
 
-            $toRemove = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                [
-                    'id' => $toRemove,
-                    'hostID' => $this->obj->get('id'),
-                    'primary' => [0, '', '0']
-                ],
+            $find = [
+                'id' => $toRemove,
+                'hostID' => $this->obj->get('id'),
+                'primary' => [0, '']
+            ];
+
+            Route::ids(
+                'macaddressassociation',
+                $find,
                 'mac'
             );
+
+            $toRemove = json_decode(
+                Route::getData(),
+                true
+            );
+
             if (count($toRemove ?: []) < 1) {
                 throw new Exception(
                     _('No mac addresses to be removed')
                 );
             }
+
             $this->obj->removeAddMAC($toRemove);
         }
     }
@@ -1970,21 +1989,16 @@ class HostManagement extends FOGPage
         echo '</div>';
         echo '</div>';
         // Display Manager Element.
+        $keys = [
+            'FOG_CLIENT_DISPLAYMANAGER_R',
+            'FOG_CLIENT_DISPLAYMANAGER_X',
+            'FOG_CLIENT_DISPLAYMANAGER_Y'
+        ];
         list(
             $r,
             $x,
             $y
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'FOG_CLIENT_DISPLAYMANAGER_R',
-                    'FOG_CLIENT_DISPLAYMANAGER_X',
-                    'FOG_CLIENT_DISPLAYMANAGER_Y'
-                ]
-            ],
-            'value'
-        );
+        ) = self::getSetting($keys);
         // If the x, y, and/or r inputs are set.
         $ix = filter_input(INPUT_POST, 'x');
         $iy = filter_input(INPUT_POST, 'y');

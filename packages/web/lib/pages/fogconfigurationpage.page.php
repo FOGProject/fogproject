@@ -412,16 +412,7 @@ class FOGConfigurationPage extends FOGPage
             $hideTimeout,
             $hidChecked,
             $timeout
-        ) = self::getSubObjectIDs(
-            'Service',
-            ['name' => $ServicesToSee],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($ServicesToSee);
         $advLogin = $advLogin ? ' checked' : '';
         $exitNorm = Service::buildExitSelector(
             'bootTypeExit',
@@ -945,9 +936,14 @@ class FOGConfigurationPage extends FOGPage
                 ];
             }
             ksort($ServicesToEdit);
-            $ids = self::getSubObjectIDs(
-                'Service',
-                ['name' => array_keys($ServicesToEdit)]
+            $find = ['name' => array_keys($ServicesToEdit)];
+            Route::ids(
+                'service',
+                $find
+            );
+            $ids = json_decode(
+                Route::getData(),
+                true
             );
             $items = [];
             $iteration = 0;
@@ -1267,7 +1263,11 @@ class FOGConfigurationPage extends FOGPage
                     ]
                 );
             if ($menu_default) {
-                $MenuIDs = self::getSubObjectIDs('PXEMenuOptions');
+                Route::ids('pxemenuoptions');
+                $MenuIDs = json_decode(
+                    Route::getData(),
+                    true
+                );
                 natsort($MenuIDs);
                 $MenuIDs = array_unique(
                     array_diff(
@@ -1284,9 +1284,14 @@ class FOGConfigurationPage extends FOGPage
                     );
             }
             unset($MenuIDs);
-            $DefMenuIDs = self::getSubObjectIDs(
-                'PXEMenuOptions',
-                ['default' => 1]
+            $find = ['default' => 1];
+            Route::ids(
+                'pxemenuoptions',
+                $find
+            );
+            $DefMenuIDs = json_decode(
+                Route::getData(),
+                true
             );
             if (!count($DefMenuIDs)) {
                 self::getClass('PXEMenuOptions', 1)
@@ -1806,6 +1811,16 @@ class FOGConfigurationPage extends FOGPage
             'FOG_ALWAYS_LOGGED_IN' => true,
             'FOG_PLUGINSYS_ENABLED' => true
         ];
+        Route::ids('image');
+        $imageids = json_decode(
+            Route::getData(),
+            true
+        );
+        Route::ids('group');
+        $groupids = json_decode(
+            Route::getData(),
+            true
+        );
         $needstobenumeric = [
             // FOG Boot Settings
             'FOG_PXE_MENU_TIMEOUT' => true,
@@ -1826,12 +1841,12 @@ class FOGConfigurationPage extends FOGPage
             // FOG Quick Registration
             'FOG_QUICKREG_IMG_ID' => self::fastmerge(
                 (array)0,
-                self::getSubObjectIDs('Image')
+                $imageids
             ),
             'FOG_QUICKREG_SYS_NUMBER' => true,
             'FOG_QUICKREG_GROUP_ASSOC' => self::fastmerge(
                 (array)0,
-                self::getSubObjectIDs('Group')
+                $groupids
             ),
             // FOG Service
             'FOG_CLIENT_CHECKIN_TIME' => true,
@@ -2710,6 +2725,16 @@ class FOGConfigurationPage extends FOGPage
             'NEEDSTOBECHECKBOX',
             ['needstobecheckbox' => &$needstobecheckbox]
         );
+        Route::ids('image');
+        $imageids = json_decode(
+            Route::getData(),
+            true
+        );
+        Route::ids('group');
+        $groupids = json_decode(
+            Route::getData(),
+            true
+        );
         $needstobenumeric = [
             // FOG Boot Settings
             'FOG_PXE_MENU_TIMEOUT' => true,
@@ -2730,12 +2755,12 @@ class FOGConfigurationPage extends FOGPage
             // FOG Quick Registration
             'FOG_QUICKREG_IMG_ID' => self::fastmerge(
                 (array)0,
-                self::getSubObjectIDs('Image')
+                $imageids
             ),
             'FOG_QUICKREG_SYS_NUMBER' => true,
             'FOG_QUICKREG_GROUP_ASSOC' => self::fastmerge(
                 (array)0,
-                self::getSubObjectIDs('Group')
+                $groupids
             ),
             // FOG Service
             'FOG_CLIENT_CHECKIN_TIME' => true,

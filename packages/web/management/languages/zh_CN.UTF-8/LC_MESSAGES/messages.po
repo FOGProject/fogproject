@@ -6172,16 +6172,6 @@ msgstr "网络唤醒？"
 msgid "Invalid Type"
 msgstr "无效类型"
 
-msgid "This MAC Belongs to another host"
-msgstr "该MAC属于另一台主机"
-
-msgid "Cannot add Primary mac as additional mac"
-msgstr "无法添加主MAC作为附加MAC"
-
-#, fuzzy
-msgid "Cannot add a pre-existing primary mac"
-msgstr "无法添加预先存在的主MAC为待MAC"
-
 msgid "Cancelled due to new tasking."
 msgstr "由于新的任务取消。"
 

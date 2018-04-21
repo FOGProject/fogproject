@@ -41,26 +41,16 @@ class SnapinReplicator extends FOGService
     public function __construct()
     {
         parent::__construct();
+        $snapinreplicatorkeys = [
+            'SNAPINREPLICATORDEVICEOUTPUT',
+            'SNAPINREPLICATORLOGFILENAME',
+            self::$sleeptime
+        ];
         list(
             $dev,
             $log,
             $zzz
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'SNAPINREPLICATORDEVICEOUTPUT',
-                    'SNAPINREPLICATORLOGFILENAME',
-                    self::$sleeptime
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($snapinreplicatorkeys);
         static::$log = sprintf(
             '%s%s',
             (
@@ -158,37 +148,15 @@ class SnapinReplicator extends FOGService
                 /**
                  * Get the snapin ids that are valid.
                  */
-                $snapinIDs = self::getSubObjectIDs('Snapin');
-                /**
-                 * Find any snapins that are no longer valid within
-                 * fog, but still existing in the group assoc.
-                 */
-                $SnapinAssocs = self::getSubObjectIDs(
-                    'SnapinGroupAssociation',
-                    ['snapinID' => $snapinIDs],
-                    'snapinID',
-                    true
+                $find = [
+                    'isEnabled' => 1,
+                    'toReplicate' => 1
+                ];
+                Route::ids(
+                    'snapin',
+                    $find
                 );
-                /**
-                 * If any assocs exist from prior, remove.
-                 */
-                if (count($SnapinAssocs)) {
-                    self::getClass('SnapinGroupAssociationManager')
-                        ->destroy(['snapinID' => $SnapinAssocs]);
-                }
-                unset($SnapinAssocs);
-                /**
-                 * Get the snapin ids that are to be replicated.
-                 * NOTE: Must be enabled and have Replication enabled.
-                 */
-                $snapinIDs = self::getSubObjectIDs(
-                    'Snapin',
-                    [
-                        'id' => $snapinIDs,
-                        'isEnabled' => 1,
-                        'toReplicate' => 1
-                    ]
-                );
+                $snapinIDs = json_decode(Route::getData(), true);
                 $SnapinAssocCount = self::getClass('SnapinGroupAssociationManager')
                     ->count(
                         [
@@ -216,14 +184,16 @@ class SnapinReplicator extends FOGService
                     continue;
                 }
                 unset($SnapinAssocCount, $SnapinCount);
-                $snapinIDs = self::getSubObjectIDs(
-                    'SnapinGroupAssociation',
-                    [
-                        'storagegroupID' => $myStorageGroupID,
-                        'snapinID' => $snapinIDs
-                    ],
+                $find = [
+                    'storagegroupID' => $myStorageGroupID,
+                    'snapinID' => $snapinIDs
+                ];
+                Route::ids(
+                    'snapingroupassociation',
+                    $find,
                     'snapinID'
                 );
+                $snapinIDs = json_decode(Route::getData(), true);
                 Route::listem(
                     'snapin',
                     ['snapinID' => $snapinIDs]

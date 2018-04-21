@@ -34,13 +34,18 @@ class PM extends FOGClient
      */
     public function json()
     {
-        $actions = self::getSubObjectIDs(
-            'PowerManagement',
-            [
-                'id' => self::$Host->get('powermanagementtasks'),
-                'onDemand' => '1'
-            ],
+        $find = [
+            'id' => self::$Host->get('powermanagementtasks'),
+            'onDemand' => [1]
+        ];
+        Route::ids(
+            'powermanagement',
+            $find,
             'action'
+        );
+        $actions = json_decode(
+            Route::getData(),
+            true
         );
         $action = '';
         if (in_array('shutdown', $actions)) {

@@ -709,10 +709,15 @@ class TaskManagement extends FOGPage
             }
             $tasks = $tasks['tasks'];
             $mtasks = $tasks;
-            $tasks = self::getSubObjectIDs(
-                'MulticastSessionAssociation',
-                ['msID' => $mtasks],
+            $find = ['msID' => $mtasks];
+            Route::ids(
+                'multicastsessionassociation',
+                $find,
                 'taskID'
+            );
+            $tasks = json_decode(
+                Route::getData(),
+                true
             );
             self::getClass('TaskManager')->cancel($tasks);
             self::getClass('MulticastSessionManager')->cancel($mtasks);
@@ -807,23 +812,35 @@ class TaskManagement extends FOGPage
                 );
             }
             $tasks = $tasks['tasks'];
-            $SnapinJobIDs = self::getSubObjectIDs(
-                'SnapinTask',
+            Route::ids(
+                'snapintask',
                 ['id' => $tasks],
                 'jobID'
             );
+            $SnapinJobIDs = json_decode(
+                Route::getData(),
+                true
+            );
             self::getClass('SnapinTaskManager')->cancel($tasks);
             if (count($SnapinJobIDs) > 0) {
-                $HostIDs = self::getSubObjectIDs(
-                    'SnapinJob',
+                Route::ids(
+                    'snapinjob',
                     ['id' => $SnapinJobIDs],
                     'hostID'
                 );
+                $HostIDs = json_decode(
+                    Route::getData(),
+                    true
+                );
             }
             if (count($HostIDs) > 0) {
-                $SnapTaskIDs = self::getSubObjectIDs(
-                    'SnapinTask',
+                Route::ids(
+                    'snapintask',
                     ['jobID' => $SnapinJobIDs]
+                );
+                $SnapTaskIDs = json_decode(
+                    Route::getData(),
+                    true
                 );
                 $TaskIDs = array_diff(
                     $SnapTaskIDs,
@@ -831,15 +848,17 @@ class TaskManagement extends FOGPage
                 );
             }
             if (count($TaskIDs) < 1) {
-                $TaskIDs = self::getSubObjectIDs(
-                    'Task',
-                    [
-                        'hostID' => $HostIDs,
-                        'typeID' => [
-                            12,
-                            13
-                        ]
-                    ]
+                $find = [
+                    'hostID' => $HostIDs,
+                    'typeID' => TaskType::SNAPINTASKS
+                ];
+                Route::ids(
+                    'task',
+                    $find
+                );
+                $TaskIDs = json_decode(
+                    Route::getData(),
+                    true
                 );
                 self::getClass('TaskManager')->cancel($TaskIDs);
             }

@@ -73,7 +73,8 @@ class ImageManagement extends FOGPage
         if ($storagegroup > 0) {
             $sgID = $storagegroup;
         } else {
-            $sgID = @min(self::getSubObjectIDs('StorageGroup'));
+            Route::ids('storagegroup');
+            $sgID = @min(json_decode(Route::getData(), true));
         }
         $StorageGroup = new StorageGroup($sgID);
         $StorageGroups = self::getClass('StorageGroupManager')

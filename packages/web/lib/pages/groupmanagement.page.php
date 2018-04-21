@@ -1294,22 +1294,17 @@ class GroupManagement extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
+        $names = [
+            'FOG_CLIENT_DISPLAYMANAGER_R',
+            'FOG_CLIENT_DISPLAYMANAGER_X',
+            'FOG_CLIENT_DISPLAYMANAGER_Y'
+        ];
         // Display Manager Element.
         list(
             $r,
             $x,
             $y
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'FOG_CLIENT_DISPLAYMANAGER_R',
-                    'FOG_CLIENT_DISPLAYMANAGER_X',
-                    'FOG_CLIENT_DISPLAYMANAGER_Y'
-                ]
-            ],
-            'value'
-        );
+        ) = self::getSetting($names);
         $names = [
             'x' => [
                 'width',
@@ -2863,12 +2858,17 @@ class GroupManagement extends FOGPage
             }
             // Host checks:
             $hosts = $this->obj->get('hosts');
-            $hosts = self::getSubObjectIDs(
-                'Host',
-                [
-                    'id' => $hosts,
-                    'pending' => ['', 0]
-                ]
+            $find = [
+                'id' => $hosts,
+                'pending' => ['', 0]
+            ];
+            Route::ids(
+                'host',
+                $find
+            );
+            $hosts = json_decode(
+                Route::getData(),
+                true
             );
             if (count($hosts ?: []) < 1) {
                 throw new Exception(_('No hosts available to be tasked'));

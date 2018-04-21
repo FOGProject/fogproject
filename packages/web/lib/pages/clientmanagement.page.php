@@ -58,11 +58,7 @@ class ClientManagement extends FOGPage
                 'FOG_WEB_HOST'
             ]
         ];
-        list($ip) = self::getSubObjectIDs(
-            'Service',
-            $webArr,
-            'value'
-        );
+        $ip = self::getSetting('FOG_WEB_HOST');
         $url = sprintf(
             '%s://%s/fog/client/download.php',
             self::$httpproto,

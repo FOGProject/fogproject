@@ -246,16 +246,13 @@ class Host extends FOGController
             ->destroy($find);
         self::getClass('ImagingLogManager')
             ->destroy($find);
+        Route::ids(
+            'snapinjob',
+            $find
+        );
+        $snapinjobids = ['jobID' => json_decode(Route::getData(), true)];
         self::getClass('SnapinTaskManager')
-            ->destroy(
-                [
-                    'jobID' => self::getSubObjectIDs(
-                        'SnapinJob',
-                        $find,
-                        'id'
-                    )
-                ]
-            );
+            ->destroy($snapinjobids);
         self::getClass('SnapinJobManager')
             ->destroy($find);
         self::getClass('TaskManager')
@@ -317,287 +314,6 @@ class Host extends FOGController
     public function save()
     {
         parent::save();
-        if ($this->isLoaded('mac')) {
-            if (!$this->get('mac')->isValid()) {
-                throw new Exception(self::$foglang['InvalidMAC']);
-            }
-            $RealPriMAC = $this->get('mac')->__toString();
-            $CurrPriMAC = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                [
-                    'hostID' => $this->get('id'),
-                    'primary' => 1
-                ],
-                'mac'
-            );
-            if (count($CurrPriMAC) === 1
-                && $CurrPriMAC[0] != $RealPriMAC
-            ) {
-                self::getClass('MACAddressAssociationManager')
-                    ->update(
-                        [
-                            'mac' => $CurrPriMAC[0],
-                            'hostID' => $this->get('id'),
-                            'primary' => 1
-                        ],
-                        '',
-                        ['primary' => 0]
-                    );
-            }
-            $HostWithMAC = array_diff(
-                (array)$this->get('id'),
-                (array)self::getSubObjectIDs(
-                    'MACAddressAssociation',
-                    ['mac' => $RealPriMAC],
-                    'hostID'
-                )
-            );
-            if (count($HostWithMAC)
-                && !in_array($this->get('id'), (array)$HostWithMAC)
-            ) {
-                throw new Exception(_('This MAC Belongs to another host'));
-            }
-            $DBPriMACs = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                [
-                    'hostID' => $this->get('id'),
-                    'primary' => 1
-                ],
-                'mac'
-            );
-            $RemoveMAC = array_diff(
-                (array)$RealPriMAC,
-                (array)$DBPriMACs
-            );
-            if (count($RemoveMAC)) {
-                self::getClass('MACAddressAssociationManager')
-                    ->destroy(['mac' => $RemoveMAC]);
-                unset($RemoveMAC);
-                $DBPriMACs = self::getSubObjectIDs(
-                    'MACAddressAssociation',
-                    [
-                        'hostID' => $this->get('id'),
-                        'primary' => 1
-                    ],
-                    'mac'
-                );
-            }
-            if (!in_array($RealPriMAC, $DBPriMACs)) {
-                self::getClass('MACAddressAssociation')
-                    ->set('hostID', $this->get('id'))
-                    ->set('mac', $RealPriMAC)
-                    ->set('primary', 1)
-                    ->save();
-            }
-            unset(
-                $DBPriMACs,
-                $RealPriMAC,
-                $RemoveMAC,
-                $HostWithMAC
-            );
-        }
-        if ($this->isLoaded('additionalMACs')) {
-            self::_retValidMacs(
-                $this->get('additionalMACs'),
-                $addMacs
-            );
-            $RealAddMACs = array_filter($addMacs);
-            unset($addMacs);
-            $RealAddMACs = array_unique($RealAddMACs);
-            $RealAddMACs = array_filter($RealAddMACs);
-            $DBPriMACs = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                ['primary' => 1],
-                'mac'
-            );
-            foreach ((array)$DBPriMACs as &$mac) {
-                if (self::arrayStrpos($mac, $RealAddMACs) !== false) {
-                    throw new Exception(
-                        _('Cannot add Primary mac as additional mac')
-                    );
-                }
-                unset($mac);
-            }
-            unset($DBPriMACs);
-            $PreOwnedMACs = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                [
-                    'hostID' => $this->get('id'),
-                    'pending' => 1
-                ],
-                'mac',
-                true
-            );
-            $RealAddMACs = array_diff(
-                (array)$RealAddMACs,
-                (array)$PreOwnedMACs
-            );
-            unset($PreOwnedMACs);
-            $DBAddMACs = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                [
-                    'hostID' => $this->get('id'),
-                    'primary' => 0,
-                    'pending' => 0
-                ],
-                'mac'
-            );
-            $RemoveAddMAC = array_diff(
-                (array)$DBAddMACs,
-                (array)$RealAddMACs
-            );
-            if (count($RemoveAddMAC)) {
-                self::getClass('MACAddressAssociationManager')
-                    ->destroy(
-                        [
-                            'hostID' => $this->get('id'),
-                            'mac' => $RemoveAddMAC
-                        ]
-                    );
-                $DBAddMACs = self::getSubObjectIDs(
-                    'MACAddressAssociation',
-                    [
-                        'hostID' => $this->get('id'),
-                        'primary' => 0,
-                        'pending' => 0,
-                        'mac'
-                    ]
-                );
-                unset($RemoveAddMAC);
-            }
-            $insert_fields = [
-                'hostID',
-                'mac',
-                'primary',
-                'pending'
-            ];
-            $insert_values = [];
-            $RealAddMACs = array_diff(
-                (array)$RealAddMACs,
-                (array)$DBAddMACs
-            );
-            foreach ((array)$RealAddMACs as $index => &$mac) {
-                $insert_values[] = [
-                    $this->get('id'),
-                    $mac,
-                    0,
-                    0
-                ];
-                unset($mac);
-            }
-            if (count($insert_values) > 0) {
-                self::getClass('MACAddressAssociationManager')
-                    ->insertBatch(
-                        $insert_fields,
-                        $insert_values
-                    );
-            }
-            unset(
-                $DBAddMACs,
-                $RealAddMACs,
-                $RemoveAddMAC
-            );
-        }
-        if ($this->isLoaded('pendingMACs')) {
-            self::_retValidMacs($this->get('pendingMACs'), $pendMacs);
-            $RealPendMACs = array_filter($pendMacs);
-            unset($pendMacs);
-            $RealPendMACs = array_unique($RealPendMACs);
-            $RealPendMACs = array_filter($RealPendMACs);
-            $DBPriMACs = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                ['primary' => 1],
-                'mac'
-            );
-            foreach ((array)$DBPriMACs as &$mac) {
-                if (self::arrayStrpos($mac, $RealPendMACs)) {
-                    throw new Exception(
-                        _('Cannot add a pre-existing primary mac')
-                    );
-                }
-                unset($mac);
-            }
-            unset($DBPriMACs);
-            $PreOwnedMACs = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                [
-                    'hostID' => $this->get('id'),
-                    'pending' => 0,
-                    'mac',
-                    true
-                ],
-                'mac',
-                true
-            );
-            $RealPendMACs = array_diff(
-                (array)$RealPendMACs,
-                (array)$PreOwnedMACs
-            );
-            unset($PreOwnedMACs);
-            $DBPendMACs = self::getSubObjectIDs(
-                'MACAddressAssociation',
-                [
-                    'hostID' => $this->get('id'),
-                    'primary' => 0,
-                    'pending' => 1,
-                ],
-                'mac'
-            );
-            $RemovePendMAC = array_diff(
-                (array)$DBPendMACs,
-                (array)$RealPendMACs
-            );
-            if (count($RemovePendMAC)) {
-                self::getClass('MACAddressAssociationManager')
-                    ->destroy(
-                        [
-                            'hostID' => $this->get('id'),
-                            'mac' => $RemovePendMAC
-                        ]
-                    );
-                $DBPendMACs = self::getSubObjectIDs(
-                    'MACAddressAssociation',
-                    [
-                        'primary' => 0,
-                        'pending' => 1,
-                    ],
-                    'mac'
-                );
-                unset($RemovePendMAC);
-            }
-            $insert_fields = [
-                'hostID',
-                'mac',
-                'primary',
-                'pending'
-            ];
-            $insert_values = [];
-            $RealPendMACs = array_diff(
-                (array)$RealPendMACs,
-                (array)$DBPendMACs
-            );
-            foreach ((array)$RealPendMACs as &$mac) {
-                $insert_values[] = [
-                    $this->get('id'),
-                    $mac,
-                    0,
-                    1
-                ];
-                unset($mac);
-            }
-            if (count($insert_values) > 0) {
-                self::getClass('MACAddressAssociationManager')
-                    ->insertBatch(
-                        $insert_fields,
-                        $insert_values
-                    );
-            }
-            unset(
-                $DBPendMACs,
-                $RealPendMACs,
-                $RemovePendMAC
-            );
-        }
         if ($this->isLoaded('powermanagementtasks')) {
             $DBPowerManagementIDs = self::getSubObjectIDs(
                 'PowerManagement',
@@ -1846,18 +1562,16 @@ class Host extends FOGController
      */
     public function getMyMacs($justme = true)
     {
+        $find = [];
         if ($justme) {
-            return self::getSubObjectIDs(
-                'MACAddressAssociation',
-                ['hostID' => $this->get('id')],
-                'mac'
-            );
+            $find = ['hostID' => $this->get('id')];
         }
-        return self::getSubObjectIDs(
-            'MACAddressAssociation',
-            '',
+        Route::ids(
+            'macaddressassociation',
+            $find,
             'mac'
         );
+        return json_decode(Route::getData(), true);
     }
     /**
      * Sets the ignore status of a mac for either image or client ignore

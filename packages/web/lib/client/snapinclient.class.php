@@ -83,22 +83,25 @@ class SnapinClient extends FOGClient
             || basename(self::$scriptname) === 'snapins.checkin.php'
         ) {
             if (!isset($_REQUEST['exitcode'])) {
-                $snapinIDs = self::getSubObjectIDs(
-                    'SnapinTask',
-                    [
-                        'stateID' => self::fastmerge(
-                            self::getQueuedStates(),
-                            (array)self::getProgressState()
-                        ),
-                        'jobID' => $SnapinJob->get('id'),
-                    ],
+                $find = [
+                    'stateID' => self::fastmerge(
+                        self::getQueuedStates(),
+                        (array)self::getProgressState()
+                    ),
+                    'jobID' => $SnapinJob->get('id')
+                ];
+                Route::ids(
+                    'snapintask',
+                    $find,
                     'snapinID'
                 );
-                $snapinIDs = self::getSubObjectIDs(
-                    'Snapin',
+                $snapinIDs = json_decode(Route::getData(), true);
+                Route::ids(
+                    'snapin',
                     ['id' => $snapinIDs]
                 );
-                if (count($snapinIDs) < 1) {
+                $snapinIDs = json_decode(Route::getData(), true);
+                if (count($snapinIDs ?: []) < 1) {
                     $SnapinJob
                         ->set('stateID', self::getCancelledState())
                         ->save();
@@ -115,17 +118,19 @@ class SnapinClient extends FOGClient
                 );
                 foreach ($Snapins->data as &$Snapin) {
                     $Snapin = self::getClass('Snapin', $Snapin->id);
-                    $snapinTaskID = self::getSubObjectIDs(
-                        'SnapinTask',
-                        [
-                            'snapinID' => $Snapin->id,
-                            'jobID' => $SnapinJob->get('id'),
-                            'stateID' => self::fastmerge(
-                                self::getQueuedStates(),
-                                (array)self::getProgressState()
-                            )
-                        ]
+                    $find = [
+                        'snapinID' => $Snapin->id,
+                        'jobID' => $SnapinJob->get('id'),
+                        'stateID' => self::fastmerge(
+                            self::getQueuedStates(),
+                            (array)self::getProgressState()
+                        )
+                    ];
+                    Route::ids(
+                        'snapintask',
+                        $find
                     );
+                    $snapinTaskID = json_decode(Route::getData(), true);
                     $snapinTaskID = array_shift($snapinTaskID);
                     $SnapinTask = new SnapinTask($snapinTaskID);
                     if (!$SnapinTask->isValid()) {

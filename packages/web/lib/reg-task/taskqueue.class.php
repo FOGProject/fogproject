@@ -43,13 +43,12 @@ class TaskQueue extends TaskingElement
                     ->getImage()->set('size', '')
                     ->save();
                 if ($this->Task->isMulticast()) {
-                    $msID = @min(
-                        self::getSubObjectIDs(
-                            'MulticastSessionAssociation',
-                            ['taskID' => $this->Task->get('id')],
-                            'msID'
-                        )
+                    Route::ids(
+                        'multicastsessionassociation',
+                        ['taskID' => $this->Task->get('id')],
+                        'msID'
                     );
+                    $msID = @min(json_decode(Route::getData(), true));
                     $MulticastSession = self::getClass(
                         'MulticastSession',
                         $msID
@@ -182,28 +181,18 @@ class TaskQueue extends TaskingElement
      */
     private function _email()
     {
+        $keys = [
+            'FOG_EMAIL_ACTION',
+            'FOG_EMAIL_ADDRESS',
+            'FOG_EMAIL_BINARY',
+            'FOG_FROM_EMAIL'
+        ];
         list(
             $emailAction,
             $emailAddress,
             $emailBinary,
             $fromEmail
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'FOG_EMAIL_ACTION',
-                    'FOG_EMAIL_ADDRESS',
-                    'FOG_EMAIL_BINARY',
-                    'FOG_FROM_EMAIL'
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            false
-        );
+        ) = self::getSetting($keys);
         if (!$emailAction || !$emailAddress) {
             return;
         }
@@ -211,20 +200,27 @@ class TaskQueue extends TaskingElement
             return;
         }
         $SnapinJob = self::$Host->get('snapinjob');
-        $SnapinTasks = self::getSubObjectIDs(
-            'SnapinTask',
-            [
-                'stateID' => self::getQueuedStates(),
-                'jobID' => $SnapinJob->get('id')
-            ],
+        $find = [
+            'stateID' => self::getQueuedStates(),
+            'jobID' => $SnapinJob->get('id')
+        ];
+        Route::ids(
+            'snapintask',
+            $find,
             'snapinID'
         );
+        $SnapinTasks = json_decode(Route::getData(), true);
         $SnapinNames = [];
         if ($SnapinJob->isValid()) {
-            $SnapinNames = self::getSubObjectIDs(
-                'Snapin',
-                ['id' => $SnapinTasks],
+            $find = ['id' => $SnapinTasks];
+            Route::ids(
+                'snapin',
+                $find,
                 'name'
+            );
+            $SnapinNames = json_decode(
+                Route::getData(),
+                true
             );
         }
         if (!$emailBinary) {

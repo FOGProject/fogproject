@@ -120,11 +120,7 @@ class ServiceConfigurationPage extends FOGPage
             $r,
             $x,
             $y
-        ) = self::getSubObjectIDs(
-            'Service',
-            ['name' => $disps],
-            'value'
-        );
+        ) = self::getSetting($disps);
         unset($disps);
 
         $labelClass = 'col-sm-3 control-label';

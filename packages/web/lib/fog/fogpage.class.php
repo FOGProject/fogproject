@@ -2917,7 +2917,7 @@ abstract class FOGPage extends FOGBase
             ]
         );
 
-        if (count($obj->pluginsTabData)) {
+        if (count($obj->pluginsTabData ?: [])) {
             $tabData[] = [
                 'tabs' => [
                     'name' => _('Plugins'),
