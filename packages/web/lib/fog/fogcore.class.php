@@ -208,16 +208,7 @@ class FOGCore extends FOGBase
             $authexport,
             $tzInfo,
             $view
-        ) = self::getSubObjectIDs(
-            'Service',
-            ['name' => $getSettings],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($getSettings);
         self::$defaultscreen = $view;
         self::$pendingHosts = self::getClass('HostManager')
             ->count(['pending' => 1]);

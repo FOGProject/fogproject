@@ -64,11 +64,13 @@ class MulticastTask extends FOGService
         );
         $NewTasks = [];
         foreach ($Tasks->data as &$Task) {
-            $taskIDs = self::getSubObjectIDs(
-                'MulticastSessionAssociation',
-                ['msID' => $Task->id],
+            $find = ['msID' => $Task->id];
+            Route::ids(
+                'multicastsessionassociation',
+                $find,
                 'taskID'
             );
+            $taskIDs = json_decode(Route::getData(), true);
             $count = count($taskIDs ?: []);
             if ($count < 1) {
                 $count = $Task->sessclients;
@@ -347,24 +349,14 @@ class MulticastTask extends FOGService
      */
     public function getUDPCastLogFile()
     {
+        $keys = [
+            'MULTICASTLOGFILENAME',
+            'SERVICE_LOG_PATH'
+        ];
         list(
             $filenam,
             $logpath
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'MULTICASTLOGFILENAME',
-                    'SERVICE_LOG_PATH',
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($keys);
         return $this->altLog = sprintf(
             '/%s/%s.udpcast.%s',
             trim($logpath, '/'),
@@ -407,28 +399,18 @@ class MulticastTask extends FOGService
             $buildcmd,
             $cmd
         );
+        $keys = [
+            'FOG_MULTICAST_ADDRESS',
+            'FOG_MULTICAST_DUPLEX',
+            'FOG_MULTICAST_RENDEZVOUS',
+            'FOG_UDPCAST_MAXWAIT'
+        ];
         list(
             $address,
             $duplex,
             $multicastrdv,
             $maxwait
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'FOG_MULTICAST_ADDRESS',
-                    'FOG_MULTICAST_DUPLEX',
-                    'FOG_MULTICAST_RENDEZVOUS',
-                    'FOG_UDPCAST_MAXWAIT'
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($keys);
         $buildcmd = [
             UDPSENDERPATH,
             (

@@ -285,13 +285,18 @@ abstract class TaskingElement extends FOGBase
                 ->set('createdBy', $this->Task->get('createdBy'))
                 ->save();
         }
-        $ilID = self::getSubObjectIDs(
-            'ImagingLog',
-            [
-                'hostID' => self::$Host->get('id'),
-                'finish' => '0000-00-00 00:00:00',
-                'image' => $this->Image->get('name'),
-            ]
+        $find = [
+            'hostID' => self::$Host->get('id'),
+            'finish' => '0000-00-00 00:00:00',
+            'image' => $this->Image->get('name')
+        ];
+        Route::ids(
+            'imaginglog',
+            $find
+        );
+        $ilID = json_decode(
+            Route::getData(),
+            true
         );
         $ilID = @max($ilID);
         return self::getClass('ImagingLog', $ilID)

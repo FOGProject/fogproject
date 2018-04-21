@@ -41,26 +41,16 @@ class ImageReplicator extends FOGService
     public function __construct()
     {
         parent::__construct();
+        $imagereplicatorkeys = [
+            'IMAGEREPLICATORDEVICEOUTPUT',
+            'IMAGEREPLICATORLOGFILENAME',
+            self::$sleeptime
+        ];
         list(
             $dev,
             $log,
             $zzz
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'IMAGEREPLICATORDEVICEOUTPUT',
-                    'IMAGEREPLICATORLOGFILENAME',
-                    self::$sleeptime
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($imagereplicatorkeys);
         static::$log = sprintf(
             '%s%s',
             (
@@ -159,37 +149,15 @@ class ImageReplicator extends FOGService
                 /**
                  * Get the image ids that are valid.
                  */
-                $imageIDs = self::getSubObjectIDs('Image');
-                /**
-                 * Find any images that are no longer valid within
-                 * fog, but still existing in the group assoc.
-                 */
-                $ImageAssocs = self::getSubObjectIDs(
-                    'ImageAssociation',
-                    ['imageID' => $imageIDs],
-                    'imageID',
-                    true
+                $find = [
+                    'isEnabled' => 1,
+                    'toReplicate' => 1
+                ];
+                Route::ids(
+                    'image',
+                    $find
                 );
-                /**
-                 * If any assocs exist from prior, remove
-                 */
-                if (count($ImageAssocs)) {
-                    self::getClass('ImageAssociationManager')
-                        ->destroy(['imageID' => $ImageAssocs]);
-                }
-                unset($ImageAssocs);
-                /**
-                 * Get the image ids that are to be replicated.
-                 * NOTE: Must be enabled and have Replication enabled.
-                 */
-                $imageIDs = self::getSubObjectIDs(
-                    'Image',
-                    [
-                        'id' => $imageIDs,
-                        'isEnabled'=>1,
-                        'toReplicate'=>1
-                    ]
-                );
+                $imageIDs = json_decode(Route::getData(), true);
                 $ImageAssocCount = self::getClass('ImageAssociationManager')
                     ->count(
                         [
@@ -217,14 +185,16 @@ class ImageReplicator extends FOGService
                     continue;
                 }
                 unset($ImageAssocCount, $ImageCount);
-                $imageIDs = self::getSubObjectIDs(
-                    'ImageAssociation',
-                    [
-                        'storagegroupID' => $myStorageGroupID,
-                        'imageID' => $imageIDs
-                    ],
+                $find = [
+                    'storagegroupID' => $myStorageGroupID,
+                    'imageID' => $imageIDs
+                ];
+                Route::ids(
+                    'imageassociation',
+                    $find,
                     'imageID'
                 );
+                $imageIDs = json_decode(Route::getData(), true);
                 Route::listem(
                     'image',
                     ['imageID' => $imageIDs]

@@ -86,15 +86,13 @@ class Module extends FOGController
      */
     protected function loadHosts()
     {
-        $hosts = self::getSubObjectIDs(
-            'ModuleAssociation',
-            ['moduleID' => $this->get('id')],
+        $find = ['moduleID' => $this->get('id')];
+        Route::ids(
+            'moduleassociation',
+            [],
             'hostID'
         );
-        $hosts = self::getSubObjectIDs(
-            'Host',
-            ['id' => $hosts]
-        );
-        $this->set('hosts', $hosts);
+        $hosts = json_decode(Route::getData(), true);
+        $this->set('hosts', (array)$hosts);
     }
 }

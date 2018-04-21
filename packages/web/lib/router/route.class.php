@@ -876,7 +876,6 @@ class Route extends FOGBase
      */
     public static function unisearch($item, $limit = 0)
     {
-        header('Content-type: application/json');
         if (empty(trim($limit))) {
             $limit = 0;
         }
@@ -927,9 +926,7 @@ class Route extends FOGBase
                 'API_UNISEARCH_RESULTS',
                 ['data' => &$data]
             );
-        echo json_encode($data);
-        unset($data);
-        exit;
+        self::$data = $data;
     }
     /**
      * Presents the equivalent of a page's search.

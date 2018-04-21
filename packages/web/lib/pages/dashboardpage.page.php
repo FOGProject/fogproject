@@ -137,13 +137,7 @@ class DashboardPage extends FOGPage
             unset($StorageGroup);
         }
         self::$_nodeOpts = implode((array)self::$_nodeOpts);
-        list(
-            self::$_tftp
-        ) = self::getSubObjectIDs(
-            'Service',
-            ['name' => ['FOG_TFTP_HOST']],
-            'value'
-        );
+        self::$_tftp = self::getSetting('FOG_TFTP_HOST');
     }
     /**
      * The index to display.

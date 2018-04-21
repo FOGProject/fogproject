@@ -85,23 +85,25 @@ class Snapin extends FOGController
     public function destroy($key = 'id')
     {
         $find = ['snapinID' => $this->get('id')];
-        $snapinJobIDs = self::getSubObjectIDs(
-            'SnapinTask',
+        Route::ids(
+            'snapintask',
             $find,
             'jobID'
         );
+        $snapinJobIDs = json_decode(Route::getData(), true);
         self::getClass('SnapinTaskManager')
             ->destroy($find);
-        $snapinJobIDs = self::getSubObjectIDs(
-            'SnapinJob',
+        Route::ids(
+            'snapinjob',
             [
                 'id' => $snapinJobIDs,
                 'stateID' => self::fastmerge(
                     self::getQueuedStates(),
                     (array)self::getProgressState()
-                ),
+                )
             ]
         );
+        $snapinJobIDs = json_decode(Route::getData(), true);
         foreach ((array)$snapinJobIDs as &$sjID) {
             $jobCount = self::getClass('SnapinTaskManager')
                 ->count(['jobID' => $sjID]);
@@ -130,14 +132,15 @@ class Snapin extends FOGController
     {
         parent::save();
 
-        $primary = self::getSubObjectIDs(
-            'SnapinGroupAssociation',
+        Route::ids(
+            'snapingroupassociation',
             [
                 'snapinID' => $this->get('id'),
                 'primary' => 1
             ],
             'storagegroupID'
         );
+        $primary = json_decode(Route::getData(), true);
         $this
             ->assocSetter('Snapin', 'host')
             ->assocSetter('SnapinGroup', 'storagegroup');
@@ -201,16 +204,14 @@ class Snapin extends FOGController
      */
     protected function loadHosts()
     {
-        $hostids = self::getSubObjectIDs(
-            'SnapinAssociation',
-            ['snapinID' => $this->get('id')],
+        $find = ['snapinID' => $this->get('id')];
+        Route::ids(
+            'snapinassociation',
+            $find,
             'hostID'
         );
-        $hostids = self::getSubObjectIDs(
-            'Host',
-            ['id' => $hostids]
-        );
-        $this->set('hosts', $hostids);
+        $hosts = json_decode(Route::getData(), true);
+        $this->set('hosts', (array)$hosts);
     }
     /**
      * Add hosts to snapin object.
@@ -249,21 +250,19 @@ class Snapin extends FOGController
      */
     protected function loadStoragegroups()
     {
-        $groupids = self::getSubObjectIDs(
-            'SnapinGroupAssociation',
-            ['snapinID' => $this->get('id')],
+        $find = ['snapinID' => $this->get('id')];
+        Route::ids(
+            'snapingroupassociation',
+            $find,
             'storagegroupID'
         );
-        $groupids = self::getSubObjectIDs(
-            'StorageGroup',
-            ['id' => $groupids]
-        );
-        $groupids = array_filter($groupids);
-        if (count($groupids) < 1) {
-            $groupids = self::getSubObjectIDs('StorageGroup');
-            $groupids = @min($groupids);
+        $groups = json_decode(Route::getData(), true);
+        if (count($groups) < 1) {
+            Route::ids('storagegroup');
+            $groups = json_decode(Route::getData(), true);
+            $groups = [@min($groups)];
         }
-        $this->set('storagegroups', $groupids);
+        $this->set('storagegroups', $groups);
     }
     /**
      * Adds groups to this object.
@@ -306,14 +305,15 @@ class Snapin extends FOGController
         $groupids = $this->get('storagegroups');
         $count = count($groupids);
         if ($count < 1) {
-            $groupids = self::getSubObjectIDs('StorageGroup');
-            $groupids = @min($groupids);
-            if ($groupids < 1) {
+            Route::ids('storagegroup');
+            $groupids = json_decode(Route::getData(), true);
+            $groupids = [@min($groupids)];
+            if (count($groupids) < 1) {
                 throw new Exception(_('No viable storage groups found'));
             }
         }
         $primaryGroup = [];
-        foreach ((array) $groupids as &$groupid) {
+        foreach ($groupids as &$groupid) {
             if (!self::getPrimaryGroup($groupid, $this->get('id'))) {
                 continue;
             }
@@ -321,7 +321,7 @@ class Snapin extends FOGController
             unset($groupid);
         }
         if (count($primaryGroup) < 1) {
-            $primaryGroup = @min((array) $groupids);
+            $primaryGroup = @min($groupids);
         } else {
             $primaryGroup = array_shift($primaryGroup);
         }
@@ -350,18 +350,21 @@ class Snapin extends FOGController
                 ->count(['snapinID' => $snapinID]);
         }
         if ($primaryCount < 1) {
-            $groupid = self::getSubObjectIDs('StorageGroup');
+            Route::ids('storagegroup');
+            $groupid = json_decode(Route::getData(), true);
             $groupid = @min($groupid);
             self::setPrimaryGroup($groupid, $snapinID);
         }
-        $assocID = self::getSubObjectIDs(
-            'SnapinGroupAssociation',
-            [
-                'storagegroupID' => $groupID,
-                'snapinID' => $snapinID,
-            ]
+        $find = [
+            'storagegroupID' => $groupID,
+            'snapinID' => $snapinID
+        ];
+        Route::ids(
+            'snapingroupassociation',
+            $find
         );
-        $assocID = @min((array) $assocID);
+        $assocID = json_decode(Route::getData(), true);
+        $assocID = @min($assocID);
 
         return self::getClass('SnapinGroupAssociation', $assocID)->isPrimary();
     }
@@ -375,14 +378,16 @@ class Snapin extends FOGController
      */
     public static function setPrimaryGroup($groupID, $snapinID)
     {
-        $exists = self::getSubObjectIDs(
-            'SnapinGroupAssociation',
-            [
-                'snapinID' => $snapinID,
-                'storagegroupID' => $groupID
-            ],
+        $find = [
+            'storagegroupID' => $groupID,
+            'snapinID' => $snapinID
+        ];
+        Route::ids(
+            'snapingroupassociation',
+            $find,
             'storagegroupID'
         );
+        $exists = json_decode(Route::getData(), true);
         if (count($exists) < 1) {
             self::getClass('SnapinGroupAssociation')
                 ->set('snapinID', $snapinID)

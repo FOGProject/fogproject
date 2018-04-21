@@ -49,28 +49,17 @@ class PingHosts extends FOGService
     public function __construct()
     {
         parent::__construct();
+        $pinghostkeys = [
+            'PINGHOSTDEVICEOUTPUT',
+            'PINGHOSTLOGFILENAME',
+            self::$sleeptime
+        ];
         list(
             self::$_fogWeb,
             $dev,
             $log,
             $zzz
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'FOG_WEB_HOST',
-                    'PINGHOSTDEVICEOUTPUT',
-                    'PINGHOSTLOGFILENAME',
-                    self::$sleeptime
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($pinghostkeys);
         static::$log = sprintf(
             '%s%s',
             (
@@ -149,25 +138,20 @@ class PingHosts extends FOGService
                     )
                 )
             );
-            $hostids = (array)self::getsubObjectIDs('Host');
-            $hostnames = (array)self::getSubObjectIDs(
-                'Host',
-                ['id' => $hostids],
+            Route::ids('host');
+            $hostids = json_decode(Route::getData(), true);
+            Route::ids(
+                'host',
+                [],
                 'name'
             );
-            $hostips = (array)self::getSubObjectIDs(
-                'Host',
-                [
-                    'id' => $hostids,
-                    'name' => $hostnames
-                ],
-                'ip',
-                false,
-                'AND',
-                'name',
-                false,
-                ''
+            $hostnames = json_decode(Route::getData(), true);
+            Route::ids(
+                'host',
+                [],
+                'ip'
             );
+            $hostips = json_decode(Route::getData(), true);
             foreach ((array)$hostids as $index => &$hostid) {
                 if (false === array_key_exists($index, $hostips)
                     || false === array_key_exists($index, $hostnames)

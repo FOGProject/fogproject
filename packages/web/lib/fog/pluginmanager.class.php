@@ -48,16 +48,17 @@ class PluginManager extends FOGManagerController
         /**
          * Find the items to be destroyed by their names.
          */
-        $names = self::getSubObjectIDs(
-            'Plugin',
+        Route::ids(
+            'plugin',
             $findWhere,
             'name'
         );
+        $names = json_decode(Route::getData(), true);
         /**
          * Call the item's and their manager's uninstall method.
          */
-        foreach ((array)$names as &$name) {
-            self::getClass($name)->getManager()->uninstall();
+        foreach ($names as &$name) {
+            self::getClass($name.'Manager')->uninstall();
             unset($name);
         }
         /*

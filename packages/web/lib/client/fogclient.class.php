@@ -88,14 +88,16 @@ abstract class FOGClient extends FOGBase
             ) {
                 throw new Exception('#!ng');
             }
-            $hostModInfo = self::getSubObjectIDs(
-                'Module',
-                [
-                    'id' => self::$Host->get('modules'),
-                    'shortName' => $this->shortName
-                ],
+            $find = [
+                'id' => self::$Host->get('modules'),
+                'shortName' => $this->shortName
+            ];
+            Route::ids(
+                'module',
+                $find,
                 'shortName'
             );
+            $hostModInfo = json_decode(Route::getData(), true);
             if (!in_array($this->shortName, $hostModInfo)) {
                 if (!self::$Host->isValid()
                     && false === $hostnotrequired

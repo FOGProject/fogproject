@@ -65,13 +65,16 @@ class HookDebugger extends Hook
     public function __construct()
     {
         parent::__construct();
-        foreach (
-            FOGCore::getSubObjectIDs(
-                'HookEvent',
-                '',
-                'name'
-            ) as &$event
-        ) {
+        Route::ids(
+            'hookevent',
+            [],
+            'name'
+        );
+        $events = json_decode(
+            Route::getData(),
+            true
+        );
+        foreach ($events as &$event) {
             self::$HookManager->register(
                 $event,
                 [$this, 'run']

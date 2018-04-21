@@ -77,21 +77,4 @@ class ServiceManager extends FOGManagerController
         );
         return self::$DB->query($sql);
     }
-    /**
-     * Gets the setting categories.
-     *
-     * @return array
-     */
-    public function getSettingCats()
-    {
-        return self::getSubObjectIDs(
-            'Service',
-            '',
-            'category',
-            false,
-            'id',
-            'category',
-            'category'
-        );
-    }
 }

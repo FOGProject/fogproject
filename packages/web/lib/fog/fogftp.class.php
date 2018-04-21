@@ -225,21 +225,7 @@ class FOGFTP
             list(
                 $portOverride,
                 $timeoutOverride
-            ) = FOGCore::getSubObjectIDs(
-                'Service',
-                [
-                    'name' => [
-                        'FOG_FTP_PORT',
-                        'FOG_FTP_TIMEOUT'
-                    ]
-                ],
-                'value',
-                false,
-                'AND',
-                'name',
-                false,
-                ''
-            );
+            ) = FOGCore::getSetting(['FOG_FTP_PORT','FOG_FTP_TIMEOUT']);
             if (!$port) {
                 if ($portOverride) {
                     $port = $portOverride;

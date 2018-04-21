@@ -73,9 +73,8 @@ class StorageNodeManagement extends FOGPage
         $bandwidth = filter_input(INPUT_POST, 'bandwidth');
         $storagegroupID = (int)filter_input(INPUT_POST, 'storagegroupID');
         if (!$storagegroupID) {
-            $storagegroupID = @min(
-                self::getSubObjectIDs('StorageGroup')
-            );
+            Route::ids('storagegroup');
+            $storagegroupID = @min(json_decode(Route::getData(), true));
         }
         $path = filter_input(INPUT_POST, 'path') ?:
             '/images/';
@@ -491,12 +490,17 @@ class StorageNodeManagement extends FOGPage
                 throw new Exception(_('Add storage node failed!'));
             }
             if ($StorageNode->get('isMaster')) {
-                $masternodes = self::getSubObjectIDs(
-                    'StorageNode',
-                    [
-                        'isMaster' => 1,
-                        'storagegroupID' => $StorageNode->get('storagegroupID')
-                    ]
+                $find = [
+                    'isMaster' => 1,
+                    'storagegroupID' => $StorageNode->get('storagegroupID')
+                ];
+                Route::ids(
+                    'storagenode',
+                    $find
+                );
+                $masternodes = json_decode(
+                    Route::getData(),
+                    true
                 );
                 self::getClass('StorageNodeManager')
                     ->update(
@@ -1040,12 +1044,17 @@ class StorageNodeManagement extends FOGPage
             ->set('pass', $pass)
             ->set('bandwidth', $bandwidth);
         if ($this->obj->get('isMaster')) {
-            $masternodes = self::getSubObjectIDs(
-                'StorageNode',
-                [
-                    'isMaster' => 1,
-                    'storagegroupID' => $this->obj->get('storagegroupID')
-                ]
+            $find = [
+                'isMaster' => 1,
+                'storagegroupID' => $this->obj->get('storagegroupID')
+            ];
+            Route::ids(
+                'storagenode',
+                $find
+            );
+            $masternodes = json_decode(
+                Route::getData(),
+                true
             );
             self::getClass('StorageNodeManager')
                 ->update(

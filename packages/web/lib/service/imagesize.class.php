@@ -41,26 +41,16 @@ class ImageSize extends FOGService
     public function __construct()
     {
         parent::__construct();
+        $imagesizekeys = [
+            'IMAGESIZEDEVICEOUTPUT',
+            'IMAGESIZELOGFILENAME',
+            self::$sleeptime
+        ];
         list(
             $dev,
             $log,
             $zzz
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'IMAGESIZEDEVICEOUTPUT',
-                    'IMAGESIZELOGFILENAME',
-                    self::$sleeptime
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($imagesizekeys);
         static::$log = sprintf(
             '%s%s',
             (
@@ -143,21 +133,25 @@ class ImageSize extends FOGService
                         _('as its primary group')
                     )
                 );
-                $imageIDs = self::getSubObjectIDs(
-                    'ImageAssociation',
-                    [
-                        'primary' => 1,
-                        'storagegroupID' => $myStorageGroupID
-                    ],
+                $find = [
+                    'primary' => 1,
+                    'storagegroupID' => $myStorageGroupID
+                ];
+                Route::ids(
+                    'imageassociation',
+                    $find,
                     'imageID'
                 );
-                $imageIDs = self::getSubObjectIDs(
-                    'Image',
-                    [
-                        'id' => $imageIDs,
-                        'isEnabled' => 1
-                    ]
+                $imageIDs = json_decode(Route::getData(), true);
+                $find = [
+                    'id' => $imageIDs,
+                    'isEnabled' => 1
+                ];
+                Route::ids(
+                    'image',
+                    $find
                 );
+                $imageIDs = json_decode(Route::getData(), true);
                 $ImageCount = count($imageIDs ?: []);
                 if ($ImageCount < 1) {
                     self::outall(

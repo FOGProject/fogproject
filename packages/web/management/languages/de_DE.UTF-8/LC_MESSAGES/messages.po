@@ -6193,18 +6193,6 @@ msgstr "Wake On Lan"
 msgid "Invalid Type"
 msgstr "Ungültiger Typ"
 
-msgid "This MAC Belongs to another host"
-msgstr "Diese MAC gehört zu einem anderen Host"
-
-msgid "Cannot add Primary mac as additional mac"
-msgstr "Primäre MAC kann nicht als zusätzliche MAC hinzugefügt werden."
-
-#, fuzzy
-msgid "Cannot add a pre-existing primary mac"
-msgstr ""
-"Eine bereits bestehende primäre MAC kann nicht als eine ausstehende MAC "
-"hinzugefügt werden."
-
 msgid "Cancelled due to new tasking."
 msgstr "Abgebrochen aufgrund neuer Aufgabe (Task)"
 

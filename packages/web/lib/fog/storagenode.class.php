@@ -281,10 +281,12 @@ class StorageNode extends FOGController
                 (array)$values
             );
             if ($key === 'images') {
-                $values = self::getSubObjectIDs(
-                    'Image',
-                    ['path' => $values]
+                $find = ['path' => $values];
+                Route::ids(
+                    'image',
+                    $find
                 );
+                $values = json_decode(Route::getData(), true);
             }
             $this->set($key, $values);
             $index++;
@@ -363,20 +365,23 @@ class StorageNode extends FOGController
         if ($index === false) {
             return $countTasks;
         }
-        $MulticastCount = self::getSubObjectIDs(
-            'MulticastSessionAssociation',
-            [
-                'taskID' => self::getSubObjectIDs(
-                    'Task',
-                    [
-                        'stateID' => self::getProgressState(),
-                        'typeID' => 8,
-                    ]
-                ),
-            ],
+        $find = [
+            'stateID' => self::getProgressState(),
+            'typeID' => TaskType::MULTICAST
+        ];
+        Route::ids(
+            'task',
+            $find
+        );
+        $taskids = json_decode(Route::getData(), true);
+        $find = ['taskID' => $taskids];
+        Route::ids(
+            'multicastsessionassociation',
+            $find,
             'msID'
         );
-        $countTasks += count($MulticastCount);
+        $msids = json_decode(Route::getData(), true);
+        $countTasks += count($msids);
 
         return $countTasks;
     }
@@ -399,20 +404,23 @@ class StorageNode extends FOGController
         if ($index === false) {
             return $countTasks;
         }
-        $MulticastCount = self::getSubObjectIDs(
-            'MulticastSessionAssociation',
-            [
-                'taskID' => self::getSubObjectIDs(
-                    'Task',
-                    [
-                        'stateID' => self::getQueuedStates(),
-                        'typeID' => 8
-                    ]
-                ),
-            ],
+        $find = [
+            'stateID' => self::getQueuedStates(),
+            'typeID' => TaskType::MULTICAST
+        ];
+        Route::ids(
+            'task',
+            $find
+        );
+        $taskids = json_decode(Route::getData(), true);
+        $find = ['taskID' => $taskids];
+        Route::ids(
+            'multicastsessionassociation',
+            $find,
             'msID'
         );
-        $countTasks += count($MulticastCount);
+        $msids = json_decode(Route::getData(), true);
+        $countTasks += count($msids);
 
         return $countTasks;
     }

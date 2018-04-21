@@ -54,11 +54,16 @@ class PrinterClient extends FOGClient
         if (!in_array($level, array_keys(self::$_modes))) {
             $level = 0;
         }
-        $allPrinters = self::getSubObjectIDs(
-            'Printer',
-            '',
+        Route::ids(
+            'printer',
+            [],
             'name'
         );
+        $allPrinters = json_decode(
+            Route::getData(),
+            true
+        );
+        natcasesort($allPrinters);
         $printerIDs = self::$Host->get('printers');
         $printerCount = count($printerIDs);
         if ($printerCount < 1) {
@@ -71,20 +76,24 @@ class PrinterClient extends FOGClient
             ];
             return $data;
         }
-        $defaultID = self::getSubObjectIDs(
-            'PrinterAssociation',
-            [
-                'hostID' => self::$Host->get('id'),
-                'isDefault' => 1,
-            ],
+        $find = [
+            'hostID' => self::$Host->get('id'),
+            'isDefault' => 1
+        ];
+        Route::ids(
+            'printerassociation',
+            $find,
             'printerID'
         );
-        $defaultName = self::getSubObjectIDs(
-            'Printer',
-            ['id' => $defaultID],
+        $defaultID = json_decode(Route::getData(), true);
+        $find = ['id' => $defaultID];
+        Route::ids(
+            'printer',
+            $find,
             'name'
         );
-        if (count($defaultName) < 1) {
+        $defaultName = json_decode(Route::getData(), true);
+        if (count($defaultName ?: []) != 1) {
             $default = '';
         } else {
             $default = array_shift($defaultName);

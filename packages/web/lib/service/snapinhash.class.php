@@ -41,26 +41,16 @@ class SnapinHash extends FOGService
     public function __construct()
     {
         parent::__construct();
+        $snapinhashkeys = [
+            'SNAPINHASHDEVICEOUTPUT',
+            'SNAPINHASHLOGFILENAME',
+            self::$sleeptime
+        ];
         list(
             $dev,
             $log,
             $zzz
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'SNAPINHASHDEVICEOUTPUT',
-                    'SNAPINHASHLOGFILENAME',
-                    self::$sleeptime
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($snapinhashkeys);
         static::$log = sprintf(
             '%s%s',
             (
@@ -143,21 +133,25 @@ class SnapinHash extends FOGService
                         _('as its primary group')
                     )
                 );
-                $snapinIDs = self::getSubObjectIDs(
-                    'SnapinGroupAssociation',
-                    [
-                        'primary' => 1,
-                        'storagegroupID' => $myStorageGroupID
-                    ],
+                $find = [
+                    'primary' => 1,
+                    'storagegroupID' => $myStorageGroupID
+                ];
+                Route::ids(
+                    'snapingroupassociation',
+                    $find,
                     'snapinID'
                 );
-                $snapinIDs = self::getSubObjectIDs(
-                    'Snapin',
-                    [
-                        'id' => $snapinIDs,
-                        'isEnabled' => 1
-                    ]
+                $snapinIDs = json_decode(Route::getData(), true);
+                $find = [
+                    'id' => $snapinIDs,
+                    'isEnabled' => 1
+                ];
+                Route::ids(
+                    'snapin',
+                    $find
                 );
+                $snapinIDs = json_decode(Route::getData(), true);
                 $SnapinCount = count($snapinIDs ?: []);
                 if ($SnapinCount < 1) {
                     self::outall(

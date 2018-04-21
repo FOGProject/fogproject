@@ -47,26 +47,16 @@ class MulticastManager extends FOGService
     public function __construct()
     {
         parent::__construct();
+        $multicasetkeys = [
+            'MULTICASTDEVICEOUTPUT',
+            'MULTICASTLOGFILENAME',
+            self::$sleeptime
+        ];
         list(
             $dev,
             $log,
             $zzz
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'MULTICASTDEVICEOUTPUT',
-                    'MULTICASTLOGFILENAME',
-                    self::$sleeptime
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($multicastkeys);
         static::$log = sprintf(
             '%s%s',
             (
@@ -386,20 +376,20 @@ class MulticastManager extends FOGService
                             $curTask->getID()
                         );
                         $taskIDs = $runningTask->getTaskIDs();
-                        $inTaskCancelledIDs = self::getSubObjectIDs(
-                            'Task',
-                            [
-                                'id' => $taskIDs,
-                                'stateID' => self::getCancelledState()
-                            ]
+                        $find = [];
+                        $find['id'] = $taskIDs;
+                        $find['stateID'] = self::getCancelledState();
+                        Route::ids(
+                            'task',
+                            $find
                         );
-                        $inTaskCompletedIDs = self::getSubObjectIDs(
-                            'Task',
-                            [
-                                'id' => $taskIDs,
-                                'stateID' => self::getCompleteState()
-                            ]
+                        $inTaskCancelledIDs = json_decode(Route::getData(), true);
+                        $find['stateID'] = self::getCompleteState();
+                        Route::ids(
+                            'task',
+                            $find
                         );
+                        $inTaskCompletedIDs = json_decode(Route::getData(), true);
                         $Session = $runningTask->getSess();
                         $SessCancelled = $Session->get('stateID')
                             == self::getCancelledState();

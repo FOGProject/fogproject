@@ -41,26 +41,16 @@ class TaskScheduler extends FOGService
     public function __construct()
     {
         parent::__construct();
+        $schedulerkeys = [
+            'SCHEDULERDEVICEOUTPUT',
+            'SCHEDULERLOGFILENAME',
+            self::$sleeptime
+        ];
         list(
             $dev,
             $log,
             $zzz
-        ) = self::getSubObjectIDs(
-            'Service',
-            [
-                'name' => [
-                    'SCHEDULERDEVICEOUTPUT',
-                    'SCHEDULERLOGFILENAME',
-                    self::$sleeptime
-                ]
-            ],
-            'value',
-            false,
-            'AND',
-            'name',
-            false,
-            ''
-        );
+        ) = self::getSetting($schedulerkeys);
         static::$log = sprintf(
             '%s%s',
             self::$logpath ?
@@ -100,20 +90,29 @@ class TaskScheduler extends FOGService
                 'stateID' => self::getQueuedStates(),
                 'wol' => 1
             ];
-            $taskHostIDs = self::getSubObjectIDs(
-                'Task',
+            Route::ids(
+                'task',
                 $findWhere,
                 'hostID'
             );
+            $taskHostIDs = json_decode(
+                Route::getData(),
+                true
+            );
             $hostCount = count($taskHostIDs);
             if ($hostCount > 0) {
-                $hostMACs = self::getSubObjectIDs(
-                    'MACAddressAssociation',
-                    [
-                        'hostID' => $taskHostIDs,
-                        'pending' => [0, ''],
-                    ],
+                $find = [
+                    'hostID' => $taskHostIDs,
+                    'pending' => [0, '']
+                ];
+                Route::ids(
+                    'macaddressassociation',
+                    $find,
                     'mac'
+                );
+                $hostMACs = json_decode(
+                    Route::getData(),
+                    true
                 );
                 $hostMACs = self::parseMacList($hostMACs);
                 $macCount = count($hostMACs);
