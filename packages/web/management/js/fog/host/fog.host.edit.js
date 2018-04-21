@@ -972,17 +972,11 @@
             toEnable = [],
             toDisable = [],
             opts = {
-                enablemodulessel: 1,
-                disablemodulessel: 1,
+                updatemodulessel: 1,
                 enablemodules: toEnable,
-                disablemodules: toDisable
             };
-        $('#modules-to-update').find('.associated').each(function() {
-            if ($(this).is(':checked')) {
-                toEnable.push($(this).val());
-            } else if (!$(this).is(':checked')) {
-                toDisable.push($(this).val());
-            }
+        $.each($('.associated:checked'), function() {
+            toEnable.push(this.value);
         });
         Common.apiCall(method,action,opts,function(err) {
             modulesUpdateBtn.prop('disabled', false);

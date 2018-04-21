@@ -95,7 +95,7 @@ class RegisterClient extends FOGClient
                     )
                     ->set('pending', (string)1)
                     ->set('enforce', (string)$enforce)
-                    ->addModule($modules)
+                    ->set('modules', $modules)
                     ->addPriMAC($PriMAC)
                     ->addMAC($MACs);
                 if (!self::$Host->save()) {
