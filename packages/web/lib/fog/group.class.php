@@ -470,20 +470,22 @@ class Group extends FOGController
         if (!$TaskType->isValid()) {
             throw new Exception(self::$foglang['TaskTypeNotValid']);
         }
+        $find = [
+            'hostID' => $hostids,
+            'stateID' => self::fastmerge(
+                self::getQueuedStates(),
+                (array)self::getProgressState()
+            ),
+            'typeID' => $TaskType->isInitNeededTasking(true)
+        ];
+        Route::ids(
+            'task',
+            $find,
+            'hostID'
+        );
         $hostids = array_diff(
             $hostids,
-            self::getSubObjectIDs(
-                'Task',
-                [
-                    'hostID' => $hostids,
-                    'stateID' => self::fastmerge(
-                        self::getQueuedStates(),
-                        (array)self::getProgressState()
-                    ),
-                    'typeID' => $TaskType->isInitNeededTasking(true)
-                ],
-                'hostID'
-            )
+            json_decode(Route::getData(), true)
         );
         if (count($hostids) < 1) {
             throw new Exception(_('No hosts available to task'));
@@ -491,13 +493,13 @@ class Group extends FOGController
         $imagingTypes = $TaskType->isImagingTask();
         $now = $this->niceDate();
         if ($imagingTypes) {
-            $imageID = @min(
-                self::getSubObjectIDs(
-                    'Host',
-                    ['id' => $hostids],
-                    'imageID'
-                )
+            $find = ['id' => $hostids];
+            Route::ids(
+                'host',
+                $find,
+                'imageID'
             );
+            $imageID = @min(json_decode(Route::getData(), true));
             $Image = new Image($imageID);
             if (!$Image->isValid()) {
                 throw new Exception(self::$foglang['ImageNotValid']);
@@ -514,24 +516,14 @@ class Group extends FOGController
                 throw new Exception(_('Unable to find master Storage Node'));
             }
             if ($TaskType->isMulticast()) {
+                $keys = [
+                    'FOG_MULTICAST_PORT_OVERRIDE',
+                    'FOG_UDPCAST_STARTINGPORT'
+                ];
                 list(
                     $portOverride,
                     $defaultPort
-                ) = self::getSubObjectIDs(
-                    'Service',
-                    [
-                        'name' => [
-                            'FOG_MULTICAST_PORT_OVERRIDE',
-                            'FOG_UDPCAST_STARTINGPORT',
-                        ],
-                    ],
-                    'value',
-                    false,
-                    'AND',
-                    'name',
-                    false,
-                    ''
-                );
+                ) = self::getSetting($keys);
                 if ($portOverride) {
                     $port = $portOverride;
                 } else {
@@ -629,16 +621,13 @@ class Group extends FOGController
                 $this->_createSnapinTasking($now, -1);
             } elseif ($TaskType->isDeploy()) {
                 $hostIDs = $hostids;
-                $imageIDs = self::getSubObjectIDs(
-                    'Host',
-                    ['id' => $hostIDs],
-                    'imageID',
-                    false,
-                    'AND',
-                    'name',
-                    false,
-                    ''
+                $find = ['id' => $hostIDs];
+                Route::ids(
+                    'host',
+                    $find,
+                    'imageID'
                 );
+                $imageIDs = json_decode(Route::getData(), true);
                 $batchFields = [
                     'name',
                     'createdBy',
@@ -650,7 +639,7 @@ class Group extends FOGController
                     'imageID',
                     'shutdown',
                     'isDebug',
-                    'passreset',
+                    'passreset'
                 ];
                 $batchTask = [];
                 for ($i = 0; $i < $hostCount; ++$i) {
@@ -756,14 +745,16 @@ class Group extends FOGController
      */
     public function wakeOnLAN()
     {
-        $hostMACs = self::getSubObjectIDs(
-            'MACAddressAssociation',
-            [
-                'hostID' => $this->get('hosts'),
-                'pending' => [0, '']
-            ],
+        $find = [
+            'hostID' => $this->get('hosts'),
+            'pending' => [0, '']
+        ];
+        Route::ids(
+            'macaddressassociation',
+            $find,
             'mac'
         );
+        $hostMACs = json_decode(Route::getData(), true);
         $hostMACs = self::parseMacList($hostMACs);
         if (count($hostMACs) > 0) {
             $macStr = implode(
@@ -786,26 +777,28 @@ class Group extends FOGController
         if ($snapin === false) {
             return;
         }
-        $hostIDs = array_values(
-            self::getSubObjectIDs(
-                'SnapinAssociation',
-                ['hostID' => $this->get('hosts')],
-                'hostID'
-            )
+        $find = ['hostID' => $this->get('hosts')];
+        Route::ids(
+            'snapinassociation',
+            $find,
+            'hostID'
         );
+        $hostIDs = json_decode(Route::getData(), true);
         $hostCount = count($hostIDs);
         $snapinJobs = [];
         for ($i = 0; $i < $hostCount; ++$i) {
             $hostID = $hostIDs[$i];
-            $snapins[$hostID] = (
-                $snapin == -1 ?
-                self::getSubObjectIDs(
-                    'SnapinAssociation',
-                    ['hostID' => $hostID],
+            if ($snapin == -1) {
+                $find = ['hostID' => $hostID];
+                Route::ids(
+                    'snapinassociation',
+                    $find,
                     'snapinID'
-                ) :
-                [$snapin]
-            );
+                );
+                $snapin[$hostID] = json_decode(Route::getData(), true);
+            } else {
+                $snapin[$hostID] = [$snapin];
+            }
             if (count($snapins[$hostID]) < 1) {
                 continue;
             }
@@ -912,14 +905,13 @@ class Group extends FOGController
      */
     protected function loadHosts()
     {
-        $this->set(
-            'hosts',
-            self::getSubObjectIDs(
-                'GroupAssociation',
-                ['groupID' => $this->get('id')],
-                'hostID'
-            )
+        $find = ['groupID' => $this->get('id')];
+        Route::ids(
+            'groupassociation',
+            $find,
+            'hostID'
         );
-        $this->getHostCount();
+        $hosts = json_decode(Route::getData(), true);
+        $this->set('hosts', (array)$hosts);
     }
 }

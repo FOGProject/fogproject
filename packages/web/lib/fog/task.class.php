@@ -189,11 +189,13 @@ class Task extends TaskType
             )->save();
         }
         if ($this->isMulticast()) {
-            $msIDs = self::getSubObjectIDs(
-                'MulticastSessionAssociation',
-                ['taskID' => $this->get('id')],
-                'jobID'
+            $find = ['taskID' => $this->get('id')];
+            Route::ids(
+                'multicastsessionsassociation',
+                $find,
+                'msID'
             );
+            $msIDS = json_decode(Route::getData(), true);
             self::getClass('MulticastSessionManager')
                 ->update(
                     ['id' => $msIDs],

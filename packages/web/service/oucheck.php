@@ -22,15 +22,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-$count = FOGCore::getClass('OUManager')
-    ->count(
-        [
-            'installed' => 1,
-            'state' => 1,
-            'name' => 'ou',
-        ]
-    );
-if ($count > 0) {
+if (in_array('ou', FOGCore::$pluginsinstalled)) {
     echo '##';
 }
 exit;

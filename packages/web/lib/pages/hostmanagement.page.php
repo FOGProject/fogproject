@@ -1310,7 +1310,7 @@ class HostManagement extends FOGPage
                     _('MAC Address already exists')
                 );
             }
-            $this->obj->addAddMac($mac);
+            $this->obj->addMAC($mac);
         }
         if (isset($_POST['updateprimary'])) {
             $primary = (int)filter_input(
@@ -1447,7 +1447,7 @@ class HostManagement extends FOGPage
                 );
             }
 
-            $this->obj->removeAddMAC($toRemove);
+            $this->obj->removeMAC($toRemove);
         }
     }
     /**

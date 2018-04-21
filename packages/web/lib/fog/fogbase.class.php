@@ -1915,68 +1915,6 @@ abstract class FOGBase
         }
     }
     /**
-     * Gets the object ids only.
-     *
-     * @param string $object    The object to use
-     * @param array  $findWhere How to find the elements we need
-     * @param string $getField  The field value to return
-     * @param mixed  $not       DB to search with not or no not
-     * @param string $operator  How to join strings (And or Or)
-     * @param mixed  $orderBy   Order the return by
-     * @param mixed  $groupBy   Group the return by
-     * @param string $filter    How to filter the data returning
-     *
-     * @return array
-     */
-    public static function getSubObjectIDs(
-        $object = 'Host',
-        $findWhere = [],
-        $getField = 'id',
-        $not = false,
-        $operator = 'AND',
-        $orderBy = 'name',
-        $groupBy = false,
-        $filter = 'array_unique'
-    ) {
-        if (empty($object)) {
-            $object = 'Host';
-        }
-        if (empty($getField)) {
-            $getField = 'id';
-        }
-        if (empty($operator)) {
-            $operator = 'AND';
-        }
-        if (is_array($getField)) {
-            foreach ((array)$getField as &$field) {
-                $data[$field] = self::getSubObjectIDs(
-                    $object,
-                    $findWhere,
-                    $field,
-                    $not,
-                    $operator,
-                    $orderBy,
-                    $groupBy,
-                    $filter
-                );
-                unset($field);
-            }
-            return $data;
-        }
-        return self::getClass($object.'Manager')->find(
-            $findWhere,
-            $operator,
-            $orderBy,
-            '',
-            '',
-            $groupBy,
-            $not,
-            $getField,
-            '',
-            $filter
-        );
-    }
-    /**
      * Get global setting value by key.
      *
      * @param string|array $key What to get
