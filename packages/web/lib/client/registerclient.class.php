@@ -87,7 +87,8 @@ class RegisterClient extends FOGClient implements FOGClientSend
                     )
                     ->set('pending', (string)1)
                     ->set('enforce', (string)$enforce)
-                    ->addModule(
+                    ->set(
+                        'modules',
                         self::getSubObjectIDs(
                             'Module',
                             array('isDefault' => 1)

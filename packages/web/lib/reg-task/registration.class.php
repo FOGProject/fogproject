@@ -223,7 +223,7 @@ class Registration extends FOGBase
                 ->set('name', $host)
                 ->set('description', $this->description)
                 ->set('imageID', $imageid)
-                ->addModule($this->modulesToJoin)
+                ->set('modules', $this->modulesToJoin)
                 ->addGroup($groupsToJoin)
                 ->addSnapin($snapinsToJoin)
                 ->addPriMAC($this->PriMAC)
@@ -386,7 +386,7 @@ class Registration extends FOGBase
                 ->set('name', $hostname)
                 ->set('description', $this->description)
                 ->set('imageID', $imageid)
-                ->addModule($this->modulesToJoin)
+                ->set('modules', $this->modulesToJoin)
                 ->addGroup($groupsToJoin)
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs);
@@ -446,7 +446,7 @@ class Registration extends FOGBase
             self::$Host = self::getClass('Host')
                 ->set('name', $this->macsimple)
                 ->set('description', $this->description)
-                ->addModule($this->modulesToJoin)
+                ->set('modules', $this->modulesToJoin)
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs);
             if (self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS') > 0) {
