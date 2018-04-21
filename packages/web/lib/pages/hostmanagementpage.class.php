@@ -655,7 +655,7 @@ class HostManagementPage extends FOGPage
                 ->set('biosexit', $bootTypeExit)
                 ->set('efiexit', $efiBootTypeExit)
                 ->set('productKey', $productKey)
-                ->addModule($ModuleIDs)
+                ->set('modules', $ModuleIDs)
                 ->addPriMAC($MAC)
                 ->setAD(
                     $useAD,
@@ -3563,17 +3563,8 @@ class HostManagementPage extends FOGPage
             )
         );
         $modOn = $modOn['modules'];
-        $modOff = self::getSubObjectIDs(
-            'Module',
-            array(
-                'id' => $modOn
-            ),
-            'id',
-            true
-        );
         if (isset($_POST['modulesend'])) {
-            $this->obj->addModule($modOn);
-            $this->obj->removeModule($modOff);
+            $this->obj->set('modules', $modOn);
         }
         if (isset($_POST['dispupdate'])) {
             $this->obj->setDisp($x, $y, $r);
