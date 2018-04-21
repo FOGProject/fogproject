@@ -3919,7 +3919,7 @@ abstract class FOGPage extends FOGBase
                     }
                     if ($Item instanceof Host) {
                         $Item
-                            ->addModule($modules)
+                            ->set('modules', $modules)
                             ->addPriMAC($primac)
                             ->addAddMAC($macs);
                     }
