@@ -445,17 +445,16 @@ function setupBandwidth() {
             },
             series: {
                 shadowSize: 0,
-                //colors: ['#3c8dbc', '#0073b7'],
                 lines: {
                     show: true
                 }
             },
             lines: {
                 fill: false,
-                //colors: ['#3c8dbc', '#0073b7']
             },
             xaxis: {
                 mode: 'time',
+                tickSize: [30, 'second'],
                 show: true
             },
             yaxis: {
