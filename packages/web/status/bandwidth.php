@@ -110,8 +110,8 @@ $tx = round(ceil(($txcur - $txlast) / 1024 * 8 / 100), 2);
 // Setup our return array
 $ret = [
     'dev' => $dev,
-    'rx' => $rx,
-    'tx' => $tx,
+    'rx' => (int)$rx,
+    'tx' => (int)$tx,
 ];
 // Return
 echo json_encode($ret);
