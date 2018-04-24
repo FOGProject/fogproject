@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-24 01:17-0400\n"
+"POT-Creation-Date: 2018-04-24 03:46-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3232,10 +3232,6 @@ msgstr "Kernel Name"
 msgid "API?"
 msgstr ""
 
-#, fuzzy
-msgid "Create New User"
-msgstr "Create New %s"
-
 msgid "User Password"
 msgstr "User Password"
 
@@ -6266,12 +6262,16 @@ msgstr ""
 msgid "Add selected to group"
 msgstr "Remove selected snapins"
 
-msgid "s"
-msgstr ""
-
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "Add Storage Group"
+
+#, fuzzy
+msgid "Create New"
+msgstr "Create New %s"
+
+msgid "s"
+msgstr ""
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -6280,6 +6280,10 @@ msgstr "successfully updated"
 #, fuzzy
 msgid "Delete Success"
 msgstr "User created"
+
+#, fuzzy
+msgid "Remove Fail"
+msgstr "Removed"
 
 msgid "Enable Domain Joining"
 msgstr ""

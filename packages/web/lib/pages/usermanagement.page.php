@@ -70,8 +70,6 @@ class UserManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New User');
-
         $user = filter_input(INPUT_POST, 'user');
         $display = filter_input(INPUT_POST, 'display');
 
@@ -186,28 +184,12 @@ class UserManagement extends FOGPage
         echo self::makeFormTag(
             'form-horizontal',
             'user-create-form',
-            $this->formAction,
+            '../management/index.php?node=user&sub=add',
             'post',
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid" id="user-create">';
-        echo '<div class="box-body">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Create New User');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
         echo $rendered;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
         echo '</form>';
     }
     /**

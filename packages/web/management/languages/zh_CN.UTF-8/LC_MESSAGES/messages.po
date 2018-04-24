@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-24 01:17-0400\n"
+"POT-Creation-Date: 2018-04-24 03:46-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3228,10 +3228,6 @@ msgstr "内核名称"
 msgid "API?"
 msgstr ""
 
-#, fuzzy
-msgid "Create New User"
-msgstr "新建%s"
-
 msgid "User Password"
 msgstr "用户密码"
 
@@ -6260,12 +6256,16 @@ msgstr ""
 msgid "Add selected to group"
 msgstr "打印机"
 
-msgid "s"
-msgstr ""
-
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "添加存储组"
+
+#, fuzzy
+msgid "Create New"
+msgstr "新建%s"
+
+msgid "s"
+msgstr ""
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -6274,6 +6274,10 @@ msgstr "成功更新"
 #, fuzzy
 msgid "Delete Success"
 msgstr "用户创建"
+
+#, fuzzy
+msgid "Remove Fail"
+msgstr "去除"
 
 msgid "Enable Domain Joining"
 msgstr ""

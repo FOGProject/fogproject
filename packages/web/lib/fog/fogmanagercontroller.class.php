@@ -1010,18 +1010,14 @@ abstract class FOGManagerController extends FOGBase
             $compare = '=';
         }
         $ids = [];
-        foreach ($findWhere as $key => &$vals) {
-            $newfind[$this->databaseFields[$key]] = $vals;
-            unset($vals);
-        }
-        Route::listem(
+        Route::names(
             $this->childClass,
-            $newfind
+            $findWhere
         );
         $Items = json_decode(
             Route::getData()
         );
-        foreach ($Items->data as &$Item) {
+        foreach ($Items as &$Item) {
             $ids[] = $Item->id;
             unset($Item);
         }

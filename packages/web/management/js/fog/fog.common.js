@@ -82,7 +82,7 @@ var $_GET = getQueryParams(document.location.search),
 
             // Grab the parent form-group, as we will need it to visually mark
             //   invalid fields
-            var parent = $(e).closest('div[class^="form-group"]');;
+            var parent = $(e).closest('div[class^="form-group"]');
             var required = $(e).prop('required');
             var val = $(e).inputmask('unmaskedvalue');
             if(required) {
@@ -510,6 +510,50 @@ var $_GET = getQueryParams(document.location.search),
     reAuthModal = $("#deleteModal");
     deleteConfirmButton = $("#confirmDeleteModal");
     deleteLang = deleteConfirmButton.text();
+
+    // Add new item Common show
+    // ==============================
+    // Reset the form on open.
+    // Select the first enabled/visible input for focus.
+    // Enable keypress enter to submit.
+    // Prevent form submission default action.
+    // Perform submission of the form when create or enter is pressed.
+    Common.createFormModalShowFunc = function(table) {
+        var form = $('#'+Common.node+'-create-form'),
+            btn = $('#send');
+        form[0].reset();
+        $(':input:first').trigger('focus');
+        $(':input').on('keypress', function(e) {
+            if (e.which == 13 && !btn.prop('disabled')) {
+                btn.trigger('click');
+            }
+        });
+        form.on('submit', function(e) {
+            e.preventDefault();
+        });
+        btn.on('click', function(e) {
+            Common.processForm(form, function(err) {
+                if (err) {
+                    return;
+                }
+                table.draw(false);
+                $('#createnewModal').modal('hide');
+            });
+        });
+    };
+    // Add new item Common hide.
+    // =================================
+    // Reset the form on close.
+    // Disable the keypress actions.
+    // Disable the button press actions.
+    // Hide the modal.
+    Common.createFormModalHideFunc = function(form, btn, table) {
+        var form = $('#'+Common.node+'-create-form'),
+            btn = $('#send');
+        form[0].reset();
+        $(':input').off('keypress');
+        btn.off('click');
+    };
 })(jQuery);
 
 function setupIntegrations() {

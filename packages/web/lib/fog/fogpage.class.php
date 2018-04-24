@@ -1038,12 +1038,58 @@ abstract class FOGPage extends FOGBase
                         _('Add selected to group'),
                         'btn btn-default pull-right'
                     );
+                    $modals .= self::makeModal(
+                        'addToGroupModal',
+                        _('Add To Group(s)'),
+                        '<select id="groupSelect" class="" '
+                        . 'name="" multiple="multiple">'
+                        . '</select>',
+                        self::makeButton(
+                            'closeGroupModal',
+                            _('Cancel'),
+                            'btn btn-outline pull-left',
+                            'data-dismiss="modal"'
+                        )
+                        . self::makeButton(
+                            'confirmGroupAdd',
+                            _('Add'),
+                            'btn btn-outline pull-right'
+                        ),
+                        '',
+                        'info'
+                    );
                 }
                 if ($node != 'plugin') {
                     $actionbox .= self::makeButton(
                         'deleteSelected',
                         _('Delete selected'),
                         'btn btn-danger pull-left'
+                    );
+                    $actionbox .= self::makeButton(
+                        'createnew',
+                        _('Add'),
+                        'btn btn-primary pull-right'
+                    );
+                    ob_start();
+                    $this->add();
+                    $add = ob_get_clean();
+                    $modals .= self::makeModal(
+                        'createnewModal',
+                        _('Create New') . ' ' . ucfirst(_($node)),
+                        $add,
+                        self::makeButton(
+                            'closecreateModal',
+                            _('Cancel'),
+                            'btn btn-outline pull-left',
+                            'data-dismiss="modal"'
+                        )
+                        . self::makeButton(
+                            'send',
+                            _('Create'),
+                            'btn btn-primary pull-right'
+                        ),
+                        '',
+                        'primary'
                     );
                     $modals .= self::makeModal(
                         'deleteModal',
@@ -1072,26 +1118,6 @@ abstract class FOGPage extends FOGBase
                         ),
                         '',
                         'danger'
-                    );
-                    $modals .= self::makeModal(
-                        'addToGroupModal',
-                        _('Add To Group(s)'),
-                        '<select id="groupSelect" class="" '
-                        . 'name="" multiple="multiple">'
-                        . '</select>',
-                        self::makeButton(
-                            'closeGroupModal',
-                            _('Cancel'),
-                            'btn btn-outline pull-left',
-                            'data-dismiss="modal"'
-                        )
-                        . self::makeButton(
-                            'confirmGroupAdd',
-                            _('Add'),
-                            'btn btn-outline pull-right'
-                        ),
-                        '',
-                        'info'
                     );
                 }
             }
@@ -1316,18 +1342,32 @@ abstract class FOGPage extends FOGBase
             'MULTI_REMOVE',
             ['removing' => &$remitems]
         );
-        if ((int)$_POST['storagegroup'] === 1) {
-            $this->childClass = 'StorageGroup';
+        $serverFault = false;
+        try {
+            self::getClass($this->childClass.'Manager')
+                ->destroy(['id' => $remitems]);
+            $msg =json_encode(
+                [
+                    'msg' => _('Successfully deleted'),
+                    'title' => _('Delete Success')
+                ]
+            );
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
+        } catch (Exception $e) {
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Remove Fail')
+                ]
+            );
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
         }
-        self::getClass($this->childClass.'Manager')
-            ->destroy(['id' => $remitems]);
-        echo json_encode(
-            [
-                'msg' => _('Successfully deleted'),
-                'title' => _('Delete Success')
-            ]
-        );
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
+        http_response_code($code);
+        echo $msg;
         exit;
     }
     /**

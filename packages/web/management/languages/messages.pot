@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-24 01:17-0400\n"
+"POT-Creation-Date: 2018-04-24 03:54-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2797,9 +2797,6 @@ msgstr ""
 msgid "API?"
 msgstr ""
 
-msgid "Create New User"
-msgstr ""
-
 msgid "User Password"
 msgstr ""
 
@@ -5354,16 +5351,22 @@ msgstr ""
 msgid "Add selected to group"
 msgstr ""
 
-msgid "s"
+msgid "Add To Group(s)"
 msgstr ""
 
-msgid "Add To Group(s)"
+msgid "Create New"
+msgstr ""
+
+msgid "s"
 msgstr ""
 
 msgid "Successfully deleted"
 msgstr ""
 
 msgid "Delete Success"
+msgstr ""
+
+msgid "Remove Fail"
 msgstr ""
 
 msgid "Enable Domain Joining"
