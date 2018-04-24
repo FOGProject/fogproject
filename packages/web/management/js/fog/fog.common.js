@@ -103,6 +103,8 @@ var $_GET = getQueryParams(document.location.search),
 
                 if (beEqualTo) beEqualTo = "#" + beEqualTo;
 
+                if (beRegexTo) beRegexTo = '#' + beRegexTo;
+
                 if (val.length < minLength) {
                     isValid = false;
                     if (maxLength == minLength) {
@@ -130,6 +132,26 @@ var $_GET = getQueryParams(document.location.search),
                 if ($(e).val() !== target.val()) {
                     isValid = false;
                     invalidReason = 'Field does not match';
+                }
+            }
+
+            regexCheck: if (isValid) {
+                var beRegexTo = $(e).attr('beRegexTo'),
+                    regexID = $(e).attr('id'),
+                    helpMsg = $(e).attr('requirements'),
+                    localstr = $(e).val(),
+                    regex = new RegExp(beRegexTo);
+                if (!regexID) break regexCheck;
+                if (!$('#'+regexID).length) {
+                    Common.debugLog('Missing target ' + regexID + ' for ' + e);
+                    break regexCheck;
+                }
+                if (!regex.test(localstr)) {
+                    isValid = false;
+                    invalidReason = 'Does not meet the requirements.';
+                    if (helpMsg) {
+                        invalidReason += ' ' + helpMsg;
+                    }
                 }
             }
 

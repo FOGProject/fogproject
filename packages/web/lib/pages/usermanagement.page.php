@@ -119,7 +119,14 @@ class UserManagement extends FOGPage
                 'password',
                 '',
                 true,
-                false
+                false,
+                (int)self::getSetting('FOG_USER_MINPASSLENGTH'),
+                -1,
+                'beRegexTo="'
+                . self::getSetting('FOG_USER_VALIDPASSCHARS')
+                . '" requirements="'
+                . _(self::getSetting('FOG_USER_VALIDPASSHELPMSG'))
+                . '"'
             )
             . '</div>',
             self::makeLabel(
@@ -420,7 +427,14 @@ class UserManagement extends FOGPage
                 'password',
                 '',
                 true,
-                false
+                false,
+                (int)self::getSetting('FOG_USER_MINPASSLENGTH'),
+                -1,
+                'beRegexTo="'
+                . self::getSetting('FOG_USER_VALIDPASSCHARS')
+                . '" requirements="'
+                . _(self::getSetting('FOG_USER_VALIDPASSHELPMSG'))
+                . '"'
             )
             . '</div>',
             self::makeLabel(
