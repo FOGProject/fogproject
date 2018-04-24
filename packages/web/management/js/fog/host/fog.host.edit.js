@@ -47,9 +47,9 @@
     generalDeleteModalConfirm.on('click', function() {
         var method = 'post',
             action = '../management/index.php?node='
-                + Common.node
-                + '&sub=delete&id='
-                + Common.id;
+            + Common.node
+            + '&sub=delete&id='
+            + Common.id;
         Common.apiCall(method, action, null, function(err) {
             if (err) {
                 return;
@@ -546,9 +546,9 @@
         // Interrupt AJAX if modal closed
         var req;
         taskModal.on('hidden.bs.modal', function() {
-          if(req != null){
-            req.abort();
-          }
+            if(req != null){
+                req.abort();
+            }
         });
         // END: Interrupt AJAX if modal closed
 
@@ -628,8 +628,9 @@
                     });
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
-                  if(textStatus == 'abort') return; // Do not show error message on abort.
-                  Common.notifyFromAPI(jqXHR.responseJSON, true);
+                    if(textStatus == 'abort') return; // Do not show error message on abort.
+                    taskModal.modal('hide');
+                    Common.notifyFromAPI(jqXHR.responseJSON, true);
                 }
             });
         });
