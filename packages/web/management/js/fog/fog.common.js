@@ -646,9 +646,9 @@ function setupUniversalSearch() {
                     for (var i = 0; i < obj.length; i++) {
                         var item = obj[i];
                         objData.push({
-                            "id": id,
-                            "text": item.name,
-                            "url": (
+                            id: id,
+                            text: item.name,
+                            url: (
                                 key != 'service' ?
                                 '../management/index.php?node=' + key + '&sub=edit&id=' + item.id :
                                 '../management/index.php?node=about&sub=settings&search=' + item.name
@@ -657,9 +657,9 @@ function setupUniversalSearch() {
                     }
                     if (obj.length != data._results[key]) {
                         objData.push({
-                            "id": id,
-                            "text": "--> " + lang.AllResults,
-                            "url": (
+                            id: id,
+                            text: "--> " + lang.AllResults,
+                            url: (
                                 key != 'service' ?
                                 '../management/index.php?node=' + key + '&sub=list&search=' + data._query :
                                 '../management/index.php?node=about&sub=settings&search=' + data._query
@@ -668,8 +668,13 @@ function setupUniversalSearch() {
                     }
 
                     results.push({
-                        "text": Common.capitalizeFirstLetter(lang[key]),
-                        "children": objData
+                        text: Common.capitalizeFirstLetter(lang[key]),
+                        url: (
+                            key != 'service' ?
+                            '../management/index.php?node=' + key + '&sub=list' :
+                            '../management/index.php?node=about&sub=settings'
+                        ),
+                        children: objData
                     });
                 }
                 return {
