@@ -1247,10 +1247,38 @@ class HostManagement extends FOGPage
             _('Add New MAC Address'),
             'btn btn-info'
         );
-        $buttons .= self::makeButton(
-            'macaddress-table-update',
-            _('Update selected'),
-            'btn btn-primary',
+        $buttons .= self::makeSplitButton(
+            'macaddress-table-update-image',
+            _('Mark selected image ignore'),
+            [
+                [
+                    'id' => 'macaddress-table-update-unimage',
+                    'text' => _('Unmark selected image ignore'),
+                    'prop' => $props
+                ],
+                [
+                    'id' => 'macaddress-table-update-client',
+                    'text' => _('Mark selected client ignore'),
+                    'prop' => $props
+                ],
+                [
+                    'id' => 'macaddress-table-update-unclient',
+                    'text' => _('Unmark selected client ignore'),
+                    'prop' => $props
+                ],
+                [
+                    'id' => 'macaddress-table-update-pending',
+                    'text' => _('Mark selected pending'),
+                    'prop' => $props
+                ],
+                [
+                    'id' => 'macaddress-table-update-unpending',
+                    'text' => _('Unmark selected pending'),
+                    'prop' => $props
+                ]
+            ],
+            'right',
+            'primary',
             $props
         );
         $buttons .= '</div>';
@@ -1335,8 +1363,8 @@ class HostManagement extends FOGPage
                     );
             }
         }
+        $flags = ['flags' => FILTER_REQUIRE_ARRAY];
         if (isset($_POST['updatechecks'])) {
-            $flags = ['flags' => FILTER_REQUIRE_ARRAY];
             $items = filter_input_array(
                 INPUT_POST,
                 [
@@ -1448,6 +1476,114 @@ class HostManagement extends FOGPage
             }
 
             $this->obj->removeMAC($toRemove);
+        }
+        if (isset($_POST['markimageignore'])) {
+            $items = filter_input_array(
+                INPUT_POST,
+                ['imageIgnore' => $flags]
+            );
+            $imageIgnore = $items['imageIgnore'];
+            if (count($imageIgnore) > 0) {
+                self::getClass('MACAddressAssociationManager')
+                    ->update(
+                        [
+                            'id' => $imageIgnore,
+                            'hostID' => $this->obj->get('id')
+                        ],
+                        '',
+                        ['imageIgnore' => 1]
+                    );
+            }
+        }
+        if (isset($_POST['markimageunignore'])) {
+            $items = filter_input_array(
+                INPUT_POST,
+                ['imageIgnore' => $flags]
+            );
+            $imageIgnore = $items['imageIgnore'];
+            if (count($imageIgnore) > 0) {
+                self::getClass('MACAddressAssociationManager')
+                    ->update(
+                        [
+                            'id' => $imageIgnore,
+                            'hostID' => $this->obj->get('id')
+                        ],
+                        '',
+                        ['imageIgnore' => 0]
+                    );
+            }
+        }
+        if (isset($_POST['markclientignore'])) {
+            $items = filter_input_array(
+                INPUT_POST,
+                ['clientIgnore' => $flags]
+            );
+            $clientIgnore = $items['clientIgnore'];
+            if (count($clientIgnore) > 0) {
+                self::getClass('MACAddressAssociationManager')
+                    ->update(
+                        [
+                            'id' => $clientIgnore,
+                            'hostID' => $this->obj->get('id')
+                        ],
+                        '',
+                        ['clientIgnore' => 1]
+                    );
+            }
+        }
+        if (isset($_POST['markclientunignore'])) {
+            $items = filter_input_array(
+                INPUT_POST,
+                ['clientIgnore' => $flags]
+            );
+            $clientIgnore = $items['clientIgnore'];
+            if (count($clientIgnore) > 0) {
+                self::getClass('MACAddressAssociationManager')
+                    ->update(
+                        [
+                            'id' => $clientIgnore,
+                            'hostID' => $this->obj->get('id')
+                        ],
+                        '',
+                        ['clientIgnore' => 0]
+                    );
+            }
+        }
+        if (isset($_POST['markpending'])) {
+            $items = filter_input_array(
+                INPUT_POST,
+                ['pending' => $flags]
+            );
+            $pending = $items['pending'];
+            if (count($pending) > 0) {
+                self::getClass('MACAddressAssociationManager')
+                    ->update(
+                        [
+                            'id' => $pending,
+                            'hostID' => $this->obj->get('id')
+                        ],
+                        '',
+                        ['pending' => 1]
+                    );
+            }
+        }
+        if (isset($_POST['markunpending'])) {
+            $items = filter_input_array(
+                INPUT_POST,
+                ['pending' => $flags]
+            );
+            $pending = $items['pending'];
+            if (count($pending) > 0) {
+                self::getClass('MACAddressAssociationManager')
+                    ->update(
+                        [
+                            'id' => $pending,
+                            'hostID' => $this->obj->get('id')
+                        ],
+                        '',
+                        ['pending' => 0]
+                    );
+            }
         }
     }
     /**
@@ -1924,22 +2060,23 @@ class HostManagement extends FOGPage
         $props = ' method="post" action="'
             . $this->formAction
             . '&tab=host-service" ';
-        $buttons = self::makeButton(
+        $splitButtons = self::makeSplitButton(
             'modules-update',
-            _('Update'),
-            'btn btn-primary pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'modules-enable',
-            _('Enable All'),
-            'btn btn-success pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'modules-disable',
-            _('Disable All'),
-            'btn btn-danger pull-left',
+            _('Bulk Changes'),
+            [
+                [
+                    'id' => 'modules-enable',
+                    'text' => _('Enable All'),
+                    'props' => $props
+                ],
+                [
+                    'id' => 'modules-disable',
+                    'text' => _('Disable All'),
+                    'props' => $props
+                ]
+            ],
+            'right',
+            'primary',
             $props
         );
         $dispBtn = self::makeButton(
@@ -1984,7 +2121,7 @@ class HostManagement extends FOGPage
         echo '</div>';
         echo '<div id="updatemodules" class="">';
         echo '<div class="box-body">';
-        echo $this->render(12, 'modules-to-update', $buttons);
+        echo $this->render(12, 'modules-to-update', $splitButtons);
         echo '</div>';
         echo '</div>';
         echo '</div>';

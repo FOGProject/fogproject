@@ -1,18 +1,10 @@
 .btn-actionbox {
   margin: 10px 0;
-  overflow: hidden;
-}
-
-.btn-actionbox .btn:not(.no-pull):not(.btn-danger):not(.btn-warning) {
-  float: right;
+  overflow: visible;
 }
 
 .box-footer {
-  overflow: hidden;
-}
-
-.box-footer .btn:not(.no-pull){
-  float: right;
+  overflow: visible;
 }
 
 .fog-user {
