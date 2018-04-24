@@ -1550,7 +1550,7 @@ class FOGConfigurationPage extends FOGPage
             }
             $Menu = self::getClass('PXEMenuOptions')
                 ->set('name', $menu_item)
-                ->set('description', $menu_description)
+                ->set('description', $menu_desc)
                 ->set('params', $menu_params)
                 ->set('regMenu', $menu_regmenu)
                 ->set('args', $menu_options)
