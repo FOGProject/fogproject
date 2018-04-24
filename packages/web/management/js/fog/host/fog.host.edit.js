@@ -130,12 +130,15 @@
         newmacAddBtn = $('#newmac-send'),
         newmacField = $('#newMac'),
         macTable = $('#host-macaddresses-table'),
-        macUpdateBtn = $('#macaddress-table-update'),
+        macImageIgnoreBtn = $('#macaddress-table-update-image'),
+        macImageUnignoreBtn = $('#macaddress-table-update-unimage'),
+        macClientIgnoreBtn = $('#macaddress-table-update-client'),
+        macClientUnignoreBtn = $('#macaddress-table-update-unclient'),
+        macPendingBtn = $('#macaddress-table-update-pending'),
+        macUnpendingBtn = $('#macaddress-table-update-unpending'),
         macDeleteBtn = $('#macaddress-table-delete');
 
-    macUpdateBtn.prop('disabled', true);
-    macDeleteBtn.prop('disabled', true);
-
+    disableMacButtons(true);
     newMacAddModalBtn.on('click', function(e) {
         e.preventDefault();
         newMacModal.modal('show');
@@ -198,10 +201,18 @@
     });
     function onMacsSelect(selected) {
         var disabled = selected.count() == 0;
-        macUpdateBtn.prop('disabled', disabled);
-        macDeleteBtn.prop('disabled', disabled);
+        disableMacButtons(disabled);
     }
-
+    function disableMacButtons(disable) {
+        macImageIgnoreBtn.prop('disabled', disable);
+        macImageIgnoreBtn.next('button').prop('disabled', disable);
+        macImageUnignoreBtn.prop('disabled', disable);
+        macClientIgnoreBtn.prop('disabled', disable);
+        macClientUnignoreBtn.prop('disabled', disable);
+        macPendingBtn.prop('disabled', disable);
+        macUnpendingBtn.prop('disabled', disable);
+        macDeleteBtn.prop('disabled', disable);
+    }
     var macsTable = Common.registerTable(macTable, onMacsSelect, {
         order: [
             [0, 'asc']
@@ -324,22 +335,20 @@
         $('#host-macaddresses-table input.clientIgnore').on('ifClicked', onMacsCheckboxSelect);
         $('#host-macaddresses-table input.pending').on('ifClicked', onMacsCheckboxSelect);
     });
-    macUpdateBtn.prop('disabled', true);
+    disableMacButtons(true);
 
     var onMacsRadioSelect = function(event) {
-        macUpdateBtn.prop('disabled', true);
-        macDeleteBtn.prop('disabled', true);
+        disableMacButtons(true);
         if($(this).attr('belongsto') === 'primaryMacs') {
             var id = parseInt($(this).val()),
-                method = macUpdateBtn.attr('method'),
-                action = macUpdateBtn.attr('action'),
+                method = macImageIgnoreBtn.attr('method'),
+                action = macImageIgnoreBtn.attr('action'),
                 opts = {
                     updateprimary: 1,
                     primary: id
                 };
             Common.apiCall(method,action,opts,function(err) {
-                macUpdateBtn.prop('disabled', false);
-                macDeleteBtn.prop('disabled', false);
+                disableMacButtons(false);
                 macsTable.rows({selected: true}).deselect();
                 if (err) {
                     macsTable.draw(false);
@@ -349,8 +358,7 @@
     };
     var onMacsCheckboxSelect = function(event) {
         $(this).prop('checked', !this.checked);
-        macUpdateBtn.prop('disabled', true);
-        macDeleteBtn.prop('disabled', true);
+        disableMacButtons(true);
         var imageIgnore = [],
             clientIgnore = [],
             pending = [];
@@ -370,8 +378,8 @@
             }
         });
         var id = parseInt($(this).val()),
-            method = macUpdateBtn.attr('method'),
-            action = macUpdateBtn.attr('action'),
+            method = macImageIgnoreBtn.attr('method'),
+            action = macImageIgnoreBtn.attr('action'),
             opts = {
                 updatechecks: 1,
                 imageIgnore: imageIgnore,
@@ -379,10 +387,10 @@
                 pending: pending
             };
         Common.apiCall(method,action,opts,function(err) {
-            macUpdateBtn.prop('disabled', false);
-            macDeleteBtn.prop('disabled', false);
+            disableMacButtons(false);
+            macsTable.draw(false);
             if (err) {
-                macsTable.draw(false);
+                return;
             }
             macsTable.rows({selected: true}).deselect();
         });
@@ -397,10 +405,113 @@
                 removeMacs: 1
             };
         Common.apiCall(method, action, opts, function(err) {
+            disableMacButtons(false);
+            macsTable.draw(false);
             if (err) {
                 return;
             }
+            macsTable.rows({selected: true}).deselect();
+        });
+    });
+    macImageIgnoreBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                imageIgnore: Common.getSelectedIds(macsTable),
+                markimageignore: 1
+            };
+        Common.apiCall(method, action, opts, function(err) {
+            disableMacButtons(false);
             macsTable.draw(false);
+            if (err) {
+                return;
+            }
+            macsTable.rows({selected: true}).deselect();
+        });
+    });
+    macImageUnignoreBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                imageIgnore: Common.getSelectedIds(macsTable),
+                markimageunignore: 1
+            };
+        Common.apiCall(method, action, opts, function(err) {
+            disableMacButtons(false);
+            macsTable.draw(false);
+            if (err) {
+                return;
+            }
+            macsTable.rows({selected: true}).deselect();
+        });
+    });
+    macClientIgnoreBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                clientIgnore: Common.getSelectedIds(macsTable),
+                markclientignore: 1
+            };
+        Common.apiCall(method, action, opts, function(err) {
+            disableMacButtons(false);
+            macsTable.draw(false);
+            if (err) {
+                return;
+            }
+            macsTable.rows({selected: true}).deselect();
+        });
+    });
+    macClientUnignoreBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                clientIgnore: Common.getSelectedIds(macsTable),
+                markclientunignore: 1
+            };
+        Common.apiCall(method, action, opts, function(err) {
+            disableMacButtons(false);
+            macsTable.draw(false);
+            if (err) {
+                return;
+            }
+            macsTable.rows({selected: true}).deselect();
+        });
+    });
+    macPendingBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                pending: Common.getSelectedIds(macsTable),
+                markpending: 1
+            };
+        Common.apiCall(method, action, opts, function(err) {
+            disableMacButtons(false);
+            macsTable.draw(false);
+            if (err) {
+                return;
+            }
+            macsTable.rows({selected: true}).deselect();
+        });
+    });
+    macUnpendingBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                pending: Common.getSelectedIds(macsTable),
+                markunpending: 1
+            };
+        Common.apiCall(method, action, opts, function(err) {
+            disableMacButtons(false);
+            macsTable.draw(false);
+            if (err) {
+                return;
+            }
             macsTable.rows({selected: true}).deselect();
         });
     });

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-22 00:39-0400\n"
+"POT-Creation-Date: 2018-04-24 01:17-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3871,7 +3871,22 @@ msgstr ""
 msgid "Add New MAC Address"
 msgstr ""
 
-msgid "Update selected"
+msgid "Mark selected image ignore"
+msgstr ""
+
+msgid "Unmark selected image ignore"
+msgstr ""
+
+msgid "Mark selected client ignore"
+msgstr ""
+
+msgid "Unmark selected client ignore"
+msgstr ""
+
+msgid "Mark selected pending"
+msgstr ""
+
+msgid "Unmark selected pending"
 msgstr ""
 
 msgid "Primary"
@@ -3920,6 +3935,9 @@ msgid "Snapin Associated"
 msgstr ""
 
 msgid "Host Snapins"
+msgstr ""
+
+msgid "Bulk Changes"
 msgstr ""
 
 msgid "Module Associated"
