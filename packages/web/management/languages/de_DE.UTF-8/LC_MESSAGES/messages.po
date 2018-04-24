@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-24 01:17-0400\n"
+"POT-Creation-Date: 2018-04-24 03:46-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3237,10 +3237,6 @@ msgstr "nutzerfreundlicher Name"
 msgid "API?"
 msgstr "API?"
 
-#, fuzzy
-msgid "Create New User"
-msgstr "Neue %s erstellen"
-
 msgid "User Password"
 msgstr "Benutzerpasswort"
 
@@ -6281,12 +6277,16 @@ msgstr ""
 msgid "Add selected to group"
 msgstr "Ausgewählte Speichergruppen hinzufügen"
 
-msgid "s"
-msgstr ""
-
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "Speichergruppe hinzufügen"
+
+#, fuzzy
+msgid "Create New"
+msgstr "Neue %s erstellen"
+
+msgid "s"
+msgstr ""
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -6295,6 +6295,10 @@ msgstr "erfolgreich gelöscht"
 #, fuzzy
 msgid "Delete Success"
 msgstr "erfolgreich gelöscht"
+
+#, fuzzy
+msgid "Remove Fail"
+msgstr "Entfernen fehlgeschlagen"
 
 #, fuzzy
 msgid "Enable Domain Joining"

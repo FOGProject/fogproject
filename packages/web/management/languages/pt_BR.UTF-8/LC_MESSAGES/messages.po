@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-24 01:17-0400\n"
+"POT-Creation-Date: 2018-04-24 03:46-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3235,10 +3235,6 @@ msgstr "Nome Kernel"
 msgid "API?"
 msgstr ""
 
-#, fuzzy
-msgid "Create New User"
-msgstr "Criar novo %s"
-
 msgid "User Password"
 msgstr "Senha do usuário"
 
@@ -6271,12 +6267,16 @@ msgstr ""
 msgid "Add selected to group"
 msgstr "Impressora"
 
-msgid "s"
-msgstr ""
-
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "Adicionar grupo de armazenamento"
+
+#, fuzzy
+msgid "Create New"
+msgstr "Criar novo %s"
+
+msgid "s"
+msgstr ""
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -6285,6 +6285,10 @@ msgstr "atualizado com sucesso"
 #, fuzzy
 msgid "Delete Success"
 msgstr "usuário criado"
+
+#, fuzzy
+msgid "Remove Fail"
+msgstr "Removido"
 
 msgid "Enable Domain Joining"
 msgstr ""

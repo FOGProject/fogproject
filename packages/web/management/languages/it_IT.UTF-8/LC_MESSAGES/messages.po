@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-24 01:17-0400\n"
+"POT-Creation-Date: 2018-04-24 03:46-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3078,10 +3078,6 @@ msgstr "Nome amichevole"
 msgid "API?"
 msgstr "API?"
 
-#, fuzzy
-msgid "Create New User"
-msgstr "Crea nuovo %s"
-
 msgid "User Password"
 msgstr "Password utente"
 
@@ -5865,12 +5861,16 @@ msgstr ""
 msgid "Add selected to group"
 msgstr "Aggiungi gruppo di archiviazione selezionato"
 
-msgid "s"
-msgstr ""
-
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "Aggiungere gruppo di archiviazione"
+
+#, fuzzy
+msgid "Create New"
+msgstr "Crea nuovo %s"
+
+msgid "s"
+msgstr ""
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -5878,6 +5878,10 @@ msgstr "Creato con successo"
 
 msgid "Delete Success"
 msgstr "Eliminato con successo"
+
+#, fuzzy
+msgid "Remove Fail"
+msgstr "Rimozione fallita"
 
 #, fuzzy
 msgid "Enable Domain Joining"
