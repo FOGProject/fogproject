@@ -3793,3 +3793,16 @@ $this->schema[] = [
 $this->schema[] = [
     "ALTER TABLE `plugins` CHANGE `pAnon4` `pDescription` LONGTEXT NOT NULL"
 ];
+// 267
+$this->schema[] = [
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_USER_VALIDPASSHELPMSG','This is just a simple text "
+    . "describing the user password requirements. Default: Must be at "
+    . "least 4 characters.','Must be at least 4 characters.','User Management')",
+    "UPDATE `globalSettings` SET `settingValue` = '(?=.*){4,}' WHERE "
+    . "`settingKey` = 'FOG_USER_VALIDPASSCHARS'",
+    "UPDATE `globalSettings` SET `settingValue` = '4' WHERE "
+    . "`settingKey` = 'FOG_USER_MINPASSLENGTH'"
+];
