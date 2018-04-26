@@ -193,6 +193,12 @@ function setupActivity() {
                 dataType: 'json',
                 success: updateClientCountGraph,
                 error: function(jqXHR, textStatus, errorThrown) {
+                    $('#graph-activity').html(
+                        '<div class="alert alert-warning">'
+                        + '<h4>Unavailable</h4>'
+                        + 'Unable to get activity usage'
+                        + '</div>'
+                    );
                 },
                 complete: function() {
                     $('#graph-activity').addClass('loaded');
@@ -277,6 +283,12 @@ function setupDiskUsage() {
                 dataType: 'json',
                 success: updateDiskUsageGraph,
                 error: function(jqXHR, textStatus, errorThrown) {
+                    $('#graph-diskusage').html(
+                        '<div class="alert alert-warning">'
+                        + '<h4>Unavailable</h4>'
+                        + 'Node is unavailable'
+                        + '</div>'
+                    );
                 },
                 complete: function() {
                     if (loadings.diskusage) {
@@ -372,6 +384,14 @@ function setupImagingHistory() {
                         )
                     );
                 },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    Graph30Day.html(
+                        '<div class="alert alert-warning">'
+                        + '<h4>Unavailable</h4>'
+                        + 'Unable to get 30 day history'
+                        + '</div>'
+                    );
+                },
                 complete: function() {
                     if (loadings.imaginghistory) {
                         makeParentBoxLoad($('#graph-30day'), false);
@@ -431,6 +451,14 @@ function setupBandwidth() {
             dataType: 'json',
             success: function(data) {
                 setStuff(data);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                $('#graph-bandwidth').html(
+                    '<div class="alert alert-warning">'
+                    + '<h4>Unavailable</h4>'
+                    + 'Unable to get bandwidth information'
+                    + '</div>'
+                );
             }
         });
     });
