@@ -52,7 +52,7 @@ backupDB() {
     dots "Backing up database"
     if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
         [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "${httpproto}://$ipaddress/$webroot/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        curl -skf "${httpproto}://$ipaddress/$webroot/maintenance/backup_db.php" | jq -r '. | ._content' > $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql
     fi
     errorStat $?
 }
@@ -540,6 +540,7 @@ addUbuntuRepo() {
 }
 installPackages() {
     [[ $installlang -eq 1 ]] && packages="$packages gettext"
+    packages="$packages jq"
     packages="$packages unzip"
     dots "Adding needed repository"
     case $osid in
