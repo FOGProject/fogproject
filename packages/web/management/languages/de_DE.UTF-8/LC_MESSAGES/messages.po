@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-24 03:46-0400\n"
+"POT-Creation-Date: 2018-04-26 12:03-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -5903,6 +5903,23 @@ msgstr "Versuche, anzupingen"
 #, fuzzy
 msgid "hosts"
 msgstr "Hosts"
+
+#, fuzzy
+msgid "Attempting to ping host"
+msgstr "Versuche, anzupingen"
+
+msgid "IP of host appears to be"
+msgstr ""
+
+#, fuzzy
+msgid "Performing ping"
+msgstr "Versuche, anzupingen"
+
+msgid "Ping completed with status"
+msgstr ""
+
+msgid "Ping hosts completed, updating information on all hosts"
+msgstr ""
 
 #, fuzzy
 msgid " * Snapin hash is globally disabled"
