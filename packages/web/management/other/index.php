@@ -137,7 +137,10 @@ if (self::$FOGUser->isValid()) {
         true
     );
     echo '<div class="">';
-    echo '<select id="universal-search-select" class="form-control" name="search">';
+    echo '<select id="universal-search-select" class="form-control" name="search"'
+        . ' data-placeholder="'
+        . _('Search')
+        . '...">';
     echo '</select>';
     echo '</div>';
     echo '</form>';

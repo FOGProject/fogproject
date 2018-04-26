@@ -1,4 +1,4 @@
-var $_GET = getQueryParams(document.location.search),
+var $_GET = getQueryParams(),
     Common = {
         node: $_GET['node'],
         sub: $_GET['sub'],
@@ -619,7 +619,6 @@ function setupUniversalSearch() {
     uniSearchField.select2({
         width: '100%',
         dropdownAutoWidth: true,
-        placeholder: 'Search...',
         minimumInputLength: 1,
         multiple: true,
         maximumSelectionSize: 1,
@@ -746,8 +745,13 @@ function disableFormDefaults() {
  * Gets the GET params from the URL.
  */
 function getQueryParams(qs) {
+    var a = document.createElement('a'),
+        params = {},
+        tokens,
+        re = /[?&]?([^=]+)=([^&]*)/g;
+    a.href = (qs || document.location.href);
+    qs = a.search
     qs = qs.replace(/\+/g, ' ');
-    var params = {},tokens,re = /[?&]?([^=]+)=([^&]*)/g;
     while (tokens = re.exec(qs)) {
         params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
     }
