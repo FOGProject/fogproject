@@ -523,6 +523,7 @@ abstract class FOGService extends FOGBase
                     );
                     continue;
                 }
+                $testip = $StorageNode->ip;
                 $url = sprintf(
                     '%s://%s/fog/status/gethash.php',
                     self::$httpproto,
@@ -614,7 +615,7 @@ abstract class FOGService extends FOGBase
                     );
                     $file = $remotefilescheck[$index];
                     $testavail = array_filter(
-                        self::$FOGURLRequests->isAvailable($url)
+                        self::$FOGURLRequests->isAvailable($testip, 1, 80, 'tcp')
                     );
                     if (count($testavail) < 1) {
                         $avail = false;
@@ -625,6 +626,9 @@ abstract class FOGService extends FOGBase
                         ['file' => base64_encode($file)]
                     );
                     $res = array_shift($res);
+                    if (!$res) {
+                        $avail = false;
+                    }
                     if (!$avail) {
                         $res = sprintf(
                             '%s%s',

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-24 03:46-0400\n"
+"POT-Creation-Date: 2018-04-26 12:03-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5885,6 +5885,23 @@ msgstr "尝试ping"
 #, fuzzy
 msgid "hosts"
 msgstr "主办"
+
+#, fuzzy
+msgid "Attempting to ping host"
+msgstr "尝试ping"
+
+msgid "IP of host appears to be"
+msgstr ""
+
+#, fuzzy
+msgid "Performing ping"
+msgstr "尝试ping"
+
+msgid "Ping completed with status"
+msgstr ""
+
+msgid "Ping hosts completed, updating information on all hosts"
+msgstr ""
 
 #, fuzzy
 msgid " * Snapin hash is globally disabled"

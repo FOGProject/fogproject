@@ -2141,7 +2141,7 @@ abstract class FOGBase
                 $retVal
             );
         }
-        $test = self::$FOGURLRequests->isAvailable('http://ipinfo.io/ip', 10, 80);
+        $test = self::$FOGURLRequests->isAvailable('ipinfo.io', 2, 80, 'tcp');
         $test = array_shift($test);
         if (false !== $test) {
             $res = self::$FOGURLRequests->process('http://ipinfo.io/ip');

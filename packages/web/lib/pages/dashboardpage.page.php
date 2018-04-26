@@ -602,7 +602,7 @@ class DashboardPage extends FOGPage
             $testurls[] = parse_url($url, PHP_URL_HOST);
             unset($url);
         }
-        $tests = self::$FOGURLRequests->isAvailable($testurls, 1);
+        $tests = self::$FOGURLRequests->isAvailable($testurls, 1, 21, 'tcp');
         unset($testurls);
         foreach ($tests as $index => &$test) {
             if (!$test) {

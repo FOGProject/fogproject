@@ -592,11 +592,16 @@ class FOGURLRequests extends FOGBase
      * @param string $urls    The url to check.
      * @param int    $timeout How long to wait.
      * @param int    $port    The connect to try connecting to.
+     * @param string $proto   The protocol to connect with. e.g. tcp, udp, unix.
      *
      * @return void
      */
-    public function isAvailable($urls, $timeout = 30, $port = -1)
-    {
+    public function isAvailable(
+        $urls,
+        $timeout = 30,
+        $port = -1,
+        $proto = 'tcp'
+    ) {
         if ($port == -1 || empty($port)) {
             $port = self::$FOGFTP->port;
         }
@@ -605,7 +610,7 @@ class FOGURLRequests extends FOGBase
         $sockets = [];
         foreach ((array) $urls as &$url) {
             $socket = stream_socket_client(
-                "tcp://$url:$port",
+                "$proto://$url:$port",
                 $errno,
                 $errstr,
                 $timeout

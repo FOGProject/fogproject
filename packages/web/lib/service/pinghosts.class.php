@@ -50,6 +50,7 @@ class PingHosts extends FOGService
     {
         parent::__construct();
         $pinghostkeys = [
+            'FOG_WEB_HOST',
             'PINGHOSTDEVICEOUTPUT',
             'PINGHOSTLOGFILENAME',
             self::$sleeptime
@@ -125,57 +126,66 @@ class PingHosts extends FOGService
                 self::outall(" |\t$ip");
                 unset($ip, $index);
             }
-            $hostCount = self::getClass('HostManager')->count();
+            Route::names('host');
+            $hosts = json_decode(Route::getData());
+            $hostCount = count($hosts);
             self::outall(
                 sprintf(
                     ' * %s %s %s',
                     _('Attempting to ping'),
                     $hostCount,
                     (
-                        $hostcount != 1 ?
+                        $hostCount != 1 ?
                         _('hosts') :
                         _('host')
                     )
                 )
             );
-            Route::ids('host');
-            $hostids = json_decode(Route::getData(), true);
-            Route::ids(
-                'host',
-                [],
-                'name'
-            );
-            $hostnames = json_decode(Route::getData(), true);
-            Route::ids(
-                'host',
-                [],
-                'ip'
-            );
-            $hostips = json_decode(Route::getData(), true);
-            foreach ((array)$hostids as $index => &$hostid) {
-                if (false === array_key_exists($index, $hostips)
-                    || false === array_key_exists($index, $hostnames)
-                ) {
-                    continue;
-                }
-                $ip = $hostips[$index];
-                if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
-                    $ip = self::resolveHostname($hostnames[$index]);
-                }
-                if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
-                    $ip = $hostnames[$index];
-                }
-                unset($hostnames[$index], $hostips[$index]);
+            $insert_fields = ['pingstatus', 'id'];
+            $insert_values = [];
+            foreach ($hosts as &$host) {
+                self::outall(
+                    ' | '
+                    . _('Attempting to ping host')
+                    . ': '
+                    . $host->name
+                );
+                $ip = self::resolveHostname($host->name);
+                self::outall(
+                    ' | '
+                    . _('IP of host appears to be')
+                    . ': '
+                    . $ip
+                );
+                self::outall(
+                    ' | '
+                    . _('Performing ping')
+                );
                 $ping = self::getClass('Ping', $ip)
                     ->execute();
+                self::outall(
+                    ' | '
+                    . _('Ping completed with status')
+                    . ': '
+                    . $ping
+                );
+                $insert_values[] = [$ping, $host->id];
                 self::getClass('HostManager')
                     ->update(
-                        ['id' => $hostid],
+                        ['id' => $host->id],
                         '',
                         ['pingstatus' => $ping]
                     );
-                unset($hostid, $index, $hostids[$index]);
+                unset($host);
             }
+            self::outall(
+                ' | '
+                . _('Ping hosts completed, updating information on all hosts')
+            );
+            self::getClass('HostManager')->insertBatch(
+                $insert_fields,
+                $insert_values
+            );
             self::outall(' * All hosts updated');
         } catch (Exception $e) {
             self::outall($e->getMessage());
