@@ -609,7 +609,7 @@ function setupUniversalSearch() {
     var baseURL = uniSearchForm.attr('action');
     var method = uniSearchForm.attr('method');
 
-    uniSearchField.on("select2:selecting", function(e) {
+    uniSearchField.on('select2:selecting', function(e) {
         e.preventDefault();
         var url = e.params.args.data.url;
         uniSearchField.prop('disabled', true);
@@ -618,6 +618,7 @@ function setupUniversalSearch() {
 
     uniSearchField.select2({
         width: '100%',
+        dropdownAutoWidth: true,
         placeholder: 'Search...',
         minimumInputLength: 1,
         multiple: true,

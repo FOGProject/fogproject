@@ -19,6 +19,18 @@
                 visible: false
             }
         ],
+        columnDefs: [
+             {
+                 render: function(data, type, row) {
+                     return '<span data-toggle="tooltip" title="'
+                         + row.description
+                         + '">'
+                         + data
+                         + '</span>';
+                 },
+                 targets: 0
+             }
+        ],
         select: false,
         rowGroup: {
             dataSrc: 'category'
