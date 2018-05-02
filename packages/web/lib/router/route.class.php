@@ -1369,16 +1369,6 @@ class Route extends FOGBase
     public function names($class, $whereItems = [])
     {
         $data = [];
-        $names = self::getSubObjectIDs(
-            $class,
-            [],
-            'name'
-        );
-        $ids = self::getSubObjectIDs(
-            $class,
-            [],
-            'id'
-        );
         $classname = strtolower($class);
         $classVars = self::getClass(
             $class,
