@@ -60,8 +60,6 @@ class StorageNodeManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Storage Node');
-
         $storagenode = filter_input(INPUT_POST, 'storagenode');
         $description = filter_input(INPUT_POST, 'description');
         $ip = filter_input(INPUT_POST, 'ip');

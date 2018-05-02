@@ -4613,10 +4613,6 @@ msgid "MAC Approval Success"
 msgstr "Creado"
 
 #, fuzzy
-msgid "Create New Host"
-msgstr "Crear nuevo grupo"
-
-#, fuzzy
 msgid "Host Description"
 msgstr "Descripción del Grupo"
 

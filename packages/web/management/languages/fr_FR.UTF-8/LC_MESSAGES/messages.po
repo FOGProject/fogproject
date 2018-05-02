@@ -4442,10 +4442,6 @@ msgstr "Approuver hôtes sélectionnés"
 msgid "MAC Approval Success"
 msgstr "hôte Créé"
 
-#, fuzzy
-msgid "Create New Host"
-msgstr "Créer un nouveau %s"
-
 msgid "Host Description"
 msgstr "hôte description de"
 

@@ -4185,10 +4185,6 @@ msgstr "Approvare MAC selezionati"
 msgid "MAC Approval Success"
 msgstr "Creazione Host con successo"
 
-#, fuzzy
-msgid "Create New Host"
-msgstr "Crea nuovo %s"
-
 msgid "Host Description"
 msgstr "Host Descrizione"
 

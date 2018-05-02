@@ -257,6 +257,13 @@ class Host extends FOGController
     public function save()
     {
         parent::save();
+        if ($this->isLoaded('mac')) {
+            self::getClass('MACAddressAssociation')
+                ->set('mac', $this->get('mac'))
+                ->set('primary', '1')
+                ->set('hostID', $this->get('id'))
+                ->save();
+        }
         if ($this->isLoaded('powermanagementtasks')) {
             $find = ['hostID' => $this->get('id')];
             Route::ids(
@@ -1252,10 +1259,6 @@ class Host extends FOGController
         if (is_array($mac) && $count > 0) {
             $mac = array_shift($mac);
         }
-        self::getClass('MACAddressAssociation')
-            ->set('mac', $mac)
-            ->set('primary', '1')
-            ->save();
         return $this->set('mac', $mac);
     }
     /**
