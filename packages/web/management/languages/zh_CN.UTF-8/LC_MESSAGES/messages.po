@@ -4427,10 +4427,6 @@ msgstr "批准选定主机"
 msgid "MAC Approval Success"
 msgstr "主机创建"
 
-#, fuzzy
-msgid "Create New Host"
-msgstr "新建%s"
-
 msgid "Host Description"
 msgstr "主机描述"
 

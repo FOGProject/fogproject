@@ -306,7 +306,7 @@ class TaskQueue extends TaskingElement
                 _('Call'),
                 $Inventory->get('other1')
             );
-            $Inventory->set('other1', '')->save();
+            //$Inventory->set('other1', '')->save();
         }
         mail(
             $emailAddress,

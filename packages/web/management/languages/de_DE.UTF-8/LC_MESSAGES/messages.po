@@ -4442,10 +4442,6 @@ msgstr "Ausgewählten MAcs freigeben"
 msgid "MAC Approval Success"
 msgstr "Host erfolgreich erstellt"
 
-#, fuzzy
-msgid "Create New Host"
-msgstr "Neue %s erstellen"
-
 msgid "Host Description"
 msgstr "Host-Beschreibung"
 

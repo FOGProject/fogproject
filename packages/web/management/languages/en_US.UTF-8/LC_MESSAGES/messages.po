@@ -4431,10 +4431,6 @@ msgstr "Approve selected Hosts"
 msgid "MAC Approval Success"
 msgstr "Host Created"
 
-#, fuzzy
-msgid "Create New Host"
-msgstr "Create New %s"
-
 msgid "Host Description"
 msgstr "Host Description"
 

@@ -74,7 +74,11 @@
     var addToGroup = $('#addSelectedToGroup'),
         deleteSelected = $('#deleteSelected'),
         groupModal = $('#addToGroupModal'),
-        groupModalSelect = $('#groupSelect');
+        groupModalSelect = $('#groupSelect'),
+        createnewBtn = $('#createnew'),
+        createnewModal = $('#createnewModal'),
+        createForm = $('#host-create-form'),
+        createnewSendBtn = $('#send');
     var groupList = [];
 
     function disableButtons(disable) {
@@ -162,6 +166,75 @@
         table.search(Common.search).draw();
     }
 
+    // Create new host
+    createFormModalShow = function() {
+        createForm[0].reset();
+        $(':input:first').trigger('focus');
+        $(':input:not(textarea)').on('keypress', function(e) {
+            if (e.which == 13) {
+                createnewSendBtn.trigger('click');
+            }
+        });
+    };
+
+    createFormModalHide = function() {
+        createForm[0].reset();
+        $(':input').off('keypress');
+    };
+
+    createnewBtn.on('click', function(e) {
+        e.preventDefault();
+        createnewModal.modal('show');
+    });
+    createnewSendBtn.on('click', function(e) {
+        e.preventDefault();
+        Common.processForm(createForm, function(err) {
+            if (err) {
+                return;
+            }
+            table.draw(false);
+            createnewModal.modal('hide');
+        });
+    });
+    $('#mac').inputmask({mask: Common.masks.mac});
+    $('#key').inputmask({mask: Common.masks.productKey});
+    Common.registerModal(createnewModal, createFormModalShow, createFormModalHide);
+    // ---------------------------------------------------------------
+    // ACTIVE DIRECTORY TAB
+    var ADJoinDomain = $('#adEnabled');
+
+    ADJoinDomain.on('ifClicked', function(e) {
+        e.preventDefault();
+        $(this).prop('checked', !this.checked);
+        if (!this.checked) {
+            return;
+        }
+        var indomain = $('#adDomain'),
+            inou = $('#adOU'),
+            inuser = $('#adUsername'),
+            inpass = $('#adPassword');
+        if (indomain.val() && inou.val() && inuser.val() && inpass.val()) {
+            return;
+        }
+        Pace.ignore(function() {
+            $.get('../management/index.php?sub=adInfo', function(data) {
+                if (!indomain.val()) {
+                    indomain.val(data.domainname);
+                }
+                if (!inou.val()) {
+                    inou.val(data.ou)
+                }
+                if (!inuser.val()) {
+                    inuser.val(data.domainuser);
+                }
+                if (!inpass.val()) {
+                    inpass.val(data.domainpass);
+                }
+            }, 'json');
+        });
+    });
+
+    // Delete hosts.
     deleteSelected.on('click', function() {
         disableButtons(true);
         Common.deleteSelected(table, function(err) {
@@ -173,6 +246,7 @@
         });
     });
 
+    // Add host(s) to group.
     Common.registerModal(groupModal,
         // On show
         null,
