@@ -345,17 +345,10 @@ class StorageNodeManagement extends FOGPage
             . '</div>',
         ];
 
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
         self::$HookManager->processEvent(
             'STORAGENODE_ADD_FIELDS',
             [
                 'fields' => &$fields,
-                'buttons' => &$buttons,
                 'StorageNode' => self::getClass('StorageNode')
             ]
         );
@@ -365,28 +358,12 @@ class StorageNodeManagement extends FOGPage
         echo self::makeFormTag(
             'form-horizontal',
             'storagenode-create-form',
-            $this->formAction,
+            '../management/index.php?node=storagenode&sub=add',
             'post',
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid" id="storagenode-create">';
-        echo '<div class="box-body">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Create New Storage Node');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
         echo $rendered;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-footer">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
         echo '</form>';
     }
     /**

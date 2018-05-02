@@ -170,21 +170,13 @@ class UserManagement extends FOGPage
             )
         ];
 
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
+        self::$HookManager->processEvent(
+            'USER_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'User' => self::getClass('User')
+            ]
         );
-
-        self::$HookManager
-            ->processEvent(
-                'USER_ADD_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'buttons' => &$buttons,
-                    'User' => self::getClass('User')
-                ]
-            );
         $rendered = self::formFields($fields);
         unset($fields);
 
