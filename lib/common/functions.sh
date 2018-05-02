@@ -2141,7 +2141,7 @@ configureDHCP() {
             echo "    }" >> "$dhcptouse"
             echo "    class \"SURFACE-PRO-4\" {" >> "$dhcptouse"
             echo "        match if substring(option vendor-class-identifier, 0, 32) = \"PXEClient:Arch:00007:UNDI:003016\";" >> "$dhcptouse"
-            echo "        filename \"ipxe7156.efi\";" >> "$dhcptouse"
+            echo "        filename \"ipxe.efi\";" >> "$dhcptouse"
             echo "    }" >> "$dhcptouse"
             echo "    class \"Apple-Intel-Netboot\" {" >> "$dhcptouse"
             echo "        match if substring(option vendor-class-identifier, 0, 14) = \"AAPLBSDPC/i386\";" >> "$dhcptouse"
