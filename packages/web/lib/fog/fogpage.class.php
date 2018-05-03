@@ -1065,34 +1065,6 @@ abstract class FOGPage extends FOGBase
                         _('Delete selected'),
                         'btn btn-danger pull-left'
                     );
-                    if (method_exists($this, 'add')) {
-                        $actionbox .= self::makeButton(
-                            'createnew',
-                            _('Add'),
-                            'btn btn-primary pull-right'
-                        );
-                        ob_start();
-                        $this->add();
-                        $add = ob_get_clean();
-                        $modals .= self::makeModal(
-                            'createnewModal',
-                            _('Create New') . ' ' . ucfirst(_($node)),
-                            $add,
-                            self::makeButton(
-                                'closecreateModal',
-                                _('Cancel'),
-                                'btn btn-outline pull-left',
-                                'data-dismiss="modal"'
-                            )
-                            . self::makeButton(
-                                'send',
-                                _('Create'),
-                                'btn btn-primary pull-right'
-                            ),
-                            '',
-                            'primary'
-                        );
-                    }
                     $modals .= self::makeModal(
                         'deleteModal',
                         _('Confirm password'),

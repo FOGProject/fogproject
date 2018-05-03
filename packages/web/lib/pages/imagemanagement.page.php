@@ -59,6 +59,8 @@ class ImageManagement extends FOGPage
      */
     public function add()
     {
+        $this->title = _('Create New Image');
+
         $image = filter_input(INPUT_POST, 'image');
         $description = filter_input(INPUT_POST, 'description');
         $storagegroup = (int)filter_input(INPUT_POST, 'storagegroup');
@@ -217,7 +219,7 @@ class ImageManagement extends FOGPage
             self::makeLabel(
                 $labelClass,
                 'compression',
-                _('Compression')
+                _('Image Compression Rating')
             ) => self::makeInput(
                 'form-control slider imagecompression-input',
                 'compression',
@@ -301,10 +303,17 @@ class ImageManagement extends FOGPage
             )
         ];
 
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary pull-right'
+        );
+
         self::$HookManager->processEvent(
             'IMAGE_ADD_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Image' => self::getClass('Image')
             ]
         );
@@ -314,12 +323,28 @@ class ImageManagement extends FOGPage
         echo self::makeFormTag(
             'form-horizontal',
             'image-create-form',
-            '../management/index.php?node=image&sub=add',
+            $this->formAction,
             'post',
             'application/x-www-form-urlencoded',
             true
         );
+        echo '<div class="box box-solid" id="image-create">';
+        echo '<div class="box-body">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Create New Image');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
         echo $rendered;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
     }
     /**
@@ -615,7 +640,7 @@ class ImageManagement extends FOGPage
             self::makeLabel(
                 $labelClass,
                 'compression',
-                _('Compression')
+                _('Image Compression Rating')
             ) => self::makeInput(
                 'form-control slider imagecompression-input',
                 'compression',
@@ -1206,21 +1231,20 @@ class ImageManagement extends FOGPage
             )
             . '" ';
 
-        $buttons = self::makeSplitButton(
+        $buttons = self::makeButton(
             'session-create',
             _('Create'),
-            [
-                [
-                    'id' => 'session-pause',
-                    'text' => _('Pause Reload')
-                ],
-                [
-                    'id' => 'session-resume',
-                    'text' => _('Resume Reload')
-                ]
-            ],
-            'right',
-            'primary'
+            'btn btn-primary pull-right'
+        );
+        $buttons .= self::makeButton(
+            'session-resume',
+            _('Resume Reload'),
+            'btn btn-success pull-right'
+        );
+        $buttons .= self::makeButton(
+            'session-pause',
+            _('Pause Reload'),
+            'btn btn-warning pull-left'
         );
         $buttons .= self::makeButton(
             'session-cancel',

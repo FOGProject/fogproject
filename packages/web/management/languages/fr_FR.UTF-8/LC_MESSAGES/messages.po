@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-02 23:40-0400\n"
+"POT-Creation-Date: 2018-05-03 00:13-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2316,6 +2316,10 @@ msgstr "Port"
 msgid "Admin Group"
 msgstr "Modifier Groupe"
 
+#, fuzzy
+msgid "Create New LDAP Server"
+msgstr "Créer un nouveau %s"
+
 msgid "Base Only"
 msgstr ""
 
@@ -2781,6 +2785,10 @@ msgstr "Informations sur les fichiers système"
 msgid "Network Information"
 msgstr "Réseau d'information"
 
+#, fuzzy
+msgid "Create New Group"
+msgstr "Créer un nouveau %s"
+
 msgid "Group Name"
 msgstr "Nom de groupe"
 
@@ -3226,6 +3234,10 @@ msgstr "Nom Kernel"
 
 msgid "API?"
 msgstr ""
+
+#, fuzzy
+msgid "Create New User"
+msgstr "Créer un nouveau %s"
 
 msgid "User Password"
 msgstr "Mot de passe de l'utilisateur"
@@ -3944,6 +3956,10 @@ msgstr "Protégé"
 msgid "Captured"
 msgstr "Créé"
 
+#, fuzzy
+msgid "Create New Image"
+msgstr "Créer un nouveau %s"
+
 msgid "Partimage"
 msgstr "Partimage"
 
@@ -3954,8 +3970,9 @@ msgstr "partclone"
 msgid "Image Description"
 msgstr "Description de l'image"
 
-msgid "Compression"
-msgstr ""
+#, fuzzy
+msgid "Image Compression Rating"
+msgstr "Association Image"
 
 #, fuzzy
 msgid "Image Storage Group"
@@ -4057,10 +4074,10 @@ msgstr "Nom de session"
 msgid "Progress"
 msgstr ""
 
-msgid "Pause Reload"
+msgid "Resume Reload"
 msgstr ""
 
-msgid "Resume Reload"
+msgid "Pause Reload"
 msgstr ""
 
 #, fuzzy
@@ -4281,6 +4298,10 @@ msgid "Total Clients"
 msgstr "Les clients de Max"
 
 #, fuzzy
+msgid "Create New Storage Group"
+msgstr "Groupe de stockage"
+
+#, fuzzy
 msgid "Storage Group name"
 msgstr "Nom du groupe de stockage"
 
@@ -4424,6 +4445,10 @@ msgstr "Approuver hôtes sélectionnés"
 #, fuzzy
 msgid "MAC Approval Success"
 msgstr "hôte Créé"
+
+#, fuzzy
+msgid "Create New Host"
+msgstr "Créer un nouveau %s"
 
 msgid "Host Description"
 msgstr "hôte description de"
@@ -4874,6 +4899,10 @@ msgstr "Nom de l'imprimante"
 msgid "Config File"
 msgstr "Printer Config File"
 
+#, fuzzy
+msgid "Create New Printer"
+msgstr "Créer un nouveau %s"
+
 msgid "TCP/IP Port Printer"
 msgstr "TCP / IP Port imprimante"
 
@@ -5205,6 +5234,10 @@ msgid "Storage Node Management"
 msgstr "Gestion du stockage"
 
 #, fuzzy
+msgid "Create New Storage Node"
+msgstr "Créer un nouveau %s"
+
+#, fuzzy
 msgid "Storage Node Web Root"
 msgstr "Nom du nœud de stockage"
 
@@ -5289,6 +5322,10 @@ msgstr "Nœud de stockage Mise à jour"
 #, fuzzy
 msgid "Is Pack"
 msgstr "Est un"
+
+#, fuzzy
+msgid "Create New Snapin"
+msgstr "Créer un nouveau %s"
 
 #, fuzzy
 msgid "Normal Snapin"
@@ -6264,10 +6301,6 @@ msgstr "Imprimante"
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "Ajouter un groupe de stockage"
-
-#, fuzzy
-msgid "Create New"
-msgstr "Créer un nouveau %s"
 
 msgid "s"
 msgstr ""
