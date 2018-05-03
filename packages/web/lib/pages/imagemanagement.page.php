@@ -59,8 +59,6 @@ class ImageManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New Image');
-
         $image = filter_input(INPUT_POST, 'image');
         $description = filter_input(INPUT_POST, 'description');
         $storagegroup = (int)filter_input(INPUT_POST, 'storagegroup');
@@ -214,7 +212,8 @@ class ImageManagement extends FOGPage
                 'path',
                 $path,
                 true
-            ),
+            )
+            . '</div>',
             self::makeLabel(
                 $labelClass,
                 'compression',
