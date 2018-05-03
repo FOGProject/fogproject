@@ -1032,39 +1032,69 @@ abstract class FOGPage extends FOGBase
             $actionbox = '';
             $modals = '';
             if ($sub == 'list') {
-                if ($node == 'host') {
-                    $actionbox .= self::makeButton(
-                        'addSelectedToGroup',
-                        _('Add selected to group'),
-                        'btn btn-default pull-right'
-                    );
-                    $modals .= self::makeModal(
-                        'addToGroupModal',
-                        _('Add To Group(s)'),
-                        '<select id="groupSelect" class="" '
-                        . 'name="" multiple="multiple">'
-                        . '</select>',
-                        self::makeButton(
-                            'closeGroupModal',
-                            _('Cancel'),
-                            'btn btn-outline pull-left',
-                            'data-dismiss="modal"'
-                        )
-                        . self::makeButton(
-                            'confirmGroupAdd',
-                            _('Add'),
-                            'btn btn-outline pull-right'
-                        ),
-                        '',
-                        'info'
-                    );
-                }
                 if ($node != 'plugin') {
                     $actionbox .= self::makeButton(
                         'deleteSelected',
                         _('Delete selected'),
                         'btn btn-danger pull-left'
                     );
+                    $actionbox .= '<div class="btn-group pull-right">';
+                    if (method_exists($this, 'addModal')) {
+                        $actionbox .= self::makeButton(
+                            'createnew',
+                            _('Add'),
+                            'btn btn-primary'
+                        );
+                        ob_start();
+                        $this->addModal();
+                        $add = ob_get_clean();
+                        $modals .= self::makeModal(
+                            'createnewModal',
+                            _('Create New') . ' ' . ucfirst(_($node)),
+                            $add,
+                            self::makeButton(
+                                'closecreateModal',
+                                _('Cancel'),
+                                'btn btn-outline pull-left',
+                                'data-dismiss="modal"'
+                            )
+                            . self::makeButton(
+                                'send',
+                                _('Create'),
+                                'btn btn-primary pull-right'
+                            ),
+                            '',
+                            'primary'
+                        );
+                    }
+                    if ($node == 'host') {
+                        $actionbox .= self::makeButton(
+                            'addSelectedToGroup',
+                            _('Add selected to group'),
+                            'btn btn-default'
+                        );
+                        $modals .= self::makeModal(
+                            'addToGroupModal',
+                            _('Add To Group(s)'),
+                            '<select id="groupSelect" class="" '
+                            . 'name="" multiple="multiple">'
+                            . '</select>',
+                            self::makeButton(
+                                'closeGroupModal',
+                                _('Cancel'),
+                                'btn btn-outline pull-left',
+                                'data-dismiss="modal"'
+                            )
+                            . self::makeButton(
+                                'confirmGroupAdd',
+                                _('Add'),
+                                'btn btn-outline pull-right'
+                            ),
+                            '',
+                            'info'
+                        );
+                    }
+                    $actionbox .= '</div>';
                     $modals .= self::makeModal(
                         'deleteModal',
                         _('Confirm password'),

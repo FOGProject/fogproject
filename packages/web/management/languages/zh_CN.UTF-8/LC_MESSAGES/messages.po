@@ -6281,6 +6281,10 @@ msgstr "打印机"
 msgid "Add To Group(s)"
 msgstr "添加存储组"
 
+#, fuzzy
+msgid "Create New"
+msgstr "新建%s"
+
 msgid "s"
 msgstr ""
 

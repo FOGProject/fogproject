@@ -218,6 +218,134 @@ class UserManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * Page to enable creating a new user.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $user = filter_input(INPUT_POST, 'user');
+        $display = filter_input(INPUT_POST, 'display');
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'user',
+                _('User Name')
+            ) => self::makeInput(
+                'form-control username-input',
+                'user',
+                _('User Name'),
+                'text',
+                'user',
+                $user,
+                true,
+                false,
+                3,
+                40
+            ),
+            self::makeLabel(
+                $labelClass,
+                'display',
+                _('Friendly Name')
+            ) => self::makeInput(
+                'form-control userdisplay-input',
+                'display',
+                _('Friendly Name'),
+                'text',
+                'display',
+                $display,
+                false,
+                false
+            ),
+            self::makeLabel(
+                $labelClass,
+                'password',
+                _('User Password')
+            ) => '<div class="input-group">'
+            . self::makeInput(
+                'form-control password1-input',
+                'password',
+                _('User Password'),
+                'password',
+                'password',
+                '',
+                true,
+                false,
+                (int)self::getSetting('FOG_USER_MINPASSLENGTH'),
+                -1,
+                'beRegexTo="'
+                . self::getSetting('FOG_USER_VALIDPASSCHARS')
+                . '" requirements="'
+                . _(self::getSetting('FOG_USER_VALIDPASSHELPMSG'))
+                . '"'
+            )
+            . '</div>',
+            self::makeLabel(
+                $labelClass,
+                'password_name',
+                _('User Password')
+                . '<br/>('
+                . _('confirm')
+                . ')'
+            ) => '<div class="input-group">'
+            . self::makeInput(
+                'form-control password2-input',
+                'password_name',
+                _('User Password'),
+                'password',
+                'password_name',
+                '',
+                true,
+                false,
+                -1,
+                -1,
+                'beEqualTo="password"'
+            )
+            . '</div>',
+            self::makeLabel(
+                $labelClass,
+                'apienabled',
+                _('User API Enable')
+            ) => self::makeInput(
+                'apienabled-input',
+                'apienabled',
+                '',
+                'checkbox',
+                'apienabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                (isset($_POST['apienabled']) ? 'checked' : '')
+            )
+        ];
+
+        self::$HookManager->processEvent(
+            'USER_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'User' => self::getClass('User')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'user-create-form',
+            '../management/index.php?node=user&sub=add',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Actually create the new user.
      *
      * @return void

@@ -227,6 +227,119 @@ class GroupManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * Create a new group.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $group = filter_input(INPUT_POST, 'group');
+        $description = filter_input(INPUT_POST, 'description');
+        $kernel = filter_input(INPUT_POST, 'kernel');
+        $args = filter_input(INPUT_POST, 'args');
+        $init = filter_input(INPUT_POST, 'init');
+        $dev = filter_input(INPUT_POST, 'dev');
+
+        $labelClass = 'col-sm-3 control-label';
+
+        // The fields to display
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'group',
+                _('Group Name')
+            ) => self::makeInput(
+                'form-control groupname-input',
+                'group',
+                _('Group Name'),
+                'text',
+                'group',
+                $group,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Group Description')
+            ) => self::makeTextarea(
+                'form-control groupdescription-input',
+                'description',
+                _('Group Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'kernel',
+                _('Group Kernel')
+            ) => self::makeInput(
+                'form-control groupkernel-input',
+                'kernel',
+                'customBzimage',
+                'text',
+                'kernel',
+                $kernel
+            ),
+            self::makeLabel(
+                $labelClass,
+                'args',
+                _('Group Kernel Arguments')
+            ) => self::makeInput(
+                'form-control groupkernelargs-input',
+                'args',
+                'debug acpi=off',
+                'text',
+                'args',
+                $args
+            ),
+            self::makeLabel(
+                $labelClass,
+                'init',
+                _('Group Init')
+            ) => self::makeInput(
+                'form-control groupinit-input',
+                'init',
+                'customInit.xz',
+                'text',
+                'init',
+                $init
+            ),
+            self::makeLabel(
+                $labelClass,
+                'dev',
+                _('Group Primary Disk')
+            ) => self::makeInput(
+                'form-control groupdev-input',
+                'dev',
+                '/dev/md0',
+                'text',
+                'dev',
+                $dev
+            )
+        ];
+
+        self::$HookManager->processEvent(
+            'GROUP_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'Group' => self::getClass('Group')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'group-create-form',
+            $this->formAction,
+            '../management/index.php?node=group&sub=add',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * When submitted to add post this is what's run
      *
      * @return void

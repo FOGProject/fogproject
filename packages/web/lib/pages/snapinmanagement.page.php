@@ -562,6 +562,358 @@ class SnapinManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * The form to display when adding a new snapin
+     * definition.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $snapin = filter_input(INPUT_POST, 'snapin');
+        $description = filter_input(INPUT_POST, 'description');
+        $storagegroup = filter_input(INPUT_POST, 'storagegroup');
+        $snapinfileexist = basename(
+            filter_input(INPUT_POST, 'snapinfileexist')
+        );
+        $packtype = (int)filter_input(INPUT_POST, 'packtype');
+        $rw = filter_input(INPUT_POST, 'rw');
+        $rwa = filter_input(INPUT_POST, 'rwa');
+        $args = filter_input(INPUT_POST, 'args');
+        $timeout = filter_input(INPUT_POST, 'timeout');
+        if ($storagegroup > 0) {
+            $sgID = $storagegroup;
+        } else {
+            Route::ids('storagegroup');
+            $sgID = @min(json_decode(Route::getData(), true));
+        }
+        $StorageGroup = new StorageGroup($sgID);
+        $StorageGroups = self::getClass('StorageGroupManager')
+            ->buildSelectBox($sgID, '', 'id');
+        self::$selected = '';
+        self::$selected = $snapinfileexist;
+        $filelist = [];
+        $StorageNode = $StorageGroup->getMasterStorageNode();
+        $filelist = $StorageNode->get('snapinfiles');
+        natcasesort($filelist);
+        $filelist = array_values(
+            array_unique(
+                array_filter($filelist)
+            )
+        );
+        ob_start();
+        array_map(self::$buildSelectBox, $filelist);
+        $selectFiles = '<select class='
+            . '"snapinfileexist-input cmdlet3 form-control" '
+            . 'name="snapinfileexist" id="snapinfileexist">'
+            . '<option value="">- '
+            . _('Please select an option')
+            . ' -</option>'
+            . ob_get_clean()
+            . '</select>';
+        $packtypes = '<select class="form-control" '
+            . 'name="packtype" id="snapinpack">'
+            . '<option value="0"'
+            . (
+                $packtype == 0 ?
+                ' selected' :
+                ''
+            )
+            . '>'
+            . _('Normal Snapin')
+            . '</option>'
+            . '<option value="1"'
+            . (
+                $packtype > 0 ?
+                ' selected' :
+                ''
+            )
+            . '>'
+            . _('Snapin Pack')
+            . '</option>'
+            . '</select>';
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'snapin',
+                _('Snapin Name')
+            ) => self::makeInput(
+                'form-control snapinname-input',
+                'snapin',
+                _('Snapin Name'),
+                'text',
+                'snapin',
+                $snapin,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Snapin Description')
+            ) => self::makeTextarea(
+                'form-control snapindescription-input',
+                'description',
+                _('Snapin Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'storagegroup',
+                _('Storage Group')
+            ) => $StorageGroups,
+            self::makeLabel(
+                $labelClass,
+                'snapinpack',
+                _('Snapin Type')
+            ) => $packtypes,
+            self::makeLabel(
+                $labelClass . ' packnotemplate hidden',
+                'argTypes',
+                _('Snapin Template')
+            )
+            . self::makeLabel(
+                $labelClass . ' packtemplate hidden',
+                'packTypes',
+                _('Snapin Pack Template')
+            ) => self::$_template1 . self::$_template2,
+            self::makeLabel(
+                $labelClass . ' packnotemplate hidden',
+                'snaprw',
+                _('Snapin Run With')
+            )
+            . self::makeLabel(
+                $labelClass . ' packtemplate hidden',
+                'snaprw',
+                _('Snapin Pack File')
+            ) => self::makeInput(
+                'form-control snapinrw-input cmdlet1',
+                'rw',
+                '',
+                'text',
+                'snaprw',
+                $rw
+            ),
+            self::makeLabel(
+                $labelClass . ' packnotemplate hidden',
+                'snaprwa',
+                _('Snapin Run With Argument')
+            )
+            . self::makeLabel(
+                $labelClass . ' packtemplate hidden',
+                'snaprwa',
+                _('Snapin Pack Arguments')
+            ) => self::makeInput(
+                'form-control snapinrwa-input cmdlet2',
+                'rwa',
+                '',
+                'text',
+                'snaprwa',
+                $rwa
+            ),
+            self::makeLabel(
+                $labelClass,
+                'snapinfile',
+                _('Snapin File')
+            ) => '<div class="input-group">'
+            . self::makeLabel(
+                'input-group-btn',
+                'snapinfile',
+                '<span class="btn btn-info">'
+                . _('Browse')
+                . self::makeInput(
+                    'hidden',
+                    'file',
+                    '',
+                    'file',
+                    'snapinfile',
+                    ''
+                ) . '</span>'
+            ) . self::makeInput(
+                'form-control filedisp cmdlet3',
+                '',
+                '',
+                'text',
+                '',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            )
+            . '</div>',
+            (
+                count($filelist) > 0 ?
+                self::makeLabel(
+                    $labelClass,
+                    'snapinfileexist',
+                    _('Snapin File (exists)')
+                ) :
+                ''
+            ) => (
+                count($filelist) > 0 ?
+                $selectFiles :
+                ''
+            ),
+            self::makeLabel(
+                $labelClass . ' packnotemplate hidden',
+                'args',
+                _('Snapin Arguments')
+            ) => self::makeInput(
+                'form-control snapinargs-input packnotemplate cmdlet4',
+                'args',
+                '',
+                'text',
+                'args',
+                $args
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isEnabled',
+                _('Snapin Enabled')
+            ) => self::makeInput(
+                '',
+                'isEnabled',
+                '',
+                'checkbox',
+                'isEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'toReplicate',
+                _('Snapin Replicate')
+            ) => self::makeInput(
+                '',
+                'toReplicate',
+                '',
+                'checkbox',
+                'toReplicate',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isHidden',
+                _('Snapin Arguments Hidden')
+            ) => self::makeInput(
+                '',
+                'isHidden',
+                '',
+                'checkbox',
+                'isHidden'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'timeout',
+                _('Snapin Timeout')
+                . '<br/>('
+                . _('in seconds')
+                . ')'
+            ) => self::makeInput(
+                'form-control snapintimeout-input',
+                'timeout',
+                '0',
+                'number',
+                'timeout',
+                $timeout
+            ),
+            self::makeLabel(
+                $labelClass,
+                'noaction',
+                _('No Action')
+            ) => self::makeInput(
+                '',
+                'action',
+                '',
+                'radio',
+                'noaction',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'reboot',
+                _('Reboot')
+            ) => self::makeInput(
+                '',
+                'action',
+                '',
+                'radio',
+                'reboot',
+                'reboot'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'shutdown',
+                _('Shutdown')
+            ) => self::makeInput(
+                '',
+                'action',
+                '',
+                'radio',
+                'shutdown',
+                'shutdown'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'cmdletin',
+                _('Snapin Command')
+                . '<br/>('
+                . _('read-only')
+                . ')'
+            ) => self::makeTextarea(
+                'form-control snapincmd',
+                'snapincmd',
+                '',
+                'snapincmd',
+                '',
+                false,
+                false,
+                '',
+                true
+            )
+        ];
+
+        self::$HookManager->processEvent(
+            'SNAPIN_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'Snapin' => self::getClass('Snapin')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'snapin-create-form',
+            '../management/index.php?node=snapin&sub=add',
+            'post',
+            'multipart/form-data',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Actually sibmit the creation of the snapin.
      *
      * @return void

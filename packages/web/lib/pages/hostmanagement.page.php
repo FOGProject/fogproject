@@ -670,6 +670,226 @@ class HostManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * Creates a new host.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        // Check all the post fields if they've already been set.
+        $host = filter_input(INPUT_POST, 'host');
+        $mac = filter_input(INPUT_POST, 'mac');
+        $description = filter_input(INPUT_POST, 'description');
+        $key = filter_input(INPUT_POST, 'key');
+        $image = filter_input(INPUT_POST, 'image');
+        $kernel = filter_input(INPUT_POST, 'kernel');
+        $args = filter_input(INPUT_POST, 'args');
+        $init = filter_input(INPUT_POST, 'init');
+        $dev = filter_input(INPUT_POST, 'dev');
+        $domain = filter_input(INPUT_POST, 'domain');
+        $domainname = filter_input(INPUT_POST, 'domainname');
+        $ou = filter_input(INPUT_POST, 'ou');
+        $domainuser = filter_input(INPUT_POST, 'domainuser');
+        $domainpassword = filter_input(INPUT_POST, 'domainpassword');
+        $enforce = isset($_POST['enforce']) ?: self::getSetting(
+            'FOG_ENFORCE_HOST_CHANGES'
+        );
+        $imageSelector = self::getClass('ImageManager')
+            ->buildSelectBox($image, '', 'id');
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'host',
+                _('Host Name')
+            ) => self::makeInput(
+                'form-control hostname-input',
+                'host',
+                _('Host Name'),
+                'text',
+                'host',
+                $host,
+                true,
+                false,
+                -1,
+                15
+            ),
+            self::makeLabel(
+                $labelClass,
+                'mac',
+                _('MAC Address')
+            ) => self::makeInput(
+                'form-control hostmac-input',
+                'mac',
+                '00:00:00:00:00:00',
+                'text',
+                'mac',
+                $mac,
+                true,
+                false,
+                -1,
+                17,
+                'exactlength="12"'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Host Description')
+            ) => self::makeTextarea(
+                'form-control hostdescription-input',
+                'description',
+                _('Host Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'key',
+                _('Host Product Key')
+            ) => self::makeInput(
+                'form-control hostkey-input',
+                'key',
+                'ABCDE-FGHIJ-KLMNO-PQRST-UVWXY',
+                'text',
+                'key',
+                $key,
+                false,
+                false,
+                -1,
+                29,
+                'exactlength="25"'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'image',
+                _('Host Image')
+            ) => $imageSelector,
+            self::makeLabel(
+                $labelClass,
+                'kernel',
+                _('Host Kernel')
+            ) => self::makeInput(
+                'form-control hostkernel-input',
+                'kernel',
+                'bzImage_Custom',
+                'text',
+                'kernel',
+                $kernel
+            ),
+            self::makeLabel(
+                $labelClass,
+                'args',
+                _('Host Kernel Arguments')
+            ) => self::makeInput(
+                'form-control hostargs-input',
+                'args',
+                'debug acpi=off',
+                'text',
+                'args',
+                $args
+            ),
+            self::makeLabel(
+                $labelClass,
+                'init',
+                _('Host Init')
+            ) => self::makeInput(
+                'form-control hostinit-input',
+                'init',
+                'customInit.xz',
+                'text',
+                'init',
+                $init
+            ),
+            self::makeLabel(
+                $labelClass,
+                'dev',
+                _('Host Primary Disk')
+            ) => self::makeInput(
+                'form-control hostdev-input',
+                'dev',
+                '/dev/md0',
+                'text',
+                'dev',
+                $dev
+            ),
+            self::makeLabel(
+                $labelClass,
+                'enforce',
+                _('Enforce Hostname | AD Join Reboots')
+            ) => self::makeInput(
+                '',
+                'enforce',
+                '',
+                'checkbox',
+                'enforce',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                ($enforce ? 'checked' : '')
+            ),
+            self::makeLabel(
+                $labelClass,
+                'bootTypeExit',
+                _('Host BIOS Exit Type')
+            ) => $this->exitNorm,
+            self::makeLabel(
+                $labelClass,
+                'efiBootTypeExit',
+                _('Host EFI Exit Type')
+            ) => $this->exitEfi
+        ];
+
+        self::$HookManager->processEvent(
+            'HOST_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'Host' => self::getClass('Host')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        $fieldads = $this->adFieldsToDisplay(
+            $domain,
+            $domainname,
+            $ou,
+            $domainuser,
+            $domainpassword,
+            false,
+            true
+        );
+
+        self::$HookManager->processEvent(
+            'HOST_ADD_AD_FIELDS',
+            [
+                'fields' => &$fieldads,
+                'Host' => self::getClass('Host')
+            ]
+        );
+        $renderedad = self::formFields($fieldads);
+        unset($fieldads);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'host-create-form',
+            '../management/index.php?node=host&sub=add',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '<hr/>';
+        echo '<h4 class="box-title">';
+        echo _('Active Directory');
+        echo '</h4>';
+        echo $renderedad;
+        echo '</form>';
+    }
+    /**
      * Handles the forum submission process.
      *
      * @return void
