@@ -1207,20 +1207,21 @@ class ImageManagement extends FOGPage
             )
             . '" ';
 
-        $buttons = self::makeButton(
+        $buttons = self::makeSplitButton(
             'session-create',
             _('Create'),
-            'btn btn-primary pull-right'
-        );
-        $buttons .= self::makeButton(
-            'session-resume',
-            _('Resume Reload'),
-            'btn btn-success pull-right'
-        );
-        $buttons .= self::makeButton(
-            'session-pause',
-            _('Pause Reload'),
-            'btn btn-warning pull-left'
+            [
+                [
+                    'id' => 'session-pause',
+                    'text' => _('Pause Reload')
+                ],
+                [
+                    'id' => 'session-resume',
+                    'text' => _('Resume Reload')
+                ]
+            ],
+            'right',
+            'primary'
         );
         $buttons .= self::makeButton(
             'session-cancel',
