@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-02 22:16-0400\n"
+"POT-Creation-Date: 2018-05-02 23:40-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3711,10 +3711,6 @@ msgstr "Protetta"
 msgid "Captured"
 msgstr "Catturato"
 
-#, fuzzy
-msgid "Create New Image"
-msgstr "Crea nuovo %s"
-
 msgid "Partimage"
 msgstr "partimage"
 
@@ -3820,10 +3816,10 @@ msgstr "Nome sessione"
 msgid "Progress"
 msgstr ""
 
-msgid "Resume Reload"
+msgid "Pause Reload"
 msgstr ""
 
-msgid "Pause Reload"
+msgid "Resume Reload"
 msgstr ""
 
 #, fuzzy
@@ -4600,9 +4596,6 @@ msgstr "Nome stampante"
 
 msgid "Config File"
 msgstr "File di configurazione"
-
-msgid "Create New Printer"
-msgstr "Crea nuova stampante"
 
 msgid "TCP/IP Port Printer"
 msgstr "Porta TCP / IP della stampante"

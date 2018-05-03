@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-02 22:16-0400\n"
+"POT-Creation-Date: 2018-05-02 23:40-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3944,10 +3944,6 @@ msgstr "Geschützt"
 msgid "Captured"
 msgstr "Erstellt"
 
-#, fuzzy
-msgid "Create New Image"
-msgstr "Neuen Schlüssel erstellen"
-
 msgid "Partimage"
 msgstr "Partimage"
 
@@ -4061,10 +4057,10 @@ msgstr "Sitzungsname"
 msgid "Progress"
 msgstr ""
 
-msgid "Resume Reload"
+msgid "Pause Reload"
 msgstr ""
 
-msgid "Pause Reload"
+msgid "Resume Reload"
 msgstr ""
 
 #, fuzzy
@@ -4876,10 +4872,6 @@ msgstr "Druckername"
 #, fuzzy
 msgid "Config File"
 msgstr "Config-Datei"
-
-#, fuzzy
-msgid "Create New Printer"
-msgstr "Neuen Drucker erstellen"
 
 msgid "TCP/IP Port Printer"
 msgstr "TCP/IP-Port Drucker"
