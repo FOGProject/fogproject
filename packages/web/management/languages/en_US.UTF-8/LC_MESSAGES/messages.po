@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-02 22:16-0400\n"
+"POT-Creation-Date: 2018-05-02 23:40-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3933,10 +3933,6 @@ msgstr "Protected"
 msgid "Captured"
 msgstr "Created"
 
-#, fuzzy
-msgid "Create New Image"
-msgstr "Create New %s"
-
 msgid "Partimage"
 msgstr "Partimage"
 
@@ -4050,10 +4046,10 @@ msgstr "Session Name"
 msgid "Progress"
 msgstr ""
 
-msgid "Resume Reload"
+msgid "Pause Reload"
 msgstr ""
 
-msgid "Pause Reload"
+msgid "Resume Reload"
 msgstr ""
 
 #, fuzzy
@@ -4864,10 +4860,6 @@ msgstr "Printer Name"
 #, fuzzy
 msgid "Config File"
 msgstr "Printer Config File"
-
-#, fuzzy
-msgid "Create New Printer"
-msgstr "Create New %s"
 
 msgid "TCP/IP Port Printer"
 msgstr "TCP/IP Port Printer"

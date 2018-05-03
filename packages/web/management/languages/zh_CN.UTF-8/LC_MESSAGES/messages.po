@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-02 22:16-0400\n"
+"POT-Creation-Date: 2018-05-02 23:40-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3929,10 +3929,6 @@ msgstr "受保护"
 msgid "Captured"
 msgstr "创建"
 
-#, fuzzy
-msgid "Create New Image"
-msgstr "新建%s"
-
 msgid "Partimage"
 msgstr "Partimage"
 
@@ -4046,10 +4042,10 @@ msgstr "会话名称"
 msgid "Progress"
 msgstr ""
 
-msgid "Resume Reload"
+msgid "Pause Reload"
 msgstr ""
 
-msgid "Pause Reload"
+msgid "Resume Reload"
 msgstr ""
 
 #, fuzzy
@@ -4860,10 +4856,6 @@ msgstr "打印机名称"
 #, fuzzy
 msgid "Config File"
 msgstr "打印机配置文件"
-
-#, fuzzy
-msgid "Create New Printer"
-msgstr "新建%s"
 
 msgid "TCP/IP Port Printer"
 msgstr "TCP / IP端口打印机"

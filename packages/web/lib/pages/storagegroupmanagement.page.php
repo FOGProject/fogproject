@@ -97,7 +97,7 @@ class StorageGroupManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        self::makeFormTag(
+        echo self::makeFormTag(
             'form-horizontal',
             'storagegroup-create-form',
             '../management/index.php?node=storagegroup&sub=add',
@@ -249,7 +249,7 @@ class StorageGroupManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo  self::makeFormTag(
+        echo self::makeFormTag(
             'form-horizontal',
             'storagegroup-general-form',
             self::makeTabUpdateURL(

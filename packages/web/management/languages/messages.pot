@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-02 22:16-0400\n"
+"POT-Creation-Date: 2018-05-02 23:50-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3397,9 +3397,6 @@ msgstr ""
 msgid "Captured"
 msgstr ""
 
-msgid "Create New Image"
-msgstr ""
-
 msgid "Partimage"
 msgstr ""
 
@@ -3493,10 +3490,10 @@ msgstr ""
 msgid "Progress"
 msgstr ""
 
-msgid "Resume Reload"
+msgid "Pause Reload"
 msgstr ""
 
-msgid "Pause Reload"
+msgid "Resume Reload"
 msgstr ""
 
 msgid "Cancel Selected"
@@ -4181,9 +4178,6 @@ msgid "Printer Name"
 msgstr ""
 
 msgid "Config File"
-msgstr ""
-
-msgid "Create New Printer"
 msgstr ""
 
 msgid "TCP/IP Port Printer"
