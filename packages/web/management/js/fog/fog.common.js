@@ -713,3 +713,19 @@ function getQueryParams(qs) {
     }
     return params;
 }
+$.fn.mirror = function(selector, regex, replace) {
+    return this.each(function() {
+        var start = $(this),
+            mirror = $(selector);
+        start.on('keyup', function() {
+            if (regex) {
+                if (typeof replace === 'undefined') {
+                    replace = '';
+                }
+                mirror.val(start.val().replace(regex, replace));
+            } else {
+                mirror.val(start.val());
+            }
+        });
+    });
+};

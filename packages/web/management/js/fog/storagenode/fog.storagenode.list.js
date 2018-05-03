@@ -67,7 +67,7 @@
     createFormModalShow = function() {
         createForm[0].reset();
         $(':input:first').trigger('focus');
-        $(':input').on('keypress', function(e) {
+        $(':input:not(textarea)').on('keypress', function(e) {
             if (e.which == 13) {
                 createnewSendBtn.trigger('click');
             }

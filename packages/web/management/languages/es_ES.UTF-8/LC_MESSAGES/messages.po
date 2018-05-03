@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-26 12:03-0400\n"
+"POT-Creation-Date: 2018-05-02 22:16-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -2485,10 +2485,6 @@ msgstr "Puerto"
 msgid "Admin Group"
 msgstr "modificar Grupo"
 
-#, fuzzy
-msgid "Create New LDAP Server"
-msgstr "Crear nuevo grupo"
-
 msgid "Base Only"
 msgstr ""
 
@@ -2961,10 +2957,6 @@ msgstr "Presentar la información del sistema"
 
 msgid "Network Information"
 msgstr "Información de la red"
-
-#, fuzzy
-msgid "Create New Group"
-msgstr "nodo de almacenamiento"
 
 msgid "Group Name"
 msgstr "Nombre del grupo"
@@ -4135,9 +4127,8 @@ msgstr "Partclone"
 msgid "Image Description"
 msgstr "Descripción de la imagen"
 
-#, fuzzy
-msgid "Image Compression Rating"
-msgstr "Asociación para la imagen"
+msgid "Compression"
+msgstr ""
 
 #, fuzzy
 msgid "Image Storage Group"
@@ -4461,10 +4452,6 @@ msgstr "actualización de la impresora ha fallado!"
 #, fuzzy
 msgid "Total Clients"
 msgstr "Clientela"
-
-#, fuzzy
-msgid "Create New Storage Group"
-msgstr "nodo de almacenamiento"
 
 #, fuzzy
 msgid "Storage Group name"
@@ -5407,10 +5394,6 @@ msgid "Storage Node Management"
 msgstr "Gestión de usuarios"
 
 #, fuzzy
-msgid "Create New Storage Node"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
 msgid "Storage Node Web Root"
 msgstr "nodo de almacenamiento"
 
@@ -5494,10 +5477,6 @@ msgstr "nodo de almacenamiento"
 
 msgid "Is Pack"
 msgstr ""
-
-#, fuzzy
-msgid "Create New Snapin"
-msgstr "Crear nuevo grupo"
 
 #, fuzzy
 msgid "Normal Snapin"

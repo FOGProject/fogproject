@@ -64,8 +64,6 @@ class LDAPManagement extends FOGPage
      */
     public function add()
     {
-        $this->title = _('Create New LDAP Server');
-
         $ldap = filter_input(INPUT_POST, 'ldap');
         $description = filter_input(INPUT_POST, 'description');
         $address = filter_input(INPUT_POST, 'address');
@@ -292,17 +290,10 @@ class LDAPManagement extends FOGPage
             . '</div>'
         ];
 
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
-
         self::$HookManager->processEvent(
             'LDAP_FIELDS',
             [
                 'fields' => &$fields,
-                'buttons' => &$buttons,
                 'LDAP' => self::getClass('LDAP')
             ]
         );
@@ -312,28 +303,12 @@ class LDAPManagement extends FOGPage
         echo self::makeFormTag(
             'form-horizontal',
             'ldap-create-form',
-            $this->formAction,
+            '../management/index.php?node=ldap&sub=add',
             'post',
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid" id="ldap-create">';
-        echo '<div class="box-body">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Create New LDAP Server');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
         echo $rendered;
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-footer">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
         echo '</form>';
     }
     /**

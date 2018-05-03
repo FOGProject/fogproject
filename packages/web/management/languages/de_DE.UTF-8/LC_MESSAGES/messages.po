@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-26 12:03-0400\n"
+"POT-Creation-Date: 2018-05-02 22:16-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -2315,10 +2315,6 @@ msgstr "Port"
 msgid "Admin Group"
 msgstr "Admingruppe"
 
-#, fuzzy
-msgid "Create New LDAP Server"
-msgstr "Neuen Drucker erstellen"
-
 msgid "Base Only"
 msgstr "Nur Basis"
 
@@ -2784,10 +2780,6 @@ msgstr "Dateisystem-Informationen"
 
 msgid "Network Information"
 msgstr "Netzwerkinformationen"
-
-#, fuzzy
-msgid "Create New Group"
-msgstr "Speichergruppe erstellen"
 
 msgid "Group Name"
 msgstr "Gruppenname"
@@ -3966,9 +3958,8 @@ msgstr "Partclone unkomprimiert gesplittet 200MiB"
 msgid "Image Description"
 msgstr "Imagebeschreibung"
 
-#, fuzzy
-msgid "Image Compression Rating"
-msgstr "Imagezuordnung"
+msgid "Compression"
+msgstr ""
 
 #, fuzzy
 msgid "Image Storage Group"
@@ -4292,10 +4283,6 @@ msgstr "Drucker-Update fehlgeschlagen!"
 #, fuzzy
 msgid "Total Clients"
 msgstr "Maximale Clients"
-
-#, fuzzy
-msgid "Create New Storage Group"
-msgstr "Speichergruppe erstellen"
 
 #, fuzzy
 msgid "Storage Group name"
@@ -5227,10 +5214,6 @@ msgid "Storage Node Management"
 msgstr "Speicherverwaltung"
 
 #, fuzzy
-msgid "Create New Storage Node"
-msgstr "Storage Node"
-
-#, fuzzy
 msgid "Storage Node Web Root"
 msgstr "Speicherknotenname"
 
@@ -5315,10 +5298,6 @@ msgstr "Aktualisierung des Speicherknotens fehlgeschlagen"
 #, fuzzy
 msgid "Is Pack"
 msgstr "Ist ein Paket"
-
-#, fuzzy
-msgid "Create New Snapin"
-msgstr "Neues Snapin erstellen"
 
 #, fuzzy
 msgid "Normal Snapin"
