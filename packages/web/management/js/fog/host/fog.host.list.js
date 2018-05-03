@@ -182,6 +182,8 @@
         $(':input').off('keypress');
     };
 
+    Common.registerModal(createnewModal, createFormModalShow, createFormModalHide);
+
     createnewBtn.on('click', function(e) {
         e.preventDefault();
         createnewModal.modal('show');
@@ -198,7 +200,6 @@
     });
     $('#mac').inputmask({mask: Common.masks.mac});
     $('#key').inputmask({mask: Common.masks.productKey});
-    Common.registerModal(createnewModal, createFormModalShow, createFormModalHide);
     // ---------------------------------------------------------------
     // ACTIVE DIRECTORY TAB
     var ADJoinDomain = $('#adEnabled');

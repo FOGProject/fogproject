@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-26 12:03-0400\n"
+"POT-Creation-Date: 2018-05-02 22:16-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -2223,10 +2223,6 @@ msgstr "Porta"
 msgid "Admin Group"
 msgstr "Gruppo amministrativo"
 
-#, fuzzy
-msgid "Create New LDAP Server"
-msgstr "Crea nuova stampante"
-
 msgid "Base Only"
 msgstr "Solo base"
 
@@ -2645,10 +2641,6 @@ msgstr "File System Information"
 
 msgid "Network Information"
 msgstr "Informationi di rete"
-
-#, fuzzy
-msgid "Create New Group"
-msgstr "Creazione Gruppo di archiviazione"
 
 msgid "Group Name"
 msgstr "Nome del gruppo"
@@ -3732,9 +3724,8 @@ msgstr "Partclone non compressa diviso per 200MiB"
 msgid "Image Description"
 msgstr "Descrizione dell'immagine"
 
-#, fuzzy
-msgid "Image Compression Rating"
-msgstr "Associazione immagine"
+msgid "Compression"
+msgstr ""
 
 #, fuzzy
 msgid "Image Storage Group"
@@ -4043,10 +4034,6 @@ msgstr "Aggiornamento della stampante non riuscito"
 #, fuzzy
 msgid "Total Clients"
 msgstr "clienti max"
-
-#, fuzzy
-msgid "Create New Storage Group"
-msgstr "Creazione Gruppo di archiviazione"
 
 #, fuzzy
 msgid "Storage Group name"
@@ -4938,10 +4925,6 @@ msgid "Storage Node Management"
 msgstr "Storage Management"
 
 #, fuzzy
-msgid "Create New Storage Node"
-msgstr "Storage Node"
-
-#, fuzzy
 msgid "Storage Node Web Root"
 msgstr "Nome Storage Node"
 
@@ -5018,9 +5001,6 @@ msgstr "Aggiornamento nodo di archiviazione fallito!"
 
 msgid "Is Pack"
 msgstr "È Pack"
-
-msgid "Create New Snapin"
-msgstr "Crea nuovo snapin"
 
 msgid "Normal Snapin"
 msgstr "Snapin normale"

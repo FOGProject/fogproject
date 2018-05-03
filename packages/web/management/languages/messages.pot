@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-02 19:22-0400\n"
+"POT-Creation-Date: 2018-05-02 22:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2024,9 +2024,6 @@ msgstr ""
 msgid "Admin Group"
 msgstr ""
 
-msgid "Create New LDAP Server"
-msgstr ""
-
 msgid "Base Only"
 msgstr ""
 
@@ -2427,9 +2424,6 @@ msgid "File System Information"
 msgstr ""
 
 msgid "Network Information"
-msgstr ""
-
-msgid "Create New Group"
 msgstr ""
 
 msgid "Group Name"
@@ -3415,7 +3409,7 @@ msgstr ""
 msgid "Image Description"
 msgstr ""
 
-msgid "Image Compression Rating"
+msgid "Compression"
 msgstr ""
 
 msgid "Image Storage Group"
@@ -3686,9 +3680,6 @@ msgid "Schema Update Fail"
 msgstr ""
 
 msgid "Total Clients"
-msgstr ""
-
-msgid "Create New Storage Group"
 msgstr ""
 
 msgid "Storage Group name"
@@ -4472,9 +4463,6 @@ msgstr ""
 msgid "Storage Node Management"
 msgstr ""
 
-msgid "Create New Storage Node"
-msgstr ""
-
 msgid "Storage Node Web Root"
 msgstr ""
 
@@ -4539,9 +4527,6 @@ msgid "Storage Node Update Fail"
 msgstr ""
 
 msgid "Is Pack"
-msgstr ""
-
-msgid "Create New Snapin"
 msgstr ""
 
 msgid "Normal Snapin"
