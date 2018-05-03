@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-02 23:40-0400\n"
+"POT-Creation-Date: 2018-05-03 00:13-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -2315,6 +2315,10 @@ msgstr "Port"
 msgid "Admin Group"
 msgstr "Admingruppe"
 
+#, fuzzy
+msgid "Create New LDAP Server"
+msgstr "Neuen Drucker erstellen"
+
 msgid "Base Only"
 msgstr "Nur Basis"
 
@@ -2781,6 +2785,10 @@ msgstr "Dateisystem-Informationen"
 msgid "Network Information"
 msgstr "Netzwerkinformationen"
 
+#, fuzzy
+msgid "Create New Group"
+msgstr "Neuen Schlüssel erstellen"
+
 msgid "Group Name"
 msgstr "Gruppenname"
 
@@ -3228,6 +3236,10 @@ msgstr "nutzerfreundlicher Name"
 
 msgid "API?"
 msgstr "API?"
+
+#, fuzzy
+msgid "Create New User"
+msgstr "Neue %s erstellen"
 
 msgid "User Password"
 msgstr "Benutzerpasswort"
@@ -3944,6 +3956,10 @@ msgstr "Geschützt"
 msgid "Captured"
 msgstr "Erstellt"
 
+#, fuzzy
+msgid "Create New Image"
+msgstr "Neuen Schlüssel erstellen"
+
 msgid "Partimage"
 msgstr "Partimage"
 
@@ -3954,8 +3970,9 @@ msgstr "Partclone unkomprimiert gesplittet 200MiB"
 msgid "Image Description"
 msgstr "Imagebeschreibung"
 
-msgid "Compression"
-msgstr ""
+#, fuzzy
+msgid "Image Compression Rating"
+msgstr "Imagezuordnung"
 
 #, fuzzy
 msgid "Image Storage Group"
@@ -4057,10 +4074,10 @@ msgstr "Sitzungsname"
 msgid "Progress"
 msgstr ""
 
-msgid "Pause Reload"
+msgid "Resume Reload"
 msgstr ""
 
-msgid "Resume Reload"
+msgid "Pause Reload"
 msgstr ""
 
 #, fuzzy
@@ -4281,6 +4298,10 @@ msgid "Total Clients"
 msgstr "Maximale Clients"
 
 #, fuzzy
+msgid "Create New Storage Group"
+msgstr "Speichergruppe"
+
+#, fuzzy
 msgid "Storage Group name"
 msgstr "Name der Speichergruppe"
 
@@ -4424,6 +4445,10 @@ msgstr "Ausgewählten MAcs freigeben"
 #, fuzzy
 msgid "MAC Approval Success"
 msgstr "Host erfolgreich erstellt"
+
+#, fuzzy
+msgid "Create New Host"
+msgstr "Neue %s erstellen"
 
 msgid "Host Description"
 msgstr "Host-Beschreibung"
@@ -4873,6 +4898,10 @@ msgstr "Druckername"
 msgid "Config File"
 msgstr "Config-Datei"
 
+#, fuzzy
+msgid "Create New Printer"
+msgstr "Neuen Drucker erstellen"
+
 msgid "TCP/IP Port Printer"
 msgstr "TCP/IP-Port Drucker"
 
@@ -5206,6 +5235,10 @@ msgid "Storage Node Management"
 msgstr "Speicherverwaltung"
 
 #, fuzzy
+msgid "Create New Storage Node"
+msgstr "Neuen Drucker erstellen"
+
+#, fuzzy
 msgid "Storage Node Web Root"
 msgstr "Speicherknotenname"
 
@@ -5290,6 +5323,10 @@ msgstr "Aktualisierung des Speicherknotens fehlgeschlagen"
 #, fuzzy
 msgid "Is Pack"
 msgstr "Ist ein Paket"
+
+#, fuzzy
+msgid "Create New Snapin"
+msgstr "Neues Snapin erstellen"
 
 #, fuzzy
 msgid "Normal Snapin"
@@ -6264,10 +6301,6 @@ msgstr "Ausgewählte Speichergruppen hinzufügen"
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "Speichergruppe hinzufügen"
-
-#, fuzzy
-msgid "Create New"
-msgstr "Neue %s erstellen"
 
 msgid "s"
 msgstr ""

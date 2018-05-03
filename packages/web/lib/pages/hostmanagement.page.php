@@ -427,6 +427,7 @@ class HostManagement extends FOGPage
      */
     public function add()
     {
+        $this->title = _('Create New Host');
         // Check all the post fields if they've already been set.
         $host = filter_input(INPUT_POST, 'host');
         $mac = filter_input(INPUT_POST, 'mac');
@@ -594,10 +595,17 @@ class HostManagement extends FOGPage
             ) => $this->exitEfi
         ];
 
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary pull-right'
+        );
+
         self::$HookManager->processEvent(
             'HOST_ADD_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Host' => self::getClass('Host')
             ]
         );
@@ -627,17 +635,38 @@ class HostManagement extends FOGPage
         echo self::makeFormTag(
             'form-horizontal',
             'host-create-form',
-            '../management/index.php?node=host&sub=add',
+            $this->formAction,
             'post',
             'application/x-www-form-urlencoded',
             true
         );
+        echo '<div class="box box-solid" id="host-create">';
+        echo '<div class="box-body">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Create New Host');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
         echo $rendered;
-        echo '<hr/>';
+        echo '</div>';
+        echo '</div>';
+
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
         echo _('Active Directory');
         echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
         echo $renderedad;
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
     }
     /**

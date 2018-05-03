@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-02 23:50-0400\n"
+"POT-Creation-Date: 2018-05-03 00:21-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2024,6 +2024,9 @@ msgstr ""
 msgid "Admin Group"
 msgstr ""
 
+msgid "Create New LDAP Server"
+msgstr ""
+
 msgid "Base Only"
 msgstr ""
 
@@ -2426,6 +2429,9 @@ msgstr ""
 msgid "Network Information"
 msgstr ""
 
+msgid "Create New Group"
+msgstr ""
+
 msgid "Group Name"
 msgstr ""
 
@@ -2789,6 +2795,9 @@ msgid "Friendly Name"
 msgstr ""
 
 msgid "API?"
+msgstr ""
+
+msgid "Create New User"
 msgstr ""
 
 msgid "User Password"
@@ -3397,6 +3406,9 @@ msgstr ""
 msgid "Captured"
 msgstr ""
 
+msgid "Create New Image"
+msgstr ""
+
 msgid "Partimage"
 msgstr ""
 
@@ -3406,7 +3418,7 @@ msgstr ""
 msgid "Image Description"
 msgstr ""
 
-msgid "Compression"
+msgid "Image Compression Rating"
 msgstr ""
 
 msgid "Image Storage Group"
@@ -3490,10 +3502,10 @@ msgstr ""
 msgid "Progress"
 msgstr ""
 
-msgid "Pause Reload"
+msgid "Resume Reload"
 msgstr ""
 
-msgid "Resume Reload"
+msgid "Pause Reload"
 msgstr ""
 
 msgid "Cancel Selected"
@@ -3679,6 +3691,9 @@ msgstr ""
 msgid "Total Clients"
 msgstr ""
 
+msgid "Create New Storage Group"
+msgstr ""
+
 msgid "Storage Group name"
 msgstr ""
 
@@ -3791,6 +3806,9 @@ msgid "Approved selected macs!"
 msgstr ""
 
 msgid "MAC Approval Success"
+msgstr ""
+
+msgid "Create New Host"
 msgstr ""
 
 msgid "Host Description"
@@ -4180,6 +4198,9 @@ msgstr ""
 msgid "Config File"
 msgstr ""
 
+msgid "Create New Printer"
+msgstr ""
+
 msgid "TCP/IP Port Printer"
 msgstr ""
 
@@ -4457,6 +4478,9 @@ msgstr ""
 msgid "Storage Node Management"
 msgstr ""
 
+msgid "Create New Storage Node"
+msgstr ""
+
 msgid "Storage Node Web Root"
 msgstr ""
 
@@ -4521,6 +4545,9 @@ msgid "Storage Node Update Fail"
 msgstr ""
 
 msgid "Is Pack"
+msgstr ""
+
+msgid "Create New Snapin"
 msgstr ""
 
 msgid "Normal Snapin"
@@ -5343,9 +5370,6 @@ msgid "Add selected to group"
 msgstr ""
 
 msgid "Add To Group(s)"
-msgstr ""
-
-msgid "Create New"
 msgstr ""
 
 msgid "s"

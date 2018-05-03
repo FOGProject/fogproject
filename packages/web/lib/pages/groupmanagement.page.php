@@ -95,6 +95,8 @@ class GroupManagement extends FOGPage
      */
     public function add()
     {
+        $this->title = _('Create New Group');
+
         $group = filter_input(INPUT_POST, 'group');
         $description = filter_input(INPUT_POST, 'description');
         $kernel = filter_input(INPUT_POST, 'kernel');
@@ -180,10 +182,17 @@ class GroupManagement extends FOGPage
             )
         ];
 
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary pull-right'
+        );
+
         self::$HookManager->processEvent(
             'GROUP_ADD_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Group' => self::getClass('Group')
             ]
         );
@@ -193,12 +202,28 @@ class GroupManagement extends FOGPage
         echo self::makeFormTag(
             'form-horizontal',
             'group-create-form',
-            '../management/index.php?node=group&sub=add',
+            $this->formAction,
             'post',
             'application/x-www-form-urlencoded',
             true
         );
+        echo '<div class="box box-solid" id="group-create">';
+        echo '<div class="box-body">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Create New Group');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
         echo $rendered;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
     }
     /**

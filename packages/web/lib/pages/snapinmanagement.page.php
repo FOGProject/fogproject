@@ -192,6 +192,8 @@ class SnapinManagement extends FOGPage
      */
     public function add()
     {
+        $this->title = _('Create New Snapin');
+
         $snapin = filter_input(INPUT_POST, 'snapin');
         $description = filter_input(INPUT_POST, 'description');
         $storagegroup = filter_input(INPUT_POST, 'storagegroup');
@@ -515,10 +517,17 @@ class SnapinManagement extends FOGPage
             )
         ];
 
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary pull-right'
+        );
+
         self::$HookManager->processEvent(
             'SNAPIN_ADD_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Snapin' => self::getClass('Snapin')
             ]
         );
@@ -528,12 +537,28 @@ class SnapinManagement extends FOGPage
         echo self::makeFormTag(
             'form-horizontal',
             'snapin-create-form',
-            '../management/index.php?node=snapin&sub=add',
+            $this->formAction,
             'post',
             'multipart/form-data',
             true
         );
+        echo '<div class="box box-solid" id="snapin-create">';
+        echo '<div class="box-body">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Create New Snapin');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
         echo $rendered;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
     }
     /**

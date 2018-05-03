@@ -54,6 +54,8 @@ class StorageGroupManagement extends FOGPage
      */
     public function add()
     {
+        $this->title = _('Create New Storage Group');
+
         $storagegroup = filter_input(INPUT_POST, 'storagegroup');
         $description = filter_input(INPUT_POST, 'description');
 
@@ -87,10 +89,17 @@ class StorageGroupManagement extends FOGPage
             )
         ];
 
+        $buttons = self::makeButton(
+            'send',
+            _('Create'),
+            'btn btn-primary pull-right'
+        );
+
         self::$HookManager->processEvent(
             'STORAGEGROUP_ADD_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'StorageGroup' => self::getClass('StorageGroup')
             ]
         );
@@ -100,12 +109,28 @@ class StorageGroupManagement extends FOGPage
         echo self::makeFormTag(
             'form-horizontal',
             'storagegroup-create-form',
-            '../management/index.php?node=storagegroup&sub=add',
+            $this->formAcion,
             'post',
             'application/x-www-form-urlencoded',
             true
         );
+        echo '<div class="box box-solid" id="storagegroup-create">';
+        echo '<div class="box-body">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Create New Storage Group');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
         echo $rendered;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
         echo '</form>';
     }
     /**
@@ -249,7 +274,7 @@ class StorageGroupManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo self::makeFormTag(
+        echo  self::makeFormTag(
             'form-horizontal',
             'storagegroup-general-form',
             self::makeTabUpdateURL(
