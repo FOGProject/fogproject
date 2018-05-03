@@ -134,6 +134,67 @@ class StorageGroupManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * Create a new storage group.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $storagegroup = filter_input(INPUT_POST, 'storagegroup');
+        $description = filter_input(INPUT_POST, 'description');
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'storagegroup',
+                _('Storage Group Name')
+            ) => self::makeInput(
+                'form-control storagegroupname-input',
+                'storagegroup',
+                _('Storage Group name'),
+                'text',
+                'storagegroup',
+                $storagegroup,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Storage Group Description')
+            ) => self::makeTextarea(
+                'form-control storagegroupdescription-input',
+                'description',
+                _('Storage Group Description'),
+                'description',
+                $description,
+                false
+            )
+        ];
+
+        self::$HookManager->processEvent(
+            'STORAGEGROUP_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'StorageGroup' => self::getClass('StorageGroup')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'storagegroup-create-form',
+            '../management/index.php?node=storagegroup&sub=add',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Actually create the new group.
      *
      * @return void

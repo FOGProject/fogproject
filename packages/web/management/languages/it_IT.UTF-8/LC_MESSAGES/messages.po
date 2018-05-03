@@ -5888,6 +5888,10 @@ msgstr "Aggiungi gruppo di archiviazione selezionato"
 msgid "Add To Group(s)"
 msgstr "Aggiungere gruppo di archiviazione"
 
+#, fuzzy
+msgid "Create New"
+msgstr "Crea nuovo %s"
+
 msgid "s"
 msgstr ""
 

@@ -1,5 +1,9 @@
 (function($) {
-    var deleteSelected = $('#deleteSelected');
+    var deleteSelected = $('#deleteSelected'),
+        createnewBtn = $('#createnew'),
+        createnewModal = $('#createnewModal'),
+        createForm = $('#image-create-form'),
+        createnewSendBtn = $('#send');
 
     function disableButtons(disable) {
         deleteSelected.prop('disabled', disable);
@@ -61,6 +65,49 @@
         table.search(Common.search).draw();
     }
 
+    createFormModalShow = function() {
+        createForm[0].reset();
+        $(':input:first').trigger('focus');
+        $(':input:not(textarea)').on('keypress', function(e) {
+            if (e.which == 13) {
+                createnewSendBtn.trigger('click');
+            }
+        });
+    };
+
+    $('.slider').slider();
+    var image = $('#image'),
+        path = $('#path');
+    if (path.val().length == 0 || path.val() == null) {
+        $(image).mirror(path, /[^\w+\/\.-]/g);
+    }
+    path.on('change', function(e) {
+        var start = this.selectionStart,
+            end = this.selectionEnd;
+        this.value = this.value.replace(/[^\w+\/\.-]/g, '');
+        this.setSelectionRange(start, end);
+    });
+
+    createFormModalHide = function() {
+        createForm[0].reset();
+        $(':input').off('keypress');
+    };
+
+    Common.registerModal(createnewModal, createFormModalShow, createFormModalHide);
+    createnewBtn.on('click', function(e) {
+        e.preventDefault();
+        createnewModal.modal('show');
+    });
+    createnewSendBtn.on('click', function(e) {
+        e.preventDefault();
+        Common.processForm(createForm, function(err) {
+            if (err) {
+                return;
+            }
+            table.draw(false);
+            createnewModal.modal('hide');
+        });
+    });
     deleteSelected.on('click', function() {
         disableButtons(true);
         Common.deleteSelected(table, function(err) {

@@ -6287,6 +6287,10 @@ msgstr "Remove selected snapins"
 msgid "Add To Group(s)"
 msgstr "Add Storage Group"
 
+#, fuzzy
+msgid "Create New"
+msgstr "Create New %s"
+
 msgid "s"
 msgstr ""
 

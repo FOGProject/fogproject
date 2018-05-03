@@ -6292,6 +6292,10 @@ msgstr "Impressora"
 msgid "Add To Group(s)"
 msgstr "Adicionar grupo de armazenamento"
 
+#, fuzzy
+msgid "Create New"
+msgstr "Criar novo %s"
+
 msgid "s"
 msgstr ""
 

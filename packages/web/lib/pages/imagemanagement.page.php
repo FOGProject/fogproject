@@ -348,6 +348,277 @@ class ImageManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * The form to display when adding a new image
+     * definition.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $image = filter_input(INPUT_POST, 'image');
+        $description = filter_input(INPUT_POST, 'description');
+        $storagegroup = (int)filter_input(INPUT_POST, 'storagegroup');
+        $os = (int)filter_input(INPUT_POST, 'os');
+        $imagetype = (int)filter_input(INPUT_POST, 'imagetype');
+        $imagepartitiontype = (int)filter_input(INPUT_POST, 'imagepartitiontype');
+        $compress = (int)filter_input(INPUT_POST, 'compress');
+        $imagemanage = filter_input(INPUT_POST, 'imagemanage');
+        $path = filter_input(INPUT_POST, 'path');
+        if ($storagegroup > 0) {
+            $sgID = $storagegroup;
+        } else {
+            Route::ids('storagegroup');
+            $sgID = @min(json_decode(Route::getData(), true));
+        }
+        $StorageGroup = new StorageGroup($sgID);
+        $StorageGroups = self::getClass('StorageGroupManager')
+            ->buildSelectBox(
+                $sgID,
+                '',
+                'id'
+            );
+        $StorageNode = $StorageGroup->getMasterStorageNode();
+        $OSs = self::getClass('OSManager')
+            ->buildSelectBox($os);
+        $itID = 1;
+        if ($imagetype > 0) {
+            $itID = $imagetype;
+        }
+        $ImageTypes = self::getClass('ImageTypeManager')
+            ->buildSelectBox(
+                $itID,
+                '',
+                'id'
+            );
+        $iptID = 1;
+        if ($imagepartitiontype > 0) {
+            $iptID = $imagepartitiontype;
+        } else {
+            $iptID = 1;
+        }
+        $ImagePartitionTypes = self::getClass('ImagePartitionTypeManager')
+            ->buildSelectBox(
+                $iptID,
+                '',
+                'id'
+            );
+        $compression = self::getSetting('FOG_PIGZ_COMP');
+        if ($compress < 0 || $compress > 23) {
+            $compression = $compress;
+        }
+        if (!isset($imagemanage)) {
+            $imagemanage = self::getSetting('FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT');
+        }
+        $format = sprintf(
+            '<select name="imagemanage" id="imagemanage" class="form-control">'
+            . '<option value="0"%s>%s</option>'
+            . '<option value="1"%s>%s</option>'
+            . '<option value="2"%s>%s</option>'
+            . '<option value="3"%s>%s</option>'
+            . '<option value="4"%s>%s</option>'
+            . '<option value="5"%s>%s</option>'
+            . '<option value="6"%s>%s</option>'
+            . '</select>',
+            (
+                !$imagemanage || $imagemanage == 0 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Gzip'),
+            (
+                $imagemanage == 1 ?
+                ' selected' :
+                ''
+            ),
+            _('Partimage'),
+            (
+                $imagemanage == 2 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Gzip Split 200MiB'),
+            (
+                $imagemanage == 3 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Uncompressed'),
+            (
+                $imagemanage == 4 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Uncompressed Split 200MiB'),
+            (
+                $imagemanage == 5 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Zstd'),
+            (
+                $imagemanage == 6 ?
+                ' selected' :
+                ''
+            ),
+            _('Partclone Zstd Split 200MiB')
+        );
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            // Input/Textarea elements
+            self::makeLabel(
+                $labelClass,
+                'image',
+                _('Image Name')
+            ) => self::makeInput(
+                'form-control imagename-input',
+                'image',
+                _('Image Name'),
+                'text',
+                'image',
+                $image,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Image Description')
+            ) => self::makeTextarea(
+                'form-control imagedescription-input',
+                'description',
+                _('Image Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'path',
+                _('Image Path')
+            ) => '<div class="input-group">'
+            . '<span class="input-group-addon">'
+            . $StorageNode->get('path')
+            . '/'
+            . '</span>'
+            . self::makeInput(
+                'form-control imagepath-input',
+                'path',
+                _('Image Path'),
+                'text',
+                'path',
+                $path,
+                true
+            )
+            . '</div>',
+            self::makeLabel(
+                $labelClass,
+                'compression',
+                _('Image Compression Rating')
+            ) => self::makeInput(
+                'form-control slider imagecompression-input',
+                'compression',
+                '6',
+                'text',
+                'compression',
+                $compression,
+                false,
+                false,
+                -1,
+                -1,
+                'data-slider-min="0" '
+                . 'data-slider-max="22" '
+                . 'data-slider-step="1" '
+                . 'data-slider-value="' . $compression . '" '
+                . 'data-slider-orientation="horizontal" '
+                . 'data-slider-selection="before" '
+                . 'data-slider-tooltip="show" '
+                . 'data-slider-id="blue" '
+            ),
+            // Image Select elements.
+            self::makeLabel(
+                $labelClass,
+                'storagegroup',
+                _('Image Storage Group')
+            ) => $StorageGroups,
+            self::makeLabel(
+                $labelClass,
+                'os',
+                _('Image Operating System')
+            ) => $OSs,
+            self::makeLabel(
+                $labelClass,
+                'imagetype',
+                _('Image Type')
+            ) => $ImageTypes,
+            self::makeLabel(
+                $labelClass,
+                'imagepartitiontype',
+                _('Image Partition')
+            ) => $ImagePartitionTypes,
+            self::makeLabel(
+                $labelClass,
+                'imagemanage',
+                _('Image Manager')
+            ) => $format,
+            // Checkboxes
+            self::makeLabel(
+                $labelClass,
+                'isEnabled',
+                _('Image Enabled')
+            ) => self::makeInput(
+                'imageenabled-input',
+                'isEnabled',
+                '',
+                'checkbox',
+                'isEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'toReplicate',
+                _('Image Replicate')
+            ) => self::makeInput(
+                'imagereplicate-input',
+                'toReplicate',
+                '',
+                'checkbox',
+                'toReplicate',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            )
+        ];
+
+        self::$HookManager->processEvent(
+            'IMAGE_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'Image' => self::getClass('Image')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'image-create-form',
+            '../management/index.php?node=image&sub=add',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Actually save the new node.
      *
      * @return void

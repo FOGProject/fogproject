@@ -390,6 +390,317 @@ class StorageNodeManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * Page to enable creating a new storage node.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $storagenode = filter_input(INPUT_POST, 'storagenode');
+        $description = filter_input(INPUT_POST, 'description');
+        $ip = filter_input(INPUT_POST, 'ip');
+        $webroot = filter_input(INPUT_POST, 'webroot') ?:
+            '/fog';
+        $maxClients = (int)filter_input(INPUT_POST, 'maxClients') ?:
+            10;
+        $isMaster = isset($_POST['isMaster']) ? ' checked' : '';
+        $bandwidth = filter_input(INPUT_POST, 'bandwidth');
+        $storagegroupID = (int)filter_input(INPUT_POST, 'storagegroupID');
+        if (!$storagegroupID) {
+            Route::ids('storagegroup');
+            $storagegroupID = @min(json_decode(Route::getData(), true));
+        }
+        $path = filter_input(INPUT_POST, 'path') ?:
+            '/images/';
+        $ftppath = filter_input(INPUT_POST, 'ftppath') ?:
+            '/images/';
+        $snapinpath = filter_input(INPUT_POST, 'snapinppath') ?:
+            '/opt/fog/snapins/';
+        $sslpath = filter_input(INPUT_POST, 'sslpath') ?:
+            '/opt/fog/snapins/ssl/';
+        $bitrate = filter_input(INPUT_POST, 'bitrate');
+        $interface = filter_input(INPUT_POST, 'interface');
+        $user = filter_input(INPUT_POST, 'user');
+        $pass = filter_input(INPUT_POST, 'pass');
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            // Basic information
+            self::makeLabel(
+                $labelClass,
+                'storagenode',
+                _('Storage Node Name')
+            ) => self::makeInput(
+                'form-control storagenodename-input',
+                'storagenode',
+                _('Storage Node Name'),
+                'text',
+                'storagenode',
+                $storagenode,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Storage Node Description')
+            ) => self::makeTextarea(
+                'form-control storeagenodedescription-input',
+                'description',
+                _('Storage Node Description'),
+                'description',
+                $description,
+                false
+            ),
+            // Node information
+            self::makeLabel(
+                $labelClass,
+                'storagegroupID',
+                _('Storage Group')
+            ) => self::getClass('StorageGroupManager')
+            ->buildSelectBox(
+                $storagegroupID,
+                'storagegroupID'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'ip',
+                _('Storage Node IP')
+            ) => self::makeInput(
+                'form-control storagenodeip-input',
+                'ip',
+                '127.0.0.1',
+                'text',
+                'ip',
+                $ip,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'webroot',
+                _('Storage Node Web Root')
+            ) => self::makeInput(
+                'form-control storagenodewebroot-input',
+                'webroot',
+                '/fog',
+                'text',
+                'webroot',
+                $webroot,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'maxClients',
+                _('Storage Node Max Clients')
+            ) => self::makeInput(
+                'form-control storagenodemaxclients-input',
+                'maxClients',
+                '',
+                'number',
+                'maxClients',
+                $maxClients
+            ),
+            // Node Checkboxes
+            self::makeLabel(
+                $labelClass,
+                'isMaster',
+                _('Storage Node Master')
+            ) => self::makeInput(
+                'storagenodeismaster-input',
+                'isMaster',
+                '',
+                'checkbox',
+                'isMaster',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $isMaster
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isEnabled',
+                _('Storage Node Enabled')
+            ) => self::makeInput(
+                'storagenodeisenabled-input',
+                'isEnabled',
+                '',
+                'checkbox',
+                'isEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isGraphEnabled',
+                _('Graph Enabled')
+                . '<br/>('
+                . _('On Dashboard')
+                . ')'
+            ) => self::makeInput(
+                'storagenodeisgraphenabled-input',
+                'isGraphEnabled',
+                '',
+                'checkbox',
+                'isGraphEnabled',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            ),
+            // Bandwidth/Network Limiting
+            self::makeLabel(
+                $labelClass,
+                'interface',
+                _('Network Interface')
+            ) => self::makeInput(
+                'form-control storagenodeinterface-input',
+                'interface',
+                'eth0',
+                'text',
+                'interface',
+                $interface
+            ),
+            self::makeLabel(
+                $labelClass,
+                'bandwidth',
+                self::$foglang['BandwidthReplication']
+                . '<br/>('
+                . _('Kbps')
+                . ')'
+            ) => self::makeInput(
+                'form-control storagenodebandwidth-input',
+                'bandwidth',
+                '0',
+                'number',
+                'bandwidth',
+                $bandwidth
+            ),
+            self::makeLabel(
+                $labelClass,
+                'bitrate',
+                _('Multicast Bitrate')
+            ) => self::makeInput(
+                'form-control storagenodebitrate-input',
+                'bitrate',
+                '100m',
+                'text',
+                'bitrate',
+                $bitrate
+            ),
+            // Node Path Locations
+            self::makeLabel(
+                $labelClass,
+                'path',
+                _('Storage Node Image Path')
+            ) => self::makeInput(
+                'form-control storagenodeimagepath-input',
+                'path',
+                '/images/',
+                'text',
+                'path',
+                $path,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'ftppath',
+                _('Storage Node FTP Path')
+            ) => self::makeInput(
+                'form-control storagenodeftppath-input',
+                'ftppath',
+                '/images/',
+                'text',
+                'ftppath',
+                $ftppath,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'snapinpath',
+                _('Storage Node Snapin Path')
+            ) => self::makeInput(
+                'form-control storagenodeftppath-input',
+                'snapinpath',
+                '/opt/fog/snapins/',
+                'text',
+                'snapinpath',
+                $snapinpath,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'sslpath',
+                _('Storage Node SSL Path')
+            ) => self::makeInput(
+                'form-control storagenodesslpath-input',
+                'sslpath',
+                '/opt/fog/snapins/ssl/',
+                'text',
+                'sslpath',
+                $sslpath,
+                true
+            ),
+            // Node FTP User/Password
+            self::makeLabel(
+                $labelClass,
+                'user',
+                _('Storage Node FTP User')
+            ) => self::makeInput(
+                'form-control storagenodeuser-input',
+                'user',
+                'fog',
+                'text',
+                'user',
+                $user,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'pass',
+                _('Storage Node FTP Password')
+            ) => '<div class="input-group">'
+            . self::makeInput(
+                'form-control storagenodepass-input',
+                'pass',
+                _('Password'),
+                'password',
+                'pass',
+                $pass,
+                true
+            )
+            . '</div>',
+        ];
+
+        self::$HookManager->processEvent(
+            'STORAGENODE_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'StorageNode' => self::getClass('StorageNode')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'storagenode-create-form',
+            '../management/index.php?node=storagenode&sub=add',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Actually save the new node.
      *
      * @return void

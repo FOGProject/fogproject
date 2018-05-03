@@ -6302,6 +6302,10 @@ msgstr "Ausgewählte Speichergruppen hinzufügen"
 msgid "Add To Group(s)"
 msgstr "Speichergruppe hinzufügen"
 
+#, fuzzy
+msgid "Create New"
+msgstr "Neue %s erstellen"
+
 msgid "s"
 msgstr ""
 

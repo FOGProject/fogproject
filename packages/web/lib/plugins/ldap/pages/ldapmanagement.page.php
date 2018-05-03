@@ -337,6 +337,260 @@ class LDAPManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * Create new ldap
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $ldap = filter_input(INPUT_POST, 'ldap');
+        $description = filter_input(INPUT_POST, 'description');
+        $address = filter_input(INPUT_POST, 'address');
+        $port = filter_input(INPUT_POST, 'port');
+        $searchDN = filter_input(INPUT_POST, 'searchDN');
+        $grpSearchDN = filter_input(INPUT_POST, 'grpSearchDN');
+        $adminGroup = filter_input(INPUT_POST, 'adminGroup');
+        $userGroup = filter_input(INPUT_POST, 'userGroup');
+        $userNameAttr = filter_input(INPUT_POST, 'userNameAttr');
+        $grpMemberAttr = filter_input(INPUT_POST, 'grpMemberAttr');
+        $searchScope = filter_input(INPUT_POST, 'searchScope');
+        $bindDN = filter_input(INPUT_POST, 'bindDN');
+        $bindPwd = filter_input(INPUT_POST, 'bindPwd');
+        $template = filter_input(INPUT_POST, 'template');
+        $searchScopes = [
+            _('Base Only'),
+            _('Subtree Only'),
+            _('Subree and Below')
+        ];
+        $searchSel = self::selectForm(
+            'searchScope',
+            $searchScopes,
+            $searchScope,
+            true
+        );
+        $templates = [
+            _('Microsoft AD'),
+            _('OpenLDAP'),
+            _('Generic LDAP')
+        ];
+        $initialSel = self::selectForm(
+            'template',
+            $templates,
+            $template,
+            true
+        );
+        $ports = LDAP::LDAP_PORTS;
+        $portssel = self::selectForm(
+            'port',
+            $ports,
+            $port
+        );
+        $useGroupMatch = isset($_POST['useGroupMatch']);
+        $useMatch = (
+            $useGroupMatch ?
+            ' checked' :
+            ''
+        );
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'ldap',
+                _('LDAP Server Name')
+            ) => self::makeInput(
+                'form-control ldapname-input',
+                'ldap',
+                _('LDAP Server Name'),
+                'text',
+                'ldap',
+                $ldap,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('LDAP Server Description')
+            ) => self::makeTextarea(
+                'form-control ldapdescription-input',
+                'description',
+                _('LDAP Server Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'address',
+                _('LDAP Server Address')
+            ) => self::makeInput(
+                'form-control ldapaddress-input',
+                'address',
+                'ldapserver.local',
+                'text',
+                'address',
+                $address,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'port',
+                _('LDAP Server Port')
+            ) => $portssel,
+            self::makeLabel(
+                $labelClass,
+                'groupmatch',
+                _('Group Matching')
+                . '<br/>('
+                . _('recommended')
+                . ')'
+            ) => self::makeInput(
+                '',
+                'useGroupMatch',
+                '',
+                'checkbox',
+                'groupmatch',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'searchDN',
+                _('Search Base DN')
+            ) => self::makeInput(
+                'form-control ldapsearchdn-input',
+                'searchDN',
+                'DC=ldapserver,DC=local',
+                'text',
+                'searchDN',
+                $searchDN,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'grpSearchDN',
+                _('Group Search DN')
+            ) => self::makeInput(
+                'form-control ldapgrpsearchdn-input',
+                'grpSearchDN',
+                'OU=Groups,DC=ldapserver,DC=local',
+                'text',
+                'grpSearchDN',
+                $grpSearchDN
+            ),
+            self::makeLabel(
+                $labelClass,
+                'adminGroup',
+                _('Administrator Group')
+            ) => self::makeInput(
+                'form-control ldapadmingroup-input',
+                'adminGroup',
+                _('Domain Admins'),
+                'text',
+                'adminGroup',
+                $adminGroup
+            ),
+            self::makeLabel(
+                $labelClass,
+                'userGroup',
+                _('Non-Administrator Group')
+            ) => self::makeInput(
+                'form-control ldapusergroup-input',
+                'userGroup',
+                _('Users'),
+                'text',
+                'userGroup',
+                $userGroup
+            ),
+            self::makeLabel(
+                $labelClass,
+                'template',
+                _('Initial Template')
+            ) => $initialSel,
+            self::makeLabel(
+                $labelClass,
+                'userNameAttr',
+                _('User Name Attribute')
+            ) => self::makeInput(
+                'form-control ldapusernameattr-input',
+                'userNameAttr',
+                'samAccountName',
+                'text',
+                'userNameAttr',
+                $userNameAttr,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'grpMemberAttr',
+                _('Group Member Attribute')
+            ) => self::makeInput(
+                'form-control ldapgroupmemberattr-input',
+                'grpMemberAttr',
+                'memberof',
+                'text',
+                'grpMemberAttr',
+                $grpMemberAttr
+            ),
+            self::makeLabel(
+                $labelClass,
+                'searchScope',
+                _('Search Scope')
+            ) => $searchSel,
+            self::makeLabel(
+                $labelClass,
+                'bindDN',
+                _('Bind DN')
+            ) => self::makeInput(
+                'form-control ldapbinddn-input',
+                'bindDN',
+                'CN=Users,DC=ldapserver,DC=local',
+                'text',
+                'bindDN',
+                $bindDN
+            ),
+            self::makeLabel(
+                $labelClass,
+                'bindPwd',
+                _('Bind Password')
+            ) => '<div class="input-group">'
+            . self::makeInput(
+                'form-control ldapbindpwd-input',
+                'bindPwd',
+                '',
+                'password',
+                'bindPwd',
+                $bindPwd
+            )
+            . '</div>'
+        ];
+
+        self::$HookManager->processEvent(
+            'LDAP_FIELDS',
+            [
+                'fields' => &$fields,
+                'LDAP' => self::getClass('LDAP')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'ldap-create-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Create the new item
      *
      * @return void
