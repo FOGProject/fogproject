@@ -147,6 +147,80 @@ class WindowsKeyManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * Show form for creating a new windows key entry.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $windowskey = filter_input(INPUT_POST, 'windowskey');
+        $description = filter_input(INPUT_POST, 'description');
+        $key = filter_input(INPUT_POST, 'key');
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'windowskey',
+                _('Windows Key Name')
+            ) => self::makeInput(
+                'form-control windowskeyname-input',
+                'windowskey',
+                _('Windows 10 Professional'),
+                'text',
+                'windowskey',
+                $windowskey,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Windows Key Description')
+            ) => self::makeTextarea(
+                'form-control windowskeydescription-name',
+                'description',
+                _('Windows Key Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'key',
+                _('Windows Product key')
+            ) => self::makeInput(
+                'form-control windowsproductkey-input',
+                'key',
+                '',
+                'text',
+                'key',
+                $key,
+                true
+            )
+        ];
+
+        self::$HookManager->processEvent(
+            'WINDOWSKEY_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'WindowsKey' => self::getClass('WindowsKey')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'create-form',
+            '../management/index.php?node=windowskey&sub=add',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Actually create the windows key.
      *
      * @return void

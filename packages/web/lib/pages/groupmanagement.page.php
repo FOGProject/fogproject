@@ -330,9 +330,9 @@ class GroupManagement extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'group-create-form',
-            $this->formAction,
+            'create-form',
             '../management/index.php?node=group&sub=add',
+            'post',
             'application/x-www-form-urlencoded',
             true
         );

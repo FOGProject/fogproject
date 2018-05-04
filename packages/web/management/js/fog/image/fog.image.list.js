@@ -2,7 +2,7 @@
     var deleteSelected = $('#deleteSelected'),
         createnewBtn = $('#createnew'),
         createnewModal = $('#createnewModal'),
-        createForm = $('#image-create-form'),
+        createForm = $('#create-form'),
         createnewSendBtn = $('#send');
 
     function disableButtons(disable) {
@@ -65,16 +65,6 @@
         table.search(Common.search).draw();
     }
 
-    createFormModalShow = function() {
-        createForm[0].reset();
-        $(':input:first').trigger('focus');
-        $(':input:not(textarea)').on('keypress', function(e) {
-            if (e.which == 13) {
-                createnewSendBtn.trigger('click');
-            }
-        });
-    };
-
     $('.slider').slider();
     var image = $('#image'),
         path = $('#path');
@@ -88,12 +78,7 @@
         this.setSelectionRange(start, end);
     });
 
-    createFormModalHide = function() {
-        createForm[0].reset();
-        $(':input').off('keypress');
-    };
-
-    Common.registerModal(createnewModal, createFormModalShow, createFormModalHide);
+    createnewModal.registerModal(Common.createModalShow, Common.createModalHide);
     createnewBtn.on('click', function(e) {
         e.preventDefault();
         createnewModal.modal('show');

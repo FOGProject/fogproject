@@ -4,7 +4,7 @@
         ACTION_VAL = -1;
         createnewBtn = $('#createnew'),
         createnewModal = $('#createnewModal'),
-        createForm = $('#snapin-create-form'),
+        createForm = $('#create-form'),
         createnewSendBtn = $('#send');
 
     function disableButtons(disable) {
@@ -82,22 +82,7 @@
         table.search(Common.search).draw();
     }
 
-    createFormModalShow = function() {
-        createForm[0].reset();
-        $(':input:first').trigger('focus');
-        $(':input:not(textarea)').on('keypress', function(e) {
-            if (e.which == 13) {
-                createnewSendBtn.trigger('click');
-            }
-        });
-    };
-
-    createFormModalHide = function() {
-        createForm[0].reset();
-        $(':input').off('keypress');
-    };
-
-    Common.registerModal(createnewModal, createFormModalShow, createFormModalHide);
+    createnewModal.registerModal(Common.createModalShow, Common.createModalHide);
     createnewBtn.on('click', function(e) {
         e.preventDefault();
         createnewModal.modal('show');

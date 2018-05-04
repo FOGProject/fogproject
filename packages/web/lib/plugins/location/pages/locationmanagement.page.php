@@ -174,6 +174,99 @@ class LocationManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * Creates new item.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $location = filter_input(INPUT_POST, 'location');
+        $description = filter_input(INPUT_POST, 'description');
+        $storagegroup = filter_input(INPUT_POST, 'storagegroup');
+        $storagenode = filter_input(INPUT_POST, 'storagenode');
+        $storagegroupSelector = self::getClass('StorageGroupManager')
+            ->buildSelectBox($storagegroup);
+        $storagenodeSelector = self::getClass('StorageNodeManager')
+            ->buildSelectBox($storagenode);
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'location',
+                _('Location Name')
+            ) => self::makeInput(
+                'form-control locationname-input',
+                'location',
+                _('Location Name'),
+                'text',
+                'location',
+                $location,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Location Description')
+            ) => self::makeTextarea(
+                'form-control locationdescription-input',
+                'description',
+                _('Location Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'storagegroup',
+                _('Storage Group')
+            ) => $storagegroupSelector,
+            self::makeLabel(
+                $labelClass,
+                'storagenode',
+                _('Storage Node')
+            ) => $storagenodeSelector,
+            self::makeLabel(
+                $labelClass,
+                'bootfrom',
+                _('Boot files from')
+            ) => self::makeInput(
+                '',
+                'bootfrom',
+                '',
+                'checkbox',
+                'bootfrom',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                'checked'
+            )
+        ];
+
+        self::$HookManager->processEvent(
+            'LOCATION_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'Location' => self::getClass('Location')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'create-form',
+            '../management/index.php?node=location&sub=add',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Actually create the location.
      *
      * @return void

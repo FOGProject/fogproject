@@ -2,7 +2,7 @@
     var deleteSelected = $('#deleteSelected'),
         createnewBtn = $('#createnew'),
         createnewModal = $('#createnewModal'),
-        createForm = $('#user-create-form'),
+        createForm = $('#create-form'),
         createnewSendBtn = $('#send');
 
     function disableButtons(disable) {
@@ -73,7 +73,7 @@
         $(':input').off('keypress');
     };
 
-    Common.registerModal(createnewModal, createFormModalShow, createFormModalHide);
+    createnewModal.registerModal(Common.createModalShow, Common.createModalHide);
     createnewBtn.on('click', function(e) {
         e.preventDefault();
         createnewModal.modal('show');

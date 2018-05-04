@@ -136,6 +136,68 @@ class SlackManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * Presents for creating a new link
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $apiToken = filter_input(INPUT_POST, 'apiToken');
+        $user = filter_input(INPUT_POST, 'user');
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'apiToken',
+                _('Access Token')
+            ) => self::makeInput(
+                'form-control slacktoken-input',
+                'apiToken',
+                _('Slack Token'),
+                'text',
+                'apiToken',
+                $apiToken,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'user',
+                _('User/Channel')
+            ) => self::makeInput(
+                'form-control slackuser-input',
+                'user',
+                _('Slack User/Slack Channel'),
+                'text',
+                'user',
+                $user,
+                true
+            )
+        ];
+
+        self::$HookManager->processEvent(
+            'SLACK_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'Slack' => self::getClass('Slack')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'create-form',
+            '../management/index.php?node=slack&sub=add',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Actually create the entry.
      *
      * @return void

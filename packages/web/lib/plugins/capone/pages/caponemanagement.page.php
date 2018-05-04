@@ -133,6 +133,62 @@ class CaponeManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * Create new capone entry.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $image = filter_input(INPUT_POST, 'image');
+        $key = filter_input(INPUT_POST, 'key');
+        $imageSelector = self::getClass('ImageManager')
+            ->buildSelectBox($image);
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'image',
+                _('Image')
+            ) => $imageSelector,
+            self::makeLabel(
+                $labelClass,
+                'key',
+                _('Key to match')
+            ) => self::makeInput(
+                'form-control caponekey-input',
+                'key',
+                _('Key to match'),
+                'text',
+                'key',
+                $key,
+                true
+            )
+        ];
+
+        self::$HookManager->processEvent(
+            'CAPONE_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'Capone' => self::getClass('Capone')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'create-form',
+            '../management/index.php?node=capone&sub=add',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Actually create the broadcast.
      *
      * @return void

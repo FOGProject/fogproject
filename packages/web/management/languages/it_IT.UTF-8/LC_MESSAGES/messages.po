@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-03 00:13-0400\n"
+"POT-Creation-Date: 2018-05-03 23:20-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5881,16 +5881,16 @@ msgid "Toggle Dropdown"
 msgstr ""
 
 #, fuzzy
+msgid "Create New"
+msgstr "Crea nuovo %s"
+
+#, fuzzy
 msgid "Add selected to group"
 msgstr "Aggiungi gruppo di archiviazione selezionato"
 
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "Aggiungere gruppo di archiviazione"
-
-#, fuzzy
-msgid "Create New"
-msgstr "Crea nuovo %s"
 
 msgid "s"
 msgstr ""

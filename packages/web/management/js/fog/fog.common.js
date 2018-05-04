@@ -368,7 +368,7 @@ var $_GET = getQueryParams(),
         Common.setContainerDisable(reAuthModal, false);
         $("#deletePassword").trigger('focus');
 
-        Common.registerModal(reAuthModal,
+        reAuthModal.registerModal(
             // On show
             function(e) {
                 $("#deletePassword").val('');
@@ -481,30 +481,6 @@ var $_GET = getQueryParams(),
         }
     }
 
-    Common.registerModal = function(e, onOpen, onClose, opts) {
-
-        if (e._modalInit === undefined || !e._modalInit) {
-            opts = opts || {};
-            opts = _.defaults(opts, {
-                backdrop: true,
-                keyboard: true,
-                focus: true,
-                show: false
-            });
-
-            e.modal(opts);
-            e._modalInit = true;
-        }
-        e.off('show.bs.modal');
-        e.off('shown.bs.modal');
-        e.off('hidden.bs.modal');
-
-        if (onOpen && typeof(onOpen) === 'function')
-            e.on('shown.bs.modal', onOpen);
-        if (onClose && typeof(onClose) === 'function')
-            e.on('hidden.bs.modal', onClose);
-    }
-
     Common.iCheck = function(match) {
         match = match || 'input'
         $(match).iCheck({
@@ -512,6 +488,27 @@ var $_GET = getQueryParams(),
             radioClass: 'iradio_square-blue',
             increaseArea: '20%' // optional
         });
+    };
+
+    Common.createModalShow = function() {
+        var form = $(this).find('#create-form'),
+            btn = $('#send');
+        form[0].reset();
+        $(':input:first', this).trigger('focus');
+        $(':input:not(textarea)', this).on('keypress', function(e) {
+            if (e.which == 13) {
+                btn.trigger('click');
+            }
+        });
+    };
+
+    Common.createModalHide = function() {
+        // Find the form
+        var form = $(this).find('#' + Common.node + '-create-form');
+        // Remove the errors if any.
+        form.find('.has-error').removeClass('has-error').find('span.help-block').remove();
+        // Unbind the keypress event.
+        $(':input:not(textarea)', this).off('keypress');
     };
 
     Common.debugLog("=== DEBUG LOGGING ENABLED ===");
@@ -729,3 +726,26 @@ $.fn.mirror = function(selector, regex, replace) {
         });
     });
 };
+$.fn.registerModal = function(onOpen, onClose, opts) {
+    var e = this;
+    if (e._modalInit === undefined || !e._modalInit) {
+        opts = opts || {};
+        opts = _.defaults(opts, {
+            backdrop: true,
+            keyboard: true,
+            focus: true,
+            show: false
+        });
+
+        e.modal(opts);
+        e._modalInit = true;
+    }
+    e.off('show.bs.modal');
+    e.off('shown.bs.modal');
+    e.off('hidden.bs.modal');
+
+    if (onOpen && typeof(onOpen) === 'function')
+        e.on('shown.bs.modal', onOpen);
+    if (onClose && typeof(onClose) === 'function')
+        e.on('hidden.bs.modal', onClose);
+}

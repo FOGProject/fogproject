@@ -133,6 +133,66 @@ class AccessControlManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * Create new role.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $role = filter_input(INPUT_POST, 'role');
+        $description = filter_input(INPUT_POST, 'description');
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'role',
+                _('Role Name')
+            ) => self::makeInput(
+                'form-control rolename-input',
+                'role',
+                _('Access Control Name'),
+                'text',
+                'role',
+                $role,
+                true
+            ),
+            self::makelabel(
+                $labelClass,
+                'description',
+                _('Role Description')
+            ) => self::makeTextarea(
+                'form-control roledescription-input',
+                'description',
+                _('Role Description'),
+                'description',
+                $description
+            )
+        ];
+
+        self::$HookManager->processEvent(
+            'ACCESSCONTROL_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'AccessControl' => self::getClass('AccessControl')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'create-form',
+            '../management/index.php?node=accesscontrol&sub=add',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Add post.
      *
      * @return void

@@ -336,7 +336,7 @@ class UserManagement extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'user-create-form',
+            'create-form',
             '../management/index.php?node=user&sub=add',
             'post',
             'application/x-www-form-urlencoded',

@@ -77,7 +77,7 @@
         groupModalSelect = $('#groupSelect'),
         createnewBtn = $('#createnew'),
         createnewModal = $('#createnewModal'),
-        createForm = $('#host-create-form'),
+        createForm = $('#create-form'),
         createnewSendBtn = $('#send');
     var groupList = [];
 
@@ -182,7 +182,7 @@
         $(':input').off('keypress');
     };
 
-    Common.registerModal(createnewModal, createFormModalShow, createFormModalHide);
+    createnewModal.registerModal(Common.createModalShow, Common.createModalHide);
 
     createnewBtn.on('click', function(e) {
         e.preventDefault();
@@ -248,7 +248,7 @@
     });
 
     // Add host(s) to group.
-    Common.registerModal(groupModal,
+    groupModal.registerModal(
         // On show
         null,
         // On close

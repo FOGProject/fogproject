@@ -866,7 +866,7 @@ class PrinterManagement extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'printer-create-form',
+            'create-form',
             '../management/index.php?node=printer&sub=add',
             'post',
             'application/x-www-form-urlencoded',

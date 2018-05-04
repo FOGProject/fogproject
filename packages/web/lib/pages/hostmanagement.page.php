@@ -875,7 +875,7 @@ class HostManagement extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'host-create-form',
+            'create-form',
             '../management/index.php?node=host&sub=add',
             'post',
             'application/x-www-form-urlencoded',

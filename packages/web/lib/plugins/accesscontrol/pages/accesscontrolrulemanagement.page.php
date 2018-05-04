@@ -168,6 +168,95 @@ class AccessControlRuleManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * Create new role.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $type = filter_input(INPUT_POST, 'type');
+        $parent = filter_input(INPUT_POST, 'parent');
+        $node = filter_input(INPUT_POST, 'node');
+        $value = filter_input(INPUT_POST, 'value');
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'type',
+                _('Rule Type')
+            ) => self::makeInput(
+                'form-control ruletype-input',
+                'type',
+                _('Rule Type'),
+                'text',
+                'type',
+                $type,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'parent',
+                _('Rule Parent')
+            ) => self::makeInput(
+                'form-control ruleparent-input',
+                'parent',
+                _('Rule Parent'),
+                'text',
+                'parent',
+                $parent,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'node',
+                _('Rule Node')
+            ) => self::makeInput(
+                'form-control rulenode-input',
+                'node',
+                _('Rule Node'),
+                'text',
+                'node',
+                $node
+            ),
+            self::makeLabel(
+                $labelClass,
+                'value',
+                _('Rule Value')
+            ) => self::makeInput(
+                'form-control rulevalue-input',
+                'value',
+                _('Rule Value'),
+                'text',
+                'value',
+                $value,
+                true
+            )
+        ];
+
+        self::$HookManager->processEvent(
+            'ACCESSCONTROLRULE_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'AccessControlRule' => self::getClass('AccessControlRule')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'create-form',
+            '../management/index.php?node=accesscontrolrule&sub=add',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Add post.
      *
      * @return void
