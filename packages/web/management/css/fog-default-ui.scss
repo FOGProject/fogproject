@@ -74,7 +74,7 @@ header.main-header .mobile-logo {
 }
 
 .modal .modal-dialog .modal-body {
-  background-color: #FFFFFF !important;
+  background-color: #ffffff !important;
   color: #646464 !important;
 }
 
@@ -132,4 +132,10 @@ header.main-header .mobile-logo {
 
 .task-name:not(:empty)::before {
   content: ": ";
+}
+
+.modal-body {
+    min-height: 320px;
+    max-height: 480px;
+    overflow: auto;
 }
