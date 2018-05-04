@@ -634,8 +634,8 @@ abstract class FOGBase
             return $NodeFailure->id;
         };
         $find = [
-            'nfTaskID' => self::$Host->get('task')->get('id'),
-            'nfHostID' => self::$Host->get('id'),
+            'taskID' => self::$Host->get('task')->get('id'),
+            'hostID' => self::$Host->get('id'),
         ];
         Route::listem(
             'nodefailure',
@@ -2249,7 +2249,7 @@ abstract class FOGBase
         }
         Route::listem(
             'storagenode',
-            ['ngmIsEnabled' => 1]
+            ['isEnabled' => 1]
         );
         $StorageNodes = json_decode(
             Route::getData()

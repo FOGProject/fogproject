@@ -248,8 +248,8 @@ class PluginManagement extends FOGPage
             Route::listem(
                 'plugin',
                 [
-                    'pID' => $plugins,
-                    'pInstalled' => ['',0,'0']
+                    'id' => $plugins,
+                    'installed' => ['',0,'0']
                 ]
             );
             $Plugins = json_decode(
@@ -430,8 +430,8 @@ class PluginManagement extends FOGPage
             Route::listem(
                 'plugin',
                 [
-                    'pID' => $plugins,
-                    'pInstalled' => 1
+                    'id' => $plugins,
+                    'installed' => 1
                 ]
             );
             $Plugins = json_decode(

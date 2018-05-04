@@ -83,7 +83,7 @@ class DelAccessControlMenuItem extends Hook
             Route::getData(),
             true
         );
-        $find = ['rraRoleID' => $accesscontrols];
+        $find = ['accesscontrolID' => $accesscontrols];
         Route::listem(
             'accesscontrolruleassociation',
             $find
@@ -121,7 +121,7 @@ class DelAccessControlMenuItem extends Hook
             Route::getData(),
             true
         );
-        $find = ['rraRoleID' => $accesscontrols];
+        $find = ['accesscontrolruleID' => $accesscontrols];
         Route::listem(
             'accesscontrolruleassociation',
             $find

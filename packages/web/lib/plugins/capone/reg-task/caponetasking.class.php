@@ -64,7 +64,7 @@ class CaponeTasking extends FOGBase
                 ob_start();
                 Route::listem(
                     'capone',
-                    ['cKey' => $keys]
+                    ['key' => $keys]
                 );
                 $capones = json_decode(
                     Route::getData()

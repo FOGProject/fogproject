@@ -61,9 +61,9 @@ class PM extends FOGClient
                 ]
             );
         $PMFind = [
-            'pmHostID' => self::$Host->get('id'),
-            'pmOndemand' => [0, ''],
-            'pmAction' => ['shutdown', 'reboot']
+            'hostID' => self::$Host->get('id'),
+            'onDemand' => [0, ''],
+            'action' => ['shutdown', 'reboot']
         ];
         Route::listem(
             'powermanagement',

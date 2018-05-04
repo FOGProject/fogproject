@@ -312,7 +312,7 @@ class BootMenu extends FOGBase
         $this->_memtest = "initrd $memtest";
         Route::listem(
             'storagenode',
-            ['ngmHostname' => [$webserver, self::resolveHostname($webserver)]]
+            ['ip' => [$webserver, self::resolveHostname($webserver)]]
         );
         $StorageNodes = json_decode(
             Route::getData()
@@ -737,8 +737,8 @@ class BootMenu extends FOGBase
     public function sesscheck()
     {
         $findWhere = [
-            'msName' => trim($_REQUEST['sessname']),
-            'msState' => self::fastmerge(
+            'name' => trim($_REQUEST['sessname']),
+            'stateID' => self::fastmerge(
                 self::getQueuedStates(),
                 (array)self::getProgressState()
             ),
@@ -940,7 +940,7 @@ class BootMenu extends FOGBase
             ) {
                 $imgFind = false;
             } else {
-                $imgFind['imageID'] = self::$Host->getImage()->get('id');
+                $imgFind['id'] = self::$Host->getImage()->get('id');
             }
         }
         if ($imgFind === false) {
@@ -1882,7 +1882,7 @@ class BootMenu extends FOGBase
         }
         Route::listem(
             'pxemenuoptions',
-            ['pxeRegOnly' => $RegArrayOfStuff]
+            ['regMenu' => $RegArrayOfStuff]
         );
         $Menus = json_decode(
             Route::getData()

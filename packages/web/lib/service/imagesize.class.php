@@ -177,7 +177,7 @@ class ImageSize extends FOGService
                 );
                 Route::listem(
                     'image',
-                    ['imageID' => $imageIDs]
+                    ['id' => $imageIDs]
                 );
                 $Images = json_decode(
                     Route::getData()

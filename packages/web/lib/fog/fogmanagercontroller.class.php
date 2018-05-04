@@ -1093,7 +1093,7 @@ abstract class FOGManagerController extends FOGBase
             ]
         );
         if ($filter) {
-            $find = [$this->databaseFields['id'] => $filter];
+            $find = ['id' => $filter];
             Route::listem(
                 $this->childClass,
                 $find

@@ -1035,8 +1035,8 @@ class Host extends FOGController
                     Route::listem(
                         'multicastsession',
                         [
-                            'msName' => $taskName,
-                            'msState' => $showStates
+                            'name' => $taskName,
+                            'stateID' => $showStates
                         ]
                     );
                     $MCSessions = json_decode(
@@ -1048,8 +1048,8 @@ class Host extends FOGController
                     Route::listem(
                         'multicastsession',
                         [
-                            'msImage' => $Image->get('id'),
-                            'msState' => $showStates
+                            'image' => $Image->get('id'),
+                            'stateID' => $showStates
                         ]
                     );
                     $MCSessions = json_decode(

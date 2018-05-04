@@ -177,7 +177,7 @@ class SnapinHash extends FOGService
                 );
                 Route::listem(
                     'snapin',
-                    ['sID' => $snapinIDs]
+                    ['id' => $snapinIDs]
                 );
                 $Snapins = json_decode(
                     Route::getData()
