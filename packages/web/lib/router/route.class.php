@@ -336,11 +336,8 @@ class Route extends FOGBase
         if (self::$matches
             && is_callable(self::$matches['target'])
         ) {
-            call_user_func_array(
-                self::$matches['target'],
-                self::$matches['params']
-            );
-            return;
+            $args = array_values(self::$matches['params']);
+            return self::$matches['target'](...$args);
         }
         self::sendResponse(
             HTTPResponseCodes::HTTP_NOT_IMPLEMENTED

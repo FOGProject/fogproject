@@ -140,10 +140,7 @@ class AltoRouter
             $validTypes[$name]
         );
         // Pass to the map method.
-        call_user_func_array(
-            [$this, 'map'],
-            $arguments
-        );
+        $this->map(...$arguments);
         return $this;
     }
     /**
@@ -220,8 +217,9 @@ class AltoRouter
             }
             throw new \Exception($msg);
         }
-        foreach ($routes as $route) {
-            call_user_func_array([$this, 'map'], $route);
+        foreach ($routes as &$route) {
+            $this->map(...$route);
+            unset($route);
         }
         return $this;
     }
@@ -319,7 +317,7 @@ class AltoRouter
         $target,
         $name = null
     ) {
-        foreach (explode('|', $method) as $method) {
+        foreach (explode('|', $method) as &$method) {
             if (!isset($this->routes[$method])) {
                 $this->routes[$method] = [];
             }
@@ -379,7 +377,7 @@ class AltoRouter
         );
         $pattern = '`(/|\.|)\[([^:\]]*+)(?::([^:\]]*+))?\](\?|)`';
         if (preg_match_all($pattern, $route, $matches, PREG_SET_ORDER)) {
-            foreach ($matches as $index => $match) {
+            foreach ($matches as $index => &$match) {
                 list(
                     $block,
                     $pre,
@@ -414,6 +412,7 @@ class AltoRouter
                         $url
                     );
                 }
+                unset($match);
             }
         }
         return $url;
@@ -454,7 +453,7 @@ class AltoRouter
         if (empty($this->routes[$requestMethod])) {
             return false;
         }
-        foreach ($this->routes[$requestMethod] as $handler) {
+        foreach ($this->routes[$requestMethod] as &$handler) {
             list(
                 $route,
                 $target,
@@ -523,6 +522,7 @@ class AltoRouter
                     return $result;
                 }
             }
+            unset($handler);
         }
         return false;
     }
@@ -546,7 +546,7 @@ class AltoRouter
         ];
         if (preg_match_all($pattern, $route['regex'], $matches, PREG_SET_ORDER)) {
             $matchTypes = $this->matchTypes;
-            foreach ($matches as $match) {
+            foreach ($matches as &$match) {
                 list(
                     $block,
                     $pre,
@@ -574,6 +574,7 @@ class AltoRouter
                     . '(/+|))'
                     . $optional;
                 $route['regex'] = str_replace($block, $pattern, $route['regex']);
+                unset($match);
             }
         }
         return $route;
