@@ -56,7 +56,7 @@
         table.search(Common.search).draw();
     }
 
-    createnewModal.registerModal(createFormModalShow, createFormModalHide);
+    createnewModal.registerModal(Common.createModalShow, Common.createModalHide);
     createnewBtn.on('click', function(e) {
         e.preventDefault();
         createnewModal.modal('show');
