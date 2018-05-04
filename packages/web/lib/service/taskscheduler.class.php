@@ -236,7 +236,7 @@ class TaskScheduler extends FOGService
             Route::listem(
                 'powermanagement',
                 [
-                    'pmAction' => 'wol',
+                    'action' => 'wol',
                     'onDemand' => [0, '']
                 ]
             );

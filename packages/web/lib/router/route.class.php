@@ -259,11 +259,11 @@ class Route extends FOGBase
             [__CLASS__, 'active'],
             'active'
         )->get(
-            "${expanded}/names",
+            "${expanded}/names/[*:whereItems]?",
             [__CLASS__, 'names'],
             'names'
         )->get(
-            "${expanded}/ids/[*:whereItems]/[*:getField]",
+            "${expanded}/ids/[*:whereItems]?/[*:getField]?",
             [__CLASS__, 'ids'],
             'ids'
         )->get(
@@ -275,13 +275,13 @@ class Route extends FOGBase
             [__CLASS__, 'search'],
             'search'
         )->get(
-            "${expanded}/[list|all]?",
-            [__CLASS__, 'listem'],
-            'list'
-        )->get(
             "${expanded}/[i:id]",
             [__CLASS__, 'indiv'],
             'indiv'
+        )->get(
+            "${expanded}/[list|all]?/[*:whereItems]?",
+            [__CLASS__, 'listem'],
+            'list'
         )->get(
             '/pendingmacs',
             [__CLASS__, 'pendingmacs'],
@@ -450,23 +450,13 @@ class Route extends FOGBase
         $ttlstr = $classman->getTotalStr();
         $tmpcolumns = $classman->getColumns();
 
-        $where = '';
-        if (count($whereItems ?: []) > 0) {
-            foreach ($whereItems as $key => $item) {
-                if (!$where) {
-                    $where = "`$key`";
-                } else {
-                    $where .= ' AND ' . $key;
-                }
-                if (is_array($item)) {
-                    $where .= " IN ('"
-                        . implode("','", $item)
-                        . "')";
-                } else if (is_string($item)) {
-                    $where .= " = '$item'";
-                }
-            }
-        }
+        $classVars = self::getClass(
+            $class,
+            '',
+            true
+        );
+
+        $where = self::_buildSql('', $classVars, $whereItems, true);
 
         /**
          * Any custom fields that we need removed
@@ -1370,7 +1360,7 @@ class Route extends FOGBase
             }
             Route::listem(
                 'task',
-                ['taskHostID' => $class->get('hosts')]
+                ['hostID' => $class->get('hosts')]
             );
             $Tasks = json_decode(
                 Route::getData()
@@ -1451,20 +1441,10 @@ class Route extends FOGBase
         $states[] = self::getProgressState();
         switch ($classname) {
         case 'scheduledtask':
-            $find = ['stActive' => 1];
+            $find = ['isActive' => 1];
             break;
-        case 'multicastsession':
-            $find = ['msState' => $states];
-            break;
-        case 'snapinjob':
-            $find = ['sjStateID' => $states];
-            break;
-        case 'snapintask':
-            $find = ['stState' => $states];
-            break;
-        case 'task':
-            $find = ['taskStateID' => $states];
-            break;
+        default:
+            $find = ['stateID' => $states];
         }
         self::listem($class, $find);
     }
@@ -1864,11 +1844,16 @@ class Route extends FOGBase
      * @param string $sql        The sql string we need to adjust.
      * @param array  $classVars  The current class variables.
      * @param array  $whereItems The where items to build up.
+     * @param bool   $retWhere   Only return where element.
      *
      * @return string
      */
-    private static function _buildSql($sql, $classVars, $whereItems = [])
-    {
+    private static function _buildSql(
+        $sql,
+        $classVars,
+        $whereItems = [],
+        $retWhere = false
+    ) {
         $whereurl = urldecode($whereItems);
         parse_str($whereurl, $test);
         if ($test) {
@@ -1885,7 +1870,7 @@ class Route extends FOGBase
             $where = '';
             foreach ($whereItems as $key => &$field) {
                 if (!$where) {
-                    $where = ' WHERE `'
+                    $where = (!$retWhere ? ' WHERE `' : ' `')
                         . $classVars['databaseFields'][$key]
                         . '`';
                 } else {
@@ -1910,6 +1895,9 @@ class Route extends FOGBase
                 }
             }
             $sql .= $where;
+        }
+        if ($retWhere) {
+            return $where;
         }
 
         return $sql;
@@ -1987,7 +1975,7 @@ class Route extends FOGBase
         case 'PUT':
             Route::listem(
                 $classname,
-                [$classVars['databaseFields']['id'] => $vars->ids]
+                ['id' => $vars->ids]
             );
             $classes = json_decode(
                 Route::getData()
@@ -2102,7 +2090,7 @@ class Route extends FOGBase
             }
             Route::listem(
                 $classname,
-                [$classVars['databaseFields']['id'] => $ids]
+                ['id' => $ids]
             );
             $classes = json_decode(
                 Route::getData()
@@ -2137,7 +2125,7 @@ class Route extends FOGBase
     {
         Route::listem(
             'macaddressassociation',
-            ['hmPending' => [1]]
+            ['pending' => [1]]
         );
     }
     /**

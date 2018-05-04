@@ -136,13 +136,13 @@ class Task extends TaskType
         }
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
         $find = [
-            $this->databaseFields['stateID'] => self::fastmerge(
+            'stateID' => self::fastmerge(
                 (array)self::getQueuedStates(),
                 (array)self::getProgressState()
             ),
-            $this->databaseFields['typeID'] => $used,
-            $this->databaseFields['storagegroupID'] => $this->get('storagegroupID'),
-            $this->databaseFields['storagenodeID'] => $this->get('storagenodeID')
+            'typeID' => $used,
+            'storagegroupID' => $this->get('storagegroupID'),
+            'storagenodeID' => $this->get('storagenodeID')
         ];
         $checkTime = self::getSetting('FOG_CHECKIN_TIMEOUT');
         Route::listem(

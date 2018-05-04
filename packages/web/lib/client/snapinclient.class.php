@@ -111,7 +111,7 @@ class SnapinClient extends FOGClient
                 $info['snapins'] = [];
                 Route::listem(
                     'snapin',
-                    ['sID' => $snapinIDs]
+                    ['id' => $snapinIDs]
                 );
                 $Snapins = json_decode(
                     Route::getData()

@@ -119,8 +119,8 @@ abstract class FOGService extends FOGBase
         Route::listem(
             'storagenode',
             [
-                'ngmIsMasterNode' => 1,
-                'ngmIsEnabled' => 1
+                'isMaster' => 1,
+                'isEnabled' => 1
             ]
         );
         $StorageNodes = [];
@@ -345,11 +345,11 @@ abstract class FOGService extends FOGBase
             $groupID = $Obj->get('storagegroups');
         }
         $find = [
-            'ngmIsEnabled' => 1,
-            'ngmGroupID' => $groupID
+            'isEnabled' => 1,
+            'storagegroupID' => $groupID
         ];
         if ($master) {
-            $find['ngmIsMasterNode'] = 1;
+            $find['isMaster'] = 1;
         }
         Route::indiv(
             'storagenode',

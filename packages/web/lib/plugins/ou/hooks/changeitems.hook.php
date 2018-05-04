@@ -77,7 +77,7 @@ class ChangeItems extends Hook
         }
         Route::listem(
             'ouassociation',
-            ['oaHostID' => $arguments['Host']->get('id')]
+            ['hostID' => $arguments['Host']->get('id')]
         );
         $OUAssocs = json_decode(
             Route::getData()
