@@ -263,7 +263,7 @@ class Route extends FOGBase
             [__CLASS__, 'names'],
             'names'
         )->get(
-            "${expanded}/ids",
+            "${expanded}/ids/[*:whereItems]/[*:getField]",
             [__CLASS__, 'ids'],
             'ids'
         )->get(
@@ -1832,9 +1832,15 @@ class Route extends FOGBase
             '',
             true
         );
+        $vars = json_decode(
+            file_get_contents('php://input')
+        );
 
         if (count($whereItems) < 1) {
             $whereItems = self::getsearchbody($classname);
+        }
+        if ($vars->getField) {
+            $getField = $vars->getField;
         }
 
         $sql = 'SELECT `'
@@ -1842,10 +1848,6 @@ class Route extends FOGBase
             . '` FROM `'
             . $classVars['databaseTable']
             . '`';
-
-        if (count($whereItems) < 1) {
-            $whereItems = self::getsearchbody($classname);
-        }
 
         $sql = self::_buildSql($sql, $classVars, $whereItems);
 
@@ -1867,6 +1869,18 @@ class Route extends FOGBase
      */
     private static function _buildSql($sql, $classVars, $whereItems = [])
     {
+        $whereurl = urldecode($whereItems);
+        parse_str($whereurl, $test);
+        if ($test) {
+            $whereItems = [];
+            foreach ($test as $key => &$val) {
+                if (false !== strpos(',', $val)) {
+                    $val = explode(',', $val);
+                }
+                $whereItems[$key] = $val;
+                unset($val);
+            }
+        }
         if (count($whereItems) > 0) {
             $where = '';
             foreach ($whereItems as $key => &$field) {
@@ -1884,7 +1898,13 @@ class Route extends FOGBase
                         . implode("','", $field)
                         . "')";
                 } else {
-                    $where .= " = '"
+                    $field = str_replace(
+                        ['+', '*'],
+                        '%',
+                        $field
+                    );
+                    $oper = false !== strpos($field, '%') ? 'LIKE' : '=';
+                    $where .= " $oper '"
                         . $field
                         . "'";
                 }
