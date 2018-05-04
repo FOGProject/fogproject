@@ -166,24 +166,7 @@
         table.search(Common.search).draw();
     }
 
-    // Create new host
-    createFormModalShow = function() {
-        createForm[0].reset();
-        $(':input:first').trigger('focus');
-        $(':input:not(textarea)').on('keypress', function(e) {
-            if (e.which == 13) {
-                createnewSendBtn.trigger('click');
-            }
-        });
-    };
-
-    createFormModalHide = function() {
-        createForm[0].reset();
-        $(':input').off('keypress');
-    };
-
     createnewModal.registerModal(Common.createModalShow, Common.createModalHide);
-
     createnewBtn.on('click', function(e) {
         e.preventDefault();
         createnewModal.modal('show');

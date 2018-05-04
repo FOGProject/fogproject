@@ -504,7 +504,7 @@ var $_GET = getQueryParams(),
 
     Common.createModalHide = function() {
         // Find the form
-        var form = $(this).find('#' + Common.node + '-create-form');
+        var form = $(this).find('#create-form');
         // Remove the errors if any.
         form.find('.has-error').removeClass('has-error').find('span.help-block').remove();
         // Unbind the keypress event.
