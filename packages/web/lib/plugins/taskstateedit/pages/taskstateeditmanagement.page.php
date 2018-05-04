@@ -153,6 +153,86 @@ class TaskstateeditManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * Create new task state entry.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $taskstate = filter_input(INPUT_POST, 'taskstate');
+        $description = filter_input(INPUT_POST, 'description');
+        $icon = filter_input(INPUT_POST, 'icon');
+        $additional = filter_input(INPUT_POST, 'additional');
+        $iconSel = self::getClass('TaskType')->iconlist($icon);
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'taskstate',
+                _('Task State Name')
+            ) => self::makeInput(
+                'form-control taskstatename-input',
+                'taskstate',
+                _('Task State Name'),
+                'text',
+                'taskstate',
+                $taskstate,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Task State Description')
+            ) => self::makeTextarea(
+                'form-control taskstatedescription-input',
+                'description',
+                _('Task State Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'icon',
+                _('Task State Icon')
+            ) => $iconSel,
+            self::makeLabel(
+                $labelClass,
+                'additional',
+                _('Additional Icon Elements')
+            ) => self::makeInput(
+                'form-control taskstateadditionalicon-input',
+                'additional',
+                'fa-spin',
+                'text',
+                'additional',
+                $additional
+            )
+        ];
+
+        self::$HookManager->processEvent(
+            'TASKSTATEEDIT_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'TaskState' => self::getClass('TaskState')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'create-form',
+            '../management/index.php?node=taskstateedit&sub=add',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Actually save the new task state.
      *
      * @return void

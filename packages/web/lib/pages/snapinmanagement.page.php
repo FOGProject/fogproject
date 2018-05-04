@@ -904,7 +904,7 @@ class SnapinManagement extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'snapin-create-form',
+            'create-form',
             '../management/index.php?node=snapin&sub=add',
             'post',
             'multipart/form-data',

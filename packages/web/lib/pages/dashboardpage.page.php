@@ -94,11 +94,7 @@ class DashboardPage extends FOGPage
                 continue;
             }
             $ip = $StorageNode->ip;
-            $url = sprintf(
-                '%s/%s/',
-                $ip,
-                $StorageNode->webroot
-            );
+            $url = $ip . '/fog/';
             $url = preg_replace(
                 '#/+#',
                 '/',

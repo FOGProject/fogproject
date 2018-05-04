@@ -120,6 +120,54 @@ class PushbulletManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * Presents for creating a new link
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $apiToken = filter_input(INPUT_POST, 'apiToken');
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'apiToken',
+                _('Access token')
+            ) => self::makeInput(
+                'form-control pushbullettoken-input',
+                'apiToken',
+                _('Pushbullet Token'),
+                'text',
+                'apiToken',
+                $apiToken,
+                true
+            )
+        ];
+
+        self::$HookManager->processEvent(
+            'PUSHBULLET_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'Pushbullet' => self::getClass('Pushbullet')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'create-form',
+            '../management/index.php?node=pushbullet&sub=add',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Actually insert the new object
      *
      * @return void

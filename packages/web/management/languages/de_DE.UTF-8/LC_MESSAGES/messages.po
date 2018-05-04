@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-03 00:13-0400\n"
+"POT-Creation-Date: 2018-05-03 23:20-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -6295,16 +6295,16 @@ msgid "Toggle Dropdown"
 msgstr ""
 
 #, fuzzy
+msgid "Create New"
+msgstr "Neue %s erstellen"
+
+#, fuzzy
 msgid "Add selected to group"
 msgstr "Ausgewählte Speichergruppen hinzufügen"
 
 #, fuzzy
 msgid "Add To Group(s)"
 msgstr "Speichergruppe hinzufügen"
-
-#, fuzzy
-msgid "Create New"
-msgstr "Neue %s erstellen"
 
 msgid "s"
 msgstr ""

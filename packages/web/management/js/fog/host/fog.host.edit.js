@@ -144,7 +144,7 @@
         newMacModal.modal('show');
     });
 
-    Common.registerModal(newMacModal,
+    newMacModal.registerModal(
         function(e) {
             // Disable the add button initially
             newmacAddBtn.prop('disabled', true);

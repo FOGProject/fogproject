@@ -581,8 +581,8 @@ class LDAPManagement extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'ldap-create-form',
-            $this->formAction,
+            'create-form',
+            '../management/index.php?node=ldap&sub=add',
             'post',
             'application/x-www-form-urlencoded',
             true

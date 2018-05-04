@@ -149,6 +149,80 @@ class OUManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * Creates new item.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $ou = filter_input(INPUT_POST, 'ou');
+        $description = filter_input(INPUT_POST, 'description');
+        $oudn = filter_input(INPUT_POST, 'oudn');
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'ou',
+                _('OU Name')
+            ) => self::makeInput(
+                'form-control ouname-input',
+                'ou',
+                _('OU Name'),
+                'text',
+                'ou',
+                $ou,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('OU Description')
+            ) => self::makeTextarea(
+                'form-control oudescription-input',
+                'description',
+                _('OU Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'oudn',
+                _('OU DN')
+            ) => self::makeInput(
+                'form-control oudn-input',
+                'oudn',
+                'ou=computers,dc=example,dc=com',
+                'text',
+                'oudn',
+                $oudn,
+                true
+            )
+        ];
+
+        self::$HookManager->processEvent(
+            'OU_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'OU' => self::getClass('OU')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'create-form',
+            '../management/index.php?node=ou&sub=add',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Actually create the ou.
      *
      * @return void

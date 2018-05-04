@@ -609,7 +609,7 @@ class ImageManagement extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'image-create-form',
+            'create-form',
             '../management/index.php?node=image&sub=add',
             'post',
             'application/x-www-form-urlencoded',

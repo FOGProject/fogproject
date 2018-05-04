@@ -151,6 +151,84 @@ class WOLBroadcastManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * Create new wol broadcast entry.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $wolbroadcast = filter_input(INPUT_POST, 'wolbroadcast');
+        $description = filter_input(INPUT_POST, 'description');
+        $broadcast = filter_input(INPUT_POST, 'broadcast');
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'wolbroadcast',
+                _('Broadcast Name')
+            ) => self::makeInput(
+                'form-control wolbroadcastname-input',
+                'wolbroadcast',
+                _('Broadcast Name'),
+                'text',
+                'wolbroadcast',
+                $wolbroadcast,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Broadcast Description')
+            ) => self::makeTextarea(
+                'form-control wolbroadcastdescription-input',
+                'description',
+                _('Broadcast Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'broadcast',
+                _('Broadcast Address')
+            ) => self::makeInput(
+                'form-control wolbroadcastaddress-input',
+                'broadcast',
+                '192.168.1.255',
+                'text',
+                'broadcast',
+                $broadcast,
+                true,
+                false,
+                -1,
+                -1,
+                'data-inputmask="\'alias\': \'ip\'"'
+            )
+        ];
+
+        self::$HookManager->processEvent(
+            'WOLBROADCAST_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'WOLBroadcast' => self::getClass('WOLBroadcast')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'create-form',
+            '../management/index.php?node=wolbroadcast&sub=add',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+    }
+    /**
      * Actually create the broadcast.
      *
      * @return void

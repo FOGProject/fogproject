@@ -99,6 +99,7 @@ class SiteManagement extends FOGPage
                 'SITE_ADD_FIELDS',
                 [
                     'fields' => &$fields,
+                    'buttons' => &$buttons,
                     'Site' => self::getClass('Site')
                 ]
             );
@@ -130,6 +131,66 @@ class SiteManagement extends FOGPage
         echo $buttons;
         echo '</div>';
         echo '</div>';
+        echo '</form>';
+    }
+    /**
+     * Creates new item.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $site = filter_input(INPUT_POST, 'site');
+        $description = filter_input(INPUT_POST, 'description');
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'site',
+                _('Site Name')
+            ) => self::makeInput(
+                'form-control sitename-input',
+                'site',
+                _('Site Name'),
+                'text',
+                'site',
+                $site,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Site Description')
+            ) => self::makeTextarea(
+                'form-control sitedescription-input',
+                'description',
+                _('Site Description'),
+                'description',
+                $description
+            )
+        ];
+
+        self::$HookManager->processEvent(
+            'SITE_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'Site' => self::getClass('Site')
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'create-form',
+            '../management/index.php?node=site&sub=add',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
         echo '</form>';
     }
     /**
