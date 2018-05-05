@@ -36,7 +36,7 @@
     generalFormBtn.on('click', function() {
         generalFormBtn.prop('disabled', true);
         generalDeleteBtn.prop('disabled', true);
-        Common.processForm(generalForm, function(err) {
+        generalForm.processForm(function(err) {
             generalFormBtn.prop('disabled', false);
             generalDeleteBtn.prop('disabled', false);
             if (err) {
@@ -55,7 +55,7 @@
                 + Common.node
                 + '&sub=delete&id='
                 + Common.id;
-        Common.apiCall(method, action, null, function(err) {
+        $.apiCall(method, action, null, function(err) {
             if (err) {
                 return;
             }
@@ -164,7 +164,7 @@
         $('#printer-membership-table').find('.default:checked').each(function() {
             defaulton.push($(this).val());
         });
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             membershipDefaultBtn.prop('disabled', true);
             if (!err) {
                 membershipTable.draw(false);
@@ -184,7 +184,7 @@
                 'updatemembership': '1',
                 'membership': toAdd
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             if (!err) {
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();

@@ -34,7 +34,7 @@
 
     sessionCreateModalConfirmBtn.on('click', function(e) {
         e.preventDefault();
-        Common.processForm(sessionCreateForm, function(err) {
+        sessionCreateForm.processForm(function(err) {
             if (err) {
                 return;
             }
@@ -124,7 +124,7 @@
                 cancelconfirm: 1,
                 tasks: toRemove
             };
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             sessionCancelBtn.prop('disabled', false);
             sessionPauseBtn.prop('disabled', false);
             sessionResumeBtn.prop('disabled', true);

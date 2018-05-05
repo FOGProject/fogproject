@@ -19,7 +19,7 @@
     importBtn.on('click', function(e) {
         e.preventDefault();
         disableButtons(true);
-        Common.processForm(importForm, function(err, data) {
+        importForm.processForm(function(err, data) {
             disableButtons(false);
             if (err) {
                 return;
@@ -34,7 +34,7 @@
             opts = {
                 toExport: 1
             };
-        Common.apiCall(method, action, opts, function(err, data) {
+        $.apiCall(method, action, opts, function(err, data) {
             disableButtons(false);
             if (err) {
                 return;

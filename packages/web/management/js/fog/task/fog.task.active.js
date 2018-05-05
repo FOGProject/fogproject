@@ -124,7 +124,7 @@
                 cancelconfirm: 1,
                 tasks: toRemove
             };
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             cancelSelected.prop('disabled', false);
             pauseReload.prop('disabled', false);
             reload(null, false);

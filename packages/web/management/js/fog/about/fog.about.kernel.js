@@ -68,15 +68,15 @@
                         + '&sub='
                         + parts.sub,
                         dlurl = '../management/index.php?sub=kernelfetch';
-                    Common.apiCall('post', fetchurl, opts, function(err) {
+                    $.apiCall('post', fetchurl, opts, function(err) {
                         if (err) {
                             return;
                         }
-                        Common.apiCall('post', dlurl, {msg: 'dl'}, function(err) {
+                        $.apiCall('post', dlurl, {msg: 'dl'}, function(err) {
                             if (err) {
                                 return;
                             }
-                            Common.apiCall('post', dlurl, {msg: 'tftp'}, function(err) {
+                            $.apiCall('post', dlurl, {msg: 'tftp'}, function(err) {
                                 if (err) {
                                     return;
                                 }
@@ -87,7 +87,7 @@
                 });
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                Common.notifyFromAPI(jqXHR.responseJSON, true);
+                $.notifyFromAPI(jqXHR.responseJSON, true);
             }
         });
     });

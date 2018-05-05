@@ -7,7 +7,7 @@
     });
     locationFormBtn.on('click',function(e) {
         locationFormBtn.prop('disabled', true);
-        Common.processForm(locationForm, function(err) {
+        locationForm.processForm(function(err) {
             locationFormBtn.prop('disabled', false);
             if (err) {
                 return;

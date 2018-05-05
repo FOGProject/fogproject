@@ -5,9 +5,9 @@
     var loginForm = $('#loginForm');
 
     loginButton.on('click',function() {
-        Common.processForm(loginForm, function(err) {
+        loginForm.processForm(function(err) {
             if (!err) {
-                Common.setContainerDisable(loginForm);
+                loginForm.setContainerDisable();
                 location.reload(true);
             }
         });

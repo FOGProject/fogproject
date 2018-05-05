@@ -61,7 +61,7 @@
                     success: function(data, textStatus, jqXHR) {
                         $('.token').val(data);
                         var opts = $('.token').serialize();
-                        Common.apiCall(method, action, opts, function(err) {
+                        $.apiCall(method, action, opts, function(err) {
                             if (err) {
                                 return;
                             }
@@ -87,7 +87,7 @@
             $(this).on(ev, function(e) {
                 e.preventDefault();
                 var opts = $(this).serialize();
-                Common.apiCall(method, action, opts, function(err) {
+                $.apiCall(method, action, opts, function(err) {
                     if (err) {
                         return;
                     }
@@ -101,7 +101,7 @@
                 val = 1,
                 opts = {};
             opts[key] = val;
-            Common.apiCall(method, action, opts, function(err) {
+            $.apiCall(method, action, opts, function(err) {
                 if (err) {
                     return;
                 }
@@ -113,7 +113,7 @@
                 val = 0,
                 opts = {};
             opts[key] = val;
-            Common.apiCall(method, action, opts, function(err) {
+            $.apiCall(method, action, opts, function(err) {
                 if (err) {
                     return;
                 }

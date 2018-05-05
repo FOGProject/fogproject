@@ -63,13 +63,13 @@
     });
     createnewSendBtn.on('click', function(e) {
         e.preventDefault();
-        Common.processForm(createForm, function(err) {
+        createForm.processForm(function(err) {
             if (err) {
                 return;
             }
             table.draw(false);
             createnewModal.modal('hide');
-        });
+        }, ':input:visible');
     });
     // Hides the fields not currently selected.
     $('.network,.iprint,.cups,.local').addClass('hidden');

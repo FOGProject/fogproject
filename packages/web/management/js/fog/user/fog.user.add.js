@@ -5,7 +5,7 @@
         e.preventDefault();
     });
     createFormBtn.on('click', function() {
-        Common.processForm(createForm, function(err) {
+        createForm.processForm(function(err) {
             if (err) {
                 return;
             }

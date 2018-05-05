@@ -81,7 +81,7 @@
                 'cancelconfirm': '1',
                 'tasks': toRemove
             };
-        Common.apiCall(cancelSelected.attr('method'), cancelSelected.attr('action'), opts, function(err) {
+        $.apiCall(cancelSelected.attr('method'), cancelSelected.attr('action'), opts, function(err) {
             if (!err) {
                 table.draw(false);
                 table.rows({selected: true}).deselect();

@@ -31,7 +31,7 @@
     generalFormBtn.on('click', function() {
         generalFormBtn.prop('disabled', true);
         generalDeleteBtn.prop('disabled', true);
-        Common.processForm(generalForm, function(err) {
+        generalForm.processForm(function(err) {
             generalFormBtn.prop('disabled', false);
             generalDeleteBtn.prop('disabled', false);
             if (err)
@@ -57,7 +57,7 @@
                 + '&sub=delete&id='
                 + Common.id,
             opts = {};
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             if (err) {
                 return;
             }
@@ -185,7 +185,7 @@
                 'primarysel': '1',
                 'primary': PRIMARY_GROUP_ID
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             storagegroupsPrimaryBtn.prop('disabled', !err);
             onStoragegroupsSelect(storagegroupsTable.rows({selected: true}));
             $('.primary[value='+PRIMARY_GROUP_ID+']').iCheck('check');
@@ -201,7 +201,7 @@
                 'updatestoragegroups': '1',
                 'storagegroups': toAdd
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             if (!err) {
                 storagegroupsTable.draw(false);
                 storagegroupsTable.rows({selected: true}).deselect();
@@ -308,7 +308,7 @@
                 'updatemembership': '1',
                 'membership': toAdd
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             membershipAddBtn.prop('disabled', false);
             membershipRemoveBtn.prop('disabled', false);
             if (err) {

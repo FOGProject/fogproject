@@ -50,7 +50,7 @@
     });
     createnewSendBtn.on('click', function(e) {
         e.preventDefault();
-        Common.processForm(createForm, function(err) {
+        createForm.processForm(function(err) {
             if (err) {
                 return;
             }

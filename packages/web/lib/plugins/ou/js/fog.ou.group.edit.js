@@ -7,7 +7,7 @@
     });
     ouFormBtn.on('click',function(e) {
         ouFormBtn.prop('disabled', true);
-        Common.processForm(ouForm, function(err) {
+        ouForm.processForm(function(err) {
             ouFormBtn.prop('disabled', false);
             if (err) {
                 return;

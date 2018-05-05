@@ -32,7 +32,7 @@
     generalFormBtn.on('click',function() {
         generalFormBtn.prop('disabled', true);
         generalDeleteBtn.prop('disabled', true);
-        Common.processForm(generalForm, function(err) {
+        generalForm.processForm(function(err) {
             generalFormBtn.prop('disabled', false);
             generalDeleteBtn.prop('disabled', false);
             if (err) {
@@ -58,7 +58,7 @@
                 + Common.node
                 + '&sub=delete&id='
                 + Common.id;
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             if (err) {
                 return;
             }
@@ -85,7 +85,7 @@
             opts = {
                 groupid: Common.id
             };
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             generalFormBtn.prop('disabled', false);
             generalDeleteBtn.prop('disabled', false);
             resetEncryptionBtn.prop('disabled', false);
@@ -172,7 +172,7 @@
                     });
                     $('#tasking-send').on('click', function(e) {
                         e.stopImmediatePropagation();
-                        Common.processForm(groupDeployForm, function(err) {
+                        groupDeployForm.processForm(function(err) {
                             if (err) {
                                 return;
                             }
@@ -198,7 +198,7 @@
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                   if(textStatus == 'abort') return; // Do not show error message on abort.
-                  Common.notifyFromApI(jqXHR.responseJSON, true);
+                  $.notifyFromApI(jqXHR.responseJSON, true);
                 }
             });
         });
@@ -246,7 +246,7 @@
         e.preventDefault();
     });
     ADFormBtn.on('click',function() {
-        Common.processForm(ADForm);
+        ADForm.processForm();
     });
     ADClearBtn.on('click',function() {
         var restoreMap = [];
@@ -264,7 +264,7 @@
         ADForm.find('input[type=text], input[type=password], textarea').val('');
         ADForm.find('input[type=checkbox]').iCheck('uncheck');
 
-        Common.processForm(ADForm, function(err) {
+        ADForm.processForm(function(err) {
             for (var i = 0; i < restoreMap.length; i++) {
                 field = restoreMap[i];
                 if (field.checkbox) {
@@ -356,7 +356,7 @@
                 updatehosts: 1,
                 host: toAdd
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             if (err) {
                 return;
             }
@@ -497,7 +497,7 @@
                 defaultsel: 1,
                 'default': DEFAULT_PRINTER_ID
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             printerDefaultBtn.prop('disabled', !err);
             onPrintersSelect(printersTable.rows({selected: true}));
         });
@@ -511,7 +511,7 @@
         e.preventDefault();
     });
     printerConfigBtn.on('click', function() {
-        Common.processForm(printerConfigForm);
+        printerConfigForm.processForm();
     });
     printerAddBtn.on('click', function() {
         var method = printerAddBtn.attr('method'),
@@ -523,7 +523,7 @@
                 printer: toAdd
             };
 
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             if (err) {
                 return;
             }
@@ -604,7 +604,7 @@
                 updatesnapins: 1,
                 snapin: toAdd
             };
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             if (err) {
                 return;
             }
@@ -709,7 +709,7 @@
                 toDisable.push($(this).val());
             }
         });
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             modulesUpdateBtn.prop('disabled', false);
             if (!err) {
                 modulesTable.draw(false);
@@ -731,7 +731,7 @@
                 enablemodulessel: 1,
                 enablemodules: toEnable
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             if (err) {
                 modulesEnableBtn.prop('disabled', false);
                 return;
@@ -764,7 +764,7 @@
                 toDisable.push($(this).val());
             }
         });
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             if (err) {
                 modulesDisableBtn.prop('disabled', false);
                 return;
@@ -781,12 +781,12 @@
     modulesDispBtn.on('click', function(e) {
         e.preventDefault();
         var form = $('#group-dispman');
-        Common.processForm(form);
+        form.processForm();
     });
     modulesAloBtn.on('click', function(e) {
         e.preventDefault();
         var form = $('#group-alo');
-        Common.processForm(form);
+        form.processForm();
     });
     if (Common.search && Common.search.length > 0) {
         modulesTable.search(Common.search).draw();
@@ -837,7 +837,7 @@
     });
     powermanagementFormBtn.on('click', function() {
         powermanagementFormBtn.prop('disabled', true);
-        Common.processForm(powermanagementForm, function(err) {
+        powermanagementForm.processForm(function(err) {
             powermanagementFormBtn.prop('disabled', false);
             if (err) {
                 return;
@@ -867,7 +867,7 @@
             opts = {
                 pmdelete: 1
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             if (err) {
                 return;
             }
@@ -882,7 +882,7 @@
     ondemandModalConfirmBtn.on('click', function(e) {
         e.preventDefault();
         var form = $('#group-powermanagement-instant-form');
-        Common.processForm(form, function(err) {
+        form.processForm(function(err) {
             if (err) {
                 return;
             }
@@ -897,7 +897,7 @@
     scheduleModalConfirmBtn.on('click', function(e) {
         e.preventDefault();
         var form = $('#group-powermanagement-cron-form');
-        Common.processForm(form, function(err) {
+        form.processForm(function(err) {
             if (err) {
                 return;
             }

@@ -53,178 +53,6 @@ var $_GET = getQueryParams(),
     Common.capitalizeFirstLetter = function(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
     }
-
-    Common.notify = function(title, body, type) {
-        new PNotify({
-            title: title,
-            text: body,
-            type: type
-        });
-    };
-    Common.notifyFromAPI = function(res, isError) {
-        if (res === undefined) {
-            res = {};
-        }
-        Common.notify(
-            res.title || 'Bad Response',
-            (isError ? res.error : res.msg) || 'Bad Response',
-            (isError ? 'error' : 'success')
-        );
-
-        Common.debugLog(res);
-    };
-    Common.validateForm = function(form, input = ':input') {
-        var scrolling = false;
-        var isError = false;
-        form.find(input).each(function(i, e) {
-            var isValid = true;
-            var invalidReason = undefined;
-
-            // Grab the parent form-group, as we will need it to visually mark
-            //   invalid fields
-            var parent = $(e).closest('div[class^="form-group"]');
-            var required = $(e).prop('required');
-            var val = $(e).inputmask('unmaskedvalue');
-            if(required) {
-                if (val.length == 0) {
-                    isValid = false;
-                    invalidReason = 'Field is required';
-                }
-            }
-
-            if (required || val.length > 0) {
-                var minLength = $(e).attr("minlength") || "-1",
-                    maxLength = $(e).attr("maxlength") || "-1",
-                    exactLength = $(e).attr("exactlength") || "-1";
-
-                minLength = parseInt(minLength);
-                maxLength = parseInt(maxLength) / 2;
-                exactLength = parseInt(exactLength);
-
-                if (beEqualTo) beEqualTo = "#" + beEqualTo;
-
-                if (beRegexTo) beRegexTo = '#' + beRegexTo;
-
-                if (val.length < minLength) {
-                    isValid = false;
-                    if (maxLength == minLength) {
-                        invalidReason = 'Field must be ' + minLength + ' characters';
-                    } else {
-                        invalidReason = 'Field must be between ' + minLength + ' and ' + maxLength +' characters';
-                    }
-                } else if (exactLength > 0) {
-                    if (val.length !== exactLength) {
-                        isValid = false;
-                        invalidReason = 'Field is incomplete';
-                    }
-                }
-            }
-
-            equalCheck: if (isValid) {
-                var beEqualTo = $(e).attr("beEqualTo");
-                if (!beEqualTo) break equalCheck;
-
-                if (! $("#" + beEqualTo).length) {
-                    Common.debugLog("Missing target " + beEqualTo + " for " + e);
-                    break equalCheck;
-                }
-                var target = $("#" + beEqualTo);
-                if ($(e).val() !== target.val()) {
-                    isValid = false;
-                    invalidReason = 'Field does not match';
-                }
-            }
-
-            regexCheck: if (isValid) {
-                var beRegexTo = $(e).attr('beRegexTo'),
-                    regexID = $(e).attr('id'),
-                    helpMsg = $(e).attr('requirements'),
-                    localstr = $(e).val(),
-                    regex = new RegExp(beRegexTo);
-                if (!regexID) break regexCheck;
-                if (!$('#'+regexID).length) {
-                    Common.debugLog('Missing target ' + regexID + ' for ' + e);
-                    break regexCheck;
-                }
-                if (!regex.test(localstr)) {
-                    isValid = false;
-                    invalidReason = 'Does not meet the requirements.';
-                    if (helpMsg) {
-                        invalidReason += ' ' + helpMsg;
-                    }
-                }
-            }
-
-            if (parent.hasClass('has-error')) {
-                var possibleHelpblock = $(e).next('span');
-                if (possibleHelpblock.hasClass('help-block')) {
-                    possibleHelpblock.remove();
-                }
-                if (isValid) {
-                    parent.removeClass('has-error');
-                }
-            } else if (!isValid) {
-                parent.addClass('has-error');
-            }
-
-            if (isValid) {
-                return;
-            }
-
-            if (!scrolling) {
-                scrolling = true;
-                $('html, body').animate({
-                    scrollTop: parent.offset().top
-                }, 200);
-            }
-
-            var msgBlock = '<span class="help-block">' + invalidReason + '</span>'
-            $(msgBlock).insertAfter(e)
-            isError = true;
-        });
-
-        return !isError;
-    };
-    Common.apiCall = function(method, url, data, cb) {
-        Pace.track(function(){
-            $.ajax('', {
-                type: method,
-                url: url,
-                async: true,
-                data: data,
-                success: function(res) {
-                    Common.notifyFromAPI(res, false);
-                    if (cb && typeof(cb) === 'function') {
-                        cb(null, res);
-                    }
-                },
-                error: function(res) {
-                    Common.notifyFromAPI(res.responseJSON, true);
-                    if (cb && typeof(cb) === 'function') {
-                        cb(res,res.responseJSON);
-                    }
-                }
-            });
-        });
-    };
-    Common.processForm = function(form, cb, input = ':input') {
-        // Serialize before disabling, so we can read inputs
-        var opts = form.serialize();
-        Common.setContainerDisable(form, true);
-        if(!Common.validateForm(form, input)) {
-            Common.setContainerDisable(form, false);
-            if (cb && typeof(cb) === 'function')
-                cb('invalid', null);
-            return;
-        }
-        var method = form.attr('method'),
-            action = form.attr('action');
-        Common.apiCall(method,action,opts,function(err,data) {
-            Common.setContainerDisable(form, false);
-            if (cb && typeof(cb) === 'function')
-                cb(err,data);
-        });
-    };
     Common.deleteSelected = function(table, cb, opts) {
         opts = opts || {};
         opts = _.defaults(opts, {
@@ -275,14 +103,14 @@ var $_GET = getQueryParams(),
                         table.rows({selected: true}).deselect();
                     }
                     Common.finishReAuth();
-                    Common.notifyFromAPI(res, false);
+                    $.notifyFromAPI(res, false);
                     if (cb && typeof(cb) === 'function') {
                         cb(null,res);
                     }
                 },
                 error: function(res) {
                     if (res.status == 401) {
-                        Common.notifyFromAPI(res.responseJSON, true);
+                        $.notifyFromAPI(res.responseJSON, true);
                         Common.reAuth(numItems, function(err, password) {
                             if (err) {
                                 if (cb && typeof(cb) === 'function') {
@@ -296,7 +124,7 @@ var $_GET = getQueryParams(),
                         return;
                     } else {
                         Common.finishReAuth();
-                        Common.notifyFromAPI(res.responseJSON, true);
+                        $.notifyFromAPI(res.responseJSON, true);
                         if (cb && typeof(cb) === 'function') {
                             cb(res,res.responseJSON);
                         }
@@ -305,7 +133,6 @@ var $_GET = getQueryParams(),
             });
         });
     };
-
     /**
      * Deletes associated elements without authentication requirement.
      *
@@ -345,13 +172,13 @@ var $_GET = getQueryParams(),
                         });
                         table.rows({selected: true}).deselect();
                     }
-                    Common.notifyFromAPI(res, false);
+                    $.notifyFromAPI(res, false);
                     if (cb && typeof(cb) === 'function') {
                         cb(null, res);
                     }
                 },
                 error: function(res) {
-                    Common.notifyFromAPI(res.responseJSON, true);
+                    $.notifyFromAPI(res.responseJSON, true);
                     if (cb && typeof(cb) === 'function') {
                         cb(res, res.responseJSON);
                     }
@@ -359,21 +186,18 @@ var $_GET = getQueryParams(),
             });
         });
     };
-
     Common.reAuth = function(count, cb) {
         deleteConfirmButton.text(deleteLang.replace('{0}', count));
-
         // enable all buttons / focus on the input box incase
         //   the modal is already being shown
-        Common.setContainerDisable(reAuthModal, false);
+        reAuthModal.setContainerDisable(false);
         $("#deletePassword").trigger('focus');
-
         reAuthModal.registerModal(
             // On show
             function(e) {
                 $("#deletePassword").val('');
                 $("#deletePassword").trigger('focus');
-                Common.setContainerDisable(reAuthModal, false);
+                reAuthModal.setContainerDisable(false);
             },
             // On close
             function(e) {
@@ -387,7 +211,7 @@ var $_GET = getQueryParams(),
         $("#deletePassword").off('keypress');
         $('#deletePassword').keypress(function (e) {
             if (e.which == 13) {
-                Common.setContainerDisable(reAuthModal, true);
+                reAuthModal.setContainerDisable(true);
                 cb(null, $("#deletePassword").val());
                 return false;
             }
@@ -395,7 +219,7 @@ var $_GET = getQueryParams(),
 
         deleteConfirmButton.off('click');
         deleteConfirmButton.on('click', function(e) {
-            Common.setContainerDisable(reAuthModal, true);
+            reAuthModal.setContainerDisable(true);
             cb(null, $("#deletePassword").val());
         });
         reAuthModal.modal('show');
@@ -443,27 +267,6 @@ var $_GET = getQueryParams(),
         return rows.ids().toArray();
     };
 
-    Common.setContainerDisable = function(container, disabled) {
-        if(disabled !== false) {
-            disabled = true;
-        }
-        if (container === undefined) {
-            Common.debugLog("Was requested to disable an undefined container's children");
-            return;
-        }
-
-        // Use native DOM query to select all the nested inputs
-        // as it is faster
-        var native = container[0];
-        var inputs = native.querySelectorAll('input:not([type="checkbox"]), select, button, .btn, textarea');
-        var ichecks = native.querySelectorAll('.checkbox');
-        inputs.forEach(function(inputObj) {
-            $(inputObj).prop('disabled', disabled);
-        });
-        ichecks.forEach(function(inputObj) {
-            $(inputObj).iCheck((disabled) ? 'disable' : 'enable');
-        });
-    };
 
     Common.setLoading = function(container, loading) {
         if(loading !== false) {
@@ -710,20 +513,86 @@ function getQueryParams(qs) {
     }
     return params;
 }
-$.fn.mirror = function(selector, regex, replace) {
-    return this.each(function() {
-        var start = $(this),
-            mirror = $(selector);
-        start.on('keyup', function() {
-            if (regex) {
-                if (typeof replace === 'undefined') {
-                    replace = '';
+/**
+ * Non-selector required functions.
+ */
+$.notify = function(title, body, type) {
+    new PNotify({
+        title: title,
+        text: body,
+        type: type
+    });
+};
+$.notifyFromAPI = function(res, isError) {
+    if (res === undefined) {
+        res = {};
+    }
+    $.notify(
+        res.title || 'Bad Response',
+        (isError ? res.error : res.msg) || 'Bad Response',
+        (isError ? 'error' : 'success')
+    );
+
+    Common.debugLog(res);
+};
+$.apiCall = function(method, action, data, cb) {
+    Pace.track(function() {
+        $.ajax('', {
+            type: method,
+            url: action,
+            async: true,
+            cache: false,
+            data: data,
+            success: function(data, textStatus, jqXHR) {
+                $.notifyFromAPI(data, false);
+                if (cb && typeof cb === 'function') {
+                    cb(null, data);
                 }
-                mirror.val(start.val().replace(regex, replace));
-            } else {
-                mirror.val(start.val());
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                $.notifyFromAPI(jqXHR.responseJSON, true);
+                if (cb && typeof cb === 'function') {
+                    cb(jqXHR, jqXHR.responseJSON);
+                }
             }
         });
+    });
+};
+/**
+ * Allows calling as $.funcname(element, ...args);
+ */
+$.processForm = function(form, cb, input = ':input') {
+    $(form).processForm(cb, input);
+};
+$.validateForm = function(form, input = ':input') {
+    $(form).validateForm(input);
+};
+$.setContainerDisable = function(container, disable) {
+    $(container).setContainerDisable(disable);
+};
+$.registerModal = function(modal, onOpen, onClose, opts) {
+    $(modal).registerModal(onOpen, onClose, opts);
+};
+/**
+ * Selector required elements.
+ */
+$.fn.processForm = function(cb, input = ':input') {
+    var opts = $(this).serialize(),
+        method = $(this).attr('method'),
+        action = $(this).attr('action');
+    $(this).setContainerDisable(true);
+    if (!$(this).validateForm(input)) {
+        $(this).setContainerDisable(false);
+        if (cb && typeof cb === 'function') {
+            cb('invalid', null);
+        }
+        return;
+    }
+    $.apiCall(method, action, opts, function(err, data) {
+        $(this).setContainerDisable(false);
+        if (cb && typeof cb === 'function') {
+            cb(err, data);
+        }
     });
 };
 $.fn.registerModal = function(onOpen, onClose, opts) {
@@ -749,3 +618,146 @@ $.fn.registerModal = function(onOpen, onClose, opts) {
     if (onClose && typeof(onClose) === 'function')
         e.on('hidden.bs.modal', onClose);
 }
+$.fn.validateForm = function(input = ':input') {
+    var scrolling = false,
+        isError = false,
+        form = $(this);
+    form.find(input).each(function(i, e) {
+        var isValid = true,
+            invalidReason = undefined,
+            // Grab the parent form-group, as we will need it to visually mark
+            //   invalid fields
+            parent = $(e).closest('div[class^="form-group"]'),
+            required = $(e).prop('required'),
+            val = $(e).inputmask('unmaskedvalue');
+        if(required) {
+            if (val.length == 0) {
+                isValid = false;
+                invalidReason = 'Field is required';
+            }
+        }
+
+        if (required || val.length > 0) {
+            var minLength = $(e).attr("minlength") || "-1",
+                maxLength = $(e).attr("maxlength") || "-1",
+                exactLength = $(e).attr("exactlength") || "-1";
+
+            minLength = parseInt(minLength);
+            maxLength = parseInt(maxLength) / 2;
+            exactLength = parseInt(exactLength);
+
+            if (beEqualTo) beEqualTo = "#" + beEqualTo;
+
+            if (beRegexTo) beRegexTo = '#' + beRegexTo;
+
+            if (val.length < minLength) {
+                isValid = false;
+                if (maxLength == minLength) {
+                    invalidReason = 'Field must be ' + minLength + ' characters';
+                } else {
+                    invalidReason = 'Field must be between ' + minLength + ' and ' + maxLength +' characters';
+                }
+            } else if (exactLength > 0) {
+                if (val.length !== exactLength) {
+                    isValid = false;
+                    invalidReason = 'Field is incomplete';
+                }
+            }
+        }
+
+        equalCheck: if (isValid) {
+            var beEqualTo = $(e).attr("beEqualTo");
+            if (!beEqualTo) break equalCheck;
+
+            if (! $("#" + beEqualTo).length) {
+                Common.debugLog("Missing target " + beEqualTo + " for " + e);
+                break equalCheck;
+            }
+            var target = $("#" + beEqualTo);
+            if ($(e).val() !== target.val()) {
+                isValid = false;
+                invalidReason = 'Field does not match';
+            }
+        }
+
+        regexCheck: if (isValid) {
+            var beRegexTo = $(e).attr('beRegexTo'),
+                regexID = $(e).attr('id'),
+                helpMsg = $(e).attr('requirements'),
+                localstr = $(e).val(),
+                regex = new RegExp(beRegexTo);
+            if (!regexID) break regexCheck;
+            if (!$('#'+regexID).length) {
+                Common.debugLog('Missing target ' + regexID + ' for ' + e);
+                break regexCheck;
+            }
+            if (!regex.test(localstr)) {
+                isValid = false;
+                invalidReason = 'Does not meet the requirements.';
+                if (helpMsg) {
+                    invalidReason += ' ' + helpMsg;
+                }
+            }
+        }
+
+        if (parent.hasClass('has-error')) {
+            var possibleHelpblock = $(e).next('span');
+            if (possibleHelpblock.hasClass('help-block')) {
+                possibleHelpblock.remove();
+            }
+            if (isValid) {
+                parent.removeClass('has-error');
+            }
+        } else if (!isValid) {
+            parent.addClass('has-error');
+        }
+
+        if (isValid) {
+            return;
+        }
+
+        if (!scrolling) {
+            scrolling = true;
+            $('html, body').animate({
+                scrollTop: parent.offset().top
+            }, 200);
+        }
+
+        var msgBlock = '<span class="help-block">' + invalidReason + '</span>'
+        $(msgBlock).insertAfter(e)
+        isError = true;
+    });
+
+    return !isError;
+};
+$.fn.setContainerDisable = function(disabled) {
+    if(disabled !== false) {
+        disabled = true;
+    }
+    // Use native DOM query to select all the nested inputs
+    // as it is faster
+    var inputs = document.querySelectorAll('input:not([type="checkbox"]), select, button, .btn, textarea');
+    var ichecks = document.querySelectorAll('.checkbox');
+    inputs.forEach(function(inputObj) {
+        $(inputObj).prop('disabled', disabled);
+    });
+    ichecks.forEach(function(inputObj) {
+        $(inputObj).iCheck((disabled) ? 'disable' : 'enable');
+    });
+};
+$.fn.mirror = function(selector, regex, replace) {
+    return this.each(function() {
+        var start = $(this),
+            mirror = $(selector);
+        start.on('keyup', function() {
+            if (regex) {
+                if (typeof replace === 'undefined') {
+                    replace = '';
+                }
+                mirror.val(start.val().replace(regex, replace));
+            } else {
+                mirror.val(start.val());
+            }
+        });
+    });
+};

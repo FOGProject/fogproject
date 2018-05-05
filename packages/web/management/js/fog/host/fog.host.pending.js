@@ -76,7 +76,7 @@
                 approvepending: 1,
                 pending: toApprove
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             disableButtons(false);
             if (err) {
                 return;
