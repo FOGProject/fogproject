@@ -7,7 +7,7 @@ $(function() {
     });
     generalFormBtn.on('click',function() {
         generalFormBtn.prop('disabled', true);
-        Common.processForm(generalForm, function(err) {
+        generalForm.processForm(function(err) {
             generalFormBtn.prop('disabled', false);
             if (err) {
                 return;

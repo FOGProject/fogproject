@@ -23,7 +23,7 @@
     generalFormBtn.on('click', function(e) {
         generalFormBtn.prop('disabled', true);
         generalDeleteBtn.prop('disabled', true);
-        Common.processForm(generalForm, function(err) {
+        generalForm.processForm(function(err) {
             generalFormBtn.prop('disabled', false);
             generalDeleteBtn.prop('disabled', false);
             if (err) {
@@ -42,7 +42,7 @@
                 + Common.node
                 + '&sub=delete&id='
                 + Common.id;
-        Common.apiCall(method, action, null, function(err) {
+        $.apiCall(method, action, null, function(err) {
             if (err) {
                 return;
             }
@@ -171,8 +171,10 @@
         var opts = {
             'mastersel': '1',
             'master': MASTER_NODE_ID
-        }
-        Common.apiCall(membershipMasterBtn.attr('method'), membershipMasterBtn.attr('action'), opts, function(err) {
+        },
+            method = $(this).attr('method'),
+            action = $(this).attr('action');
+        $.apiCall(method, action, opts, function(err) {
             membershipMasterBtn.prop('disabled', !err);
             onMembershipSelect(membershipTable.rows({selected: true}));
         });
@@ -186,8 +188,10 @@
             opts = {
                 'updatemembership': '1',
                 'membership': toAdd
-            };
-        Common.apiCall(membershipAddBtn.attr('method'), membershipAddBtn.attr('action'), opts, function(err) {
+            },
+            method = $(this).attr('method'),
+            action = $(this).attr('action');
+        $.apiCall(method, action, opts, function(err) {
             if (!err) {
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
@@ -218,7 +222,7 @@
                 'membershipdel': '1',
                 'membershipRemove': toRemove
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method, action, opts, function(err) {
             if (!err) {
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();

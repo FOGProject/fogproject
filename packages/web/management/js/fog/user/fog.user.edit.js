@@ -32,7 +32,7 @@
     generalFormBtn.on('click', function(e) {
         generalFormBtn.prop('disabled', true);
         generalDeleteBtn.prop('disabled', true);
-        Common.processForm(generalForm, function(err) {
+        generalForm.processForm(function(err) {
             generalFormBtn.prop('disabled', false);
             generalDeleteBtn.prop('disabled', false);
             if (err) {
@@ -67,7 +67,7 @@
                 + Common.node
                 + '&sub=delete&id='
                 + Common.id;
-        Common.apiCall(method, action, null, function(err) {
+        $.apiCall(method, action, null, function(err) {
             if (err) {
                 return;
             }
@@ -91,7 +91,7 @@
     });
     passwordFormBtn.on('click', function(e) {
         passwordFormBtn.prop('disabled', true);
-        Common.processForm(passwordForm, function(err) {
+        passwordForm.processForm(function(err) {
             passwordFormBtn.prop('disabled', false);
             if (err) {
                 return;
@@ -110,7 +110,7 @@
     });
     apiFormBtn.on('click', function(e) {
         apiFormBtn.prop('disabled', true);
-        Common.processForm(apiForm, function(err) {
+        apiForm.processForm(function(err) {
             apiFormBtn.prop('disabled', false);
             if (err) {
                 return;

@@ -9,9 +9,9 @@
     });
     createFormBtn.on('click', function() {
         createFormBtn.prop('disabled', true);
-        Common.processForm(createForm, function(err) {
+        createForm.processForm(function(err) {
             createFormBtn.prop('disabled', false);
-        });
+        }, ':input:visible');
     });
     // Hides the fields not currently selected.
     $('.network,.iprint,.cups,.local').addClass('hidden');

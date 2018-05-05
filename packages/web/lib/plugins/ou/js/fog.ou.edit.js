@@ -26,7 +26,7 @@ $(function() {
     generalFormBtn.on('click',function() {
         generalFormBtn.prop('disabled', true);
         generalDeleteBtn.prop('disabled', true);
-        Common.processForm(generalForm, function(err) {
+        generalForm.processForm(generalForm, function(err) {
             generalFormBtn.prop('disabled', false);
             generalDeleteBtn.prop('disabled', false);
             if (err) {
@@ -45,7 +45,7 @@ $(function() {
                 + Common.node
                 + '&sub=delete&id='
                 + Common.id;
-        Common.apiCall(method, action, null, function(err) {
+        $.apiCall(method, action, null, function(err) {
             if (err) {
                 return;
             }
@@ -129,7 +129,7 @@ $(function() {
                 updatemembership: 1,
                 membership: toAdd
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             membershipAddBtn.prop('disabled', false);
             membershipRemoveBtn.prop('disabled', false);
             if (err) {
@@ -155,7 +155,7 @@ $(function() {
                 membershipdel: 1,
                 membershipRemove: toRemove
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             membershipAddBtn.prop('disabled', false);
             membershipRemoveBtn.prop('disabled', false);
             if (err) {

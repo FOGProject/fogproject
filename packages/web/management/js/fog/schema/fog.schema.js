@@ -16,7 +16,7 @@
     schemaUpdateBtn.on('click', function(e) {
         e.preventDefault();
         schemaUpdateBtn.prop('disabled', true);
-        Common.processForm(schemaUpdateForm,function(err) {
+        schemaUpdateForm.processForm(function(err) {
             schemaUpdateBtn.prop('disabled', false);
             if (err && err.status > 499) {
                 return;

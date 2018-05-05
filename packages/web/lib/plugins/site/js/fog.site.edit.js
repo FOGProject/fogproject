@@ -23,7 +23,7 @@ $(function() {
     generalFormBtn.on('click',function() {
         generalFormBtn.prop('disabled', true);
         generalDeleteBtn.prop('disabled', true);
-        Common.processForm(generalForm, function(err) {
+        generalForm.processForm(function(err) {
             generalFormBtn.prop('disabled', false);
             generalDeleteBtn.prop('disabled', false);
             if (err) {
@@ -42,7 +42,7 @@ $(function() {
                 + Common.node
                 + '&sub=delete&id='
                 + Common.id;
-        Common.apiCall(method, action, null, function(err) {
+        $.apiCall(method, action, null, function(err) {
             if (err) {
                 return;
             }
@@ -83,7 +83,7 @@ $(function() {
                 addhosts: 1,
                 hosts: toAdd
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             disableHostButtons(false);
             siteHostsTable.rows({selected: true}).deselect();
             siteHostsTable.draw(false);
@@ -196,7 +196,7 @@ $(function() {
                 addusers: 1,
                 users: toAdd
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             disableUserButtons(false);
             siteUsersTable.rows({selected: true}).deselect();
             siteUsersTable.draw(false);

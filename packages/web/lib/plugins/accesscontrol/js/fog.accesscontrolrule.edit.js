@@ -28,7 +28,7 @@ $(function() {
     generalFormBtn.on('click',function() {
         generalFormBtn.prop('disabled', true);
         generalDeleteBtn.prop('disabled', true);
-        Common.processForm(generalForm, function(err) {
+        generalForm.processForm(function(err) {
             generalFormBtn.prop('disabled', false);
             generalDeleteBtn.prop('disabled', false);
             if (err) {
@@ -50,7 +50,7 @@ $(function() {
                 + Common.node
                 + '&sub=delete&id='
                 + Common.id;
-        Common.apiCall(method, action, null, function(err) {
+        $.apiCall(method, action, null, function(err) {
             if (err) {
                 return;
             }

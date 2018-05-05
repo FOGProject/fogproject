@@ -31,7 +31,7 @@
     generalFormBtn.on('click', function() {
         generalFormBtn.prop('disabled', true);
         generalDeleteBtn.prop('disabled', true);
-        Common.processForm(generalForm, function(err) {
+        generalForm.processForm(function(err) {
             generalFormBtn.prop('disabled', false);
             generalDeleteBtn.prop('disabled', false);
             if (err) {
@@ -50,7 +50,7 @@
             + Common.node
             + '&sub=delete&id='
             + Common.id;
-        Common.apiCall(method, action, null, function(err) {
+        $.apiCall(method, action, null, function(err) {
             if (err) {
                 return;
             }
@@ -110,7 +110,7 @@
             opts = {
                 id: Common.id
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             if (!err) {
                 // Enable our general form buttons.
                 generalFormBtn.prop('disabled', false);
@@ -188,7 +188,7 @@
     });
     newmacAddBtn.on('click', function() {
         $(this).prop('disabled', true);
-        Common.processForm(newmacForm, function(err) {
+        newmacForm.processForm(function(err) {
             newmacAddBtn.prop('disabled', false);
             if (err) {
                 return;
@@ -347,7 +347,7 @@
                     updateprimary: 1,
                     primary: id
                 };
-            Common.apiCall(method,action,opts,function(err) {
+            $.apiCall(method,action,opts,function(err) {
                 disableMacButtons(false);
                 macsTable.rows({selected: true}).deselect();
                 if (err) {
@@ -386,7 +386,7 @@
                 clientIgnore: clientIgnore,
                 pending: pending
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             disableMacButtons(false);
             macsTable.draw(false);
             if (err) {
@@ -404,7 +404,7 @@
                 toRemove: Common.getSelectedIds(macsTable),
                 removeMacs: 1
             };
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             disableMacButtons(false);
             macsTable.draw(false);
             if (err) {
@@ -421,7 +421,7 @@
                 imageIgnore: Common.getSelectedIds(macsTable),
                 markimageignore: 1
             };
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             disableMacButtons(false);
             macsTable.draw(false);
             if (err) {
@@ -438,7 +438,7 @@
                 imageIgnore: Common.getSelectedIds(macsTable),
                 markimageunignore: 1
             };
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             disableMacButtons(false);
             macsTable.draw(false);
             if (err) {
@@ -455,7 +455,7 @@
                 clientIgnore: Common.getSelectedIds(macsTable),
                 markclientignore: 1
             };
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             disableMacButtons(false);
             macsTable.draw(false);
             if (err) {
@@ -472,7 +472,7 @@
                 clientIgnore: Common.getSelectedIds(macsTable),
                 markclientunignore: 1
             };
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             disableMacButtons(false);
             macsTable.draw(false);
             if (err) {
@@ -489,7 +489,7 @@
                 pending: Common.getSelectedIds(macsTable),
                 markpending: 1
             };
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             disableMacButtons(false);
             macsTable.draw(false);
             if (err) {
@@ -506,7 +506,7 @@
                 pending: Common.getSelectedIds(macsTable),
                 markunpending: 1
             };
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             disableMacButtons(false);
             macsTable.draw(false);
             if (err) {
@@ -603,7 +603,7 @@
                     });
                     $('#tasking-send').on('click', function(e) {
                         e.stopImmediatePropagation();
-                        Common.processForm(hostDeployForm, function(err) {
+                        hostDeployForm.processForm(function(err) {
                             if (err) {
                                 return;
                             }
@@ -630,7 +630,7 @@
                 error: function(jqXHR, textStatus, errorThrown) {
                     if(textStatus == 'abort') return; // Do not show error message on abort.
                     taskModal.modal('hide');
-                    Common.notifyFromAPI(jqXHR.responseJSON, true);
+                    $.notifyFromAPI(jqXHR.responseJSON, true);
                 }
             });
         });
@@ -680,7 +680,7 @@
     ADFormBtn.on('click',function() {
         ADFormBtn.prop('disabled', true);
         ADClearBtn.prop('disabled', true);
-        Common.processForm(ADForm, function(err) {
+        ADForm.processForm(function(err) {
             ADFormBtn.prop('disabled', false);
             ADClearBtn.prop('disabled', false);
         });
@@ -704,7 +704,7 @@
         ADForm.find('input[type=text], input[type=password], textarea').val('');
         ADForm.find('input[type=checkbox]').iCheck('uncheck');
 
-        Common.processForm(ADForm, function(err) {
+        ADForm.processForm(function(err) {
             for (var i = 0; i < restoreMap.length; i++) {
                 field = restoreMap[i];
                 if (field.checkbox) {
@@ -844,7 +844,7 @@
                 defaultsel: 1,
                 default: DEFAULT_PRINTER_ID
             };
-        Common.apiCall(method,action, opts, function(err) {
+        $.apiCall(method,action, opts, function(err) {
             printerDefaultBtn.prop('disabled', !err);
             onPrintersSelect(printersTable.rows({selected: true}));
         });
@@ -859,7 +859,7 @@
     });
     printerConfigBtn.on('click', function() {
         printerConfigBtn.prop('disabled', true);
-        Common.processForm(printerConfigForm, function(err) {
+        printerConfigForm.processForm(function(err) {
             printerConfigBtn.prop('disabled', false);
             if (err) {
                 return;
@@ -880,7 +880,7 @@
                 printer: toAdd
             };
 
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             printerAddBtn.prop('disabled', false);
             if (err) {
                 return;
@@ -988,7 +988,7 @@
                 updatesnapins: 1,
                 snapin: toAdd
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             snapinsAddBtn.prop('disabled', false);
             snapinsRemoveBtn.prop('disabled', false);
             if (err) {
@@ -1090,7 +1090,7 @@
         $.each($('.associated:checked'), function() {
             toEnable.push(this.value);
         });
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             modulesUpdateBtn.prop('disabled', false);
             if (err) {
                 return;
@@ -1113,7 +1113,7 @@
                 enablemodulessel: 1,
                 enablemodules: toEnable
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             modulesEnableBtn.prop('disabled', false);
             if (err) {
                 return;
@@ -1141,7 +1141,7 @@
                 toDisable.push($(this).val());
             }
         });
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             modulesDisableBtn.prop('disabled', false);
             if (err) {
                 return;
@@ -1154,7 +1154,7 @@
         e.preventDefault();
         var form = $('#host-dispman');
         modulesDispBtn.prop('disabled', true);
-        Common.processForm(form, function(err) {
+        form.processForm(function(err) {
             modulesDispBtn.prop('disabled', false);
         });
     });
@@ -1162,7 +1162,7 @@
         e.preventDefault();
         var form = $('#host-alo');
         modulesAloBtn.prop('disabled', true);
-        Common.processForm(form, function(err) {
+        form.processForm(function(err) {
             modulesAloBtn.prop('disabled', false);
         });
     });
@@ -1170,7 +1170,7 @@
         e.preventDefault();
         var form = $('#host-enforce');
         modulesEnforceBtn.prop('disabled', true);
-        Common.processForm(form, function(err) {
+        form.processForm(function(err) {
             modulesEnforceBtn.prop('disabled', false);
         });
     });
@@ -1216,7 +1216,7 @@
     });
     powermanagementFormBtn.on('click', function() {
         powermanagementFormBtn.prop('disabled', true);
-        Common.processForm(powermanagementForm, function(err) {
+        powermanagementForm.processForm(function(err) {
             powermanagementFormBtn.prop('disabled', false);
             if (err) {
                 return;
@@ -1349,7 +1349,7 @@
                 updategroups: 1,
                 group: toAdd
             };
-        Common.apiCall(method,action,opts,function(err) {
+        $.apiCall(method,action,opts,function(err) {
             groupsAddBtn.prop('disabled', false);
             groupsRemoveBtn.prop('disabled', false);
             if (err) {
@@ -1384,7 +1384,7 @@
     inventoryFormBtn.on('click', function(e) {
         e.preventDefault();
         $(this).prop('disabled', true);
-        Common.processForm(inventoryForm, function(err) {
+        inventoryForm.processForm(function(err) {
             inventoryFormBtn.prop('disabled', false);
         });
     });

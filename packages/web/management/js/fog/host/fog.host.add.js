@@ -6,7 +6,7 @@
     });
     createFormBtn.on('click',function() {
         createFormBtn.prop('disabled', true);
-        Common.processForm(createForm, function(err) {
+        createForm.processForm(function(err) {
             createFormBtn.prop('disabled', false);
         });
     });

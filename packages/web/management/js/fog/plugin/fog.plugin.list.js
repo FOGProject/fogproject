@@ -94,7 +94,7 @@
                 plugins: toActivate,
                 btnpressed: 1
             };
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             disableButtons(false);
             if (err) {
                 return;
@@ -114,7 +114,7 @@
                 plugins: toDeactivate,
                 btnpressed: 1
             };
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             disableButtons(false);
             if (err) {
                 return;
@@ -134,7 +134,7 @@
                 plugins: toInstall,
                 btnpressed: 1
             };
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             disableButtons(false);
             if (err) {
                 return;
@@ -154,7 +154,7 @@
                 plugins: toRemove,
                 btnpressed: 1
             };
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             disableButtons(false);
             if (err) {
                 return;

@@ -7,7 +7,7 @@
     });
     siteFormBtn.on('click',function(e) {
         siteFormBtn.prop('disabled', true);
-        Common.processForm(siteForm, function(err) {
+        siteForm.processForm(function(err) {
             siteFormBtn.prop('disabled', false);
             if (err) {
                 return;

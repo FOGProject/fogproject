@@ -29,7 +29,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = displayManagerForm.serialize() + '&update';
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             displayManager.prop('disabled', false);
             if (err) {
                 return;
@@ -45,7 +45,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = autoLogoutForm.serialize() + '&update';
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             autoLogout.prop('disabled', false);
             if (err) {
                 return;
@@ -61,7 +61,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = snapinClientForm.serialize() + '&update';
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             snapinClient.prop('disabled', false);
             if (err) {
                 return;
@@ -77,7 +77,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = hostRegisterForm.serialize() + '&update';
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             hostRegister.prop('disabled', false);
             if (err) {
                 return;
@@ -93,7 +93,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = hostnameChangerForm.serialize() + '&update';
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             hostnameChanger.prop('disabled', false);
             if (err) {
                 return;
@@ -109,7 +109,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = printerManagerForm.serialize() + '&update';
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             printerManager.prop('disabled', false);
             if (err) {
                 return;
@@ -125,7 +125,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = taskRebootForm.serialize() + '&update';
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             taskReboot.prop('disabled', false);
             if (err) {
                 return;
@@ -141,7 +141,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = userTrackerForm.serialize() + '&update';
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             userTracker.prop('disabled', false);
             if (err) {
                 return;
@@ -157,7 +157,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = powerManagementForm.serialize() + '&update';
-        Common.apiCall(method, action, opts, function(err) {
+        $.apiCall(method, action, opts, function(err) {
             powerManagement.prop('disabled', false);
             if (err) {
                 return;
