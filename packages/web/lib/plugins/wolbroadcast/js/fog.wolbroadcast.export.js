@@ -1,5 +1,5 @@
 (function($) {
-    var exportTable = Common.registerTable($('#wolbroadcast-export-table'), null, {
+    var exportTable = $('#wolbroadcast-export-table').registerTable(null, {
         buttons: [
             'copy',
             {

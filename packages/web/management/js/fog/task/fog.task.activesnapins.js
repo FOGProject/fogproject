@@ -20,7 +20,7 @@
     }
 
     disableButtons(true);
-    var table = Common.registerTable($('#active-snapintasks-table'), onSelect, {
+    var table = $('#active-snapintasks-table').registerTable(onSelect, {
         order: [
             [0, 'asc']
         ],

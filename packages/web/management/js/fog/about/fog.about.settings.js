@@ -1,6 +1,6 @@
 (function($) {
     var saveBtn = $('#service-send'),
-        table = Common.registerTable($('#settings-table'), null, {
+        table = $('#settings-table').registerTable(null, {
         buttons: [],
         order: [
             [2, 'asc']

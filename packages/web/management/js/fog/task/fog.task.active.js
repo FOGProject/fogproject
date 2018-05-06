@@ -20,7 +20,7 @@
     }
 
     disableButtons(true);
-    var table = Common.registerTable($('#active-tasks-table'), onSelect, {
+    var table = $('#active-tasks-table').registerTable(onSelect, {
         order: [
             [0, 'asc']
         ],

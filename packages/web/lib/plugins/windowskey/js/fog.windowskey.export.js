@@ -1,5 +1,5 @@
 (function($) {
-    var exportTable = Common.registerTable($('#windowskey-export-table'), null, {
+    var exportTable = $('#windowskey-export-table').registerTable(null, {
         buttons: [
             'copy',
             {

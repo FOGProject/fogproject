@@ -80,7 +80,7 @@
     }
     function onCheckboxSelect(selected) {
     }
-    var membershipTable = Common.registerTable($('#printer-membership-table'), onMembershipSelect, {
+    var membershipTable = $('#printer-membership-table').registerTable(onMembershipSelect, {
         columns: [
             {data: 'name'},
             {data: 'isDefault'},

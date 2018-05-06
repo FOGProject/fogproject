@@ -57,7 +57,7 @@
         sessionTableButtons(disabled);
     }
 
-    var sessionsTable = Common.registerTable(sessionTable, onSessionSelect, {
+    var sessionsTable = sessionTable.registerTable(onSessionSelect, {
         order: [
             [0, 'asc']
         ],

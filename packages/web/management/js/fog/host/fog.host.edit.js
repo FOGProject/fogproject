@@ -213,7 +213,7 @@
         macUnpendingBtn.prop('disabled', disable);
         macDeleteBtn.prop('disabled', disable);
     }
-    var macsTable = Common.registerTable(macTable, onMacsSelect, {
+    var macsTable = macTable.registerTable(onMacsSelect, {
         order: [
             [0, 'asc']
         ],
@@ -539,7 +539,7 @@
         // Show Modal loading
         $('.task-name').text('Loading...');
         $('#task-form-holder').html("Loading, please wait...");
-        Common.setLoading($('#task-modal .modal-dialog'), true);
+        $('#task-modal .modal-dialog').setLoading(true);
         taskModal.modal('show'); // NOTE: If you remove modal loading UI, you will need to put this after the HTML is added.
         // END: Show modal loading
 
@@ -562,7 +562,7 @@
 
                     // Hide modal loading
                     req = null;
-                    Common.setLoading($('#task-modal .modal-dialog'), false);
+                    $('#task-modal .modal-dialog').setLoading(false);
                     $('.task-name').text(taskName);
                     // END: Hide modal loading
 
@@ -738,7 +738,7 @@
         printerRemoveBtn.prop('disabled', disabled);
     }
 
-    var printersTable = Common.registerTable($('#host-printers-table'), onPrintersSelect, {
+    var printersTable = $('#host-printers-table').registerTable(onPrintersSelect, {
         order: [
             [1, 'asc']
         ],
@@ -933,7 +933,7 @@
         snapinsRemoveBtn.prop('disabled', disabled);
     }
 
-    var snapinsTable = Common.registerTable($('#host-snapins-table'), onSnapinsSelect, {
+    var snapinsTable = $('#host-snapins-table').registerTable(onSnapinsSelect, {
         columns: [
             {data: 'name'},
             {data: 'createdTime'},
@@ -1034,7 +1034,7 @@
         modulesEnableBtn.prop('disabled', disabled);
     }
 
-    var modulesTable = Common.registerTable($("#modules-to-update"), onModulesEnable, {
+    var modulesTable = $('#modules-to-update').registerTable(onModulesEnable, {
         columns: [
             {data: 'name'},
             {data: 'association'}
@@ -1237,7 +1237,7 @@
         var disable = selected.count() == 0;
     }
 
-    var powermanagementTable = Common.registerTable($("#host-powermanagement-table"), onPMSelect, {
+    var powermanagementTable = $('#host-powermanagement-table').registerTable(onPMSelect, {
         columns: [
             {data: 'id'},
             {data: 'action'}
@@ -1288,7 +1288,7 @@
         groupsRemoveBtn.prop('disabled', disabled);
     }
 
-    var groupsTable = Common.registerTable($('#host-groups-table'), onGroupsSelect, {
+    var groupsTable = $('#host-groups-table').registerTable(onGroupsSelect, {
         columns: [
             {data: 'name'},
             {data: 'association'}
@@ -1391,7 +1391,7 @@
 
     // ---------------------------------------------------------------
     // LOGIN HISTORY TAB
-    var loginTable = Common.registerTable($('#host-login-table'), null, {
+    var loginTable = $('#host-login-table').registerTable(null, {
         columns: [
             {data: 'createdTime'},
             {data: 'action'},
@@ -1414,7 +1414,7 @@
     }
     // ---------------------------------------------------------------
     // IMAGE HISTORY TAB
-    var imageTable = Common.registerTable($('#host-image-table'), null, {
+    var imageTable = $('#host-image-table').registerTable(null, {
         columns: [
             {data: 'createdBy'},
             {data: 'start'},

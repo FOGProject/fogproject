@@ -29,7 +29,7 @@
         // History Report
         case 'history report':
             var historyTable = $('#history-table'),
-                table = Common.registerTable(historyTable, null, {
+                table = historyTable.registerTable(null, {
                     order: [
                         [1, 'desc']
                     ],
@@ -58,7 +58,7 @@
         // Host List
         case 'host list':
             var hostTable = $('#hostlist-table'),
-                table = Common.registerTable(hostTable, null, {
+                table = hostTable.registerTable(null, {
                     order: [
                         [0, 'asc']
                     ],
@@ -85,7 +85,7 @@
         // Hosts and users
         case 'hosts and users':
             var userloginTable = $('#userlogin-table'),
-                table = Common.registerTable(userloginTable, null, {
+                table = userloginTable.registerTable(null, {
                     order: [
                         [0, 'asc']
                     ],
@@ -111,7 +111,7 @@
         // Imaging Log
         case 'imaging log':
             var imagingLogTable = $('#imaginglog-table'),
-                table = Common.registerTable(imagingLogTable, null, {
+                table = imagingLogTable.registerTable(null, {
                     order: [
                         [0, 'asc']
                     ],
@@ -140,7 +140,7 @@
         // Inventory Report
         case 'inventory report':
             var inventoryTable = $('#inventory-table'),
-                table = Common.registerTable(inventoryTable, null, {
+                table = inventoryTable.registerTable(null, {
                     order: [
                         [0, 'asc']
                     ],
@@ -165,7 +165,7 @@
         // Pending MAC
         case 'pending mac list':
             var pendingMacTable = $('#pendingmac-table'),
-                table = Common.registerTable(pendingMacTable, null, {
+                table = pendingMacTable.registerTable(null, {
                     order: [
                         [0, 'asc']
                     ],
@@ -190,7 +190,7 @@
         // Product Keys
         case 'product keys':
             var hostTable = $('#hostkeys-table'),
-                table = Common.registerTable(hostTable, null, {
+                table = hostTable.registerTable(null, {
                     order: [
                         [0, 'asc']
                     ],
@@ -216,7 +216,7 @@
         // Snapin List
         case 'snapin list':
             var snapinTable = $('#snapinlist-table'),
-                table = Common.registerTable(snapinTable, null, {
+                table = snapinTable.registerTable(null, {
                     order: [
                         [0, 'asc']
                     ],

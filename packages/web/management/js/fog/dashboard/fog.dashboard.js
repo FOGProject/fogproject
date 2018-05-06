@@ -161,8 +161,7 @@ function setupOverlays() {
 
 
 function makeParentBoxLoad(child, loading) {
-    var parent = child.closest('.box');
-    Common.setLoading(parent, loading);
+    child.closest('.box').setLoading(loading);
 }
 
 function setupOverview() {
