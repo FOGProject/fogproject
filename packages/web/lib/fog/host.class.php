@@ -257,14 +257,14 @@ class Host extends FOGController
     public function save()
     {
         parent::save();
-        if ($this->isLoaded('mac')) {
+        if (array_key_exists('mac', $this->data)) {
             self::getClass('MACAddressAssociation')
                 ->set('mac', $this->get('mac'))
                 ->set('primary', '1')
                 ->set('hostID', $this->get('id'))
                 ->save();
         }
-        if ($this->isLoaded('powermanagementtasks')) {
+        if (array_key_exists('powermanagementtasks', $this->data)) {
             $find = ['hostID' => $this->get('id')];
             Route::ids(
                 'powermanagement',
@@ -294,10 +294,10 @@ class Host extends FOGController
             unset($DBPowerManagementIDs, $RemovePowerManagementIDs);
         }
         return $this
-            ->assocSetter('Module')
-            ->assocSetter('Printer')
-            ->assocSetter('Snapin')
-            ->assocSetter('Group')
+            ->assocSetter('Group', 'group')
+            ->assocSetter('Module', 'module')
+            ->assocSetter('Printer', 'printer')
+            ->assocSetter('Snapin', 'snapin')
             ->load();
     }
     /**

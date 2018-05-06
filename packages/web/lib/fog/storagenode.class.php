@@ -135,7 +135,7 @@ class StorageNode extends FOGController
             'logfiles' => 'getLogfiles'
         ];
         if (in_array($key, array_keys($loaders))
-            && !$this->isLoaded($key)
+            && !array_key_exists($key, $this->data)
         ) {
             if (!$this->get('online')) {
                 return parent::get($key);
