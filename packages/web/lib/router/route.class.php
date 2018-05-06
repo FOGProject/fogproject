@@ -475,6 +475,8 @@ class Route extends FOGBase
             self::arrayRemove(
                 [
                     'sec_tok',
+                    'sec_time',
+                    'pub_key',
                     'ADPass',
                     'ADPassLegacy',
                     'ADOU',
