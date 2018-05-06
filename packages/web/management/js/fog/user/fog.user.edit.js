@@ -40,7 +40,6 @@
             }
             newName = $('#user').val().trim();
             anchorFields = getQueryParams($('.fog-user').attr('href'));
-            console.log(anchorFields);
             foguser = {
                 node: anchorFields['node'],
                 sub: anchorFields['sub'],
