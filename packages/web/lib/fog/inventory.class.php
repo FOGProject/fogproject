@@ -90,7 +90,7 @@ class Inventory extends FOGController
      */
     public function getHost()
     {
-        if (!$this->isLoaded('host')) {
+        if (!array_key_exists('host', $this->data)) {
             $this->set('host', new Host($this->get('hostID')));
         }
         return $this->get('host');

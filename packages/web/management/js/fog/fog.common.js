@@ -156,6 +156,7 @@ var $_GET = getQueryParams(),
             confirmdel: 1,
             remitems: opts.ids
         };
+        console.log(ajaxOpts);
 
         Pace.track(function(){
             $.ajax('', {

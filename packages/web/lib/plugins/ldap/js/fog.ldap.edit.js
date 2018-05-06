@@ -17,7 +17,7 @@ $(function() {
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
         generalDeleteModal = $('#deleteModal'),
-        generalDeleteModalConfirm $('#confirmDeleteModal'),
+        generalDeleteModalConfirm = $('#confirmDeleteModal'),
         generalDeleteModalCancel = $('#closeDeleteModal'),
         templateSel = $('#template'),
         userNameAttr = $('#userNameAttr'),

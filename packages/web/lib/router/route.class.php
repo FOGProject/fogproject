@@ -1841,6 +1841,39 @@ class Route extends FOGBase
         self::$data = $data;
     }
     /**
+     * Delete items in mass.
+     *
+     * @param string $class      The class we're to remove items.
+     * @param array  $whereItems The items we're removing.
+     *
+     * @return void
+     */
+    public static function deletemass($class, $whereItems = [])
+    {
+        $data = [];
+        $classname = strtolower($class);
+        $classVars = self::getClass(
+            $class,
+            '',
+            true
+        );
+        $vars = json_decode(
+            file_get_contents('php://input')
+        );
+
+        if (count($whereItems) < 1) {
+            $whereItems = self::getsearchbody($classname);
+        }
+
+        $sql = 'DELETE FROM `'
+            . $classVars['databaseTable']
+            . '`';
+
+        $sql = self::_buildSql($sql, $classVars, $whereItems);
+
+        return self::$DB->query($sql);
+    }
+    /**
      * Builds the sql query with the where.
      *
      * @param string $sql        The sql string we need to adjust.

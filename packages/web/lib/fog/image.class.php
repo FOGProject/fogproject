@@ -131,7 +131,7 @@ class Image extends FOGController
     public function save()
     {
         parent::save();
-        if ($this->isLoaded('hosts')) {
+        if (array_key_exists('hosts', $this->data)) {
             Route::ids(
                 'host',
                 ['imageID' => $this->get('id')]
