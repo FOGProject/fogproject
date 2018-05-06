@@ -56,12 +56,12 @@ if (isset($_POST['newNode'])) {
         ->set('isEnabled', '1')
         ->save();
 } elseif (isset($_POST['nodePass'])) {
-    $ip = filter_input(INPUT_POST, 'ip');
-    $user = filter_input(INPUT_POST, 'user');
-    $pass = filter_input(INPUT_POST, 'pass');
+    $ip = base64_decode(filter_input(INPUT_POST, 'ip'));
+    $user = base64_decode(filter_input(INPUT_POST, 'user'));
+    $pass = base64_decode(filter_input(INPUT_POST, 'pass'));
     Route::listem(
         'storagenode',
-        ['ngmHostname' => $ip]
+        ['ip' => $ip]
     );
     $StorageNodes = json_decode(
         Route::getData()
