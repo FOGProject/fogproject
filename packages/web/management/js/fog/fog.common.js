@@ -230,60 +230,11 @@ var $_GET = getQueryParams(),
         reAuthModal.modal('hide');
     };
 
-    Common.registerTable = function(e, onSelect, opts) {
-        opts = opts || {};
-        opts = _.defaults(opts, {
-            paging: true,
-            lengthChange: true,
-            searching: true,
-            ordering: true,
-            info: true,
-            stateSave: false,
-            autoWidth: false,
-            responsive: true,
-            lengthMenu: [
-                [10, 25, 50, 100, -1],
-                [10, 25, 50, 100, 'All']
-            ],
-            pageLength: $('#pageLength').val(),
-            buttons: ['selectAll', 'selectNone'],
-            pagingType: 'simple_numbers',
-            select: { style: 'multi+shift' },
-            dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>B<'row'<'col-sm-12'tr>><'row'<'col-sm-5'i><'col-sm-7'p>>",
-        });
-
-        var table = e.DataTable(opts);
-
-        if (onSelect !== undefined && typeof(onSelect) === 'function') {
-            table.on('select deselect', function( e, dt, type, indexes) {
-                onSelect(dt.rows({selected: true}));
-            });
-        }
-
-        return table;
-    };
 
     Common.getSelectedIds = function(table) {
         var rows = table.rows({selected: true});
         return rows.ids().toArray();
     };
-
-
-    Common.setLoading = function(container, loading) {
-        if(loading !== false) {
-            loading = true;
-        }
-
-        var loadingId = 'loadingOverlay';
-
-        if (loading) {
-            container.append(
-                '<div class="overlay" id="' + loadingId  + '"><i class="fa fa-refresh fa-spin"></i></div>'
-            );
-        } else {
-            container.children('#'+loadingId).remove();;
-        }
-    }
 
     Common.iCheck = function(match) {
         match = match || 'input'
@@ -574,6 +525,12 @@ $.setContainerDisable = function(container, disable) {
 $.registerModal = function(modal, onOpen, onClose, opts) {
     $(modal).registerModal(onOpen, onClose, opts);
 };
+$.setLoading = function(container, loading) {
+    $(container).setLoading(loading);
+};
+$.registerTable = function(e, onSelect, opts) {
+    $(e).registerTable(onSelect, opts);
+};
 /**
  * Selector required elements.
  */
@@ -746,6 +703,21 @@ $.fn.setContainerDisable = function(disabled) {
         $(inputObj).iCheck((disabled) ? 'disable' : 'enable');
     });
 };
+$.fn.setLoading = function(loading) {
+    if(loading !== false) {
+        loading = true;
+    }
+
+    var loadingId = 'loadingOverlay';
+
+    if (loading) {
+        $(this).append(
+            '<div class="overlay" id="' + loadingId  + '"><i class="fa fa-refresh fa-spin"></i></div>'
+        );
+    } else {
+        $(this).children('#'+loadingId).remove();;
+    }
+}
 $.fn.mirror = function(selector, regex, replace) {
     return this.each(function() {
         var start = $(this),
@@ -761,4 +733,36 @@ $.fn.mirror = function(selector, regex, replace) {
             }
         });
     });
+};
+$.fn.registerTable = function(onSelect, opts) {
+    opts = opts || {};
+    opts = _.defaults(opts, {
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        ordering: true,
+        info: true,
+        stateSave: false,
+        autoWidth: false,
+        responsive: true,
+        lengthMenu: [
+            [10, 25, 50, 100, -1],
+            [10, 25, 50, 100, 'All']
+        ],
+        pageLength: $('#pageLength').val(),
+        buttons: ['selectAll', 'selectNone'],
+        pagingType: 'simple_numbers',
+        select: { style: 'multi+shift' },
+        dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>B<'row'<'col-sm-12'tr>><'row'<'col-sm-5'i><'col-sm-7'p>>",
+    });
+
+    var table = $(this).DataTable(opts);
+
+    if (onSelect !== undefined && typeof(onSelect) === 'function') {
+        table.on('select deselect', function( e, dt, type, indexes) {
+            onSelect(dt.rows({selected: true}));
+        });
+    }
+
+    return table;
 };

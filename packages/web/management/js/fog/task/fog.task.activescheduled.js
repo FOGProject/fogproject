@@ -20,7 +20,7 @@
     }
 
     disableButtons(true);
-    var table = Common.registerTable($('#scheduled-task-table'), onSelect, {
+    var table = $('#scheduled-task-table').registerTable(onSelect, {
         columns: [
             {data: 'hostID'},
             {data: 'taskType'},

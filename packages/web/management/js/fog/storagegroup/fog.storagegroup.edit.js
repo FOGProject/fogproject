@@ -72,7 +72,7 @@
         membershipRemoveBtn.prop('disabled', disabled);
     }
 
-    var membershipTable = Common.registerTable($('#storagegroup-membership-table'), onMembershipSelect, {
+    var membershipTable = $('#storagegroup-membership-table').registerTable(onMembershipSelect, {
         order: [
             [0, 'asc']
         ],

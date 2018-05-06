@@ -1,5 +1,5 @@
 (function($) {
-    var exportTable = Common.registerTable($('#tasktype-export-table'), null, {
+    var exportTable = $('#tasktype-export-table').registerTable(null, {
         buttons: [
             'copy',
             {

@@ -1,5 +1,5 @@
 (function($) {
-    var exportTable = Common.registerTable($('#ldap-export-table'), null, {
+    var exportTable = $('#ldap-export-table').registerTable(null, {
         buttons: [
             'copy',
             {

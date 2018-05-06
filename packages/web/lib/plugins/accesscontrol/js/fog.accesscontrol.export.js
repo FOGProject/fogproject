@@ -1,5 +1,5 @@
 (function($) {
-    var exportTable = Common.registerTable($('#role-export-table'), null, {
+    var exportTable = $('#role-export-table').registerTable(null, {
         buttons: [
             'copy',
             {

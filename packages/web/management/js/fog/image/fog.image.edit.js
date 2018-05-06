@@ -74,7 +74,7 @@
         storagegroupsAddBtn.prop('disabled', disabled);
         storagegroupsRemoveBtn.prop('disabled', disabled);
     }
-    var storagegroupsTable = Common.registerTable($('#image-storagegroups-table'), onStoragegroupsSelect, {
+    var storagegroupsTable = $('#image-storagegroups-table').registerTable(onStoragegroupsSelect, {
         columns: [
             {data: 'name'},
             {data: 'primary'},
@@ -244,7 +244,7 @@
         hostAddBtn.prop('disabled', disabled);
         hostRemoveBtn.prop('disabled', disabled);
     }
-    var hostTable = Common.registerTable($('#image-host-table'), onHostSelect, {
+    var hostTable = $('#image-host-table').registerTable(onHostSelect, {
         columns: [
             {data: 'name'},
             {data: 'association'}

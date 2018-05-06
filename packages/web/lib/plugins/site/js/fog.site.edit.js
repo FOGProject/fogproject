@@ -94,7 +94,7 @@ $(function() {
         $('#hostDelModal').modal('show');
     });
 
-    var siteHostsTable = Common.registerTable($('#site-host-table'), onHostSelect, {
+    var siteHostsTable = $('#site-host-table').registerTable(onHostSelect, {
         order: [
             [0, 'asc']
         ],
@@ -207,7 +207,7 @@ $(function() {
         $('#userDelModal').modal('show');
     });
 
-    var siteUsersTable = Common.registerTable($('#site-user-table'), onUserSelect, {
+    var siteUsersTable = $('#site-user-table').registerTable(onUserSelect, {
         order: [
             [0, 'asc']
         ],

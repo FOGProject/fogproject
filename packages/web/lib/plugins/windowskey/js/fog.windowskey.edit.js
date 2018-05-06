@@ -72,7 +72,7 @@ $(function() {
         disableImageButtons(disabled);
     }
 
-    var imagesTable = Common.registerTable($('#windowskey-image-table'), onImagesSelect, {
+    var imagesTable = $('#windowskey-image-table').registerTable(onImagesSelect, {
         columns: [
             {data: 'name'},
             {data: 'associated'}

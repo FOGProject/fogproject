@@ -108,7 +108,7 @@
         // Show Modal loading
         $('.task-name').text('Loading...');
         $('#task-form-holder').html("Loading, please wait...");
-        Common.setLoading($('#task-modal .modal-dialog'), true);
+        $('#task-modal .modal-dialog').setLoading(true);
         taskModal.modal('show'); // NOTE: If you remove modal loading UI, you will need to put this after the HTML is added.
         // END: Show modal loading
 
@@ -131,7 +131,7 @@
 
                     // Hide modal loading
                     req = null;
-                    Common.setLoading($('#task-modal .modal-dialog'), false);
+                    $('#task-modal .modal-dialog').setLoading(false);
                     $('.task-name').text(taskName);
                     // END: Hide modal loading
 
@@ -298,7 +298,7 @@
         hostsRemoveBtn.prop('disabled', disabled);
     }
 
-    var hostsTable = Common.registerTable($('#group-hosts-table'), onHostsSelect, {
+    var hostsTable = $('#group-hosts-table').registerTable(onHostsSelect, {
         columns: [
             {data: 'name'},
             {data: 'associated'}
@@ -401,7 +401,7 @@
         printerRemoveBtn.prop('disabled', disabled);
     }
 
-    var printersTable = Common.registerTable($('#group-printers-table'), onPrintersSelect, {
+    var printersTable = $('#group-printers-table').registerTable(onPrintersSelect, {
         order: [
             [1, 'asc']
         ],
@@ -562,7 +562,7 @@
         snapinsRemoveBtn.prop('disabled', disabled);
     }
 
-    var snapinsTable = Common.registerTable($('#group-snapins-table'), onSnapinSelect, {
+    var snapinsTable = $('#group-snapins-table').registerTable(onSnapinSelect, {
         columns: [
             {data: 'name'},
             {data: 'createdTime'}
@@ -649,7 +649,7 @@
         modulesEnableBtn.prop('disabled', disabled);
     }
 
-    var modulesTable = Common.registerTable($("#modules-to-update"), onModulesEnable, {
+    var modulesTable = $('#modules-to-update').registerTable(onModulesEnable, {
         columns: [
             {data: 'name'}
         ],

@@ -15,7 +15,7 @@
                 };
                 var downloadModal = $('#downloadModal'),
                     confirmDownloadBtn = $('#confirmDownload'),
-                    table = Common.registerTable($('#dataTable'), onSelect, {
+                    table = $('#dataTable').registerTable(onSelect, {
                         data: data,
                         select: {
                             style: 'single'

@@ -68,7 +68,7 @@ $(function() {
         membershipAddBtn.prop('disabled', disabled);
         membershipRemoveBtn.prop('disabled', disabled);
     }
-    var membershipTable = Common.registerTable($('#ou-membership-table'), onMembershipSelect, {
+    var membershipTable = $('#ou-membership-table').registerTable(onMembershipSelect, {
         columns: [
             {data: 'name'},
             {data: 'association'},

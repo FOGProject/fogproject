@@ -1,5 +1,5 @@
 (function($) {
-    var exportTable = Common.registerTable($('#rule-export-table'), null, {
+    var exportTable = $('#rule-export-table').registerTable(null, {
         buttons: [
             'copy',
             {

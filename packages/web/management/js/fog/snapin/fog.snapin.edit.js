@@ -82,7 +82,7 @@
         storagegroupsAddBtn.prop('disabled', disabled);
         storagegroupsRemoveBtn.prop('disabled', disabled);
     }
-    var storagegroupsTable = Common.registerTable($('#snapin-storagegroups-table'), onStoragegroupsSelect, {
+    var storagegroupsTable = $('#snapin-storagegroups-table').registerTable(onStoragegroupsSelect, {
         columns: [
             {data: 'name'},
             {data: 'primary'},
@@ -250,7 +250,7 @@
         membershipAddBtn.prop('disabled', disabled);
         membershipRemoveBtn.prop('disabled', disabled);
     }
-    var membershipTable = Common.registerTable($('#snapin-membership-table'), onMembershipSelect, {
+    var membershipTable = $('#snapin-membership-table').registerTable(onMembershipSelect, {
         columns: [
             {data: 'name'},
             {data: 'association'}

@@ -13,7 +13,7 @@
         disableButtons(disabled);
     }
     disableButtons(true);
-    var table = Common.registerTable($('#dataTable'), onSelect, {
+    var table = $('#dataTable').registerTable(onSelect, {
         order: [
             [2, 'asc']
         ],
