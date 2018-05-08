@@ -189,7 +189,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = storagegroupsTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(storagegroupsTable),
+            toAdd = $.getSelectedIds(storagegroupsTable),
             opts = {
                 'updatestoragegroups': '1',
                 'storagegroups': toAdd
@@ -220,7 +220,7 @@
         $('#storagegroupDelModal').modal('show');
     });
     $('#confirmstoragegroupDeleteModal').on('click', function(e) {
-        Common.deleteAssociated(storagegroupsTable, storagegroupsRemoveBtn.attr('action'), function(err) {
+        $.deleteAssociated(storagegroupsTable, storagegroupsRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }
@@ -299,7 +299,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = hostTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(hostTable),
+            toAdd = $.getSelectedIds(hostTable),
             opts = {
                 updatehost: '1',
                 host: toAdd
@@ -322,7 +322,7 @@
         $('#hostDelModal').modal('show');
     });
     $('#confirmhostDeleteModal').on('click', function(e) {
-        Common.deleteAssociated(hostTable, hostRemoveBtn.attr('action'), function(err) {
+        $.deleteAssociated(hostTable, hostRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }

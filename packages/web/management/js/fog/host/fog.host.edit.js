@@ -401,7 +401,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = {
-                toRemove: Common.getSelectedIds(macsTable),
+                toRemove: $.getSelectedIds(macsTable),
                 removeMacs: 1
             };
         $.apiCall(method, action, opts, function(err) {
@@ -418,7 +418,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = {
-                imageIgnore: Common.getSelectedIds(macsTable),
+                imageIgnore: $.getSelectedIds(macsTable),
                 markimageignore: 1
             };
         $.apiCall(method, action, opts, function(err) {
@@ -435,7 +435,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = {
-                imageIgnore: Common.getSelectedIds(macsTable),
+                imageIgnore: $.getSelectedIds(macsTable),
                 markimageunignore: 1
             };
         $.apiCall(method, action, opts, function(err) {
@@ -452,7 +452,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = {
-                clientIgnore: Common.getSelectedIds(macsTable),
+                clientIgnore: $.getSelectedIds(macsTable),
                 markclientignore: 1
             };
         $.apiCall(method, action, opts, function(err) {
@@ -469,7 +469,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = {
-                clientIgnore: Common.getSelectedIds(macsTable),
+                clientIgnore: $.getSelectedIds(macsTable),
                 markclientunignore: 1
             };
         $.apiCall(method, action, opts, function(err) {
@@ -486,7 +486,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = {
-                pending: Common.getSelectedIds(macsTable),
+                pending: $.getSelectedIds(macsTable),
                 markpending: 1
             };
         $.apiCall(method, action, opts, function(err) {
@@ -503,7 +503,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = {
-                pending: Common.getSelectedIds(macsTable),
+                pending: $.getSelectedIds(macsTable),
                 markunpending: 1
             };
         $.apiCall(method, action, opts, function(err) {
@@ -874,7 +874,7 @@
         var method = printerAddBtn.attr('method'),
             action = printerAddBtn.attr('action'),
             rows = printersTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(printersTable),
+            toAdd = $.getSelectedIds(printersTable),
             opts = {
                 updateprinters: 1,
                 printer: toAdd
@@ -905,7 +905,7 @@
         $('#printerDelModal').modal('show');
     });
     $('#confirmprinterDeleteModal').on('click', function(e) {
-        Common.deleteAssociated(printersTable, printerRemoveBtn.attr('action'), function(err) {
+        $.deleteAssociated(printersTable, printerRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }
@@ -983,7 +983,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = snapinsTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(snapinsTable),
+            toAdd = $.getSelectedIds(snapinsTable),
             opts = {
                 updatesnapins: 1,
                 snapin: toAdd
@@ -1003,7 +1003,7 @@
         $('#snapinDelModal').modal('show');
     });
     $('#confirmsnapinDeleteModal').on('click', function(e) {
-        Common.deleteAssociated(snapinsTable, snapinsRemoveBtn.attr('action'), function(err) {
+        $.deleteAssociated(snapinsTable, snapinsRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }
@@ -1108,7 +1108,7 @@
         var method = modulesEnableBtn.attr('method'),
             action = modulesEnableBtn.attr('action'),
             rows = modulesTable.rows({selected: true}),
-            toEnable = Common.getSelectedIds(modulesTable),
+            toEnable = $.getSelectedIds(modulesTable),
             opts = {
                 enablemodulessel: 1,
                 enablemodules: toEnable
@@ -1344,7 +1344,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = groupsTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(groupsTable),
+            toAdd = $.getSelectedIds(groupsTable),
             opts = {
                 updategroups: 1,
                 group: toAdd
@@ -1364,7 +1364,7 @@
         $('#groupDelModal').modal('show');
     });
     $('#confirmgroupDeleteModal').on('click', function(e) {
-        Common.deleteAssociated(groupsTable, groupsRemoveBtn.attr('action'), function(err) {
+        $.deleteAssociated(groupsTable, groupsRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }

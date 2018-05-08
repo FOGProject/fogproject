@@ -117,7 +117,7 @@
 
     sessionModalConfirmBtn.on('click', function(e) {
         var rows = sessionsTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(sessionsTable),
+            toRemove = $.getSelectedIds(sessionsTable),
             method = sessionCancelBtn.attr('method'),
             action = sessionCancelBtn.attr('action'),
             opts = {

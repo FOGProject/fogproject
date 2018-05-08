@@ -221,7 +221,7 @@
     // Delete hosts.
     deleteSelected.on('click', function() {
         disableButtons(true);
-        Common.deleteSelected(table, function(err) {
+        $.deleteSelected(table, function(err) {
             // if we couldn't delete the items, enable the buttons
             //   as the rows still exist and are selected
             if (err) {

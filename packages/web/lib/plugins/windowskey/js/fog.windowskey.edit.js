@@ -127,7 +127,7 @@ $(function() {
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = imagesTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(imagesTable),
+            toAdd = $.getSelectedIds(imagesTable),
             opts = {
                 updateimages: 1,
                 image: toAdd
@@ -145,7 +145,7 @@ $(function() {
         $('#hostDelModal').modal('show');
     });
     $('#confirmimageDeleteModal').on('click', function(e) {
-        Common.deleteAssociated(imagesTable, imagesRemoveBtn.attr('action'), function(err) {
+        $.deleteAssociated(imagesTable, imagesRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }
