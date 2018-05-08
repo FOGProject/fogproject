@@ -124,7 +124,7 @@ $(function() {
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = membershipTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(membershipTable),
+            toAdd = $.getSelectedIds(membershipTable),
             opts = {
                 updatemembership: 1,
                 membership: toAdd
@@ -150,7 +150,7 @@ $(function() {
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = membershipTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(membershipTable),
+            toRemove = $.getSelectedIds(membershipTable),
             opts = {
                 membershipdel: 1,
                 membershipRemove: toRemove

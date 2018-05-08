@@ -64,7 +64,7 @@
     disableButtons(true);
     deleteSelected.on('click', function(e) {
         disableButtons(true);
-        Common.deleteSelected(table, function(err) {
+        $.deleteSelected(table, function(err) {
             if (err) {
                 disableButtons(false);
             }
@@ -74,7 +74,7 @@
     approveSelected.on('click', function() {
         disableButtons(true);
         var rows = table.rows({selected: true}),
-            toApprove = Common.getSelectedIds(table),
+            toApprove = $.getSelectedIds(table),
             opts = {
                 approvepending: 1,
                 pending: toApprove

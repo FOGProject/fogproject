@@ -76,7 +76,7 @@
     cancelSelected.on('click', function() {
         cancelSelected.prop('disabled', true);
         var rows = table.rows({selected: true}),
-            toRemove = Common.getSelectedIds(table),
+            toRemove = $.getSelectedIds(table),
             opts = {
                 'cancelconfirm': '1',
                 'tasks': toRemove

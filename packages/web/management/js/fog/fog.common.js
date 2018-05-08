@@ -1,4 +1,8 @@
-var $_GET = getQueryParams(),
+var shouldReAuth = ($('#reAuthDelete').val() == '1') ? true : false,
+    reAuthModal = $('#deleteModal'),
+    deleteConfirmButton = $('#confirmDeleteModal'),
+    deleteLang = deleteConfirmButton.text(),
+    $_GET = getQueryParams(),
     Common = {
         node: $_GET['node'],
         sub: $_GET['sub'],
@@ -15,19 +19,493 @@ var $_GET = getQueryParams(),
             'username': '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
         }
     };
+/**
+ * Non-selector required functions.
+ */
+$.apiCall = function(method, action, data, cb) {
+    Pace.track(function() {
+        $.ajax('', {
+            type: method,
+            url: action,
+            async: true,
+            cache: false,
+            data: data,
+            success: function(data, textStatus, jqXHR) {
+                $.notifyFromAPI(data, false);
+                if (cb && typeof cb === 'function') {
+                    cb(null, data);
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                $.notifyFromAPI(jqXHR.responseJSON, true);
+                if (cb && typeof cb === 'function') {
+                    cb(jqXHR, jqXHR.responseJSON);
+                }
+            }
+        });
+    });
+};
+$.capitalizeFirstLetter = function(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+$.debugLog = function(obj) {
+    if(Common.debug) {
+        console.log(obj);
+    }
+}
+$.deleteAssociated = function(table, url, cb, opts) {
+    opts = opts || {};
+    opts = _.defaults(opts, {
+        rows: table.rows({selected: true})
+    });
+    opts = _.defaults(opts, {
+        ids: opts.rows.ids().toArray()
+    });
+
+    var ajaxOpts = {
+        confirmdel: 1,
+        remitems: opts.ids
+    };
+
+    Pace.track(function(){
+        $.ajax('', {
+            type: 'post',
+            url: url,
+            async: true,
+            data: ajaxOpts,
+            success: function(res) {
+                if (table !== undefined) {
+                    table.draw(false);
+                }
+                $.notifyFromAPI(res, false);
+                if (cb && typeof(cb) === 'function') {
+                    cb(null, res);
+                }
+            },
+            error: function(res) {
+                $.notifyFromAPI(res.responseJSON, true);
+                if (cb && typeof(cb) === 'function') {
+                    cb(res, res.responseJSON);
+                }
+            }
+        });
+    });
+};
+$.deleteSelected = function(table, cb, opts) {
+    opts = opts || {};
+    opts = _.defaults(opts, {
+        node: Common.node,
+        rows: table.rows({selected: true}),
+        password: undefined
+    });
+    opts = _.defaults(opts, {
+        ids: opts.rows.ids().toArray()
+    });
+
+    var ajaxOpts = {
+        fogguipass: opts.password,
+        confirmdel: 1,
+        remitems: opts.ids
+    };
+
+    var numItems = ajaxOpts.remitems.length;
+
+    // If we know in advance that the user should reauth,
+    // prompt them with a modal to do so instead of wasting
+    // an API call
+    if (opts.password === undefined && shouldReAuth) {
+        $.reAuth(numItems, function(err, password) {
+            if (err) {
+                if (cb && typeof(cb) === 'function') {
+                    cb(err);
+                }
+                return;
+            }
+            opts.password = password;
+            $.deleteSelected(table, cb, opts);
+        });
+        return;
+    }
+
+    Pace.track(function(){
+        $.ajax('', {
+            type: 'post',
+            url: '../management/index.php?node='
+            + opts.node
+            + '&sub=deletemulti',
+            async: true,
+            data: ajaxOpts,
+            success: function(res) {
+                if (table !== undefined) {
+                    table.draw(false);
+                }
+                reAuthModal.finishReAuth();
+                $.notifyFromAPI(res, false);
+                if (cb && typeof(cb) === 'function') {
+                    cb(null,res);
+                }
+            },
+            error: function(res) {
+                if (res.status == 401) {
+                    $.notifyFromAPI(res.responseJSON, true);
+                    $.reAuth(numItems, function(err, password) {
+                        if (err) {
+                            if (cb && typeof(cb) === 'function') {
+                                cb(err,res.responseJSON);
+                            }
+                            return;
+                        }
+                        opts.password = password;
+                        $.deleteSelected(table, cb, opts);
+                    });
+                    return;
+                } else {
+                    reAuthModal.finishReAuth();
+                    $.notifyFromAPI(res.responseJSON, true);
+                    if (cb && typeof(cb) === 'function') {
+                        cb(res,res.responseJSON);
+                    }
+                }
+            }
+        });
+    });
+};
+$.getSelectedIds = function(table) {
+    var rows = table.rows({selected: true});
+    return rows.ids().toArray();
+};
+$.notify = function(title, body, type) {
+    new PNotify({
+        title: title,
+        text: body,
+        type: type
+    });
+};
+$.notifyFromAPI = function(res, isError) {
+    if (res === undefined) {
+        res = {};
+    }
+    $.notify(
+        res.title || 'Bad Response',
+        (isError ? res.error : res.msg) || 'Bad Response',
+        (isError ? 'error' : 'success')
+    );
+
+    $.debugLog(res);
+};
+$.reAuth = function(count, cb) {
+    deleteConfirmButton.text(deleteLang.replace('{0}', count));
+    // enable all buttons / focus on the input box incase
+    //   the modal is already being shown
+    reAuthModal.setContainerDisable(false);
+    $("#deletePassword").trigger('focus');
+    reAuthModal.registerModal(
+        // On show
+        function(e) {
+            $("#deletePassword").val('');
+            $("#deletePassword").trigger('focus');
+            reAuthModal.setContainerDisable(false);
+        },
+        // On close
+        function(e) {
+            $("#deletePassword").val('');
+            cb('authClose');
+        }
+    );
+    // The auth modal is not a form, so
+    //   the enter key must be manually bound
+    //   to submit the password
+    $("#deletePassword").off('keypress');
+    $('#deletePassword').keypress(function (e) {
+        if (e.which == 13) {
+            reAuthModal.setContainerDisable(true);
+            cb(null, $("#deletePassword").val());
+            return false;
+        }
+    });
+
+    deleteConfirmButton.off('click');
+    deleteConfirmButton.on('click', function(e) {
+        reAuthModal.setContainerDisable(true);
+        cb(null, $("#deletePassword").val());
+    });
+    reAuthModal.modal('show');
+};
+/**
+ * Allows calling as $.funcname(element, ...args);
+ */
+$.finishReAuth = function(modal) {
+    $(modal).modal('hide');
+};
+$.mirror = function(start, selector, regex, replace) {
+    $(start).mirror(selector, regex, replace);
+};
+$.processForm = function(form, cb, input = ':input') {
+    $(form).processForm(cb, input);
+};
+$.registerModal = function(modal, onOpen, onClose, opts) {
+    $(modal).registerModal(onOpen, onClose, opts);
+};
+$.registerTable = function(e, onSelect, opts) {
+    $(e).registerTable(onSelect, opts);
+};
+$.setContainerDisable = function(container, disable) {
+    $(container).setContainerDisable(disable);
+};
+$.setLoading = function(container, loading) {
+    $(container).setLoading(loading);
+};
+$.validateForm = function(form, input = ':input') {
+    $(form).validateForm(input);
+};
+/**
+ * Selector required elements.
+ */
+$.fn.finishReAuth = function() {
+    $(this).modal('hide');
+};
+$.fn.mirror = function(selector, regex, replace) {
+    return this.each(function() {
+        var start = $(this),
+            mirror = $(selector);
+        start.on('keyup', function() {
+            if (regex) {
+                if (typeof replace === 'undefined') {
+                    replace = '';
+                }
+                mirror.val(start.val().replace(regex, replace));
+            } else {
+                mirror.val(start.val());
+            }
+        });
+    });
+};
+$.fn.processForm = function(cb, input = ':input') {
+    var opts = $(this).serialize(),
+        method = $(this).attr('method'),
+        action = $(this).attr('action');
+    $(this).setContainerDisable(true);
+    if (!$(this).validateForm(input)) {
+        $(this).setContainerDisable(false);
+        if (cb && typeof cb === 'function') {
+            cb('invalid', null);
+        }
+        return;
+    }
+    $.apiCall(method, action, opts, function(err, data) {
+        $(this).setContainerDisable(false);
+        if (cb && typeof cb === 'function') {
+            cb(err, data);
+        }
+    });
+};
+$.fn.registerModal = function(onOpen, onClose, opts) {
+    var e = this;
+    if (e._modalInit === undefined || !e._modalInit) {
+        opts = opts || {};
+        opts = _.defaults(opts, {
+            backdrop: true,
+            keyboard: true,
+            focus: true,
+            show: false
+        });
+
+        e.modal(opts);
+        e._modalInit = true;
+    }
+    e.off('show.bs.modal');
+    e.off('shown.bs.modal');
+    e.off('hidden.bs.modal');
+
+    if (onOpen && typeof(onOpen) === 'function')
+        e.on('shown.bs.modal', onOpen);
+    if (onClose && typeof(onClose) === 'function')
+        e.on('hidden.bs.modal', onClose);
+}
+$.fn.registerTable = function(onSelect, opts) {
+    opts = opts || {};
+    opts = _.defaults(opts, {
+        paging: true,
+        lengthChange: true,
+        searching: true,
+        ordering: true,
+        info: true,
+        stateSave: false,
+        autoWidth: false,
+        responsive: true,
+        lengthMenu: [
+            [10, 25, 50, 100, -1],
+            [10, 25, 50, 100, 'All']
+        ],
+        pageLength: $('#pageLength').val(),
+        buttons: ['selectAll', 'selectNone'],
+        pagingType: 'simple_numbers',
+        select: { style: 'multi+shift' },
+        dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>B<'row'<'col-sm-12'tr>><'row'<'col-sm-5'i><'col-sm-7'p>>",
+    });
+
+    var table = $(this).DataTable(opts);
+
+    if (onSelect !== undefined && typeof(onSelect) === 'function') {
+        table.on('select deselect', function( e, dt, type, indexes) {
+            onSelect(dt.rows({selected: true}));
+        });
+    }
+
+    return table;
+};
+$.fn.setContainerDisable = function(disabled) {
+    if(disabled !== false) {
+        disabled = true;
+    }
+    // Use native DOM query to select all the nested inputs
+    // as it is faster
+    var inputs = document.querySelectorAll('input:not([type="checkbox"]), select, button, .btn, textarea');
+    var ichecks = document.querySelectorAll('.checkbox');
+    inputs.forEach(function(inputObj) {
+        $(inputObj).prop('disabled', disabled);
+    });
+    ichecks.forEach(function(inputObj) {
+        $(inputObj).iCheck((disabled) ? 'disable' : 'enable');
+    });
+};
+$.fn.setLoading = function(loading) {
+    if(loading !== false) {
+        loading = true;
+    }
+
+    var loadingId = 'loadingOverlay';
+
+    if (loading) {
+        $(this).append(
+            '<div class="overlay" id="' + loadingId  + '"><i class="fa fa-refresh fa-spin"></i></div>'
+        );
+    } else {
+        $(this).children('#'+loadingId).remove();;
+    }
+}
+$.fn.validateForm = function(input = ':input') {
+    var scrolling = false,
+        isError = false,
+        form = $(this);
+    form.find(input).each(function(i, e) {
+        var isValid = true,
+            invalidReason = undefined,
+            // Grab the parent form-group, as we will need it to visually mark
+            //   invalid fields
+            parent = $(e).closest('div[class^="form-group"]'),
+            required = $(e).prop('required'),
+            val = $(e).inputmask('unmaskedvalue');
+        if(required) {
+            if (val.length == 0) {
+                isValid = false;
+                invalidReason = 'Field is required';
+            }
+        }
+
+        if (required || val.length > 0) {
+            var minLength = $(e).attr("minlength") || "-1",
+                maxLength = $(e).attr("maxlength") || "-1",
+                exactLength = $(e).attr("exactlength") || "-1";
+
+            minLength = parseInt(minLength);
+            maxLength = parseInt(maxLength) / 2;
+            exactLength = parseInt(exactLength);
+
+            if (beEqualTo) beEqualTo = "#" + beEqualTo;
+
+            if (beRegexTo) beRegexTo = '#' + beRegexTo;
+
+            if (val.length < minLength) {
+                isValid = false;
+                if (maxLength == minLength) {
+                    invalidReason = 'Field must be ' + minLength + ' characters';
+                } else {
+                    invalidReason = 'Field must be between ' + minLength + ' and ' + maxLength +' characters';
+                }
+            } else if (exactLength > 0) {
+                if (val.length !== exactLength) {
+                    isValid = false;
+                    invalidReason = 'Field is incomplete';
+                }
+            }
+        }
+
+        equalCheck: if (isValid) {
+            var beEqualTo = $(e).attr("beEqualTo");
+            if (!beEqualTo) break equalCheck;
+
+            if (! $("#" + beEqualTo).length) {
+                $.debugLog("Missing target " + beEqualTo + " for " + e);
+                break equalCheck;
+            }
+            var target = $("#" + beEqualTo);
+            if ($(e).val() !== target.val()) {
+                isValid = false;
+                invalidReason = 'Field does not match';
+            }
+        }
+
+        regexCheck: if (isValid) {
+            var beRegexTo = $(e).attr('beRegexTo'),
+                regexID = $(e).attr('id'),
+                helpMsg = $(e).attr('requirements'),
+                localstr = $(e).val(),
+                regex = new RegExp(beRegexTo);
+            if (!regexID) break regexCheck;
+            if (!$('#'+regexID).length) {
+                $.debugLog('Missing target ' + regexID + ' for ' + e);
+                break regexCheck;
+            }
+            if (!regex.test(localstr)) {
+                isValid = false;
+                invalidReason = 'Does not meet the requirements.';
+                if (helpMsg) {
+                    invalidReason += ' ' + helpMsg;
+                }
+            }
+        }
+
+        if (parent.hasClass('has-error')) {
+            var possibleHelpblock = $(e).next('span');
+            if (possibleHelpblock.hasClass('help-block')) {
+                possibleHelpblock.remove();
+            }
+            if (isValid) {
+                parent.removeClass('has-error');
+            }
+        } else if (!isValid) {
+            parent.addClass('has-error');
+        }
+
+        if (isValid) {
+            return;
+        }
+
+        if (!scrolling) {
+            scrolling = true;
+            $('html, body').animate({
+                scrollTop: parent.offset().top
+            }, 200);
+        }
+
+        var msgBlock = '<span class="help-block">' + invalidReason + '</span>'
+        $(msgBlock).insertAfter(e)
+        isError = true;
+    });
+
+    return !isError;
+};
+// URL Variables. AKA GET variables.
 
 (function($) {
-    var shouldReAuth,
-        reAuthModal,
-        deleteConfirmButton,
-        deleteLang = 'Delete',
-        pluginOptionsOpen = true,
+    var pluginOptionsOpen = true,
         pluginOptionsAlt = $('.plugin-options-alternate');
 
     // Animate the plugin items.
     pluginOptionsAlt.on('click', function(event) {
         event.preventDefault();
-        whenDone = function() {
+        var whenDone = function() {
             $(window).resize();
         };
         if (pluginOptionsOpen) {
@@ -44,198 +522,6 @@ var $_GET = getQueryParams(),
         }
         pluginOptionsOpen = !pluginOptionsOpen;
     });
-
-    Common.debugLog = function(obj) {
-        if(Common.debug) {
-            console.log(obj);
-        }
-    }
-    Common.capitalizeFirstLetter = function(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    }
-    Common.deleteSelected = function(table, cb, opts) {
-        opts = opts || {};
-        opts = _.defaults(opts, {
-            node: Common.node,
-            rows: table.rows({selected: true}),
-            password: undefined
-        });
-        opts = _.defaults(opts, {
-            ids: opts.rows.ids().toArray()
-        });
-
-        var ajaxOpts = {
-            fogguipass: opts.password,
-            confirmdel: 1,
-            remitems: opts.ids
-        };
-
-        var numItems = ajaxOpts.remitems.length;
-
-        // If we know in advance that the user should reauth,
-        // prompt them with a modal to do so instead of wasting
-        // an API call
-        if (opts.password === undefined && shouldReAuth) {
-            Common.reAuth(numItems, function(err, password) {
-                if (err) {
-                    if (cb && typeof(cb) === 'function') {
-                        cb(err);
-                    }
-                    return;
-                }
-                opts.password = password;
-                Common.deleteSelected(table, cb, opts);
-            });
-            return;
-        }
-
-        Pace.track(function(){
-            $.ajax('', {
-                type: 'post',
-                url: '../management/index.php?node='
-                + opts.node
-                + '&sub=deletemulti',
-                async: true,
-                data: ajaxOpts,
-                success: function(res) {
-                    if (table !== undefined) {
-                        opts.rows.remove().draw(false);
-                        table.rows({selected: true}).deselect();
-                    }
-                    Common.finishReAuth();
-                    $.notifyFromAPI(res, false);
-                    if (cb && typeof(cb) === 'function') {
-                        cb(null,res);
-                    }
-                },
-                error: function(res) {
-                    if (res.status == 401) {
-                        $.notifyFromAPI(res.responseJSON, true);
-                        Common.reAuth(numItems, function(err, password) {
-                            if (err) {
-                                if (cb && typeof(cb) === 'function') {
-                                    cb(err,res.responseJSON);
-                                }
-                                return;
-                            }
-                            opts.password = password;
-                            Common.deleteSelected(table, cb, opts);
-                        });
-                        return;
-                    } else {
-                        Common.finishReAuth();
-                        $.notifyFromAPI(res.responseJSON, true);
-                        if (cb && typeof(cb) === 'function') {
-                            cb(res,res.responseJSON);
-                        }
-                    }
-                }
-            });
-        });
-    };
-    /**
-     * Deletes associated elements without authentication requirement.
-     *
-     * @param table = the datatable element to get selected items from.
-     * @param url   = the url to send the form through.
-     * @param cb    = the callback function.
-     * @param opts  = special items to send as a part of the form.
-     *
-     * @return void
-     */
-    Common.deleteAssociated = function(table, url, cb, opts) {
-        opts = opts || {};
-        opts = _.defaults(opts, {
-            rows: table.rows({selected: true})
-        });
-        opts = _.defaults(opts, {
-            ids: opts.rows.ids().toArray()
-        });
-
-        var ajaxOpts = {
-            confirmdel: 1,
-            remitems: opts.ids
-        };
-        console.log(ajaxOpts);
-
-        Pace.track(function(){
-            $.ajax('', {
-                type: 'post',
-                url: url,
-                async: true,
-                data: ajaxOpts,
-                success: function(res) {
-                    if (table !== undefined) {
-                        table.$('.associated').each(function() {
-                            if ($.inArray($(this).val(), opts.ids) != -1) {
-                                $(this).iCheck('uncheck');
-                            }
-                        });
-                        table.rows({selected: true}).deselect();
-                    }
-                    $.notifyFromAPI(res, false);
-                    if (cb && typeof(cb) === 'function') {
-                        cb(null, res);
-                    }
-                },
-                error: function(res) {
-                    $.notifyFromAPI(res.responseJSON, true);
-                    if (cb && typeof(cb) === 'function') {
-                        cb(res, res.responseJSON);
-                    }
-                }
-            });
-        });
-    };
-    Common.reAuth = function(count, cb) {
-        deleteConfirmButton.text(deleteLang.replace('{0}', count));
-        // enable all buttons / focus on the input box incase
-        //   the modal is already being shown
-        reAuthModal.setContainerDisable(false);
-        $("#deletePassword").trigger('focus');
-        reAuthModal.registerModal(
-            // On show
-            function(e) {
-                $("#deletePassword").val('');
-                $("#deletePassword").trigger('focus');
-                reAuthModal.setContainerDisable(false);
-            },
-            // On close
-            function(e) {
-                $("#deletePassword").val('');
-                cb('authClose');
-            }
-        );
-        // The auth modal is not a form, so
-        //   the enter key must be manually bound
-        //   to submit the password
-        $("#deletePassword").off('keypress');
-        $('#deletePassword').keypress(function (e) {
-            if (e.which == 13) {
-                reAuthModal.setContainerDisable(true);
-                cb(null, $("#deletePassword").val());
-                return false;
-            }
-        });
-
-        deleteConfirmButton.off('click');
-        deleteConfirmButton.on('click', function(e) {
-            reAuthModal.setContainerDisable(true);
-            cb(null, $("#deletePassword").val());
-        });
-        reAuthModal.modal('show');
-    };
-
-    Common.finishReAuth = function() {
-        reAuthModal.modal('hide');
-    };
-
-
-    Common.getSelectedIds = function(table) {
-        var rows = table.rows({selected: true});
-        return rows.ids().toArray();
-    };
-
     Common.iCheck = function(match) {
         match = match || 'input'
         $(match).iCheck({
@@ -266,7 +552,7 @@ var $_GET = getQueryParams(),
         $(':input:not(textarea)', this).off('keypress');
     };
 
-    Common.debugLog("=== DEBUG LOGGING ENABLED ===");
+    $.debugLog("=== DEBUG LOGGING ENABLED ===");
     setupIntegrations();
     $(":input").inputmask(); // Setup all input masks
     Common.iCheck(); // Setup all checkboxes
@@ -274,16 +560,6 @@ var $_GET = getQueryParams(),
     disableFormDefaults();
     setupPasswordReveal();
     setupUniversalSearch();
-
-    // Reauth
-    // =============
-    // Detect if the user should be re-prompted for their password for certain tasks
-    // Note, if this is false, but the server still rejects a request and requires re-auth,
-    // then the password prompt modal will still be shown.
-    shouldReAuth = ($("#reAuthDelete").val() == '1') ? true : false;
-    reAuthModal = $("#deleteModal");
-    deleteConfirmButton = $("#confirmDeleteModal");
-    deleteLang = deleteConfirmButton.text();
 })(jQuery);
 
 function setupIntegrations() {
@@ -356,10 +632,11 @@ function setupUniversalSearch() {
                         objData.push({
                             id: id,
                             text: item.name,
-                            url: (
+                            url: '../management/index.php?node='
+                            + (
                                 key != 'service' ?
-                                '../management/index.php?node=' + key + '&sub=edit&id=' + item.id :
-                                '../management/index.php?node=about&sub=settings&search=' + item.name
+                                key + '&sub=edit&id=' + item.id :
+                                'about&sub=settings&search=' + item.name
                             )
                         });
                     }
@@ -367,21 +644,18 @@ function setupUniversalSearch() {
                         objData.push({
                             id: id,
                             text: "--> " + lang.AllResults,
-                            url: (
+                            url: '../management/index.php?node='
+                            + (
                                 key != 'service' ?
-                                '../management/index.php?node=' + key + '&sub=list&search=' + data._query :
-                                '../management/index.php?node=about&sub=settings&search=' + data._query
+                                key + '&sub=list&search=' :
+                                'about&sub=settings&search='
                             )
+                            + data._query
                         });
                     }
 
                     results.push({
-                        text: Common.capitalizeFirstLetter(lang[key]),
-                        url: (
-                            key != 'service' ?
-                            '../management/index.php?node=' + key + '&sub=list' :
-                            '../management/index.php?node=about&sub=settings'
-                        ),
+                        text: $.capitalizeFirstLetter(lang[key]),
                         children: objData
                     });
                 }
@@ -465,304 +739,3 @@ function getQueryParams(qs) {
     }
     return params;
 }
-/**
- * Non-selector required functions.
- */
-$.notify = function(title, body, type) {
-    new PNotify({
-        title: title,
-        text: body,
-        type: type
-    });
-};
-$.notifyFromAPI = function(res, isError) {
-    if (res === undefined) {
-        res = {};
-    }
-    $.notify(
-        res.title || 'Bad Response',
-        (isError ? res.error : res.msg) || 'Bad Response',
-        (isError ? 'error' : 'success')
-    );
-
-    Common.debugLog(res);
-};
-$.apiCall = function(method, action, data, cb) {
-    Pace.track(function() {
-        $.ajax('', {
-            type: method,
-            url: action,
-            async: true,
-            cache: false,
-            data: data,
-            success: function(data, textStatus, jqXHR) {
-                $.notifyFromAPI(data, false);
-                if (cb && typeof cb === 'function') {
-                    cb(null, data);
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                $.notifyFromAPI(jqXHR.responseJSON, true);
-                if (cb && typeof cb === 'function') {
-                    cb(jqXHR, jqXHR.responseJSON);
-                }
-            }
-        });
-    });
-};
-/**
- * Allows calling as $.funcname(element, ...args);
- */
-$.processForm = function(form, cb, input = ':input') {
-    $(form).processForm(cb, input);
-};
-$.validateForm = function(form, input = ':input') {
-    $(form).validateForm(input);
-};
-$.setContainerDisable = function(container, disable) {
-    $(container).setContainerDisable(disable);
-};
-$.registerModal = function(modal, onOpen, onClose, opts) {
-    $(modal).registerModal(onOpen, onClose, opts);
-};
-$.setLoading = function(container, loading) {
-    $(container).setLoading(loading);
-};
-$.registerTable = function(e, onSelect, opts) {
-    $(e).registerTable(onSelect, opts);
-};
-/**
- * Selector required elements.
- */
-$.fn.processForm = function(cb, input = ':input') {
-    var opts = $(this).serialize(),
-        method = $(this).attr('method'),
-        action = $(this).attr('action');
-    $(this).setContainerDisable(true);
-    if (!$(this).validateForm(input)) {
-        $(this).setContainerDisable(false);
-        if (cb && typeof cb === 'function') {
-            cb('invalid', null);
-        }
-        return;
-    }
-    $.apiCall(method, action, opts, function(err, data) {
-        $(this).setContainerDisable(false);
-        if (cb && typeof cb === 'function') {
-            cb(err, data);
-        }
-    });
-};
-$.fn.registerModal = function(onOpen, onClose, opts) {
-    var e = this;
-    if (e._modalInit === undefined || !e._modalInit) {
-        opts = opts || {};
-        opts = _.defaults(opts, {
-            backdrop: true,
-            keyboard: true,
-            focus: true,
-            show: false
-        });
-
-        e.modal(opts);
-        e._modalInit = true;
-    }
-    e.off('show.bs.modal');
-    e.off('shown.bs.modal');
-    e.off('hidden.bs.modal');
-
-    if (onOpen && typeof(onOpen) === 'function')
-        e.on('shown.bs.modal', onOpen);
-    if (onClose && typeof(onClose) === 'function')
-        e.on('hidden.bs.modal', onClose);
-}
-$.fn.validateForm = function(input = ':input') {
-    var scrolling = false,
-        isError = false,
-        form = $(this);
-    form.find(input).each(function(i, e) {
-        var isValid = true,
-            invalidReason = undefined,
-            // Grab the parent form-group, as we will need it to visually mark
-            //   invalid fields
-            parent = $(e).closest('div[class^="form-group"]'),
-            required = $(e).prop('required'),
-            val = $(e).inputmask('unmaskedvalue');
-        if(required) {
-            if (val.length == 0) {
-                isValid = false;
-                invalidReason = 'Field is required';
-            }
-        }
-
-        if (required || val.length > 0) {
-            var minLength = $(e).attr("minlength") || "-1",
-                maxLength = $(e).attr("maxlength") || "-1",
-                exactLength = $(e).attr("exactlength") || "-1";
-
-            minLength = parseInt(minLength);
-            maxLength = parseInt(maxLength) / 2;
-            exactLength = parseInt(exactLength);
-
-            if (beEqualTo) beEqualTo = "#" + beEqualTo;
-
-            if (beRegexTo) beRegexTo = '#' + beRegexTo;
-
-            if (val.length < minLength) {
-                isValid = false;
-                if (maxLength == minLength) {
-                    invalidReason = 'Field must be ' + minLength + ' characters';
-                } else {
-                    invalidReason = 'Field must be between ' + minLength + ' and ' + maxLength +' characters';
-                }
-            } else if (exactLength > 0) {
-                if (val.length !== exactLength) {
-                    isValid = false;
-                    invalidReason = 'Field is incomplete';
-                }
-            }
-        }
-
-        equalCheck: if (isValid) {
-            var beEqualTo = $(e).attr("beEqualTo");
-            if (!beEqualTo) break equalCheck;
-
-            if (! $("#" + beEqualTo).length) {
-                Common.debugLog("Missing target " + beEqualTo + " for " + e);
-                break equalCheck;
-            }
-            var target = $("#" + beEqualTo);
-            if ($(e).val() !== target.val()) {
-                isValid = false;
-                invalidReason = 'Field does not match';
-            }
-        }
-
-        regexCheck: if (isValid) {
-            var beRegexTo = $(e).attr('beRegexTo'),
-                regexID = $(e).attr('id'),
-                helpMsg = $(e).attr('requirements'),
-                localstr = $(e).val(),
-                regex = new RegExp(beRegexTo);
-            if (!regexID) break regexCheck;
-            if (!$('#'+regexID).length) {
-                Common.debugLog('Missing target ' + regexID + ' for ' + e);
-                break regexCheck;
-            }
-            if (!regex.test(localstr)) {
-                isValid = false;
-                invalidReason = 'Does not meet the requirements.';
-                if (helpMsg) {
-                    invalidReason += ' ' + helpMsg;
-                }
-            }
-        }
-
-        if (parent.hasClass('has-error')) {
-            var possibleHelpblock = $(e).next('span');
-            if (possibleHelpblock.hasClass('help-block')) {
-                possibleHelpblock.remove();
-            }
-            if (isValid) {
-                parent.removeClass('has-error');
-            }
-        } else if (!isValid) {
-            parent.addClass('has-error');
-        }
-
-        if (isValid) {
-            return;
-        }
-
-        if (!scrolling) {
-            scrolling = true;
-            $('html, body').animate({
-                scrollTop: parent.offset().top
-            }, 200);
-        }
-
-        var msgBlock = '<span class="help-block">' + invalidReason + '</span>'
-        $(msgBlock).insertAfter(e)
-        isError = true;
-    });
-
-    return !isError;
-};
-$.fn.setContainerDisable = function(disabled) {
-    if(disabled !== false) {
-        disabled = true;
-    }
-    // Use native DOM query to select all the nested inputs
-    // as it is faster
-    var inputs = document.querySelectorAll('input:not([type="checkbox"]), select, button, .btn, textarea');
-    var ichecks = document.querySelectorAll('.checkbox');
-    inputs.forEach(function(inputObj) {
-        $(inputObj).prop('disabled', disabled);
-    });
-    ichecks.forEach(function(inputObj) {
-        $(inputObj).iCheck((disabled) ? 'disable' : 'enable');
-    });
-};
-$.fn.setLoading = function(loading) {
-    if(loading !== false) {
-        loading = true;
-    }
-
-    var loadingId = 'loadingOverlay';
-
-    if (loading) {
-        $(this).append(
-            '<div class="overlay" id="' + loadingId  + '"><i class="fa fa-refresh fa-spin"></i></div>'
-        );
-    } else {
-        $(this).children('#'+loadingId).remove();;
-    }
-}
-$.fn.mirror = function(selector, regex, replace) {
-    return this.each(function() {
-        var start = $(this),
-            mirror = $(selector);
-        start.on('keyup', function() {
-            if (regex) {
-                if (typeof replace === 'undefined') {
-                    replace = '';
-                }
-                mirror.val(start.val().replace(regex, replace));
-            } else {
-                mirror.val(start.val());
-            }
-        });
-    });
-};
-$.fn.registerTable = function(onSelect, opts) {
-    opts = opts || {};
-    opts = _.defaults(opts, {
-        paging: true,
-        lengthChange: true,
-        searching: true,
-        ordering: true,
-        info: true,
-        stateSave: false,
-        autoWidth: false,
-        responsive: true,
-        lengthMenu: [
-            [10, 25, 50, 100, -1],
-            [10, 25, 50, 100, 'All']
-        ],
-        pageLength: $('#pageLength').val(),
-        buttons: ['selectAll', 'selectNone'],
-        pagingType: 'simple_numbers',
-        select: { style: 'multi+shift' },
-        dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>B<'row'<'col-sm-12'tr>><'row'<'col-sm-5'i><'col-sm-7'p>>",
-    });
-
-    var table = $(this).DataTable(opts);
-
-    if (onSelect !== undefined && typeof(onSelect) === 'function') {
-        table.on('select deselect', function( e, dt, type, indexes) {
-            onSelect(dt.rows({selected: true}));
-        });
-    }
-
-    return table;
-};

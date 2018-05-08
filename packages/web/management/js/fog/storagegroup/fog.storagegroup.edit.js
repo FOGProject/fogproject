@@ -184,7 +184,7 @@
         membershipAddBtn.prop('disabled', true);
 
         var rows = membershipTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(membershipTable),
+            toAdd = $.getSelectedIds(membershipTable),
             opts = {
                 'updatemembership': '1',
                 'membership': toAdd
@@ -217,7 +217,7 @@
         var method = membershipRemoveBtn.attr('method'),
             action = membershipRemoveBtn.attr('action'),
             rows = membershipTable.rows({selected: true}),
-            toRemove = Common.getSelectedIds(membershipTable),
+            toRemove = $.getSelectedIds(membershipTable),
             opts = {
                 'membershipdel': '1',
                 'membershipRemove': toRemove

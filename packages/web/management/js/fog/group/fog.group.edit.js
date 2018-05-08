@@ -351,7 +351,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = hostsTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(hostsTable),
+            toAdd = $.getSelectedIds(hostsTable),
             opts = {
                 updatehosts: 1,
                 host: toAdd
@@ -369,7 +369,7 @@
         $('#hostDelModal').modal('show');
     });
     $('#confirmhostDeleteModal').on('click', function(e) {
-        Common.deleteAssociated(hostsTable, hostsRemoveBtn.attr('action'), function(err) {
+        $.deleteAssociated(hostsTable, hostsRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }
@@ -517,7 +517,7 @@
         var method = printerAddBtn.attr('method'),
             action = printerAddBtn.attr('action'),
             rows = printersTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(printersTable),
+            toAdd = $.getSelectedIds(printersTable),
             opts = {
                 updateprinters: 1,
                 printer: toAdd
@@ -536,7 +536,7 @@
         $('#printerDelModal').modal('show');
     });
     $('#confirmprinterDeleteModal').on('click', function(e) {
-        Common.deleteAssociated(printersTable, printerRemoveBtn.attr('action'), function(err) {
+        $.deleteAssociated(printersTable, printerRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }
@@ -599,7 +599,7 @@
         var method = snapinsAddBtn.attr('method'),
             action = snapinsAddBtn.attr('action'),
             rows = snapinsTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(snapinsTable),
+            toAdd = $.getSelectedIds(snapinsTable),
             opts = {
                 updatesnapins: 1,
                 snapin: toAdd
@@ -619,7 +619,7 @@
         $('#snapinDelModal').modal('show');
     });
     $('#confirmsnapinDeleteModal').on('click', function(e) {
-        Common.deleteAssociated(snapinsTable, snapinsRemoveBtn.attr('action'), function(err) {
+        $.deleteAssociated(snapinsTable, snapinsRemoveBtn.attr('action'), function(err) {
             if (err) {
                 snapinsAddBtn.prop('disabled', false);
                 snapinsRemoveBtn.prop('disabled', false);
@@ -726,7 +726,7 @@
         var method = modulesEnableBtn.attr('method'),
             action = modulesEnableBtn.attr('action'),
             rows = modulesTable.rows({selected: true}),
-            toEnable = Common.getSelectedIds(modulesTable),
+            toEnable = $.getSelectedIds(modulesTable),
             opts = {
                 enablemodulessel: 1,
                 enablemodules: toEnable

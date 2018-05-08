@@ -196,7 +196,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = storagegroupsTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(storagegroupsTable),
+            toAdd = $.getSelectedIds(storagegroupsTable),
             opts = {
                 'updatestoragegroups': '1',
                 'storagegroups': toAdd
@@ -227,7 +227,7 @@
         $('#storagegroupDelModal').modal('show');
     });
     $('#confirmstoragegroupDeleteModal').on('click', function(e) {
-        Common.deleteAssociated(storagegroupsTable, storagegroupsRemoveBtn.attr('action'), function(err) {
+        $.deleteAssociated(storagegroupsTable, storagegroupsRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }
@@ -303,7 +303,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = membershipTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(membershipTable),
+            toAdd = $.getSelectedIds(membershipTable),
             opts = {
                 'updatemembership': '1',
                 'membership': toAdd
@@ -327,7 +327,7 @@
         $('#hostDelModal').modal('show');
     });
     $('#confirmhostDeleteModal').on('click', function(e) {
-        Common.deleteAssociated(membershipTable, membershipRemoveBtn.attr('action'), function(err) {
+        $.deleteAssociated(membershipTable, membershipRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }

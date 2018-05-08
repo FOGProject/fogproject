@@ -179,7 +179,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = membershipTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(membershipTable),
+            toAdd = $.getSelectedIds(membershipTable),
             opts = {
                 'updatemembership': '1',
                 'membership': toAdd
@@ -208,7 +208,7 @@
         $('#hostDelModal').modal('show');
     });
     $('#confirmhostDeleteModal').on('click', function(e) {
-        Common.deleteAssociated(membershipTable, membershipRemoveBtn.attr('action'), function(err) {
+        $.deleteAssociated(membershipTable, membershipRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }

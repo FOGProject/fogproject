@@ -117,7 +117,7 @@
         resumeReload.prop('disabled', true);
         clearTimeout(reloadinterval);
         var rows = table.rows({selected: true}),
-            toRemove = Common.getSelectedIds(table),
+            toRemove = $.getSelectedIds(table),
             method = cancelSelected.attr('method'),
             action = cancelSelected.attr('action'),
             opts = {

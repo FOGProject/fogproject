@@ -78,7 +78,7 @@ $(function() {
         var method = siteHostForm.attr('method'),
             action = siteHostForm.attr('action'),
             rows = siteHostsTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(siteHostsTable),
+            toAdd = $.getSelectedIds(siteHostsTable),
             opts = {
                 addhosts: 1,
                 hosts: toAdd
@@ -150,7 +150,7 @@ $(function() {
     });
 
     $('#confirmhostDeleteModal').on('click', function(e) {
-        Common.deleteAssociated(siteHostsTable, siteHostRemoveBtn.attr('action'), function(err) {
+        $.deleteAssociated(siteHostsTable, siteHostRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }
@@ -191,7 +191,7 @@ $(function() {
         var method = siteUserForm.attr('method'),
             action = siteUserForm.attr('action'),
             rows = siteUsersTable.rows({selected: true}),
-            toAdd = Common.getSelectedIds(siteUsersTable),
+            toAdd = $.getSelectedIds(siteUsersTable),
             opts = {
                 addusers: 1,
                 users: toAdd
@@ -257,7 +257,7 @@ $(function() {
     });
 
     $('#confirmuserDeleteModal').on('click', function(e) {
-        Common.deleteAssociated(siteUsersTable, siteUserRemoveBtn.attr('action'), function(err) {
+        $.deleteAssociated(siteUsersTable, siteUserRemoveBtn.attr('action'), function(err) {
             if (err) {
                 return;
             }

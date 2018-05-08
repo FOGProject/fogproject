@@ -89,7 +89,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = table.rows({selected: true}),
-            toActivate = Common.getSelectedIds(table),
+            toActivate = $.getSelectedIds(table),
             opts = {
                 plugins: toActivate,
                 btnpressed: 1
@@ -109,7 +109,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = table.rows({selected: true}),
-            toDeactivate = Common.getSelectedIds(table),
+            toDeactivate = $.getSelectedIds(table),
             opts = {
                 plugins: toDeactivate,
                 btnpressed: 1
@@ -129,7 +129,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = table.rows({selected: true}),
-            toInstall = Common.getSelectedIds(table),
+            toInstall = $.getSelectedIds(table),
             opts = {
                 plugins: toInstall,
                 btnpressed: 1
@@ -149,7 +149,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = table.rows({selected: true}),
-            toRemove = Common.getSelectedIds(table),
+            toRemove = $.getSelectedIds(table),
             opts = {
                 plugins: toRemove,
                 btnpressed: 1
