@@ -106,7 +106,7 @@ fi
 [[ -z $apacheerrlog ]] && apacheerrlog="$apachelogdir/error.log"
 [[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/access.log"
 [[ -z $etcconf ]] && etcconf="/etc/apache2/sites-available/001-fog.conf"
-[[ $php_ver != 5 ]] && phpini="/etc/$phpcmd/$php_ver/apache2/php.ini" || phpini="/etc/$phpcmd/apache2/php.ini"
+[[ $php_ver != 5 ]] && phpini="/etc/$phpcmd/$php_ver/fpm/php.ini" || phpini="/etc/$phpcmd/fpm/php.ini"
 [[ -z $storageLocation ]] && storageLocation="/images"
 [[ -z $storageLocationCapture ]] && storageLocationCapture="${storageLocation}/dev"
 [[ -z $dhcpconfig ]] && dhcpconfig="/etc/dhcp3/dhcpd.conf"
