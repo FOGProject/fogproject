@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-03 23:20-0400\n"
+"POT-Creation-Date: 2018-05-09 19:55-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5552,7 +5552,7 @@ msgstr "Waiting for mysql to be available"
 msgid "This is not the master for this group"
 msgstr " | This is not the primary group"
 
-msgid "This does not appear to be online"
+msgid "This node does not appear to be online"
 msgstr ""
 
 msgid "Not syncing"
@@ -5583,8 +5583,13 @@ msgstr " | File or path cannot be reached"
 msgid "Cannot connect to"
 msgstr "Cannot connect to node."
 
-msgid "Files do not match"
-msgstr ""
+#, fuzzy
+msgid "Files do not match on server:"
+msgstr "I am not the fog web server"
+
+#, fuzzy
+msgid "File does not exist."
+msgstr "Method does not exist"
 
 #, fuzzy
 msgid "Deleting remote file"
@@ -5596,6 +5601,9 @@ msgstr ""
 #, fuzzy
 msgid "file to"
 msgstr "Failed to"
+
+msgid " * All files synced for this item."
+msgstr ""
 
 #, fuzzy
 msgid "Starting Sync Actions"
