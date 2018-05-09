@@ -624,28 +624,28 @@ abstract class FOGService extends FOGBase
                         $avail = false;
                     }
                     $filesize_main = self::getFilesize($localfile);
+                    $file = $remotefilescheck[$index];
                     if ($avail) {
-                        $res = self::$FOGURLRequests->process(
-                            str_replace('gethash','getsize',$url)
+                        $sizeurl = str_replace('gethash', 'getsize', $url);
+                        $remsize = self::$FOGURLRequests->process(
+                            $sizeurl,
                             'POST',
                             ['file' => base64_encode($file)]
                         );
-                        $filesize_rem = array_shift($res);
+                        self::outall(' | ' . json_encode($remsize));
+                        $filesize_rem = array_shift($remsize);
                         $res = self::$FOGURLRequests->process(
                             $url,
                             'POST',
                             ['file' => base64_encode($file)]
                         );
                         $res = array_shift($res);
-                        if (!$res) {
-                            $avail = false;
+                    } elseif (!$avail) {
+                        if ($remotefilescheck[$index]) {
+                            $filesize_rem = self::$FOGFTP->size(
+                                $remotefilescheck[$index]
+                            );
                         }
-                    }
-                    $file = $remotefilescheck[$index];
-                    if (!$avail) {
-                        $filesize_rem = self::$FOGFTP->size(
-                            $remotefilescheck[$index]
-                        );
                         $res = sprintf(
                             '%s%s',
                             $ftpstart,
@@ -659,18 +659,24 @@ abstract class FOGService extends FOGBase
                         $res,
                         $avail
                     );
+                    self::outall(
+                        ' | ' . _('Local Filesize: ') . $filesize_main
+                    );
+                    self::outall(
+                        ' | ' . _('Remote filesize: ') . $filesize_rem
+                    );
+                    self::outall(
+                        ' | ' . _('Filename: ') . $localfile
+                    );
+                    self::outall(
+                        ' | ' . _('Remote Info: ') . $res
+                    );
                     if (!$filesEqual) {
                         self::outall(
                             ' | '
                             . _('Files do not match on server:')
                             . ' '
                             . $StorageNode->name
-                        );
-                        self::outall(
-                            sprintf(
-                                ' | %s.',
-                                _('Files do not match')
-                            )
                         );
                         if (!$remotefilescheck[$index]) {
                             self::outall(
@@ -682,7 +688,6 @@ abstract class FOGService extends FOGBase
                                 . $StorageNode->name
                             );
                         } else {
-
                             self::outall(
                                 sprintf(
                                     ' * %s: %s',
