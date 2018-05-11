@@ -1043,7 +1043,7 @@ abstract class FOGPage extends FOGBase
                         $actionbox .= self::makeButton(
                             'createnew',
                             _('Add'),
-                            'btn btn-primary'
+                            'btn btn-primary pull-right'
                         );
                         ob_start();
                         $this->addModal();
