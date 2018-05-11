@@ -189,32 +189,43 @@ $.notifyFromAPI = function(res, isError) {
     if (res === undefined) {
         res = {};
     }
-    if (res.warning && res.msg) {
-        $.notify(
-            res.title || 'Bad Response',
-            res.msg,
-            'success'
-        );
-        $.notify(
-            res.title || 'Bad Response',
-            res.warning,
-            'info'
-        );
+    if (!isError) {
+        if (res.msg) {
+            $.notify(
+                res.title || 'Bad Response',
+                res.msg,
+                'success'
+            );
+        }
+        if (res.info) {
+            $.notify(
+                res.title || 'Bad Response',
+                res.info,
+                'info'
+            );
+        }
+        if (res.warning) {
+            $.notify(
+                res.title || 'Bad Response',
+                res.warning,
+                'warning'
+            );
+        }
+        if (res.error) {
+            $.notify(
+                res.title || 'Bad Response',
+                res.error,
+                'error'
+            );
+        }
         $.debugLog(res);
         return;
-    } else {
-        if (!isError) {
-            if (res.warning) {
-                type = 'info';
-            }
-        }
     }
     $.notify(
         res.title || 'Bad Response',
         (isError ? res.error : res.msg) || 'Bad Response',
         type
     );
-
     $.debugLog(res);
 };
 $.reAuth = function(count, cb) {
