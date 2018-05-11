@@ -761,6 +761,14 @@ class StorageNodeManagement extends FOGPage
 
         $serverFault = false;
         try {
+            $testavail = self::$FOGURLRequests->isAvailable($ip);
+            $warning = !array_shift($testavail);
+            if (!$warning) {
+                self::$FOGFTP->username = $user;
+                self::$FOGFTP->password = $pass;
+                self::$FOGFTP->host = $ip;
+                $warning = !self::$FOGFTP->connect();
+            }
             $exists = self::getClass('StorageNodeManager')
                 ->exists($storagenode);
             if ($exists) {
@@ -827,12 +835,16 @@ class StorageNodeManagement extends FOGPage
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'STORAGE_NODE_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Storage Node added!'),
-                    'title' => _('Storage Node Create Success')
-                ]
-            );
+            $msg = [
+                'msg' => _('Storage Node added!'),
+                'title' => _('Storage Node Create Success')
+            ];
+            if ($warning) {
+                $msg['warning']= _(
+                    'Unable to connect using ip, user, and/or password provided!'
+                );
+            }
+            $msg = json_encode($msg);
         } catch (Exception $e) {
             $code = (
                 $serverFault ?
@@ -1284,6 +1296,19 @@ class StorageNodeManagement extends FOGPage
         $pass = trim(
             filter_input(INPUT_POST, 'pass')
         );
+        $testavail = self::$FOGURLRequests->isAvailable($ip);
+        $warning = !array_shift($testavail);
+        if (!$warning) {
+            self::$FOGFTP->username = $user;
+            self::$FOGFTP->password = $pass;
+            self::$FOGFTP->host = $ip;
+            $warning = !self::$FOGFTP->connect();
+        }
+        if ($warning) {
+            $warning = _(
+                'Unable to connect using ip, user, and/or password provided!'
+            );
+        }
         $bandwidth = trim(
             filter_input(INPUT_POST, 'bandwidth')
         );
@@ -1379,6 +1404,7 @@ class StorageNodeManagement extends FOGPage
                     ['isMaster' => 0]
                 );
         }
+        return $warning;
     }
     /**
      * Edit existing nodes.
@@ -1424,7 +1450,7 @@ class StorageNodeManagement extends FOGPage
             global $tab;
             switch ($tab) {
             case 'storagenode-general':
-                $this->storagenodeGeneralPost();
+                $warning = $this->storagenodeGeneralPost();
                 break;
             }
             if (!$this->obj->save()) {
@@ -1433,12 +1459,14 @@ class StorageNodeManagement extends FOGPage
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'STORAGENODE_EDIT_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Storage Node updated!'),
-                    'title' => _('Storage Node Update Success')
-                ]
-            );
+            $msg = [
+                'msg' => _('Storage Node updated!'),
+                'title' => _('Storage Node Update Success')
+            ];
+            if ($warning) {
+                $msg['warning'] = $warning;
+            }
+            $msg = json_encode($msg);
         } catch (Exception $e) {
             $code = (
                 $serverFault ?
