@@ -1878,7 +1878,7 @@ class Route extends FOGBase
      *
      * @param string $sql        The sql string we need to adjust.
      * @param array  $classVars  The current class variables.
-     * @param array  $whereItems The where items to build up.
+     * @param mixed  $whereItems The where items to build up.
      * @param bool   $retWhere   Only return where element.
      *
      * @return string
@@ -1886,10 +1886,12 @@ class Route extends FOGBase
     private static function _buildSql(
         $sql,
         $classVars,
-        $whereItems = [],
+        $whereItems = '',
         $retWhere = false
     ) {
-        $whereurl = urldecode($whereItems);
+        if (is_string($whereItems)) {
+            $whereurl = urldecode($whereItems);
+        }
         parse_str($whereurl, $test);
         if ($test) {
             $whereItems = [];

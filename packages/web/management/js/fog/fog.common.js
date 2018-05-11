@@ -182,13 +182,37 @@ $.notify = function(title, body, type) {
     });
 };
 $.notifyFromAPI = function(res, isError) {
+    var title = res.title || 'Bad Response',
+        type = (isError ? 'error' : 'success'),
+        msg = '';
+
     if (res === undefined) {
         res = {};
+    }
+    if (res.warning && res.msg) {
+        $.notify(
+            res.title || 'Bad Response',
+            res.msg,
+            'success'
+        );
+        $.notify(
+            res.title || 'Bad Response',
+            res.warning,
+            'info'
+        );
+        $.debugLog(res);
+        return;
+    } else {
+        if (!isError) {
+            if (res.warning) {
+                type = 'info';
+            }
+        }
     }
     $.notify(
         res.title || 'Bad Response',
         (isError ? res.error : res.msg) || 'Bad Response',
-        (isError ? 'error' : 'success')
+        type
     );
 
     $.debugLog(res);

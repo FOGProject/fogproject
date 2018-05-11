@@ -709,7 +709,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected static function error($txt, $data = [])
+    public static function error($txt, $data = [])
     {
         if ((self::$service || self::$ajax) || !self::$debug) {
             return;
@@ -730,7 +730,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected static function debug($txt, $data = [])
+    public static function debug($txt, $data = [])
     {
         if ((self::$service || self::$ajax) || !self::$debug) {
             return;
@@ -751,7 +751,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected static function info($txt, $data = [])
+    public static function info($txt, $data = [])
     {
         if (!self::$info || self::$service || self::$ajax) {
             return;
@@ -1822,7 +1822,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected static function log(
+    public static function log(
         $txt,
         $curlog,
         $logfile,

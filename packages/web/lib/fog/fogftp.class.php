@@ -248,10 +248,11 @@ class FOGFTP
                 $this->login();
                 $this->pasv($this->passive);
             }
+            $this->_lastConnectionHash = $this->_currentConnectionHash;
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            FOGCore::error($e->getMessage());
+            return false;
         }
-        $this->_lastConnectionHash = $this->_currentConnectionHash;
         return $this;
     }
     /**
