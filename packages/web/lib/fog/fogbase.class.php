@@ -957,7 +957,7 @@ abstract class FOGBase
             unset($value);
         }
 
-        return false;
+        return -1;
     }
     /**
      * Check if isLoaded.
