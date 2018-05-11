@@ -115,7 +115,7 @@ class DelAccessControlMenuItem extends Hook
         Route::ids(
             'accesscontrolassociation',
             $find,
-            'accesscontrolID'
+            'accesscontrolruleID'
         );
         $accesscontrols = json_decode(
             Route::getData(),
