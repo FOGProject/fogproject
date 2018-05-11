@@ -206,8 +206,8 @@ class Image extends FOGController
         Route::listem(
             'storagenode',
             [
-                'ngmGroupID' => $this->get('storagegroups'),
-                'ngmIsEnabled' => 1
+                'storagegrouproupID' => $this->get('storagegroups'),
+                'isEnabled' => 1
             ]
         );
         $StorageNodes = json_decode(

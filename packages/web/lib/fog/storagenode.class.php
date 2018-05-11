@@ -177,8 +177,8 @@ class StorageNode extends FOGController
         Route::listem(
             'nodefailure',
             [
-                'nfHostID' => $Host,
-                'nfNodeID' => $this->get('id')
+                'hostID' => $Host,
+                'storagenodeID' => $this->get('id')
             ]
         );
         $Failures = json_decode(

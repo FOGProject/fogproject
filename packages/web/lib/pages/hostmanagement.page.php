@@ -4523,7 +4523,7 @@ class HostManagement extends FOGPage
         };
         // The keys we need to search for.
         $key = [
-            'ttIsAccess' => [
+            'access' => [
                 'host',
                 'both'
             ]

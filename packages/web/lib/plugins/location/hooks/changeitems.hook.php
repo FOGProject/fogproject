@@ -101,7 +101,7 @@ class ChangeItems extends Hook
         }
         Route::listem(
             'locationassociation',
-            ['laHostID' => $arguments['Host']->get('id')]
+            ['hostID' => $arguments['Host']->get('id')]
         );
         $LocationAssocs = json_decode(
             Route::getData()
@@ -158,7 +158,7 @@ class ChangeItems extends Hook
         }
         Route::listem(
             'locationassociation',
-            ['laHostID' => $arguments['Host']->get('id')]
+            ['hostID' => $arguments['Host']->get('id')]
         );
         $LocationAssocs = json_decode(
             Route::getData()
@@ -187,7 +187,7 @@ class ChangeItems extends Hook
         }
         Route::listem(
             'locationassociation',
-            ['laHostID' => $arguments['Host']->get('id')]
+            ['hostID' => $arguments['Host']->get('id')]
         );
         $LocationAssocs = json_decode(
             Route::getData()
@@ -254,7 +254,7 @@ class ChangeItems extends Hook
         );
         Route::listem(
             'storagenode',
-            ['ngmID' => $storagenodeIDs]
+            ['id' => $storagenodeIDs]
         );
         $arguments['StorageNodes'] = json_decode(
             Route::getData()

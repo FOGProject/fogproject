@@ -124,7 +124,7 @@ abstract class TaskingElement extends FOGBase
                 }
                 Route::listem(
                     'storagenode',
-                    ['ngmID' => $this->StorageGroup->get($getter)]
+                    ['id' => $this->StorageGroup->get($getter)]
                 );
                 $StorageNodes = json_decode(
                     Route::getData()
