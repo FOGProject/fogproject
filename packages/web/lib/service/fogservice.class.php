@@ -89,7 +89,7 @@ abstract class FOGService extends FOGBase
         $hashLoc = self::getHash($file_a);
         $hashRem = $file_b;
         $hashCom = ($hashLoc == $hashRem);
-        return $hashRem;
+        return $hashCom;
     }
     /**
      * Initializes the FOGService class
@@ -671,9 +671,10 @@ abstract class FOGService extends FOGBase
                         if (!$remotefilescheck[$index]) {
                             self::outall(
                                 ' | '
-                                . basename($localfilescheck[$index])
+                                . basename($localfile)
                                 . ' '
                                 . _('File does not exist.')
+                                . ' '
                                 . $StorageNode->name
                             );
                         } else {

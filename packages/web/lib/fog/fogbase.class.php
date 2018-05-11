@@ -634,8 +634,8 @@ abstract class FOGBase
             return $NodeFailure->id;
         };
         $find = [
-            'nfTaskID' => self::$Host->get('task')->get('id'),
-            'nfHostID' => self::$Host->get('id'),
+            'taskID' => self::$Host->get('task')->get('id'),
+            'hostID' => self::$Host->get('id'),
         ];
         Route::listem(
             'nodefailure',
@@ -709,7 +709,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected static function error($txt, $data = [])
+    public static function error($txt, $data = [])
     {
         if ((self::$service || self::$ajax) || !self::$debug) {
             return;
@@ -730,7 +730,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected static function debug($txt, $data = [])
+    public static function debug($txt, $data = [])
     {
         if ((self::$service || self::$ajax) || !self::$debug) {
             return;
@@ -751,7 +751,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected static function info($txt, $data = [])
+    public static function info($txt, $data = [])
     {
         if (!self::$info || self::$service || self::$ajax) {
             return;
@@ -900,7 +900,7 @@ abstract class FOGBase
             unset($value);
         }
 
-        return false;
+        return -1;
     }
     /**
      * Check if isLoaded.
@@ -1822,7 +1822,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    protected static function log(
+    public static function log(
         $txt,
         $curlog,
         $logfile,
@@ -2249,7 +2249,7 @@ abstract class FOGBase
         }
         Route::listem(
             'storagenode',
-            ['ngmIsEnabled' => 1]
+            ['isEnabled' => 1]
         );
         $StorageNodes = json_decode(
             Route::getData()
