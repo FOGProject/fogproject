@@ -547,7 +547,7 @@ abstract class FOGService extends FOGBase
                 $nodename = $StorageNode->name;
                 $username = self::$FOGFTP->get('username');
                 $password = self::$FOGFTP->get('password');
-                $ip = self::$FOGFTP->host;
+                $ip = self::$FOGFTP->get('host');
                 $encpassword = urlencode($password);
                 $removeDir = sprintf(
                     '/%s/',
@@ -603,8 +603,6 @@ abstract class FOGService extends FOGBase
                         $myAddItem = $myAdd;
                     }
                 }
-                sort($localfilescheck);
-                sort($remotefilescheck);
                 $localfilescheck = array_values(
                     array_filter(
                         array_unique($localfilescheck)
@@ -615,9 +613,11 @@ abstract class FOGService extends FOGBase
                         array_unique($remotefilescheck)
                     )
                 );
+                sort($localfilescheck);
+                sort($remotefilescheck);
                 $testavail = -1;
+                $allsynced = true;
                 foreach ((array)$localfilescheck as $j => &$localfile) {
-                    $allsynced = true;
                     $avail = true;
                     $index = self::arrayFind(
                         basename($localfile),
@@ -675,7 +675,7 @@ abstract class FOGService extends FOGBase
                         if (!$remotefilescheck[$index]) {
                             self::outall(
                                 ' | '
-                                . basename($localfilescheck[$index])
+                                . basename($localfile)
                                 . ' '
                                 . _('File does not exist.')
                                 . ' '
