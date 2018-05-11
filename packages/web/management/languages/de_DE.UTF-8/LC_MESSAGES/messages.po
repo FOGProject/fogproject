@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-21 05:26-0400\n"
+"POT-Creation-Date: 2018-05-11 13:07-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -6027,10 +6027,10 @@ msgid "Waiting for mysql to be available"
 msgstr "Warten auf die Verfügbarkeit von MySQL"
 
 #, fuzzy
-msgid "I am not the master for this group"
-msgstr " * Ich bin nicht der Master für diese Gruppe"
+msgid "This is not the master for this group"
+msgstr "Dies ist nicht die primäre Gruppe"
 
-msgid "I am the master node, but I do not appear to be online"
+msgid "This node does not appear to be online"
 msgstr ""
 
 msgid "Not syncing"
@@ -6061,8 +6061,12 @@ msgstr " | Datei oder Pfad ist nicht erreichbar"
 msgid "Cannot connect to"
 msgstr "kann keine Verbindung aufbauen"
 
-msgid "Files do not match"
-msgstr "Dateien stimmen nicht überein"
+msgid "Files do not match on server: "
+msgstr ""
+
+#, fuzzy
+msgid "File does not exist."
+msgstr "Methode ist nicht vorhanden"
 
 #, fuzzy
 msgid "Deleting remote file"
@@ -6074,6 +6078,9 @@ msgstr "Synchronisierung nicht erforderlich"
 #, fuzzy
 msgid "file to"
 msgstr "für diese Datei"
+
+msgid " * All files synced for this item."
+msgstr ""
 
 #, fuzzy
 msgid "Starting Sync Actions"
