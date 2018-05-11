@@ -426,7 +426,7 @@ abstract class FOGService extends FOGBase
                     ' | %s %s: %s',
                     $fileOverride ? _('File') : _($objType),
                     _('Name'),
-                    $fileOverride ? $fileOverride : $Obj->get('name')
+                    $fileOverride ?: $Obj->get('name')
                 )
             );
             $getPathOfItemField = 'ftppath';
@@ -598,6 +598,16 @@ abstract class FOGService extends FOGBase
                         $myAddItem = $myAdd;
                     }
                 }
+                $localfilescheck = array_values(
+                    array_filter(
+                        array_unique($localfilescheck)
+                    )
+                );
+                $remotefilescheck = array_values(
+                    array_filter(
+                        array_unique($remotefilescheck)
+                    )
+                );
                 sort($localfilescheck);
                 sort($remotefilescheck);
                 $localfilescheck = array_values(
@@ -611,6 +621,7 @@ abstract class FOGService extends FOGBase
                     )
                 );
                 $testavail = -1;
+                $allsynced = true;
                 foreach ((array)$localfilescheck as $j => &$localfile) {
                     $allsynced = true;
                     $avail = true;
@@ -664,8 +675,7 @@ abstract class FOGService extends FOGBase
                         $allsynced = false;
                         self::outall(
                             ' | '
-                            . _('Files do not match on server:')
-                            . ' '
+                            . _('Files do not match on server: ')
                             . $StorageNode->name
                         );
                         if (!$remotefilescheck[$index]) {
