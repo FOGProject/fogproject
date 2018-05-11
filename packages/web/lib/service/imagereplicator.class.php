@@ -197,7 +197,7 @@ class ImageReplicator extends FOGService
                 $imageIDs = json_decode(Route::getData(), true);
                 Route::listem(
                     'image',
-                    ['imageID' => $imageIDs]
+                    ['id' => $imageIDs]
                 );
                 $Images = json_decode(
                     Route::getData()

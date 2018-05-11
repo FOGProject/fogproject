@@ -196,7 +196,7 @@ class SnapinReplicator extends FOGService
                 $snapinIDs = json_decode(Route::getData(), true);
                 Route::listem(
                     'snapin',
-                    ['snapinID' => $snapinIDs]
+                    ['id' => $snapinIDs]
                 );
                 $Snapins = json_decode(
                     Route::getData()

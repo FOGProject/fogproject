@@ -2004,7 +2004,7 @@ class GroupManagement extends FOGPage
         };
         // The keys we need to search for.
         $key = [
-            'ttIsAccess' => [
+            'access' => [
                 'group',
                 'both'
             ]
@@ -2877,7 +2877,7 @@ class GroupManagement extends FOGPage
             $hostImages = [];
             Route::listem(
                 'host',
-                ['hostID' => $hosts]
+                ['id' => $hosts]
             );
             $Hosts = json_decode(
                 Route::getData()

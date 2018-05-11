@@ -61,7 +61,7 @@ if (isset($_POST['newNode'])) {
     $pass = filter_input(INPUT_POST, 'pass');
     Route::listem(
         'storagenode',
-        ['ngmHostname' => $ip]
+        ['ip' => $ip]
     );
     $StorageNodes = json_decode(
         Route::getData()

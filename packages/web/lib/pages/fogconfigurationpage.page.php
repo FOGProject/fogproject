@@ -1902,7 +1902,7 @@ class FOGConfigurationPage extends FOGPage
         $pName = filter_input(INPUT_POST, 'category');
         Route::listem(
             'service',
-            ['settingCategory' => $pName]
+            ['category' => $pName]
         );
         $Services = json_decode(
             Route::getData()
@@ -2140,9 +2140,9 @@ class FOGConfigurationPage extends FOGPage
             Route::listem(
                 'storagenode',
                 [
-                    'ngmID' => $StorageGroup->enablednodes,
-                    'ngmIsEnabled' => 1,
-                    'ngmIsMasterNode' => 1
+                    'id' => $StorageGroup->enablednodes,
+                    'isEnabled' => 1,
+                    'isMaster' => 1
                 ]
             );
             $StorageNodes = json_decode(

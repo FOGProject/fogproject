@@ -58,7 +58,10 @@ class Pending_MAC_List extends ReportManagement
     public function getList()
     {
         header('Content-type: application/json');
-        Route::listem('pendingmacs');
+        Route::listem(
+            'macaddressassociation',
+            ['pending' => [1]]
+        );
         http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         echo Route::getData();
         exit;

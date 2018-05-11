@@ -119,9 +119,9 @@ class StorageGroup extends FOGController
     protected function loadEnablednodes()
     {
         $find = [
-            'ngmGroupID' => $this->get('id'),
-            'ngmID' => $this->get('allnodes'),
-            'ngmIsEnabled' => 1
+            'storagegroupID' => $this->get('id'),
+            'id' => $this->get('allnodes'),
+            'isEnabled' => 1
         ];
         $nodeids = [];
         $testurls = [];
@@ -221,8 +221,8 @@ class StorageGroup extends FOGController
         Route::listem(
             'storagenode',
             [
-                'ngmID' => $this->get($getter),
-                'ngmIsMasterNode' => 1
+                'id' => $this->get($getter),
+                'isMaster' => 1
             ]
         );
         $StorageNodes = json_decode(
@@ -260,7 +260,7 @@ class StorageGroup extends FOGController
         $winner = null;
         Route::listem(
             'storagenode',
-            ['ngmID' => $this->get($getter)]
+            ['id' => $this->get($getter)]
         );
         $StorageNodes = json_decode(
             Route::getData()
