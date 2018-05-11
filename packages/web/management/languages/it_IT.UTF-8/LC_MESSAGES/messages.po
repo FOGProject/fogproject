@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-21 05:26-0400\n"
+"POT-Creation-Date: 2018-05-11 13:07-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5406,10 +5406,11 @@ msgstr "Interfaccia non pronta, in attesa."
 msgid "Waiting for mysql to be available"
 msgstr "In attesa di mysql sia disponibile"
 
-msgid "I am not the master for this group"
-msgstr "Non sono il master di questo gruppo"
+#, fuzzy
+msgid "This is not the master for this group"
+msgstr "Questo non è il gruppo primario"
 
-msgid "I am the master node, but I do not appear to be online"
+msgid "This node does not appear to be online"
 msgstr ""
 
 msgid "Not syncing"
@@ -5436,8 +5437,12 @@ msgstr "Impossibile raggiungere il file o il percorso"
 msgid "Cannot connect to"
 msgstr "Impossibile connettersi"
 
-msgid "Files do not match"
-msgstr "I file non corrispondono"
+msgid "Files do not match on server: "
+msgstr ""
+
+#, fuzzy
+msgid "File does not exist."
+msgstr "La funzione non esiste"
 
 msgid "Deleting remote file"
 msgstr "Eliminazione di file remoti"
@@ -5447,6 +5452,9 @@ msgstr "Non è necessario sincronizzare"
 
 msgid "file to"
 msgstr "File con"
+
+msgid " * All files synced for this item."
+msgstr ""
 
 msgid "Starting Sync Actions"
 msgstr "Avviare le azioni di sincronizzazione"
