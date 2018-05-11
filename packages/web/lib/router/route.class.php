@@ -811,6 +811,13 @@ class Route extends FOGBase
                     return self::getClass('StorageNode', $d)->getClientLoad();
                 }
             ];
+            $columns[] = [
+                'db' => 'ngmID',
+                'dt' => 'logfiles',
+                'formatter' => function ($d, $row) {
+                    return self::getClass('StorageNode', $d)->get('logfiles');
+                }
+            ];
             break;
         case 'plugin':
             $columns[] = [

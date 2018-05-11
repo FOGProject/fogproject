@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-10 20:10-0400\n"
+"POT-Creation-Date: 2018-05-11 17:43-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5591,9 +5591,8 @@ msgstr " | Arquivo ou o caminho não pode ser alcançado"
 msgid "Cannot connect to"
 msgstr "Não é possível ligar para o nó."
 
-#, fuzzy
-msgid "Files do not match on server:"
-msgstr "Eu não sou o servidor web nevoeiro"
+msgid "Files do not match on server: "
+msgstr ""
 
 #, fuzzy
 msgid "File does not exist."

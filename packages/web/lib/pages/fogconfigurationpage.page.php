@@ -2137,23 +2137,7 @@ class FOGConfigurationPage extends FOGPage
             if (count($StorageGroup->enablednodes ?: []) < 1) {
                 continue;
             }
-            Route::listem(
-                'storagenode',
-                [
-                    'id' => $StorageGroup->enablednodes,
-                    'isEnabled' => 1,
-                    'isMaster' => 1
-                ]
-            );
-            $StorageNodes = json_decode(
-                Route::getData()
-            );
-            if (count($StorageNodes->data) ?: [] < 1) {
-                continue;
-            }
-            foreach ($StorageNodes->data as &$StorageNode) {
-                break;
-            }
+            $StorageNode = $StorageGroup->masternode;
             $fogfiles = json_decode(
                 json_encode($StorageNode->logfiles),
                 true
@@ -2462,9 +2446,7 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="box-body" id="logsGoHere">';
         echo '</div>';
         echo '<div class="box-footer with-border">';
-        echo '<div class="btn-group">';
         echo $buttons;
-        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</form>';
