@@ -835,16 +835,26 @@ class StorageNodeManagement extends FOGPage
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'STORAGE_NODE_ADD_SUCCESS';
-            $msg = [
-                'msg' => _('Storage Node added!'),
-                'title' => _('Storage Node Create Success')
-            ];
+            $msg = json_encode(
+                [
+                    'msg' => _('Storage Node added!'),
+                    'title' => _('Storage Node Create Success')
+                ]
+            );
             if ($warning) {
-                $msg['warning']= _(
+                $warn = _(
                     'Unable to connect using ip, user, and/or password provided!'
                 );
+                $warn .= '<br/><br/>';
+                $warn .= _('Storage Node created successfully');
+                $title = _('Storage Node Create Warning');
+                $msg = json_encode(
+                    [
+                        'warning' => $warn,
+                        'title' => $title
+                    ]
+                );
             }
-            $msg = json_encode($msg);
         } catch (Exception $e) {
             $code = (
                 $serverFault ?
@@ -1459,14 +1469,37 @@ class StorageNodeManagement extends FOGPage
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'STORAGENODE_EDIT_SUCCESS';
-            $msg = [
-                'msg' => _('Storage Node updated!'),
-                'title' => _('Storage Node Update Success')
-            ];
+            $msg = json_encode(
+                [
+                    'msg' => _('Storage Node updated!'),
+                    'title' => _('Storage Node Update Success')
+                ]
+            );
             if ($warning) {
-                $msg['warning'] = $warning;
+                $warn = _(
+                    'Unable to connect using ip, user, and/or password provided!'
+                );
+                $warn .= '<br/><br/>';
+                $warn .= _('Storage Node created successfully');
+                $title = _('Storage Node Create Warning');
+                $msg = json_encode(
+                    [
+                        'warning' => $warn,
+                        'title' => $title
+                    ]
+                );
             }
-            $msg = json_encode($msg);
+            if ($warning) {
+                $warning .= '<br/><br/>';
+                $warning .= _('Storage Node updated successfully');
+                $title = _('Storage Node Update Warning');
+                $msg = json_encode(
+                    [
+                        'warning' => $warning,
+                        'title' => $title
+                    ]
+                );
+            }
         } catch (Exception $e) {
             $code = (
                 $serverFault ?
