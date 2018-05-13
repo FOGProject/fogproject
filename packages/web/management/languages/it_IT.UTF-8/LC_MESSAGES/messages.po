@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-11 17:43-0400\n"
+"POT-Creation-Date: 2018-05-13 15:03-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5011,6 +5011,14 @@ msgstr "Nodo di archiviazione creato con successo"
 
 msgid "Unable to connect using ip, user, and/or password provided!"
 msgstr ""
+
+#, fuzzy
+msgid "Storage Node created successfully"
+msgstr "Nodo di archiviazione creato con successo"
+
+#, fuzzy
+msgid "Storage Node Create Warning"
+msgstr "Creazione nodo di archiviazione fallita"
 
 msgid "Storage Node Create Fail"
 msgstr "Creazione nodo di archiviazione fallita"
