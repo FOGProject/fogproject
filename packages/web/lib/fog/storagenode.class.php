@@ -201,12 +201,12 @@ class StorageNode extends FOGController
      */
     public function getLogfiles()
     {
-        $url = sprintf(
-            '%s://%s/fog/status/getfiles.php?path=%s',
-            self::$httpproto,
-            $this->get('ip'),
-            '%s'
-        );
+        if (!($this->get('isEnabled')
+            && $this->get('isMaster')
+            && $this->get('online'))
+        ) {
+            return $this->set('logfiles', []);
+        }
         $paths = [
             '/var/log/nginx',
             '/var/log/httpd',
@@ -217,22 +217,42 @@ class StorageNode extends FOGController
             '/var/log/php5-fpm',
             '/var/log/php5.6-fpm',
         ];
-        $url = sprintf(
-            $url,
-            urlencode(implode(':', $paths))
-        );
-        $paths = self::$FOGURLRequests->process($url);
-        foreach ((array)$paths as $index => &$response) {
-            $tmppath = self::fastmerge(
-                (array)$tmppath,
-                (array)json_decode($response, true)
-            );
-            unset($response);
-        }
-        $paths = array_filter($tmppath);
-        $paths = array_values($paths);
         natcasesort($paths);
-        $this->set('logfiles', $paths);
+        self::getIPAddress();
+        $ip = self::resolveHostname($this->get('ip'));
+        $files = [];
+        if (in_array($ip, self::$ips)) {
+            foreach ($paths as &$path) {
+                if (!is_dir($path)) {
+                    continue;
+                }
+                $path = str_replace(
+                    ['\\', '/'],
+                    DS,
+                    $path
+                );
+                $path .= DS . '*';
+                $files = self::fastmerge(
+                    $files,
+                    glob($path)
+                );
+                unset($path);
+            }
+        } else {
+            $url = sprintf(
+                '%s://%s/fog/status/getfiles.php?path=%s',
+                self::$httpproto,
+                $this->get('ip'),
+                '%s'
+            );
+            $url = sprintf(
+                $url,
+                urlencode(implode(':', $paths))
+            );
+            $paths = self::$FOGURLRequests->process($url);
+            $files = json_decode(array_shift($paths), true);
+        }
+        $this->set('logfiles', $files);
     }
     /**
      * Get's the storage node snapins, logfiles, and images

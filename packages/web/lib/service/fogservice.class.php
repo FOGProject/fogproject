@@ -978,7 +978,7 @@ abstract class FOGService extends FOGBase
     ) {
         $files = glob($pattern, $flags);
         foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as &$dir) {
-            $files = array_merge(
+            $files = self::fastmerge(
                 (array)$files,
                 self::globrecursive(
                     $dir . '/' . basename($pattern),
