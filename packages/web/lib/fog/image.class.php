@@ -402,6 +402,28 @@ class Image extends FOGController
         return new StorageGroup($primaryGroup);
     }
     /**
+     * Gets the primary storage group.
+     *
+     * @return object
+     */
+    public function getPrimaryStorageGroup()
+    {
+        $groupids = self::getSubObjectIDs(
+            'ImageAssociation',
+            [
+                'imageID' => $this->get('id'),
+                'primary' => [1],
+            ],
+            'storagegroupID'
+        );
+        if (count($groupids ?: []) < 1) {
+            $groupid = @min($this->get('storagegroups'));
+        } else {
+            $groupid = @min($groupids);
+        }
+        return new StorageGroup($groupid);
+    }
+    /**
      * Returns the OS object
      *
      * @return object
