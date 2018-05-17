@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-13 15:03-0400\n"
+"POT-Creation-Date: 2018-05-17 02:27-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -5326,6 +5326,14 @@ msgstr "Speicherknoten aktualisiert"
 #, fuzzy
 msgid "Storage Node Update Success"
 msgstr "Aktualisierung des Speicherknotens erfolgreich"
+
+#, fuzzy
+msgid "Storage Node updated successfully"
+msgstr "Speicherknoten erfolgreich erstellt"
+
+#, fuzzy
+msgid "Storage Node Update Warning"
+msgstr "Erstellen des Speicherknotens fehlgeschlagen"
 
 #, fuzzy
 msgid "Storage Node Update Fail"

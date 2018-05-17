@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-13 15:03-0400\n"
+"POT-Creation-Date: 2018-05-17 02:27-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5312,6 +5312,14 @@ msgstr "Storage Node Updated"
 #, fuzzy
 msgid "Storage Node Update Success"
 msgstr "Storage Node Updated"
+
+#, fuzzy
+msgid "Storage Node updated successfully"
+msgstr "Storage Node Created"
+
+#, fuzzy
+msgid "Storage Node Update Warning"
+msgstr "Storage Node Created"
 
 #, fuzzy
 msgid "Storage Node Update Fail"

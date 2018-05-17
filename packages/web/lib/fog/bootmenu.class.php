@@ -1344,7 +1344,10 @@ class BootMenu extends FOGBase
                     $StorageGroup = $Image->getStorageGroup();
                 }
                 $getter = 'getOptimalStorageNode';
-                if ($Task->isCapture()) {
+                if ($Task->isCapture()
+                    || $TaskType->isCapture()
+                    || $TaskType->isMulticast()
+                ) {
                     $getter = 'getMasterStorageNode';
                 }
                 if (!$StorageNode || !$StorageNode->isValid()) {
@@ -1357,9 +1360,6 @@ class BootMenu extends FOGBase
                     $Task->set('storagegroupID', $StorageGroup->get('id'));
                 }
                 $Task->save();
-                if ($TaskType->isCapture() || $TaskType->isMulticast()) {
-                    $StorageNode = $StorageGroup->getMasterStorageNode();
-                }
                 self::$HookManager->processEvent(
                     'BOOT_TASK_NEW_SETTINGS',
                     [
