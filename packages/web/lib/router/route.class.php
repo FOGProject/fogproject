@@ -271,6 +271,10 @@ class Route extends FOGBase
                 "${expanded}/names",
                 [__CLASS__, 'names'],
                 'names'
+            )->get(
+                "${expanded}/ids",
+                [__CLASS__, 'ids'],
+                'ids'
             )->put(
                 "${expanded}/[i:id]/[update|edit]?",
                 array('self', 'edit'),
@@ -1418,5 +1422,116 @@ class Route extends FOGBase
         }
 
         self::$data = $data;
+    }
+    /**
+     * Returns only the ids of the class.
+     *
+     * @param string $class      The class to get list of.
+     * @param array  $whereItems The items to filter.
+     * @param string $getField   The field to get.
+     *
+     * @return void
+     */
+    public function ids($class, $whereItems = [], $getField = 'id')
+    {
+        $data = [];
+        $classname = strtolower($class);
+        $classVars = self::getClass(
+            $class,
+            '',
+            true
+        );
+        $vars = json_decode(
+            file_get_contents('php://input')
+        );
+
+        $sql = 'SELECT `'
+            . $classVars['databaseFields'][$getField]
+            . '` FROM `'
+            . $classVars['databaseTable']
+            . '`';
+
+        if (count($whereItems) > 0) {
+            $where = '';
+            foreach ($whereItems as $key => &$field) {
+                if (!$where) {
+                    $where = ' WHERE `'
+                        . $classVars['databaseFields'][$key]
+                        . '`';
+                } else {
+                    $where .= ' AND `'
+                        . $classVars['databaseFields'][$key]
+                        . '`';
+                }
+                if (is_array($field)) {
+                    $where .= " IN ('"
+                        . implode("','", $field)
+                        . "')";
+                } else {
+                    $where .= " = '"
+                        . $field
+                        . "'";
+                }
+            }
+            $sql .= $where;
+        }
+        $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
+        foreach ($vals as &$val) {
+            $data[] = $val[$classVars['databaseFields'][$getField]];
+            unset($val);
+        }
+        self::$data = $data;
+    }
+    /**
+     * Delete items in mass.
+     *
+     * @param string $class      The class we're to remove items.
+     * @param array  $whereItems The items we're removing.
+     *
+     * @return void
+     */
+    public static function deletemass($class, $whereItems = [])
+    {
+        $data = [];
+        $classname = strtolower($class);
+        $classVars = self::getClass(
+            $class,
+            '',
+            true
+        );
+        $vars = json_decode(
+            file_get_contents('php://input')
+        );
+
+        $sql = 'DELETE FROM `'
+            . $classVars['databaseTable']
+            . '`';
+
+        if (count($whereItems) < 1) {
+            $where = '';
+            foreach ($whereItems as $key => &$field) {
+                if (!$where) {
+                    $where = ' WHERE `'
+                        . $classVars['databaseFields'][$key]
+                        . '`';
+                } else {
+                    $where .= ' AND `'
+                        . $classVars['databaseFields'][$key]
+                        . '`';
+                }
+                if (is_array($field)) {
+                    $where .= " IN ('"
+                        . implode("','", $field)
+                        . "')";
+                } else {
+                    $where .= " = '"
+                        . $field
+                        . "'";
+                }
+            }
+            $sql .= $where;
+        }
+
+        return self::$DB->query($sql);
     }
 }

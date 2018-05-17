@@ -1049,94 +1049,67 @@ abstract class FOGController extends FOGBase
      */
     public function assocSetter($assocItem, $alterItem = '', $implicitCall = false)
     {
-        if (empty($alterItem)) {
-            $alterItem = $assoc = strtolower($assocItem);
-        } else {
-            $assoc = $alterItem;
-        }
-        $plural = sprintf(
-            '%ss',
-            $assoc
-        );
+        // Lower our item
+        $alterItem = strtolower($alterItem ?: $assocItem);
+        // Getter is pluralized
+        $plural = "{$alterItem}s";
+        // Class to call, if implicit leave off association.
+        $classCall = ($implicitCall ? $assocItem : "{$assocItem}Association");
+        // Main object and string setters.
+        $obj = strtolower(get_class($this));
+        $objstr = "{$obj}ID";
+        $assocstr = "{$alterItem}ID";
+
+        // Don't work on item that isn't loaded yet.
         if (!$this->isLoaded($plural)) {
             return $this;
         }
-        if ($implicitCall) {
-            $classCall = $assocItem;
-        } else {
-            $classCall = sprintf(
-                '%sAssociation',
-                $assocItem
+
+        // Get the current items.
+        $items = $this->get($plural);
+        Route::ids(
+            $classCall,
+            [$objstr => $this->get('id')],
+            $assocstr
+        );
+        $cur = json_decode(Route::getData(), true);
+
+        // Get the items differing between the current and what we have associated.
+        // Remove the items if there's anything to remove.
+        $rem = array_diff($cur, $items);
+        if (count($rem)) {
+            Route::deletemass(
+                $classCall,
+                [$assocstr => $rem]
             );
         }
-        $objType = get_class($this);
-        $objtype = strtolower($objType);
-        $objstr = sprintf('%sID', $objtype);
-        $assocstr = sprintf('%sID', $assoc);
-        $lalter = strtolower($alteritem);
-        $gitems = array(
-            'storagegroup',
-            'snapingroup'
-        );
-        if (count($this->get($plural))) {
-            if (in_array($lalter, $gitems)) {
-                $tmpAssoc = $assocItem;
-                $assocItem = $alterItem;
-            }
-            $AllIDs = self::getSubObjectIDs($alterItem);
-            $DBIDs = $this->get($plural);
-            if ($tmpAssoc) {
-                $assocItem = $tmpAssoc;
-                unset($tmpAssoc);
-            }
-            $RemIDs = array_diff(
-                (array)$AllIDs,
-                (array)$DBIDs
-            );
-        } else {
-            $RemIDs = self::getSubObjectIDs($assoc);
-        }
-        $RemIDs = array_values(
-            array_filter($RemIDs)
-        );
-        if (count($RemIDs) > 0) {
-            self::getClass(sprintf('%sManager', $classCall))
-                ->destroy(
-                    array(
-                        $objstr => $this->get('id'),
-                        $assocstr => $RemIDs,
-                    )
-                );
-            unset($RemIDs);
-        }
-        $insert_fields = array(
+
+        // Setup our insert.
+        $insert_fields = [
             $objstr,
-            $assocstr,
-        );
+            $assocstr
+        ];
+        $insert_values = [];
         if ($assocstr == 'moduleID') {
-            array_push($insert_fields, 'state');
+            $insert_fields[] = 'state';
         }
-        $insert_values = array();
-        foreach ((array) $this->get($plural) as &$id) {
-            $insert_val = array(
+        foreach ($items as &$id) {
+            $insert_val = [
                 $this->get('id'),
-                $id,
-            );
+                $id
+            ];
             if ($assocstr == 'moduleID') {
-                array_push($insert_val, 1);
+                $insert_val[] = 1;
             }
             $insert_values[] = $insert_val;
             unset($insert_val, $id);
         }
-        unset($DBIDs);
-        if (count($insert_values) > 0) {
-            self::getClass(sprintf('%sManager', $classCall))
-                ->insertBatch(
-                    $insert_fields,
-                    $insert_values
-                );
+        if (count($insert_values ?: []) > 0) {
+            self::getClass("{$classCall}manager")->insertBatch(
+                $insert_fields,
+                $insert_values
+            );
         }
-        unset($insert_values, $insert_fields);
 
         return $this;
     }
