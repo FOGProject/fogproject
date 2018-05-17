@@ -393,16 +393,18 @@ abstract class FOGController extends FOGBase
                 $this->data[$key] = [$this->data[$key]];
             }
             $this->data[$key] = array_unique($this->data[$key]);
-            $index = array_search($value, $this->data[$key]);
-            $msg = sprintf(
-                '%s: %s, %s: %s',
-                _('Removing Key'),
-                $key,
-                _('Value'),
-                print_r($this->data[$key][$index], 1)
-            );
-            self::info($msg);
-            unset($this->data[$key][$index]);
+            $ind = array_search($value, $this->data[$key]);
+            if (false !== $ind) {
+                $msg = sprintf(
+                    '%s: %s, %s: %s',
+                    _('Removing Key'),
+                    $key,
+                    _('Value'),
+                    print_r($this->data[$key][$ind], 1)
+                );
+                self::info($msg);
+                unset($this->data[$key][$ind]);
+            }
             $this->data[$key] = array_values(array_filter($this->data[$key]));
         } catch (Exception $e) {
             $str = sprintf(
