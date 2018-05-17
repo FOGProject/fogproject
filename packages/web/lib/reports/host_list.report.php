@@ -33,7 +33,7 @@ class Host_List extends ReportManagementPage
             _('Host ID') => 'id',
             _('Host Name') => 'name',
             _('Host Desc') => 'description',
-            _('Host MAC') => 'mac',
+            _('Host MAC') => 'primac',
             _('Host Created') => 'createdTime',
             _('Host AD Join') => 'useAD',
             _('Host AD OU') => 'ADOU',
