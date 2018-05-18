@@ -1346,8 +1346,11 @@ class BootMenu extends FOGBase
                 $getter = 'getOptimalStorageNode';
                 if ($Task->isCapture()
                     || $TaskType->isCapture()
-                    || $TaskType->isMulticast()
                 ) {
+                    $StorageGroup = $Image->getPrimaryStorageGroup();
+                    $getter = 'getMasterStorageNode';
+                }
+                if ($TaskType->isMulticast()) {
                     $getter = 'getMasterStorageNode';
                 }
                 if (!$StorageNode || !$StorageNode->isValid()) {
