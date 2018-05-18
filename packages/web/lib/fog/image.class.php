@@ -206,7 +206,7 @@ class Image extends FOGController
         Route::listem(
             'storagenode',
             [
-                'storagegrouproupID' => $this->get('storagegroups'),
+                'storagegroupID' => $this->get('storagegroups'),
                 'isEnabled' => 1
             ]
         );
@@ -428,7 +428,10 @@ class Image extends FOGController
                 ->count(['imageID' => $imageID]);
         }
         if ($primaryCount < 1) {
-            Route::ids('storagegroup');
+            Route::ids(
+                'storagegroup',
+                ['id' => $this->get('storagegroups')]
+            );
             $groupid = json_decode(Route::getData(), true);
             $groupid = @min($groupid);
             self::setPrimaryGroup($groupid, $imageID);
@@ -445,6 +448,30 @@ class Image extends FOGController
         $assocID = @min($assocID);
 
         return self::getClass('ImageAssociation', $assocID)->isPrimary();
+    }
+    /**
+     * Gets the primary storage group.
+     *
+     * @return object
+     */
+    public function getPrimaryStorageGroup()
+    {
+        Route::ids(
+            'imageassociation',
+            [
+                'imageID' => $this->get('id'),
+                'storagegroupID' => $this->get('storagegroups'),
+                'primary' => [1],
+            ],
+            'storagegroupID'
+        );
+        $groupids = json_decode(Route::getData(), true);
+        if (count($groupids ?: []) < 1) {
+            $groupid = @min($this->get('storagegroups'));
+        } else {
+            $groupid = @min($groupids);
+        }
+        return new StorageGroup($groupid);
     }
     /**
      * Sets the primary group for the image

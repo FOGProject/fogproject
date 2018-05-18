@@ -1343,11 +1343,18 @@ class BootMenu extends FOGBase
                 if (!$StorageGroup || !$StorageGroup->isValid()) {
                     $StorageGroup = $Image->getStorageGroup();
                 }
-                if (!$StorageNode || !$StorageNode->isValid()) {
-                    $StorageNode = $StorageGroup->getOptimalStorageNode();
+                $getter = 'getOptimalStorageNode';
+                if ($Task->isCapture()
+                    || $TaskType->isCapture()
+                ) {
+                    $StorageGroup = $Image->getPrimaryStorageGroup();
+                    $getter = 'getMasterStorageNode';
                 }
-                if ($Task->isCapture()) {
-                    $StorageNode = $StorageGroup->getMasterStorageNode();
+                if ($TaskType->isMulticast()) {
+                    $getter = 'getMasterStorageNode';
+                }
+                if (!$StorageNode || !$StorageNode->isValid()) {
+                    $StorageNode = $StorageGroup->{$getter}();
                 }
                 if ($Task->get('storagenodeID') != $StorageNode->get('id')) {
                     $Task->set('storagenodeID', $StorageNode->get('id'));
@@ -1356,9 +1363,6 @@ class BootMenu extends FOGBase
                     $Task->set('storagegroupID', $StorageGroup->get('id'));
                 }
                 $Task->save();
-                if ($TaskType->isCapture() || $TaskType->isMulticast()) {
-                    $StorageNode = $StorageGroup->getMasterStorageNode();
-                }
                 self::$HookManager->processEvent(
                     'BOOT_TASK_NEW_SETTINGS',
                     [
