@@ -222,6 +222,7 @@ class StorageGroup extends FOGController
             'storagenode',
             [
                 'id' => $this->get($getter),
+                'isEnabled' => 1,
                 'isMaster' => 1
             ]
         );
@@ -230,9 +231,6 @@ class StorageGroup extends FOGController
         );
         foreach ($StorageNodes->data as $StorageNode) {
             if (!$StorageNode->online) {
-                continue;
-            }
-            if (!$StorageNode->isEnabled) {
                 continue;
             }
             if ($masternode == null) {
