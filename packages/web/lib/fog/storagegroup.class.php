@@ -193,6 +193,7 @@ class StorageGroup extends FOGController
         }
         $masternode = null;
         $find = [
+            'id' => $this->get($getter),
             'isEnabled' => 1,
             'isMaster' => 1
         ];

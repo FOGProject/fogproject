@@ -412,6 +412,7 @@ class Image extends FOGController
             'ImageAssociation',
             [
                 'imageID' => $this->get('id'),
+                'storagegroupID' => $this->get('storagegroups'),
                 'primary' => [1],
             ],
             'storagegroupID'
