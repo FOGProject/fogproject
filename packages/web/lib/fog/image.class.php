@@ -131,7 +131,7 @@ class Image extends FOGController
     public function save()
     {
         parent::save();
-        if (array_key_exists('hosts', $this->data)) {
+        if ($this->isLoaded('hosts')) {
             Route::ids(
                 'host',
                 ['imageID' => $this->get('id')]
@@ -420,7 +420,6 @@ class Image extends FOGController
             ->count(
                 [
                     'imageID' => $imageID,
-                    'storagegroupID' => $this->get('storagegroups'),
                     'primary' => 1
                 ]
             );
