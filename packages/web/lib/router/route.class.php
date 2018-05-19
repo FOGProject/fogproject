@@ -1943,6 +1943,12 @@ class Route extends FOGBase
         if ($retWhere) {
             return $where;
         }
+        $sql .= ' ORDER BY `'
+            . (
+                $classVars['databaseFields']['name'] ?:
+                $classVars['databaseFields']['id']
+            )
+            . '` ASC';
 
         return $sql;
     }
