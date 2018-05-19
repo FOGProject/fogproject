@@ -1412,6 +1412,12 @@ class Route extends FOGBase
             }
             $sql .= $where;
         }
+        $sql .= ' ORDER BY `'
+            . (
+                $classVars['databaseFields']['name'] ?:
+                $classVars['databaseFields']['id']
+            )
+            . '` ASC';
         $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
         foreach ($vals as &$val) {
             $data[] = [
@@ -1475,6 +1481,12 @@ class Route extends FOGBase
             }
             $sql .= $where;
         }
+        $sql .= ' ORDER BY `'
+            . (
+                $classVars['databaseFields']['name'] ?:
+                $classVars['databaseFields']['id']
+            )
+            . '` ASC';
         $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
         foreach ($vals as &$val) {
             $data[] = $val[$classVars['databaseFields'][$getField]];
