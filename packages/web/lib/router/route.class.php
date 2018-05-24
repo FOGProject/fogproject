@@ -1511,7 +1511,7 @@ class Route extends FOGBase
             . $classVars['databaseTable']
             . '`';
 
-        if (count($whereItems) < 1) {
+        if (count($whereItems) > 0) {
             $where = '';
             foreach ($whereItems as $key => &$field) {
                 if (!$where) {
