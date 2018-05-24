@@ -124,8 +124,7 @@ class LDAP extends FOGController
         if (!in_array($func, $nonresourcefuncs)) {
             array_unshift($args, self::$_ldapconn);
         }
-        $ret = call_user_func_array($function, $args);
-        return $ret;
+        return $function(...$args);
     }
     /**
      * Tests if the server is up and available

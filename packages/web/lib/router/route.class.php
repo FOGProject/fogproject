@@ -382,18 +382,8 @@ class Route extends FOGBase
             $_SERVER['PHP_AUTH_PW']
         );
         if (!$auth) {
-            $pwhash = self::getClass('User')
-                ->set('password', $_SERVER['PHP_AUTH_PW'], true)
-                ->load('password');
-            if ($pwhash->isValid()
-                && $pwhash->get('api')
-                && $pwhash->get('name') == $_SERVER['PHP_AUTH_USER']
-            ) {
-                return;
-            }
             self::sendResponse(
-                HTTPResponseCodes::HTTP_UNAUTHORIZED,
-                $usertoken
+                HTTPResponseCodes::HTTP_UNAUTHORIZED
             );
         }
     }
@@ -421,7 +411,7 @@ class Route extends FOGBase
     {
         self::sendResponse(
             HTTPResponseCodes::HTTP_SUCCESS,
-            'success'
+            "success\n"
         );
     }
     /**
