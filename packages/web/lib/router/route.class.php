@@ -245,59 +245,59 @@ class Route extends FOGBase
             ->map(
                 'HEAD|GET',
                 '/system/[status|info]',
-                array('self', 'status'),
+                array(__CLASS__, 'status'),
                 'status'
             )
             ->get(
                 "${expandeda}/[current|active]",
-                array('self', 'active'),
+                array(__CLASS__, 'active'),
                 'active'
             )
             ->get(
                 "${expanded}/search/[*:item]",
-                array('self', 'search'),
+                array(__CLASS__, 'search'),
                 'search'
             )
             ->get(
                 "${expanded}/[list|all]?",
-                array('self', 'listem'),
+                array(__CLASS__, 'listem'),
                 'list'
             )
             ->get(
                 "${expanded}/[i:id]",
-                array('self', 'indiv'),
+                array(__CLASS__, 'indiv'),
                 'indiv'
             )->get(
-                "${expanded}/names",
+                "${expanded}/names/[*:whereItems]?",
                 [__CLASS__, 'names'],
                 'names'
             )->get(
-                "${expanded}/ids",
+                "${expanded}/ids/[*:whereItems]?/[*:getField]?",
                 [__CLASS__, 'ids'],
                 'ids'
             )->put(
                 "${expanded}/[i:id]/[update|edit]?",
-                array('self', 'edit'),
+                array(__CLASS__, 'edit'),
                 'update'
             )
             ->post(
                 "${expandedt}/[i:id]/[task]",
-                array('self', 'task'),
+                array(__CLASS__, 'task'),
                 'task'
             )
             ->post(
                 "${expanded}/[create|new]?",
-                array('self', 'create'),
+                array(__CLASS__, 'create'),
                 'create'
             )
             ->delete(
                 "${expandedt}/[i:id]?/[cancel]",
-                array('self', 'cancel'),
+                array(__CLASS__, 'cancel'),
                 'cancel'
             )
             ->delete(
                 "${expanded}/[i:id]/[delete|remove]?",
-                array('self', 'delete'),
+                array(__CLASS__, 'delete'),
                 'delete'
             );
     }
@@ -380,15 +380,6 @@ class Route extends FOGBase
                 HTTPResponseCodes::HTTP_UNAUTHORIZED
             );
         }
-        $pwhash = self::getClass('User')
-            ->set('password', $_SERVER['PHP_AUTH_PW'], true)
-            ->load('password');
-        if ($pwhash->isValid()
-            && $pwhash->get('api')
-            && $pwhash->get('name') == $_SERVER['PHP_AUTH_USER']
-        ) {
-            return;
-        }
     }
     /**
      * Sends the response code through break head as needed.
@@ -414,6 +405,7 @@ class Route extends FOGBase
     {
         self::sendResponse(
             HTTPResponseCodes::HTTP_SUCCESS
+            "success\n"
         );
     }
     /**
