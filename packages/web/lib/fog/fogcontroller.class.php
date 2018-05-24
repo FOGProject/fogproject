@@ -1123,7 +1123,10 @@ abstract class FOGController extends FOGBase
         if (count($rem)) {
             Route::deletemass(
                 $classCall,
-                [$assocstr => $rem]
+                [
+                    $assocstr => $rem,
+                    $objstr => $this->get('id')
+                ]
             );
         }
 
