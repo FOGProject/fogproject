@@ -404,7 +404,7 @@ class Route extends FOGBase
     public static function status()
     {
         self::sendResponse(
-            HTTPResponseCodes::HTTP_SUCCESS
+            HTTPResponseCodes::HTTP_SUCCESS,
             "success\n"
         );
     }
