@@ -1426,7 +1426,11 @@ EOF
                 if [[ $httpproto == https ]]; then
                     echo "<VirtualHost *:80>" > "$etcconf"
                     echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
-                    echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
+                    if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
+                        echo "        SetHandler application/x-httpd-php" >> "$etcconf"
+                    else
+                        echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
+                    fi
                     echo "    </FilesMatch>" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
                     echo "    RewriteEngine On" >> "$etcconf"
@@ -1439,7 +1443,11 @@ EOF
                     echo "<VirtualHost *:443>" >> "$etcconf"
                     echo "    KeepAlive Off" >> "$etcconf"
                     echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
-                    echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
+                    if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
+                        echo "        SetHandler application/x-httpd-php" >> "$etcconf"
+                    else
+                        echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
+                    fi
                     echo "    </FilesMatch>" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
                     echo "    DocumentRoot $docroot" >> "$etcconf"
@@ -1463,7 +1471,11 @@ EOF
                 else
                     echo "<VirtualHost *:80>" > "$etcconf"
                     echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
-                    echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
+                    if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
+                        echo "        SetHandler application/x-httpd-php" >> "$etcconf"
+                    else
+                        echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
+                    fi
                     echo "    </FilesMatch>" >> "$etcconf"
                     echo "    KeepAlive Off" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
