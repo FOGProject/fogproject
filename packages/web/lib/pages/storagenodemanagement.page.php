@@ -1476,20 +1476,6 @@ class StorageNodeManagement extends FOGPage
                 ]
             );
             if ($warning) {
-                $warn = _(
-                    'Unable to connect using ip, user, and/or password provided!'
-                );
-                $warn .= '<br/><br/>';
-                $warn .= _('Storage Node created successfully');
-                $title = _('Storage Node Create Warning');
-                $msg = json_encode(
-                    [
-                        'warning' => $warn,
-                        'title' => $title
-                    ]
-                );
-            }
-            if ($warning) {
                 $warning .= '<br/><br/>';
                 $warning .= _('Storage Node updated successfully');
                 $title = _('Storage Node Update Warning');
