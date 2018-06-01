@@ -1315,7 +1315,11 @@ abstract class FOGBase
         if (!is_string($new_key)) {
             throw new Exception(_('New key must be a string'));
         }
-        $array[$old_key] = trim($array[$old_key]);
+        $array[$old_key] = (
+            is_string($array[$old_key]) ?
+            trim($array[$old_key]) :
+            $array[$old_key]
+        );
         if (!self::$service && is_string($array[$old_key])) {
             $item = mb_convert_encoding(
                 $array[$old_key],

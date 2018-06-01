@@ -47,7 +47,7 @@ class MulticastManager extends FOGService
     public function __construct()
     {
         parent::__construct();
-        $multicasetkeys = [
+        $multicastkeys = [
             'MULTICASTDEVICEOUTPUT',
             'MULTICASTLOGFILENAME',
             self::$sleeptime

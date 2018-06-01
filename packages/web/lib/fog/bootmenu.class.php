@@ -934,7 +934,7 @@ class BootMenu extends FOGBase
         /**
          * Sort a list.
          */
-        $imgFind = ['imageEnabled' => 1];
+        $imgFind = ['isEnabled' => 1];
         if (!self::getSetting('FOG_IMAGE_LIST_MENU')) {
             if (!self::$Host->isValid()
                 || !self::$Host->getImage()->isValid()
