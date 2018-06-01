@@ -398,3 +398,4 @@ $foglang['Language']['fr'] = 'Français';
 $foglang['Language']['de'] = 'Deutsch';
 $foglang['Language']['it'] = 'Italiano';
 $foglang['Language']['pt'] = 'Português';
+$foglang['Language']['eu'] = 'Euskal';

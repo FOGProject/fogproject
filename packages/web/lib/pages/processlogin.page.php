@@ -100,6 +100,8 @@ class ProcessLogin extends FOGPage
             return self::$foglang['Language']['en'];
         case 'es_ES':
             return self::$foglang['Language']['es'];
+        case 'eu_ES':
+            return self::$foglang['Language']['eu'];
         case 'fr_FR':
             return self::$foglang['Language']['fr'];
         case 'it_IT':
@@ -135,6 +137,9 @@ class ProcessLogin extends FOGPage
         case self::$foglang['Language']['es']:
             $this->_lang = self::$locale = 'es_ES';
             break;
+        case self::$foglang['Language']['eu']:
+            $this->_lang = self::$Locale = 'eu_ES';
+            break;
         case self::$foglang['Language']['fr']:
             $this->_lang = self::$locale = 'fr_FR';
             break;
@@ -162,6 +167,7 @@ class ProcessLogin extends FOGPage
             'de_DE' => true,
             'en_US' => true,
             'es_ES' => true,
+            'eu_ES' => true,
             'fr_FR' => true,
             'it_IT' => true,
             'pt_BR' => true,
