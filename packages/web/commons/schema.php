@@ -3806,3 +3806,9 @@ $this->schema[] = [
     "UPDATE `globalSettings` SET `settingValue` = '4' WHERE "
     . "`settingKey` = 'FOG_USER_MINPASSLENGTH'"
 ];
+// 268
+$this->schema[] = [
+    "ALTER TABLE `multicastSessions` CHANGE `msAnon3` `msShutdown` "
+    . "ENUM('0','1') NOT NULL DEFAULT '0'",
+    "ALTER TABLE `multicastSessions` CHANGE `msAnon4` `msMaxwait` INTEGER NOT NULL"
+];

@@ -751,9 +751,7 @@ class BootMenu extends FOGBase
             Route::getData()
         );
         foreach ($Sessions->data as &$MulticastSession) {
-            if (!$MulticastSession->isValid()
-                || $MulticastSession->sessclients < 1
-            ) {
+            if ($MulticastSession->sessclients < 1) {
                 $MulticastSessionID = 0;
                 unset($MulticastSession);
                 continue;
@@ -830,6 +828,7 @@ class BootMenu extends FOGBase
         if ($mc) {
             $Image = $mc->getImage();
             $TaskType = new TaskType(8);
+            $shutdown = (bool)$mc->get('shutdown');
         }
         $serviceNames = [
             'FOG_DISABLE_CHKDSK',
@@ -845,10 +844,12 @@ class BootMenu extends FOGBase
             $mcastrdv,
             $nondev
         ) = self::getSetting($serviceNames);
-        $shutdown = false !== stripos(
-            'shutdown=1',
-            $TaskType->get('kernelArgs')
-        );
+        if (!$shutdown) {
+            $shutdown = false !== stripos(
+                'shutdown=1',
+                $TaskType->get('kernelArgs')
+            );
+        }
         if (!$shutdown && isset($_REQUEST['extraargs'])) {
             $shutdown = false !== stripos(
                 'shutdown=1',
