@@ -379,6 +379,15 @@ class MulticastTask extends FOGService
         ->get('bitrate');
     }
     /**
+     * Returns the max timeout setting
+     *
+     * @return int
+     */
+    public function getMaxwait()
+    {
+        return (int)$this->getSess()->get('maxwait');
+    }
+    /**
      * Returns the session class
      *
      * @return object
@@ -402,15 +411,14 @@ class MulticastTask extends FOGService
         $keys = [
             'FOG_MULTICAST_ADDRESS',
             'FOG_MULTICAST_DUPLEX',
-            'FOG_MULTICAST_RENDEZVOUS',
-            'FOG_UDPCAST_MAXWAIT'
+            'FOG_MULTICAST_RENDEZVOUS'
         ];
         list(
             $address,
             $duplex,
-            $multicastrdv,
-            $maxwait
+            $multicastrdv
         ) = self::getSetting($keys);
+        $maxwait = $this->getMaxwait();
         $buildcmd = [
             UDPSENDERPATH,
             (

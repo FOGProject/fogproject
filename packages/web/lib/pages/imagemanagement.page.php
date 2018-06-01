@@ -1385,6 +1385,11 @@ class ImageManagement extends FOGPage
         $sessionname = filter_input(INPUT_POST, 'sessionname');
         $sessioncount = filter_input(INPUT_POST, 'sessioncount');
         $timeout = (int)filter_input(INPUT_POST, 'sessiontimeout');
+        $shutdown = (
+            isset($_POST['sessionshutdown']) ?
+            ' checked' : 
+            ''
+        );
         $image = filter_input(INPUT_POST, 'image');
 
         $images = self::getClass('ImageManager')->buildSelectBox(
@@ -1438,7 +1443,24 @@ class ImageManagement extends FOGPage
                 $labelClass,
                 'image',
                 _('Session Image')
-            ) => $images
+            ) => $images,
+            self::makeLabel(
+                $labelClass,
+                'shutdown',
+                _('Session Shutdown')
+            ) => self::makeInput(
+                'form-control sessionshutdown-input',
+                'sessionshutdown',
+                '',
+                'checkbox',
+                'shutdown',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $shutdown
+            )
         ];
         self::$HookManager
             ->processEvent(
@@ -1605,6 +1627,7 @@ class ImageManagement extends FOGPage
         $sessioncount = (int)trim(
             filter_input(INPUT_POST, 'sessioncount')
         );
+        $sessionshutdown = (int)isset($_POST['sessionshutdown']);
         if (!$image) {
             throw new Exception(_('Please choose an image'));
         }
@@ -1620,8 +1643,8 @@ class ImageManagement extends FOGPage
         if ($sessioncount < 1) {
             $sessioncount = self::getClass('HostManager')->count();
         }
-        if ($sessiontimeout > 0) {
-            self::setSetting('FOG_UDPCAST_MAXWAIT', $sessiontimeout);
+        if (!$sessiontimeout) {
+            $sessiontimeout = self::getSetting('FOG_UDPCAST_MAXWAIT');
         }
         $countmc = self::getClass('MulticastSessionManager')
             ->count(
@@ -1655,7 +1678,9 @@ class ImageManagement extends FOGPage
             ->set('interface', $StorageNode->get('interface'))
             ->set('logpath', $Image->get('path'))
             ->set('storagegroupID', $StorageNode->get('id'))
-            ->set('clients', -2);
+            ->set('clients', -2)
+            ->set('maxwait', $sessiontimeout)
+            ->set('shutdown', $sessionshutdown);
     }
     /**
      * Cancels the selected/passed sessions.
