@@ -4,7 +4,7 @@
 
  FOG is a free open-source cloning/imaging solution/rescue suite. FOG can be used to image Windows XP, Vista, Windows 7 and Window 8 PCs using PXE, PartClone, and a Web GUI to tie it together. Includes features like memory and disk test, disk wipe, av scan & task scheduling.
 
-## Install Stable (1.6.0)
+## Install Stable
 
 0. Install and update your chosen linux server
 
@@ -12,11 +12,11 @@
 
  - All that is needed to start installation is to download the files to perform the install. Choose one of the following methods you prefer;
 
- - **git** ` git clone https://github.com/fogproject/fogproject.git fog_1.6.0/`
+ - **git** ` git clone https://github.com/fogproject/fogproject.git fog_stable/`
 
 2. Go into the downloaded source/bin folder
 
- - `cd fog_1.6.0/bin`
+ - `cd fog_stable/bin`
 
 3. Run the Install and follow all prompts accordingly
 
@@ -37,12 +37,10 @@
 
  - ### Initial setup
 
- - **svn** `svn checkout https://svn.code.sf.net/p/freeghost/code/trunk trunk/; cd trunk/bin/`
  - **git** `git clone https://github.com/fogproject/fogproject.git trunk/; git checkout dev-branch; cd trunk/bin/`
 
  - **Update setup**
 
- - **svn** `cd trunk/; svn up; cd bin/`
  - **git** `cd trunk/; git pull; cd bin/`
 
 3. Run the Install and follow all prompts accordingly
@@ -66,11 +64,11 @@ There are many resources for assistance.
 
 ## Development
 
- Download the source with either git or SVN and checkout the `dev-branch` for the latest code or a more specific feature branch you would like to help work on.
+ Download the source with git and checkout the `working` for the latest code or a more specific feature branch you would like to help work on.
 
  As you are running a development branch, please post bugs to either:
 
  - A new issue on https://github.com/FOGProject/fogproject/issues
  - https://forums.fogproject.org/category/17/bug-reports
 
- If you would like to create a pull request, please make the pull request into the dev-branch branch.
+ If you would like to create a pull request, please make the pull request into the `working` branch.
