@@ -1987,6 +1987,7 @@ class Config
     [[ -d /var/www/html/ && ! -e /var/www/html/fog/ ]] && ln -s "$webdirdest" /var/www/html/
     [[ -d /var/www/ && ! -e /var/www/fog ]] && ln -s "$webdirdest" /var/www/
     chown -R ${apacheuser}:${apacheuser} "$webdirdest"
+    chown -R ${username}:${apacheuser} "$webdirdest/service/ipxe"
 }
 downloadfiles() {
     clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
