@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-01 12:58-0400\n"
+"POT-Creation-Date: 2018-06-09 03:12-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3404,239 +3404,38 @@ msgstr "Download Failed"
 msgid "Start Download Fail"
 msgstr "Download Failed"
 
-msgid "FOG PXE Boot Menu Configuration"
-msgstr "FOG PXE Boot Menu Configuration"
-
-msgid "Main Colors"
-msgstr ""
+#, fuzzy
+msgid "iPXE Menu Configuration"
+msgstr "iPXE Menu Configuration"
 
 #, fuzzy
-msgid "Option specifies the color settings of the main menu items"
-msgstr "Option specifies the timeout value for the hidden menu system"
-
-#, fuzzy
-msgid "Valid Host Colors"
-msgstr "Invalid Host"
-
-#, fuzzy
-msgid "Option specifies the color text on the menu if the host"
-msgstr "Option specifies the timeout value for the hidden menu system"
-
-#, fuzzy
-msgid "is valid"
-msgstr "Data is invalid"
-
-#, fuzzy
-msgid "Invalid Host Colors"
-msgstr "Invalid Host"
-
-#, fuzzy
-msgid "is invalid"
-msgstr "Data is invalid"
-
-msgid "Main pairings"
-msgstr ""
-
-msgid "Option specifies the pairings of colors to"
-msgstr ""
-
-msgid "present and where/how they need to display"
-msgstr ""
-
-msgid "Main fallback pairings"
-msgstr ""
-
-msgid "Option specifies the pairings as a fallback"
-msgstr ""
-
-#, fuzzy
-msgid "Host pairings"
-msgstr "Host List"
-
-msgid "Option specifies the pairings after host checks"
-msgstr ""
-
-#, fuzzy
-msgid "Menu Timeout"
-msgstr "Hide Menu Timeout"
-
-msgid "in seconds"
-msgstr ""
-
-#, fuzzy
-msgid "Option specifies the menu timeout"
-msgstr "Option specifies the timeout value for the hidden menu system"
-
-msgid "This is set in seconds and causes the default option"
-msgstr ""
-
-msgid "to be booted if no keys are pressed when the menu is"
-msgstr ""
-
-msgid "open"
-msgstr ""
-
-msgid "Menu Background File"
-msgstr ""
-
-#, fuzzy
-msgid "Option specifies the background file to use"
-msgstr "Option specifies the timeout value for the hidden menu system"
-
-msgid "for the menu background"
-msgstr ""
-
-#, fuzzy
-msgid "Make Changes?"
-msgstr "Save Changes"
-
-#, fuzzy
-msgid "iPXE Menu Settings"
+msgid "Setting"
 msgstr "Settings"
 
-msgid "Menu colors, pairings, settings"
-msgstr ""
+msgid "Value"
+msgstr "Value"
 
-msgid "No Menu"
-msgstr "No Menu"
-
-msgid "Option sets if there will even"
-msgstr ""
-
-msgid "be the presence of a menu"
-msgstr ""
-
-msgid "to the client systems"
+msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
 
 #, fuzzy
-msgid "If there is not a task set"
-msgstr "There is a host in a tasking"
-
-msgid "it boots to the first device"
-msgstr ""
+msgid "value must be numeric"
+msgstr "You must enter a name"
 
 #, fuzzy
-msgid "if there is a task"
-msgstr "There is a host in a tasking"
-
-msgid "it performs that task"
-msgstr ""
-
-msgid "Hide Menu"
-msgstr "Hide Menu"
-
-msgid "Option sets the key sequence"
-msgstr ""
+msgid "Settings update failed!"
+msgstr "Settings Updated"
 
 #, fuzzy
-msgid "If none is specified"
-msgstr "No image specified"
+msgid "iPXE config successfully stored!"
+msgstr "has been successfully updated"
 
 #, fuzzy
-msgid "ESC is defaulted"
-msgstr "Enabled as default"
-
-msgid "Login with the FOG credentials and you will see the menu"
-msgstr ""
-
-msgid "Otherwise it will just boot like normal"
-msgstr ""
-
-msgid "Hide Menu Timeout"
-msgstr "Hide Menu Timeout"
-
-msgid "Option specifies the timeout value for the hidden menu system"
-msgstr "Option specifies the timeout value for the hidden menu system"
-
-msgid "Boot Key Sequence"
-msgstr "Boot Key Sequence"
-
-msgid "Option sets the ipxe keysequence to enter to gain menu"
-msgstr ""
-
-#, fuzzy
-msgid "access to the hidden menu system"
-msgstr "Option specifies the timeout value for the hidden menu system"
-
-msgid "Menu Hide/No Menu settings"
-msgstr ""
-
-msgid "Exit to Hard Drive Type"
-msgstr "Exit to Hard Drive Type"
-
-#, fuzzy
-msgid "Option specifies the legacy boot exit method ipxe will use"
-msgstr "Option specifies the timeout value for the hidden menu system"
-
-msgid "Exit to Hard Drive Type(EFI)"
-msgstr "Exit to Hard Drive Type(EFI)"
-
-#, fuzzy
-msgid "Option specifies the efi boot exit method ipxe will use"
-msgstr "Option specifies the timeout value for the hidden menu system"
-
-#, fuzzy
-msgid "Boot Exit settings"
-msgstr "Auto Log Out Settings"
-
-msgid "Advanced Menu Login"
-msgstr "Advanced Menu Login"
-
-msgid "Option below enforces a login system"
-msgstr ""
-
-msgid "for the advanced menu parameters"
-msgstr ""
-
-msgid "If off"
-msgstr ""
-
-msgid "no login will appear"
-msgstr ""
-
-#, fuzzy
-msgid "If on"
-msgstr "Icon"
-
-msgid "it will enforce login to gain access to the advanced"
-msgstr ""
-
-#, fuzzy
-msgid "menu system"
-msgstr "Menu Item:"
-
-#, fuzzy
-msgid "Advanced menu command"
-msgstr "Advanced Menu Login"
-
-msgid "Add any custom text you would like"
-msgstr ""
-
-#, fuzzy
-msgid "the advanced menu to use"
-msgstr "Advanced Menu Login"
-
-msgid "This is ipxe script commands to operate with"
-msgstr ""
-
-#, fuzzy
-msgid "Advanced Menu settings"
-msgstr "Advanced Settings"
-
-msgid "Invalid Timeout Value"
-msgstr "Invalid Timeout Value"
-
-#, fuzzy
-msgid "iPXE Settings updated successfully!"
+msgid "iPXE Config Update Success"
 msgstr "Install / Update Successful!"
 
 #, fuzzy
-msgid "iPXE Update Success"
-msgstr "Install / Update Successful!"
-
-#, fuzzy
-msgid "iPXE Update Fail"
+msgid "iPXE Config Update Fail"
 msgstr "Snapin update failed"
 
 msgid "This item allows you to edit all of the iPXE Menu items as you"
@@ -3688,6 +3487,10 @@ msgstr "Not able to update"
 #, fuzzy
 msgid "Menu Show with"
 msgstr "Menu Show with:"
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "Save Changes"
 
 #, fuzzy
 msgid "Delete Menu Item"
@@ -3775,10 +3578,6 @@ msgstr "Could not read temp file"
 msgid "No Image specified"
 msgstr "No Image specified"
 
-#, fuzzy
-msgid "value must be numeric"
-msgstr "You must enter a name"
-
 msgid "value is not in the required range"
 msgstr ""
 
@@ -3796,10 +3595,6 @@ msgid "Height must be 120 pixels."
 msgstr ""
 
 #, fuzzy
-msgid "Settings update failed!"
-msgstr "Settings Updated"
-
-#, fuzzy
 msgid "Settings successfully stored!"
 msgstr "has been successfully updated"
 
@@ -3810,13 +3605,6 @@ msgstr "Install / Update Successful!"
 #, fuzzy
 msgid "Settings Update Fail"
 msgstr "Settings Updated"
-
-#, fuzzy
-msgid "Setting"
-msgstr "Settings"
-
-msgid "Value"
-msgstr "Value"
 
 msgid "Service Master"
 msgstr "Service Master"
@@ -5390,6 +5178,9 @@ msgstr "Snapin Arguments"
 #, fuzzy
 msgid "Snapin Timeout"
 msgstr "Session timeout"
+
+msgid "in seconds"
+msgstr ""
 
 #, fuzzy
 msgid "No Action"

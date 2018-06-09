@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-01 13:33-0400\n"
+"POT-Creation-Date: 2018-06-09 03:12-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2941,211 +2941,31 @@ msgstr ""
 msgid "Start Download Fail"
 msgstr ""
 
-msgid "FOG PXE Boot Menu Configuration"
+msgid "iPXE Menu Configuration"
 msgstr ""
 
-msgid "Main Colors"
+msgid "Setting"
 msgstr ""
 
-msgid "Option specifies the color settings of the main menu items"
+msgid "Value"
 msgstr ""
 
-msgid "Valid Host Colors"
+msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
 
-msgid "Option specifies the color text on the menu if the host"
+msgid "value must be numeric"
 msgstr ""
 
-msgid "is valid"
+msgid "Settings update failed!"
 msgstr ""
 
-msgid "Invalid Host Colors"
+msgid "iPXE config successfully stored!"
 msgstr ""
 
-msgid "is invalid"
+msgid "iPXE Config Update Success"
 msgstr ""
 
-msgid "Main pairings"
-msgstr ""
-
-msgid "Option specifies the pairings of colors to"
-msgstr ""
-
-msgid "present and where/how they need to display"
-msgstr ""
-
-msgid "Main fallback pairings"
-msgstr ""
-
-msgid "Option specifies the pairings as a fallback"
-msgstr ""
-
-msgid "Host pairings"
-msgstr ""
-
-msgid "Option specifies the pairings after host checks"
-msgstr ""
-
-msgid "Menu Timeout"
-msgstr ""
-
-msgid "in seconds"
-msgstr ""
-
-msgid "Option specifies the menu timeout"
-msgstr ""
-
-msgid "This is set in seconds and causes the default option"
-msgstr ""
-
-msgid "to be booted if no keys are pressed when the menu is"
-msgstr ""
-
-msgid "open"
-msgstr ""
-
-msgid "Menu Background File"
-msgstr ""
-
-msgid "Option specifies the background file to use"
-msgstr ""
-
-msgid "for the menu background"
-msgstr ""
-
-msgid "Make Changes?"
-msgstr ""
-
-msgid "iPXE Menu Settings"
-msgstr ""
-
-msgid "Menu colors, pairings, settings"
-msgstr ""
-
-msgid "No Menu"
-msgstr ""
-
-msgid "Option sets if there will even"
-msgstr ""
-
-msgid "be the presence of a menu"
-msgstr ""
-
-msgid "to the client systems"
-msgstr ""
-
-msgid "If there is not a task set"
-msgstr ""
-
-msgid "it boots to the first device"
-msgstr ""
-
-msgid "if there is a task"
-msgstr ""
-
-msgid "it performs that task"
-msgstr ""
-
-msgid "Hide Menu"
-msgstr ""
-
-msgid "Option sets the key sequence"
-msgstr ""
-
-msgid "If none is specified"
-msgstr ""
-
-msgid "ESC is defaulted"
-msgstr ""
-
-msgid "Login with the FOG credentials and you will see the menu"
-msgstr ""
-
-msgid "Otherwise it will just boot like normal"
-msgstr ""
-
-msgid "Hide Menu Timeout"
-msgstr ""
-
-msgid "Option specifies the timeout value for the hidden menu system"
-msgstr ""
-
-msgid "Boot Key Sequence"
-msgstr ""
-
-msgid "Option sets the ipxe keysequence to enter to gain menu"
-msgstr ""
-
-msgid "access to the hidden menu system"
-msgstr ""
-
-msgid "Menu Hide/No Menu settings"
-msgstr ""
-
-msgid "Exit to Hard Drive Type"
-msgstr ""
-
-msgid "Option specifies the legacy boot exit method ipxe will use"
-msgstr ""
-
-msgid "Exit to Hard Drive Type(EFI)"
-msgstr ""
-
-msgid "Option specifies the efi boot exit method ipxe will use"
-msgstr ""
-
-msgid "Boot Exit settings"
-msgstr ""
-
-msgid "Advanced Menu Login"
-msgstr ""
-
-msgid "Option below enforces a login system"
-msgstr ""
-
-msgid "for the advanced menu parameters"
-msgstr ""
-
-msgid "If off"
-msgstr ""
-
-msgid "no login will appear"
-msgstr ""
-
-msgid "If on"
-msgstr ""
-
-msgid "it will enforce login to gain access to the advanced"
-msgstr ""
-
-msgid "menu system"
-msgstr ""
-
-msgid "Advanced menu command"
-msgstr ""
-
-msgid "Add any custom text you would like"
-msgstr ""
-
-msgid "the advanced menu to use"
-msgstr ""
-
-msgid "This is ipxe script commands to operate with"
-msgstr ""
-
-msgid "Advanced Menu settings"
-msgstr ""
-
-msgid "Invalid Timeout Value"
-msgstr ""
-
-msgid "iPXE Settings updated successfully!"
-msgstr ""
-
-msgid "iPXE Update Success"
-msgstr ""
-
-msgid "iPXE Update Fail"
+msgid "iPXE Config Update Fail"
 msgstr ""
 
 msgid "This item allows you to edit all of the iPXE Menu items as you"
@@ -3188,6 +3008,9 @@ msgid "Hot Key to use"
 msgstr ""
 
 msgid "Menu Show with"
+msgstr ""
+
+msgid "Make Changes?"
 msgstr ""
 
 msgid "Delete Menu Item"
@@ -3262,9 +3085,6 @@ msgstr ""
 msgid "No Image specified"
 msgstr ""
 
-msgid "value must be numeric"
-msgstr ""
-
 msgid "value is not in the required range"
 msgstr ""
 
@@ -3280,9 +3100,6 @@ msgstr ""
 msgid "Height must be 120 pixels."
 msgstr ""
 
-msgid "Settings update failed!"
-msgstr ""
-
 msgid "Settings successfully stored!"
 msgstr ""
 
@@ -3290,12 +3107,6 @@ msgid "Settings Update Success"
 msgstr ""
 
 msgid "Settings Update Fail"
-msgstr ""
-
-msgid "Setting"
-msgstr ""
-
-msgid "Value"
 msgstr ""
 
 msgid "Service Master"
@@ -4611,6 +4422,9 @@ msgid "Snapin Arguments Hidden"
 msgstr ""
 
 msgid "Snapin Timeout"
+msgstr ""
+
+msgid "in seconds"
 msgstr ""
 
 msgid "No Action"

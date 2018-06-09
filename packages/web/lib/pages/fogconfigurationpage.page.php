@@ -370,13 +370,46 @@ class FOGConfigurationPage extends FOGPage
      */
     public function pxemenu()
     {
-        $this->title = _('FOG PXE Boot Menu Configuration');
-        unset($this->headerData);
+        $this->title = _('iPXE Menu Configuration');
+
+        $this->headerData = [
+            _('Setting'),
+            _('Value')
+        ];
+
         $this->attributes = [
-            [],
             [],
             []
         ];
+
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('iPXE Menu Configuration');
+        echo '</h4>';
+        echo '<p class="help-block">';
+        echo _('For ipxe command related items (e.g. colour, cpair, etc...) click ')
+            . '<a href="http://ipxe.org/cmd" target="_blank">'
+            . _('here')
+            . '</a>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo $this->render(12, 'ipxe-table');
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Ipxe Menu List getter.
+     *
+     * @return void
+     */
+    public function getIpxeList()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
         $ServicesToSee = [
             'FOG_ADVANCED_MENU_LOGIN',
             'FOG_BOOT_EXIT_TYPE',
@@ -393,443 +426,109 @@ class FOGConfigurationPage extends FOGPage
             'FOG_PXE_ADVANCED',
             'FOG_PXE_HIDDENMENU_TIMEOUT',
             'FOG_PXE_MENU_HIDDEN',
-            'FOG_PXE_MENU_TIMEOUT',
+            'FOG_PXE_MENU_TIMEOUT'
         ];
-        list(
-            $advLogin,
-            $exitNorm,
-            $exitEfi,
-            $bgfile,
-            $hostCpairs,
-            $hostInvalid,
-            $mainColors,
-            $mainCpairs,
-            $mainFallback,
-            $hostValid,
-            $bootKeys,
-            $noMenu,
-            $advanced,
-            $hideTimeout,
-            $hidChecked,
-            $timeout
-        ) = self::getSetting($ServicesToSee);
-        $advLogin = $advLogin ? ' checked' : '';
-        $exitNorm = Service::buildExitSelector(
-            'bootTypeExit',
-            $exitNorm,
-            false,
-            'bootTypeExit'
-        );
-        $exitEfi = Service::buildExitSelector(
-            'efiBootTypeExit',
-            $exitEfi,
-            false,
-            'efiBootTypeExit'
-        );
-        $bootKeys = self::getClass('KeySequenceManager')
-            ->buildSelectBox($bootKeys);
-        $noMenu = (
-            $noMenu ?
-            ' checked' :
-            ''
-        );
-        $hidChecked = (
-            $hidChecked ?
-            ' checked' :
-            ''
-        );
-        $fieldsToData = function (&$input, &$field) {
-            $this->data[] = [
-                'field' => $field,
-                'input' => (
-                    is_array($input) ?
-                    $input[0] :
-                    $input
-                ),
-                'span' => (
-                    is_array($input) ?
-                    $input[1] :
-                    ''
-                )
+        $needstobecheckbox = [
+            $ServicesToSee[0] => true,
+            $ServicesToSee[11] => true,
+            $ServicesToSee[14] => true
+        ];
+        $needstobenumeric = [
+            $ServicesToSee[13] => true,
+            $ServicesToSee[15] => true
+        ];
+        $where = "`settingKey` IN ('"
+            . implode("','", $ServicesToSee)
+            . "')";
+        $serviceMan = self::getClass('ServiceManager');
+        $table = $serviceMan->getTable();
+        $dbcolumns = $serviceMan->getColumns();
+        $sqlStr = $serviceMan->getQueryStr();
+        $filterStr = $serviceMan->getFilterStr();
+        $totalStr = $serviceMan->getTotalStr();
+        $columns = [];
+        foreach ($dbcolumns as $common => &$real) {
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
             ];
-            unset($input, $field);
-        };
-        // Menu based changes.
-        $fields = [
-            '<label for="mainColors">'
-            . _('Main Colors')
-            . '</label>' => [
-                '<div class="input-group">'
-                . '<textarea id="mainColors" name="mainColors" class="form-control">'
-                . $mainColors
-                . '</textarea>'
-                . '</div>',
-                '<i class="fa fa-question hand" title="'
-                . _('Option specifies the color settings of the main menu items')
-                . '." data-toggle="tooltip" data-placement="right"></i>'
-            ],
-            '<label for="hostValid">'
-            . _('Valid Host Colors')
-            . '<label>' => [
-                '<div class="input-group">'
-                . '<textarea id="hostValid" class="form-control" name="hostValid">'
-                . $hostValid
-                . '</textarea>'
-                . '</div>',
-                '<i class="fa fa-question hand" title="'
-                . _('Option specifies the color text on the menu if the host')
-                . ' '
-                . _('is valid')
-                . '." data-toggle="tooltip" data-placement="right"></i>'
-            ],
-            '<label for="hostInvalid">'
-            . _('Invalid Host Colors')
-            . '</label>' => [
-                '<div class="input-group">'
-                . '<textarea name="hostInvalid" class="form-control" id='
-                . '"hostInvalid">'
-                . $hostInvalid
-                . '</textarea>'
-                . '</div>',
-                '<i class="fa fa-question hand" title="'
-                . _('Option specifies the color text on the menu if the host')
-                . ' '
-                . _('is invalid')
-                . '." data-toggle="tooltip" data-placement="right"></i>'
-            ],
-            '<label for="mainCpairs">'
-            . _('Main pairings')
-            . '</label>' => [
-                '<div class="input-group">'
-                . '<textarea id="mainCpairs" name="mainCpairs" class='
-                . '"form-control">'
-                . $mainCpairs
-                . '</textarea>'
-                . '</div>',
-                '<i class="fa fa-question hand" title="'
-                . _('Option specifies the pairings of colors to')
-                . ' '
-                . _('present and where/how they need to display')
-                . '." data-toggle="tooltip" data-placement="right"></i>'
-            ],
-            '<label for="mainFallback">'
-            . _('Main fallback pairings')
-            . '</label>' => [
-                '<div class="input-group">'
-                . '<textarea class="form-control" id="mainFallback" name='
-                . '"mainFallback">'
-                . $mainFallback
-                . '</textarea>'
-                . '</div>',
-                '<i class="fa fa-question hand" title="'
-                . _('Option specifies the pairings as a fallback')
-                . '." data-toggle="tooltip" data-placement="right"></i>'
-            ],
-            '<label for="hostCpairs">'
-            . _('Host pairings')
-            . '</label>' => [
-                '<div class="input-group">'
-                . '<textarea class="form-control" id="hostCPairs" name="hostCpairs">'
-                . $hostCpairs
-                . '</textarea>'
-                . '</div>',
-                '<i class="fa fa-question hand" title="'
-                . _('Option specifies the pairings after host checks')
-                . '." data-toggle="tooltip" data-placement="right"></i>'
-            ],
-            '<label for="timeout">'
-            . _('Menu Timeout')
-            . ' ('
-            . _('in seconds')
-            . ')'
-            . '</label>' => [
-                '<div class="input-group">'
-                . '<input type="text" id="timeout" name="timeout" value="'
-                . $timeout
-                . '" class="form-control"/>'
-                . '</div>',
-                '<i class="fa fa-question hand" title="'
-                . _('Option specifies the menu timeout')
-                . '. '
-                . _('This is set in seconds and causes the default option')
-                . ' '
-                . _('to be booted if no keys are pressed when the menu is')
-                . ' '
-                . _('open')
-                . '." data-toggle="tooltip" data-placement="right"></i>'
-            ],
-            '<label for="bgfile">'
-            . _('Menu Background File')
-            . '</label>' => [
-                '<div class="input-group">'
-                . '<input type="text" id="bgfile" name="bgfile" value="'
-                . $bgfile
-                . '" class="form-control"/>'
-                . '</div>',
-                '<i class="fa fa-question hand" title="'
-                . _('Option specifies the background file to use')
-                . ' '
-                . _('for the menu background')
-                . '." data-toggle="tooltip" data-placement="right"></i>'
-            ],
-            '<label for="menuSet">'
-            . _('Make Changes?')
-            . '</label>' => '<button type="submit" id="menuSet" class="'
-            . 'btn btn-info btn-block" name="updatemenuset">'
-            . _('Update')
-            . '</button>'
-        ];
-        self::$HookManager->processEvent(
-            'IPXE_MENU_SETTINGS_FIELDS',
-            ['fields' => &$fields]
+            $columns[] = [
+                'db' => $real,
+                'dt' => 'inputValue',
+                'formatter' => function ($d, $row) use (
+                    $needstobenumeric,
+                    $needstobecheckbox
+                ) {
+                    switch ($row['settingKey']) {
+                    case 'FOG_KEY_SEQUENCE':
+                        $input = self::getClass('KeySequenceManager')
+                            ->buildSelectBox(
+                                $row['settingValue'],
+                                $row['settingID']
+                            );
+                        break;
+                    case 'FOG_BOOT_EXIT_TYPE':
+                    case 'FOG_EFI_BOOT_EXIT_TYPE':
+                        $input = Service::buildExitSelector(
+                            $row['settingID'],
+                            $row['settingValue'],
+                            false,
+                            $row['settingKey']
+                        );
+                        break;
+                    case (isset($needstobecheckbox[$row['settingKey']])):
+                        $input = self::makeInput(
+                            '',
+                            $row['settingID'],
+                            '',
+                            'checkbox',
+                            $row['settingKey'],
+                            '',
+                            false,
+                            false,
+                            -1,
+                            -1,
+                            ($row['settingValue'] > 0 ? 'checked' : '')
+                        );
+                        break;
+                    case (isset($needstobenumeric[$row['settingKey']])):
+                        $input = self::makeInput(
+                            'form-control',
+                            $row['settingID'],
+                            '',
+                            'number',
+                            $row['settingKey'],
+                            $row['settingValue']
+                        );
+                        break;
+                    default:
+                        $input = self::makeTextarea(
+                            'form-control',
+                            $row['settingID'],
+                            '',
+                            $row['settingKey'],
+                            $row['settingValue']
+                        );
+                        break;
+                    }
+                    return $input;
+                }
+            ];
+            unset($real);
+        }
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                $table,
+                'settingID',
+                $columns,
+                $sqlStr,
+                $filterStr,
+                $totalStr,
+                $where
+            )
         );
-        array_walk($fields, $fieldsToData);
-        self::$HookManager->processEvent(
-            'IPXE_MENU_SETTINGS',
-            [
-                'data' => &$this->data,
-                'attributes' => &$this->attributes
-            ]
-        );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('iPXE Menu Settings');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '" novalidate>';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center expand_trigger hand" id='
-            . '"menusettings">';
-        echo '<h4 class="title">';
-        echo _('Menu colors, pairings, settings');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body hidefirst" id="menusettings">';
-        $this->render(12);
-        echo '</div>';
-        echo '</div>';
-        $this->data = [];
-        $fields = [
-            '<label for="nomenu">'
-            . _('No Menu')
-            . '</label>' => [
-                '<input type="checkbox" id="nomenu" name="nomenu"'
-                . $noMenu
-                . '/>',
-                '<i class="fa fa-question hand" title="'
-                . _('Option sets if there will even')
-                . ' '
-                . _('be the presence of a menu')
-                . ' '
-                . _('to the client systems')
-                . '. '
-                . _('If there is not a task set')
-                . ', '
-                . _('it boots to the first device')
-                . ', '
-                . _('if there is a task')
-                . ', '
-                . _('it performs that task')
-                . '." data-toggle="tooltip" data-placement="right"></i>'
-            ],
-            '<label for="hidemenu">'
-            . _('Hide Menu')
-            . '</label>' => [
-                '<input type="checkbox" id="hidemenu" name="hidemenu"'
-                . $hidChecked
-                . '/>',
-                '<i class="fa fa-question hand" title="'
-                . _('Option sets the key sequence')
-                . '. '
-                . _('If none is specified')
-                . ', '
-                . _('ESC is defaulted')
-                . '. '
-                . _('Login with the FOG credentials and you will see the menu')
-                . '. '
-                . _('Otherwise it will just boot like normal')
-                . '." data-toggle="tooltip" data-placement="right"></i>'
-            ],
-            '<label for="hidetimeout">'
-            . _('Hide Menu Timeout')
-            . '</label>' => [
-                '<div class="input-group">'
-                . '<input type="text" id="hidetimeout" name="hidetimeout" '
-                . 'value="'
-                . $hideTimeout
-                . '" class="form-control"/>'
-                . '</div>',
-                '<i class="fa fa-question hand" title="'
-                . _('Option specifies the timeout value for the hidden menu system')
-                . '." data-toggle="tooltip" data-placement="right"></i>'
-            ],
-            '<label for="keysequence">'
-            . _('Boot Key Sequence')
-            . '</label>' => [
-                $bootKeys,
-                '<i class="fa fa-question hand" title="'
-                . _('Option sets the ipxe keysequence to enter to gain menu')
-                . ' '
-                . _('access to the hidden menu system')
-                . '." data-toggle="tooltip" data-placement="right"></i>'
-            ],
-            '<label for="hideSet">'
-            . _('Make Changes?')
-            . '</label>' => '<button type="submit" id="hideSet" class="'
-            . 'btn btn-info btn-block" name="updatehideset">'
-            . _('Update')
-            . '</button>'
-        ];
-        self::$HookManager->processEvent(
-            'IPXE_HIDENOMENU_SETTINGS_FIELDS',
-            ['fields' => &$fields]
-        );
-        array_walk($fields, $fieldsToData);
-        self::$HookManager->processEvent(
-            'IPXE_HIDENOMENU_SETTINGS',
-            [
-                'data' => &$this->data,
-                'attributes' => &$this->attributes
-            ]
-        );
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center expand_trigger hand" id="'
-            . 'menuhidesettings">';
-        echo '<h4 class="title">';
-        echo _('Menu Hide/No Menu settings');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body hidefirst" id="menuhidesettings">';
-        $this->render(12);
-        echo '</div>';
-        echo '</div>';
-        $this->data = [];
-        $fields = [
-            '<label for="bootTypeExit">'
-            . _('Exit to Hard Drive Type')
-            . '</label>' => [
-                $exitNorm,
-                '<i class="fa fa-question hand" title="'
-                . _('Option specifies the legacy boot exit method ipxe will use')
-                . '." data-toggle="tooltip" data-placement="right"></i>'
-            ],
-            '<label for="efiBootTypeExit">'
-            . _('Exit to Hard Drive Type(EFI)')
-            . '</label>' => [
-                $exitEfi,
-                '<i class="fa fa-question hand" title="'
-                . _('Option specifies the efi boot exit method ipxe will use')
-                . '." data-toggle="tooltip" data-placement="right"></i>'
-            ],
-            '<label for="exitSet">'
-            . _('Make Changes?')
-            . '</label>' => '<button type="submit" id="exitSet" class="'
-            . 'btn btn-info btn-block" name="updatebootexit">'
-            . _('Update')
-            . '</button>'
-        ];
-        self::$HookManager->processEvent(
-            'IPXE_EXITTYPE_SETTINGS_FIELDS',
-            ['fields' => &$fields]
-        );
-        array_walk($fields, $fieldsToData);
-        self::$HookManager->processEvent(
-            'IPXE_EXITTYPE_SETTINGS',
-            [
-                'data' => &$this->data,
-                'attributes' => &$this->attributes
-            ]
-        );
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center expand_trigger hand" id="'
-            . 'menuexitsettings">';
-        echo '<h4 class="title">';
-        echo _('Boot Exit settings');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body hidefirst" id="menuexitsettings">';
-        $this->render(12);
-        echo '</div>';
-        echo '</div>';
-        $this->data = [];
-        $fields = [
-            '<label for="advlog">'
-            . _('Advanced Menu Login')
-            . '</label>' => [
-                '<input type="checkbox" id="advlog" name="advmenulogin"'
-                . $advLogin
-                . '/>',
-                '<i class="fa fa-question hand" title="'
-                . _('Option below enforces a login system')
-                . ' '
-                . _('for the advanced menu parameters')
-                . '. '
-                . _('If off')
-                . ', '
-                . _('no login will appear')
-                . '. '
-                . _('If on')
-                . ', '
-                . _('it will enforce login to gain access to the advanced')
-                . ' '
-                . _('menu system')
-                . '." data-toggle="tooltip" data-placement="right"></i>'
-            ],
-            '<label for="advtext">'
-            . _('Advanced menu command')
-            . '</label>' => [
-                '<div class="input-group">'
-                . '<textarea id="advtext" class="form-control" name="adv">'
-                . $advanced
-                . '</textarea>'
-                . '</div>',
-                '<i class="fa fa-question hand" title="'
-                . _('Add any custom text you would like')
-                . ' '
-                . _('the advanced menu to use')
-                . '. '
-                . _('This is ipxe script commands to operate with')
-                . '." data-toggle="tooltip" data-placement="right"></i>'
-            ],
-            '<label for="advSet">'
-            . _('Make Changes?')
-            . '</label>' => '<button type="submit" id="advSet" class="'
-            . 'btn btn-info btn-block" name="updateadvset">'
-            . _('Update')
-            . '</button>'
-        ];
-        self::$HookManager->processEvent(
-            'IPXE_ADVANCED_SETTINGS_FIELDS',
-            ['fields' => &$fields]
-        );
-        array_walk($fields, $fieldsToData);
-        self::$HookManager->processEvent(
-            'IPXE_ADVANCED_SETTINGS',
-            [
-                'data' => &$this->data,
-                'attributes' => &$this->attributes
-            ]
-        );
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center expand_trigger hand" id="'
-            . 'advancedmenusettings">';
-        echo '<h4 class="title">';
-        echo _('Advanced Menu settings');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body hidefirst" id="advancedmenusettings">';
-        $this->render(12);
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        exit;
     }
     /**
      * Stores the changes made.
@@ -838,144 +537,97 @@ class FOGConfigurationPage extends FOGPage
      */
     public function pxemenuPost()
     {
+        header('Content-type: application/json');
+        self::$HookManager->processEvent('PXEMENU_POST');
+        $ServicesToSee = [
+            'FOG_ADVANCED_MENU_LOGIN',
+            'FOG_BOOT_EXIT_TYPE',
+            'FOG_EFI_BOOT_EXIT_TYPE',
+            'FOG_IPXE_BG_FILE',
+            'FOG_IPXE_HOST_CPAIRS',
+            'FOG_IPXE_INVALID_HOST_COLOURS',
+            'FOG_IPXE_MAIN_COLOURS',
+            'FOG_IPXE_MAIN_CPAIRS',
+            'FOG_IPXE_MAIN_FALLBACK_CPAIRS',
+            'FOG_IPXE_VALID_HOST_COLOURS',
+            'FOG_KEY_SEQUENCE',
+            'FOG_NO_MENU',
+            'FOG_PXE_ADVANCED',
+            'FOG_PXE_HIDDENMENU_TIMEOUT',
+            'FOG_PXE_MENU_HIDDEN',
+            'FOG_PXE_MENU_TIMEOUT'
+        ];
+        $checkbox = [
+            'FOG_ADVANCED_MENU_LOGIN' => true,
+            'FOG_NO_MENU' => true,
+            'FOG_PXE_MENU_HIDDEN' => true
+        ];
+        $needstobenumeric = [
+            $ServicesToSee[13] => true,
+            $ServicesToSee[15] => true
+        ];
+
+        $serverFault = false;
         try {
-            if (isset($_POST['updatemenuset'])) {
-                $mainColors = filter_input(
-                    INPUT_POST,
-                    'mainColors'
-                );
-                $hostValid = filter_input(
-                    INPUT_POST,
-                    'hostValid'
-                );
-                $hostInvalid = filter_input(
-                    INPUT_POST,
-                    'hostInvalid'
-                );
-                $mainCpairs = filter_input(
-                    INPUT_POST,
-                    'mainCpairs'
-                );
-                $mainFallback = filter_input(
-                    INPUT_POST,
-                    'mainFallback'
-                );
-                $hostCpairs = filter_input(
-                    INPUT_POST,
-                    'hostCpairs'
-                );
-                $timeout = trim(
-                    filter_input(INPUT_POST, 'timeout')
-                );
-                $timeoutt = (is_numeric($timeout) &&  $timeout >= 0);
-                if (!$timeoutt) {
-                    throw new Exception(_('Invalid Timeout Value'));
-                }
-                $bgfile = filter_input(
-                    INPUT_POST,
-                    'bgfile'
-                );
-                $ServicesToEdit = [
-                    'FOG_IPXE_MAIN_COLOURS' => $mainColors,
-                    'FOG_IPXE_VALID_HOST_COLOURS' => $hostValid,
-                    'FOG_IPXE_INVALID_HOST_COLOURS' => $hostInvalid,
-                    'FOG_IPXE_MAIN_CPAIRS' => $mainCpairs,
-                    'FOG_IPXE_MAIN_FALLBACK_CPAIRS' => $mainFallback,
-                    'FOG_IPXE_HOST_CPAIRS' => $hostCpairs,
-                    'FOG_PXE_MENU_TIMEOUT' => $timeout,
-                    'FOG_IPXE_BG_FILE' => $bgfile
-                ];
-            }
-            if (isset($_POST['updatehideset'])) {
-                $noMenu = (int)isset($_POST['nomenu']);
-                $hideMenu = (int)isset($_POST['hidemenu']);
-                $hidetimeout = trim(
-                    filter_input(INPUT_POST, 'hidetimeout')
-                );
-                $hidetimeoutt = (is_numeric($hidetimeout) && $hidetimeout >= 0);
-                if (!$hidetimeoutt) {
-                    throw new Exception(_('Invalid Timeout Value'));
-                }
-                $keysequence = filter_input(
-                    INPUT_POST,
-                    'keysequence'
-                );
-                $ServicesToEdit = [
-                    'FOG_NO_MENU' => $noMenu,
-                    'FOG_PXE_MENU_HIDDEN' => $hideMenu,
-                    'FOG_PXE_HIDDENMENU_TIMEOUT' => $hidetimeout,
-                    'FOG_KEY_SEQUENCE' => $keysequence
-                ];
-            }
-            if (isset($_POST['updatebootexit'])) {
-                $bootTypeExit = filter_input(
-                    INPUT_POST,
-                    'bootTypeExit'
-                );
-                $efiBootTypeExit = filter_input(
-                    INPUT_POST,
-                    'efiBootTypeExit'
-                );
-                $ServicesToEdit = [
-                    'FOG_BOOT_EXIT_TYPE' => $bootTypeExit,
-                    'FOG_EFI_BOOT_EXIT_TYPE' => $efiBootTypeExit
-                ];
-            }
-            if (isset($_POST['updateadvset'])) {
-                $advmenulogin = filter_input(
-                    INPUT_POST,
-                    'advmenulogin'
-                );
-                $adv = filter_input(
-                    INPUT_POST,
-                    'adv'
-                );
-                $ServicesToEdit = [
-                    'FOG_ADVANCED_MENU_LOGIN' => $advmenulogin,
-                    'FOG_PXE_ADVANCED' => $adv,
-                ];
-            }
-            ksort($ServicesToEdit);
-            $find = ['name' => array_keys($ServicesToEdit)];
-            Route::ids(
-                'service',
-                $find
-            );
-            $ids = json_decode(
-                Route::getData(),
-                true
+            parse_str(
+                file_get_contents('php://input'),
+                $vars
             );
             $items = [];
-            $iteration = 0;
-            foreach ($ServicesToEdit as $key => &$value) {
-                $items[] = [$ids[$iteration], $key, $value];
-                $iteration++;
-                unset($value);
+            foreach ($vars as $key => &$val) {
+                Route::indiv('service', $key);
+                $set = trim($val);
+                $Service = json_decode(
+                    Route::getData()
+                );
+                $name = trim($Service->name);
+                $val = trim($Service->value);
+                if ($val == $set) {
+                    continue;
+                }
+                if (isset($checkbox[$name])) {
+                    $set = intval($set) < 1 ? 0 : 1;
+                } elseif (isset($needstobenumeric[$name])) {
+                    if (isset($needstobenumeric[$name]) && !is_numeric($set)) {
+                        throw new Exception(
+                            $name . ' ' . _('value must be numeric')
+                        );
+                    }
+                }
+                unset($val);
+                $items[] = [$key, $name, $set];
+                unset($Service);
+                unset($val);
             }
             if (count($items) > 0) {
-                self::getClass('ServiceManager')
-                    ->insertBatch(
-                        [
-                            'id',
-                            'name',
-                            'value'
-                        ],
-                        $items
-                    );
+                $ServiceMan = new ServiceManager();
+                $insert_fields = [
+                    'id',
+                    'name',
+                    'value'
+                ];
+                if (!$ServiceMan->insertBatch($insert_fields, $items)) {
+                    $serverFault = true;
+                    throw new Exception(_('Settings update failed!'));
+                }
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $msg = json_encode(
                 [
-                    'msg' => _('iPXE Settings updated successfully!'),
-                    'title' => _('iPXE Update Success')
+                    'msg' => _('iPXE config successfully stored!'),
+                    'title' => _('iPXE Config Update Success')
                 ]
             );
         } catch (Exception $e) {
-            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('iPXE Update Fail')
+                    'title' => _('iPXE Config Update Fail')
                 ]
             );
         }
