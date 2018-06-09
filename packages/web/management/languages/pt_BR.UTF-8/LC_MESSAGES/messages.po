@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-01 12:58-0400\n"
+"POT-Creation-Date: 2018-06-09 03:12-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3407,239 +3407,38 @@ msgstr "Falha no download"
 msgid "Start Download Fail"
 msgstr "Falha no download"
 
-msgid "FOG PXE Boot Menu Configuration"
-msgstr "Configuração do menu FOG Boot PXE"
-
-msgid "Main Colors"
-msgstr ""
+#, fuzzy
+msgid "iPXE Menu Configuration"
+msgstr "Configuração do menu gpxe"
 
 #, fuzzy
-msgid "Option specifies the color settings of the main menu items"
-msgstr "Opção especifica o valor de tempo limite para o sistema de menu oculto"
-
-#, fuzzy
-msgid "Valid Host Colors"
-msgstr "Anfitrião inválido"
-
-#, fuzzy
-msgid "Option specifies the color text on the menu if the host"
-msgstr "Opção especifica o valor de tempo limite para o sistema de menu oculto"
-
-#, fuzzy
-msgid "is valid"
-msgstr "Dados são inválidos"
-
-#, fuzzy
-msgid "Invalid Host Colors"
-msgstr "Anfitrião inválido"
-
-#, fuzzy
-msgid "is invalid"
-msgstr "Dados são inválidos"
-
-msgid "Main pairings"
-msgstr ""
-
-msgid "Option specifies the pairings of colors to"
-msgstr ""
-
-msgid "present and where/how they need to display"
-msgstr ""
-
-msgid "Main fallback pairings"
-msgstr ""
-
-msgid "Option specifies the pairings as a fallback"
-msgstr ""
-
-#, fuzzy
-msgid "Host pairings"
-msgstr "Lista de Host"
-
-msgid "Option specifies the pairings after host checks"
-msgstr ""
-
-#, fuzzy
-msgid "Menu Timeout"
-msgstr "Timeout FECHAR"
-
-msgid "in seconds"
-msgstr ""
-
-#, fuzzy
-msgid "Option specifies the menu timeout"
-msgstr "Opção especifica o valor de tempo limite para o sistema de menu oculto"
-
-msgid "This is set in seconds and causes the default option"
-msgstr ""
-
-msgid "to be booted if no keys are pressed when the menu is"
-msgstr ""
-
-msgid "open"
-msgstr ""
-
-msgid "Menu Background File"
-msgstr ""
-
-#, fuzzy
-msgid "Option specifies the background file to use"
-msgstr "Opção especifica o valor de tempo limite para o sistema de menu oculto"
-
-msgid "for the menu background"
-msgstr ""
-
-#, fuzzy
-msgid "Make Changes?"
-msgstr "Salvar alterações"
-
-#, fuzzy
-msgid "iPXE Menu Settings"
+msgid "Setting"
 msgstr "Configurações"
 
-msgid "Menu colors, pairings, settings"
-msgstr ""
+msgid "Value"
+msgstr "Valor"
 
-msgid "No Menu"
-msgstr "Sem menu"
-
-msgid "Option sets if there will even"
-msgstr ""
-
-msgid "be the presence of a menu"
-msgstr ""
-
-msgid "to the client systems"
+msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
 
 #, fuzzy
-msgid "If there is not a task set"
-msgstr "Há uma série de tarefas"
-
-msgid "it boots to the first device"
-msgstr ""
+msgid "value must be numeric"
+msgstr "Você deve digitar um nome"
 
 #, fuzzy
-msgid "if there is a task"
-msgstr "Há uma série de tarefas"
-
-msgid "it performs that task"
-msgstr ""
-
-msgid "Hide Menu"
-msgstr "FECHAR"
-
-msgid "Option sets the key sequence"
-msgstr ""
+msgid "Settings update failed!"
+msgstr "Configurações atualizadas"
 
 #, fuzzy
-msgid "If none is specified"
-msgstr "Nenhuma imagem especificada"
+msgid "iPXE config successfully stored!"
+msgstr "foi atualizado com sucesso"
 
 #, fuzzy
-msgid "ESC is defaulted"
-msgstr "Ativado como padrão"
-
-msgid "Login with the FOG credentials and you will see the menu"
-msgstr ""
-
-msgid "Otherwise it will just boot like normal"
-msgstr ""
-
-msgid "Hide Menu Timeout"
-msgstr "Timeout FECHAR"
-
-msgid "Option specifies the timeout value for the hidden menu system"
-msgstr "Opção especifica o valor de tempo limite para o sistema de menu oculto"
-
-msgid "Boot Key Sequence"
-msgstr "Bota Key Sequence"
-
-msgid "Option sets the ipxe keysequence to enter to gain menu"
-msgstr ""
-
-#, fuzzy
-msgid "access to the hidden menu system"
-msgstr "Opção especifica o valor de tempo limite para o sistema de menu oculto"
-
-msgid "Menu Hide/No Menu settings"
-msgstr ""
-
-msgid "Exit to Hard Drive Type"
-msgstr "Sair para Tipo de disco rígido"
-
-#, fuzzy
-msgid "Option specifies the legacy boot exit method ipxe will use"
-msgstr "Opção especifica o valor de tempo limite para o sistema de menu oculto"
-
-msgid "Exit to Hard Drive Type(EFI)"
-msgstr "Sair para Tipo de disco rígido (EFI)"
-
-#, fuzzy
-msgid "Option specifies the efi boot exit method ipxe will use"
-msgstr "Opção especifica o valor de tempo limite para o sistema de menu oculto"
-
-#, fuzzy
-msgid "Boot Exit settings"
-msgstr "anfitrião Descrição"
-
-msgid "Advanced Menu Login"
-msgstr "Login avançado menu"
-
-msgid "Option below enforces a login system"
-msgstr ""
-
-msgid "for the advanced menu parameters"
-msgstr ""
-
-msgid "If off"
-msgstr ""
-
-msgid "no login will appear"
-msgstr ""
-
-#, fuzzy
-msgid "If on"
-msgstr "Ícone"
-
-msgid "it will enforce login to gain access to the advanced"
-msgstr ""
-
-#, fuzzy
-msgid "menu system"
-msgstr "Item do menu:"
-
-#, fuzzy
-msgid "Advanced menu command"
-msgstr "Login avançado menu"
-
-msgid "Add any custom text you would like"
-msgstr ""
-
-#, fuzzy
-msgid "the advanced menu to use"
-msgstr "Login avançado menu"
-
-msgid "This is ipxe script commands to operate with"
-msgstr ""
-
-#, fuzzy
-msgid "Advanced Menu settings"
-msgstr "Configurações avançadas"
-
-msgid "Invalid Timeout Value"
-msgstr "Valor do Tempo Limite inválido"
-
-#, fuzzy
-msgid "iPXE Settings updated successfully!"
+msgid "iPXE Config Update Success"
 msgstr "Instalar / Atualizar sucesso!"
 
 #, fuzzy
-msgid "iPXE Update Success"
-msgstr "Instalar / Atualizar sucesso!"
-
-#, fuzzy
-msgid "iPXE Update Fail"
+msgid "iPXE Config Update Fail"
 msgstr "atualização Snapin falhou"
 
 msgid "This item allows you to edit all of the iPXE Menu items as you"
@@ -3691,6 +3490,10 @@ msgstr "Não é capaz de atualizar"
 #, fuzzy
 msgid "Menu Show with"
 msgstr "Menu Show com:"
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "Salvar alterações"
 
 #, fuzzy
 msgid "Delete Menu Item"
@@ -3778,10 +3581,6 @@ msgstr "Não foi possível ler arquivo temporário"
 msgid "No Image specified"
 msgstr "Sem Imagem do especificado"
 
-#, fuzzy
-msgid "value must be numeric"
-msgstr "Você deve digitar um nome"
-
 msgid "value is not in the required range"
 msgstr ""
 
@@ -3799,10 +3598,6 @@ msgid "Height must be 120 pixels."
 msgstr ""
 
 #, fuzzy
-msgid "Settings update failed!"
-msgstr "Configurações atualizadas"
-
-#, fuzzy
 msgid "Settings successfully stored!"
 msgstr "foi atualizado com sucesso"
 
@@ -3813,13 +3608,6 @@ msgstr "Instalar / Atualizar sucesso!"
 #, fuzzy
 msgid "Settings Update Fail"
 msgstr "Configurações atualizadas"
-
-#, fuzzy
-msgid "Setting"
-msgstr "Configurações"
-
-msgid "Value"
-msgstr "Valor"
 
 msgid "Service Master"
 msgstr "Mestre serviço"
@@ -5395,6 +5183,9 @@ msgstr "Argumentos Snapin"
 #, fuzzy
 msgid "Snapin Timeout"
 msgstr "Sessão expirada"
+
+msgid "in seconds"
+msgstr ""
 
 #, fuzzy
 msgid "No Action"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-01 12:58-0400\n"
+"POT-Creation-Date: 2018-06-09 03:12-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3400,239 +3400,38 @@ msgstr "下载失败"
 msgid "Start Download Fail"
 msgstr "下载失败"
 
-msgid "FOG PXE Boot Menu Configuration"
-msgstr "FOG PXE启动菜单配置"
-
-msgid "Main Colors"
-msgstr ""
+#, fuzzy
+msgid "iPXE Menu Configuration"
+msgstr "iPXE菜单配置"
 
 #, fuzzy
-msgid "Option specifies the color settings of the main menu items"
-msgstr "选项​​为隐藏的菜单系统的超时值"
-
-#, fuzzy
-msgid "Valid Host Colors"
-msgstr "无效的主机"
-
-#, fuzzy
-msgid "Option specifies the color text on the menu if the host"
-msgstr "选项​​为隐藏的菜单系统的超时值"
-
-#, fuzzy
-msgid "is valid"
-msgstr "数据是无效"
-
-#, fuzzy
-msgid "Invalid Host Colors"
-msgstr "无效的主机"
-
-#, fuzzy
-msgid "is invalid"
-msgstr "数据是无效"
-
-msgid "Main pairings"
-msgstr ""
-
-msgid "Option specifies the pairings of colors to"
-msgstr ""
-
-msgid "present and where/how they need to display"
-msgstr ""
-
-msgid "Main fallback pairings"
-msgstr ""
-
-msgid "Option specifies the pairings as a fallback"
-msgstr ""
-
-#, fuzzy
-msgid "Host pairings"
-msgstr "主机列表"
-
-msgid "Option specifies the pairings after host checks"
-msgstr ""
-
-#, fuzzy
-msgid "Menu Timeout"
-msgstr "隐藏菜单超时"
-
-msgid "in seconds"
-msgstr ""
-
-#, fuzzy
-msgid "Option specifies the menu timeout"
-msgstr "选项​​为隐藏的菜单系统的超时值"
-
-msgid "This is set in seconds and causes the default option"
-msgstr ""
-
-msgid "to be booted if no keys are pressed when the menu is"
-msgstr ""
-
-msgid "open"
-msgstr ""
-
-msgid "Menu Background File"
-msgstr ""
-
-#, fuzzy
-msgid "Option specifies the background file to use"
-msgstr "选项​​为隐藏的菜单系统的超时值"
-
-msgid "for the menu background"
-msgstr ""
-
-#, fuzzy
-msgid "Make Changes?"
-msgstr "保存更改"
-
-#, fuzzy
-msgid "iPXE Menu Settings"
+msgid "Setting"
 msgstr "设置"
 
-msgid "Menu colors, pairings, settings"
-msgstr ""
+msgid "Value"
+msgstr "值"
 
-msgid "No Menu"
-msgstr "无菜单"
-
-msgid "Option sets if there will even"
-msgstr ""
-
-msgid "be the presence of a menu"
-msgstr ""
-
-msgid "to the client systems"
+msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
 
 #, fuzzy
-msgid "If there is not a task set"
-msgstr "有在一个任务的主机"
-
-msgid "it boots to the first device"
-msgstr ""
+msgid "value must be numeric"
+msgstr "您必须输入一个名称"
 
 #, fuzzy
-msgid "if there is a task"
-msgstr "有在一个任务的主机"
-
-msgid "it performs that task"
-msgstr ""
-
-msgid "Hide Menu"
-msgstr "隐藏菜单"
-
-msgid "Option sets the key sequence"
-msgstr ""
+msgid "Settings update failed!"
+msgstr "设置更新"
 
 #, fuzzy
-msgid "If none is specified"
-msgstr "没有指定的图像"
+msgid "iPXE config successfully stored!"
+msgstr "已成功更新"
 
 #, fuzzy
-msgid "ESC is defaulted"
-msgstr "启用默认"
-
-msgid "Login with the FOG credentials and you will see the menu"
-msgstr ""
-
-msgid "Otherwise it will just boot like normal"
-msgstr ""
-
-msgid "Hide Menu Timeout"
-msgstr "隐藏菜单超时"
-
-msgid "Option specifies the timeout value for the hidden menu system"
-msgstr "选项​​为隐藏的菜单系统的超时值"
-
-msgid "Boot Key Sequence"
-msgstr "开机按键顺序"
-
-msgid "Option sets the ipxe keysequence to enter to gain menu"
-msgstr ""
-
-#, fuzzy
-msgid "access to the hidden menu system"
-msgstr "选项​​为隐藏的菜单系统的超时值"
-
-msgid "Menu Hide/No Menu settings"
-msgstr ""
-
-msgid "Exit to Hard Drive Type"
-msgstr "退出硬盘类型"
-
-#, fuzzy
-msgid "Option specifies the legacy boot exit method ipxe will use"
-msgstr "选项​​为隐藏的菜单系统的超时值"
-
-msgid "Exit to Hard Drive Type(EFI)"
-msgstr "退出硬盘类型（EFI）"
-
-#, fuzzy
-msgid "Option specifies the efi boot exit method ipxe will use"
-msgstr "选项​​为隐藏的菜单系统的超时值"
-
-#, fuzzy
-msgid "Boot Exit settings"
-msgstr "主机描述"
-
-msgid "Advanced Menu Login"
-msgstr "高级菜单登录"
-
-msgid "Option below enforces a login system"
-msgstr ""
-
-msgid "for the advanced menu parameters"
-msgstr ""
-
-msgid "If off"
-msgstr ""
-
-msgid "no login will appear"
-msgstr ""
-
-#, fuzzy
-msgid "If on"
-msgstr "图标"
-
-msgid "it will enforce login to gain access to the advanced"
-msgstr ""
-
-#, fuzzy
-msgid "menu system"
-msgstr "菜单项："
-
-#, fuzzy
-msgid "Advanced menu command"
-msgstr "高级菜单登录"
-
-msgid "Add any custom text you would like"
-msgstr ""
-
-#, fuzzy
-msgid "the advanced menu to use"
-msgstr "高级菜单登录"
-
-msgid "This is ipxe script commands to operate with"
-msgstr ""
-
-#, fuzzy
-msgid "Advanced Menu settings"
-msgstr "高级设置"
-
-msgid "Invalid Timeout Value"
-msgstr "无效的超时值"
-
-#, fuzzy
-msgid "iPXE Settings updated successfully!"
+msgid "iPXE Config Update Success"
 msgstr "安装/升级成功！"
 
 #, fuzzy
-msgid "iPXE Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "iPXE Update Fail"
+msgid "iPXE Config Update Fail"
 msgstr "管理单元更新失败"
 
 msgid "This item allows you to edit all of the iPXE Menu items as you"
@@ -3684,6 +3483,10 @@ msgstr "不能够更新"
 #, fuzzy
 msgid "Menu Show with"
 msgstr "菜单显示有："
+
+#, fuzzy
+msgid "Make Changes?"
+msgstr "保存更改"
 
 #, fuzzy
 msgid "Delete Menu Item"
@@ -3771,10 +3574,6 @@ msgstr "无法读取临时文件"
 msgid "No Image specified"
 msgstr "没有指定的Image"
 
-#, fuzzy
-msgid "value must be numeric"
-msgstr "您必须输入一个名称"
-
 msgid "value is not in the required range"
 msgstr ""
 
@@ -3792,10 +3591,6 @@ msgid "Height must be 120 pixels."
 msgstr ""
 
 #, fuzzy
-msgid "Settings update failed!"
-msgstr "设置更新"
-
-#, fuzzy
 msgid "Settings successfully stored!"
 msgstr "已成功更新"
 
@@ -3806,13 +3601,6 @@ msgstr "安装/升级成功！"
 #, fuzzy
 msgid "Settings Update Fail"
 msgstr "设置更新"
-
-#, fuzzy
-msgid "Setting"
-msgstr "设置"
-
-msgid "Value"
-msgstr "值"
 
 msgid "Service Master"
 msgstr "服务主"
@@ -5386,6 +5174,9 @@ msgstr "管理单元参数"
 #, fuzzy
 msgid "Snapin Timeout"
 msgstr "会话超时"
+
+msgid "in seconds"
+msgstr ""
 
 #, fuzzy
 msgid "No Action"

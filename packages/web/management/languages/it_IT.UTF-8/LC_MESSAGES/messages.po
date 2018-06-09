@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-01 12:58-0400\n"
+"POT-Creation-Date: 2018-06-09 03:12-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3237,215 +3237,39 @@ msgstr "Scaricamento fallito"
 msgid "Start Download Fail"
 msgstr "Scaricamento fallito"
 
-msgid "FOG PXE Boot Menu Configuration"
-msgstr "Menu di configurazione di avvio PXE FOG"
+#, fuzzy
+msgid "iPXE Menu Configuration"
+msgstr "Configurazione generale iPXE"
 
-msgid "Main Colors"
-msgstr "Colori principali"
+#, fuzzy
+msgid "Setting"
+msgstr "impostazioni"
 
-msgid "Option specifies the color settings of the main menu items"
+msgid "Value"
+msgstr "Valore"
+
+msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
-"Opzione consente di specificare le impostazioni di colore degli elementi "
-"principali"
 
-msgid "Valid Host Colors"
-msgstr "Colori host validi"
+#, fuzzy
+msgid "value must be numeric"
+msgstr "Il parametro Diff deve essere numerico"
 
-msgid "Option specifies the color text on the menu if the host"
-msgstr "Opzione specifica il colore del testo se l'host"
+#, fuzzy
+msgid "Settings update failed!"
+msgstr "Aggiornamento Impostazioni non riuscito"
 
-msgid "is valid"
-msgstr "è valido"
+#, fuzzy
+msgid "iPXE config successfully stored!"
+msgstr "Le impostazioni sono state memorizzate correttamente!"
 
-msgid "Invalid Host Colors"
-msgstr "Colori host non validi"
+#, fuzzy
+msgid "iPXE Config Update Success"
+msgstr "Elemento iPXE aggiornato con successo"
 
-msgid "is invalid"
-msgstr "Non è valido"
-
-msgid "Main pairings"
-msgstr "Accoppiamenti principali"
-
-msgid "Option specifies the pairings of colors to"
-msgstr "Opzione specifica le accoppiamenti dei colori per"
-
-msgid "present and where/how they need to display"
-msgstr "presente e dove/come devono essere visualizzati"
-
-msgid "Main fallback pairings"
-msgstr "Abbinamenti principali fallback"
-
-msgid "Option specifies the pairings as a fallback"
-msgstr "L'opzione specifica le accoppiamenti come fallback"
-
-msgid "Host pairings"
-msgstr "Abbinamenti host"
-
-msgid "Option specifies the pairings after host checks"
-msgstr "Opzione specifica le associazioni dopo controlli host"
-
-msgid "Menu Timeout"
-msgstr "Timeout menu"
-
-msgid "in seconds"
-msgstr "in secondi"
-
-msgid "Option specifies the menu timeout"
-msgstr "L'opzione specifica il timeout del menu"
-
-msgid "This is set in seconds and causes the default option"
-msgstr "Questo viene impostato in secondi e causa l'opzione predefinita"
-
-msgid "to be booted if no keys are pressed when the menu is"
-msgstr "per essere avviato se non è premuto nessun tasto quando il menu è"
-
-msgid "open"
-msgstr "aperto"
-
-msgid "Menu Background File"
-msgstr "File di sfondo menu"
-
-msgid "Option specifies the background file to use"
-msgstr "L'opzione specifica il file di sfondo da utilizzare"
-
-msgid "for the menu background"
-msgstr "per il menu di sfondo"
-
-msgid "Make Changes?"
-msgstr "Applicare cambiamenti?"
-
-msgid "iPXE Menu Settings"
-msgstr "Impostazioni del menu iPXE"
-
-msgid "Menu colors, pairings, settings"
-msgstr "Colori del menu, accoppiamenti, impostazioni"
-
-msgid "No Menu"
-msgstr "Nessun Menu"
-
-msgid "Option sets if there will even"
-msgstr "L'opzione si imposta se ci sarà anche"
-
-msgid "be the presence of a menu"
-msgstr "c'è la presenza di un menu"
-
-msgid "to the client systems"
-msgstr "verso i sistemi client"
-
-msgid "If there is not a task set"
-msgstr "Non c'è alcuna attività impostata"
-
-msgid "it boots to the first device"
-msgstr "avvia dal primo dispositivo"
-
-msgid "if there is a task"
-msgstr "Se c'è una attività"
-
-msgid "it performs that task"
-msgstr "esegue una attività"
-
-msgid "Hide Menu"
-msgstr "Nascondi Menu"
-
-msgid "Option sets the key sequence"
-msgstr "L'opzione imposta la sequenza di tasti"
-
-msgid "If none is specified"
-msgstr "Se niente specificato"
-
-msgid "ESC is defaulted"
-msgstr "ESC è predefinito"
-
-msgid "Login with the FOG credentials and you will see the menu"
-msgstr "Accedi con le credenziali FOG per vedere il menu"
-
-msgid "Otherwise it will just boot like normal"
-msgstr "Altrimenti eseguirà il boot normalmente"
-
-msgid "Hide Menu Timeout"
-msgstr "Nascondi Timeout Menu"
-
-msgid "Option specifies the timeout value for the hidden menu system"
-msgstr "Opzione specifica il valore di timeout per il sistema di menu nascosto"
-
-msgid "Boot Key Sequence"
-msgstr "Boot Sequence chiave"
-
-msgid "Option sets the ipxe keysequence to enter to gain menu"
-msgstr "L'opzione imposta la sequenza di tasti ipxe per entrare nel menu"
-
-msgid "access to the hidden menu system"
-msgstr "accesso al sistema di menu nascosto"
-
-msgid "Menu Hide/No Menu settings"
-msgstr "Nascondi Menu/Nessuna impostazione del menu"
-
-msgid "Exit to Hard Drive Type"
-msgstr "Uscita Tipo disco rigido"
-
-msgid "Option specifies the legacy boot exit method ipxe will use"
-msgstr "L'opzione specifica il metodo di uscita boot legacy che utilizza ipxe"
-
-msgid "Exit to Hard Drive Type(EFI)"
-msgstr "Uscita Tipo disco rigido (EFI)"
-
-msgid "Option specifies the efi boot exit method ipxe will use"
-msgstr ""
-"L'opzione specifica il metodo di uscite di boot di efi che utilizzerà ipxe"
-
-msgid "Boot Exit settings"
-msgstr "Impostazioni di uscita del Boot"
-
-msgid "Advanced Menu Login"
-msgstr "Accesso Menu avanzato"
-
-msgid "Option below enforces a login system"
-msgstr "L'opzione sotto rafforza il sistema di login"
-
-msgid "for the advanced menu parameters"
-msgstr "per i parametri di menu avanzati"
-
-msgid "If off"
-msgstr "Se disabilitato"
-
-msgid "no login will appear"
-msgstr "nessun login appare"
-
-msgid "If on"
-msgstr "Se abilitato"
-
-msgid "it will enforce login to gain access to the advanced"
-msgstr "attiverà il login per accedere alle avanzate"
-
-msgid "menu system"
-msgstr "menu di sistema"
-
-msgid "Advanced menu command"
-msgstr "Comando menu avanzato"
-
-msgid "Add any custom text you would like"
-msgstr "Aggiungi qualunque testo personalizzato desideri"
-
-msgid "the advanced menu to use"
-msgstr "Il menu avanzato da utilizzare"
-
-msgid "This is ipxe script commands to operate with"
-msgstr "Questo è il comando ipxe script per operare con"
-
-msgid "Advanced Menu settings"
-msgstr "Impostazioni menu avanzate"
-
-msgid "Invalid Timeout Value"
-msgstr "Non valido Valore Timeout"
-
-msgid "iPXE Settings updated successfully!"
-msgstr "Impostazioni iPXE aggiornate correttamente!"
-
-msgid "iPXE Update Success"
-msgstr "Riuscito iPXE Update"
-
-msgid "iPXE Update Fail"
-msgstr "Fallito iPXE Update"
+#, fuzzy
+msgid "iPXE Config Update Fail"
+msgstr "Aggiornamento Snapin fallito"
 
 msgid "This item allows you to edit all of the iPXE Menu items as you"
 msgstr "Questa voce consente di modificare tutte le voci di menu iPXE"
@@ -3489,6 +3313,9 @@ msgstr "Tasti Hot Key da usare"
 
 msgid "Menu Show with"
 msgstr "Mostra menu con:"
+
+msgid "Make Changes?"
+msgstr "Applicare cambiamenti?"
 
 msgid "Delete Menu Item"
 msgstr "Elimina il menu"
@@ -3567,10 +3394,6 @@ msgstr "Impossibile leggere il file temporaneo"
 msgid "No Image specified"
 msgstr "Nessuna immagine specificata"
 
-#, fuzzy
-msgid "value must be numeric"
-msgstr "Il parametro Diff deve essere numerico"
-
 msgid "value is not in the required range"
 msgstr ""
 
@@ -3587,10 +3410,6 @@ msgstr "Larghezza deve essere di 650 pixel."
 msgid "Height must be 120 pixels."
 msgstr "Altezza deve essere di 120 pixel."
 
-#, fuzzy
-msgid "Settings update failed!"
-msgstr "Aggiornamento Impostazioni non riuscito"
-
 msgid "Settings successfully stored!"
 msgstr "Le impostazioni sono state memorizzate correttamente!"
 
@@ -3599,13 +3418,6 @@ msgstr "Modifica Impostazioni completata"
 
 msgid "Settings Update Fail"
 msgstr "Aggiornamento Impostazioni non riuscito"
-
-#, fuzzy
-msgid "Setting"
-msgstr "impostazioni"
-
-msgid "Value"
-msgstr "Valore"
 
 msgid "Service Master"
 msgstr "Service master"
@@ -5101,6 +4913,9 @@ msgstr "Snapin Argomenti nascosti"
 #, fuzzy
 msgid "Snapin Timeout"
 msgstr "Timeout della sessione"
+
+msgid "in seconds"
+msgstr "in secondi"
 
 #, fuzzy
 msgid "No Action"
