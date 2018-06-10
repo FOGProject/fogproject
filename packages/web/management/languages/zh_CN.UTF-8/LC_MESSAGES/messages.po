@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-09 03:12-0400\n"
+"POT-Creation-Date: 2018-06-10 01:14-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -344,7 +344,7 @@ msgid "Kernel Update"
 msgstr "内核更新"
 
 #, fuzzy
-msgid "iPXE General Configuration"
+msgid "iPXE Menu Configuration"
 msgstr "iPXE菜单配置"
 
 msgid "Hostname Changer"
@@ -3401,10 +3401,6 @@ msgid "Start Download Fail"
 msgstr "下载失败"
 
 #, fuzzy
-msgid "iPXE Menu Configuration"
-msgstr "iPXE菜单配置"
-
-#, fuzzy
 msgid "Setting"
 msgstr "设置"
 
@@ -3434,108 +3430,32 @@ msgstr "安装/升级成功！"
 msgid "iPXE Config Update Fail"
 msgstr "管理单元更新失败"
 
-msgid "This item allows you to edit all of the iPXE Menu items as you"
-msgstr ""
-
-msgid "see fit"
-msgstr ""
-
-msgid "Mind you"
-msgstr ""
-
-msgid "iPXE syntax is very finicky when it comes to editing"
-msgstr ""
-
-msgid "If you need help understanding what items are needed please"
-msgstr ""
-
-msgid "see the forums or lookup the commands and scripts available"
-msgstr ""
-
 #, fuzzy
-msgid "from"
-msgstr "从"
-
-#, fuzzy
-msgid "Menu Item"
-msgstr "菜单项："
+msgid "iPXE Menu Entries"
+msgstr "iPXE新的菜单项"
 
 #, fuzzy
 msgid "Parameters"
 msgstr "参数："
 
 #, fuzzy
-msgid "Boot Options"
-msgstr "启动选项："
+msgid "Display With"
+msgstr "显示"
 
 #, fuzzy
-msgid "Default Item"
-msgstr "默认项："
+msgid "Options/Arguments"
+msgstr "管理单元参数"
 
 #, fuzzy
 msgid "Hot Key Enabled"
 msgstr "图片启用"
 
 #, fuzzy
-msgid "Hot Key to use"
-msgstr "不能够更新"
+msgid "Hot Key"
+msgstr "主机产品密钥"
 
-#, fuzzy
-msgid "Menu Show with"
-msgstr "菜单显示有："
-
-#, fuzzy
-msgid "Make Changes?"
-msgstr "保存更改"
-
-#, fuzzy
-msgid "Delete Menu Item"
-msgstr "删除所有选中的项目"
-
-#, fuzzy
-msgid "iPXE Item Update Success"
-msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "successfully removed!"
-msgstr "成功切除"
-
-#, fuzzy
-msgid "iPXE Item Remove Success"
-msgstr "安装/升级成功！"
-
-msgid "Create New iPXE Menu Entry"
-msgstr "新建iPXE菜单项"
-
-#, fuzzy
-msgid "New iPXE Menu"
-msgstr "新菜单"
-
-msgid "Menu Item or title cannot be blank"
-msgstr "菜单项或标题不能为空"
-
-msgid "A description needs to be set"
-msgstr "描述需要设置"
-
-#, fuzzy
-msgid "iPXE Item create failed!"
-msgstr "菜单创建失败"
-
-#, fuzzy
-msgid "Menu item failed!"
-msgstr "用户更新失败"
-
-#, fuzzy
-msgid "iPXE Item added!"
-msgstr "打印机名称"
-
-#, fuzzy
-msgid "iPXE Item Create Success"
-msgstr "打印机已经存在"
-
-#, fuzzy
-msgid "iPXE Item Create Fail"
-msgstr "打印机更新失败！"
+msgid "For ipxe command related items click "
+msgstr ""
 
 msgid "MAC Address Manufacturer Listing"
 msgstr "MAC地址制造商上市"
