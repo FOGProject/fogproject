@@ -445,7 +445,8 @@ class FOGConfigurationPage extends FOGPage
         $dbcolumns = $serviceMan->getColumns();
         $sqlStr = $serviceMan->getQueryStr();
         $filterStr = $serviceMan->getFilterStr();
-        $totalStr = $serviceMan->getTotalStr();
+        $totalStr = $serviceMan->getTotalStr()
+            . ($where ? ' WHERE ' . $where : '');
         $columns = [];
         foreach ($dbcolumns as $common => &$real) {
             $columns[] = [
@@ -521,6 +522,107 @@ class FOGConfigurationPage extends FOGPage
                 $pass_vars,
                 $table,
                 'settingID',
+                $columns,
+                $sqlStr,
+                $filterStr,
+                $totalStr,
+                $where
+            )
+        );
+        exit;
+    }
+    /**
+     * Menu items getter.
+     *
+     * @return void
+     */
+    public function getMenuList()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        $serviceMan = self::getClass('PXEMenuOptionsManager');
+        $table = $serviceMan->getTable();
+        $dbcolumns = $serviceMan->getColumns();
+        $sqlStr = $serviceMan->getQueryStr();
+        $filterStr = $serviceMan->getFilterStr();
+        $totalStr = $serviceMan->getTotalStr();
+        $columns = [];
+        foreach ($dbcolumns as $common => &$real) {
+            if ($common == 'id') {
+                $id = $real;
+            }
+            $column = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            switch ($common) {
+            case 'id':
+                break;
+            case 'name':
+            case 'args':
+            case 'keysequence':
+                $column['formatter'] = function ($d, $row) use ($common) {
+                    return self::makeInput(
+                        'form-control',
+                        $common,
+                        '',
+                        'text',
+                        '',
+                        $d,
+                        ($common == 'name')
+                    );
+                };
+                break;
+            case 'default':
+            case 'hotkey':
+                $column['formatter'] = function ($d, $row) use ($common) {
+                    return self::makeInput(
+                        '',
+                        $common,
+                        '',
+                        'checkbox',
+                        '',
+                        '',
+                        false,
+                        false,
+                        -1,
+                        -1,
+                        ($d > 0 ? 'checked' : '')
+                    );
+                };
+                break;
+            case 'regMenu':
+                $column['formatter'] = function ($d, $row) use ($common) {
+                    return self::getClass('PXEMenuOptionsManager')
+                        ->regSelect(
+                            $d,
+                            $common
+                        );
+                };
+                break;
+            default:
+                $column['formatter'] = function ($d, $row) use ($common) {
+                    return self::makeTextarea(
+                        'form-control',
+                        $common,
+                        '',
+                        '',
+                        $d
+                    );
+                };
+                break;
+            }
+            $columns[] = $column;
+            unset($column, $real);
+        }
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                $table,
+                $id,
                 $columns,
                 $sqlStr,
                 $filterStr,
@@ -642,222 +744,43 @@ class FOGConfigurationPage extends FOGPage
      */
     public function customizepxe()
     {
-        $this->title = self::$foglang['PXEMenuCustomization'];
-        Route::listem('pxemenuoptions');
-        $Menus = json_decode(
-            Route::getData()
-        );
-        $Menus = $Menus->data;
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo $this->title;
+        $this->title = _('iPXE Menu Entries');
+
+        $this->headerData = [
+            _('Name'),
+            _('Description'),
+            _('Parameters'),
+            _('Default'),
+            _('Display With'),
+            _('Options/Arguments'),
+            _('Hot Key Enabled'),
+            _('Hot Key')
+        ];
+
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('iPXE Menu Entries');
         echo '</h4>';
+        echo '<p class="help-block">';
+        echo _('For ipxe command related items click ')
+            . '<a href="http://ipxe.org/cmd" target="_blank">'
+            . _('here')
+            . '</a>';
         echo '</div>';
-        echo '<div class="panel-body">';
-        echo _('This item allows you to edit all of the iPXE Menu items as you');
-        echo ' ';
-        echo _('see fit');
-        echo '. ';
-        echo _('Mind you');
-        echo ', ';
-        echo _('iPXE syntax is very finicky when it comes to editing');
-        echo '. ';
-        echo _('If you need help understanding what items are needed please');
-        echo ' ';
-        echo _('see the forums or lookup the commands and scripts available');
-        echo ' ';
-        echo _('from');
-        echo ' ';
-        echo '<a href="http://ipxe.org">';
-        echo 'ipxe.org';
-        echo '</a>';
-        echo '.';
-        echo '<hr/>';
-        foreach ((array)$Menus as &$Menu) {
-            $divTab = preg_replace(
-                '#[^\w\-]#',
-                '_',
-                $Menu->name
-            );
-            $menuid = in_array(
-                $Menu->id,
-                range(1, 13)
-            );
-            $menuDefault = (
-                $Menu->default ?
-                ' checked' :
-                ''
-            );
-            $hotKey = (
-                $Menu->hotkey ?
-                ' checked' :
-                ''
-            );
-            $keySeq = $Menu->keysequence;
-            $fields = [
-                '<label for="menu_item'
-                . $divTab
-                . '">'
-                . _('Menu Item')
-                . '</label>' => '<div class="input-group">'
-                . '<input type="text" class="form-control" value="'
-                . $Menu->name
-                . '" name="menu_item" id="menu_item'
-                . $divTab
-                . '"/>'
-                . '</div>',
-                '<label for="menu_description'
-                . $divTab
-                . '">'
-                . _('Description')
-                . '</label>' => '<div class="input-group">'
-                . '<textarea name="menu_description" id="menu_description'
-                . $divTab
-                . '" class="form-control">'
-                . $Menu->description
-                . '</textarea>'
-                . '</div>',
-                '<label for="menu_params'
-                . $divTab
-                . '">'
-                . _('Parameters')
-                . '</label>' => '<div class="input-group">'
-                . '<textarea name="menu_params" id="menu_params'
-                . $divTab
-                . '" class="form-control">'
-                . $Menu->params
-                . '</textarea>'
-                . '</div>',
-                '<label for="menu_options'
-                . $divTab
-                . '">'
-                . _('Boot Options')
-                . '</label>' => '<div class="input-group">'
-                . '<input type="text" name="menu_options" id="'
-                . 'menu_options'
-                . $divTab
-                . '" value="'
-                . $Menu->args
-                . '" class="form-control"/>'
-                . '</div>',
-                '<label for="menudef'
-                . $divTab
-                . '">'
-                . _('Default Item')
-                . '</label>' => '<input type="checkbox" name="menu_default" id="'
-                . 'menudef'
-                . $divTab
-                . '"'
-                . $menuDefault
-                . '/>',
-                '<label for="hotkey'
-                . $divTab
-                . '">'
-                . _('Hot Key Enabled')
-                . '</label>' => '<input type="checkbox" name="hotkey" id="hotkey'
-                . $divTab
-                . '"'
-                . $hotKey
-                . '/>',
-                '<label for="menu_hotkey'
-                . $divTab
-                . '">'
-                . _('Hot Key to use')
-                . '</label>' => '<div class="input-group">'
-                . '<input type="text" name="keysequence" value="'
-                . $keySeq
-                . '" class="form-control" id="menu_hotkey'
-                . $divTab
-                . '"/>'
-                . '</div>',
-                '<label for="menu_regsel'
-                . $divTab
-                . '">'
-                . _('Menu Show with')
-                . '</label>' => '<div class="input-group">'
-                . self::getClass(
-                    'PXEMenuOptionsManager'
-                )->regSelect(
-                    $Menu->regMenu,
-                    'menu_regsel'
-                    . $divTab
-                )
-                . '</div>',
-                '<label for="menu_id'
-                . $divTab
-                . '">'
-                . _('Make Changes?')
-                . '</label>'
-                . '<input type="hidden" name="menu_id" value="'
-                . $Menu->id
-                . '"/>' => '<button name="saveform" type="submit" class="'
-                . 'btn btn-info btn-block" id="menu_id'
-                . $divTab
-                . '">'
-                . self::$foglang['Submit']
-                . '</button>',
-                (
-                    !$menuid ?
-                    '<label for="menu_del'
-                    . $divTab
-                    . '">'
-                    . _('Delete Menu Item')
-                    . '</label>'
-                    . '<input type="hidden" name="rmid" value="'
-                    . $Menu->id
-                    . '"/>' :
-                    ''
-                ) => (
-                    !$menuid ?
-                    '<button name="delform" type="submit" class="'
-                    . 'btn btn-danger btn-block" id="menu_del'
-                    . $divTab
-                    . '">'
-                    . self::$foglang['Delete']
-                    . '</button>' :
-                    ''
-                ),
-            ];
-            $fields = array_filter($fields);
-            array_walk($fields, $this->fieldsToData);
-            self::$HookManager->processEvent(
-                sprintf(
-                    'BOOT_ITEMS_%s',
-                    $divTab
-                ),
-                [
-                    'data' => &$this->data,
-                    'attributes' => &$this->attributes,
-                    'headerData' => &$this->headerData
-                ]
-            );
-            echo '<div class="panel panel-info">';
-            echo '<div class="panel-heading text-center '
-                . 'expand_trigger hand" id="pxeItem_'
-                . $divTab
-                . '">';
-            echo '<h4 class="title">';
-            echo $Menu->name;
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="panel-body hidefirst" id="pxeItem_'
-                . $divTab
-                . '">';
-            echo '<form class="form-horizontal" method="post" action="'
-                . $this->formAction
-                . '" novalidate>';
-            echo $this->render(12);
-            echo '</form>';
-            echo '</div>';
-            echo '</div>';
-            unset(
-                $this->data,
-                $Menu
-            );
-        }
-        echo '</div>';
+        echo '<div class="box-body">';
+        echo $this->render(12, 'ipxe-table');
         echo '</div>';
         echo '</div>';
     }
@@ -868,274 +791,17 @@ class FOGConfigurationPage extends FOGPage
      */
     public function customizepxePost()
     {
-        $menuid = filter_input(
-            INPUT_POST,
-            'menu_id'
-        );
-        if (isset($_POST['saveform'])) {
-            $menu_item = filter_input(
-                INPUT_POST,
-                'menu_item'
-            );
-            $menu_desc = filter_input(
-                INPUT_POST,
-                'menu_description'
-            );
-            $menu_params = filter_input(
-                INPUT_POST,
-                'menu_params'
-            );
-            $menu_options = filter_input(
-                INPUT_POST,
-                'menu_options'
-            );
-            $menu_regmenu = filter_input(
-                INPUT_POST,
-                'menu_regmenu'
-            );
-            $menu_hotkey = (int)isset($_POST['hotkey']);
-            $menu_key = filter_input(
-                INPUT_POST,
-                'keysequence'
-            );
-            $menu_default = (int)isset($_POST['menu_default']);
-            self::getClass('PXEMenuOptionsManager')
-                ->update(
-                    ['id' => $menuid],
-                    '',
-                    [
-                        'name' => $menu_item,
-                        'description' => $menu_desc,
-                        'params' => $menu_params,
-                        'regMenu' => $menu_regmenu,
-                        'args' => $menu_options,
-                        'default' => $menu_default,
-                        'hotkey' => $menu_hotkey,
-                        'keysequence' => $menu_key
-                    ]
-                );
-            if ($menu_default) {
-                Route::ids('pxemenuoptions');
-                $MenuIDs = json_decode(
-                    Route::getData(),
-                    true
-                );
-                natsort($MenuIDs);
-                $MenuIDs = array_unique(
-                    array_diff(
-                        $MenuIDs,
-                        (array)$menuid
-                    )
-                );
-                natsort($MenuIDs);
-                self::getClass('PXEMenuOptionsManager')
-                    ->update(
-                        ['id' => $MenuIDs],
-                        '',
-                        ['default' => '0']
-                    );
-            }
-            unset($MenuIDs);
-            $find = ['default' => 1];
-            Route::ids(
-                'pxemenuoptions',
-                $find
-            );
-            $DefMenuIDs = json_decode(
-                Route::getData(),
-                true
-            );
-            if (!count($DefMenuIDs)) {
-                self::getClass('PXEMenuOptions', 1)
-                    ->set('default', 1)
-                    ->save();
-            }
-            unset($DefMenuIDs);
-            $code = 201;
-            $msg = json_encode(
-                [
-                    'msg' => _("$menu_item successfully updated!"),
-                    'title' => _('iPXE Item Update Success')
-                ]
-            );
-        }
-        if (isset($_POST['delform'])) {
-            $rmid = filter_input(
-                INPUT_POST,
-                'rmid'
-            );
-            $menuname = self::getClass(
-                'PXEMenuOptions',
-                $rmid
-            );
-            if ($menuname->destroy()) {
-                $msg = json_encode(
-                    [
-                        'msg' => $menuname->get('name')
-                        . ' '
-                        . _('successfully removed!'),
-                        'title' => _('iPXE Item Remove Success')
-                    ]
-                );
-            }
-            $countDefault = self::getClass('PXEMenuOptionsManager')
-                ->count(['default' => 1]);
-            if ($countDefault == 0
-                || $countDefault > 1
-            ) {
-                self::getClass('PXEMenuOptions', 1)
-                    ->set('default', 1)
-                    ->save();
-            }
-        }
-        echo $msg;
-        exit;
-    }
-    /**
-     * Form presented to create a new menu.
-     *
-     * @return void
-     */
-    public function newMenu()
-    {
-        $this->title = _('Create New iPXE Menu Entry');
-        $menu_item = filter_input(
-            INPUT_POST,
-            'menu_item'
-        );
-        $menu_desc = filter_input(
-            INPUT_POST,
-            'menu_description'
-        );
-        $menu_params = filter_input(
-            INPUT_POST,
-            'menu_params'
-        );
-        $menu_options = filter_input(
-            INPUT_POST,
-            'menu_options'
-        );
-        $menu_regmenu = filter_input(
-            INPUT_POST,
-            'menu_regmenu'
-        );
-        $menu_hotkey = (
-            isset($_POST['hotkey']) ?
-            ' checked' :
-            ''
-        );
-        $menu_key = filter_input(
-            INPUT_POST,
-            'keysequence'
-        );
-        $menu_default = (
-            isset($_POST['menu_default']) ?
-            ' checked' :
-            ''
-        );
-        $fields = [
-            '<label for="menu_item">'
-            . _('Menu Item')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" class="form-control" value="'
-            . '" name="menu_item" id="menu_item'
-            . $menu_item
-            . '"/>'
-            . '</div>',
-            '<label for="menu_description">'
-            . _('Description')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="menu_description" id="menu_description'
-            . '" class="form-control">'
-            . $menu_desc
-            . '</textarea>'
-            . '</div>',
-            '<label for="menu_params">'
-            . _('Parameters')
-            . '</label>' => '<div class="input-group">'
-            . '<textarea name="menu_params" id="menu_params'
-            . '" class="form-control">'
-            . $menu_params
-            . '</textarea>'
-            . '</div>',
-            '<label for="menu_options">'
-            . _('Boot Options')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="menu_options" id="'
-            . 'menu_options'
-            . '" value="'
-            . $menu_options
-            . '" class="form-control"/>'
-            . '</div>',
-            '<label for="menudef">'
-            . _('Default Item')
-            . '</label>' => '<input type="checkbox" name="menu_default" id="'
-            . 'menudef'
-            . '"'
-            . $menu_default
-            . '/>',
-            '<label for="hotkey">'
-            . _('Hot Key Enabled')
-            . '</label>' => '<input type="checkbox" name="hotkey" id="hotkey'
-            . '"'
-            . $menu_hotkey
-            . '/>',
-            '<label for="menu_hotkey">'
-            . _('Hot Key to use')
-            . '</label>' => '<div class="input-group">'
-            . '<input type="text" name="keysequence" value="'
-            . $menu_key
-            . '" class="form-control" id="menu_hotkey'
-            . '"/>'
-            . '</div>',
-            '<label for="menu_regsel">'
-            . _('Menu Show with')
-            . '</label>' => '<div class="input-group">'
-            . self::getClass(
-                'PXEMenuOptionsManager'
-            )->regSelect(
-                $menu_regmenu,
-                'menu_regsel'
-            )
-            . '</div>',
-            '<label for="menu_id'
-            . '">'
-            . _('Make Changes?')
-            . '</label>'
-            . '<input type="hidden" name="menu_id" value="'
-            . '"/>' => '<button name="saveform" type="submit" class="'
-            . 'btn btn-info btn-block" id="menu_id'
-            . '">'
-            . self::$foglang['Submit']
-            . '</button>',
-        ];
-        $fields = array_filter($fields);
-        array_walk($fields, $this->fieldsToData);
-        self::$HookManager
-            ->processEvent(
-                'BOOT_ITEMS_ADD',
-                [
-                    'data' => &$this->data,
-                    'attributes' => &$this->attributes,
-                    'headerData' => &$this->headerData
-                ]
-            );
-        echo '<div class="col-xs-9">';
-        echo '<div class="panel panel-info">';
-        echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';
-        echo _('New iPXE Menu');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '" novalidate>';
-        $this->render(12);
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        header('Content-Type: application/json');
+        // Gather the inputs.
+        $id = filter_input(INPUT_POST, 'id');
+        $name = filter_input(INPUT_POST, 'name');
+        $description = filter_input(INPUT_POST, 'description');
+        $params = filter_input(INPUT_POST, 'params');
+        $default = isset($_POST['default']);
+        $regMenu = filter_input(INPUT_POST, 'regMenu');
+        $args = filter_input(INPUT_POST, 'args');
+        $hotkey = isset($_POST['hotkey']);
+        $keysequence = filter_input(INPUT_POST, 'keysequence');
     }
     /**
      * Creates the new Menu items.
@@ -1144,100 +810,6 @@ class FOGConfigurationPage extends FOGPage
      */
     public function newMenuPost()
     {
-        $menu_item = filter_input(
-            INPUT_POST,
-            'menu_item'
-        );
-        $menu_desc = filter_input(
-            INPUT_POST,
-            'menu_description'
-        );
-        $menu_params = filter_input(
-            INPUT_POST,
-            'menu_params'
-        );
-        $menu_options = filter_input(
-            INPUT_POST,
-            'menu_options'
-        );
-        $menu_regmenu = filter_input(
-            INPUT_POST,
-            'menu_regmenu'
-        );
-        $menu_hotkey = (int)isset($_POST['hotkey']);
-        $menu_key = filter_input(
-            INPUT_POST,
-            'keysequence'
-        );
-        $menu_default = (int)isset($_POST['menu_default']);
-        try {
-            if (!$menu_item) {
-                throw new Exception(_('Menu Item or title cannot be blank'));
-            }
-            if (!$menu_desc) {
-                throw new Exception(_('A description needs to be set'));
-            }
-            if ($menu_default) {
-                self::getClass('PXEMenuOptionsManager')
-                    ->update(
-                        '',
-                        '',
-                        ['default' => 0]
-                    );
-            }
-            $Menu = self::getClass('PXEMenuOptions')
-                ->set('name', $menu_item)
-                ->set('description', $menu_description)
-                ->set('params', $menu_params)
-                ->set('regMenu', $menu_regmenu)
-                ->set('args', $menu_options)
-                ->set('default', $menu_default);
-            if (!$Menu->save()) {
-                throw new Exception(_('iPXE Item create failed!'));
-            }
-            $countDefault = self::getClass('PXEMenuOptionsManager')
-                ->count(['default' => 1]);
-            if ($countDefault == 0 || $countDefault > 1) {
-                $PXEMenuOptions = self::getClass(
-                    'PXEMenuOptions',
-                    1
-                )->set('default', 1);
-                if (!$PXEMenuOptions->save()) {
-                    $serverFault = true;
-                    throw new Exception(_('Menu item failed!'));
-                }
-            }
-            $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'MENU_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('iPXE Item added!'),
-                    'title' => _('iPXE Item Create Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'MENU_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('iPXE Item Create Fail')
-                ]
-            );
-        }
-        http_response_code($code);
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                ['Menu' => &$Menu]
-            );
-        unset($Menu);
-        echo $msg;
-        exit;
     }
     /**
      * Presents mac listing information.

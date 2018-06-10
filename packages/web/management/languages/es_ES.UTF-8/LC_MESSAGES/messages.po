@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-09 03:12-0400\n"
+"POT-Creation-Date: 2018-06-10 01:14-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -384,7 +384,7 @@ msgid "Kernel Update"
 msgstr "Nombre del núcleo"
 
 #, fuzzy
-msgid "iPXE General Configuration"
+msgid "iPXE Menu Configuration"
 msgstr "Configuración del menú de arranque PXE FOG"
 
 #, fuzzy
@@ -3577,10 +3577,6 @@ msgid "Start Download Fail"
 msgstr "Descarga fracasó"
 
 #, fuzzy
-msgid "iPXE Menu Configuration"
-msgstr "Configuración del menú de arranque PXE FOG"
-
-#, fuzzy
 msgid "Setting"
 msgstr "Configuración Tecla"
 
@@ -3610,108 +3606,32 @@ msgstr "actualización de servicio no pudo"
 msgid "iPXE Config Update Fail"
 msgstr "actualización de servicio no pudo"
 
-msgid "This item allows you to edit all of the iPXE Menu items as you"
-msgstr ""
-
-msgid "see fit"
-msgstr ""
-
-msgid "Mind you"
-msgstr ""
-
-msgid "iPXE syntax is very finicky when it comes to editing"
-msgstr ""
-
-msgid "If you need help understanding what items are needed please"
-msgstr ""
-
-msgid "see the forums or lookup the commands and scripts available"
-msgstr ""
-
 #, fuzzy
-msgid "from"
-msgstr "De"
-
-#, fuzzy
-msgid "Menu Item"
-msgstr "Opción del menú:"
+msgid "iPXE Menu Entries"
+msgstr "Crear nueva entrada de menú gpxe"
 
 #, fuzzy
 msgid "Parameters"
 msgstr "parámetros:"
 
 #, fuzzy
-msgid "Boot Options"
-msgstr "Opciones de arranque:"
+msgid "Display With"
+msgstr "Diariamente"
 
 #, fuzzy
-msgid "Default Item"
-msgstr "Tema por defecto:"
+msgid "Options/Arguments"
+msgstr "Nombre snapin"
 
 #, fuzzy
 msgid "Hot Key Enabled"
 msgstr "imagen Habilitado"
 
 #, fuzzy
-msgid "Hot Key to use"
-msgstr "No es capaz de actualizar"
+msgid "Hot Key"
+msgstr "Clave del producto Grupo"
 
-#, fuzzy
-msgid "Menu Show with"
-msgstr "Mostrar menú con:"
-
-#, fuzzy
-msgid "Make Changes?"
-msgstr "Guardar cambios"
-
-#, fuzzy
-msgid "Delete Menu Item"
-msgstr "Eliminar todos los elementos seleccionados"
-
-#, fuzzy
-msgid "iPXE Item Update Success"
-msgstr "actualización de servicio no pudo"
-
-#, fuzzy
-msgid "successfully removed!"
-msgstr "eliminado con éxito"
-
-#, fuzzy
-msgid "iPXE Item Remove Success"
-msgstr "actualización de servicio no pudo"
-
-msgid "Create New iPXE Menu Entry"
-msgstr "Crear nueva entrada de menú gpxe"
-
-#, fuzzy
-msgid "New iPXE Menu"
-msgstr "nuevo menú"
-
-msgid "Menu Item or title cannot be blank"
-msgstr "Elementos de menú o el título no puede estar en blanco"
-
-msgid "A description needs to be set"
-msgstr "Una descripción debe establecerse"
-
-#, fuzzy
-msgid "iPXE Item create failed!"
-msgstr "Menú Error de creación"
-
-#, fuzzy
-msgid "Menu item failed!"
-msgstr "actualización Valoración falló"
-
-#, fuzzy
-msgid "iPXE Item added!"
-msgstr "Nombre de la impresora"
-
-#, fuzzy
-msgid "iPXE Item Create Success"
-msgstr "Impresora ya existe"
-
-#, fuzzy
-msgid "iPXE Item Create Fail"
-msgstr "actualización de la impresora ha fallado!"
+msgid "For ipxe command related items click "
+msgstr ""
 
 msgid "MAC Address Manufacturer Listing"
 msgstr "MAC propiedad Dirección Fabricante"

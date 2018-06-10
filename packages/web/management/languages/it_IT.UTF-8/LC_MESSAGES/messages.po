@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-09 03:12-0400\n"
+"POT-Creation-Date: 2018-06-10 01:14-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -345,7 +345,8 @@ msgstr "Licenza"
 msgid "Kernel Update"
 msgstr "Aggiornamento del kernel"
 
-msgid "iPXE General Configuration"
+#, fuzzy
+msgid "iPXE Menu Configuration"
 msgstr "Configurazione generale iPXE"
 
 msgid "Hostname Changer"
@@ -3238,10 +3239,6 @@ msgid "Start Download Fail"
 msgstr "Scaricamento fallito"
 
 #, fuzzy
-msgid "iPXE Menu Configuration"
-msgstr "Configurazione generale iPXE"
-
-#, fuzzy
 msgid "Setting"
 msgstr "impostazioni"
 
@@ -3271,91 +3268,30 @@ msgstr "Elemento iPXE aggiornato con successo"
 msgid "iPXE Config Update Fail"
 msgstr "Aggiornamento Snapin fallito"
 
-msgid "This item allows you to edit all of the iPXE Menu items as you"
-msgstr "Questa voce consente di modificare tutte le voci di menu iPXE"
-
-msgid "see fit"
-msgstr "Vedere la misura"
-
-msgid "Mind you"
-msgstr "Mente voi"
-
-msgid "iPXE syntax is very finicky when it comes to editing"
-msgstr "La sintassi di iPXE è molto finicky quando si tratta di modifica"
-
-msgid "If you need help understanding what items are needed please"
-msgstr ""
-"Se hai bisogno di aiuto per capire quali elementi sono necessari, per favore"
-
-msgid "see the forums or lookup the commands and scripts available"
-msgstr "Vedere i forum o la ricerca dei comandi e degli script disponibili"
-
-msgid "from"
-msgstr "da"
-
-msgid "Menu Item"
-msgstr "Elemento del menu:"
+#, fuzzy
+msgid "iPXE Menu Entries"
+msgstr "iPXE nuova voce di menu"
 
 msgid "Parameters"
 msgstr "parametri:"
 
-msgid "Boot Options"
-msgstr "Opzioni di avvio:"
+#, fuzzy
+msgid "Display With"
+msgstr "Display"
 
-msgid "Default Item"
-msgstr "Elemento predefinito:"
+#, fuzzy
+msgid "Options/Arguments"
+msgstr "Argomenti Snapin"
 
 msgid "Hot Key Enabled"
 msgstr "Tasti Hot Key attivati"
 
-msgid "Hot Key to use"
-msgstr "Tasti Hot Key da usare"
-
-msgid "Menu Show with"
-msgstr "Mostra menu con:"
-
-msgid "Make Changes?"
-msgstr "Applicare cambiamenti?"
-
-msgid "Delete Menu Item"
-msgstr "Elimina il menu"
-
-msgid "iPXE Item Update Success"
-msgstr "Elemento iPXE aggiornato con successo"
-
-msgid "successfully removed!"
-msgstr "rimosso con successo"
-
-msgid "iPXE Item Remove Success"
-msgstr "Elemento iPXE rimosso con successo"
-
-msgid "Create New iPXE Menu Entry"
-msgstr "Crea nuovo iPXE Menu Entry"
-
-msgid "New iPXE Menu"
-msgstr "Nuovo menu iPXE"
-
-msgid "Menu Item or title cannot be blank"
-msgstr "Voce di menu o il titolo non può essere vuoto"
-
-msgid "A description needs to be set"
-msgstr "Una descrizione deve essere impostato"
-
-msgid "iPXE Item create failed!"
-msgstr "Creazione elemento iPXE non riuscita!"
-
 #, fuzzy
-msgid "Menu item failed!"
-msgstr "Aggiornamento ruolo non riuscito"
+msgid "Hot Key"
+msgstr "Host Product Key"
 
-msgid "iPXE Item added!"
-msgstr "Elemento iPXE aggiunto!"
-
-msgid "iPXE Item Create Success"
-msgstr "Creazione elemento iPXE riuscita"
-
-msgid "iPXE Item Create Fail"
-msgstr "Creazione elemento iPXE non riuscita!"
+msgid "For ipxe command related items click "
+msgstr ""
 
 msgid "MAC Address Manufacturer Listing"
 msgstr "MAC Listing Indirizzo Produttore"
