@@ -75,4 +75,16 @@ class PXEMenuOptionsManager extends FOGManagerController
             ob_get_clean()
         );
     }
+    /**
+     * Simple text output of reg selected.
+     *
+     * @param int $id The id to return string for.
+     *
+     * @return string
+     */
+    public static function regText($id)
+    {
+        self::_regText();
+        return self::$_regVals[$id];
+    }
 }

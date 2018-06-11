@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-10 01:14-0400\n"
+"POT-Creation-Date: 2018-06-10 23:53-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3446,16 +3446,8 @@ msgid "iPXE Menu Entries"
 msgstr "iPXE neuen Menü-Eintrag"
 
 #, fuzzy
-msgid "Parameters"
-msgstr "Parameter:"
-
-#, fuzzy
 msgid "Display With"
 msgstr "Anzeige"
-
-#, fuzzy
-msgid "Options/Arguments"
-msgstr "Snapin-Argumente"
 
 #, fuzzy
 msgid "Hot Key Enabled"
@@ -3467,6 +3459,26 @@ msgstr "Host Produktschlüssel"
 
 msgid "For ipxe command related items click "
 msgstr ""
+
+#, fuzzy
+msgid "A menu entry with name already exists."
+msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
+
+#, fuzzy
+msgid "Menu update failed!"
+msgstr "Drucker-Update fehlgeschlagen!"
+
+#, fuzzy
+msgid "Menu updated!"
+msgstr "Drucker aktualisiert!"
+
+#, fuzzy
+msgid "Menu Update Success"
+msgstr "Modulupdate erfolgreich"
+
+#, fuzzy
+msgid "Menu Update Fail"
+msgstr "Modulupdate fehlgeschlagen"
 
 msgid "MAC Address Manufacturer Listing"
 msgstr "Liste der Hersteller nach MAC-Adresse"

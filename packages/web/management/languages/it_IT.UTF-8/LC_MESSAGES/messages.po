@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-10 01:14-0400\n"
+"POT-Creation-Date: 2018-06-10 23:53-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3272,16 +3272,9 @@ msgstr "Aggiornamento Snapin fallito"
 msgid "iPXE Menu Entries"
 msgstr "iPXE nuova voce di menu"
 
-msgid "Parameters"
-msgstr "parametri:"
-
 #, fuzzy
 msgid "Display With"
 msgstr "Display"
-
-#, fuzzy
-msgid "Options/Arguments"
-msgstr "Argomenti Snapin"
 
 msgid "Hot Key Enabled"
 msgstr "Tasti Hot Key attivati"
@@ -3292,6 +3285,26 @@ msgstr "Host Product Key"
 
 msgid "For ipxe command related items click "
 msgstr ""
+
+#, fuzzy
+msgid "A menu entry with name already exists."
+msgstr "Un nome host con questo nome esiste già"
+
+#, fuzzy
+msgid "Menu update failed!"
+msgstr "Aggiornamento della stampante non è riuscito!"
+
+#, fuzzy
+msgid "Menu updated!"
+msgstr "aggiornato stampante!"
+
+#, fuzzy
+msgid "Menu Update Success"
+msgstr "Aggiornamento del modulo completato"
+
+#, fuzzy
+msgid "Menu Update Fail"
+msgstr "Aggiornamento modulo non riuscito"
 
 msgid "MAC Address Manufacturer Listing"
 msgstr "MAC Listing Indirizzo Produttore"

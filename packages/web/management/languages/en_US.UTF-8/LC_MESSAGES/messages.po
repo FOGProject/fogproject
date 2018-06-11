@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-10 01:14-0400\n"
+"POT-Creation-Date: 2018-06-10 23:53-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3439,16 +3439,8 @@ msgid "iPXE Menu Entries"
 msgstr "iPXE New Menu Entry"
 
 #, fuzzy
-msgid "Parameters"
-msgstr "Parameters:"
-
-#, fuzzy
 msgid "Display With"
 msgstr "Display"
-
-#, fuzzy
-msgid "Options/Arguments"
-msgstr "Snapin Arguments"
 
 #, fuzzy
 msgid "Hot Key Enabled"
@@ -3460,6 +3452,26 @@ msgstr "Host Product Key"
 
 msgid "For ipxe command related items click "
 msgstr ""
+
+#, fuzzy
+msgid "A menu entry with name already exists."
+msgstr "A hostname with that name already exists."
+
+#, fuzzy
+msgid "Menu update failed!"
+msgstr "Printer update failed!"
+
+#, fuzzy
+msgid "Menu updated!"
+msgstr "Printer updated!"
+
+#, fuzzy
+msgid "Menu Update Success"
+msgstr "User created"
+
+#, fuzzy
+msgid "Menu Update Fail"
+msgstr "Group create failed"
 
 msgid "MAC Address Manufacturer Listing"
 msgstr "MAC Address Manufacturer Listing"
