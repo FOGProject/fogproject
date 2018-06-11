@@ -559,61 +559,24 @@ class FOGConfigurationPage extends FOGPage
                 'dt' => $common
             ];
             switch ($common) {
-            case 'id':
-                break;
-            case 'name':
-            case 'args':
-            case 'keysequence':
-                $column['formatter'] = function ($d, $row) use ($common) {
-                    return self::makeInput(
-                        'form-control',
-                        $common,
-                        '',
-                        'text',
-                        '',
-                        $d,
-                        ($common == 'name')
-                    );
-                };
-                break;
             case 'default':
             case 'hotkey':
-                $column['formatter'] = function ($d, $row) use ($common) {
-                    return self::makeInput(
-                        '',
-                        $common,
-                        '',
-                        'checkbox',
-                        '',
-                        '',
-                        false,
-                        false,
-                        -1,
-                        -1,
-                        ($d > 0 ? 'checked' : '')
+                $column['formatter'] = function ($d, $row) {
+                    return (
+                        $d > 0 ?
+                        '<span class="label label-success">'
+                        . '<i class="fa fa-check-circle"></i>'
+                        . '</span>' :
+                        '<span class="label label-danger">'
+                        . '<i class="fa fa-times-circle"></i>'
+                        . '</span>'
                     );
                 };
                 break;
             case 'regMenu':
-                $column['formatter'] = function ($d, $row) use ($common) {
-                    return self::getClass('PXEMenuOptionsManager')
-                        ->regSelect(
-                            $d,
-                            $common
-                        );
+                $column['formatter'] = function ($d, $row) {
+                    return PXEMenuOptionsManager::regText($d);
                 };
-                break;
-            default:
-                $column['formatter'] = function ($d, $row) use ($common) {
-                    return self::makeTextarea(
-                        'form-control',
-                        $common,
-                        '',
-                        '',
-                        $d
-                    );
-                };
-                break;
             }
             $columns[] = $column;
             unset($column, $real);
@@ -749,17 +712,13 @@ class FOGConfigurationPage extends FOGPage
         $this->headerData = [
             _('Name'),
             _('Description'),
-            _('Parameters'),
             _('Default'),
             _('Display With'),
-            _('Options/Arguments'),
             _('Hot Key Enabled'),
             _('Hot Key')
         ];
 
         $this->attributes = [
-            [],
-            [],
             [],
             [],
             [],
@@ -802,6 +761,71 @@ class FOGConfigurationPage extends FOGPage
         $args = filter_input(INPUT_POST, 'args');
         $hotkey = isset($_POST['hotkey']);
         $keysequence = filter_input(INPUT_POST, 'keysequence');
+        $obj = new PXEMenuOptions($id);
+        self::$HookManager->processEvent('CUSTOMIZE_IPXE_POST');
+
+        $serverFault = false;
+        try {
+            if ($name != $obj->get('name')) {
+                if ($obj->getManager()->exists($name)) {
+                    throw new Exception(_('A menu entry with name already exists.'));
+                }
+            }
+            if ($default) {
+                $obj->getManager()->update(
+                    ['default' => 1],
+                    '',
+                    ['default' => 0]
+                );
+            }
+            $obj
+                ->set('name', $name)
+                ->set('description', $description)
+                ->set('params', $params)
+                ->set('default', intval($default))
+                ->set('regMenu', $regMenu)
+                ->set('args', $args)
+                ->set('hotkey', intval($hotkey))
+                ->set('keysequence', $keysequence);
+            if (!$obj->save()) {
+                $serverFault = true;
+                throw new Exception(_('Menu update failed!'));
+            }
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            $hook = 'MENU_EDIT_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Menu updated!'),
+                    'title' => _('Menu Update Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'MENU_EDIT_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Menu Update Fail')
+                ]
+            );
+        }
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Menu' => &$obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
+        http_response_code($code);
+        echo $msg;
+        exit;
     }
     /**
      * Creates the new Menu items.

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-10 01:15-0400\n"
+"POT-Creation-Date: 2018-06-10 23:53-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2968,13 +2968,7 @@ msgstr ""
 msgid "iPXE Menu Entries"
 msgstr ""
 
-msgid "Parameters"
-msgstr ""
-
 msgid "Display With"
-msgstr ""
-
-msgid "Options/Arguments"
 msgstr ""
 
 msgid "Hot Key Enabled"
@@ -2984,6 +2978,21 @@ msgid "Hot Key"
 msgstr ""
 
 msgid "For ipxe command related items click "
+msgstr ""
+
+msgid "A menu entry with name already exists."
+msgstr ""
+
+msgid "Menu update failed!"
+msgstr ""
+
+msgid "Menu updated!"
+msgstr ""
+
+msgid "Menu Update Success"
+msgstr ""
+
+msgid "Menu Update Fail"
 msgstr ""
 
 msgid "MAC Address Manufacturer Listing"

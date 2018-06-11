@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-10 01:14-0400\n"
+"POT-Creation-Date: 2018-06-10 23:53-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3611,16 +3611,8 @@ msgid "iPXE Menu Entries"
 msgstr "Crear nueva entrada de menú gpxe"
 
 #, fuzzy
-msgid "Parameters"
-msgstr "parámetros:"
-
-#, fuzzy
 msgid "Display With"
 msgstr "Diariamente"
-
-#, fuzzy
-msgid "Options/Arguments"
-msgstr "Nombre snapin"
 
 #, fuzzy
 msgid "Hot Key Enabled"
@@ -3632,6 +3624,26 @@ msgstr "Clave del producto Grupo"
 
 msgid "For ipxe command related items click "
 msgstr ""
+
+#, fuzzy
+msgid "A menu entry with name already exists."
+msgstr "Sesión con ese nombre ya existe"
+
+#, fuzzy
+msgid "Menu update failed!"
+msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+msgid "Menu updated!"
+msgstr "Impresora actualiza!"
+
+#, fuzzy
+msgid "Menu Update Success"
+msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "Menu Update Fail"
+msgstr "Grupo Error de creación"
 
 msgid "MAC Address Manufacturer Listing"
 msgstr "MAC propiedad Dirección Fabricante"
