@@ -54,7 +54,10 @@ class MulticastSessionManager extends FOGManagerController
             ->update(
                 ['id' => $taskIDs],
                 '',
-                ['stateID' => self::getCancelledState()]
+                [
+                    'stateID' => $cancelled,
+                    'checkInTime' => self::niceDate()->format('Y-m-d H:i:s')
+                ]
             );
         /*
          * Set our cancelled state
@@ -65,6 +68,8 @@ class MulticastSessionManager extends FOGManagerController
             [
                 'stateID' => $cancelled,
                 'name' => '',
+                'clients' => 0,
+                'completetime', self::niceDate()->format('Y-m-d H:i:s')
             ]
         );
         /*
