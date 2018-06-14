@@ -30,6 +30,8 @@ $.apiCall = function(method, action, data, cb) {
             async: true,
             cache: false,
             data: data,
+            contentType: false,
+            processData: false,
             success: function(data, textStatus, jqXHR) {
                 $.notifyFromAPI(data, false);
                 if (cb && typeof cb === 'function') {
@@ -316,7 +318,7 @@ $.fn.mirror = function(selector, regex, replace) {
     });
 };
 $.fn.processForm = function(cb, input = ':input') {
-    var opts = $(this).serialize(),
+    var opts = new FormData($(this)[0]);
         method = $(this).attr('method'),
         action = $(this).attr('action');
     $(this).setContainerDisable(true);
