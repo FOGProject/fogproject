@@ -1725,7 +1725,7 @@ class FOGConfigurationPage extends FOGPage
                 . _('Browse')
                 . self::makeInput(
                     'hidden',
-                    'report',
+                    'dbFile',
                     '',
                     'file',
                     'import',
@@ -1790,9 +1790,7 @@ class FOGConfigurationPage extends FOGPage
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer with-border">';
-        echo '<div class="btn-group">';
         echo $buttons;
-        echo '</div>';
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -1853,7 +1851,7 @@ class FOGConfigurationPage extends FOGPage
                     $tmp_name
                 );
                 $result = self::getClass('Schema')->importdb($filename);
-                if (!$result) {
+                if (true !== $result) {
                     $serverFault = true;
                     throw new Exception(_('Import failed!'));
                 }

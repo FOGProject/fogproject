@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-10 23:53-0400\n"
+"POT-Creation-Date: 2018-06-14 01:33-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5732,6 +5732,10 @@ msgstr ""
 
 msgid "Or there was no number defined for joining session"
 msgstr ""
+
+#, fuzzy
+msgid " | Unable to find image path"
+msgstr "Falha ao destruir Storage Node"
 
 msgid "No fields passed"
 msgstr "Nenhum campo passado"
