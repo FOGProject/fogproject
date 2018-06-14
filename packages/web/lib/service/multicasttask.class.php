@@ -101,6 +101,7 @@ class MulticastTask extends FOGService
             );
             $fullPath = sprintf('%s/%s', $root, $Task->logpath);
             if (!file_exists($fullPath)) {
+                self::outall(_(' | Unable to find image path'));
                 continue;
             }
             $NewTasks[] = new self(
