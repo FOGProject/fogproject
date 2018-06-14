@@ -26,11 +26,15 @@ class MulticastTask extends FOGService
      *
      * @param string $root            root to look for items
      * @param int    $myStorageNodeID this services storage id
+     * @param string $queuedStates    the queued states.
      *
      * @return array
      */
-    public function getAllMulticastTasks($root, $myStorageNodeID)
-    {
+    public static function getAllMulticastTasks(
+        $root,
+        $myStorageNodeID,
+        $queuedStates
+    ) {
         Route::indiv(
             'storagenode',
             $myStorageNodeID
@@ -42,7 +46,7 @@ class MulticastTask extends FOGService
             'CHECK_NODE_MASTER',
             array(
                 'StorageNode' => &$StorageNode,
-                'FOGServiceClass' => &$this
+                'FOGServiceClass' => __CLASS__
             )
         );
         if (!$StorageNode->isMaster) {
@@ -90,13 +94,14 @@ class MulticastTask extends FOGService
             }
             Route::indiv(
                 'image',
-                $Task->image
+                $Task->image->id
             );
             $Image = json_decode(
                 Route::getData()
             );
             $fullPath = sprintf('%s/%s', $root, $Task->logpath);
             if (!file_exists($fullPath)) {
+                self::outall(_(' | Unable to find image path'));
                 continue;
             }
             $NewTasks[] = new self(
