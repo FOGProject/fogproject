@@ -212,8 +212,9 @@ class MulticastManager extends FOGService
                     $taskCount = count($allTasks ?: []);
                     if ($taskCount < 1) {
                         self::outall(
-                            '* ' . _('No new tasks found')
+                            ' * ' . _('No new tasks found')
                         );
+                        continue;
                     }
                     foreach ($allTasks as &$curTask) {
                         $new = self::_isMCTaskNew(
@@ -545,7 +546,7 @@ class MulticastManager extends FOGService
             }
             $tmpTime = self::getSetting(self::$sleeptime);
             if (static::$zzz != $tmpTime) {
-                static::$zzz = $tmpTime ? $tmpTime : 10;
+                static::$zzz = $tmpTime ?: 10;
                 self::outall(
                     sprintf(
                         ' | %s %s %s.',
