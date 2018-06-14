@@ -102,7 +102,7 @@ class MulticastManager extends FOGService
      *
      * @return bool
      */
-    private function _isMCTaskNew(
+    private static function _isMCTaskNew(
         $KnownTasks,
         $id
     ) {
@@ -122,7 +122,7 @@ class MulticastManager extends FOGService
      *
      * @return object
      */
-    private function _getMCExistingTask(
+    private static function _getMCExistingTask(
         $KnownTasks,
         $id
     ) {
@@ -142,7 +142,7 @@ class MulticastManager extends FOGService
      *
      * @return array
      */
-    private function _removeFromKnownList(
+    private static function _removeFromKnownList(
         $KnownTasks,
         $id
     ) {
@@ -174,7 +174,7 @@ class MulticastManager extends FOGService
             $completeTasks = $cancelTasks = [];
 
             // Handles the sleep timer for us.
-            $date = self::niceData();
+            $date = self::niceDate();
             if (!isset($nextrun)) {
                 $first = true;
                 $nextrun = clone $date;
@@ -216,7 +216,8 @@ class MulticastManager extends FOGService
                     // Now that tasks are removed, lets check new/current tasks
                     $allTasks = MulticastTask::getAllMulticastTasks(
                         $StorageNode->get('path'),
-                        $StorageNode->get('id')
+                        $StorageNode->get('id'),
+                        $queuedStates
                     );
                     $taskCount = count($allTasks ?: []);
                     if ($taskCount < 1) {
