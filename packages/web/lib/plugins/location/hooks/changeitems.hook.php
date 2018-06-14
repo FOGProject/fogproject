@@ -336,6 +336,6 @@ class ChangeItems extends Hook
         if (!$arguments['FOGServiceClass'] instanceof MulticastTask) {
             return;
         }
-        $arguments['StorageNode']->set('isMaster', 1);
+        $arguments['StorageNode']->isMaster = 1;
     }
 }

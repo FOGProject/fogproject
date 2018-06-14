@@ -31,7 +31,13 @@ class MulticastTask extends FOGService
      */
     public function getAllMulticastTasks($root, $myStorageNodeID)
     {
-        $StorageNode = self::getClass('StorageNode', $myStorageNodeID);
+        Route::indiv(
+            'storagenode',
+            $myStorageNodeID
+        );
+        $StorageNode = json_decode(
+            Route::getData()
+        );
         self::$HookManager->processEvent(
             'CHECK_NODE_MASTER',
             array(
@@ -39,72 +45,75 @@ class MulticastTask extends FOGService
                 'FOGServiceClass' => &$this
             )
         );
-        if (!$StorageNode->get('isMaster')) {
+        if (!$StorageNode->isMaster) {
             return;
         }
         $Interface = self::getMasterInterface(
             self::resolveHostname(
-                $StorageNode->get('ip')
+                $StorageNode->ip
             )
         );
         unset($StorageNode);
-        $Tasks = array();
-        $find = array(
-            'stateID' =>
-            self::fastmerge(
-                self::getQueuedStates(),
-                (array)self::getProgressState()
-            )
+        Route::active('multicastsession');
+        $Tasks = json_decode(
+            Route::getData()
         );
-        foreach ((array)self::getClass('MulticastSessionManager')
-            ->find($find) as $index => &$MultiSess
-        ) {
-            $taskIDs = self::getSubObjectIDs(
-                'MulticastSessionAssociation',
-                array(
-                    'msID' => $MultiSess->get('id')
-                ),
+        $NewTasks = [];
+        foreach ($Tasks->multicastsessions as &$Task) {
+            $find = ['msID' => $Task->id];
+            Route::ids(
+                'multicastsessionassociation',
+                $find,
                 'taskID'
             );
-            $count = self::getClass('MulticastSessionAssociationManager')
-                ->count(
-                    array(
-                        'msID' => $MultiSess->get('id')
-                    )
-                );
+            $taskIDs = json_decode(Route::getData(), true);
+            $count = count($taskIDs ?: []);
             if ($count < 1) {
-                $count = $MultiSess->get('sessclients');
+                $count = $Task->sessclients;
             }
             if ($count < 1) {
-                $MultiSess->set('stateID', self::getCancelledState())->save();
+                self::getClass('MulticastSessionManager')->update(
+                    ['id' => $Task->id],
+                    '',
+                    [
+                        'stateID' => self::getCancelledState(),
+                        'name' => ''
+                    ]
+                );
                 self::outall(
-                    _('Task not created as there are no associated Tasks')
+                    _('Task not created as there are no associated tasks')
                 );
                 self::outall(
                     _('Or there was no number defined for joining session')
                 );
                 continue;
             }
-            $Image = $MultiSess->getImage();
-            $fullPath = sprintf('%s/%s', $root, $MultiSess->get('logpath'));
+            Route::indiv(
+                'image',
+                $Task->image
+            );
+            $Image = json_decode(
+                Route::getData()
+            );
+            $fullPath = sprintf('%s/%s', $root, $Task->logpath);
             if (!file_exists($fullPath)) {
                 continue;
             }
-            $Tasks[] = new self(
-                $MultiSess->get('id'),
-                $MultiSess->get('name'),
-                $MultiSess->get('port'),
+            $NewTasks[] = new self(
+                $Task->id,
+                $Task->name,
+                $Task->port,
                 $fullPath,
                 $Interface,
                 $count,
-                $MultiSess->get('isDD'),
-                $Image->get('osID'),
-                $MultiSess->get('clients') == -2 ? 1 : 0,
+                $Task->isDD,
+                $Image->osID,
+                ($Task->clients == -2 ? 1 : 0),
                 $taskIDs
             );
-            unset($MultiSess, $index);
+            unset($Task);
         }
-        return array_filter($Tasks);
+        return array_filter($NewTasks);
     }
     /**
      * Session ID
@@ -645,20 +654,18 @@ class MulticastTask extends FOGService
      */
     public function updateStats()
     {
-        $find = array(
-            'id' => self::getSubObjectIDs(
-                'MulticastSessionAssociation',
-                array('msID' => $this->_intID),
-                'taskID'
-            )
+        Route::listem(
+            'multicastsessionassociation',
+            ['msID' => $this->_intID]
         );
-        foreach ((array)self::getClass('TaskManager')
-            ->find($find) as &$Task
-        ) {
-            $TaskPercent[] = $Task->get('percent');
+        $MSAssocs = json_decode(
+            Route::getData()
+        );
+        $TaskPercent = [];
+        foreach ($MSAssocs as &$Task) {
+            $TaskPercent[] = self::getClass('Task', $Task->taskID)->get('percent');
             unset($Task);
         }
-        unset($Tasks);
         $TaskPercent = array_unique((array)$TaskPercent);
         $this->_MultiSess
             ->set('percent', @max($TaskPercent))
