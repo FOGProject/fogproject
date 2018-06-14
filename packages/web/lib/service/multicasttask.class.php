@@ -46,7 +46,7 @@ class MulticastTask extends FOGService
             'CHECK_NODE_MASTER',
             [
                 'StorageNode' => &$StorageNode,
-                'FOGServiceClass' => 'MulticastTask'
+                'FOGServiceClass' => __CLASS__
             ]
         );
         if (!$StorageNode->isMaster) {
