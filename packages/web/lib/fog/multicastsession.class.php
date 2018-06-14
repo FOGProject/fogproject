@@ -47,8 +47,8 @@ class MulticastSession extends FOGController
         'completetime' => 'msCompleteDateTime',
         'isDD' => 'msIsDD',
         'storagegroupID' => 'msNFSGroupID',
-        'anon3' => 'msShutdown',
-        'anon4' => 'msMaxwait',
+        'anon3' => 'msAnon3',
+        'anon4' => 'msAnon4',
         'anon5' => 'msAnon5',
     );
     /**
