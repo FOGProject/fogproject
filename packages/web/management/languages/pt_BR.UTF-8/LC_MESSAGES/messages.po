@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-14 01:33-0400\n"
+"POT-Creation-Date: 2018-06-16 02:35-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3739,6 +3739,10 @@ msgid "Image Protected"
 msgstr "Protegido"
 
 #, fuzzy
+msgid "An image with this name already exists!"
+msgstr "Um nome de host com esse nome já existe."
+
+#, fuzzy
 msgid "Update Primary Group"
 msgstr "Grupo primário de actualização"
 
@@ -3852,6 +3856,62 @@ msgstr "usuário criado"
 #, fuzzy
 msgid "Session Cancel Fail"
 msgstr "usuário criado"
+
+#, fuzzy
+msgid "Menu Name"
+msgstr "Nome do módulo"
+
+#, fuzzy
+msgid "Menu Description"
+msgstr "Descrição"
+
+msgid "Some nice description, should be short."
+msgstr ""
+
+msgid "Menu Parameters"
+msgstr ""
+
+#, fuzzy
+msgid "Boot Options"
+msgstr "Opções de inicialização:"
+
+msgid "Show with"
+msgstr ""
+
+#, fuzzy
+msgid "Default Choice"
+msgstr "Item padrão:"
+
+#, fuzzy
+msgid "Hotkey Enabled"
+msgstr "imagem Ativado"
+
+msgid "Menu Keysequence"
+msgstr ""
+
+#, fuzzy
+msgid "Create New Ipxe Menu"
+msgstr "Criar novo %s"
+
+#, fuzzy
+msgid "A menu entry already exists with this name!"
+msgstr "Uma imagem já existe com este nome!"
+
+#, fuzzy
+msgid "Add menu failed!"
+msgstr "Adicionar snap-in falhou!"
+
+#, fuzzy
+msgid "Menu added!"
+msgstr "Impressora atualizado!"
+
+#, fuzzy
+msgid "iPXE Menu Create Success"
+msgstr "Impressora já existe"
+
+#, fuzzy
+msgid "iPXE Menu Create Fail"
+msgstr "atualização da impressora falhou!"
 
 msgid "Database Schema Installer / Updater"
 msgstr "Banco de dados de esquema Instalador / Updater"
@@ -6023,6 +6083,10 @@ msgid "You are only allowed to assign"
 msgstr "Você só está autorizado a transferir"
 
 #, fuzzy
+msgid "iPXE Menu"
+msgstr "gpxe nova opção no menu"
+
+#, fuzzy
 msgid "List Available Plugins"
 msgstr "Plugins instalados"
 
@@ -6033,6 +6097,9 @@ msgstr "Plugins instalados"
 #, fuzzy
 msgid "Multicast Image"
 msgstr "multicast"
+
+msgid "All Boot Menu Items"
+msgstr ""
 
 #, fuzzy
 msgid "All "

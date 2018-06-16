@@ -618,8 +618,6 @@ abstract class FOGPage extends FOGBase
                 'license' => self::$foglang['License'],
                 'kernel' => self::$foglang['KernelUpdate'],
                 'pxemenu' => self::$foglang['PXEBootMenu'],
-                'customizepxe' => self::$foglang['PXEConfiguration'],
-                'newMenu' => self::$foglang['NewMenu'],
                 'maclist' => self::$foglang['MACAddrList'],
                 'settings' => self::$foglang['FOGSettings'],
                 'logviewer' => self::$foglang['LogViewer'],

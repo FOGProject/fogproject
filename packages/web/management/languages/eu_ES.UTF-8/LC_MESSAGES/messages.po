@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-14 01:33-0400\n"
+"POT-Creation-Date: 2018-06-16 02:35-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -3743,6 +3743,10 @@ msgid "Image Protected"
 msgstr "Geschützt"
 
 #, fuzzy
+msgid "An image with this name already exists!"
+msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
+
+#, fuzzy
 msgid "Update Primary Group"
 msgstr "Primäre Gruppe aktualisieren"
 
@@ -3856,6 +3860,62 @@ msgstr "Task-Typ erfolgreich erstellt"
 #, fuzzy
 msgid "Session Cancel Fail"
 msgstr "Task-Typ erstellen fehlgeschlagen"
+
+#, fuzzy
+msgid "Menu Name"
+msgstr "Modulname"
+
+#, fuzzy
+msgid "Menu Description"
+msgstr "Beschreibung"
+
+msgid "Some nice description, should be short."
+msgstr ""
+
+msgid "Menu Parameters"
+msgstr ""
+
+#, fuzzy
+msgid "Boot Options"
+msgstr "Boot-Optionen:"
+
+msgid "Show with"
+msgstr ""
+
+#, fuzzy
+msgid "Default Choice"
+msgstr "Standard-Eintrag:"
+
+#, fuzzy
+msgid "Hotkey Enabled"
+msgstr "Hot Key aktiviert"
+
+msgid "Menu Keysequence"
+msgstr ""
+
+#, fuzzy
+msgid "Create New Ipxe Menu"
+msgstr "Neuen Schlüssel erstellen"
+
+#, fuzzy
+msgid "A menu entry already exists with this name!"
+msgstr "Dieser Benutzername ist bereits vorhanden!"
+
+#, fuzzy
+msgid "Add menu failed!"
+msgstr "Gruppe hinzufügen fehlgeschlagen!"
+
+#, fuzzy
+msgid "Menu added!"
+msgstr "Drucker aktualisiert!"
+
+#, fuzzy
+msgid "iPXE Menu Create Success"
+msgstr "Drucker hinzufügen erfolgreich."
+
+#, fuzzy
+msgid "iPXE Menu Create Fail"
+msgstr "Drucker erstellen fehlgeschlagen!"
 
 msgid "Database Schema Installer / Updater"
 msgstr "Datenbank-Schema Installer / Updater"
@@ -6029,6 +6089,10 @@ msgid "You are only allowed to assign"
 msgstr "Sie dürfen nur zuweisen"
 
 #, fuzzy
+msgid "iPXE Menu"
+msgstr "iPXE neuen Menü-Eintrag"
+
+#, fuzzy
 msgid "List Available Plugins"
 msgstr "Installierte Plugins"
 
@@ -6039,6 +6103,9 @@ msgstr "Installierte Plugins"
 #, fuzzy
 msgid "Multicast Image"
 msgstr "Multicast Image"
+
+msgid "All Boot Menu Items"
+msgstr ""
 
 #, fuzzy
 msgid "All "

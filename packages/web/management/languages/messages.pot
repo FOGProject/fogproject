@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-14 01:33-0400\n"
+"POT-Creation-Date: 2018-06-16 02:35-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3217,6 +3217,9 @@ msgstr ""
 msgid "Image Protected"
 msgstr ""
 
+msgid "An image with this name already exists!"
+msgstr ""
+
 msgid "Update Primary Group"
 msgstr ""
 
@@ -3308,6 +3311,51 @@ msgid "Session Cancel Success"
 msgstr ""
 
 msgid "Session Cancel Fail"
+msgstr ""
+
+msgid "Menu Name"
+msgstr ""
+
+msgid "Menu Description"
+msgstr ""
+
+msgid "Some nice description, should be short."
+msgstr ""
+
+msgid "Menu Parameters"
+msgstr ""
+
+msgid "Boot Options"
+msgstr ""
+
+msgid "Show with"
+msgstr ""
+
+msgid "Default Choice"
+msgstr ""
+
+msgid "Hotkey Enabled"
+msgstr ""
+
+msgid "Menu Keysequence"
+msgstr ""
+
+msgid "Create New Ipxe Menu"
+msgstr ""
+
+msgid "A menu entry already exists with this name!"
+msgstr ""
+
+msgid "Add menu failed!"
+msgstr ""
+
+msgid "Menu added!"
+msgstr ""
+
+msgid "iPXE Menu Create Success"
+msgstr ""
+
+msgid "iPXE Menu Create Fail"
 msgstr ""
 
 msgid "Database Schema Installer / Updater"
@@ -5135,6 +5183,9 @@ msgstr ""
 msgid "You are only allowed to assign"
 msgstr ""
 
+msgid "iPXE Menu"
+msgstr ""
+
 msgid "List Available Plugins"
 msgstr ""
 
@@ -5142,6 +5193,9 @@ msgid "Import a new Plugin"
 msgstr ""
 
 msgid "Multicast Image"
+msgstr ""
+
+msgid "All Boot Menu Items"
 msgstr ""
 
 msgid "All "
