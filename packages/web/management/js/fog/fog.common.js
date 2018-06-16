@@ -31,7 +31,6 @@ $.apiCall = function(method, action, data, cb) {
             cache: false,
             data: data,
             contentType: false,
-            processData: false,
             success: function(data, textStatus, jqXHR) {
                 $.notifyFromAPI(data, false);
                 if (cb && typeof cb === 'function') {

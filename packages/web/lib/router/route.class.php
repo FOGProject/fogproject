@@ -727,6 +727,15 @@ class Route extends FOGBase
                     }
                 ];
                 break;
+            case 'regMenu':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common,
+                    'formatter' => function($d, $row) {
+                        return PXEMenuOptionsManager::regText($d);
+                    }
+                ];
+                break;
             default:
                 $columns[] = [
                     'db' => $real,

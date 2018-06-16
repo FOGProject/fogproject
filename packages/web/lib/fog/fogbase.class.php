@@ -266,6 +266,7 @@ abstract class FOGBase
         'group',
         'host',
         'image',
+        'ipxe',
         'plugin',
         'printer',
         'service',
