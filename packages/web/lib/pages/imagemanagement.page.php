@@ -1079,6 +1079,10 @@ class ImageManagement extends FOGPage
         $protected = (int)isset($_POST['isProtected']);
         $isEnabled = (int)isset($_POST['isEnabled']);
         $toReplicate = (int)isset($_POST['toReplicate']);
+        $exists = self::getClass('ImageManager')->exists($image);
+        if ($this->obj->get('name') != $image && $exists) {
+            throw new Exception(_('An image with this name already exists!'));
+        }
         $this->obj
             ->set('name', $image)
             ->set('description', $description)

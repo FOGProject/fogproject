@@ -63,7 +63,7 @@ class PXEMenuOptionsManager extends FOGManagerController
             self::$buildSelectBox
         );
         return sprintf(
-            '<select name="menu_regmenu" class="form-control"'
+            '<select name="regmenu" class="form-control"'
             . (
                 $id ?
                 ' id="'

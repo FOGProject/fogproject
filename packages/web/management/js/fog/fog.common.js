@@ -22,7 +22,7 @@ var shouldReAuth = ($('#reAuthDelete').val() == '1') ? true : false,
 /**
  * Non-selector required functions.
  */
-$.apiCall = function(method, action, data, cb) {
+$.apiCall = function(method, action, data, cb, processData = true) {
     Pace.track(function() {
         $.ajax('', {
             type: method,
@@ -30,7 +30,8 @@ $.apiCall = function(method, action, data, cb) {
             async: true,
             cache: false,
             data: data,
-            contentType: false,
+            contentType: !processData ? false : 'application/x-www-form-urlencoded',
+            processData: processData,
             success: function(data, textStatus, jqXHR) {
                 $.notifyFromAPI(data, false);
                 if (cb && typeof cb === 'function') {
@@ -317,7 +318,9 @@ $.fn.mirror = function(selector, regex, replace) {
     });
 };
 $.fn.processForm = function(cb, input = ':input') {
-    var opts = new FormData($(this)[0]);
+    var opts = $(this).attr('enctype') != 'multipart/form-data' ?
+        $(this).serialize() :
+        new FormData($(this)[0]);
         method = $(this).attr('method'),
         action = $(this).attr('action');
     $(this).setContainerDisable(true);
@@ -333,7 +336,7 @@ $.fn.processForm = function(cb, input = ':input') {
         if (cb && typeof cb === 'function') {
             cb(err, data);
         }
-    });
+    }, $(this).attr('enctype') != 'multipart/form-data');
 };
 $.fn.registerModal = function(onOpen, onClose, opts) {
     var e = this;

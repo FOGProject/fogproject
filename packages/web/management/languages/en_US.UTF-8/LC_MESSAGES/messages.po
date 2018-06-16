@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-14 01:33-0400\n"
+"POT-Creation-Date: 2018-06-16 02:35-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3736,6 +3736,10 @@ msgid "Image Protected"
 msgstr "Protected"
 
 #, fuzzy
+msgid "An image with this name already exists!"
+msgstr "A hostname with that name already exists."
+
+#, fuzzy
 msgid "Update Primary Group"
 msgstr "Update Primary Group"
 
@@ -3849,6 +3853,62 @@ msgstr "User created"
 #, fuzzy
 msgid "Session Cancel Fail"
 msgstr "User created"
+
+#, fuzzy
+msgid "Menu Name"
+msgstr "Module Name"
+
+#, fuzzy
+msgid "Menu Description"
+msgstr "Description"
+
+msgid "Some nice description, should be short."
+msgstr ""
+
+msgid "Menu Parameters"
+msgstr ""
+
+#, fuzzy
+msgid "Boot Options"
+msgstr "Boot Options:"
+
+msgid "Show with"
+msgstr ""
+
+#, fuzzy
+msgid "Default Choice"
+msgstr "Default Item:"
+
+#, fuzzy
+msgid "Hotkey Enabled"
+msgstr "Image Enabled"
+
+msgid "Menu Keysequence"
+msgstr ""
+
+#, fuzzy
+msgid "Create New Ipxe Menu"
+msgstr "Create New %s"
+
+#, fuzzy
+msgid "A menu entry already exists with this name!"
+msgstr "An image already exists with this name!"
+
+#, fuzzy
+msgid "Add menu failed!"
+msgstr "Add snapin failed!"
+
+#, fuzzy
+msgid "Menu added!"
+msgstr "Printer updated!"
+
+#, fuzzy
+msgid "iPXE Menu Create Success"
+msgstr "Printer already exists"
+
+#, fuzzy
+msgid "iPXE Menu Create Fail"
+msgstr "Printer update failed!"
 
 msgid "Database Schema Installer / Updater"
 msgstr "Database Schema Installer / Updater"
@@ -6018,6 +6078,10 @@ msgid "You are only allowed to assign"
 msgstr "You are only allowed to assign"
 
 #, fuzzy
+msgid "iPXE Menu"
+msgstr "iPXE New Menu Entry"
+
+#, fuzzy
 msgid "List Available Plugins"
 msgstr "Installed Plugins"
 
@@ -6028,6 +6092,9 @@ msgstr "Installed Plugins"
 #, fuzzy
 msgid "Multicast Image"
 msgstr "Multicast"
+
+msgid "All Boot Menu Items"
+msgstr ""
 
 #, fuzzy
 msgid "All "

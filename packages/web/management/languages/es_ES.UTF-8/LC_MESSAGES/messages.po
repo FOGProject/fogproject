@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-14 01:33-0400\n"
+"POT-Creation-Date: 2018-06-16 02:35-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3908,6 +3908,10 @@ msgid "Image Protected"
 msgstr "Protegido"
 
 #, fuzzy
+msgid "An image with this name already exists!"
+msgstr "Sesión con ese nombre ya existe"
+
+#, fuzzy
 msgid "Update Primary Group"
 msgstr "Actualización de Grupo Primario"
 
@@ -4021,6 +4025,62 @@ msgstr "creado por el usuario"
 #, fuzzy
 msgid "Session Cancel Fail"
 msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "Menu Name"
+msgstr "Nombre del módulo"
+
+#, fuzzy
+msgid "Menu Description"
+msgstr "Descripción:"
+
+msgid "Some nice description, should be short."
+msgstr ""
+
+msgid "Menu Parameters"
+msgstr ""
+
+#, fuzzy
+msgid "Boot Options"
+msgstr "Opciones de arranque:"
+
+msgid "Show with"
+msgstr ""
+
+#, fuzzy
+msgid "Default Choice"
+msgstr "Tema por defecto:"
+
+#, fuzzy
+msgid "Hotkey Enabled"
+msgstr "imagen Habilitado"
+
+msgid "Menu Keysequence"
+msgstr ""
+
+#, fuzzy
+msgid "Create New Ipxe Menu"
+msgstr "Crear nuevo grupo"
+
+#, fuzzy
+msgid "A menu entry already exists with this name!"
+msgstr "Una imagen ya existe con este nombre!"
+
+#, fuzzy
+msgid "Add menu failed!"
+msgstr "Añadir fallidos SNAPin!"
+
+#, fuzzy
+msgid "Menu added!"
+msgstr "Impresora actualiza!"
+
+#, fuzzy
+msgid "iPXE Menu Create Success"
+msgstr "Impresora ya existe"
+
+#, fuzzy
+msgid "iPXE Menu Create Fail"
+msgstr "actualización de la impresora ha fallado!"
 
 msgid "Database Schema Installer / Updater"
 msgstr "Esquema de base de datos del instalador / actualizador"
@@ -6203,6 +6263,10 @@ msgid "You are only allowed to assign"
 msgstr "Sólo se le permite asignar"
 
 #, fuzzy
+msgid "iPXE Menu"
+msgstr "Crear nueva entrada de menú gpxe"
+
+#, fuzzy
 msgid "List Available Plugins"
 msgstr "No disponible"
 
@@ -6213,6 +6277,9 @@ msgstr "snapins"
 #, fuzzy
 msgid "Multicast Image"
 msgstr "multidifusión"
+
+msgid "All Boot Menu Items"
+msgstr ""
 
 #, fuzzy
 msgid "All "

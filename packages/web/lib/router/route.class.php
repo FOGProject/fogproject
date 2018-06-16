@@ -511,7 +511,7 @@ class Route extends FOGBase
                     'dt' => 'mainlink',
                     'formatter' => function ($d, $row) use ($classname) {
                         return '<a href="../management/index.php?node='
-                            . $classname
+                            . ($classname == 'pxemenuoptions' ? 'ipxe' : $classname)
                             . '&sub=edit&id='
                             . self::getClass($classname)
                             ->set('name', $d)
