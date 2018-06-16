@@ -93,6 +93,7 @@ abstract class FOGPage extends FOGBase
         'host',
         'group',
         'image',
+        'ipxe',
         'storagenode',
         'storagegroup',
         'snapin',
@@ -272,6 +273,9 @@ abstract class FOGPage extends FOGBase
             return $this->{$sub}();
         }
         $this->childClass = ucfirst($this->node);
+        if ($this->node == 'ipxe') {
+            $this->childClass = 'PXEMenuOptions';
+        }
         if (!empty($name)) {
             $this->name = $name;
         }
@@ -372,6 +376,10 @@ abstract class FOGPage extends FOGBase
             'image' => [
                 self::$foglang['Images'],
                 'fa fa-hdd-o'
+            ],
+            'ipxe' => [
+                _('iPXE Menu'),
+                'fa fa-bars'
             ],
             'storagenode' => [
                 self::$foglang['StorageNodes'],
@@ -704,7 +712,11 @@ abstract class FOGPage extends FOGBase
                 echo Route::getData();
                 exit;
             }
-            $this->title = _('All ' . $this->childClass . 's');
+            if ($node == 'ipxe') {
+                $this->title = _('All Boot Menu Items');
+            } else {
+                $this->title = _('All ' . $this->childClass . 's');
+            }
             $this->indexDivDisplay();
         } else {
             $vals = function (&$value, $key) {
