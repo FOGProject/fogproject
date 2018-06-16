@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-16 02:35-0400\n"
+"POT-Creation-Date: 2018-06-16 10:20-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3268,44 +3268,6 @@ msgstr "Elemento iPXE aggiornato con successo"
 msgid "iPXE Config Update Fail"
 msgstr "Aggiornamento Snapin fallito"
 
-#, fuzzy
-msgid "iPXE Menu Entries"
-msgstr "iPXE nuova voce di menu"
-
-#, fuzzy
-msgid "Display With"
-msgstr "Display"
-
-msgid "Hot Key Enabled"
-msgstr "Tasti Hot Key attivati"
-
-#, fuzzy
-msgid "Hot Key"
-msgstr "Host Product Key"
-
-msgid "For ipxe command related items click "
-msgstr ""
-
-#, fuzzy
-msgid "A menu entry with name already exists."
-msgstr "Un nome host con questo nome esiste già"
-
-#, fuzzy
-msgid "Menu update failed!"
-msgstr "Aggiornamento della stampante non è riuscito!"
-
-#, fuzzy
-msgid "Menu updated!"
-msgstr "aggiornato stampante!"
-
-#, fuzzy
-msgid "Menu Update Success"
-msgstr "Aggiornamento del modulo completato"
-
-#, fuzzy
-msgid "Menu Update Fail"
-msgstr "Aggiornamento modulo non riuscito"
-
 msgid "MAC Address Manufacturer Listing"
 msgstr "MAC Listing Indirizzo Produttore"
 
@@ -3666,6 +3628,17 @@ msgid "Session Cancel Fail"
 msgstr "Aggiunta tipo attività fallita"
 
 #, fuzzy
+msgid "Display With"
+msgstr "Display"
+
+msgid "Hot Key Enabled"
+msgstr "Tasti Hot Key attivati"
+
+#, fuzzy
+msgid "Hot Key"
+msgstr "Host Product Key"
+
+#, fuzzy
 msgid "Menu Name"
 msgstr "Nome Modulo"
 
@@ -3720,6 +3693,22 @@ msgstr "Creazione stampante riuscita"
 #, fuzzy
 msgid "iPXE Menu Create Fail"
 msgstr "Creazione stampante fallita"
+
+#, fuzzy
+msgid "Menu update failed!"
+msgstr "Aggiornamento della stampante non è riuscito!"
+
+#, fuzzy
+msgid "Menu updated!"
+msgstr "aggiornato stampante!"
+
+#, fuzzy
+msgid "Menu Update Success"
+msgstr "Aggiornamento del modulo completato"
+
+#, fuzzy
+msgid "Menu Update Fail"
+msgstr "Aggiornamento modulo non riuscito"
 
 msgid "Database Schema Installer / Updater"
 msgstr "Database Schema di installazione / aggiornamento"

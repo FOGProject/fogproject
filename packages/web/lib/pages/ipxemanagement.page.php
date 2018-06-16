@@ -609,7 +609,7 @@ class IpxeManagement extends FOGPage
             _('Update'),
             'btn btn-primary pull-right'
         );
-        $buttons = self::makeButton(
+        $buttons .= self::makeButton(
             'general-delete',
             _('Delete'),
             'btn btn-danger pull-left'
