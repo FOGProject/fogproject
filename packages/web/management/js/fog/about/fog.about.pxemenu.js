@@ -58,7 +58,7 @@
         table.$(':input').each(function() {
             $(this).on('change', function(e) {
                 e.preventDefault();
-                var opts = new FormData($(this)[0]);
+                var opts = $(this).serialize();
                 $.apiCall(method, action, opts, function(err) {
                     if (err) {
                         return;

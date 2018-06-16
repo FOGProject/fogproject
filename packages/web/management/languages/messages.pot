@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-16 02:35-0400\n"
+"POT-Creation-Date: 2018-06-16 10:20-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2965,36 +2965,6 @@ msgstr ""
 msgid "iPXE Config Update Fail"
 msgstr ""
 
-msgid "iPXE Menu Entries"
-msgstr ""
-
-msgid "Display With"
-msgstr ""
-
-msgid "Hot Key Enabled"
-msgstr ""
-
-msgid "Hot Key"
-msgstr ""
-
-msgid "For ipxe command related items click "
-msgstr ""
-
-msgid "A menu entry with name already exists."
-msgstr ""
-
-msgid "Menu update failed!"
-msgstr ""
-
-msgid "Menu updated!"
-msgstr ""
-
-msgid "Menu Update Success"
-msgstr ""
-
-msgid "Menu Update Fail"
-msgstr ""
-
 msgid "MAC Address Manufacturer Listing"
 msgstr ""
 
@@ -3313,6 +3283,15 @@ msgstr ""
 msgid "Session Cancel Fail"
 msgstr ""
 
+msgid "Display With"
+msgstr ""
+
+msgid "Hot Key Enabled"
+msgstr ""
+
+msgid "Hot Key"
+msgstr ""
+
 msgid "Menu Name"
 msgstr ""
 
@@ -3356,6 +3335,18 @@ msgid "iPXE Menu Create Success"
 msgstr ""
 
 msgid "iPXE Menu Create Fail"
+msgstr ""
+
+msgid "Menu update failed!"
+msgstr ""
+
+msgid "Menu updated!"
+msgstr ""
+
+msgid "Menu Update Success"
+msgstr ""
+
+msgid "Menu Update Fail"
 msgstr ""
 
 msgid "Database Schema Installer / Updater"

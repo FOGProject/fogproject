@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-16 02:35-0400\n"
+"POT-Creation-Date: 2018-06-16 10:20-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -3430,45 +3430,6 @@ msgstr "安装/升级成功！"
 msgid "iPXE Config Update Fail"
 msgstr "管理单元更新失败"
 
-#, fuzzy
-msgid "iPXE Menu Entries"
-msgstr "iPXE新的菜单项"
-
-#, fuzzy
-msgid "Display With"
-msgstr "显示"
-
-#, fuzzy
-msgid "Hot Key Enabled"
-msgstr "图片启用"
-
-#, fuzzy
-msgid "Hot Key"
-msgstr "主机产品密钥"
-
-msgid "For ipxe command related items click "
-msgstr ""
-
-#, fuzzy
-msgid "A menu entry with name already exists."
-msgstr "使用此名称的主机名已经存在。"
-
-#, fuzzy
-msgid "Menu update failed!"
-msgstr "打印机更新失败！"
-
-#, fuzzy
-msgid "Menu updated!"
-msgstr "打印机更新！"
-
-#, fuzzy
-msgid "Menu Update Success"
-msgstr "用户创建"
-
-#, fuzzy
-msgid "Menu Update Fail"
-msgstr "集团创建失败"
-
 msgid "MAC Address Manufacturer Listing"
 msgstr "MAC地址制造商上市"
 
@@ -3851,6 +3812,18 @@ msgid "Session Cancel Fail"
 msgstr "用户创建"
 
 #, fuzzy
+msgid "Display With"
+msgstr "显示"
+
+#, fuzzy
+msgid "Hot Key Enabled"
+msgstr "图片启用"
+
+#, fuzzy
+msgid "Hot Key"
+msgstr "主机产品密钥"
+
+#, fuzzy
 msgid "Menu Name"
 msgstr "模块名称"
 
@@ -3905,6 +3878,22 @@ msgstr "打印机已经存在"
 #, fuzzy
 msgid "iPXE Menu Create Fail"
 msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Menu update failed!"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Menu updated!"
+msgstr "打印机更新！"
+
+#, fuzzy
+msgid "Menu Update Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Menu Update Fail"
+msgstr "集团创建失败"
 
 msgid "Database Schema Installer / Updater"
 msgstr "数据库模式安装/更新"
