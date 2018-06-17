@@ -84,40 +84,41 @@ class PluginManagement extends FOGPage
             . '../management/index.php?node=plugin&sub=remove'
             . '" ';
 
-        $activateBtn = self::makeButton(
+        // Activate/Deactivate Plugins
+        $buttons = '<div class="btn-group pull-right">';
+        $buttons .= self::makeSplitButton(
             'activate',
             _('Activate selected'),
-            'btn btn-primary pull-right',
+            [
+                [
+                    'id' => 'deactivate',
+                    'text' => _('Deactivate selected'),
+                    'prop' => $deactivate
+                ]
+            ],
+            'right',
+            'primary',
             $activate
         );
+        $buttons .= '</div>';
 
-        $installBtn = self::makeButton(
+        // Install/Uninstall Plugins
+        $buttons .= '<div class="btn-group pull-left">';
+        $buttons .= self::makeSplitButton(
             'install',
             _('Install selected'),
-            'btn btn-success pull-right',
+            [
+                [
+                    'id' => 'remove',
+                    'text' => _('Uninstall selected'),
+                    'prop' => $remove
+                ]
+            ],
+            'left',
+            'success',
             $install
         );
-
-        $deactivateBtn = self::makeButton(
-            'deactivate',
-            _('Deactivate selected'),
-            'btn btn-warning pull-left',
-            $deactivate
-        );
-
-        $removeBtn = self::makeButton(
-            'remove',
-            _('Uninstall selected'),
-            'btn btn-danger pull-left',
-            $remove
-        );
-
-        $buttons = '<div class="btn-group">'
-            . $activateBtn
-            . $installBtn
-            . $deactivateBtn
-            . $removeBtn
-            . '</div>';
+        $buttons .= '</div>';
 
         echo '<div class="box box-solid">';
         echo '<div id="plugins" class="">';
