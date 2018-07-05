@@ -22,36 +22,6 @@
 class User extends FOGController
 {
     /**
-     * Stores the timeout value
-     *
-     * @var int
-     */
-    private $_inactivitySessionTimeout;
-    /**
-     * Stores regeneration timeout
-     *
-     * @var int
-     */
-    private $_regenerateSessionTimeout;
-    /**
-     * Stores if we should always be logged in
-     *
-     * @var bool
-     */
-    private $_alwaysloggedin;
-    /**
-     * Was this already checked
-     *
-     * @var boot
-     */
-    private $_checkedalready;
-    /**
-     * The session id
-     *
-     * @var string
-     */
-    private $_sessionID;
-    /**
      * The users table
      *
      * @var string
@@ -199,6 +169,15 @@ class User extends FOGController
         return $passValid;
     }
     /**
+     * Gets/creates session id.
+     *
+     * @return string
+     */
+    private static function _getSessionID()
+    {
+        return session_id();
+    }
+    /**
      * Validates only the user and password
      *
      * @param string $username the username
@@ -210,6 +189,9 @@ class User extends FOGController
         $username,
         $password
     ) {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
         /**
          * Test the username for funky characters and return
          * immediately if found.
@@ -218,22 +200,31 @@ class User extends FOGController
             '/(?=^.{3,40}$)^[\w][\w0-9]*[._-]?[\w0-9]*[.]?[\w0-9]+$/i',
             $username
         );
-        if ($this->passwordValidate($username, $password)) {
+        if ($this->passwordValidate($username, $password)
+            || self::$FOGUser->isValid()
+        ) {
             if (!$test) {
                 return new self(0);
             }
-            if (!$this->_sessionID) {
-                $this->_sessionID = session_id();
+            if (self::$FOGUser->isValid()) {
+                self::$HookManager->processEvent(
+                    'USER_TYPE_HOOK',
+                    ['type' => &$type]
+                );
+                $this
+                    ->set('id', self::$FOGUser->get('id'))
+                    ->set('name', self::$FOGUser->get('name'))
+                    ->set('password', '', true)
+                    ->set('type', $type);
             }
+            $sessionid = self::_getSessionID();
             $this
                 ->set('authUserAgent', self::$useragent)
                 ->set('authIP', self::$remoteaddr)
                 ->set('authTime', time())
                 ->set('authLastActivity', time())
-                ->set('authID', $this->_sessionID);
-            if (session_status() != PHP_SESSION_NONE) {
-                $_SESSION['FOG_USER'] = $this->get('id');
-            }
+                ->set('authID', $sessionid);
+            $_SESSION['FOG_USER'] = $this->get('id');
             self::log(
                 sprintf(
                     '%s %s.',
@@ -247,74 +238,31 @@ class User extends FOGController
             );
             $this->_isLoggedIn();
             return $this;
-        } else {
-            if (!$test) {
-                return new self(0);
-            }
-            if (self::$FOGUser->isValid()) {
-                $type = self::$FOGUser->get('type');
-                self::$HookManager->processEvent(
-                    'USER_TYPE_HOOK',
-                    ['type' => &$type]
-                );
-                $this
-                    ->set('id', self::$FOGUser->get('id'))
-                    ->set('name', self::$FOGUser->get('name'))
-                    ->set('password', '', true)
-                    ->set('type', $type);
-                if (!$this->_sessionID) {
-                    $this->_sessionID = session_id();
-                }
-                $this
-                    ->set('authUserAgent', self::$useragent)
-                    ->set('authIP', self::$remoteaddr)
-                    ->set('authTime', time())
-                    ->set('authLastActivity', time())
-                    ->set('authID', $this->_sessionID);
-                if (session_status() != PHP_SESSION_NONE) {
-                    $_SESSION['FOG_USER'] = $this->get('id');
-                }
-                self::log(
-                    sprintf(
-                        '%s %s.',
-                        $this->get('name'),
-                        _('user successfully logged in')
-                    ),
-                    0,
-                    0,
-                    $this,
-                    0
-                );
-                $this->_isLoggedIn();
-                return $this;
-            }
-            self::log(
-                sprintf(
-                    '%s %s.',
-                    $this->get('name'),
-                    _('user failed to login'),
-                    $this->get('name')
-                ),
-                0,
-                0,
-                $this,
-                0
-            );
-            self::$EventManager->notify(
-                'LoginFail',
-                ['Failure' => $username]
-            );
-            self::$HookManager->processEvent(
-                'LoginFail',
-                [
-                    'username' => &$username,
-                    'password' => &$password
-                ]
-            );
-            if (session_status() != PHP_SESSION_NONE) {
-                $_SESSION['OBSOLETE'] = true;
-            }
         }
+        self::log(
+            sprintf(
+                '%s %s.',
+                $this->get('name'),
+                _('user failed to login'),
+                $this->get('name')
+            ),
+            0,
+            0,
+            $this,
+            0
+        );
+        self::$EventManager->notify(
+            'LoginFail',
+            ['Failure' => $username]
+        );
+        self::$HookManager->processEvent(
+            'LoginFail',
+            [
+                'username' => &$username,
+                'password' => &$password
+            ]
+        );
+        $_SESSION['OBSOLETE'] = true;
         return $this;
     }
     /**
@@ -369,90 +317,59 @@ class User extends FOGController
      */
     private function _isLoggedIn()
     {
-        if (!$this->isValid()) {
+        if (!$this->isValid() || session_status() == PHP_SESSION_NONE) {
             return false;
         }
-        if (!$this->_checkedalready) {
-            $keys = [
-                'FOG_ALWAYS_LOGGED_IN',
-                'FOG_INACTIVITY_TIMEOUT',
-                'FOG_REGENERATE_TIMEOUT'
-            ];
-            list(
-                $this->_alwaysloggedin,
-                $this->_inactivitySessionTimeout,
-                $this->_regenerateSessionTimeout,
-            ) = self::getSetting($keys);
-            $this->_checkedalready = true;
+        $keys = [
+            'FOG_ALWAYS_LOGGED_IN',
+            'FOG_INACTIVITY_TIMEOUT',
+            'FOG_REGENERATE_TIMEOUT'
+        ];
+        list(
+            $ali,
+            $ist,
+            $rst
+        ) = self::getSetting($keys);
+        $_SESSION['OBSOLETE'] = false;
+        $authip =(
+            $this->get('authIP') && $this->get('authIP') != self::$remoteaddr
+        );
+        $authuser = (
+            $this->get('authUserAgent')
+            && $this->get('authUserAgent') != self::$useragent
+        );
+        $authid = (
+            $this->get('authID') && $this->get('authID') != self::_getSessionID()
+        );
+        if ($authip || $authuser || $authid) {
+            $_SESSION['OBSOLETE'] = true;
+        } elseif ($this->get('authLastActivity')
+            && !$ali
+        ) {
+            $active = time() - $this->get('authLastActivity');
+            $timeout = $ist * 60 * 60;
+            if ($active >= $timeout) {
+                $_SESSION['OBSOLETE'] = true;
+            }
         }
-        if (session_status() != PHP_SESSION_NONE) {
+        if ($_SESSION['OBSOLETE']) {
             $_SESSION['OBSOLETE'] = false;
-            if (!$this->get('authIP')
-                || !$this->get('authUserAgent')
-            ) {
-                return false;
-            } elseif ($this->get('authIP')
-                && $this->get('authIP') != self::$remoteaddr
-            ) {
-                if (!$_SESSION['FOG_MESSAGES']) {
-                    self::setMessage(_('IP Address Changed'));
-                }
-                if (isset($_SESSION['OBSOLETE'])) {
-                    $_SESSION['OBSOLETE'] = true;
-                }
-            } elseif ($this->get('authUserAgent')
-                && $this->get('authUserAgent') != self::$useragent
-            ) {
-                if (!$_SESSION['FOG_MESSAGES']) {
-                    self::setMessage(_('User Agent Changed'));
-                }
-                if (isset($_SESSION['OBSOLETE'])) {
-                    $_SESSION['OBSOLETE'] = true;
-                }
-            } elseif ($this->get('authID')
-                && $this->_sessionID != $this->get('authID')
-            ) {
-                if (!$_SESSION['FOG_MESSAGES']) {
-                    self::setMessage(_('Session altered improperly'));
-                }
-                if (isset($_SESSION['OBSOLETE'])) {
-                    $_SESSION['OBSOLETE'] = true;
-                }
-            } elseif ($this->get('authLastActivity')
-                && !$this->_alwaysloggedin
-            ) {
-                $active = time() - $this->get('authLastActivity');
-                $timeout = $this->_inactivitySessionTimeout * 60 * 60;
-                if ($active >= $timeout) {
-                    self::setMessage(self::$foglang['SessionTimeout']);
-                    if (isset($_SESSION['OBSOLETE'])) {
-                        $_SESSION['OBSOLETE'] = true;
-                    }
-                }
-            }
-            if (isset($_SESSION['OBSOLETE'])
-                && $_SESSION['OBSOLETE']
-            ) {
-                $_SESSION['OBSOLETE'] = false;
-                self::redirect('../management/index.php?node=logout');
-            }
+            self::redirect('../management/index.php?node=logout');
         }
         $authTime = time() - $this->get('authTime');
-        $regenTime = $this->_regenerateSessionTimeout * 60 * 60;
+        $regenTime = $rst * 60 * 60;
         if ($authTime > $regenTime) {
-            $this->_sessionID = session_id();
+            $sessionid = self::_getSessionID();
             session_write_close();
             session_start();
-            session_id($this->_sessionID);
+            session_id($sessionid);
             $this
-                ->set('authID', $this->_sessionID)
+                ->set('authID', $sessionid)
                 ->set('authTime', time());
         }
         $this->set('authLastActivity', time());
-        if (session_status() != PHP_SESSION_NONE) {
-            if (!isset($_SESSION['FOG_USER'])) {
-                $_SESSION['FOG_USER'] = $this->get('id');
-            }
+        if (!isset($_SESSION['FOG_USER'])) {
+            $_SESSION['FOG_USER'] = $this->get('id');
         }
         return true;
     }
@@ -474,7 +391,6 @@ class User extends FOGController
         }
         $messages = $_SESSION['FOG_MESSAGES'];
         // Destroy session
-        unset($this->_sessionID);
         $this
             ->set('authID', null)
             ->set('authIP', null)
@@ -492,12 +408,13 @@ class User extends FOGController
      *
      * @return string
      */
-    public function getDisplayName(){
-      $displayName = $this->get('display');
-      if(isset($displayName)){
-        return $displayName;
-      }
+    public function getDisplayName()
+    {
+        $displayName = $this->get('display');
+        if (isset($displayName)) {
+            return $displayName;
+        }
 
-      return $this->get('name');
+        return $this->get('name');
     }
 }

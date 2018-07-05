@@ -1909,7 +1909,7 @@ class Route extends FOGBase
                 unset($val);
             }
         }
-        if (count($whereItems) > 0) {
+        if (count($whereItems ?: []) > 0) {
             $where = '';
             foreach ($whereItems as $key => &$field) {
                 if (!$where) {

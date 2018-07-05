@@ -28,24 +28,6 @@ class ProcessLogin extends FOGPage
      */
     private $_langMenu;
     /**
-     * The locale set.
-     *
-     * @var string
-     */
-    private $_lang;
-    /**
-     * Initialize the class.
-     *
-     * @param string $name The name to initialize with.
-     *
-     * @return void
-     */
-    public function __construct($name = '')
-    {
-        parent::__construct($name);
-        $this->_lang = self::$locale;
-    }
-    /**
      * Redirect if no direct page to go to.
      *
      * @return void
@@ -55,105 +37,114 @@ class ProcessLogin extends FOGPage
         if (self::$FOGUser->isValid()) {
             self::redirect('../management/index.php?node=home');
         }
-        $this->mainLoginForm();
+        self::mainLoginForm();
     }
     /**
      * Gets the languages into a string.
      *
-     * @return void
+     * @return string
      */
-    private function _getLanguages()
+    private static function _getLanguages()
     {
-        $translang = $this->_transLang();
-        ob_start();
+        $translang = self::_translang();
+        $langmenu = '<select class="form-control select2" name="ulang" id="ulang">';
         foreach ((array)self::$foglang['Language'] as &$lang) {
-            printf(
-                '<option value="%s"%s>%s</option>',
-                $lang,
-                ($translang == $lang ? ' selected' : ''),
-                $lang
-            );
+            $langmenu .= '<option value="'
+                . $lang
+                . '"'
+                . ($translang == $lang ? ' selected' : '')
+                . '>'
+                . $lang
+                . '</option>';
             unset($lang);
         }
-        $this->_langMenu = ob_get_clean();
+        return $langmenu . '</select>';
     }
     /**
-     * The default lang.
+     * Returns the language.
+     *
+     * @param string $lang Two Letter Code to return language.
      *
      * @return string
      */
-    private function _defaultLang()
+    private static function _returnLang($lang)
     {
-        return $this->_lang;
+        return self::$foglang['Language'][$lang];
     }
     /**
      * The translation.
      *
      * @return string
      */
-    private function _transLang()
+    private static function _translang()
     {
-        switch ($this->_lang) {
+        switch (self::$locale) {
         case 'de_DE':
-            return self::$foglang['Language']['de'];
+            $lang = 'de';
+            break;
         case 'en_US':
-            return self::$foglang['Language']['en'];
+            $lang = 'en';
+            break;
         case 'es_ES':
-            return self::$foglang['Language']['es'];
+            $lang = 'es';
+            break;
         case 'eu_ES':
-            return self::$foglang['Language']['eu'];
+            $lang = 'eu';
+            break;
         case 'fr_FR':
-            return self::$foglang['Language']['fr'];
+            $lang = 'fr';
+            break;
         case 'it_IT':
-            return self::$foglang['Language']['it'];
+            $lang = 'it';
+            break;
         case 'pt_BR':
-            return self::$foglang['Language']['pt'];
+            $lang = 'pt';
+            break;
         case 'zh_CN':
-            return self::$foglang['Language']['zh'];
+            $lang = 'zh';
         default:
-            return self::$foglang['Language'][$this->_defaultLang()];
+            $lang = self::getSetting('FOG_DEFAULT_LOCALE');
         }
+        return self::_returnLang($lang);
     }
     /**
      * Set the session language.
      *
      * @return void
      */
-    private function _specLang()
+    private static function _specLang()
     {
         $ulang = filter_input(INPUT_POST, 'ulang');
-        if (isset($ulang)) {
-            $this->_lang = self::$locale = $ulang;
-        } else {
-            $this->_lang = self::$locale = $this->_transLang();
+        if (!isset($ulang)) {
+            $ulang = self::_translang();
         }
-        switch ($this->_lang) {
+        switch ($ulang) {
         case self::$foglang['Language']['de']:
-            $this->_lang = self::$locale = 'de_DE';
+            self::$locale = 'de_DE';
             break;
         case self::$foglang['Language']['en']:
-            $this->_lang = self::$locale = 'en_US';
+            self::$locale = 'en_US';
             break;
         case self::$foglang['Language']['es']:
-            $this->_lang = self::$locale = 'es_ES';
+            self::$locale = 'es_ES';
             break;
         case self::$foglang['Language']['eu']:
-            $this->_lang = self::$Locale = 'eu_ES';
+            self::$Locale = 'eu_ES';
             break;
         case self::$foglang['Language']['fr']:
-            $this->_lang = self::$locale = 'fr_FR';
+            self::$locale = 'fr_FR';
             break;
         case self::$foglang['Language']['it']:
-            $this->_lang = self::$locale = 'it_IT';
+            self::$locale = 'it_IT';
             break;
         case self::$foglang['Language']['pt']:
-            $this->_lang = self::$locale = 'pt_BR';
+            self::$locale = 'pt_BR';
             break;
         case self::$foglang['Language']['zh']:
-            $this->_lang = self::$locale = 'zh_CN';
+            self::$locale = 'zh_CN';
             break;
         default:
-            $this->_lang = self::$locale = $this->_transLang();
+            self::$locale = self::_translang();
         }
     }
     /**
@@ -161,7 +152,7 @@ class ProcessLogin extends FOGPage
      *
      * @return void
      */
-    public function setLang()
+    public static function setLang()
     {
         $langs = [
             'de_DE' => true,
@@ -173,12 +164,12 @@ class ProcessLogin extends FOGPage
             'pt_BR' => true,
             'zh_CN' => true,
         ];
-        $this->_specLang();
+        self::_specLang();
         setlocale(
             (int)LC_MESSAGES,
             sprintf(
                 '%s.UTF-8',
-                $this->_lang
+                self::$locale
             )
         );
         $domain = 'messages';
@@ -197,13 +188,13 @@ class ProcessLogin extends FOGPage
      *
      * @return void
      */
-    public function loginPost()
+    public static function loginPost()
     {
         header('Content-type: application/json');
-        global $currentUser;
-        $this->setLang();
+        self::setLang();
         $uname = filter_input(INPUT_POST, 'uname');
         $upass = filter_input(INPUT_POST, 'upass');
+        $rememberme = isset($_POST['remember-me']);
         $type = self::$FOGUser->get('type');
         self::$HookManager->processEvent(
             'USER_TYPE_HOOK',
@@ -211,7 +202,8 @@ class ProcessLogin extends FOGPage
         );
         self::$FOGUser = self::attemptLogin(
             $uname,
-            $upass
+            $upass,
+            $rememberme
         );
         if (!self::$FOGUser->isValid()) {
             $code = HTTPResponseCodes::HTTP_FORBIDDEN;
@@ -246,18 +238,17 @@ class ProcessLogin extends FOGPage
      *
      * @return void
      */
-    public function processMainLogin()
+    public static function processMainLogin()
     {
-        global $currentUser;
         if (self::$reqmethod == 'POST') {
             if (isset($_POST['login'])) {
-                $this->loginPost();
+                self::loginPost();
             }
         } else {
             if (self::$FOGUser->isValid()) {
                 return;
             } else {
-                $this->mainLoginForm();
+                self::mainLoginForm();
             }
         }
     }
@@ -277,10 +268,9 @@ class ProcessLogin extends FOGPage
      *
      * @return void
      */
-    public function mainLoginForm()
+    public static function mainLoginForm()
     {
-        $this->setLang();
-        $this->_getLanguages();
+        self::setLang();
         echo '<div class="login-box">';
         echo '<div class="login-logo">';
         echo '<a href="./index.php"><b>FOG</b> Project</a>';
@@ -322,9 +312,7 @@ class ProcessLogin extends FOGPage
         echo '<span class="glyphicon glyphicon-lock form-control-feedback"></span>';
         echo '</div>';
         echo '<div class="form-group">';
-        echo '<select class="form-control select2" name="ulang" id="ulang">';
-        echo $this->_langMenu;
-        echo '</select>';
+        echo self::_getLanguages();
         echo '</div>';
         echo '<div class="row">';
         echo '<div class="col-xs-8">';
