@@ -165,7 +165,6 @@ class Initiator
             && $useragent
             && file_exists(BASEPATH . $script)
             && session_status() == PHP_SESSION_NONE
-            //&& false === stripos($script, '/api/')
         ) {
             session_start();
         }
@@ -183,7 +182,7 @@ class Initiator
         /**
          * If session isn't set return immediately.
          */
-        if (session_status() != PHP_SESSION_NONE) {
+        if (session_status() == PHP_SESSION_NONE) {
             return;
         }
         $_SESSION[$key] = $value;
@@ -256,7 +255,7 @@ class Initiator
         /**
          * This enables the autoloader to work.
          */
-        new self();
+        new self;
         /**
          * Check if the version of php is valid.
          */
