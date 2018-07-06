@@ -112,83 +112,7 @@ class FOGFTP
             $this->_link
         );
         $func = 'ftp_' . $func;
-        return $func($args);
-    }
-    /**
-     * FTP Alloc as a method
-     *
-     * @param double|int $filesize the filesize to allocate
-     * @param mixed      $result   the result to allocate for
-     *
-     * @return ftp_alloc
-     */
-    public function alloc(
-        $filesize,
-        &$result
-    ) {
-        return ftp_alloc(
-            $this->_link,
-            $filesize,
-            $result
-        );
-    }
-    /**
-     * Change to parent directory
-     *
-     * @return ftp_cdup
-     */
-    public function cdup()
-    {
-        return ftp_cdup($this->_link);
-    }
-    /**
-     * Change directory as requested
-     *
-     * @param string $directory the directory to change to
-     *
-     * @return ftp_chdir
-     */
-    public function chdir($directory)
-    {
-        return ftp_chdir(
-            $this->_link,
-            $directory
-        );
-    }
-    /**
-     * Change permissions on directory
-     *
-     * @param string $mode     the permissions/mode to set on file
-     * @param string $filename the file to change permissions on
-     *
-     * @return object
-     */
-    public function chmod(
-        $mode,
-        $filename
-    ) {
-        if (!$mode) {
-            $mode = $this->mode;
-        }
-        ftp_chmod(
-            $this->_link,
-            $mode,
-            $filename
-        );
-        return $this;
-    }
-    /**
-     * Close the current ftp session
-     *
-     * @return object
-     */
-    public function close()
-    {
-        if ($this->_link) {
-            ftp_close($this->_link);
-        }
-        $this->_link = null;
-        return $this;
+        return $func(...$args);
     }
     /**
      * Connect to the ftp server
@@ -256,131 +180,6 @@ class FOGFTP
         return $this;
     }
     /**
-     * Deletes the item passed
-     *
-     * @param string $path the item to delete
-     *
-     * @return object
-     */
-    public function delete($path)
-    {
-        if (!$this->exists($path)) {
-            return $this;
-        }
-        if (!$this->rmdir($path)
-            && !ftp_delete($this->_link, $path)
-        ) {
-            $filelist = $this->nlist($path);
-            foreach ((array)$filelist as &$file) {
-                $this->delete($file);
-                unset($file);
-            }
-            $this->rmdir($path);
-            $rawfilelist = $this->rawlist("-a $path");
-            $path = trim($path, '/');
-            $path = trim($path);
-            foreach ((array)$rawfilelist as &$file) {
-                $chunk = preg_split("/\s+/", $file);
-                if (in_array($chunk[8], ['.', '..'])) {
-                    continue;
-                }
-                $tmpfile = sprintf(
-                    '/%s/%s',
-                    $path,
-                    $chunk[8]
-                );
-                $this->delete($tmpfile);
-                unset($file);
-            }
-            $this->delete($path);
-        }
-        return $this;
-    }
-    /**
-     * Execute command via ftp
-     *
-     * @param string $command the command to execute
-     *
-     * @return bool
-     */
-    public function exec($command)
-    {
-        return ftp_exec(
-            $this->_link,
-            escapeshellcmd($command)
-        );
-    }
-    /**
-     * Get specified portions of a file
-     *
-     * @param resource $handle      the ftp resource
-     * @param string   $remote_file the remote file
-     * @param int      $mode        mode of the connection
-     * @param int      $resumepos   the position to resume from
-     *
-     * @return ftp_fget
-     */
-    public function fget(
-        $handle,
-        $remote_file,
-        $mode = 0,
-        $resumepos = 0
-    ) {
-        if (!$mode) {
-            $mode = $this->mode;
-        }
-        if ($resumepos) {
-            return ftp_fget(
-                $this->_link,
-                $handle,
-                $remote_file,
-                $mode,
-                $resumepos
-            );
-        }
-        return ftp_fget(
-            $this->_link,
-            $handle,
-            $remote_file,
-            $mode
-        );
-    }
-    /**
-     * Get specified portions of a file
-     *
-     * @param string   $remote_file the remote file
-     * @param resource $handle      the ftp resource
-     * @param int      $mode        mode of the connection
-     * @param int      $startpos    the position to start at
-     *
-     * @return ftp_fget
-     */
-    public function fput(
-        $remote_file,
-        $handle,
-        $mode = 0,
-        $startpos = 0
-    ) {
-        if (!$mode) {
-            $mode = $this->mode;
-        }
-        if ($startpos) {
-            return ftp_fput(
-                $this->_link,
-                $remote_file,
-                $handle,
-                $mode,
-                $startpos
-            );
-        }
-        return ftp_fput(
-            $this->_link,
-            $remote_file,
-            $handle,
-            $mode
-        );
-    }
-    /**
      * Returns the ftp error
      *
      * @param mixed $data the data info
@@ -407,56 +206,6 @@ class FOGFTP
                 _('Username'),
                 $data['username']
             )
-        );
-    }
-    /**
-     * Get ftp options
-     *
-     * @param mixed $option the option to get
-     *
-     * @return ftp_get_option
-     */
-    public function getOption($option)
-    {
-        return ftp_get_option(
-            $this->_link,
-            $option
-        );
-    }
-    /**
-     * Pulls files, quite literally ftp_get but get is
-     * a common method that doesn't tie with with this get
-     *
-     * @param string $local_file  the local file
-     * @param string $remote_file the remote file
-     * @param mixed  $mode        the mode to get file
-     * @param mixed  $resumepos   the position to continue from
-     *
-     * @return ftp_get
-     */
-    public function pull(
-        $local_file,
-        $remote_file,
-        $mode = 0,
-        $resumepos = 0
-    ) {
-        if (!$mode) {
-            $mode = $this->mode;
-        }
-        if ($resumepos) {
-            return ftp_get(
-                $this->_link,
-                $local_file,
-                $remote_file,
-                $mode,
-                $resumepos
-            );
-        }
-        return ftp_get(
-            $this->_link,
-            $local_file,
-            $remote_file,
-            $mode
         );
     }
     /**
@@ -497,104 +246,6 @@ class FOGFTP
         return $this;
     }
     /**
-     * MDTM as a method
-     *
-     * @param string $remote_file the remote file
-     *
-     * @return ftp_mdtm
-     */
-    public function mdtm($remote_file)
-    {
-        return ftp_mdtm($this->_link, $remote_file);
-    }
-    /**
-     * Creates directory on ftp site
-     *
-     * @param string $directory the directory to make
-     *
-     * @return ftp_mkdir
-     */
-    public function mkdir($directory)
-    {
-        return ftp_mkdir($this->_link, $directory);
-    }
-    /**
-     * FTP nlist
-     *
-     * @param string $directory the directory to list
-     *
-     * @return ftp_nlist
-     */
-    public function nlist($directory)
-    {
-        return ftp_nlist(
-            $this->_link,
-            $directory
-        );
-    }
-    /**
-     * FTP Pasv or not
-     *
-     * @param mixed $pasv the pasv mode
-     *
-     * @return ftp_pasv
-     */
-    public function pasv($pasv = false)
-    {
-        if (!$pasv) {
-            $pasv = $this->passive;
-        }
-        return ftp_pasv(
-            $this->_link,
-            $pasv
-        );
-    }
-    /**
-     * Put
-     *
-     * @param string $remote_file the file to put
-     * @param string $local_file  the file handle local
-     * @param mixed  $mode        the mode to fget the file
-     * @param mixed  $startpos    the position to continue from
-     *
-     * @return ftp_put
-     */
-    public function put(
-        $remote_file,
-        $local_file,
-        $mode = 0,
-        $startpos = 0
-    ) {
-        if (!$mode) {
-            $mode = $this->mode;
-        }
-        if ($startpos) {
-            return ftp_put(
-                $this->_link,
-                $remote_file,
-                $local_file,
-                $mode,
-                $resumepos
-            );
-        }
-        return ftp_put(
-            $this->_link,
-            $remote_file,
-            $local_file,
-            $mode,
-            $resumepos
-        );
-    }
-    /**
-     * Print working directory
-     *
-     * @return ftp_pwd
-     */
-    public function pwd()
-    {
-        return ftp_pwd($this->_link);
-    }
-    /**
      * Alias to close the ftp connection
      *
      * @return close
@@ -602,35 +253,6 @@ class FOGFTP
     public function quit()
     {
         return $this->close();
-    }
-    /**
-     * Perform raw ftp command
-     *
-     * @param string $command the command to run
-     *
-     * @return ftp_raw
-     */
-    public function raw($command)
-    {
-        return ftp_raw($this->_link, $command);
-    }
-    /**
-     * Rawlist essentially ls -la from ftp perspective
-     *
-     * @param string $directory the directory to list
-     * @param mixed  $recursive to delve deeper
-     *
-     * @return ftp_rawlist
-     */
-    public function rawlist(
-        $directory,
-        $recursive = false
-    ) {
-        return ftp_rawlist(
-            $this->_link,
-            $directory,
-            $recursive
-        );
     }
     /**
      * List files recursive
@@ -659,7 +281,7 @@ class FOGFTP
                 if (in_array($name, ['.', '..'])) {
                     continue;
                 }
-                $result = array_merge(
+                $result = self::fastmerge(
                     $result,
                     $this->listrecursive($filepath)
                 );
@@ -669,7 +291,6 @@ class FOGFTP
         }
         return $result;
     }
-
     /**
      * Rename function
      *
@@ -688,31 +309,6 @@ class FOGFTP
             $this->ftperror($this->data);
         }
         return $this;
-    }
-    /**
-     * Remove directory
-     *
-     * @param string $directory the directory to remove
-     *
-     * @return ftp_rmdir
-     */
-    public function rmdir($directory)
-    {
-        return ftp_rmdir($this->_link, $directory);
-    }
-    /**
-     * Site to run command on
-     *
-     * @param string $command the command to run
-     *
-     * @return ftp_site
-     */
-    public function site($command)
-    {
-        return ftp_site(
-            $this->_link,
-            $command
-        );
     }
     /**
      * Size of file
@@ -789,15 +385,6 @@ class FOGFTP
             throw new Exception($e->getMessage());
         }
         return $this;
-    }
-    /**
-     * The system type
-     *
-     * @return ftp_systype
-     */
-    public function systype()
-    {
-        return ftp_systype($this->_link);
     }
     /**
      * Tests if item exits

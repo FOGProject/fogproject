@@ -490,6 +490,7 @@ abstract class FOGPage extends FOGBase
             return;
         }
         global $node;
+        global $sub;
         ob_start();
         $links = [];
         foreach ($menu as $link => &$title) {
