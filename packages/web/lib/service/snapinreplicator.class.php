@@ -240,10 +240,11 @@ class SnapinReplicator extends FOGService
                         );
                         continue;
                     }
+                    $S = new Snapin($Snapin->id);
                     $this->replicateItems(
                         $myStorageGroupID,
                         $myStorageNodeID,
-                        new Snapin($Snapin->id),
+                        $S,
                         true
                     );
                     unset($Snapin);
@@ -262,10 +263,11 @@ class SnapinReplicator extends FOGService
                     )
                 );
                 foreach ($Snapins->data as &$Snapin) {
+                    $S = new Snapin($Snapin->id);
                     $this->replicateItems(
                         $myStorageGroupID,
                         $myStorageNodeID,
-                        new Snapin($Snapin->id),
+                        $S,
                         false
                     );
                     unset($Snapin);

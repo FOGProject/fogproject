@@ -150,8 +150,8 @@ class ImageReplicator extends FOGService
                  * Get the image ids that are valid.
                  */
                 $find = [
-                    'isEnabled' => 1,
-                    'toReplicate' => 1
+                    'isEnabled' => [1],
+                    'toReplicate' => [1]
                 ];
                 Route::ids(
                     'image',
@@ -233,7 +233,7 @@ class ImageReplicator extends FOGService
                     );
                 }
                 foreach ($Images->data as &$Image) {
-                    if (!Image::getPrimaryGroup($myStorageGroupID, $imageID)) {
+                    if (!Image::getPrimaryGroup($myStorageGroupID, $Image->id)) {
                         self::outall(
                             sprintf(
                                 ' | %s: %s',
@@ -249,10 +249,11 @@ class ImageReplicator extends FOGService
                         );
                         continue;
                     }
+                    $I = new Image($Image->id);
                     $this->replicateItems(
                         $myStorageGroupID,
                         $myStorageNodeID,
-                        new Image($Image->id),
+                        $I,
                         true
                     );
                     unset($Image);
@@ -271,10 +272,11 @@ class ImageReplicator extends FOGService
                     )
                 );
                 foreach ($Images->data as &$Image) {
+                    $I = new Image($Image->id);
                     $this->replicateItems(
                         $myStorageGroupID,
                         $myStorageNodeID,
-                        new Image($Image->id),
+                        $I,
                         false
                     );
                     unset($Image);
