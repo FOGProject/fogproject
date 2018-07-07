@@ -339,469 +339,310 @@ abstract class FOGService extends FOGBase
         $master = false,
         $fileOverride = false
     ) {
+        $unique = function ($item) {
+            return array_keys(array_flip(array_filter($item)));
+        };
         $itemType = $master ? 'group' : 'node';
         $groupID = $myStorageGroupID;
-        if ($master) {
-            $groupID = $Obj->get('storagegroups');
-        }
         $find = [
-            'isEnabled' => 1,
+            'isEnabled' => [1],
             'storagegroupID' => $groupID
         ];
         if ($master) {
+            $groupID = $Obj->get('storagegroups');
             $find['isMaster'] = [1];
         }
-        Route::indiv(
-            'storagenode',
-            $myStorageNodeID
-        );
-        $myStorageNode = json_decode(
-            Route::getData()
-        );
+        Route::indiv('storagenode', $myStorageNodeID);
+        $myStorageNode = json_decode(Route::getData());
         if (!$myStorageNode->isMaster) {
-            throw new Exception(
-                _('This is not the master for this group')
-            );
+            throw new Exception(_('This is not the master for this group'));
         }
         if (!$myStorageNode->online) {
-            throw new Exception(
-                _('This node does not appear to be online')
-            );
+            throw new Exception(_('This node does not appear to be online'));
         }
-        Route::listem(
-            'storagenode',
-            $find
-        );
-        $StorageNodes = json_decode(
-            Route::getData()
-        );
+        Route::listem('storagenode', $find);
+        $StorageNodes = json_decode(Route::getData());
         $objType = get_class($Obj);
         $groupOrNodeCount = count($StorageNodes->data ?: []);
         $counttest = 2;
         if (!$master) {
             $groupOrNodeCount--;
-            $counttest = 1;
+            $counttest--;
         }
         if ($groupOrNodeCount < $counttest) {
             self::outall(
-                sprintf(
-                    ' * %s %s %s %s',
-                    _('Not syncing'),
-                    $objType,
-                    _('between'),
-                    _("{$itemType}s")
-                )
+                ' * ' . _('Not syncing') . ' ' . $objType . ' '
+                . _('between') . ' ' . _("{$itemType}s")
             );
             self::outall(
-                sprintf(
-                    ' | %s %s: %s',
-                    $objType,
-                    _('Name'),
-                    $Obj->get('name')
-                )
+                ' | ' . $objType . ' ' . _('Name') . ': ' . $Obj->get('name')
             );
             self::outall(
-                sprintf(
-                    ' | %s.',
-                    _('There are no other members to sync to')
-                )
+                ' | ' . _('There are no members to sync to')
             );
+            return;
+        }
+        self::outall(
+            ' * ' . _('Found') . ' ' . _($objType) . ' ' . _('to transfer to')
+            . ' ' . $groupOrNodeCount . ' '
+            . (
+                $groupOrNodeCount == 1 ?
+                _($itemType) :
+                _("{$itemType}s")
+            )
+        );
+        $filename = ($fileOverride ?: $Obj->get('name'));
+        self::outall(
+            ' | ' . ($fileOverride ? _('File') : _($objType))
+            . ' ' . _('Name') . ': ' . $filename
+        );
+        $pathField = 'ftppath';
+        $fileField = 'path';
+        if ($objType == 'Snapin') {
+            $pathField = 'snapinpath';
+            $fileField = 'file';
+        }
+        $myDir = '/' . trim($myStorageNode->{$pathField}, '/') . '/';
+        if (false === $fileOverride) {
+            $myFile = basename($Obj->get($fileField));
         } else {
-            self::outall(
-                sprintf(
-                    ' * %s %s %s %s %s',
-                    _('Found'),
-                    _($objType),
-                    _('to transfer to'),
-                    $groupOrNodeCount,
-                    (
-                        $groupOrNodeCount != 1 ?
-                        _("{$itemType}s") :
-                        _($itemType)
-                    )
-                )
-            );
-            self::outall(
-                sprintf(
-                    ' | %s %s: %s',
-                    $fileOverride ? _('File') : _($objType),
-                    _('Name'),
-                    $fileOverride ?: $Obj->get('name')
-                )
-            );
-            $getPathOfItemField = 'ftppath';
-            $getFileOfItemField = 'path';
-            if ($objType == 'Snapin') {
-                $getPathOfItemField = 'snapinpath';
-                $getFileOfItemField = 'file';
+            $myFile = $fileOverride;
+        }
+        $myAdd = "{$myDir}{$myFile}";
+        $myAddItem = false;
+        foreach ($StorageNodes->data as $i => &$StorageNode) {
+            if ($StorageNode->id == $myStorageNodeID) {
+                continue;
             }
-            $myDir = sprintf(
-                '/%s/',
-                trim($myStorageNode->{$getPathOfItemField}, '/')
-            );
-            if (false === $fileOverride) {
-                $myFile = basename($Obj->get($getFileOfItemField));
-            } else {
-                $myFile = $fileOverride;
+            if ($master && $StorageNode->storagegroupID == $myStorageGroupID) {
+                continue;
             }
-            $myAdd = "$myDir$myFile";
-            $myAddItem = false;
-            foreach ($StorageNodes->data as &$StorageNode) {
-                if ($StorageNode->id == $myStorageNodeID) {
-                    continue;
-                }
-                if (!$StorageNode->online) {
-                    self::outall(
-                        sprintf(
-                            ' | %s server does not appear to be online.',
-                            $StorageNode->name
-                        )
-                    );
-                    continue;
-                }
-                $groupID = $StorageNode->storagegroupID;
-                if ($master
-                    && $groupID == $myStorageGroupID
-                ) {
-                    continue;
-                }
-                if ($fileOverride) {
-                    $name = $fileOverride;
-                    $randind = "abcdef$i";
-                } else {
-                    $name = $Obj->get('name');
-                    $randind = $i;
-                }
-                if (isset($this->procRef[$itemType])
-                    && isset($this->procRef[$itemType][$name])
-                    && isset($this->procRef[$itemType][$name][$randind])
-                ) {
-                    $isRunning = $this->isRunning(
+            if (!$StorageNode->online) {
+                self::outall(
+                    ' | ' . $StorageNode->name . ' '
+                    . _('server does not appear to be online')
+                );
+                continue;
+            }
+            $name = $Obj->get('name');
+            $randind = $i;
+            if ($fileOverride) {
+                $name = $fileOverride;
+                $randind = "abcdef$i";
+            }
+            if (isset($this->procRef[$itemType])
+                && isset($this->procRef[$itemType][$name])
+                && isset($this->procRef[$itemType][$randind])
+            ) {
+                $isRunning = $this->isRunning(
+                    $this->procRef[$itemType][$name][$randind]
+                );
+                if ($isRunning) {
+                    $pid = $this->getPID(
                         $this->procRef[$itemType][$name][$randind]
                     );
-                    if ($isRunning) {
-                        self::outall(
-                            sprintf(
-                                '| %s: %d',
-                                _('Replication already running with PID'),
-                                $this->getPID(
-                                    $this->procRef[$itemType][$name][$randind]
-                                )
-                            )
-                        );
-                        continue;
-                    }
-                }
-                if (!file_exists($myAdd)
-                    || !is_readable($myAdd)
-                ) {
                     self::outall(
-                        sprintf(
-                            ' * %s %s %s %s',
-                            _('Not syncing'),
-                            $objType,
-                            _('between'),
-                            _("{$itemType}s")
-                        )
-                    );
-                    self::outall(
-                        sprintf(
-                            ' | %s %s: %s',
-                            $fileOverride ? _('File') : _($objType),
-                            _('Name'),
-                            $name
-                        )
-                    );
-                    self::outall(
-                        sprintf(
-                            ' | %s.',
-                            _('File or path cannot be reached')
-                        )
+                        ' | ' . _('Replication already running with PID')
+                        . ': ' . $pid
                     );
                     continue;
                 }
-                $testip = $StorageNode->ip;
-                $url = sprintf(
-                    '%s://%s/fog/status/gethash.php',
-                    self::$httpproto,
-                    $StorageNode->ip
+            }
+            if (!file_exists($myAdd) || !is_readable($myAdd)) {
+                self::outall(
+                    ' * ' . _('Not syncing') . ' ' . $objType
+                    . ' ' . _('between') . ' ' . _("{$itemType}s")
                 );
-                self::$FOGFTP->username = $StorageNode->user;
-                self::$FOGFTP->password = $StorageNode->pass;
-                self::$FOGFTP->host = $StorageNode->ip;
-                if (!self::$FOGFTP->connect()) {
-                    self::outall(
-                        sprintf(
-                            ' * %s %s',
-                            _('Cannot connect to'),
-                            $StorageNode->name
-                        )
-                    );
-                    continue;
+                self::outall(
+                    ' | ' . ($fileOverride ? _('File') : _($objType))
+                    . ' ' . _('Name') . ': ' . $name
+                );
+                self::outall(
+                    ' | ' . _('File or path cannot be reached')
+                );
+                continue;
+            }
+            $username = self::$FOGFTP->username = $StorageNode->user;
+            $password = self::$FOGFTP->password = $StorageNode->pass;
+            $ip = self::$FOGFTP->host = $StorageNode->ip;
+            $url = self::$httpproto . '://' . $ip . '/fog/status/gethash.php';
+            $nodename = $StorageNode->name;
+            if (!self::$FOGFTP->connect()) {
+                self::outall(
+                    ' * ' . _('Cannot connect to') . ' ' . $nodename
+                );
+                continue;
+            }
+            $encpassword = urlencode($password);
+            $removeDir = '/' . trim($StorageNode->{$pathField}, '/') . '/';
+            $removeFile = $myFile;
+            $limitmain = self::byteconvert($myStorageNode->bandwidth);
+            $limitsend = self::byteconvert($StorageNode->bandwidth);
+            if ($limitmain > 0) {
+                $limitset = "set net:limit-total-rate 0:$limitmain;";
+            }
+            if ($limitsend > 0) {
+                $limitset .= "set net:limit-total-rate 0:$limitsend;";
+            }
+            unset($limit);
+            $limit = $limitset;
+            unset($limitset, $remItem, $includeFile);
+            $ftpstart = "ftp://{$username}:{$encpassword}@{$ip}";
+            if (is_file($myAdd)) {
+                $remItem = dirname("{$removeDir}{$removeFile}");
+                $removeFile = basename($removeFile);
+                $opts = '-R -i';
+                $includeFile = basename($myFile);
+                if (!$myAddItem) {
+                    $myAddItem = dirname($myAdd);
                 }
-                $nodename = $StorageNode->name;
-                $username = self::$FOGFTP->username;
-                $password = self::$FOGFTP->password;
-                $ip = self::$FOGFTP->host;
-                $encpassword = urlencode($password);
-                $removeDir = sprintf(
-                    '/%s/',
-                    trim(
-                        $StorageNode->{$getPathOfItemField},
-                        '/'
-                    )
+                $localfilescheck[0] = $myAdd;
+                $remotefilescheck[0] = $remItem . '/' . $removeFile;
+            } else if (is_dir($myAdd)) {
+                $remItem = "{$removeDir}{$removeFile}";
+                $path = realpath($myAdd);
+                $localfilescheck = self::globrecursive(
+                    "$path/**{,.}*[!.,!..]",
+                    GLOB_BRACE
                 );
-                $removeFile = $myFile;
-                $limitmain = self::byteconvert(
-                    $myStorageNode->bandwidth
-                );
-                $limitsend = self::byteconvert(
-                    $StorageNode->bandwidth
-                );
-                if ($limitmain > 0) {
-                    $limitset = "set net:limit-total-rate 0:$limitmain;";
+                $remotefilescheck = self::$FOGFTP->listrecursive($remItem);
+                $opts = '-R';
+                $includeFile = '';
+                if (!$myAddItem) {
+                    $myAddItems = $myAdd;
                 }
-                if ($limitsend > 0) {
-                    $limitset .= "set net:limit-rate 0:$limitsend;";
-                }
-                unset($limit);
-                $limit = $limitset;
-                unset($limitset);
-                unset($remItem);
-                unset($includeFile);
-                $ftpstart = "ftp://$username:$encpassword@$ip";
-                if (is_file($myAdd)) {
-                    $remItem = dirname("$removeDir$removeFile");
-                    $removeFile = basename($removeFile);
-                    $opts = '-R -i';
-                    $includeFile = basename($myFile);
-                    if (!$myAddItem) {
-                        $myAddItem = dirname($myAdd);
-                    }
-                    $localfilescheck[0] = $myAdd;
-                    $remotefilescheck[0] = sprintf(
-                        '%s/%s',
-                        $remItem,
-                        $removeFile
-                    );
-                } elseif (is_dir($myAdd)) {
-                    $remItem = "$removeDir$removeFile";
-                    $path = realpath($myAdd);
-                    $localfilescheck = self::globrecursive(
-                        "$path/**{,.}*[!.,!..]",
-                        GLOB_BRACE
-                    );
-                    $remotefilescheck = self::$FOGFTP->listrecursive($remItem);
-                    $opts = '-R';
-                    $includeFile = '';
-                    if (!$myAddItem) {
-                        $myAddItem = $myAdd;
-                    }
-                }
-                $localfilescheck = array_values(
-                    array_filter(
-                        array_unique($localfilescheck)
-                    )
+            }
+            $localfilescheck = $unique($localfilescheck);
+            $remotefilescheck = $unique($remotefilescheck);
+            $testavail = -1;
+            $testavail = array_filter(
+                self::$FOGURLRequests->isAvailable($ip, 1, 80, 'tcp')
+            );
+            $avail = true;
+            if (!$testavail) {
+                $avail = false;
+            }
+            $testavail = array_shift($testavail);
+            $allsynced = true;
+            foreach ((array)$localfilescheck as $j => &$localfile) {
+                $index = self::arrayFind(
+                    basename($localfile),
+                    (array)$remotefilescheck
                 );
-                $remotefilescheck = array_values(
-                    array_filter(
-                        array_unique($remotefilescheck)
-                    )
-                );
-                sort($localfilescheck);
-                sort($remotefilescheck);
-                $localfilescheck = array_values(
-                    array_filter(
-                        array_unique($localfilescheck)
-                    )
-                );
-                $remotefilescheck = array_values(
-                    array_filter(
-                        array_unique($remotefilescheck)
-                    )
-                );
-                $testavail = -1;
-                $allsynced = true;
-                foreach ((array)$localfilescheck as $j => &$localfile) {
-                    $allsynced = true;
-                    $avail = true;
-                    $index = self::arrayFind(
-                        basename($localfile),
-                        (array)$remotefilescheck
+                $filesize_main = self::getFilesize($localfile);
+                $file = $remotefilescheck[$index];
+                if ($avail) {
+                    $sizeurl = str_replace('gethash', 'getsize', $url);
+                    $remsize = self::$FOGURLRequests->process(
+                        $sizeurl,
+                        'POST',
+                        ['file' => base64_encode($file)]
                     );
-                    $testavail = array_filter(
-                        self::$FOGURLRequests->isAvailable($testip, 1, 80, 'tcp')
+                    $filesize_rem = array_shift($remsize);
+                    $res = self::$FOGURLRequests->process(
+                        $url,
+                        'POST',
+                        ['file' => base64_encode($file)]
                     );
-                    $testavail = array_shift($testavail);
-                    if (!$testavail) {
-                        $avail = false;
-                    }
-                    $filesize_main = self::getFilesize($localfile);
-                    $file = $remotefilescheck[$index];
-                    if ($avail) {
-                        $sizeurl = str_replace('gethash', 'getsize', $url);
-                        $remsize = self::$FOGURLRequests->process(
-                            $sizeurl,
-                            'POST',
-                            ['file' => base64_encode($file)]
-                        );
-                        $filesize_rem = array_shift($remsize);
-                        $res = self::$FOGURLRequests->process(
-                            $url,
-                            'POST',
-                            ['file' => base64_encode($file)]
-                        );
-                        $res = array_shift($res);
-                    } elseif (!$avail) {
-                        if ($file) {
-                            $filesize_rem = self::$FOGFTP->size(
-                                $file
-                            );
-                        }
-                        $res = sprintf(
-                            '%s%s',
-                            $ftpstart,
+                    $res = array_shift($res);
+                } else {
+                    if ($file) {
+                        $filesize_rem = self::$FOGFTP->size(
                             $file
                         );
                     }
-                    $filesEqual = self::_filesAreEqual(
-                        $filesize_main,
-                        $filesize_rem,
-                        $localfile,
-                        $res,
-                        $avail
-                    );
-                    if (!$filesEqual) {
-                        $allsynced = false;
-                        self::outall(
-                            ' | '
-                            . _('Files do not match on server: ')
-                            . $StorageNode->name
-                        );
-                        if (!$remotefilescheck[$index]) {
-                            self::outall(
-                                ' | '
-                                . basename($localfile)
-                                . ' '
-                                . _('File does not exist.')
-                                . ' '
-                                . $StorageNode->name
-                            );
-                        } else {
-                            self::outall(
-                                sprintf(
-                                    ' | %s: %s',
-                                    _('Deleting remote file'),
-                                    $remotefilescheck[$index]
-                                )
-                            );
-                            self::$FOGFTP->delete($remotefilescheck[$index]);
-                        }
-                        $test = false;
-                    } else {
-                        self::outall(
-                            sprintf(
-                                ' | %s: %s %s %s %s',
-                                $name,
-                                _('No need to sync'),
-                                basename($localfile),
-                                _('file to'),
-                                $nodename
-                            )
-                        );
-                        self::$FOGFTP->close();
-                        continue;
-                    }
-                    unset($localfile);
+                    $res = "{$ftpstart}{$file}";
                 }
-                self::$FOGFTP->close();
-                if ($allsynced) {
-                    self::outall(_(' * All files synced for this item.'));
+                $filesEqual = self::_filesAreEqual(
+                    $filesize_main,
+                    $filesize_rem,
+                    $localfile,
+                    $res,
+                    $avail
+                );
+                if ($filesEqual) {
+                    self::outall(
+                        ' | ' . $name . ': ' . _('No need to sync')
+                        . ' ' . basename($localfile) . ' ' . _('file to')
+                        . ' ' . $nodename
+                    );
+                    self::$FOGFTP->close();
                     continue;
                 }
-                $logname = sprintf(
-                    '%s.%s.transfer.%s.log',
-                    rtrim(
-                        substr(
-                            static::$log,
-                            0,
-                            -4
-                        ),
-                        '.'
-                    ),
-                    $Obj->get('name'),
-                    $nodename
-                );
-                if (!$i) {
-                    self::outall(
-                        sprintf(
-                            ' * %s',
-                            _('Starting Sync Actions')
-                        )
-                    );
-                }
-                $this->killTasking(
-                    $randind,
-                    $itemType,
-                    $name
-                );
-                $myAddItem = escapeshellarg($myAddItem);
-                $remItem = escapeshellarg($remItem);
-                $logname = escapeshellarg($logname);
-                $myAddItem = trim($myAddItem, "'");
-                $myAddItem = sprintf(
-                    '"%s"',
-                    $myAddItem
-                );
-                $remItem = trim($remItem, "'");
-                $remItem = sprintf(
-                    '"%s"',
-                    $remItem
-                );
-                $logname = trim($logname, "'");
-                $logname = sprintf(
-                    '"%s"',
-                    $logname
-                );
-                $cmd = "lftp -e 'set xfer:log 1; set xfer:log-file $logname;";
-                $cmd .= "set ftp:list-options -a;set net:max-retries ";
-                $cmd .= "10;set net:timeout 30; $limit mirror -c --parallel=20 ";
-                $cmd .= "$opts ";
-                if (!empty($includeFile)) {
-                    $includeFile = escapeshellarg($includeFile);
-                    $includeFile = trim($includeFile, "'");
-                    $includeFile = sprintf(
-                        '"%s"',
-                        $includeFile
-                    );
-                    $cmd .= "$includeFile ";
-                }
-                $cmd .= "--ignore-time -vvv --exclude \".srvprivate\" ";
-                $cmd .= "$myAddItem $remItem;";
-                $cmd2 = sprintf(
-                    "%s exit' -u $username,[Protected] $ip",
-                    $cmd
-                );
-                $cmd .= "exit' -u $username,$password $ip";
-                self::outall(" | CMD:\n\t\t\t$cmd2");
-                unset($includeFile, $remItem, $myAddItem);
-                $this->startTasking(
-                    $cmd,
-                    $logname,
-                    $randind,
-                    $itemType,
-                    $name
-                );
+                $allsynced = false;
                 self::outall(
-                    sprintf(
-                        ' * %s %s %s',
-                        _('Started sync for'),
-                        $objType,
-                        $name
-                    )
+                    ' | ' . _('Files do not match on server') . ': '
+                    . $nodename
                 );
-                unset($StorageNode);
+                if (!$remotefilescheck[$index]) {
+                    self::outall(
+                        ' | ' . basename($localfile)
+                        . ' ' . _('File does not exist')
+                    );
+                } else {
+                    self::outall(
+                        ' | ' . _('Deleting remote file') . ': '
+                        . $remotefilescheck[$index]
+                    );
+                }
+                unset($localfile);
             }
+            self::$FOGFTP->close();
+            if ($allsynced) {
+                self::outall(
+                    ' * ' . _('All files synced for this item')
+                );
+                continue;
+            }
+            $logname = rtrim(substr(static::$log, 0, -4), '.')
+                . '.' . $Obj->get('name') . '.transfer.' . $nodename
+                . '.log';
+            if (!$i) {
+                self::outall(
+                    ' * ' . _('Starting Sync Actions')
+                );
+            }
+            $this->killTasking(
+                $randind,
+                $itemType,
+                $name
+            );
+            $myAddItem = escapeshellarg($myAddItem);
+            $myAddItem = trim($myAddItem, "'");
+            $myAddItem = '"' . $myAddItem . '"';
+            $remItem = escapeshellarg($remItem);
+            $remItem = trim($remItem, "'");
+            $remItem = '"' . $remItem . '"';
+            $logname = escapeshellarg($logname);
+            $logname = trim($logname, "'");
+            $logname = '"' . $logname . '"';
+            $cmd = "lftp -e 'set xfer:log 1; set xfer:log-file $logname;";
+            $cmd .= "set ftp:list-options -a;set net:max-retries ";
+            $cmd .= "10;set net:timeout 30;$limit mirror -c --parallel=20 ";
+            $cmd .= "$opts ";
+            if (!empty($includeFile)) {
+                $includeFile = escapeshellarg($includeFile);
+                $includeFile = trim($includeFile, "'");
+                $includeFile = '"' . $includeFile . '"';
+                $cmd .= $includeFile . ' ';;
+            }
+            $cmd .= "--ignore-time -vvv --exclude \".srvprivate\" ";
+            $cmd .= "$myAddItem $remItem;";
+            $cmd2 = $cmd . "exit' -u $username,[redacted] $ip";
+            $cmd .= "exit' -u {$username},{$password} $ip";
+            self::outall(" | CMD:\n\t\t\t$cmd2");
+            unset($includeFile, $remItem, $myAddItem);
+            $this->startTasking(
+                $cmd,
+                $logname,
+                $randind,
+                $itemType,
+                $name
+            );
+            self::outall(
+                ' * ' . _('Started sync for') . ' ' . $objType . ' ' . $name
+            );
+            unset($StorageNode);
         }
     }
     /**
