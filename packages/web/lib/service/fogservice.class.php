@@ -450,7 +450,7 @@ abstract class FOGService extends FOGBase
             }
             $myAdd = "$myDir$myFile";
             $myAddItem = false;
-            foreach ($StorageNodes as &$StorageNode) {
+            foreach ($StorageNodes as $i => &$StorageNode) {
                 if ($StorageNode->id == $myStorageNodeID) {
                     continue;
                 }
