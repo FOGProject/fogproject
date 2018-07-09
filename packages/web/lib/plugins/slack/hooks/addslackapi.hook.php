@@ -60,34 +60,52 @@ class AddSlackAPI extends Hook
             'API_VALID_CLASSES',
             [$this, 'injectAPIElements']
         )->register(
-            'API_MASSDATA_MAPPING',
-            [$this, 'adjustMassData']
+            'CUSTOMIZE_DT_COLUMNS',
+            [$this, 'customizeDT']
         );
     }
     /**
-     * Adjust the returned data so we don't need to do
-     * ajax calls in the list.
+     * Customize our new columns.
      *
      * @param mixed $arguments The arguments to modify.
      *
      * @return void
      */
-    public function adjustMassData($arguments)
+    public function customizeDT($arguments)
     {
         if ($arguments['classname'] != $this->node) {
             return;
         }
-        $items = $arguments['data'];
-        foreach ($items['data'] as $ind => &$item) {
-            $team = self::getClass(
-                'Slack',
-                $item['id']
-            )->call('auth.test');
-            $items['data'][$ind]['id'] = $team['team'];
-            $items['data'][$ind]['token'] = $team['user'];
-            unset($item);
+        $arguments['columns'] = [];
+        foreach (self::getClass('SlackManager')
+            ->getColumns() as $common => &$real
+        ) {
+            switch ($common) {
+            case 'id':
+            case 'token':
+                $getme = 'user';
+                if ($common == 'id') {
+                    $getme = 'team';
+                }
+                $arguments['columns'][] = [
+                    'db' => $real,
+                    'dt' => $common,
+                    'formatter' => function ($d, $row) use ($getme) {
+                        $team = self::getClass(
+                            'Slack',
+                            $row['sID']
+                        )->call('auth.test');
+                        return $team[$getme];
+                    }
+                ];
+                break;
+            default:
+                $arguments['columns'][] = [
+                    'db' => $real,
+                    'dt' => $common,
+                ];
+            }
         }
-        $arguments['data']['data'] = $items['data'];
     }
     /**
      * This function injects slack elements for
