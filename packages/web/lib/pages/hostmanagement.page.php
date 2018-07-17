@@ -392,33 +392,64 @@ class HostManagement extends FOGPage
         );
         $remitems = $items['remitems'];
         $pending = $items['pending'];
-        if (isset($_POST['confirmdel'])) {
-            self::checkauth();
-            self::getClass('MACAddressAssociationManager')->destroy(
+        $serverFault = false;
+        try {
+            if (isset($_POST['confirmdel'])) {
+                $errt = _('Delete MAC Fail');
+                self::checkauth();
+                self::$HookManager->processEvent(
+                    'MULTI_REMOVE',
+                    ['removing' => &$remitems]
+                );
+                Route::deletemass(
+                    'macaddressassociation',
+                    [
+                        'id' => $remitems,
+                        'pending' => 1
+                    ]
+                );
+                $msg = json_encode(
+                    [
+                        'msg' => _('Successfully deleted'),
+                        'title' => _('Delete Success')
+                    ]
+                );
+                $code = HTTPResponseCodes::HTTP_SUCCESS;
+            }
+            if (isset($_POST['approvepending'])) {
+                $errt = _('Approve MAC Fail');
+                self::getClass('MACAddressAssociationManager')->update(
+                    [
+                        'id' => $pending,
+                        'pending' => 1
+                    ],
+                    '',
+                    ['pending' => 0]
+                );
+                $msg = json_encode(
+                    [
+                        'msg' => _('Approved selected macs!'),
+                        'title' => _('MAC Approval Success')
+                    ]
+                );
+                $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            }
+        } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $msg = json_encode(
                 [
-                    'id' => $remitems,
-                    'pending' => 1
+                    'error' => $e->getMessage(),
+                    'title' => $errt
                 ]
             );
         }
-        if (isset($_POST['approvepending'])) {
-            self::getClass('MACAddressAssociationManager')->update(
-                [
-                    'id' => $pending,
-                    'pending' => 1
-                ],
-                '',
-                ['pending' => 0]
-            );
-            http_response_code(HTTPResponseCodes::HTTP_ACCEPTED);
-            echo json_encode(
-                [
-                    'msg' => _('Approved selected macs!'),
-                    'title' => _('MAC Approval Success')
-                ]
-            );
-            exit;
-        }
+        http_response_code($code);
+        echo $msg;
+        exit;
     }
     /**
      * Creates a new host.
@@ -4617,6 +4648,20 @@ class HostManagement extends FOGPage
         }
         $columns[] = ['db' => 'hostID', 'dt' => 'hostid'];
         $columns[] = ['db' => 'hostName', 'dt' => 'hostname'];
+        $columns[] = [
+            'db' => 'hostID',
+            'dt' => 'hostLink',
+            'formatter' => function ($d, $row) {
+                if (!$d) {
+                    return;
+                }
+                return '<a href="../management/index.php?node=host&sub=edit&id='
+                    . $d
+                    . '">'
+                    . $row['hostName']
+                    . '</a>';
+            }
+        ];
         self::$HookManager->processEvent(
             'HOST_PENDING_MACS',
             [

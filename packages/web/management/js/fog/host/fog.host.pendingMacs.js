@@ -26,27 +26,10 @@
             [0, 'asc']
         ],
         columns: [
-            {data: 'hostname'},
+            {data: 'hostLink'},
             {data: 'mac'}
         ],
         rowId: 'id',
-        columnDefs: [
-            {
-                responsivePriority: -1,
-                render: function (data, type, row) {
-                    return '<a href="../management/index.php?node=host&sub=edit&id='
-                        + row.hostid
-                        + '">'
-                        + data
-                        + '</a>';
-                },
-                targets: 0
-            },
-            {
-                responsivePriority: 0,
-                targets: 1
-            }
-        ],
         processing: true,
         serverSide: true,
         ajax: {
@@ -68,7 +51,7 @@
             if (err) {
                 disableButtons(false);
             }
-        });
+        }, {url: '../management/index.php?node=' + Common.node + '&sub=' + Common.sub});
     });
 
     approveSelected.on('click', function() {
