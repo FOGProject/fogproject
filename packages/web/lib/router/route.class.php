@@ -731,7 +731,7 @@ class Route extends FOGBase
                 $columns[] = [
                     'db' => $real,
                     'dt' => $common,
-                    'formatter' => function($d, $row) {
+                    'formatter' => function ($d, $row) {
                         return PXEMenuOptionsManager::regText($d);
                     }
                 ];

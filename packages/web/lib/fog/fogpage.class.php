@@ -1359,9 +1359,8 @@ abstract class FOGPage extends FOGBase
         );
         $serverFault = false;
         try {
-            self::getClass($this->childClass.'Manager')
-                ->destroy(['id' => $remitems]);
-            $msg =json_encode(
+            Route::deletemass($this->childClass, ['id' => $remitems]);
+            $msg = json_encode(
                 [
                     'msg' => _('Successfully deleted'),
                     'title' => _('Delete Success')

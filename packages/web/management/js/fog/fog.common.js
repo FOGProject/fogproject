@@ -101,7 +101,8 @@ $.deleteSelected = function(table, cb, opts) {
         password: undefined
     });
     opts = _.defaults(opts, {
-        ids: opts.rows.ids().toArray()
+        ids: opts.rows.ids().toArray(),
+        url: '../management/index.php?node=' + opts.node + 'sub=deletemulti',
     });
 
     var ajaxOpts = {
@@ -132,9 +133,7 @@ $.deleteSelected = function(table, cb, opts) {
     Pace.track(function(){
         $.ajax('', {
             type: 'post',
-            url: '../management/index.php?node='
-            + opts.node
-            + '&sub=deletemulti',
+            url: opts.url,
             async: true,
             data: ajaxOpts,
             success: function(res) {
