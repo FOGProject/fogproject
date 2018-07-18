@@ -626,7 +626,9 @@ abstract class FOGBase
             if ($NodeFailure->isValid()) {
                 return false;
             }
-            $DateTime = self::niceDate($NodeFailure->failureTime);
+            if (!self::validDate($NodeFailure->failureTime)) {
+                return false;
+            }
             if ($DateTime < $DateInterval) {
                 self::getClass('NodeFailure', $NodeFailure->id)->destroy();
                 return false;
@@ -1127,8 +1129,12 @@ abstract class FOGBase
                 return $date >= 0 && $date <= 7;
             }
         }
-        if (!$date instanceof DateTime) {
-            $date = self::niceDate($date);
+        try {
+            if (!$date instanceof DateTime) {
+                $date = self::niceDate($date);
+            }
+        } catch (Exception $e) {
+            return false;
         }
         if (!$format) {
             $format = 'm/d/Y';
