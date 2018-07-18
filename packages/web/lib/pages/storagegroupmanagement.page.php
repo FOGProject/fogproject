@@ -525,13 +525,20 @@ class StorageGroupManagement extends FOGPage
             }
         ];
 
-        // Membership
+        // Associations
         $tabData[] = [
-            'name' => _('Membership'),
-            'id' => 'storagegroup-membership',
-            'generator' => function () {
-                $this->storagegroupMembership();
-            }
+            'tabs' => [
+                'name' => _('Associations'),
+                'tabData' => [
+                    [
+                        'name' => _('Storage Nodes'),
+                        'id' => 'storagegroup-membership',
+                        'generator' => function () {
+                            $this->storagegroupMembership();
+                        }
+                    ]
+                ]
+            ]
         ];
 
         echo self::tabFields($tabData, $this->obj);
@@ -614,16 +621,16 @@ class StorageGroupManagement extends FOGPage
             $pass_vars
         );
 
-        $where = "`nfsGroups`.`ngID` = '"
-            . $this->obj->get('id')
-            . "'";
-
         $storagegroupsSqlStr = "SELECT `%s`,"
             . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` = '"
             . $this->obj->get('id')
             . "','associated','dissociated') AS `ngmGroupID`
             FROM `%s`
-            CROSS JOIN `nfsGroups`
+            LEFT OUTER JOIN `nfsGroups`
+            ON `nfsGroups`.`ngID` = `nfsGroupMembers`.`ngmGroupID`
+            AND `nfsGroups`.`ngID` = '"
+            . $this->obj->get('id')
+            . "'
             %s
             %s
             %s";
@@ -633,7 +640,11 @@ class StorageGroupManagement extends FOGPage
             . $this->obj->get('id')
             . "','associated','dissociated') AS `ngmGroupID`
             FROM `%s`
-            CROSS JOIN `nfsGroups`
+            LEFT OUTER JOIN `nfsGroups`
+            ON `nfsGroups`.`ngID` = `nfsGroupMembers`.`ngmGroupID`
+            AND `nfsGroups`.`ngID` = '"
+            . $this->obj->get('id')
+            . "'
             %s";
 
         $storagegroupsTotalStr = "SELECT COUNT(`%s`)

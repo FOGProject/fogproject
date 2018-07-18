@@ -69,6 +69,10 @@ $(function() {
         membershipRemoveBtn.prop('disabled', disabled);
     }
     var membershipTable = $('#ou-membership-table').registerTable(onMembershipSelect, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
         columns: [
             {data: 'name'},
             {data: 'association'},

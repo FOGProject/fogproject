@@ -42,6 +42,7 @@ class TaskType extends FOGController
     const FULL_WIPE = 20;
     const DEBUGTASKS = [
         self::DEBUG,
+        self::MULTICAST,
         self::DEPLOY_DEBUG,
         self::CAPTURE_DEBUG
     ];

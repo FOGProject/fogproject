@@ -740,6 +740,7 @@
 
     var printersTable = $('#host-printers-table').registerTable(onPrintersSelect, {
         order: [
+            [3, 'asc'],
             [1, 'asc']
         ],
         columns: [
@@ -934,6 +935,10 @@
     }
 
     var snapinsTable = $('#host-snapins-table').registerTable(onSnapinsSelect, {
+        order: [
+            [2, 'asc'],
+            [0, 'asc']
+        ],
         columns: [
             {data: 'name'},
             {data: 'createdTime'},
@@ -1035,6 +1040,10 @@
     }
 
     var modulesTable = $('#modules-to-update').registerTable(onModulesEnable, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
         columns: [
             {data: 'name'},
             {data: 'association'}
@@ -1289,6 +1298,10 @@
     }
 
     var groupsTable = $('#host-groups-table').registerTable(onGroupsSelect, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
         columns: [
             {data: 'name'},
             {data: 'association'}
