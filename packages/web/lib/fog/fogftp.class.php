@@ -281,7 +281,7 @@ class FOGFTP
                 if (in_array($name, ['.', '..'])) {
                     continue;
                 }
-                $result = self::fastmerge(
+                $result = FOGCore::fastmerge(
                     $result,
                     $this->listrecursive($filepath)
                 );

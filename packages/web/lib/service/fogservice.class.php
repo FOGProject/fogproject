@@ -566,7 +566,6 @@ abstract class FOGService extends FOGBase
                         . ' ' . basename($localfile) . ' ' . _('file to')
                         . ' ' . $nodename
                     );
-                    self::$FOGFTP->close();
                     continue;
                 }
                 $allsynced = false;
@@ -587,7 +586,6 @@ abstract class FOGService extends FOGBase
                 }
                 unset($localfile);
             }
-            self::$FOGFTP->close();
             if ($allsynced) {
                 self::outall(
                     ' * ' . _('All files synced for this item')
