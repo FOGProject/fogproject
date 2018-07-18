@@ -69,13 +69,6 @@ class Initiator
             return $value;
         };
         /**
-         * Find out if the link has service in the call.
-         */
-        $self = false === stripos(
-            filter_input(INPUT_SERVER, 'PHP_SELF'),
-            'service'
-        );
-        /**
          * Set useragent to false.
          */
         $useragent = false;
@@ -161,9 +154,7 @@ class Initiator
          * Start the session.
          */
         $script = filter_input(INPUT_SERVER, 'SCRIPT_NAME');
-        if ($self
-            && $useragent
-            && file_exists(BASEPATH . $script)
+        if ($useragent
             && session_status() == PHP_SESSION_NONE
         ) {
             session_start();

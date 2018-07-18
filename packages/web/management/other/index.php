@@ -131,7 +131,7 @@ if (self::$FOGUser->isValid()) {
     echo FOGPage::makeFormTag(
         'sidebar-form',
         'universal-search-form',
-        '../fog/unisearch',
+        '../../fog/unisearch',
         'post',
         'application/x-www-form-urlencoded',
         true
