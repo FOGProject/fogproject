@@ -81,6 +81,10 @@
     function onCheckboxSelect(selected) {
     }
     var membershipTable = $('#printer-membership-table').registerTable(onMembershipSelect, {
+        order: [
+            [2, 'asc'],
+            [0, 'asc']
+        ],
         columns: [
             {data: 'name'},
             {data: 'isDefault'},

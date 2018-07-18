@@ -96,6 +96,7 @@ $(function() {
 
     var siteHostsTable = $('#site-host-table').registerTable(onHostSelect, {
         order: [
+            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
@@ -209,6 +210,7 @@ $(function() {
 
     var siteUsersTable = $('#site-user-table').registerTable(onUserSelect, {
         order: [
+            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [

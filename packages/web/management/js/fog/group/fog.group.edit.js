@@ -299,9 +299,13 @@
     }
 
     var hostsTable = $('#group-hosts-table').registerTable(onHostsSelect, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
         columns: [
             {data: 'name'},
-            {data: 'associated'}
+            {data: 'association'}
         ],
         rowId: 'id',
         columnDefs: [

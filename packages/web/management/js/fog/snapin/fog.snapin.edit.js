@@ -83,6 +83,10 @@
         storagegroupsRemoveBtn.prop('disabled', disabled);
     }
     var storagegroupsTable = $('#snapin-storagegroups-table').registerTable(onStoragegroupsSelect, {
+        order: [
+            [2, 'asc'],
+            [0, 'asc']
+        ],
         columns: [
             {data: 'name'},
             {data: 'primary'},
@@ -251,6 +255,10 @@
         membershipRemoveBtn.prop('disabled', disabled);
     }
     var membershipTable = $('#snapin-membership-table').registerTable(onMembershipSelect, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
         columns: [
             {data: 'name'},
             {data: 'association'}

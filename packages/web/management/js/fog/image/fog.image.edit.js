@@ -75,6 +75,10 @@
         storagegroupsRemoveBtn.prop('disabled', disabled);
     }
     var storagegroupsTable = $('#image-storagegroups-table').registerTable(onStoragegroupsSelect, {
+        order: [
+            [2, 'asc'],
+            [0, 'asc']
+        ],
         columns: [
             {data: 'name'},
             {data: 'primary'},
@@ -245,6 +249,10 @@
         hostRemoveBtn.prop('disabled', disabled);
     }
     var hostTable = $('#image-host-table').registerTable(onHostSelect, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
         columns: [
             {data: 'name'},
             {data: 'association'}

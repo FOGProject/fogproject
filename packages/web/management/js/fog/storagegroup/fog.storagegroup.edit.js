@@ -74,6 +74,7 @@
 
     var membershipTable = $('#storagegroup-membership-table').registerTable(onMembershipSelect, {
         order: [
+            [2, 'asc'],
             [0, 'asc']
         ],
         columns: [

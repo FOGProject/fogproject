@@ -56,7 +56,7 @@ class System
         define('FOG_VERSION', '1.5.4.562');
         define('FOG_CHANNEL', 'Alpha');
         define('FOG_SCHEMA', 268);
-        define('FOG_BCACHE_VER', 137);
+        define('FOG_BCACHE_VER', 138);
         define('FOG_SVN_REVISION', 6079);
         define('FOG_CLIENT_VERSION', '0.11.16');
     }

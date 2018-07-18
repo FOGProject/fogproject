@@ -1811,7 +1811,7 @@ class Route extends FOGBase
      *
      * @return void
      */
-    public function ids($class, $whereItems = [], $getField = 'id')
+    public static function ids($class, $whereItems = [], $getField = 'id')
     {
         $data = [];
         $classname = strtolower($class);
