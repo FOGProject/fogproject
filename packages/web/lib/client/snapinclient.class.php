@@ -413,7 +413,6 @@ class SnapinClient extends FOGClient
                 )
             );
         }
-        self::$FOGFTP->close();
         $SnapinFile = sprintf(
             'ftp://%s:%s@%s%s',
             $user,

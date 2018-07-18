@@ -1083,7 +1083,6 @@ class SnapinManagement extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            self::$FOGFTP->close();
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
@@ -2008,7 +2007,6 @@ class SnapinManagement extends FOGPage
                 ]
             );
         } catch (Exception $e) {
-            self::$FOGFTP->close();
             $code = (
                 $serverFault ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :

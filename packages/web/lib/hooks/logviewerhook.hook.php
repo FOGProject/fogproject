@@ -90,7 +90,6 @@ class LogViewerHook extends Hook
         }
         $fogfiles = [];
         $fogfiles = self::$FOGFTP->nlist('/var/log/');
-        self::$FOGFTP->close();
         $systemlog = preg_grep('#(syslog$|messages$)#', $fogfiles);
         $systemlog = array_shift($systemlog);
         if ($systemlog) {

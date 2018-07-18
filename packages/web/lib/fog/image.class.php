@@ -235,7 +235,6 @@ class Image extends FOGController
             if (!self::$FOGFTP->delete($deleteFile)) {
                 continue;
             }
-            self::$FOGFTP->close();
             unset($StorageNode);
         }
         return true;
