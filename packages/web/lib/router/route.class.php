@@ -902,7 +902,6 @@ class Route extends FOGBase
                 . $item
                 . "%'";
             $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
-            $data['_results'][$search] = count($vals ?: []);
             if ($limit > 0) {
                 $vals = self::$DB->query($sql." LIMIT $limit")->fetch(
                     '',
@@ -910,12 +909,22 @@ class Route extends FOGBase
                 )->get();
             }
             foreach ($vals as &$val) {
+                if (!self::$ajax) {
+                    $api = stripos(
+                        $val[$classVars['databaseFields']['name']],
+                        '_api'
+                    );
+                    if (false !== $api) {
+                        continue;
+                    }
+                }
                 $data[$search][] = [
                     'id' => $val[$classVars['databaseFields']['id']],
                     'name' => $val[$classVars['databaseFields']['name']]
                 ];
                 unset($val);
             }
+            $data['_results'][$search] = count($data[$search] ?: []);
             unset($items);
             unset($search);
         }
