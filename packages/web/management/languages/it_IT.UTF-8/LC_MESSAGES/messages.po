@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-16 10:20-0400\n"
+"POT-Creation-Date: 2018-07-18 15:40-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -3996,6 +3996,21 @@ msgid "All Pending MACs"
 msgstr "sospeso MAC"
 
 #, fuzzy
+msgid "Delete MAC Fail"
+msgstr "Cancellare i file"
+
+#, fuzzy
+msgid "Successfully deleted"
+msgstr "Creato con successo"
+
+msgid "Delete Success"
+msgstr "Eliminato con successo"
+
+#, fuzzy
+msgid "Approve MAC Fail"
+msgstr "Approva"
+
+#, fuzzy
 msgid "Approved selected macs!"
 msgstr "Approvare MAC selezionati"
 
@@ -4658,11 +4673,11 @@ msgid "Activate selected"
 msgstr "Aggiungi stampanti selezionate"
 
 #, fuzzy
-msgid "Install selected"
+msgid "Deactivate selected"
 msgstr "Cancella selezionato"
 
 #, fuzzy
-msgid "Deactivate selected"
+msgid "Install selected"
 msgstr "Cancella selezionato"
 
 #, fuzzy
@@ -5088,14 +5103,18 @@ msgstr "Non sincronizzo"
 msgid "between"
 msgstr "fra"
 
-msgid "There are no other members to sync to"
-msgstr "Non ci sono altri membri da sincronizzare"
+#, fuzzy
+msgid "There are no members to sync to"
+msgstr "Non ci sono host a cui affidare compiti in questo gruppo"
 
 msgid "Found"
 msgstr "Trovato"
 
 msgid "to transfer to"
 msgstr "Per trasferire a"
+
+msgid "server does not appear to be online"
+msgstr ""
 
 msgid "Replication already running with PID"
 msgstr "Replica già in esecuzione con PID"
@@ -5106,23 +5125,24 @@ msgstr "Impossibile raggiungere il file o il percorso"
 msgid "Cannot connect to"
 msgstr "Impossibile connettersi"
 
-msgid "Files do not match on server: "
-msgstr ""
-
-#, fuzzy
-msgid "File does not exist."
-msgstr "Metodo non esiste"
-
-msgid "Deleting remote file"
-msgstr "Eliminazione di file remoti"
-
 msgid "No need to sync"
 msgstr "Non è necessario sincronizzare"
 
 msgid "file to"
 msgstr "File con"
 
-msgid " * All files synced for this item."
+#, fuzzy
+msgid "Files do not match on server"
+msgstr "Io non sono il server web fog"
+
+#, fuzzy
+msgid "File does not exist"
+msgstr "Metodo non esiste"
+
+msgid "Deleting remote file"
+msgstr "Eliminazione di file remoti"
+
+msgid "All files synced for this item"
 msgstr ""
 
 msgid "Starting Sync Actions"
@@ -5750,13 +5770,6 @@ msgid "s"
 msgstr ""
 
 #, fuzzy
-msgid "Successfully deleted"
-msgstr "Creato con successo"
-
-msgid "Delete Success"
-msgstr "Eliminato con successo"
-
-#, fuzzy
 msgid "Remove Fail"
 msgstr "Rimozione fallita"
 
@@ -6043,15 +6056,6 @@ msgstr "utente connesso con successo"
 
 msgid "user failed to login"
 msgstr "utente non connesso"
-
-msgid "IP Address Changed"
-msgstr "Indirizzo IP cambiato"
-
-msgid "User Agent Changed"
-msgstr "User Agent cambiato"
-
-msgid "Session altered improperly"
-msgstr "Sessione alterato in modo improprio"
 
 msgid "Select a valid image"
 msgstr "Selezionare un'immagine valida"

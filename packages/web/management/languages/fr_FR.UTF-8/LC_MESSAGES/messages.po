@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-16 10:20-0400\n"
+"POT-Creation-Date: 2018-07-18 15:40-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4204,6 +4204,22 @@ msgid "All Pending MACs"
 msgstr "en attente MACs"
 
 #, fuzzy
+msgid "Delete MAC Fail"
+msgstr "Supprimer les données de fichiers"
+
+#, fuzzy
+msgid "Successfully deleted"
+msgstr "mise à jour réussie"
+
+#, fuzzy
+msgid "Delete Success"
+msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Approve MAC Fail"
+msgstr "hôte approuvé"
+
+#, fuzzy
 msgid "Approved selected macs!"
 msgstr "Approuver hôtes sélectionnés"
 
@@ -4896,11 +4912,11 @@ msgid "Activate selected"
 msgstr "Imprimante"
 
 #, fuzzy
-msgid "Install selected"
+msgid "Deactivate selected"
 msgstr "Supprimer sélectionnée"
 
 #, fuzzy
-msgid "Deactivate selected"
+msgid "Install selected"
 msgstr "Supprimer sélectionnée"
 
 #, fuzzy
@@ -5361,8 +5377,9 @@ msgstr ""
 msgid "between"
 msgstr ""
 
-msgid "There are no other members to sync to"
-msgstr ""
+#, fuzzy
+msgid "There are no members to sync to"
+msgstr "Il n'y a pas de groupes sur ce serveur."
 
 msgid "Found"
 msgstr ""
@@ -5370,6 +5387,9 @@ msgstr ""
 #, fuzzy
 msgid "to transfer to"
 msgstr "Transfert d'image Connexion"
+
+msgid "server does not appear to be online"
+msgstr ""
 
 #, fuzzy
 msgid "Replication already running with PID"
@@ -5383,17 +5403,6 @@ msgstr " | Fichier ou chemin ne peut pas être atteint"
 msgid "Cannot connect to"
 msgstr "Impossible de se connecter au noeud."
 
-msgid "Files do not match on server: "
-msgstr ""
-
-#, fuzzy
-msgid "File does not exist."
-msgstr "Méthode n'existe pas"
-
-#, fuzzy
-msgid "Deleting remote file"
-msgstr "Menu create a échoué"
-
 msgid "No need to sync"
 msgstr ""
 
@@ -5401,7 +5410,19 @@ msgstr ""
 msgid "file to"
 msgstr "Échec de"
 
-msgid " * All files synced for this item."
+#, fuzzy
+msgid "Files do not match on server"
+msgstr "Je ne suis pas le serveur web de brouillard"
+
+#, fuzzy
+msgid "File does not exist"
+msgstr "Méthode n'existe pas"
+
+#, fuzzy
+msgid "Deleting remote file"
+msgstr "Menu create a échoué"
+
+msgid "All files synced for this item"
 msgstr ""
 
 #, fuzzy
@@ -6115,14 +6136,6 @@ msgid "s"
 msgstr ""
 
 #, fuzzy
-msgid "Successfully deleted"
-msgstr "mise à jour réussie"
-
-#, fuzzy
-msgid "Delete Success"
-msgstr "utilisateur créé"
-
-#, fuzzy
 msgid "Remove Fail"
 msgstr "supprimé"
 
@@ -6442,15 +6455,6 @@ msgstr "utilisateur connecté avec succès dans"
 
 msgid "user failed to login"
 msgstr "l'utilisateur n'a pas réussi à se connecter"
-
-msgid "IP Address Changed"
-msgstr "Adresse IP Changed"
-
-msgid "User Agent Changed"
-msgstr "User Agent Changed"
-
-msgid "Session altered improperly"
-msgstr "Session modifié incorrectement"
 
 msgid "Select a valid image"
 msgstr "Sélectionnez une image valide"

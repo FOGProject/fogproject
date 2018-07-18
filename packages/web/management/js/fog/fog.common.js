@@ -678,19 +678,17 @@ function setupUniversalSearch() {
                             )
                         });
                     }
-                    if (obj.length != data._results[key]) {
-                        objData.push({
-                            id: id,
-                            text: "--> " + lang.AllResults,
-                            url: '../management/index.php?node='
-                            + (
-                                key != 'service' ?
-                                key + '&sub=list&search=' :
-                                'about&sub=settings&search='
-                            )
-                            + data._query
-                        });
-                    }
+                    objData.push({
+                        id: id,
+                        text: "--> " + lang.AllResults,
+                        url: '../management/index.php?node='
+                        + (
+                            key != 'service' ?
+                            key + '&sub=list&search=' :
+                            'about&sub=settings&search='
+                        )
+                        + data._query
+                    });
 
                     results.push({
                         text: $.capitalizeFirstLetter(lang[key]),

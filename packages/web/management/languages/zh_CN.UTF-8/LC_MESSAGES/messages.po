@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-16 10:20-0400\n"
+"POT-Creation-Date: 2018-07-18 15:40-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4197,6 +4197,22 @@ msgid "All Pending MACs"
 msgstr "待定的MAC"
 
 #, fuzzy
+msgid "Delete MAC Fail"
+msgstr "删除的文件数据"
+
+#, fuzzy
+msgid "Successfully deleted"
+msgstr "成功更新"
+
+#, fuzzy
+msgid "Delete Success"
+msgstr "用户创建"
+
+#, fuzzy
+msgid "Approve MAC Fail"
+msgstr "主机批准"
+
+#, fuzzy
 msgid "Approved selected macs!"
 msgstr "批准选定主机"
 
@@ -4887,11 +4903,11 @@ msgid "Activate selected"
 msgstr "打印机"
 
 #, fuzzy
-msgid "Install selected"
+msgid "Deactivate selected"
 msgstr "删除所选"
 
 #, fuzzy
-msgid "Deactivate selected"
+msgid "Install selected"
 msgstr "删除所选"
 
 #, fuzzy
@@ -5352,8 +5368,9 @@ msgstr ""
 msgid "between"
 msgstr ""
 
-msgid "There are no other members to sync to"
-msgstr ""
+#, fuzzy
+msgid "There are no members to sync to"
+msgstr "有此服务器上没有组。"
 
 msgid "Found"
 msgstr ""
@@ -5361,6 +5378,9 @@ msgstr ""
 #, fuzzy
 msgid "to transfer to"
 msgstr "图像传输日志"
+
+msgid "server does not appear to be online"
+msgstr ""
 
 #, fuzzy
 msgid "Replication already running with PID"
@@ -5374,17 +5394,6 @@ msgstr "|文件或无法达成通道"
 msgid "Cannot connect to"
 msgstr "无法连接到节点。"
 
-msgid "Files do not match on server: "
-msgstr ""
-
-#, fuzzy
-msgid "File does not exist."
-msgstr "方法不存在"
-
-#, fuzzy
-msgid "Deleting remote file"
-msgstr "菜单创建失败"
-
 msgid "No need to sync"
 msgstr ""
 
@@ -5392,7 +5401,19 @@ msgstr ""
 msgid "file to"
 msgstr "失败"
 
-msgid " * All files synced for this item."
+#, fuzzy
+msgid "Files do not match on server"
+msgstr "我不是雾Web服务器"
+
+#, fuzzy
+msgid "File does not exist"
+msgstr "方法不存在"
+
+#, fuzzy
+msgid "Deleting remote file"
+msgstr "菜单创建失败"
+
+msgid "All files synced for this item"
 msgstr ""
 
 #, fuzzy
@@ -6102,14 +6123,6 @@ msgid "s"
 msgstr ""
 
 #, fuzzy
-msgid "Successfully deleted"
-msgstr "成功更新"
-
-#, fuzzy
-msgid "Delete Success"
-msgstr "用户创建"
-
-#, fuzzy
 msgid "Remove Fail"
 msgstr "去除"
 
@@ -6427,15 +6440,6 @@ msgstr "用户成功登录"
 
 msgid "user failed to login"
 msgstr "用户登录失败"
-
-msgid "IP Address Changed"
-msgstr "更改IP地址"
-
-msgid "User Agent Changed"
-msgstr "用户代理更改"
-
-msgid "Session altered improperly"
-msgstr "会议修改不当"
 
 msgid "Select a valid image"
 msgstr "选择一个有效的图像"
