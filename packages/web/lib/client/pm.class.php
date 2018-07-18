@@ -77,11 +77,11 @@ class PM extends FOGClient
             'tasks' => [],
         ];
         foreach ($PMTasks->data as &$PMTask) {
-            $min = trim($PMTask->get('min'));
-            $hour = trim($PMTask->get('hour'));
-            $dom = trim($PMTask->get('dom'));
-            $month = trim($PMTask->get('month'));
-            $dow = trim($PMTask->get('dow'));
+            $min = trim($PMTask->min);
+            $hour = trim($PMTask->hour);
+            $dom = trim($PMTask->dom);
+            $month = trim($PMTask->month);
+            $dow = trim($PMTask->dow);
             if (is_int($dow)) {
                 if ($dow < 0) {
                     $dow = 7;
