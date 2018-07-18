@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-16 10:20-0400\n"
+"POT-Creation-Date: 2018-07-18 15:40-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4204,6 +4204,22 @@ msgid "All Pending MACs"
 msgstr "pendentes MACs"
 
 #, fuzzy
+msgid "Delete MAC Fail"
+msgstr "Apagar dados de arquivo"
+
+#, fuzzy
+msgid "Successfully deleted"
+msgstr "atualizado com sucesso"
+
+#, fuzzy
+msgid "Delete Success"
+msgstr "usuário criado"
+
+#, fuzzy
+msgid "Approve MAC Fail"
+msgstr "hospedar aprovado"
+
+#, fuzzy
 msgid "Approved selected macs!"
 msgstr "Aprovar Hosts selecionados"
 
@@ -4896,11 +4912,11 @@ msgid "Activate selected"
 msgstr "Impressora"
 
 #, fuzzy
-msgid "Install selected"
+msgid "Deactivate selected"
 msgstr "Delete Selected"
 
 #, fuzzy
-msgid "Deactivate selected"
+msgid "Install selected"
 msgstr "Delete Selected"
 
 #, fuzzy
@@ -5361,8 +5377,9 @@ msgstr ""
 msgid "between"
 msgstr ""
 
-msgid "There are no other members to sync to"
-msgstr ""
+#, fuzzy
+msgid "There are no members to sync to"
+msgstr "Não existem grupos neste servidor."
 
 msgid "Found"
 msgstr ""
@@ -5370,6 +5387,9 @@ msgstr ""
 #, fuzzy
 msgid "to transfer to"
 msgstr "Transferência de Imagem Log"
+
+msgid "server does not appear to be online"
+msgstr ""
 
 #, fuzzy
 msgid "Replication already running with PID"
@@ -5383,17 +5403,6 @@ msgstr " | Arquivo ou o caminho não pode ser alcançado"
 msgid "Cannot connect to"
 msgstr "Não é possível ligar para o nó."
 
-msgid "Files do not match on server: "
-msgstr ""
-
-#, fuzzy
-msgid "File does not exist."
-msgstr "O método não existe"
-
-#, fuzzy
-msgid "Deleting remote file"
-msgstr "Menu Criar falhou"
-
 msgid "No need to sync"
 msgstr ""
 
@@ -5401,7 +5410,19 @@ msgstr ""
 msgid "file to"
 msgstr "Falhei em"
 
-msgid " * All files synced for this item."
+#, fuzzy
+msgid "Files do not match on server"
+msgstr "Eu não sou o servidor web nevoeiro"
+
+#, fuzzy
+msgid "File does not exist"
+msgstr "O método não existe"
+
+#, fuzzy
+msgid "Deleting remote file"
+msgstr "Menu Criar falhou"
+
+msgid "All files synced for this item"
 msgstr ""
 
 #, fuzzy
@@ -6113,14 +6134,6 @@ msgid "s"
 msgstr ""
 
 #, fuzzy
-msgid "Successfully deleted"
-msgstr "atualizado com sucesso"
-
-#, fuzzy
-msgid "Delete Success"
-msgstr "usuário criado"
-
-#, fuzzy
 msgid "Remove Fail"
 msgstr "Removido"
 
@@ -6440,15 +6453,6 @@ msgstr "usuário conectado com sucesso em"
 
 msgid "user failed to login"
 msgstr "utilizador não conseguiu iniciar sessão"
-
-msgid "IP Address Changed"
-msgstr "Endereço IP Changed"
-
-msgid "User Agent Changed"
-msgstr "User Agent Changed"
-
-msgid "Session altered improperly"
-msgstr "Sessão alterada indevidamente"
 
 msgid "Select a valid image"
 msgstr "Selecione uma imagem válida"

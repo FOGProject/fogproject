@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-17 18:43-0400\n"
+"POT-Creation-Date: 2018-07-18 15:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3598,6 +3598,18 @@ msgstr ""
 msgid "All Pending MACs"
 msgstr ""
 
+msgid "Delete MAC Fail"
+msgstr ""
+
+msgid "Successfully deleted"
+msgstr ""
+
+msgid "Delete Success"
+msgstr ""
+
+msgid "Approve MAC Fail"
+msgstr ""
+
 msgid "Approved selected macs!"
 msgstr ""
 
@@ -4193,10 +4205,10 @@ msgstr ""
 msgid "Activate selected"
 msgstr ""
 
-msgid "Install selected"
+msgid "Deactivate selected"
 msgstr ""
 
-msgid "Deactivate selected"
+msgid "Install selected"
 msgstr ""
 
 msgid "Uninstall selected"
@@ -4577,13 +4589,16 @@ msgstr ""
 msgid "between"
 msgstr ""
 
-msgid "There are no other members to sync to"
+msgid "There are no members to sync to"
 msgstr ""
 
 msgid "Found"
 msgstr ""
 
 msgid "to transfer to"
+msgstr ""
+
+msgid "server does not appear to be online"
 msgstr ""
 
 msgid "Replication already running with PID"
@@ -4595,22 +4610,22 @@ msgstr ""
 msgid "Cannot connect to"
 msgstr ""
 
-msgid "Files do not match on server: "
-msgstr ""
-
-msgid "File does not exist."
-msgstr ""
-
-msgid "Deleting remote file"
-msgstr ""
-
 msgid "No need to sync"
 msgstr ""
 
 msgid "file to"
 msgstr ""
 
-msgid " * All files synced for this item."
+msgid "Files do not match on server"
+msgstr ""
+
+msgid "File does not exist"
+msgstr ""
+
+msgid "Deleting remote file"
+msgstr ""
+
+msgid "All files synced for this item"
 msgstr ""
 
 msgid "Starting Sync Actions"
@@ -5207,12 +5222,6 @@ msgstr ""
 msgid "s"
 msgstr ""
 
-msgid "Successfully deleted"
-msgstr ""
-
-msgid "Delete Success"
-msgstr ""
-
 msgid "Remove Fail"
 msgstr ""
 
@@ -5481,15 +5490,6 @@ msgid "user successfully logged in"
 msgstr ""
 
 msgid "user failed to login"
-msgstr ""
-
-msgid "IP Address Changed"
-msgstr ""
-
-msgid "User Agent Changed"
-msgstr ""
-
-msgid "Session altered improperly"
 msgstr ""
 
 msgid "Select a valid image"

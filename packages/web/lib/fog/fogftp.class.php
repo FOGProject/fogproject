@@ -66,15 +66,6 @@ class FOGFTP
      */
     private $_currentLoginHash;
     /**
-     * Destroy the ftp object
-     *
-     * @return void
-     */
-    public function __destruct()
-    {
-        $this->close();
-    }
-    /**
      * Sets the variable for us to use later.
      *
      * @param string $key   The key to set.
@@ -244,15 +235,6 @@ class FOGFTP
         }
         $this->_lastLoginHash = $this->_currentLoginHash;
         return $this;
-    }
-    /**
-     * Alias to close the ftp connection
-     *
-     * @return close
-     */
-    public function quit()
-    {
-        return $this->close();
     }
     /**
      * List files recursive

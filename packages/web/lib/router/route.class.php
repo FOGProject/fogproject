@@ -860,6 +860,7 @@ class Route extends FOGBase
                 'classman' => &$classman
             ]
         );
+        self::$data['_lang'] = $classname;
     }
     /**
      * Presents the equivalent of a universal search.
@@ -902,10 +903,12 @@ class Route extends FOGBase
                 . "%'";
             $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
             $data['_results'][$search] = count($vals ?: []);
-            $vals = self::$DB->query($sql." LIMIT $limit")->fetch(
-                '',
-                'fetch_all'
-            )->get();
+            if ($limit > 0) {
+                $vals = self::$DB->query($sql." LIMIT $limit")->fetch(
+                    '',
+                    'fetch_all'
+                )->get();
+            }
             foreach ($vals as &$val) {
                 $data[$search][] = [
                     'id' => $val[$classVars['databaseFields']['id']],
@@ -934,24 +937,19 @@ class Route extends FOGBase
     public static function search($class, $item)
     {
         $classname = strtolower($class);
+        $classman = $classname . 'manager';
         self::$data = [];
-        self::$data['_lang'] = $classname;
-        self::$data['_count'] = 0;
-        $items = self::unisearch(
-            $classname,
-            $item
-        );
-        foreach ((array)$items as &$obj) {
-            if (false != stripos($obj->get('name'), '_api')) {
+        self::unisearch($item);
+        $items = json_decode(self::getData());
+        $ids = [];
+        foreach ((array)$items->{$classname} as &$obj) {
+            if (false != stripos($obj->name, '_api')) {
                 continue;
             }
-            self::$data[$classname.'s'][] = self::getter(
-                $classname,
-                $obj
-            );
-            self::$data['_count']++;
+            $ids[] = $obj->id;
             unset($obj);
         }
+        self::listem($classname, ['id' => $ids]);
         self::$HookManager
             ->processEvent(
                 'API_MASSDATA_MAPPING',
@@ -1902,6 +1900,9 @@ class Route extends FOGBase
         if ($test) {
             $whereItems = [];
             foreach ($test as $key => &$val) {
+                if (empty($val)) {
+                    continue;
+                }
                 if (false !== strpos(',', $val)) {
                     $val = explode(',', $val);
                 }
