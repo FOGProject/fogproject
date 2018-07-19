@@ -589,7 +589,7 @@ abstract class FOGService extends FOGBase
                 continue;
             }
             $logname = rtrim(substr(static::$log, 0, -4), '.')
-                . '.' . $filename . '.transfer.' . $nodename . '.log';
+                . '.' . basename($filename) . '.transfer.' . $nodename . '.log';
             if (!$i) {
                 self::outall(
                     ' * ' . _('Starting Sync Actions')
