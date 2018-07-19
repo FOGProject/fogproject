@@ -3812,3 +3812,42 @@ $this->schema[] = [
     . "ENUM('0','1') NOT NULL DEFAULT '0'",
     "ALTER TABLE `multicastSessions` CHANGE `msAnon4` `msMaxwait` INTEGER NOT NULL"
 ];
+// 269
+// DMI Keys Valid Strings:
+$dmiStrings = [
+    'bios-vendor',
+    'bios-version',
+    'bios-release-date',
+    'system-manufacturer',
+    'system-product-name',
+    'system-version',
+    'system-serial-number',
+    'system-uuid',
+    'baseboard-manufacturer',
+    'baseboard-product-name',
+    'baseboard-version',
+    'baseboard-serial-number',
+    'baseboard-asset-tag',
+    'chassis-manufacturer',
+    'chassis-type',
+    'chassis-version',
+    'chassis-serial-number',
+    'chassis-asset-tag',
+    'processor-family',
+    'processor-manufacturer',
+    'processor-version',
+    'processor-frequency'
+];
+$dmiStrings = implode(
+    "'),('",
+    $dmiStrings
+);
+$this->schema[] = [
+    "CREATE TABLE `dmidecodeKeys` ("
+    . "`dkID` INT NOT NULL AUTO_INCREMENT,"
+    . "`dkName` VARCHAR(255) NOT NULL,"
+    . "PRIMARY KEY(`dkID`),"
+    . "UNIQUE INDEX `name` (`dkName`)"
+    . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "INSERT IGNORE INTO `dmidecodeKeys` (`dkName`) VALUES ('$dmiStrings')"
+];
