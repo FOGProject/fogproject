@@ -505,7 +505,7 @@ abstract class FOGService extends FOGBase
                 $opts = '-R';
                 $includeFile = '';
                 if (!$myAddItem) {
-                    $myAddItems = $myAdd;
+                    $myAddItem = $myAdd;
                 }
             }
             $localfilescheck = $unique($localfilescheck);
