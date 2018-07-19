@@ -403,11 +403,7 @@ abstract class FOGService extends FOGBase
             $fileField = 'file';
         }
         $myDir = '/' . trim($myStorageNode->{$pathField}, '/') . '/';
-        if (false === $fileOverride) {
-            $myFile = basename($Obj->get($fileField));
-        } else {
-            $myFile = $fileOverride;
-        }
+        $myFile = ($fileOverride ?: $Obj->get($fileField));
         $myAdd = "{$myDir}{$myFile}";
         $myAddItem = false;
         foreach ($StorageNodes->data as $i => &$StorageNode) {
@@ -593,8 +589,7 @@ abstract class FOGService extends FOGBase
                 continue;
             }
             $logname = rtrim(substr(static::$log, 0, -4), '.')
-                . '.' . $Obj->get('name') . '.transfer.' . $nodename
-                . '.log';
+                . '.' . $filename . '.transfer.' . $nodename . '.log';
             if (!$i) {
                 self::outall(
                     ' * ' . _('Starting Sync Actions')
