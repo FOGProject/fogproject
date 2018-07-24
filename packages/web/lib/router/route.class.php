@@ -781,10 +781,12 @@ class Route extends FOGBase
             $columns[] = [
                 'dt' => 'masternode',
                 'formatter' => function ($d, $row) use (&$StorageGroup) {
-                    return self::getter(
-                        'storagenode',
-                        $StorageGroup->getMasterStorageNode()
-                    );
+                    try {
+                        $sn = $StorageGroup->getMasterStorageNode();
+                    } catch (Exception $e) {
+                        $sn = new StorageNode();
+                    }
+                    return self::getter('storagenode', $sn);
                 }
             ];
             $columns[] = [

@@ -1057,6 +1057,7 @@ abstract class FOGManagerController extends FOGBase
      * @param string $orderBy     how to order
      * @param string $filter      should we filter existing
      * @param mixed  $template    should we include a template element
+     * @param string $useKey      id for storage.
      *
      * @return string
      */
@@ -1065,8 +1066,12 @@ abstract class FOGManagerController extends FOGBase
         $elementName = '',
         $orderBy = 'name',
         $filter = '',
-        $template = false
+        $template = false,
+        $useKey = 'id'
     ) {
+        if (empty($useKey)) {
+            $useKey = 'id';
+        }
         global $node;
         if ($node === 'image') {
             $waszero = false;
@@ -1109,10 +1114,10 @@ abstract class FOGManagerController extends FOGBase
                 continue;
             }
             echo '<option value="'
-                . $Item->id
+                . $Item->{$useKey}
                 . '"'
                 . (
-                    $matchID == $Item->id ?
+                    $matchID == $Item->{$useKey} ?
                     ' selected' :
                     (
                         $template ?
