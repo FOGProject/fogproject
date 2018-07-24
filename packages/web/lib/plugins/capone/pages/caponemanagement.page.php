@@ -444,30 +444,6 @@ class CaponeManagement extends FOGPage
             $actionType
         ) = $services;
 
-        $dmiFields = [
-            'bios-vendor',
-            'bios-version',
-            'bios-release-date',
-            'system-manufacturer',
-            'system-product-name',
-            'system-version',
-            'system-serial-number',
-            'system-uuid',
-            'baseboard-manufacturer',
-            'baseboard-product-name',
-            'baseboard-version',
-            'baseboard-serial-number',
-            'baseboard-asset-tag',
-            'chassis-manufacturer',
-            'chassis-type',
-            'chassis-version',
-            'chassis-serial-number',
-            'chassis-asset-tag',
-            'processor-family',
-            'processor-manufacturer',
-            'processor-version',
-            'processor-frequency'
-        ];
         $actionFields = [
             _('Reboot after deploy'),
             _('Shutdown after deploy')
@@ -482,11 +458,15 @@ class CaponeManagement extends FOGPage
             $actionType
         );
 
-        $dmiSelector = self::selectForm(
-            'dmifield',
-            $dmiFields,
-            $dmifield
+        $dmiSelector = self::getClass('DMIKeyManager')->buildSelectBox(
+            $dmifield, // Match
+            'dmifield', // Name of form element
+            'name', // Sort by
+            '', // Filter by
+            false, // Whether to use template (old style likely no longer needed)
+            'name' // Allow changing the value to a custom common id
         );
+
         $actionSelector = self::selectForm(
             'action',
             $actionFields,
