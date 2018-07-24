@@ -93,7 +93,7 @@ class PluginManagement extends FOGPage
                 [
                     'id' => 'deactivate',
                     'text' => _('Deactivate selected'),
-                    'prop' => $deactivate
+                    'props' => $deactivate
                 ]
             ],
             'right',
@@ -111,7 +111,7 @@ class PluginManagement extends FOGPage
                 [
                     'id' => 'remove',
                     'text' => _('Uninstall selected'),
-                    'prop' => $remove
+                    'props' => $remove
                 ]
             ],
             'left',

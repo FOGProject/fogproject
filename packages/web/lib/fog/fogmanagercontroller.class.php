@@ -1101,10 +1101,11 @@ abstract class FOGManagerController extends FOGBase
             $find = ['id' => $filter];
             Route::listem(
                 $this->childClass,
-                $find
+                $find,
+                true
             );
         } else {
-            Route::listem($this->childClass);
+            Route::listem($this->childClass, false, true);
         }
         $Items = json_decode(
             Route::getData()

@@ -959,7 +959,7 @@ abstract class FOGPage extends FOGBase
                 . $href
                 . '"'
                 . $did
-                . $props
+                . $dprops
                 . '>'
                 . $dtext
                 . '</a>';
