@@ -1976,23 +1976,23 @@ class FOGConfigurationPage extends FOGPage
                         $input = ob_get_clean();
                         break;
                     case 'FOG_QUICKREG_IMG_ID':
-                        $input = self::getClass('ImageManager')->buildSelectBox(
-                            $row['settingValue'],
-                            $row['settingID']
-                        );
-                        break;
                     case 'FOG_QUICKREG_GROUP_ASSOC':
-                        $input = self::getClass('GroupManager')->buildSelectBox(
+                    case 'FOG_KEY_SEQUENCE':
+                        switch ($row['settingKey']) {
+                        case 'FOG_QUICKREG_IMG_ID':
+                            $objGetter = 'imagemanager';
+                            break;
+                        case 'FOG_QUICKREG_GROUP_ASSOC':
+                            $objGetter = 'groupmanager';
+                            break;
+                        case 'FOG_KEY_SEQUENCE':
+                            $objGetter = 'keysequencemanager';
+                            break;
+                        }
+                        $input = self::getClass($objGetter)->buildSelectBox(
                             $row['settingValue'],
                             $row['settingID']
                         );
-                        break;
-                    case 'FOG_KEY_SEQUENCE':
-                        $input = self::getClass('KeySequenceManager')
-                            ->buildSelectBox(
-                                $row['settingValue'],
-                                $row['settingID']
-                            );
                         break;
                     case 'FOG_BOOT_EXIT_TYPE':
                     case 'FOG_EFI_BOOT_EXIT_TYPE':

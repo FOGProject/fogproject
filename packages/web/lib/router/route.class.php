@@ -417,19 +417,23 @@ class Route extends FOGBase
     /**
      * Presents the equivalent of a page's list all.
      *
-     * @param string $class      The class to work with.
-     * @param mixed  $whereItems Any special things to search for.
+     * @param string $class         The class to work with.
+     * @param mixed  $whereItems    Any special things to search for.
+     * @param bool   $inputoverride Override php://input to blank.
      *
      * @return void
      */
     public static function listem(
         $class,
-        $whereItems = false
+        $whereItems = false,
+        $inputoverride = false
     ) {
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
+        if (!$inputoverride) {
+            parse_str(
+                file_get_contents('php://input'),
+                $pass_vars
+            );
+        }
 
         self::$data = $columns = [];
         $classname = strtolower($class);
@@ -475,8 +479,6 @@ class Route extends FOGBase
                 ],
                 $tmpcolumns
             );
-            break;
-        case 'group':
             break;
         }
         self::$HookManager->processEvent(
