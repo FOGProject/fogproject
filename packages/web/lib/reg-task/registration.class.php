@@ -253,8 +253,10 @@ class Registration extends FOGBase
                         _('Done, No image assigned!')
                     );
                 }
+                Route::indiv('tasktype', self::DEPLOY);
+                $tasktype = json_decode(Route::getData());
                 $task = self::$Host->createImagePackage(
-                    1,
+                    $tasktype,
                     'AutoRegTask',
                     false,
                     false,
@@ -388,9 +390,11 @@ class Registration extends FOGBase
                 && $performimg
                 && self::$Host->getImageMemberFromHostID()
             ) {
+                Route::indiv('tasktype', self::DEPLOY);
+                $tasktype = json_decode(Route::getData());
                 $imageTest = self::$Host
                     ->createImagePackage(
-                        1,
+                        $tasktype,
                         'AutoRegTask',
                         false,
                         false,

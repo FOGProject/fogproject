@@ -415,6 +415,9 @@ class Image extends FOGController
      */
     public static function getPrimaryGroup($groupID, $imageID)
     {
+        if (!$imageID) {
+            return true;
+        }
         $primaryCount = self::getClass('ImageAssociationManager')
             ->count(
                 [
@@ -427,9 +430,11 @@ class Image extends FOGController
                 ->count(['imageID' => $imageID]);
         }
         if ($primaryCount < 1) {
+            Route::indiv('image', $imageID);
+            $image = json_decode(Route::getData());
             Route::ids(
                 'storagegroup',
-                ['id' => $this->get('storagegroups')]
+                ['id' => $image->storagegroups]
             );
             $groupid = json_decode(Route::getData(), true);
             $groupid = @min($groupid);

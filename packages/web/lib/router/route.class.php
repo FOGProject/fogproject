@@ -1193,17 +1193,11 @@ class Route extends FOGBase
         $task = json_decode(
             file_get_contents('php://input')
         );
-        $TaskType = new TaskType($task->taskTypeID);
-        if (!$TaskType->isValid()) {
-            $message = _('Invalid tasking type passed');
-            self::setErrorMessage(
-                $message,
-                HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
-            );
-        }
+        Route::indiv('tasktype', $task->taskTypeID);
+        $TaskType = json_decode(Route::getData());
         try {
             $class->createImagePackage(
-                $task->taskTypeID,
+                $TaskType,
                 $task->taskName,
                 $task->shutdown,
                 $task->debug,
@@ -1760,7 +1754,16 @@ class Route extends FOGBase
         case 'tasktype':
             $data = FOGCore::fastmerge(
                 $class->get(),
-                ['isSnapinTasking' => $class->isSnapinTasking()]
+                [
+                    'isSnapinTasking' => $class->isSnapinTasking(),
+                    'isSnapinTask' => $class->isSnapinTask(),
+                    'isImagingTask' => $class->isImagingTask(),
+                    'isCapture' => $class->isCapture(),
+                    'isInitNeeded' => $class->isInitNeededTasking(),
+                    'initIDs' => $class->isInitNeededTasking(true),
+                    'isMulticast' => $class->isMulticast(),
+                    'isDebug' => $class->isDebug()
+                ]
             );
             break;
         default:
