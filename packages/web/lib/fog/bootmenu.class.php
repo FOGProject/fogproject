@@ -590,8 +590,10 @@ class BootMenu extends FOGBase
                 '#isdebug=yes|mode=debug|mode=onlydebug#i',
                 $_REQUEST['extraargs']
             );
+            Route::indiv('tasktype', self::INVENTORY);
+            $tasktype = json_decode(Route::getData());
             self::$Host->createImagePackage(
-                10,
+                $tasktype,
                 'Inventory',
                 $shutdown,
                 $isdebug,
@@ -1074,8 +1076,10 @@ class BootMenu extends FOGBase
             $_REQUEST['extraargs']
         );
         if (self::$Host->isValid() && !self::$Host->get('pending')) {
+            Route::indiv('tasktype', self::MULTICAST);
+            $tasktype = json_decode(Route::getData());
             self::$Host->createImagePackage(
-                8,
+                $tasktype,
                 $MultiSess->get('name'),
                 $shutdown,
                 $isdebug,
@@ -1264,8 +1268,10 @@ class BootMenu extends FOGBase
             return;
         }
         try {
+            Route::indiv('tasktype', self::DEPLOY);
+            $tasktype = json_decode(Route::getData());
             self::$Host->createImagePackage(
-                1,
+                $tasktype,
                 'AutoRegTask',
                 $shutdown,
                 $isdebug,

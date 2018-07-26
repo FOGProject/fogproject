@@ -4914,28 +4914,25 @@ class HostManagement extends FOGPage
             if (!is_numeric($type) || $type < 1) {
                 $type = 1;
             }
+            Route::indiv('tasktype', $type);
+            $TaskType = json_decode(Route::getData());
 
-            $TaskType = new TaskType($type);
-
-            $this->title = $TaskType->get('name')
+            $this->title = $TaskType->name
                 . ' '
                 . $this->obj->get('name');
 
-            $imagingTypes = $TaskType->isImagingTask();
+            $imagingTypes = $TaskType->isImagingTask;
 
-            $iscapturetask = $TaskType->isCapture();
+            $iscapturetask = $TaskType->isCapture;
 
-            $issnapintask = $TaskType->isSnapinTasking();
+            $issnapintask = $TaskType->isSnapinTasking;
 
-            $isinitneeded = $TaskType->isInitNeededTasking();
+            $isinitneeded = $TaskType->isInitNeeded;
 
-            $isdebug = $TaskType->isDebug();
+            $isdebug = $TaskType->isDebug;
 
             $image = $this->obj->getImage();
 
-            if (!$TaskType->isValid()) {
-                throw new Exception(_('Task type is invalid'));
-            }
             if ($this->obj->get('pending') > 0) {
                 throw new Exception(_('Cannot task pending hosts'));
             }
@@ -5247,21 +5244,18 @@ class HostManagement extends FOGPage
             if (!is_numeric($type) && $type > 0) {
                 $type = 1;
             }
+
+            Route::indiv('tasktype', $type);
+            $TaskType = json_decode(Route::getData());
             // Pending check.
             if ($this->obj->get('pending')) {
                 throw new Exception(_('Pending hosts cannot be tasked'));
             }
-            // Task Type setup
-            $TaskType = new TaskType($type);
-            if (!$TaskType->isValid()) {
-                throw new Exception(_('Task Type is invalid'));
-            }
-
             // Password reset setup
             $passreset = trim(
                 filter_input(INPUT_POST, 'account')
             );
-            if (TaskType::PASSWORD_RESET == $type
+            if (TaskType::PASSWORD_RESET == $TaskType->id
                 && !$passreset
             ) {
                 throw new Exception(_('Password reset requires a user account'));
@@ -5272,15 +5266,17 @@ class HostManagement extends FOGPage
             if (0 === $enableSnapins) {
                 $enableSnapins = -1;
             }
-            if (TaskType::DEPLOY_NO_SNAPINS === $type || $enableSnapins < -1) {
+            if (TaskType::DEPLOY_NO_SNAPINS === $TaskType->id
+                || $enableSnapins < -1
+            ) {
                 $enableSnapins = 0;
             }
 
             // Generic setup
-            $imagingTasks = $TaskType->isImagingTask();
+            $imagingTasks = $TaskType->isImagingTask;
             $taskName = sprintf(
                 '%s Task',
-                $TaskType->get('name')
+                $TaskType->name
             );
 
             // Shutdown setup
@@ -5378,7 +5374,7 @@ class HostManagement extends FOGPage
             }
 
             // Task Type Imaging Checks.
-            if ($TaskType->isImagingTask()) {
+            if ($TaskType->isImagingTask) {
                 $Image = $this->obj->getImage();
                 if (!$Image->isValid()) {
                     throw new Exception(_('Image is invalid'));
@@ -5396,7 +5392,7 @@ class HostManagement extends FOGPage
             // Actually create tasking
             if ($scheduleType == 'instant') {
                 $this->obj->createImagePackage(
-                    $TaskType->get('id'),
+                    $TaskType,
                     $taskName,
                     $enableShutdown,
                     $enableDebug,
@@ -5409,7 +5405,7 @@ class HostManagement extends FOGPage
                 );
             } else {
                 $ScheduledTask = self::getClass('ScheduledTask')
-                    ->set('taskType', $TaskType->get('id'))
+                    ->set('taskType', $TaskType->id)
                     ->set('name', $taskName)
                     ->set('hostID', $this->obj->get('id'))
                     ->set('shutdown', $enableShutdown)

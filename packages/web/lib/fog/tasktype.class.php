@@ -304,7 +304,7 @@ class TaskType extends FOGController
             'id'
         );
 
-        return$this->isValid()
+        return $this->isValid()
             && (
                 $this->isDeploy()
                 && $this->get($id) != self::DEPLOY_NO_SNAPINS

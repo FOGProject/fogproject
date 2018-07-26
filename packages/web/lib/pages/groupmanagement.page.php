@@ -3157,8 +3157,10 @@ class GroupManagement extends FOGPage
 
             // Actually create tasking
             if ($scheduleType == 'instant') {
+                Route::indiv('tasktype', $type);
+                $tasktype = json_decode(Route::getData());
                 $this->obj->createImagePackage(
-                    $type,
+                    $tasktype,
                     $taskName,
                     $enableShutdown,
                     $enableDebug,

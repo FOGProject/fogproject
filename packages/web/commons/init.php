@@ -279,9 +279,7 @@ class Initiator
          */
         foreach ($globalVars as &$x) {
             global $$x;
-            if (isset($_REQUEST[$x])) {
-                $_REQUEST[$x] = $$x = trim($_REQUEST[$x]);
-            }
+            $$x = filter_input(INPUT_GET|INPUT_POST, $x);
             unset($x);
         }
         /**

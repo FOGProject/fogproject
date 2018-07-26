@@ -436,7 +436,7 @@ class Group extends FOGController
     /**
      * Creates image packages for all hosts associated.
      *
-     * @param int    $taskTypeID    the task type id
+     * @param int    $TaskType      the task type id
      * @param string $taskName      the name of the tasking
      * @param bool   $shutdown      whether to shutdown the hosts
      * @param bool   $debug         is tasking debug
@@ -450,7 +450,7 @@ class Group extends FOGController
      * @return array
      */
     public function createImagePackage(
-        $taskTypeID,
+        $TaskType,
         $taskName = '',
         $shutdown = false,
         $debug = false,
@@ -466,17 +466,13 @@ class Group extends FOGController
             throw new Exception(_('No hosts to task'));
         }
         $hostids = $this->get('hosts');
-        $TaskType = new TaskType($taskTypeID);
-        if (!$TaskType->isValid()) {
-            throw new Exception(self::$foglang['TaskTypeNotValid']);
-        }
         $find = [
             'hostID' => $hostids,
             'stateID' => self::fastmerge(
                 self::getQueuedStates(),
                 (array)self::getProgressState()
             ),
-            'typeID' => $TaskType->isInitNeededTasking(true)
+            'typeID' => $TaskType->initIDs
         ];
         Route::ids(
             'task',
@@ -490,7 +486,7 @@ class Group extends FOGController
         if (count($hostids) < 1) {
             throw new Exception(_('No hosts available to task'));
         }
-        $imagingTypes = $TaskType->isImagingTask();
+        $imagingTypes = $TaskType->isImagingTask;
         $now = $this->niceDate();
         if ($imagingTypes) {
             $find = ['id' => $hostids];
@@ -515,7 +511,7 @@ class Group extends FOGController
             if (!$StorageNode->isValid()) {
                 throw new Exception(_('Unable to find master Storage Node'));
             }
-            if ($TaskType->isMulticast()) {
+            if ($TaskType->isMulticast) {
                 $keys = [
                     'FOG_MULTICAST_PORT_OVERRIDE',
                     'FOG_UDPCAST_STARTINGPORT'
@@ -573,7 +569,7 @@ class Group extends FOGController
                         $hostIDs[$i],
                         0,
                         self::getQueuedState(),
-                        $TaskType->get('id'),
+                        $TaskType->id,
                         $wol,
                         $Image->get('id'),
                         $shutdown,
@@ -619,7 +615,7 @@ class Group extends FOGController
                     $multicastsessionassocs
                 );
                 $this->_createSnapinTasking($now, -1);
-            } elseif ($TaskType->isDeploy()) {
+            } elseif ($TaskType->isDeploy) {
                 $hostIDs = $hostids;
                 $find = ['id' => $hostIDs];
                 Route::ids(
@@ -649,7 +645,7 @@ class Group extends FOGController
                         $hostIDs[$i],
                         0,
                         self::getQueuedState(),
-                        $TaskType->get('id'),
+                        $TaskType->id,
                         $wol,
                         $imageIDs[$i],
                         $shutdown,
@@ -674,7 +670,7 @@ class Group extends FOGController
                 );
                 $this->_createSnapinTasking($now, $deploySnapins);
             }
-        } elseif ($TaskType->isSnapinTasking()) {
+        } elseif ($TaskType->isSnapinTasking) {
             $hostIDs = $this->_createSnapinTasking($now, $deploySnapins);
             $hostCount = count($hostIDs);
             $batchFields = [
@@ -693,7 +689,7 @@ class Group extends FOGController
                     $username,
                     $hostIDs[$i],
                     self::getQueuedState(),
-                    $TaskType->get('id'),
+                    $TaskType->id,
                     $wol,
                     $shutdown
                 ];
@@ -703,7 +699,7 @@ class Group extends FOGController
                     ->insertBatch($batchFields, $batchTask);
             }
         } else {
-            if ($TaskType->get('id') != 14) {
+            if ($TaskType->id != TaskType::WAKE_UP) {
                 $hostIDs = $this->get('hosts');
                 $hostCount = count($hostIDs);
                 $batchFields = [
@@ -721,7 +717,7 @@ class Group extends FOGController
                         $username,
                         $hostIDs[$i],
                         self::getQueuedState(),
-                        $TaskType->get('id'),
+                        $TaskType->id,
                         $wol,
                     ];
                 }

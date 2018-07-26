@@ -857,7 +857,7 @@ class Host extends FOGController
     /**
      * Creates tasking for the host based on the type
      *
-     * @param int    $taskTypeID    the task type
+     * @param int    $TaskType      the task type
      * @param string $taskName      the name of the task
      * @param bool   $shutdown      whether to shutdown or reboot
      * @param bool   $debug         is this a debug task
@@ -871,7 +871,7 @@ class Host extends FOGController
      * @return string
      */
     public function createImagePackage(
-        $taskTypeID,
+        $TaskType,
         $taskName = '',
         $shutdown = false,
         $debug = false,
@@ -888,60 +888,44 @@ class Host extends FOGController
                 throw new Exception(self::$foglang['HostNotValid']);
             }
             $Task = $this->get('task');
-            $TaskType = new TaskType($taskTypeID);
-            if (!$TaskType->isValid()) {
-                throw new Exception(self::$foglang['TaskTypeNotValid']);
+            // Basic task check for imaging type tasks.
+            if ($Task->isValid() && $TaskType->isImagingType) {
+                throw new Exception(self::$foglang['InTask']);
             }
-            if ($Task->isValid()) {
-                $iTaskType = $Task->getTaskType()->isImagingTask();
-                if ($iTaskType) {
-                    throw new Exception(self::$foglang['InTask']);
-                } elseif ($Task->isSnapinTasking()) {
-                    if ($TaskType->get('id') == '13') {
-                        $find = [
-                            'jobID' => $this->get('snapinjob')->get('id'),
-                            'stateID' => self::fastmerge(
-                                $this->getQueuedStates(),
-                                (array)$this->getProgressState()
-                            )
-                        ];
-                        Route::ids(
-                            'snapintask',
-                            $find,
-                            'snapinID'
-                        );
-                        $currSnapins = json_decode(Route::getData(), true);
-                        if (!in_array($deploySnapins, $currSnapins)) {
-                            $Task
-                                ->set(
-                                    'name',
-                                    'Multiple Snapin task -- Altered after single'
-                                )
-                                ->set(
-                                    'typeID',
-                                    12
-                                );
-                            if (!$Task->save()) {
-                                $serverFault = true;
-                                throw new Exception(_('Unable to update task'));
-                            }
+
+            // Snapin Tasking
+            if ($TaskType->isSnapinTasking) {
+                if ($TaskType->id == TaskType::SINGLE_SNAPIN) {
+                    $find = [
+                        'jobID' => $this->get('snapinjob')->get('id'),
+                        'stateID' => self::fastmerge(
+                            $this->getQueuedStates(),
+                            (array)$this->getProgressState()
+                        )
+                    ];
+                    Route::ids(
+                        'snapintask',
+                        $find,
+                        'snapinID'
+                    );
+                    $curSnapins = json_decode(Route::getData(), true);
+                    if (!in_array($deploySnapins, $curSnapins)) {
+                        $Task
+                            ->set('name', _('Multiple Snapin -- orig Single'))
+                            ->set('typeID', TaskType::ALL_SNAPINS);
+                        if (!$Task->save()) {
+                            $serverFault = true;
+                            throw new Exception(_('Unable to update task'));
                         }
-                    } elseif ($TaskType->get('id') == '12') {
-                        $this->_cancelJobsSnapinsForHost();
-                    } else {
-                        $Task->cancel();
-                        $Task = new Task(0);
-                        $this->set('task', $Task);
                     }
-                } else {
-                    $Task->cancel();
-                    $Task = new Task(0);
-                    $this->set('task', $Task);
+                }
+                if ($TaskType->id == TaskType::ALL_SNAPINS) {
+                    $this->_cancelJobsSnapinsForHost();
                 }
             }
-            unset($iTaskType);
             $Image = $this->getImage();
-            $imagingTypes = $TaskType->isImagingTask();
+            $imagingTypes = $TaskType->isImagingTask;
+            $isCapture = $TaskType->isCapture;
             if ($imagingTypes) {
                 if (!$Image->isValid()) {
                     throw new Exception(self::$foglang['ImageNotValid']);
@@ -953,11 +937,11 @@ class Host extends FOGController
                 if (!$StorageGroup->isValid()) {
                     throw new Exception(self::$foglang['ImageGroupNotValid']);
                 }
-                if ($TaskType->isCapture()) {
-                    $StorageNode = $StorageGroup->getMasterStorageNode();
-                } else {
-                    $StorageNode = $this->getOptimalStorageNode();
+                $getNode = 'getOptimalStorageNode';
+                if ($isCapture) {
+                    $getNode = 'getMasterStorageNode';
                 }
+                $StorageNode = $this->{$getNode}();
                 if (!$StorageNode->isValid()) {
                     $msg = sprintf(
                         '%s %s',
@@ -990,12 +974,11 @@ class Host extends FOGController
                 }
                 $this->set('imageID', $imageTaskImgID);
             }
-            $isCapture = $TaskType->isCapture();
             $username = ($username ? $username : self::$FOGUser->get('name'));
             if (!$Task->isValid()) {
                 $Task = $this->_createTasking(
                     $taskName,
-                    $taskTypeID,
+                    $TaskType->id,
                     $username,
                     $imagingTypes ? $StorageGroup->get('id') : 0,
                     $imagingTypes ? $StorageNode->get('id') : 0,
@@ -1012,7 +995,7 @@ class Host extends FOGController
                 }
                 $this->set('task', $Task);
             }
-            if ($TaskType->isSnapinTask()) {
+            if ($TaskType->isSnapinTask) {
                 if ($deploySnapins === true) {
                     $deploySnapins = -1;
                 }
@@ -1020,12 +1003,12 @@ class Host extends FOGController
                 if ($deploySnapins) {
                     $this->_createSnapinTasking(
                         $deploySnapins,
-                        $TaskType->isSnapinTasking(),
+                        $TaskType->isSnapinTasking,
                         $Task
                     );
                 }
             }
-            if ($TaskType->isMulticast()) {
+            if ($TaskType->isMulticast) {
                 $assoc = false;
                 $showStates = self::fastmerge(
                     self::getQueuedStates(),
