@@ -238,14 +238,16 @@ class TaskType extends FOGController
         );
 
         if ($nums) {
-            return array_diff(
-                range(1, 24),
-                [
-                    self::MEMTEST,
-                    self::ALL_SNAPINS,
-                    self::SINGLE_SNAPIN,
-                    self::WAKE_UP
-                ]
+            return array_values(
+                array_diff(
+                    range(1, 24),
+                    [
+                        self::MEMTEST,
+                        self::ALL_SNAPINS,
+                        self::SINGLE_SNAPIN,
+                        self::WAKE_UP
+                    ]
+                )
             );
         }
 

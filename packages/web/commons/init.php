@@ -279,28 +279,11 @@ class Initiator
          */
         foreach ($globalVars as &$x) {
             global $$x;
-            $$x = filter_input(INPUT_GET|INPUT_POST, $x);
+            $$x = filter_input(INPUT_GET, $x);
+            if (!$$x) {
+                $$x = filter_input(INPUT_POST, $x);
+            }
             unset($x);
-        }
-        /**
-         * Sometimes these items might not be set, for some reason or other.
-         *
-         * Ensure we get them from the url if possible.
-         */
-        if (!$node) {
-            $node = filter_input(INPUT_GET, 'node');
-        }
-        if (!$type) {
-            $type = filter_input(INPUT_GET, 'type');
-        }
-        if (!$sub) {
-            $sub = filter_input(INPUT_GET, 'sub');
-        }
-        if (!$tab) {
-            $tab = filter_input(INPUT_GET, 'tab');
-        }
-        if (!$id) {
-            $id = filter_input(INPUT_GET, 'id');
         }
         /**
          * Initialize the system itself.
@@ -330,7 +313,6 @@ class Initiator
                 &$_GET,
                 &$_POST,
                 &$_COOKIE,
-                &$_REQUEST,
                 &$_SESSION
             ];
             array_walk($process, self::$_sanitizeItems);
