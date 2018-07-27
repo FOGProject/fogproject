@@ -88,8 +88,7 @@ class DashboardPage extends FOGPage
         $Nodes = json_decode(
             Route::getData()
         );
-        $Nodes = $Nodes->data;
-        foreach ((array)$Nodes as &$StorageNode) {
+        foreach ($Nodes->data as &$StorageNode) {
             if (!($StorageNode->isEnabled && $StorageNode->isGraphEnabled)) {
                 continue;
             }
