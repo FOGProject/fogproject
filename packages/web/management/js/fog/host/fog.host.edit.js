@@ -630,7 +630,7 @@
                 error: function(jqXHR, textStatus, errorThrown) {
                     if(textStatus == 'abort') return; // Do not show error message on abort.
                     taskModal.modal('hide');
-                    $.notifyFromAPI(jqXHR.responseJSON, true);
+                    $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
                 }
             });
         });

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-18 15:40-0400\n"
+"POT-Creation-Date: 2018-07-30 23:07-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5340,10 +5340,6 @@ msgstr "Settings"
 msgid "Already created"
 msgstr "Already registered as"
 
-#, fuzzy
-msgid "Invalid tasking type passed"
-msgstr "Invalid object type passed"
-
 msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
 
@@ -6047,6 +6043,9 @@ msgstr "Cancelled due to new tasking."
 
 msgid "Failed to create Snapin Job"
 msgstr "Failed to create Snapin Job"
+
+msgid "Multiple Snapin -- orig Single"
+msgstr ""
 
 #, fuzzy
 msgid "Unable to update task"

@@ -5382,7 +5382,7 @@ class HostManagement extends FOGPage
                 if (!$Image->get('isEnabled')) {
                     throw new Exception(_('Image is not enabled'));
                 }
-                if ($TaskType->isCapture()
+                if ($TaskType->isCapture
                     && $Image->get('protected')
                 ) {
                     throw new Exception(_('Image is protected'));

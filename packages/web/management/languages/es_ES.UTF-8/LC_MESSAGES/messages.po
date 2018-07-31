@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-18 15:40-0400\n"
+"POT-Creation-Date: 2018-07-30 23:07-0400\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -5541,10 +5541,6 @@ msgstr "Configuración Tecla"
 msgid "Already created"
 msgstr "creado por el usuario"
 
-#, fuzzy
-msgid "Invalid tasking type passed"
-msgstr "Tipo de objeto no válido pasó"
-
 msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
 
@@ -6230,6 +6226,9 @@ msgstr "Cancelada debido a las nuevas tareas a la vez."
 
 msgid "Failed to create Snapin Job"
 msgstr "No se pudo crear Complemento de empleo"
+
+msgid "Multiple Snapin -- orig Single"
+msgstr ""
 
 #, fuzzy
 msgid "Unable to update task"

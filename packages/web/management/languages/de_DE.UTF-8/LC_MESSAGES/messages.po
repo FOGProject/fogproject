@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-18 15:40-0400\n"
+"POT-Creation-Date: 2018-07-30 23:07-0400\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -5350,10 +5350,6 @@ msgstr "Einstellungen"
 msgid "Already created"
 msgstr "Bereits erstellt"
 
-#, fuzzy
-msgid "Invalid tasking type passed"
-msgstr "Ungültiger Tasking Typ übergeben"
-
 msgid "Routes should be an array or an instance of Traversable"
 msgstr "Routen sollten ein Array oder eine Instanz von Traversable sein"
 
@@ -6058,6 +6054,9 @@ msgstr "Abgebrochen aufgrund neuer Aufgabe (Task)"
 
 msgid "Failed to create Snapin Job"
 msgstr "Erstellen eines Snapin-Jobs fehlgeschlagen"
+
+msgid "Multiple Snapin -- orig Single"
+msgstr ""
 
 #, fuzzy
 msgid "Unable to update task"
