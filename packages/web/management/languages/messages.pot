@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-24 16:59-0400\n"
+"POT-Creation-Date: 2018-07-30 23:07-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4559,9 +4559,6 @@ msgstr ""
 msgid "Already created"
 msgstr ""
 
-msgid "Invalid tasking type passed"
-msgstr ""
-
 msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
 
@@ -5157,6 +5154,9 @@ msgid "Cancelled due to new tasking."
 msgstr ""
 
 msgid "Failed to create Snapin Job"
+msgstr ""
+
+msgid "Multiple Snapin -- orig Single"
 msgstr ""
 
 msgid "Unable to update task"

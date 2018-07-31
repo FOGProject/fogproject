@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-18 15:40-0400\n"
+"POT-Creation-Date: 2018-07-30 23:07-0400\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5072,9 +5072,6 @@ msgstr "impostazioni"
 msgid "Already created"
 msgstr "Già creato"
 
-msgid "Invalid tasking type passed"
-msgstr "È passato il tipo di attività non valido"
-
 msgid "Routes should be an array or an instance of Traversable"
 msgstr "I percorsi devono essere un array o un'istanza di Traversable"
 
@@ -5693,6 +5690,9 @@ msgstr "Annullato a causa della nuova tasking."
 
 msgid "Failed to create Snapin Job"
 msgstr "Impossibile creare Snapin lavoro"
+
+msgid "Multiple Snapin -- orig Single"
+msgstr ""
 
 #, fuzzy
 msgid "Unable to update task"

@@ -87,7 +87,7 @@
                 });
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                $.notifyFromAPI(jqXHR.responseJSON, true);
+                $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
             }
         });
     });

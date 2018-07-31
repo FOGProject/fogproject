@@ -39,7 +39,7 @@ $.apiCall = function(method, action, data, cb, processData = true) {
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                $.notifyFromAPI(jqXHR.responseJSON, true);
+                $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
                 if (cb && typeof cb === 'function') {
                     cb(jqXHR, jqXHR.responseJSON);
                 }
@@ -85,7 +85,7 @@ $.deleteAssociated = function(table, url, cb, opts) {
                 }
             },
             error: function(res) {
-                $.notifyFromAPI(res.responseJSON, true);
+                $.notifyFromAPI(res.responseJSON, res);
                 if (cb && typeof(cb) === 'function') {
                     cb(res, res.responseJSON);
                 }
@@ -148,7 +148,7 @@ $.deleteSelected = function(table, cb, opts) {
             },
             error: function(res) {
                 if (res.status == 401) {
-                    $.notifyFromAPI(res.responseJSON, true);
+                    $.notifyFromAPI(res.responseJSON, res);
                     $.reAuth(numItems, function(err, password) {
                         if (err) {
                             if (cb && typeof(cb) === 'function') {
@@ -162,7 +162,7 @@ $.deleteSelected = function(table, cb, opts) {
                     return;
                 } else {
                     reAuthModal.finishReAuth();
-                    $.notifyFromAPI(res.responseJSON, true);
+                    $.notifyFromAPI(res.responseJSON, res);
                     if (cb && typeof(cb) === 'function') {
                         cb(res,res.responseJSON);
                     }
@@ -183,38 +183,44 @@ $.notify = function(title, body, type) {
     });
 };
 $.notifyFromAPI = function(res, isError) {
-    var title = res.title || 'Bad Response',
-        type = (isError ? 'error' : 'success'),
-        msg = '';
-
     if (res === undefined) {
-        res = {};
+        typemsg = "msg";
+        res = {
+            title: 'Generic ' + (isError ? 'Error' : 'Message'),
+        };
+        if (isError) {
+            res.error = isError ? isError.statusText : 'Unknown issue';
+        } else {
+            res.msg = 'No message';
+        }
     }
+    var title = res.title,
+        type = (isError ? 'error' : 'success');
     if (!isError) {
         if (res.msg) {
             $.notify(
-                res.title || 'Bad Response',
+                title || 'Bad Response',
                 res.msg,
                 'success'
             );
         }
         if (res.info) {
             $.notify(
-                res.title || 'Bad Response',
+                title || 'Bad Response',
                 res.info,
                 'info'
             );
         }
         if (res.warning) {
             $.notify(
-                res.title || 'Bad Response',
+                title || 'Bad Response',
                 res.warning,
                 'warning'
             );
         }
         if (res.error) {
             $.notify(
-                res.title || 'Bad Response',
+                title || 'Bad Response',
                 res.error,
                 'error'
             );
@@ -223,7 +229,7 @@ $.notifyFromAPI = function(res, isError) {
         return;
     }
     $.notify(
-        res.title || 'Bad Response',
+        title || 'Bad Response',
         (isError ? res.error : res.msg) || 'Bad Response',
         type
     );

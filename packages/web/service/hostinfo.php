@@ -30,10 +30,7 @@ try {
     if (!$Task->isValid()) {
         throw new Exception(_('Invalid tasking!'));
     }
-    $TaskType = FOGCore::getClass(
-        'TaskType',
-        $Task->get('typeID')
-    );
+    $TaskType = $Task->getTaskType();
     $Image = $Task->getImage();
     if ($TaskType->isInitNeededTasking()) {
         if ($TaskType->isMulticast()) {

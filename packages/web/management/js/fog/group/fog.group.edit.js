@@ -55,9 +55,9 @@
     generalDeleteModalConfirm.on('click', function() {
         var method = 'post',
             action = '../management/index.php?node='
-                + Common.node
-                + '&sub=delete&id='
-                + Common.id;
+            + Common.node
+            + '&sub=delete&id='
+            + Common.id;
         $.apiCall(method, action, opts, function(err) {
             if (err) {
                 return;
@@ -115,9 +115,9 @@
         // Interrupt AJAX if modal closed
         var req;
         taskModal.on('hidden.bs.modal', function() {
-          if(req != null){
-            req.abort();
-          }
+            if(req != null){
+                req.abort();
+            }
         });
         // END: Interrupt AJAX if modal closed
 
@@ -197,8 +197,8 @@
                     });
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
-                  if(textStatus == 'abort') return; // Do not show error message on abort.
-                  $.notifyFromApI(jqXHR.responseJSON, true);
+                    if(textStatus == 'abort') return; // Do not show error message on abort.
+                    $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
                 }
             });
         });
@@ -341,9 +341,9 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getHostsList&id='
-                + Common.id,
+            + Common.node
+            + '&sub=getHostsList&id='
+            + Common.id,
             type: 'post'
         }
     });
@@ -458,9 +458,9 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getPrintersList&id='
-                + Common.id,
+            + Common.node
+            + '&sub=getPrintersList&id='
+            + Common.id,
             type: 'post'
         }
     });
@@ -589,9 +589,9 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getSnapinsList&id='
-                + Common.id,
+            + Common.node
+            + '&sub=getSnapinsList&id='
+            + Common.id,
             type: 'post'
         }
     });
@@ -669,12 +669,12 @@
             {
                 render: function(data, type, row) {
                     return '<div class="checkbox">'
-                    + '<input type="checkbox" class="associated" name="associate[]" id="moduleAssoc_'
-                    + row.id
-                    + '" value="'
-                    + row.id
-                    + '"/>'
-                    + '</div>';
+                        + '<input type="checkbox" class="associated" name="associate[]" id="moduleAssoc_'
+                        + row.id
+                        + '" value="'
+                        + row.id
+                        + '"/>'
+                        + '</div>';
                 },
                 targets: 1
             }
@@ -683,9 +683,9 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getModulesList&id='
-                + Common.id,
+            + Common.node
+            + '&sub=getModulesList&id='
+            + Common.id,
             type: 'post'
         }
     });
