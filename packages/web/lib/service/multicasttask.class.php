@@ -42,11 +42,7 @@ class MulticastTask extends FOGService
         if (!$StorageNode->get('isMaster')) {
             return;
         }
-        $Interface = self::getMasterInterface(
-            self::resolveHostname(
-                $StorageNode->get('ip')
-            )
-        );
+        $Interface = self::getSetting('FOG_UDPCAST_INTERFACE');
         unset($StorageNode);
         $Tasks = array();
         $find = array(
