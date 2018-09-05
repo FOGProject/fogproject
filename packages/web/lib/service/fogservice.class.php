@@ -340,7 +340,7 @@ abstract class FOGService extends FOGBase
         $master = false,
         $fileOverride = false
     ) {
-        $itemTyep = $master ? 'group' : 'node';
+        $itemType = $master ? 'group' : 'node';
         $groupID = $myStorageGroupID;
         if ($master) {
             $groupID = $Obj->get('storagegroups');
