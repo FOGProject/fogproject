@@ -51,7 +51,7 @@ elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]
                 dots "Removing the apache and php packages"
                 DEBIAN_FRONTEND=noninteractive apt-get purge -yq 'apache2*' 'php5*' 'php7*' 'libapache*' >/dev/null 2>&1
                 [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
-                dots "Resetting our variables to specify php version 7.1"
+                dots "Resetting our variables to specify php version"
                 if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) && $OSVersion -ge 18 ]]; then
                     php_ver="7.2"
                     php_verAdds="-7.2"
