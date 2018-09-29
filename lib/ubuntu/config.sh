@@ -27,13 +27,7 @@ if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
         [[ -z $php_verAdds ]] && php_verAdds="-5.6"
     fi
 elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; then
-    if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) && $OSVersion -ge 18 ]]; then
-        php_ver="7.2"
-        php_verAdds="-7.2"
-        phpfpm="php${php_ver}-fpm"
-        phpldap="php${php_ver}-ldap"
-        phpcmd="php"
-    elif [[ -z $php_ver || $php_ver != "7.1" ]]; then
+    if [[ -z $php_ver || $php_ver != "7.1" || ( $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) && $OSVersion -ge 18 ) ]]; then
         if [[ $autoaccept != yes ]]; then
             echo " *** Detected a potential need to reinstall apache and php files."
             echo " *** This will remove the /etc/php* and /etc/apache2* directories"
@@ -58,8 +52,13 @@ elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]
                 DEBIAN_FRONTEND=noninteractive apt-get purge -yq 'apache2*' 'php5*' 'php7*' 'libapache*' >/dev/null 2>&1
                 [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
                 dots "Resetting our variables to specify php version 7.1"
-                php_ver="7.1"
-                php_verAdds="-7.1"
+                if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) && $OSVersion -ge 18 ]]; then
+                    php_ver="7.2"
+                    php_verAdds="-7.2"
+                else
+                    php_ver="7.1"
+                    php_verAdds="-7.1"
+                fi
                 phpfpm="php${php_ver}-fpm"
                 phpldap="php${php_ver}-ldap"
                 phpcmd="php"
