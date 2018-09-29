@@ -27,7 +27,13 @@ if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
         [[ -z $php_verAdds ]] && php_verAdds="-5.6"
     fi
 elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; then
-    if [[ -z $php_ver || $php_ver != "7.1" ]]; then
+    if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) && $OSVersion -ge 18 ]]; then
+        php_ver="7.2"
+        php_verAdds="-7.2"
+        phpfpm="php${php_ver}-fpm"
+        phpldap="php${php_ver}-ldap"
+        phpcmd="php"
+    elif [[ -z $php_ver || $php_ver != "7.1" ]]; then
         if [[ $autoaccept != yes ]]; then
             echo " *** Detected a potential need to reinstall apache and php files."
             echo " *** This will remove the /etc/php* and /etc/apache2* directories"
