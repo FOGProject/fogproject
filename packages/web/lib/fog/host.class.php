@@ -941,7 +941,7 @@ class Host extends FOGController
                 if ($isCapture) {
                     $getNode = 'getMasterStorageNode';
                 }
-                $StorageNode = $this->{$getNode}();
+                $StorageNode = $StorageGroup->{$getNode}();
                 if (!$StorageNode->isValid()) {
                     $msg = sprintf(
                         '%s %s',
