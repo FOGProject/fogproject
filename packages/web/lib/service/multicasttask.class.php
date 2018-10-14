@@ -421,9 +421,10 @@ class MulticastTask extends FOGService
         ) = self::getSetting($keys);
         if ($address) {
             $address = long2ip(
-                ip2long($this->getPortBase() / 2 + 1)
-                % self::getSetting(
-                    'FOG_MULTICAST_MAX_SESSIONS'
+                ip2long($address) + (
+                    (
+                        $this->getPortBase() / 2 + 1
+                    ) % self::getSetting('FOG_MULTICAST_MAX_SESSIONS')
                 )
             );
         }
