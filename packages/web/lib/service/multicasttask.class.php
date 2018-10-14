@@ -419,6 +419,14 @@ class MulticastTask extends FOGService
             $duplex,
             $multicastrdv
         ) = self::getSetting($keys);
+        if ($address) {
+            $address = long2ip(
+                ip2long($this->getPortBase() / 2 + 1)
+                % self::getSetting(
+                    'FOG_MULTICAST_MAX_SESSIONS'
+                )
+            );
+        }
         $maxwait = $this->getMaxwait();
         $buildcmd = [
             UDPSENDERPATH,
