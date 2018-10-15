@@ -27,6 +27,7 @@ if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
         [[ -z $php_verAdds ]] && php_verAdds="-5.6"
     fi
 elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; then
+    DEBIAN_FRONTEND=noninteractive apt-get purge -yq sysv-rc-conf
     if [[ -z $php_ver || $php_ver != "7.1" || ( $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) && $OSVersion -ge 18 ) ]]; then
         if [[ $autoaccept != yes ]]; then
             echo " *** Detected a potential need to reinstall apache and php files."
