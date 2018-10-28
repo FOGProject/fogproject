@@ -1517,6 +1517,7 @@ EOF
                     a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    a2dissite "000-default" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 fi
             fi
             ;;
@@ -1608,7 +1609,10 @@ configureHttpd() {
                 ;;
             *)
                 dots "Removing vhost file"
-                [[ $osid -eq 2 ]] && a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                if [[ $osid -eq 2 ]]; then
+                    a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    a2ensite 000-default >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                fi
                 rm $etcconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 errorStat $?
                 ;;
