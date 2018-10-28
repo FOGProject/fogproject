@@ -1889,8 +1889,8 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         echo '<br/>';
         echo '<div class="row">';
-        echo '<a href="http://standards.ieee.org/regauth/oui/oui.txt">';
-        echo 'http://standards.ieee.org/regauth/oui/oui.txt';
+        echo '<a href="http://standards-oui.ieee.org/oui.txt">';
+        echo 'http://standards-oui.ieee.org/oui.txt';
         echo '</a>';
         echo '</div>';
         echo '<br/>';
@@ -1923,7 +1923,7 @@ class FOGConfigurationPage extends FOGPage
     {
         if (isset($_GET['update'])) {
             self::clearMACLookupTable();
-            $url = 'http://linuxnet.ca/ieee/oui.txt';
+            $url = 'http://standards-oui.ieee.org/oui.txt';
             if (($fh = fopen($url, 'rb')) === false) {
                 throw new Exception(_('Could not read temp file'));
             }
