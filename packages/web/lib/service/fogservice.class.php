@@ -624,18 +624,19 @@ abstract class FOGService extends FOGBase
                             }
                             if ($localhash == $remotehash) {
                                 $filesequal = true;
+                            } else {
+                                self::outall(' | '._('File hash mismatch').' - '.basename($localfile)
+                                    .': '.$localhash.' != '.$remotehash);
                             }
                         } else {
                             $filesequal = true;
                         }
+                    } else {
+                        self::outall(' | '._('File size mismatch').' - '.basename($localfile)
+                            .': '.$localsize.' != '.$remotesize);
                     }
                     if ($filesequal != true) {
                         $allsynced = false;
-                        self::outall(
-                            ' | '
-                            . _('Files do not match on server: ')
-                            . $StorageNode->name
-                        );
                         if (!$remotefilescheck[$index]) {
                             self::outall(
                                 ' | '
