@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-02 15:16-0400\n"
+"POT-Creation-Date: 2018-11-03 14:00+0100\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6337,29 +6337,29 @@ msgid "Files do not match on server: "
 msgstr ""
 
 #, fuzzy
-msgid "File does not exist."
-msgstr "Método no existe"
+msgid "File does not exist"
+msgstr "El archivo no existe"
 
 #, fuzzy
 msgid "Deleting remote file"
-msgstr "Menú Error de creación"
+msgstr "Borrando archivo remoto"
 
 msgid "No need to sync"
-msgstr ""
+msgstr "No es necesario sincronizar"
 
 #, fuzzy
 msgid "file to"
 msgstr "Archivo"
 
-msgid " * All files synced for this item."
-msgstr ""
+msgid "All files synced for this item."
+msgstr "Todos los archivos sincronizados para este elemento."
 
 msgid "Starting Sync Actions"
 msgstr ""
 
 #, fuzzy
 msgid "Started sync for"
-msgstr "Iniciado por:"
+msgstr "Comenzó la sincronización para"
 
 #, fuzzy
 msgid "Task started"
@@ -7751,3 +7751,10 @@ msgstr "identificación invalida"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Evento debe ser una cadena"
+
+msgid "File hash mismatch"
+msgstr "Archivo hash no coincide"
+
+#, fuzzy
+msgid "File size mismatch"
+msgstr "Desajuste de tamaño de archivo"
