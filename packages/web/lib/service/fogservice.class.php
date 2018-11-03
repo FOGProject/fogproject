@@ -58,40 +58,6 @@ abstract class FOGService extends FOGBase
      */
     public $procPipes = array();
     /**
-     * Tests that the passed files and sizes are the same
-     *
-     * @param mixed  $size_a The size of the first file
-     * @param mixed  $size_b The size of the second file
-     * @param string $file_a The name of the first file
-     * @param string $file_b The name of the second file
-     * @param bool   $avail  Is url available.
-     *
-     * @return bool
-     */
-    private static function _filesAreEqual(
-        $size_a,
-        $size_b,
-        $file_a,
-        $file_b,
-        $avail
-    ) {
-        if ($size_a != $size_b) {
-            return false;
-        }
-        if (false === $avail) {
-            if ($size_a < 1047685760) {
-                $remhash = md5_file($file_b);
-                $lochash = md5_file($file_a);
-                return ($remhash == $lochash);
-            }
-            return file_exists($file_b) && file_exists($file_a);
-        }
-        $hashLoc = self::getHash($file_a);
-        $hashRem = $file_b;
-        $hashCom = ($hashLoc == $hashRem);
-        return $hashCom;
-    }
-    /**
      * Initializes the FOGService class
      *
      * @return void
@@ -525,11 +491,8 @@ abstract class FOGService extends FOGBase
                     continue;
                 }
                 $testip = $StorageNode->ip;
-                $url = sprintf(
-                    '%s://%s/fog/status/gethash.php',
-                    self::$httpproto,
-                    $StorageNode->ip
-                );
+                $sizeurl = sprintf('%s://%s/fog/status/getsize.php', self::$httpproto, $testip);
+                $hashurl = sprintf('%s://%s/fog/status/gethash.php', self::$httpproto, $testip);
                 self::$FOGFTP
                     ->set('username', $StorageNode->user)
                     ->set('password', $StorageNode->pass)
@@ -618,11 +581,13 @@ abstract class FOGService extends FOGBase
                 $testavail = -1;
                 $allsynced = true;
                 foreach ((array)$localfilescheck as $j => &$localfile) {
+                    $filesequal = false;
                     $avail = true;
                     $index = self::arrayFind(
                         basename($localfile),
                         (array)$remotefilescheck
                     );
+                    $remotefile = $remotefilescheck[$index];
                     $testavail = array_filter(
                         self::$FOGURLRequests->isAvailable($testip, 1, 80)
                     );
@@ -630,42 +595,41 @@ abstract class FOGService extends FOGBase
                     if (!$testavail) {
                         $avail = false;
                     }
-                    $filesize_main = self::getFilesize($localfile);
-                    $file = $remotefilescheck[$index];
+                    $localsize = self::getFilesize($localfile);
                     if ($avail) {
-                        $sizeurl = str_replace('gethash', 'getsize', $url);
-                        $remsize = self::$FOGURLRequests->process(
+                        $remotesize = self::$FOGURLRequests->process(
                             $sizeurl,
                             'POST',
-                            ['file' => base64_encode($file)]
+                            ['file' => base64_encode($remotefile)]
                         );
-                        $filesize_rem = array_shift($remsize);
-                        $res = self::$FOGURLRequests->process(
-                            $url,
-                            'POST',
-                            ['file' => base64_encode($file)]
-                        );
-                        $res = array_shift($res);
-                    } elseif (!$avail) {
-                        if ($file) {
-                            $filesize_rem = self::$FOGFTP->size(
-                                $file
-                            );
+                        $remotesize = array_shift($remotesize);
+                    } else {
+                        if ($remotefile) {
+                            $remotesize = self::$FOGFTP->size($remotefile);
                         }
-                        $res = sprintf(
-                            '%s%s',
-                            $ftpstart,
-                            $file
-                        );
                     }
-                    $filesEqual = self::_filesAreEqual(
-                        $filesize_main,
-                        $filesize_rem,
-                        $localfile,
-                        $res,
-                        $avail
-                    );
-                    if (!$filesEqual) {
+                    if ($localsize == $remotesize) {
+                        if ($localsize < 10485760) {
+                            if ($avail) {
+                                $localhash = self::getHash($localfile);
+                                $remotehash = self::$FOGURLRequests->process(
+                                    $hashurl,
+                                    'POST',
+                                    ['file' => base64_encode($remotefile)]
+                                );
+                                $remotehash = array_shift($remotehash);
+                            } else {
+                                $localhash = md5_file($localfile);
+                                $remotehash = md5_file($ftpstart.$remotefile);
+                            }
+                            if ($localhash == $remotehash) {
+                                $filesequal = true;
+                            }
+                        } else {
+                            $filesequal = true;
+                        }
+                    }
+                    if ($filesequal != true) {
                         $allsynced = false;
                         self::outall(
                             ' | '
