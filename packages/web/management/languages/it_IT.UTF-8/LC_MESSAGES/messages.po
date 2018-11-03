@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-02 15:16-0400\n"
+"POT-Creation-Date: 2018-11-03 14:00+0100\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -5441,8 +5441,8 @@ msgid "Files do not match on server: "
 msgstr ""
 
 #, fuzzy
-msgid "File does not exist."
-msgstr "La funzione non esiste"
+msgid "File does not exist"
+msgstr "Il file non esiste"
 
 msgid "Deleting remote file"
 msgstr "Eliminazione di file remoti"
@@ -5453,8 +5453,8 @@ msgstr "Non è necessario sincronizzare"
 msgid "file to"
 msgstr "File con"
 
-msgid " * All files synced for this item."
-msgstr ""
+msgid "All files synced for this item."
+msgstr "Tutti i file sincronizzati per questo articolo."
 
 msgid "Starting Sync Actions"
 msgstr "Avviare le azioni di sincronizzazione"
@@ -6664,3 +6664,10 @@ msgstr "Non valido"
 
 msgid "Device must be a string"
 msgstr "Dispositivo deve essere una stringa"
+
+msgid "File hash mismatch"
+msgstr "Errore di hash del file"
+
+#, fuzzy
+msgid "File size mismatch"
+msgstr "Errore di dimensioni del file"

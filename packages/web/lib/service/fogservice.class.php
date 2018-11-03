@@ -587,93 +587,67 @@ abstract class FOGService extends FOGBase
                         basename($localfile),
                         (array)$remotefilescheck
                     );
-                    $remotefile = $remotefilescheck[$index];
-                    $testavail = array_filter(
-                        self::$FOGURLRequests->isAvailable($testip, 1, 80)
-                    );
-                    $testavail = array_shift($testavail);
-                    if (!$testavail) {
-                        $avail = false;
-                    }
-                    $localsize = self::getFilesize($localfile);
-                    if ($avail) {
-                        $remotesize = self::$FOGURLRequests->process(
-                            $sizeurl,
-                            'POST',
-                            ['file' => base64_encode($remotefile)]
-                        );
-                        $remotesize = array_shift($remotesize);
-                    } else {
-                        if ($remotefile) {
-                            $remotesize = self::$FOGFTP->size($remotefile);
-                        }
-                    }
-                    if ($localsize == $remotesize) {
-                        if ($localsize < 10485760) {
-                            if ($avail) {
-                                $localhash = self::getHash($localfile);
-                                $remotehash = self::$FOGURLRequests->process(
-                                    $hashurl,
-                                    'POST',
-                                    ['file' => base64_encode($remotefile)]
-                                );
-                                $remotehash = array_shift($remotehash);
-                            } else {
-                                $localhash = md5_file($localfile);
-                                $remotehash = md5_file($ftpstart.$remotefile);
-                            }
-                            if ($localhash == $remotehash) {
-                                $filesequal = true;
-                            } else {
-                                self::outall(' | '._('File hash mismatch').' - '.basename($localfile)
-                                    .': '.$localhash.' != '.$remotehash);
-                            }
-                        } else {
-                            $filesequal = true;
-                        }
-                    } else {
-                        self::outall(' | '._('File size mismatch').' - '.basename($localfile)
-                            .': '.$localsize.' != '.$remotesize);
-                    }
-                    if ($filesequal != true) {
+                    if (!$remotefilescheck[$index]) {
                         $allsynced = false;
-                        if (!$remotefilescheck[$index]) {
-                            self::outall(
-                                ' | '
-                                . basename($localfile)
-                                . ' '
-                                . _('File does not exist.')
-                                . ' '
-                                . $StorageNode->name
-                            );
-                        } else {
-                            self::outall(
-                                sprintf(
-                                    ' | %s: %s',
-                                    _('Deleting remote file'),
-                                    $remotefilescheck[$index]
-                                )
-                            );
-                            self::$FOGFTP->delete($remotefilescheck[$index]);
-                        }
+                        self::outall(sprintf('  # %s: %s %s (%s)', $name, _('File does not exist'),
+                            basename($localfile), $nodename));
                     } else {
-                        self::outall(
-                            sprintf(
-                                ' | %s: %s %s %s %s',
-                                $name,
-                                _('No need to sync'),
-                                basename($localfile),
-                                _('file to'),
-                                $nodename
-                            )
-                        );
-                        continue;
+                        $remotefile = $remotefilescheck[$index];
+                        $testavail = array_filter(self::$FOGURLRequests->isAvailable($testip, 1, 80));
+                        $testavail = array_shift($testavail);
+                        if (!$testavail) {
+                            $avail = false;
+                        }
+                        $localsize = self::getFilesize($localfile);
+                        if ($avail) {
+                            $remotesize = self::$FOGURLRequests->process(
+                                $sizeurl, 'POST', ['file' => base64_encode($remotefile)]);
+                            $remotesize = array_shift($remotesize);
+                        } else {
+                            if ($remotefile) {
+                                $remotesize = self::$FOGFTP->size($remotefile);
+                            }
+                        }
+                        if ($localsize == $remotesize) {
+                            if ($localsize < 10485760) {
+                                if ($avail) {
+                                    $localhash = self::getHash($localfile);
+                                    $remotehash = self::$FOGURLRequests->process(
+                                        $hashurl, 'POST', ['file' => base64_encode($remotefile)]);
+                                    $remotehash = array_shift($remotehash);
+                                } else {
+                                    $localhash = md5_file($localfile);
+                                    $remotehash = md5_file($ftpstart.$remotefile);
+                                }
+                                if ($localhash == $remotehash) {
+                                    $filesequal = true;
+                                } else {
+                                    self::outall(sprintf('  # %s: %s - %s: %s != %s',  $name, _('File hash mismatch'),
+                                        basename($localfile), $localhash, $remotehash));
+                                }
+                            } else {
+                                $filesequal = true;
+                            }
+                        } else {
+                            self::outall(sprintf('  # %s: %s - %s: %s != %s',  $name, _('File size mismatch'),
+                                basename($localfile), $localsize, $remotesize));
+                        }
+                        if ($filesequal != true) {
+                            $allsynced = false;
+                            self::outall(sprintf('  # %s: %s %s', $name, _('Deleting remote file'),
+                                basename($remotefile)));
+                            self::$FOGFTP->delete($remotefile);
+                        } else {
+                            self::outall(sprintf('  # %s: %s %s (%s)', $name, _('No need to sync'),
+                                basename($localfile), $nodename));
+                            continue;
+                        }
+                        unset($localfile);
                     }
-                    unset($localfile);
                 }
                 self::$FOGFTP->close();
                 if ($allsynced) {
-                    self::outall(_(' * All files synced for this item.'));
+                    self::outall(' * ' . _('All files synced for this item.'));
                     continue;
                 }
                 $logname = sprintf(
