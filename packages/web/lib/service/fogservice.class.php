@@ -691,7 +691,6 @@ abstract class FOGService extends FOGBase
                             );
                             self::$FOGFTP->delete($remotefilescheck[$index]);
                         }
-                        $test = false;
                     } else {
                         self::outall(
                             sprintf(
@@ -703,7 +702,6 @@ abstract class FOGService extends FOGBase
                                 $nodename
                             )
                         );
-                        self::$FOGFTP->close();
                         continue;
                     }
                     unset($localfile);
