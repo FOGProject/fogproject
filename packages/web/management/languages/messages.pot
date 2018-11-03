@@ -5359,7 +5359,7 @@ msgstr ""
 msgid "Task ID"
 msgstr ""
 
-msgid "New new tasks found"
+msgid "No new tasks found"
 msgstr ""
 
 msgid "is new"

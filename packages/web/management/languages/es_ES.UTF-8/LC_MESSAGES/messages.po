@@ -6373,8 +6373,8 @@ msgid "Task ID"
 msgstr "Tareas"
 
 #, fuzzy
-msgid "New new tasks found"
-msgstr "Ninguna clase válida enviado"
+msgid "No new tasks found"
+msgstr "No se encontraron nuevas tareas"
 
 #, fuzzy
 msgid "is new"

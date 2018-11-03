@@ -6101,7 +6101,7 @@ msgid "Task ID"
 msgstr "Task"
 
 #, fuzzy
-msgid "New new tasks found"
+msgid "No new tasks found"
 msgstr "No valid class sent"
 
 #, fuzzy

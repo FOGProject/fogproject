@@ -6113,7 +6113,7 @@ msgid "Task ID"
 msgstr "Tâche"
 
 #, fuzzy
-msgid "New new tasks found"
+msgid "No new tasks found"
 msgstr "Aucune classe valide envoyé"
 
 #, fuzzy
