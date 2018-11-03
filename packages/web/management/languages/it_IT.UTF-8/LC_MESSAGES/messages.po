@@ -5473,7 +5473,7 @@ msgid "Task ID"
 msgstr "Compito"
 
 #, fuzzy
-msgid "New new tasks found"
+msgid "No new tasks found"
 msgstr "Non sono stati trovati compiti validi"
 
 msgid "is new"

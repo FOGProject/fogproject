@@ -6103,7 +6103,7 @@ msgid "Task ID"
 msgstr "Tarefa"
 
 #, fuzzy
-msgid "New new tasks found"
+msgid "No new tasks found"
 msgstr "Nenhuma classe válida enviada"
 
 #, fuzzy

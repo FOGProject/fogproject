@@ -6101,8 +6101,8 @@ msgid "Task ID"
 msgstr "Task"
 
 #, fuzzy
-msgid "New new tasks found"
-msgstr "Keine gültigen Tasks gefunden"
+msgid "No new tasks found"
+msgstr "Keine neuen Tasks gefunden"
 
 #, fuzzy
 msgid "is new"

@@ -6081,7 +6081,7 @@ msgid "Task ID"
 msgstr "任务"
 
 #, fuzzy
-msgid "New new tasks found"
+msgid "No new tasks found"
 msgstr "发送无有效类"
 
 #, fuzzy

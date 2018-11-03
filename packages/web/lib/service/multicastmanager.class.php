@@ -222,7 +222,7 @@ class MulticastManager extends FOGService
                     $taskCount = count($allTasks ?: []);
                     if ($taskCount < 1) {
                         self::outall(
-                            ' * ' . _('New new tasks found')
+                            ' * ' . _('No new tasks found')
                         );
                         continue;
                     }
