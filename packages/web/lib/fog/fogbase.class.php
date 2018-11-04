@@ -2303,7 +2303,7 @@ abstract class FOGBase
     public static function getFilesize($file)
     {
         $size = filesize($file);
-        return isset($size) ? $size : 0;
+        return is_numeric($size) ? $size : 0;
     }
     /**
      * Perform enmass wake on lan.
