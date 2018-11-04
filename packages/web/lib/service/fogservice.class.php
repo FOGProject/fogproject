@@ -609,23 +609,23 @@ abstract class FOGService extends FOGBase
                             }
                         }
                         if ($localsize == $remotesize) {
-                            if ($localsize < 10485760) {
-                                $localhash = self::getHash($localfile);
-                                if ($avail) {
-                                    $remotehash = self::$FOGURLRequests->process(
-                                        $hashurl, 'POST', ['file' => base64_encode($remotefile)]);
-                                    $remotehash = array_shift($remotehash);
-                                } else {
-                                    $remotehash = hash_file('sha256', $ftpstart.$remotefile);
-                                }
-                                if ($localhash == $remotehash) {
-                                    $filesequal = true;
-                                } else {
-                                    self::outall(sprintf('  # %s: %s - %s: %s != %s',  $name, _('File hash mismatch'),
-                                        basename($localfile), $localhash, $remotehash));
-                                }
+                            $localhash = self::getHash($localfile);
+                            if ($avail) {
+                                $remotehash = self::$FOGURLRequests->process(
+                                    $hashurl, 'POST', ['file' => base64_encode($remotefile)]);
+                                $remotehash = array_shift($remotehash);
                             } else {
+                                if ($localsize < 10485760) {
+                                    $remotehash = hash_file('sha256', $ftpstart.$remotefile);
+                                } else {
+                                    $filesequal = true;
+                                }
+                            }
+                            if ($localhash == $remotehash) {
                                 $filesequal = true;
+                            } else {
+                                self::outall(sprintf('  # %s: %s - %s: %s != %s',  $name, _('File hash mismatch'),
+                                    basename($localfile), $localhash, $remotehash));
                             }
                         } else {
                             self::outall(sprintf('  # %s: %s - %s: %s != %s',  $name, _('File size mismatch'),
