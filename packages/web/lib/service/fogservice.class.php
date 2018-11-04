@@ -714,7 +714,7 @@ abstract class FOGService extends FOGBase
                     $cmd
                 );
                 $cmd .= "exit' -u $username,$password $ip";
-                self::outall(" | CMD:\n\t\t\t$cmd2");
+                self::outall(" | CMD: $cmd2");
                 unset($includeFile, $remItem, $myAddItem);
                 $this->startTasking(
                     $cmd,
@@ -725,10 +725,11 @@ abstract class FOGService extends FOGBase
                 );
                 self::outall(
                     sprintf(
-                        ' * %s %s %s',
+                        ' | %s %s %s - %s',
                         _('Started sync for'),
                         $objType,
-                        $name
+                        $name,
+                        print_r($this->procRef[$itemType][$name][$randind], true)
                     )
                 );
                 unset($StorageNode);
@@ -919,5 +920,38 @@ abstract class FOGService extends FOGBase
             unset($file);
         }
         return $files;
+    }
+    /**
+     * Local file glob recursive getter.
+     *
+     * @return array
+     */
+    public function cleanupProcList()
+    {
+        foreach ($this->procRef as $item => &$itemTypes) {
+            foreach ($itemTypes as $image => &$images) {
+                foreach ($images as $i => &$ref) {
+                    if (!$this->isRunning($images[$i])) {
+                        self::outall(" | Sync finished - " . print_r($images[$i], true));
+                        fclose($this->procPipes[$item][$image][$i]);
+                        unset($this->procPipes[$item][$image][$i]);
+                        fclose($images[$i]);
+                        unset($images[$i]);
+                    }
+                }
+                if (!count($itemTypes[$image])) {
+                    unset($itemTypes[$image]);
+                }
+                if (!count($this->procPipes[$item][$image])) {
+                    unset($this->procPipes[$item][$image]);
+                }
+            }
+            if (!count($this->procRef[$item])) {
+                unset($this->procRef[$item]);
+            }
+            if (!count($this->procPipes[$item])) {
+                unset($this->procPipes[$item]);
+            }
+        }
     }
 }
