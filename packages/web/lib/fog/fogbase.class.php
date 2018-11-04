@@ -2302,11 +2302,8 @@ abstract class FOGBase
      */
     public static function getFilesize($file)
     {
-        $file = escapeshellarg($file);
-
-        return trim(
-            shell_exec("du -b $file | awk '{print $1}'")
-        );
+        $size = filesize($file);
+        return isset($size) ? $size : 0;
     }
     /**
      * Perform enmass wake on lan.
@@ -2420,7 +2417,6 @@ abstract class FOGBase
      */
     public static function getHash($file)
     {
-        $file = escapeshellarg($file);
         $filesize = self::getFilesize($file);
         $fp = fopen($file, 'r');
         if ($fp) {
