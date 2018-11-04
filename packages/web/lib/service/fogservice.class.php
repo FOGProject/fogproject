@@ -610,14 +610,13 @@ abstract class FOGService extends FOGBase
                         }
                         if ($localsize == $remotesize) {
                             if ($localsize < 10485760) {
+                                $localhash = self::getHash($localfile);
                                 if ($avail) {
-                                    $localhash = self::getHash($localfile);
                                     $remotehash = self::$FOGURLRequests->process(
                                         $hashurl, 'POST', ['file' => base64_encode($remotefile)]);
                                     $remotehash = array_shift($remotehash);
                                 } else {
-                                    $localhash = md5_file($localfile);
-                                    $remotehash = md5_file($ftpstart.$remotefile);
+                                    $remotehash = hash_file('sha256', $ftpstart.$remotefile);
                                 }
                                 if ($localhash == $remotehash) {
                                     $filesequal = true;
