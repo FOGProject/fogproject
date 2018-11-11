@@ -360,7 +360,6 @@ class TaskQueue extends TaskingElement
             ->connect()
             ->delete($dest)
             ->rename($src, $dest)
-            ->chmod(0777, $dest)
             ->close();
         if ($this->Image->get('format') == 1) {
             $this->Image
