@@ -161,12 +161,39 @@ class FOGFTP
             }
             if ($autologin) {
                 $this->login();
-                $this->pasv($this->passive);
+                ftp_pasv($this->_link, $this->passive);
             }
             $this->_lastConnectionHash = $this->_currentConnectionHash;
         } catch (Exception $e) {
             FOGCore::error($e->getMessage());
             return false;
+        }
+        return $this;
+    }
+    /**
+     * Deletes the item passed
+     *
+     * @param string $path the item to delete
+     *
+     * @return object
+     */
+    public function delete($path)
+    {
+        if (!$this->exists($path)) {
+            return $this;
+        }
+        if (!(@ftp_rmdir($this->_link, $path)
+            || @ftp_delete($this->_link, $path))
+        ) {
+            $filelist = @ftp_nlist($this->_link, "-a $path");
+            foreach ((array)$filelist as &$file) {
+                if (in_array($file, array('.', '..'))) {
+                    continue;
+                }
+                $this->delete($file);
+                unset($file);
+            }
+            @ftp_rmdir($this->_link, $path);
         }
         return $this;
     }
@@ -245,7 +272,7 @@ class FOGFTP
      */
     public function listrecursive($path)
     {
-        $lines = $this->rawlist($path);
+        $lines = ftp_rawlist($this->_link, $path);
         $rawlist = join("\n", $lines);
         preg_match_all(
             '/^([drwx+-]{10})\s+(\d+)\s+(\w+)\s+(\w+)\s+(\d+)\s+(.{12}) (.*)$/m',
@@ -286,7 +313,7 @@ class FOGFTP
         $newname
     ) {
         if (!(ftp_rename($this->_link, $oldname, $newname)
-            || $this->put($newname, $oldname))
+            || ftp_put($this->_link, $newname, $oldname, $this->data['mode']))
         ) {
             $this->ftperror($this->data);
         }
@@ -322,9 +349,9 @@ class FOGFTP
             return 0;
         }
         $size = 0;
-        $filelist = $this->rawlist($remote_file);
+        $filelist = ftp_rawlist($this->_link, $remote_file);
         if (!$filelist) {
-            $filelist = $this->rawlist(dirname($remote_file));
+            $filelist = ftp_rawlist($this->_link, dirname($remote_file));
             $filename = basename($remote_file);
             $filelist = preg_grep("#$filename#", $filelist);
         }
@@ -378,7 +405,7 @@ class FOGFTP
     public function exists($path)
     {
         $tmppath = dirname($path);
-        $rawlisting = $this->rawlist("-a $tmppath");
+        $rawlisting = ftp_rawlist($this->_link, "-a $tmppath");
         $dirlisting = [];
         foreach ((array)$rawlisting as &$file) {
             $chunk = preg_split('/\s+/', $file);

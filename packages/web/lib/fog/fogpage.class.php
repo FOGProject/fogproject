@@ -1742,7 +1742,6 @@ abstract class FOGPage extends FOGBase
                     self::$FOGFTP
                         ->delete($orig)
                         ->rename($tmpfile, $orig)
-                        ->chmod(0755, $orig)
                         ->close();
                     unlink($tmpfile);
                     $code = HTTPResponseCodes::HTTP_SUCCESS;
