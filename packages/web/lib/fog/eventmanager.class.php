@@ -194,7 +194,8 @@ class EventManager extends FOGBase
                 '#^.+%sevents%s.*\.event\.php$#',
                 DS,
                 DS
-            );;
+            );
+            ;
             $dirpath = sprintf(
                 '%sevents%s',
                 DS,

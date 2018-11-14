@@ -600,11 +600,23 @@ abstract class FOGService extends FOGBase
                     $remotefilename = sprintf('%s%s%s', $remItem, "/", $remotefilescheck[$rindex]);
                     if (!is_int($rindex)) {
                         $allsynced = false;
-                        self::outall(sprintf('  # %s: %s %s (%s)', $name, _('File does not exist'),
-                            $filename, $nodename));
+                        self::outall(sprintf(
+                            '  # %s: %s %s (%s)',
+                            $name,
+                            _('File does not exist'),
+                            $filename,
+                            $nodename
+                        ));
                     } elseif (!is_int($lindex)) {
-                        self::outall(sprintf('  # %s: %s %s %s %s %s', $name, _('File does not exist'),
-                            'on master node, deleting', $filename, 'on', $nodename));
+                        self::outall(sprintf(
+                            '  # %s: %s %s %s %s %s',
+                            $name,
+                            _('File does not exist'),
+                            'on master node, deleting',
+                            $filename,
+                            'on',
+                            $nodename
+                        ));
                         self::$FOGFTP->delete($remotefilename);
                     } else {
                         $resp = self::$FOGURLRequests->isAvailable($testip, 1, 80);
@@ -616,7 +628,10 @@ abstract class FOGService extends FOGBase
                         $localsize = self::getFilesize($localfilename);
                         if ($avail) {
                             $remotesize = self::$FOGURLRequests->process(
-                                $sizeurl, 'POST', ['file' => base64_encode($remotefilename)]);
+                                $sizeurl,
+                                'POST',
+                                ['file' => base64_encode($remotefilename)]
+                            );
                             $remotesize = array_shift($remotesize);
                         } else {
                             $remotesize = self::$FOGFTP->size($remotefilename);
@@ -625,7 +640,10 @@ abstract class FOGService extends FOGBase
                             $localhash = self::getHash($localfilename);
                             if ($avail) {
                                 $remotehash = self::$FOGURLRequests->process(
-                                    $hashurl, 'POST', ['file' => base64_encode($remotefilename)]);
+                                    $hashurl,
+                                    'POST',
+                                    ['file' => base64_encode($remotefilename)]
+                                );
                                 $remotehash = array_shift($remotehash);
                             } else {
                                 if ($localsize < 10485760) {
@@ -637,20 +655,37 @@ abstract class FOGService extends FOGBase
                             if ($localhash == $remotehash) {
                                 $filesequal = true;
                             } else {
-                                self::outall(sprintf('  # %s: %s - %s: %s != %s',  $name, _('File hash mismatch'),
-                                    $filename, $localhash, $remotehash));
+                                self::outall(sprintf(
+                                    '  # %s: %s - %s: %s != %s',
+                                    $name,
+                                    _('File hash mismatch'),
+                                    $filename,
+                                    $localhash,
+                                    $remotehash
+                                ));
                             }
                         } else {
-                            self::outall(sprintf('  # %s: %s - %s: %s != %s',  $name, _('File size mismatch'),
-                                $filename, $localsize, $remotesize));
+                            self::outall(sprintf(
+                                '  # %s: %s - %s: %s != %s',
+                                $name,
+                                _('File size mismatch'),
+                                $filename,
+                                $localsize,
+                                $remotesize
+                            ));
                         }
                         if ($filesequal != true) {
                             $allsynced = false;
                             self::outall(sprintf('  # %s: %s %s', $name, _('Deleting remote file'), $filename));
                             self::$FOGFTP->delete($remotefilename);
                         } else {
-                            self::outall(sprintf('  # %s: %s %s (%s)', $name, _('No need to sync'),
-                                $filename, $nodename));
+                            self::outall(sprintf(
+                                '  # %s: %s %s (%s)',
+                                $name,
+                                _('No need to sync'),
+                                $filename,
+                                $nodename
+                            ));
                             continue;
                         }
                     }
@@ -851,8 +886,7 @@ abstract class FOGService extends FOGBase
                 isset($this->procRef[$itemType][$filename][$index])
             ) {
                 $procRef = $this->procRef[$itemType][$filename][$index];
-            }
-            else {
+            } else {
                 return true;
             }
             if (isset($this->procPipes[$itemType]) &&
@@ -860,8 +894,7 @@ abstract class FOGService extends FOGBase
                 isset($this->procPipes[$itemType][$filename][$index])
             ) {
                 $pipes = $this->procPipes[$itemType][$filename][$index];
-            }
-            else {
+            } else {
                 return true;
             }
             $isRunning = $this->isRunning(
