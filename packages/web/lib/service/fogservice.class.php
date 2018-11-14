@@ -577,8 +577,8 @@ abstract class FOGService extends FOGBase
                 );
                 foreach ($localfilescheck as &$lfn) {
                     $lfn = str_replace("$path/", "", $lfn);
+                    unset($lfn);
                 }
-                unset($lfn);
                 $remotefilescheck = array_values(
                     array_filter(
                         array_unique($remotefilescheck)
@@ -586,8 +586,8 @@ abstract class FOGService extends FOGBase
                 );
                 foreach ($remotefilescheck as &$rfn) {
                     $rfn = str_replace("$remItem/", "", $rfn);
+                    unset($rfn);
                 }
-                unset($rfn);
                 $filescheck = array_unique(array_merge($localfilescheck, $remotefilescheck));
                 $testavail = -1;
                 $allsynced = true;
