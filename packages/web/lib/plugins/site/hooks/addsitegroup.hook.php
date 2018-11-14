@@ -149,7 +149,7 @@ class AddSiteGroup extends Hook
             . '</button>'
         );
         $arguments['data'] = array();
-        foreach((array)$fields as $field => &$input) {
+        foreach ((array)$fields as $field => &$input) {
             $arguments['data'][] = array(
                 'field' => $field,
                 'input' => $input

@@ -74,7 +74,7 @@ class SubMenuData extends Hook
         if (!$arguments['node']) {
             return;
         }
-        switch(strtolower($arguments['node'])) {
+        switch (strtolower($arguments['node'])) {
         case 'home':
             $arguments['menu'] = array();
             break;
@@ -146,7 +146,7 @@ class SubMenuData extends Hook
             );
             break;
         case 'hwinfo':
-            $arguments['menu'] = array(); 
+            $arguments['menu'] = array();
             break;
         case 'user':
             break;

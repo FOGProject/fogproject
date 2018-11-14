@@ -500,6 +500,7 @@ class MulticastTask extends FOGService
                     $filelist[] = $this->getImagePath();
                     break;
                 }
+                // no break
             case 5:
             case 6:
             case 7:
@@ -623,8 +624,7 @@ class MulticastTask extends FOGService
         $partid = self::getPartitions();
         if ($partid < 1) {
             $filelist = array_values((array)$filelist);
-        }
-        else {
+        } else {
             $filelist = array_values(
                 preg_grep("/^d[0-9]p$partid\.img$/", (array)$filelist)
             );

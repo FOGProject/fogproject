@@ -82,7 +82,7 @@ class FOGCron extends FOGBase
                 $nmonth,
                 $ndow
             ) = array_map(
-                function($val) {
+                function ($val) {
                     return intval(trim($val));
                 },
                 preg_split('/\s+/', $Start->format('i H j n N'))

@@ -57,7 +57,7 @@ if (!in_array($node, $nodes)
     $Page->startBody();
     $FOGPageManager->render();
     //if ($FOGPageManager->getFOGPageName() !== $FOGPageManager->getFOGPageTitle()) {
-        $Page
+    $Page
             ->setTitle($FOGPageManager->getFOGPageTitle());
     //}
     $Page->setSecTitle($FOGPageManager->getFOGPageName());
