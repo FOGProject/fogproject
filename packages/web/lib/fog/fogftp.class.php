@@ -216,6 +216,7 @@ class FOGFTP extends FOGGetSet
             }
             $this->_link = $connectmethod($host, $port, $timeout);
             if ($this->_link === false) {
+                trigger_error(_('FTP connection failed'), E_USER_NOTICE);
                 $this->ftperror($this->data);
             }
             if ($autologin) {

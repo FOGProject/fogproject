@@ -2302,11 +2302,8 @@ abstract class FOGBase
      */
     public static function getFilesize($file)
     {
-        $file = escapeshellarg($file);
-
-        return trim(
-            shell_exec("du -b $file | awk '{print $1}'")
-        );
+        $size = filesize($file);
+        return is_numeric($size) ? $size : 0;
     }
     /**
      * Perform enmass wake on lan.
@@ -2420,27 +2417,17 @@ abstract class FOGBase
      */
     public static function getHash($file)
     {
-        usleep(50000);
-        $file = escapeshellarg($file);
         $filesize = self::getFilesize($file);
-        if ($filesize <= 10485760) {
-            return trim(
-                shell_exec("sha512sum $file | awk '{print $1}'")
-            );
+        $fp = fopen($file, 'r');
+        if ($fp) {
+            $data = fread($fp, 10485760);
+            if ($filesize >= 20971520) {
+                fseek($fp, -10485760, SEEK_END);
+                $data .= fread($fp, 10485760);
+            }
+            fclose($fp);
         }
-        return trim(
-            shell_exec(
-                sprintf(
-                    "(%s -c %d %s; %s -c %d %s) | sha512sum | awk '{print $1}'",
-                    'head',
-                    10486760,
-                    $file,
-                    'tail',
-                    10486760,
-                    $file
-                )
-            )
-        );
+        return isset($data) ? hash('sha256', $data) : '';
     }
     /**
      * Attempts to login

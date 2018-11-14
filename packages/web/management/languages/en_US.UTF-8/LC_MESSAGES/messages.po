@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-02 15:16-0400\n"
+"POT-Creation-Date: 2018-11-14 20:31+0100\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -6055,36 +6055,36 @@ msgstr "Replication Bandwidth"
 
 #, fuzzy
 msgid "File or path cannot be reached"
-msgstr " | File or path cannot be reached"
+msgstr "File or path cannot be reached"
 
 #, fuzzy
 msgid "Cannot connect to"
-msgstr "Cannot connect to node."
+msgstr "Cannot connect to"
 
 msgid "Files do not match on server: "
-msgstr ""
+msgstr "Files do not match on server: "
 
 #, fuzzy
-msgid "File does not exist."
-msgstr "Method does not exist"
+msgid "File does not exist"
+msgstr "File does not exist"
 
 #, fuzzy
 msgid "Deleting remote file"
-msgstr "Menu create failed"
+msgstr "Deleting remote file"
 
 msgid "No need to sync"
-msgstr ""
+msgstr "No need to sync"
 
 #, fuzzy
 msgid "file to"
-msgstr "Failed to"
+msgstr "file to"
 
-msgid " * All files synced for this item."
-msgstr ""
+msgid "All files synced for this item."
+msgstr "All files synced for this item."
 
 #, fuzzy
 msgid "Starting Sync Actions"
-msgstr " * Starting Sync Actions"
+msgstr "Starting Sync Actions"
 
 msgid "Started sync for"
 msgstr "Started sync for"
@@ -7466,11 +7466,11 @@ msgstr ""
 
 #, fuzzy
 msgid "Invalid IP"
-msgstr "Invalid ID"
+msgstr "Invalid IP"
 
 #, fuzzy
 msgid "Invalid File"
-msgstr "Invalid Folder"
+msgstr "Invalid File"
 
 msgid "Invalid Folder"
 msgstr "Invalid Folder"
@@ -7487,4 +7487,15 @@ msgstr "Invalid ID"
 
 #, fuzzy
 msgid "Device must be a string"
-msgstr "Event must be a string"
+msgstr "Device must be a string"
+
+msgid "File hash mismatch"
+msgstr "File hash mismatch"
+
+#, fuzzy
+msgid "File size mismatch"
+msgstr "File size mismatch"
+
+#, fuzzy
+msgid "FTP connection failed"
+msgstr "FTP Connection failed"

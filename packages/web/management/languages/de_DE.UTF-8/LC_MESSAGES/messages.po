@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-02 15:16-0400\n"
+"POT-Creation-Date: 2018-11-14 20:31+0100\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -6065,8 +6065,8 @@ msgid "Files do not match on server: "
 msgstr ""
 
 #, fuzzy
-msgid "File does not exist."
-msgstr "Methode ist nicht vorhanden"
+msgid "File does not exist"
+msgstr "Datei existiert nicht"
 
 #, fuzzy
 msgid "Deleting remote file"
@@ -6077,14 +6077,14 @@ msgstr "Synchronisierung nicht erforderlich"
 
 #, fuzzy
 msgid "file to"
-msgstr "für diese Datei"
+msgstr "Datei nach"
 
-msgid " * All files synced for this item."
-msgstr ""
+msgid "All files synced for this item."
+msgstr "Alle Dateien für dieses Element wurden synchronisiert."
 
 #, fuzzy
 msgid "Starting Sync Actions"
-msgstr " * Starte Sync-Aktionen"
+msgstr "Starte Sync-Aktionen"
 
 msgid "Started sync for"
 msgstr "Die Synchronistaion wurde gestartet für"
@@ -7498,3 +7498,14 @@ msgstr "Ungültig"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Gerätename muss eine Zeichenfolge sein."
+
+msgid "File hash mismatch"
+msgstr "Hash der Datei stimmt nicht überein"
+
+#, fuzzy
+msgid "File size mismatch"
+msgstr "Dateigröße stimmt nicht überein"
+
+#, fuzzy
+msgid "FTP connection failed"
+msgstr "FTP-Verbindung fehlgeschlagen"

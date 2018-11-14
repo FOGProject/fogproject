@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-02 15:16-0400\n"
+"POT-Creation-Date: 2018-11-14 20:31+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5329,7 +5329,7 @@ msgstr ""
 msgid "Files do not match on server: "
 msgstr ""
 
-msgid "File does not exist."
+msgid "File does not exist"
 msgstr ""
 
 msgid "Deleting remote file"
@@ -5341,7 +5341,7 @@ msgstr ""
 msgid "file to"
 msgstr ""
 
-msgid " * All files synced for this item."
+msgid "All files synced for this item."
 msgstr ""
 
 msgid "Starting Sync Actions"
@@ -6535,4 +6535,13 @@ msgid "Invalid"
 msgstr ""
 
 msgid "Device must be a string"
+msgstr ""
+
+msgid "File hash mismatch"
+msgstr ""
+
+msgid "File size mismatch"
+msgstr ""
+
+msgid "FTP connection failed"
 msgstr ""
