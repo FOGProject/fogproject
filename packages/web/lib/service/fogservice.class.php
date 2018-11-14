@@ -237,6 +237,9 @@ abstract class FOGService extends FOGBase
             }
         }
         $fh = fopen($path, 'ab');
+        if (!$fh) {
+            return;
+        }
         fwrite(
             $fh,
             sprintf(
@@ -526,6 +529,7 @@ abstract class FOGService extends FOGBase
                 $limitsend = self::byteconvert(
                     $StorageNode->bandwidth
                 );
+                $limitset = "";
                 if ($limitmain > 0) {
                     $limitset = "set net:limit-total-rate 0:$limitmain;";
                 }
@@ -574,6 +578,7 @@ abstract class FOGService extends FOGBase
                 foreach ($localfilescheck as &$lfn) {
                     $lfn = str_replace("$path/", "", $lfn);
                 }
+                unset($lfn);
                 $remotefilescheck = array_values(
                     array_filter(
                         array_unique($remotefilescheck)
@@ -582,6 +587,7 @@ abstract class FOGService extends FOGBase
                 foreach ($remotefilescheck as &$rfn) {
                     $rfn = str_replace("$remItem/", "", $rfn);
                 }
+                unset($rfn);
                 $filescheck = array_unique(array_merge($localfilescheck, $remotefilescheck));
                 $testavail = -1;
                 $allsynced = true;
@@ -601,9 +607,9 @@ abstract class FOGService extends FOGBase
                             'on master node, deleting', $filename, 'on', $nodename));
                         self::$FOGFTP->delete($remotefilename);
                     } else {
-                        $testavail = array_shift(
-                            array_filter(self::$FOGURLRequests->isAvailable($testip, 1, 80))
-                        );
+                        $resp = self::$FOGURLRequests->isAvailable($testip, 1, 80);
+                        $testavail = array_filter($resp);
+                        $testavail = array_shift($testavail);
                         if (!$testavail) {
                             $avail = false;
                         }
@@ -648,6 +654,7 @@ abstract class FOGService extends FOGBase
                             continue;
                         }
                     }
+                    unset($filename);
                 }
                 self::$FOGFTP->close();
                 if ($allsynced) {
@@ -694,10 +701,6 @@ abstract class FOGService extends FOGBase
                     $remItem
                 );
                 $logname = trim($logname, "'");
-                $logname = sprintf(
-                    '"%s"',
-                    $logname
-                );
                 $cmd = "lftp -e 'set xfer:log 1; set xfer:log-file $logname;";
                 $cmd .= "set ftp:list-options -a;set net:max-retries ";
                 $cmd .= "10;set net:timeout 30; $limit mirror -c --parallel=20 ";
@@ -843,8 +846,24 @@ abstract class FOGService extends FOGBase
                 return (bool)$this->isRunning($this->procRef);
             }
         } else {
-            $procRef = $this->procRef[$itemType][$filename][$index];
-            $pipes = $this->procPipes[$itemType][$filename][$index];
+            if (isset($this->procRef[$itemType]) &&
+                isset($this->procRef[$itemType][$filename]) &&
+                isset($this->procRef[$itemType][$filename][$index])
+            ) {
+                $procRef = $this->procRef[$itemType][$filename][$index];
+            }
+            else {
+                return true;
+            }
+            if (isset($this->procPipes[$itemType]) &&
+                isset($this->procPipes[$itemType][$filename]) &&
+                isset($this->procPipes[$itemType][$filename][$index])
+            ) {
+                $pipes = $this->procPipes[$itemType][$filename][$index];
+            }
+            else {
+                return true;
+            }
             $isRunning = $this->isRunning(
                 $procRef
             );
