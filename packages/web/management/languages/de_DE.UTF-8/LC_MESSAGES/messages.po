@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-03 14:00+0100\n"
+"POT-Creation-Date: 2018-11-14 20:31+0100\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -7505,3 +7505,7 @@ msgstr "Hash der Datei stimmt nicht überein"
 #, fuzzy
 msgid "File size mismatch"
 msgstr "Dateigröße stimmt nicht überein"
+
+#, fuzzy
+msgid "FTP connection failed"
+msgstr "FTP-Verbindung fehlgeschlagen"

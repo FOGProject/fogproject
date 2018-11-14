@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-03 14:00+0100\n"
+"POT-Creation-Date: 2018-11-14 20:31+0100\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -6671,3 +6671,7 @@ msgstr "Errore di hash del file"
 #, fuzzy
 msgid "File size mismatch"
 msgstr "Errore di dimensioni del file"
+
+#, fuzzy
+msgid "FTP connection failed"
+msgstr "La connessione FTP non è riuscita"
