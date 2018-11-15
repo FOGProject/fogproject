@@ -222,11 +222,11 @@ abstract class FOGController extends FOGBase
             _('Returning value of key'),
             $key,
             _('Value'),
-            print_r($this->data[$key], 1)
+            print_r(isset($this->data[$key]) ? $this->data[$key] : 'null', 1)
         );
         self::info($msg);
 
-        return $this->data[$key];
+        return isset($this->data[$key]) ? $this->data[$key] : null;
     }
     /**
      * Set value to key.
@@ -972,7 +972,7 @@ abstract class FOGController extends FOGBase
                     $this->databaseFields[$fields[1]]
                 );
             }
-            if ($fields[3]) {
+            if (isset($fields[3])) {
                 array_walk($fields[3], $whereInfo);
             }
             $c->buildQuery($join, $whereArrayAnd, $c, $not, $compare);
