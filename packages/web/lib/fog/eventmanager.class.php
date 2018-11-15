@@ -230,7 +230,7 @@ class EventManager extends FOGBase
                 $match
             );
 
-            return $match[0];
+            return isset($match[0]) ? $match[0] : '';
         };
         // Instantiates our items to get all files based on our regext info.
         $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
