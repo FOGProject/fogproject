@@ -575,15 +575,35 @@ class FOGURLRequests extends FOGBase
     {
         $this->__destruct();
         $output = array();
-        if ($port == -1 || empty($port) || !$port) {
-            $port = self::$FOGFTP->get('port');
-        }
         if (empty($timeout) || !$timeout || $timeout < 1) {
             $timeout = 30;
         }
         foreach ((array) $urls as &$url) {
+            $url = parse_url($url);
+            if (!isset($url['host']) && isset($url['path'])) {
+                $url['host'] = $url['path'];
+            }
+            if ($port == -1 || empty($port) || !$port) {
+                if (!isset($url['port']) && isset($url['scheme'])) {
+                    switch ($url['scheme']) {
+                        case "http":
+                            $port = 80;
+                            break;
+                        case "https":
+                            $port = 443;
+                            break;
+                        case "ftp":
+                            $port = 21;
+                            break;
+                        default:
+                            $port = self::$FOGFTP->get('port');
+                    }
+                } else {
+                    $port = self::$FOGFTP->get('port');
+                }
+            }
             $socket = @fsockopen(
-                $url,
+                $url['host'],
                 $port,
                 $errno,
                 $errstr,
