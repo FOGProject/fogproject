@@ -384,7 +384,7 @@ configureFTP() {
         seccompsand="seccomp_sandbox=NO"
     fi
     [[ $osid -eq 3 ]] && tcpwrappers="NO" || tcpwrappers="YES"
-    echo -e  "anonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\ntcp_wrappers=$tcpwrappers\n$seccompsand" > "$ftpconfig"
+    echo -e  "max_per_ip=200\nanonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\ntcp_wrappers=$tcpwrappers\n$seccompsand" > "$ftpconfig"
     case $systemctl in
         yes)
             systemctl enable vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -534,8 +534,13 @@ addUbuntuRepo() {
     DEBIAN_FRONTEND=noninteractive $packageinstaller python-software-properties software-properties-common ntpdate >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     locale-gen 'en_US.UTF-8' >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/apache2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) && $OSVersion -ge 18 ]]; then
+        # Fix missing universe section for Ubuntu 18.04 LIVE 
+        LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y universe >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    else
+        LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/apache2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    fi
     return $?
 }
 installPackages() {
@@ -587,19 +592,8 @@ installPackages() {
             packages="${packages// libapache2-mod-evasive/}"
             packages="${packages} php${php_ver}-bcmath bc"
             case $linuxReleaseName in
-                *[Bb][Ii][Aa][Nn]*)
-                    if [[ $OSVersion -eq 7 ]]; then
-                        debcode="wheezy"
-                        grep -l "deb http://packages.dotdeb.org $debcode-php56 all" "/etc/apt/sources.list" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        if [[ $? != 0 ]]; then
-                            echo -e "deb http://packages.dotdeb.org $debcode-php56 all\ndeb-src http://packages.dotdeb.org $debcode-php56 all\n" >> "/etc/apt/sources.list"
-                        fi
-                    fi
-                    ;;
-                *)
-                    if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; then
-                        addUbuntuRepo
-                    fi
+                *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*)
+                    addUbuntuRepo
                     ;;
             esac
             ;;
@@ -1511,6 +1505,11 @@ EOF
                 if [[ -n $phpfpmconf ]]; then
                     sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     sed -i 's/^[;]pm\.max_requests = .*/pm.max_requests = 2000/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    sed -i 's/^[;]php_admin_value\[memory_limit\] = .*/php_admin_value[memory_limit] = 256M/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    sed -i 's/pm\.max_children = .*/pm.max_children = 50/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    sed -i 's/pm\.min_spare_servers = .*/pm.min_spare_servers = 5/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    sed -i 's/pm\.max_spare_servers = .*/pm.max_spare_servers = 10/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    sed -i 's/pm\.start_servers = 2/pm.start_servers = 5/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 fi
                 if [[ $osid -eq 2 ]]; then
                     a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1518,6 +1517,7 @@ EOF
                     a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    a2dissite "000-default" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 fi
             fi
             ;;
@@ -1609,7 +1609,10 @@ configureHttpd() {
                 ;;
             *)
                 dots "Removing vhost file"
-                [[ $osid -eq 2 ]] && a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                if [[ $osid -eq 2 ]]; then
+                    a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    a2ensite 000-default >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                fi
                 rm $etcconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 errorStat $?
                 ;;
@@ -1730,7 +1733,6 @@ configureHttpd() {
         sed -i 's/;extension=gd/extension=gd/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/;extension=gettext/extension=gettext/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/;extension=ldap/extension=ldap/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=mcrypt/extension=mcrypt/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/;extension=mysqli/extension=mysqli/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/;extension=openssl/extension=openssl/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/;extension=pdo_mysql/extension=pdo_mysql/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1950,16 +1952,6 @@ class Config
                 fi
             fi
         fi
-        php -m | grep mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        if [[ ! $? -eq 0 ]]; then
-            ${phpcmd}enmod mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                if [[ -e /etc/php${php_ver}/conf.d/mcrypt.ini ]]; then
-                    cp -f "/etc/php${php_ver}/conf.d/mcrypt.ini" "/etc/php${php_ver}/mods-available/php${php_ver}-mcrypt.ini" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    ${phpcmd}enmod mcrypt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                fi
-            fi
-        fi
     fi
     dots "Enabling apache and fpm services on boot"
     if [[ $osid -eq 2 ]]; then
@@ -1987,6 +1979,7 @@ class Config
     [[ -d /var/www/html/ && ! -e /var/www/html/fog/ ]] && ln -s "$webdirdest" /var/www/html/
     [[ -d /var/www/ && ! -e /var/www/fog ]] && ln -s "$webdirdest" /var/www/
     chown -R ${apacheuser}:${apacheuser} "$webdirdest"
+    chown -R ${username}:${apacheuser} "$webdirdest/service/ipxe"
 }
 downloadfiles() {
     clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"

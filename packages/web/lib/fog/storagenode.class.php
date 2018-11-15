@@ -205,6 +205,7 @@ class StorageNode extends FOGController
             urlencode(implode(':', $paths))
         );
         $paths = self::$FOGURLRequests->process($url);
+        $tmppath = array();
         foreach ((array)$paths as $index => &$response) {
             $tmppath = self::fastmerge(
                 (array)$tmppath,

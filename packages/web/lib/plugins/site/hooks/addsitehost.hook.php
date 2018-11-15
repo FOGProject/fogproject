@@ -29,7 +29,7 @@ class AddSiteHost extends Hook
     public $name = 'AddSiteHost';
     /**
      * The description of this hook.
-     * 
+     *
      * @var string
      */
     public $description = 'Add Hosts to a Site';

@@ -34,6 +34,7 @@ class LoadGlobals extends FOGBase
      */
     private static function _init()
     {
+        global $sub;
         if (self::$_loadedglobals) {
             return;
         }

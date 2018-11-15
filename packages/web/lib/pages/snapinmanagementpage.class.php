@@ -778,7 +778,8 @@ class SnapinManagementPage extends FOGPage
             $dest = sprintf(
                 '/%s/%s',
                 trim(
-                    $StorageNode->get('snapinpath'), '/'
+                    $StorageNode->get('snapinpath'),
+                    '/'
                 ),
                 $snapinfile
             );
@@ -1524,7 +1525,8 @@ class SnapinManagementPage extends FOGPage
         $dest = sprintf(
             '/%s/%s',
             trim(
-                $StorageNode->get('snapinpath'), '/'
+                $StorageNode->get('snapinpath'),
+                '/'
             ),
             $snapinfile
         );

@@ -453,7 +453,6 @@ class WindowsKeyManagementPage extends FOGPage
                     'title' => _('Windows Key Update Success')
                 )
             );
-
         } catch (Exception $e) {
             $hook = 'WINDOWS_KEY_EDIT_POST_FAIL';
             $msg = json_encode(

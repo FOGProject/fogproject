@@ -78,7 +78,6 @@ class Virus_History extends ReportManagementPage
         );
         $Viruses = $Viruses->viruss;
         foreach ((array)$Viruses as &$Virus) {
-            
             self::getClass('HostManager')
                 ->getHostByMacAddresses($Virus->mac);
             if (!self::$Host->isValid()) {

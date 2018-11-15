@@ -103,9 +103,9 @@ if (!$dev) {
     exit;
 }
 // Set our rx and tx data values
-list($rxlast,$txlast) = $getBytes($dev);
+list($rxlast, $txlast) = $getBytes($dev);
 usleep(100000);
-list($rxcur,$txcur) = $getBytes($dev);
+list($rxcur, $txcur) = $getBytes($dev);
 $rx = round(ceil((int)(($rxcur - $rxlast)) / 1024 * 8 / 100), 2);
 $tx = round(ceil((int)(($txcur - $txlast)) / 1024 * 8 / 100), 2);
 // Setup our return array
