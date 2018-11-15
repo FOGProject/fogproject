@@ -370,7 +370,7 @@ class WOLBroadcastManagementPage extends FOGPage
                 array('Broadcast'=> &$this->obj)
             );
         global $tab;
-        try{
+        try {
             switch ($tab) {
             case 'wol-general':
                 $this->wolGeneralPost();

@@ -3702,7 +3702,7 @@ abstract class FOGPage extends FOGBase
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
-        echo '<h4 class="title">';;
+        echo '<h4 class="title">';
         echo $this->title;
         echo '</h4>';
         echo '</div>';
@@ -4246,7 +4246,7 @@ abstract class FOGPage extends FOGBase
             . '">';
         echo _('Delete selected');
         echo ' ';
-        echo (
+        echo(
             $storage ?
             $this->node . ' ' . $storage :
             $this->node

@@ -526,31 +526,31 @@ abstract class FOGBase
         // disabling sysuuid detection code for now as it is causing
         // trouble with machines having the same UUID like we've seen
         // on some MSI motherboards having FFFFFFFF-FFFF-FFFF-FFFF...
-/*        $sysuuid = filter_input(INPUT_POST, 'sysuuid');
-        if (!$sysuuid) {
-            $sysuuid = filter_input(INPUT_GET, 'sysuuid');
-        }
- */
+        /*        $sysuuid = filter_input(INPUT_POST, 'sysuuid');
+                if (!$sysuuid) {
+                    $sysuuid = filter_input(INPUT_GET, 'sysuuid');
+                }
+         */
         // If encoded decode and store value
         if ($encoded === true) {
             $mac = base64_decode($mac);
             //            $sysuuid = base64_decode($sysuuid);
         }
         // See if we can find the host by system uuid rather than by mac's first.
-/*        if ($sysuuid) {
-            $Inventory = self::getClass('Inventory')
-                ->set('sysuuid', $sysuuid)
-                ->load('sysuuid');
-            $Host = self::getClass('Inventory')
-                ->set('sysuuid', $sysuuid)
-                ->load('sysuuid')
-                ->getHost();
-            if ($Host->isValid() && !$returnmacs) {
-                self::$Host = $Host;
-                return;
-            }
-        }
- */
+        /*        if ($sysuuid) {
+                    $Inventory = self::getClass('Inventory')
+                        ->set('sysuuid', $sysuuid)
+                        ->load('sysuuid');
+                    $Host = self::getClass('Inventory')
+                        ->set('sysuuid', $sysuuid)
+                        ->load('sysuuid')
+                        ->getHost();
+                    if ($Host->isValid() && !$returnmacs) {
+                        self::$Host = $Host;
+                        return;
+                    }
+                }
+         */
         // Trim the mac list.
         $mac = trim($mac);
         // Parsing the macs
@@ -2302,11 +2302,8 @@ abstract class FOGBase
      */
     public static function getFilesize($file)
     {
-        $file = escapeshellarg($file);
-
-        return trim(
-            shell_exec("du -b $file | awk '{print $1}'")
-        );
+        $size = filesize($file);
+        return is_numeric($size) ? $size : 0;
     }
     /**
      * Perform enmass wake on lan.
@@ -2420,27 +2417,17 @@ abstract class FOGBase
      */
     public static function getHash($file)
     {
-        usleep(50000);
-        $file = escapeshellarg($file);
         $filesize = self::getFilesize($file);
-        if ($filesize <= 10485760) {
-            return trim(
-                shell_exec("sha512sum $file | awk '{print $1}'")
-            );
+        $fp = fopen($file, 'r');
+        if ($fp) {
+            $data = fread($fp, 10485760);
+            if ($filesize >= 20971520) {
+                fseek($fp, -10485760, SEEK_END);
+                $data .= fread($fp, 10485760);
+            }
+            fclose($fp);
         }
-        return trim(
-            shell_exec(
-                sprintf(
-                    "(%s -c %d %s; %s -c %d %s) | sha512sum | awk '{print $1}'",
-                    'head',
-                    10486760,
-                    $file,
-                    'tail',
-                    10486760,
-                    $file
-                )
-            )
-        );
+        return isset($data) ? hash('sha256', $data) : '';
     }
     /**
      * Attempts to login

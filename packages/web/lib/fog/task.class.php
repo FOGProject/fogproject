@@ -136,10 +136,7 @@ class Task extends TaskType
         }
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
         $find = array(
-            'stateID' => self::fastmerge(
-                (array)self::getQueuedStates(),
-                (array)self::getProgressState()
-            ),
+            'stateID' => self::getQueuedStates(),
             'typeID' => $used,
             'storagegroupID' => $this->get('storagegroupID'),
             'storagenodeID' => $this->get('storagenodeID')

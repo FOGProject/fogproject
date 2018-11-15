@@ -102,27 +102,53 @@ class MulticastSession extends FOGController
      */
     public function cancel()
     {
-        $taskIDs = self::getSubObjectIDs(
-            'MulticastSessionAssociation',
-            array('msID' => $this->get('id')),
+        $find = ['msID' => $this->get('id')];
+        Route::ids(
+            'multicastsessionassociation',
+            $find,
             'taskID'
         );
-        self::getClass('TaskManager')
-            ->update(
-                array('id' => $taskIDs),
-                '',
-                array(
-                    'stateID' => self::getCancelledState()
-                )
-            );
+        $taskIDs = json_decode(Route::getData(), true);
+        self::getClass('TaskManager')->update(
+            ['id' => $taskIDs],
+            '',
+            ['stateID' => self::getCancelledState()]
+        );
         self::getClass('MulticastSessionAssociationManager')
-            ->destroy(array('msID' => $this->get('id')));
-        return $this->set(
-            'stateID',
-            self::getCancelledState()
-        )->set(
-            'name',
-            ''
-        )->save();
+            ->destroy(['msID' => $this->get('id')]);
+        return $this
+            ->set('stateID', self::getCancelledState())
+            ->set('name', '')
+            ->set('clients', 0)
+            ->set('completetime', self::niceDate()->format('Y-m-d H:i:s'))
+            ->save();
+    }
+    /**
+     * Completes this particular session.
+     *
+     * @return void
+     */
+    public function complete()
+    {
+        $find = ['msID' => $this->get('id')];
+        Route::ids(
+            'multicastsessionassociation',
+            $find,
+            'taskID'
+        );
+        $taskIDs = json_decode(Route::getData(), true);
+        self::getClass('TaskManager')->update(
+            ['id' => $taskIDs],
+            '',
+            ['stateID' => self::getCompleteState()]
+        );
+        self::getClass('MulticastSessionAssociationManager')
+            ->destroy(['msID' => $this->get('id')]);
+        return $this
+            ->set('stateID', self::getCompleteState())
+            ->set('name', '')
+            ->set('clients', 0)
+            ->set('completetime', self::niceDate()->format('Y-m-d H:i:s'))
+            ->save();
     }
 }
