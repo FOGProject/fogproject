@@ -544,6 +544,7 @@ abstract class FOGService extends FOGBase
                 $ftpstart = "ftp://$username:$encpassword@$ip";
                 if (is_file($myAdd)) {
                     $remItem = dirname("$removeDir$removeFile");
+                    $path = $remItem;
                     $removeFile = basename($removeFile);
                     $opts = '-R -i';
                     $includeFile = basename($myFile);
@@ -551,11 +552,13 @@ abstract class FOGService extends FOGBase
                         $myAddItem = dirname($myAdd);
                     }
                     $localfilescheck[0] = $myAdd;
-                    $remotefilescheck[0] = sprintf(
-                        '%s/%s',
-                        $remItem,
-                        $removeFile
-                    );
+                    if (file_exists($ftpstart.$remItem."/".$removeFile)) {
+                        $remotefilescheck[0] = sprintf(
+                            '%s/%s',
+                            $remItem,
+                            $removeFile
+                        );
+                    }
                 } elseif (is_dir($myAdd)) {
                     $remItem = "$removeDir$removeFile";
                     $path = realpath($myAdd);
@@ -588,7 +591,7 @@ abstract class FOGService extends FOGBase
                     $rfn = str_replace("$remItem/", "", $rfn);
                     unset($rfn);
                 }
-                $filescheck = array_unique(array_merge($localfilescheck, $remotefilescheck));
+                $filescheck = array_unique(array_merge((array)$localfilescheck, (array)$remotefilescheck));
                 $testavail = -1;
                 $allsynced = true;
                 foreach ($filescheck as $j => &$filename) {
