@@ -36,8 +36,12 @@ class DatabaseManager extends FOGCore
          */
         $noDBpattern = array(
             'status\/bandwidth\.php$',
+            'status\/freespace\.php$',
             'status\/getfiles\.php$',
-            'status\/getservertime\.php$'
+            'status\/gethash\.php$',
+            'status\/getservertime\.php$',
+            'status\/getsize\.php$',
+            'status\/hw\.php$'
         );
         $noDBpattern = '#'.implode($noDBpattern, "|").'#';
         if (preg_match($noDBpattern, self::$scriptname)) {
