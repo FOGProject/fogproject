@@ -512,8 +512,8 @@ class Route extends FOGBase
         $bypass = false,
         $find = array()
     ) {
-            $item = empty($item) ? 'all' : $item;
-            self::listem($class, $sortby, $bypass, $find, $item);
+        $item = empty($item) ? 'all' : $item;
+        self::listem($class, $sortby, $bypass, $find, $item);
     }
     /**
      * Presents the equivalent of a page's search.
