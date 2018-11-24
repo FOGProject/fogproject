@@ -31,6 +31,19 @@ class DatabaseManager extends FOGCore
     public static function establish()
     {
         /**
+         * Certain scripts don't use the database at all
+         * so we skip connecting to the DB entirely for those.
+         */
+        $noDBpattern = array(
+            'status\/bandwidth\.php$',
+            'status\/getfiles\.php$',
+            'status\/getservertime\.php$'
+        );
+        $noDBpattern = '#'.implode($noDBpattern, "|").'#';
+        if (preg_match($noDBpattern, self::$scriptname)) {
+            return;
+        }
+        /**
          * If the db is already connected,
          * return immediately.
          */
