@@ -41,7 +41,8 @@ class DatabaseManager extends FOGCore
             'status\/gethash\.php$',
             'status\/getservertime\.php$',
             'status\/getsize\.php$',
-            'status\/hw\.php$'
+            'status\/hw\.php$',
+            'status\/newtoken\.php$'
         );
         $noDBpattern = '#'.implode($noDBpattern, "|").'#';
         if (preg_match($noDBpattern, self::$scriptname)) {
