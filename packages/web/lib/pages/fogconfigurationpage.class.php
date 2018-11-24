@@ -2930,7 +2930,8 @@ class FOGConfigurationPage extends FOGPage
             }
             Route::indiv(
                 'storagenode',
-                array_shift($nodeIDs)
+                array_shift($nodeIDs),
+                'logfiles'
             );
             $StorageNode = json_decode(
                 Route::getData()
