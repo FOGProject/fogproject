@@ -768,13 +768,6 @@ class SnapinManagementPage extends FOGPage
                 dirname($_FILES['snapin']['tmp_name']),
                 basename($_FILES['snapin']['tmp_name'])
             );
-            set_time_limit(0);
-            $hash = '';
-            $size = 0;
-            if ($uploadfile && file_exists($src)) {
-                $hash = hash_file('sha512', $src);
-                $size = self::getFilesize($src);
-            }
             $dest = sprintf(
                 '/%s/%s',
                 trim(
@@ -783,36 +776,43 @@ class SnapinManagementPage extends FOGPage
                 ),
                 $snapinfile
             );
-            self::$FOGFTP
-                ->set('host', $StorageNode->get('ip'))
-                ->set('username', $StorageNode->get('user'))
-                ->set('password', $StorageNode->get('pass'));
-            if (!self::$FOGFTP->connect()) {
-                throw new Exception(
-                    sprintf(
-                        '%s: %s: %s.',
-                        _('Storage Node'),
-                        $StorageNode->get('ip'),
-                        _('FTP Connection has failed')
-                    )
-                );
-            }
-            if (!self::$FOGFTP->chdir($StorageNode->get('snapinpath'))) {
-                if (!self::$FOGFTP->mkdir($StorageNode->get('snapinpath'))) {
+            set_time_limit(0);
+            $hash = '';
+            $size = 0;
+            if ($uploadfile && file_exists($src)) {
+                $hash = hash_file('sha512', $src);
+                $size = self::getFilesize($src);
+                self::$FOGFTP
+                    ->set('host', $StorageNode->get('ip'))
+                    ->set('username', $StorageNode->get('user'))
+                    ->set('password', $StorageNode->get('pass'));
+                if (!self::$FOGFTP->connect()) {
                     throw new Exception(
-                        _('Failed to add snapin')
+                        sprintf(
+                            '%s: %s: %s.',
+                            _('Storage Node'),
+                            $StorageNode->get('ip'),
+                            _('FTP Connection has failed')
+                        )
                     );
                 }
+                if (!self::$FOGFTP->chdir($StorageNode->get('snapinpath'))) {
+                    if (!self::$FOGFTP->mkdir($StorageNode->get('snapinpath'))) {
+                        throw new Exception(
+                            _('Failed to add snapin')
+                        );
+                    }
+                }
+                self::$FOGFTP->delete($dest);
+                if (!self::$FOGFTP->put($dest, $src)) {
+                    throw new Exception(
+                        _('Failed to add/update snapin file')
+                    );
+                }
+                self::$FOGFTP
+                    ->chmod(0777, $dest)
+                    ->close();
             }
-            self::$FOGFTP->delete($dest);
-            if (!self::$FOGFTP->put($dest, $src)) {
-                throw new Exception(
-                    _('Failed to add/update snapin file')
-                );
-            }
-            self::$FOGFTP
-                ->chmod(0777, $dest)
-                ->close();
             $Snapin = self::getClass('Snapin')
                 ->set('name', $name)
                 ->set('packtype', $packtype)
