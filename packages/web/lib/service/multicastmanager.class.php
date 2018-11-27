@@ -166,10 +166,6 @@ class MulticastManager extends FOGService
     {
         $KnownTasks = [];
         while (true) {
-            // Wait until db is ready.
-            // This is in the loop jus tin case the db goes down in between sessions.
-            $this->waitDbReady();
-
             // Ensure we have a fresh complete and cancel variable.
             $completeTasks = $cancelTasks = [];
 
@@ -184,7 +180,11 @@ class MulticastManager extends FOGService
                 usleep(100000);
                 continue;
             }
+            // Check db connection and wait until db is ready.
+            $this->waitDbReady();
+
             // Reset the next run time.
+            $nextrun = self::niceDate();
             $nextrun->modify('+'.self::$zzz.' seconds');
 
             // Sets the queued States each iteration incase there is a change.
@@ -555,7 +555,7 @@ class MulticastManager extends FOGService
                 $first = false;
             }
             $tmpTime = self::getSetting(self::$sleeptime);
-            if (static::$zzz != $tmpTime) {
+            if ($tmpTime > 0 && static::$zzz != $tmpTime) {
                 static::$zzz = $tmpTime ?: 10;
                 self::outall(
                     sprintf(
