@@ -264,18 +264,26 @@ class Route extends FOGBase
                 'list'
             )
             ->get(
-                "${expanded}/[i:id]",
+                "${expanded}/[details]/?[*:item]?",
+                array(__CLASS__, 'listdetails'),
+                'listdetails'
+            )
+            ->get(
+                "${expanded}/[i:id]/?[*:item]?",
                 array(__CLASS__, 'indiv'),
                 'indiv'
-            )->get(
+            )
+            ->get(
                 "${expanded}/names/[*:whereItems]?",
-                [__CLASS__, 'names'],
+                array(__CLASS__, 'names'),
                 'names'
-            )->get(
+            )
+            ->get(
                 "${expanded}/ids/[*:whereItems]?/[*:getField]?",
-                [__CLASS__, 'ids'],
+                array(__CLASS__, 'ids'),
                 'ids'
-            )->put(
+            )
+            ->put(
                 "${expanded}/[i:id]/[update|edit]?",
                 array(__CLASS__, 'edit'),
                 'update'
@@ -422,7 +430,8 @@ class Route extends FOGBase
         $class,
         $sortby = 'name',
         $bypass = false,
-        $find = array()
+        $find = array(),
+        $item = ''
     ) {
         $classname = strtolower($class);
         $classman = self::getClass($class)->getManager();
@@ -441,7 +450,8 @@ class Route extends FOGBase
             foreach (self::getClass('Plugin')->getPlugins() as $class) {
                 self::$data[$classname.'s'][] = self::getter(
                     $classname,
-                    $class
+                    $class,
+                    $item
                 );
                 if ($class->isActive() && !$class->isInstalled()) {
                     self::$data['count_active']++;
@@ -467,7 +477,8 @@ class Route extends FOGBase
                 }
                 self::$data[$classname.'s'][] = self::getter(
                     $classname,
-                    $class
+                    $class,
+                    $item
                 );
                 self::$data['count']++;
                 unset($class);
@@ -483,6 +494,26 @@ class Route extends FOGBase
                     'classman' => &$classman
                 )
             );
+    }
+    /**
+     * Presents the equivalent of a detailed page list.
+     *
+     * @param string $class  The class to work with.
+     * @param string $sortby How to sort the data.
+     * @param bool   $bypass Allow showing hidden data.
+     * @param array  $find   Additional filter items.
+     *
+     * @return void
+     */
+    public static function listdetails(
+        $class,
+        $item,
+        $sortby = 'name',
+        $bypass = false,
+        $find = array()
+    ) {
+        $item = empty($item) ? 'all' : $item;
+        self::listem($class, $sortby, $bypass, $find, $item);
     }
     /**
      * Presents the equivalent of a page's search.
@@ -528,7 +559,7 @@ class Route extends FOGBase
      *
      * @return void
      */
-    public static function indiv($class, $id)
+    public static function indiv($class, $id, $item = '')
     {
         $classname = strtolower($class);
         $class = new $class($id);
@@ -540,7 +571,8 @@ class Route extends FOGBase
         self::$data = array();
         self::$data = self::getter(
             $classname,
-            $class
+            $class,
+            $item
         );
         self::$HookManager
             ->processEvent(
@@ -1095,7 +1127,7 @@ class Route extends FOGBase
      *
      * @return object|array
      */
-    public static function getter($classname, $class)
+    public static function getter($classname, $class, $item = '')
     {
         if (!$class instanceof $classname) {
             return;
@@ -1180,10 +1212,10 @@ class Route extends FOGBase
             );
             break;
         case 'storagenode':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'logfiles' => (
+            $extra = array();
+            if ($item == 'all') {
+                $extra = array(
+                   'logfiles' => (
                         $class->get('online') ?
                         $class->get('logfiles') :
                         []
@@ -1197,7 +1229,21 @@ class Route extends FOGBase
                         $class->get('online') ?
                         $class->get('images') :
                         []
-                    ),
+                    )
+                );
+            } elseif (!empty($item)) {
+                $extra = array(
+                   "$item" => (
+                        $class->get('online') ?
+                        $class->get($item) :
+                        []
+                    )
+                );
+            }
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                $extra,
+                array(
                     'storagegroup' => self::getter(
                         'storagegroup',
                         $class->get('storagegroup')

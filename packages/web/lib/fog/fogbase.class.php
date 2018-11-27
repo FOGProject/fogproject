@@ -1196,7 +1196,11 @@ abstract class FOGBase
         if (!$format) {
             $format = 'm/d/Y';
         }
-        $tz = new DateTimeZone(self::$TimeZone);
+        if (empty(self::$TimeZone)) {
+            $tz = new DateTimeZone('UTC');
+        } else {
+            $tz = new DateTimeZone(self::$TimeZone);
+        }
 
         return DateTime::createFromFormat(
             $format,
@@ -2234,12 +2238,6 @@ abstract class FOGBase
                 $IPs,
                 $retVal
             );
-        }
-        $test = self::$FOGURLRequests->isAvailable('http://ipinfo.io/ip');
-        $test = array_shift($test);
-        if (false !== $test) {
-            $res = self::$FOGURLRequests->process('http://ipinfo.io/ip');
-            $IPs[] = $res[0];
         }
         natcasesort($IPs);
         $retIPs = function (&$IP) {
