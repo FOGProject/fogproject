@@ -1624,9 +1624,9 @@ class Route extends FOGBase
                 $class->get(),
                 [
                     'online' => $class->get('online'),
-                    'logfiles' => $class->get('logfiles'),
-                    'snapinfiles' => $class->get('snapinfiles'),
-                    'images' => $class->get('images'),
+                    //'logfiles' => $class->get('logfiles'),
+                    //'snapinfiles' => $class->get('snapinfiles'),
+                    //'images' => $class->get('images'),
                     'storagegroup' => $class->get('storagegroup')->get()
                 ]
             );
@@ -2205,5 +2205,32 @@ class Route extends FOGBase
             'https://fogproject.org/kernels/kernelupdate_datatables_fog2.php'
         );
         self::$data = json_decode(array_shift($jsonData));
+    }
+    /**
+     * Return node's log files.
+     *
+     * @return void
+     */
+    public static function logfiles($id)
+    {
+        self::$data = self::getClass('StorageNode', $id)->get('logfiles');
+    }
+    /**
+     * Return node's image files.
+     *
+     * @return void
+     */
+    public static function imagefiles($id)
+    {
+        self::$data = self::getClass('StorageNode', $id)->get('images');
+    }
+    /**
+     * Return node's snapin files.
+     *
+     * @return void
+     */
+    public static function snapinfiles($id)
+    {
+        self::$data = self::getClass('StorageNode', $id)->get('snapinfiles');
     }
 }

@@ -1187,8 +1187,9 @@ class FOGConfigurationPage extends FOGPage
                 continue;
             }
             $StorageNode = $StorageGroup->masternode;
+            Route::logfiles($StorageNode->id);
             $fogfiles = json_decode(
-                json_encode($StorageNode->logfiles),
+                Route::getData(),
                 true
             );
             try {

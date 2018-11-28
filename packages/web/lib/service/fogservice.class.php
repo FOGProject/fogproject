@@ -483,8 +483,6 @@ abstract class FOGService extends FOGBase
                     $myAddItem = $myAdd;
                 }
             }
-            $localfilescheck = $unique($localfilescheck);
-            $remotefilescheck = $unique($remotefilescheck);
             foreach ($localfilescheck as $lin => &$lfn) {
                 $localfilescheck[$lin] = str_replace("$path/", "", $lfn);
                 unset($lfn, $lin);
@@ -876,7 +874,7 @@ abstract class FOGService extends FOGBase
      */
     public function doHousekeeping()
     {
-        parent::cleanupProcList();
+        $this->cleanupProcList();
     }
     /**
      * Cleans up our process lists.
