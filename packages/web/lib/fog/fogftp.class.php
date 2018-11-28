@@ -157,6 +157,7 @@ class FOGFTP
             }
             $this->_link = $connectmethod($host, $port, $timeout);
             if ($this->_link === false) {
+                trigger_error(_('FTP Connection Failed'), E_USER_NOTICE);
                 $this->ftperror($this->data);
             }
             if ($autologin) {

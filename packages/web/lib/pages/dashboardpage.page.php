@@ -367,22 +367,22 @@ class DashboardPage extends FOGPage
         echo '</a>';
         echo '&nbsp;&nbsp;';
         echo '<a href="#" id="graph-bandwidth-time-filters-5min" '
-            . 'class="time-filters graph-filters active" rel="' . $rel5 . '">';
+            . 'class="time-filters graph-filters" rel="' . $rel5 . '">';
         echo _('5 Minutes');
         echo '</a>';
         echo '&nbsp;&nbsp;';
         echo '<a href="#" id="graph-bandwidth-time-filters-10min" '
-            . 'class="time-filters graph-filters active" rel="' . $rel10 . '">';
+            . 'class="time-filters graph-filters" rel="' . $rel10 . '">';
         echo _('10 Minutes');
         echo '</a>';
         echo '&nbsp;&nbsp;';
         echo '<a href="#" id="graph-bandwidth-time-filters-30min" '
-            . 'class="time-filters graph-filters active" rel="' . $relhalf . '">';
+            . 'class="time-filters graph-filters" rel="' . $relhalf . '">';
         echo _('30 Minutes');
         echo '</a>';
         echo '&nbsp;&nbsp;';
         echo '<a href="#" id="graph-bandwidth-time-filters-1hr" '
-            . 'class="time-filters graph-filters active" rel="' . $relhour . '">';
+            . 'class="time-filters graph-filters" rel="' . $relhour . '">';
         echo _('1 Hour');
         echo '</a>';
         echo '</div>';

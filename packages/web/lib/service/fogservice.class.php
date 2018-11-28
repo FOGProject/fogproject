@@ -58,40 +58,6 @@ abstract class FOGService extends FOGBase
      */
     public $procPipes = [];
     /**
-     * Tests that the passed files and sizes are the same
-     *
-     * @param mixed  $size_a The size of the first file
-     * @param mixed  $size_b The size of the second file
-     * @param string $file_a The name of the first file
-     * @param string $file_b The name of the second file
-     * @param bool   $avail  Is url available.
-     *
-     * @return bool
-     */
-    private static function _filesAreEqual(
-        $size_a,
-        $size_b,
-        $file_a,
-        $file_b,
-        $avail
-    ) {
-        if ($size_a != $size_b) {
-            return false;
-        }
-        if (false === $avail) {
-            if ($size_a < 1047685760) {
-                $remhash = md5_file($file_b);
-                $lochash = md5_file($file_a);
-                return ($remhash == $lochash);
-            }
-            return file_exists($file_b) && file_exists($file_a);
-        }
-        $hashLoc = self::getHash($file_a);
-        $hashRem = $file_b;
-        $hashCom = ($hashLoc == $hashRem);
-        return $hashCom;
-    }
-    /**
      * Initializes the FOGService class
      *
      * @return void
@@ -270,6 +236,9 @@ abstract class FOGService extends FOGBase
             }
         }
         $fh = fopen($path, 'ab');
+        if (!$fh) {
+            return;
+        }
         fwrite(
             $fh,
             sprintf(
@@ -391,10 +360,10 @@ abstract class FOGService extends FOGBase
                 _("{$itemType}s")
             )
         );
-        $filename = ($fileOverride ?: $Obj->get('name'));
+        $nfilename = ($fileOverride ?: $Obj->get('name'));
         self::outall(
             ' | ' . ($fileOverride ? _('File') : _($objType))
-            . ' ' . _('Name') . ': ' . $filename
+            . ' ' . _('Name') . ': ' . $nfilename
         );
         $pathField = 'ftppath';
         $fileField = 'path';
@@ -461,7 +430,9 @@ abstract class FOGService extends FOGBase
             $username = self::$FOGFTP->username = $StorageNode->user;
             $password = self::$FOGFTP->password = $StorageNode->pass;
             $ip = self::$FOGFTP->host = $StorageNode->ip;
-            $url = self::$httpproto . '://' . $ip . '/fog/status/gethash.php';
+            $sizeurl = sprintf('%s://%s/fog/status/getsize.php', self::$httpproto, $ip);
+            $hashurl = sprintf('%s://%s/fog/status/gethash.php', self::$httpproto, $ip);
+            //$url = self::$httpproto . '://' . $ip . '/fog/status/gethash.php';
             $nodename = $StorageNode->name;
             if (!self::$FOGFTP->connect()) {
                 self::outall(
@@ -474,6 +445,7 @@ abstract class FOGService extends FOGBase
             $removeFile = $myFile;
             $limitmain = self::byteconvert($myStorageNode->bandwidth);
             $limitsend = self::byteconvert($StorageNode->bandwidth);
+            $limitset = "";
             if ($limitmain > 0) {
                 $limitset = "set net:limit-total-rate 0:$limitmain;";
             }
@@ -486,6 +458,7 @@ abstract class FOGService extends FOGBase
             $ftpstart = "ftp://{$username}:{$encpassword}@{$ip}";
             if (is_file($myAdd)) {
                 $remItem = dirname("{$removeDir}{$removeFile}");
+                $path = $remItem;
                 $removeFile = basename($removeFile);
                 $opts = '-R -i';
                 $includeFile = basename($myFile);
@@ -493,7 +466,9 @@ abstract class FOGService extends FOGBase
                     $myAddItem = dirname($myAdd);
                 }
                 $localfilescheck[0] = $myAdd;
-                $remotefilescheck[0] = $remItem . '/' . $removeFile;
+                if (file_exists($ftpstart.$remItem.'/'.$removefile)) {
+                    $remotefilescheck[0] = $remItem . '/' . $removefile;
+                }
             } else if (is_dir($myAdd)) {
                 $remItem = "{$removeDir}{$removeFile}";
                 $path = realpath($myAdd);
@@ -510,6 +485,17 @@ abstract class FOGService extends FOGBase
             }
             $localfilescheck = $unique($localfilescheck);
             $remotefilescheck = $unique($remotefilescheck);
+            foreach ($localfilescheck as $lin => &$lfn) {
+                $localfilescheck[$lin] = str_replace("$path/", "", $lfn);
+                unset($lfn, $lin);
+            }
+            natcasesort($localfilescheck);
+            foreach ($remotefilescheck as $rin => &$rfn) {
+                $removefilescheck[$rin] = str_replace("$remItem/", "", $rfn);
+                unset($rfn, $rin);
+            }
+            natcasesort($remotefilescheck);
+            $filescheck = $unique(self::fastmerge($localfilescheck, $remotefilescheck));
             $testavail = -1;
             $testavail = array_filter(
                 self::$FOGURLRequests->isAvailable($ip, 1, 80, 'tcp')
@@ -520,67 +506,106 @@ abstract class FOGService extends FOGBase
             }
             $testavail = array_shift($testavail);
             $allsynced = true;
-            foreach ((array)$localfilescheck as $j => &$localfile) {
-                $index = self::arrayFind(
-                    basename($localfile),
-                    (array)$remotefilescheck
-                );
-                $filesize_main = self::getFilesize($localfile);
-                $file = $remotefilescheck[$index];
+            foreach ($filescheck as $j => &$filename) {
+                $filesequal = false;
+                $lindex = array_search($filename, $localfilescheck);
+                $rindex = array_search($filename, $remotefilescheck);
+                $localfilename = sprintf('%s/%s', $path, $localfilescheck);
+                $remotefilename = sprintf('%s/%s', $remItem, $remotefilescheck);
+                if (!is_int($rindex)) {
+                    $allsynced = false;
+                    self::outall(
+                        '  # '
+                        . $name
+                        . ': '
+                        . _('File does not exist')
+                        . ' '
+                        . $filename
+                        . '(' . $nodename . ')'
+                    );
+                    continue;
+                } else if (!is_int($lindex)) {
+                    self::outall(
+                        '  # '
+                        . $name
+                        . ': '
+                        . _('File does not exist on master node, deleting')
+                        . ' '
+                        . $filename
+                        . ' on '
+                        . $nodename
+                    );
+                    self::$FOGFTP->delete($remotefilename);
+                }
+                $localsize = self::getFilesize($localfilename);
                 if ($avail) {
-                    $sizeurl = str_replace('gethash', 'getsize', $url);
-                    $remsize = self::$FOGURLRequests->process(
+                    $remotesize = self::$FOGURLRequests->process(
                         $sizeurl,
                         'POST',
-                        ['file' => base64_encode($file)]
+                        ['file' => base64_encode($remotefilename)]
                     );
-                    $filesize_rem = array_shift($remsize);
-                    $res = self::$FOGURLRequests->process(
-                        $url,
-                        'POST',
-                        ['file' => base64_encode($file)]
-                    );
-                    $res = array_shift($res);
+                    $remotesize = array_shift($remotesize);
                 } else {
-                    if ($file) {
-                        $filesize_rem = self::$FOGFTP->size(
-                            $file
-                        );
-                    }
-                    $res = "{$ftpstart}{$file}";
+                    $remotesize = self::$FOGFTP->size($remotefilename);
                 }
-                $filesEqual = self::_filesAreEqual(
-                    $filesize_main,
-                    $filesize_rem,
-                    $localfile,
-                    $res,
-                    $avail
-                );
-                if ($filesEqual) {
+                if ($localsize == $remotesize) {
+                    $localhash = self::getHash($localfilename);
+                    if ($avail) {
+                        $remotehash = self::$FOGURLRequests->process(
+                            $hashurl,
+                            'POST',
+                            ['file' => base64_encode($remotefilename)]
+                        );
+                        $remotehash = array_shift($remotehash);
+                    } else {
+                        if ($localsize < 10485760) {
+                            $remotehash = hash_file('sha256', $ftpstart.$remotefilename);
+                        }
+                    }
+                    if ($localhash == $remotehash) {
+                        $filesequal = true;
+                    } else {
+                        $errorMsg = '  # '
+                            . $name
+                            . ':'
+                            . ' '
+                            . _('File hash mismatch')
+                            . ' - '
+                            . $filename
+                            . ': '
+                            . $localhash
+                            . ' != '
+                            . $remotehash;
+                    }
+                } else {
+                    $errorMsg = '  # '
+                        . $name
+                        . ':'
+                        . ' '
+                        . _('File size mismatch')
+                        . ' - '
+                        . $filename
+                        . ': '
+                        . $localsize
+                        . ' != '
+                        . $remotesize;
+                }
+                if ($filesequal) {
                     self::outall(
                         ' | ' . $name . ': ' . _('No need to sync')
-                        . ' ' . basename($localfile) . ' ' . _('file to')
+                        . ' ' . $filename . ' ' . _('file to')
                         . ' ' . $nodename
                     );
                     continue;
                 }
+                self::outall($errorMsg);
                 $allsynced = false;
                 self::outall(
-                    ' | ' . _('Files do not match on server') . ': '
-                    . $nodename
+                    ' | ' . _('Deleting remote file') . ': '
+                    . $filename
                 );
-                if (!$remotefilescheck[$index]) {
-                    self::outall(
-                        ' | ' . basename($localfile)
-                        . ' ' . _('File does not exist')
-                    );
-                } else {
-                    self::outall(
-                        ' | ' . _('Deleting remote file') . ': '
-                        . $remotefilescheck[$index]
-                    );
-                }
-                unset($localfile);
+                self::$FOGFTP->delete($remotefilename);
+                unset($filename);
             }
             if ($allsynced) {
                 self::outall(
@@ -589,7 +614,7 @@ abstract class FOGService extends FOGBase
                 continue;
             }
             $logname = rtrim(substr(static::$log, 0, -4), '.')
-                . '.' . basename($filename) . '.transfer.' . $nodename . '.log';
+                . '.' . basename($nfilename) . '.transfer.' . $nodename . '.log';
             if (!$i) {
                 self::outall(
                     ' * ' . _('Starting Sync Actions')
@@ -623,7 +648,7 @@ abstract class FOGService extends FOGBase
             $cmd .= "$myAddItem $remItem;";
             $cmd2 = $cmd . "exit' -u $username,[redacted] $ip";
             $cmd .= "exit' -u {$username},{$password} $ip";
-            self::outall(" | CMD:\n\t\t\t$cmd2");
+            self::outall(" | CMD: $cmd2");
             unset($includeFile, $remItem, $myAddItem);
             $this->startTasking(
                 $cmd,
@@ -633,7 +658,14 @@ abstract class FOGService extends FOGBase
                 $name
             );
             self::outall(
-                ' * ' . _('Started sync for') . ' ' . $objType . ' ' . $name
+                ' * '
+                . _('Started sync for')
+                . ' '
+                . $objType
+                . ' '
+                . $name
+                . ' - '
+                . print_r($this->procRef[$itemType][$name][$randind], true)
             );
             unset($StorageNode);
         }
@@ -741,8 +773,22 @@ abstract class FOGService extends FOGBase
                 return (bool)$this->isRunning($this->procRef);
             }
         } else {
-            $procRef = $this->procRef[$itemType][$filename][$index];
-            $pipes = $this->procPipes[$itemType][$filename][$index];
+            if (isset($this->procRef[$itemType])
+                && isset($this->procRef[$itemType][$filename])
+                && isset($this->procRef[$itemType][$filename][$index])
+            ) {
+                $procRef = $this->procRef[$itemType][$filename][$index];
+            } else {
+                return true;
+            }
+            if (isset($this->procPipes[$itemType])
+                && isset($this->procPipes[$itemType][$filename])
+                && isset($this->procPipes[$itemType][$filename][$index])
+            ) {
+                $pipes = $this->procPipes[$itemType][$filename][$index];
+            } else {
+                return true;
+            }
             $isRunning = $this->isRunning(
                 $procRef
             );
@@ -822,5 +868,54 @@ abstract class FOGService extends FOGBase
             unset($file);
         }
         return $files;
+    }
+    /**
+     * Do some housekeeping jobs in between the replication.
+     *
+     * @return void
+     */
+    public function doHousekeeping()
+    {
+        parent::cleanupProcList();
+    }
+    /**
+     * Cleans up our process lists.
+     *
+     * @return array
+     */
+    public function cleanupProcList()
+    {
+        foreach ($this->procRef as $item => &$itemTypes) {
+            foreach ($itemTypes as $image => &$images) {
+                foreach ($images as $i => &$ref) {
+                    if (!$this->isRunning($images[$i])) {
+                        self::outall(
+                            ' | '
+                            . _('Sync finished - ')
+                            . print_r($images[$i], true)
+                        );
+                        fclose($this->procPipes[$item][$image][$i]);
+                        unset($this->procPipes[$item][$image][$i]);
+                        fclose($images[$i]);
+                        unset($images[$i]);
+                    }
+                    unset($ref);
+                }
+                if (!count($itemTypes[$image])) {
+                    unset($itemTypes[$image]);
+                }
+                if (!count($this->procPipes[$item[$image]])) {
+                    unset($this->procPipes[$item[$image]]);
+                }
+                unset($images);
+            }
+            if (!count($this->procRef[$item])) {
+                unset($this->procRef[$item]);
+            }
+            if (!count($this->procPipes[$item])) {
+                unset($this->procPipes[$item]);
+            }
+            unset($itemTypes);
+        }
     }
 }
