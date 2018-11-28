@@ -44,10 +44,7 @@ foreach ((array)$paths as &$decodedPath) {
     }
     $replaced_dir_sep = str_replace(
         ['\\', '/'],
-        [
-            DS,
-            DS
-        ],
+        [DS, DS],
         $decodedPath
     );
     $glob_str = sprintf(
