@@ -380,6 +380,20 @@ class MulticastTask extends FOGService
         ->get('bitrate');
     }
     /**
+     * Returns the partition id to be cloned, 0 for all
+     *
+     * @return int
+     */
+    public function getPartitions()
+    {
+        Route::indiv(
+            'image',
+            $this->get('image')
+        );
+        $Image = json_decode(Route::getData());
+        return (int)$Image->imagepartitiontype->type;
+    }
+    /**
      * Returns the max timeout setting
      *
      * @return int
@@ -596,7 +610,14 @@ class MulticastTask extends FOGService
             break;
         }
         natcasesort($filelist);
-        $filelist = array_values((array)$filelist);
+        $partid = self::getPartitions();
+        if ($partid < 1) {
+            $filelist = array_values((array)$filelist);
+        } else {
+            $filelist = array_values(
+                preg_grep("/^d[0-9]p$partid\.img$/", (array)$filelist)
+            );
+        }
         ob_start();
         foreach ($filelist as $i => &$file) {
             printf(

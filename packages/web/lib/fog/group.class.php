@@ -668,7 +668,9 @@ class Group extends FOGController
                     $ids,
                     $multicastsessionassocs
                 );
-                $this->_createSnapinTasking($now, $deploySnapins);
+                if ($TaskType->isSnapinTask()) {
+                    $this->_createSnapinTasking($now, $deploySnapins);
+                }
             }
         } elseif ($TaskType->isSnapinTasking) {
             $hostIDs = $this->_createSnapinTasking($now, $deploySnapins);

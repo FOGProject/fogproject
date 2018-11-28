@@ -138,3 +138,7 @@ header.main-header .mobile-logo {
     max-height: 480px;
     overflow: auto;
 }
+
+.active > a, a.active {
+    font-weight: bold;
+}
