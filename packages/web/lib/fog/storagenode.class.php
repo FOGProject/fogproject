@@ -147,6 +147,21 @@ class StorageNode extends FOGController
         return parent::get($key);
     }
     /**
+     * Loads the log files available on this node.
+     *
+     * @return void
+     */
+    public function getLogfiles()
+    {
+        $paths = array_values(
+            array_filter(
+                $this->_getData('logfiles')
+            )
+        );
+        natcasesort($paths);
+        $this->set('logfiles', (array)$paths);
+    }
+    /**
      * Get the storage group of this node.
      *
      * @return object
@@ -195,19 +210,19 @@ class StorageNode extends FOGController
         return false;
     }
     /**
-     * Loads the logfiles available on this node.
+     * Get's the storage node snapins, logfiles, and images
+     * in a single multi call rather than three individual calls.
+     *
+     * @param string $item The item to get.
      *
      * @return void
      */
-    public function getLogfiles()
+    private function _getData($item)
     {
-        if (!($this->get('isEnabled')
-            && $this->get('isMaster')
-            && $this->get('online'))
-        ) {
-            return $this->set('logfiles', []);
+        if (!$this->get('online')) {
+            return;
         }
-        $paths = [
+        $logpaths = [
             '/var/log/nginx',
             '/var/log/httpd',
             '/var/log/apache2',
@@ -215,104 +230,28 @@ class StorageNode extends FOGController
             '/var/log/php7.0-fpm',
             '/var/log/php-fpm',
             '/var/log/php5-fpm',
-            '/var/log/php5.6-fpm',
+            '/var/log/php5.6-fpm'
         ];
-        natcasesort($paths);
-        self::getIPAddress();
-        $ip = self::resolveHostname($this->get('ip'));
-        $files = [];
-        if (in_array($ip, self::$ips)) {
-            foreach ($paths as &$path) {
-                if (!is_dir($path)) {
-                    continue;
-                }
-                $path = str_replace(
-                    ['\\', '/'],
-                    DS,
-                    $path
-                );
-                $path .= DS . '*';
-                $files = self::fastmerge(
-                    $files,
-                    glob($path)
-                );
-                unset($path);
-            }
-        } else {
-            $url = sprintf(
-                '%s://%s/fog/status/getfiles.php?path=%s',
-                self::$httpproto,
-                $this->get('ip'),
-                '%s'
-            );
-            $url = sprintf(
-                $url,
-                urlencode(implode(':', $paths))
-            );
-            $paths = self::$FOGURLRequests->process($url);
-            $files = json_decode(array_shift($paths), true);
-        }
-        $this->set('logfiles', $files);
-    }
-    /**
-     * Get's the storage node snapins, logfiles, and images
-     * in a single multi call rather than three individual calls.
-     *
-     * @return void
-     */
-    private function _getData()
-    {
-        $url = sprintf(
-            '%s://%s/fog/status/getfiles.php',
-            self::$httpproto,
-            $this->get('ip')
-        );
-        $keys = [
+        $items = [
             'images' => urlencode($this->get('path')),
-            'snapinfiles' => urlencode($this->get('snapinpath'))
+            'snapinfiles' => urlencode($this->get('snapinpath')),
+            'logfiles' => urlencode(implode(':', $logpaths))
         ];
-        $urls = [];
-        foreach ((array)$keys as $key => &$data) {
-            $urls[] = sprintf(
-                '%s?path=%s',
-                $url,
-                $data
-            );
-            unset($data);
+        if (!array_key_exists($item, $items)) {
+            return;
         }
-        $paths = self::$FOGURLRequests->process($urls);
-        $pat = '#dev|postdownloadscripts|ssl#';
-        $values = [];
-        $index = 0;
-        foreach ((array)$keys as $key => &$data) {
-            $values = $paths[$index];
-            unset($paths[$index]);
-            $values = json_decode($values, true);
-            $values = array_map('basename', (array)$values);
-            $values = preg_replace(
-                $pat,
-                '',
-                $values
-            );
-            $values = array_unique(
-                (array)$values
-            );
-            $values = array_filter(
-                (array)$values
-            );
-            if ($key === 'images') {
-                $find = ['path' => $values];
-                Route::ids(
-                    'image',
-                    $find
-                );
-                $values = json_decode(Route::getData(), true);
-            }
-            $this->set($key, $values);
-            $index++;
-            unset($data);
-        }
-        unset($values, $paths);
+        $url = sprintf(
+            '%s://%s/fog/status/getfiles.php?path=%s',
+            self::$httpproto,
+            $this->get('ip'),
+            $items[$item]
+        );
+        $response = self::$FOGURLRequests->process($url);
+        return preg_grep(
+            '#dev|postdownloadscripts|ssl#',
+            json_decode($response[0], true),
+            PREG_GREP_INVERT
+        );
     }
     /**
      * Loads the snapins available on this node.
@@ -321,7 +260,9 @@ class StorageNode extends FOGController
      */
     public function getSnapinfiles()
     {
-        $this->_getData();
+        $response = $this->_getData('snapinfiles');
+        $values = array_map('basename', (array)$response);
+        $this->set('snapinfiles', $values);
     }
     /**
      * Loads the images available on this node.
@@ -330,7 +271,14 @@ class StorageNode extends FOGController
      */
     public function getImages()
     {
-        $this->_getData();
+        $response = $this->_getData('images');
+        $values = array_map('basename', (array)$response);
+        Route::ids(
+            'storagenode',
+            ['path' => $values]
+        );
+        $values = json_decode(Route::getData(), true);
+        $this->set('images', $values);
     }
     /**
      * Gets this node's load of clients.
