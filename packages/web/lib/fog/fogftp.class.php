@@ -183,18 +183,30 @@ class FOGFTP
         if (!$this->exists($path)) {
             return $this;
         }
-        if (!(@ftp_rmdir($this->_link, $path)
-            || @ftp_delete($this->_link, $path))
+        if (!$this->rmdir($path)
+            && !$this->delete($path)
         ) {
-            $filelist = @ftp_nlist($this->_link, "-a $path");
+            $filelist = $this->nlist($path);
             foreach ((array)$filelist as &$file) {
-                if (in_array($file, array('.', '..'))) {
-                    continue;
-                }
                 $this->delete($file);
                 unset($file);
             }
-            @ftp_rmdir($this->_link, $path);
+            $this->rmdir($path);
+            $rawfilelist = $this->rawlist("-a $path");
+            $path = trim(trim($path, '/'));
+            foreach ((array)$rawfilelist as &$file) {
+                $chunk = preg_split("/\s+/", $file);
+                if (in_array($chunk[8], ['.', '..'])) {
+                    continue;
+                }
+                $tmpfile = '/'
+                    . $path
+                    . '/'
+                    . $chunk[8];
+                $this->delete($tmpfile);
+                unset($file);
+            }
+            $this->delete($path);
         }
         return $this;
     }
