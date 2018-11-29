@@ -105,11 +105,12 @@ class LocationManagementPage extends FOGPage
          * @return void
          */
         self::$returnData = function (&$Location) {
+            $sn = empty($Location->storagenode->name) ? '*' : $Location->storagenode->name;
             $this->data[] = array(
                 'id' => $Location->id,
                 'name' => $Location->name,
                 'storageGroup' => $Location->storagegroup->name,
-                'storageNode' => $Location->storagenode->name,
+                'storageNode' => $sn,
                 'tftp' => $Location->tftp ? _('Yes') : _('No'),
             );
             unset($Location);
