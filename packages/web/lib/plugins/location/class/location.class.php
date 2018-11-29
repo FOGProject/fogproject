@@ -70,15 +70,15 @@ class Location extends FOGController
      * @var array
      */
     protected $databaseFieldClassRelationships = array(
-        'StorageNode' => array(
-            'id',
-            'storagenodeID',
-            'storagenode'
-        ),
         'StorageGroup' => array(
             'id',
             'storagegroupID',
             'storagegroup'
+        ),
+        'StorageNode' => array(
+            'id',
+            'storagenodeID',
+            'storagenode'
         )
     );
     /**
