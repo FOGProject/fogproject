@@ -549,9 +549,6 @@ installPackages() {
     dots "Adding repository if needed"
     case $osid in
         1)
-            pkginst=$(command -v dnf)
-            [[ -z $pkginst ]] && pkginst=$(command -v yum)
-            pkginst="$pkginst -y install"
             packages="$packages php-bcmath bc"
             packages="${packages// mod_fastcgi/}"
             packages="${packages// mod_evasive/}"
@@ -566,7 +563,8 @@ installPackages() {
                     x="epel-release"
                     eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ ! $? -eq 0 ]]; then
-                        $pkginst epel-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        y="https://dl.fedoraproject.org/pub/epel/epel-release-latest-${OSVersion}.noarch.rpm"
+                        $packageinstaller $y >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     fi
                     y="http://rpms.remirepo.net/enterprise/remi-release-${OSVersion}.rpm"
                     x=$(basename $y | awk -F[.] '{print $1}')
