@@ -546,7 +546,7 @@ addUbuntuRepo() {
 installPackages() {
     [[ $installlang -eq 1 ]] && packages="$packages gettext"
     packages="$packages unzip"
-    dots "Adding needed repository"
+    dots "Adding repository if needed"
     case $osid in
         1)
             pkginst=$(command -v dnf)
@@ -557,35 +557,31 @@ installPackages() {
             packages="${packages// mod_evasive/}"
             case $linuxReleaseName in
                 *[Ff][Ee][Dd][Oo][Rr][Aa]*)
-                    repo="fedora"
-                    [[ -z $OSVersion ]] && echo "OS Version not detected"
-                    ! [[ $OSVersion =~ ^[0-9]+$ ]] && echo "OS Version not detected properly."
-                    if [[ $OSVersion -ge 22 ]]; then
-                        packages="${packages// mysql / mariadb }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        packages="${packages// mysql-server / mariadb-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        packages="${packages// dhcp / dhcp-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    fi
+                    packages="$packages php-json"
+                    packages="${packages// mysql / mariadb }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    packages="${packages// mysql-server / mariadb-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    packages="${packages// dhcp / dhcp-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 *)
-                    repo="enterprise"
                     x="epel-release"
                     eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ ! $? -eq 0 ]]; then
                         $pkginst epel-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     fi
+                    y="http://rpms.remirepo.net/enterprise/remi-release-${OSVersion}.rpm"
+                    x=$(basename $y | awk -F[.] '{print $1}')
+                    eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    if [[ ! $? -eq 0 ]]; then
+                        rpm -Uvh $y >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    fi
+                    if [[ -n $repoenable ]]; then
+                        $repoenable epel >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                        $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                        $repoenable remi-php56 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                    fi
                     ;;
             esac
-            y="http://rpms.remirepo.net/$repo/remi-release-${OSVersion}.rpm"
-            x=$(basename $y | awk -F[.] '{print $1}')
-            eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                rpm -Uvh $y >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            fi
-            if [[ -n $repoenable ]]; then
-                $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
-                $repoenable remi-php56 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
-            fi
             ;;
         2)
             packages="${packages// libapache2-mod-fastcgi/}"

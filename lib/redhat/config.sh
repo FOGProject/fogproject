@@ -16,10 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-command -v dnf
-[[ $? -eq 0 ]] && repos="remi" || {
-    [[ -z $repos ]] && repos="remi,remi-php56,epel"
-}
 #[[ ! -d /run/rpcbind ]] && mkdir /run/rpcbind
 #[[ ! -f /run/rpcbind/rpcbind.lock ]] && touch /run/rpcbind/rpcbind.lock
 [[ -z $packageQuery ]] && packageQuery="rpm -q \$x"
@@ -40,20 +36,18 @@ case $linuxReleaseName in
         [[ -z $packages ]] && packages="curl dhcp gcc gcc-c++ genisoimage gzip httpd lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils php php-cli php-common php-fpm php-gd php-ldap php-mbstring php-mysqlnd php-process syslinux tar tftp-server vsftpd wget xinetd xz-devel"
         command -v dnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ $? -eq 0 ]]; then
-            [[ -z $packageinstaller ]] && packageinstaller="dnf -y --enablerepo=$repos install"
-            [[ -z $packagelist ]] && packagelist="dnf list --enablerepo=$repos"
-            [[ -z $packageupdater ]] && packageupdater="dnf -y --enablerepo=$repos update"
-            [[ -z $packageUpdate ]] && packmanUpdate="dnf --enablerepo=$repos check-update"
+            [[ -z $packageinstaller ]] && packageinstaller="dnf -y install"
+            [[ -z $packagelist ]] && packagelist="dnf list"
+            [[ -z $packageupdater ]] && packageupdater="dnf -y update"
+            [[ -z $packageUpdate ]] && packmanUpdate="dnf check-update"
             [[ -z $repoenable ]] && repoenable="dnf config-manager --set-enabled"
         else
-            [[ -z $packageinstaller ]] && packageinstaller="yum -y --enablerepo=$repos install"
-            [[ -z $packagelist ]] && packagelist="yum --enablerepo=$repos list"
-            [[ -z $packageupdater ]] && packageupdater="yum -y --enablerepo=$repos update"
-            [[ -z $packmanUpdate ]] && packmanUpdate="yum -y --enablerepo=$repos check-update"
-            pkginst=$(command -v dnf)
-            [[ -z $pkginst ]] && pkginst=$(command -v yum)
+            [[ -z $packageinstaller ]] && packageinstaller="yum -y install"
+            [[ -z $packagelist ]] && packagelist="yum list"
+            [[ -z $packageupdater ]] && packageupdater="yum -y update"
+            [[ -z $packmanUpdate ]] && packmanUpdate="yum -y check-update"
             command -v yum-config-manager >/dev/null 2>&1
-            [[ ! $? -eq 0 ]] && $pkginst yum-utils >/dev/null 2>&1
+            [[ ! $? -eq 0 ]] && $packageinstaller yum-utils >/dev/null 2>&1
             [[ -z $repoenable ]] && repoenable="yum-config-manager --enable"
         fi
         [[ -z $dhcpname ]] && dhcpname="dhcp"
