@@ -1977,6 +1977,14 @@ class GroupManagementPage extends FOGPage
                     );
                     $this->obj->updateDefault($default);
                 }
+                if (isset($_POST['levelup'])) {
+                    // using addPrinter with empty arrays only updates the printerLevel for us
+                    $this->obj->addPrinter(
+                        array(),
+                        array(),
+                        $level
+                    );
+                }
                 break;
             case 'group-snapins':
                 if (isset($_POST['add'])) {
