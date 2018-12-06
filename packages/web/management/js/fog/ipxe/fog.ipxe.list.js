@@ -102,6 +102,7 @@
             if (err) {
                 disableButtons(false);
             }
+            createnewBtn.prop('disabled', false);
         });
     });
 })(jQuery);

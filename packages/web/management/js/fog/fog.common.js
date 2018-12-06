@@ -102,7 +102,7 @@ $.deleteSelected = function(table, cb, opts) {
     });
     opts = _.defaults(opts, {
         ids: opts.rows.ids().toArray(),
-        url: '../management/index.php?node=' + opts.node + 'sub=deletemulti',
+        url: '../management/index.php?node=' + opts.node + '&sub=deletemulti',
     });
 
     var ajaxOpts = {
