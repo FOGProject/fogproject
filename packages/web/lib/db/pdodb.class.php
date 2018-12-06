@@ -562,12 +562,9 @@ class PDODB extends DatabaseManager
                     return true;
                 }
             }
-            self::$_link = false;
-            return self::$_link;
         } catch (PDOException $e) {
-            self::$_link = false;
-            return self::$_link;
         }
+        return (self::$_link = false);
     }
     /**
      * Returns the item whatever this is
