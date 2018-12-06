@@ -2231,7 +2231,7 @@ abstract class FOGPage extends FOGBase
         $ucnode = strtoupper($node);
         self::$HookManager->processEvent(
             "{$ucnode}_DELETE_POST",
-            [$this->childClas => &$this->obj]
+            [$this->childClass => &$this->obj]
         );
 
         $serverFault = false;
