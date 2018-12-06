@@ -548,46 +548,40 @@ installPackages() {
     [[ $installlang -eq 1 ]] && packages="$packages gettext"
     packages="$packages jq"
     packages="$packages unzip"
-    dots "Adding needed repository"
+    dots "Adding repository if needed"
     case $osid in
         1)
-            pkginst=$(command -v dnf)
-            [[ -z $pkginst ]] && pkginst=$(command -v yum)
-            pkginst="$pkginst -y install"
             packages="$packages php-bcmath bc"
             packages="${packages// mod_fastcgi/}"
             packages="${packages// mod_evasive/}"
             case $linuxReleaseName in
                 *[Ff][Ee][Dd][Oo][Rr][Aa]*)
-                    repo="fedora"
-                    [[ -z $OSVersion ]] && echo "OS Version not detected"
-                    ! [[ $OSVersion =~ ^[0-9]+$ ]] && echo "OS Version not detected properly."
-                    if [[ $OSVersion -ge 22 ]]; then
-                        packages="${packages// mysql / mariadb }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        packages="${packages// mysql-server / mariadb-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        packages="${packages// dhcp / dhcp-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    fi
+                    packages="$packages php-json"
+                    packages="${packages// mysql / mariadb }" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+					packages="${packages// mysql-server / mariadb-server }" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+					packages="${packages// dhcp / dhcp-server }" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 *)
-                    repo="enterprise"
                     x="epel-release"
                     eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ ! $? -eq 0 ]]; then
-                        $pkginst epel-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        y="https://dl.fedoraproject.org/pub/epel/epel-release-latest-${OSVersion}.noarch.rpm"
+                        $packaginstaller $y >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    fi
+                    y="http://rpms.remirepo.net/enterprise/remi-release-${OSVersion}.rpm"
+                    x=$(basename $y | awk -F[.] '{print $1}')
+					eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    if [[ ! $? -eq 0 ]]; then
+                        rpm -Uvh $y >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    fi
+                    if [[ -n $repoenable ]]; then
+                        $repoenable epel >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                        $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                        $repoenable remi-php56 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
                     fi
                     ;;
             esac
-            y="http://rpms.remirepo.net/$repo/remi-release-${OSVersion}.rpm"
-            x=$(basename $y | awk -F[.] '{print $1}')
-            eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            if [[ ! $? -eq 0 ]]; then
-                rpm -Uvh $y >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            fi
-            if [[ -n $repoenable ]]; then
-                $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
-                $repoenable remi-php56 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
-            fi
             ;;
         2)
             packages="${packages// libapache2-mod-fastcgi/}"
@@ -1509,7 +1503,7 @@ EOF
                     sed -i 's/pm\.max_children = .*/pm.max_children = 50/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     sed -i 's/pm\.min_spare_servers = .*/pm.min_spare_servers = 5/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     sed -i 's/pm\.max_spare_servers = .*/pm.max_spare_servers = 10/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sed -i 's/pm\.start_servers = .*/pm.start_servers = 5/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    sed -i 's/pm\.start_servers = /pm.start_servers = 5/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 fi
                 if [[ $osid -eq 2 ]]; then
                     a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1

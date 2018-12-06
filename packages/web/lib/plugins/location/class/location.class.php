@@ -69,15 +69,15 @@ class Location extends FOGController
      * @var array
      */
     protected $databaseFieldClassRelationships = [
-        'StorageNode' => [
-            'id',
-            'storagenodeID',
-            'storagenode'
-        ],
         'StorageGroup' => [
             'id',
             'storagegroupID',
             'storagegroup'
+        ],
+        'StorageNode' => [
+            'id',
+            'storagenodeID',
+            'storagenode'
         ]
     ];
     protected $sqlQueryStr = "SELECT `%s`
