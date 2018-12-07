@@ -173,6 +173,9 @@ class FOGFTP
     }
     /**
      * Deletes the item passed
+     * This is the method called for the delete.
+     * It is supposed to be recursive in design and should work
+     * and I know what's wrong, cause I'm dumb.
      *
      * @param string $path the item to delete
      *
@@ -180,11 +183,12 @@ class FOGFTP
      */
     public function delete($path)
     {
+        # here. But there's no method for the ftp_delete caller
         if (!$this->exists($path)) {
             return $this;
         }
         if (!$this->rmdir($path)
-            && !$this->delete($path)
+            && !@ftp_delete($this->_link, $path)
         ) {
             $filelist = $this->nlist($path);
             foreach ((array)$filelist as &$file) {
