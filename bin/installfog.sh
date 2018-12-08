@@ -365,6 +365,8 @@ if [[ -z $* || $* != +(-h|-?|--help|--uninstall) ]]; then
 fi
 displayBanner
 echo -e "   Version: $version Installer/Updater\n"
+checkSELinux
+checkFirewall
 case $doupdate in
     1)
         if [[ -f $fogpriorconfig ]]; then
@@ -427,14 +429,6 @@ echo "   #        as this script modifies many of your system settings.       #"
 echo "   ######################################################################"
 echo "   #             This script should be run by the root user.            #"
 echo "   #      It will prepend the running with sudo if root is not set      #"
-echo "   ######################################################################"
-echo "   #           ** Notice ** FOG is difficult to setup securely          #"
-echo "   #        SELinux and IPTables are usually asked to be disabled       #"
-echo "   #           There have been strides in adding capabilities           #"
-echo "   #          The recommendations would now be more appropriate         #"
-echo "   #    to set SELinux to permissive and to disable firewall for now.   #"
-echo "   #  You can find some methods to enable SELinux and maintain firewall #"
-echo "   #   settings and ports. If you feel comfortable doing so please do   #"
 echo "   ######################################################################"
 echo "   #            Please see our wiki for more information at:            #"
 echo "   ######################################################################"
