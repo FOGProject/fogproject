@@ -296,35 +296,30 @@ addToAddress() {
     fi
     return 1
 }
-getFirstGoodInterface() {
-    siteToCheckForInternet="www.google.com" #Must be domain name.
-    ipToCheckForInternet="8.8.8.8" #Must be IP.
-    [[ -e $workingdir/tempInterfaces.txt ]] && rm -f $workingdir/tempInterfaces.txt >/dev/null 2>&1
-    foundinterfaces=$(ip -4 addr | awk -F'(global )' '/global / {print $2}')
-    for interface in $foundinterfaces; do
-        ping -c 1 $ipToCheckForInternet -I $interface >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && continue
-        ping -c 1 $siteToCheckForInternet -I $interface >/dev/null 2>&1
-        if [[ ! $? -eq 0 ]]; then
-            echo "Internet detected on $interface but there seems to be a DNS problem." >>$workingdir/error_logs/fog_error_${version}.log
-            echo "Check the contents of /etc/resolv." >>$workingdir/error_logs/fog_error_${version}.log
-            echo "If this is CentOS, RHEL, or Fedora or an other RH variant," >>$workingdir/error_logs/fog_error_${version}.log
-            echo "also check the DNS entries for /etc/sysconfig/network-scripts/ifcfg-$interface" >>$workingdir/error_logs/fog_error_${version}.log
-            continue
+getAllNetworkInterfaces() {
+    gatewayif=$(ip -4 route show | grep "^default via" | awk '{print $5}')
+    interfaces="$gatewayif $(ip -4 link | grep -v LOOPBACK | grep UP | awk -F': ' '{print $2}' | tr '\n' ' ' | sed "s/${gatewayif}//g")"
+    echo -n $interfaces
+}
+checkInternetConnection() {
+    sites=( "k.root-servers.net" "m.root-servers.net" "f.root-servers.net" )
+    ips=( "193.0.14.129" "202.12.27.33" "192.5.5.241" )
+    dots "Testing internet connection"
+    for i in $(seq 0 2); do
+        ping -c 1 ${ips[$i]} >/dev/null 2>&1
+        [[ $? -ne 0 ]] && continue
+        ping -c 1 ${sites[$i]} >/dev/null 2>&1
+        if [[ $? -ne 0 ]]; then
+            echo "Internet connection detected but there seems to be a DNS problem." | tee -a $workingdir/error_logs/fog_error_${version}.log
+            echo "Check the contents of /etc/resolv.conf" | tee -a $workingdir/error_logs/fog_error_${version}.log
+            echo "If this is CentOS, RHEL, or Fedora or an other RH variant," | tee -a $workingdir/error_logs/fog_error_${version}.log
+            echo "also check the DNS entries in /etc/sysconfig/network-scripts/ifcfg-*" | tee -a $workingdir/error_logs/fog_error_${version}.log
         fi
-        echo $interface >> $workingdir/goodInterface.txt
-        break
+        echo "Done"
+        return
     done
-    [[ -e $workingdir/tempInterfaces.txt ]] && rm -f $workingdir/tempInterfaces.txt >/dev/null 2>&1
-    if [[ -e $workingdir/goodInterface.txt ]]; then
-        goodInterface=$(cat $workingdir/goodInterface.txt | head -1)
-        rm -f $workingdir/goodInterface.txt >/dev/null 2>&1
-    fi
-    [[ -n $goodInterface ]] && echo $goodInterface
-    if [[ -z $goodInterface ]]; then
-        echo "There was no interface with an active internet connection found." >>$workingdir/error_logs/fog_error_${version}.log
-        echo ""
-    fi
+    echo "There was no interface with an active internet connection found." | tee -a $workingdir/error_logs/fog_error_${version}.log
+    echo
 }
 join() {
     local IFS="$1"
