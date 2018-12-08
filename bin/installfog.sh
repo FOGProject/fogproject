@@ -346,10 +346,10 @@ echo "Done"
 [[ -z $dodhcp ]] && dodhcp=""
 [[ -z $bldhcp ]] && bldhcp=""
 [[ -z $installtype ]] && installtype=""
-[[ -z $interface ]] && interface="" #interface=$(getFirstGoodInterface)
-[[ -z $ipaddress  ]] && ipaddress="" #ipaddress=$(/sbin/ip addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
-[[ -z $routeraddress ]] && routeraddress="" #routeraddress=$(/sbin/ip route | awk "/$interface/ && /via/ {print \$3}")
-[[ -z $plainrouter ]] && plainrouter="" #plainrouter=$routeraddress
+[[ -z $interface ]] && interface=""
+[[ -z $ipaddress  ]] && ipaddress=""
+[[ -z $routeraddress ]] && routeraddress=""
+[[ -z $plainrouter ]] && plainrouter=""
 [[ -z $blexports ]] && blexports=1
 [[ -z $installlang ]] && installlang=0
 [[ -z $bluseralreadyexists ]] && bluseralreadyexists=0
@@ -485,9 +485,7 @@ while [[ -z $blGo ]]; do
         [Yy]|[Yy][Ee][Ss])
             echo " * Installation Started"
             echo
-            echo " * Installing required packages, if this fails"
-            echo " | make sure you have an active internet connection."
-            echo
+            checkInternetConnection
             if [[ $ignorehtmldoc -eq 1 ]]; then
                 [[ -z $newpackagelist ]] && newpackagelist=""
                 for z in $packages; do
