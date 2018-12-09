@@ -348,6 +348,7 @@ echo "Done"
 [[ -z $installtype ]] && installtype=""
 [[ -z $interface ]] && interface=""
 [[ -z $ipaddress  ]] && ipaddress=""
+[[ -z $hostname  ]] && hostname=""
 [[ -z $routeraddress ]] && routeraddress=""
 [[ -z $plainrouter ]] && plainrouter=""
 [[ -z $blexports ]] && blexports=1
@@ -438,9 +439,10 @@ echo
 echo " * Here are the settings FOG will use:"
 echo " * Base Linux: $osname"
 echo " * Detected Linux Distribution: $linuxReleaseName"
+echo " * Interface: $interface"
 echo " * Server IP Address: $ipaddress"
 echo " * Server Subnet Mask: $submask"
-echo " * Interface: $interface"
+echo " * Server Hostname: $hostname"
 case $installtype in
     N)
         echo " * Installation Type: Normal Server"

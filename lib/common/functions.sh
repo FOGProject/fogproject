@@ -1163,6 +1163,7 @@ writeUpdateFile() {
     escipaddress=$(echo $ipaddress | sed -e $replace)
     escinterface=$(echo $interface | sed -e $replace)
     escsubmask=$(echo $submask | sed -e $replace)
+    eschostname=$(echo $hostname | sed -e $replace)
     escrouteraddress=$(echo $routeraddress | sed -e $replace)
     escplainrouter=$(echo $plainrouter | sed -e $replace)
     escdnsaddress=$(echo $dnsaddress | sed -e $replace)
@@ -1216,6 +1217,9 @@ writeUpdateFile() {
             grep -q "submask=" $fogprogramdir/.fogsettings && \
                 sed -i "s/submask=.*/submask='$escsubmask'/g" $fogprogramdir/.fogsettings || \
                 echo "submask='$submask'" >> $fogprogramdir/.fogsettings
+            grep -q "hostname=" $fogprogramdir/.fogsettings && \
+                sed -i "s/hostname=.*/hostname='$eschostname'/g" $fogprogramdir/.fogsettings || \
+                echo "hostname='$hostname'" >> $fogprogramdir/.fogsettings
             grep -q "routeraddress=" $fogprogramdir/.fogsettings && \
                 sed -i "s/routeraddress=.*/routeraddress='$escrouteraddress'/g" $fogprogramdir/.fogsettings || \
                 echo "routeraddress='$routeraddress'" >> $fogprogramdir/.fogsettings
@@ -1330,6 +1334,7 @@ writeUpdateFile() {
             echo "copybackold='$copybackold'" >> "$fogprogramdir/.fogsettings"
             echo "interface='$interface'" >> "$fogprogramdir/.fogsettings"
             echo "submask='$submask'" >> "$fogprogramdir/.fogsettings"
+            echo "hostname='$hostname'" >> "$fogprogramdir/.fogsettings"
             echo "routeraddress='$routeraddress'" >> "$fogprogramdir/.fogsettings"
             echo "plainrouter='$plainrouter'" >> "$fogprogramdir/.fogsettings"
             echo "dnsaddress='$dnsaddress'" >> "$fogprogramdir/.fogsettings"
@@ -1376,6 +1381,7 @@ writeUpdateFile() {
         echo "copybackold='$copybackold'" >> "$fogprogramdir/.fogsettings"
         echo "interface='$interface'" >> "$fogprogramdir/.fogsettings"
         echo "submask='$submask'" >> "$fogprogramdir/.fogsettings"
+        echo "hostname='$hostname'" >> "$fogprogramdir/.fogsettings"
         echo "routeraddress='$routeraddress'" >> "$fogprogramdir/.fogsettings"
         echo "plainrouter='$plainrouter'" >> "$fogprogramdir/.fogsettings"
         echo "dnsaddress='$dnsaddress'" >> "$fogprogramdir/.fogsettings"
@@ -1462,23 +1468,35 @@ EOF
         dots "Creating SSL Private Key"
         mkdir -p $sslpath >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         openssl genrsa -out $sslprivkey 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        openssl req -new -sha512 -key $sslprivkey -out $sslpath/fog.csr >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
-.
-.
-.
-.
-.
+        cat > $sslpath/req.cnf << EOF
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
+prompt = yes
+[req_distinguished_name]
+CN = $ipaddress
+[v3_req]
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = $ipaddress
+DNS.2 = $hostname
+EOF
+        openssl req -new -sha512 -key $sslprivkey -out $sslpath/fog.csr -config $sslpath/req.cnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
 $ipaddress
-.
-
-
 EOF
         errorStat $?
     fi
     [[ ! -e $sslpath/.srvprivate.key ]] && ln -sf $sslprivkey $sslpath/.srvprivate.key >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     dots "Creating SSL Certificate"
     mkdir -p $webdirdest/management/other/ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    openssl x509 -req -in $sslpath/fog.csr -CA $sslpath/CA/.fogCA.pem -CAkey $sslpath/CA/.fogCA.key -CAcreateserial -out $webdirdest/management/other/ssl/srvpublic.crt -days 3650 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    cat > $sslpath/ca.cnf << EOF
+[v3_ca]
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = $ipaddress
+DNS.2 = $hostname
+EOF
+    openssl x509 -req -in $sslpath/fog.csr -CA $sslpath/CA/.fogCA.pem -CAkey $sslpath/CA/.fogCA.key -CAcreateserial -out $webdirdest/management/other/ssl/srvpublic.crt -days 3650 -extensions v3_ca -extfile $sslpath/ca.cnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Creating auth pub key and cert"
     cp $sslpath/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1507,6 +1525,7 @@ EOF
                     fi
                     echo "    </FilesMatch>" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
+                    echo "    ServerAlias $hostname" >> "$etcconf"
                     echo "    RewriteEngine On" >> "$etcconf"
                     echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
                     echo "    RewriteRule .* - [F]" >> "$etcconf"
@@ -1524,6 +1543,7 @@ EOF
                     fi
                     echo "    </FilesMatch>" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
+                    echo "    ServerAlias $hostname" >> "$etcconf"
                     echo "    DocumentRoot $docroot" >> "$etcconf"
                     echo "    SSLEngine On" >> "$etcconf"
                     echo "    SSLProtocol all -SSLv3 -SSLv2" >> "$etcconf"
@@ -1553,6 +1573,7 @@ EOF
                     echo "    </FilesMatch>" >> "$etcconf"
                     echo "    KeepAlive Off" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
+                    echo "    ServerAlias $hostname" >> "$etcconf"
                     echo "    DocumentRoot $docroot" >> "$etcconf"
                     echo "    <Directory $webdirdest>" >> "$etcconf"
                     echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
