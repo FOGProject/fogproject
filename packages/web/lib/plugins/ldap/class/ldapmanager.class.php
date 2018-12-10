@@ -59,7 +59,8 @@ class LDAPManager extends FOGManagerController
                 'lsBindDN',
                 'lsBindPwd',
                 'lsGrpSearchDN',
-                'lsUseGroupMatch'
+                'lsUseGroupMatch',
+                'lsUserFilter'
             ),
             array(
                 'INTEGER',
@@ -79,8 +80,10 @@ class LDAPManager extends FOGManagerController
                 'LONGTEXT',
                 'LONGTEXT',
                 "ENUM('0', '1')",
+                'VARCHAR(40)',
             ),
             array(
+                false,
                 false,
                 false,
                 false,
@@ -116,7 +119,8 @@ class LDAPManager extends FOGManagerController
                 false,
                 false,
                 false,
-                '0'
+                '0',
+                false,
             ),
             array(
                 'lsID',
@@ -131,7 +135,20 @@ class LDAPManager extends FOGManagerController
             'lsID',
             'lsID'
         );
-        return self::$DB->query($sql);
+//        return self::$DB->query($sql);
+	if (!self::$DB->query($sql)) {
+            return false;
+        } else {
+            $sql = sprintf(
+                "INSERT INTO `%s`"
+		. " (settingKey,settingDesc,settingValue,settingCategory)"
+		. " VALUES"
+                . " ('FOG_USER_FILTER','Insert the uType codes comma separated. If you want to list all users, empty the textbox', '990,991','General Settings')",
+                'globalSettings'
+            );
+            return self::$DB->query($sql);
+        }
+
     }
     /**
      * Uninstalls the plugin
@@ -148,6 +165,12 @@ class LDAPManager extends FOGManagerController
             self::getClass('UserManager')
                 ->destroy(array('id' => $userIDs));
         }
-        return parent::uninstall();
+
+	$sql = "DELETE FROM globalSettings where globalSettings.settingKey = 'FOG_USER_FILTER'";
+	if (!self::$DB->query($sql)) {
+            return false;
+        } else {
+	        return parent::uninstall();
+	}
     }
 }
