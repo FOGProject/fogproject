@@ -346,10 +346,11 @@ echo "Done"
 [[ -z $dodhcp ]] && dodhcp=""
 [[ -z $bldhcp ]] && bldhcp=""
 [[ -z $installtype ]] && installtype=""
-[[ -z $interface ]] && interface="" #interface=$(getFirstGoodInterface)
-[[ -z $ipaddress  ]] && ipaddress="" #ipaddress=$(/sbin/ip addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
-[[ -z $routeraddress ]] && routeraddress="" #routeraddress=$(/sbin/ip route | awk "/$interface/ && /via/ {print \$3}")
-[[ -z $plainrouter ]] && plainrouter="" #plainrouter=$routeraddress
+[[ -z $interface ]] && interface=""
+[[ -z $ipaddress  ]] && ipaddress=""
+[[ -z $hostname ]] && hostname=""
+[[ -z $routeraddress ]] && routeraddress=""
+[[ -z $plainrouter ]] && plainrouter=""
 [[ -z $blexports ]] && blexports=1
 [[ -z $installlang ]] && installlang=0
 [[ -z $bluseralreadyexists ]] && bluseralreadyexists=0
@@ -365,6 +366,8 @@ if [[ -z $* || $* != +(-h|-?|--help|--uninstall) ]]; then
 fi
 displayBanner
 echo -e "   Version: $version Installer/Updater\n"
+checkSELinux
+checkFirewall
 case $doupdate in
     1)
         if [[ -f $fogpriorconfig ]]; then
@@ -416,7 +419,6 @@ if [[ -z $backupPath ]]; then
 fi
 [[ -z $bootfilename ]] && bootfilename="undionly.kpxe"
 [[ ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]] && . ../lib/common/input.sh
-fullrelease="0"
 echo
 echo "   ######################################################################"
 echo "   #     FOG now has everything it needs for this setup, but please     #"
@@ -429,14 +431,6 @@ echo "   ######################################################################"
 echo "   #             This script should be run by the root user.            #"
 echo "   #      It will prepend the running with sudo if root is not set      #"
 echo "   ######################################################################"
-echo "   #           ** Notice ** FOG is difficult to setup securely          #"
-echo "   #        SELinux and IPTables are usually asked to be disabled       #"
-echo "   #           There have been strides in adding capabilities           #"
-echo "   #          The recommendations would now be more appropriate         #"
-echo "   #    to set SELinux to permissive and to disable firewall for now.   #"
-echo "   #  You can find some methods to enable SELinux and maintain firewall #"
-echo "   #   settings and ports. If you feel comfortable doing so please do   #"
-echo "   ######################################################################"
 echo "   #            Please see our wiki for more information at:            #"
 echo "   ######################################################################"
 echo "   #             https://wiki.fogproject.org/wiki/index.php             #"
@@ -447,7 +441,7 @@ echo " * Base Linux: $osname"
 echo " * Detected Linux Distribution: $linuxReleaseName"
 echo " * Server IP Address: $ipaddress"
 echo " * Server Subnet Mask: $submask"
-echo " * Interface: $interface"
+echo " * Hostname: $hostname"
 case $installtype in
     N)
         echo " * Installation Type: Normal Server"
@@ -492,9 +486,7 @@ while [[ -z $blGo ]]; do
         [Yy]|[Yy][Ee][Ss])
             echo " * Installation Started"
             echo
-            echo " * Installing required packages, if this fails"
-            echo " | make sure you have an active internet connection."
-            echo
+            checkInternetConnection
             if [[ $ignorehtmldoc -eq 1 ]]; then
                 [[ -z $newpackagelist ]] && newpackagelist=""
                 for z in $packages; do

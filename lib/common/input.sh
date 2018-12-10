@@ -28,22 +28,12 @@ if [[ $guessdefaults == 1 ]]; then
             strSuggestedOS=1
             ;;
     esac
-    strSuggestedInterface=$(getFirstGoodInterface)
+    allinterfaces=$(getAllNetworkInterfaces)
+    strSuggestedInterface=${allinterfaces}
     if [[ -z $strSuggestedInterface ]]; then
-        echo "Not able to find an interface with an active internet connection. Trying alternative methods for determining the interface."
-        strSuggestedIPAddress=$(/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $4}' | head -n2 | tail -n1)
-        [[ -z $strSuggestedIPAddress ]] && strSuggestedIPAddress=$(/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
-        strSuggestedInterface=$(/sbin/ip -f inet -o addr | awk -F'[ /]+' '/global/ {print $2}' | head -n2 | tail -n1)
-        [[ -z $strSuggestedInterface ]] && strSuggestedInterface=$(/sbin/ifconfig -a | grep "'${strSuggestedIPAddress}'" -B1 | awk -F'[:]+' '{print $1}' | head -n1)
+        echo "ERROR: Not able to find a network interface that is up on your system"
+        exit 1
     fi
-    strSuggestedIPAddress=$(/sbin/ip -4 addr show | grep $strSuggestedInterface | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*")
-    [[ -z $strSuggestedIPAddress ]] && strSuggestedIPAddress=$(/sbin/ifconfig -a | awk '/(cast)/ {print $2}' | cut -d ':' -f2 | head -n2 | tail -n1)
-    strSuggestedSubMask=$(cidr2mask $(getCidr $strSuggestedInterface))
-    if [[ -z $strSuggestedSubMask ]]; then
-        strSuggestedSubMask=$(/sbin/ifconfig -a | grep $strSuggestedIPAddress -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2)
-        strSuggestedSubMask=$(mask2cidr $strSuggestedSubMask)
-    fi
-    submask=$strSuggestedSubMask
     strSuggestedRoute=$(ip route | grep -E "default.*${strSuggestedInterface}|${strSuggestedInterface}.*default" | head -n1 | cut -d' ' -f3 | tr -d [:blank:])
     if [[ -z $strSuggestedRoute ]]; then
         strSuggestedRoute=$(route -n | grep -E "^.*UG.*${strSuggestedInterface}$"  | head -n1)
@@ -59,9 +49,10 @@ if [[ $guessdefaults == 1 ]]; then
         sed -i -- 's/nameserver //g' /tmp/nameservers.txt #Change "nameserver " to "tmpDns="
         sed -i '/^$/d' /tmp/nameservers.txt #Delete blank lines from temp file.
         strSuggestedDNS=$(head -n 1 /tmp/nameservers.txt) #Get first DNS Address from the file.
-	rm -f /tmp/nameservers.txt #Cleanup after ourselves.	
-    fi	    
+	rm -f /tmp/nameservers.txt #Cleanup after ourselves.
+    fi
     strSuggestedSNUser="fogstorage"
+    strSuggestedHostname=$(hostname -f)
 fi
 displayOSChoices
 while [[ -z $installtype ]]; do
@@ -96,39 +87,15 @@ while [[ -z $installtype ]]; do
             ;;
     esac
 done
-count=0
-while [[ -z $ipaddress ]]; do
-    if [[ $count -ge 1 ]] || [[ -z $autoaccept ]]; then
-        echo
-        echo -n "  What is the IP address to be used by this FOG Server? [$strSuggestedIPAddress]"
-        read ipaddress
-    fi
-    case $ipaddress in
-        "")
-            ipaddress=$(echo $strSuggestedIPAddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
-            ;;
-        *)
-            ipaddress=$(echo $ipaddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
-            ;;
-    esac
-    if [[ ! $(validip $ipaddress) -eq 0 ]]; then
-        ipaddress=""
-        echo "  Invalid IP Address"
-        let count+=1
-    fi
-done
-if [[ $strSuggestedIPAddress != $ipaddress ]]; then
-    inetIPline=$(ip -4 addr | grep "inet $ipaddress")
-    numberOfFieldsInOutput=$(grep -o " " <<< "$inetIPline" | wc -l)
-    let numberOfFieldsInOutput+=1 >/dev/null 2>&1
-    strSuggestedInterface=$(echo $line | cut -d ' ' -f $numberOfFieldsInOutput)
-    strSuggestedSubMask=$(/sbin/ifconfig -a | grep $ipaddress -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2)
-    submask=$(mask2cidr $strSuggestedSubMask)
-fi
 while [[ -z $interface ]]; do
     blInt="N"
     if [[ -z $autoaccept ]]; then
         echo
+        echo "  We found the following interfaces on your system:"
+        for i in $allinterfaces; do
+            iip=$(ip -4 addr show $i | awk '$1 == "inet" {print $2}')
+            echo "     * $i - $iip"
+        done
         echo "  Would you like to change the default network interface from $strSuggestedInterface?"
         echo -n "  If you are not sure, select No. [y/N] "
         read blInt
@@ -145,15 +112,51 @@ while [[ -z $interface ]]; do
             echo "  Invalid input, please try again."
             ;;
     esac
-done
-if [[ $strSuggestedInterface != $interface ]]; then
-    strSuggestedSubMask=$(cidr2mask $(getCidr $interface))
-    if [[ -z $strSuggestedSubMask ]]; then
-        strSuggestedSubMask=$(/sbin/ifconfig -a | grep $strSuggestedIPAddress -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2)
-        strSuggestedSubMask=$(mask2cidr $strSuggestedSubMask)
+    ip -4 link show $interface >/dev/null 2>&1
+    if [[ $? -ne 0 ]]; then
+        echo
+        echo "  * The network interface named $interface does not exist."
+        interface=""
+        continue
     fi
-    submask=$strSuggestedSubMask
+    ipaddress=$(ip -4 addr show $interface | awk '$1 == "inet" {gsub(/\/.*$/, "", $2); print $2}')
+    if [[ $(validip $ipaddress) -ne 0 ]]; then
+        echo
+        echo "  * The interface $interface does not seem to have a valid IP Configured to it."
+        interface=""
+        continue
+    fi
+    submask=$(cidr2mask $(getCidr $interface))
+    if [[ -z $submask ]]; then
+        submask=$(/sbin/ifconfig -a | grep $ipaddress -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2)
+        submask=$(mask2cidr $submask)
+    fi
+done
+if [[ $strSuggestedHostname == $ipaddress ]]; then
+    strSuggestedHostname=$(hostnamectl --static)
 fi
+while [[ -z $hostname ]]; do
+    blHost="N"
+    if [[ -z $autoaccept  ]]; then
+        echo
+        echo "  Would you like to change the default hostname $strSuggestedHostname?"
+        echo "  The fully qualified hostname is used for the webserver certificate."
+        echo -n "  If you are not sure, select No. [y/N] "
+        read blHost
+    fi
+    case $blHost in
+        [Nn]|[Nn][Oo]|"")
+            hostname=$strSuggestedHostname
+            ;;
+        [Yy]|[Yy][Ee][Ss])
+            echo -n "  Which hostname would you like to use? "
+            read hostname
+            ;;
+        *)
+            echo "  Invalid input, please try again!"
+            ;;
+    esac
+done
 case $installtype in
     [Nn])
         count=0

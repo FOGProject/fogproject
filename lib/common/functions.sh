@@ -296,35 +296,30 @@ addToAddress() {
     fi
     return 1
 }
-getFirstGoodInterface() {
-    siteToCheckForInternet="www.google.com" #Must be domain name.
-    ipToCheckForInternet="8.8.8.8" #Must be IP.
-    [[ -e $workingdir/tempInterfaces.txt ]] && rm -f $workingdir/tempInterfaces.txt >/dev/null 2>&1
-    foundinterfaces=$(ip -4 addr | awk -F'(global )' '/global / {print $2}')
-    for interface in $foundinterfaces; do
-        ping -c 1 $ipToCheckForInternet -I $interface >/dev/null 2>&1
-        [[ ! $? -eq 0 ]] && continue
-        ping -c 1 $siteToCheckForInternet -I $interface >/dev/null 2>&1
-        if [[ ! $? -eq 0 ]]; then
-            echo "Internet detected on $interface but there seems to be a DNS problem." >>$workingdir/error_logs/fog_error_${version}.log
-            echo "Check the contents of /etc/resolv." >>$workingdir/error_logs/fog_error_${version}.log
-            echo "If this is CentOS, RHEL, or Fedora or an other RH variant," >>$workingdir/error_logs/fog_error_${version}.log
-            echo "also check the DNS entries for /etc/sysconfig/network-scripts/ifcfg-$interface" >>$workingdir/error_logs/fog_error_${version}.log
-            continue
+getAllnetworkInterfaces() {
+    gatewayif=$(ip -4 route show | grep "^default via" | awk '{print $5}')
+    interfaces="$gatewayif $(ip -4 link | grep -v LOOPBACK | grep UP | awk -F': ' '{print $2}' | tr '\n' ' ' | sed "s/${gatewayif}//g")"
+    echo -n $interfaces
+}
+checkInternetConnection() {
+    sites=("k.root-servers.net" "m.root-servers.net" "f.root-servers.net")
+    ips=("193.0.14.129" "202.12.27.33" "192.5.5.241")
+    dots "Testing internet connection"
+    for i in $(seq 0 2); do
+        ping -c 1 ${ips[$i]} >/dev/null 2>&1
+        [[ $? -ne 0 ]] && continue
+        ping -c 1 ${sites[$i]} >/dev/null 2>&1
+        if [[ $? -ne 0 ]]; then
+            echo "Internet connection detected but there seems to be a DNS problem." | tee -a $workingdir/error_logs/fog_error_${version}.log
+            echo "Check the contents of /etc/resolv.conf" | tee -a $workingdir/error_logs/fog_error_${version}.log
+            echo "If this is CentOS, RHEL, or Fedora, or an other RH variant," | tee -a $workingdir/error_logs/fog_error_${version}.log
+            echo "also check the DNS entries in /etc/sysconfig/network-scripts/ifcfg-*" | tee -a $workingdir/error_logs/fog_error_${version}.log
         fi
-        echo $interface >> $workingdir/goodInterface.txt
-        break
+        echo "Done"
+        return
     done
-    [[ -e $workingdir/tempInterfaces.txt ]] && rm -f $workingdir/tempInterfaces.txt >/dev/null 2>&1
-    if [[ -e $workingdir/goodInterface.txt ]]; then
-        goodInterface=$(cat $workingdir/goodInterface.txt | head -1)
-        rm -f $workingdir/goodInterface.txt >/dev/null 2>&1
-    fi
-    [[ -n $goodInterface ]] && echo $goodInterface
-    if [[ -z $goodInterface ]]; then
-        echo "There was no interface with an active internet connection found." >>$workingdir/error_logs/fog_error_${version}.log
-        echo ""
-    fi
+    echo "There was not interface with an active internet connection found." | tee -a $workingdir/error_logs/fog_error_${version}.log
+    echo
 }
 join() {
     local IFS="$1"
@@ -692,6 +687,85 @@ confirmPackageInstallation() {
         dots "Checking package: $x"
         eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
+    done
+}
+checkSELinux() {
+    command -v sestatus >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    exitcode=$?
+    [[ $exitcode -ne 0 ]] && return
+    currentmode=$(LANG=C sestatus | grep "^Current mode" | awk '{print $3}')
+    configmode=$(LANG=C sestatus | grep "^Mode from config file" | awk '{print $5}')
+    [[ $currentmode != "enforcing" && $configmode != "enforcing" ]] && return
+    echo " * SELinux is currently enabled on your system. This is often causing"
+    echo " * issues and we recommend setting to permissive on FOG Servers as of now."
+    echo " * Should the installer set this for you now? (Y/n) "
+    sedisable=""
+    while [[ -z $sedisable ]]; do
+        [[ -n $autoaccept ]] && sedisable="Y" || read -r sedisable
+        case $sedisable in
+            [Yy]|[Yy][Ee][Ss]|"")
+                sedisable="Y"
+                setenforce 0
+                sed -i 's/^SELINUX=.*$/SELINUX=permissive/' /etc/selinux/config
+                echo -e " * SELinux set permissive -- proceeding with installation...\n"
+                ;;
+            [Nn]|[Nn][Oo])
+                echo -e " * You sure know what you're doing, just keep in mind we told you! :-)\n"
+                ;;
+            *)
+                sedisable=""
+                echo " * Invalid input, please try again!"
+                ;;
+        esac
+    done
+}
+checkFirewall() {
+    command -v iptables >>$workingdir/error_logs/fog_error_${version}.log
+    exitcode=$?
+    [[ $exitcode -ne 0 ]] && return
+    rulesnum=$(iptables -L -n | wc -l)
+    policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
+    [[ $rulesnum -eq 8 && $policy -eq 0 ]] && return
+    echo " * The local firewall, currently, seems to be enabled on your system. This can cause"
+    echo " * issues on FOG Servers if you are not well experienced and know what you are doing."
+    echo " * Should the installer try to disable the local firewall for you now? (y/N) "
+    fwdisable=""
+    while [[ -z $fwdisable ]]; do
+        [[ -n $autoaccept ]] && fwdisable="N" || read -r fwdisable
+        case $fwdisable in
+            [Yy]|[Yy][Ee][Ss])
+                ufw stop >/dev/null 2>&1
+                ufw disable >/dev/null 2>&1
+                systemctl stop ufw >/dev/null 2>&1
+                systemctl disable ufw >/dev/null 2>&1
+                systemctl stop firewalld >/dev/null 2>&1
+                systemctl disable firewalld >/dev/null 2>&1
+                systemctl stop iptables >/dev/null 2>&1
+                systemctl disable iptables >/dev/null 2>&1
+                rulesnum=$(iptables -L -n | wc -l)
+                policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
+                if [[ $rulesnum -eq 8 && $policy -eq 0 ]]; then
+                    echo -e " * Firewall disabled - proceeding with installation...\n"
+                else
+                    echo " * We were unable to disable the firewall on your system. Read up on how"
+                    echo " * You can disable it manually. Proceeding with the installation anyway..."
+                    echo " * Hit ENTER so we know you've read this message."
+                    read
+                fi
+                ;;
+            [Nn]|[Nn][Oo]|"")
+                fwdisable="N"
+                echo " * You sure know what you are doing, just keep in mind we told you! :-)"
+                if [[ -z $autoaccept  ]]; then
+                    echo " * Hit ENTER so we know you've read this message."
+                    read
+                fi
+                ;;
+            *)
+                fwdisable=""
+                echo " * Invalid input, please try again!"
+                ;;
+        esac
     done
 }
 displayOSChoices() {
@@ -1077,6 +1151,7 @@ writeUpdateFile() {
     escipaddress=$(echo $ipaddress | sed -e $replace)
     escinterface=$(echo $interface | sed -e $replace)
     escsubmask=$(echo $submask | sed -e $replace)
+    eschostname=$(echo $hostname | sed -e $replace)
     escrouteraddress=$(echo $routeraddress | sed -e $replace)
     escplainrouter=$(echo $plainrouter | sed -e $replace)
     escdnsaddress=$(echo $dnsaddress | sed -e $replace)
@@ -1130,6 +1205,9 @@ writeUpdateFile() {
             grep -q "submask=" $fogprogramdir/.fogsettings && \
                 sed -i "s/submask=.*/submask='$escsubmask'/g" $fogprogramdir/.fogsettings || \
                 echo "submask='$submask'" >> $fogprogramdir/.fogsettings
+            grep -q "hostname=" $fogprogramdir/.fogsettings && \
+                sed -i "s/hostname=.*/hostname='$eschostname'/g" $fogprogramdir/.fogsettings || \
+                echo "hostname='$hostname'" >> $fogprogramdir/.fogsettings
             grep -q "routeraddress=" $fogprogramdir/.fogsettings && \
                 sed -i "s/routeraddress=.*/routeraddress='$escrouteraddress'/g" $fogprogramdir/.fogsettings || \
                 echo "routeraddress='$routeraddress'" >> $fogprogramdir/.fogsettings
@@ -1244,6 +1322,7 @@ writeUpdateFile() {
             echo "copybackold='$copybackold'" >> "$fogprogramdir/.fogsettings"
             echo "interface='$interface'" >> "$fogprogramdir/.fogsettings"
             echo "submask='$submask'" >> "$fogprogramdir/.fogsettings"
+            echo "hostname='$hostname'" >> "$fogprogramdir/.fogsettings"
             echo "routeraddress='$routeraddress'" >> "$fogprogramdir/.fogsettings"
             echo "plainrouter='$plainrouter'" >> "$fogprogramdir/.fogsettings"
             echo "dnsaddress='$dnsaddress'" >> "$fogprogramdir/.fogsettings"
@@ -1290,6 +1369,7 @@ writeUpdateFile() {
         echo "copybackold='$copybackold'" >> "$fogprogramdir/.fogsettings"
         echo "interface='$interface'" >> "$fogprogramdir/.fogsettings"
         echo "submask='$submask'" >> "$fogprogramdir/.fogsettings"
+        echo "hostname='$hostname'" >> "$fogprogramdir/.fogsettings"
         echo "routeraddress='$routeraddress'" >> "$fogprogramdir/.fogsettings"
         echo "plainrouter='$plainrouter'" >> "$fogprogramdir/.fogsettings"
         echo "dnsaddress='$dnsaddress'" >> "$fogprogramdir/.fogsettings"
@@ -1376,23 +1456,35 @@ EOF
         dots "Creating SSL Private Key"
         mkdir -p $sslpath >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         openssl genrsa -out $sslprivkey 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        openssl req -new -sha512 -key $sslprivkey -out $sslpath/fog.csr >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
-.
-.
-.
-.
-.
+        cat > $sslpath/req.cnf << EOF
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
+prompt = yes
+[req_distinguished_name]
+CN = $ipaddress
+[v3_req]
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = $ipaddress
+DNS.2 = $hostname
+EOF
+        openssl req -new -sha512 -key $sslprivkey -out $sslpath/fog.csr -config $sslpath/req.cnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
 $ipaddress
-.
-
-
 EOF
         errorStat $?
     fi
     [[ ! -e $sslpath/.srvprivate.key ]] && ln -sf $sslprivkey $sslpath/.srvprivate.key >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     dots "Creating SSL Certificate"
     mkdir -p $webdirdest/management/other/ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    openssl x509 -req -in $sslpath/fog.csr -CA $sslpath/CA/.fogCA.pem -CAkey $sslpath/CA/.fogCA.key -CAcreateserial -out $webdirdest/management/other/ssl/srvpublic.crt -days 3650 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    cat > $sslpath/ca.cnf << EOF
+[v3_ca]
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = $ipaddress
+DNS.2 = $hostname
+EOF
+    openssl x509 -req -in $sslpath/fog.csr -CA $sslpath/CA/.fogCA.pem -CAkey $sslpath/CA/.fogCA.key -CAcreateserial -out $webdirdest/management/other/ssl/srvpublic.crt -days 3650 -extensions v3_ca -extfile $sslpath/ca.cnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Creating auth pub key and cert"
     cp $sslpath/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1421,6 +1513,7 @@ EOF
                     fi
                     echo "    </FilesMatch>" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
+                    echo "    ServerAlias $hostname" >> "$etcconf"
                     echo "    RewriteEngine On" >> "$etcconf"
                     echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
                     echo "    RewriteRule .* - [F]" >> "$etcconf"
@@ -1438,6 +1531,7 @@ EOF
                     fi
                     echo "    </FilesMatch>" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
+                    echo "    ServerAlias $hostname" >> "$etcconf"
                     echo "    DocumentRoot $docroot" >> "$etcconf"
                     echo "    SSLEngine On" >> "$etcconf"
                     echo "    SSLProtocol all -SSLv3 -SSLv2" >> "$etcconf"
@@ -1467,6 +1561,7 @@ EOF
                     echo "    </FilesMatch>" >> "$etcconf"
                     echo "    KeepAlive Off" >> "$etcconf"
                     echo "    ServerName $ipaddress" >> "$etcconf"
+                    echo "    ServerAlias $hostname" >> "$etcconf"
                     echo "    DocumentRoot $docroot" >> "$etcconf"
                     echo "    <Directory $webdirdest>" >> "$etcconf"
                     echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
@@ -1915,26 +2010,7 @@ class Config
     }
 }" > "${webdirdest}/lib/fog/config.class.php"
     errorStat $?
-    if [[ $fullrelease == 0 ]]; then
-        downloadfiles
-    else
-        if [[ ! -f ../binaries${fullrelease}.zip ]]; then
-            dots "Downloading binaries needed"
-            curl --silent -ko "../binaries${fullrelease}.zip" "https://fogproject.org/binaries${fullrelease}.zip" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            errorStat $?
-        fi
-        dots "Unzipping the binaries"
-        cwd=$(pwd)
-        cd ..
-        unzip -o binaries${fullrelease}.zip >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        cd $cwd
-        echo "Done"
-        dots "Copying binaries where needed"
-        [[ -d ../packages/clientfiles/ ]] && cp -vf ../packages/clientfiles/* "${webdirdest}/client/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat 1
-        [[ -d ../packages/kernels/ ]] && cp -vf ../packages/kernels/* "${webdirdest}/service/ipxe/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat 1
-        [[ -d ../packages/inits/ ]] && cp -vf ../packages/inits/* "${webdirdest}/service/ipxe/" >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat 1
-        echo "Done"
-    fi
+    downloadfiles
     if [[ $osid -eq 2 ]]; then
         php -m | grep mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         if [[ ! $? -eq 0 ]]; then
@@ -1976,79 +2052,47 @@ class Config
     chown -R ${username}:${apacheuser} "$webdirdest/service/ipxe"
 }
 downloadfiles() {
-    clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
-    clienturl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi"
-    siurl="https://github.com/FOGProject/fog-client/releases/download/${clientVer}/SmartInstaller.exe"
-    [[ ! -d $workingdir/checksum_init ]] && mkdir -p $workingdir/checksum_init >/dev/null 2>&1
-    [[ ! -d $workingdir/checksum_kernel ]] && mkdir -p $workingdir/checksum_kernel >/dev/null 2>&1
-    dots "Getting checksum files for kernels and inits"
-    curl --silent -ko "${workingdir}/checksum_init/checksums" https://fogproject.org/inits/index.php -ko "${workingdir}/checksum_kernel/checksums" https://fogproject.org/kernels/index.php >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    errorStat $?
-    dots "Downloading inits, kernels, and the fog client"
-    curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && curl --silent -ko "${webdirdest}/client/FOGService.msi" -L $clienturl -ko "${webdirdest}/client/SmartInstaller.exe" -L $siurl >> $workingdir/error_logs/fog_error_${version}.log 2>&1
-    errorStat $?
-    dots "Comparing checksums of kernels and inits"
-    localinitsum=$(sha512sum $webdirdest/service/ipxe/init.xz | awk '{print $1}')
-    localinit_32sum=$(sha512sum $webdirdest/service/ipxe/init_32.xz | awk '{print $1}')
-    localbzImagesum=$(sha512sum $webdirdest/service/ipxe/bzImage | awk '{print $1}')
-    localbzImage32sum=$(sha512sum $webdirdest/service/ipxe/bzImage32 | awk '{print $1}')
-    remoteinitsum=$(awk '/init\.xz$/{print $1}' $workingdir/checksum_init/checksums)
-    remoteinit_32sum=$(awk '/init_32\.xz$/{print $1}' $workingdir/checksum_init/checksums)
-    remotebzImagesum=$(awk '/bzImage$/{print $1}' $workingdir/checksum_kernel/checksums)
-    remotebzImage32sum=$(awk '/bzImage32$/{print $1}' $workingdir/checksum_kernel/checksums)
-    cnt=0
-    while [[ $localinitsum != $remoteinitsum && $cnt -lt 10 ]]; do
-        [[ $cnt -eq 0 ]] && echo "Failed init.xz"
-        let cnt+=1
-        dots "Attempting to redownload init.xz"
-        curl --silent -ko "${webdirdest}/service/ipxe/init.xz" https://fogproject.org/inits/init.xz >/dev/null 2>&1
-        errorStat $?
-        localinitsum=$(sha512sum $webdirdest/service/ipxe/init.xz | awk '{print $1}')
-    done
-    if [[ $localinitsum != $remoteinitsum ]]; then
-        echo " * Could not download init.xz properly"
-        [[ -z $exitFail ]] && exit 1
+    dots "Downloading kernel, init and fog-client binaries"
+    [[ ! -d ../tmp/  ]] && mkdir -p ../tmp/ >/dev/null 2>&1
+    cwd=$(pwd)
+    cd ../tmp/
+    if [[ $version =~ ^[0-9]\.[0-9]\.[0-9]$ ]]; then
+        urls=("https://fogproject.org/binaries${version}.zip")
+    else
+		clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
+        urls=("https://fogproject.org/inits/init.xz" "https://fogproject.org/inits/init_32.xz" "https://fogproject.org/kernels/bzImage" "https://fogproject.org/kernels/bzImage32" "https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi" "https://github.com/FOGProject/fog-client/releases/download/${clientVer}/SmartInstaller.exe")
     fi
-    cnt=0
-    while [[ $localinit_32sum != $remoteinit_32sum && $cnt -lt 10 ]]; do
-        [[ $cnt -eq 0 ]] && echo "Failed init_32.xz"
-        let cnt+=1
-        dots "Attempting to redownload init_32.xz"
-        curl --silent -ko "${webdirdest}/service/ipxe/init_32.xz" https://fogproject.org/inits/init_32.xz >/dev/null 2>&1
-        errorStat $?
-        localinit_32sum=$(sha512sum $webdirdest/service/ipxe/init_32.xz | awk '{print $1}')
+    for url in "${urls[@]}"; do
+        checksum=1
+        cnt=0
+        filename=$(basename -- "$url")
+        hashfile="${filename}.sha256"
+        baseurl=$(dirname -- "$url")
+        hashurl="${baseurl}/${hashfile}"
+        while [[ $checksum -ne 0 && $cnt -lt 10 ]]; do
+            sha256sum --check $hashfile >>$workingdir/error_logs/fog_error_${version}.log
+            checksum=$?
+            if [[ $checksum -ne 0 ]]; then
+                curl --silent -kOL $url >>$workingdir/error_logs/fog_error_${version}.log
+                curl --silent -kOL $hashurl >>$workingdir/error_logs/fog_error_${version}.log
+            fi
+            let cnt+=1
+        done
+        if [[ $checksum -ne 0 ]]; then
+            echo " * Could not download $filename properly"
+            [[ -z $exitFail ]] && exit 1
+        fi
     done
-    if [[ $localinit_32sum != $remoteinit_32sum ]]; then
-        echo " * Could not download init_32.xz properly"
-        [[ -z $exitFail ]] && exit 1
-    fi
-    cnt=0
-    while [[ $localbzImagesum != $remotebzImagesum && $cnt -lt 10 ]]; do
-        [[ $cnt -eq 0 ]] && echo "Failed bzImage"
-        let cnt+=1
-        dots "Attempting to redownload bzImage"
-        curl --silent -ko "${webdirdest}/service/ipxe/bzImage" https://fogproject.org/kernels/bzImage >/dev/null 2>&1
-        errorStat $?
-        localbzImagesum=$(sha512sum $webdirdest/service/ipxe/bzImage | awk '{print $1}')
-    done
-    if [[ $localbzImagesum != $remotebzImagesum ]]; then
-        echo " * Could not download bzImage properly"
-        [[ -z $exitFail ]] && exit 1
-    fi
-    cnt=0
-    while [[ $localbzImage32sum != $remotebzImage32sum && $cnt -lt 10 ]]; do
-        [[ $cnt -eq 0 ]] && echo "Failed bzImage32"
-        let cnt+=1
-        dots "Attempting to redownload bzImage32"
-        curl --silent -ko "${webdirdest}/service/ipxe/bzImage32" https://fogproject.org/kernels/bzImage32 >/dev/null 2>&1
-        errorStat $?
-        localbzImage32sum=$(sha512sum $webdirdest/service/ipxe/bzImage32 | awk '{print $1}')
-    done
-    if [[ $localbzImage32sum != $remotebzImage32sum ]]; then
-        echo " * Could not download bzImage32 properly"
-        [[ -z $exitFail ]] && exit 1
-    fi
     echo "Done"
+    if [[ $version =~ ^[0-9]\.[0-9]\.[0-9]$ ]]; then
+        dots "Extracting the binaries archive"
+        unzip -o binaries${version}.zip >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        errorStat $?
+        copypath="packages/*/"
+    fi
+    dots "Copying binaries to destination paths"
+    cp -vf ${copypath}bzImage* ${copypath}init*.xz ${webdirdest}/service/ipxe/ >>$workingdir/error_logs/fog_error_${version}.log && \
+        cp -vf ${copypath}FOGService.msi ${copypath}SmartInstaller.exe ${webdirdest}/client/ >>$workingdir/error_logs/fog_error_${version}.log
 }
 configureDHCP() {
     case $linuxReleaseName in
