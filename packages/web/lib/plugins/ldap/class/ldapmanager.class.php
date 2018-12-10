@@ -143,7 +143,7 @@ class LDAPManager extends FOGManagerController
                 "INSERT INTO `%s`"
 		. " (settingKey,settingDesc,settingValue,settingCategory)"
 		. " VALUES"
-                . " ('FOG_USER_FILTER','Insert the uType codes comma separated. If you want to list all users, empty the textbox', '990,991','General Settings')",
+                . " ('FOG_USER_FILTER','Insert the uType codes comma separated. If you want to list all users, empty the textbox', '990,991','Plugin: LDAP')",
                 'globalSettings'
             );
             return self::$DB->query($sql);
