@@ -474,6 +474,97 @@ class AccessControlManagement extends FOGPage
         }
     }
     /**
+     * Preset the rules page.
+     *
+     * @return void
+     */
+    public function roleRules()
+    {
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'role-rules',
+                $this->obj->get('id')
+            )
+            . '" ';
+
+        $buttons = self::makeButton(
+            'rules-add',
+            _('Add selected'),
+            'btn btn-primary pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'rules-remove',
+            _('Remove selected'),
+            'btn btn-danger pull-left',
+            $props
+        );
+
+        $this->headerData = [
+            _('Rule Name'),
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
+
+        echo '<!-- Rules -->';
+        echo '<div class="box-group" id="rules">';
+        echo '<div class="box box-solid">';
+        echo '<div id="updaterules" class="">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Role Rules');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'role-rules-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('rule');
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Update rules.
+     *
+     * @return void
+     */
+    public function roleRulePost()
+    {
+        if (isset($_POST['updaterules'])) {
+            $rules = filter_input_array(
+                INPUT_POST,
+                [
+                    'rule' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $rules = $rules['rule'];
+            if (count($rules ?: []) > 0) {
+                $this->obj->addUser($rules);
+            }
+        }
+        if (isset($_POST['confirmdel'])) {
+            $rules = filter_input_array(
+                INPUT_POST,
+                [
+                    'remitems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $rules = $rules['remitems'];
+            if (count($rules ?: []) > 0) {
+                $this->obj->removeUser($rules);
+            }
+        }
+    }
+    /**
      * The edit element.
      *
      * @return void
@@ -494,6 +585,15 @@ class AccessControlManagement extends FOGPage
             'id' => 'role-general',
             'generator' => function () {
                 $this->roleGeneral();
+            }
+        ];
+
+        // Rules
+        $tabData[] = [
+            'name' => _('Rule Association'),
+            'id' => 'role-rules',
+            'generator' => function () {
+                $this->roleRules();
             }
         ];
 
@@ -527,6 +627,9 @@ class AccessControlManagement extends FOGPage
             switch ($tab) {
             case 'role-general':
                 $this->roleGeneralPost();
+                break;
+            case 'role-rules':
+                $this->roleRulePost();
                 break;
             case 'role-users':
                 $this->roleUserPost();
