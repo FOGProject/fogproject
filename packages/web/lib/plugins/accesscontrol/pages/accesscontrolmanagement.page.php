@@ -782,6 +782,66 @@ class AccessControlManagement extends FOGPage
         exit;
     }
     /**
+     * Gets the rules list.
+     *
+     * @return void
+     */
+    public function getRulesList()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $rulesSqlStr = "SELECT `%s`,"
+            . "IF(`rraRoleID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') as `rraRoleID`
+            FROM `%s`
+            LEFT OUTER JOIN `roleRuleAssoc`
+            ON `rules`.`ruleID` = `roleRuleAssoc`.`rraRuleID`
+            %s
+            %s
+            %s";
+        $rulesFilterStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `roleRuleAssoc`
+            ON `rules`.`ruleID` = `roleRuleAssoc`.`rraRuleID`
+            %s";
+        $rulesTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+
+        foreach (self::getClass('AccessControlRuleManager')
+            ->getColumns() as $common => &$real
+        ) {
+            if ('id' == $common) {
+                $tableID = $real;
+            }
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        $columns[] = [
+            'db' => 'rraRoleID',
+            'dt' => 'association'
+        ];
+        echo json_encode(
+            FOGManagerController::simple(
+                $pass_vars,
+                'rules',
+                $tableID,
+                $columns,
+                $rulesSqlStr,
+                $rulesFilterStr,
+                $rulesTotalStr
+            )
+        );
+        exit;
+    }
+    /**
      * Present the export list.
      *
      * @return void
