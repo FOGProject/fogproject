@@ -58,6 +58,110 @@ $(function() {
     });
 
     // ---------------------------------------------------------------
+    // RULE ASSOCIATION TAB
+    var rulesAddBtn = $('#rules-add'),
+        rulesRemoveBtn = $('#rules-remove');
+
+    rulesAddBtn.prop('disabled', true);
+    rulesRemoveBtn.prop('disabled', true);
+
+    function onRulesSelect (selected) {
+        var disabled = selected.count() == 0;
+        rulesAddBtn.prop('disabled', disabled);
+        rulesRemoveBtn.prop('disabled', disabled);
+    }
+
+    var rulesTable = $('#role-rules-table').registerTable(onRulesSelect, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'name'},
+            {data: 'association'}
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                responsivePriority: -1,
+                render: function(data, type, row) {
+                    return '<a href="../management/index.php?node=accesscontrolrule&sub=edit&id='
+                    + row.id
+                    + '">'
+                    + data
+                    + '</a>';
+                },
+                targets: 0
+            },
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                    + '<input type="checkbox" class="associated" name="associate[]" id="ruleAssoc_'
+                    + row.id
+                    + '" value="' + row.id + '"'
+                    + checkval
+                    + '/>'
+                    + '</div>';
+                },
+                targets: 1
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+            + Common.node
+            + '&sub=getRulesList&id='
+            + Common.id,
+            type: 'post'
+        }
+    });
+
+    rulesTable.on('draw', function() {
+        Common.iCheck('#role-rules-table input');
+    });
+
+    rulesAddBtn.on('click', function() {
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = rulesTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(rulesTable),
+            opts = {
+                updaterules: 1,
+                rule: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            if (err) {
+                return;
+            }
+            rulesTable.draw(false);
+            rulesTable.rows({selected: true}).deselect();
+        });
+    });
+
+    rulesRemoveBtn.on('click', function() {
+        $('#ruleDelModal').modal('show');
+    });
+    $('#confirmruleDeleteModal').on('click', function(e) {
+        $.deleteAssociated(rulesTable, rulesRemoveBtn.attr('action'), function(err) {
+            if (err) {
+                return;
+            }
+            $('#ruleDelModal').modal('hide');
+            rulesTable.draw(false);
+            rulesTable.rows({selected: true}).deselect();
+        });
+    });
+
+    if (Common.search && Common.search.length > 0) {
+        rulesTable.search(Common.search).draw();
+    }
+
+    // ---------------------------------------------------------------
     // USER ASSOCIATION TAB
     var usersAddBtn = $('#users-add'),
         usersRemoveBtn = $('#users-remove');
@@ -158,6 +262,6 @@ $(function() {
     });
 
     if (Common.search && Common.search.length > 0) {
-        roleUsersTable.search(Common.search).draw();
+        usersTable.search(Common.search).draw();
     }
 });

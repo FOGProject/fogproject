@@ -520,6 +520,98 @@ class AccessControlRuleManagement extends FOGPage
             ->set('name', $name);
     }
     /**
+     * The role rules presentation.
+     *
+     * @return void
+     */
+    public function ruleRoles()
+    {
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'rule-roles',
+                $this->obj->get('id')
+            )
+            . '" ';
+
+        $buttons = self::makeButton(
+            'roles-add',
+            _('Add selected'),
+            'btn btn-primary pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'roles-remove',
+            _('Remove selected'),
+            'btn btn-danger pull-left',
+            $props
+        );
+
+        $this->headerData = [
+            _('Role Name'),
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
+
+        echo '<!-- Roles -->';
+        echo '<div class="box-group" id="roles">';
+        echo '<div class="box box-solid">';
+        echo '<div id="updateroles" class="">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Rule Roles');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'rule-roles-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('role');
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Actually update the role rules assocation.
+     *
+     * @return void
+     */
+    public function ruleRolePost()
+    {
+        if (isset($_POST['updateroles'])) {
+            $roles = filter_input_array(
+                INPUT_POST,
+                [
+                    'role' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $roles = $roles['role'];
+            throw new Exception(json_encode($roles));
+            if (count($roles ?: []) > 0) {
+                $this->obj->addRole($roles);
+            }
+        }
+        if (isset($_POST['confirmdel'])) {
+            $roles = filter_input_array(
+                INPUT_POST,
+                [
+                    'remitems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $roles = $roles['remitems'];
+            if (count($roles ?: []) > 0) {
+                $this->obj->removeRole($roles);
+            }
+        }
+    }
+    /**
      * The edit element.
      *
      * @return void
@@ -540,6 +632,15 @@ class AccessControlRuleManagement extends FOGPage
             'id' => 'rule-general',
             'generator' => function () {
                 $this->ruleGeneral();
+            }
+        ];
+
+        // Role Association
+        $tabData[] = [
+            'name' => _('Role Association'),
+            'id' => 'rule-roles',
+            'generator' => function () {
+                $this->ruleRoles();
             }
         ];
 
@@ -564,6 +665,9 @@ class AccessControlRuleManagement extends FOGPage
             switch ($tab) {
             case 'rule-general':
                 $this->ruleGeneralPost();
+                break;
+            case 'rule-roles':
+                $this->ruleRolePost();
                 break;
             }
             if (!$this->obj->save()) {
@@ -703,6 +807,72 @@ class AccessControlRuleManagement extends FOGPage
                 $sqlstr,
                 $filterstr,
                 $totalstr
+            )
+        );
+        exit;
+    }
+    /**
+     * Gets the roles list.
+     *
+     * @return void
+     */
+    public function getRolesList()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $rolesSqlStr = "SELECT `%s`,"
+            . "IF(`rraRuleID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') as `rraRuleID`
+            FROM `%s`
+            LEFT OUTER JOIN `roleRuleAssoc`
+            ON `roles`.`rID` = `roleRuleAssoc`.`rraRoleID`
+            AND `roleRuleAssoc`.`rraRuleID` = '"
+            . $this->obj->get('id')
+            . "'
+            %s
+            %s
+            %s";
+        $rolesFilterStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `roleRuleAssoc`
+            ON `roles`.`rID` = `roleRuleAssoc`.`rraRoleID`
+            AND `roleRuleAssoc`.`rraRuleID` = '"
+            . $this->obj->get('id')
+            . "'
+            %s";
+        $rolesTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+
+        foreach (self::getClass('AccessControlManager')
+            ->getColumns() as $common => &$real
+        ) {
+            if ('id' == $common) {
+                $tableID = $real;
+            }
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        $columns[] = [
+            'db' => 'rraRuleID',
+            'dt' => 'association'
+        ];
+        echo json_encode(
+            FOGManagerController::simple(
+                $pass_vars,
+                'roles',
+                $tableID,
+                $columns,
+                $rolesSqlStr,
+                $rolesFilterStr,
+                $rolesTotalStr
             )
         );
         exit;

@@ -51,4 +51,73 @@ class AccessControlRule extends FOGController
         'type',
         'value'
     ];
+    /**
+     * Additional fields
+     *
+     * @var array
+     */
+    protected $additionalFields = [
+        'accesscontrols'
+    ];
+    /**
+     * Add role to access control rule
+     *
+     * @param array $addArray The roles to add.
+     *
+     * @return object
+     */
+    public function addRole($addArray)
+    {
+        return $this->addRemItem(
+            'accesscontrols',
+            (array)$addArray,
+            'merge'
+        );
+    }
+    /**
+     * Remove role from access control rule.
+     *
+     * @param array $removeArray The roles to remove.
+     *
+     * @return object
+     */
+    public function removeRole($removeArray)
+    {
+        return $this->addRemItem(
+            'accesscontrols',
+            (array)$removeArray,
+            'diff'
+        );
+    }
+    /**
+     * Load Access Controls
+     *
+     * @return void
+     */
+    protected function loadAccesscontrols()
+    {
+        $find = ['accesscontrolruleID' => $this->get('id')];
+        Route::ids(
+            'accesscontrolassociation',
+            $find,
+            'accesscontrolID'
+        );
+        $roleIDs = json_decode(
+            Route::getData(),
+            true
+        );
+        $this->set('accesscontrols', (array)$roleIDs);
+    }
+    /**
+     * Stores/updates the accesscontrol rule
+     *
+     * @return object
+     */
+    public function save()
+    {
+        parent::save();
+        return $this
+            ->assocSetter('AccessControl', 'accesscontrol')
+            ->load();
+    }
 }
