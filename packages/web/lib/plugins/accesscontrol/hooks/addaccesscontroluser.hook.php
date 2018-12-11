@@ -119,7 +119,7 @@ class AddAccessControlUser extends Hook
         unset($fields);
         echo FOGPage::makeFormTag(
             'form-horizontal',
-            'user-accesscontrol-fom',
+            'user-accesscontrol-form',
             FOGPage::makeTabUpdateURL(
                 'user-accesscontrol',
                 $obj->get('id')
@@ -168,7 +168,7 @@ class AddAccessControlUser extends Hook
             }
         }
         if (count($insert_values) > 0) {
-            self::getClass('AccessControlAssociation')
+            self::getClass('AccessControlAssociationManager')
                 ->insertBatch(
                     $insert_fields,
                     $insert_values
@@ -193,7 +193,7 @@ class AddAccessControlUser extends Hook
         try {
             switch ($tab) {
             case 'user-accesscontrol':
-                $this->userAccesscontrolPost();
+                $this->userAccesscontrolPost($obj);
                 break;
             default:
                 return;
