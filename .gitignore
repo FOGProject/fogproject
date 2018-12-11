@@ -84,3 +84,5 @@ rpttmp
 # Local Scripts #
 #################
 packages/web/status/injectHosts.php
+tmp/
+packages/web/service/ipxe/*.sha256

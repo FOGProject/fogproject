@@ -59,7 +59,8 @@ class LDAPManager extends FOGManagerController
                 'lsBindDN',
                 'lsBindPwd',
                 'lsGrpSearchDN',
-                'lsUseGroupMatch'
+                'lsUseGroupMatch',
+                'lsUserFilter'
             ],
             [
                 'INTEGER',
@@ -79,8 +80,10 @@ class LDAPManager extends FOGManagerController
                 'LONGTEXT',
                 'LONGTEXT',
                 "ENUM('0', '1')",
+                'VARCHAR(255)'
             ],
             [
+                false,
                 false,
                 false,
                 false,
@@ -116,7 +119,8 @@ class LDAPManager extends FOGManagerController
                 false,
                 false,
                 false,
-                '0'
+                '0',
+                false
             ],
             [
                 'lsID',
@@ -131,6 +135,15 @@ class LDAPManager extends FOGManagerController
             'lsID',
             'lsID'
         );
+        if (!self::$DB->query($sql)) {
+            return false;
+        }
+        $sql = "INSERT INTO `globalSettings` "
+            . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+            . "VALUES "
+            . "('FOG_USER_FILTER',"
+            . "'Insert the filter type codes comma separated. Default: 990,991',"
+            . "'990,991','Plugin: LDAP')";
         return self::$DB->query($sql);
     }
     /**
@@ -148,6 +161,9 @@ class LDAPManager extends FOGManagerController
         $userIDs = json_decode(
             Route::getData(),
             true
+        );
+        self::getClass('Service')->destroy(
+            ['category' => 'Plugin: LDAP']
         );
         if (count($userIDs ?: []) > 0) {
             self::getClass('UserManager')

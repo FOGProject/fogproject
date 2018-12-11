@@ -264,7 +264,7 @@ class AccessControlRuleManagement extends FOGPage
     public function addPost()
     {
         header('Content-type: application/json');
-        self::$HookManger->processEvent('ACCESSCONTROLRULE_ADD_POST');
+        self::$HookManager->processEvent('ACCESSCONTROLRULE_ADD_POST');
         $type = trim(
             filter_input(INPUT_POST, 'type')
         );

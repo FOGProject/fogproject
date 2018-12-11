@@ -383,6 +383,97 @@ class AccessControlManagement extends FOGPage
             ->set('description', $description);
     }
     /**
+     * Present the users tab.
+     *
+     * @return void
+     */
+    public function roleUsers()
+    {
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'role-users',
+                $this->obj->get('id')
+            )
+            . '" ';
+
+        $buttons = self::makeButton(
+            'users-add',
+            _('Add selected'),
+            'btn btn-primary pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'users-remove',
+            _('Remove selected'),
+            'btn btn-danger pull-left',
+            $props
+        );
+
+        $this->headerData = [
+            _('User Name'),
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
+
+        echo '<!-- Users -->';
+        echo '<div class="box-group" id="users">';
+        echo '<div class="box box-solid">';
+        echo '<div id="updateusers" class="">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Role Users');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'role-users-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('user');
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Update users.
+     *
+     * @return void
+     */
+    public function roleUserPost()
+    {
+        if (isset($_POST['updateusers'])) {
+            $users = filter_input_array(
+                INPUT_POST,
+                [
+                    'user' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $users = $users['user'];
+            if (count($users ?: []) > 0) {
+                $this->obj->addUser($users);
+            }
+        }
+        if (isset($_POST['confirmdel'])) {
+            $users = filter_input_array(
+                INPUT_POST,
+                [
+                    'remitems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $users = $users['remitems'];
+            if (count($users ?: []) > 0) {
+                $this->obj->removeUser($users);
+            }
+        }
+    }
+    /**
      * The edit element.
      *
      * @return void
@@ -406,7 +497,16 @@ class AccessControlManagement extends FOGPage
             }
         ];
 
-        echo self::tabFields($tabData);
+        // Users
+        $tabData[] = [
+            'name' => _('User Association'),
+            'id' => 'role-users',
+            'generator' => function () {
+                $this->roleUsers();
+            }
+        ];
+
+        echo self::tabFields($tabData, $this->obj);
     }
     /**
      * Update the edit elements.
@@ -427,6 +527,9 @@ class AccessControlManagement extends FOGPage
             switch ($tab) {
             case 'role-general':
                 $this->roleGeneralPost();
+                break;
+            case 'role-users':
+                $this->roleUserPost();
                 break;
             }
             if (!$this->obj->save()) {
@@ -514,6 +617,66 @@ class AccessControlManagement extends FOGPage
         $this->render(12, 'role-export-table');
         echo '</div>';
         echo '</div>';
+    }
+    /**
+     * Gets the user list.
+     *
+     * @return void
+     */
+    public function getUsersList()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $usersSqlStr = "SELECT `%s`,"
+            . "IF(`ruaRoleID` = '"
+            . $this->obj->get('id')
+            . "','associated','dissociated') as `ruaRoleID`
+            FROM `%s`
+            LEFT OUTER JOIN `roleUserAssoc`
+            ON `users`.`uID` = `roleUserAssoc`.`ruaUserID`
+            %s
+            %s
+            %s";
+        $usersFilterStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `roleUserAssoc`
+            ON `users`.`uID` = `roleUserAssoc`.`ruaUserID`
+            %s";
+        $usersTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+
+        foreach (self::getClass('UserManager')
+            ->getColumns() as $common => &$real
+        ) {
+            if ('id' == $common) {
+                $tableID = $real;
+            }
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        $columns[] = [
+            'db' => 'ruaRoleID',
+            'dt' => 'association'
+        ];
+        echo json_encode(
+            FOGManagerController::simple(
+                $pass_vars,
+                'users',
+                $tableID,
+                $columns,
+                $usersSqlStr,
+                $usersFilterStr,
+                $usersTotalStr
+            )
+        );
+        exit;
     }
     /**
      * Present the export list.

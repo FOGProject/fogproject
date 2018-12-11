@@ -29,6 +29,12 @@ class LDAPPluginHook extends Hook
     const LDAP_ADMIN = '990';
     const LDAP_MOBILE = '991';
     /**
+     * The user types to filter
+     *
+     * @var array
+     */
+    private static $_userTypes = [];
+    /**
      * The name of this hook.
      *
      * @var string
@@ -63,6 +69,13 @@ class LDAPPluginHook extends Hook
         if (!in_array($this->node, self::$pluginsinstalled)) {
             return;
         }
+        self::$_userTypes = array_map(
+            'trim',
+            explode(',', self::getSetting('FOG_USER_FILTER'))
+        );
+        if (count(self::$_userTypes) < 1) {
+            self::$_userTypes = self::LDAP_TYPES;
+        }
         self::$HookManager->register(
             'USER_LOGGING_IN',
             [$this, 'checkAddUser']
@@ -89,7 +102,7 @@ class LDAPPluginHook extends Hook
     {
         $user = trim($arguments['username']);
         $pass = trim($arguments['password']);
-        $ldapTypes = self::LDAP_TYPES;
+        $ldapTypes = self::$_userTypes;
         /**
          * Check the user and validate the type is not
          * our ldap inserted items. If not return as the
@@ -162,7 +175,7 @@ class LDAPPluginHook extends Hook
      */
     public function setTypeFilter($arguments)
     {
-        $arguments['types'] = self::LDAP_TYPES;
+        $arguments['types'] = self::$_userTypes;
     }
     /**
      * Tests if the user is containing the ldap types.
@@ -173,7 +186,7 @@ class LDAPPluginHook extends Hook
      */
     public function isLdapType($arguments)
     {
-        $types = self::LDAP_TYPES;
+        $types = self::$_userTypes;
         if (in_array($arguments['type'], $types)) {
             $arguments['typeIsValid'] = false;
         }

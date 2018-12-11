@@ -2052,6 +2052,7 @@ class Config
     chown -R ${username}:${apacheuser} "$webdirdest/service/ipxe"
 }
 downloadfiles() {
+    local copypath=""
     dots "Downloading kernel, init and fog-client binaries"
     [[ ! -d ../tmp/  ]] && mkdir -p ../tmp/ >/dev/null 2>&1
     cwd=$(pwd)
@@ -2070,7 +2071,7 @@ downloadfiles() {
         baseurl=$(dirname -- "$url")
         hashurl="${baseurl}/${hashfile}"
         while [[ $checksum -ne 0 && $cnt -lt 10 ]]; do
-            sha256sum --check $hashfile >>$workingdir/error_logs/fog_error_${version}.log
+            sha256sum --check $hashfile >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             checksum=$?
             if [[ $checksum -ne 0 ]]; then
                 curl --silent -kOL $url >>$workingdir/error_logs/fog_error_${version}.log
@@ -2093,6 +2094,8 @@ downloadfiles() {
     dots "Copying binaries to destination paths"
     cp -vf ${copypath}bzImage* ${copypath}init*.xz ${webdirdest}/service/ipxe/ >>$workingdir/error_logs/fog_error_${version}.log && \
         cp -vf ${copypath}FOGService.msi ${copypath}SmartInstaller.exe ${webdirdest}/client/ >>$workingdir/error_logs/fog_error_${version}.log
+    errorStat $?
+    cd $cwd
 }
 configureDHCP() {
     case $linuxReleaseName in
