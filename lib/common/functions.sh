@@ -692,93 +692,89 @@ confirmPackageInstallation() {
 checkSELinux() {
     command -v sestatus >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     exitcode=$?
-    if [[ $exitcode -eq 0 ]]; then
-        currentmode=$(LANG=C sestatus | grep "^Current mode" | awk '{print $3}')
-        configmode=$(LANG=C sestatus | grep "^Mode from config file" | awk '{print $5}')
-        if [[ "$currentmode" == "enforcing" || "$configmode" == "enforcing" ]]; then
-            echo " * SELinux is currently enabled on your system. This is often causing"
-            echo " * issues and we recommend to disable it on FOG servers as of now."
-            echo " * Should the installer disable SELinux for you now? (Y/n)"
-            sedisable=""
-            while [[ -z $sedisable ]]; do
-                if [[ -n $autoaccept ]]; then
-                    sedisable="Y"
-                else
-                    read -r sedisable
-                fi
-                case $sedisable in
-                    [Yy]|[Yy][Ee][Ss]|"")
-                        sedisable="Y"
-                        setenforce 0
-                        sed -i 's/^SELINUX=.*$/SELINUX=permissive/' /etc/selinux/config
-                        echo -e " * SELinux disabled - proceeding with installation...\n"
-                        ;;
-                    [Nn]|[Nn][Oo])
-                        echo " * You sure know what you are doing, just keep in mind we told you! :-)"
-                        ;;
-                    *)
-                        sedisable=""
-                        echo " * Invalid input, please try again!"
-                        ;;
-                esac
-            done
+    [[ $exitcode -ne 0 ]] && return
+    currentmode=$(LANG=C sestatus | grep "^Current mode" | awk '{print $3}')
+    configmode=$(LANG=C sestatus | grep "^Mode from config file" | awk '{print $5}')
+    [[ "$currentmode" != "enforcing" && "$configmode" != "enforcing" ]] && return
+    echo " * SELinux is currently enabled on your system. This is often causing"
+    echo " * issues and we recommend to disable it on FOG servers as of now."
+    echo " * Should the installer disable SELinux for you now? (Y/n)"
+    sedisable=""
+    while [[ -z $sedisable ]]; do
+        if [[ -n $autoaccept ]]; then
+            sedisable="Y"
+        else
+            read -r sedisable
         fi
-    fi
+        case $sedisable in
+            [Yy]|[Yy][Ee][Ss]|"")
+                sedisable="Y"
+                setenforce 0
+                sed -i 's/^SELINUX=.*$/SELINUX=permissive/' /etc/selinux/config
+                echo -e " * SELinux disabled - proceeding with installation...\n"
+                ;;
+            [Nn]|[Nn][Oo])
+                echo " * You sure know what you are doing, just keep in mind we told you! :-)"
+                ;;
+            *)
+                sedisable=""
+                echo " * Invalid input, please try again!"
+                ;;
+        esac
+    done
 }
 checkFirewall() {
     command -v iptables >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     exitcode=$?
-    if [[ $exitcode -eq 0 ]]; then
-        rulesnum=$(iptables -L -n | wc -l)
-        policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
-        if [[ $rulesnum -ne 8 || $policy -ne 0 ]]; then
-            echo " * The local firewall seems to be currently enabled on your system. This can cause"
-            echo " * issues on FOG servers if you are not well experienced and know what you are doing."
-            echo " * Should the installer try to disable the local firewall for you now? (y/N)"
-            fwdisable=""
-            while [[ -z $fwdisable ]]; do
-                if [[ -n $autoaccept ]]; then
-                    fwdisable="N"
-                else
-                    read -r fwdisable
-                fi
-                case $fwdisable in
-                    [Yy]|[Yy][Ee][Ss])
-                        ufw stop >/dev/null 2>&1
-                        ufw disable >/dev/null 2>&1
-                        systemctl stop ufw >/dev/null 2>&1
-                        systemctl disable ufw >/dev/null 2>&1
-                        systemctl stop firewalld >/dev/null 2>&1
-                        systemctl disable firewalld >/dev/null 2>&1
-                        systemctl stop iptables >/dev/null 2>&1
-                        systemctl disable iptables >/dev/null 2>&1
-                        rulesnum=$(iptables -L -n | wc -l)
-                        policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
-                        if [[ $rulesnum -ne 8 || $policy -ne 0 ]]; then
-                            echo " * We were unable to disable the firewall on your system. Read up on how"
-                            echo " * you can disable it manually. Proceeding with the installation anyway..."
-                            echo " * Hit ENTER so we know you've read this message."
-                            read
-                        else
-                            echo -e " * Firewall disabled - proceeding with installation...\n"
-                        fi
-                        ;;
-                    [Nn]|[Nn][Oo]|"")
-                        fwdisable="N"
-                        echo " * You sure know what you are doing, just keep in mind we told you! :-)"
-                        if [[ -z $autoaccept ]]; then
-                            echo " * Hit ENTER so we know you've read this message."
-                            read
-                        fi
-                        ;;
-                    *)
-                        fwdisable=""
-                        echo " * Invalid input, please try again!"
-                        ;;
-                esac
-            done
+    [[ $exitcode -ne 0 ]] && return
+    rulesnum=$(iptables -L -n | wc -l)
+    policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
+    [[ $rulesnum -eq 8 && $policy -eq 0 ]] && return
+    echo " * The local firewall seems to be currently enabled on your system. This can cause"
+    echo " * issues on FOG servers if you are not well experienced and know what you are doing."
+    echo " * Should the installer try to disable the local firewall for you now? (y/N)"
+    fwdisable=""
+    while [[ -z $fwdisable ]]; do
+        if [[ -n $autoaccept ]]; then
+            fwdisable="N"
+        else
+            read -r fwdisable
         fi
-    fi
+        case $fwdisable in
+            [Yy]|[Yy][Ee][Ss])
+                ufw stop >/dev/null 2>&1
+                ufw disable >/dev/null 2>&1
+                systemctl stop ufw >/dev/null 2>&1
+                systemctl disable ufw >/dev/null 2>&1
+                systemctl stop firewalld >/dev/null 2>&1
+                systemctl disable firewalld >/dev/null 2>&1
+                systemctl stop iptables >/dev/null 2>&1
+                systemctl disable iptables >/dev/null 2>&1
+                rulesnum=$(iptables -L -n | wc -l)
+                policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
+                if [[ $rulesnum -ne 8 || $policy -ne 0 ]]; then
+                    echo " * We were unable to disable the firewall on your system. Read up on how"
+                    echo " * you can disable it manually. Proceeding with the installation anyway..."
+                    echo " * Hit ENTER so we know you've read this message."
+                    read
+                else
+                    echo -e " * Firewall disabled - proceeding with installation...\n"
+                fi
+                ;;
+            [Nn]|[Nn][Oo]|"")
+                fwdisable="N"
+                echo " * You sure know what you are doing, just keep in mind we told you! :-)"
+                if [[ -z $autoaccept ]]; then
+                    echo " * Hit ENTER so we know you've read this message."
+                    read
+                fi
+                ;;
+            *)
+                fwdisable=""
+                echo " * Invalid input, please try again!"
+                ;;
+        esac
+    done
 }
 displayOSChoices() {
     blFirst=1
