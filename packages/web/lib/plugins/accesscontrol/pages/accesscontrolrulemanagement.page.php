@@ -431,16 +431,6 @@ class AccessControlRuleManagement extends FOGPage
             )
         ];
 
-        self::$HookManager->processEvent(
-            'ACCESSCONTROLRULE_GENERAL_FIELDS',
-            [
-                'fields' => &$fields,
-                'AccessControlRule' => &$this->obj
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
@@ -451,6 +441,17 @@ class AccessControlRuleManagement extends FOGPage
             _('Delete'),
             'btn btn-danger pull-left'
         );
+
+        self::$HookManager->processEvent(
+            'ACCESSCONTROLRULE_GENERAL_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'AccessControlRule' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
 
         echo self::makeFormTag(
             'form-horizontal',
@@ -654,7 +655,7 @@ class AccessControlRuleManagement extends FOGPage
     {
         header('Content-type: application/json');
         self::$HookManager->processEvent(
-            'RULE_EDIT_POST',
+            'ACCESSCONTROLRULE_EDIT_POST',
             ['AccessControlRule' => &$this->obj]
         );
 
@@ -674,7 +675,7 @@ class AccessControlRuleManagement extends FOGPage
                 throw new Exception(_('Rule update failed!'));
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'RULE_EDIT_SUCCESS';
+            $hook = 'ACCESSCONTROLRULE_EDIT_SUCCESS';
             $msg = json_encode(
                 [
                     'msg' => _('Rule updated!'),
@@ -687,7 +688,7 @@ class AccessControlRuleManagement extends FOGPage
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $hook = 'RULE_EDIT_FAIL';
+            $hook = 'ACCESSCONTROLRULE_EDIT_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
@@ -788,7 +789,7 @@ class AccessControlRuleManagement extends FOGPage
             unset($real);
         }
         self::$HookManager->processEvent(
-            'RULE_EXPORT_ITEMS',
+            'ACCESSCONTROLRULE_EXPORT_ITEMS',
             [
                 'table' => &$table,
                 'sqlstr' => &$sqlstr,

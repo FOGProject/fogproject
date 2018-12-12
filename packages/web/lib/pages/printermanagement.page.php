@@ -1393,7 +1393,7 @@ class PrinterManagement extends FOGPage
         );
 
         self::$HookManager->processEvent(
-            'PRINTER_GENERAL_BUTTONs',
+            'PRINTER_GENERAL_BUTTONS',
             ['buttons' => &$buttons]
         );
 

@@ -546,7 +546,7 @@ class AccessControlManagement extends FOGPage
             );
             $rules = $rules['rule'];
             if (count($rules ?: []) > 0) {
-                $this->obj->addUser($rules);
+                $this->obj->addRule($rules);
             }
         }
         if (isset($_POST['confirmdel'])) {
@@ -560,7 +560,7 @@ class AccessControlManagement extends FOGPage
             );
             $rules = $rules['remitems'];
             if (count($rules ?: []) > 0) {
-                $this->obj->removeUser($rules);
+                $this->obj->removeRule($rules);
             }
         }
     }
@@ -617,7 +617,7 @@ class AccessControlManagement extends FOGPage
     {
         header('Content-type: application/json');
         self::$HookManager->processEvent(
-            'ROLE_EDIT_POST',
+            'ACCESSCONTROL_EDIT_POST',
             ['AccessControl' => &$this->obj]
         );
 
@@ -640,7 +640,7 @@ class AccessControlManagement extends FOGPage
                 throw new Exception(_('Role update failed!'));
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'ROLE_EDIT_SUCCESS';
+            $hook = 'ACCESSCONTROL_EDIT_SUCCESS';
             $msg = json_encode(
                 [
                     'msg' => _('Role updated!'),
@@ -653,7 +653,7 @@ class AccessControlManagement extends FOGPage
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $hook = 'ROLE_EDIT_FAIL';
+            $hook = 'ACCESSCONTROL_EDIT_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
@@ -874,7 +874,7 @@ class AccessControlManagement extends FOGPage
             unset($real);
         }
         self::$HookManager->processEvent(
-            'ROLE_EXPORT_ITEMS',
+            'ACCESSCONTROL_EXPORT_ITEMS',
             [
                 'table' => &$table,
                 'sqlstr' => &$sqlstr,
