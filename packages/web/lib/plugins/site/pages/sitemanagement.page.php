@@ -326,6 +326,7 @@ class SiteManagement extends FOGPage
             'SITE_GENERAL_FIELDS',
             [
                 'fields' => &$fields,
+                'buttons' => &$buttons,
                 'Site' => &$this->obj
             ]
         );

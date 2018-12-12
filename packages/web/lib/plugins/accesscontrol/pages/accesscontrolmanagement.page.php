@@ -588,22 +588,27 @@ class AccessControlManagement extends FOGPage
             }
         ];
 
-        // Rules
+        // Associations
         $tabData[] = [
-            'name' => _('Rule Association'),
-            'id' => 'role-rules',
-            'generator' => function () {
-                $this->roleRules();
-            }
-        ];
-
-        // Users
-        $tabData[] = [
-            'name' => _('User Association'),
-            'id' => 'role-users',
-            'generator' => function () {
-                $this->roleUsers();
-            }
+            'tabs' => [
+                'name' => _('Associations'),
+                'tabData' => [
+                    [
+                        'name' => _('Rule Association'),
+                        'id' => 'role-rules',
+                        'generator' => function () {
+                            $this->roleRules();
+                        }
+                    ],
+                    [
+                        'name' => _('User Association'),
+                        'id' => 'role-users',
+                        'generator' => function () {
+                            $this->roleUsers();
+                        }
+                    ]
+                ]
+            ]
         ];
 
         echo self::tabFields($tabData, $this->obj);
