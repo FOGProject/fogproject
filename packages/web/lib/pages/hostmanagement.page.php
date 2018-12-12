@@ -1122,6 +1122,7 @@ class HostManagement extends FOGPage
         } elseif ($enctest) {
             $productKey = $productKeytest;
         }
+        $key = $productKey;
         $kernel = (
             filter_input(INPUT_POST, 'kernel') ?:
             $this->obj->get('kernel')
