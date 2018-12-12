@@ -1,5 +1,5 @@
 (function($) {
-    var exportTable = $('#tasktype-export-table').registerTable(null, {
+    var exportTable = $('#tasktypeedit-export-table').registerTable(null, {
         buttons: [
             'copy',
             {
