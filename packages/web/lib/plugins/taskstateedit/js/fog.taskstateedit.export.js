@@ -1,5 +1,5 @@
 (function($) {
-    var exportTable = $('#taskstate-export-table').registerTable(null, {
+    var exportTable = $('#taskstateedit-export-table').registerTable(null, {
         buttons: [
             'copy',
             {
