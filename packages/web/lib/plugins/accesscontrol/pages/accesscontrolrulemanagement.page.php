@@ -591,7 +591,6 @@ class AccessControlRuleManagement extends FOGPage
                 ]
             );
             $roles = $roles['role'];
-            throw new Exception(json_encode($roles));
             if (count($roles ?: []) > 0) {
                 $this->obj->addRole($roles);
             }
