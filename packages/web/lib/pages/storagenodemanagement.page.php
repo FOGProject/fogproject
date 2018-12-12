@@ -834,7 +834,7 @@ class StorageNodeManagement extends FOGPage
                     );
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'STORAGE_NODE_ADD_SUCCESS';
+            $hook = 'STORAGENODE_ADD_SUCCESS';
             $msg = json_encode(
                 [
                     'msg' => _('Storage Node added!'),

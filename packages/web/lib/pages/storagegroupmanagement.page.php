@@ -227,7 +227,7 @@ class StorageGroupManagement extends FOGPage
                 throw new Exception(self::$foglang['DBupfailed']);
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
-            $hook = 'STORAGEGROUP_ADD_POST_SUCCESS';
+            $hook = 'STORAGEGROUP_ADD_SUCCESS';
             $msg = json_encode(
                 [
                     'msg' => self::$foglang['SGCreated'],
@@ -240,7 +240,7 @@ class StorageGroupManagement extends FOGPage
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $hook = 'STORAGEGROUP_ADD_POST_FAIL';
+            $hook = 'STORAGEGROUP_ADD_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
@@ -572,7 +572,7 @@ class StorageGroupManagement extends FOGPage
                 throw new Exception(_('Storage Group Update Failed'));
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'STORAGEGROUP_EDIT_POST_SUCCESS';
+            $hook = 'STORAGEGROUP_EDIT_SUCCESS';
             $msg = json_encode(
                 [
                     'msg' => _('Storage Group updated!'),
@@ -585,7 +585,7 @@ class StorageGroupManagement extends FOGPage
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );
-            $hook = 'STORAGEGROUP_EDIT_POST_FAIL';
+            $hook = 'STORAGEGROUP_EDIT_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
@@ -762,7 +762,7 @@ class StorageGroupManagement extends FOGPage
             unset($real);
         }
         self::$HookManager->processEvent(
-            'STORAGENODE_EXPORT_ITEMS',
+            'STORAGEGROUP_EXPORT_ITEMS',
             [
                 'table' => &$table,
                 'sqlstr' => &$sqlstr,

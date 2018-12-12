@@ -1523,7 +1523,7 @@ class ServiceConfigurationPage extends FOGPage
                 break;
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'SERVICE_UPDATE_SUCCESS';
+            $hook = 'SERVICE_EDIT_SUCCESS';
             $msg = json_encode(
                 [
                     'msg' => _('Module update success!'),
@@ -1532,7 +1532,7 @@ class ServiceConfigurationPage extends FOGPage
             );
         } catch (Exception $e) {
             $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
-            $hook = 'SERVICE_UPDATE_FAIL';
+            $hook = 'SERVICE_EDIT_FAIL';
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
@@ -1542,7 +1542,12 @@ class ServiceConfigurationPage extends FOGPage
         }
         http_response_code($code);
         self::$HookManager->processEvent(
-            $hook
+            $hook,
+            [
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg
+            ]
         );
         echo $msg;
         exit;

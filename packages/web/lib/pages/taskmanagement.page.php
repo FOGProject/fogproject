@@ -642,7 +642,13 @@ class TaskManagement extends FOGPage
         http_response_code($code);
         self::$HookManager
             ->processEvent(
-                $hook
+                $hook,
+                [
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
         echo $msg;
         exit;
@@ -693,7 +699,7 @@ class TaskManagement extends FOGPage
     {
         header('Content-type: application/json');
         self::$HookManager->processEvent(
-            'TASK_ACTIVEMULTICAST'
+            'TASK_ACTIVEMULTICAST_CANCEL'
         );
         $serverFault = false;
         try {
@@ -746,7 +752,13 @@ class TaskManagement extends FOGPage
         http_response_code($code);
         self::$HookManager
             ->processEvent(
-                $hook
+                $hook,
+                [
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
         echo $msg;
         exit;
@@ -797,7 +809,7 @@ class TaskManagement extends FOGPage
     {
         header('Content-type: application/json');
         self::$HookManager->processEvent(
-            'TASK_ACTIVESNAPIN'
+            'TASK_ACTIVESNAPIN_CANCEL'
         );
         $serverFault = false;
         try {
@@ -887,7 +899,13 @@ class TaskManagement extends FOGPage
         http_response_code($code);
         self::$HookManager
             ->processEvent(
-                $hook
+                $hook,
+                [
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
         echo $msg;
         exit;
@@ -940,7 +958,7 @@ class TaskManagement extends FOGPage
     {
         header('Content-type: application/json');
         self::$HookManager->processEvent(
-            'TASK_ACTIVE_CANCEL'
+            'TASK_ACTIVESCHEDULED_CANCEL'
         );
         try {
             if (isset($_POST['cancelconfirm'])) {
@@ -980,7 +998,13 @@ class TaskManagement extends FOGPage
         http_response_code($code);
         self::$HookManager
             ->processEvent(
-                $hook
+                $hook,
+                [
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
             );
         echo $msg;
         exit;
