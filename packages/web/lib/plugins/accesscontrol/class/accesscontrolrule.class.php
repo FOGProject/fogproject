@@ -117,7 +117,7 @@ class AccessControlRule extends FOGController
     {
         parent::save();
         return $this
-            ->assocSetter('AccessControl', 'accesscontrol')
+            ->assocSetter('accesscontrolrule', 'accesscontrol')
             ->load();
     }
 }
