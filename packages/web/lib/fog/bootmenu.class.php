@@ -130,17 +130,15 @@ class BootMenu extends FOGBase
         $sanboot = 'sanboot --no-describe --drive 0x80';
         $refind = sprintf(
             'imgfetch ${boot-url}/service/ipxe/refind.conf%s'
-            . 'chain -ar ${boot-url}/service/ipxe/refind.efi',
+            . 'chain -ar ${boot-url}/service/ipxe/refind_x64.efi',
             "\n"
         );
 
-        if (stripos($_REQUEST['arch'], 'arm') !== false) {
-            //user arm boot loaders instead
-            $grubChain = 'chain -ar ${boot-url}/service/ipxe/grub_aa64.exe '
-                . '--config-file="%s"';
+        if (stripos($_REQUEST['arch'], 'i386') !== false) {
+            //user i386 boot loaders instead
             $refind = sprintf(
-                'imgfetch ${boot-url}/service/ipxe/refind_aa64.conf%s'
-                . 'chain -ar ${boot-url}/service/ipxe/refind_aa64.efi',
+                'imgfetch ${boot-url}/service/ipxe/refind.conf%s'
+                . 'chain -ar ${boot-url}/service/ipxe/refind_ia32.efi',
                 "\n"
             );
         }
