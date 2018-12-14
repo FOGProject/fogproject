@@ -72,6 +72,12 @@ abstract class FOGBase
      */
     public static $pluginsinstalled = [];
     /**
+     * Plugin system available
+     *
+     * @var bool
+     */
+    public static $pluginIsAvailable = false;
+    /**
      * User agent string.
      *
      * @var string
