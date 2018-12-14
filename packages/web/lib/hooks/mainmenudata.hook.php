@@ -82,7 +82,7 @@ class MainMenuData extends Hook
         $link = strtolower($this->menuitem);
         self::arrayInsertAfter(
             $this->insertAfter,
-            $arguments['hook_main'],
+            $arguments['main'],
             $link,
             [_($this->menuitem), 'fa ' . $this->icon . ' fa-2x']
         );

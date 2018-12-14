@@ -98,7 +98,8 @@ class AddLDAPMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        $arguments['hook_main'][$this->node] = [_('LDAP Servers'), 'fa fa-key'];
+        $arguments['hook_main'][$this->node]
+            = [_('LDAP Servers'), 'fa fa-key'];
     }
     /**
      * Adds the plugin page to the search page lists

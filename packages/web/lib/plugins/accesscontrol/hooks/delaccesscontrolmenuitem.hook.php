@@ -57,7 +57,7 @@ class DelAccessControlMenuItem extends Hook
             return;
         }
         self::$HookManager->register(
-            'MAIN_MENU_DATA',
+            'DELETE_MENU_DATA',
             [$this, 'deleteMenuData']
         )->register(
             'SUB_MENULINK_DATA',
@@ -91,7 +91,9 @@ class DelAccessControlMenuItem extends Hook
         $Rules = json_decode(
             Route::getData()
         );
+        $tmpIDs = [];
         foreach ($Rules->data as &$Rule) {
+            $tmpIDs[] = $Rule->accesscontrolruleID;
             Route::indiv('accesscontrolrule', $Rule->accesscontrolruleID);
             $Rule = json_decode(
                 Route::getData()

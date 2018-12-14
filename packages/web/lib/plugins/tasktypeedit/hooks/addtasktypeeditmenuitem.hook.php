@@ -96,7 +96,8 @@ class AddTasktypeeditMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        $arguments['hook_main'][$this->node] = [_('Task Types'), 'fa fa-th-list'];
+        $arguments['hook_main'][$this->node]
+            = [_('Task Types'), 'fa fa-th-list'];
     }
     /**
      * Adds search element.
