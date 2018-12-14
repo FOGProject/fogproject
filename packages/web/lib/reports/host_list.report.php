@@ -7,6 +7,7 @@
  * @category Host_List
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Fernando Gietz <fernando.gietz@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -22,13 +23,161 @@
 class Host_List extends ReportManagementPage
 {
     /**
+     * Display search page.
+     *
+     * @return void
+     */
+
+    public function file()
+    {
+        $this->title = _('FOG Host - Search');
+        unset(
+                $this->data,
+                $this->form,
+                $this->headerData,
+                $this->templates,
+                $this->attributes
+        );
+        $this->templates = array(
+                '${field}',
+                '${input}'
+        );
+        $this->attributes = array(
+                array('class' => 'col-xs-4'),
+                array('class' => 'col-xs-8 form-group')
+        );
+        $groupNames = self::getSubObjectIDs(
+                'Group',
+                '',
+                'name'
+        );
+        $groupNames = array_values(
+                array_filter(
+                        array_unique(
+                                (array)$groupNames
+                        )
+                 )
+        );
+	if (in_array('location', (array)self::$pluginsinstalled)){
+		$locationNames = self::getSubObjectIDs(
+	                'Location',
+                	'',
+        	        'name'
+	        );
+		natcasesort($locationNames);
+	        if (count($locationNames) > 0) {
+	                $locationSelForm = self::selectForm(
+        	                'locationsearch',
+                	        $locationNames
+	                );
+        	        unset($locationNames);
+        	}
+
+	
+	}
+        if (in_array('site', (array)self::$pluginsinstalled)){
+                $siteNames = self::getSubObjectIDs(
+                        'site',
+                        '',
+                        'name'
+                );
+                natcasesort($siteNames);
+                if (count($siteNames) > 0) {
+                        $siteSelForm = self::selectForm(
+                                'sitesearch',
+                                $siteNames
+                        );
+                        unset($siteNames);
+                }
+
+
+        }
+        natcasesort($groupNames);
+
+        if (count($groupNames) > 0) {
+                $groupSelForm = self::selectForm(
+                        'groupsearch',
+                        $groupNames
+                );
+                unset($groupNames);
+        }
+        $fields = array(
+                '<label for="groupsearch">'
+                . _('Enter a group name to search for')
+                . '</label>' => $groupSelForm,
+                '<label for="performsearch">'
+                . _('Perform search')
+                . '</label>' => '<button type="submit" name="performsearch" '
+                . 'class="btn btn-info btn-block" id="performsearch">'
+                . _('Search')
+                . '</button>'
+        );
+        if (in_array('location', (array)self::$pluginsinstalled)){	
+		self::arrayInsertAfter(
+			'<label for="groupsearch">'
+        	        . _('Enter a group name to search for')
+        	        . '</label>',
+			$fields,
+			'<label for="locationsearch">'
+        	        . _('Enter a location name to search for')
+        	        . '</label>',
+			$locationSelForm
+		);
+	}
+	if (in_array('site', (array)self::$pluginsinstalled)){
+                self::arrayInsertAfter(
+                        '<label for="groupsearch">'
+                        . _('Enter a group name to search for')
+                        . '</label>',
+                        $fields,
+                        '<label for="sitesearch">'
+                        . _('Enter a site name to search for')
+                        . '</label>',
+                        $siteSelForm
+                );
+        }
+        array_walk($fields, $this->fieldsToData);
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+                . $this->formAction
+                . '">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
      * Display page.
      *
      * @return void
      */
-    public function file()
+    public function filePost()
     {
         $this->title = _('Host Listing Export');
+         $groupsearch = filter_input(
+             INPUT_POST,
+             'groupsearch'
+        );
+        if (!$groupsearch) {
+                $groupsearch = '%';
+        }
+	
+        $locationsearch = filter_input(
+             INPUT_POST,
+             'locationsearch'
+        );
+        $sitesearch = filter_input(
+             INPUT_POST,
+             'sitesearch'
+        );
         $csvHead = array(
             _('Host ID') => 'id',
             _('Host Name') => 'name',
@@ -60,7 +209,51 @@ class Host_List extends ReportManagementPage
             '${host_mac}',
             '${image_name}',
         );
-        Route::listem('host');
+        $groupIDs = self::getSubObjectIDs(
+        	'Group',
+        	array('name' => $groupsearch),
+                'id'
+        );
+
+	$groupHostIDs = self::getSubObjectIDs(
+                'GroupAssociation',
+                array('groupID' => $groupIDs),
+                'hostID'
+        );
+	if (in_array('location', (array)self::$pluginsinstalled) && $locationsearch){
+		$locationIDs = self::getSubObjectIDs(
+        	        'Location',
+        	        array('name' => $locationsearch),
+        	        'id'
+        	);
+		$locationHostIDs = self::getSubObjectIDs(
+        	        'LocationAssociation',
+        	        array('locationID' => $locationIDs),
+        	        'hostID'
+        	);
+		$groupHostIDs = array_intersect($locationHostIDs,$groupHostIDs);
+	}
+        if (in_array('site', (array)self::$pluginsinstalled) && $sitesearch){
+                $siteIDs = self::getSubObjectIDs(
+                        'Site',
+                        array('name' => $sitesearch),
+                        'id'
+                );
+                $siteHostIDs = self::getSubObjectIDs(
+                        'SiteHostAssociation',
+                        array('siteID' => $siteIDs),
+                        'hostID'
+                );
+                $groupHostIDs = array_intersect($siteHostIDs,$groupHostIDs);
+        }
+
+        Route::listem('host',
+		'name',
+		'false',
+		array(
+			'id' => $groupHostIDs
+		)
+	);
         $Hosts = json_decode(
             Route::getData()
         );
