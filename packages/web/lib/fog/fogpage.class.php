@@ -425,25 +425,30 @@ abstract class FOGPage extends FOGBase
                 ]
             );
         }
-
         $menu = array_unique(
             array_filter($menu),
             SORT_REGULAR
-        );
-
-        self::$HookManager->processEvent(
-            'MAIN_MENU_DATA',
-            ['main' => &$menu]
         );
 
         $hookMenu = [];
 
         self::$HookManager->processEvent(
             'MAIN_MENU_DATA',
-            ['hook_main' => &$hookMenu]
+            [
+                'main' => &$menu,
+                'hook_main' => &$hookMenu
+            ]
         );
 
         natcasesort($hookMenu);
+
+        self::$HookManager->processEvent(
+            'DELETE_MENU_DATA',
+            [
+                'main' => &$menu,
+                'hook_main' => &$hookMenu
+            ]
+        );
 
         foreach ($hookMenu as $key => &$value) {
             if (array_key_exists($key, $menu)) {

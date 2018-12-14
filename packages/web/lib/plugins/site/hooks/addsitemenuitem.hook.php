@@ -94,7 +94,8 @@ class AddSiteMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        $arguments['hook_main'][$this->node] = [_('Sites'), 'fa fa-building'];
+        $arguments['hook_main'][$this->node]
+            = [_('Sites'), 'fa fa-building'];
     }
     /**
      * Adds the Site page to search elements.
