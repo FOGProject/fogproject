@@ -94,7 +94,8 @@ class AddWindowsKeyMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        $arguments['main'][$this->node] = [_('Windows Keys'), 'fa fa-windows'];
+        $arguments['hook_main'][$this->node]
+            = [_('Windows Keys'), 'fa fa-windows'];
     }
     /**
      * Adds the windows key page to search elements.
