@@ -60,7 +60,7 @@ class DelAccessControlMenuItem extends Hook
             'DELETE_MENU_DATA',
             [$this, 'deleteMenuData']
         )->register(
-            'SUB_MENULINK_DATA',
+            'DELETE_MENULINK_DATA',
             [$this, 'deleteSubMenuData']
         );
     }
@@ -91,9 +91,7 @@ class DelAccessControlMenuItem extends Hook
         $Rules = json_decode(
             Route::getData()
         );
-        $tmpIDs = [];
         foreach ($Rules->data as &$Rule) {
-            $tmpIDs[] = $Rule->accesscontrolruleID;
             Route::indiv('accesscontrolrule', $Rule->accesscontrolruleID);
             $Rule = json_decode(
                 Route::getData()
@@ -117,13 +115,13 @@ class DelAccessControlMenuItem extends Hook
         Route::ids(
             'accesscontrolassociation',
             $find,
-            'accesscontrolruleID'
+            'accesscontrolID'
         );
         $accesscontrols = json_decode(
             Route::getData(),
             true
         );
-        $find = ['accesscontrolruleID' => $accesscontrols];
+        $find = ['accesscontrolID' => $accesscontrols];
         Route::listem(
             'accesscontrolruleassociation',
             $find
@@ -136,6 +134,15 @@ class DelAccessControlMenuItem extends Hook
             $Rule = json_decode(
                 Route::getData()
             );
+            // If to impact a specific node.
+            if ($Rule->node) {
+                if ($arguments['node'] != $Rule->node) {
+                    continue;
+                }
+                unset($arguments[$Rule->parent][$Rule->value]);
+                continue;
+            }
+            // If to impact a specific link.
             unset($arguments[$Rule->parent][$Rule->value]);
             unset($Rule);
         }

@@ -53,14 +53,10 @@ class SubMenuData extends Hook
     public function __construct()
     {
         parent::__construct();
-        self::$HookManager
-            ->register(
-                'SUB_MENULINK_DATA',
-                [
-                    $this,
-                    'subMenu'
-                ]
-            );
+        self::$HookManager->register(
+            'SUB_MENULINK_DATA',
+            [$this, 'subMenu']
+        );
     }
     /**
      * The changer method.

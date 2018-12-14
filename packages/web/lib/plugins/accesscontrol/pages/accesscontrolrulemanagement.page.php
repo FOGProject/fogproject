@@ -290,7 +290,7 @@ class AccessControlRuleManagement extends FOGPage
                     _('A rule already exists with that type-value pair!')
                 );
             }
-            $exists = self::getClass('AccessControlRuleManager')->exists(
+            /*$exists = self::getClass('AccessControlRuleManager')->exists(
                 $value,
                 '',
                 'value'
@@ -299,7 +299,7 @@ class AccessControlRuleManagement extends FOGPage
                 throw new Exception(
                     _('A rule already exists with this value!')
                 );
-            }
+            }*/
             $AccessControlRule = self::getClass('AccessControlRule')
                 ->set('type', $type)
                 ->set('value', $value)
@@ -500,14 +500,14 @@ class AccessControlRuleManagement extends FOGPage
         $name = $type
             . '-'
             . $value;
-        $valexists = $this->obj->getManager()->exists($value, '', 'value');
+        //$valexists = $this->obj->getManager()->exists($value, '', 'value');
         $nameexists = $this->obj->getManager()->exists($name);
 
-        if ($value != $this->obj->get('value')
-            && $valexists
-        ) {
-            throw new Exception(_('A value already exists with this content!'));
-        }
+        //if ($value != $this->obj->get('value')
+        //    && $valexists
+        //) {
+        //    throw new Exception(_('A value already exists with this content!'));
+        //}
         if ($orgname != $name && $nameexists) {
             throw new Exception(
                 _('A name with this type-value pair already exists!')
