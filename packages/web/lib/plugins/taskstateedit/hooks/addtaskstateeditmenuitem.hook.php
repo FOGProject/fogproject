@@ -96,7 +96,7 @@ class AddTaskstateeditMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        $arguments['main'][$this->node]
+        $arguments['hook_main'][$this->node]
             = [_('Task States'), 'fa fa-hourglass-start'];
     }
     /**

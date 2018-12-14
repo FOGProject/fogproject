@@ -101,9 +101,9 @@ class AddAccessControlMenuItem extends Hook
      */
     public function menuData($arguments)
     {
-        $arguments['main'][$this->node]
+        $arguments['hook_main'][$this->node]
             = [_('Access Controls'), 'fa fa-user-secret'];
-        $arguments['main']['accesscontrolrule']
+        $arguments['hook_main']['accesscontrolrule']
             = [_('Access Control Rules'), 'fa fa-user-times'];
     }
     /**
