@@ -503,13 +503,12 @@ abstract class FOGPage extends FOGBase
         global $node;
         global $sub;
         ob_start();
-        $links = [];
+        $links = $subs = [];
         foreach ($menu as $link => &$title) {
             $links[] = $link;
             if (!$node && 'home' == $link) {
                 $node = $link;
             }
-            $activelink = ($node == $link);
             $activelink = ($node == $link);
             $subItems = array_filter(
                 self::_buildSubMenuItems($link)
@@ -547,7 +546,9 @@ abstract class FOGPage extends FOGBase
             echo '</a>';
             if (count($subItems ?: []) > 0) {
                 echo '<ul class="treeview-menu">';
+                $subs[$link] = [];
                 foreach ($subItems as $subItem => $text) {
+                    $subs[$link][] = $subItem;
                     echo '<li class="'
                         . (
                             $activelink && $sub == $subItem ?
@@ -569,6 +570,9 @@ abstract class FOGPage extends FOGBase
             }
             echo '</li>';
             unset($title);
+        }
+        if (count($subs[$node] ?: []) > 0 && !in_array($sub, $subs[$node])) {
+            self::redirect('../management/index.php?node='.$node);
         }
         return ob_get_clean();
     }
@@ -694,6 +698,15 @@ abstract class FOGPage extends FOGBase
 
         self::$HookManager->processEvent(
             'SUB_MENULINK_DATA',
+            [
+                'menu' => &$menu,
+                'node' => &$node,
+                'refNode' => &$refNode
+            ]
+        );
+
+        self::$HookManager->processEvent(
+            'DELETE_MENULINK_DATA',
             [
                 'menu' => &$menu,
                 'node' => &$node,

@@ -502,9 +502,15 @@ class AccessControlManagement extends FOGPage
 
         $this->headerData = [
             _('Rule Name'),
+            _('Rule Parent'),
+            _('Rule Value'),
+            _('Rule Node'),
             _('Associated')
         ];
         $this->attributes = [
+            [],
+            [],
+            [],
             [],
             ['width' => 16]
         ];

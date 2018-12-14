@@ -73,11 +73,14 @@ $(function() {
 
     var rulesTable = $('#role-rules-table').registerTable(onRulesSelect, {
         order: [
-            [1, 'asc'],
+            [4, 'asc'],
             [0, 'asc']
         ],
         columns: [
             {data: 'name'},
+            {data: 'parent'},
+            {data: 'value'},
+            {data: 'node'},
             {data: 'association'}
         ],
         rowId: 'id',
@@ -107,7 +110,7 @@ $(function() {
                     + '/>'
                     + '</div>';
                 },
-                targets: 1
+                targets: 4
             }
         ],
         processing: true,
