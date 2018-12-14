@@ -450,6 +450,10 @@ abstract class FOGPage extends FOGBase
             ]
         );
 
+        if ($menu['plugin']) {
+            self::$pluginIsAvailable = true;
+        }
+
         foreach ($hookMenu as $key => &$value) {
             if (array_key_exists($key, $menu)) {
                 unset($hookMenu[$key]);

@@ -149,7 +149,7 @@ if (self::$FOGUser->isValid()) {
     echo _('MAIN NAVIGATION');
     echo '</li>';
     echo $this->menu;
-    if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
+    if (self::$pluginIsAvailable) {
         echo '<li class="header">';
         echo '<span class="pull-left">';
         echo _('PLUGIN OPTIONS');
