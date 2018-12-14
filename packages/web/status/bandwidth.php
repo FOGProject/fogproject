@@ -41,8 +41,8 @@ $getBytes = function ($dev) {
     }
     $txpath = "/sys/class/net/$dev/statistics/tx_bytes";
     $rxpath = "/sys/class/net/$dev/statistics/rx_bytes";
-    $tx = (int)file_get_contents($txpath);
-    $rx = (int)file_get_contents($rxpath);
+    $tx = (int)trim(file_get_contents($txpath));
+    $rx = (int)trim(file_get_contents($rxpath));
     return [$rx,$tx];
 };
 // Make sure a device is set
