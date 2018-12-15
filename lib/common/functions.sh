@@ -858,9 +858,10 @@ stopInitScript() {
     for serviceItem in $serviceList; do
         dots "Stopping $serviceItem Service"
         if [ "$systemctl" == "yes" ]; then
-            systemctl stop $serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+            systemctl is-active --quiet $serviceItem && systemctl stop $serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
         else
-            [[ -x $initdpath/$serviceItem ]] && $initdpath/$serviceItem stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+            [[ ! -x $initdpath/$serviceItem ]] && continue
+            $initdpath/$serviceItem status >/dev/null 2>&1 && $initdpath/$serviceItem stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
         fi
         echo "OK"
     done
@@ -869,9 +870,10 @@ startInitScript() {
     for serviceItem in $serviceList; do
         dots "Starting $serviceItem Service"
         if [[ $systemctl == yes ]]; then
-            systemctl start $serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+            systemctl is-active --quiet $serviceItem || systemctl start $serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
         else
-            [[ -x $initdpath/$serviceItem ]] && $initdpath/$serviceItem start >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+            [[ ! -x $initdpath/$serviceItem ]] && continue
+            $initdpath/$serviceItem status >/dev/null 2>&1 || $initdpath/$serviceItem start >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
         fi
         errorStat $?
     done
@@ -948,28 +950,11 @@ configureMySql() {
             chown -R mysql:mysql /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
-        systemctl enable mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        systemctl stop mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        dbservice=$(systemctl list-units | grep -e mysql -e mysqld -e mariadb | awk '{print $1}')
+        systemctl is-enabled --quiet $dbservice || systemctl enable $dbservice >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        systemctl is-active --quiet $dbservice && systemctl stop $dbservice >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sleep 2
-        systemctl start mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sleep 2
-        systemctl status mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        if [[ ! $? -eq 0 ]]; then
-            systemctl enable mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            systemctl stop mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sleep 2
-            systemctl start mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sleep 2
-            systemctl status mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        fi
-        if [[ ! $? -eq 0 ]]; then
-            systemctl enable mariadb.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            systemctl stop mariadb.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sleep 2
-            systemctl start mariadb.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sleep 2
-            systemctl status mariadb.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        fi
+        systemctl start $dbservice >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     else
         case $osid in
             1)
