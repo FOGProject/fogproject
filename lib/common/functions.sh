@@ -937,7 +937,48 @@ installInitScript() {
 }
 configureMySql() {
     stopInitScript
+    if [[ $installtype == +([Nn]) && ! $fogupdateloaded -eq 1 && -z $autoaccept ]]; then
+        dummy=""
+        while [[ -z $dummy ]]; do
+            echo -n " * Is the MySQL password blank? (Y/n) "
+            read -r dummy
+            case $dummy in
+                [Yy]|[Yy][Ee][Ss]|"")
+                    dummy='Y'
+                    ;;
+                [Nn]|[Nn][Oo])
+                    echo -n " * Enter the MySQL password: "
+                    read -rs PASSWORD1
+                    echo
+                    echo -n " * Re-enter the MySQL password: "
+                    read -rs PASSWORD2
+                    echo
+                    if [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]]; then
+                        dbpass=$PASSWORD1
+                    else
+                        dbpass=""
+                        while ! [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]]; do
+                            echo "Password entries were blank or didn't match!"
+                            echo -n " * Enter the MySQL password: "
+                            read -rs PASSWORD1
+                            echo
+                            echo -n " * Re-enter the MySQL password: "
+                            read -rs PASSWORD2
+                            echo
+                            [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]] && dbpass=$PASSWORD1
+                        done
+                    fi
+                    [[ $snmysqlpass != "$dbpass" ]] && snmysqlpass=$dbpass
+                    ;;
+                *)
+                    dummy=""
+                    echo " * Invalid input, please try again!"
+                    ;;
+            esac
+        done
+    fi
     dots "Setting up and starting MySQL"
+    dbservice=$(systemctl list-units | grep -e mysql -e mysqld -e mariadb | awk '{print $1}')
     for mysqlconf in $(grep -rl '.*skip-networking' /etc | grep -v init.d); do
         sed -i '/.*skip-networking/ s/^#*/#/' -i $mysqlconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     done
@@ -945,32 +986,67 @@ configureMySql() {
         sed -e '/.*bind-address.*=.*127.0.0.1/ s/^#*/#/' -i $mysqlconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     done
     if [[ $systemctl == yes ]]; then
-        if [[ $osid -eq 3 ]]; then
-            [[ ! -d /var/lib/mysql ]] && mkdir /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        if [[ $osid -eq 3 && ! -d /var/lib/mysql ]]; then
+            mkdir /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             chown -R mysql:mysql /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
-        dbservice=$(systemctl list-units | grep -e mysql -e mysqld -e mariadb | awk '{print $1}')
         systemctl is-enabled --quiet $dbservice || systemctl enable $dbservice >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        systemctl is-active --quiet $dbservice && systemctl stop $dbservice >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sleep 2
-        systemctl start $dbservice >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        systemctl is-active --quiet $dbservice || systemctl start $dbservice >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     else
         case $osid in
             1)
                 chkconfig mysqld on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                service mysqld stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
                 service mysqld start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
-                service mysqld status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 ;;
             2)
                 sysv-rc-conf mysql on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                service mysql stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
                 service mysql start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
+                ;;
+        esac
+    fi
+    options=("-s")
+    [[ -n $snmysqlhost ]] && options=( "${options[@]}" "--host=$snmysqlhost" )
+    [[ -n $snmysqluser ]] && options=( "${options[@]}" "--user=$snmysqluser" )
+    [[ -n $snmysqlpass ]] && options=( "${options[@]}" "--password=$snmysqlpass" )
+    sqlescsnmysqlpass=$(echo "$snmysqlpass" | sed -e s/\'/\'\'/g)   # Replace every ' with '' for full MySQL escaping
+    sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
+    mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    mysqlver=$(mysql -V |  sed -n 's/.*Distrib[ ]\(\([0-9]\([.]\|\)\)*\).*\([-]\|\)[,].*/\1/p')
+    mariadb=$(mysql -V |  sed -n 's/.*Distrib[ ].*[-]\(.*\)[,].*/\1/p')
+    vertocheck="5.7"
+    [[ -n $mariadb ]] && vertocheck="10.2"
+    if [[ $systemctl == yes ]]; then
+        systemctl restart $dbservice >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    else
+        case $osid in
+            1)
+                service mysqld restart >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                ;;
+            2)
+                service mysql restart >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                ;;
+        esac
+    fi
+    mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
+    runTest=$(echo "$mysqlver < $vertocheck" | bc)
+    if [[ $runTest -eq 0 ]]; then
+        [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
+        [[ -z $snmysqluser ]] && snmysqluser='root'
+        case $snmysqlhost in
+            127.0.0.1|[Ll][Oo][Cc][Aa][Ll][Hh][Oo][Ss][Tt])
+                sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
+                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sql="ALTER USER '$snmysqluser'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
+                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sql="ALTER USER '$snmysqluser'@'localhost' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
+                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                ;;
+            *)
+                sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
+                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sql="ALTER USER '$snmysqluser'@'$snmysqlhost' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
+                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 ;;
         esac
     fi
@@ -1697,80 +1773,6 @@ configureHttpd() {
                 fi
                 rm $etcconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 errorStat $?
-                ;;
-        esac
-    fi
-    if [[ $installtype == +([Nn]) && ! $fogupdateloaded -eq 1 && -z $autoaccept ]]; then
-        dummy=""
-        while [[ -z $dummy ]]; do
-            echo -n " * Is the MySQL password blank? (Y/n) "
-            read -r dummy
-            case $dummy in
-                [Yy]|[Yy][Ee][Ss]|"")
-                    dummy='Y'
-                    ;;
-                [Nn]|[Nn][Oo])
-                    echo -n " * Enter the MySQL password: "
-                    read -rs PASSWORD1
-                    echo
-                    echo -n " * Re-enter the MySQL password: "
-                    read -rs PASSWORD2
-                    echo
-                    if [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]]; then
-                        dbpass=$PASSWORD1
-                    else
-                        dbpass=""
-                        while ! [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]]; do
-                            echo "Password entries were blank or didn't match!"
-                            echo -n " * Enter the MySQL password: "
-                            read -rs PASSWORD1
-                            echo
-                            echo -n " * Re-enter the MySQL password: "
-                            read -rs PASSWORD2
-                            echo
-                            [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]] && dbpass=$PASSWORD1
-                        done
-                    fi
-                    [[ $snmysqlpass != "$dbpass" ]] && snmysqlpass=$dbpass
-                    ;;
-                *)
-                    dummy=""
-                    echo " * Invalid input, please try again!"
-                    ;;
-            esac
-        done
-    fi
-    options=("-s")
-    [[ -n $snmysqlhost ]] && options=( "${options[@]}" "--host=$snmysqlhost" )
-    [[ -n $snmysqluser ]] && options=( "${options[@]}" "--user=$snmysqluser" )
-    [[ -n $snmysqlpass ]] && options=( "${options[@]}" "--password=$snmysqlpass" )
-    sqlescsnmysqlpass=$(echo "$snmysqlpass" | sed -e s/\'/\'\'/g)   # Replace every ' with '' for full MySQL escaping
-    sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-    mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    mysqlver=$(mysql -V |  sed -n 's/.*Distrib[ ]\(\([0-9]\([.]\|\)\)*\).*\([-]\|\)[,].*/\1/p')
-    mariadb=$(mysql -V |  sed -n 's/.*Distrib[ ].*[-]\(.*\)[,].*/\1/p')
-    vertocheck="5.7"
-    [[ -n $mariadb ]] && vertocheck="10.2"
-    configureMySql
-    mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
-    runTest=$(echo "$mysqlver < $vertocheck" | bc)
-    if [[ $runTest -eq 0 ]]; then
-        [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
-        [[ -z $snmysqluser ]] && snmysqluser='root'
-        case $snmysqlhost in
-            127.0.0.1|[Ll][Oo][Cc][Aa][Ll][Hh][Oo][Ss][Tt])
-                sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'localhost' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                ;;
-            *)
-                sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'$snmysqlhost' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 ;;
         esac
     fi
