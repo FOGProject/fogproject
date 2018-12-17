@@ -47,7 +47,8 @@ elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]
                 rm -rf /etc/php* /etc/apache2*
                 echo "Done"
                 dots "Stopping web services"
-                [[ $systemctl == yes ]] && systemctl stop apache2 >/dev/null 2>&1 || service apache2 stop >/dev/null 2>&1
+                if [[ $systemctl == yes ]]; then
+                    systemctl is-active --quiet apache2 && systemctl stop apache2 >/dev/null 2>&1 || service apache2 stop >/dev/null 2>&1
                 [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
                 dots "Removing the apache and php packages"
                 DEBIAN_FRONTEND=noninteractive apt-get purge -yq 'apache2*' 'php5*' 'php7*' 'libapache*' >/dev/null 2>&1
