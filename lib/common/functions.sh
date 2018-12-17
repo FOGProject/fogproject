@@ -382,12 +382,9 @@ configureFTP() {
     echo -e  "max_per_ip=200\nanonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\ntcp_wrappers=$tcpwrappers\n$seccompsand" > "$ftpconfig"
     case $systemctl in
         yes)
-            systemctl enable vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sleep 2
-            systemctl stop vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sleep 2
-            systemctl start vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sleep 2
+            systemctl is-enabled --quiet vsftpd || systemctl enable vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            systemctl is-active --quiet vsftpd && systemctl stop vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            systemctl is-active --quiet vsftpd || systemctl start vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             systemctl status vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             ;;
         *)
@@ -395,17 +392,13 @@ configureFTP() {
                 2)
                     sysv-rc-conf vsftpd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     service vsftpd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
                     service vsftpd start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
                     service vsftpd status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 *)
                     chkconfig vsftpd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     service vsftpd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
                     service vsftpd start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
                     service vsftpd status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
             esac
@@ -448,21 +441,16 @@ configureTFTPandPXE() {
         yes)
             if [[ $osid -eq 2 && -f $tftpconfigupstartdefaults ]]; then
                 echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"-s\"" > "$tftpconfigupstartdefaults"
-                systemctl disable xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                systemctl enable tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                systemctl stop xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
-                systemctl stop tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
-                systemctl start tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
+                systemctl is-enabled --quiet xinetd && systemctl disable xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl is-enabled --quiet tftpd-hpa || systemctl enable tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl is-active --quiet xinetd && systemctl stop xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl is-active --quiet && systemctl stop tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl is-active --quiet || systemctl start tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 systemctl status tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             else
-                systemctl enable xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                systemctl stop xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
-                systemctl start xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
+                systemctl is-enabled --quiet xinetd || systemctl enable xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl is-active --quiet xinetd && systemctl stop xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl is-active --quiet xinetd || systemctl start xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 systemctl status xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             fi
             ;;
@@ -473,21 +461,15 @@ configureTFTPandPXE() {
                 service xinetd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 sysv-rc-conf tftpd-hpa on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 service tftpd-hpa stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
                 service tftpd-hpa start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
             elif [[ $osid -eq 2 ]]; then
                 sysv-rc-conf xinetd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 $initdpath/xinetd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
                 $initdpath/xinetd start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
             else
                 chkconfig xinetd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 service xinetd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
                 service xinetd start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
                 service xinetd status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             fi
             ;;
@@ -736,12 +718,12 @@ checkFirewall() {
             [Yy]|[Yy][Ee][Ss])
                 ufw stop >/dev/null 2>&1
                 ufw disable >/dev/null 2>&1
-                systemctl stop ufw >/dev/null 2>&1
-                systemctl disable ufw >/dev/null 2>&1
-                systemctl stop firewalld >/dev/null 2>&1
-                systemctl disable firewalld >/dev/null 2>&1
-                systemctl stop iptables >/dev/null 2>&1
-                systemctl disable iptables >/dev/null 2>&1
+                systemctl is-active --quiet ufw && systemctl stop ufw >/dev/null 2>&1
+                systemctl is-enabled --quiet ufw && systemctl disable ufw >/dev/null 2>&1
+                systemctl is-active --quiet firewalld && systemctl stop firewalld >/dev/null 2>&1
+                systemctl is-enabled --quiet firewalld && systemctl disable firewalld >/dev/null 2>&1
+                systemctl is-active --quiet iptables && systemctl stop iptables >/dev/null 2>&1
+                systemctl is-enabled --quiet iptables && systemctl disable iptables >/dev/null 2>&1
                 rulesnum=$(iptables -L -n | wc -l)
                 policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
                 if [[ $rulesnum -eq 8 && $policy -eq 0 ]]; then
@@ -850,9 +832,10 @@ stopInitScript() {
     for serviceItem in $serviceList; do
         dots "Stopping $serviceItem Service"
         if [ "$systemctl" == "yes" ]; then
-            systemctl stop $serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+            systemctl is-active --quiet $serviceItem && systemctl stop $serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         else
-            [[ -x $initdpath/$serviceItem ]] && $initdpath/$serviceItem stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+            [[ ! -x $initdpath/$serviceItem ]] && continue
+            $initdpath/$serviceItem status >/dev/null 2>&1 && $initdpath/$serviceItem stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
         echo "OK"
     done
@@ -861,9 +844,10 @@ startInitScript() {
     for serviceItem in $serviceList; do
         dots "Starting $serviceItem Service"
         if [[ $systemctl == yes ]]; then
-            systemctl start $serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+            systemctl is-active --quiet $serviceItem || systemctl start $serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         else
-            [[ -x $initdpath/$serviceItem ]] && $initdpath/$serviceItem start >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+            [[ ! -x $initdpath/$serviceItem ]] && continue
+            $initdpath/$serviceItem status >/dev/null 2>&1 || $initdpath/$serviceItem start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
         errorStat $?
     done
@@ -876,7 +860,7 @@ enableInitScript() {
                 chmod 644 $initdpath/$serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 errorStat $?
                 dots "Enabling $serviceItem Service"
-                systemctl enable $serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl is-enabled --quiet $serviceItem || systemctl enable $serviceItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 if [[ ! $? -eq 0 && $osid -eq 2 ]]; then
                     update-rc.d $(echo $serviceItem | sed -e 's/[.]service//g') enable 2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     update-rc.d $(echo $serviceItem | sed -e 's/[.]service//g') enable 3 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -927,7 +911,49 @@ installInitScript() {
 }
 configureMySql() {
     stopInitScript
+    if [[ $installtype == +([Nn]) && ! $fogupdateloaded -eq 1 && -z $autoaccept ]]; then
+        dummy=""
+        while [[ -z $dummy ]]; do
+            echo -n " * Is the MySQL password blank? (Y/n) "
+            read -r dummy
+            case $dummy in
+                [Yy]|[Yy][Ee][Ss]|"")
+                    dummy='Y'
+                    ;;
+                [Nn]|[Nn][Oo])
+                    echo -n " * Enter the MySQL password: "
+                    read -rs PASSWORD1
+                    echo
+                    echo -n " * Re-enter the MySQL password: "
+                    read -rs PASSWORD2
+                    echo
+                    if [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]]; then
+                        dbpass=$PASSWORD1
+                    else
+                        dbpass=""
+                        while ! [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]]; do
+                            echo "Password entries were blank or didn't match!"
+                            echo -n " * Enter the MySQL password: "
+                            read -rs PASSWORD1
+                            echo
+                            echo -n " * Re-enter the MySQL password: "
+                            read -rs PASSWORD2
+                            echo
+                            [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]] && dbpass=$PASSWORD1
+                        done
+                    fi
+                    [[ $snmysqlpass != "$dbpass" ]] && snmysqlpass=$dbpass
+                    ;;
+                *)
+                    dummy=""
+                    echo " * Invalid input, please try again!"
+                    ;;
+            esac
+        done
+    fi
     dots "Setting up and starting MySQL"
+    dbservice=$(systemctl list-units | grep -e mysql -e mariadb | awk '{print $1}'i | tr -d '@')
+    [[ -z $dbservice  ]] && dbservice$(systemctl list-unit-files | grep -e mysql -e mariadb | grep -v bad | awk '{print $1}' | tr -d '@')
     for mysqlconf in $(grep -rl '.*skip-networking' /etc | grep -v init.d); do
         sed -i '/.*skip-networking/ s/^#*/#/' -i $mysqlconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     done
@@ -935,49 +961,67 @@ configureMySql() {
         sed -e '/.*bind-address.*=.*127.0.0.1/ s/^#*/#/' -i $mysqlconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     done
     if [[ $systemctl == yes ]]; then
-        if [[ $osid -eq 3 ]]; then
-            [[ ! -d /var/lib/mysql ]] && mkdir /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        if [[ $osid -eq 3 && ! -d /var/lib/mysql ]]; then
+            mkdir /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             chown -R mysql:mysql /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
-        systemctl enable mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        systemctl stop mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sleep 2
-        systemctl start mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sleep 2
-        systemctl status mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        if [[ ! $? -eq 0 ]]; then
-            systemctl enable mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            systemctl stop mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sleep 2
-            systemctl start mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sleep 2
-            systemctl status mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        fi
-        if [[ ! $? -eq 0 ]]; then
-            systemctl enable mariadb.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            systemctl stop mariadb.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sleep 2
-            systemctl start mariadb.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sleep 2
-            systemctl status mariadb.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        fi
+        systemctl is-enabled --quiet $dbservice || systemctl enable $dbservice >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        systemctl is-active --quiet $dbservice || systemctl start $dbservice >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     else
         case $osid in
             1)
                 chkconfig mysqld on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                service mysqld stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
                 service mysqld start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
-                service mysqld status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 ;;
             2)
                 sysv-rc-conf mysql on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                service mysql stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
                 service mysql start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
+                ;;
+        esac
+    fi
+    options=("-s")
+    [[ -n $snmysqlhost ]] && options=( "${options[@]}" "--host=$snmysqlhost" )
+    [[ -n $snmysqluser ]] && options=( "${options[@]}" "--user=$snmysqluser" )
+    [[ -n $snmysqlpass ]] && options=( "${options[@]}" "--password=$snmysqlpass" )
+    sqlescsnmysqlpass=$(echo "$snmysqlpass" | sed -e s/\'/\'\'/g)   # Replace every ' with '' for full MySQL escaping
+    sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
+    mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    mysqlver=$(mysql -V |  sed -n 's/.*Distrib[ ]\(\([0-9]\([.]\|\)\)*\).*\([-]\|\)[,].*/\1/p')
+    mariadb=$(mysql -V |  sed -n 's/.*Distrib[ ].*[-]\(.*\)[,].*/\1/p')
+    vertocheck="5.7"
+    [[ -n $mariadb ]] && vertocheck="10.2"
+    if [[ $systemctl == yes ]]; then
+        systemctl restart $dbservice >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    else
+        case $osid in
+            1)
+                service mysqld restart >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                ;;
+            2)
+                service mysql restart >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                ;;
+        esac
+    fi
+    mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
+    runTest=$(echo "$mysqlver < $vertocheck" | bc)
+    if [[ $runTest -eq 0 ]]; then
+        [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
+        [[ -z $snmysqluser ]] && snmysqluser='root'
+        case $snmysqlhost in
+            127.0.0.1|[Ll][Oo][Cc][Aa][Ll][Hh][Oo][Ss][Tt])
+                sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
+                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sql="ALTER USER '$snmysqluser'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
+                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sql="ALTER USER '$snmysqluser'@'localhost' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
+                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                ;;
+            *)
+                sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
+                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sql="ALTER USER '$snmysqluser'@'$snmysqlhost' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
+                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 ;;
         esac
     fi
@@ -998,20 +1042,16 @@ configureNFS() {
         errorStat $?
         dots "Setting up and starting RPCBind"
         if [[ $systemctl == yes ]]; then
-            systemctl enable rpcbind.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            systemctl stop rpcbind.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sleep 2
-            systemctl start rpcbind.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            sleep 2
+            systemctl is-enabled --quiet rpcbind || systemctl enable rpcbind.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            systemctl is-active --quiet rpcbind && systemctl stop rpcbind.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            systemctl is-active --quiet rpcbind || systemctl start rpcbind.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             systemctl status rpcbind.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         else
             case $osid in
                 1)
                     chkconfig rpcbind on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     $initdpath/rpcbind stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
                     $initdpath/rpcbind start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
                     $initdpath/rpcbind status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
             esac
@@ -1020,28 +1060,22 @@ configureNFS() {
         dots "Setting up and starting NFS Server..."
         for nfsItem in $nfsservice; do
             if [[ $systemctl == yes ]]; then
-                systemctl enable $nfsItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                systemctl stop $nfsItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
-                systemctl start $nfsItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sleep 2
+                systemctl is-enabled --quiet $nfsItem || systemctl enable $nfsItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl is-active --quiet $nfsItem && systemctl stop $nfsItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl is-active --quiet $nfsItem || systemctl start $nfsItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 systemctl status $nfsItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             else
                 case $osid in
                     1)
                         chkconfig $nfsItem on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         $initdpath/$nfsItem stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        sleep 2
                         $initdpath/$nfsItem start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        sleep 2
                         $initdpath/$nfsItem status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         ;;
                     2)
                         sysv-rc-conf $nfsItem on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         $initdpath/nfs-kernel-server stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        sleep 2
                         $initdpath/nfs-kernel-server start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        sleep 2
                         ;;
                 esac
             fi
@@ -1616,17 +1650,13 @@ EOF
         yes)
             case $osid in
                 2)
-                    systemctl stop apache2 $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
-                    systemctl start apache2 $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
+                    systemctl is-active --quiet apache2 $phpfpm && systemctl stop apache2 $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    systemctl is-active --quiet apache2 $phpfpm || systemctl start apache2 $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     systemctl status apache2 $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 *)
-                    systemctl stop httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
-                    systemctl start httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
+                    systemctl is-active --quiet httpd php-fpm && systemctl stop httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    systemctl is-active --quiet httpd php-fpm || systemctl start httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     systemctl status httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
             esac
@@ -1635,25 +1665,17 @@ EOF
             case $osid in
                 2)
                     service apache2 stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
                     service apache2 start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
                     service $phpfpm stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
                     service $phpfpm start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
                     service apache2 status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     service $phpfpm status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 *)
                     service httpd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
                     service httpd start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
                     service php-fpm stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
                     service php-fpm start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
                     service httpd status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     service php-fpm status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
@@ -1669,10 +1691,10 @@ configureHttpd() {
         yes)
             case $osid in
                 1)
-                    systemctl stop httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+                    systemctl is-active --quiet httpd php-fpm && systemctl stop httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 2)
-                    systemctl stop apache2 php${php_ver}-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+                    systemctl is-active -quiet apache2 php${php_ver}-fpm && systemctl stop apache2 php${php_ver}-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
             esac
             errorStat $?
@@ -1680,12 +1702,12 @@ configureHttpd() {
         *)
             case $osid in
                 1)
-                    service httpd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
-                    service php-fpm stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+                    service httpd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    service php-fpm stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     errorStat $?
                     ;;
                 2)
-                    service apache2 stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+                    service apache2 stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     errorStat $?
                     service php${php_ver}-fpm stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
@@ -1704,80 +1726,6 @@ configureHttpd() {
                 fi
                 rm $etcconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 errorStat $?
-                ;;
-        esac
-    fi
-    if [[ $installtype == +([Nn]) && ! $fogupdateloaded -eq 1 && -z $autoaccept ]]; then
-        dummy=""
-        while [[ -z $dummy ]]; do
-            echo -n " * Is the MySQL password blank? (Y/n) "
-            read -r dummy
-            case $dummy in
-                [Yy]|[Yy][Ee][Ss]|"")
-                    dummy='Y'
-                    ;;
-                [Nn]|[Nn][Oo])
-                    echo -n " * Enter the MySQL password: "
-                    read -rs PASSWORD1
-                    echo
-                    echo -n " * Re-enter the MySQL password: "
-                    read -rs PASSWORD2
-                    echo
-                    if [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]]; then
-                        dbpass=$PASSWORD1
-                    else
-                        dbpass=""
-                        while ! [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]]; do
-                            echo "Password entries were blank or didn't match!"
-                            echo -n " * Enter the MySQL password: "
-                            read -rs PASSWORD1
-                            echo
-                            echo -n " * Re-enter the MySQL password: "
-                            read -rs PASSWORD2
-                            echo
-                            [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]] && dbpass=$PASSWORD1
-                        done
-                    fi
-                    [[ $snmysqlpass != "$dbpass" ]] && snmysqlpass=$dbpass
-                    ;;
-                *)
-                    dummy=""
-                    echo " * Invalid input, please try again!"
-                    ;;
-            esac
-        done
-    fi
-    options=("-s")
-    [[ -n $snmysqlhost ]] && options=( "${options[@]}" "--host=$snmysqlhost" )
-    [[ -n $snmysqluser ]] && options=( "${options[@]}" "--user=$snmysqluser" )
-    [[ -n $snmysqlpass ]] && options=( "${options[@]}" "--password=$snmysqlpass" )
-    sqlescsnmysqlpass=$(echo "$snmysqlpass" | sed -e s/\'/\'\'/g)   # Replace every ' with '' for full MySQL escaping
-    sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-    mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    mysqlver=$(mysql -V |  sed -n 's/.*Distrib[ ]\(\([0-9]\([.]\|\)\)*\).*\([-]\|\)[,].*/\1/p')
-    mariadb=$(mysql -V |  sed -n 's/.*Distrib[ ].*[-]\(.*\)[,].*/\1/p')
-    vertocheck="5.7"
-    [[ -n $mariadb ]] && vertocheck="10.2"
-    configureMySql
-    mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
-    runTest=$(echo "$mysqlver < $vertocheck" | bc)
-    if [[ $runTest -eq 0 ]]; then
-        [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
-        [[ -z $snmysqluser ]] && snmysqluser='root'
-        case $snmysqlhost in
-            127.0.0.1|[Ll][Oo][Cc][Aa][Ll][Hh][Oo][Ss][Tt])
-                sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'localhost' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                ;;
-            *)
-                sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'$snmysqlhost' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 ;;
         esac
     fi
@@ -1806,6 +1754,7 @@ configureHttpd() {
         sed -i '/LoadModule mpm_worker_module modules\/mod_mpm_worker.so/s/^/#/g' /etc/httpd/conf/httpd.conf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         # Enable proxy
         sed -i '/LoadModule proxy_html_module modules\/mod_proxy_html.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+		sed -i '/LoadModule xml2enc_module modules\/mod_xml2enc.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i '/LoadModule proxy_module modules\/mod_proxy.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i '/LoadModule proxy_http_module modules\/mod_proxy_http.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i '/LoadModule proxy_fcgi_module modules\/mod_proxy_fcgi.so/s/^#//g' /etc/httpd/conf/httpd.conf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -2026,14 +1975,14 @@ class Config
     dots "Enabling apache and fpm services on boot"
     if [[ $osid -eq 2 ]]; then
         if [[ $systemctl == yes ]]; then
-            systemctl enable apache2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            systemctl enable $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            systemctl is-enabled --quiet apache2 || systemctl enable apache2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            systemctl is-enabled --quiet $phpfpm || systemctl enable $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         else
             sysv-rc-conf apache2 on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             sysv-rc-conf $phpfpm on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
     elif [[ $systemctl == yes ]]; then
-        systemctl enable httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        systemctl is-enabled --quiet httpd php-fpm || systemctl enable httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     else
         chkconfig php-fpm on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         chkconfig httpd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -2204,11 +2153,9 @@ configureDHCP() {
             echo "}" >> "$dhcptouse"
             case $systemctl in
                 yes)
-                    systemctl enable $dhcpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    systemctl stop $dhcpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
-                    systemctl start $dhcpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sleep 2
+                    systemctl is-enabled --quiet $dhcpd || systemctl enable $dhcpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    systemctl is-active --quiet $dhcpd && systemctl stop $dhcpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    systemctl is-active --quiet $dhcpd || systemctl start $dhcpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     systemctl status $dhcpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 *)
@@ -2216,16 +2163,13 @@ configureDHCP() {
                         1)
                             chkconfig $dhcpd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                             service $dhcpd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                            sleep 2
                             service $dhcpd start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                            sleep 2
                             service $dhcpd status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                             ;;
                         2)
                             sysv-rc-conf $dhcpd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                             /etc/init.d/$dhcpd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                            sleep 2
-                            /etc/init.d/$dhcpd start >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+                            /etc/init.d/$dhcpd start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                             ;;
                     esac
                     ;;
