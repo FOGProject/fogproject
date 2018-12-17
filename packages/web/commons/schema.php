@@ -3721,8 +3721,8 @@ $this->schema[] = [
     . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
     . "VALUES "
     . "('FOG_API_ENABLED',"
-    . "'Enables API Access (Defaults to off)',"
-    . "'0','API System'),"
+    . "'Enables API Access (Defaults to On)',"
+    . "'1','API System'),"
     . "('FOG_API_TOKEN',"
     . "'The API Token to use (Randomly generated at install)',"
     . "'"
@@ -3850,4 +3850,10 @@ $this->schema[] = [
     . "UNIQUE INDEX `name` (`dkName`)"
     . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `dmidecodeKeys` (`dkName`) VALUES ('$dmiStrings')"
+];
+// 270
+$this->schema[] = [
+    "UPDATE `globalSettings`"
+    . " SET `settingDesc` = 'Enables API Access (Defaults to On)'"
+    . " WHERE `settingKey` = 'FOG_API_ENABLED'"
 ];
