@@ -952,8 +952,8 @@ configureMySql() {
         done
     fi
     dots "Setting up and starting MySQL"
-    dbservice=$(systemctl list-units | grep -e mysql -e mariadb | awk '{print $1}'i | tr -d '@')
-    [[ -z $dbservice  ]] && dbservice$(systemctl list-unit-files | grep -e mysql -e mariadb | grep -v bad | awk '{print $1}' | tr -d '@')
+    dbservice=$(systemctl list-units | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
+    [[ -z $dbservice ]] && dbservice=$(systemctl list-unit-files | grep -v bad | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
     for mysqlconf in $(grep -rl '.*skip-networking' /etc | grep -v init.d); do
         sed -i '/.*skip-networking/ s/^#*/#/' -i $mysqlconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     done
@@ -1025,7 +1025,7 @@ configureMySql() {
                 ;;
         esac
     fi
-    errorStat $?
+    echo "Done"
 }
 configureFOGService() {
     [[ ! -d $servicedst ]] && mkdir -p $servicedst >>$workingdir/error_logs/fog_error_${version}.log 2>&1
