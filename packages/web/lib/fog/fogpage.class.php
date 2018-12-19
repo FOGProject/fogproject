@@ -575,9 +575,6 @@ abstract class FOGPage extends FOGBase
             echo '</li>';
             unset($title);
         }
-        if (count($subs[$node] ?: []) > 0 && !in_array($sub, $subs[$node])) {
-            self::redirect('../management/index.php?node='.$node);
-        }
         return ob_get_clean();
     }
     /**
