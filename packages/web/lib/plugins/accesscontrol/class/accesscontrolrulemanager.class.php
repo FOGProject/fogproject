@@ -137,7 +137,7 @@ class AccessControlRuleManager extends FOGManagerController
             . '"addStorageNode", "menu", "fog", NOW(), "storage"), '
             . '(22, "DELETE_MENULINK_DATA-addStorageGroup", "DELETE_MENULINK_DATA", '
             . '"addStorageGroup", "menu", "fog", NOW(), "storage"), '
-            . '(23, "DELETE_MENULINK_DATA-actice", "DELETE_MENULINK_DATA", '
+            . '(23, "DELETE_MENULINK_DATA-active", "DELETE_MENULINK_DATA", '
             . '"active", "menu", "fog", NOW(), "task"), '
             . '(24, "DELETE_MENULINK_DATA-listhosts", "DELETE_MENULINK_DATA", "listhosts", '
             . '"menu", "fog", NOW(), "task"), '
