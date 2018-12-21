@@ -20,7 +20,6 @@
             {data: 'token'},
             {data: 'name'}
         ],
-        rowId: 'id',
         processing: true,
         serverSide: true,
         ajax: {
