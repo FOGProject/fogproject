@@ -47,8 +47,23 @@ class SlackHandler extends Slack
     private static $_methods = [
         // api
         'api.test',
+        // apps.permissions
+        'apps.permissions.info',
+        'apps.permissions.request',
+        // apps.permissions.resources
+        'apps.permissions.resources.list',
+        // apps.permissions.scopes
+        'apps.permissions.scopes.list',
+        // apps.permissions.users
+        'apps.permissions.users.list',
+        'apps.permissions.users.request',
+        // apps
+        'apps.uninstall',
         // auth
+        'auth.revoke',
         'auth.test',
+        // bots
+        'bots.info',
         // chanels
         'channels.archive',
         'channels.create',
@@ -61,13 +76,38 @@ class SlackHandler extends Slack
         'channels.list',
         'channels.mark',
         'channels.rename',
+        'channels.replies',
         'channels.setPurpose',
         'channels.setTopic',
         'channels.unarchive',
         // chat
         'chat.delete',
+        'chat.getPermalink',
+        'chat.meMessage',
+        'chat.postEphemeral',
         'chat.postMessage',
+        'chat.unfurl',
         'chat.update',
+        // conversations
+        'conversations.archive',
+        'conversations.close',
+        'conversations.create',
+        'conversations.history',
+        'conversations.info',
+        'conversations.invite',
+        'conversations.join',
+        'conversations.kick',
+        'conversations.leave',
+        'conversations.list',
+        'conversations.members',
+        'conversations.open',
+        'conversations.rename',
+        'conversations.replies',
+        'conversations.setPurpose',
+        'conversations.setTopic',
+        'conversations.unarchive',
+        // dialog
+        'dialog.open',
         // dnd
         'dnd.endDnd',
         'dnd.endSnooze',
@@ -84,6 +124,8 @@ class SlackHandler extends Slack
         'files.delete',
         'files.info',
         'files.list',
+        'files.revokePublicURL',
+        'files.sharedPublicURL',
         'files.upload',
         // groups
         'groups.archive',
@@ -99,6 +141,7 @@ class SlackHandler extends Slack
         'groups.mark',
         'groups.open',
         'groups.rename',
+        'groups.replies',
         'groups.setPurpose',
         'groups.setTopic',
         'groups.unarchive',
@@ -108,14 +151,19 @@ class SlackHandler extends Slack
         'im.list',
         'im.mark',
         'im.open',
+        'im.replies',
+        // migration
+        'migration.exchange',
         // mpim
         'mpim.close',
         'mpim.history',
         'mpim.list',
         'mpim.mark',
         'mpim.open',
+        'mpim.replies',
         // oauth
         'oauth.access',
+        'oauth.token',
         // pins
         'pins.add',
         'pins.list',
@@ -125,7 +173,14 @@ class SlackHandler extends Slack
         'reactions.get',
         'reactions.list',
         'reactions.remove',
+        // reminders
+        'reminders.add',
+        'reminders.complete',
+        'reminders.delete',
+        'reminders.info',
+        'reminders.list',
         // rtm
+        'rtm.connect',
         'rtm.start',
         // search
         'search.all',
@@ -137,8 +192,11 @@ class SlackHandler extends Slack
         'stars.remove',
         // team
         'team.accessLogs',
+        'team.billableInfo',
         'team.info',
         'team.integrationLogs',
+        // team.profile
+        'team.profile.get',
         // usergroups
         'usergroups.create',
         'usergroups.disable',
@@ -149,11 +207,19 @@ class SlackHandler extends Slack
         'usergroups.users.list',
         'usergroups.users.update',
         // users
+        'users.conversations',
+        'users.deletePhoto',
         'users.getPresence',
+        'users.identity',
         'users.info',
         'users.list',
+        'users.lookupByEmail',
         'users.setActive',
+        'users.setPhoto',
         'users.setPresence',
+        // users.profile
+        'users.profile.get',
+        'users.profile.set'
     ];
     /**
      * Initializes the handler object.

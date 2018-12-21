@@ -82,20 +82,34 @@ class AddSlackAPI extends Hook
         ) {
             switch ($common) {
             case 'id':
-            case 'token':
-                $getme = 'user';
-                if ($common == 'id') {
-                    $getme = 'team';
-                }
+                $arguments['columns'][] = [
+                    'db' => $real,
+                    'dt' => 'DT_RowId',
+                    'formatter' => function($d, $row) {
+                        return $d;
+                    }
+                ];
                 $arguments['columns'][] = [
                     'db' => $real,
                     'dt' => $common,
-                    'formatter' => function ($d, $row) use ($getme) {
+                    'formatter' => function($d, $row) {
+                        $team = self::getClass(
+                            'Slack', $d
+                        )->call('auth.test');
+                        return $team['team'];
+                    }
+                ];
+                break;
+            case 'token':
+                $arguments['columns'][] = [
+                    'db' => $real,
+                    'dt' => $common,
+                    'formatter' => function ($d, $row) {
                         $team = self::getClass(
                             'Slack',
                             $row['sID']
                         )->call('auth.test');
-                        return $team[$getme];
+                        return $team['user'];;
                     }
                 ];
                 break;
