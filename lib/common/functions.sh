@@ -296,7 +296,7 @@ addToAddress() {
     fi
     return 1
 }
-getAllnetworkInterfaces() {
+getAllNetworkInterfaces() {
     gatewayif=$(ip -4 route show | grep "^default via" | awk '{print $5}')
     interfaces="$gatewayif $(ip -4 link | grep -v LOOPBACK | grep UP | awk -F': ' '{print $2}' | tr '\n' ' ' | sed "s/${gatewayif}//g")"
     echo -n $interfaces
