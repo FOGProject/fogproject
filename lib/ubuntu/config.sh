@@ -48,7 +48,7 @@ elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]
                 echo "Done"
                 dots "Stopping web services"
                 if [[ $systemctl == yes ]]; then
-                    systemctl is-active --quiet apache2 && systemctl stop apache2 >/dev/null 2>&1 || service apache2 stop >/dev/null 2>&1
+                    systemctl is-active --quiet apache2 && systemctl stop apache2 >/dev/null 2>&1 || true
                 fi
                 [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
                 dots "Removing the apache and php packages"
