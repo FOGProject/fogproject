@@ -321,7 +321,7 @@ class Host extends FOGController
         if (empty($hostname)) {
             $hostname = $this->get('name');
         }
-        $pattern = '/^[\\w!@#$%^()\\-\'{}\\.~]{1,15}$/';
+        $pattern = '/^[\\w!@#$%^()\\\-\'{}\\.~]{1,15}$/';
         return (bool)preg_match($pattern, $hostname);
     }
     /**

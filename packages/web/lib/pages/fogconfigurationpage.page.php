@@ -732,7 +732,7 @@ class FOGConfigurationPage extends FOGPage
             $items = [];
             $start = 18;
             $imported = 0;
-            $pat = '#^([0-9a-fA-F]{2}[:-]){2}([0-9a-fA-F]{2}).*$#';
+            $pat = '#^([0-9a-fA-F]{2}[:\-]){2}([0-9a-fA-F]{2}).*$#';
             while (($line = fgets($fh, 4096)) !== false) {
                 $line = trim($line);
                 if (!preg_match($pat, $line)) {
@@ -1029,7 +1029,7 @@ class FOGConfigurationPage extends FOGPage
                         continue 2;
                     }
                     $set = preg_replace(
-                        '/[^-\w\.]+/',
+                        '/[^\-\w\.]+/',
                         '_',
                         trim(basename($_FILES[$key]['name']))
                     );

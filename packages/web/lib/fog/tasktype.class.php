@@ -115,14 +115,14 @@ class TaskType extends FOGController
             return _('Icon File not found');
         }
         while (($line = fgets($fh)) !== false) {
-            if (!preg_match('#^\$fa-var-#', $line)) {
+            if (!preg_match('#^\$fa\-var\-#', $line)) {
                 continue;
             }
             $match = preg_split(
                 '#[:\s|:^\s]+#',
                 trim(
                     preg_replace(
-                        '#[\$\"\;\\\]|fa-var-#',
+                        '#[\$\"\;\\\]|fa\-var\-#',
                         '',
                         $line
                     )

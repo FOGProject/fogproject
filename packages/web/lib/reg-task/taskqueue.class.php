@@ -226,7 +226,7 @@ class TaskQueue extends TaskingElement
         if (!$emailBinary) {
             $emailBinary = '/usr/sbin/sendmail -t -f noreply@fogserver.com -i';
         }
-        $reg = '#\$\{server-name\}#';
+        $reg = '#\$\{server\-name\}#';
         $nodeName = 'fogserver';
         if ($this->StorageNode->isValid()) {
             $nodeName = $this->StorageNode->get('name');
