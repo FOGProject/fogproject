@@ -23,7 +23,8 @@
  */
 class System
 {
-    const PHP_REQUIRED = '5.6.0';
+    const PHP_MINIMUM = '5.6.0';
+    const PHP_MAXIMUM = '7.3';
     /**
      * Checks the php version against what we require.
      *
@@ -32,16 +33,21 @@ class System
     private static function _versionCompare()
     {
         $msg = '';
-        if (false === version_compare(PHP_VERSION, self::PHP_REQUIRED, '>=')) {
-            $msg = sprintf(
-                '%s. %s %s, %s %s %s.',
-                _('Your system PHP Version is not sufficient'),
-                _('You have version'),
-                PHP_VERSION,
-                _('version'),
-                self::PHP_REQUIRED,
-                _('is required')
-            );
+        if (
+            !(version_compare(PHP_VERSION, self::PHP_MINIMUM, '>=')
+            && version_compare(PHP_VERSION, self::PHP_MAXIMUM, '<'))
+        ) {
+            $msg = _('You are currently running PHP Version')
+                . ': '
+                . PHP_VERSION
+                . ', '
+                . _('FOG Needs at least')
+                . ': '
+                . self::PHP_MINIMUM
+                . ', '
+                . _('and below')
+                . ': '
+                . self::PHP_MAXIMUM;
         }
         if ($msg) {
             die($msg);
@@ -53,7 +59,7 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.5.5.632');
+        define('FOG_VERSION', '1.5.5.633');
         define('FOG_CHANNEL', 'Alpha');
         define('FOG_SCHEMA', 270);
         define('FOG_BCACHE_VER', 140);
