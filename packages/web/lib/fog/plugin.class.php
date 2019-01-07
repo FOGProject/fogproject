@@ -118,7 +118,7 @@ class Plugin extends FOGController
                 $fog_plugin['entrypoint']
             );
             $matchIcon = preg_match(
-                '#^fa[-]?#',
+                '#^fa[\-]?#',
                 $fog_plugin['menuicon']
             );
             if (false == $matchIcon) {

@@ -994,7 +994,7 @@ class SnapinManagement extends FOGPage
                     )
                 );
             }
-            $snapinfile = preg_replace('/[^-\w\.]+/', '_', $snapinfile);
+            $snapinfile = preg_replace('/[^\-\w\.]+/', '_', $snapinfile);
             $StorageGroup = new StorageGroup($storagegroup);
             $StorageNode = $StorageGroup->getMasterStorageNode();
             if (!$snapinfile && $_FILES['snapinfile']['error'] > 0) {
@@ -1632,7 +1632,7 @@ class SnapinManagement extends FOGPage
                 )
             );
         }
-        $snapinfile = preg_replace('/[^-\w\.]+/', '_', $snapinfile);
+        $snapinfile = preg_replace('/[^\-\w\.]+/', '_', $snapinfile);
         $StorageNode = $this
             ->obj
             ->getStorageGroup()

@@ -469,7 +469,7 @@ abstract class FOGBase
         // If class is Storage, test if sub is group or node.
         if ($class === 'Storage') {
             $class = 'StorageNode';
-            if (preg_match('#storage[-|_]group#i', $sub)) {
+            if (preg_match('#storage[\-|_]group#i', $sub)) {
                 $class = 'StorageGroup';
             }
         }

@@ -70,7 +70,7 @@ class MACAddress extends FOGBase
          */
         self::$_pattern = sprintf(
             '%s%s%s%s',
-            '/^(?:[[:xdigit:]]{2}([-:]))',
+            '/^(?:[[:xdigit:]]{2}([\-:]))',
             '(?:[[:xdigit:]]{2}\1){4}[[:xdigit:]]{2}$',
             '|^(?:[[:xdigit:]]{12})$|^(?:[[:xdigit:]]',
             '{4}([.])){2}[[:xdigit:]]{4}$/'

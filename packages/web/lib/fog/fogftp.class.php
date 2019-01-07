@@ -292,7 +292,7 @@ class FOGFTP
         $lines = ftp_rawlist($this->_link, $path);
         $rawlist = join("\n", $lines);
         preg_match_all(
-            '/^([drwx+-]{10})\s+(\d+)\s+(\w+)\s+(\w+)\s+(\d+)\s+(.{12}) (.*)$/m',
+            '/^([drwx+\-]{10})\s+(\d+)\s+(\w+)\s+(\w+)\s+(\d+)\s+(.{12}) (.*)$/m',
             $rawlist,
             $matches,
             PREG_SET_ORDER
