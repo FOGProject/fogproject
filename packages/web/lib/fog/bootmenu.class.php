@@ -144,7 +144,7 @@ class BootMenu extends FOGBase
         ];
         $refind = sprintf(
             'imgfetch ${boot-url}/service/ipxe/refind.conf%s'
-            . 'chain -ar ${boot-url}/service/ipxe/refind.efi',
+            . 'chain -ar ${boot-url}/service/ipxe/refind_x64.efi',
             "\n"
         );
         if (false !== stripos($_REQUEST['arch'], 'arm')) {
@@ -153,6 +153,14 @@ class BootMenu extends FOGBase
             $refind = sprintf(
                 'imgfetch ${boot-url}/service/ipxe/refind_aa64.conf%s'
                 . 'chain -ar ${boot-url}/service/ipxe/refind_aa64.efi',
+                "\n"
+            );
+        }
+        if (false !== stripos($_REQUEST['arch'], 'i386')) {
+            // use i386 boot loaders instead.
+            $refind = sprintf(
+                'imgfetch ${boot-url}/service/ipxe/refind.conf%s'
+                . 'chain -ar ${boot-url}/service/ipxe/refind_ia32.efi',
                 "\n"
             );
         }
