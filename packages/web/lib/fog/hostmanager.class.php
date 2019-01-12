@@ -173,6 +173,96 @@ class HostManager extends FOGManagerController
         );
     }
     /**
+     * Try to find a unique host object based on UUID, system serial, and MB Serial
+     *
+     * @param string $sysuuid   The UUID to search
+     * @param string $mbserial  The MB Serial to search
+     * @param string $sysserial The system serial to search
+     *
+     * @thows Exception
+     *
+     * @return void
+     */
+    public static function getHostByUuidAndSerial(
+        $sysuuid,
+        $mbserial,
+        $sysserial
+    ) {
+        self::$Host = new Host();
+        /**
+         * Can probably be removed by will keep this list for now in case
+         * we need it.
+         */
+        $invalidUuids = [
+            '00020003-0004-0005-0006-000700080009',
+            '00000000-0000-0000-0000-000000000000',
+            '00000000-0000-0000-0000-*',
+            '12345678-1234-5678-90AB-CDDEEFAABBCC',
+            'FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF',
+            'FFFFFF00-FFFF-FFFF-FFFF-FFFFFFFFFFFF',
+            'Not Present',
+            'Not Settable'
+        ];
+        $invalidMbSerial = [
+            'Type2 - Board Serial Number',
+            'To be filled by O.E.M.',
+            'Not Applicable',
+            'Default string',
+            'Base Board Serial Number',
+            '.PCIE2'
+        ];
+        $invalidSysSerial = [
+            '123456789'
+        ];
+
+        $filter = [];
+        if (strlen($sysuuid) != 0 && !in_array($sysuuid, $invalidUuids)) {
+            $filter['sysuuid'] = $sysuuid;
+        }
+        if (strlen($mbserial) != 0 && !in_array($mbserial, $invalidMbSerial)) {
+            $filter['mbserial'] = $mbserial;
+        }
+        if (strlen($sysserial) != 0 && !in_array($sysserial, $invalidSysSerial)) {
+            $filter['sysserial'] = $sysserial;
+        }
+        if (empty($filter)) {
+            return;
+        }
+        Route::listem('inventory', $filter, false, 'OR');
+        $Inventories = json_decode(Route::getData());
+        $Inventories = $Inventories->data;
+        if (count($Inventories ?: []) < 1) {
+            return;
+        }
+        if (count($Inventories ?: []) == 1) {
+            self::$Host = new Host($Inventories[0]->hostID);
+            return;
+        }
+        $highestScore = 0;
+        foreach ($Inventories as &$Inventory) {
+            $inventoryCompare = [];
+            if (strlen($Inventory->sysuuid) != 0) {
+                $inventoryCompare['sysuuid'] = $Inventory->sysuuid;
+            }
+            if (strlen($Inventory->mbserial) != 0) {
+                $inventoryCompare['mbserial'] = $Inventory->mbserial;
+            }
+            if (strlen($Inventory->sysserial) != 0) {
+                $inventoryCompare['sysserial'] = $Inventory->sysserial;
+            }
+            $score = count(array_intersect($inventoryCompare, $filter));
+            if ($score > $highestScore) {
+                $highestScore = $score;
+                $hostID = $Inventory->hostID;
+            }
+            unset($Inventory);
+        }
+        if (is_numeric($hostID)) {
+            self::$Host = new Host($hostID);
+        }
+        return;
+    }
+    /**
      * Returns a single host object based on the passed MACs.
      *
      * @param array $macs the macs to search for the host
