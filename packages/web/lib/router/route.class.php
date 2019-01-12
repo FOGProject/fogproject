@@ -420,14 +420,19 @@ class Route extends FOGBase
      * @param string $class         The class to work with.
      * @param mixed  $whereItems    Any special things to search for.
      * @param bool   $inputoverride Override php://input to blank.
+     * @param string $operator      The operator for the SQL. AND is default.
      *
      * @return void
      */
     public static function listem(
         $class,
         $whereItems = false,
-        $inputoverride = false
+        $inputoverride = false,
+        $operator = 'AND'
     ) {
+        if (empty($operator)) {
+            $operator = 'AND';
+        }
         if (!$inputoverride) {
             parse_str(
                 file_get_contents('php://input'),
@@ -450,7 +455,7 @@ class Route extends FOGBase
             true
         );
 
-        $where = self::_buildSql('', $classVars, $whereItems, true);
+        $where = self::_buildSql('', $classVars, $whereItems, true, $operator);
 
         /**
          * Any custom fields that we need removed
@@ -1822,11 +1827,19 @@ class Route extends FOGBase
      * @param string $class      The class to get list of.
      * @param array  $whereItems The items to filter.
      * @param string $getField   The field to get.
+     * @param string $operator   The operator for the SQL. AND is default.
      *
      * @return void
      */
-    public static function ids($class, $whereItems = [], $getField = 'id')
-    {
+    public static function ids(
+        $class,
+        $whereItems = [],
+        $getField = 'id',
+        $operator = 'AND'
+    ) {
+        if (empty($operator)) {
+            $operator = 'AND';
+        }
         $data = [];
         $classname = strtolower($class);
         $classVars = self::getClass(
@@ -1851,7 +1864,7 @@ class Route extends FOGBase
             . $classVars['databaseTable']
             . '`';
 
-        $sql = self::_buildSql($sql, $classVars, $whereItems);
+        $sql = self::_buildSql($sql, $classVars, $whereItems, false, $operator);
 
         $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
         foreach ($vals as &$val) {
@@ -1865,11 +1878,18 @@ class Route extends FOGBase
      *
      * @param string $class      The class we're to remove items.
      * @param array  $whereItems The items we're removing.
+     * @param string $operator   The operator for the SQL. AND is default.
      *
      * @return void
      */
-    public static function deletemass($class, $whereItems = [])
-    {
+    public static function deletemass(
+        $class,
+        $whereItems = [],
+        $operator = 'AND'
+    ) {
+        if (empty($operator)) {
+            $operator = 'AND';
+        }
         $data = [];
         $classname = strtolower($class);
         $classVars = self::getClass(
@@ -1889,7 +1909,7 @@ class Route extends FOGBase
             . $classVars['databaseTable']
             . '`';
 
-        $sql = self::_buildSql($sql, $classVars, $whereItems);
+        $sql = self::_buildSql($sql, $classVars, $whereItems, false, $operator);
 
         return self::$DB->query($sql);
     }
@@ -1907,8 +1927,12 @@ class Route extends FOGBase
         $sql,
         $classVars,
         $whereItems = '',
-        $retWhere = false
+        $retWhere = false,
+        $operator = 'AND'
     ) {
+        if (empty($operator)) {
+            $operator = 'AND';
+        }
         if (is_string($whereItems)) {
             $whereurl = urldecode($whereItems);
         }
@@ -1934,7 +1958,7 @@ class Route extends FOGBase
                         . $classVars['databaseFields'][$key]
                         . '`';
                 } else {
-                    $where .= ' AND `'
+                    $where .= ' ' . $operator . ' `'
                         . $classVars['databaseFields'][$key]
                         . '`';
                 }
@@ -1973,12 +1997,19 @@ class Route extends FOGBase
      *
      * @param string $class      The class to get list of.
      * @param string $whereItems If we want to filter items.
+     * @param string $operator   The operator for the SQL. AND is default.
      *
      * @return mixed
      */
-    public function names($class, $whereItems = [])
-    {
+    public function names(
+        $class,
+        $whereItems = [],
+        $operator = 'AND'
+    ) {
         header('Content-type: application/json');
+        if (empty($operator)) {
+            $operator = 'AND';
+        }
         $data = [];
         $classname = strtolower($class);
         $classVars = self::getClass(
@@ -1999,7 +2030,7 @@ class Route extends FOGBase
             $whereItems = self::getsearchbody($classname);
         }
 
-        $sql = self::_buildSql($sql, $classVars, $whereItems);
+        $sql = self::_buildSql($sql, $classVars, $whereItems, false, $operator);
         $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
         foreach ($vals as &$val) {
             $data[] = [
