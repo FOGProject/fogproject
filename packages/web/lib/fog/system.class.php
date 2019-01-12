@@ -24,7 +24,7 @@
 class System
 {
     const PHP_MINIMUM = '5.6.0';
-    const PHP_MAXIMUM = '7.3';
+    const PHP_MAXIMUM = '8';
     /**
      * Checks the php version against what we require.
      *
@@ -59,7 +59,7 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.5.5.633');
+        define('FOG_VERSION', '1.5.5.635');
         define('FOG_CHANNEL', 'Alpha');
         define('FOG_SCHEMA', 270);
         define('FOG_BCACHE_VER', 140);
