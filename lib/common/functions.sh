@@ -543,7 +543,7 @@ installPackages() {
                     eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ ! $? -eq 0 ]]; then
                         y="https://dl.fedoraproject.org/pub/epel/epel-release-latest-${OSVersion}.noarch.rpm"
-                        $packaginstaller $y >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        $packageinstaller $y >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     fi
                     y="http://rpms.remirepo.net/enterprise/remi-release-${OSVersion}.rpm"
                     x=$(basename $y | awk -F[.] '{print $1}')
