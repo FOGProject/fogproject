@@ -961,8 +961,8 @@ configureMySql() {
         sed -e '/.*bind-address.*=.*127.0.0.1/ s/^#*/#/' -i $mysqlconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     done
     if [[ $systemctl == yes ]]; then
-        if [[ $osid -eq 3 && ! -d /var/lib/mysql ]]; then
-            mkdir /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        if [[ $osid -eq 3 && ! -f /var/lib/mysql/ibdata1 ]]; then
+            mkdir -p /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             chown -R mysql:mysql /var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
