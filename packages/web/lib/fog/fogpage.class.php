@@ -829,7 +829,7 @@ abstract class FOGPage extends FOGBase
                 echo $tablestr;
                 echo '</tbody>';
             } else {
-                if (count($this->headerData) > 0) {
+                if (is_array($this->headerData) && count($this->headerData) > 0) {
                     echo '<thead>';
                     echo $this->buildHeaderRow();
                     echo '</thead>';
