@@ -804,12 +804,12 @@ abstract class FOGPage extends FOGBase
             }
             echo '<table class="table table-responsive'
                 . (
-                    count($this->data) < 1 ?
+                    is_array($this->data) && count($this->data) < 1 ?
                     ' noresults' :
                     ''
                 )
                 . '">';
-            if (count($this->data) < 1) {
+            if (is_array($this->data) && count($this->data) < 1) {
                 echo '<thead><tr class="header"></tr></thead>';
                 echo '<tbody>';
                 $tablestr = '<tr><td colspan="'
@@ -836,7 +836,7 @@ abstract class FOGPage extends FOGBase
                 }
                 echo '<tbody>';
                 $tablestr = '';
-                foreach ($this->data as &$rowData) {
+                foreach ((array)$this->data as &$rowData) {
                     $tablestr .= '<tr class="'
                         . strtolower($node)
                         . '" '
@@ -908,7 +908,7 @@ abstract class FOGPage extends FOGBase
         ob_start();
         echo '<tr class="header'
             . (
-                count($this->data) < 1 ?
+                is_array($this->data) && count($this->data) < 1 ?
                 ' hiddeninitially' :
                 ''
             )

@@ -823,7 +823,7 @@ class HostManagementPage extends FOGPage
             unset($PowerManagement);
         }
         // Current data.
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             echo '<div class="panel panel-info">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
@@ -1583,7 +1583,7 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'HOST_ADD_PRINTER',
@@ -1685,7 +1685,7 @@ class HostManagementPage extends FOGPage
             );
             unset($Printer);
         }
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'HOST_EDIT_PRINTER',
@@ -1808,7 +1808,7 @@ class HostManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=host-snapins">';
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'HOST_ADD_SNAPIN',
@@ -1894,7 +1894,7 @@ class HostManagementPage extends FOGPage
             );
             unset($Snapin);
         }
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'HOST_EDIT_SNAPIN',
@@ -2608,7 +2608,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         $paneltype = 'info';
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             $paneltype = 'warning';
         }
         echo '<!-- Virus -->';
