@@ -65,7 +65,7 @@ class PrinterClient extends FOGClient
         );
         natcasesort($allPrinters);
         $printerIDs = self::$Host->get('printers');
-        $printerCount = count($printerIDs);
+        $printerCount = count($printerIDs ?: []);
         if ($printerCount < 1) {
             $data = [
                 'error' => 'np',

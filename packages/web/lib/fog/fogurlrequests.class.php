@@ -299,7 +299,7 @@ class FOGURLRequests extends FOGBase
      */
     public function execute($window_size = null, $available = false)
     {
-        $window_count = count($this->_requests);
+        $window_count = count($this->_requests ?: []);
         if (empty($window_size)
             || !is_numeric($window_size)
             || $window_size > $window_count

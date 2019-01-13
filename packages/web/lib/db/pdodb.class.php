@@ -96,7 +96,7 @@ class PDODB extends DatabaseManager
         }
         parent::__construct();
         try {
-            if (count($options) > 0) {
+            if (count($options ?: []) > 0) {
                 self::$_options = $options;
             }
             self::$_dbName = DATABASE_NAME;
@@ -255,7 +255,7 @@ class PDODB extends DatabaseManager
             if (isset($data) && !is_array($data)) {
                 $data = [$data];
             }
-            if (count($data)) {
+            if (count($data ?: [])) {
                 $sql = vsprintf($sql, $data);
             }
             if (!$sql) {
@@ -387,7 +387,7 @@ class PDODB extends DatabaseManager
                     }
                 }
             }
-            if (count($result)) {
+            if (count($result ?: [])) {
                 return $result;
             }
         } catch (Exception $e) {

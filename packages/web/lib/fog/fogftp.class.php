@@ -300,7 +300,7 @@ class FOGFTP
         $result = [];
         foreach ((array)$matches as $index => &$line) {
             array_shift($line);
-            $name = $line[count($line) - 1];
+            $name = $line[count($line ?: []) - 1];
             $type = $line[0][0];
             $filepath = $path.'/'.$name;
             if ($type == 'd') {

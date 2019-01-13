@@ -159,7 +159,7 @@ abstract class FOGController extends FOGBase
             if (!isset($this->databaseTable)) {
                 throw new Exception(_('Table not defined for this class'));
             }
-            if (!count($this->databaseFields)) {
+            if (!count($this->databaseFields ?: [])) {
                 throw new Exception(_('Fields not defined for this class'));
             }
             $this->databaseFieldsFlipped = array_flip($this->databaseFields);
@@ -432,7 +432,7 @@ abstract class FOGController extends FOGBase
             $insertValKeys = $updateValKeys = [];
             $insertValues = $updateValues = [];
             $updateData = $fieldData = [];
-            if (count($this->aliasedFields) > 0) {
+            if (count($this->aliasedFields ?: []) > 0) {
                 self::arrayRemove($this->aliasedFields, $this->databaseFields);
             }
             foreach ($this->databaseFields as $key => &$column) {
@@ -618,7 +618,7 @@ abstract class FOGController extends FOGBase
                 $this->databaseFields[$key],
                 $paramKey,
                 (
-                    count($whereArrayAnd) ?
+                    count($whereArrayAnd ?: []) ?
                     sprintf(
                         ' AND %s',
                         implode(' AND ', $whereArrayAnd)
@@ -678,7 +678,7 @@ abstract class FOGController extends FOGBase
             unset($column, $k);
         };
         $table = $this->databaseTable;
-        if (count($this->databaseFields) > 0) {
+        if (count($this->databaseFields ?: []) > 0) {
             array_walk($this->databaseFields, $getFields);
         }
         foreach ((array)$this->databaseFieldClassRelationships as $class => &$arr) {
@@ -1025,7 +1025,7 @@ abstract class FOGController extends FOGBase
         if (!array_key_exists($className, $join)) {
             $join[$className] = false;
         }
-        if (count($this->databaseFieldClassRelationships) > 0) {
+        if (count($this->databaseFieldClassRelationships ?: []) > 0) {
             array_walk($this->databaseFieldClassRelationships, $joinInfo);
         }
         return [implode((array) $join), $whereArrayAnd];
@@ -1043,7 +1043,7 @@ abstract class FOGController extends FOGBase
             (array) $queryData,
             (array) $this->databaseFieldsFlipped
         );
-        if (count($classData) < 1) {
+        if (count($classData ?: []) < 1) {
             $classData = array_intersect_key(
                 (array) $queryData,
                 (array)$this->databaseFields
@@ -1120,7 +1120,7 @@ abstract class FOGController extends FOGBase
         // Get the items differing between current and what we have associated.
         // Remove the items if there's anything to remove.
         $rem = array_diff($cur, $items);
-        if (count($rem)) {
+        if (count($rem ?: [])) {
             Route::deletemass(
                 $classCall,
                 [

@@ -121,11 +121,11 @@ class Group extends FOGController
      */
     public function addPrinter($addArray)
     {
-        if (count($addArray) > 0) {
+        if (count($addArray ?: []) > 0) {
             $insert_fields = ['hostID', 'printerID'];
             $insert_values = [];
             $hosts = $this->get('hosts');
-            if (count($hosts) > 0) {
+            if (count($hosts ?: []) > 0) {
                 foreach ((array)$hosts as $ind => &$hostID) {
                     foreach ((array)$addArray as &$printerID) {
                         $insert_values[] = [$hostID, $printerID];
@@ -134,7 +134,7 @@ class Group extends FOGController
                     unset($hostID);
                 }
             }
-            if (count($insert_values) > 0) {
+            if (count($insert_values ?: []) > 0) {
                 self::getClass('PrinterAssociationManager')
                     ->insertBatch(
                         $insert_fields,
@@ -201,7 +201,7 @@ class Group extends FOGController
         $insert_fields = ['hostID', 'snapinID'];
         $insert_values = [];
         $hosts = $this->get('hosts');
-        if (count($hosts) > 0) {
+        if (count($hosts ?: []) > 0) {
             array_walk(
                 $hosts,
                 function (
@@ -217,7 +217,7 @@ class Group extends FOGController
                 }
             );
         }
-        if (count($insert_values) > 0) {
+        if (count($insert_values ?: []) > 0) {
             self::getClass('SnapinAssociationManager')
                 ->insertBatch(
                     $insert_fields,
@@ -265,7 +265,7 @@ class Group extends FOGController
             }
             unset($hostid);
         }
-        if (count($insert_values) > 0) {
+        if (count($insert_values ?: []) > 0) {
             self::getClass('ModuleAssociationManager')
                 ->insertBatch(
                     $insert_fields,
@@ -483,7 +483,7 @@ class Group extends FOGController
             $hostids,
             json_decode(Route::getData(), true)
         );
-        if (count($hostids) < 1) {
+        if (count($hostids ?: []) < 1) {
             throw new Exception(_('No hosts available to task'));
         }
         $imagingTypes = $TaskType->isImagingTask;
@@ -577,7 +577,7 @@ class Group extends FOGController
                         $passreset,
                     ];
                 }
-                if (count($batchTask) > 0) {
+                if (count($batchTask ?: []) > 0) {
                     list(
                         $first_id,
                         $affected_rows
@@ -595,7 +595,7 @@ class Group extends FOGController
                         ];
                         unset($val);
                     }
-                    if (count($multicastsessionassocs) > 0) {
+                    if (count($multicastsessionassocs ?: []) > 0) {
                         self::getClass('MulticastSessionAssociationManager')
                             ->insertBatch(
                                 [
@@ -653,7 +653,7 @@ class Group extends FOGController
                         $passreset,
                     ];
                 }
-                if (count($batchTask) > 0) {
+                if (count($batchTask ?: []) > 0) {
                     self::getClass('TaskManager')
                         ->insertBatch(
                             $batchFields,
@@ -674,7 +674,7 @@ class Group extends FOGController
             }
         } elseif ($TaskType->isSnapinTasking) {
             $hostIDs = $this->_createSnapinTasking($now, $deploySnapins);
-            $hostCount = count($hostIDs);
+            $hostCount = count($hostIDs ?: []);
             $batchFields = [
                 'name',
                 'createdBy',
@@ -696,14 +696,14 @@ class Group extends FOGController
                     $shutdown
                 ];
             }
-            if (count($batchTask) > 0) {
+            if (count($batchTask ?: []) > 0) {
                 self::getClass('TaskManager')
                     ->insertBatch($batchFields, $batchTask);
             }
         } else {
             if ($TaskType->id != TaskType::WAKE_UP) {
                 $hostIDs = $this->get('hosts');
-                $hostCount = count($hostIDs);
+                $hostCount = count($hostIDs ?: []);
                 $batchFields = [
                     'name',
                     'createdBy',
@@ -723,7 +723,7 @@ class Group extends FOGController
                         $wol,
                     ];
                 }
-                if (count($batchTask) > 0) {
+                if (count($batchTask ?: []) > 0) {
                     $stat = self::getClass('TaskManager')
                         ->insertBatch($batchFields, $batchTask);
                 }
@@ -754,7 +754,7 @@ class Group extends FOGController
         );
         $hostMACs = json_decode(Route::getData(), true);
         $hostMACs = self::parseMacList($hostMACs);
-        if (count($hostMACs) > 0) {
+        if (count($hostMACs ?: []) > 0) {
             $macStr = implode(
                 '|',
                 $hostMACs
@@ -782,7 +782,7 @@ class Group extends FOGController
             'hostID'
         );
         $hostIDs = json_decode(Route::getData(), true);
-        $hostCount = count($hostIDs);
+        $hostCount = count($hostIDs ?: []);
         $snapinJobs = [];
         for ($i = 0; $i < $hostCount; ++$i) {
             $hostID = $hostIDs[$i];
@@ -797,7 +797,7 @@ class Group extends FOGController
             } else {
                 $snapin[$hostID] = [$snapin];
             }
-            if (count($snapins[$hostID]) < 1) {
+            if (count($snapins[$hostID] ?: []) < 1) {
                 continue;
             }
             $snapinJobs[] = [
@@ -806,7 +806,7 @@ class Group extends FOGController
                 $now->format('Y-m-d H:i:s'),
             ];
         }
-        if (count($snapinJobs) > 0) {
+        if (count($snapinJobs ?: []) > 0) {
             list(
                 $first_id,
                 $affected_rows
@@ -823,7 +823,7 @@ class Group extends FOGController
             for ($i = 0; $i < $hostCount; ++$i) {
                 $hostID = $hostIDs[$i];
                 $jobID = $ids[$i];
-                $snapinCount = count($snapins[$hostID]);
+                $snapinCount = count($snapins[$hostID] ?: []);
                 for ($j = 0; $j < $snapinCount; ++$j) {
                     $snapinTasks[] = [
                         $jobID,
@@ -832,7 +832,7 @@ class Group extends FOGController
                     ];
                 }
             }
-            if (count($snapinTasks) > 0) {
+            if (count($snapinTasks ?: []) > 0) {
                 self::getClass('SnapinTaskManager')
                     ->insertBatch(
                         [

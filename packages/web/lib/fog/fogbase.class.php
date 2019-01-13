@@ -462,7 +462,7 @@ abstract class FOGBase
         // Test what the class is and return if it is Reflection.
         $lClass = strtolower($class);
         if ($lClass === 'reflectionclass') {
-            return new ReflectionClass(count($args) === 1 ? $args[0] : $args);
+            return new ReflectionClass(count($args ?: []) === 1 ? $args[0] : $args);
         }
 
         global $sub;
@@ -486,7 +486,7 @@ abstract class FOGBase
         if ($obj->getConstructor()) {
             // If there's only one argument return the instance using it.
             // Otherwise return with full call.
-            if (count($args) === 1) {
+            if (count($args ?: []) === 1) {
                 $class = $obj->newInstance($args[0]);
             } else {
                 $class = $obj->newInstanceArgs($args);
@@ -591,7 +591,7 @@ abstract class FOGBase
         self::getClass('HostManager')->getHostByMacAddresses($macs);
         // If no macs are returned and the host is not required,
         // throw message that it's an invalid mac.
-        if (count($macs) < 1 && $hostnotrequired === false) {
+        if (count($macs ?: []) < 1 && $hostnotrequired === false) {
             if ($service) {
                 $msg = '#!im';
             } else {
@@ -720,7 +720,7 @@ abstract class FOGBase
      */
     private static function _setString($txt, $data = [])
     {
-        if (count($data)) {
+        if (count($data ?: [])) {
             $data = vsprintf($txt, $data);
         } else {
             $data = $txt;
@@ -963,7 +963,7 @@ abstract class FOGBase
             $_POST[$key] = $val;
             unset($val, $key);
         };
-        if (count($sesVars) > 0) {
+        if (count($sesVars ?: []) > 0) {
             array_walk($sesVars, $setReq);
         }
         unset($_SESSION['post_request_vals'], $sesVars, $reqVars);
@@ -1580,7 +1580,7 @@ abstract class FOGBase
             $tmpssl[] = $path;
             unset($path);
         }
-        if (count($tmpssl) < 1) {
+        if (count($tmpssl ?: []) < 1) {
             throw new Exception(_('Private key path not found'));
         }
         $sslfile = sprintf(
@@ -1659,7 +1659,7 @@ abstract class FOGBase
         $MACs = array_filter($MACs);
         $MACs = array_unique($MACs);
         $MACs = array_values($MACs);
-        if (count($MACs) < 1) {
+        if (count($MACs ?: []) < 1) {
             return [];
         }
         $pending_filter = explode(
@@ -1668,7 +1668,7 @@ abstract class FOGBase
         );
         $Ignore = array_map($lowerAndTrim, $pending_filter);
         $Ignore = array_filter($Ignore);
-        if (count($Ignore) > 0) {
+        if (count($Ignore ?: []) > 0) {
             $pattern = sprintf(
                 '#%s#i',
                 implode('|', (array) $Ignore)
@@ -1679,7 +1679,7 @@ abstract class FOGBase
             $MACs = array_unique($MACs);
             $MACs = array_values($MACs);
         }
-        if (count($MACs) < 1) {
+        if (count($MACs ?: []) < 1) {
             return [];
         }
         $count = self::getClass('MACAddressAssociationManager')->count(
@@ -1748,7 +1748,7 @@ abstract class FOGBase
         $MACs = array_filter($MACs);
         $MACs = array_unique($MACs);
         $MACs = array_values($MACs);
-        if (count($MACs) < 1) {
+        if (count($MACs ?: []) < 1) {
             return [];
         }
         $validMACs = [];
@@ -1846,7 +1846,7 @@ abstract class FOGBase
         }
         $mapinfo = array_filter($mapinfo);
 
-        return count($mapinfo) > 0;
+        return count($mapinfo ?: []) > 0;
     }
     /**
      * How to log this file.
@@ -2127,7 +2127,7 @@ abstract class FOGBase
      */
     public static function getMasterInterface($ip_find)
     {
-        if (count(self::$interface) > 0) {
+        if (count(self::$interface ?: []) > 0) {
             return self::$interface;
         }
         self::getIPAddress();
@@ -2150,7 +2150,7 @@ abstract class FOGBase
             self::$interface[] = $Interfaces[$index++];
             unset($ip);
         }
-        if (count(self::$interface) < 1) {
+        if (count(self::$interface ?: []) < 1) {
             return false;
         }
 
@@ -2163,7 +2163,7 @@ abstract class FOGBase
      */
     protected static function getIPAddress()
     {
-        if (count(self::$ips) > 0) {
+        if (count(self::$ips ?: []) > 0) {
             return self::$ips;
         }
         $output = [];
@@ -2172,7 +2172,7 @@ abstract class FOGBase
             $IPs,
             $retVal
         );
-        if (!count($IPs)) {
+        if (!count($IPs ?: [])) {
             exec(
                 "/sbin/ifconfig -a | awk -F'[ /:]+' '/(cast)/ {print $4}'",
                 $IPs,
@@ -2264,7 +2264,7 @@ abstract class FOGBase
         ignore_user_abort(true);
         set_time_limit(0);
         $macs = self::parseMacList($macs);
-        if (count($macs) < 1) {
+        if (count($macs ?: []) < 1) {
             return;
         }
         $macStr = implode(
@@ -2278,7 +2278,7 @@ abstract class FOGBase
         $url = '%s://%s/fog/management/index.php?';
         $url .= 'node=client&sub=wakeEmUp';
         $nodeURLs = [];
-        $macCount = count($macs);
+        $macCount = count($macs ?: []);
         if ($macCount < 1) {
             return;
         }
@@ -2427,7 +2427,7 @@ abstract class FOGBase
             "grep '[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}'"
         );
         exec($cmd, $IPs, $retVal);
-        if (!count($IPs)) {
+        if (!count($IPs ?: [])) {
             $cmd = sprintf(
                 '%s | %s | %s | %s',
                 '/sbin/ifconfig -a',
