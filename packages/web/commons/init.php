@@ -308,7 +308,7 @@ class Initiator
          * all REQUEST, COOKIE, POST, and GET data.
          * Otherwise it will clean the passed value.
          */
-        if (!count((array)$value)) {
+        if (!count($value ?: [])) {
             $process = [
                 &$_GET,
                 &$_POST,
@@ -382,7 +382,7 @@ class Initiator
         /**
          * If the count doesn't match our required we know we're missing something.
          */
-        if (count($has) < count($requiredExtensions)) {
+        if (count($has ?: []) < count($requiredExtensions ?: [])) {
             throw new Exception(_('Missing one or more extensions.'));
         }
     }

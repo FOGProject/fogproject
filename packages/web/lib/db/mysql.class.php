@@ -60,7 +60,7 @@ class MySQL extends DatabaseManager
             if (isset($data) && !is_array($data)) {
                 $data = array($data);
             }
-            if (count($data)) {
+            if (count($data ?: [])) {
                 $sql = vsprintf($sql, $data);
             }
             $this->info($sql);
@@ -120,7 +120,7 @@ class MySQL extends DatabaseManager
                     } else {
                         self::$result = self::$queryResult->$fetchType();
                     }
-                    if (isset($type) && count($params) && !is_array($params)) {
+                    if (isset($type) && count($params ?: []) && !is_array($params)) {
                         self::$result = self::$queryResult->$fetchType($type, array($params));
                     } elseif (isset($type) && $params == false) {
                         self::$result = self::$queryResult->$fetchType($type, array(null));
@@ -167,7 +167,7 @@ class MySQL extends DatabaseManager
                     }
                 }
             }
-            if (count($result)) {
+            if (count($result ?: [])) {
                 return $result;
             }
         } catch (Exception $e) {

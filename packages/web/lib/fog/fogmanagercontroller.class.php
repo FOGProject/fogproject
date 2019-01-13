@@ -179,9 +179,9 @@ abstract class FOGManagerController extends FOGBase
     public static function dataOutput($columns, $data)
     {
         $out = [];
-        for ($i = 0, $ien=count($data); $i<$ien; $i++) {
+        for ($i = 0, $ien=count($data ?: []); $i<$ien; $i++) {
             $row = [];
-            for ($j=0, $jen=count($columns); $j < $jen; $j++) {
+            for ($j=0, $jen=count($columns ?: []); $j < $jen; $j++) {
                 $column = $columns[$j];
                 // Is there a formatter?
                 if (isset($column['formatter'])) {
@@ -243,10 +243,10 @@ abstract class FOGManagerController extends FOGBase
     public static function order($request, $columns)
     {
         $order = '';
-        if (isset($request['order']) && count($request['order'])) {
+        if (isset($request['order']) && count($request['order'] ?: [])) {
             $orderBy = [];
             $dtColumns = self::pluck($columns, 'dt');
-            for ($i = 0, $ien = count($request['order']); $i < $ien; $i++) {
+            for ($i = 0, $ien = count($request['order'] ?: []); $i < $ien; $i++) {
                 // Convert the column index into the column data property
                 $columnIdx = intval($request['order'][$i]['column']);
                 $requestColumn = $request['columns'][$columnIdx];
@@ -288,7 +288,7 @@ abstract class FOGManagerController extends FOGBase
         $dtColumns = self::pluck($columns, 'dt');
         if (isset($request['search']) && $request['search']['value'] != '') {
             $str = $request['search']['value'];
-            for ($i=0, $ien = count($request['columns']); $i < $ien; $i++) {
+            for ($i=0, $ien = count($request['columns'] ?: []); $i < $ien; $i++) {
                 $requestColumn = $request['columns'][$i];
                 $columnIdx = array_search($requestColumn['data'], $dtColumns);
                 $column = $columns[$columnIdx];
@@ -303,7 +303,7 @@ abstract class FOGManagerController extends FOGBase
         }
         // Individual column filtering
         if (isset($request['columns'])) {
-            for ($i = 0, $ien = count($request['columns']); $i < $ien; $i++) {
+            for ($i = 0, $ien = count($request['columns'] ?: []); $i < $ien; $i++) {
                 $requestColumn = $request['columns'][$i];
                 $columnIdx = array_search($requestColumn['data'], $dtColumns);
                 $column = $columns[$columnIdx];
@@ -325,10 +325,10 @@ abstract class FOGManagerController extends FOGBase
         }
         // Combine the filters into a single string
         $where = '';
-        if (count($globalSearch)) {
+        if (count($globalSearch ?: [])) {
             $where = '('.implode(' OR ', $globalSearch).')';
         }
-        if (count($columnSearch)) {
+        if (count($columnSearch ?: [])) {
             $where = $where === '' ?
                 implode(' AND ', $columnSearch) :
                 $where .' AND '. implode(' AND ', $columnSearch);
@@ -552,7 +552,7 @@ abstract class FOGManagerController extends FOGBase
         //echo $sql;
         // Bind parameters
         if (is_array($bindings)) {
-            for ($i = 0,$ien = count($bindings); $i < $ien; $i++) {
+            for ($i = 0,$ien = count($bindings ?: []); $i < $ien; $i++) {
                 $binding = $bindings[$i];
                 $stmt->bindValue($binding['key'], $binding['val'], $binding['type']);
             }
@@ -600,7 +600,7 @@ abstract class FOGManagerController extends FOGBase
      */
     public static function bind(&$a, $val, $type)
     {
-        $key = ':binding_'.count($a);
+        $key = ':binding_'.count($a ?: []);
         $a[] = [
             'key' => $key,
             'val' => $val,
@@ -620,7 +620,7 @@ abstract class FOGManagerController extends FOGBase
     public static function pluck($a, $prop)
     {
         $out = [];
-        for ($i = 0, $len = count($a); $i < $len; $i++) {
+        for ($i = 0, $len = count($a ?: []); $i < $len; $i++) {
             if (!isset($a[$i][$prop])) {
                 continue;
             }
@@ -673,7 +673,7 @@ abstract class FOGManagerController extends FOGBase
         }
         $whereArray = [];
         $countVals = $countKeys = [];
-        if (count($findWhere)) {
+        if (count($findWhere ?: [])) {
             foreach ((array) $findWhere as $field => &$value) {
                 $field = trim($field);
                 if (is_array($value) && count($value) > 0) {
@@ -687,7 +687,7 @@ abstract class FOGManagerController extends FOGBase
                         $countVals[$key] = $val;
                         unset($val);
                     }
-                    if (count($countKeys) > 0) {
+                    if (is_array($countKeys) && count($countKeys) > 0) {
                         $whereArray[] = sprintf(
                             '`%s` IN (%s)',
                             $this->databaseFields[$field],
@@ -739,7 +739,7 @@ abstract class FOGManagerController extends FOGBase
             $this->databaseFields['id'],
             $this->databaseTable,
             (
-                count($whereArray) ?
+                count($whereArray ?: []) ?
                 sprintf(
                     ' WHERE %s%s',
                     implode(
@@ -784,8 +784,8 @@ abstract class FOGManagerController extends FOGBase
      */
     public function insertBatch($fields, $values)
     {
-        $fieldlength = count($fields);
-        $valuelength = count($values);
+        $fieldlength = count($fields ?: []);
+        $valuelength = count($values ?: []);
         if ($fieldlength < 1) {
             throw new Exception(_('No fields passed'));
         }
@@ -826,7 +826,7 @@ abstract class FOGManagerController extends FOGBase
                 $vals[] = sprintf('(%s)', implode(',', (array) $insertKeys));
                 unset($value);
             }
-            if (count($vals) < 1) {
+            if (count($vals ?: []) < 1) {
                 throw new Exception(_('No data to insert'));
             }
             $query = sprintf(
@@ -893,10 +893,10 @@ abstract class FOGManagerController extends FOGBase
         }
         unset($updateKey);
         $findVals = [];
-        if (count($findWhere) > 0) {
+        if (count($findWhere ?: []) > 0) {
             foreach ($findWhere as $field => &$value) {
                 $key = trim($field);
-                if (is_array($value) && count($value) > 0) {
+                if (is_array($value) && count($value ?: []) > 0) {
                     foreach ($value as $i => &$val) {
                         $val = trim($val);
                         // Define the key
@@ -958,7 +958,7 @@ abstract class FOGManagerController extends FOGBase
             $this->databaseTable,
             implode(',', (array) $insertArray),
             (
-                count($whereArray) ?
+                count($whereArray ?: []) ?
                 sprintf(
                     ' WHERE %s',
                     implode(" $whereOperator ", (array) $whereArray)
@@ -1030,7 +1030,7 @@ abstract class FOGManagerController extends FOGBase
                 $destroyVals[$keyStr] = $id_1;
                 unset($id_1);
             }
-            if (count($findWhere) > 0 && count($ids) < 1) {
+            if (count($findWhere ?: []) > 0 && count($ids ?: []) < 1) {
                 return true;
             }
             $query = sprintf(
@@ -1222,7 +1222,7 @@ abstract class FOGManagerController extends FOGBase
         }
         $whereArray = [];
         $countVals = $countKeys = [];
-        if (count($findWhere) > 0) {
+        if (count($findWhere ?: []) > 0) {
             array_walk(
                 $findWhere,
                 function (
@@ -1235,7 +1235,7 @@ abstract class FOGManagerController extends FOGBase
                     &$countKeys
                 ) {
                     $field = trim($field);
-                    if (is_array($value) && count($value) > 0) {
+                    if (is_array($value) && count($value ?: []) > 0) {
                         foreach ((array) $value as $index => &$val) {
                             $countKeys[] = sprintf(':countVal%d', $index);
                             $countVals[sprintf('countVal%d', $index)] = $val;
@@ -1276,7 +1276,7 @@ abstract class FOGManagerController extends FOGBase
             $this->databaseFields[$field],
             $this->databaseTable,
             (
-                count($whereArray) ?
+                count($whereArray ?: []) ?
                 sprintf(
                     ' WHERE %s%s',
                     implode(

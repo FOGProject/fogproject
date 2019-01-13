@@ -71,7 +71,7 @@ class EventManager extends FOGBase
                 array_push($this->data[$event], $listener);
                 break;
             case 'HookManager':
-                if (!is_array($listener) || count($listener) !== 2) {
+                if (!is_array($listener) || count($listener ?: []) !== 2) {
                     throw new Exception(
                         _('Second paramater must be in [class,function]')
                     );

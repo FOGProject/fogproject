@@ -1642,7 +1642,7 @@ foreach ($keySequences as $value => $ascii) {
     );
 }
 // 79
-$this->schema[count($this->schema) - 1] = [
+$this->schema[count($this->schema ?: []) - 1] = [
     "INSERT IGNORE INTO `keySequence` "
     . "(`ksValue`,`ksAscii`) "
     . "VALUES "
@@ -1984,7 +1984,7 @@ $this->schema[] = [
 ];
 // 119
 $column = array_filter((array)DatabaseManager::getColumns('default', 'modules'));
-$this->schema[] = count($column) > 0 ? [] : [
+$this->schema[] = count($column ?: []) > 0 ? [] : [
     "ALTER TABLE `modules` ADD COLUMN `default` INT "
     . "DEFAULT 1 NOT NULL AFTER `description`"
 ];
@@ -2207,7 +2207,7 @@ $column = array_filter(
         'ipxeTable'
     )
 );
-$this->schema[] = count($column) ? [] : [
+$this->schema[] = count($column ?: []) ? [] : [
     "ALTER TABLE `ipxeTable` ADD COLUMN `ipxeVersion` LONGTEXT NOT NULL",
 ];
 // 133
@@ -3225,7 +3225,7 @@ $this->schema[] = [
     "RENAME TABLE `groupMembers_new` TO `groupMembers`",
 ];
 // 221
-$this->schema[] = $this->schema[count($this->schema)-1];
+$this->schema[] = $this->schema[count($this->schema ?: [])-1];
 // 222
 $this->schema[] = [
     "ALTER TABLE `hosts` ADD COLUMN `hostInit` LONGTEXT AFTER `hostDevice`",

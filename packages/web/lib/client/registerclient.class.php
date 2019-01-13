@@ -63,7 +63,7 @@ class RegisterClient extends FOGClient
             $find,
             'mac'
         );
-        $pendingMACcount = count(json_decode(Route::getData(), true));
+        $pendingMACcount = count(json_decode(Route::getData(), true) ?: []);
         if (!self::$Host->isValid()) {
             self::$Host = self::getClass(
                 'Host',
@@ -134,7 +134,7 @@ class RegisterClient extends FOGClient
             $lowerAndTrim,
             $MACs
         );
-        if (count($MACs)) {
+        if (count($MACs ?: [])) {
             self::$Host->addPendMAC($MACs);
             if (!self::$Host->save()) {
                 return ['error' => 'db'];

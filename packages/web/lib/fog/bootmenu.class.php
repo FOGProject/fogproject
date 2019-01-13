@@ -142,10 +142,15 @@ class BootMenu extends FOGBase
                 'find --set-root /BOOTMGR;chainloader /BOOTMGR"'
             )
         ];
+        $refindfile = 'refind_x64.efi';
+        if (file_exists(BASEPATH . '/service/ipxe/refind.efi')) {
+            $refindfile = 'refind.efi';
+        }
         $refind = sprintf(
             'imgfetch ${boot-url}/service/ipxe/refind.conf%s'
-            . 'chain -ar ${boot-url}/service/ipxe/refind_x64.efi',
-            "\n"
+            . 'chain -ar ${boot-url}/service/ipxe/%s',
+            "\n",
+            $refindfile
         );
         if (false !== stripos($_REQUEST['arch'], 'arm')) {
             $grubChain = 'chain -ar ${boot-url}/service/ipxe/grub_aa64.exe '
@@ -158,10 +163,14 @@ class BootMenu extends FOGBase
         }
         if (false !== stripos($_REQUEST['arch'], 'i386')) {
             // use i386 boot loaders instead.
+            if ('refind_x64.efi' === $refindfile) {
+                $refindfile = 'refind_ia32.efi';
+            }
             $refind = sprintf(
                 'imgfetch ${boot-url}/service/ipxe/refind.conf%s'
-                . 'chain -ar ${boot-url}/service/ipxe/refind_ia32.efi',
-                "\n"
+                . 'chain -ar ${boot-url}/service/ipxe/%s',
+                "\n",
+                $refindfile
             );
         }
         self::$_exitTypes = [
@@ -325,7 +334,7 @@ class BootMenu extends FOGBase
         $StorageNodes = json_decode(
             Route::getData()
         );
-        if (count($StorageNodes->data) < 1) {
+        if (count($StorageNodes->data ?: []) < 1) {
             Route::listem('storagenode');
             $StorageNodes = json_decode(
                 Route::getData()
@@ -346,7 +355,7 @@ class BootMenu extends FOGBase
                     ['isMaster' => 1]
                 );
                 $storageNodeIDs = json_decode(Route::getData(), true);
-                if (count($storageNodeIDs) < 1) {
+                if (count($storageNodeIDs ?: []) < 1) {
                     Route::ids('storagenode');
                     $storageNodeIDs = json_decode(Route::getData(), true);
                 }
@@ -1153,7 +1162,7 @@ class BootMenu extends FOGBase
                 'KS' => $this->ks
             ]
         );
-        if (count($Send) > 0) {
+        if (count($Send ?: []) > 0) {
             array_walk_recursive(
                 $Send,
                 function (&$val, &$key) {
@@ -1558,7 +1567,7 @@ class BootMenu extends FOGBase
                 ],
                 [
                     'value' => "hostname=" . self::$Host->get('name'),
-                    'active' => count($clientMacs) > 0,
+                    'active' => count($clientMacs ?: []) > 0,
                 ],
                 [
                     'value' => "clamav=$clamav",
@@ -1730,7 +1739,7 @@ class BootMenu extends FOGBase
                 )
             )
         );
-        if (count($params)) {
+        if (count($params ?: [])) {
             if ($type) {
                 $index = array_search('params', $params);
                 if ($index !== false && is_numeric($index)) {
