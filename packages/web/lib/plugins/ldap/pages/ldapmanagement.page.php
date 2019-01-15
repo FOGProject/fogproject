@@ -657,7 +657,7 @@ class LDAPManagement extends FOGPage
             }
             $exists = self::getClass('LDAPManager')
                 ->exists($ldap);
-            if ($ldap) {
+            if ($exists) {
                 throw new Exception(
                     _('An LDAP server already exists with this name!')
                 );
