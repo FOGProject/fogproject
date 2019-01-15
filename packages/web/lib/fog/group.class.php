@@ -804,15 +804,7 @@ class Group extends FOGController
         if ($snapin === false) {
             return;
         }
-        $hostIDs = array_values(
-            self::getSubObjectIDs(
-                'SnapinAssociation',
-                array(
-                    'hostID' => $this->get('hosts'),
-                ),
-                'hostID'
-            )
-        );
+        $hostIDs = $this->get('hosts');
         $hostCount = count($hostIDs);
         $snapinJobs = array();
         for ($i = 0; $i < $hostCount; ++$i) {
