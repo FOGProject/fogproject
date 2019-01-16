@@ -776,12 +776,13 @@ class Group extends FOGController
             return;
         }
         $find = ['hostID' => $this->get('hosts')];
-        Route::ids(
+        /*Route::ids(
             'snapinassociation',
             $find,
             'hostID'
         );
-        $hostIDs = json_decode(Route::getData(), true);
+        $hostIDs = json_decode(Route::getData(), true);*/
+        $hostIDs = $find['hostID'];
         $hostCount = count($hostIDs ?: []);
         $snapinJobs = [];
         for ($i = 0; $i < $hostCount; ++$i) {
