@@ -547,6 +547,7 @@ installPackages() {
             packages="$packages php-bcmath bc"
             packages="${packages// mod_fastcgi/}"
             packages="${packages// mod_evasive/}"
+            packages="${packages// php-mcrypt/}"
             case $linuxReleaseName in
                 *[Ff][Ee][Dd][Oo][Rr][Aa]*)
                     packages="$packages php-json"
@@ -579,12 +580,16 @@ installPackages() {
         2)
             packages="${packages// libapache2-mod-fastcgi/}"
             packages="${packages// libapache2-mod-evasive/}"
+            packages="${packages// php${php_ver}-mcrypt/}"
             packages="${packages} php${php_ver}-bcmath bc"
             case $linuxReleaseName in
                 *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*)
                     addUbuntuRepo
                     ;;
             esac
+            ;;
+        3)
+            packages="${packages// php-mcrypt/}"
             ;;
     esac
     errorStat $?
