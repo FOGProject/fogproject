@@ -21,6 +21,7 @@
  */
 class User extends FOGController
 {
+    const PATTERN = '/(?=^.{3,40}$)^[\w][\w0-9]*[._\-]?[\w0-9]*[.]?[\w0-9]+$/i';
     /**
      * The users table
      *
@@ -101,7 +102,7 @@ class User extends FOGController
          * immediately if found.
          */
         $test = preg_match(
-            '/(?=^.{3,40}$)^[\w][\w0-9]*[._\-]?[\w0-9]*[.]?[\w0-9]+$/i',
+            self::PATTERN,
             $username
         );
         $tmpUser = new User();
@@ -197,7 +198,7 @@ class User extends FOGController
          * immediately if found.
          */
         $test = preg_match(
-            '/(?=^.{3,40}$)^[\w][\w0-9]*[._\-]?[\w0-9]*[.]?[\w0-9]+$/i',
+            self::PATTERN,
             $username
         );
         if ($this->passwordValidate($username, $password)
