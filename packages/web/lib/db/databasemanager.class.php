@@ -35,16 +35,16 @@ class DatabaseManager extends FOGCore
          * so we skip connecting to the DB entirely for those.
          */
         $noDBpattern = [
-            'status\/bandwidth\.php$',
-            'status\/freespace\.php$',
-            'status\/getfiles\.php$',
-            'status\/gethash\.php$',
-            'status\/getservertime\.php$',
-            'status\/getsize\.php$',
-            'status\/hw\.php$',
-            'status\/newtoken\.php$'
+            'status/bandwidth\.php',
+            'status/freespace\.php',
+            'status/getfiles\.php',
+            'status/gethash\.php',
+            'status/getservertime\.php',
+            'status/getsize\.php',
+            'status/hw\.php',
+            'status/newtoken\.php'
         ];
-        $noDBpattern = '#' . implode($noDBpattern, '|') . '#';
+        $noDBpattern = '#' . implode($noDBpattern, '|') . '$#';
         if (preg_match($noDBpattern, self::$scriptname)) {
             return;
         }
@@ -64,7 +64,7 @@ class DatabaseManager extends FOGCore
          * or status dir call.
          */
         $testscript = preg_match(
-            '#/service|status/#',
+            '#service/|status/#',
             self::$scriptname
         );
         if (strtolower(self::$reqmethod) === 'post'
