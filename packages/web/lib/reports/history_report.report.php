@@ -21,14 +21,109 @@
  */
 class History_Report extends ReportManagementPage
 {
+
+    public function file()
+    {
+    	$this->title = _('FOG History - Search');
+    	unset(
+    		$this->data,
+        	$this->form,
+        	$this->headerData,
+                $this->templates,
+                $this->attributes
+        );
+        $this->templates = array(
+        	'${field}',
+                '${input}'
+        );
+        $this->attributes = array(
+        	array('class' => 'col-xs-4'),
+                array('class' => 'col-xs-8 form-group')
+        );
+        $userNames = self::getSubObjectIDs(
+        	'User',
+                '',
+                'name'
+        );
+        $userNames = array_values(
+        	array_filter(
+                	array_unique(
+                        	(array)$userNames
+                	)
+                 )
+        );
+        natcasesort($userNames);
+
+        if (count($userNames) > 0) {
+        	$userSelForm = self::selectForm(
+                	'usersearch',
+                        $userNames
+                );
+                unset($userNames);
+        }
+        $fields = array(
+                '<label for="usersearch">'
+                . _('Enter an user name to search for')
+                . '</label>' => $userSelForm,
+		'<label for="info">'
+            	. _('Enter a term to search for')
+            	. '</label>' => '<div class="input-group">'
+            	. '<input type="text" class="'
+            	. 'form-control text-input" name='
+            	. '"info" value="'
+            	. $info
+            	. '" autocomplete="off" id="info" />'
+            	. '</div>',
+                '<label for="performsearch">'
+                . _('Perform search')
+                . '</label>' => '<button type="submit" name="performsearch" '
+                . 'class="btn btn-info btn-block" id="performsearch">'
+                . _('Search')
+                . '</button>'
+        );
+        array_walk($fields, $this->fieldsToData);
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+        	. $this->formAction
+                . '">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+
+
     /**
      * Display page.
      *
      * @return void
      */
-    public function file()
+
+    public function filePost()
     {
         $this->title = _('Full History Export');
+        $usersearch = filter_input(
+             INPUT_POST,
+             'usersearch'
+        );
+        $info = filter_input(
+             INPUT_POST,
+             'info'
+        );
+
+        if (!$usersearch) {
+                $usersearch = '%';
+        }
+	$info = '%'. $info . '%';
+
         array_walk(
             self::$inventoryCsvHead,
             function (&$classGet, &$csvHeader) {
@@ -55,7 +150,14 @@ class History_Report extends ReportManagementPage
             array(),
             array()
         );
-        Route::listem('history');
+        Route::listem('history',
+		'id',
+		'false',
+		array(
+			'createdBy' => $usersearch,
+			'info' => $info
+		)
+	);
         $Historys = json_decode(
             Route::getData()
         );
