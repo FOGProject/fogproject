@@ -98,13 +98,7 @@ class AddAccessControlUser extends Hook
         if ($sub == 'pending') {
             return;
         }
-        foreach ((array)$arguments['headerData'] as $index => &$str) {
-            if ($index == 5) {
-                $arguments['headerData'][$index] = _('Role');
-                $arguments['headerData'][] = $str;
-            }
-            unset($str);
-        }
+	$arguments['headerData'][] = _('Role');
     }
     /**
      * This function modifies the data of the user page.
@@ -127,20 +121,9 @@ class AddAccessControlUser extends Hook
         if ($sub == 'pending') {
             return;
         }
-        foreach ((array)$arguments['attributes'] as $index => &$str) {
-            if ($index == 5) {
-                $arguments['attributes'][$index] = array();
-                $arguments['attributes'][] = $str;
-            }
-            unset($str);
-        }
-        foreach ((array)$arguments['templates'] as $index => &$str) {
-            if ($index == 5) {
-                $arguments['templates'][$index] = '${role}';
-                $arguments['templates'][] = $str;
-            }
-            unset($str);
-        }
+	$arguments['attributes'][] = array();
+	$arguments['templates'][] = '${role}';
+
         foreach ((array)$arguments['data'] as $index => &$vals) {
             $find = array(
                 'userID' => $vals['id']
@@ -210,7 +193,9 @@ class AddAccessControlUser extends Hook
             $acID = $AccessControls[0];
         }
         self::arrayInsertAfter(
-            _('User Name'),
+            '<label for="name">'
+            . _('User Name')
+            . '</label>',
             $arguments['fields'],
             _('User Access Control'),
             self::getClass('AccessControlManager')->buildSelectBox(
