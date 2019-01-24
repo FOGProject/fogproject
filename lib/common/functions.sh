@@ -1661,7 +1661,9 @@ EOF
                     ;;
                 *)
                     systemctl is-active --quiet httpd php-fpm && systemctl stop httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                    sleep 1
                     systemctl is-active --quiet httpd php-fpm && true || systemctl start httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    sleep 1
                     systemctl status httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
             esac
