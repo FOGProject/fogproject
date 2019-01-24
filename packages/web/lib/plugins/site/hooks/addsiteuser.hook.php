@@ -98,6 +98,7 @@ class AddSiteUser extends Hook
         if ($sub == 'pending') {
             return;
         }
+/*
         if (!in_array('accesscontrol', (array)self::$pluginsinstalled)) {
             $insertIndex = 3;
         } else {
@@ -118,6 +119,9 @@ class AddSiteUser extends Hook
             }
             unset($str);
         }
+*/
+	$arguments['headerData'][] = _('Associated Sites');
+	$arguments['headerData'][] = _('Is restricted');
     }
     /**
      * This function modifies the data of the user page.
@@ -140,6 +144,7 @@ class AddSiteUser extends Hook
         if ($sub == 'pending') {
             return;
         }
+/*
         if (!in_array('accesscontrol', (array)self::$pluginsinstalled)) {
             $insertIndex = 3;
         } else {
@@ -174,6 +179,12 @@ class AddSiteUser extends Hook
             }
             unset($str);
         }
+*/
+	$arguments['attributes'][] = array();
+	$arguments['templates'][] = '${site}';
+        $arguments['attributes'][] = array();
+        $arguments['templates'][] = '${isRestricted}';
+
         foreach ((array)$arguments['data'] as $index => &$vals) {
             $find = array(
                 'userID' => $vals['id']
@@ -253,7 +264,9 @@ class AddSiteUser extends Hook
             $isRestricted = $isRestricted[0];
         }
         self::arrayInsertAfter(
-            _('User Name'),
+            '<label for="name">'
+            . _('User Name')
+            . '</label>',
             $arguments['fields'],
             _('Is Restricted User '),
             sprintf(
