@@ -1124,11 +1124,19 @@ configureUsers() {
     fi
     dots "Setting up $username password"
     if [[ -z $password ]]; then
-        [[ -f $webdirdest/lib/fog/config.class.php ]] && password="$(awk -F'[(")]' '/TFTP_FTP_PASSWORD/ {print $3}' $webdirdest/lib/fog/config.class.php)"
-        [[ -z $password ]] && password=$(openssl rand -base64 32)
+        [[ -f $webdirdest/lib/fog/config.class.php ]] && password=$(awk -F '"' -e '/TFTP_FTP_PASSWORD/,/);/{print $2}' $webdirdest/lib/fog/config.class.php | grep -v "^$")
     fi
-    echo -e "$password\n$password" | passwd $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    errorStat $?
+    cnt=0
+    ret=999
+    while [[ $ret -ne 0 && $cnt -lt 10  ]]; do
+        [[ -z $password || $ret -ne 999 ]] && password=$(tr -cd '0-1a-zA-Z#$%&()*+,-./:<=>?@[\]^_{|}~' < /dev/urandom | fold -w12 | head -n1)
+        echo -e "$password\n$password" | passwd $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        ret=$?
+        let cnt+=1
+    done
+    errorStat $ret
+    unset cnt
+    unset ret
 }
 linkOptFogDir() {
     if [[ ! -h /var/log/fog ]]; then
@@ -1194,7 +1202,6 @@ writeUpdateFile() {
     escrouteraddress=$(echo $routeraddress | sed -e $replace)
     escplainrouter=$(echo $plainrouter | sed -e $replace)
     escdnsaddress=$(echo $dnsaddress | sed -e $replace)
-    escpassword=$(echo $password | sed -e $replace -e "s/[']{1}/'''/g")
     escosid=$(echo $osid | sed -e $replace)
     escosname=$(echo $osname | sed -e $replace)
     escdodhcp=$(echo $dodhcp | sed -e $replace)
@@ -1257,8 +1264,8 @@ writeUpdateFile() {
                 sed -i "s/dnsaddress=.*/dnsaddress='$escdnsaddress'/g" $fogprogramdir/.fogsettings || \
                 echo "dnsaddress='$dnsaddress'" >> $fogprogramdir/.fogsettings
             grep -q "password=" $fogprogramdir/.fogsettings && \
-                sed -i "s/password=.*/password=\"$escpassword\"/g" $fogprogramdir/.fogsettings || \
-                echo "password=\"$escpassword\"" >> $fogprogramdir/.fogsettings
+                sed -i "s/password=.*/password='$password'/g" $fogprogramdir/.fogsettings || \
+                echo "password='$password'" >> $fogprogramdir/.fogsettings
             grep -q "osid=" $fogprogramdir/.fogsettings && \
                 sed -i "s/osid=.*/osid='$osid'/g" $fogprogramdir/.fogsettings || \
                 echo "osid='$osid'" >> $fogprogramdir/.fogsettings
