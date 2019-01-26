@@ -444,7 +444,7 @@ abstract class FOGPage extends FOGBase
         if ($tab) {
             $tabstr = "#$tab";
         }
-        if (count($data) > 0) {
+        if (is_array($data) && count($data) > 0) {
             $formstr .= http_build_query($data);
         }
         if ($tabstr) {
@@ -1814,7 +1814,7 @@ abstract class FOGPage extends FOGBase
                     $e->getMessage()
                 );
             }
-            if (count($error)) {
+            if (is_array($error) && count($error)) {
                 throw new Exception(
                     sprintf(
                         '<ul class="nav nav-pills nav-stacked">'
