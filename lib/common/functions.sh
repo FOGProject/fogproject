@@ -1160,7 +1160,7 @@ configureUsers() {
     fi
     dots "Setting up $username password"
     if [[ -z $password ]]; then
-        [[ -f $webdirdest/lib/fog/config.class.php ]] && password=$(awk -F '"' -e '/TFTP_FTP_PASSWORD/,/);/{print $2}' /var/www/html/fog/lib/fog/config.class.php | grep -v "^$")
+        [[ -f $webdirdest/lib/fog/config.class.php ]] && password=$(awk -F '"' -e '/TFTP_FTP_PASSWORD/,/);/{print $2}' $webdirdest/lib/fog/config.class.php | grep -v "^$")
     fi
     cnt=0
     ret=999
