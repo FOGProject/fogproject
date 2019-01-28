@@ -2017,6 +2017,7 @@ class Config
         define('FOG_JPGRAPH_VERSION', '2.3');
         define('FOG_REPORT_DIR', './reports/');
         define('FOG_CAPTUREIGNOREPAGEHIBER', true);
+        define('FOG_THEME', 'default/fog.css');
     }
 }" > "${webdirdest}/lib/fog/config.class.php"
     errorStat $?
