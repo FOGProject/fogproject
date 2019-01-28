@@ -1166,7 +1166,7 @@ configureUsers() {
     ret=999
     while [[ $ret -ne 0 && $cnt -lt 10 ]]
     do
-        [[ -z $password || $ret -ne 999 ]] && password=$(tr -cd '0-1a-zA-Z#$%&()*+,-./:<=>?@[\]^_{|}~' < /dev/urandom | fold -w12 | head -n1)
+        [[ -z $password || $ret -ne 999 ]] && password=$(tr -cd '0-1a-zA-Z!#$%&()*+,-./:;<=>?@[\]^_{|}~' < /dev/urandom | fold -w12 | head -n1)
         echo -e "$password\n$password" | passwd $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         ret=$?
         let cnt+=1
@@ -1229,7 +1229,7 @@ clearScreen() {
 }
 writeUpdateFile() {
     tmpDte=$(date +%c)
-    replace='s/[]"\/$*.^|[]/\\&/g';
+    replace='s/[]"\/$&*.^|[]/\\&/g';
     escversion=$(echo $version | sed -e $replace)
     esctmpDte=$(echo $tmpDate | sed -e $replace)
     escipaddress=$(echo $ipaddress | sed -e $replace)
@@ -1239,6 +1239,7 @@ writeUpdateFile() {
     escrouteraddress=$(echo $routeraddress | sed -e $replace)
     escplainrouter=$(echo $plainrouter | sed -e $replace)
     escdnsaddress=$(echo $dnsaddress | sed -e $replace)
+    escpassword=$(echo $password | sed -e $replace)
     escosid=$(echo $osid | sed -e $replace)
     escosname=$(echo $osname | sed -e $replace)
     escdodhcp=$(echo $dodhcp | sed -e $replace)
@@ -1301,7 +1302,7 @@ writeUpdateFile() {
                 sed -i "s/dnsaddress=.*/dnsaddress='$escdnsaddress'/g" $fogprogramdir/.fogsettings || \
                 echo "dnsaddress='$dnsaddress'" >> $fogprogramdir/.fogsettings
             grep -q "password=" $fogprogramdir/.fogsettings && \
-                sed -i "s/password=.*/password='$password'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/password=.*/password='$escpassword'/g" $fogprogramdir/.fogsettings || \
                 echo "password='$password'" >> $fogprogramdir/.fogsettings
             grep -q "osid=" $fogprogramdir/.fogsettings && \
                 sed -i "s/osid=.*/osid='$osid'/g" $fogprogramdir/.fogsettings || \
