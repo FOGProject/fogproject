@@ -1166,7 +1166,7 @@ configureUsers() {
     ret=999
     while [[ $ret -ne 0 && $cnt -lt 10 ]]
     do
-        [[ -z $password || $ret -ne 999 ]] && password=$(tr -cd '0-1a-zA-Z!#$%&()*+,-./:;<=>?@[\]^_{|}~' < /dev/urandom | fold -w12 | head -n1)
+        [[ -z $password || $ret -ne 999 ]] && password=$(tr -cd '0-1a-zA-Z!#$%&()*+,-./:;<=>?@[\\]^_{|}~' < /dev/urandom | fold -w12 | head -n1)
         echo -e "$password\n$password" | passwd $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         ret=$?
         let cnt+=1
