@@ -418,12 +418,19 @@ configureDefaultiPXEfile() {
 	echo -e "#!ipxe\ncpuid --ext 29 && set arch x86_64 || set arch \${buildarch}\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${httpproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
 }
 configureTFTPandPXE() {
-    dots "Setting up and starting TFTP and PXE Servers"
     [[ -d ${tftpdirdst}.prev ]] && rm -rf ${tftpdirdst}.prev >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ ! -d ${tftpdirdst} ]] && mkdir -p $tftpdirdst >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ -e ${tftpdirdst}.fogbackup ]] && rm -rf ${tftpdirdst}.fogbackup >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ -d $tftpdirdst && ! -d ${tftpdirdst}.prev ]] && mkdir -p ${tftpdirdst}.prev >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ -d ${tftpdirdst}.prev ]] && cp -Rf $tftpdirdst/* ${tftpdirdst}.prev/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ "x$httpproto" = "xhttps" ]]; then
+        dots "Compiling iPXE binaries with HTTPS"
+        cd $buildipxesrc
+        ./buildipxe.sh $sslpath/CA/.fogCA.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        errorStat $?
+        cd $workingdir
+    fi
+    dots "Setting up and starting TFTP and PXE Servers"
     cd $tftpdirsrc
     for tftpdir in $(ls -d */); do
         [[ ! -d $tftpdirdst/$tftpdir ]] && mkdir -p $tftpdirdst/$tftpdir >>$workingdir/error_logs/fog_error_${version}.log 2>&1
