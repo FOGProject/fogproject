@@ -16,6 +16,7 @@
 [[ -z $username ]] && username="fog"
 [[ -z $webdirsrc ]] && webdirsrc="../packages/web"
 [[ -z $tftpdirsrc ]] && tftpdirsrc="../packages/tftp"
+[[ -z $buildipxesrc ]] && buildipxesrc="../utils/FOGiPXE"
 [[ -z $udpcastsrc ]] && udpcastsrc="../packages/udpcast-20120424.tar.gz"
 [[ -z $udpcasttmp ]] && udpcasttmp="/tmp/udpcast.tar.gz"
 [[ -z $udpcastout ]] && udpcastout="udpcast-20120424"

@@ -1,5 +1,9 @@
 #!/bin/bash
-BUILDOPTS="TRUST=/var/www/fog/management/other/ca.cert.pem CERT=/var/www/fog/management/other/ca.cert.pem"
+if [[ -r $1 ]]; then
+  BUILDOPTS="TRUST=$1"
+elif [[ -r /opt/fog/snapins/ssl/CA/.fogCA.pem ]]; then
+  BUILDOPTS="TRUST=/opt/fog/snapins/ssl/CA/.fogCA.pem"
+fi
 IPXEGIT="https://git.ipxe.org/ipxe.git"
 
 # Change directory to base ipxe files
@@ -70,10 +74,3 @@ make bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek}.efi EMBED=ipxescript1
 # Copy the files to upload
 cp bin-i386-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/10secdelay/i386-efi/
 cp bin-x86_64-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/10secdelay/
-
-echo "Done building the SSL ready iPXE binaries. Now we need to re-run the"
-echo "FOG installer to install those binaries... Hit ENTER to proceed or"
-echo "Ctrl+C if you want to quit and copy the files by hand."
-read
-cd ${FOGDIR}/bin/
-./installfog.sh -y
