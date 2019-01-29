@@ -36,7 +36,7 @@ fi
 [[ -z $apachelogdir ]] && apachelogdir="/var/log/httpd"
 [[ -z $apacheerrlog ]] && apacheerrlog="$apachelogdir/error_log"
 [[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/access_log"
-[[ -z $httpdconf ]] && etcconf="/etc/httpd/conf/httpd.conf"
+[[ -z $httpdconf ]] && httpdconf="/etc/httpd/conf/httpd.conf"
 [[ -z $etcconf ]] && etcconf="/etc/httpd/conf/extra/fog.conf"
 [[ -z $phpini ]] && phpini="/etc/php/php.ini"
 [[ -z $storageLocation ]] && storageLocation="/images"
