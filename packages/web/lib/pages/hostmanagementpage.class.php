@@ -2941,7 +2941,7 @@ class HostManagementPage extends FOGPage
             $stateName = $Task->state->name;
             unset($Task);
             $createdBy = (
-                $log->createdBy ?:
+                $Log->createdBy ?:
                 self::$FOGUser->get('name')
             );
             $Image = $Log->image;
