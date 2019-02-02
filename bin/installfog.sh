@@ -24,7 +24,7 @@ fi
 . ../lib/common/functions.sh
 help() {
     echo -e "Usage: $0 [-h?dEUuHSCKYXT] [-f <filename>]"
-    echo -e "\t\t[-D </directory/to/document/root/>] [-c <sslPath>]"
+    echo -e "\t\t[-D </directory/to/document/root/>] [-c <ssl-path>]"
     echo -e "\t\t[-W <webroot/to/fog/after/docroot/>] [-B </backup/path/>]"
     echo -e "\t\t[-s <192.168.1.10>] [-e <192.168.1.254>] [-b <undionly.kpxe>]"
     echo -e "\t-h -? --help\t\t\tDisplay this info"
@@ -37,7 +37,7 @@ help() {
     echo -e "\t-K    --recreate-keys\t\tRecreate the SSL Keys"
     echo -e "\t-Y -y --autoaccept\t\tAuto accept defaults and install"
     echo -e "\t-f    --file\t\t\tUse different update file"
-    echo -e "\t-c    --ssl-file\t\tSpecify the ssl path"
+    echo -e "\t-c    --ssl-path\t\tSpecify the ssl path"
     echo -e "\t               \t\t\t\tdefaults to /opt/fog/snapins/ssl"
     echo -e "\t-D    --docroot\t\t\tSpecify the Apache Docroot for fog"
     echo -e "\t               \t\t\t\tdefaults to OS DocumentRoot"
@@ -71,9 +71,9 @@ while getopts "$optspec" o; do
                     ;;
                 ssl-path)
                     ssslpath="${OPTARG}"
-                    ssslpath="${sslpath#'/'}"
-                    ssslpath="${sslpath%'/'}"
-                    sslpath="/${sslpath}/"
+                    ssslpath="${ssslpath#'/'}"
+                    ssslpath="${ssslpath%'/'}"
+                    ssslpath="/${ssslpath}/"
                     ;;
                 no-vhost)
                     novhost="y"
@@ -189,9 +189,9 @@ while getopts "$optspec" o; do
             ;;
         c)
             ssslpath="${OPTARG}"
-            ssslpath="${sslpath#'/'}"
-            ssslpath="${sslpath%'/'}"
-            ssslpath="/${sslpath}/"
+            ssslpath="${ssslpath#'/'}"
+            ssslpath="${ssslpath%'/'}"
+            ssslpath="/${ssslpath}/"
             ;;
         d)
             guessdefaults=0
@@ -390,10 +390,7 @@ case $doupdate in
             [[ -n $sbackupPath ]] && backupPath=$sbackupPath
             [[ -n $swebroot ]] && webroot=$swebroot
             [[ -n $sdocroot ]] && docroot=$sdocroot
-            [[ -n $srecreateCA ]] && recreateCA=$srecreateCA
-            [[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
             [[ -n $signorehtmldoc ]] && ignorehtmldoc=$signorehtmldoc
-            [[ -n $ssslpath ]] && sslpath=$ssslpath
             [[ -n $scopybackold ]] && copybackold=$scopybackold
         fi
         ;;
@@ -405,6 +402,9 @@ esac
 [[ -n $shttpproto ]] && httpproto=$shttpproto
 [[ -n $sstartrange ]] && startrange=$sstartrange
 [[ -n $sendrange ]] && endrange=$sendrange
+[[ -n $ssslpath ]] && sslpath=$ssslpath
+[[ -n $srecreateCA ]] && recreateCA=$srecreateCA
+[[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
 
 [[ -f $fogpriorconfig ]] && grep -l webroot $fogpriorconfig >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 case $? in
