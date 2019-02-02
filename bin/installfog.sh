@@ -143,6 +143,8 @@ while getopts "$optspec" o; do
                         exit 5
                     fi
                     sstartrange=$OPTARG
+                    dodhcp="Y"
+                    bldhcp=1
                     ;;
                 endrange)
                     if [[ $(validip $OPTARG) != 0 ]]; then
@@ -151,6 +153,8 @@ while getopts "$optspec" o; do
                         exit 6
                     fi
                     sendrange=$OPTARG
+                    dodhcp="Y"
+                    bldhcp=1
                     ;;
                 bootfile)
                     sbootfilename=$OPTARG
@@ -253,6 +257,8 @@ while getopts "$optspec" o; do
                 exit 5
             fi
             sstartrange=$OPTARG
+            dodhcp="Y"
+            bldhcp=1
             ;;
         e)
             if [[ $(validip $OPTARG) != 0 ]]; then
@@ -261,6 +267,8 @@ while getopts "$optspec" o; do
                 exit 6
             fi
             sendrange=$OPTARG
+            dodhcp="Y"
+            bldhcp=1
             ;;
         b)
             sbootfilename=$OPTARG
