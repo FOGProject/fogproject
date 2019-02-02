@@ -16,6 +16,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+bindir=$(dirname $(readlink -f "$BASH_SOURCE") )
+cd $bindir
 workingdir=$(pwd)
 if [[ ! $EUID -eq 0 ]]; then
     exec sudo $0 $@ || echo "FOG Installation must be run as root user"
