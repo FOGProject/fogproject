@@ -387,8 +387,6 @@ case $doupdate in
             [[ -n $snotpxedefaultfile ]] && notpxedefaultfile=$snotpxedefaultfile
             [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
             [[ -n $sbootfilename ]] && bootfilename=$sbootfilename
-            [[ -n $sendrange ]] && endrange=$sendrange
-            [[ -n $sstartrange ]] && startrange=$sstartrange
             [[ -n $sbackupPath ]] && backupPath=$sbackupPath
             [[ -n $swebroot ]] && webroot=$swebroot
             [[ -n $sdocroot ]] && docroot=$sdocroot
@@ -405,6 +403,8 @@ case $doupdate in
 esac
 # evaluation of command line options
 [[ -n $shttpproto ]] && httpproto=$shttpproto
+[[ -n $sstartrange ]] && startrange=$sstartrange
+[[ -n $sendrange ]] && endrange=$sendrange
 
 [[ -f $fogpriorconfig ]] && grep -l webroot $fogpriorconfig >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 case $? in
