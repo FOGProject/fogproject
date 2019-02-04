@@ -129,6 +129,12 @@ class StorageNode extends FOGController
             }
             return rtrim(parent::get($key), '/');
         }
+        if ($key === 'pass') {
+            return htmlspecialchars_decode(
+                parent::get($key),
+                ENT_QUOTE | ENT_HTML401
+            );
+        }
         $loaders = [
             'snapinfiles' => 'getSnapinfiles',
             'images' => 'getImages',

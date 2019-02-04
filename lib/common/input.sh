@@ -162,7 +162,6 @@ case $installtype in
         count=0
         blRouter=""
         blDNS=""
-        dodhcp=""
         installlang=""
         while [[ -z $routeraddress ]]; do
             if [[ -z $autoaccept ]]; then
