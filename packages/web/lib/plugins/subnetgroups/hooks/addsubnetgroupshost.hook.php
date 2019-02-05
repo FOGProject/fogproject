@@ -7,6 +7,7 @@
  * @category AddSubnetGroupsHost
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   sctt <none@none>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -16,6 +17,7 @@
  * @category AddSubnetGroupsHost
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   sctt <none@none>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -110,7 +112,6 @@ class AddSubnetgroupsHost extends Hook
         }
 
         foreach ($subnetGroups['subnets'] as $index => $subnetList) {
-
             $group = $subnetGroups['groupID'][$index];
             $subnetList = str_replace(' ', '', $subnetList);
             $subnets = explode(',', $subnetList);
@@ -127,7 +128,6 @@ class AddSubnetgroupsHost extends Hook
         if ($hostChanged) {
             $Host->save();
         }
-
     }
     /**
      * Check if an IP Address complies with a CIDR subnet
@@ -139,12 +139,12 @@ class AddSubnetgroupsHost extends Hook
      *
      * @return bool
      */
-    private function ipCIDRCheck ($IP, $CIDR)
+    private function ipCIDRCheck($IP, $CIDR)
     {
-        list ($net, $mask) = explode ('/', $CIDR);
-        $ip_net = ip2long ($net);
+        list($net, $mask) = explode('/', $CIDR);
+        $ip_net = ip2long($net);
         $ip_mask = ~((1 << (32 - $mask)) - 1);
-        $ip_ip = ip2long ($IP);
+        $ip_ip = ip2long($IP);
         return (($ip_ip & $ip_mask) == ($ip_net & $ip_mask));
     }
 }

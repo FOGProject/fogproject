@@ -7,6 +7,7 @@
  * @category RemoveSubnetGroupsGroup
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   sctt <none@none>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -16,6 +17,7 @@
  * @category RemoveSubnetGroupsGroup
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   sctt <none@none>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -72,7 +74,6 @@ class RemoveSubnetgroupsGroup extends Hook
      */
     public function removeSubnetgroupsGroup($arguments)
     {
-
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
@@ -84,7 +85,7 @@ class RemoveSubnetgroupsGroup extends Hook
             array('groupID' => $Group->get('id'))
         );
 
-        foreach($subnetGroupsIDs as $id) {
+        foreach ($subnetGroupsIDs as $id) {
             $Subnetgroups = new Subnetgroups($id);
             $Subnetgroups->destroy();
         }
