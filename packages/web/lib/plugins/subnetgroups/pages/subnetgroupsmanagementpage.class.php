@@ -7,6 +7,7 @@
  * @category SubnetGroupsManagementPage
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   sctt <none@none>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -16,6 +17,7 @@
  * @category SubnetGroupsManagementPage
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   sctt <none@none>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -96,7 +98,6 @@ class SubnetgroupsManagementPage extends FOGPage
          * @return void
          */
         self::$returnData = function (&$Subnetgroups) {
-
             $groupName = self::getSubObjectIDs(
                 'Group',
                 array('id' => $Subnetgroups->groupID),
@@ -421,8 +422,8 @@ class SubnetgroupsManagementPage extends FOGPage
         if ($this->obj->get('name') != $name
              && self::getClass('SubnetgroupsManager')->exists(
                  $name,
-                 $this->obj->get('id')))
-        {
+                 $this->obj->get('id')
+             )) {
             throw new Exception(
                 _('A name is required!')
             );
@@ -433,7 +434,7 @@ class SubnetgroupsManagementPage extends FOGPage
             );
         }
 
-	$subnetsMatch = "/^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))(( )*,( )*([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))+)*$/";
+        $subnetsMatch = "/^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))(( )*,( )*([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))+)*$/";
         if (!preg_match($subnetsMatch, $subnets)) {
             throw new Exception(
                 _('Please enter a valid CIDR subnets comma separated list')
@@ -460,7 +461,7 @@ class SubnetgroupsManagementPage extends FOGPage
                 array('Subnetgroups'=> &$this->obj)
             );
         global $tab;
-        try{
+        try {
             switch ($tab) {
             case 'subnetgroups-general':
                 $this->subnetgroupsGeneralPost();

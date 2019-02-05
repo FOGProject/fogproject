@@ -7,6 +7,7 @@
  * @category Subnetgroups
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   sctt <none@none>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -16,6 +17,7 @@
  * @category Subnetgroups
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   sctt <none@none>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -84,4 +86,3 @@ class Subnetgroups extends FOGController
         }
     }
 }
-
