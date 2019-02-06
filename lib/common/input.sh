@@ -29,7 +29,7 @@ if [[ $guessdefaults == 1 ]]; then
             ;;
     esac
     allinterfaces=$(getAllNetworkInterfaces)
-    strSuggestedInterface=${allinterfaces}
+    strSuggestedInterface=${allinterfaces[0]}
     if [[ -z $strSuggestedInterface ]]; then
         echo "ERROR: Not able to find a network interface that is up on your system"
         exit 1
@@ -87,51 +87,55 @@ while [[ -z $installtype ]]; do
             ;;
     esac
 done
-while [[ -z $interface ]]; do
-    blInt="N"
-    if [[ -z $autoaccept ]]; then
-        echo
-        echo "  We found the following interfaces on your system:"
-        for i in $allinterfaces; do
-            iip=$(ip -4 addr show $i | awk '$1 == "inet" {print $2}')
-            echo "     * $i - $iip"
-        done
-        echo "  Would you like to change the default network interface from $strSuggestedInterface?"
-        echo -n "  If you are not sure, select No. [y/N] "
-        read blInt
-    fi
-    case $blInt in
-        [Nn]|[Nn][Oo]|"")
-            interface=$strSuggestedInterface
-            ;;
-        [Yy]|[Yy][Ee][Ss])
-            echo -n "  What network interface would you like to use? "
-            read interface
-            ;;
-        *)
-            echo "  Invalid input, please try again."
-            ;;
-    esac
-    ip -4 link show $interface >/dev/null 2>&1
-    if [[ $? -ne 0 ]]; then
-        echo
-        echo "  * The network interface named $interface does not exist."
-        interface=""
-        continue
-    fi
+testInterface() {
+    while [[ -z $interface ]]; do
+        blInt="N"
+        if [[ -z $autoaccept ]]; then
+            echo
+            echo "  We found the following interfaces on your system:"
+            for i in $allinterfaces; do
+                iip=$(ip -4 addr show $i | awk '$1 == "inet" {print $2}')
+                echo "     * $i - $iip"
+            done
+            echo "  Would you like to change the default network interface from $strSuggestedInterface?"
+            echo -n "  If you are not sure, select No. [y/N] "
+            read blInt
+        fi
+        case $blInt in
+            [Nn]|[Nn][Oo]|"")
+                interface=$strSuggestedInterface
+                ;;
+            [Yy]|[Yy][Ee][Ss])
+                echo -n "  What network interface would you like to use? "
+                read interface
+                ;;
+            *)
+                echo "  Invalid input, please try again."
+                ;;
+        esac
+        ip -4 link show $interface >/dev/null 2>&1
+        if [[ $? -ne 0 ]]; then
+            echo
+            echo "  * The network interface named $interface does not exist."
+            interface=""
+            continue
+        fi
+    done
+}
+while [[ -z $ipaddress ]]; do
     ipaddress=$(ip -4 addr show $interface | awk '$1 == "inet" {gsub(/\/.*$/, "", $2); print $2}')
     if [[ $(validip $ipaddress) -ne 0 ]]; then
         echo
         echo "  * The interface $interface does not seem to have a valid IP Configured to it."
         interface=""
-        continue
-    fi
-    submask=$(cidr2mask $(getCidr $interface))
-    if [[ -z $submask ]]; then
-        submask=$(/sbin/ifconfig -a | grep $ipaddress -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2)
-        submask=$(mask2cidr $submask)
+        testInterface
     fi
 done
+submask=$(cidr2mask $(getCidr $interface))
+if [[ -z $submask ]]; then
+    submask=$(/sbin/ifconfig -a | grep $ipaddress -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2)
+    submask=$(mask2cidr $submask)
+fi
 if [[ $strSuggestedHostname == $ipaddress ]]; then
     strSuggestedHostname=$(hostnamectl --static)
 fi
@@ -163,76 +167,6 @@ case $installtype in
         blRouter=""
         blDNS=""
         installlang=""
-        while [[ -z $routeraddress ]]; do
-            if [[ -z $autoaccept ]]; then
-                echo
-                echo -n "  Would you like to setup a router address for the DHCP server? [Y/n] "
-                read blRouter
-            fi
-            case $blRouter in
-                [Yy]|[Yy][Ee][Ss]|"")
-                    if [[ $count -ge 1 ]] || [[ -z $autoaccept ]]; then
-                        echo "  What is the IP address to be used for the router on"
-                        echo -n "      the DHCP server? [$strSuggestedRoute]"
-                        read routeraddress
-                    fi
-                    case $routeraddress in
-                        "")
-                            routeraddress=$(echo $strSuggestedRoute | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
-                            ;;
-                        *)
-                            routeraddress=$(echo $routeraddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
-                            ;;
-                    esac
-                    if [[ ! $(validip $routeraddress) -eq 0 ]]; then
-                        routeraddress=""
-                        echo "  Invalid router IP Address!"
-                        continue
-                    fi
-                    plainrouter=$routeraddress
-                    ;;
-                [Nn]|[Nn][Oo])
-                    routeraddress="#   No router address added"
-                    ;;
-                *)
-                    echo "  Invalid input, please try again."
-                    ;;
-            esac
-        done
-        count=0
-        while [[ -z $dnsaddress ]]; do
-            if [[ -z $autoaccept ]]; then
-                echo
-                echo -n "  Would you like DHCP to handle DNS? [Y/n] "
-                read blDNS
-            fi
-            case $blDNS in
-                [Yy]|[Yy][Ee][Ss]|"")
-                    if [[ $count -ge 1 ]] || [[ -z $autoaccept ]]; then
-                        echo -n "  What DNS address should DHCP allow? [$strSuggestedDNS] "
-                        read dnsaddress
-                    fi
-                    case $dnsaddress in
-                        "")
-                            dnsaddress=$(echo $strSuggestedDNS | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
-                            ;;
-                        *)
-                            dnsaddress=$(echo $dnsaddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
-                            ;;
-                    esac
-                    if [[ ! $(validip $dnsaddress) -eq 0 ]]; then
-                        dnsaddress=""
-                        echo "  Invalid DNS IP address!"
-                    fi
-                    ;;
-                [Nn]|[Nn][Oo])
-                    dnsaddress="#   No dns added"
-                    ;;
-                *)
-                    echo "  Invalid input, please try again."
-                    ;;
-            esac
-        done
         while [[ -z $dodhcp ]]; do
             if [[ -z $autoaccept ]]; then
                 echo
@@ -252,6 +186,81 @@ case $installtype in
                     ;;
             esac
         done
+        if [[ $bldhcp -eq 1 ]]; then
+            while [[ -z $routeraddress ]]; do
+                if [[ -z $autoaccept ]]; then
+                    echo
+                    echo -n "  Would you like to setup a router address for the DHCP server? [Y/n] "
+                    read blRouter
+                fi
+                case $blRouter in
+                    [Yy]|[Yy][Ee][Ss]|"")
+                        if [[ $count -ge 1 ]] || [[ -z $autoaccept ]]; then
+                            echo "  What is the IP address to be used for the router on"
+                            echo -n "      the DHCP server? [$strSuggestedRoute]"
+                            read routeraddress
+                        fi
+                        case $routeraddress in
+                            "")
+                                routeraddress=$(echo $strSuggestedRoute | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+                                ;;
+                            *)
+                                routeraddress=$(echo $routeraddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+                                ;;
+                        esac
+                        if [[ ! $(validip $routeraddress) -eq 0 ]]; then
+                            routeraddress=""
+                            echo "  Invalid router IP Address!"
+                            continue
+                        fi
+                        plainrouter=$routeraddress
+                        ;;
+                    [Nn]|[Nn][Oo])
+                        routeraddress="#   No router address added"
+                        ;;
+                    *)
+                        echo "  Invalid input, please try again."
+                        ;;
+                esac
+            done
+            count=0
+            while [[ -z $dnsaddress ]]; do
+                if [[ -z $autoaccept ]]; then
+                    echo
+                    echo -n "  Would you like DHCP to handle DNS? [Y/n] "
+                    read blDNS
+                fi
+                case $blDNS in
+                    [Yy]|[Yy][Ee][Ss]|"")
+                        if [[ $count -ge 1 ]] || [[ -z $autoaccept ]]; then
+                            echo -n "  What DNS address should DHCP allow? [$strSuggestedDNS] "
+                            read dnsaddress
+                        fi
+                        case $dnsaddress in
+                            "")
+                                dnsaddress=$(echo $strSuggestedDNS | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+                                ;;
+                            *)
+                                dnsaddress=$(echo $dnsaddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+                                ;;
+                        esac
+                        if [[ ! $(validip $dnsaddress) -eq 0 ]]; then
+                            dnsaddress=""
+                            echo "  Invalid DNS IP address!"
+                        fi
+                        ;;
+                    [Nn]|[Nn][Oo])
+                        dnsaddress="#   No dns added"
+                        ;;
+                    *)
+                        echo "  Invalid input, please try again."
+                        ;;
+                esac
+            done
+        else
+            dnsaddress="# No dns added"
+            routeraddress="# No router added"
+        fi
         while [[ -z $installlang ]]; do
             if [[ -z $autoaccept ]]; then
                 echo
