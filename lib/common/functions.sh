@@ -1796,7 +1796,7 @@ configureHttpd() {
         # Enable ssl
         sed -i '/LoadModule ssl_module modules\/mod_ssl.so/s/^#//g' $httpdconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         # Enable our virtual host file for fog
-        echo -e "# FOG Virtual Host\nListen 443\nInclude conf/extra/fog.conf" >> $httpdconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        grep -q "^Include conf/extra/fog\.conf" $httpdconf | echo -e "# FOG Virtual Host\nListen 443\nInclude conf/extra/fog.conf" >> $httpdconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         # Enable php extensions
         sed -i 's/;extension=bcmath/extension=bcmath/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/;extension=curl/extension=curl/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
