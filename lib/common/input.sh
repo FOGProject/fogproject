@@ -28,7 +28,7 @@ if [[ $guessdefaults == 1 ]]; then
             strSuggestedOS=1
             ;;
     esac
-    allinterfaces=$(getAllNetworkInterfaces)
+    allinterfaces=($(getAllNetworkInterfaces))
     strSuggestedInterface=${allinterfaces[0]}
     if [[ -z $strSuggestedInterface ]]; then
         echo "ERROR: Not able to find a network interface that is up on your system"
@@ -122,6 +122,7 @@ testInterface() {
         fi
     done
 }
+testInterface
 while [[ -z $ipaddress ]]; do
     ipaddress=$(ip -4 addr show $interface | awk '$1 == "inet" {gsub(/\/.*$/, "", $2); print $2}')
     if [[ $(validip $ipaddress) -ne 0 ]]; then
