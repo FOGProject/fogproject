@@ -1783,7 +1783,7 @@ class GroupManagementPage extends FOGPage
                     break;
                 case _('Host MAC'):
                     $this->ReportMaker->addCSVCell(
-                        $Host->mac
+                        $Host->primac
                     );
                     break;
                 case _('Host Desc'):
