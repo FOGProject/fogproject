@@ -96,29 +96,27 @@ class AddSubnetgroupsHost extends Hook
             return;
         }
 
-        $subnetGroups = self::getSubObjectIDs(
-            'SubnetGroups',
-            array(),
-            array('subnets', 'groupID')
+        Route::listem('subnetgroups');
+        $Subnetgroups = json_decode(
+            Route::getData()
         );
-
+        $Subnetgroups = $Subnetgroups->subnetgroupss;
         $hostChanged = false;
 
-        foreach ($Host->get('groups') as $hostGroup) {
-            if (in_array($hostGroup, $subnetGroups['groupID'])) {
-                $Host->removeGroup($hostGroup);
+        foreach ($Subnetgroups as $SG) {
+            if (in_array($SG->groupID, $Host->get('groups'))) {
+                $Host->removeGroup($SG->groupID);
                 $hostChanged = true;
             }
         }
 
-        foreach ($subnetGroups['subnets'] as $index => $subnetList) {
-            $group = $subnetGroups['groupID'][$index];
-            $subnetList = str_replace(' ', '', $subnetList);
+        foreach ($Subnetgroups as $SG) {
+            $subnetList = str_replace(' ', '', $SG->subnets);
             $subnets = explode(',', $subnetList);
 
             foreach ($subnets as $subnet) {
                 if ($this->ipCIDRCheck($ip, $subnet)) {
-                    $Host->addGroup($group);
+                    $Host->addGroup($SG->groupID);
                     $hostChanged = true;
                     continue 2;
                 }

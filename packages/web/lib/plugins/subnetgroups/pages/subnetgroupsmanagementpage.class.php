@@ -98,15 +98,20 @@ class SubnetgroupsManagementPage extends FOGPage
          * @return void
          */
         self::$returnData = function (&$Subnetgroups) {
-            $groupName = self::getSubObjectIDs(
-                'Group',
-                array('id' => $Subnetgroups->groupID),
-                'name'
-            )[0];
+            Route::listem(
+                'group',
+                'name',
+                false,
+                array('id' => $Subnetgroups->groupID)
+            );
+
+            $Group = json_decode(
+                Route::getData()
+            );
 
             $this->data[] = array(
                 'id' => $Subnetgroups->id,
-                'groupName' => $groupName,
+                'groupName' => isset($Group->groups[0]) ? $Group->groups[0]->name : '',
                 'groupID'   => $Subnetgroups->groupID,
                 'subnets' => $Subnetgroups->subnets,
                 'name' => $Subnetgroups->name,
