@@ -76,13 +76,19 @@ class Subnetgroups extends FOGController
      */
     protected function loadGroup()
     {
-        $group = self::getSubObjectIDs(
-            'Group',
-            array('id' => $this->get('groupID')),
-            'data'
+        Route::listem(
+            'group',
+            'name',
+            false,
+            array('id' => $this->get('groupID'))
         );
-        if (isset($group[0])) {
-            $this->set('group', $group[0]);
+
+        $Group = json_decode(
+            Route::getData()
+        );
+
+        if (isset($Group->groups[0])) {
+            $this->set('group', $Group->groups[0]);
         }
     }
 }

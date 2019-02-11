@@ -79,15 +79,20 @@ class RemoveSubnetgroupsGroup extends Hook
         }
 
         $Group = $arguments['Group'];
-
-        $subnetGroupsIDs = self::getSubObjectIDs(
-            'SubnetGroups',
+        Route::listem(
+            'subnetgroups',
+            'name',
+            false,
             array('groupID' => $Group->get('id'))
         );
 
-        foreach ($subnetGroupsIDs as $id) {
-            $Subnetgroups = new Subnetgroups($id);
-            $Subnetgroups->destroy();
+        $Subnetgroups = json_decode(
+            Route::getData()
+        );
+
+        foreach ($Subnetgroups->subnetgroupss as $Subnetgroup) {
+            $SG = new Subnetgroups($Subnetgroup->id);
+            $SG->destroy();
         }
     }
 }
