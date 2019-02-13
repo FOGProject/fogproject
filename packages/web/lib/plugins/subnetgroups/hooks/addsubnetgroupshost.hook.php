@@ -62,6 +62,13 @@ class AddSubnetgroupsHost extends Hook
                     $this,
                     'addSubnetgroupsHost'
                 )
+            )
+            ->register(
+                'BOOT_ITEM_NEW_SETTINGS',
+                array(
+                    $this,
+                    'addSubnetgroupsHost'
+                )
             );
     }
     /**
