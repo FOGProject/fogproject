@@ -1,10 +1,10 @@
 <?php
 /**
- * The SubnetGroups page.
+ * The subnetgroup page.
  *
  * PHP version 5
  *
- * @category SubnetGroupsManagementPage
+ * @category SubnetGroupManagementPage
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   sctt <none@none>
@@ -14,23 +14,23 @@
 /**
  * The wol broadcast page.
  *
- * @category SubnetGroupsManagementPage
+ * @category SubnetGroupManagementPage
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   sctt <none@none>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class SubnetgroupsManagementPage extends FOGPage
+class SubnetgroupManagementPage extends FOGPage
 {
     /**
      * The node this page displays with.
      *
      * @var string
      */
-    public $node = 'subnetgroups';
+    public $node = 'subnetgroup';
     /**
-     * Initializes the Subnetgroups Page.
+     * Initializes the Subnetgroup Page.
      *
      * @param string $name The name to pass with.
      *
@@ -38,22 +38,21 @@ class SubnetgroupsManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Subnetgroups Management';
+        $this->name = 'Subnetgroup Management';
 
         self::$HookManager->processEvent(
             'PAGES_WITH_OBJECTS',
             array('PagesWithObjects' => &$this->PagesWithObjects)
         );
 
-        self::$foglang['ExportSubnetgroups'] = _('Export Subnetgroups');
-        self::$foglang['ImportSubnetgroups'] = _('Import Subnetgroups');
-        self::$foglang['ListAll'] = _('List All Subnetgroups');
-
+        self::$foglang['ExportSubnetgroup'] = _('Export Subnetgroups');
+        self::$foglang['ImportSubnetgroup'] = _('Import Subnetgroups');
+	
         parent::__construct($this->name);
         global $id;
         if ($id) {
             $this->subMenu = array(
-                "$this->linkformat#subnetgroups-general" => self::$foglang['General'],
+                "$this->linkformat#subnetgroup-general" => self::$foglang['General'],
                 $this->delformat => self::$foglang['Delete'],
             );
             $this->notes = array(
@@ -71,10 +70,10 @@ class SubnetgroupsManagementPage extends FOGPage
         );
         $this->templates = array(
             '<label for="toggler">'
-            . '<input type="checkbox" name="subnetgroups[]" value='
+            . '<input type="checkbox" name="subnetgroup[]" value='
             . '"${id}" class="toggle-action" checked/>'
             . '</label>',
-            '<a href="?node=subnetgroups&sub=edit&id=${id}" title="'
+            '<a href="?node=subnetgroup&sub=edit&id=${id}" title="'
             . _('Edit')
             . '">${name}</a>',
             '${subnets}',
@@ -93,16 +92,17 @@ class SubnetgroupsManagementPage extends FOGPage
         /**
          * Lambda function to return data either by list or search.
          *
-         * @param object $Subnetgroups the object to use
+         * @param object $Subnetgroup the object to use
          *
          * @return void
          */
-        self::$returnData = function (&$Subnetgroups) {
+        self::$returnData = function (&$Subnetgroup) {
+
             Route::listem(
                 'group',
                 'name',
                 false,
-                array('id' => $Subnetgroups->groupID)
+                array('id' => $Subnetgroup->groupID)
             );
 
             $Group = json_decode(
@@ -110,18 +110,18 @@ class SubnetgroupsManagementPage extends FOGPage
             );
 
             $this->data[] = array(
-                'id' => $Subnetgroups->id,
+                'id' => $Subnetgroup->id,
                 'groupName' => isset($Group->groups[0]) ? $Group->groups[0]->name : '',
-                'groupID'   => $Subnetgroups->groupID,
-                'subnets' => $Subnetgroups->subnets,
-                'name' => $Subnetgroups->name,
+                'groupID'   => $Subnetgroup->groupID,
+                'subnets' => $Subnetgroup->subnets,
+                'name' => $Subnetgroup->name,
             );
-            unset($Subnetgroups);
+            unset($Subnetgroup);
         };
     }
 
     /**
-     * Present page to create new Subnetgroups entry.
+     * Present page to create new Subnetgroup entry.
      *
      * @return void
      */
@@ -144,7 +144,7 @@ class SubnetgroupsManagementPage extends FOGPage
             $group
         );
 
-        $this->title = _('New Subnetgroups');
+        $this->title = _('New Subnetgroup');
         unset($this->headerData);
         $this->attributes = array(
             array('class' => 'col-xs-4'),
@@ -178,7 +178,7 @@ class SubnetgroupsManagementPage extends FOGPage
             . _('Group')
             . '</label>' => $grbuild,
           '<label for="add">'
-            . _('Create New SubnetGroups?')
+            . _('Create New SubnetGroup?')
             . '</label>' => '<button class="btn btn-info btn-block" name="'
             . 'add" id="add" type="submit">'
             . _('Create')
@@ -210,7 +210,7 @@ class SubnetgroupsManagementPage extends FOGPage
      */
     public function addPost()
     {
-        self::$HookManager->processEvent('SUBNETGROUPS_ADD_POST');
+        self::$HookManager->processEvent('SUBNETGROUP_ADD_POST');
 
         $subnets = filter_input(
             INPUT_POST,
@@ -231,9 +231,9 @@ class SubnetgroupsManagementPage extends FOGPage
                     _('A name is required!')
                 );
             }
-            if (self::getClass('SubnetgroupsManager')->exists($name)) {
+            if (self::getClass('SubnetgroupManager')->exists($name)) {
                 throw new Exception(
-                    _('A subnetgroups already exists with this name!')
+                    _('A subnetgroup already exists with this name!')
                 );
             }
             if (!$group) {
@@ -251,45 +251,45 @@ class SubnetgroupsManagementPage extends FOGPage
             $subnets = str_replace(' ', '', $subnets);
             $subnets = str_replace(',', ', ', $subnets);
             $gr = new Group($group);
-            $SubnetGroups = self::getClass('Subnetgroups')
+            $SubnetGroup = self::getClass('Subnetgroup')
                 ->set('name', $name)
                 ->set('subnets', $subnets)
                 ->set('groupID', $gr->get('id'));
 
-            if (!$SubnetGroups->save()) {
-                throw new Exception(_('Add Subnetgroups failed!'));
+            if (!$SubnetGroup->save()) {
+                throw new Exception(_('Add Subnetgroup failed!'));
             }
-            $hook = 'SUBNETGROUPS_ADD_SUCCESS';
+            $hook = 'SUBNETGROUP_ADD_SUCCESS';
             $msg = json_encode(
                 array(
-                    'msg' => _('Subnetgroups added!'),
-                    'title' => _('Subnetgroups Create Success')
+                    'msg' => _('Subnetgroup added!'),
+                    'title' => _('Subnetgroup Create Success')
                 )
             );
         } catch (Exception $e) {
-            $hook = 'SUBNETGROUPS_ADD_FAIL';
+            $hook = 'SUBNETGROUP_ADD_FAIL';
             $msg = json_encode(
                 array(
                     'error' => $e->getMessage(),
-                    'title' => _('Subnetgroups Create Fail')
+                    'title' => _('Subnetgroup Create Fail')
                 )
             );
         }
         self::$HookManager
             ->processEvent(
                 $hook,
-                array('SubnetGroups' => &$SubnetGroups)
+                array('SubnetGroup' => &$SubnetGroup)
             );
-        unset($SubnetGroups);
+        unset($SubnetGroup);
         echo $msg;
         exit;
     }
     /**
-     * SubnetGroups General tab.
+     * SubnetGroup General tab.
      *
      * @return void
      */
-    public function subnetgroupsGeneral()
+    public function subnetgroupGeneral()
     {
         unset(
             $this->form,
@@ -317,7 +317,7 @@ class SubnetgroupsManagementPage extends FOGPage
         ) ? : $this->obj->get('name');
 
 
-        $this->title = _('SubnetGroups General');
+        $this->title = _('SubnetGroup General');
         $this->attributes = array(
             array('class' => 'col-xs-4'),
             array('class' => 'col-xs-8 form-group'),
@@ -359,7 +359,7 @@ class SubnetgroupsManagementPage extends FOGPage
         array_walk($fields, $this->fieldsToData);
         self::$HookManager
             ->processEvent(
-                'SUBNETGROUPS_EDIT',
+                'SUBNETGROUP_EDIT',
                 array(
                     'data' => &$this->data,
                     'headerData' => &$this->headerData,
@@ -369,7 +369,7 @@ class SubnetgroupsManagementPage extends FOGPage
             );
         unset($fields);
         echo '<!-- General -->';
-        echo '<div class="tab-pane fade in active" id="subnetgroups-general">';
+        echo '<div class="tab-pane fade in active" id="subnetgroup-general">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -379,7 +379,7 @@ class SubnetgroupsManagementPage extends FOGPage
         echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
-            . '&tab=subnetgroups-general">';
+            . '&tab=subnetgroup-general">';
         $this->render(12);
         echo '</form>';
         echo '</div>';
@@ -401,15 +401,15 @@ class SubnetgroupsManagementPage extends FOGPage
     public function edit()
     {
         echo '<div class="col-xs-9 tab-content">';
-        $this->subnetgroupsGeneral();
+        $this->subnetgroupGeneral();
         echo '</div>';
     }
     /**
-     * SubnetGroups General Post()
+     * SubnetGroup General Post()
      *
      * @return void
      */
-    public function subnetgroupsGeneralPost()
+    public function subnetgroupGeneralPost()
     {
         $subnets = filter_input(
             INPUT_POST,
@@ -425,7 +425,7 @@ class SubnetgroupsManagementPage extends FOGPage
         );
 
         if ($this->obj->get('name') != $name
-             && self::getClass('SubnetgroupsManager')->exists(
+             && self::getClass('SubnetgroupManager')->exists(
                  $name,
                  $this->obj->get('id')
              )) {
@@ -462,39 +462,39 @@ class SubnetgroupsManagementPage extends FOGPage
     {
         self::$HookManager
             ->processEvent(
-                'SUBNETGROUPS_EDIT_POST',
-                array('Subnetgroups'=> &$this->obj)
+                'SUBNETGROUP_EDIT_POST',
+                array('Subnetgroup'=> &$this->obj)
             );
         global $tab;
         try {
             switch ($tab) {
-            case 'subnetgroups-general':
-                $this->subnetgroupsGeneralPost();
+            case 'subnetgroup-general':
+                $this->subnetgroupGeneralPost();
                 break;
             }
             if (!$this->obj->save()) {
-                throw new Exception(_('Subnetgroups update failed!'));
+                throw new Exception(_('Subnetgroup update failed!'));
             }
-            $hook = 'SUBNETGROUPS_UPDATE_SUCCESS';
+            $hook = 'SUBNETGROUP_UPDATE_SUCCESS';
             $msg = json_encode(
                 array(
-                    'msg' => _('Subnetgroups updated!'),
-                    'title' => _('Subnetgroups Update Success')
+                    'msg' => _('Subnetgroup updated!'),
+                    'title' => _('Subnetgroup Update Success')
                 )
             );
         } catch (Exception $e) {
-            $hook = 'SUBNETGROUPS_UPDATE_FAIL';
+            $hook = 'SUBNETGROUP_UPDATE_FAIL';
             $msg = json_encode(
                 array(
                     'error' => $e->getMessage(),
-                    'title' => _('Subnetgroups Update Fail')
+                    'title' => _('Subnetgroup Update Fail')
                 )
             );
         }
         self::$HookManager
             ->processEvent(
                 $hook,
-                array('Subnetgroups' => &$this->obj)
+                array('Subnetgroup' => &$this->obj)
             );
         echo $msg;
         exit;

@@ -20,10 +20,10 @@ $(function() {
     setupTimeoutElement('#add, #updategen', 'sgsubnet-input', 1000);
     $('.action-boxes').on('submit',function() {
         var checked = $('input.toggle-action:checked');
-        var subnetgroupsIDArray = new Array();
+        var subnetgroupIDArray = new Array();
         for (var i = 0,len = checked.size();i < len;i++) {
-            subnetgroupsIDArray[subnetgroupsIDArray.length] = checked.eq(i).attr('value');
+            subnetgroupIDArray[subnetgroupIDArray.length] = checked.eq(i).attr('value');
         }
-        $('input[name="subnetgroupsIDArray"]').val(subnetgroupsIDArray.join(','));
+        $('input[name="subnetgroupIDArray"]').val(subnetgroupIDArray.join(','));
     });
 });
