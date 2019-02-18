@@ -22,7 +22,7 @@
  * @link     https://fogproject.org
  */
 $fog_plugin = array();
-$fog_plugin['name'] = 'subnetgroups';
+$fog_plugin['name'] = 'subnetgroup';
 $fog_plugin['description'] = 'Associates host groups with IP subnets'
     . ' in order to automatically assign hosts according to their IP address';
 $fog_plugin['menuicon'] = 'fa fa-wifi fa-fw';

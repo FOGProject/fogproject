@@ -1,10 +1,10 @@
 <?php
 /**
- * Subnetgroups Class handler.
+ * Subnetgroup Class handler.
  *
  * PHP version 5
  *
- * @category Subnetgroups
+ * @category Subnetgroup
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   sctt <none@none>
@@ -12,25 +12,25 @@
  * @link     https://fogproject.org
  */
 /**
- * Subnetgroups Class handler.
+ * Subnetgroup Class handler.
  *
- * @category Subnetgroups
+ * @category Subnetgroup
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   sctt <none@none>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class Subnetgroups extends FOGController
+class Subnetgroup extends FOGController
 {
     /**
-     * The subnetgroups table
+     * The subnetgroup table
      *
      * @var string
      */
-    protected $databaseTable = 'subnetgroups';
+    protected $databaseTable = 'subnetgroup';
     /**
-     * The subnetgroups fields and common names
+     * The subnetgroup fields and common names
      *
      * @var array
      */

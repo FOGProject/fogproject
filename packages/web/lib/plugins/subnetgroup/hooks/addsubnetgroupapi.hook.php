@@ -1,10 +1,10 @@
 <?php
 /**
- * Injects subnetgroups stuff into the api system.
+ * Injects subnetgroup stuff into the api system.
  *
  * PHP version 5
  *
- * @category AddSubnetGroupsAPI
+ * @category AddSubnetGroupAPI
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   sctt <none@none>
@@ -12,29 +12,29 @@
  * @link     https://fogproject.org
  */
 /**
- * Injects subnetgroups stuff into the api system.
+ * Injects subnetgroup stuff into the api system.
  *
- * @category AddSubnetGroupsAPI
+ * @category AddSubnetGroupAPI
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   sctt <none@none>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class AddSubnetGroupsAPI extends Hook
+class AddSubnetGroupAPI extends Hook
 {
     /**
      * The name of the hook.
      *
      * @var string
      */
-    public $name = 'AddSubnetGroupsAPI';
+    public $name = 'AddSubnetGroupAPI';
     /**
      * The hook description.
      *
      * @var string
      */
-    public $description = 'Add SubnetGroups stuff into the api system.';
+    public $description = 'Add SubnetGroup stuff into the api system.';
     /**
      * For posterity.
      *
@@ -46,7 +46,7 @@ class AddSubnetGroupsAPI extends Hook
      *
      * @var string
      */
-    public $node = 'subnetgroups';
+    public $node = 'subnetgroup';
     /**
      * Initialize object.
      *
@@ -86,7 +86,7 @@ class AddSubnetGroupsAPI extends Hook
             );
     }
     /**
-     * This function injects subnetgroups elements for
+     * This function injects site elements for
      * api access.
      *
      * @param mixed $arguments The arguments to modify.
@@ -101,7 +101,7 @@ class AddSubnetGroupsAPI extends Hook
         $arguments['validClasses'] = self::fastmerge(
             $arguments['validClasses'],
             array(
-                'subnetgroups'
+                'subnetgroup'
             )
         );
     }

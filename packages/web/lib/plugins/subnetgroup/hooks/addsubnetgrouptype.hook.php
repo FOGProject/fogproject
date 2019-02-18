@@ -1,10 +1,10 @@
 <?php
 /**
- * Adds SubnetGroups type for export.
+ * Adds SubnetGroup type for export.
  *
  * PHP version 5
  *
- * @category AddSubnetGroupsType
+ * @category AddSubnetGroupType
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   sctt <none@none>
@@ -12,23 +12,23 @@
  * @link     https://fogproject.org
  */
 /**
- * Adds SubnetGroups type for export.
+ * Adds Broadcast type for export.
  *
- * @category AddSubnetGroupsType
+ * @category AddSubnetGroupType
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   sctt <none@none>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class AddSubnetGroupsType extends Hook
+class AddSubnetGroupType extends Hook
 {
     /**
      * The name of this hook.
      *
      * @var string
      */
-    public $name = 'AddSubnetGroupsType';
+    public $name = 'AddSubnetGroupType';
     /**
      * The description of this hook.
      *
@@ -46,7 +46,7 @@ class AddSubnetGroupsType extends Hook
      *
      * @var string
      */
-    public $node = 'subnetgroups';
+    public $node = 'subnetgroup';
     /**
      * Initialize object.
      *

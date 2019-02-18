@@ -1,10 +1,10 @@
 <?php
 /**
- * Adds the SubnetGroups menu item.
+ * Adds the subnetgroup menu item.
  *
  * PHP version 5
  *
- * @category AddSubnetgroupsMenuItem
+ * @category AddSubnetgroupMenuItem
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   sctt <none@none>
@@ -12,23 +12,23 @@
  * @link     https://fogproject.org
  */
 /**
- * Adds the SubnetGroups menu item.
+ * Adds the subnetgroup menu item.
  *
- * @category AddSubnetgroupsMenuItem
+ * @category AddSubnetgroupMenuItem
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   sctt <none@none>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class AddSubnetgroupsMenuItem extends Hook
+class AddSubnetgroupMenuItem extends Hook
 {
     /**
      * The name of this hook.
      *
      * @var string
      */
-    public $name = 'AddSubnetgroupsMenuItem';
+    public $name = 'AddSubnetgroupMenuItem';
     /**
      * The description of this hook.
      *
@@ -46,7 +46,7 @@ class AddSubnetgroupsMenuItem extends Hook
      *
      * @var string
      */
-    public $node = 'subnetgroups';
+    public $node = 'subnetgroup';
     /**
      * Initializes object.
      *
@@ -101,7 +101,7 @@ class AddSubnetgroupsMenuItem extends Hook
         );
     }
     /**
-     * Adds the subnetgroups page to search elements.
+     * Adds the subnetgroup page to search elements.
      *
      * @param mixed $arguments The arguments to change.
      *
@@ -115,7 +115,7 @@ class AddSubnetgroupsMenuItem extends Hook
         array_push($arguments['searchPages'], $this->node);
     }
     /**
-     * Adds the subnetgroups page to objects elements.
+     * Adds the subnetgroup page to objects elements.
      *
      * @param mixed $arguments The arguments to change.
      *

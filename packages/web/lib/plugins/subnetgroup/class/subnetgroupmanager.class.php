@@ -1,10 +1,10 @@
 <?php
 /**
- * Manager class for subnetgroups
+ * Manager class for subnetgroup
  *
  * PHP Version 5
  *
- * @category SubnetgroupsManager
+ * @category SubnetgroupManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   sctt <none@none>
@@ -12,23 +12,23 @@
  * @link     https://fogproject.org
  */
 /**
- * Manager class for subnetgroups
+ * Manager class for subnetgroup
  *
- * @category SubnetgroupsManager
+ * @category SubnetgroupManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   sctt <none@none>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class SubnetgroupsManager extends FOGManagerController
+class SubnetgroupManager extends FOGManagerController
 {
     /**
      * The base table name.
      *
      * @var string
      */
-    public $tablename = 'subnetgroups';
+    public $tablename = 'subnetgroup';
     /**
      * Perform the database and plugin installation
      *

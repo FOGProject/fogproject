@@ -1,10 +1,10 @@
 <?php
 /**
- * Remove the SubnetGroups group.
+ * Remove the subnetgroup group.
  *
  * PHP version 5
  *
- * @category RemoveSubnetGroupsGroup
+ * @category AddLocationHost
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   sctt <none@none>
@@ -12,9 +12,9 @@
  * @link     https://fogproject.org
  */
 /**
- * Remove the SubnetGroups group.
+ * Remove the subnetgroup group.
  *
- * @category RemoveSubnetGroupsGroup
+ * @category AddLocationHost
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @author   sctt <none@none>
@@ -22,20 +22,20 @@
  * @link     https://fogproject.org
  */
 
-class RemoveSubnetgroupsGroup extends Hook
+class RemoveSubnetgroupGroup extends Hook
 {
     /**
      * The name of this hook.
      *
      * @var string
      */
-    public $name = 'RemoveSubnetgroupsGroup';
+    public $name = 'RemoveSubnetgroupGroup';
     /**
      * The description of this hook.
      *
      * @var string
      */
-    public $description = 'Remove SubnetGroups Group';
+    public $description = 'Remove SubnetGroup Group';
     /**
      * The active flag (always true but for posterity)
      *
@@ -47,7 +47,7 @@ class RemoveSubnetgroupsGroup extends Hook
      *
      * @var string
      */
-    public $node = 'subnetgroups';
+    public $node = 'subnetgroup';
     /**
      * Initialize object.
      *
@@ -61,7 +61,7 @@ class RemoveSubnetgroupsGroup extends Hook
                 'GROUP_DELETE_SUCCESS',
                 array(
                     $this,
-                    'removeSubnetgroupsGroup'
+                    'removeSubnetgroupGroup'
                 )
             );
     }
@@ -72,7 +72,7 @@ class RemoveSubnetgroupsGroup extends Hook
      *
      * @return void
      */
-    public function removeSubnetgroupsGroup($arguments)
+    public function removeSubnetgroupGroup($arguments)
     {
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
@@ -80,18 +80,18 @@ class RemoveSubnetgroupsGroup extends Hook
 
         $Group = $arguments['Group'];
         Route::listem(
-            'subnetgroups',
+            'subnetgroup',
             'name',
             false,
             array('groupID' => $Group->get('id'))
         );
 
-        $Subnetgroups = json_decode(
+        $Subnetgroup = json_decode(
             Route::getData()
         );
 
-        foreach ($Subnetgroups->subnetgroupss as $Subnetgroup) {
-            $SG = new Subnetgroups($Subnetgroup->id);
+        foreach ($Subnetgroup->subnetgroups as $SG) {
+            $SG = new Subnetgroup($SG->id);
             $SG->destroy();
         }
     }
