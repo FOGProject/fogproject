@@ -510,7 +510,6 @@ class FOGConfigurationPage extends FOGPage
                             $row['settingKey'],
                             $row['settingValue']
                         );
-                        break;
                     }
                     return $input;
                 }
@@ -1072,7 +1071,6 @@ class FOGConfigurationPage extends FOGPage
                     } else {
                         self::setSetting('FOG_CLIENT_BANNER_SHA', $hash);
                     }
-                    break;
                 }
                 $items[] = [$key, $name, $set];
                 unset($Service);
@@ -1641,7 +1639,7 @@ class FOGConfigurationPage extends FOGPage
                 $original = $Schema->exportdb('', false);
                 $tmp_name = htmlentities(
                     $_FILES['dbFile']['tmp_name'],
-                    ENT_QUOTES,
+                    ENT_QUOTES | ENT_HTML401,
                     'utf-8'
                 );
                 $dir_name = dirname($tmp_name);
@@ -2305,7 +2303,6 @@ class FOGConfigurationPage extends FOGPage
                             $row['settingKey'],
                             $row['settingValue']
                         );
-                        break;
                     }
                     return $input;
                 }

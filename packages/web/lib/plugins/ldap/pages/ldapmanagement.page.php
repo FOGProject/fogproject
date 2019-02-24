@@ -1171,7 +1171,6 @@ class LDAPManagement extends FOGPage
             switch ($tab) {
             case 'ldap-general':
                 $this->ldapGeneralPost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = false;

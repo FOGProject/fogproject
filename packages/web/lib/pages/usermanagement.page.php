@@ -850,7 +850,6 @@ class UserManagement extends FOGPage
                 break;
             case 'user-api':
                 $this->userAPIPost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

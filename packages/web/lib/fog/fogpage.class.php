@@ -692,7 +692,6 @@ abstract class FOGPage extends FOGBase
                 unset($report, $item);
             }
             $menu['upload'] = _('Import Reports');
-            break;
         }
 
         $menu = array_filter($menu);
@@ -2139,7 +2138,6 @@ abstract class FOGPage extends FOGBase
                     break;
                 default:
                     $class=$key;
-                    break;
                 }
                 $disabled = in_array(
                     $key,
@@ -2167,6 +2165,13 @@ abstract class FOGPage extends FOGBase
                 unset($key);
             }
             //echo json_encode($array, JSON_UNESCAPED_UNICODE);
+            self::$HookManager->processEvent(
+                'REQUEST_CLIENT_INFO',
+                [
+                    'repFields' => &$array,
+                    'Host' => self::$Host
+                ]
+            );
             $this->sendData(
                 json_encode(
                     $array,

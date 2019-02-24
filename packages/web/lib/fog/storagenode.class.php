@@ -132,7 +132,7 @@ class StorageNode extends FOGController
         if ($key === 'pass') {
             return htmlspecialchars_decode(
                 parent::get($key),
-                ENT_QUOTE | ENT_HTML401
+                ENT_QUOTES | ENT_HTML401
             );
         }
         $loaders = [

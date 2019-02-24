@@ -679,7 +679,6 @@ class LocationManagement extends FOGPage
                 break;
             case 'location-membership':
                 $this->locationMembershipPost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

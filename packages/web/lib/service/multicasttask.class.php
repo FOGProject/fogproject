@@ -548,7 +548,6 @@ class MulticastTask extends FOGService
                     unset($part, $ext);
                 }
                 unset($iterator);
-                break;
             }
             break;
         case 2:
@@ -607,7 +606,6 @@ class MulticastTask extends FOGService
                 $filelist[] = $fileInfo->getFilename();
             }
             unset($iterator);
-            break;
         }
         natcasesort($filelist);
         $partid = self::getPartitions();

@@ -1337,7 +1337,6 @@ class ImageManagement extends FOGPage
                 break;
             case 'image-hosts':
                 $this->imageHostPost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
@@ -1751,7 +1750,6 @@ class ImageManagement extends FOGPage
                 $msgSuccess = _('Sessions cancelled!');
                 $titleSuccess = _('Session Cancel Success');
                 $titleFail = _('Session Cancel Fail');
-                break;
             }
             $msg = json_encode(
                 [

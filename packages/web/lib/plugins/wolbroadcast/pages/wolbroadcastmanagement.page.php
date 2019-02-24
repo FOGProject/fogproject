@@ -492,7 +492,6 @@ class WOLBroadcastManagement extends FOGPage
             switch ($tab) {
             case 'wolbroadcast-general':
                 $this->wolbroadcastGeneralPost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

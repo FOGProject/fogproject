@@ -193,7 +193,6 @@ class Host extends FOGController
             if (!($value instanceof Task)) {
                 $value = new Task($value);
             }
-            break;
         }
         return parent::set($key, $value);
     }

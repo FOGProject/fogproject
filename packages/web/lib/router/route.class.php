@@ -484,7 +484,6 @@ class Route extends FOGBase
                 ],
                 $tmpcolumns
             );
-            break;
         }
         self::$HookManager->processEvent(
             'API_REMOVE_COLUMNS',
@@ -1773,7 +1772,6 @@ class Route extends FOGBase
             break;
         default:
             $data = $class->get();
-            break;
         }
         self::$HookManager
             ->processEvent(
@@ -2143,7 +2141,6 @@ class Route extends FOGBase
                     if (count($vars->hosts)) {
                         $c->addHost($vars->hosts);
                     }
-                    break;
                 }
                 // Store the data and recreate.
                 // If failed present so.

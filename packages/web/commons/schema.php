@@ -825,7 +825,7 @@ $this->schema[] = [
     . "`ngmMaxClients`,`ngmUser`,`ngmPass`) "
     . "VALUES "
     . "('DefaultMember','Auto generated fog nfs group member','1',"
-    . "'1','/images/','1','"
+    . "'1','/images','1','"
     . STORAGE_HOST
     . "','10','"
     . STORAGE_FTP_USERNAME

@@ -117,7 +117,6 @@ class CaponeTasking extends FOGBase
             } catch (Exception $e) {
                 echo $e->getMessage();
             }
-            break;
         }
     }
 }

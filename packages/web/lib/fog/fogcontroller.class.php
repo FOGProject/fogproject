@@ -460,7 +460,6 @@ abstract class FOGController extends FOGBase
                     if (!(is_numeric($val) && $val > 0)) {
                         continue 2;
                     }
-                    break;
                 }
                 if (is_null($val)) {
                     $val = '';
@@ -890,7 +889,6 @@ abstract class FOGController extends FOGBase
                 $this->remove($key, $a);
                 unset($a);
             }
-            break;
         }
         return $this;
     }

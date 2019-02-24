@@ -76,7 +76,7 @@ class AddLocationAPI extends Hook
      */
     public function customizeDT($arguments)
     {
-        if ($classname != $this->node) {
+        if ($arguments['classname'] != $this->node) {
             return;
         }
         $arguments['columns'][] = [
@@ -141,7 +141,6 @@ class AddLocationAPI extends Hook
                     ->get()
                 ]
             );
-            break;
         }
     }
 }
