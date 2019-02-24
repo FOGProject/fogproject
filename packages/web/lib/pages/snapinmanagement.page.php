@@ -1984,7 +1984,6 @@ class SnapinManagement extends FOGPage
                 break;
             case 'snapin-membership':
                 $this->snapinMembershipPost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

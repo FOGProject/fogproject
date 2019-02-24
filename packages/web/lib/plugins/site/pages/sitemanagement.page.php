@@ -640,7 +640,6 @@ class SiteManagement extends FOGPage
                 break;
             case 'site-user':
                 $this->siteUserPost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

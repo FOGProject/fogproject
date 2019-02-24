@@ -668,7 +668,6 @@ class AccessControlRuleManagement extends FOGPage
                 break;
             case 'rule-roles':
                 $this->ruleRolePost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

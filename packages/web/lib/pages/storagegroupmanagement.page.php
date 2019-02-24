@@ -565,7 +565,6 @@ class StorageGroupManagement extends FOGPage
                 break;
             case 'storagegroup-membership':
                 $this->storagegroupMembershipPost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

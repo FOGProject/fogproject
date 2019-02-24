@@ -2452,7 +2452,6 @@ class HostManagement extends FOGPage
                 break;
             case 'y':
                 $val = $y;
-                break;
             }
             $fields[
                 self::makeLabel(
@@ -3903,7 +3902,6 @@ class HostManagement extends FOGPage
                     . '#'
                     . $tab
                 );
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
@@ -5265,7 +5263,6 @@ class HostManagement extends FOGPage
                 if (!$tdow) {
                     throw new Exception(_('Day of Week field is invalid'));
                 }
-                break;
             }
 
             // Task Type Imaging Checks.
@@ -5435,7 +5432,6 @@ class HostManagement extends FOGPage
                     'db' => $real,
                     'dt' => $common
                 ];
-                break;
             }
             unset($real);
         }
@@ -5529,7 +5525,6 @@ class HostManagement extends FOGPage
                     'db' => $real,
                     'dt' => $common
                 ];
-                break;
             }
             unset($real);
         }

@@ -80,7 +80,6 @@ class UploadException extends Exception
                 _('Return code'),
                 $code
             );
-            break;
         }
 
         return $message;

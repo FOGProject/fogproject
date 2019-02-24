@@ -743,7 +743,6 @@ class IpxeManagement extends FOGPage
             switch ($tab) {
             case 'ipxe-general':
                 $this->ipxeGeneralPost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

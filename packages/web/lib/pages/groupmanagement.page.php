@@ -1454,7 +1454,6 @@ class GroupManagement extends FOGPage
                 break;
             case 'y':
                 $val = $y;
-                break;
             }
             $fields[
                 self::makeLabel(
@@ -2268,7 +2267,6 @@ class GroupManagement extends FOGPage
                 break;
             case 'group-powermanagement':
                 $this->groupPowermanagementPost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
@@ -3044,7 +3042,6 @@ class GroupManagement extends FOGPage
                 if (!$tdow) {
                     throw new Exception(_('Day of Week field is invalid'));
                 }
-                break;
             }
 
             // Task Type Imaging Checks

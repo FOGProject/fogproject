@@ -1461,7 +1461,6 @@ class StorageNodeManagement extends FOGPage
             switch ($tab) {
             case 'storagenode-general':
                 $warning = $this->storagenodeGeneralPost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

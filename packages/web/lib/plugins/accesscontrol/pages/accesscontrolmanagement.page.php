@@ -644,7 +644,6 @@ class AccessControlManagement extends FOGPage
                 break;
             case 'role-users':
                 $this->roleUserPost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

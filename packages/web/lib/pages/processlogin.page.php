@@ -102,6 +102,7 @@ class ProcessLogin extends FOGPage
             break;
         case 'zh_CN':
             $lang = 'zh';
+            break;
         default:
             $lang = self::getSetting('FOG_DEFAULT_LOCALE');
         }

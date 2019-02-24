@@ -795,7 +795,6 @@ class TasktypeeditManagement extends FOGPage
             switch ($tab) {
             case 'tasktype-general':
                 $this->tasktypeGeneralPost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

@@ -94,7 +94,6 @@ class EventManager extends FOGBase
                 throw new Exception(
                     _('Register must be managed from hooks or events')
                 );
-                break;
             }
         } catch (Exception $e) {
             $string = sprintf(

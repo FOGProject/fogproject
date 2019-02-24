@@ -100,6 +100,7 @@ class AddCaponeAPI extends Hook
                             . '</a>';
                     }
                 ];
+                break;
             case 'imageID':
                 $argument['columns'][] = [
                     'db' => $real,

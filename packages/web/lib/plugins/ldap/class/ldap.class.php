@@ -878,7 +878,7 @@ class LDAP extends FOGController
             $dn = strtolower($dn);
             $dn = html_entity_decode(
                 $dn,
-                ENT_QUOTES,
+                ENT_QUOTES | ENT_HTML401,
                 'utf-8'
             );
             $dn = mb_convert_case(

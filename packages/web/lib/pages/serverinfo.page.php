@@ -143,9 +143,7 @@ class ServerInfo extends FOGPage
                     break;
                 case 2:
                     $arNIC[] = $line;
-                    break;
                 }
-                break;
             }
             unset($line);
         }

@@ -934,7 +934,6 @@ class PrinterManagement extends FOGPage
                 break;
             case 'network':
                 $printertype = 'Network';
-                break;
             }
             $Printer = self::getClass('Printer')
                 ->set('name', $printer)
@@ -1518,7 +1517,6 @@ class PrinterManagement extends FOGPage
             break;
         case 'network':
             $printertype = 'Network';
-            break;
         }
         $this->obj
             ->set('name', $printer)
@@ -1744,7 +1742,6 @@ class PrinterManagement extends FOGPage
                 break;
             case 'printer-membership':
                 $this->printerMembershipPost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

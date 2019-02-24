@@ -575,7 +575,6 @@ class OUManagement extends FOGPage
                 break;
             case 'ou-membership':
                 $this->ouMembershipPost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

@@ -512,7 +512,6 @@ class TaskstateeditManagement extends FOGPage
             switch ($tab) {
             case 'taskstate-general':
                 $this->taskstateGeneralPost();
-                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

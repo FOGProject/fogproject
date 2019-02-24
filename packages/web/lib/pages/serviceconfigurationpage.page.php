@@ -1520,7 +1520,6 @@ class ServiceConfigurationPage extends FOGPage
                 break;
             case 'service-powermanagement':
                 $this->servicePowermanagementPost();
-                break;
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'SERVICE_EDIT_SUCCESS';

@@ -599,7 +599,6 @@ class WindowsKeyManagement extends FOGPage
                 break;
             case 'windowskey-images':
                 $this->windowsKeyImagePost();
-                break;
             }
 
             if (!$this->obj->save()) {
