@@ -96,14 +96,12 @@ class AddSubnetGroupAPI extends Hook
                             . 'subnetgroup&sub=edit&id='
                             . $row['sgID']
                             . '">'
-                            . _('Edit SubnetGroup ID')
-                            . ': '
-                            . $row['sgID']
+                            . $row['sgName']
                             . '</a>';
                     }
                 ];
                 break;
-            case 'group':
+            case 'groupID':
                 $argument['columns'][] = [
                     'db' => $real,
                     'dt' => $common

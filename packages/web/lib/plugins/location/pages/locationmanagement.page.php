@@ -313,7 +313,7 @@ class LocationManagement extends FOGPage
                 ->set('storagenodeID', $storagenode)
                 ->set('tftp', $bootfrom);
             if (!$Location->save()) {
-                $serverFault = false;
+                $serverFault = true;
                 throw new Exception(_('Add location failed!'));
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
@@ -321,7 +321,7 @@ class LocationManagement extends FOGPage
             $msg = json_encode(
                 [
                     'msg' => _('Location added!'),
-                    'title' => _('Location Create Succes')
+                    'title' => _('Location Create Success')
                 ]
             );
         } catch (Exception $e) {
