@@ -106,29 +106,22 @@ class AddSubnetGroupHost extends Hook
         // Now list our subnet groups.
         Route::listem('subnetgroup');
         $SNGroups = json_decode(Route::getData());
-        $hostChanged = false;
         foreach ($SNGroups->data as &$SNGroup) {
             if (in_array($SNGroup->groupID, $Host->get('groups'))) {
-                $Host->removeGroup($SNGroup->groupID);
-                $hostChanged = true;
+                $Host->removeGroup($SNGroup->groupID)->save();
             }
             $subnetList = str_replace(' ', '', $SNGroup->subnets);
             $subnets = explode(',', $subnetList);
 
             foreach ($subnets as &$subnet) {
                 if ($this->_ipCIDRCheck($ip, $subnet)) {
-                    $Host->addGroup($SNGroup->groupID);
-                    $hostChange = true;
+                    $Host->addGroup($SNGroup->groupID)->save();
                     unset($subnet);
                     continue 2;
                 }
                 unset($subnet);
             }
             unset($SNGroup);
-        }
-
-        if ($hostChanged) {
-            $Host->save();
         }
     }
     /**

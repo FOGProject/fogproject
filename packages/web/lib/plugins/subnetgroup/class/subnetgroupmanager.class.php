@@ -43,12 +43,14 @@ class SubnetGroupManager extends FOGManagerController
             [
                 'sgID',
                 'sgName',
+                'sgDesc',
                 'sgGroupID',
                 'sgSubnets'
             ],
             [
                 'INTEGER',
                 'VARCHAR(255)',
+                'LONGTEXT',
                 'INTEGER',
                 'TEXT'
             ],
@@ -56,9 +58,11 @@ class SubnetGroupManager extends FOGManagerController
                 false,
                 false,
                 false,
+                false,
                 false
             ],
             [
+                false,
                 false,
                 false,
                 false,
