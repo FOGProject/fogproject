@@ -20,6 +20,7 @@
         ],
         columns: [
             {data: 'mainlink'},
+            {data: 'subnets'},
             {data: 'groupLink'},
         ],
         rowId: 'id',

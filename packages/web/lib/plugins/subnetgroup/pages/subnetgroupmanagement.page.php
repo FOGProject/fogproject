@@ -43,10 +43,12 @@ class SubnetGroupManagement extends FOGPage
         self::$foglang['ImportSubnetgroup'] = _('Import Subnet Groups');
         parent::__construct($this->name);
         $this->headerData = [
-            _('Subnet Group Name'),
-            _('Subnet Grouped Group Name')
+            _('Name'),
+            _('Subnets'),
+            _('Assigned Group Name')
         ];
         $this->attributes = [
+            [],
             [],
             []
         ];
@@ -64,6 +66,7 @@ class SubnetGroupManagement extends FOGPage
         $description = filter_input(INPUT_POST, 'description');
         $group = filter_input(INPUT_POST, 'group');
         $groupSelector = self::getClass('GroupManager')->buildSelectBox($group);
+        $subnets = filter_input(INPUT_POST, 'subnets');
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -91,6 +94,19 @@ class SubnetGroupManagement extends FOGPage
                 _('Subnet Group Description'),
                 'description',
                 $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'subnets',
+                _('Subnets')
+            ) => self::makeInput(
+                'form-control subnetgroupsubnets-input',
+                'subnets',
+                _('192.168.1.0/24, 10.1.0.0/16'),
+                'text',
+                'subnets',
+                $subnets,
+                true
             ),
             self::makeLabel(
                 $labelClass,
@@ -154,6 +170,7 @@ class SubnetGroupManagement extends FOGPage
         $description = filter_input(INPUT_POST, 'description');
         $group = filter_input(INPUT_POST, 'group');
         $groupSelector = self::getClass('GroupManager')->buildSelectBox($group);
+        $subnets = filter_input(INPUT_POST, 'subnets');
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -184,6 +201,19 @@ class SubnetGroupManagement extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
+                'subnets',
+                _('Subnets')
+            ) => self::makeInput(
+                'form-control subnetgroupsubnets-input',
+                'subnets',
+                _('192.168.1.0/24, 10.1.0.0/16'),
+                'text',
+                'subnets',
+                $subnets,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
                 'group',
                 _('Subnet Group -> Group Relationship')
             ) => $groupSelector
@@ -209,5 +239,103 @@ class SubnetGroupManagement extends FOGPage
         );
         echo $rendered;
         echo '</form>';
+    }
+    /**
+     * Actually create the location.
+     *
+     * @return void
+     */
+    public function addPost()
+    {
+        header('Content-type: application/json');
+        self::$HookManager->processEvent('SUBNETGROUP_ADD_POST');
+        $subnetgroup = trim(
+            filter_input(INPUT_POST, 'subnetgroup')
+        );
+        $description = trim(
+            filter_input(INPUT_POST, 'description')
+        );
+        $group = trim(
+            filter_input(INPUT_POST, 'group')
+        );
+        $subnets = trim(
+            filter_input(INPUT_POST, 'subnets')
+        );
+		$subnetsMatch = "/^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))"
+            . "(( )*,( )*([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))+)"
+            . "*$/";
+
+        $serverFault = false;
+        try{
+            $exists = self::getClass('SubnetGroupManager')
+                ->exists($subnetgroup);
+            if ($exists) {
+                throw new Exception(
+                    _('A subnet group already exists with this name!')
+                );
+            }
+            if (!$group) {
+                throw new Exception(
+                    _('A group must be selected.')
+                );
+            }
+            if (!preg_match($subnetsMatch, $subnets)) {
+                throw new Exception(
+                    _('Please enter a valid CIDR subnet.')
+                    . ' '
+                    . _('Can be a comma seperated list.')
+                );
+            }
+            $subnets = preg_replace('/\s+/','', $subnets);
+            $subnets = str_replace(',', ', ', $subnets);
+            $SubnetGroup = self::getClass('SubnetGroup')
+                ->set('name', $subnetgroup)
+                ->set('description', $description)
+                ->set('groupID', $group)
+                ->set('subnets', $subnets);
+            if (!$SubnetGroup->save()) {
+                $serverFault = true;
+                throw new Exception(_('Add subnet group failed!'));
+            }
+            $code = HTTPResponseCodes::HTTP_CREATED;
+            $hook = 'SUBNETGROUP_ADD_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Subnet Group added!'),
+                    'title' => _('Subnet Group Create Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'SUBNETGROUP_ADD_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Subnet Group Create Fail')
+                ]
+            );
+        }
+        // header(
+        //     'Location: ../management/index.php?node=subnetgroup&sub=edit&id=
+        //     . $SubnetGroup->get('id')'
+        // );
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'SubnetGroup' => &$SubnetGroup,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
+        http_response_code($code);
+        unset($SubnetGroup);
+        echo $msg;
+        exit;
     }
 }
