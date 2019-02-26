@@ -64,6 +64,9 @@ class AddSubnetGroupAPI extends Hook
         )->register(
             'CUSTOMIZE_DT_COLUMNS',
             [$this, 'customizeDT']
+        )->register(
+            'API_GETTER',
+            [$this, 'adjustGetter']
         );
     }
     /**
@@ -78,58 +81,14 @@ class AddSubnetGroupAPI extends Hook
         if ($arguments['classname'] != $this->node) {
             return;
         }
-        $arguments['columns'] = [];
-        foreach (self::getClass('SubnetGroupManager')
-            ->getColumns() as $common => &$real
-        ) {
-            switch ($common) {
-            case 'id':
-                $arguments['columns'][] = [
-                    'db' => $real,
-                    'dt' => $common
-                ];
-                $arguments['columns'][] = [
-                    'db' => $real,
-                    'dt' => 'mainlink',
-                    'formatter' => function ($d, $row) {
-                        return '<a href="../management/index.php?node='
-                            . 'subnetgroup&sub=edit&id='
-                            . $row['sgID']
-                            . '">'
-                            . $row['sgName']
-                            . '</a>';
-                    }
-                ];
-                break;
-            case 'groupID':
-                $argument['columns'][] = [
-                    'db' => $real,
-                    'dt' => $common
-                ];
-                $arguments['columns'][] = [
-                    'db' => $real,
-                    'dt' => 'groupLink',
-                    'formatter' => function ($d, $row) {
-                        if (!$d) {
-                            return;
-                        }
-                        return '<a href="../management/index.php?node=group'
-                            . '&sub=edit&id='
-                            . $d
-                            . '">'
-                            . self::getClass('Group', $d)->get('name')
-                            . '</a>';
-                    }
-                ];
-                break;
-            default:
-                $arguments['columns'][] = [
-                    'db' => $real,
-                    'dt' => $common
-                ];
+        $arguments['columns'][] = [
+            'db' => 'id',
+            'dt' => 'group',
+            'removeFromQuery' => true,
+            'formatter' => function ($d, $row) use ($arguments) {
+                return self::getClass('group', $row['sgGroupID'])->get();
             }
-            unset($real);
-        }
+        ];
     }
     /**
      * This function injects subnetgroup elements for api access.
@@ -141,5 +100,16 @@ class AddSubnetGroupAPI extends Hook
     public function injectAPIElements($arguments)
     {
         $arguments['validClasses'][] = $this->node;
+    }
+    /**
+     * Returns the adjusted getter element.
+     *
+     * @param mixed $arguments The arguments to modify.
+     *
+     * @return void
+     */
+    public function adjustGetter($arguments)
+    {
+        $arguments['data']['group'] = $arguments['class']->get('group')->get();
     }
 }
