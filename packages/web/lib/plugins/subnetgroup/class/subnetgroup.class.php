@@ -46,6 +46,7 @@ class SubnetGroup extends FOGController
      * @var array
      */
     protected $databaseFieldsRequired = [
+        'name',
         'groupID',
         'subnets'
     ];
@@ -58,22 +59,15 @@ class SubnetGroup extends FOGController
         'group'
     ];
     /**
-     * Load Group
+     * Database -> Class field relationships.
      *
-     * @return object
+     * @var array
      */
-    protected function loadGroup()
-    {
-        $find = ['id' => $this->get('groupID')];
-        Route::ids(
-            'group',
-            $find,
-            'id'
-        );
-        $groups = json_decode(
-            Route::getData(),
-            true
-        );
-        $this->set('group', array_shift($groups));
-    }
+    protected $databaseFieldClassRelationships = [
+        'Group' => [
+            'id',
+            'groupID',
+            'group'
+        ]
+    ];
 }
