@@ -2685,7 +2685,7 @@ abstract class FOGPage extends FOGBase
                     )
                 );
             }
-            $pref = filter_input(INPUT_POST, 'prefix');
+            $pref = filter_input(INPUT_GET, 'prefix');
             $MAC = self::getClass('MACAddress', $pref);
             $prefix = $MAC->getMACPrefix();
             if (!$MAC->isValid() || !$prefix) {
