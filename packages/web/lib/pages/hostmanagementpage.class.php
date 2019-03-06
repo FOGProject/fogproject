@@ -3764,7 +3764,13 @@ class HostManagementPage extends FOGPage
         $MainDate_1 = self::niceDate($date)
             ->modify('+1 day')
             ->getTimestamp();
-        Route::listem('UserTracking');
+        Route::listem(
+            'UserTracking',
+            array(
+                'hostID' => $this->obj->get('id'),
+                'action' => array('', 0, 1)
+            )
+        );
         $UserTracks = json_decode(
             Route::getData()
         );
