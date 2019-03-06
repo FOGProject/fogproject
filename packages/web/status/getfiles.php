@@ -22,6 +22,10 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
+if (!$currentUser->isValid()) {
+    echo json_encode(_('Unauthorized'));
+    exit;
+}
 if (!is_string($_GET['path'])) {
     echo json_encode(
         _('Invalid')
