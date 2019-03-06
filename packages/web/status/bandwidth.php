@@ -22,6 +22,10 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+if (!$currentUser->isValid()) {
+    echo json_encode(_('Unauthorized'));
+    exit;
+}
 header('Content-Type: application/json');
 /**
  * Lambda for returning the bytes from the file requested.
