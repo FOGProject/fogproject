@@ -91,60 +91,59 @@ class AddSubnetgroupHost extends Hook
             return;
         }
 
-        $name = $Host->get('name');
+        // Setup for tests
+        $name = $ipn = $Host->get('name');
         $ip = $Host->get('ip');
+        $ipr = self::resolveHostname($name);
 
-        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
-            $ip = $name;
-        }
-        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
-            $ip = self::resolveHostname($name);
-        }
-        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+        // Perform all tests.
+        $ip1t = filter_var($ip, FILTER_VALIDATE_IP);
+        $ip2t = filter_var($ipn, FILTER_VALIDATE_IP);
+        $ip3t = filter_var($ipr, FILTER_VALIDATE_IP);
+
+        // If resolve hostname returns a valid IP, set IP appropriately.
+        // Otherwise, if the name is valid, use it.
+        // Otherwise, return if base $ip is false.
+
+        if (false !== $ip3t) {
+            $ip = $ipr;
+        } elseif (false !== $ip2t) {
+            $ip = $ipn;
+        } elseif (false === $ip1t) {
             return;
         }
 
+        // Now list our subnet groups.
         Route::listem('subnetgroup');
-        $Subnetgroup = json_decode(
-            Route::getData()
-        );
-        $Subnetgroup = $Subnetgroup->subnetgroups;
-        $hostChanged = false;
-
-        foreach ($Subnetgroup as $SG) {
-            if (in_array($SG->groupID, $Host->get('groups'))) {
-                $Host->removeGroup($SG->groupID);
-                $hostChanged = true;
+        $SNGroups = json_decode(Route::getData());
+        foreach ($SNGroups->subnetgroups as &$SNGroup) {
+            if (in_array($SNGroup->groupID, $Host->get('groups'))) {
+                $Host->removeGroup($SNGroup->groupID)->save();
             }
-        }
 
-        foreach ($Subnetgroup as $SG) {
-            $subnetList = str_replace(' ', '', $SG->subnets);
+            $subnetList = str_replace(' ', '', $SNGroup->subnets);
             $subnets = explode(',', $subnetList);
-
-            foreach ($subnets as $subnet) {
-                if ($this->ipCIDRCheck($ip, $subnet)) {
-                    $Host->addGroup($SG->groupID);
-                    $hostChanged = true;
+            foreach ($subnets as &$subnet) {
+                if ($this->_ipCIDRCheck($ip, $subnet)) {
+                    $Host->addGroup($SNGroup->groupID)->save();
+                    unset($subnet);
                     continue 2;
                 }
+                unset($subnet);
             }
-        }
-
-        if ($hostChanged) {
-            $Host->save();
+            unset($SNGroup);
         }
     }
     /**
      * Check if an IP Address complies with a CIDR subnet
      * @credits http://php.net/manual/en/ref.network.php#121090
      *
-     * @param string  $IP       IP Address
-     * @param string $CIDR      CIDR Subnet
+     * @param string $ip   IP Address
+     * @param string $cidr CIDR subnet
      *
      * @return bool
      */
-    private function ipCIDRCheck($IP, $CIDR)
+    private function _ipCIDRCheck($IP, $CIDR)
     {
         list($net, $mask) = explode('/', $CIDR);
         $ip_net = ip2long($net);

@@ -47,7 +47,7 @@ class SubnetgroupManagementPage extends FOGPage
 
         self::$foglang['ExportSubnetgroup'] = _('Export Subnetgroups');
         self::$foglang['ImportSubnetgroup'] = _('Import Subnetgroups');
-	
+
         parent::__construct($this->name);
         global $id;
         if ($id) {
@@ -97,7 +97,6 @@ class SubnetgroupManagementPage extends FOGPage
          * @return void
          */
         self::$returnData = function (&$Subnetgroup) {
-
             Route::listem(
                 'group',
                 'name',
@@ -241,7 +240,17 @@ class SubnetgroupManagementPage extends FOGPage
                     _('A group is required!')
                 );
             }
-            $subnetsMatch = "/^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))(( )*,( )*([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))+)*$/";
+            $gexists = self::getClass('SubnetGroupManager')
+                ->exists($group, '', 'groupID');
+            if ($gexists) {
+                throw new Exception(
+                    _('A subnet group is already using this group.')
+                );
+            }
+
+            $subnetsMatch = "/^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))"
+                . "(( )*,( )*([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))+)"
+                . "*$/";
             if (!preg_match($subnetsMatch, $subnets)) {
                 throw new Exception(
                     _('Please enter a valid CIDR subnets comma separated list')
@@ -411,47 +420,55 @@ class SubnetgroupManagementPage extends FOGPage
      */
     public function subnetgroupGeneralPost()
     {
-        $subnets = filter_input(
-            INPUT_POST,
-            'subnets'
+        $name = trim(
+            filter_input(INPUT_POST, 'name')
         );
-        $group = filter_input(
-            INPUT_POST,
-            'group'
+        $group = trim(
+            filter_input(INPUT_POST, 'group')
         );
-        $name = filter_input(
-            INPUT_POST,
-            'name'
+        $subnets = trim(
+            filter_input(INPUT_POST, 'subnets')
         );
 
-        if ($this->obj->get('name') != $name
-             && self::getClass('SubnetgroupManager')->exists(
-                 $name,
-                 $this->obj->get('id')
-             )) {
+        $subnetsMatch = "/^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))"
+            . "(( )*,( )*([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))+)"
+            . "*$/";
+        $exists = self::getClass('SubnetGroupManager')
+            ->exists($name);
+        if ($name != $this->obj->get('name')
+            && $exists
+        ) {
             throw new Exception(
-                _('A name is required!')
+                _('A subnet group already exists with this name!')
             );
         }
         if (!$group) {
             throw new Exception(
-                _('A group is required!')
+                _('A group must be selected.')
             );
         }
-
-        $subnetsMatch = "/^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))(( )*,( )*([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))+)*$/";
+        $gexists = self::getClass('SubnetGroupManager')
+            ->exists($group, '', 'groupID');
+        if ($group != $this->obj->get('groupID')
+            && $gexists
+        ) {
+            throw new Exception(
+                _('A subnet group is already using this group.')
+            );
+        }
         if (!preg_match($subnetsMatch, $subnets)) {
             throw new Exception(
-                _('Please enter a valid CIDR subnets comma separated list')
+                _('Please enter a valid CIDR subnet.')
+                . ' '
+                . _('Can be a comma seperated list.')
             );
         }
-
-        $subnets = str_replace(' ', '', $subnets);
+        $subnets = preg_replace('/\s+/', '', $subnets);
         $subnets = str_replace(',', ', ', $subnets);
         $this->obj
             ->set('name', $name)
-            ->set('subnets', $subnets)
-            ->set('groupID', $group);
+            ->set('groupID', $group)
+            ->set('subnets', $subnets);
     }
     /**
      * Submit the edits.
