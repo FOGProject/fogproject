@@ -69,6 +69,7 @@ class Subnetgroup extends FOGController
             'group'
         ),
     );
+
     /**
      * Load the group object
      *
