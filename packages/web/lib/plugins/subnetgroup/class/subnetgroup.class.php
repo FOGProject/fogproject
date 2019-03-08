@@ -69,21 +69,4 @@ class Subnetgroup extends FOGController
             'group'
         ),
     );
-
-    /**
-     * Load the group object
-     *
-     * @return object
-     */
-    protected function loadGroup()
-    {
-        $group = self::getSubObjectIDs(
-            'Group',
-            array('id' => $this->get('groupID')),
-            'data'
-        );
-        if (isset($group[0])) {
-            $this->set('group', $group[0]);
-        }
-    }
 }
