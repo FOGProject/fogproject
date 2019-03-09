@@ -817,6 +817,7 @@ class FOGConfigurationPage extends FOGPage
         $checkbox = [
             'FOG_ENFORCE_HOST_CHANGES' => true,
             'FOG_API_ENABLED' => true,
+            'FOG_ENABLE_SHOW_PASSWORDS' => true,
             'FOG_PXE_MENU_HIDDEN' => true,
             'FOG_NO_MENU' => true,
             'FOG_ADVANCED_MENU_LOGIN' => true,
@@ -1745,6 +1746,7 @@ class FOGConfigurationPage extends FOGPage
             'FOG_TASKING_ADV_WOL_ENABLED' => true,
             'FOG_TASKING_ADV_DEBUG_ENABLED' => true,
             'FOG_API_ENABLED' => true,
+            'FOG_ENABLE_SHOW_PASSWORDS' => true,
             'FOG_IMAGE_LIST_MENU' => true,
             'FOG_REAUTH_ON_DELETE' => true,
             'FOG_REAUTH_ON_EXPORT' => true

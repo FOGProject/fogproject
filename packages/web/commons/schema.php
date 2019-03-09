@@ -3795,3 +3795,12 @@ $this->schema[] = [
     . " SET `settingDesc` = 'Enables API Access (Defaults to On)'"
     . " WHERE `settingKey` = 'FOG_API_ENABLED'"
 ];
+// 271
+$this->schema[] = [
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_ENABLE_SHOW_PASSWORDS','Allow Admins the possibility of allowing "
+    . "the password fields to be displayed in plain text. Values are 0 or 1, "
+    . "Default is 1.','1','General Settings')"
+];
