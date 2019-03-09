@@ -238,6 +238,14 @@ if (self::$FOGUser->isValid()) {
         'pageLength',
         self::getSetting('FOG_VIEW_DEFAULT_SCREEN')
     );
+    echo FOGPage::makeInput(
+        'showpass',
+        'showpass',
+        '',
+        'hidden',
+        'showpass',
+        self::getSetting('FOG_ENABLE_SHOW_PASSWORDS')
+    );
     echo '<section class="content-header">';
     echo '<h1 id="sectionTitle">';
     echo $this->sectionTitle;

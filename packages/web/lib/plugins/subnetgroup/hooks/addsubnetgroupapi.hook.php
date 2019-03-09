@@ -110,6 +110,9 @@ class AddSubnetGroupAPI extends Hook
      */
     public function adjustGetter($arguments)
     {
+        if ($arguments['classname'] != $this->node) {
+            return;
+        }
         $arguments['data']['group'] = $arguments['class']->get('group')->get();
     }
 }

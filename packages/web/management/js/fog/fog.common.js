@@ -715,6 +715,9 @@ function setupPasswordReveal() {
         .before('<span class="input-group-addon"><i class="fa fa-eye-slash fogpasswordeye"></i></span>');
     $(document).on('click', '.fogpasswordeye', function(e) {
         e.preventDefault();
+        if (0 == $('.showpass').val()) {
+            return;
+        }
         if (!$(this).hasClass('clicked')) {
             $(this)
                 .addClass('clicked')
