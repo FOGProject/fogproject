@@ -85,7 +85,7 @@ class StorageNodeManagement extends FOGPage
         $sslpath = filter_input(INPUT_POST, 'sslpath') ?:
             '/opt/fog/snapins/ssl/';
         $bitrate = filter_input(INPUT_POST, 'bitrate');
-        $helloInterval = filter_input(INPUT_POST, 'helloInterval');
+        $helloInterval = (int)filter_input(INPUT_POST, 'helloInterval');
         $interface = filter_input(INPUT_POST, 'interface');
         $user = filter_input(INPUT_POST, 'user');
         $pass = filter_input(INPUT_POST, 'pass');
@@ -270,7 +270,7 @@ class StorageNodeManagement extends FOGPage
                 'form-control storagenodehellointerval-input',
                 'helloInterval',
                 '300',
-                'text',
+                'number',
                 'helloInterval',
                 $helloInterval
             ),
@@ -432,7 +432,7 @@ class StorageNodeManagement extends FOGPage
         $sslpath = filter_input(INPUT_POST, 'sslpath') ?:
             '/opt/fog/snapins/ssl/';
         $bitrate = filter_input(INPUT_POST, 'bitrate');
-        $helloInterval = filter_input(INPUT_POST, 'helloInterval');
+        $helloInterval = (int)filter_input(INPUT_POST, 'helloInterval');
         $interface = filter_input(INPUT_POST, 'interface');
         $user = filter_input(INPUT_POST, 'user');
         $pass = filter_input(INPUT_POST, 'pass');
@@ -617,7 +617,7 @@ class StorageNodeManagement extends FOGPage
                 'form-control storagenodehellointerval-input',
                 'helloInterval',
                 '300',
-                'text',
+                'number',
                 'helloInterval',
                 $helloInterval
             ),
@@ -784,7 +784,7 @@ class StorageNodeManagement extends FOGPage
         $bitrate = trim(
             filter_input(INPUT_POST, 'bitrate')
         );
-        $helloInterval = trim(
+        $helloInterval = (int)trim(
             filter_input(INPUT_POST, 'helloInterval')
         );
 
@@ -974,7 +974,7 @@ class StorageNodeManagement extends FOGPage
             filter_input(INPUT_POST, 'bitrate') ?:
             $this->obj->get('bitrate')
         );
-        $helloInterval = (
+        $helloInterval = (int)(
             filter_input(INPUT_POST, 'helloInterval') ?:
             $this->obj->get('helloInterval')
         );
@@ -1194,7 +1194,7 @@ class StorageNodeManagement extends FOGPage
                 'form-control storagenodehellointerval-input',
                 'helloInterval',
                 '300',
-                'text',
+                'number',
                 'helloInterval',
                 $helloInterval
             ),
@@ -1395,7 +1395,7 @@ class StorageNodeManagement extends FOGPage
         $bitrate = trim(
             filter_input(INPUT_POST, 'bitrate')
         );
-        $helloInterval = trim(
+        $helloInterval = (int)trim(
             filter_input(INPUT_POST, 'helloInterval')
         );
         if (!$storagenode) {
