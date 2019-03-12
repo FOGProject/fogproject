@@ -412,7 +412,7 @@ class StorageManagementPage extends FOGPage
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="bitrate">'
-            . _('Bitrates')
+            . _('Bitrate')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="bitrate" id="bitrate" value="'
             . $bitrate
