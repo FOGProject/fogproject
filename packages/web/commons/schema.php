@@ -3719,3 +3719,9 @@ $this->schema[] = array(
     . " Values are 0 or 1, default is 0.'"
     . " ,'0', 'FOG Quick Registration')"
 );
+// 264
+$this->schema[] = array(
+    "ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmHelloInterval` "
+    . "VARCHAR(8) AFTER `ngmMaxBitrate`",
+);
+

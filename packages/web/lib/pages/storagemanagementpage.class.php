@@ -311,6 +311,7 @@ class StorageManagementPage extends FOGPage
         $snapinpath = filter_input(INPUT_POST, 'snapinpath') ?: '/opt/fog/snapins/';
         $sslpath = filter_input(INPUT_POST, 'sslpath') ?: '/opt/fog/snapins/ssl/';
         $bitrate = filter_input(INPUT_POST, 'bitrate');
+        $helloInterval = filter_input(INPUT_POST, 'helloInterval');
         $interface = filter_input(INPUT_POST, 'interface') ?: 'eth0';
         $user = filter_input(INPUT_POST, 'user');
         $pass = filter_input(INPUT_POST, 'pass');
@@ -411,10 +412,17 @@ class StorageManagementPage extends FOGPage
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="bitrate">'
-            . _('Bitrate')
+            . _('Bitrates')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="bitrate" id="bitrate" value="'
             . $bitrate
+            . '" autocomplete="off" class="form-control"/>'
+            . '</div>',
+            '<label for="helloInterval">'
+            . _('Rexmit Hello Interval')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="helloInterval" id="helloInterval" value="'
+            . $helloInterval
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
             '<label for="interface">'
@@ -513,6 +521,7 @@ class StorageManagementPage extends FOGPage
         $snapinpath = filter_input(INPUT_POST, 'snapinpath');
         $sslpath = filter_input(INPUT_POST, 'sslpath');
         $bitrate = filter_input(INPUT_POST, 'bitrate');
+        $helloInterval = filter_input(INPUT_POST, 'helloInterval');
         self::$HookManager->processEvent('STORAGE_NODE_ADD_POST');
         try {
             if (empty($name)) {
@@ -558,6 +567,7 @@ class StorageManagementPage extends FOGPage
                 ->set('snapinpath', $snapinpath)
                 ->set('sslpath', $sslpath)
                 ->set('bitrate', $bitrate)
+                ->set('helloInterval', $helloInterval)
                 ->set('interface', $interface)
                 ->set('isGraphEnabled', $isgren)
                 ->set('isEnabled', $isen)
@@ -650,6 +660,8 @@ class StorageManagementPage extends FOGPage
             $this->obj->get('sslpath');
         $bitrate = filter_input(INPUT_POST, 'bitrate') ?:
             $this->obj->get('bitrate');
+        $helloInterval = filter_input(INPUT_POST, 'helloInterval') ?:
+            $this->obj->get('helloInterval');
         $interface = filter_input(INPUT_POST, 'interface') ?:
             $this->obj->get('interface');
         $user = filter_input(INPUT_POST, 'user') ?:
@@ -783,6 +795,13 @@ class StorageManagementPage extends FOGPage
             . $bitrate
             . '" autocomplete="off" class="form-control"/>'
             . '</div>',
+            '<label for="helloInterval">'
+            . _('Remit Hello Interval')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="helloInterval" id="helloInterval" value="'
+            . $helloInterval
+            . '" autocomplete="off" class="form-control"/>'
+            . '</div>',
             '<label for="interface">'
             . self::$foglang['Interface']
             . '</label>' => '<div class="input-group">'
@@ -884,6 +903,7 @@ class StorageManagementPage extends FOGPage
         $snapinpath = filter_input(INPUT_POST, 'snapinpath');
         $sslpath = filter_input(INPUT_POST, 'sslpath');
         $bitrate = filter_input(INPUT_POST, 'bitrate');
+        $helloInterval = filter_input(INPUT_POST, 'helloInterval');
         self::$HookManager
             ->processEvent(
                 'STORAGE_NODE_EDIT_POST',
@@ -937,6 +957,7 @@ class StorageManagementPage extends FOGPage
                 ->set('snapinpath', $snapinpath)
                 ->set('sslpath', $sslpath)
                 ->set('bitrate', $bitrate)
+                ->set('helloInterval', $helloInterval)
                 ->set('interface', $interface)
                 ->set('isGraphEnabled', $isgren)
                 ->set('isEnabled', $isen)
