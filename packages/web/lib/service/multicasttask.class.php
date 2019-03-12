@@ -380,6 +380,20 @@ class MulticastTask extends FOGService
         ->get('bitrate');
     }
     /**
+     * Returns the rexmit-hello-interval
+     *
+     * @return string
+     */
+    public function getHelloInterval()
+    {
+        return self::getClass(
+            'Image',
+            $this->_MultiSess->get('image')
+        )->getStorageGroup()
+        ->getMasterStorageNode()
+        ->get('helloInterval');
+    }
+    /**
      * Returns the partition id to be cloned, 0 for all
      *
      * @return int
@@ -450,6 +464,11 @@ class MulticastTask extends FOGService
                 sprintf(' --max-bitrate %s', $this->getBitrate()) :
                 null
             ),
+            (
+                $this->getHelloInterval() ?
+                sprintf(' --rexmit-hello-interval %s', $this->getHelloInterval()) :
+                null
+            )
             (
                 $this->getInterface() ?
                 sprintf(' --interface %s', $this->getInterface()) :
