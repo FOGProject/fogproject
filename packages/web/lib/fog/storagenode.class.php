@@ -43,6 +43,7 @@ class StorageNode extends FOGController
         'path' => 'ngmRootPath',
         'ftppath' => 'ngmFTPPath',
         'bitrate' => 'ngmMaxBitrate',
+        'helloInterval' => 'ngmHelloInterval',
         'snapinpath' => 'ngmSnapinPath',
         'sslpath' => 'ngmSSLPath',
         'ip' => 'ngmHostname',
