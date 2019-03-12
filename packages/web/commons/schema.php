@@ -3804,3 +3804,14 @@ $this->schema[] = [
     . "the password fields to be displayed in plain text. Values are 0 or 1, "
     . "Default is 1.','1','General Settings')"
 ];
+// 272
+$this->schema[] = [
+    "IF NOT EXISTS( "
+    . "SELECT NULL FROM INFORMATION_SCHEMA.COLUMNS "
+    . "WHERE table_name = 'nfsGroupMembers' "
+    . "AND table_schema = '" . Schema::getDBName() . "' "
+    . "AND column_name = 'ngmHelloInterval'" 
+    . ") THEN "
+    . "ALTER TABLE `nfsGroupMembers` ADD `ngmHelloInterval` VARCHAR(8) "
+    . "AFTER `ngmMaxBitrate` END IF"
+];

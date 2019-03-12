@@ -85,6 +85,7 @@ class StorageNodeManagement extends FOGPage
         $sslpath = filter_input(INPUT_POST, 'sslpath') ?:
             '/opt/fog/snapins/ssl/';
         $bitrate = filter_input(INPUT_POST, 'bitrate');
+        $helloInterval = filter_input(INPUT_POST, 'helloInterval');
         $interface = filter_input(INPUT_POST, 'interface');
         $user = filter_input(INPUT_POST, 'user');
         $pass = filter_input(INPUT_POST, 'pass');
@@ -260,6 +261,18 @@ class StorageNodeManagement extends FOGPage
                 'text',
                 'bitrate',
                 $bitrate
+            ),
+            self::makeLabel(
+                $labelClass,
+                'helloInterval',
+                _('Re-Transmit Hello Interval')
+            ) => self::makeInput(
+                'form-control storagenodehellointerval-input',
+                'helloInterval',
+                '300',
+                'text',
+                'helloInterval',
+                $helloInterval
             ),
             // Node Path Locations
             self::makeLabel(
@@ -419,6 +432,7 @@ class StorageNodeManagement extends FOGPage
         $sslpath = filter_input(INPUT_POST, 'sslpath') ?:
             '/opt/fog/snapins/ssl/';
         $bitrate = filter_input(INPUT_POST, 'bitrate');
+        $helloInterval = filter_input(INPUT_POST, 'helloInterval');
         $interface = filter_input(INPUT_POST, 'interface');
         $user = filter_input(INPUT_POST, 'user');
         $pass = filter_input(INPUT_POST, 'pass');
@@ -594,6 +608,18 @@ class StorageNodeManagement extends FOGPage
                 'text',
                 'bitrate',
                 $bitrate
+            ),
+            self::makeLabel(
+                $labelClass,
+                'helloInterval',
+                _('Re-Transmit Hello Interval')
+            ) => self::makeInput(
+                'form-control storagenodehellointerval-input',
+                'helloInterval',
+                '300',
+                'text',
+                'helloInterval',
+                $helloInterval
             ),
             // Node Path Locations
             self::makeLabel(
@@ -758,6 +784,9 @@ class StorageNodeManagement extends FOGPage
         $bitrate = trim(
             filter_input(INPUT_POST, 'bitrate')
         );
+        $helloInterval = trim(
+            filter_input(INPUT_POST, 'helloInterval')
+        );
 
         $serverFault = false;
         try {
@@ -798,6 +827,7 @@ class StorageNodeManagement extends FOGPage
                 ->set('snapinpath', $snapinpath)
                 ->set('sslpath', $sslpath)
                 ->set('bitrate', $bitrate)
+                ->set('helloInterval', $helloInterval)
                 ->set('interface', $interface)
                 ->set('isGraphEnabled', $isgren)
                 ->set('isEnabled', $isen)
@@ -943,6 +973,10 @@ class StorageNodeManagement extends FOGPage
         $bitrate = (
             filter_input(INPUT_POST, 'bitrate') ?:
             $this->obj->get('bitrate')
+        );
+        $helloInterval = (
+            filter_input(INPUT_POST, 'helloInterval') ?:
+            $this->obj->get('helloInterval')
         );
         $interface = (
             filter_input(INPUT_POST, 'interface') ?:
@@ -1152,6 +1186,18 @@ class StorageNodeManagement extends FOGPage
                 'bitrate',
                 $bitrate
             ),
+            self::makeLabel(
+                $labelClass,
+                'helloInterval',
+                _('Re-Transmit Hello Interval')
+            ) => self::makeInput(
+                'form-control storagenodehellointerval-input',
+                'helloInterval',
+                '300',
+                'text',
+                'helloInterval',
+                $helloInterval
+            ),
             // Node Path Locations
             self::makeLabel(
                 $labelClass,
@@ -1349,6 +1395,9 @@ class StorageNodeManagement extends FOGPage
         $bitrate = trim(
             filter_input(INPUT_POST, 'bitrate')
         );
+        $helloInterval = trim(
+            filter_input(INPUT_POST, 'helloInterval')
+        );
         if (!$storagenode) {
             throw new Exception(self::$foglang['StorageNameRequired']);
         }
@@ -1383,6 +1432,7 @@ class StorageNodeManagement extends FOGPage
             ->set('snapinpath', $snapinpath)
             ->set('sslpath', $sslpath)
             ->set('bitrate', $bitrate)
+            ->set('helloInterval', $helloInterval)
             ->set('interface', $interface)
             ->set('isGraphEnabled', $isgren)
             ->set('isEnabled', $isen)
