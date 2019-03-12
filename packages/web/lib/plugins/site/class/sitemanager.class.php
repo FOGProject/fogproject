@@ -77,7 +77,7 @@ class SiteManager extends FOGManagerController
      */
     public function uninstall()
     {
-        self::getClass('SiteHostAssociationManager')->install();
+        self::getClass('SiteHostAssociationManager')->uninstall();
         return parent::uninstall();
     }
 }

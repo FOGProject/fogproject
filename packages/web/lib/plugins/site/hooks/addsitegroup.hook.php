@@ -215,7 +215,7 @@ class AddSiteGroup extends Hook
                 unset($hostID);
             }
             if (count($insert_values) > 0) {
-                self::getClass('SiteAssociationManager')
+                self::getClass('SiteHostAssociationManager')
                     ->insertBatch(
                         $insert_fields,
                         $insert_values
