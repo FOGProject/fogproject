@@ -3107,6 +3107,15 @@ abstract class FOGPage extends FOGBase
                 unset($key);
             }
             //echo json_encode($array, JSON_UNESCAPED_UNICODE);
+
+            self::$HookManager->processEvent(
+                'REQUEST_CLIENT_INFO',
+                 array(
+                     'repFields' => &$array,
+                     'Host' => self::$Host
+                 )
+            );
+
             $this->sendData(
                 json_encode(
                     $array,
