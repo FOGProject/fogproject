@@ -3805,13 +3805,12 @@ $this->schema[] = [
     . "Default is 1.','1','General Settings')"
 ];
 // 272
-$this->schema[] = [
-    "IF NOT EXISTS( "
-    . "SELECT NULL FROM INFORMATION_SCHEMA.COLUMNS "
-    . "WHERE table_name = 'nfsGroupMembers' "
-    . "AND table_schema = '" . Schema::getDBName() . "' "
-    . "AND column_name = 'ngmHelloInterval'" 
-    . ") THEN "
-    . "ALTER TABLE `nfsGroupMembers` ADD `ngmHelloInterval` VARCHAR(8) "
-    . "AFTER `ngmMaxBitrate` END IF"
+$column = array_filter(
+    (array)DatabaseManager::getColumns(
+        'nfsGroupMembers',
+        'ngmHelloInterval'
+    )
+);
+$this->schema[] = count($column ?: []) ? [] : [
+    "ALTER TABLE `nfsGroupMembers` ADD `ngmHelloInterval` VARCHAR(8) AFTER `ngmMaxBitrate`"
 ];
