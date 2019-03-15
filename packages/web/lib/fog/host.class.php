@@ -2157,17 +2157,22 @@ class Host extends FOGController
     {
         $val =  (int)$this->get('pingstatus');
         $socketstr = socket_strerror($val);
-        $strtoupdate = '<i class="icon-ping-%s fa fa-exclamation-circle %s'
+        $strtoupdate = '<i class="icon-ping-%s fa fa-%s %s'
             . '" data-toggle="tooltip" '
             . 'data-placement="right" '
-            . 'title="'
-            . $socketstr
+            . 'title="%s'
             . '"></i>';
+
         ob_start();
-        if ($val === 0) {
-            printf($strtoupdate, 'up', 'green');
-        } else {
-            printf($strtoupdate, 'down', 'red');
+        switch ($val){
+                case 0:
+                        printf($strtoupdate, 'windows', 'windows', 'green', 'Windows');
+                        break;
+                case 111:
+                        printf($strtoupdate, 'linux', 'linux', 'blue', 'Linux');
+                        break;
+                default:
+                        printf($strtoupdate, 'down', 'exclamation-circle', 'red', 'Unknown');
         }
         return ob_get_clean();
     }
