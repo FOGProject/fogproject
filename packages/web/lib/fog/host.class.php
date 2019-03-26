@@ -2169,7 +2169,18 @@ class Host extends FOGController
                         printf($strtoupdate, 'windows', 'windows', 'green', 'Windows');
                         break;
                 case 111:
-                        printf($strtoupdate, 'linux', 'linux', 'blue', 'Linux');
+                        $taskID = self::getSubObjectIDs(
+                                'Task',
+                                array('hostID' => $this->get('id'),
+                                      'stateID' => 2
+                                ),
+                                'id'
+                        );
+                        if (is_null($taskID))
+                                printf($strtoupdate, 'linux', 'linux', 'blue', 'Linux');
+                        else
+                                printf($strtoupdate, 'fos', 'cogs', 'green', 'FOS');
+
                         break;
                 default:
                         printf($strtoupdate, 'down', 'exclamation-circle', 'red', 'Unknown');
