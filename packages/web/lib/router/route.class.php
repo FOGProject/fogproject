@@ -326,8 +326,9 @@ class Route extends FOGBase
     {
         return self::$matches;
     }
+
     /**
-     * Runs the matches.
+     * Runs the matches
      *
      * @return void
      */
@@ -337,7 +338,12 @@ class Route extends FOGBase
             && is_callable(self::$matches['target'])
         ) {
             $args = array_values(self::$matches['params']);
-            return self::$matches['target'](...$args);
+            // Splitting call to get closure from 'target' index of self::$matches
+            // from the execution of the closure.
+            // For some reason this trips up some versions of PHP, thus breaking search.
+            $target = self::$matches['target'];
+            $target(...$args);
+            return;
         }
         self::sendResponse(
             HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
@@ -872,7 +878,7 @@ class Route extends FOGBase
     }
     /**
      * Presents the equivalent of a universal search.
-     * 
+     *
      * @param string   $item  The "search" term.
      * @param bool|int $limit Limit the results?
      *
