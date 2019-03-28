@@ -86,6 +86,7 @@ class AddLDAPMenuItem extends Hook
         if ($arguments['node'] != $this->node) {
             return;
         }
+        $arguments['menu']['globalsettings'] = _('Global Options');
         $arguments['menu']['export'] = _('Export LDAP Settings');
         $arguments['menu']['import'] = _('Import LDAP Settings');
     }
