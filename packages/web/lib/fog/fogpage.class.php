@@ -536,7 +536,7 @@ abstract class FOGPage extends FOGBase
             echo '<a '
                 // Only make the page an AJAX link if it doesn't have children.
                 . (count($subItems ?: []) == 0
-                    ? 'class="ajax-page-link" data-target="#contentWrapper"'
+                    ? 'class="ajax-page-link"'
                     : '')
                 . ' href="'
                 . (
@@ -565,7 +565,7 @@ abstract class FOGPage extends FOGBase
                             ''
                         )
                         . '">';
-                    echo '<a class="ajax-page-link" data-target="#contentWrapper" href="../management/index.php?node='
+                    echo '<a class="ajax-page-link" href="../management/index.php?node='
                         . $link
                         . '&sub='
                         . $subItem
