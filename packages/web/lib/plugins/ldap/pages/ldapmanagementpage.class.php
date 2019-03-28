@@ -205,7 +205,8 @@ class LDAPManagementPage extends FOGPage
             $searchScope,
             true
         );
-        $ports = array(389, 636);
+//        $ports = array(389, 636);
+	$ports = explode(',', self::getSetting('LDAP_PORTS'));
         $portssel = self::selectForm(
             'port',
             $ports,
