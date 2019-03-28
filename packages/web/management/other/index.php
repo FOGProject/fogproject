@@ -61,6 +61,27 @@ $isLoggedIn = self::$FOGUser->isValid();
 
 </head>
 <body class="<?php echo ($isLoggedIn) ? 'hold-transition skin-blue sidebar-mini' : 'hold-transition login-page' ?>">
+    <!-- FOG Management only works when JavaScript is enabled. -->
+    <noscript>
+        <div id="noscriptMessage">
+            <p>You must enable JavaScript to use FOG management.</p>
+        </div>
+
+        <style>
+            body > *:not(noscript) {
+                display: none;
+            }
+
+            #noscriptMessage {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 24px;
+            }
+        </style>
+    </noscript>
+
     <div class="wrapper">
         <!-- Header Navigation -->
         <header class="main-header">
