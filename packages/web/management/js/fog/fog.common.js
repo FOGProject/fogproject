@@ -753,7 +753,7 @@ function setupPasswordReveal() {
             $('.filedisp').val(numFiles + ' files selected');
         }
     }).on('mouseover', function() {
-        $('[data-toggle="tooltip"').tooltip({
+        $('[data-toggle="tooltip"]').tooltip({
             container: 'body'
         });
     });
@@ -784,3 +784,224 @@ function getQueryParams(qs) {
     }
     return params;
 }
+
+/***** AJAX PAGE LOADING *****/
+var AJAX_PAGE_LOADING_ENABLED = true;
+
+/**
+ * Override jQuery XHR to abort requests before page change.
+ */
+$.xhrPool = { pool: [] };
+
+$.xhrPool.abortAll = function() {
+    $(this.pool).each(function(i, jqXHR) {   //  cycle through list of recorded connection
+        jqXHR.abort();  //  aborts connection
+        $.xhrPool.pool.splice(i, 1); //  removes from list by index
+    });
+};
+
+$.ajaxSetup({
+    beforeSend: function(jqXHR) { $.xhrPool.pool.push(jqXHR); }, //  annd connection to list
+    complete: function(jqXHR) {
+        if($.xhrPool == null) return;
+        var i = $.xhrPool.pool.indexOf(jqXHR);   //  get index for current connection completed
+        if (i > -1) $.xhrPool.pool.splice(i, 1); //  removes from list by index
+    }
+});
+
+/**
+ * Override setInterval (to make sure all intervals can be cleared on page switch.)
+ */
+var intervals = [];
+var realSetInterval = window.setInterval;
+window.setInterval = function(...args){
+    var handler = args.shift() || null;
+    var timeout = args.shift() || null;
+    var arguments = args.length > 0 ? args : null;
+
+    var interval = realSetInterval(handler, timeout, arguments);
+    intervals.push(interval);
+    return interval;
+};
+
+function clearAllIntervals(){
+    while(intervals.length > 0){
+        clearInterval(intervals.pop());
+    }
+}
+
+/**
+ *  Handle 'ajax-ified' links.
+ *  (.ajax-page-link)
+ */
+(function(){
+    if(!AJAX_PAGE_LOADING_ENABLED) return;
+
+    // TODO: DRY - move all initialization code into one function that's executed here and on page reload.
+    function reinitialize(){
+        $_GET = getQueryParams();
+        Common = {
+            node: $_GET['node'],
+            sub: $_GET['sub'],
+            id: $_GET['id'],
+            tab: $_GET['tab'],
+            type: $_GET['type'],
+            f: $_GET['f'],
+            debug: $_GET['debug'],
+            search: $_GET['search'],
+            masks: {
+                'mac': "##:##:##:##:##:##",
+                'productKey': "*****-*****-*****-*****-*****",
+                'hostname': "",
+                'username': '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
+            }
+        };
+    }
+
+    $(document).ready(function(){
+        $(".ajax-page-link").click(function(event){
+            event.preventDefault();
+
+            var targetElement = $(this);
+            var target = targetElement.attr('href');
+
+            // Prepare to display new page
+            clearAllIntervals();
+            $.xhrPool.abortAll();
+
+            // Setup the loading page state...
+            $("#ajaxPageWrapper").setLoading(true);
+            $("body").addClass("scroll-lock");
+            $("html, body").animate({ scrollTop: 0 }, 300);
+
+            if($(".sidebar-menu.tree .treeview.menu-open").find(targetElement).length === 0){
+                $(".sidebar-menu.tree .treeview.menu-open .treeview-menu").slideUp();
+                $(".sidebar-menu.tree .treeview.menu-open").removeClass('menu-open');
+            }
+
+            // Load the page asynchronously.
+            $.ajax(target, {
+                method: 'GET',
+                headers: {
+                    // Stop FOG backend trying to helpful.
+                    // (We want HTML, not JSON.)
+                    'X-Requested-With': 'AjaxPageLink'
+                },
+                data: { 'contentOnly': true }
+            }).done(function(data, status, req){
+                var ajaxPageWrapper = $("#ajaxPageWrapper");
+                ajaxPageWrapper.html(data);
+
+                // Set new page information
+                document.title = req.getResponseHeader('X-FOG-PageTitle');
+                history.pushState(null, document.title, target);
+
+                // Reinitialize, render and display the new page.
+                reinitialize();
+                renderPage(req);
+
+                // Remove the page loading state.
+                ajaxPageWrapper.setLoading(false);
+                $("body").removeClass("scroll-lock");
+
+                // Update the sidebar
+                $(".sidebar-menu.tree li").not(targetElement.parent('.treeview')).removeClass('active');
+                targetElement.parent().addClass('active');
+                targetElement.parents('.treeview').addClass('active menu-open');
+                targetElement.parents('.treeview-menu').slideDown();
+            });
+        });
+    });
+
+    function renderPage(req){
+        // Get asset version
+        var assetVersion = req.getResponseHeader('X-FOG-BCacheVer');
+
+        /** UPDATE STYLESHEETS **/
+        var styles = JSON.parse(req.getResponseHeader('X-FOG-Stylesheets'));
+        styles.forEach(function(value, index){
+            if(styles[index] == null) { delete styles[index]; return; }
+            styles[index] = styles[index] + (styles[index].indexOf("?v") === -1 ? "?ver=" + assetVersion : "");
+        });
+
+        // Determine currently loaded stylesheets
+        var loadedStyles = [];
+        $("link[rel='stylesheet']").each(function(index, element){
+            loadedStyles.push($(element).attr('href'));
+        });
+
+        // Calculate the style delta:
+        var styleDelta = {};
+        // -> If a style is loaded that the current page does not need, remove it.
+        for(var styleIndex in loadedStyles){
+            var loadedStyle = loadedStyles[styleIndex];
+            if(styles.indexOf(loadedStyle) === -1) styleDelta[loadedStyle] = -1;
+        }
+        // -> If a style is not loaded and the current page needs it, add it.
+        for(var styleIndex in styles){
+            var style = styles[styleIndex] + "?ver=" + assetVersion;
+            if(loadedStyles.indexOf(style) === -1) styleDelta[style] = 1;
+        }
+
+        // Now act according to the style delta
+        Object.keys(styleDelta).forEach(function(key){
+            var value = styleDelta[key];
+
+            switch(value){
+                // Add script
+                case 1:
+                    $("head").append("<link rel='stylesheet' type='text/css' href='" + key + "' />");
+                    break;
+
+                // Remove script
+                case -1:
+                    $("link[rel='stylesheet'][src='" + key + "']").remove();
+                    break;
+            }
+        });
+
+
+        /** UPDATE SCRIPTS **/
+        var scripts = JSON.parse(req.getResponseHeader('X-FOG-JavaScripts'));
+        scripts.forEach(function(value, index){
+            if(scripts[index] == null) { delete scripts[index]; return; }
+            scripts[index] = scripts[index] + (scripts[index].indexOf("?v") === -1 ? "?ver=" + assetVersion : "");
+        });
+
+        // Determine the currently loaded scripts.
+        var loadedScripts = [];
+        $("#scripts").find("script").each(function(index, element){
+            loadedScripts.push($(element).attr('src'));
+        });
+
+        // Calculate the script delta:
+        var scriptDelta = {};
+        // -> If a script is loaded that the current page does not need, remove it.
+        for(var scriptIndex in loadedScripts){
+            var loadedScript = loadedScripts[scriptIndex];
+            if(scripts.indexOf(loadedScript) === -1) scriptDelta[loadedScript] = -1;
+        }
+        // -> If a script is not loaded and the current page needs it, add it.
+        for(var scriptIndex in scripts){
+            var script = scripts[scriptIndex];
+            if(loadedScripts.indexOf(script) === -1) scriptDelta[script] = 1;
+        }
+
+        // Now act according to the script delta:
+        Object.keys(scriptDelta).forEach(function(key){
+            var value = scriptDelta[key];
+
+            switch(value){
+                // Add script
+                case 1:
+                    $("#scripts").append("<script src='" + key + "' defer></script>");
+                    break;
+
+                // Remove script
+                case -1:
+                    $("script[src='" + key + "']").remove();
+                    break;
+            }
+        });
+    }
+})();

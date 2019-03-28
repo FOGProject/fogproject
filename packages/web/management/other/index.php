@@ -139,10 +139,9 @@ $isLoggedIn = self::$FOGUser->isValid();
                 <section class="sidebar">
                     <div class="user-panel">
                         <div>
-                            <a
-                                href="../management/index.php?node=user&sub=edit&id=<?php echo self::$FOGUser->get('id'); ?>"
-                                class="fog-user">
-                                    <?php echo self::$FOGUser->getDisplayName(); ?>
+                            <a href="../management/index.php?node=user&sub=edit&id=<?php echo self::$FOGUser->get('id'); ?>"
+                               class="fog-user">
+                                   <?php echo self::$FOGUser->getDisplayName(); ?>
                             </a>
                         </div>
                     </div>
@@ -258,16 +257,18 @@ $isLoggedIn = self::$FOGUser->isValid();
                     );
                 ?>
 
-                <section class="content-header">
-                    <h1 id="sectionTitle">
-                        <?php echo $this->sectionTitle; ?>
-                        <small id="pageTitle"><?php echo $this->pageTitle; ?></small>
-                    </h1>
-                </section>
+                <div id="ajaxPageWrapper">
+                    <section class="content-header">
+                        <h1 id="sectionTitle">
+                            <?php echo $this->sectionTitle; ?>
+                            <small id="pageTitle"><?php echo $this->pageTitle; ?></small>
+                        </h1>
+                    </section>
 
-                <section class="content">
-                    <?php echo $this->body; ?>
-                </section>
+                    <section class="content">
+                        <?php echo $this->body; ?>
+                    </section>
+                </div>
             </div>
         <?php }else {
             echo $this->body;
@@ -293,6 +294,7 @@ $isLoggedIn = self::$FOGUser->isValid();
         <?php } ?>
     </div>
 
+    <div id="scripts">
     <?php
 
     foreach ((array)$this->javascripts as &$javascript) {
@@ -307,6 +309,7 @@ $isLoggedIn = self::$FOGUser->isValid();
     unset($this->javascripts);
 
     ?>
+    </div>
 
     <!-- Memory Usage: <?php echo self::formatByteSize(memory_get_usage(true)); ?> -->
     <!-- Memory Peak: <?php echo self::formatByteSize(memory_get_peak_usage()); ?> -->
