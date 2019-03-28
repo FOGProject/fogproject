@@ -138,12 +138,14 @@ class AddAccessControlUser extends Hook
         echo '</div>';
         echo '</form>';
     }
+
     /**
      * The user access control updater element.
      *
      * @param object $obj The object we're working with.
      *
      * @return void
+     * @throws Exception
      */
     public function userAccesscontrolPost($obj)
     {
@@ -158,7 +160,8 @@ class AddAccessControlUser extends Hook
         $users = [$obj->get('id')];
         if (count($users) > 0) {
             self::getClass('AccessControlAssociation')->destroy(
-                ['userID' => $users]
+            //['userID' => $userID]
+                'userID'
             );
             if ($accesscontrolID > 0) {
                 foreach ((array)$users as $ind => &$userID) {
