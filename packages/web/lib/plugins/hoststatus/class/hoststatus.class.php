@@ -1,36 +1,23 @@
 <?php
 /**
- * The location class.
+ * The HostStatus class.
  *
- * PHP version 5
- *
- * @category Location
+ * @category HostStatus
  * @package  FOGProject
- * @author   Lee Rowlett <nope@nope.nope>
- * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- * @link     https://fogproject.org
- */
-/**
- * The location class.
- *
- * @category Location
- * @package  FOGProject
- * @author   Lee Rowlett <nope@nope.nope>
- * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Fernando Gietz <fernando.gietz@ehu.eus>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 class HostStatus extends FOGController
 {
     /**
-     * The location table
+     * The hoststatus table
      *
      * @var string
      */
     protected $databaseTable = 'hoststatus';
     /**
-     * The location table fields and common names
+     * The hoststatus table fields and common names
      *
      * @var array
      */
