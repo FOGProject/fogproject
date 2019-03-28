@@ -10,15 +10,6 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-/**
- * Access Control plugin
- *
- * @category AccessControlAssociation
- * @package  FOGProject
- * @author   Fernando Gietz <fernando.gietz@gmail.com>
- * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- * @link     https://fogproject.org
- */
 class AccessControlAssociation extends FOGController
 {
     /**
