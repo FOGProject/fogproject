@@ -95,7 +95,7 @@ $isLoggedIn = self::$FOGUser->isValid();
             <nav class="navbar navbar-static-top">
             <?php if ($isLoggedIn) { ?>
                 <p class="mobile-logo">
-                    <a href="../management/index.php">
+                    <a href="../management/index.php" >
                         <b><?php echo _('FOG') ?></b><?php echo _('Project') ?>
                     </a>
                 </p>
@@ -140,7 +140,7 @@ $isLoggedIn = self::$FOGUser->isValid();
                     <div class="user-panel">
                         <div>
                             <a href="../management/index.php?node=user&sub=edit&id=<?php echo self::$FOGUser->get('id'); ?>"
-                               class="fog-user">
+                               class="fog-user ajax-page-link">
                                    <?php echo self::$FOGUser->getDisplayName(); ?>
                             </a>
                         </div>
