@@ -116,6 +116,11 @@ header.main-header .mobile-logo {
   right: 0;
   bottom: 0;
   background: rgba(255,255,255,0.3) !important;
+  z-index: 999999;
+}
+
+#ajaxPageWrapper .overlay>.fa {
+  display: none !important;
 }
 
 .box .overlay>.fa, .overlay-wrapper .overlay>.fa {
@@ -141,4 +146,8 @@ header.main-header .mobile-logo {
 
 .active > a, a.active {
     font-weight: bold;
+}
+
+.scroll-lock {
+  overflow: hidden !important;
 }

@@ -312,7 +312,41 @@ class Page extends FOGBase
     public function render()
     {
         if (true === self::$showhtml) {
-            include '../management/other/index.php';
+
+            if(isset($_GET["contentOnly"]) && $_GET["contentOnly"]){
+                if(!self::$FOGUser->isValid()){
+                    echo "<noscript><p>The current user is invalid.</p></noscript><script>window.location.href = '/';</script>";
+                }else {
+
+                    $stylesheets = [];
+                    $javascripts = [];
+
+                    header("X-FOG-PageTitle: " . $this->pageTitle);
+                    header("X-FOG-Memory-Usage: " . self::formatByteSize(memory_get_usage(true)));
+                    header("X-FOG-Memory-Peak: " . self::formatByteSize(memory_get_peak_usage()));
+                    header("X-FOG-Stylesheets: " . json_encode($this->stylesheets));
+                    header("X-FOG-JavaScripts: " . json_encode($this->javascripts));
+                    header("X-FOG-BCacheVer: " . FOG_BCACHE_VER);
+
+                    ?>
+
+                    <section class="content-header">
+                        <h1 id="sectionTitle">
+                            <?php echo $this->sectionTitle; ?>
+                            <small id="pageTitle"><?php echo $this->pageTitle; ?></small>
+                        </h1>
+                    </section>
+
+                    <section class="content">
+                        <?php echo $this->body; ?>
+                    </section>
+
+                    <?php
+                }
+            }else{
+                include '../management/other/index.php';
+            }
+
         } else {
             echo $this->body;
             exit;
