@@ -88,8 +88,47 @@ class Page extends FOGBase
      */
     protected $javascripts = [];
     /**
+     * Javascripts that are common to every page.
+     * Currently, the contents of this array is added to $javascripts for output.
+     *
+     * @var array
+     */
+    protected $commonJavascripts = [
+        'js/jquery.min.js',
+        'js/jquery.color.min.js',
+        'js/lodash.min.js',
+        'js/bootstrap.min.js',
+        'js/bootstrap-slider.min.js',
+        'js/moment.min.js',
+        'js/bootstrap-datetimepicker.min.js',
+        'js/pdfmake.min.js',
+        'js/vfs_fonts.js',
+        'js/fastclick.js',
+        'js/Flot/jquery.flot.js',
+        'js/Flot/jquery.flot.pie.js',
+        'js/Flot/jquery.flot.time.js',
+        'js/Flot/jquery.flot.resize.js',
+        'js/jquery-cron.min.js',
+        'js/select2.full.min.js',
+        'js/jquery.slimscroll.min.js',
+        'js/adminlte.min.js',
+        'js/datatables.min.js',
+        'js/icheck.min.js',
+        'js/bootbox.min.js',
+        'js/pnotify.min.js',
+        'js/pace.min.js',
+        'js/input-mask/jquery.inputmask.js',
+        'js/input-mask/jquery.inputmask.extensions.js',
+        'js/input-mask/jquery.inputmask.regex.extensions.js',
+        'js/input-mask/jquery.inputmask.numeric.extensions.js',
+        'js/input-mask/jquery.inputmask.date.extensions.js',
+        'js/fog/fog.common.js',
+    ];
+
+    /**
      * Initializes the page element
      *
+     * @throws Exception
      * @return void
      */
     public function __construct()
@@ -145,37 +184,10 @@ class Page extends FOGBase
         $this->isHomepage = in_array($node, $homepages)
             || !self::$FOGUser->isValid();
         FOGPage::buildMainMenuItems($this->menu, $this->menuHook);
-        $files = [
-            'js/jquery.min.js',
-            'js/jquery.color.min.js',
-            'js/lodash.min.js',
-            'js/bootstrap.min.js',
-            'js/bootstrap-slider.min.js',
-            'js/moment.min.js',
-            'js/bootstrap-datetimepicker.min.js',
-            'js/pdfmake.min.js',
-            'js/vfs_fonts.js',
-            'js/fastclick.js',
-            'js/Flot/jquery.flot.js',
-            'js/Flot/jquery.flot.pie.js',
-            'js/Flot/jquery.flot.time.js',
-            'js/Flot/jquery.flot.resize.js',
-            'js/jquery-cron.min.js',
-            'js/select2.full.min.js',
-            'js/jquery.slimscroll.min.js',
-            'js/adminlte.min.js',
-            'js/datatables.min.js',
-            'js/icheck.min.js',
-            'js/bootbox.min.js',
-            'js/pnotify.min.js',
-            'js/pace.min.js',
-            'js/input-mask/jquery.inputmask.js',
-            'js/input-mask/jquery.inputmask.extensions.js',
-            'js/input-mask/jquery.inputmask.regex.extensions.js',
-            'js/input-mask/jquery.inputmask.numeric.extensions.js',
-            'js/input-mask/jquery.inputmask.date.extensions.js',
-            'js/fog/fog.common.js',
-        ];
+
+        $files = [];
+        if(!$this->isContentOnly()) $files = $this->commonJavascripts;
+
         if (!self::$FOGUser->isValid()) {
             $files[] = 'js/fog/fog.login.js';
         } else {
@@ -313,7 +325,7 @@ class Page extends FOGBase
     {
         if (true === self::$showhtml) {
 
-            if(isset($_GET["contentOnly"]) && $_GET["contentOnly"]){
+            if($this->isContentOnly()){
                 if(!self::$FOGUser->isValid()){
                     echo "<noscript><p>The current user is invalid.</p></noscript><script>window.location.href = '/';</script>";
                 }else {
@@ -326,6 +338,7 @@ class Page extends FOGBase
                     header("X-FOG-Memory-Peak: " . self::formatByteSize(memory_get_peak_usage()));
                     header("X-FOG-Stylesheets: " . json_encode($this->stylesheets));
                     header("X-FOG-JavaScripts: " . json_encode($this->javascripts));
+                    header("X-FOG-Common-JavaScripts: " . json_encode($this->commonJavascripts));
                     header("X-FOG-BCacheVer: " . FOG_BCACHE_VER);
 
                     ?>
@@ -355,5 +368,14 @@ class Page extends FOGBase
             unset($$var);
         }
         return $this;
+    }
+
+    /**
+     * Determines whether or not the current request is only for content.
+     *
+     * @return bool
+     */
+    private function isContentOnly(){
+        return isset($_GET["contentOnly"]) && $_GET["contentOnly"];
     }
 }

@@ -963,6 +963,8 @@ function clearAllIntervals(){
 
         /** UPDATE SCRIPTS **/
         var scripts = JSON.parse(req.getResponseHeader('X-FOG-JavaScripts'));
+        var commonScripts = JSON.parse(req.getResponseHeader('X-FOG-Common-JavaScripts'));
+
         scripts.forEach(function(value, index){
             if(scripts[index] == null) { delete scripts[index]; return; }
             scripts[index] = scripts[index] + (scripts[index].indexOf("?v") === -1 ? "?ver=" + assetVersion : "");
@@ -976,15 +978,15 @@ function clearAllIntervals(){
 
         // Calculate the script delta:
         var scriptDelta = {};
-        // -> If a script is loaded that the current page does not need, remove it.
+        // -> If a script is loaded and it isn't a script common to every page, remove it.
         for(var scriptIndex in loadedScripts){
             var loadedScript = loadedScripts[scriptIndex];
-            if(scripts.indexOf(loadedScript) === -1) scriptDelta[loadedScript] = -1;
+            if(commonScripts.indexOf(loadedScript) === -1) scriptDelta[loadedScript] = -1;
         }
         // -> If a script is not loaded and the current page needs it, add it.
         for(var scriptIndex in scripts){
             var script = scripts[scriptIndex];
-            if(loadedScripts.indexOf(script) === -1) scriptDelta[script] = 1;
+            scriptDelta[script] = 1;
         }
 
         // Now act according to the script delta:
