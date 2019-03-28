@@ -1,23 +1,10 @@
 <?php
 /**
- * Adds the location choice to host.
+ * Adds the host status to host.
  *
- * PHP version 5
- *
- * @category AddLocationHost
+ * @category AddHostStatusHost
  * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
- * @author   Lee Rowlett <nah@nah.com>
- * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- * @link     https://fogproject.org
- */
-/**
- * Adds the location choice to host.
- *
- * @category AddLocationHost
- * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
- * @author   Lee Rowlett <nah@nah.com>
+ * @author   Fernando Gietz <fernando.gietz@ehu.eus>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -75,9 +62,6 @@ class AddHostStatusHost extends Hook
     {
         global $node;
         global $sub;
-//        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
-//            return;
-//        }
         if ($node != 'host') {
             return;
         }
@@ -91,7 +75,7 @@ class AddHostStatusHost extends Hook
             . _('Host Status')
             . '</label>',
 	    '<div class="input-group">'
-            . $this->getPingCodeStr($ping)
+            . $this->getPingCodeStr($ping, $arguments['Host']->get('id'))
             . '</div>' 
         );
     }
@@ -100,7 +84,7 @@ class AddHostStatusHost extends Hook
      *
      * @return string
      */
-    public function getPingCodeStr( $val = null)
+    public function getPingCodeStr( $val = null, $hostID)
     {
         $strtoupdate = '<i class="icon-ping-%s fa fa-%s %s'
             . '" data-toggle="tooltip" '
@@ -115,7 +99,7 @@ class AddHostStatusHost extends Hook
                 case 111:
                         $taskID = self::getSubObjectIDs(
                                 'Task',
-                                array('hostID' => $this->get('id'),
+                                array('hostID' => $hostID,
                                       'stateID' => 2
                                 ),
                                 'id'

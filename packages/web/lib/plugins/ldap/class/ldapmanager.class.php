@@ -144,7 +144,7 @@ class LDAPManager extends FOGManagerController
 		. " (settingKey,settingDesc,settingValue,settingCategory)"
 		. " VALUES"
                 . " ('FOG_USER_FILTER','Insert the uType codes comma separated. If you want to list all users, empty the textbox', '990,991','Plugin: LDAP'),"
-                . " ('LDAP_PORTS','Insert the different ports comma separated.', '383,686','Plugin: LDAP')",
+                . " ('LDAP_PORTS','Insert the different ports comma separated.', '389,686','Plugin: LDAP')",
                 'globalSettings'
             );
             return self::$DB->query($sql);
