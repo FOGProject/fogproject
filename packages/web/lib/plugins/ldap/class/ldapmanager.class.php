@@ -143,7 +143,8 @@ class LDAPManager extends FOGManagerController
                 "INSERT INTO `%s`"
 		. " (settingKey,settingDesc,settingValue,settingCategory)"
 		. " VALUES"
-                . " ('FOG_USER_FILTER','Insert the uType codes comma separated. If you want to list all users, empty the textbox', '990,991','Plugin: LDAP')",
+                . " ('FOG_USER_FILTER','Insert the uType codes comma separated. If you want to list all users, empty the textbox', '990,991','Plugin: LDAP'),"
+                . " ('LDAP_PORTS','Insert the different ports comma separated.', '383,686','Plugin: LDAP')",
                 'globalSettings'
             );
             return self::$DB->query($sql);
@@ -166,7 +167,7 @@ class LDAPManager extends FOGManagerController
                 ->destroy(array('id' => $userIDs));
         }
 
-	$sql = "DELETE FROM globalSettings where globalSettings.settingKey = 'FOG_USER_FILTER'";
+	$sql = "DELETE FROM globalSettings where globalSettings.settingCategory = 'Plugin: LDAP'";
 	if (!self::$DB->query($sql)) {
             return false;
         } else {
