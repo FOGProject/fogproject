@@ -837,6 +837,8 @@ function clearAllIntervals(){
 (function(){
     if(!AJAX_PAGE_LOADING_ENABLED) return;
 
+    var ajaxPageLoading = false;
+
     // TODO: DRY - move all initialization code into one function that's executed here and on page reload.
     function reinitialize(){
         $_GET = getQueryParams();
@@ -858,60 +860,72 @@ function clearAllIntervals(){
         };
     }
 
+    window.onpopstate = function(event){
+        var target = event.state.target;
+        var targetElement = $(".ajax-page-link[href='" + target + "']");
+        doPageLoad(target, targetElement, false);
+    };
+
     $(document).ready(function(){
         $(".ajax-page-link").click(function(event){
             event.preventDefault();
-
             var targetElement = $(this);
             var target = targetElement.attr('href');
-
-            // Prepare to display new page
-            clearAllIntervals();
-            $.xhrPool.abortAll();
-
-            // Setup the loading page state...
-            $("#ajaxPageWrapper").setLoading(true);
-            $("body").addClass("scroll-lock");
-            $("html, body").animate({ scrollTop: 0 }, 300);
-
-            if($(".sidebar-menu.tree .treeview.menu-open").find(targetElement).length === 0){
-                $(".sidebar-menu.tree .treeview.menu-open .treeview-menu").slideUp();
-                $(".sidebar-menu.tree .treeview.menu-open").removeClass('menu-open');
-            }
-
-            // Load the page asynchronously.
-            $.ajax(target, {
-                method: 'GET',
-                headers: {
-                    // Stop FOG backend trying to helpful.
-                    // (We want HTML, not JSON.)
-                    'X-Requested-With': 'AjaxPageLink'
-                },
-                data: { 'contentOnly': true }
-            }).done(function(data, status, req){
-                var ajaxPageWrapper = $("#ajaxPageWrapper");
-                ajaxPageWrapper.html(data);
-
-                // Set new page information
-                document.title = req.getResponseHeader('X-FOG-PageTitle');
-                history.pushState(null, document.title, target);
-
-                // Reinitialize, render and display the new page.
-                reinitialize();
-                renderPage(req);
-
-                // Remove the page loading state.
-                ajaxPageWrapper.setLoading(false);
-                $("body").removeClass("scroll-lock");
-
-                // Update the sidebar
-                $(".sidebar-menu.tree li").not(targetElement.parent('.treeview')).removeClass('active');
-                targetElement.parent().addClass('active');
-                targetElement.parents('.treeview').addClass('active menu-open');
-                targetElement.parents('.treeview-menu').slideDown();
-            });
+            doPageLoad(target, targetElement);
         });
     });
+
+    function doPageLoad(targetPage, targetElement, shouldPushState = true){
+
+        // Setup the loading page state...
+        ajaxPageLoading = true;
+        $("#ajaxPageWrapper").setLoading(true);
+        $("body").addClass("scroll-lock");
+        $("html, body").animate({ scrollTop: 0 }, 300);
+
+        // Prepare to display new page
+        clearAllIntervals();
+        $.xhrPool.abortAll();
+
+        if($(".sidebar-menu.tree .treeview.menu-open").find(targetElement).length === 0){
+            $(".sidebar-menu.tree .treeview.menu-open .treeview-menu").slideUp();
+            $(".sidebar-menu.tree .treeview.menu-open").removeClass('menu-open');
+        }
+
+        // Load the page asynchronously.
+        $.ajax(targetPage, {
+            method: 'GET',
+            headers: {
+                // Stop FOG backend trying to helpful.
+                // (We want HTML, not JSON.)
+                'X-Requested-With': 'AjaxPageLink'
+            },
+            data: { 'contentOnly': true }
+        }).done(function(data, status, req){
+            var ajaxPageWrapper = $("#ajaxPageWrapper");
+            ajaxPageWrapper.html(data);
+
+            // Set new page information
+            document.title = req.getResponseHeader('X-FOG-PageTitle');
+            if(shouldPushState) history.pushState({ target: targetPage }, document.title, targetPage);
+
+            // Reinitialize, render and display the new page.
+            reinitialize();
+            renderPage(req);
+
+            // Remove the page loading state.
+            ajaxPageWrapper.setLoading(false);
+            $("body").removeClass("scroll-lock");
+
+            ajaxPageLoading = false;
+
+            // Update the sidebar
+            $(".sidebar-menu.tree li").not(targetElement.parent('.treeview')).removeClass('active');
+            targetElement.parent().addClass('active');
+            targetElement.parents('.treeview').addClass('active menu-open');
+            targetElement.parents('.treeview-menu').slideDown();
+        });
+    }
 
     function renderPage(req){
         // Get asset version
