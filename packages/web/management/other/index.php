@@ -19,283 +19,300 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-echo '<!DOCTYPE html>';
-echo '<html lang="'
-    . ProcessLogin::getLocale()
-    . '">';
-echo '<head>';
-echo '<meta charset="utf-8"/>';
-echo '<meta http-equiv="X-UA-Compatible" content="IE=edge"/>';
-echo '<meta name="viewport" content="width=device-width, '
-    . 'initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>';
-echo '<meta name="theme-color" content="#367fa9"/>';
-echo '<title>' . $this->pageTitle . '</title>';
 
-self::$HookManager
-    ->processEvent(
-        'CSS',
-        ['stylesheets' => &$this->stylesheets]
-    );
-foreach ((array)$this->stylesheets as &$stylesheet) {
-    echo '<link href="'
-        . $stylesheet
-        . '?ver='
-        . FOG_BCACHE_VER
-        . '" rel="stylesheet" type="text/css"/>';
-    unset($stylesheet);
-}
+$isLoggedIn = self::$FOGUser->isValid();
+?>
 
-echo '<!-- HTML5 Shim and Respond.js IE8 support of HTML5'
-    . 'elements and media queries -->';
-echo '<!--[if lt IE 9]>';
-echo '<script src="dist/js/html5shiv.min.js"></script>';
-echo '<script src="dist/js/respond.min.js"></script>';
-echo '<![endif]-->';
+<!DOCTYPE html>
+<html lang="<?php echo ProcessLogin::getLocale(); ?>">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="theme-color" content="#367fa9"/>
+    <title><?php echo $this->pageTitle; ?></title>
 
-unset($this->stylesheets);
-echo '</head>';
-echo '<body class="';
-if (!self::$FOGUser->isValid()) {
-    echo 'hold-transition login-page';
-} else {
-    echo 'hold-transition skin-blue sidebar-mini';
-}
-echo '">';
+    <?php
 
-echo '<div class="wrapper">';
-
-// HEADER
-echo '<header class="main-header">';
-if (self::$FOGUser->isValid()) {
-    echo '<a href="./index.php" class="logo">';
-    echo '<span class="logo-mini"><b>FOG</b></span>';
-    echo '<span class="logo-lg"><b>FOG</b> Project</span>';
-    echo '</a>';
-}
-echo '<nav class="navbar navbar-static-top">';
-if (self::$FOGUser->isValid()) {
-    echo '<p class="mobile-logo">';
-    echo '<a href="../management/index.php">';
-    echo '<b>'
-        . _('FOG')
-        . '</b> '
-        . _('Project')
-        . '</a>';
-    echo '</p>';
-    echo '<a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">';
-    echo '<span class="sr-only">Toggle navigation</span>';
-    echo '<span class="icon-bar"></span>';
-    echo '<span class="icon-bar"></span>';
-    echo '<span class="icon-bar"></span>';
-    echo '</a>';
-}
-echo '<div class="navbar-custom-menu">';
-echo '<ul class="nav navbar-nav">';
-echo '<li>';
-if (self::$FOGUser->isValid()) {
-    echo '<a href="../management/index.php?node=logout">';
-    echo '<i class="fa fa-sign-out"></i> ';
-    echo _('Logout');
-    echo '</a>';
-} else {
-    global $node;
-    if ($node != 'home') {
-        echo '<a href="../management/index.php?node=login">';
-        echo '<i class="fa fa-sign-in"></i> ';
-        echo _('Login');
-        echo '</a>';
+    self::$HookManager
+        ->processEvent(
+            'CSS',
+            ['stylesheets' => &$this->stylesheets]
+        );
+    foreach ((array)$this->stylesheets as &$stylesheet) {
+        echo '<link href="'
+            . $stylesheet
+            . '?ver='
+            . FOG_BCACHE_VER
+            . '" rel="stylesheet" type="text/css"/>';
+        unset($stylesheet);
     }
-}
-echo '</li>';
-echo '</ul>';
-echo '</div>';
-echo '</nav>';
-echo '</header>';
-if (self::$FOGUser->isValid()) {
-    $userDisp = trim(self::$FOGUser->getDisplayName());
-    if (!$userDisp) {
-        $userDisp = trim(self::$FOGUser->get('name'));
-    }
-    // NAVBAR
-    echo '<aside class="main-sidebar">';
-    echo '<section class="sidebar">';
-    echo '<div class="user-panel">';
-    echo '<div class="">';
-    echo '<a href="../management/index.php?node=user&sub=edit&id='
-        . self::$FOGUser->get('id')
-        . '" class="fog-user">'
-        . $userDisp
-        . '</a>';
-    echo '</div>';
-    echo '</div>';
-    echo FOGPage::makeFormTag(
-        'sidebar-form',
-        'universal-search-form',
-        '../../fog/unisearch',
-        'post',
-        'application/x-www-form-urlencoded',
-        true
-    );
-    echo '<div class="">';
-    echo '<select id="universal-search-select" class="form-control" name="search"'
-        . ' data-placeholder="'
-        . _('Search')
-        . '...">';
-    echo '</select>';
-    echo '</div>';
-    echo '</form>';
-    echo '<ul class="sidebar-menu" data-widget="tree">';
-    echo '<li class="header">';
-    echo _('MAIN NAVIGATION');
-    echo '</li>';
-    echo $this->menu;
-    if (self::$pluginIsAvailable) {
-        echo '<li class="header">';
-        echo '<span class="pull-left">';
-        echo _('PLUGIN OPTIONS');
-        echo '</span> ';
-        echo '<span class="pull-right-container">';
-        echo '<a href="#" class="plugin-options-alternate">';
-        echo '<i class="fa fa-minus"></i>';
-        echo '</a>';
-        echo '</span>';
-        echo '</li>';
-        echo '<div class="sidebar-menu plugin-options">';
-        echo $this->menuHook;
-        echo '</div>';
-    }
-    echo '<li class="header">'
-        . _('RESOURCES')
-        . '</li>';
-    echo '<li>';
-    echo '<a href="https://sourceforge.net/donate/index.php?group_id=201099" '
-       . 'target="_blank">';
-    echo '<i class="fa fa-money"></i> ';
-    echo '<span>'
-        . _('Donate')
-        . '</span>';
-    echo '</a>';
-    echo '</li>';
-    echo '<li>';
-    echo '<a href="https://news.fogproject.org" target="_blank">';
-    echo '<i class="fa fa-bullhorn"></i> ';
-    echo '<span>';
-    echo _('News');
-    echo '</span>';
-    echo '</a>';
-    echo '</li>';
-    echo '<li>';
-    echo '<a href="https://forums.fogproject.org" target="_blank">';
-    echo '<i class="fa fa-users"></i> ';
-    echo '<span>';
-    echo _('Forums');
-    echo '</span>';
-    echo '</a>';
-    echo '</li>';
-    echo '<li>';
-    echo '<a href="https://wiki.fogproject.org" target="_blank">';
-    echo '<i class="fa fa-book"></i> ';
-    echo '<span>';
-    echo _('Wiki');
-    echo '</span>';
-    echo '</a>';
-    echo '</li>';
-    echo '</ul>';
-    echo '</section>';
-    echo '</aside>';
 
-    // BODY
-    echo '  <div class="content-wrapper">';
-    echo FOGPage::makeInput(
-        'reAuthDelete',
-        'reAuthDelete',
-        '',
-        'hidden',
-        'reAuthDelete',
-        self::getSetting('FOG_REAUTH_ON_DELETE')
-    );
-    $pageLength = self::getSetting('FOG_VIEW_DEFAULT_SCREEN');
-    if (in_array(strtolower($pageLength), ['search','list'])) {
-        $pageLength = 10;
-        $Service = self::getClass('Service')
-            ->set('name', 'FOG_VIEW_DEFAULT_SCREEN')
-            ->load('name')
-            ->set(
-                'description',
-                _(
-                    'This setting defines the number of items to display '
-                    . 'when listing/searching elements. The default value is 10.'
-                )
-            )->set('value', $pageLength)
-            ->save();
-        unset($Service);
+    unset($this->stylesheets);
+
+    ?>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+
+    <!--[if lt IE 9]>
+    <script src="dist/js/html5shiv.min.js"></script>
+    <script src="dist/js/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+<body class="<?php echo ($isLoggedIn) ? 'hold-transition skin-blue sidebar-mini' : 'hold-transition login-page' ?>">
+    <!-- FOG Management only works when JavaScript is enabled. -->
+    <noscript>
+        <div id="noscriptMessage">
+            <p>You must enable JavaScript to use FOG management.</p>
+        </div>
+
+        <style>
+            body > *:not(noscript) {
+                display: none;
+            }
+
+            #noscriptMessage {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 24px;
+            }
+        </style>
+    </noscript>
+
+    <div class="wrapper">
+        <!-- Header Navigation -->
+        <header class="main-header">
+            <?php if($isLoggedIn) { ?>
+                <a href="./index.php" class="logo">
+                <span class="logo-mini"><b>FOG</b></span>
+                <span class="logo-lg"><b>FOG</b> Project</span>
+                </a>
+            <?php } ?>
+
+            <nav class="navbar navbar-static-top">
+            <?php if ($isLoggedIn) { ?>
+                <p class="mobile-logo">
+                    <a href="../management/index.php" >
+                        <b><?php echo _('FOG') ?></b><?php echo _('Project') ?>
+                    </a>
+                </p>
+
+                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </a>
+            <?php } ?>
+
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <li>
+                            <?php if($isLoggedIn){ ?>
+                                <a href="../management/index.php?node=logout">
+                                    <i class="fa fa-sign-out"></i> <?php echo _('Logout'); ?>
+                                </a>
+                            <?php }else{ ?>
+                                <?php
+
+                                    global $node;
+                                    if ($node != 'home') {
+
+                                 ?>
+                                    <a href="../management/index.php?node=login">
+                                        <i class="fa fa-sign-in"></i> <?php echo _('Login'); ?>
+                                    </a>
+                                <?php } ?>
+                            <?php } ?>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <?php if($isLoggedIn){ ?>
+            <!-- SIDEBAR NAVIGATION -->
+            <aside class="main-sidebar">
+                <section class="sidebar">
+                    <div class="user-panel">
+                        <div>
+                            <a href="../management/index.php?node=user&sub=edit&id=<?php echo self::$FOGUser->get('id'); ?>"
+                               class="fog-user ajax-page-link">
+                                   <?php echo self::$FOGUser->getDisplayName(); ?>
+                            </a>
+                        </div>
+                    </div>
+
+                    <?php
+                        echo FOGPage::makeFormTag(
+                            'sidebar-form',
+                            'universal-search-form',
+                            '../../fog/unisearch',
+                            'post',
+                            'application/x-www-form-urlencoded',
+                            true
+                        );
+                    ?>
+                        <div>
+                            <select id="universal-search-select" class="form-control" name="search" data-placeholder="<?php echo _('Search'); ?>..."></select>
+                        </div>
+                    </form>
+
+                    <ul class="sidebar-menu" data-widget="tree">
+                        <li class="header"><?php echo _('MAIN NAVIGATION'); ?></li>
+                        <?php echo $this->menu; ?>
+
+                        <?php if(self::$pluginIsAvailable){ ?>
+                            <li class="header">
+                                <span class="pull-left"><?php echo _('PLUGIN OPTIONS'); ?></span>
+                                <span class="pull-right-container">
+                                    <a href="#" class="plugin-options-alternate">
+                                        <i class="fa fa-minus"></i>
+                                    </a>
+                                </span>
+                            </li>
+
+                            <div class="sidebar-menu plugin-options">
+                                <?php echo $this->menuHook; ?>
+                            </div>
+                        <?php } ?>
+
+                        <li class="header"><?php echo _('RESOURCES'); ?></li>
+                        <li>
+                            <a href="https://sourceforge.net/donate/index.php?group_id=201099" target="_blank">
+                                <i class="fa fa-money"></i> <span><?php echo _('Donate'); ?></span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="https://news.fogproject.org" target="_blank">
+                                <i class="fa fa-bullhorn"></i> <span><?php echo _('News'); ?></span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="https://forums.fogproject.org" target="_blank">
+                                <i class="fa fa-users"></i> <span><?php echo _('Forums'); ?></span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="https://wiki.fogproject.org" target="_blank">
+                                <i class="fa fa-book"></i> <span><?php echo _('Wiki'); ?></span>
+                            </a>
+                        </li>
+                    </ul>
+                </section>
+            </aside>
+        <?php } ?>
+
+        <!-- Main Content -->
+        <?php if($isLoggedIn){ ?>
+            <div class="content-wrapper">
+                <?php
+                    echo FOGPage::makeInput(
+                        'reAuthDelete',
+                        'reAuthDelete',
+                        '',
+                        'hidden',
+                        'reAuthDelete',
+                        self::getSetting('FOG_REAUTH_ON_DELETE')
+                    );
+
+                    $pageLength = self::getSetting('FOG_VIEW_DEFAULT_SCREEN');
+
+                    if (in_array(strtolower($pageLength), ['search','list'])) {
+                        $pageLength = 10;
+                        $Service = self::getClass('Service')
+                            ->set('name', 'FOG_VIEW_DEFAULT_SCREEN')
+                            ->load('name')
+                            ->set(
+                                'description',
+                                _(
+                                    'This setting defines the number of items to display '
+                                    . 'when listing/searching elements. The default value is 10.'
+                                )
+                            )->set('value', $pageLength)
+                            ->save();
+                        unset($Service);
+                    }
+                    echo FOGPage::makeInput(
+                        'pageLength',
+                        'pageLength',
+                        '',
+                        'hidden',
+                        'pageLength',
+                        self::getSetting('FOG_VIEW_DEFAULT_SCREEN')
+                    );
+                    echo FOGPage::makeInput(
+                        'showpass',
+                        'showpass',
+                        '',
+                        'hidden',
+                        'showpass',
+                        self::getSetting('FOG_ENABLE_SHOW_PASSWORDS')
+                    );
+                ?>
+
+                <div id="ajaxPageWrapper">
+                    <section class="content-header">
+                        <h1 id="sectionTitle">
+                            <?php echo $this->sectionTitle; ?>
+                            <small id="pageTitle"><?php echo $this->pageTitle; ?></small>
+                        </h1>
+                    </section>
+
+                    <section class="content">
+                        <?php echo $this->body; ?>
+                    </section>
+                </div>
+            </div>
+        <?php }else {
+            echo $this->body;
+        } ?>
+
+        <!-- Footer -->
+        <?php if($isLoggedIn) { ?>
+            <footer class="main-footer">
+                <div class="pull-right hidden-xs">
+                    <b><?php echo _('Channel'); ?></b>
+                    <?php echo FOG_CHANNEL; ?> |
+
+                    <a href="../management/index.php?node=about&sub=home" style="text-decoration: none">
+                        <b><?php echo _('Version'); ?></b> <?php echo FOG_VERSION; ?>
+                    </a>
+                </div>
+
+                <strong>
+                    <?php echo _('Copyright'); ?> &copy; 2012-2018 <a href="https://fogproject.org">FOG Project</a>
+                </strong>
+                <?php _('All rights reserved.'); ?>
+            </footer>
+        <?php } ?>
+    </div>
+
+    <div id="scripts">
+    <?php
+
+    foreach ((array)$this->javascripts as &$javascript) {
+        echo '<script src="'
+            . $javascript
+            . '?ver='
+            . FOG_BCACHE_VER
+            . '" type="text/javascript"></script>';
+        unset($javascript);
     }
-    echo FOGPage::makeInput(
-        'pageLength',
-        'pageLength',
-        '',
-        'hidden',
-        'pageLength',
-        self::getSetting('FOG_VIEW_DEFAULT_SCREEN')
-    );
-    echo FOGPage::makeInput(
-        'showpass',
-        'showpass',
-        '',
-        'hidden',
-        'showpass',
-        self::getSetting('FOG_ENABLE_SHOW_PASSWORDS')
-    );
-    echo '<section class="content-header">';
-    echo '<h1 id="sectionTitle">';
-    echo $this->sectionTitle;
-    echo '<small id="pageTitle">' . $this->pageTitle . '</small>';
-    echo '</h1>';
-    echo '</section>';
-    echo '<section class="content">';
-    echo $this->body;
-    echo '</section>';
-    echo '</div>';
 
-    // FOOTER
-    echo '<footer class="main-footer">';
-    echo '<div class="pull-right hidden-xs">';
-    echo '<b>';
-    echo _('Channel');
-    echo '</b> ' . FOG_CHANNEL . ' | ';
-    echo '<a href="../management/index.php?node=about&sub=home" '
-        . 'style="text-decoration: none">';
-    echo '<b>';
-    echo _('Version');
-    echo '</b> ' . FOG_VERSION;
-    echo '</a>';
-    echo '</div>';
-    echo '<strong>'
-        . _('Copyright')
-        . ' &copy; 2012-2018 '
-        . '<a href="https://fogproject.org">FOG Project</a>'
-        . '.</strong> '
-        . _('All rights reserved.');
-    echo '</footer>';
-} else {
-    echo $this->body;
-}
-echo '</div>';
+    unset($this->javascripts);
 
-foreach ((array)$this->javascripts as &$javascript) {
-    echo '<script src="'
-        . $javascript
-        . '?ver='
-        . FOG_BCACHE_VER
-        . '" type="text/javascript"></script>';
-    unset($javascript);
-}
-unset($this->javascripts);
-echo '<!-- Memory Usage: ';
-echo self::formatByteSize(memory_get_usage(true));
-echo '-->';
-echo '<!-- Memory Peak: ';
-echo self::formatByteSize(memory_get_peak_usage());
-echo '-->';
-echo '</body>';
-echo '</html>';
+    ?>
+    </div>
+
+    <!-- Memory Usage: <?php echo self::formatByteSize(memory_get_usage(true)); ?> -->
+    <!-- Memory Peak: <?php echo self::formatByteSize(memory_get_peak_usage()); ?> -->
+
+</body>
+</html>
