@@ -190,7 +190,7 @@ class DashboardPage extends FOGPage
                 ['fields' => &$fields]
             );
 
-        echo '<div clss="box-group">';
+        echo '<div class="box-group">';
         echo '<!-- FOG Overview Boxes -->';
         // Server info basic.
         echo '<div class="col-md-4">';
