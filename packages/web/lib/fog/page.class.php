@@ -122,7 +122,7 @@ class Page extends FOGBase
         'js/input-mask/jquery.inputmask.regex.extensions.js',
         'js/input-mask/jquery.inputmask.numeric.extensions.js',
         'js/input-mask/jquery.inputmask.date.extensions.js',
-        'js/fog/fog.common.js',
+        'js/fog/fog.common.js'
     ];
     /**
      * Initializes the page element
@@ -322,63 +322,76 @@ class Page extends FOGBase
      */
     public function render()
     {
-        if (true === self::$showhtml) {
-            if (self::_isContentOnly()) {
-                if (!self::$FOGUser->isValid()) {
-                    echo '<noscript>';
-                    echo '<p>';
-                    echo _('The current user is invalid.');
-                    echo '</p>';
-                    echo '</noscript>';
-                    echo '<script>window.locaiton.href = '/';</script>';
-                } else {
-                    $stylesheets = $javascripts = [];
-                    header('X-FOG-PageTitle: ' . $this->pageTitle);
-                    header(
-                        'X-FOG-Memory-Usage: '
-                        . self::formatByteSize(
-                            memory_get_usage(true)
-                        )
-                    );
-                    header(
-                        'X-FOG-Memory-Peak: '
-                        . self::formatByteSize(
-                            memory_get_peak_usage()
-                        )
-                    );
-                    header(
-                        'X-FOG-Stylesheets: '
-                        . json_encode(
-                            $this->stylesheets
-                        )
-                    );
-                    header(
-                        'X-FOG-Common-Javascripts: '
-                        . json_encode(
-                            $this->javascripts
-                        )
-                    );
-                    header(
-                        'X-FOG-BCacheVer: ' . FOG_BCACHE_VER
-                    );
-                    echo '<section class="content-header">';
-                    echo '<h1 id="sectionTitle">';
-                    echo $this->sectionTitle;
-                    echo '<small id="pageTitle">';
-                    echo $this->pageTitle;
-                    echo '</small>';
-                    echo '</h1>';
-                    echo '</section>';
-                    echo '<section class="content">';
-                    echo $this->body;
-                    echo '</section>';
-                }
-            } else {
-                include '../management/other/index.php';
-            }
-        } else {
+        if (true !== self::$showhtml) {
             echo $this->body;
             exit;
+        }
+        $contentOnly = (int)self::_isContentOnly();
+        switch ($contentOnly) {
+        case 0:
+            include '../management/other/index.php';
+            break;
+        case 1:
+            $userValid = (int)self::$FOGUser->isValid();
+            switch ($userValid) {
+            case 0:
+                echo '<noscript>';
+                echo '<p>';
+                echo _('The current user is invalid.');
+                echo '</p>';
+                echo '</noscript>';
+                echo '<script>window.location.href = '/';</script>';
+                break;
+            case 1:
+                $stylesheets = $javascripts = [];
+                header('X-FOG-PageTitle: ' . $this->pageTitle);
+                header(
+                    'X-FOG-Memory-Usage: '
+                    . self::formatByteSize(
+                        memory_get_usage(true)
+                    )
+                );
+                header(
+                    'X-FOG-Memory-Peak: '
+                    . self::formatByteSize(
+                        memory_get_peak_usage()
+                    )
+                );
+                header(
+                    'X-FOG-Stylesheets: '
+                    . json_encode(
+                        $this->stylesheets
+                    )
+                );
+                header(
+                    'X-FOG-JavaScripts: '
+                    . json_encode(
+                        $this->javascripts
+                    )
+                );
+                header(
+                    'X-FOG-Common-JavaScripts: '
+                    . json_encode(
+                        self::$commonJavascripts
+                    )
+                );
+                header(
+                    'X-FOG-BCacheVer: ' . FOG_BCACHE_VER
+                );
+                echo '<section class="content-header">';
+                echo '<h1 id="sectionTitle">';
+                echo $this->sectionTitle;
+                echo '<small id="pageTitle">';
+                echo $this->pageTitle;
+                echo '</small>';
+                echo '</h1>';
+                echo '</section>';
+                echo '<section class="content">';
+                echo $this->body;
+                echo '</section>';
+                break;
+            }
+            break;
         }
         foreach (array_keys(get_defined_vars()) as $var) {
             unset($$var);
@@ -391,7 +404,6 @@ class Page extends FOGBase
      * @return bool
      */
     private static function _isContentOnly() {
-        $contentOnly = filter_input(INPUT_GET, 'contentOnly');
-        return isset($contentOnly) && $contentOnly;
+        return (bool)filter_input(INPUT_GET, 'contentOnly');
     }
 }
