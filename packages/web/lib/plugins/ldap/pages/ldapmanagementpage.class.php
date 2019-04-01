@@ -1084,6 +1084,7 @@ class LDAPManagementPage extends FOGPage
             $this->attributes
         );
     }
+
     public function PluginConfigurationPost()
     {
         $filter = filter_input(
@@ -1094,19 +1095,27 @@ class LDAPManagementPage extends FOGPage
             INPUT_POST,
             'ports'
         );
-	
 	try{
-		self::setSetting('FOG_USER_FILTER', $filter);
-                self::setSetting('LDAP_PORTS', $ports);
-		$msg = json_encode(
-                	array(
-                    		'msg' => _('Settings successfully stored!'),
-                    		'title' => _('Settings Update Success')
-                	)
-            	);
-
-		return;
-	} catch (Exception $e) {
+                if(in_array(false, array_map(function($v){return is_numeric($v);}, explode(',', $filter)))||
+                        in_array(false, array_map(function($v){return is_numeric($v);}, explode(',', $ports))))
+                {
+                        $msg = json_encode(
+                                array(
+                                        'error' => _('Not all elements in filter or ports setting are integer'),
+                                        'title' => _('Settings Update Fail')
+                                )
+                        );
+                }else{
+                        self::setSetting('LDAP_PORTS', $ports);
+                        self::setSetting('FOG_USER_FILTER', $filter);
+                        $msg = json_encode(
+                                array(
+                                        'msg' => _('Settings successfully stored!'),
+                                        'title' => _('Settings Update Success')
+                                )
+                        );
+                }
+        } catch (Exception $e) {
             $msg = json_encode(
                 array(
                     'error' => $e->getMessage(),
@@ -1116,5 +1125,6 @@ class LDAPManagementPage extends FOGPage
         }
         echo $msg;
         exit;
+	
     }
 }
