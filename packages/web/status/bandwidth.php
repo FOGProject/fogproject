@@ -22,6 +22,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+require '../commons/base.inc.php';
 if (!$currentUser->isValid()) {
     echo json_encode(_('Unauthorized'));
     exit;

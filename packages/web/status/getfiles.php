@@ -26,13 +26,13 @@ if (!$currentUser->isValid()) {
     echo json_encode(_('Unauthorized'));
     exit;
 }
-if (!is_string($_GET['path'])) {
+$path = filter_input(INPUT_GET, 'path');
+if (!is_string($path)) {
     echo json_encode(
         _('Invalid')
     );
     exit;
 }
-$path = $_GET['path'];
 $decodePath = urldecode(
     Initiator::sanitizeItems(
         $path

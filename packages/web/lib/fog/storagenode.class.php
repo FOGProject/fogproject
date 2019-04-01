@@ -247,13 +247,46 @@ class StorageNode extends FOGController
         if (!array_key_exists($item, $items)) {
             return;
         }
-        $url = sprintf(
-            '%s://%s/fog/status/getfiles.php?path=%s',
-            self::$httpproto,
-            $this->get('ip'),
-            $items[$item]
-        );
-        $response = self::$FOGURLRequests->process($url);
+        $host = self::resolveHostname($_SERVER['HTTP_HOST']);
+        $ip = self::resolveHostname($this->get('ip'));
+        if ($host === $ip) {
+            $paths = explode(':', urldecode($items[$item]));
+            foreach ((array)$paths as &$path) {
+                if (!(is_dir($path)
+                    && file_exists($path)
+                    && is_readable($path))
+                ) {
+                    $replaced_dir_sep = str_replace(
+                        ['\\', '/'],
+                        [DS, DS],
+                        $path
+                    );
+                    $glob_str = sprintf(
+                        '%s%s',
+                        $replaced_dir_sep,
+                        DS
+                    );
+                    $files = self::fastmerge(
+                        (array)$files,
+                        (array)glob($glob_str)
+                    );
+                }
+                unset($path);
+            }
+            $response[0] = json_encode(
+                Initiator::sanitizeItems(
+                    $files
+                )
+            );
+        } else {
+            $url = sprintf(
+                '%s://%s/fog/status/getfiles.php?path=%s',
+                self::$httpproto,
+                $this->get('ip'),
+                $items[$item]
+            );
+            $response = self::$FOGURLRequests->process($url);
+        }
         return preg_grep(
             '#dev|postdownloadscripts|ssl#',
             json_decode($response[0], true),
