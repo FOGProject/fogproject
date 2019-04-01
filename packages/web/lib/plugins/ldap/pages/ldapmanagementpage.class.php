@@ -45,10 +45,10 @@ class LDAPManagementPage extends FOGPage
         $this->name = _('LDAP Management');
         self::$foglang['ExportLdap'] = _('Export LDAPs');
         self::$foglang['ImportLdap'] = _('Import LDAPs');
-        parent::__construct($name);
+	parent::__construct($name);
         global $id;
         global $sub;
-	$this->menu += array('PluginConfiguration' =>('Plugin Configuration'));
+	$this->menu['PluginConfiguration'] = _('Plugin Configuration');
 	switch ($sub) {
 		case 'PluginConfiguration':
 			parent::__construct($this->name);
