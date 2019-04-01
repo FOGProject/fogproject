@@ -48,6 +48,13 @@ class LDAPManagementPage extends FOGPage
         parent::__construct($name);
         global $id;
         global $sub;
+	$this->menu += array('PluginConfiguration' =>('Plugin Configuration'));
+	switch ($sub) {
+		case 'PluginConfiguration':
+			parent::__construct($this->name);
+			break;
+		default:
+	}
         if ($id) {
             $this->subMenu = array(
                 "$this->linkformat#ldap-gen" => self::$foglang['General'],
@@ -205,9 +212,9 @@ class LDAPManagementPage extends FOGPage
             $searchScope,
             true
         );
-        $ports = self::getSetting('LDAP_PORTS');
-        $ports = preg_replace('#\s+#', '', $ports);
-        $ports = explode(',', $ports);
+	$ports = self::getSetting('LDAP_PORTS');
+	$ports = preg_replace('#\s+#', '', $ports);
+	$ports = explode(',', $ports);
         $portssel = self::selectForm(
             'port',
             $ports,
@@ -993,6 +1000,120 @@ class LDAPManagementPage extends FOGPage
                 $hook,
                 array('LDAP' => &$this->obj)
             );
+        echo $msg;
+        exit;
+    }
+
+    public function PluginConfiguration()
+    {
+        unset(
+            $this->form,
+            $this->data,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+        $this->title = _('Plugin Configuration');
+        $this->attributes = array(
+            array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-8 form-group'),
+        );
+        $this->templates = array(
+            '${field}',
+            '${input}',
+        );
+	$filter = self::getSetting('FOG_USER_FILTER');
+	$filter = preg_replace('#\s+#', '', $filter);
+	$ports = self::getSetting('LDAP_PORTS');
+	$ports = preg_replace('#\s+#', '', $ports);
+        $fields = array(
+            '<label for="filter">'
+            . _('User Filter')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="filter" id="filter" class="form-control" value="'
+            . $filter
+            . '"/>'
+            . '</div>',
+            '<label for="ports">'
+            . _('LDAP Ports')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="ports" id="ports" class="form-control" value="'
+            . $ports
+            . '"/>'
+            . '</div>',
+            '<label for="update">'
+            . _('Update')
+            . '</label>' => '<button type="submit" name="update" id="update" '
+            . 'class="btn btn-info btn-block">'
+            . _('Update')
+            . '</button>'
+        );
+        array_walk($fields, $this->fieldsToData);
+        self::$HookManager
+            ->processEvent(
+                'LDAP_CONFIG',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        unset($fields);
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->templates,
+            $this->attributes
+        );
+    }
+    public function PluginConfigurationPost()
+    {
+        $filter = filter_input(
+            INPUT_POST,
+            'filter'
+        );
+        $ports = filter_input(
+            INPUT_POST,
+            'ports'
+        );
+	
+	try{
+		self::setSetting('FOG_USER_FILTER', $filter);
+                self::setSetting('LDAP_PORTS', $ports);
+		$msg = json_encode(
+                	array(
+                    		'msg' => _('Settings successfully stored!'),
+                    		'title' => _('Settings Update Success')
+                	)
+            	);
+
+		return;
+	} catch (Exception $e) {
+            $msg = json_encode(
+                array(
+                    'error' => $e->getMessage(),
+                    'title' => _('Settings Update Fail')
+                )
+            );
+        }
         echo $msg;
         exit;
     }
