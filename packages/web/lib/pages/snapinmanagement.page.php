@@ -1015,7 +1015,7 @@ class SnapinManagement extends FOGPage
             set_time_limit(0);
             $hash = '';
             $size = 0;
-            if ($uploadfile && file_exists($src)) {
+            if ($uploadfile) {
                 $hash = hash_file('sha512', $src);
                 $size = self::getFilesize($src);
                 self::$FOGFTP->host = $StorageNode->get('ip');
@@ -1035,7 +1035,9 @@ class SnapinManagement extends FOGPage
                         throw new Exception(_('Failed to add snapin'));
                     }
                 }
-                self::$FOGFTP->delete($dest);
+                if (file_exists($src)) {
+                    self::$FOGFTP->delete($dest);
+                }
                 if (!self::$FOGFTP->put($dest, $src)) {
                     throw new Exception(
                         _('Failed to add/update snapin file')
