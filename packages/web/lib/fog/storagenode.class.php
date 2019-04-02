@@ -234,10 +234,15 @@ class StorageNode extends FOGController
             '/var/log/httpd',
             '/var/log/apache2',
             '/var/log/fog',
-            '/var/log/php7.0-fpm',
+            '/var/log/php',
             '/var/log/php-fpm',
             '/var/log/php5-fpm',
-            '/var/log/php5.6-fpm'
+            '/var/log/php5.6-fpm',
+            '/var/log/php7-fpm',
+            '/var/log/php7.0-fpm',
+            '/var/log/php7.1-fpm',
+            '/var/log/php7.2-fpm',
+            '/var/log/php7.3-fpm'
         ];
         $items = [
             'images' => urlencode($this->get('path')),
@@ -247,46 +252,24 @@ class StorageNode extends FOGController
         if (!array_key_exists($item, $items)) {
             return;
         }
-        $host = self::resolveHostname($_SERVER['HTTP_HOST']);
-        $ip = self::resolveHostname($this->get('ip'));
-        if ($host === $ip) {
-            $paths = explode(':', urldecode($items[$item]));
-            foreach ((array)$paths as &$path) {
-                if (!(is_dir($path)
-                    && file_exists($path)
-                    && is_readable($path))
-                ) {
-                    $replaced_dir_sep = str_replace(
-                        ['\\', '/'],
-                        [DS, DS],
-                        $path
-                    );
-                    $glob_str = sprintf(
-                        '%s%s',
-                        $replaced_dir_sep,
-                        DS
-                    );
-                    $files = self::fastmerge(
-                        (array)$files,
-                        (array)glob($glob_str)
-                    );
-                }
-                unset($path);
-            }
-            $response[0] = json_encode(
-                Initiator::sanitizeItems(
-                    $files
-                )
-            );
-        } else {
-            $url = sprintf(
-                '%s://%s/fog/status/getfiles.php?path=%s',
-                self::$httpproto,
-                $this->get('ip'),
-                $items[$item]
-            );
-            $response = self::$FOGURLRequests->process($url);
+        $imagePaths = [$this->get('path')];
+        $snapinPaths = [$this->get('snapinpath')];
+        $validPaths = array_merge(
+            $imagePaths,
+            $snapinPaths,
+            $logPaths
+        );
+        $pathTest = preg_grep('#' . urldecode($items[$item]) . '#', $validPaths);
+        if (count($pathTest ?: []) < 1) {
+            return [];
         }
+        $url = sprintf(
+            '%s://%s/fog/status/getfiles.php?path=%s',
+            self::$httpproto,
+            $this->get('ip'),
+            $items[$item]
+        );
+        $response = self::$FOGURLRequests->process($url);
         return preg_grep(
             '#dev|postdownloadscripts|ssl#',
             json_decode($response[0], true),

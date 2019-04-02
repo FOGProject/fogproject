@@ -1030,19 +1030,19 @@ class SnapinManagement extends FOGPage
                         . _('FTP Connection has failed')
                     );
                 }
-            }
-            if (!self::$FOGFTP->chdir($StorageNode->get('snapinpath'))) {
-                if (!self::$FOGFTP->mkdir($StorageNode->get('snapinpath'))) {
-                    throw new Exception(_('Failed to add snapin'));
+                if (!self::$FOGFTP->chdir($StorageNode->get('snapinpath'))) {
+                    if (!self::$FOGFTP->mkdir($StorageNode->get('snapinpath'))) {
+                        throw new Exception(_('Failed to add snapin'));
+                    }
                 }
+                self::$FOGFTP->delete($dest);
+                if (!self::$FOGFTP->put($dest, $src)) {
+                    throw new Exception(
+                        _('Failed to add/update snapin file')
+                    );
+                }
+                self::$FOGFTP->chmod(0777, $dest)->close();
             }
-            self::$FOGFTP->delete($dest);
-            if (!self::$FOGFTP->put($dest, $src)) {
-                throw new Exception(
-                    _('Failed to add/update snapin file')
-                );
-            }
-            self::$FOGFTP->chmod(0777, $dest)->close();
             $Snapin = self::getClass('Snapin')
                 ->set('name', $snapin)
                 ->set('description', $description)
@@ -1692,6 +1692,7 @@ class SnapinManagement extends FOGPage
                     _('Failed to add/update snapin file')
                 );
             }
+            self::$FOGFTP->chmod(0777, $dest)->close();
         }
         $this->obj
             ->set('name', $snapin)
