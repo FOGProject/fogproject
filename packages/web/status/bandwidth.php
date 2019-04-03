@@ -22,10 +22,6 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-if (!$currentUser->isValid()) {
-    echo json_encode(_('Unauthorized'));
-    exit;
-}
 header('Content-Type: application/json');
 /**
  * Lambda for returning the bytes from the file requested.
@@ -86,6 +82,10 @@ if (count($interface) < 1) {
     include '../commons/base.inc.php';
     ignore_user_abort(true);
     set_time_limit(0);
+    if (!$currentUser->isValid()) {
+        echo json_encode(_('Unauthorized'));
+        exit;
+    }
     // Find our server address
     $srvAddr = $_SERVER['SERVER_ADDR'];
     // If accessed by hostname resolve to ip

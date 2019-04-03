@@ -188,6 +188,15 @@ class StorageNode extends FOGController
         $this->set('online', array_shift($test));
     }
     /**
+     * Loads the storage group for this node.
+     *
+     * @return void;
+     */
+    public function loadStoragegroup()
+    {
+        $this->set('storagegroup', new StorageGroup($this->get('storagegroupID')));
+    }
+    /**
      * Get the node failure.
      *
      * @param int $Host the host id
@@ -234,10 +243,15 @@ class StorageNode extends FOGController
             '/var/log/httpd',
             '/var/log/apache2',
             '/var/log/fog',
-            '/var/log/php7.0-fpm',
+            '/var/log/php',
             '/var/log/php-fpm',
             '/var/log/php5-fpm',
-            '/var/log/php5.6-fpm'
+            '/var/log/php5.6-fpm',
+            '/var/log/php7-fpm',
+            '/var/log/php7.0-fpm',
+            '/var/log/php7.1-fpm',
+            '/var/log/php7.2-fpm',
+            '/var/log/php7.3-fpm'
         ];
         $items = [
             'images' => urlencode($this->get('path')),
@@ -246,6 +260,17 @@ class StorageNode extends FOGController
         ];
         if (!array_key_exists($item, $items)) {
             return;
+        }
+        $imagePaths = [$this->get('path')];
+        $snapinPaths = [$this->get('snapinpath')];
+        $validPaths = array_merge(
+            $imagePaths,
+            $snapinPaths,
+            $logPaths
+        );
+        $pathTest = preg_grep('#' . urldecode($items[$item]) . '#', $validPaths);
+        if (count($pathTest ?: []) < 1) {
+            return [];
         }
         $url = sprintf(
             '%s://%s/fog/status/getfiles.php?path=%s',

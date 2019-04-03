@@ -35,9 +35,9 @@ class DatabaseManager extends FOGCore
          * so we skip connecting to the DB entirely for those.
          */
         $noDBpattern = [
-            'status/bandwidth\.php',
+            //'status/bandwidth\.php',
             'status/freespace\.php',
-            'status/getfiles\.php',
+            //'status/getfiles\.php',
             'status/gethash\.php',
             'status/getservertime\.php',
             'status/getsize\.php',
