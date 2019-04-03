@@ -405,7 +405,8 @@ class User extends FOGController
     }
 
     /**
-     * Returns the friendly name of the user.
+     * If the user has a friendly name, this will return the friendly name of the user.
+     * Otherwise, it will return their username.
      *
      * @return string
      */
