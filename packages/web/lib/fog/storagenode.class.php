@@ -188,6 +188,15 @@ class StorageNode extends FOGController
         $this->set('online', array_shift($test));
     }
     /**
+     * Loads the storage group for this node.
+     *
+     * @return void;
+     */
+    public function loadStoragegroup()
+    {
+        $this->set('storagegroup', new StorageGroup($this->get('storagegroupID')));
+    }
+    /**
      * Get the node failure.
      *
      * @param int $Host the host id
