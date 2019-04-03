@@ -141,9 +141,12 @@ class LDAPManager extends FOGManagerController
         $sql = "INSERT INTO `globalSettings` "
             . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
             . "VALUES "
-            . "('FOG_USER_FILTER',"
+            . "('FOG_PLUGIN_LDAP_USER_FILTER',"
             . "'Insert the filter type codes comma separated. Default: 990,991',"
-            . "'990,991','Plugin: LDAP')";
+            . "'990,991','Plugin: LDAP'),"
+            . "('FOG_PLUGIN_LDAP_PORTS',"
+            . "'Allowed LDAP Ports as defined by user. Default: 389,636',"
+            . "'389,636','Plugin: LDAP')";
         return self::$DB->query($sql);
     }
     /**

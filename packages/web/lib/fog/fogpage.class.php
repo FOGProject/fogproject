@@ -535,9 +535,11 @@ abstract class FOGPage extends FOGBase
                 . '">';
             echo '<a '
                 // Only make the page an AJAX link if it doesn't have children.
-                . (count($subItems ?: []) == 0
-                    ? 'class="ajax-page-link"'
-                    : '')
+                . (
+                    count($subItems ?: []) == 0 ?
+                    'class="ajax-page-link" ' :
+                    ''
+                )
                 . ' href="'
                 . (
                     count($subItems ?: []) > 0 ?
@@ -565,7 +567,8 @@ abstract class FOGPage extends FOGBase
                             ''
                         )
                         . '">';
-                    echo '<a class="ajax-page-link" href="../management/index.php?node='
+                    echo '<a class="ajax-page-link" '
+                        . 'href="../management/index.php?node='
                         . $link
                         . '&sub='
                         . $subItem
@@ -3315,30 +3318,6 @@ abstract class FOGPage extends FOGBase
     public function getNames()
     {
         Route::names($this->childClass);
-        echo Route::getData();
-        exit;
-    }
-    /**
-     * Get storage node
-     *
-     * @return void
-     */
-    public function getStoragenode()
-    {
-        $nodeID = filter_input(INPUT_POST, 'nodeID');
-        Route::indiv('storagenode', $nodeID);
-        echo Route::getData();
-        exit;
-    }
-    /**
-     * Get storage group
-     *
-     * @return void
-     */
-    public function getStoragegroup()
-    {
-        $groupID = filter_input(INPUT_POST, 'groupID');
-        Route::indiv('storagegroup', $groupID);
         echo Route::getData();
         exit;
     }

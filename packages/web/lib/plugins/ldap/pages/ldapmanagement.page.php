@@ -102,7 +102,9 @@ class LDAPManagement extends FOGPage
             $template,
             true
         );
-        $ports = LDAP::LDAP_PORTS;
+        $ports = self::getSetting('FOG_PLUGIN_LDAP_PORTS');
+        $ports = preg_replace('#\s+#', '', $ports);
+        $ports = explode(',', $ports);
         $portssel = self::selectForm(
             'port',
             $ports,
@@ -379,7 +381,9 @@ class LDAPManagement extends FOGPage
             $template,
             true
         );
-        $ports = LDAP::LDAP_PORTS;
+        $ports = self::getSetting('FOG_PLUGIN_LDAP_PORTS');
+        $ports = preg_replace('#\s+#', '', $ports);
+        $ports = explode(',', $ports);
         $portssel = self::selectForm(
             'port',
             $ports,
@@ -645,7 +649,10 @@ class LDAPManagement extends FOGPage
             if (!is_numeric($searchScope)) {
                 $searchScope = 0;
             }
-            if (!in_array($port, LDAP::LDAP_PORTS)) {
+            $ports = self::getSetting('FOG_PLUGIN_LDAP_PORTS');
+            $ports = preg_replace('#\s+#', '', $ports);
+            $ports = explode(',', $ports);
+            if (!in_array($port, $ports)) {
                 throw new Exception(
                     _('Please select a valid ldap port')
                 );
@@ -803,7 +810,9 @@ class LDAPManagement extends FOGPage
             $template,
             true
         );
-        $ports = LDAP::LDAP_PORTS;
+        $ports = self::getSetting('FOG_PLUGIN_LDAP_PORTS');
+        $ports = preg_replace('#\s+#', '', $ports);
+        $ports = explode(',', $ports);
         $portssel = self::selectForm(
             'port',
             $ports,
@@ -1091,7 +1100,10 @@ class LDAPManagement extends FOGPage
         if (!is_numeric($searchScope)) {
             $searchScope = 0;
         }
-        if (!in_array($port, LDAP::LDAP_PORTS)) {
+        $ports = self::getSetting('FOG_PLUGIN_LDAP_PORTS');
+        $ports = preg_replace('#\s+#', '', $ports);
+        $ports = explode(',', $ports);
+        if (!in_array($port, $ports)) {
             throw new Exception(
                 _('Please select a valid ldap port')
             );
@@ -1151,6 +1163,195 @@ class LDAPManagement extends FOGPage
         ];
 
         echo self::tabFields($tabData, $this->obj);
+    }
+    /**
+     * The ldap global settings options.
+     *
+     * @return void
+     */
+    public function globalsettings()
+    {
+        $this->title = _('Editing Global LDAP Settings');
+        $find = [
+            'name' => [
+                'FOG_PLUGIN_LDAP_PORTS',
+                'FOG_PLUGIN_LDAP_USER_FILTER'
+            ]
+        ];
+        Route::ids(
+            'service',
+            $find,
+            'value'
+        );
+        $services = json_decode(
+            Route::getData(),
+            true
+        );
+        list(
+            $ports,
+            $filters
+        ) = $services;
+
+        $labelClass = 'col-sm-3 control-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'filter',
+                _('LDAP User Filter')
+            ) => self::makeInput(
+                'form-control ldapuserfilter-input',
+                'filter',
+                '990,991',
+                'text',
+                'filter',
+                $filters,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'port',
+                _('LDAP Ports')
+            ) => self::makeInput(
+                'form-control ldapport-input',
+                'port',
+                '389,636',
+                'text',
+                'port',
+                $ports,
+                true
+            )
+        ];
+
+        $buttons = self::makeButton(
+            'general-send',
+            _('Update'),
+            'btn btn-primary pull-right'
+        );
+
+        self::$HookManager->processEvent(
+            'LDAP_GLOBAL_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo self::makeFormTag(
+            'form-horizontal',
+            'ldap-global-form',
+            self::makeTabUpdateURL(
+                'ldap-global',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="box box-solid" id="ldap-global">';
+        echo '<div class="box-body">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo $rendered;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+    }
+    /**
+     * LDAP Global Settings Post.
+     *
+     * @return void
+     */
+    public function globalsettingsPost()
+    {
+        header('Content-type: application/json');
+        $filter = trim(
+            filter_input(INPUT_POST, 'filter')
+        );
+        $port = trim(
+            filter_input(INPUT_POST, 'port')
+        );
+
+        $serverFault = false;
+        try {
+            if (!$filter) {
+                throw new Exception(_('A filter must be specified'));
+            }
+            $filter = preg_replace('#\s+#', '', $filter);
+            $filters = explode(',', $filter);
+            foreach ($filters as &$filter) {
+                $filter = intval($filter);
+                if (!is_int($filter) || $filter < 2) {
+                    throw new Exception(_('All filters must be numeric and greater than 2'));
+                }
+                unset($filter);
+            }
+            if (!$port) {
+                throw new Exception(_('A port must be specified'));
+            }
+            $port = preg_replace('#\s+#', '', $port);
+            $ports = explode(',', $port);
+            foreach ($ports as &$port) {
+                $port = intval($port);
+                if (!is_int($port) || $port < 1 || $port > 65535) {
+                    throw new Exception(_('All ports must be numeric, greater than 0, and less than 65535'));
+                }
+                unset($port);
+            }
+            if (!self::setSetting('FOG_PLUGIN_LDAP_USER_FILTER', implode(',', $filters))) {
+                $serverFault = true;
+                throw new Exception(_('Unable to set user filter.'));
+            }
+            if (!self::setSetting('FOG_PLUGIN_LDAP_PORTS', implode(',', $ports))) {
+                $serverFault = true;
+                throw new Exception(_('Unable to set ldap ports.'));
+            }
+            $hook = 'LDAP_GLOBAL_EDIT_SUCCESS';
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            $msg = json_encode(
+                [
+                    'msg' => _('Global settings updated!'),
+                    'title' => _('Global Settings Update Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $hook = 'LDAP_GLOBAL_EDIT_FAIL';
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Global Settings Update Fail')
+                ]
+            );
+        }
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
+        http_response_code($code);
+        echo $msg;
+        exit;
     }
     /**
      * Updates the current item
