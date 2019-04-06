@@ -635,61 +635,129 @@ class Route extends FOGBase
         }
         switch ($classname) {
         case 'host':
-            if (count($vars->macs)) {
+            if (isset($vars->macs)) {
+                $macsToAdd = array_diff(
+                    (array)$vars->macs,
+                    $class->get('macs')
+                );
+                $primac = array_shift($macsToAdd);
+                $macsToRem = array_diff(
+                    $class->get('macs'),
+                    $vars->macs
+                );
                 $class
-                    ->removeAddMAC($vars->macs)
-                    ->addPriMAC(array_shift($vars->macs))
-                    ->addAddMAC($vars->macs);
+                    ->removeAddMAC($macsToRem)
+                    ->addPriMAC($primac)
+                    ->addAddMAC($macsToAdd);
             }
-            if (count($vars->snapins)) {
+            if (isset($vars->snapins)) {
+                $snapinsToAdd = array_diff(
+                    (array)$vars->snapins,
+                    $class->get('snapins')
+                );
+                $snapinsToRem = array_diff(
+                    $class->get('snapins'),
+                    (array)$vars->snapins
+                );
                 $class
-                    ->removeSnapin($class->get('snapins'))
-                    ->addSnapin($vars->snapins);
+                    ->removeSnapin($snapinsToRem)
+                    ->addSnapin($snapinsToAdd);
             }
-            if (count($vars->printers)) {
+            if (isset($vars->printers)) {
+                $printersToAdd = array_diff(
+                    (array)$vars->printers,
+                    $class->get('printers')
+                );
+                $printersToRem = array_diff(
+                    $class->get('printers'),
+                    (array)$vars->printers
+                );
                 $class
-                    ->removePrinter($class->get('printers'))
-                    ->addPrinter($vars->printers);
+                    ->removePrinter($printersToRem)
+                    ->addPrinter($printersToAdd);
             }
-            if (count($vars->modules)) {
+            if (isset($vars->modules)) {
+                $modulesToAdd = array_diff(
+                    (array)$vars->modules,
+                    $class->get('modules')
+                );
+                $modulesToRem = array_diff(
+                    $class->get('modules'),
+                    (array)$vars->modules
+                );
                 $class
-                    ->removeModule($class->get('modules'))
-                    ->addModule($vars->modules);
+                    ->removeModule($modulesToAdd)
+                    ->addModule($modulesToRem);
             }
-            if (count($vars->groups)) {
+            if (isset($vars->groups)) {
+                $groupsToAdd = array_diff(
+                    (array)$vars->groups,
+                    $class->get('groups')
+                );
+                $groupsToRem = array_diff(
+                    $class->get('groups'),
+                    (array)$vars->groups
+                );
                 $class
-                    ->removeGroup($class->get('groups'))
-                    ->addGroup($vars->groups);
+                    ->removeGroup($groupsToRem)
+                    ->addGroup($groupsToAdd);
             }
             break;
         case 'group':
-            if (count($vars->snapins)) {
+            if (isset($vars->snapins)) {
+                Route::ids('snapin');
+                $snapins = json_decode(
+                    Route::getData(),
+                    true
+                );
+                $snapinsToRem = array_diff(
+                    $snapins,
+                    (array)$vars->snapins
+                );
                 $class
-                    ->removeSnapin(
-                        self::getSubObjectIDs('Snapin')
-                    )
+                    ->removeSnapin($snapinsToRem)
                     ->addSnapin($vars->snapins);
             }
-            if (count($vars->printers)) {
+            if (isset($vars->printers)) {
+                Route::ids('printer');
+                $printers = json_decode(
+                    Route::getData(),
+                    true
+                );
+                $printersToRem = array_diff(
+                    $printers,
+                    (array)$vars->printers
+                );
                 $class
-                    ->removePrinter(
-                        self::getSubObjectIDs('Printer')
-                    )
+                    ->removePrinter($printersToRem)
                     ->addPrinter($vars->printers);
             }
-            if (count($vars->modules)) {
+            if (isset($vars->modules)) {
+                Route::ids('module');
+                $modules = json_decode(
+                    Route::getData(),
+                    true
+                );
+                $modulesToRem = array_diff(
+                    $modules,
+                    (array)$vars->modules
+                );
                 $class
-                    ->removeModule(
-                        self::getSubObjectIDs('Module')
-                    )
-                    ->addModule($vars->modules);
+                    ->removeModule($modulesToRem)
+                    ->addPrinter($vars->modules);
             }
-            if (count($vars->hosts)) {
+            if (isset($vars->hosts)) {
+                $hostsToAdd = array_diff(
+                    (array)$vars->hosts,
+                    $class->get('hosts')
+                );
+                $hostsToRem = array_diff(
+                    $class->get('hosts'),
+                    (array)$vars->hosts
+                );
                 $class
-                    ->removeHost(
-                        $class->get('hosts')
-                    )
-                    ->addHost($vars->hosts);
+                    ->removeHost($hostsToRem)
+                    ->addHost($hostsToAdd);
             }
             if ($vars->imageID) {
                 $class
@@ -698,28 +766,46 @@ class Route extends FOGBase
             break;
         case 'image':
         case 'snapin':
-            if (count($vars->hosts)) {
+            if (isset($vars->hosts)) {
+                $hostsToAdd = array_diff(
+                    (array)$vars->hosts,
+                    $class->get('hosts')
+                );
+                $hostsToRem = array_diff(
+                    $class->get('hosts'),
+                    (array)$vars->hosts
+                );
                 $class
-                    ->removeHost(
-                        $class->get('hosts')
-                    )
-                    ->addHost($vars->hosts);
+                    ->removeHost($hostsToRem)
+                    ->addHost($hostsToAdd);
             }
-            if (count($vars->storagegroups)) {
+            if (isset($vars->storagegroups)) {
+                $storageGroupsToAdd = array_diff(
+                    (array)$vars->storagegroups,
+                    $class->get('storagegroups')
+                );
+                $storageGroupsToRem = array_diff(
+                    $class->get('storagegroups'),
+                    (array)$vars->storagegroups
+                );
                 $class
-                    ->removeGroup(
-                        $class->get('storagegroups')
-                    )
-                    ->addGroup($vars->storagegroups);
+                    ->removeGroup($storageGroupsToRem)
+                    ->addgroup($storageGroupsToAdd);
             }
             break;
         case 'printer':
-            if (count($vars->hosts)) {
+            if (isset($vars->hosts)) {
+                $hostsToAdd = array_diff(
+                    (array)$vars->hosts,
+                    $class->get('hosts')
+                );
+                $hostsToRem = array_diff(
+                    $class->get('hosts'),
+                    (array)$vars->hosts
+                );
                 $class
-                    ->removeHost(
-                        $class->get('hosts')
-                    )
-                    ->addHost($vars->hosts);
+                    ->removeHost($hostsToRem)
+                    ->addHost($hostsToAdd);
             }
             break;
         }
@@ -842,37 +928,37 @@ class Route extends FOGBase
                     ->addPriMAC(array_shift($vars->macs))
                     ->addAddMAC($vars->macs);
             }
-            if (count($vars->snapins)) {
+            if (isset($vars->snapins)) {
                 $class
                     ->addSnapin($vars->snapins);
             }
-            if (count($vars->printers)) {
+            if (isset($vars->printers)) {
                 $class
                     ->addPrinter($vars->printers);
             }
-            if (count($vars->modules)) {
+            if (isset($vars->modules)) {
                 $class
                     ->addModule($vars->modules);
             }
-            if (count($vars->groups)) {
+            if (isset($vars->groups)) {
                 $class
                     ->addGroup($vars->groups);
             }
             break;
         case 'group':
-            if (count($vars->snapins)) {
+            if (isset($vars->snapins)) {
                 $class
                     ->addSnapin($vars->snapins);
             }
-            if (count($vars->printers)) {
+            if (isset($vars->printers)) {
                 $class
                     ->addPrinter($vars->printers);
             }
-            if (count($vars->modules)) {
+            if (isset($vars->modules)) {
                 $class
                     ->addModule($vars->modules);
             }
-            if (count($vars->hosts)) {
+            if (isset($vars->hosts)) {
                 $class
                     ->addHost($vars->hosts);
                 if (isset($vars->imageID)) {
@@ -883,17 +969,17 @@ class Route extends FOGBase
             break;
         case 'image':
         case 'snapin':
-            if (count($vars->hosts)) {
+            if (isset($vars->hosts)) {
                 $class
                     ->addHost($vars->hosts);
             }
-            if (count($vars->storagegroups)) {
+            if (isset($vars->storagegroups)) {
                 $class
                     ->addGroup($vars->storagegroups);
             }
             break;
         case 'printer':
-            if (count($vars->hosts)) {
+            if (isset($vars->hosts)) {
                 $class
                     ->addHost($vars->hosts);
             }
