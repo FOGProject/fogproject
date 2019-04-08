@@ -344,7 +344,12 @@ class Page extends FOGBase
                 break;
             case 1:
                 $stylesheets = $javascripts = [];
-                header('X-FOG-PageTitle: ' . $this->pageTitle);
+                header(
+                    'X-FOG-PageTitle: '
+                    . $this->pageTitle
+                    . ' | '
+                    . _('FOG Project')
+                );
                 header(
                     'X-FOG-Memory-Usage: '
                     . self::formatByteSize(
