@@ -30,8 +30,9 @@ echo '<meta charset="utf-8"/>';
 echo '<meta http-equiv="X-UA-Compatible" content="IE=edge"/>';
 echo '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />';
 echo '<meta name="theme-color" content="#367fa9"/>';
+echo '<link rel="shortcut icon" href="../favicon.ico"/>';
 echo '<title>';
-echo $this->pageTitle;
+echo $this->pageTitle . ' | ' . _('FOG Project');
 echo '</title>';
 self::$HookManager
     ->processEvent(
