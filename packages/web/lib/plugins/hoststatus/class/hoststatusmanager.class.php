@@ -1,21 +1,10 @@
 <?php
 /**
- * Location manager mass management class
+ * HostStatus manager mass class.
  *
- * PHP version 5
- *
- * @category LocationManager
+ * @category HostStatus
  * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- * @link     https://fogproject.org
- */
-/**
- * Location manager mass management class
- *
- * @category LocationManager
- * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Fernando Gietz <fernando.gietz@ehu.eus>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
