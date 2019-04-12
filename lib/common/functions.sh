@@ -1112,7 +1112,7 @@ configureSnapins() {
 }
 configureUsers() {
     userexists=0
-    [[ -z $username ]] && username='fog'
+    [[ -z $username ]] && username='fogproject'
     dots "Setting up $username user"
     getent passwd $username > /dev/null
     if [[ $? -eq 0 ]]; then
