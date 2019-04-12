@@ -525,7 +525,7 @@ class Group extends FOGController
                     $port = $defaultPort;
                 }
                 $MulticastSession = self::getClass('MulticastSession')
-                    ->set('name', $taskName)
+                    ->set('name', $taskName . ' - ' . $this->get('name'))
                     ->set('port', $port)
                     ->set('logpath', $Image->get('path'))
                     ->set('image', $Image->get('id'))
