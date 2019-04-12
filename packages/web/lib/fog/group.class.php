@@ -461,6 +461,10 @@ class Group extends FOGController
         $sessionjoin = false,
         $wol = false
     ) {
+        $taskName .= ' - '
+            . $this->get('name')
+            . ' '
+            . self::niceDate()->format('Y-m-d H:i:s');
         $hostCount = $this->getHostCount();
         if ($hostCount < 1) {
             throw new Exception(_('No hosts to task'));
