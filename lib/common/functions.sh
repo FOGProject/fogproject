@@ -366,7 +366,7 @@ configureUDPCast() {
     cd $cur
 }
 configureFTP() {
-    dots "Setting up and starting VSFTP Server..."
+    dots "Setting up and starting VSFTP Server"
     if [[ -f $ftpconfig ]]; then
         mv $ftpconfig ${ftpconfig}.fogbackup
     fi
@@ -410,8 +410,10 @@ configureFTP() {
     errorStat $?
 }
 configureDefaultiPXEfile() {
+    dots 'Configuring default iPXE file'
     [[ -z $webroot ]] && webroot='/'
 	echo -e "#!ipxe\ncpuid --ext 29 && set arch x86_64 || set arch \${buildarch}\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${httpproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
+    errorStat $?
 }
 configureTFTPandPXE() {
     [[ -d ${tftpdirdst}.prev ]] && rm -rf ${tftpdirdst}.prev >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -446,6 +448,7 @@ configureTFTPandPXE() {
     if [[ $noTftpBuild != "true" ]]; then
         echo -e "# default: off\n# description: The tftp server serves files using the trivial file transfer \n#    protocol.  The tftp protocol is often used to boot diskless \n# workstations, download configuration files to network-aware printers, \n#   and to start the installation process for some operating systems.\nservice tftp\n{\n    socket_type     = dgram\n   protocol        = udp\n wait            = yes\n user            = root\n    server          = /usr/sbin/in.tftpd\n  server_args     = -s ${tftpdirdst}\n    disable         = no\n  per_source      = 11\n  cps         = 100 2\n   flags           = IPv4\n}" > "$tftpconfig"
     fi
+    dots 'Setting up and starting TFTP Server'
     case $systemctl in
         yes)
             if [[ $osid -eq 2 && -f $tftpconfigupstartdefaults ]]; then
@@ -1074,7 +1077,7 @@ configureNFS() {
             esac
         fi
         errorStat $?
-        dots "Setting up and starting NFS Server..."
+        dots "Setting up and starting NFS Server"
         for nfsItem in $nfsservice; do
             if [[ $systemctl == yes ]]; then
                 systemctl is-enabled --quiet $nfsItem && true || systemctl enable $nfsItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
