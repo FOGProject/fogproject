@@ -21,59 +21,58 @@
  */
 class History_Report extends ReportManagementPage
 {
-
     public function file()
     {
-    	$this->title = _('FOG History - Search');
-    	unset(
-    		$this->data,
-        	$this->form,
-        	$this->headerData,
+        $this->title = _('FOG History - Search');
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
                 $this->templates,
                 $this->attributes
         );
         $this->templates = array(
-        	'${field}',
+            '${field}',
                 '${input}'
         );
         $this->attributes = array(
-        	array('class' => 'col-xs-4'),
+            array('class' => 'col-xs-4'),
                 array('class' => 'col-xs-8 form-group')
         );
         $userNames = self::getSubObjectIDs(
-        	'User',
+            'User',
                 '',
                 'name'
         );
         $userNames = array_values(
-        	array_filter(
-                	array_unique(
-                        	(array)$userNames
-                	)
+            array_filter(
+                    array_unique(
+                            (array)$userNames
+                    )
                  )
         );
         natcasesort($userNames);
 
         if (count($userNames) > 0) {
-        	$userSelForm = self::selectForm(
-                	'usersearch',
+            $userSelForm = self::selectForm(
+                    'usersearch',
                         $userNames
                 );
-                unset($userNames);
+            unset($userNames);
         }
         $fields = array(
                 '<label for="usersearch">'
                 . _('Enter an user name to search for')
                 . '</label>' => $userSelForm,
-		'<label for="info">'
-            	. _('Enter a term to search for')
-            	. '</label>' => '<div class="input-group">'
-            	. '<input type="text" class="'
-            	. 'form-control text-input" name='
-            	. '"info" value="'
-            	. $info
-            	. '" autocomplete="off" id="info" />'
-            	. '</div>',
+        '<label for="info">'
+                . _('Enter a term to search for')
+                . '</label>' => '<div class="input-group">'
+                . '<input type="text" class="'
+                . 'form-control text-input" name='
+                . '"info" value="'
+                . $info
+                . '" autocomplete="off" id="info" />'
+                . '</div>',
                 '<label for="performsearch">'
                 . _('Perform search')
                 . '</label>' => '<button type="submit" name="performsearch" '
@@ -91,7 +90,7 @@ class History_Report extends ReportManagementPage
         echo '</div>';
         echo '<div class="panel-body">';
         echo '<form class="form-horizontal" method="post" action="'
-        	. $this->formAction
+            . $this->formAction
                 . '">';
         $this->render(12);
         echo '</form>';
@@ -120,9 +119,9 @@ class History_Report extends ReportManagementPage
         );
 
         if (!$usersearch) {
-                $usersearch = '%';
+            $usersearch = '%';
         }
-	$info = '%'. $info . '%';
+        $info = '%'. $info . '%';
 
         array_walk(
             self::$inventoryCsvHead,
@@ -150,14 +149,15 @@ class History_Report extends ReportManagementPage
             array(),
             array()
         );
-        Route::listem('history',
-		'id',
-		'false',
-		array(
-			'createdBy' => $usersearch,
-			'info' => $info
-		)
-	);
+        Route::listem(
+            'history',
+        'id',
+        'false',
+        array(
+            'createdBy' => $usersearch,
+            'info' => $info
+        )
+    );
         $Historys = json_decode(
             Route::getData()
         );

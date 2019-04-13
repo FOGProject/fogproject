@@ -61,7 +61,7 @@ class HostStatusManager extends FOGManagerController
         if (!self::$DB->query($sql)) {
             return false;
         }
-        return true; 
+        return true;
     }
     /**
      * Uninstalls the database

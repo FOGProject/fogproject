@@ -65,26 +65,26 @@ class AddHostStatusHost extends Hook
         if ($node != 'host') {
             return;
         }
-	$ping = self::getClass('Ping', $arguments['Host']->get('ip'))->execute();
+        $ping = self::getClass('Ping', $arguments['Host']->get('ip'))->execute();
         self::arrayInsertAfter(
-	    '<label for="name">'
+        '<label for="name">'
             . _('Host Name')
             . '</label>',
             $arguments['fields'],
             '<label for="status">'
             . _('Host Status')
             . '</label>',
-	    '<div class="input-group">'
+        '<div class="input-group">'
             . $this->getPingCodeStr($ping, $arguments['Host']->get('id'))
-            . '</div>' 
+            . '</div>'
         );
     }
-        /**
+    /**
      * Translates the ping status code to string
      *
      * @return string
      */
-    public function getPingCodeStr( $val = null, $hostID)
+    public function getPingCodeStr($val = null, $hostID)
     {
         $strtoupdate = '<i class="icon-ping-%s fa fa-%s %s'
             . '" data-toggle="tooltip" '
@@ -92,7 +92,7 @@ class AddHostStatusHost extends Hook
             . 'title="%s'
             . '"></i>';
         ob_start();
-        switch ($val){
+        switch ($val) {
                 case 0:
                         printf($strtoupdate, 'windows', 'windows', 'green', 'Windows');
                         break;
@@ -104,15 +104,15 @@ class AddHostStatusHost extends Hook
                                 ),
                                 'id'
                         );
-                        if (is_null($taskID))
-                                printf($strtoupdate, 'linux', 'linux', 'blue', 'Linux');
-                        else
-                                printf($strtoupdate, 'fos', 'cogs', 'green', 'FOS');
+                        if (is_null($taskID)) {
+                            printf($strtoupdate, 'linux', 'linux', 'blue', 'Linux');
+                        } else {
+                            printf($strtoupdate, 'fos', 'cogs', 'green', 'FOS');
+                        }
                         break;
                 default:
                         printf($strtoupdate, 'down', 'exclamation-circle', 'red', 'Unknown');
         }
         return ob_get_clean();
     }
-	
 }

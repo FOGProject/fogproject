@@ -460,8 +460,7 @@ class FOGSubMenu extends FOGBase
                                 $link
                             );
                         }
-                    }
-                    else {
+                    } else {
                         $target = ' target="_blank"';
                     }
                     if ($label == 'class') {
