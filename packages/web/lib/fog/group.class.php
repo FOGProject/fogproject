@@ -446,6 +446,7 @@ class Group extends FOGController
         $sessionjoin = false,
         $wol = false
     ) {
+        $taskName .= ' - ' . $this->get('name');
         $hostCount = $this->getHostCount();
         if ($hostCount < 1) {
             throw new Exception(_('No hosts to task'));
@@ -525,7 +526,7 @@ class Group extends FOGController
                     $port = $defaultPort;
                 }
                 $MulticastSession = self::getClass('MulticastSession')
-                    ->set('name', $taskName . ' - ' . $this->get('name'))
+                    ->set('name', $taskName)
                     ->set('port', $port)
                     ->set('logpath', $Image->get('path'))
                     ->set('image', $Image->get('id'))
