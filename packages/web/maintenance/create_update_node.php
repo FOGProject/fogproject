@@ -67,7 +67,9 @@ if (isset($_POST['newNode'])) {
         Route::getData()
     );
     foreach ($StorageNodes->data as &$StorageNode) {
-        if ($StorageNode->pass === trim($pass)) {
+        if ($StorageNode->user === trim($user)
+            && $StorageNode->pass === trim($pass)
+        ) {
             continue;
         }
         self::getClass('StorageNode', $StorageNode->id)
