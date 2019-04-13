@@ -1621,7 +1621,7 @@ abstract class FOGBase
                     $padding
                 );
                 if (!$test) {
-                    throw new Exception(_('Failed to decrypt data'));
+                    throw new Exception(_('Failed to decrypt data on server'));
                 }
                 $dataun .= $decrypt;
             }
