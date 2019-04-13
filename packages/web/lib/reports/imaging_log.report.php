@@ -19,41 +19,41 @@ class Imaging_Log extends ReportManagementPage
      * @return void
      */
 
-        public function file()
-        {
-                $this->title = _('FOG Imaging - Search');
-                unset(
+    public function file()
+    {
+        $this->title = _('FOG Imaging - Search');
+        unset(
                         $this->data,
                         $this->form,
                         $this->headerData,
                         $this->templates,
                         $this->attributes
                 );
-                $this->templates = array(
+        $this->templates = array(
                 '${field}',
                 '${input}'
                 );
-                 $this->attributes = array(
+        $this->attributes = array(
                         array('class' => 'col-xs-4'),
                         array('class' => 'col-xs-8 form-group')
                  );
-                $userNames = self::getSubObjectIDs(
+        $userNames = self::getSubObjectIDs(
                         'User',
                         '',
                         'name'
                         );
-		
-                $imageNames = self::getSubObjectIDs(
+        
+        $imageNames = self::getSubObjectIDs(
                 'Image',
                 '',
                 'name'
                 );
-                $HostNames = self::getSubObjectIDs(
+        $HostNames = self::getSubObjectIDs(
                 'Host',
                 '',
                 'name'
                 );
-                $userNames = array_values(
+        $userNames = array_values(
                    array_filter(
                          array_unique(
                              (array)$userNames
@@ -61,46 +61,46 @@ class Imaging_Log extends ReportManagementPage
                    )
                  );
 
-                $imageNames = array_values(
+        $imageNames = array_values(
                    array_filter(
                          array_unique(
                              (array)$imageNames
                          )
                    )
                  );
-                $HostNames = array_values(
+        $HostNames = array_values(
                         array_filter(
                                 array_unique(
                                 (array)$HostNames
                                 )
                         )
                 );
-		natcasesort($userNames);
-                natcasesort($imageNames);
-                natcasesort($HostNames);
+        natcasesort($userNames);
+        natcasesort($imageNames);
+        natcasesort($HostNames);
 
-                if (count($userNames) > 0) {
-                        $userSelForm = self::selectForm(
+        if (count($userNames) > 0) {
+            $userSelForm = self::selectForm(
                                 'usersearch',
                                 $userNames
                         );
-                        unset($userNames);
-                }
-                if (count($imageNames) > 0) {
-                        $imageSelForm = self::selectForm(
+            unset($userNames);
+        }
+        if (count($imageNames) > 0) {
+            $imageSelForm = self::selectForm(
                                 'imagesearch',
                                 $imageNames
                         );
-                        unset($imageNames);
-                }
-                if (count($HostNames) > 0) {
-                        $hostSelForm = self::selectForm(
+            unset($imageNames);
+        }
+        if (count($HostNames) > 0) {
+            $hostSelForm = self::selectForm(
                                 'hostsearch',
                                 $HostNames
                                 );
-                        unset($HostNames);
-                }
-                $fields = array(
+            unset($HostNames);
+        }
+        $fields = array(
                 '<label for="imagesearch">'
                 . _('Enter an image name to search for')
                 . '</label>' => $imageSelForm,
@@ -117,24 +117,24 @@ class Imaging_Log extends ReportManagementPage
                 . _('Search')
                 . '</button>'
                 );
-                array_walk($fields, $this->fieldsToData);
-                echo '<div class="col-xs-9">';
-                 echo '<div class="panel panel-info">';
-                 echo '<div class="panel-heading text-center">';
-                 echo '<h4 class="title">';
-                 echo $this->title;
-                 echo '</h4>';
-                 echo '</div>';
-                 echo '<div class="panel-body">';
-                echo '<form class="form-horizontal" method="post" action="'
+        array_walk($fields, $this->fieldsToData);
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
                      . $this->formAction
                      . '">';
-                $this->render(12);
-                echo '</form>';
-                echo '</div>';
-                echo '</div>';
-                echo '</div>';
-        }
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
 
     public function filePost()
     {
@@ -142,7 +142,7 @@ class Imaging_Log extends ReportManagementPage
              INPUT_POST,
              'hostsearch'
          );
-         $imagesearch = filter_input(
+        $imagesearch = filter_input(
              INPUT_POST,
              'imagesearch'
         );
@@ -152,13 +152,13 @@ class Imaging_Log extends ReportManagementPage
         );
 
         if (!$hostsearch) {
-                $hostsearch = '%';
+            $hostsearch = '%';
         }
         if (!$imagesearch) {
-                $imagesearch = '%';
+            $imagesearch = '%';
         }
         if (!$usersearch) {
-                $usersearch = '%';
+            $usersearch = '%';
         }
 
 
@@ -169,12 +169,12 @@ class Imaging_Log extends ReportManagementPage
         $userNames = self::getSubObjectIDs(
              'User',
              array('name' => $usersearch),
-	     'name'
+         'name'
         );
         $imageNames = self::getSubObjectIDs(
              'Image',
              array('name' => $imagesearch),
-	     'name'
+         'name'
         );
 
 
@@ -222,15 +222,16 @@ class Imaging_Log extends ReportManagementPage
             unset($csvHeader);
         }
         $this->ReportMaker->endCSVLine();
-        Route::listem('imaginglog',
-		'hostID',
-		'false',
+        Route::listem(
+            'imaginglog',
+        'hostID',
+        'false',
                 array(
-                	'hostID' => $hostIDs,
+                    'hostID' => $hostIDs,
                         'createdBy' => $userNames,
-			'image' => $imageNames
-             )		
-	);
+            'image' => $imageNames
+             )
+    );
         $ImagingLogs = json_decode(
             Route::getData()
         );

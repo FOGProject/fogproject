@@ -271,11 +271,11 @@ class Site extends FOGController
 
         // Get the items differing between the current and what we have associated.
         // Remove the items if there's anything to remove.
-	// Take in account that the array_diff function returns different values depending the order of the factors. In this way:
-	// When we delete hosts or users from the webUI:
+        // Take in account that the array_diff function returns different values depending the order of the factors. In this way:
+        // When we delete hosts or users from the webUI:
         $delItems = array_diff($cur, $items);
-	// When we add hosts or users from the webUI:
-	$addItems = array_diff($items, $cur);
+        // When we add hosts or users from the webUI:
+        $addItems = array_diff($items, $cur);
         if (count($delItems)) {
             Route::deletemass(
                 $classCall,
@@ -284,38 +284,37 @@ class Site extends FOGController
                     $assocstr => $delItems,
                 ]
             );
-		return $this;
+            return $this;
         }
-	if (count($addItems)) {
-		$items = $addItems;
-        // Setup our insert.
-	        $insert_fields = [
-	            $objstr,
-	            $assocstr
-	        ];
-	        $insert_values = [];
-	        if ($assocstr == 'moduleID') {
-	            $insert_fields[] = 'state';
-	        }
-	        foreach ($items as &$id) {
-	            $insert_val = [
-	                $this->get('id'),
-	                $id
-	            ];
-	            if ($assocstr == 'moduleID') {
-	                $insert_val[] = 1;
-	            }
-	            $insert_values[] = $insert_val;
-	            unset($insert_val, $id);
-	        }
-	        if (count($insert_values ?: []) > 0) {
-	            self::getClass("{$classCall}manager")->insertBatch(
-	                $insert_fields,
-	                $insert_values
-	            );
-	        }
-	}
+        if (count($addItems)) {
+            $items = $addItems;
+            // Setup our insert.
+            $insert_fields = [
+                $objstr,
+                $assocstr
+            ];
+            $insert_values = [];
+            if ($assocstr == 'moduleID') {
+                $insert_fields[] = 'state';
+            }
+            foreach ($items as &$id) {
+                $insert_val = [
+                    $this->get('id'),
+                    $id
+                ];
+                if ($assocstr == 'moduleID') {
+                    $insert_val[] = 1;
+                }
+                $insert_values[] = $insert_val;
+                unset($insert_val, $id);
+            }
+            if (count($insert_values ?: []) > 0) {
+                self::getClass("{$classCall}manager")->insertBatch(
+                    $insert_fields,
+                    $insert_values
+                );
+            }
+        }
         return $this;
     }
-
 }

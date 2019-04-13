@@ -136,20 +136,19 @@ class LDAPManager extends FOGManagerController
             'lsID'
         );
 //        return self::$DB->query($sql);
-	if (!self::$DB->query($sql)) {
+        if (!self::$DB->query($sql)) {
             return false;
         } else {
             $sql = sprintf(
                 "INSERT INTO `%s`"
-		. " (settingKey,settingDesc,settingValue,settingCategory)"
-		. " VALUES"
+        . " (settingKey,settingDesc,settingValue,settingCategory)"
+        . " VALUES"
                 . " ('FOG_USER_FILTER','Insert the uType codes comma separated. If you want to list all users, empty the textbox', '990,991','Plugin: LDAP'),"
                 . " ('LDAP_PORTS','Insert the different ports comma separated.', '389,686','Plugin: LDAP')",
                 'globalSettings'
             );
             return self::$DB->query($sql);
         }
-
     }
     /**
      * Uninstalls the plugin
@@ -167,11 +166,11 @@ class LDAPManager extends FOGManagerController
                 ->destroy(array('id' => $userIDs));
         }
 
-	$sql = "DELETE FROM globalSettings where globalSettings.settingCategory = 'Plugin: LDAP'";
-	if (!self::$DB->query($sql)) {
+        $sql = "DELETE FROM globalSettings where globalSettings.settingCategory = 'Plugin: LDAP'";
+        if (!self::$DB->query($sql)) {
             return false;
         } else {
-	        return parent::uninstall();
-	}
+            return parent::uninstall();
+        }
     }
 }

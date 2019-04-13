@@ -174,7 +174,7 @@ class LDAPPluginHook extends Hook
      */
     public function setTypeFilter($arguments)
     {
-	$arguments['types'] = explode(',', self::getSetting('FOG_USER_FILTER'));
+        $arguments['types'] = explode(',', self::getSetting('FOG_USER_FILTER'));
     }
     /**
      * Tests if the user is containing the ldap types.
