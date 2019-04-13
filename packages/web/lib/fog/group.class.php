@@ -446,6 +446,7 @@ class Group extends FOGController
         $sessionjoin = false,
         $wol = false
     ) {
+        $taskName .= ' - ' . $this->get('name');
         $hostCount = $this->getHostCount();
         if ($hostCount < 1) {
             throw new Exception(_('No hosts to task'));
@@ -556,6 +557,7 @@ class Group extends FOGController
                     'isForced',
                     'stateID',
                     'typeID',
+                    'storagenodeID',
                     'wol',
                     'imageID',
                     'shutdown',
@@ -571,6 +573,7 @@ class Group extends FOGController
                         0,
                         self::getQueuedState(),
                         $TaskType->get('id'),
+                        $StorageNode->get('id'),
                         $wol,
                         $Image->get('id'),
                         $shutdown,
@@ -637,6 +640,7 @@ class Group extends FOGController
                     'isForced',
                     'stateID',
                     'typeID',
+                    'storagenodeID',
                     'wol',
                     'imageID',
                     'shutdown',
@@ -652,6 +656,7 @@ class Group extends FOGController
                         0,
                         self::getQueuedState(),
                         $TaskType->get('id'),
+                        $StorageNode->get('id'),
                         $wol,
                         $imageIDs[$i],
                         $shutdown,
