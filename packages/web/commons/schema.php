@@ -3724,4 +3724,3 @@ $this->schema[] = array(
     "ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmHelloInterval` "
     . "VARCHAR(8) AFTER `ngmMaxBitrate`",
 );
-

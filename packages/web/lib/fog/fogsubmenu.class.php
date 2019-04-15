@@ -450,6 +450,7 @@ class FOGSubMenu extends FOGBase
                 echo '<ul class="nav nav-pills nav-stacked">';
                 foreach ((array) $data as $label => &$link) {
                     $hash = '';
+                    $target = '';
                     if (!$this->isExternalLink($link)) {
                         $hash = $this->getTarget($link);
                         if ($hash) {
@@ -459,13 +460,16 @@ class FOGSubMenu extends FOGBase
                                 $link
                             );
                         }
+                    } else {
+                        $target = ' target="_blank"';
                     }
                     if ($label == 'class') {
                         continue;
                     }
                     $string = sprintf(
-                        '<li><a class="%s" href="${link}${hash}">%s</a></li>',
+                        '<li><a class="%s" href="${link}${hash}"%s>%s</a></li>',
                         $hash ?: $node.'-'.$sub,
+                        $target,
                         $label
                     );
                     if ($this->isExternalLink($link)) {

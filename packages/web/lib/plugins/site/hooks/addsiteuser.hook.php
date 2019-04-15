@@ -98,30 +98,30 @@ class AddSiteUser extends Hook
         if ($sub == 'pending') {
             return;
         }
-/*
-        if (!in_array('accesscontrol', (array)self::$pluginsinstalled)) {
-            $insertIndex = 3;
-        } else {
-            $insertIndex = 4;
-        }
-        $insertIndexRestricted = $insertIndex + 1;
-        foreach ((array)$arguments['headerData'] as $index => &$str) {
-            if ($index == $insertIndex) {
-                $arguments['headerData'][$index] = _('Associated Sites');
-                $arguments['headerData'][] = $str;
-            }
-            unset($str);
-        }
-        foreach ((array)$arguments['headerData'] as $index => &$str) {
-            if ($index == $insertIndexRestricted) {
-                $arguments['headerData'][$index] = _('Is restricted');
-                $arguments['headerData'][] = $str;
-            }
-            unset($str);
-        }
-*/
-	$arguments['headerData'][] = _('Associated Sites');
-	$arguments['headerData'][] = _('Is restricted');
+        /*
+                if (!in_array('accesscontrol', (array)self::$pluginsinstalled)) {
+                    $insertIndex = 3;
+                } else {
+                    $insertIndex = 4;
+                }
+                $insertIndexRestricted = $insertIndex + 1;
+                foreach ((array)$arguments['headerData'] as $index => &$str) {
+                    if ($index == $insertIndex) {
+                        $arguments['headerData'][$index] = _('Associated Sites');
+                        $arguments['headerData'][] = $str;
+                    }
+                    unset($str);
+                }
+                foreach ((array)$arguments['headerData'] as $index => &$str) {
+                    if ($index == $insertIndexRestricted) {
+                        $arguments['headerData'][$index] = _('Is restricted');
+                        $arguments['headerData'][] = $str;
+                    }
+                    unset($str);
+                }
+        */
+        $arguments['headerData'][] = _('Associated Sites');
+        $arguments['headerData'][] = _('Is restricted');
     }
     /**
      * This function modifies the data of the user page.
@@ -144,44 +144,44 @@ class AddSiteUser extends Hook
         if ($sub == 'pending') {
             return;
         }
-/*
-        if (!in_array('accesscontrol', (array)self::$pluginsinstalled)) {
-            $insertIndex = 3;
-        } else {
-            $insertIndex = 4;
-        }
-        $insertIndexRestricted = $insertIndex + 1;
-        foreach ((array)$arguments['attributes'] as $index => &$str) {
-            if ($index == $insertIndex || $index == $insertIndex + 1) {
-                $arguments['attributes'][$index] = array();
-                $arguments['attributes'][] = $str;
-            }
-            unset($str);
-        }
-        foreach ((array)$arguments['attributes'] as $index => &$str) {
-            if ($index == $insertIndexRestricted || $index == $insertIndex + 1) {
-                $arguments['attributes'][$index] = array();
-                $arguments['attributes'][] = $str;
-            }
-            unset($str);
-        }
-        foreach ((array)$arguments['templates'] as $index => &$str) {
-            if ($index == $insertIndex) {
-                $arguments['templates'][$index] = '${site}';
-                $arguments['templates'][] = $str;
-            }
-            unset($str);
-        }
-        foreach ((array)$arguments['templates'] as $index => &$str) {
-            if ($index == $insertIndexRestricted) {
-                $arguments['templates'][$index] = '${isRestricted}';
-                $arguments['templates'][] = $str;
-            }
-            unset($str);
-        }
-*/
-	$arguments['attributes'][] = array();
-	$arguments['templates'][] = '${site}';
+        /*
+                if (!in_array('accesscontrol', (array)self::$pluginsinstalled)) {
+                    $insertIndex = 3;
+                } else {
+                    $insertIndex = 4;
+                }
+                $insertIndexRestricted = $insertIndex + 1;
+                foreach ((array)$arguments['attributes'] as $index => &$str) {
+                    if ($index == $insertIndex || $index == $insertIndex + 1) {
+                        $arguments['attributes'][$index] = array();
+                        $arguments['attributes'][] = $str;
+                    }
+                    unset($str);
+                }
+                foreach ((array)$arguments['attributes'] as $index => &$str) {
+                    if ($index == $insertIndexRestricted || $index == $insertIndex + 1) {
+                        $arguments['attributes'][$index] = array();
+                        $arguments['attributes'][] = $str;
+                    }
+                    unset($str);
+                }
+                foreach ((array)$arguments['templates'] as $index => &$str) {
+                    if ($index == $insertIndex) {
+                        $arguments['templates'][$index] = '${site}';
+                        $arguments['templates'][] = $str;
+                    }
+                    unset($str);
+                }
+                foreach ((array)$arguments['templates'] as $index => &$str) {
+                    if ($index == $insertIndexRestricted) {
+                        $arguments['templates'][$index] = '${isRestricted}';
+                        $arguments['templates'][] = $str;
+                    }
+                    unset($str);
+                }
+        */
+        $arguments['attributes'][] = array();
+        $arguments['templates'][] = '${site}';
         $arguments['attributes'][] = array();
         $arguments['templates'][] = '${isRestricted}';
 

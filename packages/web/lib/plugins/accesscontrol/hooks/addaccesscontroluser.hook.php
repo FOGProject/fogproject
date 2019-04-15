@@ -98,7 +98,7 @@ class AddAccessControlUser extends Hook
         if ($sub == 'pending') {
             return;
         }
-	$arguments['headerData'][] = _('Role');
+        $arguments['headerData'][] = _('Role');
     }
     /**
      * This function modifies the data of the user page.
@@ -121,8 +121,8 @@ class AddAccessControlUser extends Hook
         if ($sub == 'pending') {
             return;
         }
-	$arguments['attributes'][] = array();
-	$arguments['templates'][] = '${role}';
+        $arguments['attributes'][] = array();
+        $arguments['templates'][] = '${role}';
 
         foreach ((array)$arguments['data'] as $index => &$vals) {
             $find = array(
