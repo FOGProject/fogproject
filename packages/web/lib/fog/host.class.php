@@ -1296,6 +1296,7 @@ class Host extends FOGController
         $sessionjoin = false,
         $wol = false
     ) {
+        $taskName .= ' - ' . $this->get('name');
         try {
             if (!$this->isValid()) {
                 throw new Exception(self::$foglang['HostNotValid']);
@@ -2164,7 +2165,7 @@ class Host extends FOGController
             . '"></i>';
 
         ob_start();
-        switch ($val){
+        switch ($val) {
                 case 0:
                         printf($strtoupdate, 'windows', 'windows', 'green', 'Windows');
                         break;
@@ -2176,10 +2177,11 @@ class Host extends FOGController
                                 ),
                                 'id'
                         );
-                        if (is_null($taskID))
-                                printf($strtoupdate, 'linux', 'linux', 'blue', 'Linux');
-                        else
-                                printf($strtoupdate, 'fos', 'cogs', 'green', 'FOS');
+                        if (is_null($taskID)) {
+                            printf($strtoupdate, 'linux', 'linux', 'blue', 'Linux');
+                        } else {
+                            printf($strtoupdate, 'fos', 'cogs', 'green', 'FOS');
+                        }
 
                         break;
                 default:
