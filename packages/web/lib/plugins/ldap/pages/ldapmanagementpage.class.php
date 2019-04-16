@@ -50,11 +50,11 @@ class LDAPManagementPage extends FOGPage
         global $sub;
         $this->menu['PluginConfiguration'] = _('Plugin Configuration');
         switch ($sub) {
-                case 'PluginConfiguration':
-                        parent::__construct($this->name);
-                          break;
-                default:
-        }
+        case 'PluginConfiguration':
+            parent::__construct($this->name);
+            break;
+        default:
+    }
         if ($id) {
             $this->subMenu = array(
                 "$this->linkformat#ldap-gen" => self::$foglang['General'],
@@ -1103,7 +1103,7 @@ class LDAPManagementPage extends FOGPage
                             return is_numeric($v);
                         }, explode(',', $ports)))) {
                 $msg = json_encode(
-                                array(
+                            array(
                                         'error' => _('Not all elements in filter or ports setting are integer'),
                                         'title' => _('Settings Update Fail')
                                 )
@@ -1112,7 +1112,7 @@ class LDAPManagementPage extends FOGPage
                 self::setSetting('LDAP_PORTS', $ports);
                 self::setSetting('FOG_USER_FILTER', $filter);
                 $msg = json_encode(
-                                array(
+                            array(
                                         'msg' => _('Settings successfully stored!'),
                                         'title' => _('Settings Update Success')
                                 )
