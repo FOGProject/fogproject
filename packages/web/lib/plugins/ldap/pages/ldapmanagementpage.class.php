@@ -45,16 +45,16 @@ class LDAPManagementPage extends FOGPage
         $this->name = _('LDAP Management');
         self::$foglang['ExportLdap'] = _('Export LDAPs');
         self::$foglang['ImportLdap'] = _('Import LDAPs');
-	parent::__construct($name);
+        parent::__construct($name);
         global $id;
         global $sub;
-	$this->menu['PluginConfiguration'] = _('Plugin Configuration');
-	switch ($sub) {
-		case 'PluginConfiguration':
-			parent::__construct($this->name);
-			break;
-		default:
-	}
+        $this->menu['PluginConfiguration'] = _('Plugin Configuration');
+        switch ($sub) {
+        case 'PluginConfiguration':
+            parent::__construct($this->name);
+            break;
+        default:
+    }
         if ($id) {
             $this->subMenu = array(
                 "$this->linkformat#ldap-gen" => self::$foglang['General'],
@@ -212,9 +212,9 @@ class LDAPManagementPage extends FOGPage
             $searchScope,
             true
         );
-	$ports = self::getSetting('LDAP_PORTS');
-	$ports = preg_replace('#\s+#', '', $ports);
-	$ports = explode(',', $ports);
+        $ports = self::getSetting('LDAP_PORTS');
+        $ports = preg_replace('#\s+#', '', $ports);
+        $ports = explode(',', $ports);
         $portssel = self::selectForm(
             'port',
             $ports,
@@ -1022,10 +1022,10 @@ class LDAPManagementPage extends FOGPage
             '${field}',
             '${input}',
         );
-	$filter = self::getSetting('FOG_USER_FILTER');
-	$filter = preg_replace('#\s+#', '', $filter);
-	$ports = self::getSetting('LDAP_PORTS');
-	$ports = preg_replace('#\s+#', '', $ports);
+        $filter = self::getSetting('FOG_USER_FILTER');
+        $filter = preg_replace('#\s+#', '', $filter);
+        $ports = self::getSetting('LDAP_PORTS');
+        $ports = preg_replace('#\s+#', '', $ports);
         $fields = array(
             '<label for="filter">'
             . _('User Filter')
@@ -1095,26 +1095,29 @@ class LDAPManagementPage extends FOGPage
             INPUT_POST,
             'ports'
         );
-	try{
-                if(in_array(false, array_map(function($v){return is_numeric($v);}, explode(',', $filter)))||
-                        in_array(false, array_map(function($v){return is_numeric($v);}, explode(',', $ports))))
-                {
-                        $msg = json_encode(
-                                array(
+        try {
+            if (in_array(false, array_map(function ($v) {
+                return is_numeric($v);
+            }, explode(',', $filter)))||
+                        in_array(false, array_map(function ($v) {
+                            return is_numeric($v);
+                        }, explode(',', $ports)))) {
+                $msg = json_encode(
+                            array(
                                         'error' => _('Not all elements in filter or ports setting are integer'),
                                         'title' => _('Settings Update Fail')
                                 )
                         );
-                }else{
-                        self::setSetting('LDAP_PORTS', $ports);
-                        self::setSetting('FOG_USER_FILTER', $filter);
-                        $msg = json_encode(
-                                array(
+            } else {
+                self::setSetting('LDAP_PORTS', $ports);
+                self::setSetting('FOG_USER_FILTER', $filter);
+                $msg = json_encode(
+                            array(
                                         'msg' => _('Settings successfully stored!'),
                                         'title' => _('Settings Update Success')
                                 )
                         );
-                }
+            }
         } catch (Exception $e) {
             $msg = json_encode(
                 array(
@@ -1125,6 +1128,5 @@ class LDAPManagementPage extends FOGPage
         }
         echo $msg;
         exit;
-	
     }
 }
