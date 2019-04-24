@@ -758,7 +758,7 @@ abstract class FOGService extends FOGBase
                     "%s exit' -u $username,[Protected] $ip",
                     $cmd
                 );
-                $cmd .= "exit' -u $username,$password $ip";
+                $cmd .= "exit' -u $username,'$password' $ip";
                 self::outall(" | CMD: $cmd2");
                 unset($includeFile, $remItem, $myAddItem);
                 $this->startTasking(
