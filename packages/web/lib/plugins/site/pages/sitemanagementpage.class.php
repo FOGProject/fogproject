@@ -114,7 +114,7 @@ class SiteManagementPage extends FOGPage
 //                'hosts' => $Site->getHostCount()
                 'hosts' => self::getClass('SiteHostAssociationManager')
                         ->count(
-                                ['siteID' => $Site->id]
+                            ['siteID' => $Site->id]
                         )
             );
             unset($Site);

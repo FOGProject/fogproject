@@ -38,56 +38,56 @@ class Inventory_Report extends ReportManagementPage
                 array('class' => 'col-xs-8 form-group')
         );
         $groupNames = self::getSubObjectIDs(
-                'Group',
-                '',
-                'name'
+            'Group',
+            '',
+            'name'
         );
         $groupNames = array_values(
-                array_filter(
-                        array_unique(
-                                (array)$groupNames
+            array_filter(
+                    array_unique(
+                            (array)$groupNames
                         )
                  )
         );
         if (in_array('location', (array)self::$pluginsinstalled)) {
             $locationNames = self::getSubObjectIDs(
-                        'Location',
-                        '',
-                        'name'
+                'Location',
+                '',
+                'name'
                 );
             natcasesort($locationNames);
             if (count($locationNames) > 0) {
                 $locationSelForm = self::selectForm(
-                                'locationsearch',
-                                $locationNames
+                    'locationsearch',
+                    $locationNames
                         );
                 unset($locationNames);
             }
         }
         if (in_array('site', (array)self::$pluginsinstalled)) {
             $siteNames = self::getSubObjectIDs(
-                        'site',
-                        '',
-                        'name'
+                'site',
+                '',
+                'name'
                 );
             natcasesort($siteNames);
             if (count($siteNames) > 0) {
                 $siteSelForm = self::selectForm(
-                                'sitesearch',
-                                $siteNames
+                    'sitesearch',
+                    $siteNames
                         );
                 unset($siteNames);
             }
         }
         $sysproductNames = self::getSubObjectIDs(
-                        'inventory',
-                        '',
-                        'sysproduct'
+            'inventory',
+            '',
+            'sysproduct'
                 );
         $sysproductNames = array_values(
-                array_filter(
-                        array_unique(
-                                (array)$sysproductNames
+            array_filter(
+                    array_unique(
+                            (array)$sysproductNames
                         )
                  )
         );
@@ -96,15 +96,15 @@ class Inventory_Report extends ReportManagementPage
 
         if (count($groupNames) > 0) {
             $groupSelForm = self::selectForm(
-                        'groupsearch',
-                        $groupNames
+                'groupsearch',
+                $groupNames
                 );
             unset($groupNames);
         }
         if (count($sysproductNames) > 0) {
             $sysproductSelForm = self::selectForm(
-                        'sysproductsearch',
-                        $sysproductNames
+                'sysproductsearch',
+                $sysproductNames
                 );
             unset($sysproductNames);
         }
@@ -125,26 +125,26 @@ class Inventory_Report extends ReportManagementPage
         );
         if (in_array('location', (array)self::$pluginsinstalled)) {
             self::arrayInsertAfter(
-                        '<label for="groupsearch">'
+                '<label for="groupsearch">'
                         . _('Enter a group name to search for')
                         . '</label>',
-                        $fields,
-                        '<label for="locationsearch">'
+                $fields,
+                '<label for="locationsearch">'
                         . _('Enter a location name to search for')
                         . '</label>',
-                        $locationSelForm
+                $locationSelForm
                 );
         }
         if (in_array('site', (array)self::$pluginsinstalled)) {
             self::arrayInsertAfter(
-                        '<label for="groupsearch">'
+                '<label for="groupsearch">'
                         . _('Enter a group name to search for')
                         . '</label>',
-                        $fields,
-                        '<label for="sitesearch">'
+                $fields,
+                '<label for="sitesearch">'
                         . _('Enter a site name to search for')
                         . '</label>',
-                        $siteSelForm
+                $siteSelForm
                 );
         }
         array_walk($fields, $this->fieldsToData);
@@ -175,24 +175,24 @@ class Inventory_Report extends ReportManagementPage
     {
         $this->title = _('Full Inventory Export');
         $groupsearch = filter_input(
-             INPUT_POST,
-             'groupsearch'
+            INPUT_POST,
+            'groupsearch'
         );
         if (!$groupsearch) {
             $groupsearch = '%';
         }
 
         $locationsearch = filter_input(
-             INPUT_POST,
-             'locationsearch'
+            INPUT_POST,
+            'locationsearch'
         );
         $sitesearch = filter_input(
-             INPUT_POST,
-             'sitesearch'
+            INPUT_POST,
+            'sitesearch'
         );
         $sysproductsearch = filter_input(
-             INPUT_POST,
-             'sysproductsearch'
+            INPUT_POST,
+            'sysproductsearch'
         );
         if (!$sysproductsearch) {
             $sysproductsearch = '%';
@@ -226,54 +226,54 @@ class Inventory_Report extends ReportManagementPage
         );
 
         $groupIDs = self::getSubObjectIDs(
-                'Group',
-                array('name' => $groupsearch),
-                'id'
+            'Group',
+            array('name' => $groupsearch),
+            'id'
         );
 
         $groupHostIDs = self::getSubObjectIDs(
-                'GroupAssociation',
-                array('groupID' => $groupIDs),
-                'hostID'
+            'GroupAssociation',
+            array('groupID' => $groupIDs),
+            'hostID'
         );
         if (in_array('location', (array)self::$pluginsinstalled) && $locationsearch) {
             $locationIDs = self::getSubObjectIDs(
-                        'Location',
-                        array('name' => $locationsearch),
-                        'id'
+                'Location',
+                array('name' => $locationsearch),
+                'id'
                 );
             $locationHostIDs = self::getSubObjectIDs(
-                        'LocationAssociation',
-                        array('locationID' => $locationIDs),
-                        'hostID'
+                'LocationAssociation',
+                array('locationID' => $locationIDs),
+                'hostID'
                 );
             $groupHostIDs = array_intersect($locationHostIDs, $groupHostIDs);
         }
         if (in_array('site', (array)self::$pluginsinstalled) && $sitesearch) {
             $siteIDs = self::getSubObjectIDs(
-                        'Site',
-                        array('name' => $sitesearch),
-                        'id'
+                'Site',
+                array('name' => $sitesearch),
+                'id'
                 );
             $siteHostIDs = self::getSubObjectIDs(
-                        'SiteHostAssociation',
-                        array('siteID' => $siteIDs),
-                        'hostID'
+                'SiteHostAssociation',
+                array('siteID' => $siteIDs),
+                'hostID'
                 );
             $groupHostIDs = array_intersect($siteHostIDs, $groupHostIDs);
         }
         $sysproductIDs = self::getSubObjectIDs(
-                'Inventory',
-                array('sysproduct' => $sysproductsearch),
-                'hostID'
+            'Inventory',
+            array('sysproduct' => $sysproductsearch),
+            'hostID'
         );
         $groupHostIDs = array_intersect($sysproductIDs, $groupHostIDs);
 
         Route::listem(
             'host',
-                'name',
-                'false',
-                array(
+            'name',
+            'false',
+            array(
                         'id' => $groupHostIDs
                 )
         );

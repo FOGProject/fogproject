@@ -38,40 +38,40 @@ class Imaging_Log extends ReportManagementPage
                         array('class' => 'col-xs-8 form-group')
                  );
         $userNames = self::getSubObjectIDs(
-                        'User',
-                        '',
-                        'name'
+            'User',
+            '',
+            'name'
                         );
         
         $imageNames = self::getSubObjectIDs(
-                'Image',
-                '',
-                'name'
+            'Image',
+            '',
+            'name'
                 );
         $HostNames = self::getSubObjectIDs(
-                'Host',
-                '',
-                'name'
+            'Host',
+            '',
+            'name'
                 );
         $userNames = array_values(
-                   array_filter(
-                         array_unique(
+            array_filter(
+                       array_unique(
                              (array)$userNames
                          )
                    )
                  );
 
         $imageNames = array_values(
-                   array_filter(
-                         array_unique(
+            array_filter(
+                       array_unique(
                              (array)$imageNames
                          )
                    )
                  );
         $HostNames = array_values(
-                        array_filter(
-                                array_unique(
-                                (array)$HostNames
+            array_filter(
+                            array_unique(
+                                    (array)$HostNames
                                 )
                         )
                 );
@@ -81,22 +81,22 @@ class Imaging_Log extends ReportManagementPage
 
         if (count($userNames) > 0) {
             $userSelForm = self::selectForm(
-                                'usersearch',
-                                $userNames
+                'usersearch',
+                $userNames
                         );
             unset($userNames);
         }
         if (count($imageNames) > 0) {
             $imageSelForm = self::selectForm(
-                                'imagesearch',
-                                $imageNames
+                'imagesearch',
+                $imageNames
                         );
             unset($imageNames);
         }
         if (count($HostNames) > 0) {
             $hostSelForm = self::selectForm(
-                                'hostsearch',
-                                $HostNames
+                'hostsearch',
+                $HostNames
                                 );
             unset($HostNames);
         }
@@ -139,16 +139,16 @@ class Imaging_Log extends ReportManagementPage
     public function filePost()
     {
         $hostsearch = filter_input(
-             INPUT_POST,
-             'hostsearch'
+            INPUT_POST,
+            'hostsearch'
          );
         $imagesearch = filter_input(
-             INPUT_POST,
-             'imagesearch'
+            INPUT_POST,
+            'imagesearch'
         );
         $usersearch = filter_input(
-             INPUT_POST,
-             'usersearch'
+            INPUT_POST,
+            'usersearch'
         );
 
         if (!$hostsearch) {
@@ -163,18 +163,18 @@ class Imaging_Log extends ReportManagementPage
 
 
         $hostIDs = self::getSubObjectIDs(
-             'Host',
-             array('name' => $hostsearch)
+            'Host',
+            array('name' => $hostsearch)
         );
         $userNames = self::getSubObjectIDs(
-             'User',
-             array('name' => $usersearch),
-         'name'
+            'User',
+            array('name' => $usersearch),
+            'name'
         );
         $imageNames = self::getSubObjectIDs(
-             'Image',
-             array('name' => $imagesearch),
-         'name'
+            'Image',
+            array('name' => $imagesearch),
+            'name'
         );
 
 
@@ -224,9 +224,9 @@ class Imaging_Log extends ReportManagementPage
         $this->ReportMaker->endCSVLine();
         Route::listem(
             'imaginglog',
-        'hostID',
-        'false',
-                array(
+            'hostID',
+            'false',
+            array(
                     'hostID' => $hostIDs,
                         'createdBy' => $userNames,
             'image' => $imageNames

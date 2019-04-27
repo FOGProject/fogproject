@@ -32,30 +32,30 @@ class Snapin_Log extends ReportManagementPage
                 array('class' => 'col-xs-8 form-group')
              );
         $snapinNames = self::getSubObjectIDs(
-                     'Snapin',
-                '',
-                'name'
+            'Snapin',
+            '',
+            'name'
                 );
         $snapinHostIDs = self::getSubObjectIDs(
-                 'SnapinAssociation',
-                 '',
-                 'hostID'
+            'SnapinAssociation',
+            '',
+            'hostID'
              );
         $HostNames = self::getSubObjectIDs(
-                 'Host',
-                 array('id' => $snapinHostIDs),
-                 'name'
+            'Host',
+            array('id' => $snapinHostIDs),
+            'name'
              );
         unset($snapinHostIDs);
         $snapinNames = array_values(
-               array_filter(
-                     array_unique(
+            array_filter(
+                   array_unique(
                          (array)$snapinNames
                      )
                )
              );
         $HostNames = array_values(
-                     array_filter(
+            array_filter(
                          array_unique(
                              (array)$HostNames
                         )
@@ -65,15 +65,15 @@ class Snapin_Log extends ReportManagementPage
         natcasesort($HostNames);
         if (count($snapinNames) > 0) {
             $snapinSelForm = self::selectForm(
-                         'snapinsearch',
-                         $snapinNames
+                'snapinsearch',
+                $snapinNames
                      );
             unset($snapinNames);
         }
         if (count($HostNames) > 0) {
             $hostSelForm = self::selectForm(
-                         'hostsearch',
-                         $HostNames
+                'hostsearch',
+                $HostNames
                          );
             unset($HostNames);
         }
@@ -119,12 +119,12 @@ class Snapin_Log extends ReportManagementPage
     {
         $this->title = _('Found snapin information');
         $hostsearch = filter_input(
-             INPUT_POST,
-             'hostsearch'
+            INPUT_POST,
+            'hostsearch'
          );
         $snapinsearch = filter_input(
-             INPUT_POST,
-             'snapinsearch'
+            INPUT_POST,
+            'snapinsearch'
     );
         if (!$hostsearch) {
             $hostsearch = '%';
@@ -133,16 +133,16 @@ class Snapin_Log extends ReportManagementPage
             $snapinsearch = '%';
         }
         $hostIDs = self::getSubObjectIDs(
-             'Host',
-             array('name' => $hostsearch)
+            'Host',
+            array('name' => $hostsearch)
         );
         $jobIDs = self::getSubObjectIDs(
-             'SnapinJob',
-             array('hostID' => $hostIDs)
+            'SnapinJob',
+            array('hostID' => $hostIDs)
         );
         $snapinIDs = self::getSubObjectIDs(
-             'Snapin',
-             array('name' => $snapinsearch)
+            'Snapin',
+            array('name' => $snapinsearch)
         );
         $this->headerData = array(
             _('Host Name'),

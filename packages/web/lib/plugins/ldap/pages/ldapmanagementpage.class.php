@@ -1103,7 +1103,7 @@ class LDAPManagementPage extends FOGPage
                             return is_numeric($v);
                         }, explode(',', $ports)))) {
                 $msg = json_encode(
-                            array(
+                    array(
                                         'error' => _('Not all elements in filter or ports setting are integer'),
                                         'title' => _('Settings Update Fail')
                                 )
@@ -1112,7 +1112,7 @@ class LDAPManagementPage extends FOGPage
                 self::setSetting('LDAP_PORTS', $ports);
                 self::setSetting('FOG_USER_FILTER', $filter);
                 $msg = json_encode(
-                            array(
+                    array(
                                         'msg' => _('Settings successfully stored!'),
                                         'title' => _('Settings Update Success')
                                 )
