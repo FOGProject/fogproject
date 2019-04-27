@@ -3110,7 +3110,7 @@ abstract class FOGPage extends FOGBase
 
             self::$HookManager->processEvent(
                 'REQUEST_CLIENT_INFO',
-                 array(
+                array(
                      'repFields' => &$array,
                      'Host' => self::$Host
                  )

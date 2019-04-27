@@ -41,13 +41,13 @@ class History_Report extends ReportManagementPage
         );
         $userNames = self::getSubObjectIDs(
             'User',
-                '',
-                'name'
+            '',
+            'name'
         );
         $userNames = array_values(
             array_filter(
-                    array_unique(
-                            (array)$userNames
+                array_unique(
+                        (array)$userNames
                     )
                  )
         );
@@ -55,8 +55,8 @@ class History_Report extends ReportManagementPage
 
         if (count($userNames) > 0) {
             $userSelForm = self::selectForm(
-                    'usersearch',
-                        $userNames
+                'usersearch',
+                $userNames
                 );
             unset($userNames);
         }
@@ -110,12 +110,12 @@ class History_Report extends ReportManagementPage
     {
         $this->title = _('Full History Export');
         $usersearch = filter_input(
-             INPUT_POST,
-             'usersearch'
+            INPUT_POST,
+            'usersearch'
         );
         $info = filter_input(
-             INPUT_POST,
-             'info'
+            INPUT_POST,
+            'info'
         );
 
         if (!$usersearch) {
@@ -151,9 +151,9 @@ class History_Report extends ReportManagementPage
         );
         Route::listem(
             'history',
-        'id',
-        'false',
-        array(
+            'id',
+            'false',
+            array(
             'createdBy' => $usersearch,
             'info' => $info
         )

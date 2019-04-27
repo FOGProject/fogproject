@@ -230,9 +230,9 @@ class StorageNode extends FOGController
         );
         $response = self::$FOGURLRequests->process($url);
         return preg_grep(
-             '#dev|postdownloadscripts|ssl#',
-             json_decode($response[0], true),
-             PREG_GREP_INVERT
+            '#dev|postdownloadscripts|ssl#',
+            json_decode($response[0], true),
+            PREG_GREP_INVERT
         );
     }
     /**

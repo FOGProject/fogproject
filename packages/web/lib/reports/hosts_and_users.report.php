@@ -38,43 +38,43 @@ class Hosts_And_Users extends ReportManagementPage
                 array('class' => 'col-xs-8 form-group')
         );
         $groupNames = self::getSubObjectIDs(
-                'Group',
-                '',
-                'name'
+            'Group',
+            '',
+            'name'
         );
         $groupNames = array_values(
-                array_filter(
-                        array_unique(
-                                (array)$groupNames
+            array_filter(
+                    array_unique(
+                            (array)$groupNames
                         )
                  )
         );
         if (in_array('location', (array)self::$pluginsinstalled)) {
             $locationNames = self::getSubObjectIDs(
-                        'Location',
-                        '',
-                        'name'
+                'Location',
+                '',
+                'name'
                 );
             natcasesort($locationNames);
             if (count($locationNames) > 0) {
                 $locationSelForm = self::selectForm(
-                                'locationsearch',
-                                $locationNames
+                    'locationsearch',
+                    $locationNames
                         );
                 unset($locationNames);
             }
         }
         if (in_array('site', (array)self::$pluginsinstalled)) {
             $siteNames = self::getSubObjectIDs(
-                        'site',
-                        '',
-                        'name'
+                'site',
+                '',
+                'name'
                 );
             natcasesort($siteNames);
             if (count($siteNames) > 0) {
                 $siteSelForm = self::selectForm(
-                                'sitesearch',
-                                $siteNames
+                    'sitesearch',
+                    $siteNames
                         );
                 unset($siteNames);
             }
@@ -83,8 +83,8 @@ class Hosts_And_Users extends ReportManagementPage
 
         if (count($groupNames) > 0) {
             $groupSelForm = self::selectForm(
-                        'groupsearch',
-                        $groupNames
+                'groupsearch',
+                $groupNames
                 );
             unset($groupNames);
         }
@@ -101,26 +101,26 @@ class Hosts_And_Users extends ReportManagementPage
         );
         if (in_array('location', (array)self::$pluginsinstalled)) {
             self::arrayInsertAfter(
-                        '<label for="groupsearch">'
+                '<label for="groupsearch">'
                         . _('Enter a group name to search for')
                         . '</label>',
-                        $fields,
-                        '<label for="locationsearch">'
+                $fields,
+                '<label for="locationsearch">'
                         . _('Enter a location name to search for')
                         . '</label>',
-                        $locationSelForm
+                $locationSelForm
                 );
         }
         if (in_array('site', (array)self::$pluginsinstalled)) {
             self::arrayInsertAfter(
-                        '<label for="groupsearch">'
+                '<label for="groupsearch">'
                         . _('Enter a group name to search for')
                         . '</label>',
-                        $fields,
-                        '<label for="sitesearch">'
+                $fields,
+                '<label for="sitesearch">'
                         . _('Enter a site name to search for')
                         . '</label>',
-                        $siteSelForm
+                $siteSelForm
                 );
         }
         array_walk($fields, $this->fieldsToData);
@@ -151,20 +151,20 @@ class Hosts_And_Users extends ReportManagementPage
     {
         $this->title =_('FOG Hosts and Users Login');
         $groupsearch = filter_input(
-             INPUT_POST,
-             'groupsearch'
+            INPUT_POST,
+            'groupsearch'
         );
         if (!$groupsearch) {
             $groupsearch = '%';
         }
 
         $locationsearch = filter_input(
-             INPUT_POST,
-             'locationsearch'
+            INPUT_POST,
+            'locationsearch'
         );
         $sitesearch = filter_input(
-             INPUT_POST,
-             'sitesearch'
+            INPUT_POST,
+            'sitesearch'
         );
 
         $csvHead = array(
@@ -203,48 +203,48 @@ class Hosts_And_Users extends ReportManagementPage
         );
 
         $groupIDs = self::getSubObjectIDs(
-                'Group',
-                array('name' => $groupsearch),
-                'id'
+            'Group',
+            array('name' => $groupsearch),
+            'id'
         );
 
         $groupHostIDs = self::getSubObjectIDs(
-                'GroupAssociation',
-                array('groupID' => $groupIDs),
-                'hostID'
+            'GroupAssociation',
+            array('groupID' => $groupIDs),
+            'hostID'
         );
         if (in_array('location', (array)self::$pluginsinstalled) && $locationsearch) {
             $locationIDs = self::getSubObjectIDs(
-                        'Location',
-                        array('name' => $locationsearch),
-                        'id'
+                'Location',
+                array('name' => $locationsearch),
+                'id'
                 );
             $locationHostIDs = self::getSubObjectIDs(
-                        'LocationAssociation',
-                        array('locationID' => $locationIDs),
-                        'hostID'
+                'LocationAssociation',
+                array('locationID' => $locationIDs),
+                'hostID'
                 );
             $groupHostIDs = array_intersect($locationHostIDs, $groupHostIDs);
         }
         if (in_array('site', (array)self::$pluginsinstalled) && $sitesearch) {
             $siteIDs = self::getSubObjectIDs(
-                        'Site',
-                        array('name' => $sitesearch),
-                        'id'
+                'Site',
+                array('name' => $sitesearch),
+                'id'
                 );
             $siteHostIDs = self::getSubObjectIDs(
-                        'SiteHostAssociation',
-                        array('siteID' => $siteIDs),
-                        'hostID'
+                'SiteHostAssociation',
+                array('siteID' => $siteIDs),
+                'hostID'
                 );
             $groupHostIDs = array_intersect($siteHostIDs, $groupHostIDs);
         }
 
         Route::listem(
             'host',
-                'name',
-                'false',
-                array(
+            'name',
+            'false',
+            array(
                         'id' => $groupHostIDs
                 )
         );
@@ -294,9 +294,9 @@ class Hosts_And_Users extends ReportManagementPage
                     break;
                 case _('Login Users'):
                     $this->ReportMaker->addCSVCell(
-            implode(
-                        ' ',
-                            self::getSubObjectIDs(
+                        implode(
+                ' ',
+                self::getSubObjectIDs(
                                 'UserTracking',
                                 array('hostID' => $Host->id),
                                 'username'

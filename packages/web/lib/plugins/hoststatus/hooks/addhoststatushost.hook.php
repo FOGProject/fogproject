@@ -67,14 +67,14 @@ class AddHostStatusHost extends Hook
         }
         $ping = self::getClass('Ping', $arguments['Host']->get('ip'))->execute();
         self::arrayInsertAfter(
-        '<label for="name">'
+            '<label for="name">'
             . _('Host Name')
             . '</label>',
             $arguments['fields'],
             '<label for="status">'
             . _('Host Status')
             . '</label>',
-        '<div class="input-group">'
+            '<div class="input-group">'
             . $this->getPingCodeStr($ping, $arguments['Host']->get('id'))
             . '</div>'
         );
@@ -98,11 +98,11 @@ class AddHostStatusHost extends Hook
                         break;
                 case 111:
                         $taskID = self::getSubObjectIDs(
-                                'Task',
-                                array('hostID' => $hostID,
+                            'Task',
+                            array('hostID' => $hostID,
                                       'stateID' => 2
                                 ),
-                                'id'
+                            'id'
                         );
                         if (is_null($taskID)) {
                             printf($strtoupdate, 'linux', 'linux', 'blue', 'Linux');

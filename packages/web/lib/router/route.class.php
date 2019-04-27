@@ -1302,7 +1302,7 @@ class Route extends FOGBase
             if ($item == 'all') {
                 $extra = array(
                    'logfiles' => (
-                        $class->get('online') ?
+                       $class->get('online') ?
                         $class->get('logfiles') :
                         []
                     ),
@@ -1320,7 +1320,7 @@ class Route extends FOGBase
             } elseif (!empty($item)) {
                 $extra = array(
                    "$item" => (
-                        $class->get('online') ?
+                       $class->get('online') ?
                         $class->get($item) :
                         []
                     )

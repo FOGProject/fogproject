@@ -2171,11 +2171,11 @@ class Host extends FOGController
                         break;
                 case 111:
                         $taskID = self::getSubObjectIDs(
-                                'Task',
-                                array('hostID' => $this->get('id'),
+                            'Task',
+                            array('hostID' => $this->get('id'),
                                       'stateID' => 2
                                 ),
-                                'id'
+                            'id'
                         );
                         if (is_null($taskID)) {
                             printf($strtoupdate, 'linux', 'linux', 'blue', 'Linux');
