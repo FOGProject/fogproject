@@ -13,6 +13,8 @@ BASE=$(dirname "$FOGDIR")
 
 if [[ -d ${BASE}/ipxe ]]; then
   cd ${BASE}/ipxe
+  git clean -fd
+  git reset --hard
   git pull
   cd src/
 else
@@ -30,22 +32,26 @@ cp ${FOGDIR}/src/ipxe/src/config/settings.h config/
 cp ${FOGDIR}/src/ipxe/src/config/console.h config/
 
 # Build the files
-make bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn EMBED=ipxescript ${BUILDOPTS} $*
+make bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb EMBED=ipxescript ${BUILDOPTS} $*
 
 # Copy files to repo location as required
-cp bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn ${FOGDIR}/packages/tftp/
+cp bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb ${FOGDIR}/packages/tftp/
+cp bin/ipxe.lkrn ${FOGDIR}/packages/tftp/ipxe.krn
 
 # Build with 10 second delay
-make bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn EMBED=ipxescript10sec ${BUILDOPTS} $*
+make bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb EMBED=ipxescript10sec ${BUILDOPTS} $*
 
 # Copy files to repo location as required
-cp bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn ${FOGDIR}/packages/tftp/10secdelay/
+cp bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb ${FOGDIR}/packages/tftp/10secdelay/
+cp bin/ipxe.lkrn ${FOGDIR}/packages/tftp/10secdelay/ipxe.krn
 
 
 
 # Change to the efi layout
 if [[ -d ${BASE}/ipxe-efi ]]; then
   cd ${BASE}/ipxe-efi/
+  git clean -fd
+  git reset --hard
   git pull
   cd src/
 else
