@@ -1149,14 +1149,40 @@ configureSnapins() {
 }
 configureUsers() {
     userexists=0
-    [[ -z $username ]] && username='fog'
+    [[ -z $username || "x$username" = "xfog" ]] && username='fogproject'
     dots "Setting up $username user"
     getent passwd $username > /dev/null
     if [[ $? -eq 0 ]]; then
-        echo "Already setup"
-        userexists=1
-    fi
-    if [[ $userexists -eq 0 ]]; then
+        if [[ ! -f "$fogprogramdir/.fogsettings" ]]; then
+            echo "Already exists"
+            echo
+            echo "The account \"$username\" already exists but this seems to be a"
+            echo "fresh install. We highly recommend to NOT creating this account"
+            echo "beforehand as it is supposed to be a system account not meant"
+            echo "to be used to login and work on the machine!"
+            echo
+            echo "Please remove the account \"$username\" manually before running"
+            echo "the installer again. Run: userdel $username"
+            echo
+            exit 1
+        else
+            lastlog -u $username | tail -n -1 | grep "\*\*.*\*\*" > /dev/null 2>&1
+            if [[ $? -eq 1 ]]; then
+                echo "Already exists"
+                echo
+                echo "The account \"$username\" already exists and has been used to"
+                echo "logon and work on this machine. We highly recommend you NOT"
+                echo "use this account for your work as it is supposed to be a"
+                echo "system account!"
+                echo
+                echo "Please remove the account \"$username\" manually before running"
+                echo "the installer again. Run: userdel $username"
+                echo
+                exit 1
+            fi
+            echo "Already setup"
+        fi
+    else
         useradd -s "/bin/bash" -d "/home/${username}" -m ${username} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
     fi
@@ -1171,6 +1197,42 @@ configureUsers() {
         #useradd -s "/bin/bash" -d "/home/${username}" -m ${username} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         #errorStat $?
     fi
+    dots "Locking $username as a system account"
+    chsh -s /bin/bash $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    textmessage="You seem to be using the '$username' system account to logon and work \non your FOG server system.\n\nIt's NOT recommended to use this account! Please create a new \naccount for administrative tasks.\n\nIf you re-run the installer it would reset the 'fog' account \npassword and therefore lock you out of the system!\n\nTake care, \nyour FOGproject team"
+    grep "exit 1" /home/$username/.bashrc || cat >>/home/$username/.bashrc <<EOF
+
+echo -e "$textmessage"
+exit 1
+EOF
+    mkdir -p /home/$username/.config/autostart/
+    cat >/home/$username/.config/autostart/warnfogaccount.desktop <<EOF
+[Desktop Entry]
+Type=Application
+Name=Warn users to not use the $username account
+Exec=/home/$username/warnfogaccount.sh
+Comment=Warn users who use the $username system account to logon
+EOF
+    chown -R $username:$username /home/$username/.config/
+    cat >/home/$username/warnfogaccount.sh <<EOF
+#!/bin/bash
+title="FOG system account"
+text="$textmessage"
+z=\$(which zenity)
+x=\$(which xmessage)
+n=\$(which notify-send)
+if [[ -x "\$z" ]]
+then
+    \$z --error --width=480 --text="\$text" --title="\$title"
+elif [[ -x "\$x" ]]
+then
+    echo -e "\$text" | \$x -center -file -
+else
+    \$n -u critical "\$title" "\$(echo \$text | sed -e 's/ \\n/ /g')"
+fi
+EOF
+    chmod 755 /home/$username/warnfogaccount.sh
+    errorStat $?
     dots "Setting up $username password"
     if [[ -z $password ]]; then
         [[ -f $webdirdest/lib/fog/config.class.php ]] && password=$(awk -F '"' -e '/TFTP_FTP_PASSWORD/,/);/{print $2}' $webdirdest/lib/fog/config.class.php | grep -v "^$")
