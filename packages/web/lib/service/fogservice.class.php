@@ -645,7 +645,7 @@ abstract class FOGService extends FOGBase
             $cmd .= "--ignore-time -vvv --exclude \".srvprivate\" ";
             $cmd .= "$myAddItem $remItem;";
             $cmd2 = $cmd . "exit' -u $username,[redacted] $ip";
-            $cmd .= "exit' -u {$username},{$password} $ip";
+            $cmd .= "exit' -u {$username},'{$password}' $ip";
             self::outall(" | CMD: $cmd2");
             unset($includeFile, $remItem, $myAddItem);
             $this->startTasking(
