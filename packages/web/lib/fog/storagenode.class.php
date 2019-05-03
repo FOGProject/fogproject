@@ -238,7 +238,7 @@ class StorageNode extends FOGController
         if (!$this->get('online')) {
             return;
         }
-        $logpaths = [
+        $logPaths = [
             '/var/log/nginx',
             '/var/log/httpd',
             '/var/log/apache2',
@@ -256,7 +256,7 @@ class StorageNode extends FOGController
         $items = [
             'images' => urlencode($this->get('path')),
             'snapinfiles' => urlencode($this->get('snapinpath')),
-            'logfiles' => urlencode(implode(':', $logpaths))
+            'logfiles' => urlencode(implode(':', $logPaths))
         ];
         if (!array_key_exists($item, $items)) {
             return;
@@ -268,7 +268,12 @@ class StorageNode extends FOGController
             $snapinPaths,
             $logPaths
         );
-        $pathTest = preg_grep('#' . urldecode($items[$item]) . '#', $validPaths);
+        $pathTest = preg_grep(
+            '#'
+            . str_replace(':', '|', urldecode($items[$item]))
+            . '#',
+            $validPaths
+        );
         if (count($pathTest ?: []) < 1) {
             return [];
         }
