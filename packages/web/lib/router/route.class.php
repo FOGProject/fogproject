@@ -286,6 +286,11 @@ class Route extends FOGBase
             '/pendingmacs',
             [__CLASS__, 'pendingmacs'],
             'pendingmacs'
+
+        )->get(
+            '/logfiles/[i:id]',
+            [__CLASS__, 'logfiles'],
+            'logfiles'
         )->put(
             "${expanded}/[i:id]/[update|edit]?",
             [__CLASS__, 'edit'],
