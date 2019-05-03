@@ -718,7 +718,7 @@ class Group extends FOGController
                     'hostID',
                     'stateID',
                     'typeID',
-                    'wol',
+                    'wol'
                 ];
                 $batchTask = [];
                 for ($i = 0; $i < $hostCount; ++$i) {
