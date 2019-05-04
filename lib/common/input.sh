@@ -137,28 +137,6 @@ done
 if [[ $strSuggestedHostname == $ipaddress ]]; then
     strSuggestedHostname=$(hostnamectl --static)
 fi
-while [[ -z $hostname ]]; do
-    blHost="N"
-    if [[ -z $autoaccept ]]; then
-        echo
-        echo "  Would you like to change the default hostname $strSuggestedHostname?"
-        echo "  The fully qualified hostname is used for the webserver certificate."
-        echo -n "  If you are not sure, select No. [y/N] "
-        read blHost
-    fi
-    case $blHost in
-        [Nn]|[Nn][Oo]|"")
-            hostname=$strSuggestedHostname
-            ;;
-        [Yy]|[Yy][Ee][Ss])
-            echo -n "  Which hostname would you like to use? "
-            read hostname
-            ;;
-        *)
-            echo "  Invalid input, please try again."
-            ;;
-    esac
-done
 case $installtype in
     [Nn])
         count=0
