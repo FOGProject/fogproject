@@ -2170,7 +2170,7 @@ downloadfiles() {
         hashurl="${baseurl}/${hashfile}"
         while [[ $checksum -ne 0 && $cnt -lt 10 ]]
         do
-            sha256sum --check $hashfile >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            [[ -f $hashfile ]] && sha256sum --check $hashfile >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             checksum=$?
             if [[ $checksum -ne 0 ]]
             then
