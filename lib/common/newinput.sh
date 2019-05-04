@@ -15,12 +15,13 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 while [[ -z $hostname ]]; do
+    strSuggestedHostname=$(hostname -f)
     blHost="N"
     if [[ -z $autoaccept ]]; then
         echo
         echo " *** New option 'hostname' since FOG 1.5.6 ***"
         echo
-        echo "  Would you like to change the default hostname $strSuggestedHostname?"
+        echo "  Would you like to change the default hostname >${strSuggestedHostname}<?"
         echo "  The fully qualified hostname is used for the webserver certificate."
         echo -n "  If you are not sure, select No. [y/N] "
         read blHost
