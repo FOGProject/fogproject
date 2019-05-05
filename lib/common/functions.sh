@@ -1200,7 +1200,7 @@ configureUsers() {
     dots "Locking $username as a system account"
     chsh -s /bin/bash $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     textmessage="You seem to be using the '$username' system account to logon and work \non your FOG server system.\n\nIt's NOT recommended to use this account! Please create a new \naccount for administrative tasks.\n\nIf you re-run the installer it would reset the 'fog' account \npassword and therefore lock you out of the system!\n\nTake care, \nyour FOGproject team"
-    grep "exit 1" /home/$username/.bashrc || cat >>/home/$username/.bashrc <<EOF
+    grep -q "exit 1" /home/$username/.bashrc || cat >>/home/$username/.bashrc <<EOF
 
 echo -e "$textmessage"
 exit 1
