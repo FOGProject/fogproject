@@ -73,6 +73,6 @@ if (!empty($user)) {
     }
 }
 printf(
-    "%s",
+    "#!ipxe\n%s",
     FOGCore::getSetting('FOG_PXE_ADVANCED')
 );
