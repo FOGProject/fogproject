@@ -144,7 +144,7 @@ class AddSiteGroup extends Hook
             '<label for="updatesite">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
-            . 'id="updatesite">'
+            . 'id="group-edit">'
             . _('Update')
             . '</button>'
         );
