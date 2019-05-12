@@ -150,7 +150,7 @@ class AddLocationGroup extends Hook
             '<label for="updateloc">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
-            . 'id="updateloc">'
+            . 'id="group-edit">'
             . _('Update')
             . '</button>'
         );
