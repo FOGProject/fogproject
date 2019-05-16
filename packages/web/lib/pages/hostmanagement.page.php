@@ -1727,7 +1727,10 @@ class HostManagement extends FOGPage
                 );
             }
 
-            $this->obj->removeMAC($toRemove);
+            Route::deletemass(
+                'macaddressassociation',
+                ['mac' => $toRemove]
+            );
         }
         if (isset($_POST['markimageignore'])) {
             $items = filter_input_array(
