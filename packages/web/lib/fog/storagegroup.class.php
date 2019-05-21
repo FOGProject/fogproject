@@ -137,14 +137,18 @@ class StorageGroup extends FOGController
      */
     public function getUsedSlots()
     {
-        return self::getClass('TaskManager')
-            ->count(
-                array(
-                    'stateID' => self::getProgressState(),
-                    'storagenodeID' => $this->get('enablednodes'),
-                    'typeID' => $this->get('usedtasks'),
-                )
-            );
+	$count = 0;
+        $find = array(
+            'storagegroupID' => $this->get('id'),
+            'id' => $this->get('allnodes'),
+            'isEnabled' => 1
+        );
+        foreach ((array)self::getClass('StorageNodeManager')
+            ->find($find) as &$node
+        ) {
+		$count += $node->getUsedSlotCount();
+        }
+	return $count;
     }
     /**
      * Returns total queued slots
@@ -153,14 +157,18 @@ class StorageGroup extends FOGController
      */
     public function getQueuedSlots()
     {
-        return self::getClass('TaskManager')
-            ->count(
-                array(
-                    'stateID' => self::getQueuedStates(),
-                    'storagenodeID' => $this->get('enablednodes'),
-                    'typeID' => $this->get('usedtasks'),
-                )
-            );
+        $count = 0;
+        $find = array(
+            'storagegroupID' => $this->get('id'),
+            'id' => $this->get('allnodes'),
+            'isEnabled' => 1
+        );
+        foreach ((array)self::getClass('StorageNodeManager')
+            ->find($find) as &$node
+        ) {
+                $count += $node->getQueuedSlotCount();
+        }
+        return $count;
     }
     /**
      * Returns total supported clients
