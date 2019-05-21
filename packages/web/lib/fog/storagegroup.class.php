@@ -137,7 +137,7 @@ class StorageGroup extends FOGController
      */
     public function getUsedSlots()
     {
-	$count = 0;
+        $count = 0;
         $find = array(
             'storagegroupID' => $this->get('id'),
             'id' => $this->get('allnodes'),
@@ -146,9 +146,9 @@ class StorageGroup extends FOGController
         foreach ((array)self::getClass('StorageNodeManager')
             ->find($find) as &$node
         ) {
-		$count += $node->getUsedSlotCount();
+            $count += $node->getUsedSlotCount();
         }
-	return $count;
+        return $count;
     }
     /**
      * Returns total queued slots
@@ -166,7 +166,7 @@ class StorageGroup extends FOGController
         foreach ((array)self::getClass('StorageNodeManager')
             ->find($find) as &$node
         ) {
-                $count += $node->getQueuedSlotCount();
+            $count += $node->getQueuedSlotCount();
         }
         return $count;
     }

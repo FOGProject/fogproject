@@ -47,7 +47,7 @@ class History_Report extends ReportManagementPage
         $userNames = array_values(
             array_filter(
                 array_unique(
-                        (array)$userNames
+                    (array)$userNames
                     )
                  )
         );

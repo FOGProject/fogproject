@@ -77,12 +77,12 @@ class TaskQueue extends TaskingElement
                             );
                     }
 
-		    $this->StorageNode = self::nodeFail(
-                        self::getClass(
+                    $this->StorageNode = self::nodeFail(
+                self::getClass(
                             'StorageNode',
                             $this->Task->get('storagenodeID')
                         ),
-                        self::$Host->get('id')
+                self::$Host->get('id')
                     );
                     if ($MulticastSession->get('stateID') == 1) {
                         $msg = sprintf(
