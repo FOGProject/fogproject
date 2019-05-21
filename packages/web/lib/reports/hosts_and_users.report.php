@@ -44,8 +44,8 @@ class Hosts_And_Users extends ReportManagementPage
         );
         $groupNames = array_values(
             array_filter(
-                    array_unique(
-                            (array)$groupNames
+                array_unique(
+                        (array)$groupNames
                         )
                  )
         );
@@ -295,11 +295,11 @@ class Hosts_And_Users extends ReportManagementPage
                 case _('Login Users'):
                     $this->ReportMaker->addCSVCell(
                         implode(
-                ' ',
-                self::getSubObjectIDs(
-                                'UserTracking',
-                                array('hostID' => $Host->id),
-                                'username'
+                            ' ',
+                            self::getSubObjectIDs(
+                    'UserTracking',
+                    array('hostID' => $Host->id),
+                    'username'
                             )
                         )
 

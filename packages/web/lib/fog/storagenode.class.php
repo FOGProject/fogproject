@@ -230,9 +230,9 @@ class StorageNode extends FOGController
         );
         $response = self::$FOGURLRequests->process($url);
         return preg_grep(
-             '#dev|postdownloadscripts|ssl#',
-             json_decode($response[0], true),
-             PREG_GREP_INVERT
+            '#dev|postdownloadscripts|ssl#',
+            json_decode($response[0], true),
+            PREG_GREP_INVERT
         );
     }
     /**
@@ -303,8 +303,8 @@ class StorageNode extends FOGController
     public function getUsedSlotCount()
     {
         $countTasks = 0;
-	$multicastTaskID = array(8);
-	$usedtasks = $this->get('usedtasks');
+        $multicastTaskID = array(8);
+        $usedtasks = $this->get('usedtasks');
         $findTasks = array(
             'stateID' => self::getProgressState(),
             'storagenodeID' => $this->get('id'),
@@ -316,11 +316,11 @@ class StorageNode extends FOGController
             return $countTasks;
         }
         $MulticastCount = self::getSubObjectIDs(
-                'MulticastSession',
-                array(
+            'MulticastSession',
+            array(
                         'stateID' => self::getProgressState()
                 ),
-                'msID'
+            'msID'
         );
 
         $countTasks += count($MulticastCount);
@@ -346,12 +346,12 @@ class StorageNode extends FOGController
         if ($index === false) {
             return $countTasks;
         }
-	$MulticastCount = self::getSubObjectIDs(
-		'MulticastSession',
-        	array(
+        $MulticastCount = self::getSubObjectIDs(
+        'MulticastSession',
+        array(
                         'stateID' => self::getQueuedStates()
-            	),
-            	'msID'
+                ),
+        'msID'
         );
         $countTasks += count($MulticastCount);
         return $countTasks;

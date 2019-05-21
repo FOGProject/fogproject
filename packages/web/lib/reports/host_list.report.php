@@ -53,8 +53,8 @@ class Host_List extends ReportManagementPage
         );
         $groupNames = array_values(
             array_filter(
-                    array_unique(
-                            (array)$groupNames
+                array_unique(
+                        (array)$groupNames
                         )
                  )
         );
