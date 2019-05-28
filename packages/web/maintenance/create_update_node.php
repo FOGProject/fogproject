@@ -59,7 +59,8 @@ if (isset($_POST['newNode'])) {
     foreach ((array)FOGCore::getClass('StorageNodeManager')
         ->find(array('ip' => $_POST['ip'])) as &$Node
     ) {
-        if ($Node->get('pass') === trim($_POST['pass'])) {
+        if (($Node->get('pass') === trim($_POST['pass'])) &&
+            ($Node->get('user') === trim($_POST['user']))) {
             continue;
         }
         $Node
