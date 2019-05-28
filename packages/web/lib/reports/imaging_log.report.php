@@ -55,23 +55,23 @@ class Imaging_Log extends ReportManagementPage
                 );
         $userNames = array_values(
             array_filter(
-                       array_unique(
-                             (array)$userNames
+                array_unique(
+                           (array)$userNames
                          )
                    )
                  );
 
         $imageNames = array_values(
             array_filter(
-                       array_unique(
-                             (array)$imageNames
+                array_unique(
+                           (array)$imageNames
                          )
                    )
                  );
         $HostNames = array_values(
             array_filter(
-                            array_unique(
-                                    (array)$HostNames
+                array_unique(
+                                (array)$HostNames
                                 )
                         )
                 );
