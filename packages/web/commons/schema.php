@@ -3730,3 +3730,14 @@ $this->schema[] = array(
     . STORAGE_FTP_USERNAME
     . "' WHERE ngmID=1"
 );
+// 266
+$this->schema[] = array(
+    "UPDATE `globalSettings` SET `settingValue`='"
+    . STORAGE_FTP_USERNAME
+    . "' WHERE settingKey='FOG_TFTP_FTP_USERNAME'",
+    "UPDATE `nfsGroupMembers` SET `ngmUser`='"
+    . STORAGE_FTP_USERNAME
+    . "' WHERE ngmHostname='"
+    . STORAGE_HOST
+    . "'"
+);
