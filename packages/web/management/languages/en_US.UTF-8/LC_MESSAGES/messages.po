@@ -3130,7 +3130,7 @@ msgstr "BIOS Version"
 msgid "FOG License Information"
 msgstr "FOG License Information"
 
-msgid "GNU Gneral Public License"
+msgid "GNU General Public License"
 msgstr ""
 
 msgid "This section allows you to update"
