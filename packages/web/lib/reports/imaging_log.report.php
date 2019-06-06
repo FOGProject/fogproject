@@ -56,7 +56,7 @@ class Imaging_Log extends ReportManagementPage
         $userNames = array_values(
             array_filter(
                 array_unique(
-                           (array)$userNames
+                    (array)$userNames
                          )
                    )
                  );
@@ -64,14 +64,14 @@ class Imaging_Log extends ReportManagementPage
         $imageNames = array_values(
             array_filter(
                 array_unique(
-                           (array)$imageNames
+                    (array)$imageNames
                          )
                    )
                  );
         $HostNames = array_values(
             array_filter(
                 array_unique(
-                                (array)$HostNames
+                    (array)$HostNames
                                 )
                         )
                 );
