@@ -45,7 +45,7 @@ class Hosts_And_Users extends ReportManagementPage
         $groupNames = array_values(
             array_filter(
                 array_unique(
-                        (array)$groupNames
+                    (array)$groupNames
                         )
                  )
         );
@@ -297,9 +297,9 @@ class Hosts_And_Users extends ReportManagementPage
                         implode(
                             ' ',
                             self::getSubObjectIDs(
-                    'UserTracking',
-                    array('hostID' => $Host->id),
-                    'username'
+                                'UserTracking',
+                                array('hostID' => $Host->id),
+                                'username'
                             )
                         )
 
