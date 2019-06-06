@@ -2072,7 +2072,7 @@ class Config
         );
         define('TFTP_PXE_KERNEL_DIR', \"${webdirdest}/service/ipxe/\");
         define('PXE_KERNEL', 'bzImage');
-        define('PXE_KERNEL_RAMDISK', 127000);
+        define('PXE_KERNEL_RAMDISK', 275000);
         define('USE_SLOPPY_NAME_LOOKUPS', true);
         define('MEMTEST_KERNEL', 'memtest.bin');
         define('PXE_IMAGE', 'init.xz');
