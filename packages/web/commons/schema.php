@@ -3741,3 +3741,7 @@ $this->schema[] = array(
     . STORAGE_HOST
     . "'"
 );
+// 267
+$this->schema[] = array(
+    "UPDATE `globalSettings` SET `settingValue`=275000 WHERE settingKey='FOG_KERNEL_RAMDISK_SIZE'"
+);
