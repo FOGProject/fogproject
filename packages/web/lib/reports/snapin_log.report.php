@@ -50,14 +50,14 @@ class Snapin_Log extends ReportManagementPage
         $snapinNames = array_values(
             array_filter(
                 array_unique(
-                       (array)$snapinNames
+                    (array)$snapinNames
                      )
                )
              );
         $HostNames = array_values(
             array_filter(
                 array_unique(
-                             (array)$HostNames
+                    (array)$HostNames
                         )
                      )
              );
