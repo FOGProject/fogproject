@@ -1990,10 +1990,13 @@ class FOGConfigurationPage extends FOGPage
                             $objGetter = 'keysequencemanager';
                             break;
                         }
-                        $input = self::getClass($objGetter)->buildSelectBox(
-                            $row['settingValue'],
-                            $row['settingID']
-                        );
+                        $input = _('No Data');
+                        if (self::getClass($objGetter)->count() > 0) {
+                            $input = self::getClass($objGetter)->buildSelectBox(
+                                $row['settingValue'],
+                                $row['settingID']
+                            );
+                        }
                         break;
                     case 'FOG_BOOT_EXIT_TYPE':
                     case 'FOG_EFI_BOOT_EXIT_TYPE':
