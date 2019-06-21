@@ -3719,7 +3719,7 @@ $this->schema[] = [
 ];
 // 264
 $this->schema[] = [
-    "ALTER TABLE `groups` ADD COLUMN `groupInit` LONGTEXT AFTER `groupPrimaryDisk`",
+    "ALTER TABLE `groups` ADD COLUMN `groupInit` LONGTEXT NOT NULL AFTER `groupPrimaryDisk`"
 ];
 // 265
 $this->schema[] = [
