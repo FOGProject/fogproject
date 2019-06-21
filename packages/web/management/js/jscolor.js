@@ -5,7 +5,7 @@
  * @license For open source use: GPLv3
  *          For commercial use: JSColor Commercial License
  * @author  Jan Odvarko
- * @version 2.0.4
+ * @version 2.0.5
  *
  * See usage examples at http://jscolor.com/examples/
  */
@@ -984,9 +984,10 @@ var jsc = {
 		this.required = true; // whether the associated text <input> can be left empty
 		this.refine = true; // whether to refine the entered color code (e.g. uppercase it and remove whitespace)
 		this.hash = false; // whether to prefix the HEX color code with # symbol
-		this.uppercase = true; // whether to uppercase the color code
+		this.uppercase = true; // whether to show the color code in upper case
 		this.onFineChange = null; // called instantly every time the color changes (value can be either a function or a string with javascript code)
 		this.activeClass = 'jscolor-active'; // class to be set to the target element when a picker window is open on it
+		this.overwriteImportant = false; // whether to overwrite colors of styleElement using !important
 		this.minS = 0; // min allowed saturation (0 - 100)
 		this.maxS = 100; // max allowed saturation (0 - 100)
 		this.minV = 0; // min allowed value (brightness) (0 - 100)
@@ -1105,9 +1106,19 @@ var jsc = {
 			}
 			if (!(flags & jsc.leaveStyle)) {
 				if (this.styleElement) {
+					var bgColor = '#' + this.toString();
+					var fgColor = this.isLight() ? '#000' : '#FFF';
+
 					this.styleElement.style.backgroundImage = 'none';
-					this.styleElement.style.backgroundColor = '#' + this.toString();
-					this.styleElement.style.color = this.isLight() ? '#000' : '#FFF';
+					this.styleElement.style.backgroundColor = bgColor;
+					this.styleElement.style.color = fgColor;
+
+					if (this.overwriteImportant) {
+						this.styleElement.setAttribute('style',
+							'background: ' + bgColor + ' !important; ' +
+							'color: ' + fgColor + ' !important;'
+						);
+					}
 				}
 			}
 			if (!(flags & jsc.leavePad) && isPickerOwner()) {

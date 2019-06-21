@@ -51,6 +51,13 @@
             + '&sub='
             + Common.sub,
             method = 'post';
+        jscolors = $('.jscolor');
+        if ($(jscolors).length !== 0) {
+            $(jscolors).each((index, element) => {
+                let color = $('#FOG_COMPANY_COLOR').val();
+                new jscolor(element, {'value': color});
+            });
+        }
         $('.slider').slider();
         $('.resettoken').on('click', function(e) {
             e.preventDefault();
