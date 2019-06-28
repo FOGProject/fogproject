@@ -67,7 +67,7 @@ class ImageManagement extends FOGPage
         $os = (int)filter_input(INPUT_POST, 'os');
         $imagetype = (int)filter_input(INPUT_POST, 'imagetype');
         $imagepartitiontype = (int)filter_input(INPUT_POST, 'imagepartitiontype');
-        $compress = (int)filter_input(INPUT_POST, 'compress');
+        $compress = (int)filter_input(INPUT_POST, 'compression');
         $imagemanage = filter_input(INPUT_POST, 'imagemanage');
         $path = filter_input(INPUT_POST, 'path');
         if ($storagegroup > 0) {
@@ -109,7 +109,7 @@ class ImageManagement extends FOGPage
                 'id'
             );
         $compression = self::getSetting('FOG_PIGZ_COMP');
-        if ($compress < 0 || $compress > 23) {
+        if ($compress < 0 || $compress > 22) {
             $compression = $compress;
         }
         if (!isset($imagemanage)) {
@@ -651,7 +651,7 @@ class ImageManagement extends FOGPage
         $isEnabled = (int)isset($_POST['isEnabled']);
         $toReplicate = (int)isset($_POST['toReplicate']);
         $compress = (int)trim(
-            filter_input(INPUT_POST, 'compress')
+            filter_input(INPUT_POST, 'compression')
         );
         $imagemanage = (int)trim(
             filter_input(INPUT_POST, 'imagemanage')
@@ -1080,6 +1080,9 @@ class ImageManagement extends FOGPage
         $isEnabled = (int)isset($_POST['isEnabled']);
         $toReplicate = (int)isset($_POST['toReplicate']);
         $exists = self::getClass('ImageManager')->exists($image);
+        $compress = (int)trim(
+            filter_input(INPUT_POST, 'compression')
+        );
         if ($this->obj->get('name') != $image && $exists) {
             throw new Exception(_('An image with this name already exists!'));
         }
