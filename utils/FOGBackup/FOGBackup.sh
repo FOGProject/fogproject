@@ -25,13 +25,13 @@ while getopts "$optspec" o; do
                     backupPath=$OPTARG
                     ;;
                 no-reports)
-                    noBackupReports='true'
+                    noBackupReports=1
                     ;;
                 no-snapins)
-                    noBackupSnapins='true'
+                    noBackupSnapins=1
                     ;;
                 no-images)
-                    noBackupImages='true'
+                    noBackupImages=1
                     ;;
                 *)
                     if [[ $OPTERR -eq 1 && ${optspec:0:1} != : ]]; then
@@ -127,8 +127,8 @@ backupReports() {
 starttime=$(date +%D%t%r)
 echo " * Started backup at: $starttime"
 backupDB
-[[ $noBackupReports == 'true' ]] || backupReports
-[[ $noBackupSnapins == 'true' ]] || backupSnapins
-[[ $noBackupImages == 'true' ]] || backupImages
+[[ "$noBackupReports" -ne 1 ]] && backupReports
+[[ "$noBackupSnapins" -ne 1 ]] && backupSnapins
+[[ "$noBackupImages" -ne 1 ]] && backupImages
 endtime=$(date +%D%t%r)
 echo " * Completed backup at: $endtime"
