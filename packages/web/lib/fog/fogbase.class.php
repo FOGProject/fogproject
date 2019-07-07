@@ -2298,9 +2298,18 @@ abstract class FOGBase
      *
      * @return string|int|float
      */
-    public static function getFilesize($file)
+    public static function getFilesize($path)
     {
-        $size = filesize($file);
+        $size = 0;
+        if (is_dir($path)) {
+            foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path)) as $file) {
+                if ($file->getFilename() != ".") {
+                    $size += filesize($file);
+                }
+            }
+        } else {
+            $size = filesize($path);
+        }
         return is_numeric($size) ? $size : 0;
     }
     /**
