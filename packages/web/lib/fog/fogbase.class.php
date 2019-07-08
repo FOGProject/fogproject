@@ -2240,13 +2240,24 @@ abstract class FOGBase
     /**
      * Gets the filesize in a non-arch dependent way.
      *
-     * @param string $file the file to get size of
+     * @param string $path the file to get size of
      *
      * @return string|int|float
      */
-    public static function getFilesize($file)
+    public static function getFilesize($path)
     {
         $size = filesize($file);
+        if (is_dir($path)) {
+            $size = 0;
+            $di = new RecursiveDirectoryIterator($path);
+            $rii = new RecursiveIteratorIterator($di);
+            foreach ($rii as &$file) {
+                if ($file->isDot()) {
+                    continue;
+                }
+                $size += filesize($file);
+            }
+        }
         return is_numeric($size) ? $size : 0;
     }
     /**

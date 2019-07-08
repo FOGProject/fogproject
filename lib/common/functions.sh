@@ -424,7 +424,7 @@ configureTFTPandPXE() {
     if [[ "x$httpproto" = "xhttps" ]]; then
         dots "Compiling iPXE binaries that trust our SSL Certificate."
         cd $buildipxesrc
-        ./buildipxe.sh $sslpath/CA/.fogCA.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        ./buildipxe.sh ${sslpath}/CA/.fogCA.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
         cd $workingdir
     fi
@@ -582,6 +582,13 @@ installPackages() {
             packages="${packages} php${php_ver}-bcmath bc"
             case $linuxReleaseName in
 				*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) addUbuntuRepo ;;
+                *[Dd][Ee][Bb][Ii][Aa][Nn]*)
+                    if [[$OSVersion -ge 10 ]]; then
+                        packages="${packages// libcurl3 / libcurl4 }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        packages="${packages// mysql / mariadb }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        packages="${packages// mysql-server / mariadb-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    fi
+                    ;;
             esac
             ;;
         3)
@@ -2026,7 +2033,7 @@ class Config
         );
         define('TFTP_PXE_KERNEL_DIR', \"${webdirdest}/service/ipxe/\");
         define('PXE_KERNEL', 'bzImage');
-        define('PXE_KERNEL_RAMDISK', 127000);
+        define('PXE_KERNEL_RAMDISK', 275000);
         define('USE_SLOPPY_NAME_LOOKUPS', true);
         define('MEMTEST_KERNEL', 'memtest.bin');
         define('PXE_IMAGE', 'init.xz');

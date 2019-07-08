@@ -1,8 +1,8 @@
 #!/bin/bash
 if [[ -r $1 ]]; then
-    BUILDOPTS="TRUST=$1"
+    BUILDOPTS="TRUST=$1 CERT=$1"
 elif [[ -r /opt/fog/snapins/ssl/CA/.fogCA.pem ]]; then
-    BUILDOPTS="TRUST=/opt/fog/snapins/ssl/CA/.fogCA.pem"
+    BUILDOPTS="TRUST=/opt/fog/snapins/ssl/CA/.fogCA.pem CERT=/opt/fog/snapins/ssl/CA/.fogCA.pem"
 fi
 IPXEGIT="https://git.ipxe.org/ipxe.git"
 
@@ -32,14 +32,14 @@ cp ${FOGDIR}/src/ipxe/src/config/settings.h config/
 cp ${FOGDIR}/src/ipxe/src/config/console.h config/
 
 # Build the files
-make bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb EMBED=ipxescript ${BUILDOPTS} $*
+make EMBED=ipxescript ${BUILDOPTS} bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb
 
 # Copy files to repo location as required
 cp bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb ${FOGDIR}/packages/tftp/
 cp bin/ipxe.lkrn ${FOGDIR}/packages/tftp/ipxe.krn
 
 # Build with 10 second delay
-make bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb EMBED=ipxescript10sec ${BUILDOPTS} $*
+make EMBED=ipxescript10sec ${BUILDOPTS} bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb
 
 # Copy files to repo location as required
 cp bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb ${FOGDIR}/packages/tftp/10secdelay/
@@ -66,14 +66,14 @@ cp ${FOGDIR}/src/ipxe/src-efi/config/settings.h config/
 cp ${FOGDIR}/src/ipxe/src-efi/config/console.h config/
 
 # Build the files
-make bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek}.efi EMBED=ipxescript ${BUILDOPTS} $*
+make EMBED=ipxescript ${BUILDOPTS} bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek}.efi
 
 # Copy the files to upload
 cp bin-i386-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/i386-efi/
 cp bin-x86_64-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/
 
 # Build with 10 second delay
-make bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek}.efi EMBED=ipxescript10sec ${BUILDOPTS} $*
+make EMBED=ipxescript10sec ${BUILDOPTS} bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek}.efi
 
 # Copy the files to upload
 cp bin-i386-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/10secdelay/i386-efi/
