@@ -3740,7 +3740,9 @@ $this->schema[] = [
     . "describing the user password requirements. Default: Must be at "
     . "least 4 characters.','Must be at least 4 characters.','User Management')",
     "UPDATE `globalSettings` SET `settingValue` = '4' WHERE "
-    . "`settingKey` = 'FOG_USER_MINPASSLENGTH'"
+    . "`settingKey` = 'FOG_USER_MINPASSLENGTH'",
+    "UPDATE `globalSettings` SET `settingValue` = '275000' WHERE "
+    . "`settingKey` = 'FOG_KERNEL_RAMDISK_SIZE'"
 ];
 // 268
 $this->schema[] = [

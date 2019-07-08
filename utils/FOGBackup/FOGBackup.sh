@@ -1,11 +1,14 @@
 #!/bin/bash
 usage() {
-    echo -e "Usage: $0 [-h?] [-B </backup/path/>]"
+    echo -e "Usage: $0 [-h?] [-R] [-S] [-I] [-B </backup/path/>]"
     echo -e "\t-h -? --help\t\t\tDisplay this info"
     echo -e "\t-B -b --backuppath\t\tSpecify the backup path.\n\t\tIf not set will use backupPath from fog settings plus fog_backup_DATE."
+    echo -e "\t-R -r --no-reports\t\tOmit backup of reports."
+    echo -e "\t-S -s --no-snapins\t\tOmit backup of snapins."
+    echo -e "\t-I -i --no-images\t\tOmit backup of images."
 }
 . ../../lib/common/utils.sh
-optspec="h?B:b:-:"
+optspec="Hh?IiRrSsB:b:-:"
 while getopts "$optspec" o; do
     case $o in
         -)
@@ -20,6 +23,15 @@ while getopts "$optspec" o; do
                         handleError "Path must be an existing directory" 8
                     fi
                     backupPath=$OPTARG
+                    ;;
+                no-reports)
+                    noBackupReports=1
+                    ;;
+                no-snapins)
+                    noBackupSnapins=1
+                    ;;
+                no-images)
+                    nobackupImages=1
                     ;;
                 *)
                     if [[ $OPTERR -eq 1 && ${optspec:0:1} != : ]]; then
@@ -39,6 +51,15 @@ while getopts "$optspec" o; do
                 handleError "Path must be an existing directory" 8
             fi
             backupPath=$OPTARG
+            ;;
+        [Rr])
+            noBackupReports=1
+            ;;
+        [Ss])
+            noBackupSnapins=1
+            ;;
+        [Ii])
+            nobackupImages=1
             ;;
         :)
             usage
@@ -114,8 +135,8 @@ backupReports() {
 starttime=$(date +%D%t%r)
 echo " * Started backup at: $starttime"
 backupDB
-backupReports
-backupSnapins
-backupImages
+[[ $noBackupReports -eq 1 ]] || backupReports
+[[ $noBackupSnapins -eq 1 ]] || backupSnapins
+[[ $noBackupImages -eq 1 ]] || backupImages
 endtime=$(date +%D%t%r)
 echo " * Completed backup at: $endtime"
