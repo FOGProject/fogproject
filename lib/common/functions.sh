@@ -2126,6 +2126,8 @@ downloadfiles() {
         cnt=0
         filename=$(basename -- "$url")
         hashfile="${filename}.sha256"
+	# make sure we download the most recent hash file to start with
+        [[ -f $hashfile ]] && rm -f $hashfile
         baseurl=$(dirname -- "$url")
         hashurl="${baseurl}/${hashfile}"
         while [[ $checksum -ne 0 && $cnt -lt 10 ]]; do
