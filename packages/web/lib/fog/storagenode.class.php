@@ -347,11 +347,9 @@ class StorageNode extends FOGController
             return $countTasks;
         }
         $MulticastCount = self::getSubObjectIDs(
-        'MulticastSession',
-        array(
-                        'stateID' => self::getQueuedStates()
-                ),
-        'msID'
+            'MulticastSession',
+            array('stateID' => self::getQueuedStates()),
+            'msID'
         );
         $countTasks += count($MulticastCount);
         return $countTasks;

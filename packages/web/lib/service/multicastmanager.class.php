@@ -255,8 +255,7 @@ class MulticastManager extends FOGService
                                         $startStr,
                                         $curTask->getID(),
                                         $curTask->getName(),
-                                        _('failed to execute, image file')
-                                        . ': '
+                                        _('failed to execute, image file: ')
                                         . $curTask->getImagePath()
                                         . _('not found on this node')
                                     )
@@ -269,10 +268,7 @@ class MulticastManager extends FOGService
                                         $startStr,
                                         $curTask->getID(),
                                         $curTask->getName(),
-                                        _(
-                                            'failed to execute, '
-                                            . 'there are no clients included'
-                                        )
+                                        _('failed to execute, there are no clients included')
                                     )
                                 );
                                 continue;
@@ -285,10 +281,7 @@ class MulticastManager extends FOGService
                                         $startStr,
                                         $curTask->getID(),
                                         $curTask->getName(),
-                                        _(
-                                            'failed to execute, '
-                                            . 'port must be even and numeric'
-                                        )
+                                        _('failed to execute, port must be even and numeric')
                                     )
                                 );
                                 continue;
@@ -296,13 +289,11 @@ class MulticastManager extends FOGService
                             if ($groupOpenSlots < 1) {
                                 self::outall(
                                     sprintf(
-                                    $startStr,
-                                    $curTask->getID(),
-                                    $curTask->getName(),
-                                    _(
-                                                ' No open slots '
-                                            )
-                                        )
+                                        $startStr,
+                                        $curTask->getID(),
+                                        $curTask->getName(),
+                                        _(' No open slots ')
+                                    )
                                 );
                                 $curTask->getSess()->set('stateID', 1);
                                 if (!$curTask->getSess()->save()) {
@@ -313,9 +304,7 @@ class MulticastManager extends FOGService
                                             $startStr,
                                             $curTask->getID(),
                                             $curTask->getName(),
-                                            _(
-                                                ' Task state has been updated, now the task is queued! '
-                                            )
+                                            _(' Task state has been updated, now the task is queued!')
                                             )
                                     );
                                 }
@@ -371,8 +360,7 @@ class MulticastManager extends FOGService
                                     $startStr,
                                     $curTask->getID(),
                                     $curTask->getName(),
-                                    _('image file found, file')
-                                    . ': '
+                                    _('image file found, file: ')
                                     . $curTask->getImagePath()
                                 )
                             );
@@ -397,8 +385,7 @@ class MulticastManager extends FOGService
                                     $startStr,
                                     $curTask->getID(),
                                     $curTask->getName(),
-                                    _('sending on base port')
-                                    . ' '
+                                    _('sending on base port ')
                                     . $curTask->getPortBase()
                                 )
                             );
@@ -431,31 +418,31 @@ class MulticastManager extends FOGService
                             if (!$curTask->startTask()) {
                                 self::outall(
                                     sprintf(
-                                            $startStr,
-                                            $curTask->getID(),
-                                            $curTask->getName(),
-                                            _('failed to start')
-                                        )
-                                    );
+                                        $startStr,
+                                        $curTask->getID(),
+                                        $curTask->getName(),
+                                        _('failed to start')
+                                    )
+                                );
 
                                 if (!$curTask->kilTask()) {
                                     self::outall(
                                         sprintf(
-                                                    $startStr,
-                                                    $curTask->getID(),
-                                                    $curTask->getName(),
-                                                    _('could not be killed')
-                                                )
-                                            );
+                                            $startStr,
+                                            $curTask->getID(),
+                                            $curTask->getName(),
+                                            _('could not be killed')
+                                        )
+                                    );
                                 } else {
                                     self::outall(
                                         sprintf(
-                                                    $startStr,
-                                                    $curTask->getID(),
-                                                    $curTask->getName(),
-                                                    _('has been killed')
-                                                )
-                                            );
+                                            $startStr,
+                                            $curTask->getID(),
+                                            $curTask->getName(),
+                                            _('has been killed')
+                                        )
+                                    );
                                 }
 //                                continue;
                             }
@@ -477,8 +464,7 @@ class MulticastManager extends FOGService
                                     $startStr,
                                     $curTask->getID(),
                                     $curTask->getName(),
-                                    _('image file found, file')
-                                    . ': '
+                                    _('image file found, file: ')
                                     . $curTask->getImagePath()
                                 )
                             );
@@ -503,8 +489,7 @@ class MulticastManager extends FOGService
                                     $startStr,
                                     $curTask->getID(),
                                     $curTask->getName(),
-                                    _('sending on base port')
-                                    . ' '
+                                    _('sending on base port ')
                                     . $curTask->getPortBase()
                                 )
                             );
@@ -562,12 +547,12 @@ class MulticastManager extends FOGService
                             if (!$Session->save()) {
                                 self::outall(
                                     sprintf(
-                                            $startStr,
-                                            $curTask->getID(),
-                                            $curTask->getName(),
-                                            _('unable to be updated')
-                                                        )
-                                        );
+                                        $startStr,
+                                        $curTask->getID(),
+                                        $curTask->getName(),
+                                        _('unable to be updated')
+                                    )
+                                );
                             }
                         }
 
@@ -601,8 +586,7 @@ class MulticastManager extends FOGService
                                         $startStr,
                                         $runningTask->getID(),
                                         $runningTask->getName(),
-                                        _('is already running with pid')
-                                        . ': '
+                                        _('is already running with pid: ')
                                         . $runningTask->getPID($runningTask->procRef)
                                     )
                                 );
@@ -678,7 +662,7 @@ class MulticastManager extends FOGService
                                             $runningTask->getID(),
                                             $runningTask->getName(),
                                             _('could not be killed')
-                                            )
+                                        )
                                     );
                                 } else {
                                     self::outall(
@@ -687,7 +671,7 @@ class MulticastManager extends FOGService
                                             $runningTask->getID(),
                                             $runningTask->getName(),
                                             _('has been killed')
-                                            )
+                                        )
                                     );
                                     $KnownTasks = self::_removeFromKnownList(
                                         $KnownTasks,
