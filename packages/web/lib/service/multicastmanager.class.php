@@ -168,6 +168,7 @@ class MulticastManager extends FOGService
         while (true) {
             // Ensure we have a fresh complete and cancel variable.
             $completeTasks = $cancelTasks = [];
+            $queueTasks = [];
 
             // Handles the sleep timer for us.
             $date = self::niceDate();
@@ -226,11 +227,18 @@ class MulticastManager extends FOGService
                         );
                         continue;
                     }
+
                     foreach ($allTasks as &$curTask) {
+                        $totalSlots = $StorageNode->get('maxClients');
+                        $usedSlots = $StorageNode->getUsedSlotCount();
+                        $queuedSlots = $StorageNode->getQueuedSlotCount();
+                        $groupOpenSlots = $totalSlots - $usedSlots;
+
                         $new = self::_isMCTaskNew(
                             $KnownTasks,
                             $curTask->getID()
                         );
+
                         if ($new) {
                             $KnownTasks[] = $curTask;
                             self::outall(
@@ -285,6 +293,36 @@ class MulticastManager extends FOGService
                                 );
                                 continue;
                             }
+                            if ($groupOpenSlots < 1) {
+                                self::outall(
+                                    sprintf(
+                                    $startStr,
+                                    $curTask->getID(),
+                                    $curTask->getName(),
+                                    _(
+                                                ' No open slots '
+                                            )
+                                        )
+                                );
+                                $curTask->getSess()->set('stateID', 1);
+                                if (!$curTask->getSess()->save()) {
+                                    throw new Exception(_('Failed to update Task'));
+                                } else {
+                                    self::outall(
+                                        sprintf(
+                                            $startStr,
+                                            $curTask->getID(),
+                                            $curTask->getName(),
+                                            _(
+                                                ' Task state has been updated, now the task is queued! '
+                                            )
+                                            )
+                                    );
+                                }
+
+                                continue;
+                            }
+
                             if (!$curTask->startTask()) {
                                 self::outall(
                                     sprintf(
@@ -382,10 +420,126 @@ class MulticastManager extends FOGService
                             continue;
                         }
                         $jobcancelled = $jobcompleted = false;
+                        $jobqueued = false;
+
                         $runningTask = self::_getMCExistingTask(
                             $KnownTasks,
                             $curTask->getID()
                         );
+
+                        if ($groupOpenSlots > 0 && !$runningTask->isRunning($runningTask->procRef)) {
+                            if (!$curTask->startTask()) {
+                                self::outall(
+                                    sprintf(
+                                            $startStr,
+                                            $curTask->getID(),
+                                            $curTask->getName(),
+                                            _('failed to start')
+                                        )
+                                    );
+
+                                if (!$curTask->kilTask()) {
+                                    self::outall(
+                                        sprintf(
+                                                    $startStr,
+                                                    $curTask->getID(),
+                                                    $curTask->getName(),
+                                                    _('could not be killed')
+                                                )
+                                            );
+                                } else {
+                                    self::outall(
+                                        sprintf(
+                                                    $startStr,
+                                                    $curTask->getID(),
+                                                    $curTask->getName(),
+                                                    _('has been killed')
+                                                )
+                                            );
+                                }
+//                                continue;
+                            }
+                            $Session = $curTask->getSess();
+                            $Session->set('stateID', self::getProgressState());
+                            if (!$Session->save()) {
+                                self::outall(
+                                    sprintf(
+                                        $startStr,
+                                        $curTask->getID(),
+                                        $curTask->getName(),
+                                        _('unable to be updated')
+                                    )
+                                );
+                                continue;
+                            }
+                            self::outall(
+                                sprintf(
+                                    $startStr,
+                                    $curTask->getID(),
+                                    $curTask->getName(),
+                                    _('image file found, file')
+                                    . ': '
+                                    . $curTask->getImagePath()
+                                )
+                            );
+                            self::outall(
+                                sprintf(
+                                    $startStr,
+                                    $curTask->getID(),
+                                    $curTask->getName(),
+                                    $curTask->getClientCount()
+                                    . ' '
+                                    . (
+                                        $curTask->getClientCount() == 1 ?
+                                        _('client') :
+                                        _('clients')
+                                    )
+                                    . ' '
+                                    . _('found')
+                                )
+                            );
+                            self::outall(
+                                sprintf(
+                                    $startStr,
+                                    $curTask->getID(),
+                                    $curTask->getName(),
+                                    _('sending on base port')
+                                    . ' '
+                                    . $curTask->getPortBase()
+                                )
+                            );
+                            self::outall(
+                                sprintf(
+                                    " | %s: %s",
+                                    _('Command'),
+                                    $curTask->getCMD()
+                                )
+                            );
+                            self::outall(
+                                sprintf(
+                                    $startStr,
+                                    $curTask->getID(),
+                                    $curTask->getName(),
+                                    _('has started')
+                                )
+                            );
+
+                            if (!empty($queueTasks)) {
+                                $queueTasks = self::_removeFromKnownList(
+                                    $queueTasks,
+                                    $curTask->getID()
+                                );
+                            }
+                            $KnownTasks = self::_removeFromKnownList(
+                                $KnownTasks,
+                                $curTask->getID()
+                            );
+                            $KnownTasks[] = $curTask;
+                            continue;
+                        }
+
+
+
                         $taskIDs = $runningTask->getTaskIDs();
                         $find = [];
                         $find['id'] = $taskIDs;
@@ -402,10 +556,27 @@ class MulticastManager extends FOGService
                         );
                         $inTaskCompletedIDs = json_decode(Route::getData(), true);
                         $Session = $runningTask->getSess();
+
+                        if ($Session->get('stateID') != $curTask->getSess()->get('stateID')) {
+                            $Session->set('stateID', $curTask->getSess()->get('stateID'));
+                            if (!$Session->save()) {
+                                self::outall(
+                                    sprintf(
+                                            $startStr,
+                                            $curTask->getID(),
+                                            $curTask->getName(),
+                                            _('unable to be updated')
+                                                        )
+                                        );
+                            }
+                        }
+
                         $SessCancelled = $Session->get('stateID')
                             == self::getCancelledState();
                         $SessCompleted = $Session->get('stateID')
                             == self::getCompleteState();
+                        $SessQueued = $Session->get('stateID')
+                            == self::getQueuedState();
                         if ($SessCancelled
                             || count($inTaskCancelledIDs) > 0
                         ) {
@@ -418,7 +589,12 @@ class MulticastManager extends FOGService
                         ) {
                             $jobcompleted = true;
                         }
-                        if (!$jobcancelled && !$jobcompleted) {
+
+                        if ($SessQueued) {
+                            $jobqueued = true;
+                        }
+
+                        if (!$jobcancelled && !$jobcompleted && !$jobqueued) {
                             if ($runningTask->isRunning($runningTask->procRef)) {
                                 self::outall(
                                     sprintf(
@@ -430,6 +606,7 @@ class MulticastManager extends FOGService
                                         . $runningTask->getPID($runningTask->procRef)
                                     )
                                 );
+
                                 $runningTask->updateStats();
                             } else {
                                 self::outall(
@@ -458,10 +635,6 @@ class MulticastManager extends FOGService
                                             _('has been killed')
                                         )
                                     );
-                                    $KnownTasks = self::_removeFromKnownList(
-                                        $KnownTasks,
-                                        $runningTask->getID()
-                                    );
                                 }
                             }
                         } else {
@@ -487,31 +660,44 @@ class MulticastManager extends FOGService
                                 );
                                 $cancelTasks[] = $runningTask;
                             }
-                            if (!$runningTask->killTask()) {
+                            if ($jobqueued) {
                                 self::outall(
                                     sprintf(
                                         $startStr,
                                         $runningTask->getID(),
                                         $runningTask->getName(),
-                                        _('could not be killed')
+                                        _('has been queued')
                                     )
                                 );
+                                $queueTasks[] = $runningTask;
                             } else {
-                                self::outall(
-                                    sprintf(
-                                        $startStr,
-                                        $runningTask->getID(),
-                                        $runningTask->getName(),
-                                        _('has been killed')
-                                    )
-                                );
-                                $KnownTasks = self::_removeFromKnownList(
-                                    $KnownTasks,
-                                    $runningTask->getID()
-                                );
+                                if (!$runningTask->killTask()) {
+                                    self::outall(
+                                        sprintf(
+                                            $startStr,
+                                            $runningTask->getID(),
+                                            $runningTask->getName(),
+                                            _('could not be killed')
+                                            )
+                                    );
+                                } else {
+                                    self::outall(
+                                        sprintf(
+                                            $startStr,
+                                            $runningTask->getID(),
+                                            $runningTask->getName(),
+                                            _('has been killed')
+                                            )
+                                    );
+                                    $KnownTasks = self::_removeFromKnownList(
+                                        $KnownTasks,
+                                        $runningTask->getID()
+                                    );
+                                }
                             }
                         }
                         unset($curTask);
+                        unset($runningTask);
                     }
                     unset($StorageNode);
                 }
@@ -544,6 +730,18 @@ class MulticastManager extends FOGService
                                 _('is now completed') :
                                 _('could not be completed')
                             )
+                        )
+                    );
+                    unset($Task);
+                }
+                foreach ($queueTasks as &$Task) {
+                    $Session = $Task->getSess();
+                    self::outall(
+                        sprintf(
+                            $startStr,
+                            $Task->getID(),
+                            $Task->getName(),
+                            _('is now queued')
                         )
                     );
                     unset($Task);

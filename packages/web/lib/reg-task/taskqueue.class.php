@@ -65,8 +65,7 @@ class TaskQueue extends TaskingElement
                         $clients = $MulticastSession->get('clients') + 1;
                     }
                     $MulticastSession
-                        ->set('clients', $clients)
-                        ->set('stateID', self::getProgressState());
+                        ->set('clients', $clients);
                     if (!$MulticastSession->save()) {
                         throw new Exception(_('Failed to update Session'));
                     }
@@ -76,6 +75,24 @@ class TaskQueue extends TaskingElement
                                 'imageID',
                                 $MulticastSession->get('image')
                             );
+                    }
+
+                    $this->StorageNode = self::nodeFail(
+                self::getClass(
+                            'StorageNode',
+                            $this->Task->get('storagenodeID')
+                        ),
+                self::$Host->get('id')
+                    );
+                    if ($MulticastSession->get('stateID') == 1) {
+                        $msg = sprintf(
+                            '%s, %s %d %s.',
+                            _('No open slots'),
+                            _('There are'),
+                            $inFront,
+                            _('before me')
+                        );
+                        throw new Exception($msg);
                     }
                 } elseif ($this->Task->isForced()) {
                     self::$HookManager->processEvent(
