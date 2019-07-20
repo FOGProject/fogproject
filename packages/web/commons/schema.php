@@ -825,7 +825,7 @@ $this->schema[] = array(
     . "`ngmMaxClients`,`ngmUser`,`ngmPass`) "
     . "VALUES "
     . "('DefaultMember','Auto generated fog nfs group member','1',"
-    . "'1','/images/','1','"
+    . "'1','/images','1','"
     . STORAGE_HOST
     . "','10','"
     . STORAGE_FTP_USERNAME
@@ -3729,4 +3729,19 @@ $this->schema[] = array(
     "UPDATE `nfsGroupMembers` SET `ngmUser`='"
     . STORAGE_FTP_USERNAME
     . "' WHERE ngmID=1"
+);
+// 266
+$this->schema[] = array(
+    "UPDATE `globalSettings` SET `settingValue`='"
+    . STORAGE_FTP_USERNAME
+    . "' WHERE settingKey='FOG_TFTP_FTP_USERNAME'",
+    "UPDATE `nfsGroupMembers` SET `ngmUser`='"
+    . STORAGE_FTP_USERNAME
+    . "' WHERE ngmHostname='"
+    . STORAGE_HOST
+    . "'"
+);
+// 267
+$this->schema[] = array(
+    "UPDATE `globalSettings` SET `settingValue`=275000 WHERE settingKey='FOG_KERNEL_RAMDISK_SIZE'"
 );

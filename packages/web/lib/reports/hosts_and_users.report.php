@@ -297,9 +297,9 @@ class Hosts_And_Users extends ReportManagementPage
                         implode(
                             ' ',
                             self::getSubObjectIDs(
-                    		'UserTracking',
-                    		array('hostID' => $Host->id),
-                    		'username'
+                                'UserTracking',
+                                array('hostID' => $Host->id),
+                                'username'
                             )
                         )
 

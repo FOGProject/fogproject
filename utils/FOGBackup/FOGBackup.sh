@@ -3,6 +3,9 @@ usage() {
     echo -e "Usage: $0 [-h?] [-B </backup/path/>]"
     echo -e "\t-h -? --help\t\t\tDisplay this info"
     echo -e "\t-B -b --backuppath\t\tSpecify the backup path.\n\t\tIf not set will use backupPath from fog settings plus fog_backup_DATE."
+    echo -e "\t --no-reports\t\tOmit backup of reports"
+    echo -e "\t --no-snapins\t\tOmit backup of snapins"
+    echo -e "\t --no-images\t\tOmit backup of images"
 }
 . ../../lib/common/utils.sh
 optspec="h?B:b:-:"
@@ -20,6 +23,15 @@ while getopts "$optspec" o; do
                         handleError "Path must be an existing directory" 8
                     fi
                     backupPath=$OPTARG
+                    ;;
+                no-reports)
+                    noBackupReports=1
+                    ;;
+                no-snapins)
+                    noBackupSnapins=1
+                    ;;
+                no-images)
+                    noBackupImages=1
                     ;;
                 *)
                     if [[ $OPTERR -eq 1 && ${optspec:0:1} != : ]]; then
@@ -67,6 +79,7 @@ countBackup=`ls | grep $backupDate | wc -l`
 backupDir="${backupDir}_$countBackup"
 [[ ! -d $backupDir ]] && mkdir -p $backupDir/{images,mysql,snapins,reports,logs} >/dev/null 2>&1
 [[ ! -d $backupDir/images || $backupDir/mysql || $backupDir/snapins || $backupDir/reports || $backupDir/logs ]] && mkdir -p $backupDir/{images,mysql,snapins,reports,logs} >/dev/null 2>&1
+echo " * Backup location: $backupDir"
 backupDB() {
     dots "Backing up database"
     wget --no-check-certificate --post-data="nojson=1" -O $backupDir/mysql/fog.sql "http://$ipaddress/$webroot/management/export.php?type=sql" 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
@@ -114,8 +127,8 @@ backupReports() {
 starttime=$(date +%D%t%r)
 echo " * Started backup at: $starttime"
 backupDB
-backupReports
-backupSnapins
-backupImages
+[[ "$noBackupReports" -ne 1 ]] && backupReports
+[[ "$noBackupSnapins" -ne 1 ]] && backupSnapins
+[[ "$noBackupImages" -ne 1 ]] && backupImages
 endtime=$(date +%D%t%r)
 echo " * Completed backup at: $endtime"
