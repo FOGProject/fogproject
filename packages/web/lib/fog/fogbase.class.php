@@ -2246,7 +2246,7 @@ abstract class FOGBase
      */
     public static function getFilesize($path)
     {
-        $size = filesize($file);
+        $size = filesize($path);
         if (is_dir($path)) {
             $size = 0;
             $di = new RecursiveDirectoryIterator($path);
