@@ -424,7 +424,7 @@ configureTFTPandPXE() {
     if [[ "x$httpproto" = "xhttps" ]]; then
         dots "Compiling iPXE binaries that trust our SSL Certificate."
         cd $buildipxesrc
-        ./buildipxe.sh ${sslpath}/CA/.fogCA.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        ./buildipxe.sh ${sslpath}CA/.fogCA.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
         cd $workingdir
     fi
