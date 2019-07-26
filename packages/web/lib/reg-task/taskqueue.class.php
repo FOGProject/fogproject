@@ -39,9 +39,6 @@ class TaskQueue extends TaskingElement
                 throw new Exception(_('Failed to update task'));
             }
             if ($this->imagingTask) {
-                $this->Task
-                    ->getImage()->set('size', '')
-                    ->save();
                 if ($this->Task->isMulticast()) {
                     Route::ids(
                         'multicastsessionassociation',
