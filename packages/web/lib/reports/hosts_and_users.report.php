@@ -37,31 +37,48 @@ class Hosts_And_Users extends ReportManagementPage
                 array('class' => 'col-xs-4'),
                 array('class' => 'col-xs-8 form-group')
         );
+        $fields = array();
         $groupNames = self::getSubObjectIDs(
             'Group',
             '',
             'name'
         );
-        $groupNames = array_values(
-            array_filter(
-                array_unique(
-                    (array)$groupNames
-                        )
-                 )
-        );
+        if (is_array($groupNames) && count($groupNames) > 0) {
+            $groupNames = array_values(
+                array_filter(
+                    array_unique(
+                        (array)$groupNames
+                    )
+                )
+            );
+            natcasesort($groupNames);
+            $groupSelForm = self::selectForm(
+                'groupsearch',
+                $groupNames
+            );
+            unset($groupNames);
+            $fields += array('<label for="groupsearch">'
+                . _('Enter a group name to search for')
+                . '</label>' => $groupSelForm
+            );
+        }
         if (in_array('location', (array)self::$pluginsinstalled)) {
             $locationNames = self::getSubObjectIDs(
                 'Location',
                 '',
                 'name'
-                );
-            natcasesort($locationNames);
-            if (count($locationNames) > 0) {
+            );
+            if (is_array($locationNames) && count($locationNames) > 0) {
+                natcasesort($locationNames);
                 $locationSelForm = self::selectForm(
                     'locationsearch',
                     $locationNames
-                        );
+                );
                 unset($locationNames);
+                $fields += array('<label for="locationsearch">'
+                    . _('Enter a location name to search for')
+                    . '</label>' => $locationSelForm
+                );
             }
         }
         if (in_array('site', (array)self::$pluginsinstalled)) {
@@ -69,60 +86,30 @@ class Hosts_And_Users extends ReportManagementPage
                 'site',
                 '',
                 'name'
-                );
-            natcasesort($siteNames);
-            if (count($siteNames) > 0) {
+            );
+            if (is_array($siteNames) && count($siteNames) > 0) {
+                natcasesort($siteNames);
                 $siteSelForm = self::selectForm(
                     'sitesearch',
                     $siteNames
-                        );
+                );
                 unset($siteNames);
+                $fields += array('<label for="sitesearch">'
+                    . _('Enter a site name to search for')
+                    . '</label>' => $siteSelForm
+                );
             }
         }
-        natcasesort($groupNames);
-
-        if (count($groupNames) > 0) {
-            $groupSelForm = self::selectForm(
-                'groupsearch',
-                $groupNames
-                );
-            unset($groupNames);
-        }
-        $fields = array(
-                '<label for="groupsearch">'
-                . _('Enter a group name to search for')
-                . '</label>' => $groupSelForm,
-                '<label for="performsearch">'
+        $fields += array('<label for="hostpattern">'
+            . _('Search pattern') . '</label>'
+            => '<input type="text" name="hostpattern" placeholder="Search... leave empty for all elements" class="form-control" />'
+        ) + array('<label for="performsearch">'
                 . _('Perform search')
                 . '</label>' => '<button type="submit" name="performsearch" '
                 . 'class="btn btn-info btn-block" id="performsearch">'
                 . _('Search')
                 . '</button>'
         );
-        if (in_array('location', (array)self::$pluginsinstalled)) {
-            self::arrayInsertAfter(
-                '<label for="groupsearch">'
-                        . _('Enter a group name to search for')
-                        . '</label>',
-                $fields,
-                '<label for="locationsearch">'
-                        . _('Enter a location name to search for')
-                        . '</label>',
-                $locationSelForm
-                );
-        }
-        if (in_array('site', (array)self::$pluginsinstalled)) {
-            self::arrayInsertAfter(
-                '<label for="groupsearch">'
-                        . _('Enter a group name to search for')
-                        . '</label>',
-                $fields,
-                '<label for="sitesearch">'
-                        . _('Enter a site name to search for')
-                        . '</label>',
-                $siteSelForm
-                );
-        }
         array_walk($fields, $this->fieldsToData);
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
@@ -154,9 +141,6 @@ class Hosts_And_Users extends ReportManagementPage
             INPUT_POST,
             'groupsearch'
         );
-        if (!$groupsearch) {
-            $groupsearch = '%';
-        }
 
         $locationsearch = filter_input(
             INPUT_POST,
@@ -166,6 +150,15 @@ class Hosts_And_Users extends ReportManagementPage
             INPUT_POST,
             'sitesearch'
         );
+        $hostpattern = filter_input(
+            INPUT_POST,
+            'hostpattern'
+        );
+        if (!$hostpattern) {
+            $hostpattern = '%';
+        } else {
+            $hostpattern = '%' . $hostpattern . '%';
+        }
 
         $csvHead = array(
             _('Host ID') => 'id',
@@ -202,17 +195,19 @@ class Hosts_And_Users extends ReportManagementPage
             '${users}'
         );
 
-        $groupIDs = self::getSubObjectIDs(
-            'Group',
-            array('name' => $groupsearch),
-            'id'
-        );
-
-        $groupHostIDs = self::getSubObjectIDs(
-            'GroupAssociation',
-            array('groupID' => $groupIDs),
-            'hostID'
-        );
+        $groupHostIDs = array();
+        if ($groupsearch) {
+            $groupIDs = self::getSubObjectIDs(
+                'Group',
+                array('name' => $groupsearch),
+                'id'
+            );
+            $groupHostIDs = self::getSubObjectIDs(
+                'GroupAssociation',
+                array('groupID' => $groupIDs),
+                'hostID'
+            );
+        }
         if (in_array('location', (array)self::$pluginsinstalled) && $locationsearch) {
             $locationIDs = self::getSubObjectIDs(
                 'Location',
@@ -240,14 +235,24 @@ class Hosts_And_Users extends ReportManagementPage
             $groupHostIDs = array_intersect($siteHostIDs, $groupHostIDs);
         }
 
-        Route::listem(
-            'host',
-            'name',
-            'false',
-            array(
-                        'id' => $groupHostIDs
+        if ($groupsearch) {
+            Route::listem(
+                'host',
+                'name',
+                'false',
+                array(
+                    'id' => $groupHostIDs,
+                    'name' => $hostpattern
                 )
-        );
+            );
+        } else {
+            Route::listem(
+                'host',
+                'name',
+                'false',
+                array('name' => $hostpattern)
+            );
+        }
 
         $Hosts = json_decode(
             Route::getData()
