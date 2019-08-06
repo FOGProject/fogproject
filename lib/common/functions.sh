@@ -1359,6 +1359,7 @@ writeUpdateFile() {
     escnotpxedefaultfile=$(echo $notpxedefaultfile | sed -e $replace)
     escsslpath=$(echo $sslpath | sed -e $replace)
     escbackupPath=$(echo $backupPath | sed -e $replace)
+    escarmsupport=$(echo $sarmsupport | sed -e $replace)
     escphp_ver=$(echo $php_ver | sed -e $replace)
     escphp_verAdds=$(echo $php_verAdds | sed -e $replace)
     escsslprivkey=$(echo $sslprivkey | sed -e $replace)
@@ -1476,8 +1477,11 @@ writeUpdateFile() {
                 sed -i "s/sslpath=.*/sslpath='$escsslpath'/g" $fogprogramdir/.fogsettings || \
                 echo "sslpath='$sslpath'" >> $fogprogramdir/.fogsettings
             grep -q "backupPath=" $fogprogramdir/.fogsettings && \
-                sed -i "s/backupPath=.*/backupPath='$esbackupPath'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/backupPath=.*/backupPath='$escbackupPath'/g" $fogprogramdir/.fogsettings || \
                 echo "backupPath='$backupPath'" >> $fogprogramdir/.fogsettings
+            grep -q "armsupport=" $fogprogramdir/.fogsettings && \
+                sed -i "s/armsupport=.*/armsupport='$escarmsupport'/g" $fogprogramdir/.fogsettings || \
+                echo "armsupport='$armsupport'" >> $fogprogramdir/.fogsettings
             grep -q "php_ver=" $fogprogramdir/.fogsettings && \
                 sed -i "s/php_ver=.*/php_ver='$php_ver'/g" $fogprogramdir/.fogsettings || \
                 echo "php_ver='$php_ver'" >> $fogprogramdir/.fogsettings
@@ -1529,6 +1533,7 @@ writeUpdateFile() {
             echo "notpxedefaultfile='$notpxedefaultfile'" >> "$fogprogramdir/.fogsettings"
             echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
             echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
+            echo "armsupport='$armsupport'" >> "$fogprogramdir/.fogsettings"
             echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
             echo "php_verAdds='$php_verAdds'" >> "$fogprogramdir/.fogsettings"
             echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
@@ -1576,6 +1581,7 @@ writeUpdateFile() {
         echo "notpxedefaultfile='$notpxedefaultfile'" >> "$fogprogramdir/.fogsettings"
         echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
         echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
+        echo "armsupport='$armsupport'" >> "$fogprogramdir/.fogsettings"
         echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
         echo "php_verAdds='$php_verAdds'" >> "$fogprogramdir/.fogsettings"
         echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
@@ -2167,6 +2173,9 @@ downloadfiles() {
     else
         clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
         urls=( "https://fogproject.org/inits/init.xz" "https://fogproject.org/inits/init_32.xz" "https://fogproject.org/kernels/bzImage" "https://fogproject.org/kernels/bzImage32" "https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi" "https://github.com/FOGProject/fog-client/releases/download/${clientVer}/SmartInstaller.exe" )
+        if [[ $armsupport == 1 ]]; then
+            urls+=( "https://fogproject.org/inits/arm_init.cpio.gz" "https://fogproject.org/kernels/arm_Image" )
+        fi
     fi
     for url in "${urls[@]}"
     do
@@ -2174,10 +2183,13 @@ downloadfiles() {
         cnt=0
         filename=$(basename -- "$url")
         hashfile="${filename}.sha256"
-        # make sure we download the most recent hash file to start with
-        [[ -f $hashfile ]] && rm -f $hashfile
         baseurl=$(dirname -- "$url")
         hashurl="${baseurl}/${hashfile}"
+        # make sure we download the most recent hash file to start with
+        if [[ -f $hashfile ]]; then
+            rm -f $hashfile
+            curl --silent -kOL $hashurl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        fi
         while [[ $checksum -ne 0 && $cnt -lt 10 ]]
         do
             [[ -f $hashfile ]] && sha256sum --check $hashfile >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -2204,7 +2216,15 @@ downloadfiles() {
         copypath="packages/*/"
     fi
     dots "Copying binaries to destination paths"
-    cp -vf ${copypath}bzImage* ${copypath}init*.xz ${webdirdest}/service/ipxe/ >>$workingdir/error_logs/fog_error_${version}.log && cp -vf ${copypath}FOGService.msi ${copypath}SmartInstaller.exe ${webdirdest}/client/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    cp -vf ${copypath}bzImage ${webdirdest}/service/ipxe/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat $?
+    cp -vf ${copypath}bzImage32 ${webdirdest}/service/ipxe/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat $?
+    cp -vf ${copypath}init.xz ${webdirdest}/service/ipxe/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat $?
+    cp -vf ${copypath}init_32.xz ${webdirdest}/service/ipxe/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat $?
+    if [[ $armsupport == 1 ]]; then
+        cp -vf ${copypath}arm_Image ${webdirdest}/service/ipxe/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat $?
+        cp -vf ${copypath}arm_init.cpio.gz ${webdirdest}/service/ipxe/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat $?
+    fi
+    cp -vf ${copypath}FOGService.msi ${copypath}SmartInstaller.exe ${webdirdest}/client/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     cd $cwd
 }
