@@ -145,11 +145,7 @@ class BootMenu extends FOGBase
 
         if (stripos($_REQUEST['arch'], 'arm') !== false) {
             //use arm boot loaders instead
-            $refind = sprintf(
-                'imgfetch ${boot-url}/service/ipxe/refind.conf%s'
-                . 'chain -ar ${boot-url}/service/ipxe/refind_aa64.efi',
-                "\n"
-            );
+            $refind = 'chain -ar ${boot-url}/service/ipxe/refind_aa64.efi';
         }
 
         $grub = array(
