@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-14 20:31+0100\n"
+"POT-Creation-Date: 2019-08-10 16:23+0100\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -7509,3 +7509,9 @@ msgstr "Dateigröße stimmt nicht überein"
 #, fuzzy
 msgid "FTP connection failed"
 msgstr "FTP-Verbindung fehlgeschlagen"
+
+msgid "Snapin file is too big, increase post_max_size in php.ini."
+msgstr "Snapin Datei ist zu groß, post_max_size in php.ini erhöhen."
+
+msgid "$_POST variable is empty, check apache error log."
+msgstr "$_POST Variable ist leer, siehe Apache Errorlog"

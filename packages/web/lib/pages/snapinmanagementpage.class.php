@@ -724,10 +724,33 @@ class SnapinManagementPage extends FOGPage
         $isEnabled = (int)isset($_POST['isEnabled']);
         $toReplicate = (int)isset($_POST['toReplicate']);
         $hide = (int)isset($_POST['isHidden']);
-        $tiemout = (int)filter_input(INPUT_POST, 'timeout');
+        $timeout = (int)filter_input(INPUT_POST, 'timeout');
         $action = filter_input(INPUT_POST, 'action');
         $args = filter_input(INPUT_POST, 'args');
         try {
+            $phpPostMaxSize = ini_get('post_max_size');
+            switch (strtolower(substr($phpPostMaxSize, -1))) {
+                case 'g':
+                    $phpPostMaxSize = ((int)$phpPostMaxSize) * 1024;
+                    // no break
+                case 'm':
+                    $phpPostMaxSize = ((int)$phpPostMaxSize) * 1024;
+                    // no break
+                case 'k':
+                    $phpPostMaxSize = ((int)$phpPostMaxSize) * 1024;
+            }
+            if (isset($_SERVER['CONTENT_LENGTH']) && $phpPostMaxSize > 0 &&
+                    $_SERVER['CONTENT_LENGTH'] > $phpPostMaxSize) {
+                throw new Exception(
+                    _('Snapin file is too big, increase post_max_size in php.ini.')
+                );
+            }
+            if (empty($_POST) && isset($_SERVER['CONTENT_LENGTH']) &&
+                    $_SERVER['CONTENT_LENGTH'] > 0) {
+                throw new Exception(
+                   _('$_POST variable is empty, check apache error log.')
+               );
+            }
             if (!$name) {
                 throw new Exception(
                     _('A snapin name is required!')
@@ -1462,6 +1485,29 @@ class SnapinManagementPage extends FOGPage
         $timeout = (int)filter_input(INPUT_POST, 'timeout');
         $action = filter_input(INPUT_POST, 'action');
         $args = filter_input(INPUT_POST, 'args');
+        $phpPostMaxSize = ini_get('post_max_size');
+        switch (strtolower(substr($phpPostMaxSize, -1))) {
+            case 'g':
+                $phpPostMaxSize = ((int)$phpPostMaxSize) * 1024;
+                // no break
+            case 'm':
+                $phpPostMaxSize = ((int)$phpPostMaxSize) * 1024;
+                // no break
+            case 'k':
+                $phpPostMaxSize = ((int)$phpPostMaxSize) * 1024;
+        }
+        if (isset($_SERVER['CONTENT_LENGTH']) && $phpPostMaxSize > 0 &&
+                $_SERVER['CONTENT_LENGTH'] > $phpPostMaxSize) {
+            throw new Exception(
+                _('Snapin file is too big, increase post_max_size in php.ini.')
+            );
+        }
+        if (empty($_POST) && isset($_SERVER['CONTENT_LENGTH']) &&
+                $_SERVER['CONTENT_LENGTH'] > 0) {
+            throw new Exception(
+               _('$_POST variable is empty, check apache error log.')
+           );
+        }
         if (!$name) {
             throw new Exception(
                 _('A snapin name is required!')

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-14 20:31+0100\n"
+"POT-Creation-Date: 2019-08-10 16:23+0100\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -6675,3 +6675,9 @@ msgstr "Errore di dimensioni del file"
 #, fuzzy
 msgid "FTP connection failed"
 msgstr "La connessione FTP non è riuscita"
+
+msgid "Snapin file is too big, increase post_max_size in php.ini."
+msgstr "Il file snap-in è troppo grande, aumenta post_max_size in php.ini."
+
+msgid "$_POST variable is empty, check apache error log."
+msgstr "La variabile $ _POST è vuota, controlla il log degli errori di apache."
