@@ -748,7 +748,7 @@ class SnapinManagementPage extends FOGPage
             if (empty($_POST) && isset($_SERVER['CONTENT_LENGTH']) &&
                     $_SERVER['CONTENT_LENGTH'] > 0) {
                 throw new Exception(
-                   _('$_POST variable is empty, check apache error log.')
+                    _('$_POST variable is empty, check apache error log.')
                );
             }
             if (!$name) {
@@ -1295,7 +1295,7 @@ class SnapinManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=snap-storage" enctype="multipart/form-data">';
-        if (count($this->data)) {
+        if (is_array($this->data) && count($this->data)) {
             echo '<div class="text-center">';
             echo '<div class="checkbox">';
             echo '<label for="groupMeShow">';
@@ -1390,7 +1390,7 @@ class SnapinManagementPage extends FOGPage
             );
             unset($StorageGroup);
         }
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             self::$HookManager->processEvent(
                 'SNAPIN_EDIT_STORAGE_GROUP',
                 array(
@@ -1505,8 +1505,8 @@ class SnapinManagementPage extends FOGPage
         if (empty($_POST) && isset($_SERVER['CONTENT_LENGTH']) &&
                 $_SERVER['CONTENT_LENGTH'] > 0) {
             throw new Exception(
-               _('$_POST variable is empty, check apache error log.')
-           );
+                _('$_POST variable is empty, check apache error log.')
+            );
         }
         if (!$name) {
             throw new Exception(

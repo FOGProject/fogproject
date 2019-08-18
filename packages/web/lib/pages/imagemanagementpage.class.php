@@ -1122,7 +1122,7 @@ class ImageManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=image-storage">';
-        if (count($this->data)) {
+        if (is_array($this->data) && count($this->data)) {
             echo '<div class="text-center">';
             echo '<div class="checkbox">';
             echo '<label for="groupMeShow">';
@@ -1217,7 +1217,7 @@ class ImageManagementPage extends FOGPage
             );
             unset($StorageGroup);
         }
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             self::$HookManager->processEvent(
                 'IMAGE_EDIT_STORAGE_GROUP',
                 array(
