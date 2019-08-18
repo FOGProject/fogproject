@@ -3766,6 +3766,8 @@ class HostManagementPage extends FOGPage
             ->getTimestamp();
         Route::listem(
             'UserTracking',
+            'name',
+            'ASC',
             array(
                 'hostID' => $this->obj->get('id'),
                 'action' => array('', 0, 1)
