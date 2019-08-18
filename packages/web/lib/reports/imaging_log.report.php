@@ -79,21 +79,21 @@ class Imaging_Log extends ReportManagementPage
         natcasesort($imageNames);
         natcasesort($HostNames);
 
-        if (count($userNames) > 0) {
+        if (is_array($userNames) && count($userNames) > 0) {
             $userSelForm = self::selectForm(
                 'usersearch',
                 $userNames
                         );
             unset($userNames);
         }
-        if (count($imageNames) > 0) {
+        if (is_array($imageNames) && count($imageNames) > 0) {
             $imageSelForm = self::selectForm(
                 'imagesearch',
                 $imageNames
                         );
             unset($imageNames);
         }
-        if (count($HostNames) > 0) {
+        if (is_array($HostNames) && count($HostNames) > 0) {
             $hostSelForm = self::selectForm(
                 'hostsearch',
                 $HostNames
@@ -323,7 +323,7 @@ class Imaging_Log extends ReportManagementPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             echo '<div class="text-center">';
             printf(
                 $this->reportString,

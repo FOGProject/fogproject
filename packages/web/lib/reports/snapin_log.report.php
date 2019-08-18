@@ -63,14 +63,14 @@ class Snapin_Log extends ReportManagementPage
              );
         natcasesort($snapinNames);
         natcasesort($HostNames);
-        if (count($snapinNames) > 0) {
+        if (is_array($snapinNames) && count($snapinNames) > 0) {
             $snapinSelForm = self::selectForm(
                 'snapinsearch',
                 $snapinNames
                      );
             unset($snapinNames);
         }
-        if (count($HostNames) > 0) {
+        if (is_array($HostNames) && count($HostNames) > 0) {
             $hostSelForm = self::selectForm(
                 'hostsearch',
                 $HostNames
@@ -329,7 +329,7 @@ class Snapin_Log extends ReportManagementPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             echo '<div class="text-center">';
             printf(
                 $this->reportString,
