@@ -24,12 +24,8 @@ ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
 $url = filter_input(INPUT_GET, 'url');
-if (!$currentUser->isValid()) {
-    echo _('Unauthorized');
-    exit;
-}
-if (empty($_SERVER['HTTP_X_REQUESTED_WITH'])
-    || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest'
+if (!isset($_POST['ko']) && (empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+    || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest')
 ) {
     echo _('Unauthorized');
     exit;
@@ -60,6 +56,29 @@ $kernelvers = function ($kernel) {
     );
     return shell_exec($findstr);
 };
+if (isset($_POST['ko'])) {
+    echo '<div class="box box-primary">';
+    echo '<div class="box-header with-border">';
+    echo '<h4 class="box-title">';
+    echo _('bzImage - 64 bit');
+    echo '</h4>';
+    echo '</div>';
+    echo '<div class="box-body">';
+    echo $kernelvers('bzImage');
+    echo '</div>';
+    echo '</div>';
+    echo '<div class="box box-primary">';
+    echo '<div class="box-header with-border">';
+    echo '<h4 class="box-title">';
+    echo _('bzImage - 32 bit');
+    echo '</h4>';
+    echo '</div>';
+    echo '<div class="box-body">';
+    echo $kernelvers('bzImage32');
+    echo '</div>';
+    echo '</div>';
+    exit;
+}
 printf(
     "%s\n",
     FOG_VERSION

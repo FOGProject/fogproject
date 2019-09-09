@@ -1467,6 +1467,74 @@ class StorageNodeManagement extends FOGPage
         return $warning;
     }
     /**
+     * Viewing the Storage Node's Version information.
+     *
+     * @return void
+     */
+    public function storagenodeVersion()
+    {
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
+        if (!$this->obj->get('online')) {
+            echo $this->obj->get('name');
+            echo ' ';
+            echo _('is not currently online');
+        } else {
+            $url = filter_var(
+                sprintf(
+                    '%s://%s/fog/status/mainversion.php',
+                    self::$httpproto,
+                    $this->obj->get('ip')
+                ),
+                FILTER_SANITIZE_URL
+            );
+            $data = ['vo' => 1];
+            $res = self::$FOGURLRequests->process(
+                $url,
+                'POST',
+                $data
+            );
+            $res = array_shift($res);
+            echo $res;
+        }
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Viewing the Storage Node's Kernel information.
+     *
+     * @return void
+     */
+    public function storagenodeKernel()
+    {
+        echo '<div class="box box-solid">';
+        echo '<div class="box-body">';
+        if (!$this->obj->get('online')) {
+            echo $this->obj->get('name');
+            echo ' ';
+            echo _('is not currently online');
+        } else {
+            $url = filter_var(
+                sprintf(
+                    '%s://%s/fog/status/kernelvers.php',
+                    self::$httpproto,
+                    $this->obj->get('ip')
+                ),
+                FILTER_SANITIZE_URL
+            );
+            $data = ['ko' => 1];
+            $res = self::$FOGURLRequests->process(
+                $url,
+                'POST',
+                $data
+            );
+            $res = array_shift($res);
+            echo $res;
+        }
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
      * Edit existing nodes.
      *
      * @return void
@@ -1487,6 +1555,24 @@ class StorageNodeManagement extends FOGPage
             'id' => 'storagenode-general',
             'generator' => function () {
                 $this->storagenodeGeneral();
+            }
+        ];
+
+        // Version
+        $tabData[] = [
+            'name' => _('Version'),
+            'id' => 'storagenode-version',
+            'generator' => function () {
+                $this->storagenodeVersion();
+            }
+        ];
+
+        // Kernel
+        $tabData[] = [
+            'name' => _('Kernel'),
+            'id' => 'storagenode-kernel',
+            'generator' => function () {
+                $this->storagenodeKernel();
             }
         ];
 

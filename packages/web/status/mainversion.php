@@ -20,6 +20,9 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
+if (isset($_REQUEST['vo'])) {
+    die(FOG_VERSION);
+}
 ignore_user_abort(true);
 set_time_limit(0);
 $url = 'https://fogproject.org/version/index.php';
