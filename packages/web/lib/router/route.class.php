@@ -1074,11 +1074,11 @@ class Route extends FOGBase
             if (isset($vars->macs)) {
                 $macsToAdd = array_diff(
                     (array)$vars->macs,
-                    $class->get('macs')
+                    $class->getMyMacs()
                 );
                 $primac = array_shift($macsToAdd);
                 $macsToRem = array_diff(
-                    $class->get('macs'),
+                    $class->getMyMacs(),
                     (array)$vars->macs
                 );
                 $class
