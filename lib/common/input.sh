@@ -29,7 +29,7 @@ if [[ $guessdefaults == 1 ]]; then
             ;;
     esac
     allinterfaces=$(getAllNetworkInterfaces)
-    strSuggestedInterface=${allinterfaces[0]}
+    strSuggestedInterface=$(echo ${allinterfaces} | awk '{print $1}')
     if [[ -z $strSuggestedInterface ]]; then
         echo "ERROR: Not able to find a network interface that is up on your system."
         exit 1
