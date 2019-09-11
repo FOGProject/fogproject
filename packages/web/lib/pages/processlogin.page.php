@@ -47,7 +47,7 @@ class ProcessLogin extends FOGPage
     private static function _getLanguages()
     {
         $translang = self::_translang();
-        $langmenu = '<select class="form-control select2" name="ulang" id="ulang">';
+        $langmenu = '<select class="form-control fog-select2" name="ulang" id="ulang">';
         foreach ((array)self::$foglang['Language'] as &$lang) {
             $langmenu .= '<option value="'
                 . $lang

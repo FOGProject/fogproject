@@ -404,7 +404,7 @@ function setupImagingHistory() {
         position: 'absolute',
         display: 'none',
         opacity: 0.8
-    }).appendTo('body');
+    }).appendTo('div#ajaxPageWrapper');
     Graph30Day.css({
         height: '150px'
     }).bind('plothover', function(event, pos, item) {
@@ -658,6 +658,7 @@ function setupBandwidth() {
     GraphBandwidthMaxDataPoints = $('.time-filters.active').prop('rel');
 
     $('#graph-bandwidth').css({
+        width: '100%',
         height: '150px'
     });
 }

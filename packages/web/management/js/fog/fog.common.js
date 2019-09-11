@@ -2,23 +2,8 @@ var shouldReAuth = ($('#reAuthDelete').val() == '1') ? true : false,
     reAuthModal = $('#deleteModal'),
     deleteConfirmButton = $('#confirmDeleteModal'),
     deleteLang = deleteConfirmButton.text(),
-    $_GET = getQueryParams(),
-    Common = {
-        node: $_GET['node'],
-        sub: $_GET['sub'],
-        id: $_GET['id'],
-        tab: $_GET['tab'],
-        type: $_GET['type'],
-        f: $_GET['f'],
-        debug: $_GET['debug'],
-        search: $_GET['search'],
-        masks: {
-            'mac': "##:##:##:##:##:##",
-            'productKey': "*****-*****-*****-*****-*****",
-            'hostname': "",
-            'username': '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
-        }
-    };
+    $_GET,
+    Common;
 /**
  * Non-selector required functions.
  */
@@ -276,6 +261,18 @@ $.reAuth = function(count, cb) {
 /**
  * Allows calling as $.funcname(element, ...args);
  */
+$.cachedScript = function(url, options) {
+    // Allow user to set any option except for dataType, cache, and url
+    options = $.extend(options || {}, {
+        dataType: 'script',
+        cache: true,
+        url: url
+    });
+
+    // Use $.ajax() since it is more flexible than $.getScript
+    // Return the jqXHR object so we can chain callbacks
+    return $.ajax(options);
+};
 $.finishReAuth = function(modal) {
     $(modal).modal('hide');
 };
@@ -542,7 +539,24 @@ $.fn.validateForm = function(input = ':input') {
 };
 // URL Variables. AKA GET variables.
 
-(function($) {
+function reinitialize() {
+    $_GET = getQueryParams();
+    Common = {
+        node: $_GET['node'],
+        sub: $_GET['sub'],
+        id: $_GET['id'],
+        tab: $_GET['tab'],
+        type: $_GET['type'],
+        f: $_GET['f'],
+        debug: $_GET['debug'],
+        search: $_GET['search'],
+        masks: {
+            'mac': "##:##:##:##:##:##",
+            'productKey': "*****-*****-*****-*****-*****",
+            'hostname': "",
+            'username': '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
+        }
+    };
     var pluginOptionsOpen = true,
         pluginOptionsAlt = $('.plugin-options-alternate');
 
@@ -600,11 +614,11 @@ $.fn.validateForm = function(input = ':input') {
     setupIntegrations();
     $(":input").inputmask(); // Setup all input masks
     Common.iCheck(); // Setup all checkboxes
-    $('.select2').select2({width: '100%'}); // Setup all select elements
+    $('.fog-select2').select2({width: '100%'}); // Setup all select elements
     disableFormDefaults();
     setupPasswordReveal();
     setupUniversalSearch();
-})(jQuery);
+};
 
 function setupIntegrations() {
     Pace.options = {
@@ -834,31 +848,13 @@ function clearAllIntervals(){
  *  Handle 'ajax-ified' links.
  *  (.ajax-page-link)
  */
-(function(){
+(function($){
     if(!AJAX_PAGE_LOADING_ENABLED) return;
 
     var ajaxPageLoading = false;
 
     // TODO: DRY - move all initialization code into one function that's executed here and on page reload.
-    function reinitialize(){
-        $_GET = getQueryParams();
-        Common = {
-            node: $_GET['node'],
-            sub: $_GET['sub'],
-            id: $_GET['id'],
-            tab: $_GET['tab'],
-            type: $_GET['type'],
-            f: $_GET['f'],
-            debug: $_GET['debug'],
-            search: $_GET['search'],
-            masks: {
-                'mac': "##:##:##:##:##:##",
-                'productKey': "*****-*****-*****-*****-*****",
-                'hostname': "",
-                'username': '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
-            }
-        };
-    }
+    reinitialize();
 
     window.onpopstate = function(event){
         var target = event.state.target;
@@ -948,8 +944,8 @@ function clearAllIntervals(){
         var styleDelta = {};
         // -> If a style is loaded that the current page does not need, remove it.
         for(var styleIndex in loadedStyles){
-            var loadedStyle = loadedStyles[styleIndex];
-            if(styles.indexOf(loadedStyle) === -1) styleDelta[loadedStyle] = -1;
+            var style = loadedStyles[styleIndex];
+            if(styles.indexOf(style) === -1) styleDelta[style] = -1;
         }
         // -> If a style is not loaded and the current page needs it, add it.
         for(var styleIndex in styles){
@@ -960,13 +956,11 @@ function clearAllIntervals(){
         // Now act according to the style delta
         Object.keys(styleDelta).forEach(function(key){
             var value = styleDelta[key];
-
             switch(value){
                 // Add script
                 case 1:
                     $("head").append("<link rel='stylesheet' type='text/css' href='" + key + "' />");
                     break;
-
                 // Remove script
                 case -1:
                     $("link[rel='stylesheet'][src='" + key + "']").remove();
@@ -984,6 +978,11 @@ function clearAllIntervals(){
             scripts[index] = scripts[index] + (scripts[index].indexOf("?v") === -1 ? "?ver=" + assetVersion : "");
         });
 
+        commonScripts.forEach(function(value, index){
+            if(commonScripts[index] == null) { delete commonScripts[index]; return; }
+            commonScripts[index] = commonScripts[index] + (commonScripts[index].indexOf("?v") === -1 ? "?ver=" + assetVersion : "");
+        });
+
         // Determine the currently loaded scripts.
         var loadedScripts = [];
         $("#scripts").find("script").each(function(index, element){
@@ -994,10 +993,10 @@ function clearAllIntervals(){
         var scriptDelta = {};
         // -> If a script is loaded and it isn't a script common to every page, remove it.
         for(var scriptIndex in loadedScripts){
-            var loadedScript = loadedScripts[scriptIndex];
-            if(commonScripts.indexOf(loadedScript) === -1) scriptDelta[loadedScript] = -1;
+            var script = loadedScripts[scriptIndex];
+            if (commonScripts.indexOf(script) === -1) scriptDelta[script] = -1;
         }
-        // -> If a script is not loaded and the current page needs it, add it.
+        // -> Reload all scripts this page needs.
         for(var scriptIndex in scripts){
             var script = scripts[scriptIndex];
             scriptDelta[script] = 1;
@@ -1006,18 +1005,17 @@ function clearAllIntervals(){
         // Now act according to the script delta:
         Object.keys(scriptDelta).forEach(function(key){
             var value = scriptDelta[key];
-
             switch(value){
-                // Add script
-                case 1:
-                    $("#scripts").append("<script src='" + key + "' defer></script>");
-                    break;
-
                 // Remove script
                 case -1:
                     $("script[src='" + key + "']").remove();
                     break;
+                // Add script
+                case 1:
+                default:
+                    $("#scripts").append("<script src='" + key + "' type='text/javascript'></script>");
+                    break;
             }
         });
     }
-})();
+})(jQuery);
