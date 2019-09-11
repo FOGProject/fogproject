@@ -1374,7 +1374,7 @@ class FOGConfigurationPage extends FOGPage
         unset($StorageGroups);
 
         ob_start();
-        echo '<select name="logtype" class="select2" id="logToView">';
+        echo '<select name="logtype" class="fog-select2" id="logToView">';
         foreach ($files as $nodename => &$filearray) {
             $first = true;
             foreach ((array)$filearray as $value => &$file) {

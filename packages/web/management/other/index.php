@@ -295,7 +295,6 @@ if ($isLoggedIn) {
 }
 echo '</div>';
 echo '<div id="scripts">';
-
 foreach ((array)$this->javascripts as &$javascript) {
     echo '<script src="'
         . $javascript
@@ -304,7 +303,6 @@ foreach ((array)$this->javascripts as &$javascript) {
         . '" type="text/javascript"></script>';
     unset($javascript);
 }
-unset($this->javascripts);
 echo '</div>';
 echo '<!-- Memory Usage: ';
 echo self::formatByteSize(memory_get_usage(true));
