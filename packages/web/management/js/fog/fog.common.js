@@ -1006,14 +1006,13 @@ function clearAllIntervals(){
         Object.keys(scriptDelta).forEach(function(key){
             var value = scriptDelta[key];
             switch(value){
+                // Add script
+                case 1:
+                    $("#scripts").append("<script src='" + key + "' type='text/javascript'></script>");
+                    break;
                 // Remove script
                 case -1:
                     $("script[src='" + key + "']").remove();
-                    break;
-                // Add script
-                case 1:
-                default:
-                    $("#scripts").append("<script src='" + key + "' type='text/javascript'></script>");
                     break;
             }
         });
