@@ -303,6 +303,7 @@ foreach ((array)$this->javascripts as &$javascript) {
         . '" type="text/javascript"></script>';
     unset($javascript);
 }
+unset($this->javascripts);
 echo '</div>';
 echo '<!-- Memory Usage: ';
 echo self::formatByteSize(memory_get_usage(true));
