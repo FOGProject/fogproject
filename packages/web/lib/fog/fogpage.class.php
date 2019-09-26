@@ -3184,6 +3184,30 @@ abstract class FOGPage extends FOGBase
             . '/>';
     }
     /**
+     * Makes information tooltip element.
+     *
+     * @param string $class     The class to associate with.
+     * @param string $id        The id to associate with.
+     * @param string $title     The data to present in the tooltip.
+     * @param string $extra     Any extra attributes to add.
+     */
+    public static function makeInfoTooltip(
+        $class,
+        $id,
+        $title,
+        $extra = ''
+    ) {
+        return '<i class="' . $class. '" id="' . $id . '"'
+            . ' data-toggle="tooltip"'
+            . ' data-placement="left"'
+            . ' data-html="true"'
+            . ' data-trigger="click"'
+            //. ' style="size:+3; color:#337ab7;"'
+            . " title='$title'"
+            . ($extra ? " $extra" : '')
+            . '></i>';
+    }
+    /**
      * Makes the opening form tag.
      *
      * @param string $class      The class to associate this form with.
