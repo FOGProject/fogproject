@@ -1745,6 +1745,10 @@ class Host extends FOGController
      */
     public function addSnapin($addArray)
     {
+        $addArray = array_filter($addArray);
+        if (count($addArray) < 1) {
+            return $this;
+        }
         $limit = self::getSetting('FOG_SNAPIN_LIMIT');
         if ($limit > 0) {
             $snapinCount = self::getClass('SnapinManager')
@@ -1981,6 +1985,10 @@ class Host extends FOGController
      */
     public function addHost($addArray)
     {
+        $addArray = array_filter($addArray);
+        if (count($addArray) < 1) {
+            return $this;
+        }
         return $this->addRemItem(
             'groups',
             (array)$addArray,
