@@ -643,6 +643,7 @@ abstract class FOGService extends FOGBase
                         }
                         if ($localsize == $remotesize) {
                             $localhash = self::getHash($localfilename);
+                            $remotehash = null;
                             if ($avail) {
                                 $remotehash = self::$FOGURLRequests->process(
                                     $hashurl,
