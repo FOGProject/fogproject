@@ -629,14 +629,19 @@ abstract class FOGService extends FOGBase
                             $avail = false;
                         }
                         $localsize = self::getFilesize($localfilename);
+                        $remotesize = null;
                         if ($avail) {
-                            $remotesize = self::$FOGURLRequests->process(
+                            $rsize = self::$FOGURLRequests->process(
                                 $sizeurl,
                                 'POST',
                                 ['file' => base64_encode($remotefilename)]
                             );
-                            $remotesize = array_shift($remotesize);
-                        } else {
+                            $rsize = array_shift($rsize);
+                            if(is_int($rsize) || $res === "") {
+                                $remotesize = $rsize;
+                            }
+                        }
+                        if (is_null($remotesize)) {
                             $remotesize = self::$FOGFTP->size($remotefilename);
                         }
                         if ($localsize == $remotesize) {
