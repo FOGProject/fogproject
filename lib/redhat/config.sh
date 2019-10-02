@@ -31,7 +31,14 @@ case $linuxReleaseName in
         ;;
     *)
         [[ -z $etcconf ]] && etcconf="/etc/httpd/conf.d/fog.conf"
-        [[ -z $packages ]] && packages="curl dhcp gcc gcc-c++ genisoimage gzip httpd lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils php php-cli php-common php-fpm php-gd php-ldap php-mbstring php-mysqlnd php-process syslinux tar tftp-server vsftpd wget xinetd xz-devel"
+        [[ -z $packages ]] && {
+            if [[ $OSVersion -gt 7 ]]; then
+                packages="curl dhcp-server gcc gcc-c++ genisoimage gzip httpd lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils php php-cli php-common php-fpm php-gd php-json php-ldap php-mbstring php-mysqlnd php-process syslinux tar tftp-server vsftpd wget xinetd xz-devel"
+		[[ -z $dhcpname ]] && dhcpname="dhcp-server"
+            else
+                packages="curl dhcp gcc gcc-c++ genisoimage gzip httpd lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils php php-cli php-common php-fpm php-gd php-ldap php-mbstring php-mysqlnd php-process syslinux tar tftp-server vsftpd wget xinetd xz-devel"
+            fi
+        }
         pkginst=$(command -v dnf)
         if [[ -n $pkginst ]]; then
             [[ -z $repoenable ]] && repoenable="dnf config-manager --set-enabled"
