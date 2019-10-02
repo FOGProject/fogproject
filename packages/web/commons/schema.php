@@ -845,9 +845,13 @@ $this->schema[] = array(
     . "('FOG_STORAGENODE_MYSQLPASS','This setting defines the password "
     . "the storage nodes should use to connect to the fog server.',"
     . "'$fogstoragenodepass','FOG Storage Nodes')",
-    "GRANT ALL ON `"
-    . DATABASE_NAME
-    . "`.* TO '$fogstoragenodeuser'@'%' IDENTIFIED BY '$fogstoragenodepass'",
+    // This should fix issues creating storage node user on fresh install
+    // mysql 5.7 doesn't like grant all and identified in one line.
+    "CREATE USER '$fogstoragenodeuser'@'%' IDENTIFIED BY '$fogstoragenodepass'",
+    "GRANT ALL PRIVILEGES ON `" . DATABASE_NAME . "`.* TO '$fogstoragenodeuser'@'%'",
+    //"GRANT ALL ON `"
+    //. DATABASE_NAME
+    //. "`.* TO '$fogstoragenodeuser'@'%' IDENTIFIED BY '$fogstoragenodepass'",
     "UPDATE `schemaVersion` set `vValue`='16'",
 );
 // 17
@@ -2833,7 +2837,7 @@ $this->schema[] = array(
 // 186
 $this->schema[] = array(
     "DELETE FROM `globalSettings` WHERE `settingKey`='FOG_NEW_CLIENT'",
-    "ALTER TABLE .`hosts` ADD COLUMN `hostADPassLegacy` LONGTEXT AFTER `hostADPass`",
+    "ALTER TABLE `hosts` ADD COLUMN `hostADPassLegacy` LONGTEXT AFTER `hostADPass`",
     "UPDATE `globalSettings` SET "
     . "`settingDesc`='This setting defines the default value "
     . "to populate the hosts Active Directory password value "
