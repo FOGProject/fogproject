@@ -402,7 +402,7 @@ class MulticastTask extends FOGService
     {
         Route::indiv(
             'image',
-            $this->get('image')
+            $this->_MultiSess->get('image')
         );
         $Image = json_decode(Route::getData());
         return (int)$Image->imagepartitiontype->type;
@@ -468,7 +468,7 @@ class MulticastTask extends FOGService
                 $this->getHelloInterval() ?
                 sprintf(' --rexmit-hello-interval %s', $this->getHelloInterval()) :
                 null
-            )
+            ),
             (
                 $this->getInterface() ?
                 sprintf(' --interface %s', $this->getInterface()) :
