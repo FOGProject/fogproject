@@ -453,6 +453,7 @@ class MulticastManager extends FOGService
                                         $runningTask->getID()
                                     );
                                 }
+                                $completeTasks[] = $runningTask;
                             }
                         } else {
                             if ($jobcompleted) {
