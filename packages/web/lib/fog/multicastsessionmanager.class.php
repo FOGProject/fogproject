@@ -69,7 +69,7 @@ class MulticastSessionManager extends FOGManagerController
                 'stateID' => $cancelled,
                 'name' => '',
                 'clients' => 0,
-                'completetime', self::niceDate()->format('Y-m-d H:i:s')
+                'completetime' => self::niceDate()->format('Y-m-d H:i:s')
             ]
         );
         /*
