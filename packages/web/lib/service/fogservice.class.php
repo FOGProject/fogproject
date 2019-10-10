@@ -594,9 +594,17 @@ abstract class FOGService extends FOGBase
                 $filescheck = array_unique(array_merge((array)$localfilescheck, (array)$remotefilescheck));
                 $testavail = -1;
                 $allsynced = true;
+
+                $resp = self::$FOGURLRequests->isAvailable($testip, 1, 80);
+                $avail = true;
+                $testavail = array_filter($resp);
+                $testavail = array_shift($testavail);
+                if (!$testavail) {
+                    $avail = false;
+                }
+
                 foreach ($filescheck as $j => &$filename) {
                     $filesequal = false;
-                    $avail = true;
                     $lindex = array_search($filename, $localfilescheck);
                     $rindex = array_search($filename, $remotefilescheck);
                     $localfilename = sprintf('%s%s%s', $path, "/", $localfilescheck[$lindex]);
@@ -622,12 +630,6 @@ abstract class FOGService extends FOGBase
                         ));
                         self::$FOGFTP->delete($remotefilename);
                     } else {
-                        $resp = self::$FOGURLRequests->isAvailable($testip, 1, 80);
-                        $testavail = array_filter($resp);
-                        $testavail = array_shift($testavail);
-                        if (!$testavail) {
-                            $avail = false;
-                        }
                         $localsize = self::getFilesize($localfilename);
                         if ($avail) {
                             $remotesize = self::$FOGURLRequests->process(
@@ -641,6 +643,7 @@ abstract class FOGService extends FOGBase
                         }
                         if ($localsize == $remotesize) {
                             $localhash = self::getHash($localfilename);
+                            $remotehash = null;
                             if ($avail) {
                                 $remotehash = self::$FOGURLRequests->process(
                                     $hashurl,
