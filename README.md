@@ -2,7 +2,7 @@
 
 ## Introduction
 
- FOG is a free open-source cloning/imaging solution/rescue suite. FOG can be used to image Windows XP, Vista, Windows 7 and Window 8 PCs using PXE, PartClone, and a Web GUI to tie it together. Includes features like memory and disk test, disk wipe, av scan & task scheduling.
+ FOG is a free open-source cloning/imaging solution/rescue suite. FOG can be used to image Windows XP, Vista, Windows 7, Window 8, and Windows 10 PCs using PXE, PartClone, and a Web GUI to tie it together. Includes features like memory and disk test, disk wipe, av scan, task scheduling, inventory management, and remote installation of software packages. Features can be triggered remotely from the web GUI, once the machine has been registered.
 
 ## Install Stable
 
@@ -28,10 +28,9 @@
 
 0. Install and update your chosen linux server
 
-
 1. Download the file(s)
 
- - All that is needed to start installation is to download the files to perform the install. Choose one of the following methods you prefer;
+ - All that is needed to start the installation is to download the files to perform the install. Choose one of the following methods you prefer;
 
 2. Go into the downloaded source/bin folder
 
