@@ -568,9 +568,11 @@ installPackages() {
                         rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     fi
                     if [[ -n $repoenable ]]; then
-                        $repoenable epel >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
-                        $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
-                        [[ $OSVersion -le 7 ]] && $repoenable remi-php72 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                        if [[ $OSVersion -le 7 ]]; then
+                            $repoenable epel >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                            $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                            $repoenable remi-php72 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                        fi
                     fi
                     ;;
             esac
