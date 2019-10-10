@@ -542,7 +542,7 @@ addUbuntuRepo() {
     ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     locale-gen 'en_US.UTF-8' >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) && $OSVersion -ge 18 ]]; then
-        # Fix missing universe section for Ubuntu 18.04 LIVE 
+        # Fix missing universe section for Ubuntu 18.04 LIVE
         LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y universe >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     else
         LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -582,9 +582,11 @@ installPackages() {
                         rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     fi
                     if [[ -n $repoenable ]]; then
-                        $repoenable epel >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
-                        $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
-                        [[ $OSVersion -le 7 ]] && $repoenable remi-php72 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                        if [[ $OSVersion -le 7 ]]; then
+                            $repoenable epel >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                            $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                            $repoenable remi-php72 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                        fi
                     fi
                     ;;
             esac
