@@ -1224,7 +1224,7 @@ EOF
     cnt=0
     ret=999
     while [[ $ret -ne 0 && $cnt -lt 10  ]]; do
-        [[ -z $password || $ret -ne 999 ]] && password=$(tr -cd '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[\\]^_{|}~' < /dev/urandom | fold -w12 | head -n1)
+        [[ -z $password || $ret -ne 999 ]] && password=$(head /dev/urandom | tr -dc '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~' | fold -w12 | shuf -n1)
         echo -e "$password\n$password" | passwd $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         ret=$?
         let cnt+=1
