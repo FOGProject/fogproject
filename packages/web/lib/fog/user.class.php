@@ -21,7 +21,7 @@
  */
 class User extends FOGController
 {
-    const PATTERN = '/(?=^.{3,40}$)^[\w][\w0-9]*[._\-]?[\w0-9]*[.]?[\w0-9]+$/i';
+    const PATTERN = '/(?=^.{1,50}$)^(?!.*[_\s\-\.]{2,})[\w0-9][\w0-9\s\-\.]*[\w0-9]$/i';
     /**
      * The users table
      *
