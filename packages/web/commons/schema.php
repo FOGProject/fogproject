@@ -847,6 +847,7 @@ $this->schema[] = [
     . "'$fogstoragenodepass','FOG Storage Nodes')",
     // This should fix issues creating storage node user on fresh install
     // mysql 5.7 doesn't like grant all and identified in one line.
+    "DROP USER IF EXISTS '$fogstoragenodeuser'@'%'",
     "CREATE USER '$fogstoragenodeuser'@'%' IDENTIFIED BY '$fogstoragenodepass'",
     "GRANT ALL PRIVILEGES ON `" . DATABASE_NAME . "`.* TO '$fogstoragenodeuser'@'%'",
     //"GRANT ALL ON `"
