@@ -3829,3 +3829,18 @@ $this->schema[] = [
     . "'This is the regex pattern to match for valid passwords. Default: (?=.*){4,}' "
     . "WHERE `settingKey` = 'FOG_USER_VALIDPASSCHARS'"
 ];
+// 274
+$this->schema[] = [
+    "ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmHelloInterval` "
+    . "VARCHAR(8) AFTER `ngmMaxBitrate`",
+    "UPDATE `nfsGroupMembers` SET `ngmUser` ='"
+    . STORAGE_FTP_USERNAME
+    . "' WHERE `ngmHostname` = '"
+    . STORAGE_HOST
+    . "'",
+    "UPDATE `globalSettings` SET `settingValue` = '"
+    . STORAGE_FTP_USERNAME
+    . "' WHERE `settingKey` = 'FOG_TFTP_FTP_USERNAME'",
+    "UPDATE `globalSettings` SET `settingValue` = 275000 WHERE "
+    . "`settingKey` = 'FOG_KERNEL_RAMDISK_SIZE'"
+];
