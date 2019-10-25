@@ -162,6 +162,11 @@ class SnapinClient extends FOGClient implements FOGClientSend
                             continue;
                         }
                     }
+                    $location = sprintf(
+                        'http://%s/%s',
+                        $StorageNode->get('ip'),
+                        $StorageNode->get('webroot')
+                    );
                     $path = sprintf(
                         '/%s',
                         trim($StorageNode->get('snapinpath'), '/')
