@@ -1502,10 +1502,16 @@ abstract class FOGBase
             return $encdata;
         }
         $data = explode('|', $encdata);
-        $iv = pack('H*', $data[0]);
-        $encoded = pack('H*', $data[1]);
+        if ($iv != pack('H*', $data[0])) {
+            return '';
+        }
+        if ($encoded != pack('H*', $data[1])) {
+            return '';
+        }
         if (!$key && $data[2]) {
-            $key = pack('H*', $data[2]);
+            if ($key != pack('H*', $data[2])) {
+                return '';
+            }
         }
         if (empty($key)) {
             return '';
