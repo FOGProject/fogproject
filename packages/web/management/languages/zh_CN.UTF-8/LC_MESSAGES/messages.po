@@ -7483,3 +7483,6 @@ msgstr "Snapin文件太大，在php.ini中增加post_max_size。"
 
 msgid "$_POST variable is empty, check apache error log."
 msgstr "$ _POST变量为空，检查apache错误日志。"
+
+msgid "MAC address is already in use by another host"
+msgstr "MAC地址已被其他主机使用"

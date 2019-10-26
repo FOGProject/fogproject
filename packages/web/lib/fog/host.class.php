@@ -1692,6 +1692,16 @@ class Host extends FOGController
         if (is_array($mac) && count($mac) > 0) {
             $mac = array_shift($mac);
         }
+        $host = $mac->getHost();
+        if ($host instanceof Host && $host->isValid()) {
+            throw new Exception(
+                sprintf(
+                    "%s: %s",
+                    _('MAC address is already in use by another host'),
+                    $host->get('name')
+                )
+            );
+        }
         return $this->set('mac', $mac);
     }
     /**

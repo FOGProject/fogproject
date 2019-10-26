@@ -7535,3 +7535,6 @@ msgstr "Le fichier logiciel enfichable est trop gros, augmentez post_max_size da
 
 msgid "$_POST variable is empty, check apache error log."
 msgstr "La variable $_POST est vide, consultez le journal des erreurs Apache."
+
+msgid "MAC address is already in use by another host"
+msgstr "L'adresse MAC est déjà utilisée par un autre hôte"

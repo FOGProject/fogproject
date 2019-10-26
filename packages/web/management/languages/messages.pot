@@ -6551,3 +6551,6 @@ msgstr ""
 
 msgid "$_POST variable is empty, check apache error log."
 msgstr ""
+
+msgid "MAC address is already in use by another host"
+msgstr ""

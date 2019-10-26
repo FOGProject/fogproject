@@ -6681,3 +6681,6 @@ msgstr "Il file snap-in è troppo grande, aumenta post_max_size in php.ini."
 
 msgid "$_POST variable is empty, check apache error log."
 msgstr "La variabile $ _POST è vuota, controlla il log degli errori di apache."
+
+msgid "MAC address is already in use by another host"
+msgstr "L'indirizzo MAC è già in uso da un altro host"
