@@ -347,7 +347,7 @@ abstract class FOGController extends FOGBase
                 print_r($value, 1)
             );
             self::info($msg);
-            if (!is_array($this->data[$key])) {
+            if (isset($this->data[$key]) && !is_array($this->data[$key])) {
                 $this->data[$key] = [$this->data[$key]];
             }
             $this->data[$key][] = $value;
@@ -876,6 +876,10 @@ abstract class FOGController extends FOGBase
             throw new Exception(
                 _('Invalid type, merge to add, diff to remove')
             );
+        }
+        $array = array_filter($array);
+        if (count($array) < 1) {
+            return $this;
         }
         switch ($array_type) {
         case 'merge':
