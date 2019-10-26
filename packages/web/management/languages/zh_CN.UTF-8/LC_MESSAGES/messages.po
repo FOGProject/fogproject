@@ -6581,3 +6581,7 @@ msgstr "未找到"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "事件必须是字符串"
+
+#, fuzzy
+msgid "MAC address is already in use by another host"
+msgstr "MAC地址已被其他主机使用"

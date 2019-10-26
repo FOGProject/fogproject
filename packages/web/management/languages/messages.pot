@@ -5610,3 +5610,6 @@ msgstr ""
 
 msgid "Device must be a string"
 msgstr ""
+
+msgid "MAC address is already in use by another host"
+msgstr ""
