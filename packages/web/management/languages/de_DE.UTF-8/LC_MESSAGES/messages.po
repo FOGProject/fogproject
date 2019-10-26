@@ -7515,3 +7515,6 @@ msgstr "Snapin Datei ist zu groß, post_max_size in php.ini erhöhen."
 
 msgid "$_POST variable is empty, check apache error log."
 msgstr "$_POST Variable ist leer, siehe Apache Errorlog"
+
+msgid "MAC address is already in use by another host"
+msgstr "Die MAC-Adresse wird bereits von einem andern Host verwendet"
