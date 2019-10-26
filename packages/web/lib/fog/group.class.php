@@ -920,5 +920,6 @@ class Group extends FOGController
         );
         $hosts = json_decode(Route::getData(), true);
         $this->set('hosts', (array)$hosts);
+        $this->getHostCount();
     }
 }
