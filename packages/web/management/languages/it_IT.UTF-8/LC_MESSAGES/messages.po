@@ -6180,3 +6180,7 @@ msgstr "Non trovato"
 
 msgid "Device must be a string"
 msgstr "Dispositivo deve essere una stringa"
+
+#, fuzzy
+msgid "MAC address is already in use by another host"
+msgstr "L'indirizzo MAC è già in uso da un altro host"

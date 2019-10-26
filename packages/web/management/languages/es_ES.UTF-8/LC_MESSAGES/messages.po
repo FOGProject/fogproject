@@ -6772,3 +6772,7 @@ msgstr "Extraviado"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Evento debe ser una cadena"
+
+#, fuzzy
+msgid "MAC address is already in use by another host"
+msgstr "La dirección MAC ya está en uso por otro host"

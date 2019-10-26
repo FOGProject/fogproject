@@ -6590,3 +6590,7 @@ msgstr "Not found"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Event must be a string"
+
+#, fuzzy
+msgid "MAC address is already in use by another host"
+msgstr "MAC address is already in use by another host"

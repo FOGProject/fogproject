@@ -6594,3 +6594,7 @@ msgstr "Não encontrado"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Evento deve ser uma string"
+
+#, fuzzy
+msgid "MAC address is already in use by another host"
+msgstr "O endereço MAC já está sendo usado por outro host"
