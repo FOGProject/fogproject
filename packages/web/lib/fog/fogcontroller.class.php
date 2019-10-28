@@ -1161,4 +1161,118 @@ abstract class FOGController extends FOGBase
 
         return $this;
     }
+    /**
+     * Gets items in list format.
+     *
+     * @param string $primary    What are we getting?
+     * @param string $secondary  The secondary (what we're getting items from)?
+     * @param array  $join       Any Joins needed?
+     * @param string $where      Any special "Where" items?
+     * @param array  $addColumns Any additional columns
+     * @param string $qStr       Custom SQL String to use?
+     * @param string $qFilterStr Custom SQL Filter String to use?
+     * @param string $qTotalStr  Custom SQL Total string to use?
+     *
+     * @return string
+     */
+    public function getItemsList(
+        $primary,
+        $secondary,
+        $join = [],
+        $where = '',
+        $addColumns = [],
+        $qStr = '',
+        $qFilterStr = '',
+        $qTotalStr = ''
+    ) {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        $priman = $primary . 'manager';
+        $secman = $secondary . 'manager';
+
+        $priman = self::getClass($priman);
+        $privars = $priman->getColumns();
+
+        $secman = self::getClass($secman);
+        $secvars = $secman->getColumns();
+
+        $itemID = $privars['id'];
+        $itemassocID = strtolower(get_class($this)). 'ID';
+        $secondID = $secvars[$itemassocID];
+
+        $qStr = trim($qStr);
+        $qFilterStr = trim($qFilterStr);
+        $qTotalStr = trim($qTotalStr);
+
+        if (empty($qStr)) {
+            $sqlStr = "SELECT `%s`,"
+                . "IF(`" . $secondID . "` = '"
+                . $this->get('id')
+                . "','associated','dissociated') AS `" . $secondID . "` "
+                . "FROM `%s`";
+            foreach ($join as &$j) {
+                $sqlStr .= ' ' . $j . ' ';
+                unset($j);
+            }
+            $sqlStr .= ' %s %s %s';
+        } else {
+            $sqlStr = $qStr;
+        }
+        if (empty($qFilterStr)) {
+            $sqlFilterStr = "SELECT COUNT(`%s`) "
+                . "FROM `%s`";
+            foreach ($join as &$j) {
+                $sqlFilterStr .= ' ' . $j . ' ';
+                unset($j);
+            }
+            $sqlFilterStr .= ' %s';
+        } else {
+            $sqlFilterStr = $qFilterStr;
+        }
+        if (empty($qTotalStr)) {
+            $sqlTotalStr = "SELECT COUNT(`%s`) FROM `%s`";
+        } else {
+            $sqlTotalStr = $qTotalStr;
+        }
+        if (count($join) > 0) {
+            foreach ($join as &$j) {
+                $sqlStr .= ' ' . $j . ' ';
+                $sqlFilterStr .= ' ' . $j . ' ';
+                unset($j);
+            }
+        }
+
+        $sqlStr .= ' %s %s %s';
+        $sqlFilterStr .= ' %s';
+
+        foreach ($privars as $common => &$real)
+        {
+            $columns[] = [
+                'db' => $real,
+                'dt' => $common
+            ];
+            unset($real);
+        }
+        foreach ($addColumns as &$column) {
+            $columns[] = $column;
+            unset($column);
+        }
+
+        echo json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                $priman->getTable(),
+                $itemID,
+                $columns,
+                $sqlStr,
+                $sqlFilterStr,
+                $sqlTotalStr,
+                $where
+            )
+        );
+        exit;
+    }
 }

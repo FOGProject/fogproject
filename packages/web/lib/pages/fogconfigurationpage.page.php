@@ -66,9 +66,7 @@ class FOGConfigurationPage extends FOGPage
         $StorageNodes = $StorageNodes->data;
         ob_start();
         foreach ($StorageNodes as &$StorageNode) {
-            if (!$StorageNode->online) {
-                continue;
-            }
+            $id = str_replace(' ', '_', $StorageNode->name);
             $url = filter_var(
                 sprintf(
                     '%s://%s/fog/status/kernelvers.php',
@@ -77,7 +75,6 @@ class FOGConfigurationPage extends FOGPage
                 ),
                 FILTER_SANITIZE_URL
             );
-            $id = str_replace(' ', '_', $StorageNode->name);
             echo '<div class="panel box box-primary">';
             echo '<div class="box-header with-border">';
             echo '<h4 class="box-title">';
@@ -92,6 +89,15 @@ class FOGConfigurationPage extends FOGPage
                 . $id
                 . '" class="panel-collapse collapse">';
             echo '<div class="box-body">';
+            if (!$StorageNode->online) {
+                echo '<div class="alert alert-warning">';
+                echo _('Storage Node is currently unavailable');
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+                continue;
+            }
             echo '<pre class="kernvers" urlcall="'
                 . $url
                 . '">';
