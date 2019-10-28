@@ -1237,16 +1237,6 @@ abstract class FOGController extends FOGBase
         } else {
             $sqlTotalStr = $qTotalStr;
         }
-        if (count($join) > 0) {
-            foreach ($join as &$j) {
-                $sqlStr .= ' ' . $j . ' ';
-                $sqlFilterStr .= ' ' . $j . ' ';
-                unset($j);
-            }
-        }
-
-        $sqlStr .= ' %s %s %s';
-        $sqlFilterStr .= ' %s';
 
         foreach ($privars as $common => &$real)
         {
