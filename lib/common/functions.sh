@@ -382,6 +382,7 @@ configureFTP() {
         seccompsand="seccomp_sandbox=NO"
     fi
     [[ $osid -eq 3 ]] && tcpwrappers="NO" || tcpwrappers="YES"
+    [[ $osid -eq 2 && $OSVersion -gt 7 ]] && tcpwrappers="NO"
     echo -e  "max_per_ip=200\nanonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\ntcp_wrappers=$tcpwrappers\n$seccompsand" > "$ftpconfig"
     case $systemctl in
         yes)
