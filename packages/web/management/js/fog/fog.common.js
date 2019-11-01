@@ -551,10 +551,9 @@ function reinitialize() {
         debug: $_GET['debug'],
         search: $_GET['search'],
         masks: {
-            'mac': "##:##:##:##:##:##",
-            'productKey': "*****-*****-*****-*****-*****",
-            'hostname': "",
-            'username': '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^'
+            mac: "##:##:##:##:##:##",
+            productKey: "*****-*****-*****-*****-*****",
+            hostname: ""
         }
     };
     var pluginOptionsOpen = true,
@@ -629,10 +628,6 @@ function setupIntegrations() {
 
     // Extending input mask to add our types
     $.extend($.inputmask.defaults.definitions, {
-        '^': {
-            validator: "[A-Za-z0-9\_\.]",
-            cardinality: 1
-        },
         '#': {
             validator: "[A-Fa-f0-9]",
             cardinality: 1
