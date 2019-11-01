@@ -1957,10 +1957,10 @@ class GroupManagement extends FOGPage
         );
         $adPass = (
             $adPass ?
-            self::$Host->get('ADPass') :
+            '********************************' :
             ''
         );
-        $ADPass = self::$Host->get('ADPass');
+        $ADPass = $adPass;
 
         $this->title = sprintf(
             '%s: %s',

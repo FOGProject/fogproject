@@ -1646,6 +1646,8 @@ class Host extends FOGController
         $nosave = false,
         $productKey = ''
     ) {
+        $adpasspat = "/^\*{32}$/";
+        $pass = (preg_match($adpasspat, $pass) ? $this->get('ADPass') : $pass);
         if ($this->get('id')) {
             if (!$override) {
                 if (empty($useAD)) {
