@@ -12,5 +12,4 @@
             $(':input').val('');
         });
     });
-    $('#user').inputmask({mask: Common.masks.username, placeholder: ''});
 })(jQuery);

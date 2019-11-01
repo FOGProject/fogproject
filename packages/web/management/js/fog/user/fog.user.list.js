@@ -73,7 +73,6 @@
             createnewModal.modal('hide');
         });
     });
-    $('#user').inputmask({mask: Common.masks.username, placeholder: ''});
     deleteSelected.on('click', function() {
         disableButtons(true);
         $.deleteSelected(table, function(err) {

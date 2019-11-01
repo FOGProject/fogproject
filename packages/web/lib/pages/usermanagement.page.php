@@ -92,7 +92,18 @@ class UserManagement extends FOGPage
                 true,
                 false,
                 3,
-                40
+                50,
+                'beRegexTo="'
+                . '(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$"'
+                . ' requirements="'
+                . _('Username must begin with 2 numbers or letters.')
+                . ' '
+                . _('Username must end with a number or letter.')
+                . ' '
+                . _('You may use _, ., -, or a space between.')
+                . ' '
+                . _('It must be between 3 and 50 characters.')
+                . '"'
             ),
             self::makeLabel(
                 $labelClass,
@@ -244,7 +255,18 @@ class UserManagement extends FOGPage
                 true,
                 false,
                 3,
-                40
+                50,
+                'beRegexTo="'
+                . '(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$"'
+                . ' requirements="'
+                . _('Username must begin with 2 numbers or letters.')
+                . ' '
+                . _('Username must end with a number or letter.')
+                . ' '
+                . _('You may use _, ., -, or a space between.')
+                . ' '
+                . _('It must be between 3 and 50 characters.')
+                . '"'
             ),
             self::makeLabel(
                 $labelClass,
@@ -354,6 +376,14 @@ class UserManagement extends FOGPage
     {
         header('Content-type: application/json');
         self::$HookManager->processEvent('USER_ADD_POST');
+        $userPat = "(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$";
+        $userErr =  _('Username must begin with 2 numbers or letters.')
+			. ' '
+			. _('Username must end with a number or letter.')
+			. ' '
+			. _('You may use _, ., -, or a space between.')
+			. ' '
+			. _('It must be between 3 and 50 characters.');
         $user = strtolower(
             trim(
                 filter_input(INPUT_POST, 'user')
@@ -370,6 +400,9 @@ class UserManagement extends FOGPage
 
         $serverFault = false;
         try {
+            if (!preg_match($userPat, $user)) {
+                throw new Exception($userErr);
+            }
             $exists = self::getClass('UserManager')
                 ->exists($user);
             if ($exists) {
@@ -460,7 +493,18 @@ class UserManagement extends FOGPage
                 true,
                 false,
                 3,
-                40
+                50,
+                'beRegexTo="'
+                . '(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$"'
+                . ' requirements="'
+                . _('Username must begin with 2 numbers or letters.')
+                . ' '
+                . _('Username must end with a number or letter.')
+                . ' '
+                . _('You may use _, ., -, or a space between.')
+                . ' '
+                . _('It must be between 3 and 50 characters.')
+                . '"'
             ),
             self::makeLabel(
                 $labelClass,
@@ -529,6 +573,14 @@ class UserManagement extends FOGPage
      */
     public function userGeneralPost()
     {
+        $userPat = "(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$";
+        $userErr =  _('Username must begin with 2 numbers or letters.')
+			. ' '
+			. _('Username must end with a number or letter.')
+			. ' '
+			. _('You may use _, ., -, or a space between.')
+			. ' '
+			. _('It must be between 3 and 50 characters.');
         $user = strtolower(
             trim(
                 filter_input(INPUT_POST, 'user')
@@ -537,6 +589,9 @@ class UserManagement extends FOGPage
         $display = trim(
             filter_input(INPUT_POST, 'display')
         );
+		if (!preg_match($userPat, $user)) {
+			throw new Exception($userErr);
+		}
         $exists = self::getClass('UserManager')
             ->exists($user);
         if ($user != $this->obj->get('name')

@@ -77,8 +77,6 @@
             }, 2000);
         });
     });
-    $("#user").inputmask({"mask": Common.masks.username, "placeholder": ""});
-
 
     // ----------------------------------------------------
     // PASSWORD TAB
