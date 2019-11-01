@@ -1011,6 +1011,13 @@ class FOGConfigurationPage extends FOGPage
                     }
                 }
                 switch ($name) {
+                case 'FOG_AD_DEFAULT_PASSWORD':
+                    $set = (
+                        preg_match('/^\*{32}$/', $set) ?
+                        self::getSetting($name) :
+                        $set
+                    );
+                    break;
                 case 'FOG_API_TOKEN':
                     $set = base64_decode($set);
                     break;
@@ -2198,6 +2205,22 @@ class FOGConfigurationPage extends FOGPage
                                 $row['settingKey'],
                                 $row['settingValue']
                             );
+                            break;
+                        case 'FOG_AD_DEFAULT_PASSWORD':
+                            $input = '<div class="input-group">'
+                                . self::makeInput(
+                                    'form-control',
+                                    $row['settingID'],
+                                    '',
+                                    'password',
+                                    $row['settingKey'],
+                                    (
+                                        $row['settingValue'] ?
+                                        '********************************' :
+                                        ''
+                                    )
+                                )
+                                . '</div>';
                             break;
                         default:
                             $input = '<div class="input-group">'
