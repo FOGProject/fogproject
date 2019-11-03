@@ -752,11 +752,19 @@ checkSELinux() {
 }
 checkFirewall() {
     command -v iptables >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    exitcode=$?
-    [[ $exitcode -ne 0 ]] && return
-    rulesnum=$(iptables -L -n | wc -l)
-    policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
-    [[ $rulesnum -eq 8 && $policy -eq 0 ]] && return
+    iptcmd=$?
+    if [[ $iptcmd -eq 0 ]]; then
+        rulesnum=$(iptables -L -n | wc -l)
+        policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
+        [[ $rulesnum -ne 8 || $policy -ne 0 ]] && fwrunning=1
+    fi
+    command -v firewall-cmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    fwcmd=$?
+    if [[ $fwcmd -eq 0 ]]; then
+        fwstate=$(firewall-cmd --state 2>&1)
+        [[ "x$fwstate" == "xrunning" ]] && fwrunning=1
+    fi
+    [[ $fwrunning -ne 1 ]] && return
     echo " * The local firewall seems to be currently enabled on your system. This can cause"
     echo " * issues on FOG servers if you are not well experienced and know what you are doing."
     echo " * Should the installer try to disable the local firewall for you now? (y/N)"
@@ -777,9 +785,16 @@ checkFirewall() {
                 systemctl disable firewalld >/dev/null 2>&1
                 systemctl stop iptables >/dev/null 2>&1
                 systemctl disable iptables >/dev/null 2>&1
-                rulesnum=$(iptables -L -n | wc -l)
-                policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
-                if [[ $rulesnum -ne 8 || $policy -ne 0 ]]; then
+                if [[ $iptcmd -eq 0 ]]; then
+                    rulesnum=$(iptables -L -n | wc -l)
+                    policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
+                    [[ $rulesnum -ne 8 || $policy -ne 0 ]] && cannotdisablefw=1
+                fi
+                if [[ $fwcmd -eq 0 ]]; then
+                    fwstate=$(firewall-cmd --state 2>&1)
+                    [[ "x$fwstate" == "xrunning" ]] && cannotdisablefw=1
+                fi
+                if [[ $cannotdisablefw -eq 1 ]]; then
                     echo " * We were unable to disable the firewall on your system. Read up on how"
                     echo " * you can disable it manually. Proceeding with the installation anyway..."
                     echo " * Hit ENTER so we know you've read this message."
