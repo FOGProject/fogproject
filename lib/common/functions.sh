@@ -381,9 +381,7 @@ configureFTP() {
     if [[ $vsvermaj -gt 3 ]] || [[ $vsvermaj -eq 3 && $vsverbug -ge 2 ]]; then
         seccompsand="seccomp_sandbox=NO"
     fi
-    [[ $osid -eq 3 ]] && tcpwrappers="NO" || tcpwrappers="YES"
-    [[ $osid -eq 2 && $OSVersion -gt 7 ]] && tcpwrappers="NO"
-    echo -e  "max_per_ip=200\nanonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\ntcp_wrappers=$tcpwrappers\n$seccompsand" > "$ftpconfig"
+    echo -e  "max_per_ip=200\nanonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\n$seccompsand" > "$ftpconfig"
     case $systemctl in
         yes)
             systemctl is-enabled --quiet vsftpd && true || systemctl enable vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -733,11 +731,19 @@ checkSELinux() {
 }
 checkFirewall() {
     command -v iptables >>$workingdir/error_logs/fog_error_${version}.log
-    exitcode=$?
-    [[ $exitcode -ne 0 ]] && return
-    rulesnum=$(iptables -L -n | wc -l)
-    policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
-    [[ $rulesnum -eq 8 && $policy -eq 0 ]] && return
+    iptcmd=$?
+    if [[ $iptcmd -eq 0 ]]; then
+        rulesnum=$(iptables -L -n | wc -l)
+        policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
+        [[ $rulesnum -ne 8 || $policy -ne 0 ]] && fwrunning=1
+    fi
+    command -v firewall-cmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    fwcmd=$?
+    if [[ $fwcmd -eq 0 ]]; then
+        fwstate=$(firewall-cmd --state 2>&1)
+        [[ "x$fwstate" == "xrunning" ]] && fwrunning=1
+    fi
+    [[ $fwrunning -ne 1 ]] && return
     echo " * The local firewall, currently, seems to be enabled on your system. This can cause"
     echo " * issues on FOG Servers if you are not well experienced and know what you are doing."
     echo " * Should the installer try to disable the local firewall for you now? (y/N) "
@@ -754,9 +760,17 @@ checkFirewall() {
                 systemctl is-enabled --quiet firewalld && systemctl disable firewalld >/dev/null 2>&1 || true
                 systemctl is-active --quiet iptables && systemctl stop iptables >/dev/null 2>&1 || true
                 systemctl is-enabled --quiet iptables && systemctl disable iptables >/dev/null 2>&1 || true
-                rulesnum=$(iptables -L -n | wc -l)
-                policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
-                if [[ $rulesnum -eq 8 && $policy -eq 0 ]]; then
+                local cannotdisablefw=0
+                if [[ $iptcmd -eq 0 ]]; then
+                    rulesnum=$(iptables -L -n | wc -l)
+                    policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
+                    [[ $rulesnum -ne 8 || $policy -ne 0 ]] && cannotdisablefw=1
+                fi
+                if [[ $fwcmd -eq 0 ]]; then
+                    fwstate=$(firewall-cmd --state 2>&1)
+                    [[ "x$fwstate" == "xrunning" ]] && cannotdisablefw=1
+                fi
+                if [[ $cannotdisablefw -eq 0 ]]; then
                     echo -e " * Firewall disabled - proceeding with installation...\n"
                 else
                     echo " * We were unable to disable the firewall on your system. Read up on how"
