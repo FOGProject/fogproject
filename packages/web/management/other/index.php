@@ -273,6 +273,7 @@ if ($isLoggedIn) {
     echo '<b>';
     echo _('Channel');
     echo '</b>';
+    echo '&nbsp;';
     echo FOG_CHANNEL;
     echo ' | ';
     echo '<a href="../management/index.php?node=about&sub=home" ';
@@ -280,6 +281,7 @@ if ($isLoggedIn) {
     echo '<b>';
     echo _('Version');
     echo '</b>';
+    echo '&nbsp;';
     echo FOG_VERSION;
     echo '</a>';
     echo '</div>';
