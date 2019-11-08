@@ -898,6 +898,8 @@ class Group extends FOGController
         $enforce
     ) {
         $pass = trim($pass);
+        $adpasspat = "/^\*{32}$/";
+        $pass = (preg_match($adpasspat, $pass) ? $this->get('ADPass') : $pass);
         self::getClass('HostManager')
             ->update(
                 array(

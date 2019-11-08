@@ -639,7 +639,7 @@ abstract class FOGService extends FOGBase
                                 ['file' => base64_encode($remotefilename)]
                             );
                             $rsize = array_shift($rsize);
-                            if(is_int($rsize) || $res === "") {
+                            if (is_int($rsize) || $res === "") {
                                 $remotesize = $rsize;
                             }
                         }
