@@ -412,6 +412,10 @@ abstract class FOGPage extends FOGBase
             'about' => [
                 self::$foglang['FOG Configuration'],
                 'fa fa-wrench'
+            ],
+            'client' => [
+                _('FOG Client'),
+                'fa fa-file'
             ]
         ];
         if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
