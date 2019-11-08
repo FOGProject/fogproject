@@ -3223,7 +3223,7 @@ class HostManagementPage extends FOGPage
             $this->obj->get('ADDomain'),
             $this->obj->get('ADOU'),
             $this->obj->get('ADUser'),
-            $this->obj->get('ADPass'),
+            '',
             $this->obj->get('ADPassLegacy'),
             $this->obj->get('enforce')
         );

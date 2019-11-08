@@ -2250,7 +2250,11 @@ abstract class FOGPage extends FOGBase
                 $ADUser = $this->obj->get('ADUser');
             }
             if (empty($ADPass)) {
-                $ADPass = $this->obj->get('ADPass');
+                $ADPass = (
+                    $this->obj->get('ADPass') ?
+                    '********************************' :
+                    ''
+                );
             }
             if (empty($ADPassLegacy)) {
                 $ADPassLegacy = $this->obj->get('ADPassLegacy');
