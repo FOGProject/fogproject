@@ -19,77 +19,83 @@
 [[ -z $repo ]] && repo="php"
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
 if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
-    if [[ $OSVersion -gt 9 ]]; then
-        [[ -z $php_ver || ${php_ver%.*} -lt 7 ]] && php_ver="7.3"
-        [[ -z $php_verAdds ]] && php_verAdds="-$php_ver"
+    if [[ $OSVersion -gt 9  ]]; then
+        [[ -z $php_ver || ${php_ver%.*} -lt 7  ]] && php_ver="7.3"
     elif [[ $OSVersion -gt 8 ]]; then
-        [[ -z $php_ver || ${php_ver%.*} -lt 7 ]] && php_ver="7.0"
-        [[ -z $php_verAdds ]] && php_verAdds="-$php_ver"
+        [[ -z $php_ver || $php_ver -le "7.0" ]] && php_ver="7.0"
     else
         [[ -z $php_ver ]] && php_ver="5"
-        [[ -z $php_verAdds ]] && php_verAdds="-5.6"
     fi
 elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get purge -yq sysv-rc-conf >/dev/null 2>&1
-    if [[ -z $php_ver || $php_ver != "7.1" || ( $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) && $OSVersion -ge 18 ) ]]; then
-        if [[ $autoaccept != yes ]]; then
-            echo " *** Detected a potential need to reinstall apache and php files."
-            echo " *** This will remove the /etc/php* and /etc/apache2* directories"
-            echo " ***  and remove/purge the apache and php files from this system."
-            echo " *** If you're okay with this please type Y, anything else will"
-            echo " ***  continue the installation, but may mean you will need to"
-            echo " ***  remove the files later and make proper changes as "
-            echo " ***  necessary. (Y/N): "
-            read dummy
-        else
-            dummy="y"
+    if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) ]]; then
+        libcurl="libcurl3"
+        if [[ $OSVersion -gt 17 ]]; then
+            libcurl="libcurl4"
         fi
-        case $dummy in
-            [Yy])
-                dots "Removing apache and php files"
-                rm -rf /etc/php* /etc/apache2*
-                echo "Done"
-                dots "Stopping web services"
-                [[ $systemctl == yes ]] && systemctl stop apache2 >/dev/null 2>&1 || service apache2 stop >/dev/null 2>&1
-                [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
-                dots "Removing the apache and php packages"
-                DEBIAN_FRONTEND=noninteractive apt-get purge -yq 'apache2*' 'php5*' 'php7*' 'libapache*' >/dev/null 2>&1
-                [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
-                dots "Resetting our variables to specify php version"
-                if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) && $OSVersion -ge 18 ]]; then
-                    php_ver="7.2"
-                    php_verAdds="-7.2"
-                else
-                    php_ver="7.1"
-                    php_verAdds="-7.1"
-                fi
-                phpfpm="php${php_ver}-fpm"
-                phpldap="php${php_ver}-ldap"
-                phpcmd="php"
-                libcurl="libcurl3";
-                [[ $OSVersion -ge 18 ]] && libcurl="libcurl4"
-                x="mysql-server"
-                eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                if [[ $? -eq 0 ]]; then
-                    packages="apache2 build-essential cpp curl g++ gawk gcc genisoimage gzip htmldoc isc-dhcp-server isolinux lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 $libcurl liblzma-dev m4 mysql-client mysql-server net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mysql php${php_ver}-mysqlnd sysv-rc-conf tar tftpd-hpa tftp-hpa vsftpd wget xinetd zlib1g"
-                else
-                    packages="apache2 build-essential cpp curl g++ gawk gcc genisoimage gzip htmldoc isc-dhcp-server isolinux lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 $libcurl liblzma-dev m4 mariadb-client mariadb-server net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mysql php${php_ver}-mysqlnd sysv-rc-conf tar tftpd-hpa tftp-hpa vsftpd wget xinetd zlib1g"
-                fi
-                apt-get clean -yq >/dev/null 2>&1
-                echo "Done"
+        case $OSVersion in
+            19)
+                php_ver="7.3"
+                [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm"
+                [[ -z $phpldap ]] && phpldap="php${php_ver}-ldap"
+                [[ -z $phpcmd ]] && phpcmd="php"
+                packages="apache2 build-essential cpp curl g++ gawk gcc genisoimage gzip htmldoc isc-dhcp-server isolinux lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 $libcurl liblzma-dev m4 mariadb-client mariadb-server net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mysql php${php_ver}-mysqlnd tar tftpd-hpa tftp-hpa vsftpd wget xinetd zlib1g"
                 ;;
+            18)
+                php_ver="7.2"
+                [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm"
+                [[ -z $phpldap ]] && phpldap="php${php_ver}-ldap"
+                [[ -z $phpcmd ]] && phpcmd="php"
+                packages="apache2 build-essential cpp curl g++ gawk gcc genisoimage gzip htmldoc isc-dhcp-server isolinux lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 $libcurl liblzma-dev m4 mariadb-client mariadb-server net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mysql php${php_ver}-mysqlnd sysv-rc-conf tar tftpd-hpa tftp-hpa vsftpd wget xinetd zlib1g"
+                ;;
+            *)
+                php_ver="7.1"
+                [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm"
+                [[ -z $phpldap ]] && phpldap="php${php_ver}-ldap"
+                [[ -z $phpcmd ]] && phpcmd="php"
+                if [[ -z $php_ver || $php_ver != "7.1" ]]; then
+                    if [[ $autoaccept != yes ]]; then
+                        echo " *** Detected a potential need to reinstall apache and php files."
+                        echo " *** This will remove the /etc/php* and /etc/apache2* directories"
+                        echo " ***  and remove/purge the apache and php files from this system."
+                        echo " *** If you're okay with this please type Y, anything else will"
+                        echo " ***  continue the installation, but may mean you will need to"
+                        echo " ***  remove the files later and make proper changes as "
+                        echo " ***  necessary. (Y/N): "
+                        read dummy
+                    else
+                        dummy="y"
+                    fi
+                    case $dummy in
+                        [Yy])
+                            dots "Removing apache and php files"
+                            rm -rf /etc/php* /etc/apache2*
+                            echo "Done"
+                            dots "Stopping web services"
+                            if [[ $systemctl == yes ]]; then
+                                systemctl is-active --quiet apache2 && systemctl stop apache2 >/dev/null 2>&1 || true
+                            fi
+                            [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
+                            dots "Removing the apache and php packages"
+                            DEBIAN_FRONTEND=noninteractive apt-get purge -yq 'apache2*' 'php5*' 'php7*' 'libapache*' >/dev/null 2>&1
+                            [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
+                            apt-get clean -yq >/dev/null 2>&1
+                            ;;
+                    esac
+                fi
         esac
     fi
 else
     [[ -z $php_ver ]] && php_ver=5
-    [[ -z $php_verAdds ]] && php_verAdds="-5.6"
 fi
+[[ -z $php_verAdds ]] && php_verAdds="-${php_ver}"
+[[ $php_ver == 5 ]] && php_verAdds="-5.6"
 [[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
 [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm"
+[[ -z $phpldap ]] && phpldap="php${php_ver}-ldap"
+[[ -z $phpcmd ]] && phpcmd="php"
 case $linuxReleaseName in
     *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Bb][Ii][Aa][Nn]*|*[Mm][Ii][Nn][Tt]*)
-        libcurl="libcurl3";
-        [[ $OSVersion -ge 18 || ( $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) && $OSVersion -ge 10 ) ]] && libcurl="libcurl4"
         [[ -z $packages ]] && packages="apache2 build-essential cpp curl g++ gawk gcc genisoimage gzip htmldoc isc-dhcp-server isolinux lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 $libcurl liblzma-dev m4 mariadb-client mariadb-server net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mysql php${php_ver}-mysqlnd sysv-rc-conf tar tftpd-hpa tftp-hpa vsftpd wget xinetd zlib1g"
         [[ -z $packageinstaller ]] && packageinstaller="apt-get -yq install -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
         [[ -z $packagelist ]] && packagelist="apt-cache pkgnames | grep"
