@@ -243,7 +243,7 @@ class Task extends TaskType
      */
     public function getStorageGroup()
     {
-        return $this->get('storagegroup');
+        return new StorageGroup($this->get('storagenode')->get('storagegroupID'));
     }
     /**
      * Returns the storage node object.
