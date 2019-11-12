@@ -69,10 +69,16 @@ class LDAPPluginHook extends Hook
         if (!in_array($this->node, self::$pluginsinstalled)) {
             return;
         }
-        self::$_userTypes = array_map(
-            'trim',
-            explode(',', self::getSetting('FOG_USER_FILTER'))
-        );
+        $userFilterTypes = self::getSetting('FOG_PLUGIN_LDAP_USER_FILTER');
+        $types = explode(',', $userFilterTypes);
+        foreach ($types as &$type) {
+            $type = trim($type);
+            if (!$type) {
+                continue;
+            }
+            self::$_userTypes[] = $type;
+            unset($type);
+        }
         if (count(self::$_userTypes) < 1) {
             self::$_userTypes = self::LDAP_TYPES;
         }

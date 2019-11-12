@@ -376,7 +376,7 @@ class UserManagement extends FOGPage
     {
         header('Content-type: application/json');
         self::$HookManager->processEvent('USER_ADD_POST');
-        $userPat = "(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$";
+        $userPat = "/(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$/";
         $userErr =  _('Username must begin with 2 numbers or letters.')
 			. ' '
 			. _('Username must end with a number or letter.')
@@ -573,7 +573,7 @@ class UserManagement extends FOGPage
      */
     public function userGeneralPost()
     {
-        $userPat = "(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$";
+        $userPat = "/(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$/";
         $userErr =  _('Username must begin with 2 numbers or letters.')
 			. ' '
 			. _('Username must end with a number or letter.')
@@ -589,9 +589,9 @@ class UserManagement extends FOGPage
         $display = trim(
             filter_input(INPUT_POST, 'display')
         );
-		if (!preg_match($userPat, $user)) {
-			throw new Exception($userErr);
-		}
+        if (!preg_match($userPat, $user)) {
+            throw new Exception($userErr);
+        }
         $exists = self::getClass('UserManager')
             ->exists($user);
         if ($user != $this->obj->get('name')
