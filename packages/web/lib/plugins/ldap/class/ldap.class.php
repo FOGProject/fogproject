@@ -63,6 +63,8 @@ class LDAP extends FOGController
         'bindPwd' => 'lsBindPwd',
         'grpSearchDN' => 'lsGrpSearchDN',
         'useGroupMatch' => 'lsUseGroupMatch',
+        'displayNameOn' => 'lsDisplayNameEnabled',
+        'displayNameAttr' => 'lsDisplayNameAttr'
     ];
     /**
      * The required fields
@@ -213,6 +215,323 @@ class LDAP extends FOGController
             unset($value);
         }
         return $out;
+    }
+    /**
+     * Checks and sets the display name based on the displayName
+     *
+     * @return string
+     */
+    public function getDisplayName($user, $pass)
+    {
+        if (!$this->get('displayNameOn')) {
+            return trim($user);
+        }
+        /**
+         * Ensure any trailing bindings are removed
+         */
+        @$this->unbind();
+
+        /**
+         * Trim the values just in case somebody is trying
+         * to break in by using spaces -- prefent dos attack I imagine.
+         */
+        $user = trim($user);
+        $pass = trim($pass);
+        /**
+         * User and/or Pass is empty
+         *
+         * @return string
+         */
+        if (empty($user)) {
+            error_log(_('Username was blank'));
+            return $user;
+        }
+        if (empty($pass)) {
+            return $user;
+        }
+        /**
+         * Server is not reachable
+         *
+         * @return bool
+         */
+        if (!$server = $this->_ldapUp()) {
+            return $user;
+        }
+        /**
+         * Test the username for funky characters and return
+         * immediately if found.
+         */
+        $test = preg_match(
+            User::PATTERN,
+            $user
+        );
+        if (!$test) {
+            return false;
+        }
+        /**
+         * If, after character checking, the user is empty
+         *
+         * @return bool
+         */
+        if (empty($user)) {
+            return false;
+        }
+        $port = (int)$this->get('port');
+        /**
+         * Open connection to the server
+         */
+        self::$_ldapconn = ldap_connect(
+            $server,
+            $port
+        );
+        /**
+         * If we can't connect return immediately
+         */
+        if (!self::$_ldapconn) {
+            error_log(
+                sprintf(
+                    '%s %s() %s %s:%d',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('We cannot connect to LDAP server'),
+                    $server,
+                    $port
+                )
+            );
+            return false;
+        }
+        /**
+         * Sets the ldap options we need
+         */
+        $this->set_option(
+            LDAP_OPT_PROTOCOL_VERSION,
+            3
+        );
+        $this->set_option(
+            LDAP_OPT_REFERRALS,
+            0
+        );
+        /**
+         * Setup bind dn and password
+         */
+        $bindDN = $this->get('bindDN');
+        /**
+         * The bind password.
+         */
+        $bindPass = $this->get('bindPwd');
+        /**
+         * Set up our search/group information
+         */
+        $searchDN = $this->get('searchDN');
+        /**
+         * Parse our user search DN
+         */
+        $parsedDN = $this->_ldapParseDn($searchDN);
+        /**
+         * The user name attribute in use (e.g. uid=)
+         */
+        $usrNamAttr = strtolower($this->get('userNamAttr'));
+        /**
+         * The display name Attribute
+         */
+        $displayNameAttr = strtolower(trim($this->get('displayNameAttr')));
+        /**
+         * If binddn is set run through it.
+         * Of course we don't need to do this if the
+         * use group match isn't set.  We do still need
+         * to run the main parsing checks.
+         */
+        if (!empty($bindDN)) {
+            /**
+             * Trims the bind pass.
+             */
+            $bindPass = trim($bindPass);
+            /**
+             * We need to decrypt the stored pass.
+             */
+            $bindPasstest = self::aesdecrypt($bindPass);
+            if ($test_base64 = base64_decode($bindPasstest)) {
+                if (mb_detect_encoding($test_base64, 'utf-8', true)) {
+                    $bindPass = $test_base64;
+                }
+            } elseif (mb_detect_encoding($bindPasstest, 'utf-8', true)) {
+                $bindPass = $bindPasstest;
+            }
+            /**
+             * If no bind password return immediately
+             */
+            if (empty($bindPass)) {
+                error_log(
+                    sprintf(
+                        '%s %s() %s %s!',
+                        _('Plugin'),
+                        __METHOD__,
+                        _('Using the group match function'),
+                        _('but bind password is not set')
+                    )
+                );
+                return false;
+            }
+            /**
+             * Make our bindDN/pass connection
+             */
+            $bind = @$this->bind($bindDN, $bindPass);
+            /**
+             * If we cannot bind return immediately
+             */
+            if (!$bind) {
+                error_log(
+                    sprintf(
+                        '%s %s() %s %s:%d',
+                        _('Plugin'),
+                        __METHOD__,
+                        _('Cannot bind to the LDAP server'),
+                        $server,
+                        $port
+                    )
+                );
+                return false;
+            }
+            /**
+             * Set our filter to return our object
+             */
+            $filter = sprintf(
+                '(&(|(objectcategory=person)(objectclass=person))(%s=%s))',
+                $usrNamAttr,
+                $user
+            );
+            /**
+             * Setup bind DN attribute
+             */
+            $attr = ['dn'];
+            /**
+             * Get our results
+             */
+            $result = $this->_result($searchDN, $filter, $attr);
+            /**
+             * Return immediately if the result is false
+             */
+            if ($result === false) {
+                error_log(
+                    sprintf(
+                        '%s %s() %s. %s: %s; %s: %s',
+                        _('Plugin'),
+                        __METHOD__,
+                        _('Search results returned false'),
+                        _('Search DN'),
+                        $searchDN,
+                        _('Filter'),
+                        $filter
+                    )
+                );
+                return false;
+            }
+            /**
+             * Only one entry
+             */
+            $entries = $this->get_entries($result);
+            /**
+             * Pull out the user dn
+             */
+            $userDN = $entries[0]['dn'];
+            /**
+             * Rebind as the user
+             */
+            $bind = @$this->bind($userDN, $pass);
+            /**
+             * If user unable to bind return immediately
+             */
+            if (!$bind) {
+                error_log(
+                    sprintf(
+                        '%s %s() %s. %s: %s',
+                        _('Plugin'),
+                        __METHOD__,
+                        _('User was not authorized by the LDAP server'),
+                        _('User DN'),
+                        $userDN
+                    )
+                );
+                return false;
+            }
+        } else {
+            /**
+             * Parse the search dn
+             */
+            $parsedDN = $this->_ldapParseDn($searchDN);
+            /**
+             * Combine to get the Domain in information.
+             */
+            $userDomain = implode('.', (array)$parsedDN['DC']);
+            /**
+             * Setup a multitude of ways to bind
+             */
+            $userDN = sprintf(
+                '%s=%s,%s',
+                $usrNamAttr,
+                $user,
+                $searchDN
+            );
+            $userDN1 = sprintf(
+                '%s@%s',
+                $user,
+                $userDomain
+            );
+            $userDN2 = sprintf(
+                '%s\%s',
+                $userDomain,
+                $user
+            );
+            /**
+             * If our ways here don't work, return immediately
+             */
+            if (!@$this->bind($userDN, $pass)) {
+                $userDN = $userDN1;
+            }
+            if (!@$this->bind($userDN, $pass)) {
+                $userDN = $userDN2;
+            }
+            if (!@$this->bind($userDN, $pass)) {
+                error_log(
+                    sprintf(
+                        '%s %s() %s.',
+                        _('Plugin'),
+                        __METHOD__,
+                        _('All methods of binding have failed')
+                    )
+                );
+                @$this->unbind();
+                return false;
+            }
+        }
+        $attr = [$displayNameAttr];
+        $filter = sprintf(
+            '(&(|(objectcategory=person)(objectclass=person))(%s=%s))',
+            $usrNamAttr,
+            $user
+        );
+        $result = $this->_result($searchDN, $filter, $attr);
+        if (false === $result) {
+            error_log(
+                sprintf(
+                    '%s %s() %s. %s: %s; %s: %s',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('Search DN did not return any results'),
+                    _('Search DN'),
+                    $searchDN,
+                    _('Filter'),
+                    $filter
+                )
+            );
+            @$this->unbind();
+            return false;
+        }
+        /**
+         * Only one entry
+         */
+        $entries = $this->get_entries($result);
+        return $entries[0][$displayNameAttr][0];
     }
     /**
      * Checks if the user/pass are valid
