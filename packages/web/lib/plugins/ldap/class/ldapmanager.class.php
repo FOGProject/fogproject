@@ -124,10 +124,6 @@ class LDAPManager extends FOGManagerController
             ],
             [
                 'lsID',
-                [
-                    'lsAddress',
-                    'lsPort'
-                ],
                 'lsName'
             ],
             'MyISAM',
