@@ -132,6 +132,10 @@ class LDAPPluginHook extends Hook
         );
         foreach ($items->data as &$ldap) {
             $access = self::getClass('LDAP', $ldap->id)->authLDAP($user, $pass);
+            if ($access) {
+                $displayName = self::getClass('LDAP', $ldap->id)
+                    ->getDisplayName($user, $pass);
+            }
             unset($ldap);
             switch ($access) {
             case 2:
@@ -139,6 +143,7 @@ class LDAPPluginHook extends Hook
                 $tmpUser
                     ->set('name', $user)
                     ->set('password', $pass)
+                    ->set('display', $displayName)
                     ->set('type', self::LDAP_ADMIN)
                     ->save();
                 break 2;
@@ -147,6 +152,7 @@ class LDAPPluginHook extends Hook
                 $tmpUser
                     ->set('name', $user)
                     ->set('password', $pass)
+                    ->set('display', $displayName)
                     ->set('type', self::LDAP_MOBILE)
                     ->save();
                 break;

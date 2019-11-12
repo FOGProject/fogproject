@@ -116,6 +116,18 @@ class LDAPManagement extends FOGPage
             ' checked' :
             ''
         );
+        $displayNameEnabled = (
+            isset($_POST['displayNameOn']) ?: $this->obj->get('displayNameOn')
+        );
+        $displayNameOn = (
+            $displayNameOn ?
+            'checked' :
+            ''
+        );
+        $displayNameAttr = (
+            filter_input(INPUT_POST, 'displayNameAttr') ?:
+            $this->obj->get('displayNameAttr')
+        );
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -291,7 +303,40 @@ class LDAPManagement extends FOGPage
                 'bindPwd',
                 $bindPwd
             )
-            . '</div>'
+            . '</div>',
+            self::makeLabel(
+                $labelClass,
+                'displayNameOn',
+                _('Use Display Name from Directory')
+                . '<br/>('
+                . _('recommended')
+                . ')'
+            ) => self::makeInput(
+                '',
+                'displayNameOn',
+                '',
+                'checkbox',
+                'displayNameOn',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $displayNameOn
+            ),
+            self::makeLabel(
+                $labelClass,
+                'dislayNameAttr',
+                _('Display Name Attribute')
+            ) => self::makeInput(
+                'form-control ldapdisplaynameattr-input',
+                'displayNameAttr',
+                'displayName',
+                'text',
+                'displayNameAttr',
+                $displayNameAttr,
+                true
+            )
         ];
 
         $buttons = self::makeButton(
@@ -395,6 +440,18 @@ class LDAPManagement extends FOGPage
             ' checked' :
             ''
         );
+        $displayNameEnabled = (
+            isset($_POST['displayNameOn']) ?: $this->obj->get('displayNameOn')
+        );
+        $displayNameOn = (
+            $displayNameOn ?
+            'checked' :
+            ''
+        );
+        $displayNameAttr = (
+            filter_input(INPUT_POST, 'displayNameAttr') ?:
+            $this->obj->get('displayNameAttr')
+        );
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -570,7 +627,40 @@ class LDAPManagement extends FOGPage
                 'bindPwd',
                 $bindPwd
             )
-            . '</div>'
+            . '</div>',
+            self::makeLabel(
+                $labelClass,
+                'displayNameOn',
+                _('Use Display Name from Directory')
+                . '<br/>('
+                . _('recommended')
+                . ')'
+            ) => self::makeInput(
+                '',
+                'displayNameOn',
+                '',
+                'checkbox',
+                'displayNameOn',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $displayNameOn
+            ),
+            self::makeLabel(
+                $labelClass,
+                'dislayNameAttr',
+                _('Display Name Attribute')
+            ) => self::makeInput(
+                'form-control ldapdisplaynameattr-input',
+                'displayNameAttr',
+                'displayName',
+                'text',
+                'displayNameAttr',
+                $displayNameAttr,
+                true
+            )
         ];
 
         self::$HookManager->processEvent(
@@ -644,6 +734,12 @@ class LDAPManagement extends FOGPage
         );
         $useGroupMatch = (int)isset($_POST['useGroupMatch']);
 
+        $displayNameOn = (int)isset($_POST['displayNameOn']);
+
+        $displayNameAttr = trim(
+            filter_input(INPUT_POST, 'displayNameAttr')
+        );
+
         $serverFault = false;
         try {
             if (!is_numeric($searchScope)) {
@@ -683,7 +779,9 @@ class LDAPManagement extends FOGPage
                 ->set('bindDN', $bindDN)
                 ->set('bindPwd', $bindPwd)
                 ->set('useGroupMatch', $useGroupMatch)
-                ->set('grpSearchDN', $grpSearchDN);
+                ->set('grpSearchDN', $grpSearchDN)
+                ->set('displayNameOn', $displayNameOn)
+                ->set('displayNameAttr', $displayNameAttr);
             if (!$LDAP->save()) {
                 $serverFault = true;
                 throw new Exception(_('Add LDAP server failed!'));
@@ -825,6 +923,18 @@ class LDAPManagement extends FOGPage
             $useGroupMatch ?
             'checked' :
             ''
+        );
+        $displayNameEnabled = (
+            isset($_POST['displayNameOn']) ?: $this->obj->get('displayNameOn')
+        );
+        $displayNameOn = (
+            $displayNameOn ?
+            'checked' :
+            ''
+        );
+        $displayNameAttr = (
+            filter_input(INPUT_POST, 'displayNameAttr') ?:
+            $this->obj->get('displayNameAttr')
         );
 
         $labelClass = 'col-sm-3 control-label';
@@ -1001,7 +1111,40 @@ class LDAPManagement extends FOGPage
                 'bindPwd',
                 $bindPwd
             )
-            . '</div>'
+            . '</div>',
+            self::makeLabel(
+                $labelClass,
+                'displayNameOn',
+                _('Use Display Name from Directory')
+                . '<br/>('
+                . _('recommended')
+                . ')'
+            ) => self::makeInput(
+                '',
+                'displayNameOn',
+                '',
+                'checkbox',
+                'displayNameOn',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $displayNameOn
+            ),
+            self::makeLabel(
+                $labelClass,
+                'dislayNameAttr',
+                _('Display Name Attribute')
+            ) => self::makeInput(
+                'form-control ldapdisplaynameattr-input',
+                'displayNameAttr',
+                'displayName',
+                'text',
+                'displayNameAttr',
+                $displayNameAttr,
+                true
+            )
         ];
 
         $buttons = self::makeButton(
@@ -1097,6 +1240,12 @@ class LDAPManagement extends FOGPage
             filter_input(INPUT_POST, 'bindPwd')
         );
         $useGroupMatch = (int)isset($_POST['useGroupMatch']);
+
+        $displayNameOn = (int)isset($_POST['displayNameOn']);
+
+        $displayNameAttr = trim(
+            filter_input(INPUT_POST, 'displayNameAttr')
+        );
         if (!is_numeric($searchScope)) {
             $searchScope = 0;
         }
@@ -1136,7 +1285,9 @@ class LDAPManagement extends FOGPage
             ->set('bindDN', $bindDN)
             ->set('bindPwd', $bindPwd)
             ->set('useGroupMatch', $useGroupMatch)
-            ->set('grpSearchDN', $grpSearchDN);
+            ->set('grpSearchDN', $grpSearchDN)
+            ->set('displayNameOn', $displayNameOn)
+            ->set('displayNameAttr', $displayNameAttr);
     }
     /**
      * Presents the user with fields to edit
