@@ -120,7 +120,7 @@ class LDAPManagement extends FOGPage
             isset($_POST['displayNameOn']) ?: $this->obj->get('displayNameOn')
         );
         $displayNameOn = (
-            $displayNameOn ?
+            $displayNameEnabled ?
             'checked' :
             ''
         );
@@ -444,7 +444,7 @@ class LDAPManagement extends FOGPage
             isset($_POST['displayNameOn']) ?: $this->obj->get('displayNameOn')
         );
         $displayNameOn = (
-            $displayNameOn ?
+            $displayNameEnabled ?
             'checked' :
             ''
         );
@@ -928,7 +928,7 @@ class LDAPManagement extends FOGPage
             isset($_POST['displayNameOn']) ?: $this->obj->get('displayNameOn')
         );
         $displayNameOn = (
-            $displayNameOn ?
+            $displayNameEnabled ?
             'checked' :
             ''
         );
