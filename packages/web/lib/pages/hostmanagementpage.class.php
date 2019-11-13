@@ -1519,7 +1519,7 @@ class HostManagementPage extends FOGPage
                 ''
             )
             . '/>';
-        echo _('No Printer Manaagement');
+        echo _('No Printer Management');
         echo '</label>';
         echo '</div>';
         echo '<div class="radio">';

@@ -3653,9 +3653,6 @@ msgstr ""
 msgid "this is just another to ensure safety"
 msgstr ""
 
-msgid "No Printer Manaagement"
-msgstr ""
-
 msgid ""
 "This setting only adds and removes printers that are managed by FOG. If the "
 "printer exists in printer management but is not assigned to a host, it will "
