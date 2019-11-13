@@ -3746,9 +3746,6 @@ msgstr "Tra impostazioni host e globali"
 msgid "this is just another to ensure safety"
 msgstr "questo è solo un altro per garantire la sicurezza"
 
-msgid "No Printer Manaagement"
-msgstr "Nessuna gestione della stampante"
-
 msgid ""
 "This setting only adds and removes printers that are managed by FOG. If the "
 "printer exists in printer management but is not assigned to a host, it will "
@@ -4150,7 +4147,7 @@ msgid "Select management level for these hosts"
 msgstr "Seleziona il livello di gestione per questi host"
 
 msgid "No Printer Management"
-msgstr "No Printer Management"
+msgstr "Nessuna gestione della stampante"
 
 msgid "Printer Associations"
 msgstr "Associazioni stampanti"
