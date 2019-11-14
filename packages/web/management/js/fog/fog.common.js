@@ -1,7 +1,7 @@
-var shouldReAuth = ($('#reAuthDelete').val() == '1') ? true : false,
-    reAuthModal = $('#deleteModal'),
-    deleteConfirmButton = $('#confirmDeleteModal'),
-    deleteLang = deleteConfirmButton.text(),
+var shouldReAuth,
+    reAuthModal,
+    deleteConfirmButton,
+    deleteLang,
     $_GET,
     Common;
 /**
@@ -542,6 +542,10 @@ $.fn.validateForm = function(input = ':input') {
 
 function reinitialize() {
     $_GET = getQueryParams();
+    shouldReAuth = ($('#reAuthDelete').val() == '1') ? true : false;
+    reAuthModal = $('#deleteModal');
+    deleteConfirmButton = $('#confirmDeleteModal');
+    deleteLang = deleteConfirmButton.text();
     Common = {
         node: $_GET['node'],
         sub: $_GET['sub'],
