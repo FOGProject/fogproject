@@ -2468,6 +2468,11 @@ abstract class FOGPage extends FOGBase
      */
     public function importPost()
     {
+        header('Content-type: application/json');
+        self::$HookManager->processEvent(
+            'IMPORT_POST'
+        );
+        $serverFault = false;
         try {
             $mimes = [
                 'text/csv',
@@ -2488,7 +2493,8 @@ abstract class FOGPage extends FOGBase
                 }
             }
             if ($_FILES['file']['error'] > 0) {
-                throw new UploadException($_FILES['file']['error']);
+                $serverFault = true;
+                throw new Exception($_FILES['file']['error']);
             }
             $tmpf = pathinfo($_FILES['file']['tmp_name']);
             $file = sprintf(
@@ -2608,52 +2614,40 @@ abstract class FOGPage extends FOGBase
                 }
             }
             fclose($fh);
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            $hook = 'IMPORT_SUCCESS';
+            $msg = json_encode(
+                [
+                    $numFailed > 0 ? 'warning' : 'msg' => (
+                        $numFailed > 0 ?
+                        $uploadErrors :
+                        _('All items imported successfully')
+                    ),
+                    'title' => (
+                        $numFailed > 0 ?
+                        _('Import Partially Succeeded') : 
+                        _('Import Succeeded')
+                    )
+                ]
+            );
         } catch (Exception $e) {
             $error = $e->getMessage();
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'IMPORT_FAILED';
+            $msg = json_encode(
+                [
+                    'error' => $error,
+                    'title' => _('Import Failed')
+                ]
+            );
         }
-        $this->title = sprintf(
-            '%s %s %s',
-            _('Import'),
-            $this->childClass,
-            _('Results')
-        );
-        unset($this->headerData);
-        $fields = [
-            _('Total Rows') => $totalRows,
-            sprintf(
-                '%s %ss',
-                _('Successful'),
-                $this->childClass
-            ) => $numSuccess,
-            sprintf(
-                '%s %ss',
-                _('Failed'),
-                $this->childClass
-            ) => $numFailed,
-            _('Errors') => $uploadErrors,
-        ];
-        foreach ((array)$fields as $field => &$input) {
-            $this->data[] = [
-                'field' => $field,
-                'input' => $input
-            ];
-            unset($input);
-        }
-        $upper = strtoupper($this->childClass);
-        $event = sprintf(
-            '%s_IMPORT_FIELDS',
-            $upper
-        );
-        $arr = [
-            'headerData' => &$this->headerData,
-            'data' => &$this->data,
-            'attributes' => &$this->attributes
-        ];
-        self::$HookManager->processEvent(
-            $event,
-            $arr
-        );
-        $this->render();
+        http_response_code($code);
+        echo $msg;
+        exit;
     }
     /**
      * Build select form in generic form.
