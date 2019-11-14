@@ -3368,6 +3368,9 @@ abstract class FOGPage extends FOGBase
 
         foreach ($obj->getColumns() as $common => &$real) {
             if ('id' == $common) {
+                if ($this->childClass == 'Host') {
+                    $this->headerData[] = 'primac';
+                }
                 continue;
             }
             $this->headerData[] = $common;
@@ -3418,6 +3421,12 @@ abstract class FOGPage extends FOGBase
             file_get_contents('php://input'),
             $pass_vars
         );
+        if ($this->childClass == 'Host') {
+            $columns[] = [
+                'db' => 'hmMAC',
+                'dt' => 'primac'
+            ];
+        }
         // Setup our columns for the CSV.
         // Automatically removes the id column.
         foreach ($dbcolumns as $common => &$real) {
