@@ -16,7 +16,7 @@ $.apiCall = function(method, action, data, cb, processData = true) {
             cache: false,
             data: data,
             contentType: !processData ? false : 'application/x-www-form-urlencoded',
-            processData: processData,
+            processData: !processData ? false : true,
             success: function(data, textStatus, jqXHR) {
                 $.notifyFromAPI(data, false);
                 if (cb && typeof cb === 'function') {
@@ -1004,6 +1004,7 @@ function clearAllIntervals(){
                 // Add script
                 case 1:
                     $("#scripts").append("<script src='" + key + "' type='text/javascript'></script>");
+                    $.cachedScript(key);
                     break;
                 // Remove script
                 case -1:
