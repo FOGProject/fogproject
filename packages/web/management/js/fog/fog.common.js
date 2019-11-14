@@ -8,6 +8,9 @@ var shouldReAuth,
  * Non-selector required functions.
  */
 $.apiCall = function(method, action, data, cb, processData = true) {
+    console.log(method);
+    console.log(action);
+    console.log(data);
     Pace.track(function() {
         $.ajax('', {
             type: method,
@@ -18,7 +21,7 @@ $.apiCall = function(method, action, data, cb, processData = true) {
             contentType: !processData ? false : 'application/x-www-form-urlencoded',
             processData: !processData ? false : true,
             success: function(data, textStatus, jqXHR) {
-                $.notifyFromAPI(data, false);
+                $.notifyFromAPI(data, jqXHR);
                 if (cb && typeof cb === 'function') {
                     cb(null, data);
                 }
@@ -30,20 +33,21 @@ $.apiCall = function(method, action, data, cb, processData = true) {
                 }
             },
             xhr: function() {
-                var xhr = new window.XMLHttpRequest();
-
-                xhr.upload.addEventListener('progress', function(event) {
-                    if (event.lengthComputable) {
-                        var percentComplete = event.loaded / event.total;
-                        percentComplete = parseInt(percentComplete * 100);
-                        console.log(percentComplete);
-                        if (percentComplete === 100) {
-                            console.log('Finished Uploaded');
+                var myXHR = $.ajaxSettings.xhr();
+                if (myXHR.upload) {
+                    myXHR.upload.addEventListener('progress', function(e) {
+                        if (e.lengthComputable) {
+                            var max = e.total,
+                                current = e.loaded,
+                                percentComplete = (current * 100) / max;
+                            console.log(percentComplete);
+                            if (percentComplete === 100) {
+                                console.log('Finished Uploading');
+                            }
                         }
-                    }
-                }, false);
-
-                return xhr;
+                    }, false);
+                }
+                return myXHR;
             }
         });
     });
@@ -196,42 +200,30 @@ $.notifyFromAPI = function(res, isError) {
         }
     }
     var title = res.title,
-        type = (isError ? 'error' : 'success');
-    if (!isError) {
-        if (res.msg) {
-            $.notify(
-                title || 'Bad Response',
-                res.msg,
-                'success'
-            );
-        }
+        type = 'success';
+    if (isError) {
+        type = 'error';
         if (res.info) {
-            $.notify(
-                title || 'Bad Response',
-                res.info,
-                'info'
-            );
+            type = 'info';
         }
         if (res.warning) {
-            $.notify(
-                title || 'Bad Response',
-                res.warning,
-                'warning'
-            );
+            type = 'warning';
         }
-        if (res.error) {
-            $.notify(
-                title || 'Bad Response',
-                res.error,
-                'error'
-            );
-        }
-        $.debugLog(res);
-        return;
     }
+    msg = res.msg;
+    if (res.warning) {
+        msg = res.warning;
+    }
+    if (res.info) {
+        msg = res.info;
+    }
+    if (!msg) {
+        msg = 'Bad Response';
+    }
+
     $.notify(
         title || 'Bad Response',
-        (isError ? res.error : res.msg) || 'Bad Response',
+        msg,
         type
     );
     $.debugLog(res);
@@ -645,7 +637,7 @@ function setupIntegrations() {
         ajax: false,
         restartOnRequestAfter: false
     };
-    PNotify.prototype.options.styling = "fontawesome";
+    PNotify.prototype.options.styling = "bootstrap3";
 
     // Extending input mask to add our types
     $.extend($.inputmask.defaults.definitions, {
@@ -915,7 +907,7 @@ function clearAllIntervals(){
             data: { 'contentOnly': true }
         }).done(function(data, status, req){
             var ajaxPageWrapper = $("#ajaxPageWrapper");
-            ajaxPageWrapper.html(data);
+            ajaxPageWrapper.empty().html(data);
 
             // Set new page information
             document.title = req.getResponseHeader('X-FOG-PageTitle');
@@ -1025,7 +1017,6 @@ function clearAllIntervals(){
                 // Add script
                 case 1:
                     $("#scripts").append("<script src='" + key + "' type='text/javascript'></script>");
-                    $.cachedScript(key);
                     break;
                 // Remove script
                 case -1:
