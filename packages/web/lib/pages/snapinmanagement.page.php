@@ -350,7 +350,7 @@ class SnapinManagement extends FOGPage
                 . _('Browse')
                 . self::makeInput(
                     'hidden',
-                    'file',
+                    'snapinfile',
                     '',
                     'file',
                     'snapinfile',
@@ -725,7 +725,7 @@ class SnapinManagement extends FOGPage
                 . _('Browse')
                 . self::makeInput(
                     'hidden',
-                    'file',
+                    'snapinfile',
                     '',
                     'file',
                     'snapinfile',
@@ -1035,15 +1035,17 @@ class SnapinManagement extends FOGPage
                         throw new Exception(_('Failed to add snapin'));
                     }
                 }
-                if (file_exists($src)) {
+                if (file_exists($dest)) {
                     self::$FOGFTP->delete($dest);
                 }
-                if (!self::$FOGFTP->put($dest, $src)) {
+                if (!self::$FOGFTP->put($dest, $src, FTP_BINARY)) {
                     throw new Exception(
+                        _('Could not put file: ' . $dest . '. ') .
                         _('Failed to add/update snapin file')
                     );
                 }
-                self::$FOGFTP->chmod(0777, $dest)->close();
+                self::$FOGFTP->chmod(0777, $dest);
+                self::$FOGFTP->close();
             }
             $Snapin = self::getClass('Snapin')
                 ->set('name', $snapin)
@@ -1333,7 +1335,7 @@ class SnapinManagement extends FOGPage
                 . _('Browse')
                 . self::makeInput(
                     'hidden',
-                    'file',
+                    'snapinfile',
                     '',
                     'file',
                     'snapinfile',
@@ -1689,12 +1691,13 @@ class SnapinManagement extends FOGPage
                 }
             }
             self::$FOGFTP->delete($dest);
-            if (!self::$FOGFTP->put($dest, $src)) {
+            if (!self::$FOGFTP->put($dest, $src, FTP_BINARY)) {
                 throw new Exception(
                     _('Failed to add/update snapin file')
                 );
             }
-            self::$FOGFTP->chmod(0777, $dest)->close();
+            self::$FOGFTP->chmod(0777, $dest);
+            self::$FOGFTP->close();
         }
         $this->obj
             ->set('name', $snapin)
