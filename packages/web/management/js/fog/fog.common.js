@@ -383,6 +383,7 @@ $.fn.registerTable = function(onSelect, opts) {
         pagingType: 'simple_numbers',
         select: { style: 'multi+shift' },
         dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>B<'row'<'col-sm-12'tr>><'row'<'col-sm-5'i><'col-sm-7'p>>",
+        retrieve: true
     });
 
     var table = $(this).DataTable(opts);
