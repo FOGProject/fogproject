@@ -28,6 +28,22 @@ $.apiCall = function(method, action, data, cb, processData = true) {
                 if (cb && typeof cb === 'function') {
                     cb(jqXHR, jqXHR.responseJSON);
                 }
+            },
+            xhr: function() {
+                var xhr = new window.XMLHttpRequest();
+
+                xhr.upload.addEventListener('progress', function(event) {
+                    if (event.lengthComputable) {
+                        var percentComplete = event.loaded / event.total;
+                        percentComplete = parseInt(percentComplete * 100);
+                        console.log(percentComplete);
+                        if (percentComplete === 100) {
+                            console.log('Finished Uploaded');
+                        }
+                    }
+                }, false);
+
+                return xhr;
             }
         });
     });
