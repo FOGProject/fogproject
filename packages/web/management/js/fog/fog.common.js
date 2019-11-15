@@ -27,6 +27,7 @@ $.apiCall = function(method, action, data, cb, processData = true) {
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
+                $('#progressFileUp').remove();
                 $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
                 if (cb && typeof cb === 'function') {
                     cb(jqXHR, jqXHR.responseJSON);
@@ -35,14 +36,28 @@ $.apiCall = function(method, action, data, cb, processData = true) {
             xhr: function() {
                 var myXHR = $.ajaxSettings.xhr();
                 if (myXHR.upload) {
+                    $('.filedisp')
+                        .after('<div class="form-control progressFileUp" id="progressFileUp">'
+                            + '<div class="progress progress-md active">'
+                            + '<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">0.00%</div></div>'
+                        );
                     myXHR.upload.addEventListener('progress', function(e) {
                         if (e.lengthComputable) {
                             var max = e.total,
                                 current = e.loaded,
                                 percentComplete = (current * 100) / max;
-                            console.log(percentComplete);
+                            $('#progressFileUp').html('<div class="progress progress-md active">'
+                                + '<div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="'
+                                + percentComplete.toFixed(2)
+                                + '" aria-valuemin="0" aria-valuemax="100" style="width:'
+                                + percentComplete.toFixed(2)
+                                + '%">'
+                                + percentComplete.toFixed(2)
+                                + '%'
+                                + '</div>'
+                                + '</div>');
                             if (percentComplete === 100) {
-                                console.log('Finished Uploading');
+                                $('#progressFileUp').remove();
                             }
                         }
                     }, false);
@@ -201,21 +216,21 @@ $.notifyFromAPI = function(res, isError) {
     }
     var title = res.title,
         type = 'success';
-    if (isError) {
+    if (res.error) {
         type = 'error';
-        if (res.info) {
-            type = 'info';
-        }
-        if (res.warning) {
-            type = 'warning';
-        }
-    }
-    msg = res.msg;
-    if (res.warning) {
-        msg = res.warning;
+        msg = res.error;
     }
     if (res.info) {
+        type = 'info';
         msg = res.info;
+    }
+    if (res.warning) {
+        type = 'warning';
+        msg = res.warning;
+    }
+    if (res.msg) {
+        type = 'success';
+        msg = res.msg;
     }
     if (!msg) {
         msg = 'Bad Response';
