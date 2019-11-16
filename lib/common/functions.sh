@@ -455,8 +455,8 @@ configureTFTPandPXE() {
                 systemctl is-enabled --quiet xinetd && systemctl disable xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
                 systemctl is-enabled --quiet tftpd-hpa && true || systemctl enable tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 systemctl is-active --quiet xinetd && systemctl stop xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
-                systemctl is-active --quiet && systemctl stop tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
-                systemctl is-active --quiet && true || systemctl start tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl is-active --quiet tftpd-hpa && systemctl stop tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                systemctl is-active --quiet tftpd-hpa && true || systemctl start tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 systemctl status tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             else
                 systemctl is-enabled --quiet xinetd && true || systemctl enable xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
