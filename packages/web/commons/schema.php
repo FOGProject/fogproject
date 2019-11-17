@@ -751,8 +751,6 @@ $this->schema[] = array(
     "UPDATE `schemaVersion` set vValue = '15'",
 );
 // 16
-$fogstoragenodeuser = "fogstorage";
-$fogstoragenodepass = "fs".rand(1000, 100000000000);
 $this->schema[] = array(
     "ALTER TABLE `tasks` ADD COLUMN `taskBPM` varchar(250) NOT NULL AFTER "
     . "`taskPCT`, ADD COLUMN `taskTimeElapsed` varchar(250) NOT NULL AFTER "
@@ -841,13 +839,12 @@ $this->schema[] = array(
     . "VALUES "
     . "('FOG_STORAGENODE_MYSQLUSER','This setting defines the username "
     . "the storage nodes should use to connect to the fog server.',"
-    . "'$fogstoragenodeuser','FOG Storage Nodes'),"
-    . "('FOG_STORAGENODE_MYSQLPASS','This setting defines the password "
+    . "'fogstorage','FOG Storage Nodes')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "SELECT 'FOG_STORAGENODE_MYSQLPASS','This setting defines the password "
     . "the storage nodes should use to connect to the fog server.',"
-    . "'$fogstoragenodepass','FOG Storage Nodes')",
-    "GRANT ALL ON `"
-    . DATABASE_NAME
-    . "`.* TO '$fogstoragenodeuser'@'%' IDENTIFIED BY '$fogstoragenodepass'",
+    . "`sPass`,'FOG Storage Nodes' FROM storageInfo",
     "UPDATE `schemaVersion` set `vValue`='16'",
 );
 // 17
@@ -2833,7 +2830,7 @@ $this->schema[] = array(
 // 186
 $this->schema[] = array(
     "DELETE FROM `globalSettings` WHERE `settingKey`='FOG_NEW_CLIENT'",
-    "ALTER TABLE .`hosts` ADD COLUMN `hostADPassLegacy` LONGTEXT AFTER `hostADPass`",
+    "ALTER TABLE `hosts` ADD COLUMN `hostADPassLegacy` LONGTEXT AFTER `hostADPass`",
     "UPDATE `globalSettings` SET "
     . "`settingDesc`='This setting defines the default value "
     . "to populate the hosts Active Directory password value "

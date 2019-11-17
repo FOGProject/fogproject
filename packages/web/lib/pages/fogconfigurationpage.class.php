@@ -2431,6 +2431,12 @@ class FOGConfigurationPage extends FOGPage
                         . '${service_value}" autocomplete="off" class='
                         . '"form-control" id="${service_name}"/>';
                     break;
+                case 'FOG_AD_DEFAULT_PASSWORD':
+                    $type .= '<input name="${service_id}" type="password" value="'
+                        . ($Service->value ? '********************************' : '')
+                        . '" autocomplete="off" class='
+                        . '"form-control" id="${service_name}"/>';
+                break;
                 default:
                     $type .= '<input type="password" name="${service_id}" value="'
                         . '${service_value}" autocomplete="off" class='
@@ -2767,6 +2773,13 @@ class FOGConfigurationPage extends FOGPage
                     $set = '';
                 }
                 switch ($name) {
+                case 'FOG_AD_DEFAULT_PASSWORD':
+                    $set = (
+                        preg_match('/^\*{32}$/', $set) ?
+                        self::getSetting($name) :
+                        $set
+                    );
+                    break;
                 case 'FOG_API_TOKEN':
                     $set = base64_decode($set);
                     break;
@@ -2774,8 +2787,6 @@ class FOGConfigurationPage extends FOGPage
                     if ($set < 128) {
                         $set = 128;
                     }
-                    break;
-                case 'FOG_AD_DEFAULT_PASSWORD':
                     break;
                 case 'FOG_CLIENT_BANNER_SHA':
                     continue 2;

@@ -1692,6 +1692,16 @@ class Host extends FOGController
         if (is_array($mac) && count($mac) > 0) {
             $mac = array_shift($mac);
         }
+        $host = $mac->getHost();
+        if ($host instanceof Host && $host->isValid()) {
+            throw new Exception(
+                sprintf(
+                    "%s: %s",
+                    _('MAC address is already in use by another host'),
+                    $host->get('name')
+                )
+            );
+        }
         return $this->set('mac', $mac);
     }
     /**
@@ -1745,6 +1755,10 @@ class Host extends FOGController
      */
     public function addSnapin($addArray)
     {
+        $addArray = array_filter($addArray);
+        if (count($addArray) < 1) {
+            return $this;
+        }
         $limit = self::getSetting('FOG_SNAPIN_LIMIT');
         if ($limit > 0) {
             $snapinCount = self::getClass('SnapinManager')
@@ -1981,6 +1995,10 @@ class Host extends FOGController
      */
     public function addHost($addArray)
     {
+        $addArray = array_filter($addArray);
+        if (count($addArray) < 1) {
+            return $this;
+        }
         return $this->addRemItem(
             'groups',
             (array)$addArray,
@@ -2070,6 +2088,8 @@ class Host extends FOGController
         $productKey = '',
         $enforce = ''
     ) {
+        $adpasspat = "/^\*{32}$/";
+        $pass = (preg_match($adpasspat, $pass) ? $this->get('ADPass') : $pass);
         if ($this->get('id')) {
             if (!$override) {
                 if (empty($useAD)) {

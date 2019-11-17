@@ -955,7 +955,14 @@ class ImageManagementPage extends FOGPage
             . '"/>',
             '<label for="imagetype">'
             . _('Image Type')
-            . '</label>' => $ImageTypes,
+            . '</label>&nbsp;&nbsp;<i class="icon fa fa-info-circle '
+            . 'fa-lg hand" data-toggle="tooltip" data-placement="right" '
+            . 'data-html="true" data-trigger="click" style="size:+3; color:#337ab7;" '
+            . 'title="Image Type is a very important setting and can have '
+            . 'major impact on how your imaging works or fails. Please read '
+            . 'more about the different image types and how to use those '
+            . '<a href=\'https://wiki.fogproject.org/wiki/index.php?title=Managing_FOG#Images\' '
+            . 'target=\'_blank\'>in our wiki</a> before you chose!"></i>' => $ImageTypes,
             '<label for="imagepartitiontype">'
             . _('Partition')
             . '</label>' => $ImagePartitionTypes,
@@ -1122,7 +1129,7 @@ class ImageManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=image-storage">';
-        if (count($this->data)) {
+        if (is_array($this->data) && count($this->data)) {
             echo '<div class="text-center">';
             echo '<div class="checkbox">';
             echo '<label for="groupMeShow">';
@@ -1217,7 +1224,7 @@ class ImageManagementPage extends FOGPage
             );
             unset($StorageGroup);
         }
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             self::$HookManager->processEvent(
                 'IMAGE_EDIT_STORAGE_GROUP',
                 array(

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-14 20:31+0100\n"
+"POT-Creation-Date: 2019-08-10 16:23+0100\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -4138,10 +4138,6 @@ msgid "this is just another to ensure safety"
 msgstr ""
 
 #, fuzzy
-msgid "No Printer Manaagement"
-msgstr "Pas de gestion de l'imprimante"
-
-#, fuzzy
 msgid ""
 "This setting only adds and removes printers that are managed by FOG. If the "
 "printer exists in printer management but is not assigned to a host, it will "
@@ -7529,3 +7525,12 @@ msgstr "Incompatibilité de la taille du fichier"
 #, fuzzy
 msgid "FTP connection failed"
 msgstr "La connexion FTP a échoué"
+
+msgid "Snapin file is too big, increase post_max_size in php.ini."
+msgstr "Le fichier logiciel enfichable est trop gros, augmentez post_max_size dans le fichier php.ini."
+
+msgid "$_POST variable is empty, check apache error log."
+msgstr "La variable $_POST est vide, consultez le journal des erreurs Apache."
+
+msgid "MAC address is already in use by another host"
+msgstr "L'adresse MAC est déjà utilisée par un autre hôte"

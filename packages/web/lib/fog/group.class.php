@@ -898,6 +898,8 @@ class Group extends FOGController
         $enforce
     ) {
         $pass = trim($pass);
+        $adpasspat = "/^\*{32}$/";
+        $pass = (preg_match($adpasspat, $pass) ? $this->get('ADPass') : $pass);
         self::getClass('HostManager')
             ->update(
                 array(
@@ -970,15 +972,18 @@ class Group extends FOGController
      */
     protected function loadHosts()
     {
-        $this->set(
-            'hosts',
-            (array)self::getSubObjectIDs(
-                'GroupAssociation',
-                array('groupID' => $this->get('id')),
-                'hostID'
-            )
-        );
-        $this->getHostCount();
+        $groupid = $this->get('id');
+        if ($groupid > 0) {
+            $this->set(
+                'hosts',
+                (array)self::getSubObjectIDs(
+                    'GroupAssociation',
+                    array('groupID' => $groupid),
+                    'hostID'
+                )
+            );
+            $this->getHostCount();
+        }
     }
     /**
      * Loads hosts not in this group.

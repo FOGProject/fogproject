@@ -381,8 +381,7 @@ configureFTP() {
     if [[ $vsvermaj -gt 3 ]] || [[ $vsvermaj -eq 3 && $vsverbug -ge 2 ]]; then
         seccompsand="seccomp_sandbox=NO"
     fi
-    [[ $osid -eq 3 ]] && tcpwrappers="NO" || tcpwrappers="YES"
-    echo -e  "max_per_ip=200\nanonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\ntcp_wrappers=$tcpwrappers\n$seccompsand" > "$ftpconfig"
+    echo -e  "max_per_ip=200\nanonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\n$seccompsand" > "$ftpconfig"
     case $systemctl in
         yes)
             systemctl enable vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -542,7 +541,7 @@ addUbuntuRepo() {
     ntpdate pool.ntp.org >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     locale-gen 'en_US.UTF-8' >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) && $OSVersion -ge 18 ]]; then
-        # Fix missing universe section for Ubuntu 18.04 LIVE 
+        # Fix missing universe section for Ubuntu 18.04 LIVE
         LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y universe >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     else
         LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -582,9 +581,11 @@ installPackages() {
                         rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     fi
                     if [[ -n $repoenable ]]; then
-                        $repoenable epel >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
-                        $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
-                        $repoenable remi-php72 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                        if [[ $OSVersion -le 7 ]]; then
+                            $repoenable epel >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                            $repoenable remi >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                            $repoenable remi-php72 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                        fi
                     fi
                     ;;
             esac
@@ -751,11 +752,19 @@ checkSELinux() {
 }
 checkFirewall() {
     command -v iptables >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    exitcode=$?
-    [[ $exitcode -ne 0 ]] && return
-    rulesnum=$(iptables -L -n | wc -l)
-    policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
-    [[ $rulesnum -eq 8 && $policy -eq 0 ]] && return
+    iptcmd=$?
+    if [[ $iptcmd -eq 0 ]]; then
+        rulesnum=$(iptables -L -n | wc -l)
+        policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
+        [[ $rulesnum -ne 8 || $policy -ne 0 ]] && fwrunning=1
+    fi
+    command -v firewall-cmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    fwcmd=$?
+    if [[ $fwcmd -eq 0 ]]; then
+        fwstate=$(firewall-cmd --state 2>&1)
+        [[ "x$fwstate" == "xrunning" ]] && fwrunning=1
+    fi
+    [[ $fwrunning -ne 1 ]] && return
     echo " * The local firewall seems to be currently enabled on your system. This can cause"
     echo " * issues on FOG servers if you are not well experienced and know what you are doing."
     echo " * Should the installer try to disable the local firewall for you now? (y/N)"
@@ -776,9 +785,16 @@ checkFirewall() {
                 systemctl disable firewalld >/dev/null 2>&1
                 systemctl stop iptables >/dev/null 2>&1
                 systemctl disable iptables >/dev/null 2>&1
-                rulesnum=$(iptables -L -n | wc -l)
-                policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
-                if [[ $rulesnum -ne 8 || $policy -ne 0 ]]; then
+                if [[ $iptcmd -eq 0 ]]; then
+                    rulesnum=$(iptables -L -n | wc -l)
+                    policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
+                    [[ $rulesnum -ne 8 || $policy -ne 0 ]] && cannotdisablefw=1
+                fi
+                if [[ $fwcmd -eq 0 ]]; then
+                    fwstate=$(firewall-cmd --state 2>&1)
+                    [[ "x$fwstate" == "xrunning" ]] && cannotdisablefw=1
+                fi
+                if [[ $cannotdisablefw -eq 1 ]]; then
                     echo " * We were unable to disable the firewall on your system. Read up on how"
                     echo " * you can disable it manually. Proceeding with the installation anyway..."
                     echo " * Hit ENTER so we know you've read this message."
@@ -963,46 +979,6 @@ installInitScript() {
 }
 configureMySql() {
     stopInitScript
-    if [[ $installtype == +([Nn]) && ! $fogupdateloaded -eq 1 && -z $autoaccept ]]; then
-        dummy=""
-        while [[ -z $dummy ]]; do
-            echo -n " * Is the MySQL password blank? (Y/n) "
-            read -r dummy
-            case $dummy in
-                [Yy]|[Yy][Ee][Ss]|"")
-                    dummy='Y'
-                    ;;
-                [Nn]|[Nn][Oo])
-                    echo -n " * Enter the MySQL password: "
-                    read -rs PASSWORD1
-                    echo
-                    echo -n " * Re-enter the MySQL password: "
-                    read -rs PASSWORD2
-                    echo
-                    if [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]]; then
-                        dbpass=$PASSWORD1
-                    else
-                        dbpass=""
-                        while ! [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]]; do
-                            echo "Password entries were blank or didn't match!"
-                            echo -n " * Enter the MySQL password: "
-                            read -rs PASSWORD1
-                            echo
-                            echo -n " * Re-enter the MySQL password: "
-                            read -rs PASSWORD2
-                            echo
-                            [[ ! -z $PASSWORD1 && $PASSWORD2 == "$PASSWORD1" ]] && dbpass=$PASSWORD1
-                        done
-                    fi
-                    [[ $snmysqlpass != "$dbpass" ]] && snmysqlpass=$dbpass
-                    ;;
-                *)
-                    dummy=""
-                    echo " * Invalid input, please try again!"
-                    ;;
-            esac
-        done
-    fi
     dots "Setting up and starting MySQL"
     dbservice=$(systemctl list-units | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
     [[ -z $dbservice ]] && dbservice=$(systemctl list-unit-files | grep -v bad | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
@@ -1032,52 +1008,118 @@ configureMySql() {
                 ;;
         esac
     fi
-    options=("-s")
-    [[ -n $snmysqlhost ]] && options=( "${options[@]}" "--host=$snmysqlhost" )
-    [[ -n $snmysqluser ]] && options=( "${options[@]}" "--user=$snmysqluser" )
-    [[ -n $snmysqlpass ]] && options=( "${options[@]}" "--password=$snmysqlpass" )
-    sqlescsnmysqlpass=$(echo "$snmysqlpass" | sed -e s/\'/\'\'/g)   # Replace every ' with '' for full MySQL escaping
-    sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-    mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    mysqlver=$(mysql -V |  sed -n 's/.*Distrib[ ]\(\([0-9]\([.]\|\)\)*\).*\([-]\|\)[,].*/\1/p')
-    mariadb=$(mysql -V |  sed -n 's/.*Distrib[ ].*[-]\(.*\)[,].*/\1/p')
-    vertocheck="5.7"
-    [[ -n $mariadb ]] && vertocheck="10.2"
-    if [[ $systemctl == yes ]]; then
-        systemctl restart $dbservice >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    # if someone still has DB user root set in .fogsettings we want to change that
+    [[ "x$snmysqluser" == "xroot" ]] && snmysqluser='fogmaster'
+    [[ -z $snmysqlpass ]] && snmysqlpass=$(generatePassword 2)
+    [[ -n $snmysqlhost ]] && host="--host=$snmysqlhost"
+    sqloptions="${host} --user=root"
+    mysqladmin $host ping >/dev/null 2>&1 || mysqladmin $host ping >/dev/null 2>&1 || mysqladmin $host ping >/dev/null 2>&1
+    errorStat $?
+    mysql $sqloptions --execute="quit" >/dev/null 2>&1
+    if [[ $? -eq 0 ]]; then
+        if [[ -z $autoaccept ]]; then
+            echo
+            echo "   The installer detected a blank database root password."
+            echo "   Unfortunately this was used often in older versions of FOG"
+            echo "   but we try to make the setup more secure and ask you to"
+            echo "   apply an appropriate database root password from now on."
+            echo
+            echo "   NOTICE: Make sure you choose a good password but also one"
+            echo "   you can remember or use a password manager to store it."
+            echo "   The FOG installer won't store the given password at all"
+            echo "   and it will be lost right after the installer finishes!"
+            echo "   Please enter a database root password: "
+            echo
+            read -rs snmysqlrootpass
+            if [[ -z $snmysqlrootpass ]]; then
+                snmysqlrootpass=$(generatePassword 2)
+                echo
+                echo "   We don't accept a blank database root password anymore and"
+                echo "   will generate a password for you to use. Please make sure"
+                echo "   you save the following password in an appropriate place as"
+                echo "   the installer won't store it for you."
+                echo
+                echo "   Database root password: $snmysqlrootpass"
+                echo
+                echo "   Press [Enter] to procede..."
+                echo
+                read -rs procede
+            fi
+        else
+            # Obviously this is an auto install with no DB root password parameter passed
+            # on the command line - probably just a blind test install. Don't care about it.
+            snmysqlrootpass=$(generatePassword 2)
+        fi
+        mysqladmin $sqloptions password "${snmysqlrootpass}"
+        snmysqlstoragepass=$(mysql -s $sqloptions --password=${snmysqlrootpass} --execute="SELECT sPass FROM fog.storageInfo" 2>/dev/null | tail -1)
     else
-        case $osid in
-            1)
-                service mysqld restart >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                ;;
-            2)
-                service mysql restart >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                ;;
-        esac
+        sqloptions="${host} -s --user=${snmysqluser}"
+        snmysqlstoragepass=$(mysql -s $sqloptions --password=${snmysqlpass} --execute="SELECT sPass FROM fog.storageInfo" 2>/dev/null | tail -1)
+        if [[ -z $snmysqlstoragepass && -z $autoaccept ]]; then
+            echo
+            echo "  Please provide the database root user password for the installer"
+            echo "  to be able to create an unpriviledged database user account and"
+            echo "  the FOG database - the password given will only be used while"
+            echo -n "  FOG installer is running and won't be stored or leaked: "
+            read -rs snmysqlrootpass
+        fi
     fi
-    mysqlver=$(echo $mysqlver | awk -F'([.])' '{print $1"."$2}')
-    runTest=$(echo "$mysqlver < $vertocheck" | bc)
-    if [[ $runTest -eq 0 ]]; then
-        [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
-        [[ -z $snmysqluser ]] && snmysqluser='root'
-        case $snmysqlhost in
-            127.0.0.1|[Ll][Oo][Cc][Aa][Ll][Hh][Oo][Ss][Tt])
-                sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'localhost' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                ;;
-            *)
-                sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'$snmysqlhost' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                ;;
-        esac
+    dots "Setting up MySQL user and database"
+    if [[ -n $snmysqlrootpass && -z $snmysqlstoragepass ]]; then
+        snmysqlstoragepass=$(generatePassword 2)
+        cat >/tmp/fog-db-and-user-setup.sql <<EOF
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ANSI' ;
+DELETE FROM mysql.user WHERE User='' ;
+DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1') ;
+DROP DATABASE IF EXISTS test ;
+DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%' ;
+CREATE DATABASE IF NOT EXISTS fog ;
+USE fog ;
+CREATE TABLE IF NOT EXISTS storageInfo (
+  sID INT(11) NOT NULL AUTO_INCREMENT,
+  sPass VARCHAR(64) NOT NULL,
+  PRIMARY KEY  (sID)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC ;
+DELETE FROM storageInfo;
+INSERT INTO storageInfo (sPass) VALUES ('${snmysqlstoragepass}');
+DROP PROCEDURE IF EXISTS fog.drop_user_if_exists ;
+DELIMITER $$
+CREATE PROCEDURE fog.create_user_if_not_exists()
+BEGIN
+  DECLARE masteruser BIGINT DEFAULT 0 ;
+  DECLARE storageuser BIGINT DEFAULT 0 ;
+  SELECT COUNT(*) INTO masteruser FROM mysql.user
+    WHERE User = '${snmysqluser}' and  Host = 'localhost' ;
+  IF masteruser = 0 THEN
+    CREATE USER '${snmysqluser}'@'localhost' IDENTIFIED BY '${snmysqlpass}' ;
+    GRANT ALL PRIVILEGES ON fog.* TO '${snmysqluser}'@'%' ;
+  END IF ;
+  SELECT COUNT(*) INTO storageuser FROM mysql.user
+    WHERE User = 'fogstorage' and  Host = '%' ;
+  IF storageuser = 0 THEN
+    CREATE USER 'fogstorage'@'%' IDENTIFIED BY '${snmysqlstoragepass}' ;
+  ELSE
+    REVOKE ALL PRIVILEGES ON fog.* FROM 'fogstorage'@'%';
+  END IF ;
+  GRANT SELECT ON fog.* TO 'fogstorage'@'%' ;
+--  GRANT INSERT,UPDATE ON fog.tasks TO 'fogstorage'@'%' ;
+--  GRANT INSERT,UPDATE ON fog.taskStates TO 'fogstorage'@'%' ;
+--  GRANT INSERT,UPDATE ON fog.taskLog TO 'fogstorage'@'%' ;
+--  GRANT INSERT,UPDATE ON fog.snapinTasks TO 'fogstorage'@'%' ;
+--  GRANT INSERT,UPDATE ON fog.snapinJobs TO 'fogstorage'@'%' ;
+--  GRANT INSERT,UPDATE ON fog.imagingLog TO 'fogstorage'@'%' ;
+END ;$$
+DELIMITER ;
+CALL fog.create_user_if_not_exists() ;
+DROP PROCEDURE IF EXISTS fog.create_user_if_not_exists ;
+FLUSH PRIVILEGES ;
+SET SQL_MODE=@OLD_SQL_MODE ;
+EOF
+        mysql $sqloptions --password=${snmysqlrootpass} </tmp/fog-db-and-user-setup.sql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        errorStat $?
+    else
+        echo "Skipped"
     fi
-    echo "Done"
 }
 configureFOGService() {
     [[ ! -d $servicedst ]] && mkdir -p $servicedst >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1257,7 +1299,7 @@ EOF
     ret=999
     while [[ $ret -ne 0 && $cnt -lt 10 ]]
     do
-        [[ -z $password || $ret -ne 999 ]] && password=$(generatePassword)
+        [[ -z $password || $ret -ne 999 ]] && password=$(generatePassword 2)
         echo -e "$password\n$password" | passwd $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         ret=$?
         let cnt+=1
@@ -1996,8 +2038,6 @@ configureHttpd() {
         echo "Done"
     fi
     dots "Creating config file"
-    [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
-    [[ -z $snmysqluser ]] && snmysqluser='root'
     phpescsnmysqlpass="${snmysqlpass//\\/\\\\}";   # Replace every \ with \\ ...
     phpescsnmysqlpass="${phpescsnmysqlpass//\'/\\\'}"   # and then every ' with \' for full PHP escaping
     echo "<?php
@@ -2399,14 +2439,20 @@ languagemogen() {
     done
 }
 generatePassword() {
-    local simple="$1"
-    if [[ $simple == 1 ]]; then
-        tr -cd '0-9a-zA-Z!$-' < /dev/urandom | fold -w8 | head -n1
-    else
-        tr -cd '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[\\]^_{|}~' < /dev/urandom | fold -w12 | head -n1
-    fi
+    local complexity="$1"
+    case $complexity in
+        1)
+            tr -cd '0-9a-zA-Z!$-' < /dev/urandom | fold -w8 | head -n1
+            ;;
+        2)
+            tr -cd '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~' < /dev/urandom | fold -w16 | head -n1
+            ;;
+        *)
+            tr -cd '0-9a-zA-Z' < /dev/urandom | fold -w8 | head -n1
+            ;;
+    esac
 }
 checkPasswordChars() {
     local password="$1"
-    echo $password | tr -d '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[\\]^_{|}~'
+    echo $password | tr -d '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~'
 }
