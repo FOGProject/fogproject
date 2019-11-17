@@ -751,8 +751,6 @@ $this->schema[] = array(
     "UPDATE `schemaVersion` set vValue = '15'",
 );
 // 16
-$fogstoragenodeuser = "fogstorage";
-$fogstoragenodepass = "fs".rand(1000, 100000000000);
 $this->schema[] = array(
     "ALTER TABLE `tasks` ADD COLUMN `taskBPM` varchar(250) NOT NULL AFTER "
     . "`taskPCT`, ADD COLUMN `taskTimeElapsed` varchar(250) NOT NULL AFTER "
@@ -841,18 +839,12 @@ $this->schema[] = array(
     . "VALUES "
     . "('FOG_STORAGENODE_MYSQLUSER','This setting defines the username "
     . "the storage nodes should use to connect to the fog server.',"
-    . "'$fogstoragenodeuser','FOG Storage Nodes'),"
-    . "('FOG_STORAGENODE_MYSQLPASS','This setting defines the password "
+    . "'fogstorage','FOG Storage Nodes')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "SELECT 'FOG_STORAGENODE_MYSQLPASS','This setting defines the password "
     . "the storage nodes should use to connect to the fog server.',"
-    . "'$fogstoragenodepass','FOG Storage Nodes')",
-    // This should fix issues creating storage node user on fresh install
-    // mysql 5.7 doesn't like grant all and identified in one line.
-    "DELETE FROM mysql.user WHERE user='$fogstoragenodeuser'",
-    "CREATE USER '$fogstoragenodeuser'@'%' IDENTIFIED BY '$fogstoragenodepass'",
-    "GRANT ALL PRIVILEGES ON `" . DATABASE_NAME . "`.* TO '$fogstoragenodeuser'@'%'",
-    //"GRANT ALL ON `"
-    //. DATABASE_NAME
-    //. "`.* TO '$fogstoragenodeuser'@'%' IDENTIFIED BY '$fogstoragenodepass'",
+    . "`sPass`,'FOG Storage Nodes' FROM storageInfo",
     "UPDATE `schemaVersion` set `vValue`='16'",
 );
 // 17
