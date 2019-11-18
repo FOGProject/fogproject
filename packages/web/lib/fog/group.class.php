@@ -285,13 +285,13 @@ class Group extends FOGController
      */
     public function removeModule($removeArray)
     {
-        self::getClass('ModuleAssociationManager')
-            ->destroy(
-                [
-                    'hostID' => $this->get('hosts'),
-                    'moduleID' => $removeArray,
-                ]
-            );
+        Route::deletemass(
+            'moduleassociation',
+            [
+                'moduleID' => $removeArray,
+                'hostID' => $this->get('hosts')
+            ]
+        );
 
         return $this;
     }
