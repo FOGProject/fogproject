@@ -655,7 +655,8 @@
 
     var modulesTable = $('#modules-to-update').registerTable(onModulesEnable, {
         columns: [
-            {data: 'name'}
+            {data: 'name'},
+            {data: 'association'}
         ],
         rowId: 'id',
         columnDefs: [
@@ -668,12 +669,17 @@
             },
             {
                 render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                        console.log('here');
+                    }
                     return '<div class="checkbox">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="moduleAssoc_'
                         + row.id
-                        + '" value="'
-                        + row.id
-                        + '"/>'
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
                         + '</div>';
                 },
                 targets: 1
