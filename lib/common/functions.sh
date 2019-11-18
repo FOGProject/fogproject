@@ -1020,9 +1020,9 @@ configureMySql() {
         if [[ -z $autoaccept ]]; then
             echo
             echo "   The installer detected a blank database root password."
-            echo "   Unfortunately this was used often in older versions of FOG"
-            echo "   but we try to make the setup more secure and ask you to"
-            echo "   apply an appropriate database root password from now on."
+            echo "   Unfortunately this was used often in older versions of FOG."
+            echo "   To improve the overall security we ask you to apply an
+            echo "   appropriate database root password from now on."
             echo
             echo "   NOTICE: Make sure you choose a good password but also one"
             echo "   you can remember or use a password manager to store it."
