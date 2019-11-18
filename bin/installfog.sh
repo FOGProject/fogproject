@@ -601,8 +601,8 @@ while [[ -z $blGo ]]; do
                     configureMySql
                     backupReports
                     configureHttpd
-                    updateDB
                     backupDB
+                    updateDB
                     configureStorage
                     configureDHCP
                     configureTFTPandPXE
