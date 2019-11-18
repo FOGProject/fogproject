@@ -1021,7 +1021,7 @@ configureMySql() {
             echo
             echo "   The installer detected a blank database root password."
             echo "   Unfortunately this was used often in older versions of FOG."
-            echo "   To improve the overall security we ask you to apply an
+            echo "   To improve the overall security we ask you to apply an"
             echo "   appropriate database root password from now on."
             echo
             echo "   NOTICE: Make sure you choose a good password but also one"
