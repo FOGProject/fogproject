@@ -2470,12 +2470,6 @@ class GroupManagement extends FOGPage
      */
     public function getModulesList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
         $moduleName = self::getGlobalModuleStatus();
         $keys = [];
         foreach ((array)$moduleName as $short_name => $bool) {
@@ -2496,41 +2490,47 @@ class GroupManagement extends FOGPage
             . "') AND `modules`.`short_name` IN ('"
             . implode("','", $keys)
             . "')";
+        $join = [
+            "LEFT OUTER JOIN `groupMembers` "
+            . "ON `groupMembers`.`gmGroupID` = "
+            . $this->obj->get('id'),
+            "LEFT OUTER JOIN `moduleStatusByHost` "
+            . "ON `modules`.`id` = `moduleStatusByHost`.`msModuleID` "
+            . "AND `moduleStatusByHost`.`msHostID` = `groupMembers`.`gmHostID`"
+        ];
 
-        $obj = self::getClass('ModuleManager');
-
-        // Workable queries
-        $modulesTable = $obj->getTable();
-        $modulesSqlStr = $obj->getQueryStr();
-        $modulesFilterStr = $obj->getFilterStr();
-        $modulesTotalStr = $obj->getTotalStr() .
-            "WHERE `modules`.`short_name` "
+        $sqlStr = "SELECT `%s`,"
+            . "IF(COUNT(`msHostID`) = COUNT(`gmHostID`),'associated','dissociated') "
+            . "AS `msHostID` "
+            . "FROM `%s`";
+        foreach ($join as &$j) {
+            $sqlStr .= ' ' . $j . ' ';
+            unset($j);
+        }
+        $sqlStr .= ' %s GROUP BY `short_name` %s %s';
+        $modulesTotalStr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            WHERE `modules`.`short_name` "
             . "NOT IN ('"
             . implode("','", $notWhere)
             . "')";
-
-        foreach ($obj->getColumns() as $common => &$real) {
-            if ('id' == $common) {
-                $tableID = $real;
-            }
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                $modulesTable,
-                $tableID,
-                $columns,
-                $modulesSqlStr,
-                $modulesFilterStr,
-                $modulesTotalStr
-            )
+        $columns[] = [
+            'db' => 'msHostID',
+            'dt' => 'association'
+        ];
+        $sqlFilterStr = "SELECT COUNT(`%s`) "
+            . "FROM `%s` "
+            . "WHERE $where";
+        return $this->obj->getItemsList(
+            'module',
+            'moduleassociation',
+            $join,
+            $where,
+            $columns,
+            $sqlStr,
+            $sqlFilterStr,
+            $modulesTotalStr
         );
-        exit;
     }
     /**
      * Tasking for this group.

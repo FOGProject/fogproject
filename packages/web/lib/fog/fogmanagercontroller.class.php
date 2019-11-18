@@ -527,7 +527,10 @@ abstract class FOGManagerController extends FOGBase
             ),
             'recordsTotal' => intval($recordsTotal),
             'recordsFiltered' => intval($recordsFiltered),
-            'data' => self::dataOutput($columns, $data)
+            'data' => self::dataOutput($columns, $data),
+            //'get_query' => $sql_query,
+            //'filter_query' => $filter_query,
+            //'total_query' => $total_query
         ];
     }
     /**
