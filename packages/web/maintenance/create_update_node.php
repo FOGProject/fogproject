@@ -34,31 +34,42 @@ foreach ((array)$_POST as $key => &$val) {
 if (!isset($_POST['fogverified'])) {
     return;
 }
+$name = $ip = trim(filter_input(INPUT_POST, 'ip'));
+$path = trim(filter_input(INPUT_POST, 'path'));
+$ftppath = trim(filter_input(INPUT_POST, 'ftppath'));
+$sslpath = trim(filter_input(INPUT_POST, 'sslpath'));
+$snapinpath = trim(filter_input(INPUT_POST, 'snapinpath'));
+$maxClients = trim(filter_input(INPUT_POST, 'maxClients'));
+$user = trim(filter_input(INPUT_POST, 'user'));
+$pass = trim(filter_input(INPUT_POST, 'pass'));
+$interface = trim(filter_input(INPUT_POST, 'interface'));
+$bandwidth = trim(filter_input(INPUT_POST, 'bandwidth'));
+$webroot = trim(filter_input(INPUT_POST, 'webroot'));
 if (isset($_POST['newNode'])) {
     $exists = FOGCore::getClass('StorageNodeManager')
-        ->exists($_POST['ip'], '', 'ip');
+        ->exists($ip, '', 'ip');
     if ($exists) {
         return;
     }
     FOGCore::getClass('StorageNode')
-        ->set('name', trim($_POST['ip']))
-        ->set('path', trim($_POST['path']))
-        ->set('ftppath', trim($_POST['ftppath']))
-        ->set('snapinpath', trim($_POST['snapinpath']))
-        ->set('sslpath', trim($_POST['sslpath']))
-        ->set('ip', trim($_POST['ip']))
-        ->set('maxClients', trim($_POST['maxClients']))
-        ->set('user', trim($_POST['user']))
-        ->set('pass', trim($_POST['pass']))
-        ->set('interface', trim($_POST['interface']))
-        ->set('bandwidth', trim($_POST['bandwidth']))
-        ->set('webroot', trim($_POST['webroot']))
+        ->set('name', $name)
+        ->set('path', $path)
+        ->set('ftppath', $ftppath)
+        ->set('snapinpath', $snapinpath)
+        ->set('sslpath', $sslpath)
+        ->set('ip', $ip)
+        ->set('maxClients', $maxClients)
+        ->set('user', $user)
+        ->set('pass', $pass)
+        ->set('interface', $interface)
+        ->set('bandwidth', $bandwidth)
+        ->set('webroot', $webroot)
         ->set('isEnabled', '1')
         ->save();
 } elseif (isset($_POST['nodePass'])) {
-    $ip = base64_decode(filter_input(INPUT_POST, 'ip'));
-    $user = base64_decode(filter_input(INPUT_POST, 'user'));
-    $pass = base64_decode(filter_input(INPUT_POST, 'pass'));
+    $ip = base64_decode($ip);
+    $user = base64_decode($user);
+    $pass = base64_decode($pass);
     Route::listem(
         'storagenode',
         ['ip' => $ip]
