@@ -117,7 +117,6 @@ class SnapinClient extends FOGClient
                     Route::getData()
                 );
                 foreach ($Snapins->data as &$Snapin) {
-                    $Snapin = self::getClass('Snapin', $Snapin->id);
                     $find = [
                         'snapinID' => $Snapin->id,
                         'jobID' => $SnapinJob->get('id'),
@@ -137,6 +136,7 @@ class SnapinClient extends FOGClient
                         continue;
                     }
                     $StorageNode = $StorageGroup = null;
+                    $Snapin = new Snapin($Snapin->id);
                     self::$HookManager->processEvent(
                         'SNAPIN_GROUP',
                         [
