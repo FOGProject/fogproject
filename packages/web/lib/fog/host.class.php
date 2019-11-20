@@ -534,7 +534,7 @@ class Host extends FOGController
             'snapinID'
         );
         $snapins = json_decode(Route::getData(), true);
-        $this->set('snapins', (array)$groups);
+        $this->set('snapins', (array)$snapins);
     }
     /**
      * Loads any modules this host has
@@ -833,7 +833,7 @@ class Host extends FOGController
             foreach ((array)$snapin as &$snapinID) {
                 $insert_values[] = [
                     $SnapinJob->get('id'),
-                    $this->getQUeuedState(),
+                    $this->getQueuedState(),
                     $snapinID
                 ];
                 unset($snapinID);
