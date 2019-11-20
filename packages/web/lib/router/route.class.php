@@ -288,6 +288,10 @@ class Route extends FOGBase
             'pendingmacs'
 
         )->get(
+            '/whoami',
+            [__CLASS__, 'whoami'],
+            'whoami'
+        )->get(
             '/logfiles/[i:id]',
             [__CLASS__, 'logfiles'],
             'logfiles'
@@ -2334,5 +2338,22 @@ class Route extends FOGBase
     public static function snapinfiles($id)
     {
         self::$data = self::getClass('StorageNode', $id)->get('snapinfiles');
+    }
+    /**
+     * Returns settings from fogsettings file.
+     *
+     * @return void
+     */
+    public static function whoami()
+    {
+        $data = parse_ini_file('/opt/fog/.fogsettings', true);
+        extract($data);
+        self::$data = [
+            'ipaddress' => $ipaddress,
+            'hostname' => $hostname,
+            'osid' => $osid,
+            'osname' => $osname,
+            'installtype' => $installtype
+        ];
     }
 }

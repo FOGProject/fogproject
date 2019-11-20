@@ -402,7 +402,13 @@ $.fn.registerTable = function(onSelect, opts) {
             [10, 25, 50, 100, 'All']
         ],
         pageLength: $('#pageLength').val(),
-        buttons: ['selectAll', 'selectNone'],
+        buttons: ['selectAll', 'selectNone', {
+            text: 'Refresh',
+            action: function(e, dt, node, config) {
+                dt.clear().draw();
+                dt.ajax.reload();
+            }
+        }],
         pagingType: 'simple_numbers',
         select: { style: 'multi+shift' },
         dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>B<'row'<'col-sm-12'tr>><'row'<'col-sm-5'i><'col-sm-7'p>>",
