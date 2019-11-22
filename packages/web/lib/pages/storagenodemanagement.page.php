@@ -1467,40 +1467,6 @@ class StorageNodeManagement extends FOGPage
         return $warning;
     }
     /**
-     * Viewing the Storage Node's Version information.
-     *
-     * @return void
-     */
-    public function storagenodeVersion()
-    {
-        echo '<div class="box box-solid">';
-        echo '<div class="box-body">';
-        if (!$this->obj->get('online')) {
-            echo $this->obj->get('name');
-            echo ' ';
-            echo _('is not currently online');
-        } else {
-            $url = filter_var(
-                sprintf(
-                    '%s://%s/fog/status/mainversion.php',
-                    self::$httpproto,
-                    $this->obj->get('ip')
-                ),
-                FILTER_SANITIZE_URL
-            );
-            $data = ['vo' => 1];
-            $res = self::$FOGURLRequests->process(
-                $url,
-                'POST',
-                $data
-            );
-            $res = array_shift($res);
-            echo $res;
-        }
-        echo '</div>';
-        echo '</div>';
-    }
-    /**
      * Viewing the Storage Node's Kernel information.
      *
      * @return void
@@ -1558,12 +1524,12 @@ class StorageNodeManagement extends FOGPage
             }
         ];
 
-        // Version
+        // Info
         $tabData[] = [
-            'name' => _('Version'),
-            'id' => 'storagenode-version',
+            'name' => _('Information'),
+            'id' => 'storagenode-info',
             'generator' => function () {
-                $this->storagenodeVersion();
+                self::getClass('ServerInfo')->index();
             }
         ];
 
