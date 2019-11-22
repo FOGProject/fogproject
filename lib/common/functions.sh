@@ -54,7 +54,16 @@ backupDB() {
         [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "${httpproto}://$ipaddress/$webroot/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
-    errorStat $?
+    if [[ $? -ne 0 ]]; then
+        echo "Failed"
+        echo
+        echo "   We were not able to backup the current database! Just press"
+        echo "   [Enter] to proceed anyway or Ctrl+C to stop the installer."
+        echo
+        read
+    else
+        echo "Done"
+    fi
 }
 updateDB() {
     case $dbupdate in
@@ -1073,8 +1082,8 @@ DELETE FROM mysql.user WHERE User='' ;
 DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1') ;
 DROP DATABASE IF EXISTS test ;
 DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%' ;
-CREATE DATABASE IF NOT EXISTS fog ;
-USE fog ;
+CREATE DATABASE IF NOT EXISTS $snmysqldbname ;
+USE $snmysqldbname ;
 CREATE TABLE IF NOT EXISTS storageInfo (
   sID INT(11) NOT NULL AUTO_INCREMENT,
   sPass VARCHAR(64) NOT NULL,
@@ -1082,9 +1091,9 @@ CREATE TABLE IF NOT EXISTS storageInfo (
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC ;
 DELETE FROM storageInfo;
 INSERT INTO storageInfo (sPass) VALUES ('${snmysqlstoragepass}');
-DROP PROCEDURE IF EXISTS fog.drop_user_if_exists ;
+DROP PROCEDURE IF EXISTS $snmysqldbname.drop_user_if_exists ;
 DELIMITER $$
-CREATE PROCEDURE fog.create_user_if_not_exists()
+CREATE PROCEDURE $snmysqldbname.create_user_if_not_exists()
 BEGIN
   DECLARE masteruser BIGINT DEFAULT 0 ;
   DECLARE storageuser BIGINT DEFAULT 0 ;
@@ -1092,26 +1101,26 @@ BEGIN
     WHERE User = '${snmysqluser}' and  Host = 'localhost' ;
   IF masteruser = 0 THEN
     CREATE USER '${snmysqluser}'@'localhost' IDENTIFIED BY '${snmysqlpass}' ;
-    GRANT ALL PRIVILEGES ON fog.* TO '${snmysqluser}'@'%' ;
+    GRANT ALL PRIVILEGES ON $snmysqldbname.* TO '${snmysqluser}'@'%' ;
   END IF ;
   SELECT COUNT(*) INTO storageuser FROM mysql.user
     WHERE User = 'fogstorage' and  Host = '%' ;
   IF storageuser = 0 THEN
     CREATE USER 'fogstorage'@'%' IDENTIFIED BY '${snmysqlstoragepass}' ;
   ELSE
-    REVOKE ALL PRIVILEGES ON fog.* FROM 'fogstorage'@'%';
+    REVOKE ALL PRIVILEGES ON $snmysqldbname.* FROM 'fogstorage'@'%';
   END IF ;
-  GRANT SELECT ON fog.* TO 'fogstorage'@'%' ;
---  GRANT INSERT,UPDATE ON fog.tasks TO 'fogstorage'@'%' ;
---  GRANT INSERT,UPDATE ON fog.taskStates TO 'fogstorage'@'%' ;
---  GRANT INSERT,UPDATE ON fog.taskLog TO 'fogstorage'@'%' ;
---  GRANT INSERT,UPDATE ON fog.snapinTasks TO 'fogstorage'@'%' ;
---  GRANT INSERT,UPDATE ON fog.snapinJobs TO 'fogstorage'@'%' ;
---  GRANT INSERT,UPDATE ON fog.imagingLog TO 'fogstorage'@'%' ;
+  GRANT SELECT ON $snmysqldbname.* TO 'fogstorage'@'%' ;
+--  GRANT INSERT,UPDATE ON $snmysqldbname.tasks TO 'fogstorage'@'%' ;
+--  GRANT INSERT,UPDATE ON $snmysqldbname.taskStates TO 'fogstorage'@'%' ;
+--  GRANT INSERT,UPDATE ON $snmysqldbname.taskLog TO 'fogstorage'@'%' ;
+--  GRANT INSERT,UPDATE ON $snmysqldbname.snapinTasks TO 'fogstorage'@'%' ;
+--  GRANT INSERT,UPDATE ON $snmysqldbname.snapinJobs TO 'fogstorage'@'%' ;
+--  GRANT INSERT,UPDATE ON $snmysqldbname.imagingLog TO 'fogstorage'@'%' ;
 END ;$$
 DELIMITER ;
-CALL fog.create_user_if_not_exists() ;
-DROP PROCEDURE IF EXISTS fog.create_user_if_not_exists ;
+CALL $snmysqldbname.create_user_if_not_exists() ;
+DROP PROCEDURE IF EXISTS $snmysqldbname.create_user_if_not_exists ;
 FLUSH PRIVILEGES ;
 SET SQL_MODE=@OLD_SQL_MODE ;
 EOF
@@ -1384,6 +1393,7 @@ writeUpdateFile() {
     escsnmysqlpass=$(echo "$snmysqlpass" | sed -e s/\'/\'\"\'\"\'/g)  # replace every ' with '"'"' for full bash escaping
     sedescsnmysqlpass=$(echo "$escsnmysqlpass" | sed -e 's/[\&/]/\\&/g')  # then prefix every \ & and / with \ for sed escaping
     escsnmysqlhost=$(echo $snmysqlhost | sed -e $replace)
+    escsnmysqldbname=$(echo $snmysqldbname | sed -e $replace)
     escinstalllang=$(echo $installlang | sed -e $replace)
     escstorageLocation=$(echo $storageLocation | sed -e $replace)
     escfogupdateloaded=$(echo $fogupdateloaded | sed -e $replace)
@@ -1468,6 +1478,9 @@ writeUpdateFile() {
             grep -q "snmysqlhost=" $fogprogramdir/.fogsettings && \
                 sed -i "s/snmysqlhost=.*/snmysqlhost='$escsnmysqlhost'/g" $fogprogramdir/.fogsettings || \
                 echo "snmysqlhost='$snmysqlhost'" >> $fogprogramdir/.fogsettings
+            grep -q "snmysqldbname=" $fogprogramdir/.fogsettings && \
+                sed -i "s/snmysqldbname=.*/snmysqldbname='$escsnmysqldbname'/g" $fogprogramdir/.fogsettings || \
+                echo "snmysqldbname='$snmysqldbname'" >> $fogprogramdir/.fogsettings
             grep -q "installlang=" $fogprogramdir/.fogsettings && \
                 sed -i "s/installlang=.*/installlang='$escinstalllang'/g" $fogprogramdir/.fogsettings || \
                 echo "installlang='$installlang'" >> $fogprogramdir/.fogsettings
@@ -1559,6 +1572,7 @@ writeUpdateFile() {
             echo "snmysqluser='$snmysqluser'" >> "$fogprogramdir/.fogsettings"
             echo "snmysqlpass='$escsnmysqlpass'" >> "$fogprogramdir/.fogsettings"
             echo "snmysqlhost='$snmysqlhost'" >> "$fogprogramdir/.fogsettings"
+            echo "snmysqldbname='$snmysqldbname'" >> "$fogprogramdir/.fogsettings"
             echo "installlang='$installlang'" >> "$fogprogramdir/.fogsettings"
             echo "storageLocation='$storageLocation'" >> "$fogprogramdir/.fogsettings"
             echo "fogupdateloaded=1" >> "$fogprogramdir/.fogsettings"
@@ -1607,6 +1621,7 @@ writeUpdateFile() {
         echo "snmysqluser='$snmysqluser'" >> "$fogprogramdir/.fogsettings"
         echo "snmysqlpass='$escsnmysqlpass'" >> "$fogprogramdir/.fogsettings"
         echo "snmysqlhost='$snmysqlhost'" >> "$fogprogramdir/.fogsettings"
+        echo "snmysqldbname='$snmysqldbname'" >> "$fogprogramdir/.fogsettings"
         echo "installlang='$installlang'" >> "$fogprogramdir/.fogsettings"
         echo "storageLocation='$storageLocation'" >> "$fogprogramdir/.fogsettings"
         echo "fogupdateloaded=1" >> "$fogprogramdir/.fogsettings"
@@ -2088,7 +2103,7 @@ class Config
     {
         define('DATABASE_TYPE', 'mysql'); // mysql or oracle
         define('DATABASE_HOST', '$snmysqlhost');
-        define('DATABASE_NAME', 'fog');
+        define('DATABASE_NAME', '$snmysqldbname');
         define('DATABASE_USERNAME', '$snmysqluser');
         define('DATABASE_PASSWORD', '$phpescsnmysqlpass');
     }
