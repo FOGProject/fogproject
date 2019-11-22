@@ -130,6 +130,7 @@ class FOGCore extends FOGBase
         $data['totmem'] = self::formatByteSize($totmem);
         $data['usedmem'] = self::formatByteSize($usedmem);
         $data['freemem'] = self::formatByteSize($freemem);
+        $data['fogversion'] = FOG_VERSION;
         $data['filesys'] = '@@fs';
         $hdtotal = 0;
         $hdused = 0;

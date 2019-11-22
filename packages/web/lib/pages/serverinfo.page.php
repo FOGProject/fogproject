@@ -180,7 +180,6 @@ class ServerInfo extends FOGPage
             }
             unset($nic);
         }
-        // General Info
         $fields = [
             _('Storage Node') => $this->obj->get('name'),
             _('IP') => self::resolveHostname(
@@ -198,6 +197,24 @@ class ServerInfo extends FOGPage
             _('Used Memory') => $arGeneral[9],
             _('Free Memory') => $arGeneral[10]
         ];
+        $fogversion = $arGeneral[11];
+        // Running FOG Version
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('FOG Version');
+        echo '</h4>';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo self::$FOGCloseBox;
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo $fogversion;
+        echo '</div>';
+        echo '</div>';
+        unset($fogversion);
+        // General Info
         ob_start();
         foreach ($fields as $field => &$input) {
             echo '<div class="col-md-4 pull-left">';
