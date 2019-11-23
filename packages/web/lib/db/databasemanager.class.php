@@ -105,6 +105,7 @@ class DatabaseManager extends FOGCore
         $okayFiles = array(
             'checkcredentials.php',
             'getversion.php',
+            'kernelvers.php',
         );
         /**
          * The script filename

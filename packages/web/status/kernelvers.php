@@ -24,7 +24,7 @@ session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
-$url = filter_input(INPUT_GET, 'url');
+$url = filter_input(INPUT_POST, 'url');
 if (!$currentUser->isValid()) {
     echo _('Unauthorized');
     exit;
