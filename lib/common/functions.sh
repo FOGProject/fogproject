@@ -1064,6 +1064,7 @@ configureMySql() {
             echo -n "   Please enter a new database *root* password to be set: "
             read -rs snmysqlrootpass
             echo
+            echo
             if [[ -z $snmysqlrootpass ]]; then
                 snmysqlrootpass=$(generatePassword 16)
                 echo
@@ -1076,6 +1077,7 @@ configureMySql() {
                 echo
                 echo "   Press [Enter] to procede..."
                 read -rs procede
+                echo
                 echo
             fi
         else
@@ -1096,6 +1098,15 @@ configureMySql() {
             echo -n "   is running and won't be stored anywhere: "
             read -rs snmysqlrootpass
             echo
+            echo
+            mysql $sqloptionsroot --password=${snmysqlrootpass} --execute="quit" >/dev/null 2>&1
+            if [[ $? -ne 0 ]]; then
+                echo "   Unable to connect to the database using the given password!"
+                echo -n "   Try again: "
+                read -rs snmysqlrootpass
+                echo
+                echo
+            fi
         fi
     fi
     # generate a new fogstorage password if it doesn't exist yet or if it's old style fs0123456789
