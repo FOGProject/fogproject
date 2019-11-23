@@ -28,6 +28,13 @@ backupReports() {
     echo "Done"
     return 0
 }
+checkDatabaseConnection() {
+    dots "Checking connection to master database"
+    [[ -n $snmysqlhost ]] && host="--host=$snmysqlhost"
+    sqloptionsuser="${host} -s --user=${snmysqluser}"
+    mysql $sqloptionsuser --password=${snmysqlpass} --execute="quit" >/dev/null 2>&1
+    errorStat $?
+}
 registerStorageNode() {
     [[ -z $webroot ]] && webroot="/"
     dots "Checking if this node is registered"

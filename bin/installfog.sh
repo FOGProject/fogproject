@@ -568,6 +568,7 @@ while [[ -z $blGo ]]; do
             configureUsers
             case $installtype in
                 [Ss])
+                    checkDatabaseConnection
                     backupReports
                     configureMinHttpd
                     configureStorage
