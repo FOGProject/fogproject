@@ -22,7 +22,7 @@ if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
     if [[ $OSVersion -gt 9  ]]; then
         [[ -z $php_ver || ${php_ver%.*} -lt 7  ]] && php_ver="7.3"
     elif [[ $OSVersion -gt 8 ]]; then
-        [[ -z $php_ver || $php_ver -le "7.0" ]] && php_ver="7.0"
+        [[ -z $php_ver || ${php_ver%.*} -lt 7 ]] && php_ver="7.0"
     else
         [[ -z $php_ver ]] && php_ver="5"
     fi
