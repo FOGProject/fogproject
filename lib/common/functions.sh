@@ -1022,10 +1022,11 @@ configureMySql() {
     [[ "x$snmysqluser" == "xroot" ]] && snmysqluser='fogmaster'
     [[ -z $snmysqlpass ]] && snmysqlpass=$(generatePassword 2)
     [[ -n $snmysqlhost ]] && host="--host=$snmysqlhost"
-    sqloptions="${host} --user=root"
+    sqloptionsroot="${host} --user=root"
+    sqloptionsuser="${host} -s --user=${snmysqluser}"
     mysqladmin $host ping >/dev/null 2>&1 || mysqladmin $host ping >/dev/null 2>&1 || mysqladmin $host ping >/dev/null 2>&1
     errorStat $?
-    mysql $sqloptions --execute="quit" >/dev/null 2>&1
+    mysql $sqloptionsroot --execute="quit" >/dev/null 2>&1
     if [[ $? -eq 0 ]]; then
         if [[ -z $autoaccept ]]; then
             echo
@@ -1060,11 +1061,10 @@ configureMySql() {
             # on the command line - probably just a blind test install. Don't care about it.
             snmysqlrootpass=$(generatePassword 2)
         fi
-        mysqladmin $sqloptions password "${snmysqlrootpass}"
-        snmysqlstoragepass=$(mysql -s $sqloptions --password=${snmysqlrootpass} --execute="SELECT sPass FROM fog.storageInfo" 2>/dev/null | tail -1)
+        mysqladmin $sqloptionsroot password "${snmysqlrootpass}"
+        snmysqlstoragepass=$(mysql -s $sqloptionsroot --password=${snmysqlrootpass} --execute="SELECT sPass FROM ${mysqldbname}.storageInfo" 2>/dev/null | tail -1)
     else
-        sqloptions="${host} -s --user=${snmysqluser}"
-        snmysqlstoragepass=$(mysql -s $sqloptions --password=${snmysqlpass} --execute="SELECT sPass FROM fog.storageInfo" 2>/dev/null | tail -1)
+        snmysqlstoragepass=$(mysql -s $sqloptionsuser --password=${snmysqlpass} --execute="SELECT sPass FROM ${mysqldbname}.storageInfo" 2>/dev/null | tail -1)
         if [[ -z $snmysqlstoragepass && -z $autoaccept ]]; then
             echo
             echo "  Please provide the database root user password for the installer"
@@ -1085,13 +1085,6 @@ DROP DATABASE IF EXISTS test ;
 DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%' ;
 CREATE DATABASE IF NOT EXISTS $mysqldbname ;
 USE $mysqldbname ;
-CREATE TABLE IF NOT EXISTS storageInfo (
-  sID INT(11) NOT NULL AUTO_INCREMENT,
-  sPass VARCHAR(64) NOT NULL,
-  PRIMARY KEY  (sID)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC ;
-DELETE FROM storageInfo;
-INSERT INTO storageInfo (sPass) VALUES ('${snmysqlstoragepass}');
 DROP PROCEDURE IF EXISTS $mysqldbname.create_user_if_not_exists ;
 DELIMITER $$
 CREATE PROCEDURE $mysqldbname.create_user_if_not_exists()
@@ -1124,10 +1117,17 @@ END ;$$
 DELIMITER ;
 CALL $mysqldbname.create_user_if_not_exists() ;
 DROP PROCEDURE IF EXISTS $mysqldbname.create_user_if_not_exists ;
+CREATE TABLE IF NOT EXISTS storageInfo (
+  sID INT(11) NOT NULL AUTO_INCREMENT,
+  sPass VARCHAR(64) NOT NULL,
+  PRIMARY KEY  (sID)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC ;
+DELETE FROM storageInfo;
+INSERT INTO storageInfo (sPass) VALUES ('${snmysqlstoragepass}');
 FLUSH PRIVILEGES ;
 SET SQL_MODE=@OLD_SQL_MODE ;
 EOF
-        mysql $sqloptions --password=${snmysqlrootpass} </tmp/fog-db-and-user-setup.sql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        mysql $sqloptionsroot --password=${snmysqlrootpass} </tmp/fog-db-and-user-setup.sql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
     else
         echo "Skipped"
