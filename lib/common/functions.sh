@@ -2472,21 +2472,20 @@ generatePassword() {
     local length="$1"
     [[ $length -ge 8 && $length -le 128 ]] || length=16
 
-    while [[ ${#password} -lt $((length-1)) || -z $special ]]; do
+    while [[ ${#genpassword} -lt $((length-1)) || -z $special ]]; do
         newchar=$(head -c1 /dev/urandom | tr -dc '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~')
         if [[ -n $(echo $newchar | tr -dc '!#$%&()*+,-./:;<=>?@[]^_{|}~') ]]; then
             special=${newchar}
-        elif [[ ${#password} -lt $((length-1)) ]]; then
-            password=${password}${newchar}
+        elif [[ ${#genpassword} -lt $((length-1)) ]]; then
+            genpassword=${genpassword}${newchar}
         fi
     done
     # 9$(date +%N) seems weird but it's important because date may return
     # a leading 0 causing modulo to fail on reading it as octal number
     position=$(( 9$(date +%N) % $length ))
     # inject the special character at a random position
-    echo ${password::($position)}$special${password:($position)}
+    echo ${genpassword::($position)}$special${genpassword:($position)}
 }
 checkPasswordChars() {
-    local password="$1"
-    echo $password | tr -d '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~'
+    echo "$i" | tr -d '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~'
 }
