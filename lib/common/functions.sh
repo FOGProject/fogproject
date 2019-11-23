@@ -1118,7 +1118,25 @@ configureMySql() {
         fi
     fi
     # generate a new fogstorage password if it doesn't exist yet or if it's old style fs0123456789
-    [[ -z $snmysqlstoragepass || -n $(echo $snmysqlstoragepass | grep "^fs[0-9][0-9]*$") ]] && snmysqlstoragepass=$(generatePassword 20)
+    if [[ -z $snmysqlstoragepass ]]; then
+        snmysqlstoragepass=$(generatePassword 20)
+    elif [[ -n $(echo $snmysqlstoragepass | grep "^fs[0-9][0-9]*$") ]]; then
+        snmysqlstoragepass=$(generatePassword 20)
+        echo
+        echo "   The current fogstorage database password does not meet high"
+        echo "   security standards. We will generate a new password and update"
+        echo "   all the settings on this FOG server for you. Please take note"
+        echo "   of the following credentials that you need to manually update"
+        echo "   on all your storage nodes' /opt/fog/.fogsettings configuration"
+        echo "   files and re-run (!) the FOG installer:"
+        echo "   snmysqluser='fogstorage'"
+        echo "   snmysqlpass='${snmysqlstoragepass}'"
+        echo
+        if [[ -z $autoaccept ]]; then
+            echo "   Press [Enter] to proceed after you noted down the credentials."
+            read
+        fi
+    fi
     dots "Setting up MySQL user and database"
     if [[ -n $snmysqlrootpass ]]; then
         cat >/tmp/fog-db-and-user-setup.sql <<EOF
