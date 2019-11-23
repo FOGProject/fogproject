@@ -87,6 +87,24 @@ updateDB() {
             echo
             ;;
     esac
+    dots "Granting access to fogstorage database user"
+    if [[ -n $snmysqlrootpass ]]; then
+        cat >/tmp/fog-db-grant-fogstorage-access.sql <<EOF
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ANSI' ;
+GRANT INSERT,UPDATE ON $mysqldbname.tasks TO 'fogstorage'@'%' ;
+GRANT INSERT,UPDATE ON $mysqldbname.taskStates TO 'fogstorage'@'%' ;
+GRANT INSERT,UPDATE ON $mysqldbname.taskLog TO 'fogstorage'@'%' ;
+GRANT INSERT,UPDATE ON $mysqldbname.snapinTasks TO 'fogstorage'@'%' ;
+GRANT INSERT,UPDATE ON $mysqldbname.snapinJobs TO 'fogstorage'@'%' ;
+GRANT INSERT,UPDATE ON $mysqldbname.imagingLog TO 'fogstorage'@'%' ;
+FLUSH PRIVILEGES ;
+SET SQL_MODE=@OLD_SQL_MODE ;
+EOF
+        mysql $sqloptionsroot --password=${snmysqlrootpass} </tmp/fog-db-grant-fogstorage-access.sql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        errorStat $?
+    else
+        echo "Skipped"
+    fi
 }
 validip() {
     local ip=$1
@@ -1030,22 +1048,23 @@ configureMySql() {
     if [[ $? -eq 0 ]]; then
         if [[ -z $autoaccept ]]; then
             echo
-            echo "   The installer detected a blank database root password."
-            echo "   Unfortunately this was used often in older versions of FOG."
-            echo "   To improve the overall security we ask you to apply an"
-            echo "   appropriate database root password from now on."
+            echo "   The installer detected a blank database *root* password. This"
+            echo "   is very common on a new install or if you upgrade from any"
+            echo "   version of FOG before 1.5.8. To improve overall security we ask"
+            echo "   you to supply an appropriate database *root* password now."
             echo
             echo "   NOTICE: Make sure you choose a good password but also one"
             echo "   you can remember or use a password manager to store it."
-            echo "   The FOG installer won't store the given password at all"
+            echo "   The installer won't store the given password in any place"
             echo "   and it will be lost right after the installer finishes!"
-            echo -n "   Please enter a database root password: "
+            echo
+            echo -n "   Please enter a new database *root* password to be set: "
             read -rs snmysqlrootpass
             echo
             if [[ -z $snmysqlrootpass ]]; then
                 snmysqlrootpass=$(generatePassword 2)
                 echo
-                echo "   We don't accept a blank database root password anymore and"
+                echo "   We don't accept a blank database *root* password anymore and"
                 echo "   will generate a password for you to use. Please make sure"
                 echo "   you save the following password in an appropriate place as"
                 echo "   the installer won't store it for you."
@@ -1053,8 +1072,8 @@ configureMySql() {
                 echo "   Database root password: $snmysqlrootpass"
                 echo
                 echo "   Press [Enter] to procede..."
-                echo
                 read -rs procede
+                echo
             fi
         else
             # Obviously this is an auto install with no DB root password parameter passed
@@ -1109,12 +1128,6 @@ BEGIN
   END IF ;
   CREATE USER 'fogstorage'@'%' IDENTIFIED BY '${snmysqlstoragepass}' ;
   GRANT SELECT ON $mysqldbname.* TO 'fogstorage'@'%' ;
---  GRANT INSERT,UPDATE ON $mysqldbname.tasks TO 'fogstorage'@'%' ;
---  GRANT INSERT,UPDATE ON $mysqldbname.taskStates TO 'fogstorage'@'%' ;
---  GRANT INSERT,UPDATE ON $mysqldbname.taskLog TO 'fogstorage'@'%' ;
---  GRANT INSERT,UPDATE ON $mysqldbname.snapinTasks TO 'fogstorage'@'%' ;
---  GRANT INSERT,UPDATE ON $mysqldbname.snapinJobs TO 'fogstorage'@'%' ;
---  GRANT INSERT,UPDATE ON $mysqldbname.imagingLog TO 'fogstorage'@'%' ;
 END ;$$
 DELIMITER ;
 CALL $mysqldbname.create_user_if_not_exists() ;
