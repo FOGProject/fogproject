@@ -25,16 +25,6 @@ ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
 $url = filter_input(INPUT_POST, 'url');
-if (!$currentUser->isValid()) {
-    echo _('Unauthorized');
-    exit;
-}
-if (empty($_SERVER['HTTP_X_REQUESTED_WITH'])
-    || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest'
-) {
-    echo _('Unauthorized');
-    exit;
-}
 if ($url) {
     $res = $FOGURLRequests
         ->process($url);
