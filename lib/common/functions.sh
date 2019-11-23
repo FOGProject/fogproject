@@ -1067,11 +1067,13 @@ configureMySql() {
         snmysqlstoragepass=$(mysql -s $sqloptionsuser --password=${snmysqlpass} --execute="SELECT sPass FROM ${mysqldbname}.storageInfo" 2>/dev/null | tail -1)
         if [[ -z $snmysqlstoragepass && -z $autoaccept ]]; then
             echo
-            echo "  Please provide the database root user password for the installer"
-            echo "  to be able to create an unpriviledged database user account and"
-            echo "  the FOG database - the password given will only be used while"
-            echo -n "  FOG installer is running and won't be stored or leaked: "
+            echo "   To improve the overall security the installer will create an"
+            echo "   unpriviledged database user account for FOG's database access."
+            echo "   Please provide the database *root* user password. Be asured"
+            echo "   that this password will only be used while the FOG installer"
+            echo -n "   is running and won't be stored anywhere: "
             read -rs snmysqlrootpass
+            echo
         fi
     fi
     dots "Setting up MySQL user and database"
