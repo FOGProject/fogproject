@@ -56,11 +56,12 @@ backupDB() {
     fi
     if [[ $? -ne 0 ]]; then
         echo "Failed"
-        echo
-        echo "   We were not able to backup the current database! Just press"
-        echo "   [Enter] to proceed anyway or Ctrl+C to stop the installer."
-        echo
-        read
+        if [[ -z $autoaccept ]]; then
+            echo
+            echo "   We were not able to backup the current database! Just press"
+            echo "   [Enter] to proceed anyway or Ctrl+C to stop the installer."
+            read
+        fi
     else
         echo "Done"
     fi
@@ -1037,9 +1038,9 @@ configureMySql() {
             echo "   you can remember or use a password manager to store it."
             echo "   The FOG installer won't store the given password at all"
             echo "   and it will be lost right after the installer finishes!"
-            echo "   Please enter a database root password: "
-            echo
+            echo -n "   Please enter a database root password: "
             read -rs snmysqlrootpass
+            echo
             if [[ -z $snmysqlrootpass ]]; then
                 snmysqlrootpass=$(generatePassword 2)
                 echo
@@ -1074,8 +1075,8 @@ configureMySql() {
         fi
     fi
     dots "Setting up MySQL user and database"
-    if [[ -n $snmysqlrootpass && -z $snmysqlstoragepass ]]; then
-        snmysqlstoragepass=$(generatePassword 2)
+    if [[ -n $snmysqlrootpass ]]; then
+        [[ -z $snmysqlstoragepass ]] && snmysqlstoragepass=$(generatePassword 2)
         cat >/tmp/fog-db-and-user-setup.sql <<EOF
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ANSI' ;
 DELETE FROM mysql.user WHERE User='' ;
@@ -1091,25 +1092,27 @@ CREATE TABLE IF NOT EXISTS storageInfo (
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC ;
 DELETE FROM storageInfo;
 INSERT INTO storageInfo (sPass) VALUES ('${snmysqlstoragepass}');
-DROP PROCEDURE IF EXISTS $mysqldbname.drop_user_if_exists ;
+DROP PROCEDURE IF EXISTS $mysqldbname.create_user_if_not_exists ;
 DELIMITER $$
 CREATE PROCEDURE $mysqldbname.create_user_if_not_exists()
 BEGIN
   DECLARE masteruser BIGINT DEFAULT 0 ;
   DECLARE storageuser BIGINT DEFAULT 0 ;
+
   SELECT COUNT(*) INTO masteruser FROM mysql.user
-    WHERE User = '${snmysqluser}' and  Host = 'localhost' ;
-  IF masteruser = 0 THEN
-    CREATE USER '${snmysqluser}'@'localhost' IDENTIFIED BY '${snmysqlpass}' ;
-    GRANT ALL PRIVILEGES ON $mysqldbname.* TO '${snmysqluser}'@'%' ;
+    WHERE User = '${snmysqluser}' and  Host = '${snmysqlhost}' ;
+  IF masteruser > 0 THEN
+    DROP USER '${snmysqluser}'@'${snmysqlhost}';
   END IF ;
+  CREATE USER '${snmysqluser}'@'${snmysqlhost}' IDENTIFIED BY '${snmysqlpass}' ;
+  GRANT ALL PRIVILEGES ON $mysqldbname.* TO '${snmysqluser}'@'${snmysqlhost}' ;
+
   SELECT COUNT(*) INTO storageuser FROM mysql.user
     WHERE User = 'fogstorage' and  Host = '%' ;
-  IF storageuser = 0 THEN
-    CREATE USER 'fogstorage'@'%' IDENTIFIED BY '${snmysqlstoragepass}' ;
-  ELSE
-    REVOKE ALL PRIVILEGES ON $mysqldbname.* FROM 'fogstorage'@'%';
+  IF storageuser > 0 THEN
+    DROP USER 'fogstorage'@'%';
   END IF ;
+  CREATE USER 'fogstorage'@'%' IDENTIFIED BY '${snmysqlstoragepass}' ;
   GRANT SELECT ON $mysqldbname.* TO 'fogstorage'@'%' ;
 --  GRANT INSERT,UPDATE ON $mysqldbname.tasks TO 'fogstorage'@'%' ;
 --  GRANT INSERT,UPDATE ON $mysqldbname.taskStates TO 'fogstorage'@'%' ;
