@@ -384,7 +384,7 @@ echo "Done"
 [[ -z $ignorehtmldoc ]] && ignorehtmldoc=0
 [[ -z $httpproto ]] && httpproto="http"
 [[ -z $armsupport ]] && armsupport=0
-[[ -z $snmysqldbname ]] && snmysqldbname="fog"
+[[ -z $mysqldbname ]] && mysqldbname="fog"
 [[ -z $fogpriorconfig ]] && fogpriorconfig="$fogprogramdir/.fogsettings"
 #clearScreen
 if [[ -z $* || $* != +(-h|-?|--help|--uninstall) ]]; then
@@ -412,7 +412,6 @@ case $doupdate in
             [[ -n $signorehtmldoc ]] && ignorehtmldoc=$signorehtmldoc
             [[ -n $scopybackold ]] && copybackold=$scopybackold
             [[ -n $sarmsupport ]] && armsupport=$sarmsupport
-            [[ -n $smysqldbname ]] && snmysqldbname=$smysqldbname
         fi
         ;;
     *)
@@ -447,6 +446,8 @@ if [[ -z $backupPath ]]; then
     backupPath="/$backupPath/"
 fi
 [[ -z $bootfilename ]] && bootfilename="undionly.kpxe"
+[[ -n $smysqldbname ]] && mysqldbname=$smysqldbname
+
 [[ ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]] && . ../lib/common/input.sh
 # ask user input for newly added options like hostname etc.
 . ../lib/common/newinput.sh
