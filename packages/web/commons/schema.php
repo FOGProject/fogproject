@@ -840,11 +840,6 @@ $this->schema[] = array(
     . "('FOG_STORAGENODE_MYSQLUSER','This setting defines the username "
     . "the storage nodes should use to connect to the fog server.',"
     . "'fogstorage','FOG Storage Nodes')",
-    "INSERT IGNORE INTO `globalSettings` "
-    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
-    . "SELECT 'FOG_STORAGENODE_MYSQLPASS','This setting defines the password "
-    . "the storage nodes should use to connect to the fog server.',"
-    . "`sPass`,'FOG Storage Nodes' FROM storageInfo",
     "UPDATE `schemaVersion` set `vValue`='16'",
 );
 // 17

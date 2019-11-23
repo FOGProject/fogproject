@@ -87,6 +87,9 @@ updateDB() {
             echo
             ;;
     esac
+    dots "Update fogstorage database password"
+    mysql $sqloptionsuser --password=${snmysqlpass} --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_STORAGENODE_MYSQLPASS', 'This setting defines the password the storage nodes should use to connect to the fog server.', \"$snmysqlstoragepass\", 'FOG Storage Nodes') ON DUPLICATE KEY UPDATE settingValue=\"$snmysqlstoragepass\"" $mysqldbname >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    errorStat $?
     dots "Granting access to fogstorage database user"
     if [[ -n $snmysqlrootpass ]]; then
         cat >/tmp/fog-db-grant-fogstorage-access.sql <<EOF
@@ -1081,9 +1084,9 @@ configureMySql() {
             snmysqlrootpass=$(generatePassword 2)
         fi
         mysqladmin $sqloptionsroot password "${snmysqlrootpass}"
-        snmysqlstoragepass=$(mysql -s $sqloptionsroot --password=${snmysqlrootpass} --execute="SELECT sPass FROM ${mysqldbname}.storageInfo" 2>/dev/null | tail -1)
+        snmysqlstoragepass=$(mysql -s $sqloptionsroot --password=${snmysqlrootpass} --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
     else
-        snmysqlstoragepass=$(mysql -s $sqloptionsuser --password=${snmysqlpass} --execute="SELECT sPass FROM ${mysqldbname}.storageInfo" 2>/dev/null | tail -1)
+        snmysqlstoragepass=$(mysql -s $sqloptionsuser --password=${snmysqlpass} --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
         if [[ -z $snmysqlstoragepass && -z $autoaccept ]]; then
             echo
             echo "   To improve the overall security the installer will create an"
@@ -1095,9 +1098,10 @@ configureMySql() {
             echo
         fi
     fi
+    # generate a new fogstorage password if it doesn't exist yet or if it's old style fs0123456789
+    [[ -z $snmysqlstoragepass || -n $(echo $snmysqlstoragepass | grep "^fs[0-9][0-9]*$") ]] && snmysqlstoragepass=$(generatePassword 2)
     dots "Setting up MySQL user and database"
     if [[ -n $snmysqlrootpass ]]; then
-        [[ -z $snmysqlstoragepass ]] && snmysqlstoragepass=$(generatePassword 2)
         cat >/tmp/fog-db-and-user-setup.sql <<EOF
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ANSI' ;
 DELETE FROM mysql.user WHERE User='' ;
@@ -1132,13 +1136,6 @@ END ;$$
 DELIMITER ;
 CALL $mysqldbname.create_user_if_not_exists() ;
 DROP PROCEDURE IF EXISTS $mysqldbname.create_user_if_not_exists ;
-CREATE TABLE IF NOT EXISTS storageInfo (
-  sID INT(11) NOT NULL AUTO_INCREMENT,
-  sPass VARCHAR(64) NOT NULL,
-  PRIMARY KEY  (sID)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC ;
-DELETE FROM storageInfo;
-INSERT INTO storageInfo (sPass) VALUES ('${snmysqlstoragepass}');
 FLUSH PRIVILEGES ;
 SET SQL_MODE=@OLD_SQL_MODE ;
 EOF
