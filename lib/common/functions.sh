@@ -1041,7 +1041,7 @@ configureMySql() {
     fi
     # if someone still has DB user root set in .fogsettings we want to change that
     [[ "x$snmysqluser" == "xroot" ]] && snmysqluser='fogmaster'
-    [[ -z $snmysqlpass ]] && snmysqlpass=$(generatePassword 2)
+    [[ -z $snmysqlpass ]] && snmysqlpass=$(generatePassword 16)
     [[ -n $snmysqlhost ]] && host="--host=$snmysqlhost"
     sqloptionsroot="${host} --user=root"
     sqloptionsuser="${host} -s --user=${snmysqluser}"
@@ -1065,7 +1065,7 @@ configureMySql() {
             read -rs snmysqlrootpass
             echo
             if [[ -z $snmysqlrootpass ]]; then
-                snmysqlrootpass=$(generatePassword 2)
+                snmysqlrootpass=$(generatePassword 16)
                 echo
                 echo "   We don't accept a blank database *root* password anymore and"
                 echo "   will generate a password for you to use. Please make sure"
@@ -1081,7 +1081,7 @@ configureMySql() {
         else
             # Obviously this is an auto install with no DB root password parameter passed
             # on the command line - probably just a blind test install. Don't care about it.
-            snmysqlrootpass=$(generatePassword 2)
+            snmysqlrootpass=$(generatePassword 16)
         fi
         mysqladmin $sqloptionsroot password "${snmysqlrootpass}"
         snmysqlstoragepass=$(mysql -s $sqloptionsroot --password=${snmysqlrootpass} --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
@@ -1099,7 +1099,7 @@ configureMySql() {
         fi
     fi
     # generate a new fogstorage password if it doesn't exist yet or if it's old style fs0123456789
-    [[ -z $snmysqlstoragepass || -n $(echo $snmysqlstoragepass | grep "^fs[0-9][0-9]*$") ]] && snmysqlstoragepass=$(generatePassword 2)
+    [[ -z $snmysqlstoragepass || -n $(echo $snmysqlstoragepass | grep "^fs[0-9][0-9]*$") ]] && snmysqlstoragepass=$(generatePassword 16)
     dots "Setting up MySQL user and database"
     if [[ -n $snmysqlrootpass ]]; then
         cat >/tmp/fog-db-and-user-setup.sql <<EOF
@@ -1323,7 +1323,7 @@ EOF
     ret=999
     while [[ $ret -ne 0 && $cnt -lt 10 ]]
     do
-        [[ -z $password || $ret -ne 999 ]] && password=$(generatePassword 2)
+        [[ -z $password || $ret -ne 999 ]] && password=$(generatePassword 16)
         echo -e "$password\n$password" | passwd $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         ret=$?
         let cnt+=1
@@ -2469,18 +2469,22 @@ languagemogen() {
     done
 }
 generatePassword() {
-    local complexity="$1"
-    case $complexity in
-        1)
-            tr -cd '0-9a-zA-Z!$-' < /dev/urandom | fold -w8 | head -n1
-            ;;
-        2)
-            tr -cd '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~' < /dev/urandom | fold -w16 | head -n1
-            ;;
-        *)
-            tr -cd '0-9a-zA-Z' < /dev/urandom | fold -w8 | head -n1
-            ;;
-    esac
+    local length="$1"
+    [[ $length -ge 8 && $length -le 128 ]] || length=16
+
+    while [[ ${#password} -lt $((length-1)) || -z $special ]]; do
+        newchar=$(head -c1 /dev/urandom | tr -dc '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~')
+        if [[ -n $(echo $newchar | tr -dc '!#$%&()*+,-./:;<=>?@[]^_{|}~') ]]; then
+            special=${newchar}
+        elif [[ ${#password} -lt $((length-1)) ]]; then
+            password=${password}${newchar}
+        fi
+    done
+    # 9$(date +%N) seems weird but it's important because date may return
+    # a leading 0 causing modulo to fail on reading it as octal number
+    position=$(( 9$(date +%N) % $length ))
+    # inject the special character at a random position
+    echo ${password::($position)}$special${password:($position)}
 }
 checkPasswordChars() {
     local password="$1"
