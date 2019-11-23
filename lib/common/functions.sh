@@ -1026,7 +1026,8 @@ configureMySql() {
             mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
         systemctl is-enabled --quiet $dbservice || systemctl enable $dbservice >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        systemctl is-active --quiet $dbservice || systemctl start $dbservice >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        systemctl is-active --quiet $dbservice && systemctl stop $dbservice >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+        systemctl start $dbservice >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     else
         case $osid in
             1)
