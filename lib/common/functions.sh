@@ -1094,7 +1094,7 @@ configureMySql() {
             # on the command line - probably just a blind test install. Don't care about it.
             snmysqlrootpass=$(generatePassword 20)
         fi
-        mysqladmin $sqloptionsroot password "${snmysqlrootpass}"
+        mysqladmin $sqloptionsroot password "${snmysqlrootpass}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         snmysqlstoragepass=$(mysql -s $sqloptionsroot --password=${snmysqlrootpass} --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
     else
         snmysqlstoragepass=$(mysql -s $sqloptionsuser --password=${snmysqlpass} --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
