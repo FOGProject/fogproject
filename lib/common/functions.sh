@@ -1116,6 +1116,7 @@ configureMySql() {
                 echo
                 echo
             fi
+            snmysqlstoragepass=$(mysql -s $sqloptionsroot --password=${snmysqlrootpass} --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
         fi
     fi
     # generate a new fogstorage password if it doesn't exist yet or if it's old style fs0123456789
