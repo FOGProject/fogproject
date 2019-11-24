@@ -102,6 +102,10 @@ updateDB() {
         [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
         cat >../tmp/fog-db-grant-fogstorage-access.sql <<EOF
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ANSI' ;
+GRANT INSERT,UPDATE ON $mysqldbname.hosts TO 'fogstorage'@'%' ;
+GRANT INSERT,UPDATE ON $mysqldbname.inventory TO 'fogstorage'@'%' ;
+GRANT INSERT,UPDATE ON $mysqldbname.multicastSessions TO 'fogstorage'@'%' ;
+GRANT INSERT,UPDATE ON $mysqldbname.multicastSessionsAssoc TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.tasks TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.taskStates TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.taskLog TO 'fogstorage'@'%' ;
