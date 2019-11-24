@@ -99,7 +99,8 @@ updateDB() {
     errorStat $?
     dots "Granting access to fogstorage database user"
     if [[ -n $snmysqlrootpass ]]; then
-        cat >/tmp/fog-db-grant-fogstorage-access.sql <<EOF
+        [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
+        cat >../tmp/fog-db-grant-fogstorage-access.sql <<EOF
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ANSI' ;
 GRANT INSERT,UPDATE ON $mysqldbname.tasks TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.taskStates TO 'fogstorage'@'%' ;
@@ -110,7 +111,7 @@ GRANT INSERT,UPDATE ON $mysqldbname.imagingLog TO 'fogstorage'@'%' ;
 FLUSH PRIVILEGES ;
 SET SQL_MODE=@OLD_SQL_MODE ;
 EOF
-        mysql $sqloptionsroot --password=${snmysqlrootpass} </tmp/fog-db-grant-fogstorage-access.sql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        mysql $sqloptionsroot --password=${snmysqlrootpass} <../tmp/fog-db-grant-fogstorage-access.sql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
     else
         echo "Skipped"
@@ -1139,7 +1140,8 @@ configureMySql() {
     fi
     dots "Setting up MySQL user and database"
     if [[ -n $snmysqlrootpass ]]; then
-        cat >/tmp/fog-db-and-user-setup.sql <<EOF
+        [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
+        cat >../tmp/fog-db-and-user-setup.sql <<EOF
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ANSI' ;
 DELETE FROM mysql.user WHERE User='' ;
 DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1') ;
@@ -1176,7 +1178,7 @@ DROP PROCEDURE IF EXISTS $mysqldbname.create_user_if_not_exists ;
 FLUSH PRIVILEGES ;
 SET SQL_MODE=@OLD_SQL_MODE ;
 EOF
-        mysql $sqloptionsroot --password=${snmysqlrootpass} </tmp/fog-db-and-user-setup.sql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        mysql $sqloptionsroot --password=${snmysqlrootpass} <../tmp/fog-db-and-user-setup.sql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
     else
         echo "Skipped"
