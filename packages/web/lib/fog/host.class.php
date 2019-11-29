@@ -318,14 +318,11 @@ class Host extends FOGController
                 && $CurrPriMAC[0] != $RealPriMAC
             ) {
                 self::getClass('MACAddressAssociationManager')
-                    ->update(
+                    ->destroy(
                         array(
-                            'mac' => $CurrPriMAC[0],
                             'hostID' => $this->get('id'),
-                            'primary' => 1
-                        ),
-                        '',
-                        array('primary' => 0)
+                            'mac' => $CurrPriMAC[0]
+                        )
                     );
             }
             $HostWithMAC = array_diff(
