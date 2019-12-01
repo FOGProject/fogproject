@@ -231,7 +231,12 @@ class StorageGroup extends FOGController
         );
         foreach ($StorageNodes->data as $StorageNode) {
             if (!$StorageNode->online) {
-                continue;
+                $StorageNodeCheckOnline = new StorageNode($StorageNode->id);
+                if (!$StorageNodeCheckOnline->get('online')) {
+                    unset($StorageNodeCheckOnline);
+                    continue;
+                }
+                unset($StorageNodeCheckOnline);
             }
             if ($masternode == null) {
                 $masternode = $StorageNode;
