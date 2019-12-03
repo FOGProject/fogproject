@@ -41,6 +41,7 @@ var Graph30Day,
     },
     // Bandwidth
     GraphBandwidthMaxDataPoints,
+    GraphDayMaxDataPoints,
     realtime = 'on',
     // Client Count
     updateClientCountData = [[0,0]],
@@ -348,6 +349,13 @@ function setupDiskUsage() {
 }
 
 function setupImagingHistory() {
+    GraphDayMaxDataPoints = $('.graph-days.active').prop('rel');
+    $('.type-days').on('click', function(e) {
+        $(this).blur().addClass('active').siblings('a').removeClass('active');
+        GraphDayMaxDataPoints = $(this).prop('rel');
+        update30day();
+        e.preventDefault();
+    });
     // 30 day chart, updates every 5 minutes
     var update30day = function() {
         if (!loadings.imaginghistory) {
@@ -359,7 +367,8 @@ function setupImagingHistory() {
                 url: '../management/index.php?node=home',
                 type: 'post',
                 data: {
-                    sub: 'get30day'
+                    sub: 'get30day',
+                    days: GraphDayMaxDataPoints
                 },
                 dataType: 'json',
                 success: function(data) {
