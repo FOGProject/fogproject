@@ -639,6 +639,7 @@ class FOGURLRequests extends FOGBase
                 $output[] = false;
                 continue;
             }
+            stream_set_blocking($socket, 0);
             $output[] = true;
             fclose($socket);
             unset($url);
