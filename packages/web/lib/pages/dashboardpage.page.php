@@ -267,12 +267,55 @@ class DashboardPage extends FOGPage
             $tftp
         );
         // 30 day row.
+        $onemonth = 30;
+        $twomonth = 60;
+        $tremonth = 90;
+        $sixmonth = 183;
+        $oneyears = 365;
         echo '<div class="col-xs-12">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Imaging Over the last 30 days');
+        echo _('Imaging Over the last');
         echo '</h4>';
+        echo '<div class="row">';
+        echo '<div class="col-md-3">';
+        echo '<a href="#" id="graph-day-filters-30" '
+            . 'class="type-days graph-days active" rel="'
+            . $onemonth
+            . '">';
+        echo _('30 Days');
+        echo '</a>';
+        echo '&nbsp;&nbsp;';
+        echo '<a href="#" id="graph-day-filters-60" class='
+            . '"type-days graph-days" rel="'
+            . $twomonth
+            . '">';
+        echo _('60 Days');
+        echo '</a>';
+        echo '&nbsp;&nbsp;';
+        echo '<a href="#" id="graph-day-filters-90" class='
+            . '"type-days graph-days" rel="'
+            . $tremonth
+            . '">';
+        echo _('90 Days');
+        echo '</a>';
+        echo '&nbsp;&nbsp;';
+        echo '<a href="#" id="graph-day-filters-90" class='
+            . '"type-days graph-days" rel="'
+            . $sixmonth
+            . '">';
+        echo _('6 Months');
+        echo '</a>';
+        echo '&nbsp;&nbsp;';
+        echo '<a href="#" id="graph-day-filters-90" class='
+            . '"type-days graph-days" rel="'
+            . $oneyears
+            . '">';
+        echo _('1 Year');
+        echo '</a>';
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
         echo '<div class="box-body">';
         echo '<div id="graph-30day"></div>';
@@ -494,9 +537,10 @@ class DashboardPage extends FOGPage
     public function get30day()
     {
         header('Content-type: application/json');
+        $days = filter_input(INPUT_POST, 'days');
         $start = self::niceDate()
             ->setTime(00, 00, 00)
-            ->modify('-30 days');
+            ->modify("-$days days");
         $end = self::niceDate()
             ->setTime(23, 59, 59);
         $int = new DateInterval('P1D');
