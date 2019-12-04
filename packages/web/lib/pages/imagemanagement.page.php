@@ -1128,6 +1128,9 @@ class ImageManagement extends FOGPage
         if ($this->obj->get('name') != $image && $exists) {
             throw new Exception(_('An image with this name already exists!'));
         }
+        $imagemanage = (int)trim(
+            filter_input(INPUT_POST, 'imagemanage')
+        );
         $this->obj
             ->set('name', $image)
             ->set('description', $description)

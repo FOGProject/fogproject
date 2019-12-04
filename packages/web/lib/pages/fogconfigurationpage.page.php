@@ -66,6 +66,8 @@ class FOGConfigurationPage extends FOGPage
         $StorageNodes = $StorageNodes->data;
         ob_start();
         foreach ($StorageNodes as &$StorageNode) {
+            Route::indiv('storagenode', $StorageNode->id);
+            $StorageNode = json_decode(Route::getData());
             $id = str_replace(' ', '_', $StorageNode->name);
             $url = filter_var(
                 sprintf(

@@ -230,13 +230,10 @@ class StorageGroup extends FOGController
             Route::getData()
         );
         foreach ($StorageNodes->data as $StorageNode) {
+            Route::indiv('storagenode', $StorageNode->id);
+            $StorageNode = json_decode(Route::getData());
             if (!$StorageNode->online) {
-                $StorageNodeCheckOnline = new StorageNode($StorageNode->id);
-                if (!$StorageNodeCheckOnline->get('online')) {
-                    unset($StorageNodeCheckOnline);
-                    continue;
-                }
-                unset($StorageNodeCheckOnline);
+                continue;
             }
             if ($masternode == null) {
                 $masternode = $StorageNode;
@@ -269,6 +266,8 @@ class StorageGroup extends FOGController
             Route::getData()
         );
         foreach ($StorageNodes->data as &$StorageNode) {
+            Route::indiv('storagenode', $StorageNode->id);
+            $StorageNode = json_decode(Route::getData());
             if (!$StorageNode->online) {
                 continue;
             }
