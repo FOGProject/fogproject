@@ -2307,6 +2307,8 @@ abstract class FOGBase
             Route::getData()
         );
         foreach ($StorageNodes->data as &$StorageNode) {
+            Route::indiv('storagenode', $StorageNode->id);
+            $StorageNode = json_decode(Route::getData());
             if (!$StorageNode->online) {
                 continue;
             }

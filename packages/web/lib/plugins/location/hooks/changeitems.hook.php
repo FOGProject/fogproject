@@ -260,6 +260,8 @@ class ChangeItems extends Hook
             Route::getData()
         );
         foreach ($arguments['StorageNodes']->data as $ind => &$StorageNode) {
+            Route::indiv('storagenode', $StorageNode->id);
+            $StorageNode = json_decode(Route::getData());
             if (!$StorageNode->online) {
                 continue;
             }

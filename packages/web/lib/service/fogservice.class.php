@@ -94,6 +94,8 @@ abstract class FOGService extends FOGBase
             Route::getData()
         );
         foreach ($StorageNodesFound->data as &$StorageNode) {
+            Route::indiv('storagenode', $StorageNode->id);
+            $StorageNode = json_decode(Route::getData());
             if (!$StorageNode->online) {
                 continue;
             }
@@ -379,6 +381,8 @@ abstract class FOGService extends FOGBase
             if ($StorageNode->id == $myStorageNodeID) {
                 continue;
             }
+            Route::indiv('storagenode', $StorageNode->id);
+            $StorageNode = json_decode(Route::getData());
             if ($master && $StorageNode->storagegroupID == $myStorageGroupID) {
                 continue;
             }
