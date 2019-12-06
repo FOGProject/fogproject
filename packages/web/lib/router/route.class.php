@@ -259,6 +259,10 @@ class Route extends FOGBase
             [__CLASS__, 'active'],
             'active'
         )->get(
+            "${expanded}/count",
+            [__CLASS__, 'count'],
+            'count'
+        )->get(
             "${expanded}/names/[*:whereItems]?",
             [__CLASS__, 'names'],
             'names'
@@ -884,6 +888,25 @@ class Route extends FOGBase
             ]
         );
         self::$data['_lang'] = $classname;
+    }
+    /**
+     * Presents the equivalent of a page's list all but only returns count.
+     *
+     * @param string $class         The class to work with.
+     * @param mixed  $whereItems    Any special things to search for.
+     * @param bool   $inputoverride Override php://input to blank.
+     * @param string $operator      The operator for the SQL. AND is default.
+     *
+     * @return void
+     */
+    public static function count(
+        $class,
+        $whereItems = false,
+        $inputoverride = false,
+        $operator = 'AND'
+    ) {
+        self::listem($class, $whereItems, $inputoverride, $operator);
+        self::$data = ['total' => self::$data['recordsTotal']];
     }
     /**
      * Presents the equivalent of a universal search.
