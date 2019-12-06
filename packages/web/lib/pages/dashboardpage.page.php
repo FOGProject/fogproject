@@ -46,6 +46,12 @@ class DashboardPage extends FOGPage
      */
     private static $_nodeOpts;
     /**
+     * The node colors
+     *
+     * @var mixed
+     */
+    private static $_nodeColors;
+    /**
      * The group options
      *
      * @var string
@@ -116,6 +122,7 @@ class DashboardPage extends FOGPage
                 $url,
                 $StorageNode->interface
             );
+            self::$_nodeColors[] = $StorageNode->graphcolor;
             unset($StorageNode);
         }
         Route::listem('storagegroup');
@@ -345,6 +352,14 @@ class DashboardPage extends FOGPage
             'hidden',
             'nodeNames',
             implode(',', self::$_nodeNames)
+        );
+        echo self::makeINput(
+            '',
+            '',
+            '',
+            'hidden',
+            'nodeColors',
+            implode(',', self::$_nodeColors)
         );
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
