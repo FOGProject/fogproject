@@ -457,6 +457,9 @@ class MulticastTask extends FOGService
             );
         }
         $maxwait = $this->getMaxwait();
+        Route::count('host');
+        $hostCount = json_decode(Route::getData());
+        $hostCount = $hostCount->total;
         $buildcmd = [
             UDPSENDERPATH,
             (
@@ -478,8 +481,8 @@ class MulticastTask extends FOGService
                 ' --min-receivers %d',
                 (
                     $this->getClientCount() ?
-                    $this->getClientCount():
-                    self::getClass('HostManager')->count()
+                    $this->getClientCount() :
+                    $hostCount
                 )
             ),
             sprintf(' --max-wait %s', '%d'),
