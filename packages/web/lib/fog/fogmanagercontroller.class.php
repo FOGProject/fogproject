@@ -222,12 +222,15 @@ abstract class FOGManagerController extends FOGBase
     public static function limit($request, $columns)
     {
         $limit = '';
-        if (isset($request['start']) && $request['length'] != -1) {
-            $limit = "LIMIT "
-                . intval($request['start'])
-                . ", "
-                . intval($request['length']);
+        if (!isset($request['start'])
+            || $request['length'] == -1
+        ) {
+            return $limit;
         }
+        $limit = "LIMIT "
+            . intval($request['start'])
+            . ", "
+            . intval($request['length']);
         return $limit;
     }
     /**
@@ -243,23 +246,27 @@ abstract class FOGManagerController extends FOGBase
     public static function order($request, $columns)
     {
         $order = '';
-        if (isset($request['order']) && count($request['order'] ?: [])) {
-            $orderBy = [];
-            $dtColumns = self::pluck($columns, 'dt');
-            for ($i = 0, $ien = count($request['order'] ?: []); $i < $ien; $i++) {
-                // Convert the column index into the column data property
-                $columnIdx = intval($request['order'][$i]['column']);
-                $requestColumn = $request['columns'][$columnIdx];
-                $columnIdx = array_search($requestColumn['data'], $dtColumns);
-                $column = $columns[$columnIdx];
-                if ($requestColumn['orderable'] == 'true') {
-                    $dir = $request['order'][$i]['dir'] === 'asc' ?
-                        'ASC' :
-                        'DESC';
-
-                    $orderBy[] = '`'.$column['db'].'` '.$dir;
-                }
+        if (!isset($request['order']) || count($request['order'] ?: []) <= 0) {
+            return $order;
+        }
+        $orderBy = [];
+        $dtColumns = self::pluck($columns, 'dt');
+        for ($i = 0, $ien = count($request['order'] ?: []); $i < $ien; $i++) {
+            // Convert the column index into the column data property
+            $columnIdx = intval($request['order'][$i]['column']);
+            $requestColumn = $request['columns'][$columnIdx];
+            $columnIdx = array_search($requestColumn['data'], $dtColumns);
+            $column = $columns[$columnIdx];
+            if ($requestColumn['orderable'] != 'true') {
+                continue;
             }
+            $dir = $request['order'][$i]['dir'] === 'asc' ?
+                'ASC' :
+                'DESC';
+
+            $orderBy[] = '`'.$column['db'].'` '.$dir;
+        }
+        if (count($orderBy ?: []) > 0) {
             $order = 'ORDER BY '.implode(', ', $orderBy);
         }
         return $order;
@@ -284,7 +291,6 @@ abstract class FOGManagerController extends FOGBase
     {
         $globalSearch = [];
         $columnSearch = [];
-        $andSearch = [];
         $dtColumns = self::pluck($columns, 'dt');
         if (isset($request['search']) && $request['search']['value'] != '') {
             $str = $request['search']['value'];
@@ -292,13 +298,13 @@ abstract class FOGManagerController extends FOGBase
                 $requestColumn = $request['columns'][$i];
                 $columnIdx = array_search($requestColumn['data'], $dtColumns);
                 $column = $columns[$columnIdx];
-                if ($requestColumn['searchable'] == 'true') {
-                    if (!isset($column['db'])) {
-                        continue;
-                    }
-                    $binding = self::bind($bindings, '%'.$str.'%', PDO::PARAM_STR);
-                    $globalSearch[] = "`".$column['db']."` LIKE ".$binding;
+                if ($requestColumn['searchable'] != 'true'
+                    || !isset($column['db'])
+                ) {
+                    continue;
                 }
+                $binding = self::bind($bindings, '%'.$str.'%', PDO::PARAM_STR);
+                $globalSearch[] = "`".$column['db']."` LIKE ".$binding;
             }
         }
         // Individual column filtering
@@ -308,19 +314,18 @@ abstract class FOGManagerController extends FOGBase
                 $columnIdx = array_search($requestColumn['data'], $dtColumns);
                 $column = $columns[$columnIdx];
                 $str = $requestColumn['search']['value'];
-                if ($requestColumn['searchable'] == 'true') {
-                    if ($str != '') {
-                        if (!isset($column['db'])) {
-                            continue;
-                        }
-                        $binding = self::bind(
-                            $bindings,
-                            '%' . $str . '%',
-                            PDO::PARAM_STR
-                        );
-                        $columnSearch[] = "`".$column['db']."` LIKE ".$binding;
-                    }
+                if ($requestColumn['searchable'] != 'true'
+                    || $str == ''
+                    || !isset($column['db'])
+                ) {
+                    continue;
                 }
+                $binding = self::bind(
+                    $bindings,
+                    '%' . $str . '%',
+                    PDO::PARAM_STR
+                );
+                $columnSearch[] = "`".$column['db']."` LIKE ".$binding;
             }
         }
         // Combine the filters into a single string
@@ -417,7 +422,10 @@ abstract class FOGManagerController extends FOGBase
             ),
             'recordsTotal' => intval($recordsTotal),
             'recordsFiltered' => intval($recordsFiltered),
-            'data' => self::dataOutput($columns, $data)
+            'data' => self::dataOutput($columns, $data),
+            //'sql_query' => $sql_query,
+            //'filter_query' => $filter_query,
+            //'total_query' => $total_query
         ];
     }
     /**
@@ -474,8 +482,8 @@ abstract class FOGManagerController extends FOGBase
         $limit = self::limit($request, $columns);
         $order = self::order($request, $columns);
         $where = self::filter($request, $columns, $bindings);
-        $whereResult = self::flatten($whereResult);
-        $whereAll = self::flatten($whereAll);
+        $whereResult = self::_flatten($whereResult);
+        $whereAll = self::_flatten($whereAll);
         if ($whereResult) {
             $where = $where ?
                 $where .' AND '.$whereResult :
@@ -528,7 +536,7 @@ abstract class FOGManagerController extends FOGBase
             'recordsTotal' => intval($recordsTotal),
             'recordsFiltered' => intval($recordsFiltered),
             'data' => self::dataOutput($columns, $data),
-            //'get_query' => $sql_query,
+            //'sql_query' => $sql_query,
             //'filter_query' => $filter_query,
             //'total_query' => $total_query
         ];
@@ -624,10 +632,9 @@ abstract class FOGManagerController extends FOGBase
     {
         $out = [];
         for ($i = 0, $len = count($a ?: []); $i < $len; $i++) {
-            if (!isset($a[$i][$prop])) {
-                continue;
-            }
-            if (isset($a[$i]['removeFromQuery'])) {
+            if (!isset($a[$i][$prop])
+                || isset($a[$i]['removeFromQuery'])
+            ) {
                 continue;
             }
             $out[] = $a[$i][$prop];
@@ -642,7 +649,7 @@ abstract class FOGManagerController extends FOGBase
      *
      * @return string Joined string
      */
-    public static function flatten($a, $join = ' AND ')
+    private static function _flatten($a, $join = ' AND ')
     {
         if (!$a) {
             return '';
