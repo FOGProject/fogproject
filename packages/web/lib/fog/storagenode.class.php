@@ -53,7 +53,8 @@ class StorageNode extends FOGController
         'key' => 'ngmKey',
         'interface' => 'ngmInterface',
         'bandwidth' => 'ngmBandwidthLimit',
-        'webroot' => 'ngmWebroot'
+        'webroot' => 'ngmWebroot',
+        'graphcolor' => 'ngmGraphColor'
     ];
     /**
      * The required fields.

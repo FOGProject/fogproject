@@ -3,7 +3,14 @@
         createnewBtn = $('#createnew'),
         createnewModal = $('#createnewModal'),
         createForm = $('#create-form'),
-        createnewSendBtn = $('#send');
+        createnewSendBtn = $('#send'),
+        jscolors = $('.jscolor');
+    if ($(jscolors).length !== 0) {
+        $(jscolors).each((index, element) => {
+            let color = $('#graphcolor').val();
+            new jscolor(element, {'value': color});
+        });
+    }
 
     function disableButtons(disable) {
         deleteSelected.prop('disabled', disable);

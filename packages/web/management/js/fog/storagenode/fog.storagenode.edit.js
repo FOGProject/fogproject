@@ -16,7 +16,14 @@
         generalDeleteBtn = $('#general-delete'),
         generalDeleteModal = $('#deleteModal'),
         generalDeleteModalConfirm = $('#confirmDeleteModal'),
-        generalDeleteModalCancel = $('#closeDeleteModal');
+        generalDeleteModalCancel = $('#closeDeleteModal'),
+        jscolors = $('.jscolor');
+    if ($(jscolors).length !== 0) {
+        $(jscolors).each((index, element) => {
+            let color = $('#graphcolor').val();
+            new jscolor(element, {'value': color});
+        });
+    }
 
     generalForm.on('submit', function(e) {
         e.preventDefault();

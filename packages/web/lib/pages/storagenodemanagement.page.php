@@ -89,6 +89,7 @@ class StorageNodeManagement extends FOGPage
         $interface = filter_input(INPUT_POST, 'interface');
         $user = filter_input(INPUT_POST, 'user');
         $pass = filter_input(INPUT_POST, 'pass');
+        $graphcolor = filter_input(INPUT_POST, 'graphcolor');
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -221,6 +222,22 @@ class StorageNodeManagement extends FOGPage
                 -1,
                 -1,
                 'checked'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'graphcolor',
+                _('Graph Color')
+                . '<br/>('
+                . _('On Dashboard')
+                . ')'
+            ) => self::makeInput(
+                'jscolor {required:false} {refine: false} '
+                    . 'form-control storagenodecolor-input',
+                'graphcolor',
+                'FFFFFF',
+                'text',
+                'graphcolor',
+                $graphcolor
             ),
             // Bandwidth/Network Limiting
             self::makeLabel(
@@ -569,6 +586,22 @@ class StorageNodeManagement extends FOGPage
                 -1,
                 'checked'
             ),
+            self::makeLabel(
+                $labelClass,
+                'graphcolor',
+                _('Graph Color')
+                . '<br/>('
+                . _('On Dashboard')
+                . ')'
+            ) => self::makeInput(
+                'jscolor {required:false} {refine: false} '
+                    . 'form-control storagenodecolor-input',
+                'graphcolor',
+                'FFFFFF',
+                'text',
+                'graphcolor',
+                $graphcolor
+            ),
             // Bandwidth/Network Limiting
             self::makeLabel(
                 $labelClass,
@@ -769,6 +802,9 @@ class StorageNodeManagement extends FOGPage
         $storagegroupID = (int)trim(
             filter_input(INPUT_POST, 'storagegroupID')
         );
+        $graphcolor = trim(
+            filter_input(INPUT_POST, 'graphcolor')
+        );
         $path = trim(
             filter_input(INPUT_POST, 'path')
         );
@@ -833,7 +869,8 @@ class StorageNodeManagement extends FOGPage
                 ->set('isEnabled', $isen)
                 ->set('user', $user)
                 ->set('pass', $pass)
-                ->set('bandwidth', $bandwidth);
+                ->set('bandwidth', $bandwidth)
+                ->set('graphcolor', $graphcolor);
             if (!$StorageNode->save()) {
                 $serverFault = true;
                 throw new Exception(_('Add storage node failed!'));
@@ -1011,6 +1048,10 @@ class StorageNodeManagement extends FOGPage
         } else {
             $isMaster = '';
         }
+        $graphcolor = (
+            filter_input(INPUT_POST, 'graphcolor') ?:
+            $this->obj->get('graphcolor')
+        );
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -1145,6 +1186,22 @@ class StorageNodeManagement extends FOGPage
                 -1,
                 -1,
                 $isgren
+            ),
+            self::makeLabel(
+                $labelClass,
+                'graphcolor',
+                _('Graph Color')
+                . '<br/>('
+                . _('On Dashboard')
+                . ')'
+            ) => self::makeInput(
+                'jscolor {required:false} {refine: false} '
+                    . 'form-control storagenodecolor-input',
+                'graphcolor',
+                'FFFFFF',
+                'text',
+                'graphcolor',
+                $graphcolor
             ),
             // Bandwidth/Network Limiting
             self::makeLabel(
@@ -1377,6 +1434,9 @@ class StorageNodeManagement extends FOGPage
         $isen = (int)isset($_POST['isEnabled']);
         $isgren = (int)isset($_POST['isGraphEnabled']);
         $isMaster = (int)isset($_POST['isMaster']);
+        $graphcolor = trim(
+            filter_input(INPUT_POST, 'graphcolor')
+        );
         $storagegroupID = (int)trim(
             filter_input(INPUT_POST, 'storagegroupID')
         );
@@ -1438,7 +1498,8 @@ class StorageNodeManagement extends FOGPage
             ->set('isEnabled', $isen)
             ->set('user', $user)
             ->set('pass', $pass)
-            ->set('bandwidth', $bandwidth);
+            ->set('bandwidth', $bandwidth)
+            ->set('graphcolor', $graphcolor);
         if ($this->obj->get('isMaster')) {
             $find = [
                 'isMaster' => 1,

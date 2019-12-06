@@ -207,7 +207,29 @@ class Page extends FOGBase
             } else {
                 $filepaths = "js/fog/{$node}/fog.{$node}.{$subset}.js";
             }
-            if ('about' == $node && 'settings' == $sub) {
+            $jscolorNodeSubArray = [
+                'about' => ['settings'],
+                'storagenode' => [
+                    'list',
+                    'add',
+                    'edit'
+                ]
+            ];
+            switch ($node) {
+            case 'about':
+                if ('settings' == $sub) {
+                    $jscolorneeded = true;
+                }
+                break;
+            case 'storagenode':
+                if (in_array($sub, $jscolorNodeSubArray[$node])) {
+                    $jscolorneeded = true;
+                }
+                break;
+            default:
+                $jscolorneeded = false;
+            }
+            if ($jscolorneeded) {
                 $files[] = 'js/jscolor.js';
             }
         }
