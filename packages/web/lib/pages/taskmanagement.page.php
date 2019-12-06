@@ -329,54 +329,58 @@ class TaskManagement extends FOGPage
             $pass_vars
         );
 
-        $activestates = [
-            'queued',
-            'checked in',
-            'in-progress'
-        ];
-
-        $where = "`taskStates`.`tsName` IN ('"
-            . implode("','", $activestates)
-            . "') AND `taskTypes`.`ttName` IN ('All Snapins','Single Snapin')";
-
         $tasksSqlStr = "SELECT `%s`
             FROM `%s`
-            CROSS JOIN `taskTypes`
-            LEFT OUTER JOIN `taskStates`
-            ON `snapinTasks`.`stState` = `taskStates`.`tsID`
-            LEFT OUTER JOIN `snapinJobs`
-            ON `snapinTasks`.`stJobID` = `snapinJobs`.`sjID`
-            LEFT OUTER JOIN `hosts`
-            ON `snapinJobs`.`sjHostID` = `hosts`.`hostID`
-            LEFT OUTER JOIN `snapins`
+            INNER JOIN `snapins`
             ON `snapinTasks`.`stSnapinID` = `snapins`.`sID`
+            INNER JOIN `snapinJobs`
+            ON `snapinTasks`.`stJobID` = `snapinJobs`.`sjID`
+            INNER JOIN `hosts`
+            ON `snapinJobs`.`sjHostID`
+            INNER JOIN `tasks`
+            ON `hosts`.`hostID` = `tasks`.`taskHostID`
+            INNER JOIN `taskStates`
+            ON `snapinTasks`.`stState` = `taskStates`.`tsID`
+            AND `taskStates`.`tsID` IN (1,2,3)
+            INNER JOIN `taskTypes`
+            ON `tasks`.`taskTypeID` = `taskTypes`.`ttID`
+            AND `taskTypes`.`ttID` IN (12,13)
             %s
             %s
             %s";
         $tasksFilterStr = "SELECT COUNT(`%s`)
             FROM `%s`
-            CROSS JOIN `taskTypes`
-            LEFT OUTER JOIN `taskStates`
-            ON `snapinTasks`.`stState` = `taskStates`.`tsID`
-            LEFT OUTER JOIN `snapinJobs`
-            ON `snapinTasks`.`stJobID` = `snapinJobs`.`sjID`
-            LEFT OUTER JOIN `hosts`
-            ON `snapinJobs`.`sjHostID` = `hosts`.`hostID`
-            LEFT OUTER JOIN `snapins`
+            INNER JOIN `snapins`
             ON `snapinTasks`.`stSnapinID` = `snapins`.`sID`
+            INNER JOIN `snapinJobs`
+            ON `snapinTasks`.`stJobID` = `snapinJobs`.`sjID`
+            INNER JOIN `hosts`
+            ON `snapinJobs`.`sjHostID`
+            INNER JOIN `tasks`
+            ON `hosts`.`hostID` = `tasks`.`taskHostID`
+            INNER JOIN `taskStates`
+            ON `snapinTasks`.`stState` = `taskStates`.`tsID`
+            AND `taskStates`.`tsID` IN (1,2,3)
+            INNER JOIN `taskTypes`
+            ON `tasks`.`taskTypeID` = `taskTypes`.`ttID`
+            AND `taskTypes`.`ttID` IN (12,13)
             %s";
         $tasksTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`
-            CROSS JOIN `taskTypes`
-            LEFT OUTER JOIN `taskStates`
-            ON `snapinTasks`.`stState` = `taskStates`.`tsID`
-            LEFT OUTER JOIN `snapinJobs`
-            ON `snapinTasks`.`stJobID` = `snapinJobs`.`sjID`
-            LEFT OUTER JOIN `hosts`
-            ON `snapinJobs`.`sjHostID` = `hosts`.`hostID`
-            LEFT OUTER JOIN `snapins`
+            INNER JOIN `snapins`
             ON `snapinTasks`.`stSnapinID` = `snapins`.`sID`
-            WHERE $where";
+            INNER JOIN `snapinJobs`
+            ON `snapinTasks`.`stJobID` = `snapinJobs`.`sjID`
+            INNER JOIN `hosts`
+            ON `snapinJobs`.`sjHostID`
+            INNER JOIN `tasks`
+            ON `hosts`.`hostID` = `tasks`.`taskHostID`
+            INNER JOIN `taskStates`
+            ON `snapinTasks`.`stState` = `taskStates`.`tsID`
+            AND `taskStates`.`tsID` IN (1,2,3)
+            INNER JOIN `taskTypes`
+            ON `tasks`.`taskTypeID` = `taskTypes`.`ttID`
+            AND `taskTypes`.`ttID` IN (12,13)";
         foreach (self::getClass('SnapinTaskManager')
             ->getColumns() as $common => &$real
         ) {
