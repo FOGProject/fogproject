@@ -439,12 +439,14 @@ function setupBandwidth() {
     // Get the list of url's and names.
     var nodeurls = $('#bandwidthUrls').val().split(','),
         nodenames = $('#nodeNames').val().split(','),
+        nodecolors = $('#nodeColors').val().split(','),
         urls,
         names;
 
     function setStuff(data) {
         urls = data.urls;
         names = data.names;
+        colors = data.colors;
         updateBandwidth();
     }
     // Let's find out which are actually available.
@@ -454,7 +456,8 @@ function setupBandwidth() {
             type: 'post',
             data: {
                 url: nodeurls,
-                names: nodenames
+                names: nodenames,
+                colors: nodecolors
             },
             dataType: 'json',
             success: function(data) {
@@ -530,7 +533,12 @@ function setupBandwidth() {
 
                 // Shading our colors.
                 GraphBandwidthOpts.colors = $.map(series, function(o, i) {
-                    return jQuery.Color('#3c8dbc').lightness(0.7 - i / (series.length * 1.2)).toHexString();
+                    var nodecolor = nodecolors[i];
+                    if (typeof nodecolor == null || nodecolor.length == 0) {
+                        return jQuery.Color('#3c8dbc').lightness(0.7 - i / (series.length * 1.2)).toHexString();
+                    } else {
+                        return jQuery.Color('#' + nodecolor).lightness(0.7 - i / (series.length * 1.2)).toHexString();
+                    }
                 });
                 // Because we can monitor multiple servers, we must iterate
                 // all of our data.
@@ -598,7 +606,8 @@ function setupBandwidth() {
                 // The data we want to obtain.
                 data: {
                     url: urls,
-                    names: names
+                    names: names,
+                    colors: colors
                 },
                 // The data type.
                 dataType: 'json',
