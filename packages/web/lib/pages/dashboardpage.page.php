@@ -353,7 +353,7 @@ class DashboardPage extends FOGPage
             'nodeNames',
             implode(',', self::$_nodeNames)
         );
-        echo self::makeINput(
+        echo self::makeInput(
             '',
             '',
             '',
