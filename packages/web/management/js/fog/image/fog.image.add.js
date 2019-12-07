@@ -17,9 +17,10 @@
         this.setSelectionRange(start,end);
         e.preventDefault();
     });
-    $('.imagename-input').on('keyup change blur focus focusout', function(e) {
-        if ($('.imagepath-input').val().length > 0) return;
-        $('.imagepath-input').val(this.value).trigger('change');
-    });
+    if ($('.imagepath-input').val().length <= 0) {
+        $('.imagename-input').on('keyup change blur focus focusout', function(e) {
+            $('.imagepath-input').val(this.value).trigger('change');
+        });
+    }
     $('.slider').slider();
 })(jQuery);
