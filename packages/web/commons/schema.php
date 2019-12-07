@@ -3723,21 +3723,29 @@ $this->schema[] = [
     . " Values are 0 or 1, default is 0.'"
     . " ,'0', 'FOG Quick Registration')"
 ];
+// Here begins Divergence of DB so calls here are being replicated later
+// this is to ensure these changes make it to the end user.
+// They're checking if those fields already exist to ensure we don't cause
+// any errors.
 // 264
+// This is being replicated and checked in 276
 $this->schema[] = [
     "ALTER TABLE `groups` ADD COLUMN `groupInit` LONGTEXT NOT NULL AFTER `groupPrimaryDisk`"
 ];
 // 265
+// This is being replicated and checked in 276
 $this->schema[] = [
     "ALTER TABLE `plugins` CHANGE `pAnon1` `pIcon` LONGTEXT NOT NULL",
     "ALTER TABLE `plugins` CHANGE `pAnon2` `pRunfile` LONGTEXT NOT NULL",
     "ALTER TABLE `plugins` CHANGE `pAnon3` `pLocation` LONGTEXT NOT NULL"
 ];
 // 266
+// This is being replicated and checked in 276
 $this->schema[] = [
     "ALTER TABLE `plugins` CHANGE `pAnon4` `pDescription` LONGTEXT NOT NULL"
 ];
 // 267
+// This is being replicated in 273
 $this->schema[] = [
     "INSERT IGNORE INTO `globalSettings` "
     . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
@@ -3750,12 +3758,15 @@ $this->schema[] = [
     "UPDATE `globalSettings` SET `settingValue` = '275000' WHERE "
     . "`settingKey` = 'FOG_KERNEL_RAMDISK_SIZE'"
 ];
+// This is where the divergence ends though one change may still be making it.
+// For safety pushing into 276
 // 268
 $this->schema[] = [
     "ALTER TABLE `multicastSessions` CHANGE `msAnon3` `msShutdown` "
     . "ENUM('0','1') NOT NULL DEFAULT '0'",
     "ALTER TABLE `multicastSessions` CHANGE `msAnon4` `msMaxwait` INTEGER NOT NULL"
 ];
+// Please no more diverging.
 // 269
 // DMI Keys Valid Strings:
 $dmiStrings = [
@@ -3847,7 +3858,166 @@ $this->schema[] = [
     . "`settingKey` = 'FOG_KERNEL_RAMDISK_SIZE'"
 ];
 // 275
-$this->schema[] = [
+// Divergence for 268 schema may begin here so should check just
+// to be safe.
+$columnGraphColor = array_filter(
+    (array)DatabaseManager::getColumns(
+        'nfsGroupMembers',
+        'ngmGraphColor'
+    )
+);
+$this->schema[] = count($columnGraphColor ?: []) ? [] : [
     "ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmGraphColor` "
     . "VARCHAR(6) AFTER `ngmHelloInterval`"
 ];
+// 276
+$columngInit = array_filter(
+    (array)DatabaseManager::getColumns(
+        'groups',
+        'groupInit'
+    )
+);
+$columnpAnon1 = array_filter(
+    (array)DatabaseManager::getColumns(
+        'plugins',
+        'pAnon1'
+    )
+);
+$columnpIcon = array_filter(
+    (array)DatabaseManager::getColumns(
+        'plugins',
+        'pIcon'
+    )
+);
+$columnpAnon2 = array_filter(
+    (array)DatabaseManager::getColumns(
+        'plugins',
+        'pAnon2'
+    )
+);
+$columnpRunfile = array_filter(
+    (array)DatabaseManager::getColumns(
+        'plugins',
+        'pRunfile'
+    )
+);
+$columnpAnon3 = array_filter(
+    (array)DatabaseManager::getColumns(
+        'plugins',
+        'pAnon3'
+    )
+);
+$columnpLocation = array_filter(
+    (array)DatabaseManager::getColumns(
+        'plugins',
+        'pLocation'
+    )
+);
+$columnpAnon4 = array_filter(
+    (array)DatabaseManager::getColumns(
+        'plugins',
+        'pAnon4'
+    )
+);
+$columnpDescription = array_filter(
+    (array)DatabaseManager::getColumns(
+        'plugins',
+        'pDescription'
+    )
+);
+// The following is the secondary checking for 268
+$columnmsAnon3 = array_filter(
+    (array)DatabaseManager::getColumns(
+        'multicastSessions',
+        'msAnon3'
+    )
+);
+$columnmsmsShutdown = array_filter(
+    (array)DatabaseManager::getColumns(
+        'multicastSessions',
+        'msShutdown'
+    )
+);
+$columnmsAnon4 = array_filter(
+    (array)DatabaseManager::getColumns(
+        'multicastSessions',
+        'msAnon4'
+    )
+);
+$columnmsmsMaxwait = array_filter(
+    (array)DatabaseManager::getColumns(
+        'multicastSessions',
+        'msMaxwait'
+    )
+);
+$picon = (
+    count($columnpAnon1 ?: []) ?
+    (
+        count($columnpIcon ?: []) ?
+        '' :
+        "ALTER TABLE `plugins` CHANGE `pAnon1` `pIcon` LONGTEXT NOT NULL"
+    ) :
+    ''
+);
+$prunfile = (
+    count($columnpAnon2 ?: []) ?
+    (
+        count($columnpRunfile ?: []) ?
+        '' :
+        "ALTER TABLE `plugins` CHANGE `pAnon2` `pRunfile` LONGTEXT NOT NULL"
+    ) :
+    ''
+);
+$plocation = (
+    count($columnpAnon3 ?: []) ?
+    (
+        count($columnpLocation ?: []) ?
+        '' :
+        "ALTER TABLE `plugins` CHANGE `pAnon3` `pLocation` LONGTEXT NOT NULL"
+    ) :
+    ''
+);
+$pdescription = (
+    count($columnpAnon4 ?: []) ?
+    (
+        count($columnpDescription ?: []) ?
+        '' :
+        "ALTER TABLE `plugins` CHANGE `pAnon4` `pDescription` LONGTEXT NOT NULL"
+    ) :
+    ''
+);
+$mshutdown = (
+    count($columnAnon3 ?: []) ?
+    (
+        count($columnmsShutdown ?: []) ?
+        '' :
+        "ALTER TABLE `multicastSessions` CHANGE `msAnon3` `msShutdown` "
+        . "ENUM('0','1') NOT NULL DEFAULT '0'"
+    ) :
+    ''
+);
+$mmaxwait = (
+    count($columnAnon4 ?: []) ?
+    (
+        count($columnmsMaxwait ?: []) ?
+        '' :
+        "ALTER TABLE `multicastSessions` CHANGE `msAnon4` "
+        . "`msMaxwait` INTEGER NOT NULL"
+    ) :
+    ''
+);
+$ginit = (
+    count($columngInit ?: []) ?
+    '' : 
+    "ALTER TABLE `groups` ADD COLUMN `groupInit` "
+    . "LONGTEXT NOT NULL AFTER `groupPrimaryDisk`"
+);
+$this->schema[] = array_filter([
+    $ginit,
+    $picon,
+    $prunfile,
+    $plocation,
+    $pdescription,
+    $mshutdown,
+    $mmaxwait
+]);
