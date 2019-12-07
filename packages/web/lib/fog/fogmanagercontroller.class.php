@@ -246,11 +246,18 @@ abstract class FOGManagerController extends FOGBase
     public static function order($request, $columns)
     {
         $order = '';
+        $dtColumns = self::pluck($columns, 'dt');
+        $dbColumns = self::pluck($columns, 'db');
         if (!isset($request['order']) || count($request['order'] ?: []) <= 0) {
+            $columnIdx = array_search('name', $dtColumns);
+            if (false !== $columnIdx) {
+                $order = 'ORDER BY `'
+                    . $dbColumns[$columnIdx]
+                    . '` ASC';
+            }
             return $order;
         }
         $orderBy = [];
-        $dtColumns = self::pluck($columns, 'dt');
         for ($i = 0, $ien = count($request['order'] ?: []); $i < $ien; $i++) {
             // Convert the column index into the column data property
             $columnIdx = intval($request['order'][$i]['column']);
@@ -425,7 +432,10 @@ abstract class FOGManagerController extends FOGBase
             'data' => self::dataOutput($columns, $data),
             //'sql_query' => $sql_query,
             //'filter_query' => $filter_query,
-            //'total_query' => $total_query
+            //'total_query' => $total_query,
+            //'request' => $request,
+            //'columns' => $columns,
+            //'order' => $order
         ];
     }
     /**
@@ -538,7 +548,10 @@ abstract class FOGManagerController extends FOGBase
             'data' => self::dataOutput($columns, $data),
             //'sql_query' => $sql_query,
             //'filter_query' => $filter_query,
-            //'total_query' => $total_query
+            //'total_query' => $total_query,
+            //'request' => $request,
+            //'columns' => $columns,
+            //'order' => $order
         ];
     }
     /**
