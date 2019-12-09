@@ -328,6 +328,12 @@ class TaskManagement extends FOGPage
             file_get_contents('php://input'),
             $pass_vars
         );
+        $states = self::fastmerge(
+            (array)self::getQueuedStates(),
+            (array)self::getProgressState()
+        );
+
+        $queuedStates = implode(',', $states);
 
         $tasksSqlStr = "SELECT `%s`
             FROM `%s`
@@ -341,10 +347,11 @@ class TaskManagement extends FOGPage
             ON `hosts`.`hostID` = `tasks`.`taskHostID`
             INNER JOIN `taskStates`
             ON `snapinTasks`.`stState` = `taskStates`.`tsID`
-            AND `taskStates`.`tsID` IN (1,2,3)
+            AND `taskStates`.`tsID` IN ($queuedStates)
             INNER JOIN `taskTypes`
             ON `tasks`.`taskTypeID` = `taskTypes`.`ttID`
             AND `taskTypes`.`ttID` IN (12,13)
+            AND `tasks`.`taskStateID` IN ($queuedStates)
             %s
             %s
             %s";
@@ -355,15 +362,16 @@ class TaskManagement extends FOGPage
             INNER JOIN `snapinJobs`
             ON `snapinTasks`.`stJobID` = `snapinJobs`.`sjID`
             INNER JOIN `hosts`
-            ON `snapinJobs`.`sjHostID` = `hosts`.`hostID`
+            ON `snapinJobs`.`sjHostID`
             INNER JOIN `tasks`
             ON `hosts`.`hostID` = `tasks`.`taskHostID`
             INNER JOIN `taskStates`
             ON `snapinTasks`.`stState` = `taskStates`.`tsID`
-            AND `taskStates`.`tsID` IN (1,2,3)
+            AND `taskStates`.`tsID` IN ($queuedStates)
             INNER JOIN `taskTypes`
             ON `tasks`.`taskTypeID` = `taskTypes`.`ttID`
             AND `taskTypes`.`ttID` IN (12,13)
+            AND `tasks`.`taskStateID` IN ($queuedStates)
             %s";
         $tasksTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`
@@ -372,15 +380,16 @@ class TaskManagement extends FOGPage
             INNER JOIN `snapinJobs`
             ON `snapinTasks`.`stJobID` = `snapinJobs`.`sjID`
             INNER JOIN `hosts`
-            ON `snapinJobs`.`sjHostID` = `hosts`.`hostID`
+            ON `snapinJobs`.`sjHostID`
             INNER JOIN `tasks`
             ON `hosts`.`hostID` = `tasks`.`taskHostID`
             INNER JOIN `taskStates`
             ON `snapinTasks`.`stState` = `taskStates`.`tsID`
-            AND `taskStates`.`tsID` IN (1,2,3)
+            AND `taskStates`.`tsID` IN ($queuedStates)
             INNER JOIN `taskTypes`
             ON `tasks`.`taskTypeID` = `taskTypes`.`ttID`
-            AND `taskTypes`.`ttID` IN (12,13)";
+            AND `taskTypes`.`ttID` IN (12,13)
+            AND `tasks`.`taskStateID` IN ($queuedStates)";
         foreach (self::getClass('SnapinTaskManager')
             ->getColumns() as $common => &$real
         ) {
