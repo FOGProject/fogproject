@@ -336,7 +336,7 @@ class TaskManagement extends FOGPage
             INNER JOIN `snapinJobs`
             ON `snapinTasks`.`stJobID` = `snapinJobs`.`sjID`
             INNER JOIN `hosts`
-            ON `snapinJobs`.`sjHostID`
+            ON `snapinJobs`.`sjHostID` = `hosts`.`hostID`
             INNER JOIN `tasks`
             ON `hosts`.`hostID` = `tasks`.`taskHostID`
             INNER JOIN `taskStates`
@@ -355,7 +355,7 @@ class TaskManagement extends FOGPage
             INNER JOIN `snapinJobs`
             ON `snapinTasks`.`stJobID` = `snapinJobs`.`sjID`
             INNER JOIN `hosts`
-            ON `snapinJobs`.`sjHostID`
+            ON `snapinJobs`.`sjHostID` = `hosts`.`hostID`
             INNER JOIN `tasks`
             ON `hosts`.`hostID` = `tasks`.`taskHostID`
             INNER JOIN `taskStates`
@@ -372,7 +372,7 @@ class TaskManagement extends FOGPage
             INNER JOIN `snapinJobs`
             ON `snapinTasks`.`stJobID` = `snapinJobs`.`sjID`
             INNER JOIN `hosts`
-            ON `snapinJobs`.`sjHostID`
+            ON `snapinJobs`.`sjHostID` = `hosts`.`hostID`
             INNER JOIN `tasks`
             ON `hosts`.`hostID` = `tasks`.`taskHostID`
             INNER JOIN `taskStates`
