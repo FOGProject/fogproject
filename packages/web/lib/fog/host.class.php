@@ -811,6 +811,12 @@ class Host extends FOGController
         $Task = false
     ) {
         try {
+            if (-1 == $snapin) {
+                $snapins = $this->get('snapins');
+                if (count($snapins ?: []) <= 0) {
+                    throw new Exception(_('No snapins associated'));
+                }
+            }
             $SnapinJob = $this->get('snapinjob');
             if (!$SnapinJob->isValid()) {
                 $SnapinJob
@@ -898,7 +904,8 @@ class Host extends FOGController
 
             // Snapin Tasking
             if ($TaskType->isSnapinTasking) {
-                if ($TaskType->id == TaskType::SINGLE_SNAPIN) {
+                switch ($TaskType->id) {
+                case TaskType::SINGLE_SNAPIN:
                     $find = [
                         'jobID' => $this->get('snapinjob')->get('id'),
                         'stateID' => self::fastmerge(
@@ -921,9 +928,10 @@ class Host extends FOGController
                             throw new Exception(_('Unable to update task'));
                         }
                     }
-                }
-                if ($TaskType->id == TaskType::ALL_SNAPINS) {
+                    break;
+                case TaskType::ALL_SNAPINS:
                     $this->_cancelJobsSnapinsForHost();
+                    break;
                 }
             }
             $Image = $this->getImage();
