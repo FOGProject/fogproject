@@ -782,6 +782,36 @@ class Route extends FOGBase
                 'removeFromQuery' => true
             ];
             break;
+        case 'snapintask':
+            $columns[] = [
+                'db' => 'stJobID',
+                'dt' => 'hostname',
+                'formatter' => function ($d, $row) {
+                    return self::getClass('snapinjob', $d)->get('host')->get('name');
+                }
+            ];
+            $columns[] = [
+                'db' => 'stState',
+                'dt' => 'taskstateicon',
+                'formatter' => function ($d, $row) {
+                    return self::getClass('taskstate', $d)->get('icon');
+                }
+            ];
+            $columns[] = [
+                'db' => 'stState',
+                'dt' => 'taskstatename',
+                'formatter' => function ($d, $row) {
+                    return self::getClass('taskstate', $d)->get('name');
+                }
+            ];
+            $columns[] = [
+                'db' => 'stSnapinID',
+                'dt' => 'snapinname',
+                'formatter' => function ($d, $row) {
+                    return self::getClass('Snapin', $d)->get('name');
+                }
+            ];
+            break;
         case 'imaginglog':
             $columns[] = [
                 'db' => 'ilStartTime',
@@ -1786,13 +1816,19 @@ class Route extends FOGBase
             unset($data['images']);
             break;
         case 'snapintask':
+            $sj = new Snapinjob($class->get('snapinjob')->get('id'));
+            $host = new Host($class->get('snapinjob')->get('hostID'));
             $data = FOGCore::fastmerge(
                 $class->get(),
                 [
                     'snapin' => $class->get('snapin')->get(),
                     'snapinjob' => self::getter(
                         'snapinjob',
-                        $class->get('snapinjob')
+                        $sj
+                    ),
+                    'host' => self::getter(
+                        'host',
+                        $host
                     ),
                     'state' => $class->get('state')->get()
                 ]
