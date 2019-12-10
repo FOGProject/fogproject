@@ -60,6 +60,11 @@ class SnapinTaskManager extends FOGManagerController
                 'complete'=> self::formatTime('', 'Y-m-d H:i:s')
             ]
         );
+        $queuedStates = self::fastmerge(
+            (array) self::getQueuedStates(),
+            (array) self::getProgressState()
+        );
+        $snapinJobsToCancel = [];
         /**
          * Iterate our jobID's to find out if
          * the job needs to be cancelled or not
@@ -68,34 +73,34 @@ class SnapinTaskManager extends FOGManagerController
             /**
              * Get the snapin task count
              */
-            $jobCount = self::getClass('SnapinTaskManager')
-                ->count(
-                    [
-                        'jobID' => $jobID,
-                        'stateID' => self::fastmerge(
-                            (array) self::getQueuedStates(),
-                            (array) self::getProgressState()
-                        )
-                    ]
-                );
+            Route::count(
+                'snapintask',
+                [
+                    'jobID' => $jobID,
+                    'stateID' => $queuedStates
+                ]
+            );
+            $jobCount = json_decode(Route::getData());
+            $jobCount = $jobCount->total;
             /**
              * If we still have tasks start with the next job ID.
              */
             if ($jobCount > 0) {
                 continue;
             }
+            $snapinJobsToCancel[] = $jobID;
             /**
              * If the snapin job has 0 tasks left over cancel the job
              */
-            unset($snapinJobIDs[$i], $jobID);
+            unset($jobID);
         }
         /**
          * Only remove snapin jobs if we have any to remove
          */
-        if (count($snapinJobIDs) > 0) {
+        if (count($snapinJobsToCancel) > 0) {
             self::getClass('SnapinJobManager')
                 ->update(
-                    ['id' => (array)$snapinJobIDs],
+                    ['id' => (array)$snapinJobsToCancel],
                     '',
                     ['stateID' => $cancelled]
                 );
