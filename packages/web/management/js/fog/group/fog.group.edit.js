@@ -136,12 +136,12 @@
                     // END: Hide modal loading
 
                     var scheduleType = $('input[name="scheduleType"]'),
-                        groupDeployForm = $('#group-deploy-form'),
-                        minutes = $('#cronMin', groupDeployForm),
-                        hours = $('#cronHour', groupDeployForm),
-                        dom = $('#cronDom', groupDeployForm),
-                        month = $('#cronMonth', groupDeployForm),
-                        dow = $('#cronDow', groupDeployForm),
+                        groupDeployForm = '#group-deploy-form',
+                        minutes = $('#cronMin', $(groupDeployForm)),
+                        hours = $('#cronHour', $(groupDeployForm)),
+                        dom = $('#cronDom', $(groupDeployForm)),
+                        month = $('#cronMonth', $(groupDeployForm)),
+                        dow = $('#cronDow', $(groupDeployForm)),
                         createTaskBtn = $('#tasking-send');
                     Common.iCheck('#task-form-holder input');
 
@@ -172,7 +172,7 @@
                     });
                     $('#tasking-send').on('click', function(e) {
                         e.stopImmediatePropagation();
-                        groupDeployForm.processForm(function(err) {
+                        $(groupDeployForm).processForm(function(err) {
                             if (err) {
                                 return;
                             }
@@ -180,7 +180,7 @@
                         });
                     });
                     taskModal.on('hide.bs.modal', function(e) {
-                        groupDeployForm.remove();
+                        $(groupDeployForm).remove();
                         $('#task-form-holder').empty();
                     });
                     $('#delayedinput').datetimepicker({format: 'YYYY-MM-DD HH:mm:ss'});
