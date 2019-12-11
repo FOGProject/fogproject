@@ -32,7 +32,7 @@ header(
     . "connect-src 'self' https://fogproject.org;"
     . "img-src 'self' data:;"
     . "style-src 'self' 'unsafe-inline';"
-    . "font-src 'self';"
+    . "font-src 'self' data:;"
 );
 header('Access-Control-Allow-Origin: *');
 /**

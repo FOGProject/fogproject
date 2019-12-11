@@ -366,7 +366,7 @@ class DashboardPage extends FOGPage
         echo '<h4 class="box-title">';
         echo self::$foglang['Bandwidth'];
         echo '</h4>';
-        echo '<div class="box-tools" pull-right">';
+        echo '<div class="box-tools" pull-right>';
         echo _('Real Time');
         echo '<div class="btn-group" id="realtime" data-toggle="btn-toggle">';
         echo self::makeButton(
