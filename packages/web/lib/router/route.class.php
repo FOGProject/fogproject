@@ -782,12 +782,123 @@ class Route extends FOGBase
                 'removeFromQuery' => true
             ];
             break;
+        case 'scheduledtask':
+            $columns[] = [
+                'db' => 'stID',
+                'dt' => 'hostLink',
+                'formatter' => function ($d, $row) {
+                    if ($row['stIsGroup']) {
+                        $groupName = self::getClass('Group', $d)->get('name');
+                        return '<a href="'
+                            . '../management/index.php?node=group&sub=edit&id='
+                            . $d
+                            . '">'
+                            . _('Group')
+                            . ': '
+                            . $groupName
+                            . '</a>';
+                    } else {
+                        $hostName = self::getClass('Host', $d)->get('name');
+                        return '<a href="'
+                            . '../management/index.php?node=host&sub=edit&id='
+                            . $d
+                            . '">'
+                            . _('Host')
+                            . ': '
+                            . $hostName
+                            . '</a>';
+                    }
+                }
+            ];
+            $columns[] = [
+                'db' => 'stType',
+                'dt' => 'type',
+                'formatter' => function ($d, $row) {
+                    $type = strtolower($d);
+                    switch ($type) {
+                    case 'c':
+                        return _('Cron');
+                    default:
+                        $columns[] = [
+                            'dt' => 'starttime',
+                            'formatter' => function (&$d, &$row) {
+                                return self::niceDate($row['stDateTime']);
+                            }
+                        ];
+                        return _('Delayed');
+                    }
+                }
+            ];
+            $columns[] = [
+                'db' => 'stID',
+                'dt' => 'starttime',
+                'formatter' => function ($d, $row) {
+                    $type = strtolower($row['stType']);
+                    switch ($type) {
+                    case 'c':
+                        $cronstr = sprintf(
+                            '%s %s %s %s %s',
+                            $row['stMinute'],
+                            $row['stHour'],
+                            $row['stDOM'],
+                            $row['stMonth'],
+                            $row['stDOW']
+                        );
+                        $date = FOGCron::parse($cronstr);
+                        break;
+                    default:
+                        $date = $row['stDateTime'];
+                    }
+                    return self::niceDate()
+                        ->setTimestamp($date)
+                        ->format('Y-m-d H:i:s');
+                }
+            ];
+            $columns[] = [
+                'db' => 'stTaskTypeID',
+                'dt' => 'taskType',
+                'formatter' => function ($d, $row) {
+                    return self::getClass('TaskType', $d)->get('name');
+                }
+            ];
+            $columns[] = [
+                'db' => 'stActive',
+                'dt' => 'isActive',
+                'formatter' => function ($d, $row) {
+                    return $d <= 0 ? _('No') : _('Yes');
+                }
+            ];
+            break;
         case 'snapintask':
+            $columns[] = [
+                'db' => 'stJobID',
+                'dt' => 'hostID',
+                'formatter' => function ($d, $row) {
+                    return self::getClass('snapinjob', $d)
+                        ->get('host')
+                        ->get('id');
+                }
+            ];
             $columns[] = [
                 'db' => 'stJobID',
                 'dt' => 'hostname',
                 'formatter' => function ($d, $row) {
-                    return self::getClass('snapinjob', $d)->get('host')->get('name');
+                    return self::getClass('snapinjob', $d)
+                        ->get('host')
+                        ->get('name');
+                }
+            ];
+            $columns[] = [
+                'db' => 'stJobID',
+                'dt' => 'hostLink',
+                'formatter' => function ($d, $row) {
+                    $tmphost = self::getClass('snapinjob', $d)->get('host');
+                    return '<a href="../management/index.php?node=host&'
+                        . 'sub=edit&id='
+                        . $tmphost->get('id')
+                        . '">'
+                        . $tmphost->get('name')
+                        . '</a>';
                 }
             ];
             $columns[] = [
@@ -806,9 +917,40 @@ class Route extends FOGBase
             ];
             $columns[] = [
                 'db' => 'stSnapinID',
+                'dt' => 'snapinID',
+                'formatter' => function ($d, $row) {
+                    return self::getClass('Snapin', $d)->get('id');
+                }
+            ];
+            $columns[] = [
+                'db' => 'stSnapinID',
                 'dt' => 'snapinname',
                 'formatter' => function ($d, $row) {
                     return self::getClass('Snapin', $d)->get('name');
+                }
+            ];
+            $columns[] = [
+                'db' => 'stSnapinID',
+                'dt' => 'snapinLink',
+                'formatter' => function ($d, $row) {
+                    if (!$d) {
+                        return;
+                    }
+                    return '<a href="../management/index.php?node=snapin&'
+                        . 'sub=edit&id='
+                        . $d
+                        . '">'
+                        . self::getClass('Snapin', $d)->get('name')
+                        . '</a>';
+                }
+            ];
+            $columns[] = [
+                'db' => 'stCheckinDate',
+                'dt' => 'diff',
+                'formatter' => function ($d, $row) {
+                    $start = $d;
+                    $end = $row['stCompleteDate'];
+                    return self::diff($start, $end);
                 }
             ];
             break;
@@ -874,6 +1016,22 @@ class Route extends FOGBase
                     return self::getClass('StorageNode', $d)->get('logfiles');
                 }
             ];*/
+            break;
+        case 'usertracking':
+            $columns[] = [
+                'db' => 'utAction',
+                'dt' => 'action',
+                'formatter' => function ($d, $row) {
+                    switch ($d) {
+                    case '0':
+                        return _('Logout');
+                    case '1':
+                        return _('Login');
+                    case '99':
+                        return _('Service Start');
+                    }
+                }
+            ];
             break;
         case 'plugin':
             $columns[] = [

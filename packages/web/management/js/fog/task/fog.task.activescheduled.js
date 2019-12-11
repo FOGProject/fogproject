@@ -22,7 +22,7 @@
     disableButtons(true);
     var table = $('#scheduled-task-table').registerTable(onSelect, {
         columns: [
-            {data: 'hostID'},
+            {data: 'hostLink'},
             {data: 'taskType'},
             {data: 'starttime'},
             {data: 'isActive'},

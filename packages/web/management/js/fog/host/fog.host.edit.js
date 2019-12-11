@@ -1432,8 +1432,8 @@
             {data: 'createdBy'},
             {data: 'start'},
             {data: 'finish'},
-            {data: 'duration'},
-            {data: 'image'},
+            {data: 'diff'},
+            {data: 'imageLink'},
             {data: 'type'}
         ],
         rowId: 'id',
@@ -1449,5 +1449,29 @@
     });
     if (Common.search && Common.search.length > 0) {
         imageTable.search(Common.search).draw();
+    }
+    // ---------------------------------------------------------------
+    // SNAPIN HISTORY TAB
+    var snapinTable = $('#host-snapin-table').registerTable(null, {
+        columns: [
+            {data: 'snapinLink'},
+            {data: 'checkin'},
+            {data: 'complete'},
+            {data: 'diff'},
+            {data: 'return'}
+        ],
+        rowId: 'id',
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+            + Common.node
+            + '&sub=getSnapinHist&id='
+            + Common.id,
+            type: 'post'
+        }
+    });
+    if (Common.search && Common.search.length > 0) {
+        snapinTable.search(Common.search).draw();
     }
 })(jQuery);
