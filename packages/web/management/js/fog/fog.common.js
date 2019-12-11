@@ -7,7 +7,10 @@ var shouldReAuth,
 /**
  * Non-selector required functions.
  */
-$.apiCall = function(method, action, data, cb, processData = true) {
+$.apiCall = function(method, action, data, cb, processData) {
+    if (undefined === processData) {
+        processData = true;
+    }
     console.log(method);
     console.log(action);
     console.log(data);
@@ -302,7 +305,10 @@ $.finishReAuth = function(modal) {
 $.mirror = function(start, selector, regex, replace) {
     $(start).mirror(selector, regex, replace);
 };
-$.processForm = function(form, cb, input = ':input') {
+$.processForm = function(form, cb, input) {
+    if (undefined === input) {
+        input = ':input';
+    }
     $(form).processForm(cb, input);
 };
 $.registerModal = function(modal, onOpen, onClose, opts) {
@@ -317,7 +323,10 @@ $.setContainerDisable = function(container, disable) {
 $.setLoading = function(container, loading) {
     $(container).setLoading(loading);
 };
-$.validateForm = function(form, input = ':input') {
+$.validateForm = function(form, input) {
+    if (undefined === input) {
+        input = ':input';
+    }
     $(form).validateForm(input);
 };
 /**
@@ -342,7 +351,10 @@ $.fn.mirror = function(selector, regex, replace) {
         });
     });
 };
-$.fn.processForm = function(cb, input = ':input') {
+$.fn.processForm = function(cb, input) {
+    if (undefined === input) {
+        input = ':input';
+    }
     var opts = $(this).attr('enctype') != 'multipart/form-data' ?
         $(this).serialize() :
         new FormData($(this)[0]);
@@ -455,7 +467,10 @@ $.fn.setLoading = function(loading) {
         $(this).children('#'+loadingId).remove();;
     }
 }
-$.fn.validateForm = function(input = ':input') {
+$.fn.validateForm = function(input) {
+    if (undefined === input) {
+        input = ':input';
+    }
     var scrolling = false,
         isError = false,
         form = $(this);
@@ -570,6 +585,9 @@ $.fn.validateForm = function(input = ':input') {
 // URL Variables. AKA GET variables.
 
 function reinitialize() {
+    if (typeof NodeList.prototype.forEach !== 'function') {
+        NodeList.prototype.forEach = Array.prototype.forEach;
+    }
     $_GET = getQueryParams();
     shouldReAuth = ($('#reAuthDelete').val() == '1') ? true : false;
     reAuthModal = $('#deleteModal');
@@ -857,10 +875,9 @@ $.ajaxSetup({
  */
 var intervals = [];
 var realSetInterval = window.setInterval;
-window.setInterval = function(...args){
-    var handler = args.shift() || null;
-    var timeout = args.shift() || null;
-    var arguments = args.length > 0 ? args : null;
+window.setInterval = function(){
+    var handler = arguments.shift() || null,
+        timeout = arguments.shift() || null;
 
     var interval = realSetInterval(handler, timeout, arguments);
     intervals.push(interval);
@@ -900,7 +917,10 @@ function clearAllIntervals(){
         });
     });
 
-    function doPageLoad(targetPage, targetElement, shouldPushState = true){
+    function doPageLoad(targetPage, targetElement, shouldPushState){
+        if (undefined === shouldPushState) {
+            shouldPushState = true;
+        }
 
         // Setup the loading page state...
         ajaxPageLoading = true;

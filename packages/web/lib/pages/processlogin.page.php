@@ -340,7 +340,6 @@ class ProcessLogin extends FOGPage
         );
         echo '</div>';
         echo '</div>';
-        echo '</div>';
         echo self::makeInput(
             '',
             'login',
@@ -351,5 +350,7 @@ class ProcessLogin extends FOGPage
             true
         );
         echo '</form>';
+        echo '</div>';
+        echo '</div>';
     }
 }
