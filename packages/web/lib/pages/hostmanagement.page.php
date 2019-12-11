@@ -5196,78 +5196,13 @@ class HostManagement extends FOGPage
             $pass_vars
         );
 
-        $where = "`userTracking`.`utHostID` = '"
-            . $this->obj->get('id')
-            . "'";
+        $hostID = $this->obj->get('id');
 
-        $sqlstr = "SELECT `%s`
-            FROM `%s`
-            %s
-            %s
-            %s";
-
-        $filterstr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            %s";
-
-        $totalstr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            WHERE $where";
-
-        $dbcolumns = self::getClass('UserTrackingManager')->getColumns();
-
-        $columns = [];
-
-        foreach ($dbcolumns as $common => &$real) {
-            switch ($common) {
-            case 'createdTime':
-                $columns[] = [
-                    'db' => $real,
-                    'dt' => $common,
-                    'formatter' => function ($d, $row) {
-                        return self::niceDate($d)->format('Y-m-d H:i:s');
-                    }
-                ];
-                break;
-            case 'action':
-                $columns[] = [
-                    'db' => $real,
-                    'dt' => $common,
-                    'formatter' => function ($d, $row) {
-                        switch ($d) {
-                        case '0':
-                            return _('Logout');
-                        case '1':
-                            return _('Login');
-                        case '99':
-                            return _('Service Start');
-                        }
-                    }
-                ];
-                break;
-            case 'id':
-                $tableID = $real;
-            default:
-                $columns[] = [
-                    'db' => $real,
-                    'dt' => $common
-                ];
-            }
-            unset($real);
-        }
-
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                'userTracking',
-                $tableID,
-                $columns,
-                $sqlstr,
-                $filterstr,
-                $totalstr,
-                $where
-            )
+        Route::listem(
+            'usertracking',
+            ['hostID' => $hostID]
         );
+        echo Route::getData();
         exit;
     }
     /**
@@ -5283,90 +5218,51 @@ class HostManagement extends FOGPage
             $pass_vars
         );
 
-        $where = "`imagingLog`.`ilHostID` = '"
-            . $this->obj->get('id')
-            . "'";
+        $hostID = $this->obj->get('id');
 
-        $sqlstr = "SELECT `%s`
-            FROM `%s`
-            %s
-            %s
-            %s";
+        Route::listem(
+            'imaginglog',
+            ['hostID' => $hostID]
+        );
+        echo Route::getData();
+        exit;
+    }
+    /**
+     * Get the snapin history for this host.
+     *
+     * @return void
+     */
+    public function getSnapinHist()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
 
-        $filterstr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            %s";
+        $hostID = $this->obj->get('id');
 
-        $totalstr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            WHERE $where";
-
-        $dbcolumns = self::getClass('ImagingLogManager')->getColumns();
-
-        $columns = [];
-
-        foreach ($dbcolumns as $common => &$real) {
-            switch ($common) {
-            case 'start':
-            case 'finish':
-                $columns[] = [
-                    'db' => $real,
-                    'dt' => $common,
-                    'formatter' => function ($d, $row) {
-                        return self::niceDate($d)->format('Y-m-d H:i:s');
-                    }
-                ];
-                break;
-            case 'image':
-                $columns[] = [
-                    'db' => $real,
-                    'dt' => $common,
-                    'formatter' => function ($d, $row) {
-                        $Image = self::getClass('Image')
-                            ->set('name', $d)
-                            ->load('name');
-                        if ($Image->isValid()) {
-                            return '<a href="../management/index.php'
-                                . '?node=image&sub=edit&id='
-                                . $Image->get('id')
-                                . '">'
-                                . $d
-                                . '</a>';
-                        } else {
-                            return $d;
-                        }
-                    }
-                ];
-                break;
-            case 'id':
-                $tableID = $real;
-            default:
-                $columns[] = [
-                    'db' => $real,
-                    'dt' => $common
-                ];
-            }
-            unset($real);
-        }
-        $columns[] = [
-            'dt' => 'duration',
-            'formatter' => function ($d, $row) {
-                return self::diff($row['ilStartTime'], $row['ilFinishTime']);
-            }
+        $checkStates = [
+            self::getCancelledState(),
+            self::getCompleteState()
         ];
 
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                'imagingLog',
-                $tableID,
-                $columns,
-                $sqlstr,
-                $filterstr,
-                $totalstr,
-                $where
-            )
+        Route::ids(
+            'snapinjob',
+            ['hostID' => $hostID]
         );
+
+        $snapinJobs = json_decode(Route::getData());
+
+        Route::listem(
+            'snapintask',
+            [
+                'jobID' => $snapinJobs,
+                'stateID' => $checkStates
+            ]
+        );
+
+        echo Route::getData();
         exit;
     }
 }

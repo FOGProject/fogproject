@@ -25,8 +25,8 @@
             [0, 'asc']
         ],
         columns: [
-            {data: 'snapinname'},
-            {data: 'hostname'},
+            {data: 'snapinLink'},
+            {data: 'hostLink'},
             {data: 'checkin'},
             {data: 'taskstatename'}
         ],
