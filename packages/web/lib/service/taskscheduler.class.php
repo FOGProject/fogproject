@@ -170,8 +170,8 @@ class TaskScheduler extends FOGService
                 self::outall(
                     ' * '
                     . _('Task run time')
-                    . ': ',
-                    $Timer->toString()
+                    . ': '
+                    . $Timer->toString()
                 );
                 if (!$Timer->shouldRunNow()) {
                     continue;
@@ -251,8 +251,8 @@ class TaskScheduler extends FOGService
                 self::outall(
                     ' * '
                     . _('Task run time')
-                    . ': ',
-                    $Timer->toString()
+                    . ': '
+                    . $Timer->toString()
                 );
                 if (!$Timer->shouldRunNow()) {
                     continue;
