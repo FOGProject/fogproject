@@ -4,7 +4,7 @@ if [[ -r $1 ]]; then
 elif [[ -r /opt/fog/snapins/ssl/CA/.fogCA.pem ]]; then
   BUILDOPTS="TRUST=/opt/fog/snapins/ssl/CA/.fogCA.pem CERT=/opt/fog/snapins/ssl/CA/.fogCA.pem"
 fi
-IPXEGIT="https://git.ipxe.org/ipxe.git"
+IPXEGIT="https://github.com/ipxe/ipxe"
 
 # Change directory to base ipxe files
 SCRIPT=$(readlink -f "$BASH_SOURCE")
