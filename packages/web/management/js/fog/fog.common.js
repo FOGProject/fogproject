@@ -875,11 +875,12 @@ $.ajaxSetup({
  */
 var intervals = [];
 var realSetInterval = window.setInterval;
-window.setInterval = function(){
-    var handler = arguments.shift() || null,
-        timeout = arguments.shift() || null;
+window.setInterval = function() {
+    var params = Array.prototype.slice.call(arguments),
+        handler = params.shift() || null,
+        timeout = params.shift() || null;
 
-    var interval = realSetInterval(handler, timeout, arguments);
+    var interval = realSetInterval(handler, timeout, params);
     intervals.push(interval);
     return interval;
 };
