@@ -50,6 +50,13 @@ class SnapinTaskManager extends FOGManagerController
         );
         $snapinJobIDs = json_decode(Route::getData(), true);
         /**
+         * Get our queued/in progress states
+         */
+        $queuedStates = self::fastmerge(
+            (array) self::getQueuedStates(),
+            (array) self::getProgressState()
+        );
+        /**
          * Update our entry to be cancelled
          */
         $this->update(
@@ -60,11 +67,6 @@ class SnapinTaskManager extends FOGManagerController
                 'complete'=> self::formatTime('', 'Y-m-d H:i:s')
             ]
         );
-        $queuedStates = self::fastmerge(
-            (array) self::getQueuedStates(),
-            (array) self::getProgressState()
-        );
-        $snapinJobsToCancel = [];
         /**
          * Iterate our jobID's to find out if
          * the job needs to be cancelled or not
@@ -86,21 +88,18 @@ class SnapinTaskManager extends FOGManagerController
              * If we still have tasks start with the next job ID.
              */
             if ($jobCount > 0) {
+                unset($snapinJobIDs[$i]);
                 continue;
             }
-            $snapinJobsToCancel[] = $jobID;
-            /**
-             * If the snapin job has 0 tasks left over cancel the job
-             */
-            unset($jobID);
+            unset($jobID, $jobCount);
         }
         /**
          * Only remove snapin jobs if we have any to remove
          */
-        if (count($snapinJobsToCancel) > 0) {
+        if (count($snapinJobIDs ?: []) > 0) {
             self::getClass('SnapinJobManager')
                 ->update(
-                    ['id' => (array)$snapinJobsToCancel],
+                    ['id' => (array)$snapinJobIDs],
                     '',
                     ['stateID' => $cancelled]
                 );
