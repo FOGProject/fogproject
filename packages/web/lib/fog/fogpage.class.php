@@ -2827,7 +2827,7 @@ abstract class FOGPage extends FOGBase
         echo $rendered;
         echo self::makeInput(
             '',
-            'pmadd' . $ondemand ? 'od' : '',
+            'pmadd' . ($ondemand ? 'od' : ''),
             '',
             'hidden',
             '',
@@ -2835,12 +2835,6 @@ abstract class FOGPage extends FOGBase
         );
         echo '</form>';
         return ob_get_clean();
-
-        if ($this->obj instanceof Group) {
-        }
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
     /**
      * Index page is already common, but other pages

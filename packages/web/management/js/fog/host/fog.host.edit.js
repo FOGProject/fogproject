@@ -1207,7 +1207,8 @@
         scheduleBtn = $('#scheduleBtn'),
         scheduleModalCancelBtn = $('#scheduleCancelBtn'),
         scheduleModalCreateBtn = $('#scheduleCreateBtn'),
-        scheduleForm = $('#host-powermanagement-cron-form');
+        scheduleForm = $('#host-powermanagement-cron-form'),
+        pmdelete = $('#pm-delete');
 
     // FOG Cron
     $('.fogcron').cron({
@@ -1324,6 +1325,30 @@
             $(this).modal('hide');
         }
     );
+
+    pmdelete.on('click', function(e) {
+        scheduleBtn.prop('disabled', true);
+        instantBtn.prop('disabled', true);
+
+
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = powermanagementTable.rows({selected: true}),
+            toDel = $.getSelectedIds(powermanagementTable),
+            opts = {
+                pmdelete: 1,
+                rempowermanagements: toDel
+            };
+        $.apiCall(method,action,opts,function(err) {
+            scheduleBtn.prop('disabled', false);
+            instantBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            powermanagementTable.draw(false);
+            powermanagementTable.rows({selected: true}).deselect();
+        });
+    });
     if (Common.search && Common.search.length > 0) {
         powermanagementTable.search(Common.search).draw();
     }
