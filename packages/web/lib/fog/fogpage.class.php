@@ -2825,6 +2825,14 @@ abstract class FOGPage extends FOGBase
             true
         );
         echo $rendered;
+        echo self::makeInput(
+            '',
+            'pmadd' . $ondemand ? 'od' : '',
+            '',
+            'hidden',
+            '',
+            '1'
+        );
         echo '</form>';
         return ob_get_clean();
 

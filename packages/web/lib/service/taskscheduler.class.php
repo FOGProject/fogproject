@@ -134,22 +134,17 @@ class TaskScheduler extends FOGService
                     self::wakeUp($hostMACs);
                 }
             }
-            $sfindWhere = ['isActive' => 1];
-            $pfindWhere = ['action' => 'wol', 'onDemand' => [0, '']];
-            Route::count(
-                'scheduledtask',
-                $sfindWhere
-            );
-            $staskcount = json_decode(Route::getData());
-            $staskcount = $staskcount->total;
-            Route::count(
-                'powermanagement',
-                $pfindWhere
-            );
-            $ptaskcount = json_decode(Route::getData());
-            $ptaskcount = $ptaskcount->total;
+            // Scheduled Task Information
+            Route::active('scheduledtask');
+            $ScheduledTasks = json_decode(Route::getData());
+            $staskcount = $ScheduledTasks->recordsFiltered;
+
+            // Powermanagement Task Information
+            Route::active('powermanagement');
+            $PMTasks = json_decode(Route::getData());
+            $ptaskcount = $PMTasks->recordsFiltered;
             $taskCount = $staskcount + $ptaskcount;
-            if ($taskCount < 1) {
+            if ($taskCount <= 0) {
                 throw new Exception(' * No tasks found!');
             }
             self::outall(
@@ -165,13 +160,6 @@ class TaskScheduler extends FOGService
             );
             unset($taskCount);
             // Scheduled Tasks
-            Route::listem(
-                'scheduledtask',
-                $sfindWhere
-            );
-            $ScheduledTasks = json_decode(
-                Route::getData()
-            );
             foreach ($ScheduledTasks->data as &$Task) {
                 $Task = self::getClass('ScheduledTask', $Task->id);
                 $Timer = $Task->getTimer();
@@ -243,13 +231,6 @@ class TaskScheduler extends FOGService
                 unset($Task);
             }
             // Power Management Tasks.
-            Route::listem(
-                'powermanagement',
-                $pfindWhere
-            );
-            $PMTasks = json_decode(
-                Route::getData()
-            );
             foreach ($PMTasks->data as &$Task) {
                 $Task = self::getClass('PowerManagement', $Task->id);
                 $Timer = $Task->getTimer();

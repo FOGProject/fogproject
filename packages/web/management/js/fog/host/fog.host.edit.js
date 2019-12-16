@@ -1202,10 +1202,12 @@
         instantBtn = $('#ondemandBtn'),
         instantModalCancelBtn = $('#ondemandCancelBtn'),
         instantModalCreateBtn = $('#ondemandCreateBtn'),
-        scheduleModal = $('#scheduleCreate'),
-        scheduleBtn = $('#scheduleCreateBtn'),
+        instantForm = $('#host-powermanagement-instant-form'),
+        scheduleModal = $('#scheduleModal'),
+        scheduleBtn = $('#scheduleBtn'),
         scheduleModalCancelBtn = $('#scheduleCancelBtn'),
-        scheduleModalCreateBtn = $('#scheduleCreateBtn')
+        scheduleModalCreateBtn = $('#scheduleCreateBtn'),
+        scheduleForm = $('#host-powermanagement-cron-form');
 
     // FOG Cron
     $('.fogcron').cron({
@@ -1219,7 +1221,6 @@
             dow.val(vals[4]);
         }
     });
-
     powermanagementForm.on('submit', function(e) {
         e.preventDefault();
     });
@@ -1279,6 +1280,50 @@
         }
     });
 
+    instantBtn.on('click', function(e) {
+        e.preventDefault();
+        instantModal.modal('show');
+    });
+    scheduleBtn.on('click', function(e) {
+        e.preventDefault();
+        scheduleModal.modal('show');
+    });
+    instantModal.registerModal(
+        function(e) {
+            instantModalCreateBtn.on('click', function() {
+                $(this).prop('disabled', true);
+                instantForm.processForm(function(err) {
+                    instantModalCreateBtn.prop('disabled', false);
+                    if (err) {
+                        return;
+                    }
+                    instantModal.modal('hide');
+                    powermanagementTable.draw(false);
+                });
+            });
+        },
+        function(e) {
+            $(this).modal('hide');
+        }
+    );
+    scheduleModal.registerModal(
+        function(e) {
+            scheduleModalCreateBtn.on('click', function() {
+                $(this).prop('disabled', true);
+                scheduleForm.processForm(function(err) {
+                    scheduleModalCreateBtn.prop('disabled', false);
+                    if (err) {
+                        return;
+                    }
+                    scheduleModal.modal('hide');
+                    powermanagementTable.draw(false);
+                });
+            });
+        },
+        function(e) {
+            $(this).modal('hide');
+        }
+    );
     if (Common.search && Common.search.length > 0) {
         powermanagementTable.search(Common.search).draw();
     }
