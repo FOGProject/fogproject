@@ -2770,10 +2770,17 @@ class HostManagement extends FOGPage
             'right',
             'primary'
         );
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'host-powermanagement',
+                $this->obj->get('id')
+            )
+            . '" ';
         $buttons .= self::makeButton(
             'pm-delete',
             _('Delete selected'),
-            'btn btn-danger pull-left'
+            'btn btn-danger pull-left',
+            $props
         );
         $ondemandModalBtns = self::makeButton(
             'ondemandCancelBtn',
@@ -2784,7 +2791,8 @@ class HostManagement extends FOGPage
         $ondemandModalBtns .= self::makeButton(
             'ondemandCreateBtn',
             _('Create'),
-            'btn btn-outline pull-right'
+            'btn btn-outline pull-right',
+            $props
         );
         $scheduleModalBtns = self::makeButton(
             'scheduleCancelBtn',
@@ -2795,7 +2803,8 @@ class HostManagement extends FOGPage
         $scheduleModalBtns .= self::makeButton(
             'scheduleCreateBtn',
             _('Create'),
-            'btn btn-outline pull-right'
+            'btn btn-outline pull-right',
+            $props
         );
         echo '<div class="box box-info">';
         echo '<div class="box-header with-border">';
@@ -2833,10 +2842,10 @@ class HostManagement extends FOGPage
      */
     public function hostPowermanagementPost()
     {
+        $flags = ['flags' => FILTER_REQUIRE_ARRAY];
         if (isset($_POST['pmupdate'])) {
             $onDemand = (int)isset($_POST['onDemand']);
             $items = [];
-            $flags = ['flags' => FILTER_REQUIRE_ARRAY];
             if (isset($_POST['pmupdate'])) {
                 $items = filter_input_array(
                     INPUT_POST,
@@ -2953,10 +2962,7 @@ class HostManagement extends FOGPage
                 ['rempowermanagements' => $flags]
             );
             $pmid = $pmid['rempowermanagements'];
-            self::getClass('PowerManagementManager')
-                ->destroy(
-                    ['id' => $pmid]
-                );
+            Route::deletemass('powermanagement', ['id' => $pmid]);
         }
     }
     /**
