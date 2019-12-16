@@ -67,6 +67,7 @@ class SnapinTaskManager extends FOGManagerController
                 'complete'=> self::formatTime('', 'Y-m-d H:i:s')
             ]
         );
+        $hostTasksToCancel = [];
         /**
          * Iterate our jobID's to find out if
          * the job needs to be cancelled or not
@@ -91,6 +92,12 @@ class SnapinTaskManager extends FOGManagerController
                 unset($snapinJobIDs[$i]);
                 continue;
             }
+            $Host = self::getClass('snapinjob', $jobID)
+                ->get('host');
+            $Task = $Host->get('task');
+            if (in_array($Task->get('typeID'), TaskType::SNAPINTASKS)) {
+                $hostTasksToCancel[] = $Task->get('id');
+            }
             unset($jobID, $jobCount);
         }
         /**
@@ -100,6 +107,17 @@ class SnapinTaskManager extends FOGManagerController
             self::getClass('SnapinJobManager')
                 ->update(
                     ['id' => (array)$snapinJobIDs],
+                    '',
+                    ['stateID' => $cancelled]
+                );
+        }
+        /**
+         * Cancel tasks if they are snapin only tasks
+         */
+        if (count($hostTasksToCancel ?: [] ) > 0) {
+            self::getClass('TaskManager')
+                ->update(
+                    ['id' => (array)$hostTasksToCancel],
                     '',
                     ['stateID' => $cancelled]
                 );

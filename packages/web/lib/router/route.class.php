@@ -1095,7 +1095,7 @@ class Route extends FOGBase
         $operator = 'AND'
     ) {
         self::listem($class, $whereItems, $inputoverride, $operator);
-        self::$data = ['total' => self::$data['recordsTotal']];
+        self::$data = ['total' => self::$data['recordsFiltered']];
     }
     /**
      * Presents the equivalent of a universal search.

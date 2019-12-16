@@ -603,56 +603,7 @@ class TaskManagement extends FOGPage
                 );
             }
             $tasks = $tasks['tasks'];
-            Route::ids(
-                'snapintask',
-                ['id' => $tasks],
-                'jobID'
-            );
-            $SnapinJobIDs = json_decode(
-                Route::getData(),
-                true
-            );
             self::getClass('SnapinTaskManager')->cancel($tasks);
-            if (count($SnapinJobIDs) > 0) {
-                Route::ids(
-                    'snapinjob',
-                    ['id' => $SnapinJobIDs],
-                    'hostID'
-                );
-                $HostIDs = json_decode(
-                    Route::getData(),
-                    true
-                );
-            }
-            if (count($HostIDs) > 0) {
-                Route::ids(
-                    'snapintask',
-                    ['jobID' => $SnapinJobIDs]
-                );
-                $SnapTaskIDs = json_decode(
-                    Route::getData(),
-                    true
-                );
-                $TaskIDs = array_diff(
-                    $SnapTaskIDs,
-                    $SnapinTaskIDs
-                );
-            }
-            if (count($TaskIDs) < 1) {
-                $find = [
-                    'hostID' => $HostIDs,
-                    'typeID' => TaskType::SNAPINTASKS
-                ];
-                Route::ids(
-                    'task',
-                    $find
-                );
-                $TaskIDs = json_decode(
-                    Route::getData(),
-                    true
-                );
-                self::getClass('TaskManager')->cancel($TaskIDs);
-            }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'TASK_CANCEL_SUCCESS';
             $msg = json_encode(
