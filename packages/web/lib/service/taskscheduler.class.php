@@ -135,15 +135,22 @@ class TaskScheduler extends FOGService
                 }
             }
             $findWhere = ['isActive' => 1];
-            $taskCount = self::getClass('ScheduledTaskManager')
-                ->count($findWhere);
-            $taskCount += self::getClass('PowerManagementManager')
-                ->count(
-                    [
-                        'action' => 'wol',
-                        'onDemand' => 0
-                    ]
-                );
+            Route::count(
+                'scheduledtask',
+                $findWhere
+            );
+            $staskcount = json_decode(Route::getData());
+            $staskcount = $staskcount->total;
+            Route::count(
+                'powermanagement',
+                [
+                    'action' => 'wol',
+                    'onDemand' => [0, '']
+                ]
+            );
+            $ptaskcount = json_decode(Route::getData());
+            $ptaskcount = $ptaskcount->total;
+            $taskCount = $staskcount + $ptaskcount;
             if ($taskCount < 1) {
                 throw new Exception(' * No tasks found!');
             }
@@ -245,7 +252,7 @@ class TaskScheduler extends FOGService
             $PMTasks = json_decode(
                 Route::getData()
             );
-            foreach ($PMTasks as &$Task) {
+            foreach ($PMTasks->data as &$Task) {
                 $Task = self::getClass('ScheduledTask', $Task->id);
                 $Timer = $Task->getTimer();
                 self::outall(
