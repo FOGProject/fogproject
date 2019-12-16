@@ -784,7 +784,7 @@ class Route extends FOGBase
             break;
         case 'scheduledtask':
             $columns[] = [
-                'db' => 'stID',
+                'db' => 'stGroupHostID',
                 'dt' => 'hostLink',
                 'formatter' => function ($d, $row) {
                     if ($row['stIsGroup']) {
