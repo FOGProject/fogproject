@@ -134,19 +134,17 @@ class TaskScheduler extends FOGService
                     self::wakeUp($hostMACs);
                 }
             }
-            $findWhere = ['isActive' => 1];
+            $sfindWhere = ['isActive' => 1];
+            $pfindWhere = ['action' => 'wol', 'onDemand' => [0, '']];
             Route::count(
                 'scheduledtask',
-                $findWhere
+                $sfindWhere
             );
             $staskcount = json_decode(Route::getData());
             $staskcount = $staskcount->total;
             Route::count(
                 'powermanagement',
-                [
-                    'action' => 'wol',
-                    'onDemand' => [0, '']
-                ]
+                $pfindWhere
             );
             $ptaskcount = json_decode(Route::getData());
             $ptaskcount = $ptaskcount->total;
@@ -167,7 +165,10 @@ class TaskScheduler extends FOGService
             );
             unset($taskCount);
             // Scheduled Tasks
-            Route::listem('scheduledtask');
+            Route::listem(
+                'scheduledtask',
+                $sfindWhere
+            );
             $ScheduledTasks = json_decode(
                 Route::getData()
             );
@@ -244,16 +245,13 @@ class TaskScheduler extends FOGService
             // Power Management Tasks.
             Route::listem(
                 'powermanagement',
-                [
-                    'action' => 'wol',
-                    'onDemand' => [0, '']
-                ]
+                $pfindWhere
             );
             $PMTasks = json_decode(
                 Route::getData()
             );
             foreach ($PMTasks->data as &$Task) {
-                $Task = self::getClass('ScheduledTask', $Task->id);
+                $Task = self::getClass('PowerManagement', $Task->id);
                 $Timer = $Task->getTimer();
                 self::outall(
                     ' * '
