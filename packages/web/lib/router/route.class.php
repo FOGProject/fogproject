@@ -123,6 +123,7 @@ class Route extends FOGBase
      */
     public static $validActiveTasks = [
         'multicastsession',
+        'powermanagement',
         'scheduledtask',
         'snapinjob',
         'snapintask',
@@ -1748,6 +1749,12 @@ class Route extends FOGBase
         switch ($classname) {
         case 'scheduledtask':
             $find = ['isActive' => 1];
+            break;
+        case 'powermanagement':
+            $find = [
+                'action' => 'wol',
+                'onDemand' => [0, '']
+            ];
             break;
         default:
             $find = ['stateID' => $states];

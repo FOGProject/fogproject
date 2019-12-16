@@ -2895,7 +2895,7 @@ class HostManagement extends FOGPage
                     );
             }
         }
-        if (isset($_POST['pmadd'])) {
+        if (isset($_POST['pmadd']) || isset($_POST['pmaddod'])) {
             $min = trim(
                 filter_input(
                     INPUT_POST,
