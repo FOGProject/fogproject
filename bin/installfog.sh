@@ -34,6 +34,7 @@ help() {
     echo -e "\t\t[-D </directory/to/document/root/>] [-c <ssl-path>]"
     echo -e "\t\t[-W <webroot/to/fog/after/docroot/>] [-B </backup/path/>]"
     echo -e "\t\t[-s <192.168.1.10>] [-e <192.168.1.254>] [-b <undionly.kpxe>]"
+    echo -e "\t\t[-v </loc/server/cert.pem>] [-k </loc/server/key.key>] [-t </loc/CA/chain.pem>]"
     echo -e "\t-h -? --help\t\t\tDisplay this info"
     echo -e "\t-o    --oldcopy\t\t\tCopy back old data"
     echo -e "\t-d    --no-defaults\t\tDon't guess defaults"
@@ -63,9 +64,12 @@ help() {
     echo -e "\t-P    --no-pxedefault\t\tDo not overwrite pxe default file"
     echo -e "\t-F    --no-vhost\t\tDo not overwrite vhost file"
     echo -e "\t-A    --arm-support\t\tDo not overwrite vhost file"
+    echo -e "\t-v    --server-cert\t\tSpecify the location of the server's certificate"
+    echo -e "\t-k    --server-key\t\tSpecify the location of the server's certificate key"
+    echo -e "\t-t    --external-CA\t\tSpecify the location of the CA chain certificate"
     exit 0
 }
-optspec="h?odEUHSCKYyXxTPFAf:c:-:W:D:B:s:e:b:"
+optspec="h?odEUHSCKYyXxTPFAf:c:-:W:D:B:s:e:b:v:t:k:"
 while getopts "$optspec" o; do
     case $o in
         -)
@@ -182,7 +186,31 @@ while getopts "$optspec" o; do
                 arm-support)
                     sarmsupport=1
                     ;;
-                *)
+                server-cert)
+                    if [[ ! -f $OPTARG ]]; then
+                        echo "--$OPTARG requires a file to follow"
+                        help
+                        exit 9
+                    fi
+                    sserverCert="${OPTARG}"
+                    ;;
+                server-key)
+                    if [[ ! -f $OPTARG ]]; then
+                        echo "--$OPTARG requires a file to follow"
+                        help
+                        exit 10
+                    fi
+                    sserverKey="${OPTARG}"
+                    ;;
+	        external-CA)
+                    if [[ ! -f $OPTARG ]]; then
+                        echo "--$OPTARG requires a file to follow"
+                        help
+                        exit 11
+                    fi
+                    sexternalCA="${OPTARG}"
+                    ;;
+	        *)
                     if [[ $OPTERR == 1 && ${optspec:0:1} != : ]]; then
                         echo "Unknown option: --${OPTARG}"
                         help
@@ -299,6 +327,30 @@ while getopts "$optspec" o; do
         A)
             sarmsupport=1
             ;;
+        v)
+            if [[ ! -f $OPTARG ]]; then
+                echo "-$OPTARG requires a file to follow"
+                help
+                exit 9
+            fi
+            sserverCert="${OPTARG}"
+            ;;
+	k)
+            if [[ ! -f $OPTARG ]]; then
+                echo "--$OPTARG requires a file to follow"
+                help
+                exit 10
+            fi
+            sserverKey="${OPTARG}"
+            ;;
+        t)
+            if [[ ! -f $OPTARG ]]; then
+                echo "-$OPTARG requires a file to follow"
+                help
+                exit 11
+            fi
+            sexternalCA="${OPTARG}"
+            ;;
         :)
             echo "Option -$OPTARG requires a value"
             help
@@ -382,6 +434,14 @@ echo "Done"
 [[ -z $httpproto ]] && httpproto="http"
 [[ -z $armsupport ]] && armsupport=0
 [[ -z $fogpriorconfig ]] && fogpriorconfig="$fogprogramdir/.fogsettings"
+[[ -n $sserverCert ]] && serverCert=$sserverCert
+[[ -n $sserverKey ]] && serverKey=$sserverKey
+[[ -n $sexternalCA ]] && externalCA=$sexternalCA
+
+[[ ! -z "$sserverCert" && ( -z "$sserverKey" || -z "$sexternalCA" ) ]] && { printf "\nMissing server certificate key and/or CA certificate(s)\n\n"; exit; }
+[[ ! -z "$sserverKey" && ( -z "$sserverCert" || -z "$sexternalCA" ) ]] && { printf "\nMissing server certificate and/or CA cerificate(s)\n\n"; exit; }
+[[ ! -z "$sexternalCA" && ( -z "$sserverCert" || -z "$sserverKey" ) ]] && { printf "\nMissing server certificate and/or server certificate key\n\n"; exit; }
+
 #clearScreen
 if [[ -z $* || $* != +(-h|-?|--help|--uninstall) ]]; then
     echo > "$workingdir/error_logs/foginstall.log"
@@ -390,7 +450,7 @@ fi
 displayBanner
 echo -e "   Version: $version Installer/Updater\n"
 checkSELinux
-checkFirewall
+rulesFirewall
 case $doupdate in
     1)
         if [[ -f $fogpriorconfig ]]; then
@@ -630,7 +690,7 @@ while [[ -z $blGo ]]; do
                     echo
                     echo "   This can be done by opening a web browser and going to:"
                     echo
-                    echo "   ${httpproto}://${ipaddress}${webroot}management"
+                    echo "   ${httpproto}://${hostname}${webroot}management"
                     echo
                     echo "   Default User Information"
                     echo "   Username: fog"
