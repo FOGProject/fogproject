@@ -441,7 +441,9 @@ class LDAP extends FOGController
             /**
              * Rebind as the user
              */
-            $bind = @$this->bind($userDN, $pass);
+	    if ($_SERVER['SSL_CLIENT_VERIFY'] !== 'SUCCESS') {
+	        $bind = @$this->bind($userDN, $pass);
+	    }
             /**
              * If user unable to bind return immediately
              */
