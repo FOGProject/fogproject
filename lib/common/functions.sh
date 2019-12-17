@@ -31,12 +31,20 @@ backupReports() {
 registerStorageNode() {
     [[ -z $webroot ]] && webroot="/"
     dots "Checking if this node is registered"
-    storageNodeExists=$(wget --no-check-certificate -qO - ${httpproto}://$ipaddress/${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
+    if [ ! -z "$serverCert" ]; then
+        storageNodeExists=$(wget -qO - ${httpproto}://$ipaddress/${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
+    else
+        storageNodeExists=$(wget --no-check-certificate -qO - ${httpproto}://$ipaddress/${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
+    fi
     echo "Done"
     if [[ $storageNodeExists != exists ]]; then
         [[ -z $maxClients ]] && maxClients=10
         dots "Node being registered"
-        wget --no-check-certificate -qO - $httpproto://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$(echo -n $ipaddress| base64)&path=$(echo -n $storageLocation|base64)&ftppath=$(echo -n $storageLocation|base64)&snapinpath=$(echo -n $snapindir|base64)&sslpath=$(echo -n $sslpath|base64)&ip=$(echo -n $ipaddress|base64)&maxClients=$(echo -n $maxClients|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&interface=$(echo -n $interface|base64)&bandwidth=$(echo -n $interface|base64)&webroot=$(echo -n $webroot|base64)&fogverified"
+        if [ ! -z "$serverCert" ]; then
+	    wget -qO - $httpproto://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$(echo -n $ipaddress| base64)&path=$(echo -n $storageLocation|base64)&ftppath=$(echo -n $storageLocation|base64)&snapinpath=$(echo -n $snapindir|base64)&sslpath=$(echo -n $sslpath|base64)&ip=$(echo -n $ipaddress|base64)&maxClients=$(echo -n $maxClients|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&interface=$(echo -n $interface|base64)&bandwidth=$(echo -n $interface|base64)&webroot=$(echo -n $webroot|base64)&fogverified"
+        else
+	    wget --no-check-certificate -qO - $httpproto://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$(echo -n $ipaddress| base64)&path=$(echo -n $storageLocation|base64)&ftppath=$(echo -n $storageLocation|base64)&snapinpath=$(echo -n $snapindir|base64)&sslpath=$(echo -n $sslpath|base64)&ip=$(echo -n $ipaddress|base64)&maxClients=$(echo -n $maxClients|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&interface=$(echo -n $interface|base64)&bandwidth=$(echo -n $interface|base64)&webroot=$(echo -n $webroot|base64)&fogverified"
+	fi
         echo "Done"
     else
         echo " * Node is registered"
@@ -45,14 +53,22 @@ registerStorageNode() {
 updateStorageNodeCredentials() {
     [[ -z $webroot ]] && webroot="/"
     dots "Ensuring node username and passwords match"
-    wget --no-check-certificate -qO - $httpproto://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=$(echo -n $ipaddress|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&fogverified"
+    if [ ! -z "$serverCert" ]; then
+        wget -qO - $httpproto://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=$(echo -n $ipaddress|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&fogverified"
+    else
+        wget --no-check-certificate -qO - $httpproto://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=$(echo -n $ipaddress|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&fogverified"
+    fi
     echo "Done"
 }
 backupDB() {
     dots "Backing up database"
     if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
         [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "${httpproto}://$ipaddress/$webroot/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        if [ ! -z "$serverCert" ]; then
+	    wget -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "${httpproto}://$hostname/$webroot/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        else
+	    wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "${httpproto}://$hostname/$webroot/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+	fi
     fi
     errorStat $?
 }
@@ -63,7 +79,11 @@ updateDB() {
             local replace='s/[]"\/$&*.^|[]/\\&/g'
             local escstorageLocation=$(echo $storageLocation | sed -e $replace)
             sed -i -e "s/'\/images\/'/'$escstorageLocation'/g" $webdirdest/commons/schema.php
-            wget --no-check-certificate -qO - --post-data="confirm&fogverified" --no-proxy ${httpproto}://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            if [ ! -z "$serverCert" ]; then
+	        wget -qO - --post-data="confirm&fogverified" --no-proxy ${httpproto}://${hostname}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    	    else
+	        wget --no-check-certificate -qO - --post-data="confirm&fogverified" --no-proxy ${httpproto}://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+	    fi
             errorStat $?
             ;;
         *)
@@ -71,7 +91,7 @@ updateDB() {
             echo " * You still need to install/update your database schema."
             echo " * This can be done by opening a web browser and going to:"
             echo
-            echo "   $httpproto://${ipaddress}/fog/management"
+            echo "   $httpproto://${hostname}/fog/management"
             echo
             read -p " * Press [Enter] key when database is updated/installed."
             echo
@@ -417,7 +437,7 @@ configureFTP() {
 }
 configureDefaultiPXEfile() {
     [[ -z $webroot ]] && webroot='/'
-	echo -e "#!ipxe\ncpuid --ext 29 && set arch x86_64 || set arch \${buildarch}\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${httpproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
+	echo -e "#!ipxe\ncpuid --ext 29 && set arch x86_64 || set arch \${buildarch}\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain http://${hostname}/fog/service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
 }
 configureTFTPandPXE() {
     [[ -d ${tftpdirdst}.prev ]] && rm -rf ${tftpdirdst}.prev >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -428,7 +448,11 @@ configureTFTPandPXE() {
     if [[ "x$httpproto" = "xhttps" ]]; then
         dots "Compiling iPXE binaries that trust our SSL certificate"
         cd $buildipxesrc
-        ./buildipxe.sh ${sslpath}CA/.fogCA.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        if [ ! -z "$externalCA" ]; then
+            ./buildipxe.sh $externalCA >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        else
+            ./buildipxe.sh ${sslpath}CA/.fogCA.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+	fi
         errorStat $?
         cd $workingdir
     fi
@@ -750,6 +774,25 @@ checkSELinux() {
         esac
     done
 }
+rulesFirewall() {
+	fwstate=$(firewall-cmd --state 2>&1)
+	[[ "x$fwstate" == "xrunning" ]] && fwrunning=1
+	[[ $fwrunning -ne 1 ]] && return
+	echo " * The local firewall seems to be currently enabled on your system."
+	echo " * We will attempt to add rules to the active zone."
+        systemctl start firewalld >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        systemctl enable firewalld >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        for service in http https tftp ftp mysql nfs mountd rpc-bind proxy-dhcp samba
+        do
+            firewall-cmd --permanent --add-service=$service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        done
+        if [[ $bldhcp -eq 1 ]]; then
+            firewall-cmd --permanent --add-service=dhcp >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        fi
+        firewall-cmd --permanent --add-port=49152-65532/udp >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        firewall-cmd --permanent --direct --add-rule ipv4 filter INPUT 0 -p igmp -j ACCEPT >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        firewall-cmd --reload >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+}
 checkFirewall() {
     command -v iptables >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     iptcmd=$?
@@ -1054,7 +1097,7 @@ configureMySql() {
     [[ -n $snmysqlpass ]] && options=( "${options[@]}" "--password=$snmysqlpass" )
     sqlescsnmysqlpass=$(echo "$snmysqlpass" | sed -e s/\'/\'\'/g)   # Replace every ' with '' for full MySQL escaping
     sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-    mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    mysql -s --host="$snmysqlhost" --user="$snmysqluser" --password="$snmysqlpass" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     mysqlver=$(mysql -V |  sed -n 's/.*Distrib[ ]\(\([0-9]\([.]\|\)\)*\).*\([-]\|\)[,].*/\1/p')
     mariadb=$(mysql -V |  sed -n 's/.*Distrib[ ].*[-]\(.*\)[,].*/\1/p')
     vertocheck="5.7"
@@ -1079,12 +1122,12 @@ configureMySql() {
         case $snmysqlhost in
             127.0.0.1|[Ll][Oo][Cc][Aa][Ll][Hh][Oo][Ss][Tt])
                 sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                sql="ALTER USER '$snmysqluser'@'localhost' IDENTIFIED WITH mysql_native_password BY '$sqlescsnmysqlpass';"
-                mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                ;;
+		mysql -s --host="$snmysqlhost" --user="$snmysqluser" --password="$snmysqlpass" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+		sql="ALTER USER '$snmysqluser'@'127.0.0.1' IDENTIFIED BY '$sqlescsnmysqlpass';"
+		mysql -s --host="$snmysqlhost" --user="$snmysqluser" --password="$snmysqlpass" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+		sql="ALTER USER '$snmysqluser'@'localhost' IDENTIFIED BY '$sqlescsnmysqlpass';"
+		mysql -s --host="$snmysqlhost" --user="$snmysqluser" --password="$snmysqlpass" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+		;;
             *)
                 sql="UPDATE mysql.user SET plugin='mysql_native_password' WHERE User='root';"
                 mysql "${options}" -e "$sql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1630,15 +1673,23 @@ displayBanner() {
     echo
 }
 createSSLCA() {
-    if [[ -z $sslpath ]]; then
-        [[ -d /opt/fog/snapins/CA && -d /opt/fog/snapins/ssl ]] && mv /opt/fog/snapins/CA /opt/fog/snapins/ssl/
-        sslpath='/opt/fog/snapins/ssl/'
-    fi
-    if [[ $recreateCA == yes || $caCreated != yes || ! -e $sslpath/CA || ! -e $sslpath/CA/.fogCA.key ]]; then
-        mkdir -p $sslpath/CA >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        dots "Creating SSL CA"
-        openssl genrsa -out $sslpath/CA/.fogCA.key 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        openssl req -x509 -new -sha512 -nodes -key $sslpath/CA/.fogCA.key -days 3650 -out $sslpath/CA/.fogCA.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
+    if [ ! -z "$serverCert" ]; then
+        dots "Copying server certificate and key"
+	mkdir -p $webdirdest/management/other/ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+	cp -f "$serverCert" $webdirdest/management/other/ssl/srvpublic.crt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+	cp -f "$serverKey" $sslpath/.srvprivate.key >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+	cp -f "$externalCA" /etc/pki/ca-trust/source/anchors/chain.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+	errorStat $?
+    else
+        if [[ -z $sslpath ]]; then
+            [[ -d /opt/fog/snapins/CA && -d /opt/fog/snapins/ssl ]] && mv /opt/fog/snapins/CA /opt/fog/snapins/ssl/
+            sslpath='/opt/fog/snapins/ssl/'
+        fi
+        if [[ $recreateCA == yes || $caCreated != yes || ! -e $sslpath/CA || ! -e $sslpath/CA/.fogCA.key ]]; then
+            mkdir -p $sslpath/CA >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            dots "Creating SSL CA"
+            openssl genrsa -out $sslpath/CA/.fogCA.key 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            openssl req -x509 -new -sha512 -nodes -key $sslpath/CA/.fogCA.key -days 3650 -out $sslpath/CA/.fogCA.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
 .
 .
 .
@@ -1647,14 +1698,14 @@ createSSLCA() {
 FOG Server CA
 .
 EOF
-        errorStat $?
-    fi
-    [[ -z $sslprivkey ]] && sslprivkey="$sslpath/.srvprivate.key"
-    if [[ $recreateKeys == yes || $recreateCA == yes || $caCreated != yes || ! -e $sslpath || ! -e $sslprivkey ]]; then
-        dots "Creating SSL Private Key"
-        mkdir -p $sslpath >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        openssl genrsa -out $sslprivkey 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        cat > $sslpath/req.cnf << EOF
+            errorStat $?
+        fi
+        [[ -z $sslprivkey ]] && sslprivkey="$sslpath/.srvprivate.key"
+        if [[ $recreateKeys == yes || $recreateCA == yes || $caCreated != yes || ! -e $sslpath || ! -e $sslprivkey ]]; then
+            dots "Creating SSL Private Key"
+            mkdir -p $sslpath >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            openssl genrsa -out $sslprivkey 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            cat > $sslpath/req.cnf << EOF
 [req]
 distinguished_name = req_distinguished_name
 req_extensions = v3_req
@@ -1667,27 +1718,28 @@ subjectAltName = @alt_names
 DNS.1 = $ipaddress
 DNS.2 = $hostname
 EOF
-        openssl req -new -sha512 -key $sslprivkey -out $sslpath/fog.csr -config $sslpath/req.cnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
+            openssl req -new -sha512 -key $sslprivkey -out $sslpath/fog.csr -config $sslpath/req.cnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
 $ipaddress
 EOF
-        errorStat $?
-    fi
-    [[ ! -e $sslpath/.srvprivate.key ]] && ln -sf $sslprivkey $sslpath/.srvprivate.key >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    dots "Creating SSL Certificate"
-    mkdir -p $webdirdest/management/other/ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    cat > $sslpath/ca.cnf << EOF
+            errorStat $?
+        fi
+        [[ ! -e $sslpath/.srvprivate.key ]] && ln -sf $sslprivkey $sslpath/.srvprivate.key >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        dots "Creating SSL Certificate"
+        mkdir -p $webdirdest/management/other/ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        cat > $sslpath/ca.cnf << EOF
 [v3_ca]
 subjectAltName = @alt_names
 [alt_names]
 DNS.1 = $ipaddress
 DNS.2 = $hostname
 EOF
-    openssl x509 -req -in $sslpath/fog.csr -CA $sslpath/CA/.fogCA.pem -CAkey $sslpath/CA/.fogCA.key -CAcreateserial -out $webdirdest/management/other/ssl/srvpublic.crt -days 3650 -extensions v3_ca -extfile $sslpath/ca.cnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    errorStat $?
-    dots "Creating auth pub key and cert"
-    cp $sslpath/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    openssl x509 -outform der -in $webdirdest/management/other/ca.cert.pem -out $webdirdest/management/other/ca.cert.der >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    errorStat $?
+        openssl x509 -req -in $sslpath/fog.csr -CA $sslpath/CA/.fogCA.pem -CAkey $sslpath/CA/.fogCA.key -CAcreateserial -out $webdirdest/management/other/ssl/srvpublic.crt -days 3650 -extensions v3_ca -extfile $sslpath/ca.cnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        errorStat $?
+        dots "Creating auth pub key and cert"
+        cp $sslpath/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        openssl x509 -outform der -in $webdirdest/management/other/ca.cert.pem -out $webdirdest/management/other/ca.cert.der >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        errorStat $?
+    fi
     dots "Resetting SSL Permissions"
     chown -R $apacheuser:$apacheuser $webdirdest/management/other >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
@@ -1710,14 +1762,16 @@ EOF
                         echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
                     fi
                     echo "    </FilesMatch>" >> "$etcconf"
-                    echo "    ServerName $ipaddress" >> "$etcconf"
-                    echo "    ServerAlias $hostname" >> "$etcconf"
+                    echo "    ServerName $hostname" >> "$etcconf"
+                    echo "    ServerAlias $ipaddress" >> "$etcconf"
                     echo "    RewriteEngine On" >> "$etcconf"
                     echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
                     echo "    RewriteRule .* - [F]" >> "$etcconf"
                     echo "    RewriteRule /management/other/ca.cert.der$ - [L]" >> "$etcconf"
-                    echo "    RewriteCond %{HTTPS} off" >> "$etcconf"
-                    echo "    RewriteRule (.*) https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
+		    echo "    RewriteCond %{REQUEST_URI} /fog/service/ipxe/" >> "$etcconf"
+		    echo "    RewriteRule (.*) - [R,L]" >> "$etcconf"		    
+		    echo "    RewriteCond %{HTTPS} off" >> "$etcconf"
+		    echo "    RewriteRule (.*) https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
                     echo "</VirtualHost>" >> "$etcconf"
                     echo "<VirtualHost *:443>" >> "$etcconf"
                     echo "    KeepAlive Off" >> "$etcconf"
@@ -1728,19 +1782,26 @@ EOF
                         echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
                     fi
                     echo "    </FilesMatch>" >> "$etcconf"
-                    echo "    ServerName $ipaddress" >> "$etcconf"
-                    echo "    ServerAlias $hostname" >> "$etcconf"
+                    echo "    ServerName $hostname" >> "$etcconf"
+                    echo "    ServerAlias $ipaddress" >> "$etcconf"
                     echo "    DocumentRoot $docroot" >> "$etcconf"
                     echo "    SSLEngine On" >> "$etcconf"
                     echo "    SSLProtocol all -SSLv3 -SSLv2" >> "$etcconf"
                     echo "    SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA" >> "$etcconf"
                     echo "    SSLHonorCipherOrder On" >> "$etcconf"
-                    echo "    SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt" >> "$etcconf"
+                    echo "    SSLCertificateFile ${webdirdest}management/other/ssl/srvpublic.crt" >> "$etcconf"
                     echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
-                    echo "    SSLCertificateChainFile $webdirdest/management/other/ca.cert.der" >> "$etcconf"
+		    if [ ! -z "$externalCA" ]; then
+		        echo "    SSLCACertificateFile /etc/pki/ca-trust/source/anchors/chain.pem" >> "$etcconf"
+		    else
+			echo "    SSLCertificateChainFile $webdirdest/management/other/ca.cert.der" >> "$etcconf"
+		    fi
                     echo "    <Directory $webdirdest>" >> "$etcconf"
                     echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                     echo "    </Directory>" >> "$etcconf"
+		    echo "    SSLVerifyClient optional" >> "$etcconf"
+		    echo "    SSLVerifyDepth 3" >> "$etcconf"
+		    echo "    SSLOptions +StdEnvVars" >> "$etcconf"
                     echo "    RewriteEngine On" >> "$etcconf"
                     echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
                     echo "    RewriteRule .* - [F]" >> "$etcconf"
@@ -1758,8 +1819,8 @@ EOF
                     fi
                     echo "    </FilesMatch>" >> "$etcconf"
                     echo "    KeepAlive Off" >> "$etcconf"
-                    echo "    ServerName $ipaddress" >> "$etcconf"
-                    echo "    ServerAlias $hostname" >> "$etcconf"
+                    echo "    ServerName $hostname" >> "$etcconf"
+                    echo "    ServerAlias $ipaddress" >> "$etcconf"
                     echo "    DocumentRoot $docroot" >> "$etcconf"
                     echo "    <Directory $webdirdest>" >> "$etcconf"
                     echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
@@ -1810,6 +1871,7 @@ EOF
             ;;
     esac
     dots "Starting and checking status of web services"
+    update-ca-trust
     case $systemctl in
         yes)
             case $osid in
@@ -1906,6 +1968,7 @@ configureHttpd() {
         esac
     fi
     dots "Setting up Apache and PHP files"
+    echo "ServerName $hostname" | sudo tee -a /etc/httpd/conf/httpd.conf >> /dev/null
     if [[ ! -f $phpini ]]; then
         echo "Failed"
         echo "   ###########################################"
@@ -2001,6 +2064,7 @@ configureHttpd() {
     fi
     dots "Copying new files to web folder"
     cp -Rf $webdirsrc/* $webdirdest/
+    cp -f $webdirsrc/index.php /var/www/html/
     errorStat $?
     for i in $(find $backupPath/fog_web_${version}.BACKUP/management/other/ -maxdepth 1 -type f -not -name gpl-3.0.txt -a -not -name index.php -a -not -name 'ca.*' 2>>$workingdir/error_logs/fog_error_${version}.log); do
         cp -Rf $i ${webdirdest}/management/other/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -2094,7 +2158,7 @@ class Config
      */
     private static function _initSetting()
     {
-        define('TFTP_HOST', \"${ipaddress}\");
+        define('TFTP_HOST', \"${hostname}\");
         define('TFTP_FTP_USERNAME', \"${username}\");
         define(
             'TFTP_FTP_PASSWORD',
@@ -2106,7 +2170,7 @@ class Config
         define('USE_SLOPPY_NAME_LOOKUPS', true);
         define('MEMTEST_KERNEL', 'memtest.bin');
         define('PXE_IMAGE', 'init.xz');
-        define('STORAGE_HOST', \"${ipaddress}\");
+        define('STORAGE_HOST', \"${hostname}\");
         define('STORAGE_FTP_USERNAME', \"${username}\");
         define(
             'STORAGE_FTP_PASSWORD',
@@ -2117,8 +2181,8 @@ class Config
         define('STORAGE_BANDWIDTHPATH', '${webroot}status/bandwidth.php');
         define('STORAGE_INTERFACE', '${interface}');
         define('CAPTURERESIZEPCT', 5);
-        define('WEB_HOST', \"${ipaddress}\");
-        define('WOL_HOST', \"${ipaddress}\");
+        define('WEB_HOST', \"${hostname}\");
+        define('WOL_HOST', \"${hostname}\");
         define('WOL_PATH', '/${webroot}wol/wol.php');
         define('WOL_INTERFACE', \"${interface}\");
         define('SNAPINDIR', \"${snapindir}/\");
