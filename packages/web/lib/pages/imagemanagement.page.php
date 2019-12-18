@@ -2071,97 +2071,29 @@ class ImageManagement extends FOGPage
     {
         header('Content-type: application/json');
 
-        $activestates = [
-            'queued',
-            'checked in',
-            'in-progress'
+        $queued = self::fastmerge(
+            (array)self::getProgressState(),
+            (array)self::getQueuedStates()
+        );
+        $queuedStates = implode(',', $queued);
+
+        $join = [
+            'LEFT OUTER JOIN `taskStates` ON '
+            . '`multicastSessions`.`msState` = `taskStates`.`tsID` '
+            . " AND `multicastSessions`.`msState` IN ($queuedStates)",
+            'INNER JOIN `images` ON '
+            . '`multicastSessions`.`msImage` = `images`.`imageID`'
+            . " AND `multicastSessions`.`msImage` = '"
+            . $this->obj->get('id')
+            . "'"
         ];
 
-        $where = "`taskStates`.`tsName` IN ('"
-            . implode("','", $activestates)
-            . "')";
-
-        $obj = self::getClass('MulticastSessionManager');
-        $table = $obj->getTable();
-        $tableID = '';
-        $sqlstr = "SELECT `%s`
-            FROM `%s`
-            LEFT OUTER JOIN `taskStates`
-            ON `multicastSessions`.`msState` = `taskStates`.`tsID`
-            LEFT OUTER JOIN `images`
-            ON `multicastSessions`.`msImage` = `images`.`imageID`
-            %s
-            %s
-            %s";
-        $filterstr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            LEFT OUTER JOIN `taskStates`
-            ON `multicastSessions`.`msState` = `taskStates`.`tsID`
-            LEFT OUTER JOIN `images`
-            ON `multicastSessions`.`msImage` = `images`.`imageID`
-            %s";
-        $totalstr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            LEFT OUTER JOIN `taskStates`
-            ON `multicastSessions`.`msState` = `taskStates`.`tsID`
-            LEFT OUTER JOIN `images`
-            ON `multicastSessions`.`msImage` = `images`.`imageID`
-            WHERE " . $where;
-
-        $dbcolumns = $obj->getColumns();
-        $pass_vars = $columns = [];
-
-
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
+        return $this->obj->getItemsList(
+            'multicastsession',
+            '',
+            $join,
+            '',
+            $columns
         );
-
-        foreach ($dbcolumns as $common => &$real) {
-            if ('id' == $common) {
-                $tableID = $real;
-            }
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
-
-        $obj = self::getClass('ImageManager');
-        $table = $obj->getTable();
-        $dbcolumns = $obj->getColumns();
-        foreach ($dbcolumns as $common => &$real) {
-            $columns[] = [
-                'db' => $real,
-                'dt' => 'image' . $common
-            ];
-            unset($real);
-        }
-
-        $obj = self::getClass('TaskStateManager');
-        $table = $obj->getTable();
-        $dbcolumns = $obj->getColumns();
-        foreach ($dbcolumns as $common => &$real) {
-            $columns[] = [
-                'db' => $real,
-                'dt' => 'taskstate' . $common
-            ];
-            unset($real);
-        }
-
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                'multicastSessions',
-                $tableID,
-                $columns,
-                $sqlstr,
-                $filterstr,
-                $totalstr,
-                $where
-            )
-        );
-        exit;
     }
 }
