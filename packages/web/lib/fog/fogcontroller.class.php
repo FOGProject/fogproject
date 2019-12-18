@@ -1196,8 +1196,10 @@ abstract class FOGController extends FOGBase
         $priman = self::getClass($priman);
         $privars = $priman->getColumns();
 
-        $secman = self::getClass($secman);
-        $secvars = $secman->getColumns();
+        if ($secondary) {
+            $secman = self::getClass($secman);
+            $secvars = $secman->getColumns();
+        }
 
         $itemID = $privars['id'];
         $itemassocID = strtolower(get_class($this)). 'ID';
@@ -1208,11 +1210,15 @@ abstract class FOGController extends FOGBase
         $qTotalStr = trim($qTotalStr);
 
         if (empty($qStr)) {
-            $sqlStr = "SELECT `%s`,"
-                . "IF(`" . $secondID . "` = '"
-                . $this->get('id')
-                . "','associated','dissociated') AS `" . $secondID . "` "
-                . "FROM `%s`";
+            if ($secondary) {
+                $sqlStr = "SELECT `%s`,"
+                    . "IF(`" . $secondID . "` = '"
+                    . $this->get('id')
+                    . "','associated','dissociated') AS `" . $secondID . "` "
+                    . "FROM `%s`";
+            } else {
+                $sqlStr = "SELECT `%s` FROM `%s`";
+            }
             foreach ($join as &$j) {
                 $sqlStr .= ' ' . $j . ' ';
                 unset($j);
