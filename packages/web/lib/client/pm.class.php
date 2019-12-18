@@ -53,13 +53,13 @@ class PM extends FOGClient
         } elseif (in_array('reboot', $actions)) {
             $action = 'restart';
         }
-        self::getClass('PowerManagementManager')
-            ->destroy(
-                [
-                    'onDemand' => '1',
-                    'hostID' => self::$Host->get('id')
-                ]
-            );
+        Route::delete(
+            'powermanagement',
+            [
+                'onDemand' => [1],
+                'hostID' => self::$Host->get('id')
+            ]
+        );
         $PMFind = [
             'hostID' => self::$Host->get('id'),
             'onDemand' => [0, ''],
