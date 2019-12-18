@@ -1976,7 +1976,7 @@ configureHttpd() {
     fi
     dots "Setting up Apache and PHP files"
     if (! grep -Fxq "ServerName \"$hostname\"" /etc/httpd/conf/httpd.conf); then
-        echo "ServerName $hostname" | sudo tee -a /etc/httpd/conf/httpd.conf >> /dev/null
+        echo "ServerName \"$hostname\"" | sudo tee -a /etc/httpd/conf/httpd.conf >> /dev/null
     fi
     if [[ ! -f $phpini ]]; then
         echo "Failed"
