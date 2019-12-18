@@ -35,6 +35,7 @@ help() {
     echo -e "\t\t[-W <webroot/to/fog/after/docroot/>] [-B </backup/path/>]"
     echo -e "\t\t[-s <192.168.1.10>] [-e <192.168.1.254>] [-b <undionly.kpxe>]"
     echo -e "\t\t[-v </loc/server/cert.pem>] [-k </loc/server/key.key>] [-t </loc/CA/chain.pem>]"
+    echo -e "\t\t[-p <http://OCSP.domain.com/ocsp>]"
     echo -e "\t-h -? --help\t\t\tDisplay this info"
     echo -e "\t-o    --oldcopy\t\t\tCopy back old data"
     echo -e "\t-d    --no-defaults\t\tDon't guess defaults"
@@ -67,9 +68,10 @@ help() {
     echo -e "\t-v    --server-cert\t\tSpecify the location of the server's certificate"
     echo -e "\t-k    --server-key\t\tSpecify the location of the server's certificate key"
     echo -e "\t-t    --external-CA\t\tSpecify the location of the CA chain certificate"
+    echo -e "\t-p    --ocsp\t\t\tSpecify the URI of the OCSP server"
     exit 0
 }
-optspec="h?odEUHSCKYyXxTPFAf:c:-:W:D:B:s:e:b:v:t:k:"
+optspec="h?odEUHSCKYyXxTPFAf:c:-:W:D:B:s:e:b:v:t:k:p:"
 while getopts "$optspec" o; do
     case $o in
         -)
@@ -210,6 +212,14 @@ while getopts "$optspec" o; do
                     fi
                     sexternalCA="${OPTARG}"
                     ;;
+		ocsp)
+		    if [[ -z $OPTARG ]]; then
+                        echo "--$OPTARG requires a URI to follow"
+			help
+			exit 12
+		    fi
+		    socsp="${OPTARG}"
+		    ;;
 	        *)
                     if [[ $OPTERR == 1 && ${optspec:0:1} != : ]]; then
                         echo "Unknown option: --${OPTARG}"
@@ -351,6 +361,14 @@ while getopts "$optspec" o; do
             fi
             sexternalCA="${OPTARG}"
             ;;
+        p)
+            if [[ -z $OPTARG ]]; then
+                echo "--$OPTARG requires a URI to follow"
+                help
+                exit 12
+            fi
+            socsp="${OPTARG}"
+            ;;
         :)
             echo "Option -$OPTARG requires a value"
             help
@@ -481,6 +499,7 @@ esac
 [[ -n $ssslpath ]] && sslpath=$ssslpath
 [[ -n $srecreateCA ]] && recreateCA=$srecreateCA
 [[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
+[[ -n $socsp ]] && ocsp=$socsp
 
 [[ -f $fogpriorconfig ]] && grep -l webroot $fogpriorconfig >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 case $? in
