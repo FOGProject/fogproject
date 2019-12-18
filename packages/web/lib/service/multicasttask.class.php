@@ -528,12 +528,10 @@ class MulticastTask extends FOGService
                 } else {
                     $filename = 'd1p%d.%s';
                     $iterator = new DirectoryIterator(
-                        $this->getImagePath()
+                        $this->getImagePath(),
+                        FilesystemIterator::SKIP_DOTS
                     );
                     foreach ($iterator as $fileInfo) {
-                        if ($fileInfo->isDot()) {
-                            continue;
-                        }
                         sscanf(
                             $fileInfo->getFilename(),
                             $filename,
@@ -552,12 +550,10 @@ class MulticastTask extends FOGService
             default:
                 $filename = 'd1p%d.%s';
                 $iterator = new DirectoryIterator(
-                    $this->getImagePath()
+                    $this->getImagePath(),
+                    FilesystemIterator::SKIP_DOTS
                 );
                 foreach ($iterator as $fileInfo) {
-                    if ($fileInfo->isDot()) {
-                        continue;
-                    }
                     sscanf(
                         $fileInfo->getFilename(),
                         $filename,
@@ -575,12 +571,10 @@ class MulticastTask extends FOGService
         case 2:
             $filename = 'd1p%d.%s';
             $iterator = new DirectoryIterator(
-                $this->getImagePath()
+                $this->getImagePath(),
+                FilesystemIterator::SKIP_DOTS
             );
             foreach ($iterator as $fileInfo) {
-                if ($fileInfo->isDot()) {
-                    continue;
-                }
                 sscanf(
                     $fileInfo->getFilename(),
                     $filename,
@@ -597,12 +591,10 @@ class MulticastTask extends FOGService
         case 3:
             $filename = 'd%dp%d.%s';
             $iterator = new DirectoryIterator(
-                $this->getImagePath()
+                $this->getImagePath(),
+                FilesystemIterator::SKIP_DOTS
             );
             foreach ($iterator as $fileInfo) {
-                if ($fileInfo->isDot()) {
-                    continue;
-                }
                 sscanf(
                     $fileInfo->getFilename(),
                     $filename,
@@ -619,12 +611,10 @@ class MulticastTask extends FOGService
             break;
         case 4:
             $iterator = new DirectoryIterator(
-                $this->getImagePath()
+                $this->getImagePath(),
+                FilesystemIterator::SKIP_DOTS
             );
             foreach ($iterator as $fileInfo) {
-                if ($fileInfo->isDot()) {
-                    continue;
-                }
                 $filelist[] = $fileInfo->getFilename();
             }
             unset($iterator);
