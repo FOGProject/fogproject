@@ -240,19 +240,11 @@ class StorageNode extends FOGController
             return;
         }
         $logPaths = [
-            '/var/log/nginx',
-            '/var/log/httpd',
             '/var/log/apache2',
             '/var/log/fog',
-            '/var/log/php',
-            '/var/log/php-fpm',
-            '/var/log/php5-fpm',
-            '/var/log/php5.6-fpm',
-            '/var/log/php7-fpm',
-            '/var/log/php7.0-fpm',
-            '/var/log/php7.1-fpm',
-            '/var/log/php7.2-fpm',
-            '/var/log/php7.3-fpm'
+            '/var/log/httpd',
+            '/var/log/nginx',
+            '/var/log/php*',
         ];
         $items = [
             'images' => urlencode($this->get('path')),

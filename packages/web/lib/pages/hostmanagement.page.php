@@ -2747,8 +2747,6 @@ class HostManagement extends FOGPage
      */
     public function hostPowermanagement()
     {
-        //echo '<!-- Power Management -->';
-        //echo $this->newPMDisplay();
         // The powermanagement table.
         $this->headerData = [
             _('Cron Schedule'),

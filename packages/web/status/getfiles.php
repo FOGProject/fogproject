@@ -39,17 +39,11 @@ $imagePaths = json_decode(Route::getData(), true);
 Route::ids('storagenode',[], 'snapinpath');
 $snapinPaths = json_decode(Route::getData(), true);
 $validPaths = [
-    '/var/log/nginx',
-    '/var/log/httpd',
     '/var/log/apache2',
-    '/var/log/php-fpm',
-    '/var/log/php5-fpm',
-    '/var/log/php5.6-fpm',
-    '/var/log/php7-fpm',
-    '/var/log/php7.0-fpm',
-    '/var/log/php7.1-fpm',
-    '/var/log/php7.2-fpm',
-    '/var/log/php7.3-fpm'
+    '/var/log/fog',
+    '/var/log/httpd',
+    '/var/log/nginx',
+    '/var/log/php*'
 ];
 $validPaths = array_merge(
     $imagePaths,
@@ -62,16 +56,26 @@ foreach ((array)$paths as &$decodedPath) {
     if (count($pathTest ?: []) < 1) {
         continue;
     }
-    if (!(is_dir($decodedPath)
-        && file_exists($decodedPath)
-        && is_readable($decodedPath))
+    foreach ($pathTest as &$path) {
+        $realpaths = FOGCore::fastmerge(
+            (array)$realpaths,
+            glob($path)
+        );
+        unset($path);
+    }
+    unset($decodedPath);
+}
+foreach ($realpaths as &$path) {
+    if (!(is_dir($path)
+        && file_exists($path)
+        && is_readable($path))
     ) {
         continue;
     }
     $replaced_dir_sep = str_replace(
         ['\\', '/'],
         [DS, DS],
-        $decodedPath
+        $path
     );
     $glob_str = sprintf(
         '%s%s*',
@@ -82,6 +86,7 @@ foreach ((array)$paths as &$decodedPath) {
         (array)$files,
         (array)glob($glob_str)
     );
+    unset($path);
 }
 echo json_encode(
     Initiator::sanitizeItems(
