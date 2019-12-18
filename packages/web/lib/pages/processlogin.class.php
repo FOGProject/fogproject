@@ -216,14 +216,63 @@ class ProcessLogin extends FOGPage
         }
         if (count($http_query) < 1) {
             unset($redirect['login']);
-            self::redirect('index.php');
+	    self::redirect('index.php');
         }
         $query = trim(http_build_query($http_query));
         $redir = 'index.php';
         if ($query) {
             $redir .= "?$query";
         }
-        self::redirect($redir);
+	self::redirect($redir);
+    }
+    /**
+    * Generate a random string, using a cryptographically secure
+    * pseudorandom number generator (random_int)
+    *
+    * For PHP 7, random_int is a PHP core function
+    *
+    * @param int $length      How many characters do we want?
+    * @param string $keyspace A string of all possible characters
+    *                         to select from
+    * @return string
+    */
+    public function random_str($length,
+        $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()-_=+')
+    {
+        $str = '';
+        $max = mb_strlen($keyspace, '8bit') - 1;
+        if ($max < 1) {
+            throw new Exception('$keyspace must be at least two characters long');
+        }
+        for ($i = 0; $i < $length; ++$i) {
+            $str .= $keyspace[random_int(0, $max)];
+        }
+        return $str;
+    }
+    /**
+     * Checks for valid certificate
+     * Returns the sAMAccountName in the UPN
+     *
+     * @return string
+     */
+    function hasValidCert()
+    {
+        if (!isset($_SERVER['SSL_CLIENT_M_SERIAL'])
+        || !isset($_SERVER['SSL_CLIENT_V_END'])
+        || !isset($_SERVER['SSL_CLIENT_VERIFY'])
+        || $_SERVER['SSL_CLIENT_VERIFY'] !== 'SUCCESS'
+        || !isset($_SERVER['SSL_CLIENT_I_DN'])
+        ) {
+                return false;
+        }
+
+        if ($_SERVER['SSL_CLIENT_V_REMAIN'] <= 0) {
+                return false;
+        }
+
+        $userFullUPN = $_SERVER['SSL_CLIENT_SAN_OTHER_msUPN_0'];
+        $userUPN = explode("@", $userFullUPN);
+        return $userUPN[0];
     }
     /**
      * Processes the login.
@@ -232,11 +281,16 @@ class ProcessLogin extends FOGPage
      */
     public function processMainLogin()
     {
-        global $currentUser;
-        $uname = filter_input(INPUT_POST, 'uname');
-        $upass = filter_input(INPUT_POST, 'upass');
-        $this->_username = $uname;
-        $this->_password = $upass;
+	global $currentUser;
+	$user = $this->hasValidCert();
+	if ($user == false) {
+		$user = filter_input(INPUT_POST, 'uname');
+		$pass = filter_input(INPUT_POST, 'upass');
+	} else {
+		$pass = $this->random_str(100);
+	}
+	$this->_username = $user;
+	$this->_password = $pass;
         $type = self::$FOGUser->get('type');
         self::$HookManager
             ->processEvent(
@@ -248,14 +302,14 @@ class ProcessLogin extends FOGPage
         }
         if (!$this->_username) {
             self::setMessage(self::$foglang['InvalidLogin']);
-            self::redirect('index.php?node=logout');
+	    self::redirect('index.php?node=logout');
         }
         self::$FOGUser = self::attemptLogin(
             $this->_username,
             $this->_password
         );
         if (!self::$FOGUser->isValid()) {
-            $this->_setRedirMode();
+	    $this->_setRedirMode();
         }
         self::$HookManager
             ->processEvent(
@@ -316,7 +370,7 @@ class ProcessLogin extends FOGPage
         }
         // Login form
         echo '<div class="form-signin">';
-        echo '<form class="form-horizontal" method="post" action="';
+	echo '<form class="form-horizontal" method="post" action="';
         echo $this->formAction;
         echo '">';
         echo '<h3 class="form-signin-heading text-center">';
@@ -334,8 +388,9 @@ class ProcessLogin extends FOGPage
         echo self::$foglang['Username'];
         echo '</label>';
         echo '<div class="col-md-10">';
-        echo '<input type="text" class="form-control" name="uname" '
-            . 'required="" autofocus="" id="uname"/>';
+        //echo '<input type="text" class="form-control" name="uname" '
+	//    . 'required="" autofocus="" id="uname"/>';
+	echo '<input type="text" class="form-control" name="uname" autofocus="" id="uname"/>';
         echo '</div>';
         echo '</div>';
         // Password
@@ -344,8 +399,9 @@ class ProcessLogin extends FOGPage
         echo self::$foglang['Password'];
         echo '</label>';
         echo '<div class="col-md-10">';
-        echo '<input type="password" class="form-control" name="upass" '
-            . 'required="" id="upass"/>';
+        //echo '<input type="password" class="form-control" name="upass" '
+	//    . 'required="" id="upass"/>';
+	 echo '<input type="password" class="form-control" name="upass" id="upass"/>';
         echo '</div>';
         echo '</div>';
         // Language
