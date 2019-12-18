@@ -1679,6 +1679,7 @@ createSSLCA() {
 	cp -f "$serverCert" $webdirdest/management/other/ssl/srvpublic.crt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 	cp -f "$serverKey" $sslpath/.srvprivate.key >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 	cp -f "$externalCA" /etc/pki/ca-trust/source/anchors/chain.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+	openssl x509 -outform der -in "$externalCA" -out $webdirdest/management/other/ca.cert.der >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 	errorStat $?
     else
         if [[ -z $sslpath ]]; then
