@@ -88,6 +88,7 @@ class ImageSize extends FOGService
     {
         try {
             self::$_sizeOn = self::getSetting('IMAGESIZEGLOBALENABLED');
+            self::$_sizeOn = self::getSetting('IMAGESIZEGLOBALENABLED');
             if (self::$_sizeOn < 1) {
                 throw new Exception(_(' * Image size is globally disabled'));
             }

@@ -1358,7 +1358,75 @@ class ImageManagement extends FOGPage
             ]
         ];
 
+        // Information
+        $tabData[] = [
+            'name' => _('Information'),
+            'id' => 'image-information',
+            'generator' => function () {
+                $this->imageInformation();
+            }
+        ];
+
         echo self::tabFields($tabData, $this->obj);
+    }
+    /**
+     * Creates the image information tab.
+     *
+     * @return void
+     */
+    public function imageInformation()
+    {
+        // Size on server
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('On Server Size');
+        echo '</h4>';
+        echo '<br/>';
+        echo _('This is the amount of physical disk space');
+        echo ' ';
+        echo _('this image is taking on the server.');
+        echo _('Please note, the data here does not indicate');
+        echo ' ';
+        echo _('that there is or is not an issue. It just gives you an idea');
+        echo ' ';
+        echo _('of how much disk space the image is using.');
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo self::$FOGCloseBox;
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo self::formatByteSize($this->obj->get('srvsize'));
+        echo '</div>';
+        echo '</div>';
+        // Client Size needed
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Host HDD Size');
+        echo '</h4>';
+        echo '<br/>';
+        echo _('This is the minimum space for the host this is deploying to.');
+        echo ' ';
+        echo _('Please note, the data here does not indicate');
+        echo ' ';
+        echo _('that there is or is not an issue. It just gives you an idea');
+        echo ' ';
+        echo _('of how big a disk the image will need.');
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo self::$FOGCloseBox;
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo self::formatByteSize(
+            array_sum(
+                explode(':', $this->obj->get('size'))
+            )
+        );
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Submit save/update the image.

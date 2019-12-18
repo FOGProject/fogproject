@@ -2256,11 +2256,11 @@ abstract class FOGBase
         if (is_dir($path)) {
             $size = 0;
             $di = new RecursiveDirectoryIterator($path);
-            $rii = new RecursiveIteratorIterator($di);
-            foreach ($rii as &$file) {
-                if ($file->isDot()) {
-                    continue;
-                }
+            $rii = new RecursiveIteratorIterator(
+                $di,
+                FilesystemIterator::SKIP_DOTS
+            );
+            foreach ($rii as $file) {
                 $size += filesize($file);
             }
         }
