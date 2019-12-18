@@ -1802,6 +1802,12 @@ EOF
 		    echo "    SSLVerifyClient optional" >> "$etcconf"
 		    echo "    SSLVerifyDepth 3" >> "$etcconf"
 		    echo "    SSLOptions +StdEnvVars" >> "$etcconf"
+		    if [ ! -z "$ocsp" ]; then
+		        echo "    SSLOCSPEnable leaf" >> "$etcconf"
+		        echo "    SSLOCSPUseRequestNonce off" >> "$etcconf"
+		        echo "    SSLOCSPDefaultResponder $ocsp" >> "$etcconf"
+		        echo "    SSLOCSPOverrideResponder on" >> "$etcconf"
+		    fi
                     echo "    RewriteEngine On" >> "$etcconf"
                     echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
                     echo "    RewriteRule .* - [F]" >> "$etcconf"
