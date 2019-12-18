@@ -32,9 +32,13 @@ class ServiceModule extends FOGClient implements FOGClientSend
             false,
             true
         );
+        $moduleid = filter_input(INPUT_POST, 'moduleid');
+        if (!$moduleid) {
+            $moduleid = filter_input(INPUT_GET, 'moduleid');
+        }
         $mod = strtolower(
             Initiator::sanitizeItems(
-                $_REQUEST['moduleid']
+                $moduleid
             )
         );
         switch ($mod) {
@@ -48,11 +52,11 @@ class ServiceModule extends FOGClient implements FOGClientSend
         if (!in_array($mod, $mods)) {
             throw new Exception('#!um');
         }
-        $remArr = array(
+        $remArr = [
             'dircleanup',
             'usercleanup',
             'clientupdater'
-        );
+        ];
         $globalModules = (
             !self::$newService ?
             self::getGlobalModuleStatus(
@@ -80,7 +84,7 @@ class ServiceModule extends FOGClient implements FOGClientSend
         }
         $hostModules = self::getSubObjectIDs(
             'Module',
-            array('id' => self::$Host->get('modules')),
+            ['id' => self::$Host->get('modules')],
             'shortName'
         );
         $hostEnabled = (

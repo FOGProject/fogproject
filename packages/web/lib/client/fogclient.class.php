@@ -66,9 +66,13 @@ abstract class FOGClient extends FOGBase
             if (!self::$Host instanceof Host) {
                 self::$Host = new Host(0);
             }
-            if (isset($_REQUEST['moduleid'])) {
+            $moduleid = filter_input(INPUT_POST, 'moduleid');
+            if (!$moduleid) {
+                $moduleid = filter_input(INPUT_GET, 'moduleid');
+            }
+            if ($moduleid) {
                 $this->shortName = Initiator::sanitizeItems(
-                    $_REQUEST['moduleid']
+                    $moduleid
                 );
                 switch ($this->shortName) {
                 case 'dircleaner':

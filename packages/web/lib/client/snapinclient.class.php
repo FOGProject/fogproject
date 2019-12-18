@@ -47,16 +47,18 @@ class SnapinClient extends FOGClient
                 'error' => 'ns'
             ];
         }
-        $STaskCount = self::getClass('SnapinTaskManager')
-            ->count(
-                [
-                    'jobID' => $SnapinJob->get('id'),
-                    'stateID' => self::fastmerge(
-                        self::getQueuedStates(),
-                        (array)self::getProgressState()
-                    )
-                ]
-            );
+        Route::count(
+            'snapintask',
+            [
+                'jobID' => $SnapinJob->get('id'),
+                'stateID' => self::fastmerge(
+                    self::getQueuedStates(),
+                    (array)self::getProgressState()
+                )
+            ]
+        );
+        $STaskCount = json_decode(Route::getData());
+        $STaskCount = $STaskCount->total;
         if ($STaskCount < 1) {
             if ($Task->isValid()) {
                 $Task->set('stateID', self::getCompleteState())->save();
@@ -82,7 +84,11 @@ class SnapinClient extends FOGClient
         if ($sub === 'requestClientInfo'
             || basename(self::$scriptname) === 'snapins.checkin.php'
         ) {
-            if (!isset($_REQUEST['exitcode'])) {
+            $exitcode = filter_input(INPUT_POST, 'exitcode');
+            if (!$exitcode) {
+                $exitcode = filter_input(INPUT_GET, 'exitcode');
+            }
+            if (!$exitcode) {
                 $find = [
                     'stateID' => self::fastmerge(
                         self::getQueuedStates(),
@@ -234,8 +240,11 @@ class SnapinClient extends FOGClient
      */
     private function _closeout($Task, $SnapinJob, $date, $HostName)
     {
-        $tID = $_REQUEST['taskid'];
-        if (!(empty($td) && is_numeric($tID))) {
+        $tID = filter_input(INPUT_POST, 'taskid');
+        if (!is_numeric($tID)) {
+            $tID = filter_input(INPUT_GET, 'taskid');
+        }
+        if (!(empty($tID) && is_numeric($tID))) {
             throw new Exception(
                 sprintf(
                     '%s: %s',
@@ -287,16 +296,18 @@ class SnapinClient extends FOGClient
                 'HostName' => &$HostName
             ]
         );
-        $STaskCount = self::getClass('SnapinTaskManager')
-            ->count(
-                [
-                    'jobID' => $SnapinJob->get('id'),
-                    'stateID' => self::fastmerge(
-                        self::getQueuedStates(),
-                        (array)self::getProgressState()
-                    )
-                ]
-            );
+        Route::count(
+            'snapintask',
+            [
+                'jobID' => $SnapinJob->get('id'),
+                'stateID' => self::fastmerge(
+                    self::getQueuedStates(),
+                    (array)self::getProgressState()
+                )
+            ]
+        );
+        $STaskCount = json_decode(Route::getData());
+        $STaskCount = $STaskCount->total;
         if ($STaskCount < 1) {
             if ($Task->isValid()) {
                 $Task->set('stateID', self::getCompleteState())->save();
@@ -323,7 +334,10 @@ class SnapinClient extends FOGClient
      */
     private function _downloadfile($Task, $SnapinJob, $date, $HostName)
     {
-        $tID = $_REQUEST['taskid'];
+        $tID = filter_input(INPUT_POST, 'taskid');
+        if (!is_numeric($tID)) {
+            $tID = filter_input(INPUT_GET, 'taskid');
+        }
         if (!(!empty($tID) && is_numeric($tID))) {
             throw new Exception(
                 sprintf(
