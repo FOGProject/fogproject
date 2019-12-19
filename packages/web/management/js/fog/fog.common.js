@@ -2,6 +2,40 @@ var shouldReAuth,
     reAuthModal,
     deleteConfirmButton,
     deleteLang,
+    exportButtons = [
+        {
+            text: 'Refresh',
+            action: function(e, dt, node, config) {
+                dt.clear().draw();
+                dt.ajax.reload();
+            }
+        },
+        'copy',
+        {
+            extend: 'csv',
+            header: false
+        },
+        {
+            extend: 'excel',
+            text: '<i class="fa fa-file-excel-o"></i> Excel'
+        },
+        /*{
+            extend: 'pdfHtml5',
+            download: 'open',
+            customize: function (doc) {
+                var colspan = doc.content[1].table.body[0].length,
+                    widths = [];
+                $('table th').each(function() {
+                    var width = $(this).outerWidth(),
+                        percent = Math.round(width / $(this).parent().outerWidth() * 100);
+                    widths.push(percent+'%');
+                });
+                doc.content[1].table.widths = widths;
+            }
+        },*/
+        'print',
+        'colvis'
+    ],
     $_GET,
     Common;
 /**

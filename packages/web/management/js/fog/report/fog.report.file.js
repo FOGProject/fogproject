@@ -2,12 +2,20 @@
 
     var reportString = window.atob(Common.f),
         reportButtons = [
+            {
+                text: 'Refresh',
+                action: function(e, dt, node, config) {
+                    dt.clear().draw();
+                    dt.ajax.reload();
+                }
+            },
             'copy',
             'csv',
             'excel',
             {
                 extend: 'pdfHtml5',
                 download: 'open',
+                text: '<i class="fa fa-file-pdf-o"></i> PDF',
                 customize: function (doc) {
                     var colspan = doc.content[1].table.body[0].length,
                         widths = [];

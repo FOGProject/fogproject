@@ -1,15 +1,6 @@
 (function($) {
     var exportTable = $('#storagegroup-export-table').registerTable(null, {
-        buttons: [
-            'copy',
-            {
-                extend: 'csv',
-                header: false
-            },
-            'excel',
-            'print',
-            'colvis'
-        ],
+        buttons: exportButtons,
         order: [
             [0, 'asc']
         ],
