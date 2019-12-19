@@ -1,15 +1,6 @@
 (function($) {
     var exportTable = $('#group-export-tabe').registerTable(null, {
-        buttons: [
-            'copy',
-            {
-                extend: 'csv',
-                header: false
-            },
-            'excel',
-            'print',
-            'colvis'
-        ],
+        buttons: exportButtons,
         order: [
             [0, 'asc']
         ],
