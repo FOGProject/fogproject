@@ -50,8 +50,7 @@ if [[ $guessdefaults == 1 ]]; then
         sed -i '/^$/d' /tmp/nameservers.txt #Delete blank lines from temp file.
         strSuggestedDNS=$(head -n 1 /tmp/nameservers.txt) #Get first DNS Address from the file.
 	rm -f /tmp/nameservers.txt #Cleanup after ourselves.	
-    fi	    
-    strSuggestedSNUser="fogstorage"
+    fi
     strSuggestedHostname=$(hostname -f)
 fi
 displayOSChoices
@@ -251,8 +250,8 @@ case $installtype in
                     ;;
             esac
         done
-	[[ -z $snmysqlhost ]] && snmysqlhost='localhost'
-	[[ -z $snmysqluser ]] && snmysqluser='root'
+        [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
+        [[ -z $snmysqluser ]] && snmysqluser='fogmaster'
         ;;
     [Ss])
         while [[ -z $snmysqlhost ]]; do
@@ -262,6 +261,7 @@ case $installtype in
             echo -n "  runs the web server, dhcp, and tftp.  IP or Hostname: "
             read snmysqlhost
         done
+        strSuggestedSNUser='fogstorage'
         while [[ -z $snmysqluser ]]; do
             snmysqluser=$strSuggestedSNUser
             if [[ -z $autoaccept ]]; then

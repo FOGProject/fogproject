@@ -30,7 +30,7 @@ if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
 fi
 . ../lib/common/functions.sh
 help() {
-    echo -e "Usage: $0 [-h?dEUuHSCKYXT] [-f <filename>]"
+    echo -e "Usage: $0 [-h?dEUuHSCKYXTPFA] [-f <filename>] [-N <databasename>]"
     echo -e "\t\t[-D </directory/to/document/root/>] [-c <ssl-path>]"
     echo -e "\t\t[-W <webroot/to/fog/after/docroot/>] [-B </backup/path/>]"
     echo -e "\t\t[-s <192.168.1.10>] [-e <192.168.1.254>] [-b <undionly.kpxe>]"
@@ -62,10 +62,10 @@ help() {
     echo -e "\t-T    --no-tftpbuild\t\tDo not rebuild the tftpd config file"
     echo -e "\t-P    --no-pxedefault\t\tDo not overwrite pxe default file"
     echo -e "\t-F    --no-vhost\t\tDo not overwrite vhost file"
-    echo -e "\t-A    --arm-support\t\tDo not overwrite vhost file"
+    echo -e "\t-A    --arm-support\t\tInstall kernel and initrd for ARM platforms"
     exit 0
 }
-optspec="h?odEUHSCKYyXxTPFAf:c:-:W:D:B:s:e:b:"
+optspec="h?odEUHSCKYyXxTPFAf:c:-:W:D:B:s:e:b:N:"
 while getopts "$optspec" o; do
     case $o in
         -)
@@ -299,6 +299,14 @@ while getopts "$optspec" o; do
         A)
             sarmsupport=1
             ;;
+        N)
+            if [[ -z $OPTARG ]]; then
+                echo "Please specify a database name"
+                help
+                exit 4
+            fi
+            smysqldbname=$OPTARG
+            ;;
         :)
             echo "Option -$OPTARG requires a value"
             help
@@ -381,6 +389,7 @@ echo "Done"
 [[ -z $ignorehtmldoc ]] && ignorehtmldoc=0
 [[ -z $httpproto ]] && httpproto="http"
 [[ -z $armsupport ]] && armsupport=0
+[[ -z $mysqldbname ]] && mysqldbname="fog"
 [[ -z $fogpriorconfig ]] && fogpriorconfig="$fogprogramdir/.fogsettings"
 #clearScreen
 if [[ -z $* || $* != +(-h|-?|--help|--uninstall) ]]; then
@@ -442,6 +451,8 @@ if [[ -z $backupPath ]]; then
     backupPath="/$backupPath/"
 fi
 [[ -z $bootfilename ]] && bootfilename="undionly.kpxe"
+[[ -n $smysqldbname ]] && mysqldbname=$smysqldbname
+
 [[ ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]] && . ../lib/common/input.sh
 # ask user input for newly added options like hostname etc.
 . ../lib/common/newinput.sh
@@ -562,6 +573,7 @@ while [[ -z $blGo ]]; do
             configureUsers
             case $installtype in
                 [Ss])
+                    checkDatabaseConnection
                     backupReports
                     configureMinHttpd
                     configureStorage
