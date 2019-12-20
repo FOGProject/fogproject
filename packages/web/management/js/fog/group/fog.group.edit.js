@@ -672,7 +672,6 @@
                     var checkval = '';
                     if (row.association === 'associated') {
                         checkval = ' checked';
-                        console.log('here');
                     }
                     return '<div class="checkbox">'
                         + '<input type="checkbox" class="associated" name="associate[]" id="moduleAssoc_'

@@ -441,6 +441,7 @@ class Route extends FOGBase
      * @param mixed  $whereItems    Any special things to search for.
      * @param bool   $inputoverride Override php://input to blank.
      * @param string $operator      The operator for the SQL. AND is default.
+     * @param string $orderby       How to order the returned values.
      *
      * @return void
      */
@@ -448,7 +449,8 @@ class Route extends FOGBase
         $class,
         $whereItems = false,
         $inputoverride = false,
-        $operator = 'AND'
+        $operator = 'AND',
+        $orderby = 'name'
     ) {
         if (empty($operator)) {
             $operator = 'AND';
@@ -458,6 +460,9 @@ class Route extends FOGBase
                 file_get_contents('php://input'),
                 $pass_vars
             );
+        }
+        if (empty($orderby)) {
+            $orderby = 'name';
         }
 
         self::$data = $columns = [];
@@ -1059,7 +1064,9 @@ class Route extends FOGBase
             $sqlstr,
             $fltrstr,
             $ttlstr,
-            $where
+            $where,
+            null,
+            $orderby
         );
         self::$HookManager->processEvent(
             'API_MASSDATA_MAPPING',

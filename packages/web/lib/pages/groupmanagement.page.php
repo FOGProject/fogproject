@@ -2315,62 +2315,24 @@ class GroupManagement extends FOGPage
      */
     public function getHostsList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        // Workable queries
-        $hostsSqlStr = "SELECT `%s`,"
-            . "IF(`gmGroupID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') AS `gmGroupID`
-            FROM `%s`
-            LEFT OUTER JOIN `groupMembers`
-            ON `hosts`.`hostID` = `groupMembers`.`gmHostID`
-            AND `groupMembers`.`gmGroupID` = '"
-            . $this->obj->get('id')
-            . "'
-            %s
-            %s
-            %s";
-        $hostsFilterStr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            LEFT OUTER JOIN `groupMembers`
-            ON `hosts`.`hostID` = `groupMembers`.`gmHostID`
-            AND `groupMembers`.`gmGroupID` = '"
-            . $this->obj->get('id')
-            . "'
-            %s";
-        $hostsTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
-        foreach (self::getClass('HostManager')
-            ->getColumns() as $common => &$real
-        ) {
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
-        $columns[] = [
-            'db' => 'gmGroupID',
-            'dt' => 'association'
+        $join = [
+            'LEFT OUTER JOIN `groupMembers` ON '
+            . "`hosts`.`hostID` = `groupMembers`.`gmHostID` "
+            . "AND `groupMembers`.`gmGroupID` = '" . $this->obj->get('id') . "'"
         ];
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                'hosts',
-                'hostID',
-                $columns,
-                $hostsSqlStr,
-                $hostsFilterStr,
-                $hostsTotalStr,
-                $where
-            )
+
+        $columns[] = [
+            'db' => 'groupAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
+        ];
+        return $this->obj->getItemsList(
+            'host',
+            'groupassociation',
+            $join,
+            '',
+            $columns
         );
-        exit;
     }
     /**
      * Presents the printers list table.
@@ -2379,41 +2341,8 @@ class GroupManagement extends FOGPage
      */
     public function getPrintersList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $obj = self::getClass('PrinterManager');
-
-        // Workable queries
-        $printersTable = $obj->getTable();
-        $printersSqlStr = $obj->getQueryStr();
-        $printersFilterStr = $obj->getFilterStr();
-        $printersTotalStr = $obj->getTotalStr();
-
-        foreach ($obj->getColumns() as $common => &$real) {
-            if ('id' == $common) {
-                $tableID = $real;
-            }
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                $printersTable,
-                $tableID,
-                $columns,
-                $printersSqlStr,
-                $printersFilterStr,
-                $printersTotalStr
-            )
-        );
+        Route::listem('printer');
+        echo Route::getData();
         exit;
     }
     /**
@@ -2423,43 +2352,8 @@ class GroupManagement extends FOGPage
      */
     public function getSnapinsList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $obj = self::getClass('SnapinManager');
-
-        // Workable queries
-        $snapinsTable = $obj->getTable();
-        $snapinsSqlStr = $obj->getQueryStr();
-        $snapinsFilterStr = $obj->getFilterStr();
-        $snapinsTotalStr = $obj->getTotalStr();
-
-        foreach (self::getClass('SnapinManager')
-            ->getColumns() as $common => &$real
-        ) {
-            if ('id' == $common) {
-                $tableID = $real;
-            }
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                $snapinsTable,
-                $tableID,
-                $columns,
-                $snapinsSqlStr,
-                $snapinsFilterStr,
-                $snapinsTotalStr
-            )
-        );
+        Route::listem('snapin');
+        echo Route::getData();
         exit;
     }
     /**
