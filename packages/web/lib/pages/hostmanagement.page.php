@@ -4206,15 +4206,12 @@ class HostManagement extends FOGPage
      */
     public function getMacaddressesList()
     {
-        $where = "`hostMAC`.`hmHostID` = '"
-            . $this->obj->get('id')
-            . "'";
-        return $this->obj->getItemsList(
+        Route::listem(
             'macaddressassociation',
-            '',
-            [],
-            $where
+            ['hostID' => $this->obj->get('id')]
         );
+        echo Route::getData();
+        exit;
     }
     /**
      * Get pending host list.
@@ -4223,81 +4220,11 @@ class HostManagement extends FOGPage
      */
     public function getPendingList()
     {
-        header('Content-type: application/json');
-
-        $where = "`hosts`.`hostPending` > '0'";
-
-        $obj = self::getClass('HostManager');
-        $table = $obj->getTable();
-        $sqlstr = "SELECT `%s`
-            FROM `%s`
-            LEFT OUTER JOIN `images`
-            ON `hosts`.`hostImage` = `images`.`imageID`
-            LEFT OUTER JOIN `hostMAC`
-            ON `hosts`.`hostID` = `hostMAC`.`hmHostID`
-            AND `hostMAC`.`hmPrimary` = '1'
-            %s
-            %s
-            %s";
-        $filterstr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            LEFT OUTER JOIN `images`
-            ON `hosts`.`hostImage` = `images`.`imageID`
-            LEFT OUTER JOIN `hostMAC`
-            ON `hosts`.`hostID` = `hostMAC`.`hmHostID`
-            AND `hostMAC`.`hmPrimary` = '1'
-            %s";
-        $totalstr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            LEFT OUTER JOIN `images`
-            ON `hosts`.`hostImage` = `images`.`imageID`
-            LEFT OUTER JOIN `hostMAC`
-            ON `hosts`.`hostID` = `hostMAC`.`hmHostID`
-            AND `hostMAC`.`hmPrimary` = '1'
-            WHERE "
-            . $where;
-        $dbcolumns = $obj->getColumns();
-        $pass_vars = $columns = [];
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
+        Route::listem(
+            'host',
+            ['pending' => 1]
         );
-        // Setup our columns for the CSVn.
-        // Automatically removes the id column.
-        $columns[] = ['db' => 'hmMAC', 'dt' => 'primac'];
-        foreach ($dbcolumns as $common => &$real) {
-            if ('id' == $common) {
-                $tableID = $real;
-            }
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
-        $columns[] = ['db' => 'imageName', 'dt' => 'imagename'];
-        self::$HookManager->processEvent(
-            'HOST_PENDING_HOSTS',
-            [
-                'table' => &$table,
-                'sqlstr' => &$sqlstr,
-                'filterstr' => &$filterstr,
-                'totalstr' => &$totalstr,
-                'columns' => &$columns
-            ]
-        );
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                $table,
-                $tableID,
-                $columns,
-                $sqlstr,
-                $filterstr,
-                $totalstr,
-                $where
-            )
-        );
+        echo Route::getData();
         exit;
     }
     /**
@@ -4307,86 +4234,11 @@ class HostManagement extends FOGPage
      */
     public function getPendingMacList()
     {
-        header('Content-type: application/json');
-
-        $where = "`hostMAC`.`hmPending` > '0'";
-
-        $obj = self::getClass('MACAddressAssociationManager');
-        $table = $obj->getTable();
-        $sqlstr = "SELECT `%s`
-            FROM `%s`
-            LEFT OUTER JOIN `hosts`
-            ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
-            %s
-            %s
-            %s";
-        $filterstr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            LEFT OUTER JOIN `hosts`
-            ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
-            %s";
-        $totalstr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            LEFT OUTER JOIN `hosts`
-            ON `hostMAC`.`hmHostID` = `hosts`.`hostID`
-            WHERE "
-            . $where;
-        $dbcolumns = $obj->getColumns();
-        $pass_vars = $columns = [];
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
+        Route::listem(
+            'macaddressassociation',
+            ['pending' => 1]
         );
-        // Setup our columns for the CSVn.
-        // Automatically removes the id column.
-        foreach ($dbcolumns as $common => &$real) {
-            if ('id' == $common) {
-                $tableID = $real;
-            }
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
-        $columns[] = ['db' => 'hostID', 'dt' => 'hostid'];
-        $columns[] = ['db' => 'hostName', 'dt' => 'hostname'];
-        $columns[] = [
-            'db' => 'hostID',
-            'dt' => 'hostLink',
-            'formatter' => function ($d, $row) {
-                if (!$d) {
-                    return;
-                }
-                return '<a href="../management/index.php?node=host&sub=edit&id='
-                    . $d
-                    . '">'
-                    . $row['hostName']
-                    . '</a>';
-            }
-        ];
-        self::$HookManager->processEvent(
-            'HOST_PENDING_MACS',
-            [
-                'table' => &$table,
-                'sqlstr' => &$sqlstr,
-                'filterstr' => &$filterstr,
-                'totalstr' => &$totalstr,
-                'columns' => &$columns
-            ]
-        );
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                $table,
-                $tableID,
-                $columns,
-                $sqlstr,
-                $filterstr,
-                $totalstr,
-                $where
-            )
-        );
+        echo Route::getData();
         exit;
     }
     /**
