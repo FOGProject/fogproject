@@ -247,9 +247,6 @@
         });
     });
 
-    if (Common.search && Common.search.length > 0) {
-        storagegroupsTable.search(Common.search).draw();
-    }
     // ---------------------------------------------------------------
     // HOST TAB
     var hostAddBtn = $('#host-add'),
@@ -354,6 +351,7 @@
     });
 
     if (Common.search && Common.search.length > 0) {
+        storagegroupsTable.search(Common.search).draw();
         hostTable.search(Common.search).draw();
     }
     $('.slider').slider();

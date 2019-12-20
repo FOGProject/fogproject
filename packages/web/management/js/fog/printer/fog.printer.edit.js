@@ -27,7 +27,7 @@
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
         generalDeleteModal = $('#deleteModal'),
-        generalDeleteModalConfirm $('#confirmDeleteModal'),
+        generalDeleteModalConfirm = $('#confirmDeleteModal'),
         generalDeleteModalCancel = $('#closeDeleteModal');
 
     generalForm.on('submit',function(e) {
@@ -80,7 +80,7 @@
     }
     function onCheckboxSelect(selected) {
     }
-    var membershipTable = $('#printer-membership-table').registerTable(onMembershipSelect, {
+    var membershipTable = $('#printer-hosts-table').registerTable(onMembershipSelect, {
         order: [
             [2, 'asc'],
             [0, 'asc']
@@ -151,8 +151,8 @@
         }
     });
     membershipTable.on('draw', function() {
-        Common.iCheck('#printer-membership-table input');
-        $('#printer-membership-table input.associated').on('ifClicked', onCheckboxSelect);
+        Common.iCheck('#printer-hosts-table input');
+        $('#printer-hosts-table input.associated').on('ifClicked', onCheckboxSelect);
     });
     membershipDefaultBtn.on('click', function() {
         membershipDefaultBtn.prop('disabled', true);
@@ -165,7 +165,7 @@
                 defaulton: defaulton
             };
         // Get all the checked default options.
-        $('#printer-membership-table').find('.default:checked').each(function() {
+        $('#printer-hosts-table').find('.default:checked').each(function() {
             defaulton.push($(this).val());
         });
         $.apiCall(method,action,opts,function(err) {
@@ -192,13 +192,13 @@
             if (!err) {
                 membershipTable.draw(false);
                 membershipTable.rows({selected: true}).deselect();
-                $('#printer-membership-table').find('.default:disabled').each(function() {
+                $('#printer-hosts-table').find('.default:disabled').each(function() {
                     if ($.inArray($(this).val(), toAdd) != -1) {
                         $(this).prop('disabled', false);
                         Common.iCheck(this);
                     }
                 });
-                $('#printer-membership-table').find('.associated').each(function() {
+                $('#printer-hosts-table').find('.associated').each(function() {
                     if ($.inArray($(this).val(), toAdd) != -1) {
                         $(this).iCheck('check');
                     }

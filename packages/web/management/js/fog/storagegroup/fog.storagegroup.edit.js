@@ -55,7 +55,7 @@
     });
 
     // ----------------------------------------------------
-    // MEMBERSHIP TAB
+    // STORAGENODES TAB
     var membershipForm = $('#storagegroup-membership-form'),
         membershipAddBtn = $('#membership-add'),
         membershipRemoveBtn = $('#membership-remove'),
@@ -245,7 +245,140 @@
         });
     });
 
+    // ----------------------------------------------------
+    // IMAGES TAB
+    var imageTable = $('#image-membership-table').registerTable('', {
+        order: [
+            [2, 'asc'],
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'name'},
+            {data: 'primary'},
+            {data: 'association'}
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                responsivePriority: -1,
+                render: function(data, type, row) {
+                    return '<a href="../management/index.php?node=image&sub=edit&id='+row.id+'">'+data+'</a>';
+                },
+                targets: 0
+            },
+            {
+                responsivePriority: 20000,
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (data > 0) {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="primary" name="primary[]" id="image_'
+                        + row.id
+                        + '" value="' + row.id + '" '
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            },
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="imageGroupAssoc_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 2
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='+Common.node+'&sub=getImagesList&id='+Common.id,
+            type: 'post'
+        }
+    });
+    imageTable.on('draw', function() {
+        Common.iCheck('#image-membership input');
+    });
+
+    // ----------------------------------------------------
+    // SNAPINS TAB
+    var snapinTable = $('#snapin-membership-table').registerTable('', {
+        order: [
+            [2, 'asc'],
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'name'},
+            {data: 'primary'},
+            {data: 'association'}
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                responsivePriority: -1,
+                render: function(data, type, row) {
+                    return '<a href="../management/index.php?node=snapin&sub=edit&id='+row.id+'">'+data+'</a>';
+                },
+                targets: 0
+            },
+            {
+                responsivePriority: 20000,
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.primary > 0) {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="primary" name="primary[]" id="snapin_'
+                        + row.id
+                        + '" value="' + row.id + '" '
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            },
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="snapinGroupAssoc_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 2
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='+Common.node+'&sub=getImagesList&id='+Common.id,
+            type: 'post'
+        }
+    });
+    snapinTable.on('draw', function() {
+        Common.iCheck('#snapin-membership input');
+    });
     if (Common.search && Common.search.length > 0) {
         membershipTable.search(Common.search).draw();
+        imageTable.search(Common.search).draw();
+        snapinTable.search(Common.search).draw();
     }
 })(jQuery);

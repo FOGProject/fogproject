@@ -386,6 +386,104 @@ class StorageGroupManagement extends FOGPage
             ->set('description', $description);
     }
     /**
+     * Presents the image membership.
+     *
+     * @return void
+     */
+    public function imageMembership()
+    {
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'storagegroup-image',
+                $this->obj->get('id')
+            )
+            . '" ';
+
+        $buttons .= self::makeButton(
+            'image-add',
+            _('Add selected'),
+            'btn btn-success pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'image-remove',
+            _('Remove selected'),
+            'btn btn-danger pull-left',
+            $props
+        );
+
+        $this->headerData = [
+            _('Image Name'),
+            _('Primary'),
+            _('Image Associated')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            []
+        ];
+
+        echo '<!-- Images -->';
+        echo '<div class="box-group" id="image">';
+        echo '<div class="box box-solid">';
+        echo '<div id="updateimage" class="">';
+        echo '<div class="box-body">';
+        $this->render(12, 'image-membership-table', $buttons);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Presents the snapin membership.
+     *
+     * @return void
+     */
+    public function snapinMembership()
+    {
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'storagegroup-snapin',
+                $this->obj->get('id')
+            )
+            . '" ';
+
+        $buttons .= self::makeButton(
+            'snapin-add',
+            _('Add selected'),
+            'btn btn-success pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'snapin-remove',
+            _('Remove selected'),
+            'btn btn-danger pull-left',
+            $props
+        );
+
+        $this->headerData = [
+            _('Snapin Name'),
+            _('Primary'),
+            _('Snapin Associated')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            []
+        ];
+
+        echo '<!-- Snapins -->';
+        echo '<div class="box-group" id="snapin">';
+        echo '<div class="box box-solid">';
+        echo '<div id="updatesnapins" class="">';
+        echo '<div class="box-body">';
+        $this->render(12, 'snapin-membership-table', $buttons);
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
      * Presents the storage group membership.
      *
      * @return void
@@ -531,6 +629,20 @@ class StorageGroupManagement extends FOGPage
                 'name' => _('Associations'),
                 'tabData' => [
                     [
+                        'name' => _('Images'),
+                        'id' => 'image-membership',
+                        'generator' => function () {
+                            $this->imageMembership();
+                        }
+                    ],
+                    [
+                        'name' => _('Snapins'),
+                        'id' => 'snapin-membership',
+                        'generator' => function () {
+                            $this->snapinMembership();
+                        }
+                    ],
+                    [
                         'name' => _('Storage Nodes'),
                         'id' => 'storagegroup-membership',
                         'generator' => function () {
@@ -563,8 +675,12 @@ class StorageGroupManagement extends FOGPage
             case 'storagegroup-general':
                 $this->storagegroupGeneralPost();
                 break;
+            case 'storagegroup-snapin':
+                $this->snapinMembershipPost();
+                break;
             case 'storagegroup-membership':
                 $this->storagegroupMembershipPost();
+                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
@@ -608,78 +724,99 @@ class StorageGroupManagement extends FOGPage
         exit;
     }
     /**
+     * Presents the images list table.
+     *
+     * @return void
+     */
+    public function getImagesList()
+    {
+        $join = [
+            'LEFT OUTER JOIN `imageGroupAssoc` ON '
+            . "`images`.`imageID` = `imageGroupAssoc`.`igaImageID`"
+            . "AND `imageGroupAssoc`.`igaStorageGroupID` = '" . $this->obj->get('id') . "'"
+        ];
+        $columns[] = [
+            'db' => 'igaImageID',
+            'dt' => 'origID'
+        ];
+        $columns[] = [
+            'db' => 'igaPrimary',
+            'dt' => 'primary'
+        ];
+        $columns[] = [
+            'db' => 'storagegroupAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
+        ];
+        return $this->obj->getItemsList(
+            'image',
+            'imageassociation',
+            $join,
+            '',
+            $columns
+        );
+    }
+    /**
+     * Presents the snapins list table.
+     *
+     * @return void
+     */
+    public function getSnapinsList()
+    {
+        $join = [
+            'LEFT OUTER JOIN `snapinGroupAssoc` ON '
+            . "`snapins`.`sID` = `snapinGroupAssoc`.`sgaSnapinID`"
+            . "AND `snapinGroupAssoc`.`sgaStorageGroupID` = '" . $this->obj->get('id') . "'"
+        ];
+        $columns[] = [
+            'db' => 'sgaSnapinID',
+            'dt' => 'origID'
+        ];
+        $columns[] = [
+            'db' => 'sgaPrimary',
+            'dt' => 'primary'
+        ];
+        $columns[] = [
+            'db' => 'storagegroupAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
+        ];
+        return $this->obj->getItemsList(
+            'snapin',
+            'snapingroupassociation',
+            $join,
+            '',
+            $columns
+        );
+    }
+    /**
      * Presents the Storage nodes list table.
      *
      * @return void
      */
     public function getStorageNodesList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $storagegroupsSqlStr = "SELECT `%s`,"
-            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') AS `ngmGroupID`
-            FROM `%s`
-            LEFT OUTER JOIN `nfsGroups`
-            ON `nfsGroups`.`ngID` = `nfsGroupMembers`.`ngmGroupID`
-            AND `nfsGroups`.`ngID` = '"
-            . $this->obj->get('id')
-            . "'
-            %s
-            %s
-            %s";
-
-        $storagegroupsFilterStr = "SELECT COUNT(`%s`),"
-            . "`ngmGroupID` AS `origID`,IF(`ngmGroupID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') AS `ngmGroupID`
-            FROM `%s`
-            LEFT OUTER JOIN `nfsGroups`
-            ON `nfsGroups`.`ngID` = `nfsGroupMembers`.`ngmGroupID`
-            AND `nfsGroups`.`ngID` = '"
-            . $this->obj->get('id')
-            . "'
-            %s";
-
-        $storagegroupsTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
-
-        foreach (self::getClass('StorageNodeManager')
-            ->getColumns() as $common => &$real
-        ) {
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
-        $columns[] = [
-            'db' => 'ngmGroupID',
-            'dt' => 'association'
+        $join = [
+            'LEFT OUTER JOIN `nfsGroups` ON '
+            . "`nfsGroups`.`ngID` = `nfsGroupMembers`.`ngmGroupID` "
+            . "AND `nfsGroups`.`ngID` = '" . $this->obj->get('id') . "'"
         ];
         $columns[] = [
-            'db' => 'origID',
-            'dt' => 'origID',
+            'db' => 'storagegroupAssoc',
+            'dt' => 'association',
             'removeFromQuery' => true
         ];
+        $columns[] = [
+            'db' => 'ngmGroupID',
+            'dt' => 'origID',
+        ];
 
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                'nfsGroupMembers',
-                'ngmID',
-                $columns,
-                $storagegroupsSqlStr,
-                $storagegroupsFilterStr,
-                $storagegroupsTotalStr,
-                $where
-            )
+        return $this->obj->getItemsList(
+            'storagenode',
+            'storagegroup',
+            $join,
+            '',
+            $columns
         );
-        exit;
     }
 }

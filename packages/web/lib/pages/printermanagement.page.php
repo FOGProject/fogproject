@@ -1453,7 +1453,7 @@ class PrinterManagement extends FOGPage
                 'tabData' => [
                     [
                         'name' => _('Hosts'),
-                        'id' => 'printer-membership',
+                        'id' => 'printer-hosts',
                         'generator' => function () {
                             $this->printerMembership();
                         }
@@ -1577,7 +1577,7 @@ class PrinterManagement extends FOGPage
         echo '<div class="box box-solid">';
         echo '<div class="updatemembership" class="">';
         echo '<div class="box-body">';
-        $this->render(12, 'printer-membership-table', $buttons);
+        $this->render(12, 'printer-hosts-table', $buttons);
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $this->assocDelModal('host');
@@ -1660,65 +1660,27 @@ class PrinterManagement extends FOGPage
      */
     public function getHostsList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $hostsSqlStr = "SELECT `%s`,"
-            . "IF(`paPrinterID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') AS `paPrinterID`
-            FROM `%s`
-            CROSS JOIN `printers`
-            LEFT OUTER JOIN `printerAssoc`
-            ON `printers`.`pID` = `printerAssoc`.`paPrinterID`
-            AND `hosts`.`hostID` = `printerAssoc`.`paHostID`
-            %s
-            %s
-            %s";
-        $hostsFilterStr = "SELECT COUNT(`%s`),"
-            . "IF(`paPrinterID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') AS `paPrinterID`
-            FROM `%s`
-            CROSS JOIN `printers`
-            LEFT OUTER JOIN `printerAssoc`
-            ON `printers`.`pID` = `printerAssoc`.`paPrinterID`
-            AND `hosts`.`hostID` = `printerAssoc`.`paHostID`
-            %s";
-        $hostsTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
-
-        foreach (self::getClass('HostManager')
-            ->getColumns() as $common => &$real
-        ) {
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-        }
+        $join = [
+            'LEFT OUTER JOIN `printerAssoc` ON '
+            . "`hosts`.`hostID` = `printerAssoc`.`paHostID` "
+            . "AND `printerAssoc`.`paPrinterID` = '" . $this->obj->get('id') . "'"
+        ];
         $columns[] = [
-            'db' => 'paPrinterID',
-            'dt' => 'association'
+            'db' => 'printerAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
         ];
         $columns[] = [
             'db' => 'paIsDefault',
             'dt' => 'isDefault'
         ];
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                'hosts',
-                'hostID',
-                $columns,
-                $hostsSqlStr,
-                $hostsFilterStr,
-                $hostsTotalStr
-            )
+        return $this->obj->getItemsList(
+            'host',
+            'printerassociation',
+            $join,
+            '',
+            $columns
         );
-        exit;
     }
     /**
      * Save the edits.
@@ -1740,8 +1702,9 @@ class PrinterManagement extends FOGPage
             case 'printer-general':
                 $this->printerGeneralPost();
                 break;
-            case 'printer-membership':
+            case 'printer-hosts':
                 $this->printerMembershipPost();
+                break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
