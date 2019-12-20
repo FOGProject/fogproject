@@ -1203,7 +1203,8 @@ abstract class FOGController extends FOGBase
 
         $itemID = $privars['id'];
         $itemassocID = strtolower(get_class($this)). 'ID';
-        $secondID = $secvars[$itemassocID];
+        $secondID = strtolower(get_class($this)). 'Assoc';
+        $secondRID = ($secvars[$itemassocID] ?: $secvars['id']);
 
         $qStr = trim($qStr);
         $qFilterStr = trim($qFilterStr);
@@ -1212,7 +1213,7 @@ abstract class FOGController extends FOGBase
         if (empty($qStr)) {
             if ($secondary) {
                 $sqlStr = "SELECT `%s`,"
-                    . "IF(`" . $secondID . "` = '"
+                    . "IF(`" . $secondRID . "` = '"
                     . $this->get('id')
                     . "','associated','dissociated') AS `" . $secondID . "` "
                     . "FROM `%s`";
