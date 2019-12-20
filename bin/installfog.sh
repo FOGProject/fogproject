@@ -595,6 +595,7 @@ while [[ -z $blGo ]]; do
                     else
                         registerStorageNode
                         updateStorageNodeCredentials
+                        [[ -n $snmysqlhost ]] && fogserver=$snmysqlhost || fogserver="fog-server"
                         echo
                         echo " * Setup complete"
                         echo
@@ -604,13 +605,13 @@ while [[ -z $blGo ]]; do
                         echo " | below."
                         echo
                         echo " * Management Server URL:"
-                        echo "   ${httpproto}://fog-server${webroot}"
+                        echo "   ${httpproto}://${fogserver}${webroot}"
                         echo
                         echo "   You will need this, write this down!"
-                        echo "   Username:  $username"
-                        echo "   Password:  $password"
-                        echo "   Interface: $interface"
-                        echo "   Address:   $ipaddress"
+                        echo "   IP Address:          $ipaddress"
+                        echo "   Interface:           $interface"
+                        echo "   Management Username: $username"
+                        echo "   Management Password: $password"
                         echo
                     fi
                     ;;
