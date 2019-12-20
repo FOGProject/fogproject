@@ -4206,51 +4206,15 @@ class HostManagement extends FOGPage
      */
     public function getMacaddressesList()
     {
-        header('Content-type: application/json');
         $where = "`hostMAC`.`hmHostID` = '"
             . $this->obj->get('id')
             . "'";
-
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
+        return $this->obj->getItemsList(
+            'macaddressassociation',
+            '',
+            [],
+            $where
         );
-
-        // Workable queries
-        $macaddressesSqlStr = "SELECT `%s`
-            FROM `%s`
-            %s
-            %s
-            %s";
-        $macaddressesFilterStr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            %s";
-        $macaddressesTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            WHERE $where";
-
-        foreach (self::getClass('MACAddressAssociationManager')
-            ->getColumns() as $common => &$real
-        ) {
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                'hostMAC',
-                'hmID',
-                $columns,
-                $macaddressesSqlStr,
-                $macaddressesFilterStr,
-                $macaddressesTotalStr,
-                $where
-            )
-        );
-        exit;
     }
     /**
      * Get pending host list.
@@ -4432,57 +4396,15 @@ class HostManagement extends FOGPage
      */
     public function getPowermanagementList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
         $where = "`powerManagement`.`pmHostID` = '"
             . $this->obj->get('id')
             . "'";
 
-        $sqlstr = "SELECT `%s`
-            FROM `%s`
-            %s
-            %s
-            %s";
-
-        $filterstr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            %s";
-
-        $totalstr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            WHERE $where";
-
-        $dbcolumns = self::getClass('PowerManagementManager')->getColumns();
-
-        $columns = [];
-
-        foreach ($dbcolumns as $common => &$real) {
-            if ('id' == $common) {
-                $tableID = $real;
-            }
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
-
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                'powerManagement',
-                $tableID,
-                $columns,
-                $sqlstr,
-                $filterstr,
-                $totalstr,
-                $where
-            )
+        Route::listem(
+            'powermanagement',
+            ['hostID' => $this->obj->get('id')]
         );
+        echo Route::getData();
         exit;
     }
     /**
@@ -4535,7 +4457,10 @@ class HostManagement extends FOGPage
         // The items we're getting.
         Route::listem(
             'tasktype',
-            $key
+            $key,
+            false,
+            'AND',
+            'id'
         );
         $items = json_decode(Route::getData());
         // Loop 1, the basic non-advanced tasks.

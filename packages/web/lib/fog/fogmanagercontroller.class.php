@@ -240,21 +240,23 @@ abstract class FOGManagerController extends FOGBase
      *
      * @param array $request Data sent to server by DataTables
      * @param array $columns Column information array
+     * @param array $orderby set order value
      *
      * @return string SQL order by clause
      */
-    public static function order($request, $columns)
+    public static function order($request, $columns, $orderby = 'name')
     {
         $order = '';
         $dtColumns = self::pluck($columns, 'dt');
         $dbColumns = self::pluck($columns, 'db');
         if (!isset($request['order']) || count($request['order'] ?: []) <= 0) {
-            $columnIdx = array_search('name', $dtColumns);
-            if (false !== $columnIdx) {
-                $order = 'ORDER BY `'
-                    . $dbColumns[$columnIdx]
-                    . '` ASC';
+            $columnIdx = array_search($orderby, $dtColumns);
+            if (false === $columnIdx) {
+                $columnIdx = array_search('id', $dtColumns);
             }
+            $order = 'ORDER BY `'
+                . $dbColumns[$columnIdx]
+                . '` ASC';
             return $order;
         }
         $orderBy = [];
@@ -364,6 +366,7 @@ abstract class FOGManagerController extends FOGBase
      * @param string $sqlstr     The sql query to use.
      * @param string $fltrstr    The Filter query to use.
      * @param string $ttlstr     The total query to use.
+     * @param string $orderby    How to order the values.
      *
      * @return array Server-side processing response array
      */
@@ -374,7 +377,8 @@ abstract class FOGManagerController extends FOGBase
         $columns,
         $sqlstr,
         $fltrstr,
-        $ttlstr
+        $ttlstr,
+        $orderby
     ) {
         $db = DatabaseManager::getLink();
         $bindings = [];
@@ -388,7 +392,7 @@ abstract class FOGManagerController extends FOGBase
         }
         // Build the SQL query string from the request
         $limit = self::limit($request, $columns);
-        $order = self::order($request, $columns);
+        $order = self::order($request, $columns, $orderby);
         $where = self::filter($request, $columns, $bindings);
         // Build the actual string itself.
         $sql_query = sprintf(
@@ -461,6 +465,7 @@ abstract class FOGManagerController extends FOGBase
      * @param string $ttlstr      The total query to use.
      * @param string $whereResult WHERE condition to apply to the result set
      * @param string $whereAll    WHERE condition to apply to all queries
+     * @param string $orderby     How to order the query
      *
      * @return array          Server-side processing response array
      */
@@ -473,7 +478,8 @@ abstract class FOGManagerController extends FOGBase
         $fltrstr,
         $ttlstr,
         $whereResult = null,
-        $whereAll = null
+        $whereAll = null,
+        $orderby = 'name'
     ) {
         $bindings = [];
         $db = DatabaseManager::getLink();
@@ -490,7 +496,7 @@ abstract class FOGManagerController extends FOGBase
         }
         // Build the SQL query string from the request
         $limit = self::limit($request, $columns);
-        $order = self::order($request, $columns);
+        $order = self::order($request, $columns, $orderby);
         $where = self::filter($request, $columns, $bindings);
         $whereResult = self::_flatten($whereResult);
         $whereAll = self::_flatten($whereAll);
