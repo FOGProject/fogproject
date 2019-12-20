@@ -2124,7 +2124,10 @@ class GroupManagement extends FOGPage
         // The items we're getting.
         Route::listem(
             'tasktype',
-            $key
+            $key,
+            false,
+            'AND',
+            'id'
         );
         $items = json_decode(Route::getData());
         // Loop 1, the basic non-advanced tasks.
