@@ -2041,73 +2041,31 @@ class SnapinManagement extends FOGPage
      */
     public function getStoragegroupsList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $where = "`snapinGroupAssoc`.`sgaSnapinID` = '"
-            . $this->obj->get('id')
-            . "'";
-
-        // Workable Queries
-        $storagegroupsSqlStr = "SELECT `%s`,"
-            . "`sgaSnapinID` as `origID`,IF (`sgaSnapinID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') AS `sgaSnapinID`,`sgaPrimary`
-            FROM `%s`
-            LEFT OUTER JOIN `snapinGroupAssoc`
-            ON `nfsGroups`.`ngID` = `snapinGroupAssoc`.`sgaStorageGroupID`
-            %s
-            %s
-            %s";
-        $storagegroupsFilterStr = "SELECT COUNT(`%s`),"
-            . "`sgaSnapinID` AS `origID`,IF (`sgaSnapinID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') AS `sgaSnapinID`,`sgaPrimary`
-            FROM `%s`
-            LEFT OUTER JOIN `snapinGroupAssoc`
-            ON `nfsGroups`.`ngID` = `snapinGroupAssoc`.`sgaStorageGroupID`
-            %s";
-        $storagegroupsTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
-
-        foreach (self::getClass('StorageGroupManager')
-            ->getColumns() as $common => &$real
-        ) {
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
+        $join = [
+            'LEFT OUTER JOIN `snapinGroupAssoc` ON '
+            . "`nfsGroups`.`ngID` = `snapinGroupAssoc`.`sgaStorageGroupID`"
+            . "AND `snapinGroupAssoc`.`sgaSnapinID` = '" . $this->obj->get('id') . "'"
+        ];
+        $columns[] = [
+            'db' => 'sgaStorageGroupID',
+            'dt' => 'origID'
+        ];
         $columns[] = [
             'db' => 'sgaPrimary',
             'dt' => 'primary'
         ];
         $columns[] = [
-            'db' => 'sgaSnapinID',
-            'dt' => 'association'
-        ];
-        $columns[] = [
-            'db' => 'origID',
-            'dt' => 'origID',
+            'db' => 'snapinAssoc',
+            'dt' => 'association',
             'removeFromQuery' => true
         ];
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                'nfsGroups',
-                'ngID',
-                $columns,
-                $storagegroupsSqlStr,
-                $storagegroupsFilterStr,
-                $storagegroupsTotalStr,
-                $where
-            )
+        return $this->obj->getItemsList(
+            'storagegroup',
+            'snapingroupassociation',
+            $join,
+            '',
+            $columns
         );
-        exit;
     }
     /**
      * Snapin -> host membership list
@@ -2116,56 +2074,22 @@ class SnapinManagement extends FOGPage
      */
     public function getHostsList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $hostsSqlStr = "SELECT `%s`,"
-            . "IF(`saSnapinID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') AS `saSnapinID`
-            FROM `%s`
-            LEFT OUTER JOIN `snapinAssoc`
-            ON `hosts`.`hostID` = `snapinAssoc`.`saHostID`
-            %s
-            %s
-            %s";
-        $hostsFilterStr = "SELECT COUNT(`%s`),"
-            . "IF(`saSnapinID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') AS `saSnapinID`
-            FROM `%s`
-            LEFT OUTER JOIN `snapinAssoc`
-            ON `hosts`.`hostID` = `snapinAssoc`.`saHostID`
-            %s";
-        $hostsTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
-
-        foreach (self::getClass('HostManager')
-            ->getColumns() as $common => &$real
-        ) {
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-        }
-        $columns[] = [
-            'db' => 'saSnapinID',
-            'dt' => 'association'
+        $join = [
+            'LEFT OUTER JOIN `snapinAssoc` ON '
+            . "`hosts`.`hostID` = `snapinAssoc`.`saHostID`"
+            . "AND `snapinAssoc`.`saSnapinID` = '" . $this->obj->get('id') . "'"
         ];
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                'hosts',
-                'hostID',
-                $columns,
-                $hostsSqlStr,
-                $hostsFilterStr,
-                $hostsTotalStr
-            )
+        $columns[] = [
+            'db' => 'snapinAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
+        ];
+        return $this->obj->getItemsList(
+            'host',
+            'snapinassociation',
+            $join,
+            '',
+            $columns
         );
-        exit;
     }
 }
