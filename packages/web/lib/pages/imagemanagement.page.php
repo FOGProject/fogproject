@@ -1897,75 +1897,33 @@ class ImageManagement extends FOGPage
      */
     public function getStoragegroupsList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
 
-        // Workable Queries
-        $storagegroupsSqlStr = "SELECT `%s`,"
-            . "`igaImageID` AS `origID`,IF (`igaImageID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') AS `igaImageID`,`igaPrimary`
-            FROM `%s`
-            LEFT OUTER JOIN `imageGroupAssoc`
-            ON `nfsGroups`.`ngID` = `imageGroupAssoc`.`igaStorageGroupID`
-            AND `imageGroupAssoc`.`igaImageID` = '"
-            . $this->obj->get('id')
-            . "'
-            %s
-            %s
-            %s";
-        $storagegroupsFilterStr = "SELECT COUNT(`%s`),"
-            . "`igaImageID` AS `origID`,IF (`igaImageID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') AS `igaImageID`,`igaPrimary`
-            FROM `%s`
-            LEFT OUTER JOIN `imageGroupAssoc`
-            ON `nfsGroups`.`ngID` = `imageGroupAssoc`.`igaStorageGroupID`
-            AND `imageGroupAssoc`.`igaImageID` = '"
-            . $this->obj->get('id')
-            . "'
-            %s";
-        $storagegroupsTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
+        $join = [
+            'LEFT OUTER JOIN `imageGroupAssoc` ON '
+            . "`nfsGroups`.`ngID` = `imageGroupAssoc`.`igaStorageGroupID` "
+            . "AND `imageGroupAssoc`.`igaImageID` = '" . $this->obj->get('id') . "'"
+        ];
 
-        foreach (self::getClass('StorageGroupManager')
-            ->getColumns() as $common => &$real
-        ) {
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
         $columns[] = [
             'db' => 'igaPrimary',
             'dt' => 'primary'
         ];
         $columns[] = [
-            'db' => 'igaImageID',
-            'dt' => 'association'
-        ];
-        $columns[] = [
-            'db' => 'origID',
-            'dt' => 'origID',
+            'db' => 'imageAssoc',
+            'dt' => 'association',
             'removeFromQuery' => true
         ];
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                'nfsGroups',
-                'ngID',
-                $columns,
-                $storagegroupsSqlStr,
-                $storagegroupsFilterStr,
-                $storagegroupsTotalStr,
-                $where
-            )
+        $columns[] = [
+            'db' => 'igaImageID',
+            'dt' => 'origID'
+        ];
+        return $this->obj->getItemsList(
+            'storagegroup',
+            'imageassociation',
+            $join,
+            '',
+            $columns
         );
-        exit;
     }
     /**
      * Image -> host list
@@ -1974,57 +1932,24 @@ class ImageManagement extends FOGPage
      */
     public function getHostsList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $hostsSqlStr = "SELECT `%s`,"
-            . "IF(`hostImage` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') AS `hostImage`
-            FROM `%s`
-            LEFT OUTER JOIN `images`
-            ON `hosts`.`hostImage` = `images`.`imageID`
-            %s
-            %s
-            %s";
-        $hostsFilterStr = "SELECT COUNT(`%s`),"
-            . "IF(`hostImage` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') AS `hostImage`
-            FROM `%s`
-            LEFT OUTER JOIN `images`
-            ON `hosts`.`hostImage` = `images`.`imageID`
-            %s";
-        $hostsTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
-
-        foreach (self::getClass('HostManager')
-            ->getColumns() as $common => &$real
-        ) {
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-        }
-        $columns[] = [
-            'db' => 'hostImage',
-            'dt' => 'association'
+        $join = [
+            'LEFT OUTER JOIN `images` ON '
+            . '`images`.`imageID` = `hosts`.`hostImage` '
+            . "AND `hosts`.`hostImage` = '" . $this->obj->get('id') . "'"
         ];
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                'hosts',
-                'hostID',
-                $columns,
-                $hostsSqlStr,
-                $hostsFilterStr,
-                $hostsTotalStr
-            )
+
+        $columns[] = [
+            'db' => 'imageAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
+        ];
+        return $this->obj->getItemsList(
+            'host',
+            'image',
+            $join,
+            '',
+            $columns
         );
-        exit;
     }
     /**
      * Image host post elements

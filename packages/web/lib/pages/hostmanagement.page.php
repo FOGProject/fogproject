@@ -4077,10 +4077,17 @@ class HostManagement extends FOGPage
             . "AND `groupMembers`.`gmHostID` = '" . $this->obj->get('id') . "'"
         ];
         $columns[] = [
-            'db' => 'gmHostID',
-            'dt' => 'association'
+            'db' => 'hostAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
         ];
-        return $this->obj->getItemsList('group', 'groupassociation', $join, '', $columns);
+        return $this->obj->getItemsList(
+            'group',
+            'groupassociation',
+            $join,
+            '',
+            $columns
+        );
     }
     /**
      * Presents the printers list table.
@@ -4099,10 +4106,17 @@ class HostManagement extends FOGPage
             'dt' => 'isDefault'
         ];
         $columns[] = [
-            'db' => 'paHostID',
-            'dt' => 'association'
+            'db' => 'hostAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
         ];
-        return $this->obj->getItemsList('printer', 'printerassociation', $join, '', $columns);
+        return $this->obj->getItemsList(
+            'printer',
+            'printerassociation',
+            $join,
+            '',
+            $columns
+        );
     }
     /**
      * Presents the snapins list table.
@@ -4117,10 +4131,17 @@ class HostManagement extends FOGPage
             . "AND `snapinAssoc`.`saHostID` = '" . $this->obj->get('id') . "'"
         ];
         $columns[] = [
-            'db' => 'saHostID',
-            'dt' => 'association'
+            'db' => 'hostAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
         ];
-        return $this->obj->getItemsList('snapin', 'snapinassociation', $join, '', $columns);
+        return $this->obj->getItemsList(
+            'snapin',
+            'snapinassociation',
+            $join,
+            '',
+            $columns
+        );
     }
     /**
      * Returns the module list as well as the associated
@@ -4157,8 +4178,9 @@ class HostManagement extends FOGPage
             . "AND `moduleStatusByHost`.`msHostID` = '" . $this->obj->get('id') . "'"
         ];
         $columns[] = [
-            'db' => 'msHostID',
-            'dt' => 'association'
+            'db' => 'hostAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
         ];
         $modulesTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`
