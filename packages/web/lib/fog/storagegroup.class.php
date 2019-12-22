@@ -53,7 +53,9 @@ class StorageGroup extends FOGController
     protected $additionalFields = [
         'allnodes',
         'enablednodes',
-        'usedtasks'
+        'usedtasks',
+        'images',
+        'snapins'
     ];
 
     protected $sqlQueryStr = "SELECT `%s`,SUM(`nfsGroupMembers`.`ngmMaxClients`)
@@ -95,6 +97,38 @@ class StorageGroup extends FOGController
             ];
         }
         $this->set('usedtasks', $used);
+    }
+    /**
+     * Loads all the images in the group.
+     *
+     * @return void
+     */
+    protected function loadImages()
+    {
+        $find = ['storagegroupID' => $this->get('id')];
+        Route::ids(
+            'imageassociation',
+            $find,
+            'imageID'
+        );
+        $imageIDs = json_decode(Route::getData(), true);
+        $this->set('images', (array)$imageIDs);
+    }
+    /**
+     * Loads all the snapins in the group.
+     *
+     * @return void
+     */
+    protected function loadSnapins()
+    {
+        $find = ['storagegroupID' => $this->get('id')];
+        Route::ids(
+            'snapingroupassociation',
+            $find,
+            'snapinID'
+        );
+        $snapinIDs = json_decode(Route::getData(), true);
+        $this->set('snapins', (array)$snapinIDs);
     }
     /**
      * Loads all the nodes in the group
@@ -333,5 +367,79 @@ class StorageGroup extends FOGController
         $this->loadEnabledNodes();
         $this->loadUsedtasks();
         return $this;
+    }
+    /**
+     * Adds images to this object
+     *
+     * @param array $addArray the items to add
+     *
+     * @return object
+     */
+    public function addImage($addArray)
+    {
+        return $this->addRemItem(
+            'images',
+            (array)$addArray,
+            'merge'
+        );
+    }
+    /**
+     * Removes images from this object
+     *
+     * @param array $removeArray the items to remove
+     *
+     * @return object
+     */
+    public function removeImage($removeArray)
+    {
+        return $this->addRemItem(
+            'images',
+            (array)$removeArray,
+            'diff'
+        );
+    }
+    /**
+     * Adds snapins to this object
+     *
+     * @param array $addArray the items to add
+     *
+     * @return object
+     */
+    public function addSnapin($addArray)
+    {
+        return $this->addRemItem(
+            'snapins',
+            (array)$addArray,
+            'merge'
+        );
+    }
+    /**
+     * Removes snapins from this object
+     *
+     * @param array $removeArray the items to remove
+     *
+     * @return object
+     */
+    public function removeSnapin($removeArray)
+    {
+        return $this->addRemItem(
+            'snapins',
+            (array)$removeArray,
+            'diff'
+        );
+    }
+    /**
+     * Saves the storage group elements.
+     *
+     * @return object
+     */
+    public function save()
+    {
+        parent::save();
+        return $this
+            ->assocSetter('StorageGroup', 'storagenode')
+            ->assocSetter('Image', 'image')
+            ->assocSetter('SnapinGroup', 'snapin')
+            ->load();
     }
 }

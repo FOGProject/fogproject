@@ -141,7 +141,7 @@
     membershipTable.on('draw', function() {
         Common.iCheck('#storagegroup-membership input');
         $('#storagegroup-membership-table input.master').on('ifClicked', onRadioSelect);
-        $('#storagegroup-membership-table input.associated').on('ifClicked', onCheckboxSelect);
+        $('#storagegroup-membership-table input.associated').on('ifClicked', onMembershipSelect);
     });
 
     var onRadioSelect = function(event) {
@@ -158,61 +158,49 @@
             membershipMasterBtn.prop('disabled', false);
         }
     };
-    var onCheckboxSelect = function(event) {
-    };
 
     // Setup master node watcher
     $('.master').on('ifClicked', onRadioSelect);
-    $('.associated').on('ifClicked', onCheckboxSelect);
+    $('.associated').on('ifClicked', onMembershipSelect);
 
     membershipMasterBtn.on('click', function() {
         membershipAddBtn.prop('disabled', true);
         membershipMasterBtn.prop('disabled', true);
         membershipRemoveBtn.prop('disabled', true);
         var opts = {
-            'mastersel': '1',
-            'master': MASTER_NODE_ID
+            mastersel: '1',
+            master: MASTER_NODE_ID
         },
             method = $(this).attr('method'),
             action = $(this).attr('action');
         $.apiCall(method, action, opts, function(err) {
-            membershipMasterBtn.prop('disabled', !err);
-            onMembershipSelect(membershipTable.rows({selected: true}));
+            membershipMasterBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            membershipTable.draw(false);
+            membershipTable.rows({selected: true}).deselect();
         });
     });
-
     membershipAddBtn.on('click', function() {
         membershipAddBtn.prop('disabled', true);
-
         var rows = membershipTable.rows({selected: true}),
             toAdd = $.getSelectedIds(membershipTable),
             opts = {
-                'updatemembership': '1',
-                'membership': toAdd
+                updatemembership: '1',
+                membership: toAdd
             },
             method = $(this).attr('method'),
             action = $(this).attr('action');
         $.apiCall(method, action, opts, function(err) {
-            if (!err) {
-                membershipTable.draw(false);
-                membershipTable.rows({selected: true}).deselect();
-                $('#storagegroup-membership-table').find('.master').each(function() {
-                    if ($.inArray($(this).val(), toAdd) != -1) {
-                        $(this).prop('disabled', false);
-                        Common.iCheck(this);
-                    }
-                });
-                $('#storagegroup-membership-table').find('.associated').each(function() {
-                    if ($.inArray($(this).val(), toAdd) != -1) {
-                        $(this).iCheck('check');
-                    }
-                });
-            } else {
-                membershipAddBtn.prop('disabled', false);
+            membershipAddBtn.prop('disabled', false);
+            if (err) {
+                return;
             }
+            membershipTable.draw(false);
+            membershipTable.rows({selected: true}).deselect();
         });
     });
-
     membershipRemoveBtn.on('click', function() {
         membershipRemoveBtn.prop('disabled', true);
         var method = membershipRemoveBtn.attr('method'),
@@ -220,33 +208,25 @@
             rows = membershipTable.rows({selected: true}),
             toRemove = $.getSelectedIds(membershipTable),
             opts = {
-                'membershipdel': '1',
-                'membershipRemove': toRemove
+                membershipdel: '1',
+                membershipRemove: toRemove
             };
         $.apiCall(method, action, opts, function(err) {
-            if (!err) {
-                membershipTable.draw(false);
-                membershipTable.rows({selected: true}).deselect();
-                $('#storagegroup-membership-table').find('.master').each(function() {
-                    if ($.inArray($(this).val(), toRemove) != -1) {
-                        $(this).iCheck('uncheck');
-                        $(this).prop('disabled', true);
-                        Common.iCheck(this);
-                    }
-                });
-                $('#storagegroup-membership-table').find('.associated').each(function() {
-                    if ($.inArray($(this).val(), toRemove) != -1) {
-                        $(this).iCheck('uncheck');
-                    }
-                });
-            } else {
-                membershipRemoveBtn.prop('disabled', false);
+            membershipRemoveBtn.prop('disabled', false);
+            if (err) {
+                return;
             }
+            membershipTable.draw(false);
+            membershipTable.rows({selected: true}).deselect();
         });
     });
 
     // ----------------------------------------------------
     // IMAGES TAB
+    var imageAddBtn = $('#image-add'),
+        imageRemoveBtn = $('#image-remove'),
+        imagePrimaryBtn = $('#image-set-primary'),
+        imageRemPrimaryBtn = $('#image-rem-primary');
     var imageTable = $('#image-membership-table').registerTable('', {
         order: [
             [2, 'asc'],
@@ -310,9 +290,96 @@
     imageTable.on('draw', function() {
         Common.iCheck('#image-membership input');
     });
+    imageButtonsDisable = function(selected) {
+        var disabled = selected.count() == 0;
+        imageAddBtn.prop('disabled', disabled);
+        imageRemoveBtn.prop('disabled', disabled);
+        imageRemPrimaryBtn.prop('disabled', disabled);
+        imagePrimaryBtn.prop('disabled', disabled);
+    };
+    imagePrimaryBtn.on('click', function() {
+        imagePrimaryBtn.prop('disabled', true);
+        var rows = imageTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(imageTable),
+            opts = {
+                primarysel: '1',
+                primary: toAdd
+            },
+            method = $(this).attr('method'),
+            action = $(this).attr('action');
+        $.apiCall(method, action, opts, function(err) {
+            imagePrimaryBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            imageTable.draw(false);
+            imageTable.rows({selected: true}).deselect();
+        });
+    });
+    imageRemPrimaryBtn.on('click', function() {
+        imageRemPrimaryBtn.prop('disabled', true);
+        var rows = imageTable.rows({selected: true}),
+            toRem = $.getSelectedIds(imageTable),
+            opts = {
+                primaryrem: '1',
+                primary: toRem
+            },
+            method = $(this).attr('method'),
+            action = $(this).attr('action');
+        $.apiCall(method, action, opts, function(err) {
+            imageRemPrimaryBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            imageTable.draw(false);
+            imageTable.rows({selected: true}).deselect();
+        });
+    });
+    imageAddBtn.on('click', function() {
+        imageAddBtn.prop('disabled', true);
+        var rows = imageTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(imageTable),
+            opts = {
+                updateimage: '1',
+                image: toAdd
+            },
+            method = $(this).attr('method'),
+            action = $(this).attr('action');
+        $.apiCall(method, action, opts, function(err) {
+            imageAddBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            imageTable.draw(false);
+            imageTable.rows({selected: true}).deselect();
+        });
+    });
+    imageRemoveBtn.on('click', function() {
+        imageRemoveBtn.prop('disabled', true);
+        var method = imageRemoveBtn.attr('method'),
+            action = imageRemoveBtn.attr('action'),
+            rows = imageTable.rows({selected: true}),
+            toRemove = $.getSelectedIds(imageTable),
+            opts = {
+                imagedel: '1',
+                imageRemove: toRemove
+            };
+        $.apiCall(method, action, opts, function(err) {
+            imageRemoveBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            imageTable.draw(false);
+            imageTable.rows({selected: true}).deselect();
+        });
+    });
 
     // ----------------------------------------------------
     // SNAPINS TAB
+    var snapinAddBtn = $('#snapin-add'),
+        snapinRemoveBtn = $('#snapin-remove'),
+        snapinPrimaryBtn = $('#snapin-set-primary'),
+        snapinRemPrimaryBtn = $('#snapin-rem-primary');
     var snapinTable = $('#snapin-membership-table').registerTable('', {
         order: [
             [2, 'asc'],
@@ -369,12 +436,95 @@
         processing: true,
         serverSide: true,
         ajax: {
-            url: '../management/index.php?node='+Common.node+'&sub=getImagesList&id='+Common.id,
+            url: '../management/index.php?node='+Common.node+'&sub=getSnapinsList&id='+Common.id,
             type: 'post'
         }
     });
     snapinTable.on('draw', function() {
         Common.iCheck('#snapin-membership input');
+    });
+    snapinButtonsDisable = function(selected) {
+        var disabled = selected.count() == 0;
+        snapinAddBtn.prop('disabled', disabled);
+        snapinRemoveBtn.prop('disabled', disabled);
+        snapinPrimaryBtn.prop('disabled', disabled);
+        snapinRemPrimaryBtn.prop('disabled', disabled);
+    };
+    snapinPrimaryBtn.on('click', function() {
+        snapinPrimaryBtn.prop('disabled', true);
+        var rows = snapinTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(snapinTable),
+            opts = {
+                primarysel: '1',
+                primary: toAdd
+            },
+            method = $(this).attr('method'),
+            action = $(this).attr('action');
+        $.apiCall(method, action, opts, function(err) {
+            snapinPrimaryBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            snapinTable.draw(false);
+            snapinTable.rows({selected: true}).deselect();
+        });
+    });
+    snapinRemPrimaryBtn.on('click', function() {
+        snapinRemPrimaryBtn.prop('disabled', true);
+        var rows = snapinTable.rows({selected: true}),
+            toRem = $.getSelectedIds(snapinTable),
+            opts = {
+                primaryrem: '1',
+                primary: toRem
+            },
+            method = $(this).attr('method'),
+            action = $(this).attr('action');
+        $.apiCall(method, action, opts, function(err) {
+            snapinRemPrimaryBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            snapinTable.draw(false);
+            snapinTable.rows({selected: true}).deselect();
+        });
+    });
+    snapinAddBtn.on('click', function() {
+        snapinAddBtn.prop('disabled', true);
+        var rows = snapinTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(snapinTable),
+            opts = {
+                updatesnapin: '1',
+                snapin: toAdd
+            },
+            method = $(this).attr('method'),
+            action = $(this).attr('action');
+        $.apiCall(method, action, opts, function(err) {
+            snapinAddBtn.prop('disabled', true);
+            if (err) {
+                return;
+            }
+            snapinTable.draw(false);
+            snapinTable.rows({selected: true}).deselct();
+        });
+    });
+    snapinRemoveBtn.on('click', function() {
+        snapinRemoveBtn.prop('disabled', true);
+        var method = snapinRemoveBtn.attr('method'),
+            action = snapinRemoveBtn.attr('action'),
+            rows = snapinTable.rows({selected: true}),
+            toRemove = $.getSelectedIds(snapinTable),
+            opts = {
+                snapindel: '1',
+                snapinRemove: toRemove
+            };
+        $.apiCall(method, action, opts, function(err) {
+            snapinRemoveBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            snapinTable.draw(false);
+            snapinTable.rows({selected: true}).deselect();
+        });
     });
     if (Common.search && Common.search.length > 0) {
         membershipTable.search(Common.search).draw();
