@@ -405,6 +405,20 @@ class StorageGroupManagement extends FOGPage
             'btn btn-success pull-right',
             $props
         );
+        $buttons .= self::makeSplitButton(
+            'image-set-primary',
+            _('Make Primary'),
+            [
+                [
+                    'id' => 'image-rem-primary',
+                    'text' => _('Unset Primary'),
+                    'props' => $props
+                ]
+            ],
+            'right',
+            'primary',
+            $props
+        );
         $buttons .= self::makeButton(
             'image-remove',
             _('Remove selected'),
@@ -435,6 +449,108 @@ class StorageGroupManagement extends FOGPage
         echo '</div>';
     }
     /**
+     * Actually updates the snapin storage groups
+     *
+     * @return void
+     */
+    public function imageMembershipPost()
+    {
+        if (isset($_POST['updateimage'])) {
+            $image = filter_input_array(
+                INPUT_POST,
+                [
+                    'image' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $image = $image['image'];
+            if (count($image ?: []) > 0) {
+                $this->obj->addImage($image);
+            }
+        }
+        if (isset($_POST['imagedel'])) {
+            $image = filter_input_array(
+                INPUT_POST,
+                [
+                    'imageRemove' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $image = $image['imageRemove'];
+            if (count($image ?: []) > 0) {
+                $this->obj->removeImage($image);
+            }
+        }
+        if (isset($_POST['primarysel'])) {
+            $image = filter_input_array(
+                INPUT_POST,
+                [
+                    'primary' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $image = $image['primary'];
+            Route::ids(
+                'imageassociation',
+                [
+                    'imageID' => $image,
+                    'storagegroupID' => $this->obj->get('id')
+                ]
+            );
+            $assocImages = json_decode(Route::getData(), true);
+            $images = array_diff(
+                $image,
+                $assocImages
+            );
+            if (count($images ?: []) > 0 ) {
+                self::getClass('ImageAssociationManager')->update(
+                    [
+                        'imageID' => $images,
+                        'primary' => 0
+                    ],
+                    '',
+                    ['primary' => '1']
+                );
+            }
+        }
+        if (isset($_POST['primaryrem'])) {
+            $image = filter_input_array(
+                INPUT_POST,
+                [
+                    'primary' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $image = $image['primary'];
+            Route::ids(
+                'imageassociation',
+                [
+                    'imageID' => $image,
+                    'storagegroupID' => $this->obj->get('id')
+                ]
+            );
+            $assocImages = json_decode(Route::getData(), true);
+            $images = array_diff(
+                $image,
+                $assocImages
+            );
+            if (count($images ?: []) > 0) {
+                self::getClass('ImageAssociationManager')->update(
+                    [
+                        'imageID' => $images,
+                        'primary' => 1
+                    ],
+                    '',
+                    ['primary' => '0']
+                );
+            }
+        }
+    }
+    /**
      * Presents the snapin membership.
      *
      * @return void
@@ -452,6 +568,20 @@ class StorageGroupManagement extends FOGPage
             'snapin-add',
             _('Add selected'),
             'btn btn-success pull-right',
+            $props
+        );
+        $buttons .= self::makeSplitButton(
+            'snapin-set-primary',
+            _('Make Primary'),
+            [
+                [
+                    'id' => 'snapin-rem-primary',
+                    'text' => _('Unset Primary'),
+                    'props' => $props
+                ]
+            ],
+            'right',
+            'primary',
             $props
         );
         $buttons .= self::makeButton(
@@ -482,6 +612,109 @@ class StorageGroupManagement extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
+    }
+    /**
+     * Actually updates the snapin storage groups
+     *
+     * @return void
+     */
+    public function snapinMembershipPost()
+    {
+        if (isset($_POST['updatesnapin'])) {
+            $snapin = filter_input_array(
+                INPUT_POST,
+                [
+                    'snapin' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $snapin = $snapin['snapin'];
+            throw new Exception(json_encode($snapin));
+            if (count($snapin ?: []) > 0) {
+                $this->obj->addSnapin($snapin);
+            }
+        }
+        if (isset($_POST['snapindel'])) {
+            $snapin = filter_input_array(
+                INPUT_POST,
+                [
+                    'snapinRemove' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $snapin = $snapin['snapinRemove'];
+            if (count($snapin ?: []) > 0) {
+                $this->obj->removeSnapin($snapin);
+            }
+        }
+        if (isset($_POST['primarysel'])) {
+            $snapin = filter_input_array(
+                INPUT_POST,
+                [
+                    'primary' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $snapin = $snapin['primary'];
+            Route::ids(
+                'snapingroupassociation',
+                [
+                    'snapinID' => $snapin,
+                    'storagegroupID' => $this->obj->get('id')
+                ]
+            );
+            $assocSnapins = json_decode(Route::getData(), true);
+            $snapins = array_diff(
+                $snapin,
+                $assocSnapins
+            );
+            if (count($snapins ?: []) > 0) {
+                self::getClass('SnapinGroupAssociationManager')->update(
+                    [
+                        'snapinID' => $snapins,
+                        'primary' => 0
+                    ],
+                    '',
+                    ['primary' => '1']
+                );
+            }
+        }
+        if (isset($_POST['primaryrem'])) {
+            $snapin = filter_input_array(
+                INPUT_POST,
+                [
+                    'primary' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $snapin = $snapin['primary'];
+            Route::ids(
+                'snapingroupassociation',
+                [
+                    'snapinID' => $snapin,
+                    'storagegroupID' => $this->obj->get('id')
+                ]
+            );
+            $assocSnapins = json_decode(Route::getData(), true);
+            $snapins = array_diff(
+                $snapin,
+                $assocSnapins
+            );
+            if (count($snapins ?: []) > 0) {
+                self::getClass('SnapinGroupAssociationManager')->update(
+                    [
+                        'snapinID' => $snapins,
+                        'primary' => 1
+                    ],
+                    '',
+                    ['primary' => '0']
+                );
+            }
+        }
     }
     /**
      * Presents the storage group membership.
@@ -545,7 +778,6 @@ class StorageGroupManagement extends FOGPage
      */
     public function storagegroupMembershipPost()
     {
-
         if (isset($_POST['updatemembership'])) {
             $membership = filter_input_array(
                 INPUT_POST,
@@ -674,6 +906,9 @@ class StorageGroupManagement extends FOGPage
             switch ($tab) {
             case 'storagegroup-general':
                 $this->storagegroupGeneralPost();
+                break;
+            case 'storagegroup-image':
+                $this->imageMembershipPost();
                 break;
             case 'storagegroup-snapin':
                 $this->snapinMembershipPost();
