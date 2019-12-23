@@ -689,58 +689,23 @@ class SiteManagement extends FOGPage
      */
     public function getHostsList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $hostsSqlStr = "SELECT `%s`,"
-            . "IF(`shaSiteID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') as `shaSiteID`
-            FROM `%s`
-            LEFT OUTER JOIN `siteHostAssoc`
-            ON `hosts`.`hostID` = `siteHostAssoc`.`shaHostID`
-            %s
-            %s
-            %s";
-        $hostsFilterStr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            LEFT OUTER JOIN `siteHostAssoc`
-            ON `hosts`.`hostID` = `siteHostAssoc`.`shaHostID`
-            %s";
-        $hostsTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
-
-        foreach (self::getClass('HostManager')
-            ->getColumns() as $common => &$real
-        ) {
-            if ('id' == $common) {
-                $tableID = $real;
-            }
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
-        $columns[] = [
-            'db' => 'shaSiteID',
-            'dt' => 'association'
+        $join = [
+            'LEFT OUTER JOIN `siteHostAssoc` ON '
+            . "`hosts`.`hostID` = `siteHostAssoc`.`shaHostID` "
+            . "AND `siteHostAssoc`.`shaSiteID` = '" . $this->obj->get('id') . "'"
         ];
-        echo json_encode(
-            FOGManagerController::simple(
-                $pass_vars,
-                'hosts',
-                $tableID,
-                $columns,
-                $hostsSqlStr,
-                $hostsFilterStr,
-                $hostsTotalStr
-            )
+        $columns[] = [
+            'db' => 'siteAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
+        ];
+        return $this->obj->getItemsList(
+            'host',
+            'sitehostassociation',
+            $join,
+            '',
+            $columns
         );
-        exit;
     }
     /**
      * Gets the user list.
@@ -749,57 +714,22 @@ class SiteManagement extends FOGPage
      */
     public function getUsersList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $usersSqlStr = "SELECT `%s`,"
-            . "IF(`suaSiteID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') as `suaSiteID`
-            FROM `%s`
-            LEFT OUTER JOIN `siteUserAssoc`
-            ON `users`.`uID` = `siteUserAssoc`.`suaUserID`
-            %s
-            %s
-            %s";
-        $usersFilterStr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            LEFT OUTER JOIN `siteUserAssoc`
-            ON `users`.`uID` = `siteUserAssoc`.`suaUserID`
-            %s";
-        $usersTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
-
-        foreach (self::getClass('UserManager')
-            ->getColumns() as $common => &$real
-        ) {
-            if ('id' == $common) {
-                $tableID = $real;
-            }
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
-        $columns[] = [
-            'db' => 'suaSiteID',
-            'dt' => 'association'
+        $join = [
+            'LEFT OUTER JOIN `siteUserAssoc` ON '
+            . "`users`.`uID` = `siteUserAssoc`.`suaUserID` "
+            . "AND `siteUserAssoc`.`suaSiteID` = '" . $this->obj->get('id') . "'"
         ];
-        echo json_encode(
-            FOGManagerController::simple(
-                $pass_vars,
-                'users',
-                $tableID,
-                $columns,
-                $usersSqlStr,
-                $usersFilterStr,
-                $usersTotalStr
-            )
+        $columns[] = [
+            'db' => 'siteAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
+        ];
+        return $this->obj->getItemsList(
+            'user',
+            'siteuserassociation',
+            $join,
+            '',
+            $columns
         );
-        exit;
     }
 }
