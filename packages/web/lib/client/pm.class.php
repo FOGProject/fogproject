@@ -57,7 +57,8 @@ class PM extends FOGClient
             'powermanagement',
             [
                 'onDemand' => [1],
-                'hostID' => self::$Host->get('id')
+                'hostID' => self::$Host->get('id'),
+                'action' => ['shutdown', 'reboot']
             ]
         );
         $PMFind = [
