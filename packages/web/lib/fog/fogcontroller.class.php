@@ -1132,6 +1132,14 @@ abstract class FOGController extends FOGBase
             );
         }
 
+        // Check to ensure our items aren't already present.
+        //
+        // If nothing changes, simply return.
+        $diff = array_diff($items, $cur);
+        if (!count($diff ?: [])) {
+            return $this;
+        }
+
         // Setup our insert.
         $insert_fields = [
             $objstr,
@@ -1141,7 +1149,7 @@ abstract class FOGController extends FOGBase
         if ($assocstr == 'moduleID') {
             $insert_fields[] = 'state';
         }
-        foreach ($items as &$id) {
+        foreach ($diff as &$id) {
             $insert_val = [
                 $this->get('id'),
                 $id

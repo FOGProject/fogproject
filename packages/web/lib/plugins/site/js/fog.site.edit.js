@@ -57,7 +57,8 @@ $(function() {
     // HOST ASSOCIATION TAB
     var siteHostForm = $('#site-host-form'),
         siteHostUpdateBtn = $('#site-host-send'),
-        siteHostRemoveBtn = $('#site-host-remove');
+        siteHostRemoveBtn = $('#site-host-remove'),
+        siteHostDeleteConfirmBtn = $('#confirmhostDeleteModal');
 
     function disableHostButtons(disable) {
         siteHostUpdateBtn.prop('disabled', disable);
@@ -80,11 +81,14 @@ $(function() {
             rows = siteHostsTable.rows({selected: true}),
             toAdd = $.getSelectedIds(siteHostsTable),
             opts = {
-                addhosts: 1,
+                updatehosts: 1,
                 hosts: toAdd
             };
         $.apiCall(method,action,opts,function(err) {
             disableHostButtons(false);
+            if (err) {
+                return;
+            }
             siteHostsTable.rows({selected: true}).deselect();
             siteHostsTable.draw(false);
         });
@@ -150,22 +154,18 @@ $(function() {
         onHostSelect(siteHostsTable.rows({selected: true}));
     });
 
-    $('#confirmhostDeleteModal').on('click', function(e) {
-        $.deleteAssociated(siteHostsTable, siteHostRemoveBtn.attr('action'), function(err) {
+    siteHostDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(siteHostsTable, siteHostForm.attr('action'), function(err) {
+            $('#hostDelModal').modal('hide');
             if (err) {
                 return;
             }
-            $('#hostDelModal').modal('hide');
             siteHostsTable.draw(false);
             siteHostsTable.rows({selected: true}).deselect();
         });
     });
     var onSiteHostCheckboxSelect = function(event) {
     };
-
-    if (Common.search && Common.search.length > 0) {
-        siteHostsTable.search(Common.search).draw();
-    }
 
     // ---------------------------------------------------------------
     // USER ASSOCIATION TAB
@@ -259,7 +259,8 @@ $(function() {
     });
 
     $('#confirmuserDeleteModal').on('click', function(e) {
-        $.deleteAssociated(siteUsersTable, siteUserRemoveBtn.attr('action'), function(err) {
+        $.deleteAssociated(siteUsersTable, siteUserForm.attr('action'), function(err) {
+            $('#userDelModal').modal('hide');
             if (err) {
                 return;
             }
@@ -278,6 +279,7 @@ $(function() {
     };
 
     if (Common.search && Common.search.length > 0) {
+        siteHostsTable.search(Common.search).draw();
         siteUsersTable.search(Common.search).draw();
     }
 });
