@@ -1044,8 +1044,6 @@ class SnapinManagement extends FOGPage
                         _('Failed to add/update snapin file')
                     );
                 }
-                self::$FOGFTP->chdir(dirname($dest))
-                    ->chmod(0777, basename($dest));
                 self::$FOGFTP->close();
             }
             $Snapin = self::getClass('Snapin')
@@ -1697,8 +1695,6 @@ class SnapinManagement extends FOGPage
                     _('Failed to add/update snapin file')
                 );
             }
-            self::$FOGFTP->chdir(dirname($dest))
-                ->chmod(0777, basename($dest));
             self::$FOGFTP->close();
         }
         $this->obj
