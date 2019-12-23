@@ -510,12 +510,7 @@ class OUManagement extends FOGPage
                 ]
             );
             $membership = $membership['membershipRemove'];
-            self::getClass('OUAssociationManager')->destroy(
-                [
-                    'ouID' => $this->obj->get('id'),
-                    'hostID' => $membership
-                ]
-            );
+            $this->obj->removeHost($membership);
         }
     }
     /**
@@ -624,56 +619,22 @@ class OUManagement extends FOGPage
      */
     public function getHostsList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $hostsSqlStr = "SELECT `%s`,"
-            . "IF(`oaOUID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') as `oaOUID`
-            FROM `%s`
-            LEFT OUTER JOIN `ouAssoc`
-            ON `hosts`.`hostID` = `ouAssoc`.`oaHostID`
-            %s
-            %s
-            %s";
-        $hostsFilterStr = "SELECT COUNT(`%s`),"
-            . "IF(`oaOUID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') as `oaOUID`
-            FROM `%s`
-            LEFT OUTER JOIN `ouAssoc`
-            ON `hosts`.`hostID` = `ouAssoc`.`oaHostID`
-            %s";
-        $hostsTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
-
-        foreach (self::getClass('HostManager')
-            ->getColumns() as $common => &$real
-        ) {
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-        }
-        $columns[] = [
-            'db' => 'oaOUID',
-            'dt' => 'association'
+        $join = [
+            'LEFT OUTER JOIN `ouAssoc` ON '
+            . '`hosts`.`hostID` = `ouAssoc`.`oaHostID` '
+            . "AND `ouAssoc`.`oaOUID` = '". $this->obj->get('id') . "'"
         ];
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                'hosts',
-                'hostID',
-                $columns,
-                $hostsSqlStr,
-                $hostsFilterStr,
-                $hostsTotalStr
-            )
+        $columns[] = [
+            'db' => 'ouAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
+        ];
+        return $this->obj->getItemsList(
+            'host',
+            'ouassociation',
+            $join,
+            '',
+            $columns
         );
-        exit;
     }
 }
