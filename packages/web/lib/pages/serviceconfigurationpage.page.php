@@ -1449,24 +1449,27 @@ class ServiceConfigurationPage extends FOGPage
         ];
 
         // Loop the client module options
-        $moduleName = self::getGlobalModuleStatus();
-        $modNames = self::getGlobalModuleStatus(true);
         $notWhere = [
             'clientupdater',
             'dircleanup',
             'greenfog',
             'usercleanup'
         ];
+        $modkeys = array_keys(self::getGlobalModuleStatus());
+        $where = array_diff(
+            $modkeys,
+            $notWhere
+        );
 
-        Route::listem('module');
+        Route::listem(
+            'module',
+            ['shortName' => $where]
+        );
         $Modules = json_decode(
             Route::getData()
         );
         $Modules = $Modules->data;
         foreach ($Modules as $Module) {
-            if (in_array($Module->shortName, $notWhere)) {
-                continue;
-            }
             $tabData[] = [
                 'name' => $Module->name,
                 'id' => 'service-' . $Module->shortName,
@@ -1494,32 +1497,32 @@ class ServiceConfigurationPage extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'service-displaymanager':
-                $this->serviceDisplaymanagerPost();
-                break;
             case 'service-autologout':
                 $this->serviceAutologoutPost();
                 break;
-            case 'service-snapinclient':
-                $this->serviceSnapinclientPost();
-                break;
-            case 'service-hostregister':
-                $this->serviceHostregisterPost();
+            case 'service-displaymanager':
+                $this->serviceDisplaymanagerPost();
                 break;
             case 'service-hostnamechanger':
                 $this->serviceHostnamechangerPost();
                 break;
+            case 'service-hostregister':
+                $this->serviceHostregisterPost();
+                break;
+            case 'service-powermanagement':
+                $this->servicePowermanagementPost();
+                break;
             case 'service-printermanager':
                 $this->servicePrintermanagerPost();
+                break;
+            case 'service-snapinclient':
+                $this->serviceSnapinclientPost();
                 break;
             case 'service-taskreboot':
                 $this->serviceTaskrebootPost();
                 break;
             case 'service-usertracker':
                 $this->serviceUsertrackerPost();
-                break;
-            case 'service-powermanagement':
-                $this->servicePowermanagementPost();
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'SERVICE_EDIT_SUCCESS';
