@@ -53,7 +53,7 @@ class PM extends FOGClient
         } elseif (in_array('reboot', $actions)) {
             $action = 'restart';
         }
-        Route::delete(
+        Route::deletemass(
             'powermanagement',
             [
                 'onDemand' => [1],
