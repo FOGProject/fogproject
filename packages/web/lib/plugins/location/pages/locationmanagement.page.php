@@ -614,12 +614,7 @@ class LocationManagement extends FOGPage
                 ]
             );
             $membership = $membership['membershipRemove'];
-            self::getClass('LocationAssociationManager')->destroy(
-                [
-                    'locationID' => $this->obj->get('id'),
-                    'hostID' => $membership
-                ]
-            );
+            $this->obj->removeHost($membership);
         }
     }
     /**
@@ -728,57 +723,23 @@ class LocationManagement extends FOGPage
      */
     public function getHostsList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $hostsSqlStr = "SELECT `%s`,"
-            . "IF(`laLocationID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') as `laLocationID`
-            FROM `%s`
-            LEFT OUTER JOIN `locationAssoc`
-            ON `hosts`.`hostID` = `locationAssoc`.`laHostID`
-            %s
-            %s
-            %s";
-        $hostsFilterStr = "SELECT COUNT(`%s`),"
-            . "IF(`laLocationID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') as `laLocationID`
-            FROM `%s`
-            LEFT OUTER JOIN `locationAssoc`
-            ON `hosts`.`hostID` = `locationAssoc`.`laHostID`
-            %s";
-        $hostsTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
-
-        foreach (self::getClass('HostManager')
-            ->getColumns() as $common => &$real
-        ) {
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-        }
-        $columns[] = [
-            'db' => 'laLocationID',
-            'dt' => 'association'
+        $join = [
+            'LEFT OUTER JOIN `locationAssoc` ON '
+            . " `hosts`.`hostID` = `locationAssoc`.`laHostID` "
+            . "AND `locationAssoc`.`laLocationID` = '" . $this->obj->get('id') . "'"
         ];
-        echo json_encode(
-            FOGManagerController::complex(
-                $pass_vars,
-                'hosts',
-                'hostID',
-                $columns,
-                $hostsSqlStr,
-                $hostsFilterStr,
-                $hostsTotalStr
-            )
+        $columns[] = [
+            'db' => 'locationAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
+        ];
+        return $this->obj->getItemsList(
+            'host',
+            'locationassociation',
+            $join,
+            '',
+            $columns
         );
-        exit;
     }
     /**
      * Get storage node
