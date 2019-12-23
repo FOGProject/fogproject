@@ -378,7 +378,7 @@ abstract class FOGManagerController extends FOGBase
         $sqlstr,
         $fltrstr,
         $ttlstr,
-        $orderby
+        $orderby = 'name'
     ) {
         $db = DatabaseManager::getLink();
         $bindings = [];
