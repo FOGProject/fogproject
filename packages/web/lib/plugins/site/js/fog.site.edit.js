@@ -55,8 +55,7 @@ $(function() {
     });
     // ---------------------------------------------------------------
     // HOST ASSOCIATION TAB
-    var siteHostForm = $('#site-host-form'),
-        siteHostUpdateBtn = $('#site-host-send'),
+    var siteHostUpdateBtn = $('#site-host-send'),
         siteHostRemoveBtn = $('#site-host-remove'),
         siteHostDeleteConfirmBtn = $('#confirmhostDeleteModal');
 
@@ -70,14 +69,10 @@ $(function() {
         disableHostButtons(disabled);
     }
 
-    siteHostForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-
     siteHostUpdateBtn.on('click', function(e) {
         e.preventDefault();
-        var method = siteHostForm.attr('method'),
-            action = siteHostForm.attr('action'),
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
             rows = siteHostsTable.rows({selected: true}),
             toAdd = $.getSelectedIds(siteHostsTable),
             opts = {
@@ -155,7 +150,7 @@ $(function() {
     });
 
     siteHostDeleteConfirmBtn.on('click', function(e) {
-        $.deleteAssociated(siteHostsTable, siteHostForm.attr('action'), function(err) {
+        $.deleteAssociated(siteHostsTable, siteHostRemoveBtn.attr('action'), function(err) {
             $('#hostDelModal').modal('hide');
             if (err) {
                 return;
@@ -164,14 +159,36 @@ $(function() {
             siteHostsTable.rows({selected: true}).deselect();
         });
     });
-    var onSiteHostCheckboxSelect = function(event) {
+    var onSiteHostCheckboxSelect = function(e) {
+        $(this).iCheck('update');
+        var method = siteHostUpdateBtn.attr('method'),
+            action = siteHostUpdateBtn.attr('action'),
+            opts = {};
+        if (this.checked) {
+            opts = {
+                addusers: 1,
+                users: [e.target.value]
+            };
+        } else {
+            opts = {
+                confirmdel: 1,
+                remitems: [e.target.value]
+            };
+        }
+        $.apiCall(method, action, opts, function(err) {
+            if (err) {
+                return;
+            }
+            siteHostsTable.draw(false);
+            siteHostsTable.rows({selected: true}).deselect();
+        });
     };
 
     // ---------------------------------------------------------------
     // USER ASSOCIATION TAB
-    var siteUserForm = $('#site-user-form'),
-        siteUserUpdateBtn = $('#site-user-send'),
-        siteUserRemoveBtn = $('#site-user-remove');
+    var siteUserUpdateBtn = $('#site-user-send'),
+        siteUserRemoveBtn = $('#site-user-remove'),
+        siteUserDeleteConfirmBtn = $('#confirmuserDeleteModal');
 
     function disableUserButtons(disable) {
         siteUserUpdateBtn.prop('disabled', disable);
@@ -183,14 +200,10 @@ $(function() {
         disableUserButtons(disabled);
     }
 
-    siteUserForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-
     siteUserUpdateBtn.on('click', function(e) {
         e.preventDefault();
-        var method = siteUserForm.attr('method'),
-            action = siteUserForm.attr('action'),
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
             rows = siteUsersTable.rows({selected: true}),
             toAdd = $.getSelectedIds(siteUsersTable),
             opts = {
@@ -199,6 +212,9 @@ $(function() {
             };
         $.apiCall(method,action,opts,function(err) {
             disableUserButtons(false);
+            if (err) {
+                return;
+            }
             siteUsersTable.rows({selected: true}).deselect();
             siteUsersTable.draw(false);
         });
@@ -258,8 +274,8 @@ $(function() {
         }
     });
 
-    $('#confirmuserDeleteModal').on('click', function(e) {
-        $.deleteAssociated(siteUsersTable, siteUserForm.attr('action'), function(err) {
+    siteUserDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(siteUsersTable, siteUserRemoveBtn.attr('action'), function(err) {
             $('#userDelModal').modal('hide');
             if (err) {
                 return;
@@ -271,11 +287,33 @@ $(function() {
 
     siteUsersTable.on('draw', function() {
         Common.iCheck('#site-user-table input');
-        $('#site-user-table input.associated').on('ifClicked', onSiteUserCheckboxSelect);
+        $('#site-user-table input.associated').on('ifChanged', onSiteUserCheckboxSelect);
         onUserSelect(siteUsersTable.rows({selected: true}));
     });
 
-    var onSiteUserCheckboxSelect = function(event) {
+    var onSiteUserCheckboxSelect = function(e) {
+        $(this).iCheck('update');
+        var method = siteUserUpdateBtn.attr('method'),
+            action = siteUserUpdateBtn.attr('action'),
+            opts = {};
+        if (this.checked) {
+            opts = {
+                addusers: 1,
+                users: [e.target.value]
+            };
+        } else {
+            opts = {
+                confirmdel: 1,
+                remitems: [e.target.value]
+            };
+        }
+        $.apiCall(method, action, opts, function(err) {
+            if (err) {
+                return;
+            }
+            siteUsersTable.draw(false);
+            siteUsersTable.rows({selected: true}).deselect();
+        });
     };
 
     if (Common.search && Common.search.length > 0) {

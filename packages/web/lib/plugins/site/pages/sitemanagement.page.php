@@ -396,29 +396,26 @@ class SiteManagement extends FOGPage
             [],
             ['width' => 16]
         ];
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'site-host',
+                $this->obj->get('id')
+            )
+            . '" ';
 
         $buttons = self::makeButton(
             'site-host-send',
             _('Add selected'),
-            'btn btn-primary pull-right'
+            'btn btn-primary pull-right',
+            $props
         );
         $buttons .= self::makeButton(
             'site-host-remove',
             _('Remove selected'),
-            'btn btn-danger pull-left'
+            'btn btn-danger pull-left',
+            $props
         );
 
-        echo self::makeFormTag(
-            'form-horizontal',
-            'site-host-form',
-            self::makeTabUpdateURL(
-                'site-host',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -435,7 +432,6 @@ class SiteManagement extends FOGPage
         echo $this->assocDelModal('host');
         echo '</div>';
         echo '</div>';
-        echo '</form>';
     }
     /**
      * Updates site hosts.
@@ -488,37 +484,31 @@ class SiteManagement extends FOGPage
             [],
             ['width' => 16]
         ];
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'site-user',
+                $this->obj->get('id')
+            )
+            . '" ';
 
         $buttons = self::makeButton(
             'site-user-send',
             _('Add selected'),
-            'btn btn-primary pull-right'
+            'btn btn-primary pull-right',
+            $props
         );
         $buttons .= self::makeButton(
             'site-user-remove',
             _('Remove selected'),
-            'btn btn-danger pull-left'
+            'btn btn-danger pull-left',
+            $props
         );
 
-        echo self::makeFormTag(
-            'form-horizontal',
-            'site-user-form',
-            self::makeTabUpdateURL(
-                'site-user',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
         echo _('Site User Associations');
         echo '</h4>';
-        echo '<p class="help-block">';
-        echo 'TODO: Make jQuery Functional';
-        echo '</p>';
         echo '</div>';
         echo '<div class="box-body">';
         $this->render(12, 'site-user-table', $buttons);
@@ -527,7 +517,6 @@ class SiteManagement extends FOGPage
         echo $this->assocDelModal('user');
         echo '</div>';
         echo '</div>';
-        echo '</form>';
     }
     /**
      * Updates site users.
