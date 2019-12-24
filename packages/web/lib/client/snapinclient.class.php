@@ -88,7 +88,7 @@ class SnapinClient extends FOGClient
             if (!$exitcode) {
                 $exitcode = filter_input(INPUT_GET, 'exitcode');
             }
-            if (!$exitcode) {
+            if (!is_numeric($exitcode)) {
                 $find = [
                     'stateID' => self::fastmerge(
                         self::getQueuedStates(),
@@ -221,7 +221,7 @@ class SnapinClient extends FOGClient
                     unset($Snapin, $SnapinTask);
                 }
                 return $info;
-            } elseif (isset($_REQUEST['exitcode'])) {
+            } else {
                 $this->_closeout($Task, $SnapinJob, $date, $HostName);
             }
         } elseif (basename(self::$scriptname) === 'snapins.file.php') {
@@ -244,7 +244,7 @@ class SnapinClient extends FOGClient
         if (!is_numeric($tID)) {
             $tID = filter_input(INPUT_GET, 'taskid');
         }
-        if (!(empty($tID) && is_numeric($tID))) {
+        if (!is_numeric($tID)) {
             throw new Exception(
                 sprintf(
                     '%s: %s',
@@ -338,7 +338,7 @@ class SnapinClient extends FOGClient
         if (!is_numeric($tID)) {
             $tID = filter_input(INPUT_GET, 'taskid');
         }
-        if (!(!empty($tID) && is_numeric($tID))) {
+        if (!is_numeric($tID)) {
             throw new Exception(
                 sprintf(
                     '%s: %s',
