@@ -8,9 +8,8 @@ $(function() {
             text = text.replace(': ' + originalName, ': ' + newName);
             document.title = text;
             e.text(text);
-        };
-
-    var generalForm = $('#site-general-form'),
+        },
+        generalForm = $('#site-general-form'),
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
         generalDeleteModal = $('#deleteModal'),
@@ -39,9 +38,9 @@ $(function() {
     generalDeleteModalConfirm.on('click', function() {
         var method = 'post',
             action = '../management/index.php?node='
-                + Common.node
-                + '&sub=delete&id='
-                + Common.id;
+            + Common.node
+            + '&sub=delete&id='
+            + Common.id;
         $.apiCall(method, action, null, function(err) {
             if (err) {
                 return;
@@ -76,16 +75,16 @@ $(function() {
             rows = siteHostsTable.rows({selected: true}),
             toAdd = $.getSelectedIds(siteHostsTable),
             opts = {
-                updatehosts: 1,
-                hosts: toAdd
+                confirmadd: 1,
+                additems: toAdd
             };
         $.apiCall(method,action,opts,function(err) {
             disableHostButtons(false);
             if (err) {
                 return;
             }
-            siteHostsTable.rows({selected: true}).deselect();
             siteHostsTable.draw(false);
+            siteHostsTable.rows({selected: true}).deselect();
         });
     });
 
@@ -108,10 +107,10 @@ $(function() {
                 responsivePriority: -1,
                 render: function(data, type, row) {
                     return '<a href="../management/index.php?node=host&sub=edit&id='
-                    + row.id
-                    + '">'
-                    + row.name
-                    + '</a>';
+                        + row.id
+                        + '">'
+                        + row.name
+                        + '</a>';
                 },
                 targets: 0
             },
@@ -122,12 +121,12 @@ $(function() {
                         checkval = ' checked';
                     }
                     return '<div class="checkbox">'
-                    + '<input type="checkbox" class="associated" name="associate[]" id="siteHostAssoc_'
-                    + row.id
-                    + '" value="' + row.id + '"'
-                    + checkval
-                    + '/>'
-                    + '</div>';
+                        + '<input type="checkbox" class="associated" name="associate[]" id="siteHostAssoc_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
                 },
                 targets: 1
             }
@@ -145,7 +144,7 @@ $(function() {
 
     siteHostsTable.on('draw', function() {
         Common.iCheck('#site-host-table input');
-        $('#site-host-table input.associated').on('ifClicked', onSiteHostCheckboxSelect);
+        $('#site-host-table input.associated').on('ifChanged', onSiteHostCheckboxSelect);
         onHostSelect(siteHostsTable.rows({selected: true}));
     });
 
@@ -218,10 +217,10 @@ $(function() {
                 responsivePriority: -1,
                 render: function(data, type, row) {
                     return '<a href="../management/index.php?node=user&sub=edit&id='
-                    + row.id
-                    + '">'
-                    + row.name
-                    + '</a>';
+                        + row.id
+                        + '">'
+                        + row.name
+                        + '</a>';
                 },
                 targets: 0
             },
@@ -232,12 +231,12 @@ $(function() {
                         checkval = ' checked';
                     }
                     return '<div class="checkbox">'
-                    + '<input type="checkbox" class="associated" name="associate[]" id="siteUserAssoc_'
-                    + row.id
-                    + '" value="' + row.id + '"'
-                    + checkval
-                    + '/>'
-                    + '</div>';
+                        + '<input type="checkbox" class="associated" name="associate[]" id="siteUserAssoc_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
                 },
                 targets: 1
             }
