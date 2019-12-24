@@ -541,80 +541,88 @@ class LocationManagement extends FOGPage
             ->set('tftp', $bootfrom);
     }
     /**
-     * Present the host membership tab.
+     * Present the hosts list.
      *
      * @return void
      */
-    public function locationMembership()
+    public function locationHosts()
     {
-        global $id;
+        $this->headerData = [
+            _('Host Name'),
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=location-membership" ';
+            . self::makeTabUpdateURL(
+                'location-host',
+                $this->obj->get('id')
+            )
+            . '" ';
 
         $buttons = self::makeButton(
-            'membership-add',
-            _('Add Selected'),
+            'location-host-send',
+            _('Add selected'),
             'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
-            'membership-remove',
-            _('Remove Selected'),
+            'location-host-remove',
+            _('Remove selected'),
             'btn btn-danger pull-left',
             $props
         );
 
-        $this->headerData = [
-            _('Host Name'),
-            _('Host Associated')
-        ];
-        $this->attributes = [
-            [],
-            []
-        ];
-
-        echo '<!-- Host Membership -->';
-        echo '<div class="box-group" id="membership">';
-        echo '<div class="box box-solid">';
-        echo '<div class="updatemembership" class="">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Location Host Associations');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'location-membership-table', $buttons);
+        $this->render(12, 'location-host-table', $buttons);
         echo '</div>';
-        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('host');
         echo '</div>';
         echo '</div>';
     }
     /**
-     * Update host membership.
+     * Update host.
      *
      * @return void
      */
-    public function locationMembershipPost()
+    public function locationHostPost()
     {
-        if (isset($_POST['updatemembership'])) {
-            $membership = filter_input_array(
+        if (isset($_POST['confirmadd'])) {
+            $hosts = filter_input_array(
                 INPUT_POST,
                 [
-                    'membership' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $membership = $membership['membership'];
-            $this->obj->addHost($membership);
+            $hosts = $hosts['additems'];
+            if (count($hosts ?: [])) {
+                $this->obj->addHost($hosts);
+            }
         }
-        if (isset($_POST['membershipdel'])) {
-            $membership = filter_input_array(
+        if (isset($_POST['confirmdel'])) {
+            $hosts = filter_input_array(
                 INPUT_POST,
                 [
-                    'membershipRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $membership = $membership['membershipRemove'];
-            $this->obj->removeHost($membership);
+            $hosts = $hosts['remitems'];
+            if (count($hosts ?: [])) {
+                $this->obj->removeHost($hosts);
+            }
         }
     }
     /**
@@ -643,11 +651,20 @@ class LocationManagement extends FOGPage
 
         // Hosts
         $tabData[] = [
-            'name' => _('Host Association'),
-            'id' => 'location-membership',
-            'generator' => function () {
-                $this->locationMembership();
-            }
+            'tabs' => [
+                'name' => _('Associations'),
+                'tabData' => [
+                    [
+                        'name' => _('Host Association'),
+                        'id' => 'location-host',
+                        'generator' => function () {
+                            $this->locationHosts();
+                            
+                        }
+        
+                    ]
+                ]
+            ]
         ];
 
         echo self::tabFields($tabData, $this->obj);
@@ -672,8 +689,8 @@ class LocationManagement extends FOGPage
             case 'location-general':
                 $this->locationGeneralPost();
                 break;
-            case 'location-membership':
-                $this->locationMembershipPost();
+            case 'location-host':
+                $this->locationHostPost();
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
@@ -701,6 +718,7 @@ class LocationManagement extends FOGPage
                 ]
             );
         }
+
         self::$HookManager
             ->processEvent(
                 $hook,
@@ -717,7 +735,7 @@ class LocationManagement extends FOGPage
         exit;
     }
     /**
-     * Location -> host membership list
+     * Location -> host list
      *
      * @return void
      */

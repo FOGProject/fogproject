@@ -421,9 +421,6 @@ class SiteManagement extends FOGPage
         echo '<h4 class="box-title">';
         echo _('Site Host Associations');
         echo '</h4>';
-        echo '<p class="help-block">';
-        echo 'TODO: Make jQuery Functional';
-        echo '</p>';
         echo '</div>';
         echo '<div class="box-body">';
         $this->render(12, 'site-host-table', $buttons);

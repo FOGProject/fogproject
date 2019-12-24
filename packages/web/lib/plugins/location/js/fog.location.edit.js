@@ -1,7 +1,4 @@
 $(function() {
-    // Any special functions that can be commonized for this element.
-    var onCheckboxSelect = function(event) {
-    };
     // ---------------------------------------------------------------
     // GENERAL TAB
     var originalName = $('#location').val(),
@@ -11,9 +8,8 @@ $(function() {
             text = text.replace(': ' + originalName, ': ' + newName);
             document.title = text;
             e.text(text);
-        };
-
-    var generalForm = $('#location-general-form'),
+        },
+        generalForm = $('#location-general-form'),
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
         generalDeleteModal = $('#deleteModal'),
@@ -44,9 +40,9 @@ $(function() {
     generalDeleteModalConfirm.on('click', function() {
         var method = 'post',
             action = '../management/index.php?node='
-                + Common.node
-                + '&sub=delete&id='
-                + Common.id;
+            + Common.node
+            + '&sub=delete&id='
+            + Common.id;
         $.apiCall(method, action, null, function(err) {
             if (err) {
                 return;
@@ -105,17 +101,46 @@ $(function() {
     });
 
     // ---------------------------------------------------------------
-    // MEMBERSHIP TAB
-    var membershipAddBtn = $('#membership-add'),
-        membershipRemoveBtn = $('#membership-remove');
-    membershipAddBtn.prop('disabled', true);
-    membershipRemoveBtn.prop('disabled', true);
-    function onMembershipSelect(selected) {
-        var disabled = selected.count() == 0;
-        membershipAddBtn.prop('disabled', disabled);
-        membershipRemoveBtn.prop('disabled', disabled);
+    // HOST ASSOCIATION TAB
+    var locationHostUpdateBtn = $('#location-host-send'),
+        locationHostRemoveBtn = $('#location-host-remove'),
+        locationHostDeleteConfirmBtn = $('#confirmhostDeleteModal');
+
+    function disableHostButtons(disable) {
+        locationHostUpdateBtn.prop('disabled', disable);
+        locationHostRemoveBtn.prop('disabled', disable);
     }
-    var membershipTable = $('#location-membership-table').registerTable(onMembershipSelect, {
+
+    function onHostSelect(selected) {
+        var disabled = selected.count() == 0;
+        disableHostButtons(disabled);
+    }
+
+    locationHostUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = locationHostsTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(locationHostsTable),
+            opts = {
+                confirmadd: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableHostButtons(false);
+            if (err) {
+                return;
+            }
+            locationHostsTable.draw(false);
+            locationHostsTable.rows({selected:true}).deselect();
+        });
+    });
+
+    locationHostRemoveBtn.on('click', function(e) {
+        $('#hostDelModal').modal('show');
+    });
+
+    var locationHostsTable = $('#location-host-table').registerTable(onHostSelect, {
         order: [
             [1, 'asc'],
             [0, 'asc']
@@ -144,11 +169,9 @@ $(function() {
                         checkval = ' checked';
                     }
                     return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="memberAssoc_'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="locationHostAssoc_'
                         + row.id
-                        + '" value="'
-                        + row.id
-                        + '"'
+                        + '" value="' + row.id + '"'
                         + checkval
                         + '/>'
                         + '</div>';
@@ -157,71 +180,35 @@ $(function() {
             }
         ],
         processing: true,
+        serverSide: true,
         ajax: {
             url: '../management/index.php?node='+Common.node+'&sub=getHostsList&id='+Common.id,
             type: 'post'
         }
     });
-    membershipTable.on('draw', function() {
-        Common.iCheck('#location-membership-table input');
-        $('#location-membership-table input.associated').on('ifClicked', onCheckboxSelect);
-    });
-    // Setup this tables associated checkboxes.
-    var associated = $('#location-membership-table input.associated');
-    associated.on('ifClicked', onCheckboxSelect);
-    membershipAddBtn.on('click', function() {
-        membershipAddBtn.prop('disabled', true);
-        membershipRemoveBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = membershipTable.rows({selected: true}),
-            toAdd = $.getSelectedIds(membershipTable),
-            opts = {
-                updatemembership: 1,
-                membership: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            membershipAddBtn.prop('disabled', false);
-            membershipRemoveBtn.prop('disabled', false);
+
+    locationHostDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(locationHostsTable, locationHostUpdateBtn.attr('action'), function(err) {
+            $('#hostDelModal').modal('hide');
             if (err) {
                 return;
             }
-            $('#location-membership-table').find('.associated').each(function() {
-                if ($.inArray($(this).val(), toAdd) != -1) {
-                    $(this).iCheck('check');
-                }
-            });
-            membershipTable.draw(false);
-            membershipTable.rows({selected: true}).deselect();
+            locationHostsTable.draw(false);
+            locationHostsTable.rows({selected: true}).deselect();
         });
     });
-    membershipRemoveBtn.on('click', function() {
-        membershipAddBtn.prop('disabled', true);
-        membershipRemoveBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = membershipTable.rows({selected: true}),
-            toRemove = $.getSelectedIds(membershipTable),
-            opts = {
-                membershipdel: 1,
-                membershipRemove: toRemove
-            };
-        $.apiCall(method,action,opts,function(err) {
-            membershipAddBtn.prop('disabled', false);
-            membershipRemoveBtn.prop('disabled', false);
-            if (err) {
-                return;
-            }
-            $('#location-membership-table').find('.associated').each(function() {
-                if ($.inArray($(this).val(), toRemove) != -1) {
-                    $(this).iCheck('uncheck');
-                }
-            });
-            membershipTable.draw(false);
-            membershipTable.rows({selected: true}).deselect();
-        });
+
+    locationHostsTable.on('draw', function() {
+        Common.iCheck('#location-host-table input');
+        $('#location-host-table input.associated').on('ifChanged', onLocationHostCheckboxSelect);
+        onHostSelect(locationHostsTable.rows({selected: true}));
     });
+
+    var onLocationHostCheckboxSelect = function(e) {
+        $.checkItemUpdate(locationHostsTable, this, e, locationHostUpdateBtn);
+    };
+
     if (Common.search && Common.search.length > 0) {
-        membershipTable.search(Common.search).draw();
+        locationHostsTable.search(Common.search).draw();
     }
 });
