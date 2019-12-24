@@ -107,6 +107,29 @@ $.apiCall = function(method, action, data, cb, processData) {
 $.capitalizeFirstLetter = function(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
+$.checkItemUpdate = function(table, item, e, prop, opts) {
+    $(item).iCheck('update');
+    var method = prop.attr('method'),
+        action = prop.attr('action');
+    if (item.checked) {
+        opts = _.defaults(opts, {
+            confirmadd: 1,
+            additems: [e.target.value]
+        });
+    } else {
+        opts = _.defaults(opts, {
+            confirmdel: 1,
+            remitems: [e.target.value]
+        });
+    }
+    $.apiCall(method, action, opts, function(err) {
+        if (err) {
+            return;
+        }
+        table.draw(false);
+        table.rows({selected: true}).deselect();
+    });
+}
 $.debugLog = function(obj) {
     if(Common.debug) {
         console.log(obj);
