@@ -474,7 +474,8 @@ class WindowsKeyManagement extends FOGPage
         $buttons .= self::makeButton(
             'image-remove',
             _('Remove selected'),
-            'btn btn-danger pull-left'
+            'btn btn-danger pull-left',
+            $props
         );
 
         $this->headerData = [
@@ -507,7 +508,7 @@ class WindowsKeyManagement extends FOGPage
      */
     public function windowsKeyImagePost()
     {
-        if (isset($_POST['updateimage'])) {
+        if (isset($_POST['updateimages'])) {
             $image = filter_input_array(
                 INPUT_POST,
                 [
@@ -641,5 +642,30 @@ class WindowsKeyManagement extends FOGPage
         http_response_code($code);
         echo $msg;
         exit;
+    }
+    /**
+     * Windows Key -> Image membership list
+     *
+     * @return void
+     */
+    public function getImagesList()
+    {
+        $join = [
+            'LEFT OUTER JOIN `windowsKeysAssoc` ON '
+            . '`images`.`imageID` = `windowsKeysAssoc`.`wkaImageID` '
+            . "AND `windowsKeysAssoc`.`wkaKeyID` = '". $this->obj->get('id') . "'"
+        ];
+        $columns[] = [
+            'db' => 'windowskeyAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
+        ];
+        return $this->obj->getItemsList(
+            'image',
+            'windowskeyassociation',
+            $join,
+            '',
+            $columns
+        );
     }
 }
