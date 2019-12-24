@@ -166,8 +166,8 @@ $(function() {
             opts = {};
         if (this.checked) {
             opts = {
-                addusers: 1,
-                users: [e.target.value]
+                addhosts: 1,
+                hosts: [e.target.value]
             };
         } else {
             opts = {
