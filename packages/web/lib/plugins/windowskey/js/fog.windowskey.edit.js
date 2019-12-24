@@ -58,8 +58,8 @@ $(function() {
     });
     // ---------------------------------------------------------------
     // IMAGE TAB
-    var imageAddBtn = $('#images-add'),
-        imageRemoveBtn = $('#images-remote');
+    var imageAddBtn = $('#image-add'),
+        imageRemoveBtn = $('#image-remove');
 
     disableImageButtons = function(disable) {
         imageAddBtn.prop('disabled', disable);
@@ -123,7 +123,7 @@ $(function() {
         onImagesSelect(imagesTable.rows({selected: true}));
     });
 
-    imagesAddBtn.on('click', function() {
+    imageAddBtn.on('click', function() {
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             rows = imagesTable.rows({selected: true}),
@@ -133,19 +133,22 @@ $(function() {
                 image: toAdd
             };
         $.apiCall(method, action, opts, function(err) {
+            disableImageButtons(false);
             if (err) {
                 return;
             }
             imagesTable.draw(false);
-            hostsTable.rows({selected: true}).deselect();
+            imagesTable.rows({selected: true}).deselect();
         });
     });
 
-    imagesRemoveBtn.on('click', function() {
-        $('#hostDelModal').modal('show');
+    imageRemoveBtn.on('click', function() {
+        $('#imageDelModal').modal('show');
+        disableImageButtons(true);
     });
     $('#confirmimageDeleteModal').on('click', function(e) {
-        $.deleteAssociated(imagesTable, imagesRemoveBtn.attr('action'), function(err) {
+        $.deleteAssociated(imagesTable, imageRemoveBtn.attr('action'), function(err) {
+            disableImageButtons(false);
             if (err) {
                 return;
             }
