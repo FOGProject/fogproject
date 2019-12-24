@@ -160,28 +160,7 @@ $(function() {
         });
     });
     var onSiteHostCheckboxSelect = function(e) {
-        $(this).iCheck('update');
-        var method = siteHostUpdateBtn.attr('method'),
-            action = siteHostUpdateBtn.attr('action'),
-            opts = {};
-        if (this.checked) {
-            opts = {
-                addhosts: 1,
-                hosts: [e.target.value]
-            };
-        } else {
-            opts = {
-                confirmdel: 1,
-                remitems: [e.target.value]
-            };
-        }
-        $.apiCall(method, action, opts, function(err) {
-            if (err) {
-                return;
-            }
-            siteHostsTable.draw(false);
-            siteHostsTable.rows({selected: true}).deselect();
-        });
+        $.checkItemUpdate(siteHostsTable, this, e, siteHostUpdateBtn);
     };
 
     // ---------------------------------------------------------------
@@ -292,28 +271,7 @@ $(function() {
     });
 
     var onSiteUserCheckboxSelect = function(e) {
-        $(this).iCheck('update');
-        var method = siteUserUpdateBtn.attr('method'),
-            action = siteUserUpdateBtn.attr('action'),
-            opts = {};
-        if (this.checked) {
-            opts = {
-                addusers: 1,
-                users: [e.target.value]
-            };
-        } else {
-            opts = {
-                confirmdel: 1,
-                remitems: [e.target.value]
-            };
-        }
-        $.apiCall(method, action, opts, function(err) {
-            if (err) {
-                return;
-            }
-            siteUsersTable.draw(false);
-            siteUsersTable.rows({selected: true}).deselect();
-        });
+        $.checkItemUpdate(siteUsersTable, this, e, siteUserUpdateBtn);
     };
 
     if (Common.search && Common.search.length > 0) {

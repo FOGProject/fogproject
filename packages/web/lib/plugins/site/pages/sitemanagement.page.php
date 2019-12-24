@@ -440,16 +440,16 @@ class SiteManagement extends FOGPage
      */
     public function siteHostPost()
     {
-        if (isset($_POST['updatehosts'])) {
+        if (isset($_POST['confirmadd'])) {
             $hosts = filter_input_array(
                 INPUT_POST,
                 [
-                    'hosts' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $hosts = $hosts['hosts'];
+            $hosts = $hosts['additems'];
             if (count($hosts ?: []) > 0) {
                 $this->obj->addHost($hosts);
             }
@@ -525,16 +525,16 @@ class SiteManagement extends FOGPage
      */
     public function siteUserPost()
     {
-        if (isset($_POST['addusers'])) {
+        if (isset($_POST['confirmadd'])) {
             $users = filter_input_array(
                 INPUT_POST,
                 [
-                    'users' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $users = $users['users'];
+            $users = $users['additems'];
             if (count($users ?: []) > 0) {
                 $this->obj->addUser($users);
             }
