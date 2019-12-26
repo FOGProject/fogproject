@@ -4021,3 +4021,16 @@ $this->schema[] = array_filter([
     $mshutdown,
     $mmaxwait
 ]);
+// 277
+$this->schema[] = [
+    "CREATE TABLE `userAuths` ("
+    . "`uaID` INT NOT NULL AUTO_INCREMENT,"
+    . "`uaUserID` INT NOT NULL,"
+    . "`uaExpireDate` TIMESTAMP NOT NULL "
+    . "DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,"
+    . "`uaIsExpired` INT NOT NULL DEFAULT '0',"
+    . "`uaSelectorHash` VARCHAR(255) NOT NULL,"
+    . "`uaPasswordHash` VARCHAR(255) NOT NULL,"
+    . "PRIMARY KEY(`uaID`)"
+    . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+];
