@@ -2659,4 +2659,20 @@ abstract class FOGBase
 
         return $files;
     }
+    /**
+     * Clears the authorization cookie
+     *
+     * @return void
+     */
+    public static function clearAuthCookie() {
+        if (isset($_COOKIE['foguserauthid'])) {
+            setcookie('foguserauthid', '');
+        }
+        if (isset($_COOKIE['foguserauthpass'])) {
+            setcookie('foguserauthpass', '');
+        }
+        if (isset($_COOKIE['foguserauthsel'])) {
+            setcookie('foguserauthsel', '');
+        }
+    }
 }
