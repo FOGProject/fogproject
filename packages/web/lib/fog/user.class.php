@@ -332,6 +332,10 @@ class User extends FOGController
             $rst
         ) = self::getSetting($keys);
         $_SESSION['OBSOLETE'] = false;
+        if ($ali) {
+            $_SESSION['FOG_USER'] = $this->get('id');
+            return true;
+        }
         $authip =(
             $this->get('authIP') && $this->get('authIP') != self::$remoteaddr
         );
@@ -383,10 +387,26 @@ class User extends FOGController
     {
         self::$HookManager
             ->processEvent('USER_LOGGING_OUT');
+        // Delete any authorizations we may have.
+        if ($_COOKIE['foguserauthid']) {
+            Route::deletemass(
+                'userauth',
+                [
+                    'id' => $_COOKIE['foguserauthid'],
+                    'userID' => $this->get('id')
+                ]
+            );
+        }
+        // Clear all the cookies
+        self::clearAuthCookie();
+
+        // Unset the user item.
         $this
             ->set('id', 0)
             ->set('name', '')
             ->set('password', '', '');
+
+        // If the session is already gone, return.
         if (session_status() == PHP_SESSION_NONE) {
             return;
         }
