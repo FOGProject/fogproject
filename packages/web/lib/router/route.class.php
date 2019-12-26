@@ -464,6 +464,9 @@ class Route extends FOGBase
         if (empty($orderby)) {
             $orderby = 'name';
         }
+        if (count($whereItems ?: []) < 1) {
+            $whereItems = self::getsearchbody($class);
+        }
 
         self::$data = $columns = [];
         $classname = strtolower($class);
@@ -2158,7 +2161,7 @@ class Route extends FOGBase
             file_get_contents('php://input')
         );
 
-        if (count($whereItems) < 1) {
+        if (count($whereItems ?: []) < 1) {
             $whereItems = self::getsearchbody($classname);
         }
         if ($vars->getField) {
@@ -2208,7 +2211,7 @@ class Route extends FOGBase
             file_get_contents('php://input')
         );
 
-        if (count($whereItems) < 1) {
+        if (count($whereItems ?: []) < 1) {
             $whereItems = self::getsearchbody($classname);
         }
 
@@ -2333,7 +2336,7 @@ class Route extends FOGBase
             . $classVars['databaseTable']
             . '`';
 
-        if (count($whereItems) < 1) {
+        if (count($whereItems ?: []) < 1) {
             $whereItems = self::getsearchbody($classname);
         }
 
@@ -2500,7 +2503,7 @@ class Route extends FOGBase
             );
             foreach ($classes->data as &$c) {
                 $c = self::getClass($classname, $c->id);
-                if (count($vars->hosts)) {
+                if (count($vars->hosts ?: [])) {
                     $c->addHost($vars->hosts);
                 }
                 // Store the data and recreate.
