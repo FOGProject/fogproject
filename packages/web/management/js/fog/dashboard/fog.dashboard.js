@@ -420,12 +420,27 @@ function setupImagingHistory() {
         if (item) {
             var x = item.datapoint[0],
                 y = item.datapoint[1],
-                date = new Date(x).toDateString();
+                plotx = item.pageX,
+                ploty = item.pageY,
+                date = new Date(x).toDateString(),
+                windowWidth = $(window).width(),
+                windowHeight = $(window).height();
+            if (plotx + 5 < 0.8 * windowWidth) {
+                plotx = plotx + 5;
+            } else {
+                plotx = plotx - 120;
+            }
+            if (ploty + 5 < 0.8 * windowHeight) {
+                ploty = ploty + 5;
+            } else {
+                ploty = ploty - 40;
+            }
             $('#graph-30day-tooltip').html(
                 item.series.label + ': ' + y + ' on ' + date
             ).css({
-                top: item.pageY + 5,
-                left: item.pageX + 5
+                position: 'absolute',
+                top: ploty,
+                left: plotx
             }).fadeIn(200);
         } else {
             $('#graph-30day-tooltip').hide();
