@@ -66,9 +66,12 @@
         $.deleteSelected(table, function(err) {
             // if we couldn't delete the items, enable the buttons
             // as the rows still exist and are selected.
+            disableButtons(false);
             if (err) {
-                disableButtons(false);
+                return;
             }
+            table.draw(false);
+            table.rows({selected: true}).deselect();
         });
     });
 })(jQuery);

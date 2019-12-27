@@ -1343,6 +1343,16 @@ class LDAPManagement extends FOGPage
             $filters
         ) = $services;
 
+        $port = (
+            filter_input(INPUT_POST, 'port') ?:
+            $ports
+        );
+
+        $filter = (
+            filter_input(INPUT_POST, 'filter') ?:
+            $filters
+        );
+
         $labelClass = 'col-sm-3 control-label';
 
         $fields = [
@@ -1356,7 +1366,7 @@ class LDAPManagement extends FOGPage
                 '990,991',
                 'text',
                 'filter',
-                $filters,
+                $filter,
                 true
             ),
             self::makeLabel(
@@ -1369,7 +1379,7 @@ class LDAPManagement extends FOGPage
                 '389,636',
                 'text',
                 'port',
-                $ports,
+                $port,
                 true
             )
         ];
@@ -1401,18 +1411,9 @@ class LDAPManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid" id="ldap-global">';
-        echo '<div class="box-body">';
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
+        echo '<div class="box box-solid">';
         echo '<div class="box-body">';
         echo $rendered;
-        echo '</div>';
-        echo '</div>';
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $buttons;
@@ -1445,7 +1446,7 @@ class LDAPManagement extends FOGPage
             foreach ($filters as &$filter) {
                 $filter = intval($filter);
                 if (!is_int($filter) || $filter < 2) {
-                    throw new Exception(_('All filters must be numeric and greater than 2'));
+                    throw new Exception(_('All filters must be numeric and greater than 1'));
                 }
                 unset($filter);
             }
@@ -1457,7 +1458,7 @@ class LDAPManagement extends FOGPage
             foreach ($ports as &$port) {
                 $port = intval($port);
                 if (!is_int($port) || $port < 1 || $port > 65535) {
-                    throw new Exception(_('All ports must be numeric, greater than 0, and less than 65535'));
+                    throw new Exception(_('All ports must be numeric, greater than 0, and less than 65536'));
                 }
                 unset($port);
             }

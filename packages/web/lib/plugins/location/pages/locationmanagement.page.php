@@ -39,8 +39,6 @@ class LocationManagement extends FOGPage
     public function __construct($name = '')
     {
         $this->name = 'Location Management';
-        self::$foglang['ExportLocation'] = _('Export Locations');
-        self::$foglang['ImportLocation'] = _('Import Locations');
         parent::__construct($this->name);
         $this->headerData = [
             _('Location Name'),
