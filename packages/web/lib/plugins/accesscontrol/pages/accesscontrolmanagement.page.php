@@ -36,11 +36,11 @@ class AccessControlManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Role Management';
+        $this->name = 'Accesscontrol Management';
         parent::__construct($this->name);
         $this->headerData = [
-            _('Role Name'),
-            _('Role Description')
+            _('Accesscontrol Name'),
+            _('Accesscontrol Description')
         ];
         $this->attributes = [
             [],
@@ -48,15 +48,15 @@ class AccessControlManagement extends FOGPage
         ];
     }
     /**
-     * Create new role.
+     * Create new accesscontrol.
      *
      * @return void
      */
     public function add()
     {
-        $this->title = _('Create New Role');
+        $this->title = _('Create New Accesscontrol');
 
-        $role = filter_input(INPUT_POST, 'role');
+        $accesscontrol = filter_input(INPUT_POST, 'accesscontrol');
         $description = filter_input(INPUT_POST, 'description');
 
         $labelClass = 'col-sm-3 control-label';
@@ -64,25 +64,25 @@ class AccessControlManagement extends FOGPage
         $fields = [
             self::makeLabel(
                 $labelClass,
-                'role',
-                _('Role Name')
+                'accesscontrol',
+                _('Accesscontrol Name')
             ) => self::makeInput(
-                'form-control rolename-input',
-                'role',
+                'form-control accesscontrolname-input',
+                'accesscontrol',
                 _('Access Control Name'),
                 'text',
-                'role',
-                $role,
+                'accesscontrol',
+                $accesscontrol,
                 true
             ),
             self::makelabel(
                 $labelClass,
                 'description',
-                _('Role Description')
+                _('Accesscontrol Description')
             ) => self::makeTextarea(
-                'form-control roledescription-input',
+                'form-control accesscontroldescription-input',
                 'description',
-                _('Role Description'),
+                _('Accesscontrol Description'),
                 'description',
                 $description
             )
@@ -107,18 +107,18 @@ class AccessControlManagement extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'role-create-form',
+            'accesscontrol-create-form',
             $this->formAction,
             'post',
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid" id="role-create">';
+        echo '<div class="box box-solid" id="accesscontrol-create">';
         echo '<div class="box-body">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Create New Role');
+        echo _('Create New Accesscontrol');
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
@@ -133,13 +133,13 @@ class AccessControlManagement extends FOGPage
         echo '</form>';
     }
     /**
-     * Create new role.
+     * Create new accesscontrol.
      *
      * @return void
      */
     public function addModal()
     {
-        $role = filter_input(INPUT_POST, 'role');
+        $accesscontrol = filter_input(INPUT_POST, 'accesscontrol');
         $description = filter_input(INPUT_POST, 'description');
 
         $labelClass = 'col-sm-3 control-label';
@@ -147,25 +147,25 @@ class AccessControlManagement extends FOGPage
         $fields = [
             self::makeLabel(
                 $labelClass,
-                'role',
-                _('Role Name')
+                'accesscontrol',
+                _('Accesscontrol Name')
             ) => self::makeInput(
-                'form-control rolename-input',
-                'role',
+                'form-control accesscontrolname-input',
+                'accesscontrol',
                 _('Access Control Name'),
                 'text',
-                'role',
-                $role,
+                'accesscontrol',
+                $accesscontrol,
                 true
             ),
             self::makelabel(
                 $labelClass,
                 'description',
-                _('Role Description')
+                _('Accesscontrol Description')
             ) => self::makeTextarea(
-                'form-control roledescription-input',
+                'form-control accesscontroldescription-input',
                 'description',
-                _('Role Description'),
+                _('Accesscontrol Description'),
                 'description',
                 $description
             )
@@ -201,8 +201,8 @@ class AccessControlManagement extends FOGPage
     {
         header('Content-type: application/json');
         self::$HookManger->processEvent('ACCESSCONTROL_ADD_POST');
-        $role = trim(
-            filter_input(INPUT_POST, 'role')
+        $accesscontrol = trim(
+            filter_input(INPUT_POST, 'accesscontrol')
         );
         $description = trim(
             filter_input(INPUT_POST, 'description')
@@ -211,25 +211,25 @@ class AccessControlManagement extends FOGPage
         $serverFault = false;
         try {
             $exists = self::getClass('AccessControlManager')
-                ->exists($role);
+                ->exists($accesscontrol);
             if ($exists) {
                 throw new Exception(
-                    _('A role already exists with this name!')
+                    _('An accesscontrol already exists with this name!')
                 );
             }
             $AccessControl = self::getClass('AccessControl')
-                ->set('name', $role)
+                ->set('name', $accesscontrol)
                 ->set('description', $description);
             if (!$AccessControl->save()) {
                 $serverFault = true;
-                throw new Exception(_('Add role failed!'));
+                throw new Exception(_('Add accesscontrol failed!'));
             }
             $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'ACCESSCONTROL_ADD_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Role added!'),
-                    'title' => _('Role Create Success')
+                    'msg' => _('Accesscontrol added!'),
+                    'title' => _('Accesscontrol Create Success')
                 ]
             );
         } catch (Exception $e) {
@@ -242,7 +242,7 @@ class AccessControlManagement extends FOGPage
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Role Create Fail')
+                    'title' => _('Accesscontrol Create Fail')
                 ]
             );
         }
@@ -270,10 +270,10 @@ class AccessControlManagement extends FOGPage
      *
      * @return void
      */
-    public function roleGeneral()
+    public function accesscontrolGeneral()
     {
-        $role = (
-            filter_input(INPUT_POST, 'role') ?:
+        $accesscontrol = (
+            filter_input(INPUT_POST, 'accesscontrol') ?:
             $this->obj->get('name')
         );
         $description = (
@@ -286,25 +286,25 @@ class AccessControlManagement extends FOGPage
         $fields = [
             self::makeLabel(
                 $labelClass,
-                'role',
-                _('Role Name')
+                'accesscontrol',
+                _('Accesscontrol Name')
             ) => self::makeInput(
-                'form-control rolename-input',
-                'role',
+                'form-control accesscontrolname-input',
+                'accesscontrol',
                 _('Access Control Name'),
                 'text',
-                'role',
-                $role,
+                'accesscontrol',
+                $accesscontrol,
                 true
             ),
             self::makelabel(
                 $labelClass,
                 'description',
-                _('Role Description')
+                _('Accesscontrol Description')
             ) => self::makeTextarea(
-                'form-control roledescription-input',
+                'form-control accesscontroldescription-input',
                 'description',
-                _('Role Description'),
+                _('Accesscontrol Description'),
                 'description',
                 $description
             )
@@ -335,9 +335,9 @@ class AccessControlManagement extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'role-general-form',
+            'accesscontrol-general-form',
             self::makeTabUpdateURL(
-                'role-general',
+                'accesscontrol-general',
                 $this->obj->get('id')
             ),
             'post',
@@ -360,26 +360,26 @@ class AccessControlManagement extends FOGPage
      *
      * @return void
      */
-    public function roleGeneralPost()
+    public function accesscontrolGeneralPost()
     {
-        $role = trim(
-            filter_input(INPUT_POST, 'role')
+        $accesscontrol = trim(
+            filter_input(INPUT_POST, 'accesscontrol')
         );
         $description = trim(
             filter_input(INPUT_POST, 'description')
         );
 
         $exists = self::getClass('AccessControlManager')
-            ->exists($role);
-        if ($role != $this->obj->get('name')
+            ->exists($accesscontrol);
+        if ($accesscontrol != $this->obj->get('name')
             && $exists
         ) {
             throw new Exception(
-                _('A role with this name already exists!')
+                _('An accesscontrol with this name already exists!')
             );
         }
         $this->obj
-            ->set('name', $role)
+            ->set('name', $accesscontrol)
             ->set('description', $description);
     }
     /**
@@ -387,28 +387,8 @@ class AccessControlManagement extends FOGPage
      *
      * @return void
      */
-    public function roleUsers()
+    public function accesscontrolUsers()
     {
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'role-users',
-                $this->obj->get('id')
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'users-add',
-            _('Add selected'),
-            'btn btn-primary pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'users-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-
         $this->headerData = [
             _('User Name'),
             _('Associated')
@@ -417,23 +397,37 @@ class AccessControlManagement extends FOGPage
             [],
             ['width' => 16]
         ];
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'accesscontrol-user',
+                $this->obj->get('id')
+            )
+            . '" ';
 
-        echo '<!-- Users -->';
-        echo '<div class="box-group" id="users">';
-        echo '<div class="box box-solid">';
-        echo '<div id="updateusers" class="">';
+        $buttons = self::makeButton(
+            'accesscontrol-user-send',
+            _('Add selected'),
+            'btn btn-primary pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'accesscontrol-user-remove',
+            _('Remove selected'),
+            'btn btn-danger pull-left',
+            $props
+        );
+
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Role Users');
+        echo _('Accesscontrol User Associations');
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'role-users-table', $buttons);
+        $this->render(12, 'accesscontrol-user-table', $buttons);
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $this->assocDelModal('user');
-        echo '</div>';
-        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
@@ -442,18 +436,18 @@ class AccessControlManagement extends FOGPage
      *
      * @return void
      */
-    public function roleUserPost()
+    public function accesscontrolUserPost()
     {
-        if (isset($_POST['updateusers'])) {
+        if (isset($_POST['confirmadd'])) {
             $users = filter_input_array(
                 INPUT_POST,
                 [
-                    'user' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $users = $users['user'];
+            $users = $users['additems'];
             if (count($users ?: []) > 0) {
                 $this->obj->addUser($users);
             }
@@ -478,59 +472,47 @@ class AccessControlManagement extends FOGPage
      *
      * @return void
      */
-    public function roleRules()
+    public function accesscontrolRules()
     {
+        $this->headerData = [
+            _('Accesscontrol Rule Name'),
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
-                'role-rules',
+                'accesscontrol-rule',
                 $this->obj->get('id')
             )
             . '" ';
 
         $buttons = self::makeButton(
-            'rules-add',
+            'accesscontrol-rule-send',
             _('Add selected'),
             'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
-            'rules-remove',
+            'accesscontrol-rule-remove',
             _('Remove selected'),
             'btn btn-danger pull-left',
             $props
         );
 
-        $this->headerData = [
-            _('Rule Name'),
-            _('Rule Parent'),
-            _('Rule Value'),
-            _('Rule Node'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            [],
-            [],
-            [],
-            ['width' => 16]
-        ];
-
-        echo '<!-- Rules -->';
-        echo '<div class="box-group" id="rules">';
-        echo '<div class="box box-solid">';
-        echo '<div id="updaterules" class="">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Role Rules');
+        echo _('Accesscontrol Rule Associations');
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'role-rules-table', $buttons);
+        $this->render(12, 'accesscontrol-rule-table', $buttons);
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $this->assocDelModal('rule');
-        echo '</div>';
-        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
@@ -539,18 +521,18 @@ class AccessControlManagement extends FOGPage
      *
      * @return void
      */
-    public function roleRulePost()
+    public function accesscontrolRulePost()
     {
-        if (isset($_POST['updaterules'])) {
+        if (isset($_POST['confirmadd'])) {
             $rules = filter_input_array(
                 INPUT_POST,
                 [
-                    'rule' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $rules = $rules['rule'];
+            $rules = $rules['additems'];
             if (count($rules ?: []) > 0) {
                 $this->obj->addRule($rules);
             }
@@ -588,9 +570,9 @@ class AccessControlManagement extends FOGPage
         // General
         $tabData[] = [
             'name' => _('General'),
-            'id' => 'role-general',
+            'id' => 'accesscontrol-general',
             'generator' => function () {
-                $this->roleGeneral();
+                $this->accesscontrolGeneral();
             }
         ];
 
@@ -601,16 +583,16 @@ class AccessControlManagement extends FOGPage
                 'tabData' => [
                     [
                         'name' => _('Rule Association'),
-                        'id' => 'role-rules',
+                        'id' => 'accesscontrol-rule',
                         'generator' => function () {
-                            $this->roleRules();
+                            $this->accesscontrolRules();
                         }
                     ],
                     [
                         'name' => _('User Association'),
-                        'id' => 'role-users',
+                        'id' => 'accesscontrol-user',
                         'generator' => function () {
-                            $this->roleUsers();
+                            $this->accesscontrolUsers();
                         }
                     ]
                 ]
@@ -636,25 +618,25 @@ class AccessControlManagement extends FOGPage
         try{
             global $tab;
             switch ($tab) {
-            case 'role-general':
-                $this->roleGeneralPost();
+            case 'accesscontrol-general':
+                $this->accesscontrolGeneralPost();
                 break;
-            case 'role-rules':
-                $this->roleRulePost();
+            case 'accesscontrol-rule':
+                $this->accesscontrolRulePost();
                 break;
-            case 'role-users':
-                $this->roleUserPost();
+            case 'accesscontrol-user':
+                $this->accesscontrolUserPost();
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
-                throw new Exception(_('Role update failed!'));
+                throw new Exception(_('Accesscontrol update failed!'));
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'ACCESSCONTROL_EDIT_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Role updated!'),
-                    'title' => _('Role Update Success')
+                    'msg' => _('Accesscontrol updated!'),
+                    'title' => _('Accesscontrol Update Success')
                 ]
             );
         } catch (Exception $e) {
@@ -667,7 +649,7 @@ class AccessControlManagement extends FOGPage
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Role Update Fail')
+                    'title' => _('Accesscontrol Update Fail')
                 ]
             );
         }
@@ -719,7 +701,7 @@ class AccessControlManagement extends FOGPage
     {
         $join = [
             'LEFT OUTER JOIN `roleRuleAssoc` ON '
-            . "`rules`.`ruleID` = `roleRuleAssoc`.`rraRoleID` "
+            . "`rules`.`ruleID` = `roleRuleAssoc`.`rraRuleID` "
             . "AND `roleRuleAssoc`.`rraRoleID` = '" . $this->obj->get('id') . "'"
         ];
         $columns[] = [
