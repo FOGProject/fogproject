@@ -1,7 +1,4 @@
 $(function() {
-    // Any special functions that can be commonized for this element.
-    var onCheckboxSelect = function(event) {
-    };
     // ---------------------------------------------------------------
     // GENERAL TAB
     var originalName = $('#ou').val(),
@@ -11,9 +8,8 @@ $(function() {
             text = text.replace(': ' + originalName, ': ' + newName);
             document.title = text;
             e.text(text);
-        };
-
-    var generalForm = $('#ou-general-form'),
+        },
+        generalForm = $('#ou-general-form'),
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
         generalDeleteModal = $('#deleteModal'),
@@ -58,17 +54,46 @@ $(function() {
     });
 
     // ---------------------------------------------------------------
-    // MEMBERSHIP TAB
-    var membershipAddBtn = $('#membership-add'),
-        membershipRemoveBtn = $('#membership-remove');
-    membershipAddBtn.prop('disabled', true);
-    membershipRemoveBtn.prop('disabled', true);
-    function onMembershipSelect(selected) {
-        var disabled = selected.count() == 0;
-        membershipAddBtn.prop('disabled', disabled);
-        membershipRemoveBtn.prop('disabled', disabled);
+    // HOST TAB
+    var ouHostUpdateBtn = $('#ou-host-send'),
+        ouHostRemoveBtn = $('#ou-host-remove'),
+        ouHostDeleteConfirmBtn = $('#confirmhostDeleteModal');
+
+    function disableHostButtons(disable) {
+        ouHostUpdateBtn.prop('disabled', disable);
+        ouHostRemoveBtn.prop('disabled', disable);
     }
-    var membershipTable = $('#ou-membership-table').registerTable(onMembershipSelect, {
+
+    function onHostSelect(selected) {
+        var disabled = selected.count() == 0;
+        disableHostButtons(disabled);
+    }
+
+    ouHostUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = ouHostsTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(ouHostsTable),
+            opts = {
+                confirmadd: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableHostButtons(false);
+            if (err) {
+                return;
+            }
+            ouHostsTable.draw(false);
+            ouHostsTable.rows({selected: true}).deselect();
+        });
+    });
+
+    ouHostRemoveBtn.on('click', function(e) {
+        $('#hostDelModal').modal('show');
+    });
+
+    var ouHostsTable = $('#ou-host-table').registerTable(onHostSelect, {
         order: [
             [1, 'asc'],
             [0, 'asc']
@@ -97,11 +122,9 @@ $(function() {
                         checkval = ' checked';
                     }
                     return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="memberAssoc_'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="locationHostAssoc_'
                         + row.id
-                        + '" value="'
-                        + row.id
-                        + '"'
+                        + '" value="' + row.id + '"'
                         + checkval
                         + '/>'
                         + '</div>';
@@ -110,71 +133,35 @@ $(function() {
             }
         ],
         processing: true,
+        serverSide: true,
         ajax: {
             url: '../management/index.php?node='+Common.node+'&sub=getHostsList&id='+Common.id,
             type: 'post'
         }
     });
-    membershipTable.on('draw', function() {
-        Common.iCheck('#ou-membership-table input');
-        $('#ou-membership-table input.associated').on('ifClicked', onCheckboxSelect);
-    });
-    // Setup this tables associated checkboxes.
-    var associated = $('#ou-membership-table input.associated');
-    associated.on('ifClicked', onCheckboxSelect);
-    membershipAddBtn.on('click', function() {
-        membershipAddBtn.prop('disabled', true);
-        membershipRemoveBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = membershipTable.rows({selected: true}),
-            toAdd = $.getSelectedIds(membershipTable),
-            opts = {
-                updatemembership: 1,
-                membership: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            membershipAddBtn.prop('disabled', false);
-            membershipRemoveBtn.prop('disabled', false);
+
+    ouHostDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(ouHostsTable, ouHostUpdateBtn.attr('action'), function(err) {
+            $('#hostDelModal').modal('hide');
             if (err) {
                 return;
             }
-            $('#ou-membership-table').find('.associated').each(function() {
-                if ($.inArray($(this).val(), toAdd) != -1) {
-                    $(this).iCheck('check');
-                }
-            });
-            membershipTable.draw(false);
-            membershipTable.rows({selected: true}).deselect();
+            ouHostsTable.draw(false);
+            ouHostsTable.rows({selected: true}).deselect();
         });
     });
-    membershipRemoveBtn.on('click', function() {
-        membershipAddBtn.prop('disabled', true);
-        membershipRemoveBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = membershipTable.rows({selected: true}),
-            toRemove = $.getSelectedIds(membershipTable),
-            opts = {
-                membershipdel: 1,
-                membershipRemove: toRemove
-            };
-        $.apiCall(method,action,opts,function(err) {
-            membershipAddBtn.prop('disabled', false);
-            membershipRemoveBtn.prop('disabled', false);
-            if (err) {
-                return;
-            }
-            $('#ou-membership-table').find('.associated').each(function() {
-                if ($.inArray($(this).val(), toRemove) != -1) {
-                    $(this).iCheck('uncheck');
-                }
-            });
-            membershipTable.draw(false);
-            membershipTable.rows({selected: true}).deselect();
-        });
+
+    ouHostsTable.on('draw', function() {
+        Common.iCheck('#ou-host-table input');
+        $('#ou-host-table input.associated').on('ifChanged', onOUHostCheckboxSelect);
+        onHostSelect(ouHostsTable.rows({selected: true}));
     });
+
+    var onOUHostCheckboxSelect = function(e) {
+        $.checkItemUpdate(ouHostsTable, this, e, ouHostUpdateBtn);
+    };
+
     if (Common.search && Common.search.length > 0) {
-        membershipTable.search(Common.search).draw();
+        ouHostsTable.search(Common.search).draw();
     }
 });
