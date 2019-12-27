@@ -36,7 +36,7 @@ class AccessControlRuleManagement extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Rule Management';
+        $this->name = 'Accesscontrol Rule Management';
         parent::__construct($this->name);
         $this->headerData = [
             _('Rule Name'),
@@ -142,13 +142,13 @@ class AccessControlRuleManagement extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'rule-create-form',
+            'accesscontrolrule-create-form',
             $this->formAction,
             'post',
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid" id="rule-create">';
+        echo '<div class="box box-solid" id="accesscontrolrule-create">';
         echo '<div class="box-body">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
@@ -356,7 +356,7 @@ class AccessControlRuleManagement extends FOGPage
      *
      * @return void
      */
-    public function ruleGeneral()
+    public function accesscontrolruleGeneral()
     {
         $type = (
             filter_input(INPUT_POST, 'type') ?:
@@ -455,9 +455,9 @@ class AccessControlRuleManagement extends FOGPage
 
         echo self::makeFormTag(
             'form-horizontal',
-            'rule-general-form',
+            'accesscontrolrule-general-form',
             self::makeTabUpdateURL(
-                'rule-general',
+                'accesscontrolrule-general',
                 $this->obj->get('id')
             ),
             'post',
@@ -480,7 +480,7 @@ class AccessControlRuleManagement extends FOGPage
      *
      * @return void
      */
-    public function ruleGeneralPost()
+    public function accesscontrolruleGeneralPost()
     {
         $type = trim(
             filter_input(INPUT_POST, 'type')
@@ -525,28 +525,8 @@ class AccessControlRuleManagement extends FOGPage
      *
      * @return void
      */
-    public function ruleRoles()
+    public function accesscontrolruleRoles()
     {
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'rule-roles',
-                $this->obj->get('id')
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'roles-add',
-            _('Add selected'),
-            'btn btn-primary pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'roles-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-
         $this->headerData = [
             _('Role Name'),
             _('Associated')
@@ -555,23 +535,39 @@ class AccessControlRuleManagement extends FOGPage
             [],
             ['width' => 16]
         ];
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'accesscontrolrule-role',
+                $this->obj->get('id')
+            )
+            . '" ';
 
-        echo '<!-- Roles -->';
-        echo '<div class="box-group" id="roles">';
-        echo '<div class="box box-solid">';
-        echo '<div id="updateroles" class="">';
+        $buttons = self::makeButton(
+            'accesscontrolrule-role-send',
+            _('Add selected'),
+            'btn btn-primary pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'accesscontrolrule-role-remove',
+            _('Remove selected'),
+            'btn btn-danger pull-left',
+            $props
+        );
+
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Rule Roles');
+        echo _('Accesscontrol Rule Role Associations');
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'rule-roles-table', $buttons);
+        echo '</h4>';
+        echo '<div class="box-body">';
+        $this->render(12, 'accesscontrolrule-role-table', $buttons);
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $this->assocDelModal('role');
-        echo '</div>';
-        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
@@ -580,18 +576,18 @@ class AccessControlRuleManagement extends FOGPage
      *
      * @return void
      */
-    public function ruleRolePost()
+    public function accesscontrolruleRolePost()
     {
-        if (isset($_POST['updateroles'])) {
+        if (isset($_POST['confirmadd'])) {
             $roles = filter_input_array(
                 INPUT_POST,
                 [
-                    'role' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $roles = $roles['role'];
+            $roles = $roles['additems'];
             if (count($roles ?: []) > 0) {
                 $this->obj->addRole($roles);
             }
@@ -629,19 +625,26 @@ class AccessControlRuleManagement extends FOGPage
         // General
         $tabData[] = [
             'name' => _('General'),
-            'id' => 'rule-general',
+            'id' => 'accesscontrolrule-general',
             'generator' => function () {
-                $this->ruleGeneral();
+                $this->accesscontrolruleGeneral();
             }
         ];
 
-        // Role Association
+        // Roles
         $tabData[] = [
-            'name' => _('Role Association'),
-            'id' => 'rule-roles',
-            'generator' => function () {
-                $this->ruleRoles();
-            }
+            'tabs' => [
+                'name' => _('Associations'),
+                'tabData' => [
+                    [
+                        'name' => _('Role Association'),
+                        'id' => 'accesscontrolrule-role',
+                        'generator' => function() {
+                            $this->accesscontrolruleRoles();
+                        }
+                    ]
+                ]
+            ]
         ];
 
         echo self::tabFields($tabData);
@@ -658,16 +661,15 @@ class AccessControlRuleManagement extends FOGPage
             'ACCESSCONTROLRULE_EDIT_POST',
             ['AccessControlRule' => &$this->obj]
         );
-
         $serverFault = false;
         try {
             global $tab;
             switch ($tab) {
-            case 'rule-general':
-                $this->ruleGeneralPost();
+            case 'accesscontrolrule-general':
+                $this->accesscontrolruleGeneralPost();
                 break;
-            case 'rule-roles':
-                $this->ruleRolePost();
+            case 'accesscontrolrule-role':
+                $this->accesscontrolruleRolePost();
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
@@ -677,8 +679,8 @@ class AccessControlRuleManagement extends FOGPage
             $hook = 'ACCESSCONTROLRULE_EDIT_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Rule updated!'),
-                    'title' => _('Rule Update Success')
+                    'msg' => _('Accesscontrol Rule updated!'),
+                    'title' => _('Accesscontrol Rule Update Success')
                 ]
             );
         } catch (Exception $e) {
@@ -691,7 +693,7 @@ class AccessControlRuleManagement extends FOGPage
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Rule Update Fail')
+                    'title' => _('Accesscontrol Rule Update Fail')
                 ]
             );
         }
@@ -716,63 +718,22 @@ class AccessControlRuleManagement extends FOGPage
      */
     public function getRolesList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $rolesSqlStr = "SELECT `%s`,"
-            . "IF(`rraRuleID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') as `rraRuleID`
-            FROM `%s`
-            LEFT OUTER JOIN `roleRuleAssoc`
-            ON `roles`.`rID` = `roleRuleAssoc`.`rraRoleID`
-            AND `roleRuleAssoc`.`rraRuleID` = '"
-            . $this->obj->get('id')
-            . "'
-            %s
-            %s
-            %s";
-        $rolesFilterStr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            LEFT OUTER JOIN `roleRuleAssoc`
-            ON `roles`.`rID` = `roleRuleAssoc`.`rraRoleID`
-            AND `roleRuleAssoc`.`rraRuleID` = '"
-            . $this->obj->get('id')
-            . "'
-            %s";
-        $rolesTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
-
-        foreach (self::getClass('AccessControlManager')
-            ->getColumns() as $common => &$real
-        ) {
-            if ('id' == $common) {
-                $tableID = $real;
-            }
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
-        $columns[] = [
-            'db' => 'rraRuleID',
-            'dt' => 'association'
+        $join = [
+            'LEFT OUTER JOIN `roleRuleAssoc` ON '
+            . "`roles`.`rID` = `roleRuleAssoc`.`rraRoleID` "
+            . "AND `roleRuleAssoc`.`rraRuleID` = '" . $this->obj->get('id') . "'"
         ];
-        echo json_encode(
-            FOGManagerController::simple(
-                $pass_vars,
-                'roles',
-                $tableID,
-                $columns,
-                $rolesSqlStr,
-                $rolesFilterStr,
-                $rolesTotalStr
-            )
+        $columns[] = [
+            'db' => 'accesscontrolruleAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
+        ];
+        return $this->obj->getItemsList(
+            'accesscontrol',
+            'accesscontrolruleassociation',
+            $join,
+            '',
+            $columns
         );
-        exit;
     }
 }

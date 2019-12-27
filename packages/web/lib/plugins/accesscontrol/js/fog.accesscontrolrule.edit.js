@@ -1,7 +1,4 @@
 $(function() {
-    // Any special functions that can be commonized for this element.
-    var onCheckboxSelect = function(event) {
-    };
     // ---------------------------------------------------------------
     // GENERAL TAB
     var originalName = $('#type').val()
@@ -13,9 +10,8 @@ $(function() {
             text = text.replace(': ' + originalName, ': ' + newName);
             document.title = text;
             e.text(text);
-        };
-
-    var generalForm = $('#rule-general-form'),
+        },
+        generalForm = $('#accesscontrolrule-general-form'),
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
         generalDeleteModal = $('#deleteModal'),
@@ -64,19 +60,45 @@ $(function() {
 
     // ---------------------------------------------------------------
     // ROLE ASSOCIATION TAB
-    var rolesAddBtn = $('#roles-add'),
-        rolesRemoveBtn = $('#roles-remove');
+    var accesscontrolruleRoleUpdateBtn = $('#accesscontrolrule-role-send'),
+        accesscontrolruleRoleRemoveBtn = $('#accesscontrolrule-role-remove'),
+        accesscontrolruleRoleDeleteConfirmBtn = $('#confirmroleDeleteModal');
 
-    rolesAddBtn.prop('disabled', true);
-    rolesRemoveBtn.prop('disabled', true);
-
-    function onRolesSelect (selected) {
-        var disabled = selected.count() == 0;
-        rolesAddBtn.prop('disabled', disabled);
-        rolesRemoveBtn.prop('disabled', disabled);
+    function disableRoleButtons(disable) {
+        accesscontrolruleRoleUpdateBtn.prop('disabled', disable);
+        accesscontrolruleRoleRemoveBtn.prop('disabled', disable);
     }
 
-    var rolesTable = $('#rule-roles-table').registerTable(onRolesSelect, {
+    function onRoleSelect(selected) {
+        var disabled = selected.count() == 0;
+        disableRoleButtons(disabled);
+    }
+
+    accesscontrolruleRoleUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = accesscontrolruleRolesTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(accesscontrolruleRolesTable),
+            opts = {
+                confirmadd: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableRoleButtons(false);
+            if (err) {
+                return;
+            }
+            accesscontrolruleRolesTable.draw(false);
+            accesscontrolruleRolesTable.rows({selected: true}).deselect();
+        });
+    });
+
+    accesscontrolruleRoleRemoveBtn.on('click', function(e) {
+        $('#roleDelModal').modal('show');
+    });
+
+    var accesscontrolruleRolesTable = $('#accesscontrolrule-role-table').registerTable(onRoleSelect, {
         order: [
             [1, 'asc'],
             [0, 'asc']
@@ -126,45 +148,28 @@ $(function() {
         }
     });
 
-    rolesTable.on('draw', function() {
-        Common.iCheck('#rule-roles-table input');
-    });
-
-    rolesAddBtn.on('click', function() {
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = rolesTable.rows({selected: true}),
-            toAdd = $.getSelectedIds(rolesTable),
-            opts = {
-                updateroles: 1,
-                role: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            if (err) {
-                return;
-            }
-            rolesTable.draw(false);
-            rolesTable.rows({selected: true}).deselect();
-        });
-    });
-
-    rolesRemoveBtn.on('click', function() {
-        $('#roleDelModal').modal('show');
-    });
-
-    $('#confirmroleDeleteModal').on('click', function(e) {
-        $.deleteAssociated(rolesTable, rolesRemoveBtn.attr('action'), function(err) {
-            if (err) {
-                return;
-            }
+    accesscontrolruleRoleDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(accesscontrolruleRolesTable, accesscontrolruleRoleUpdateBtn.attr('action'), function(err) {
             $('#roleDelModal').modal('hide');
-            rolesTable.draw(false);
-            rolesTable.rows({selected: true}).deselect();
-        });
-
+            if (err) {
+                return;
+            }
+            accesscontrolruleRolesTable.draw(false);
+            accesscontrolruleRolesTable.rows({selected: true}).deselect();
+        })
     });
+
+    accesscontrolruleRolesTable.on('draw', function() {
+        Common.iCheck('#accesscontrolrule-role-table input');
+        $('#accesscontrolrule-role-table input.associated').on('ifChanged', onAccesscontrolruleRoleCheckboxSelect);
+        onRoleSelect(accesscontrolruleRolesTable.rows({selected: true}));
+    });
+
+    var onAccesscontrolruleRoleCheckboxSelect = function(e) {
+        $.checkItemUpdate(accesscontrolruleRolesTable, this, e, accesscontrolruleRoleUpdateBtn);
+    };
 
     if (Common.search && Common.search.length > 0) {
-        rolesTable.search(Common.search).draw();
+        accesscontrolruleRolesTable.search(Common.search).draw();
     }
 });
