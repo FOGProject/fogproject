@@ -1,5 +1,5 @@
 (function($) {
-    var exportTable = $('#role-export-table').registerTable(null, {
+    var exportTable = $('#accesscontrol-export-table').registerTable(null, {
         buttons: [
             'copy',
             {

@@ -1,7 +1,4 @@
 $(function() {
-    // Any special functions that can be commonized for this element.
-    var onCheckboxSelect = function(event) {
-    };
     // ---------------------------------------------------------------
     // GENERAL TAB
     var originalName = $('#role').val(),
@@ -11,9 +8,8 @@ $(function() {
             text = text.replace(': ' + originalName, ': ' + newName);
             document.title = text;
             e.text(text);
-        };
-
-    var generalForm = $('#role-general-form'),
+        },
+        generalForm = $('#accesscontrol-general-form'),
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
         generalDeleteModal = $('#deleteModal'),
@@ -59,29 +55,52 @@ $(function() {
 
     // ---------------------------------------------------------------
     // RULE ASSOCIATION TAB
-    var rulesAddBtn = $('#rules-add'),
-        rulesRemoveBtn = $('#rules-remove');
+    var accesscontrolRuleUpdateBtn = $('#accesscontrol-rule-send'),
+        accesscontrolRuleRemoveBtn = $('#accesscontrol-rule-remove'),
+        accesscontrolRuleDeleteConfirmBtn = $('#confirmruleDeleteModal');
 
-    rulesAddBtn.prop('disabled', true);
-    rulesRemoveBtn.prop('disabled', true);
-
-    function onRulesSelect (selected) {
-        var disabled = selected.count() == 0;
-        rulesAddBtn.prop('disabled', disabled);
-        rulesRemoveBtn.prop('disabled', disabled);
+    function disableRuleButtons(disable) {
+        accesscontrolRuleUpdateBtn.prop('disabled', disable);
+        accesscontrolRuleRemoveBtn.prop('disabled', disable);
     }
 
-    var rulesTable = $('#role-rules-table').registerTable(onRulesSelect, {
+    function onRuleSelect(selected) {
+        var disabled = selected.count() == 0;
+        disableRuleButtons(disabled);
+    }
+
+    accesscontrolRuleUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = accesscontrolRulesTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(accesscontrolRulesTable),
+            opts = {
+                confirmadd: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableRuleButtons(false);
+            if (err) {
+                return;
+            }
+            accesscontrolRulesTable.draw(false);
+            accesscontrolRulesTable.rows({selected: true}).deselect();
+        });
+    });
+
+    accesscontrolRuleRemoveBtn.on('click', function(e) {
+        $('#ruleDelModal').modal('show');
+    });
+
+    var accesscontrolRulesTable = $('#accesscontrol-rule-table').registerTable(onRuleSelect, {
         order: [
-            [4, 'asc'],
+            [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
             {data: 'name'},
-            {data: 'parent'},
-            {data: 'value'},
-            {data: 'node'},
-            {data: 'association'}
+            {data: 'association'},
         ],
         rowId: 'id',
         columnDefs: [
@@ -89,10 +108,10 @@ $(function() {
                 responsivePriority: -1,
                 render: function(data, type, row) {
                     return '<a href="../management/index.php?node=accesscontrolrule&sub=edit&id='
-                    + row.id
-                    + '">'
-                    + data
-                    + '</a>';
+                        + row.id
+                        + '">'
+                        + data
+                        + '</a>';
                 },
                 targets: 0
             },
@@ -103,116 +122,12 @@ $(function() {
                         checkval = ' checked';
                     }
                     return '<div class="checkbox">'
-                    + '<input type="checkbox" class="associated" name="associate[]" id="ruleAssoc_'
-                    + row.id
-                    + '" value="' + row.id + '"'
-                    + checkval
-                    + '/>'
-                    + '</div>';
-                },
-                targets: 4
-            }
-        ],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='
-            + Common.node
-            + '&sub=getRulesList&id='
-            + Common.id,
-            type: 'post'
-        }
-    });
-
-    rulesTable.on('draw', function() {
-        Common.iCheck('#role-rules-table input');
-    });
-
-    rulesAddBtn.on('click', function() {
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = rulesTable.rows({selected: true}),
-            toAdd = $.getSelectedIds(rulesTable),
-            opts = {
-                updaterules: 1,
-                rule: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            if (err) {
-                return;
-            }
-            rulesTable.draw(false);
-            rulesTable.rows({selected: true}).deselect();
-        });
-    });
-
-    rulesRemoveBtn.on('click', function() {
-        $('#ruleDelModal').modal('show');
-    });
-    $('#confirmruleDeleteModal').on('click', function(e) {
-        $.deleteAssociated(rulesTable, rulesRemoveBtn.attr('action'), function(err) {
-            if (err) {
-                return;
-            }
-            $('#ruleDelModal').modal('hide');
-            rulesTable.draw(false);
-            rulesTable.rows({selected: true}).deselect();
-        });
-    });
-
-    if (Common.search && Common.search.length > 0) {
-        rulesTable.search(Common.search).draw();
-    }
-
-    // ---------------------------------------------------------------
-    // USER ASSOCIATION TAB
-    var usersAddBtn = $('#users-add'),
-        usersRemoveBtn = $('#users-remove');
-
-    usersAddBtn.prop('disabled', true);
-    usersRemoveBtn.prop('disabled', true);
-
-    function onUsersSelect (selected) {
-        var disabled = selected.count() == 0;
-        usersAddBtn.prop('disabled', disabled);
-        usersRemoveBtn.prop('disabled', disabled);
-    }
-
-    var usersTable = $('#role-users-table').registerTable(onUsersSelect, {
-        order: [
-            [1, 'asc'],
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'name'},
-            {data: 'association'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            {
-                responsivePriority: -1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=user&sub=edit&id='
-                    + row.id
-                    + '">'
-                    + data
-                    + '</a>';
-                },
-                targets: 0
-            },
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="checkbox">'
-                    + '<input type="checkbox" class="associated" name="associate[]" id="userAssoc_'
-                    + row.id
-                    + '" value="' + row.id + '"'
-                    + checkval
-                    + '/>'
-                    + '</div>';
+                        + '<input type="checkbox" class="associated" name="associate[]" id="accesscontrolRuleAssoc_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
                 },
                 targets: 1
             }
@@ -220,51 +135,142 @@ $(function() {
         processing: true,
         serverSide: true,
         ajax: {
-            url: '../management/index.php?node='
-            + Common.node
-            + '&sub=getUsersList&id='
-            + Common.id,
+            url: '../management/index.php?node='+Common.node+'&sub=getRulesList&id='+Common.id,
             type: 'post'
         }
     });
 
-    usersTable.on('draw', function() {
-        Common.iCheck('#role-users-table input');
+    accesscontrolRuleDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(accesscontrolRulesTable, accesscontrolRuleUpdateBtn.attr('action'), function(err) {
+            $('#ruleDelModal').modal('hide');
+            if (err) {
+                return;
+            }
+            accesscontrolRulesTable.draw(false);
+            accesscontrolRulesTable.rows({selected: true}).deselect();
+        });
     });
 
-    usersAddBtn.on('click', function() {
+    accesscontrolRulesTable.on('draw', function() {
+        Common.iCheck('#accesscontrol-rule-table input');
+        $('#accesscontrol-rule-table input.associated').on('ifChanged', onAccesscontrolRuleCheckboxSelect);
+        onRuleSelect(accesscontrolRulesTable.rows({selected: true}));
+    });
+
+    var onAccesscontrolRuleCheckboxSelect = function(e) {
+        $.checkItemUpdate(accesscontrolRulesTable, this, e, accesscontrolRuleUpdateBtn);
+    };
+
+    // ---------------------------------------------------------------
+    // USER ASSOCIATION TAB
+    var accesscontrolUserUpdateBtn = $('#accesscontrol-user-send'),
+        accesscontrolUserRemoveBtn = $('#accesscontrol-user-remove'),
+        accesscontrolUserDeleteConfirmBtn = $('#confirmuserDeleteModal');
+
+    function disableUserButtons(disable) {
+        accesscontrolUserUpdateBtn.prop('disabled', disable);
+        accesscontrolUserRemoveBtn.prop('disabled', disable);
+    }
+
+    function onUserSelect(selected) {
+        var disabled = selected.count() == 0;
+        disableUserButtons(disabled);
+    }
+
+    accesscontrolUserUpdateBtn.on('click', function(e) {
+        e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            rows = usersTable.rows({selected: true}),
-            toAdd = $.getSelectedIds(usersTable),
+            rows = accesscontrolUsersTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(accesscontrolUsersTable),
             opts = {
-                updateusers: 1,
-                user: toAdd
+                confirmadd: 1,
+                additems: toAdd
             };
         $.apiCall(method,action,opts,function(err) {
+            disableUserButtons(false);
             if (err) {
                 return;
             }
-            usersTable.draw(false);
-            usersTable.rows({selected: true}).deselect();
+            accesscontrolUsersTable.draw(false);
+            accesscontrolUsersTable.rows({selected: true}).deselect();
         });
     });
 
-    usersRemoveBtn.on('click', function() {
+    accesscontrolUserRemoveBtn.on('click', function(e) {
         $('#userDelModal').modal('show');
     });
-    $('#confirmuserDeleteModal').on('click', function(e) {
-        $.deleteAssociated(usersTable, usersRemoveBtn.attr('action'), function(err) {
+
+    var accesscontrolUsersTable = $('#accesscontrol-user-table').registerTable(onUserSelect, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'name'},
+            {data: 'association'},
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                responsivePriority: -1,
+                render: function(data, type, row) {
+                    return '<a href="../management/index.php?node=user&sub=edit&id='
+                        + row.id
+                        + '">'
+                        + data
+                        + '</a>';
+                },
+                targets: 0
+            },
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="accesscontrolUserAssoc_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='+Common.node+'&sub=getUsersList&id='+Common.id,
+            type: 'post'
+        }
+    });
+
+    accesscontrolUserDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(accesscontrolUsersTable, accesscontrolUserUpdateBtn.attr('action'), function(err) {
+            $('#userDelModal').modal('hide');
             if (err) {
                 return;
             }
-            $('#userDelModal').modal('hide');
-            usersTable.draw(false);
-            usersTable.rows({selected: true}).deselect();
+            accesscontrolUsersTable.draw(false);
+            accesscontrolUsersTable.rows({selected: true}).deselect();
         });
     });
 
+    accesscontrolUsersTable.on('draw', function() {
+        Common.iCheck('#accesscontrol-user-table input');
+        $('#accesscontrol-user-table input.associated').on('ifChanged', onAccesscontrolUserCheckboxSelect);
+        onUserSelect(accesscontrolUsersTable.rows({selected: true}));
+    });
+
+    var onAccesscontrolUserCheckboxSelect = function(e) {
+        $.checkItemUpdate(accesscontrolUsersTable, this, e, accesscontrolUserUpdateBtn);
+    };
+
     if (Common.search && Common.search.length > 0) {
-        usersTable.search(Common.search).draw();
+        accesscontrolRulesTable.search(Common.search).draw();
+        accesscontrolUsersTable.search(Common.search).draw();
     }
 });
