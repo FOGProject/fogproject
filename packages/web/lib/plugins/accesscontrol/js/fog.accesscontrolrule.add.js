@@ -1,5 +1,5 @@
 (function($) {
-    var createForm = $('#rule-create-form'),
+    var createForm = $('#accesscontrolrule-create-form'),
         createFormBtn = $('#send');
     createForm.on('submit', function(e) {
         e.preventDefault();

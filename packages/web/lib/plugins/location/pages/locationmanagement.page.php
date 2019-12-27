@@ -718,7 +718,6 @@ class LocationManagement extends FOGPage
                 ]
             );
         }
-
         self::$HookManager
             ->processEvent(
                 $hook,

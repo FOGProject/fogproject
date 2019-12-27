@@ -692,58 +692,23 @@ class AccessControlManagement extends FOGPage
      */
     public function getUsersList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $usersSqlStr = "SELECT `%s`,"
-            . "IF(`ruaRoleID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') as `ruaRoleID`
-            FROM `%s`
-            LEFT OUTER JOIN `roleUserAssoc`
-            ON `users`.`uID` = `roleUserAssoc`.`ruaUserID`
-            %s
-            %s
-            %s";
-        $usersFilterStr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            LEFT OUTER JOIN `roleUserAssoc`
-            ON `users`.`uID` = `roleUserAssoc`.`ruaUserID`
-            %s";
-        $usersTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
-
-        foreach (self::getClass('UserManager')
-            ->getColumns() as $common => &$real
-        ) {
-            if ('id' == $common) {
-                $tableID = $real;
-            }
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
-        $columns[] = [
-            'db' => 'ruaRoleID',
-            'dt' => 'association'
+        $join = [
+            'LEFT OUTER JOIN `roleUserAssoc` ON '
+            . "`users`.`uID` = `roleUserAssoc`.`ruaUserID` "
+            . "AND `roleUserAssoc`.`ruaRoleID` = '" . $this->obj->get('id') . "'"
         ];
-        echo json_encode(
-            FOGManagerController::simple(
-                $pass_vars,
-                'users',
-                $tableID,
-                $columns,
-                $usersSqlStr,
-                $usersFilterStr,
-                $usersTotalStr
-            )
+        $columns[] = [
+            'db' => 'accesscontrolAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
+        ];
+        return $this->obj->getItemsList(
+            'user',
+            'accesscontrolassociation',
+            $join,
+            '',
+            $columns
         );
-        exit;
     }
     /**
      * Gets the rules list.
@@ -752,57 +717,22 @@ class AccessControlManagement extends FOGPage
      */
     public function getRulesList()
     {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-
-        $rulesSqlStr = "SELECT `%s`,"
-            . "IF(`rraRoleID` = '"
-            . $this->obj->get('id')
-            . "','associated','dissociated') as `rraRoleID`
-            FROM `%s`
-            LEFT OUTER JOIN `roleRuleAssoc`
-            ON `rules`.`ruleID` = `roleRuleAssoc`.`rraRuleID`
-            %s
-            %s
-            %s";
-        $rulesFilterStr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            LEFT OUTER JOIN `roleRuleAssoc`
-            ON `rules`.`ruleID` = `roleRuleAssoc`.`rraRuleID`
-            %s";
-        $rulesTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`";
-
-        foreach (self::getClass('AccessControlRuleManager')
-            ->getColumns() as $common => &$real
-        ) {
-            if ('id' == $common) {
-                $tableID = $real;
-            }
-            $columns[] = [
-                'db' => $real,
-                'dt' => $common
-            ];
-            unset($real);
-        }
-        $columns[] = [
-            'db' => 'rraRoleID',
-            'dt' => 'association'
+        $join = [
+            'LEFT OUTER JOIN `roleRuleAssoc` ON '
+            . "`rules`.`ruleID` = `roleRuleAssoc`.`rraRoleID` "
+            . "AND `roleRuleAssoc`.`rraRoleID` = '" . $this->obj->get('id') . "'"
         ];
-        echo json_encode(
-            FOGManagerController::simple(
-                $pass_vars,
-                'rules',
-                $tableID,
-                $columns,
-                $rulesSqlStr,
-                $rulesFilterStr,
-                $rulesTotalStr
-            )
+        $columns[] = [
+            'db' => 'accesscontrolAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
+        ];
+        return $this->obj->getItemsList(
+            'accesscontrolrule',
+            'accesscontrolruleassociation',
+            $join,
+            '',
+            $columns
         );
-        exit;
     }
 }
