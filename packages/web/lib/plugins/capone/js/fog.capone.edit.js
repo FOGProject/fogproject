@@ -17,9 +17,12 @@ $(function() {
         generalForm.processForm(function(err) {
             generalFormBtn.prop('disabled', false);
             generalDeleteBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
         });
     });
-    generalDeleteBtn.on('cilck', function() {
+    generalDeleteBtn.on('click', function() {
         generalDeleteModal.modal('show');
     });
     generalDeleteModalConfirm.on('click', function() {

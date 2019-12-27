@@ -1,7 +1,4 @@
 $(function() {
-    // Any special functions that can be commonized for this element.
-    var onCheckboxSelect = function(event) {
-    };
     // ---------------------------------------------------------------
     // GENERAL TAB
     var originalName = $('#ldap').val(),
@@ -11,9 +8,8 @@ $(function() {
             text = text.replace(': ' + originalName, ': ' + newName);
             document.title = text;
             e.text(text);
-        };
-
-    var generalForm = $('#ldap-general-form'),
+        },
+        generalForm = $('#ldap-general-form'),
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
         generalDeleteModal = $('#deleteModal'),

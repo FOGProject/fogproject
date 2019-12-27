@@ -39,8 +39,6 @@ class SubnetGroupManagement extends FOGPage
     public function __construct($name = '')
     {
         $this->name = 'Subnet Group Management';
-        self::$foglang['ExportSubnetgroup'] = _('Export Subnet Groups');
-        self::$foglang['ImportSubnetgroup'] = _('Import Subnet Groups');
         parent::__construct($this->name);
         $this->headerData = [
             _('Name'),
