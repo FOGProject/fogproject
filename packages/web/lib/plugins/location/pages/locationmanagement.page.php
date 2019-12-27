@@ -659,7 +659,6 @@ class LocationManagement extends FOGPage
                             $this->locationHosts();
                             
                         }
-        
                     ]
                 ]
             ]

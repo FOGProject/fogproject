@@ -263,7 +263,7 @@ class OUManagement extends FOGPage
             $msg = json_encode(
                 [
                     'msg' => _('OU added!'),
-                    'title' => _('OU Create Succes')
+                    'title' => _('OU Create Success')
                 ]
             );
         } catch (Exception $e) {
@@ -441,43 +441,47 @@ class OUManagement extends FOGPage
      *
      * @return void
      */
-    public function ouMembership()
+    public function ouHosts()
     {
-        global $id;
+        $this->headerData = [
+            _('Host Name'),
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=ou-membership" ';
+            . self::makeTabUpdateURL(
+                'ou-host',
+                $this->obj->get('id')
+            )
+            . '" ';
 
         $buttons = self::makeButton(
-            'membership-add',
+            'ou-host-send',
             _('Add Selected'),
             'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
-            'membership-remove',
+            'ou-host-remove',
             _('Remove Selected'),
             'btn btn-danger pull-left',
             $props
         );
 
-        $this->headerData = [
-            _('Host Name'),
-            _('Host Associated')
-        ];
-        $this->attributes = [
-            [],
-            []
-        ];
-
-        echo '<!-- Host Membership -->';
-        echo '<div class="box-group" id="membership">';
-        echo '<div class="box box-solid">';
-        echo '<div class="updatemembership" class="">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('OU Host Associations');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'ou-membership-table', $buttons);
+        $this->render(12, 'ou-host-table', $buttons);
         echo '</div>';
-        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('host');
         echo '</div>';
         echo '</div>';
     }
@@ -486,31 +490,35 @@ class OUManagement extends FOGPage
      *
      * @return void
      */
-    public function ouMembershipPost()
+    public function ouHostPost()
     {
-        if (isset($_POST['updatemembership'])) {
-            $membership = filter_input_array(
+        if (isset($_POST['confirmadd'])) {
+            $hosts = filter_input_array(
                 INPUT_POST,
                 [
-                    'membership' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $membership = $membership['membership'];
-            $this->obj->addHost($membership);
+            $hosts = $hosts['additems'];
+            if (count($hosts ?: [])) {
+                $this->obj->addHost($hosts);
+            }
         }
-        if (isset($_POST['membershipdel'])) {
-            $membership = filter_input_array(
+        if (isset($_POST['confirmdel'])) {
+            $hosts = filter_input_array(
                 INPUT_POST,
                 [
-                    'membershipRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $membership = $membership['membershipRemove'];
-            $this->obj->removeHost($membership);
+            $hosts = $hosts['remitems'];
+            if (count($hosts ?: [])) {
+                $this->obj->removeHost($hosts);
+            }
         }
     }
     /**
@@ -539,11 +547,18 @@ class OUManagement extends FOGPage
 
         // Hosts
         $tabData[] = [
-            'name' => _('Host Association'),
-            'id' => 'ou-membership',
-            'generator' => function () {
-                $this->ouMembership();
-            }
+            'tabs' => [
+                'name' => _('Associations'),
+                'tabData' => [
+                    [
+                        'name' => _('Host Association'),
+                        'id' => 'ou-host',
+                        'generator' => function () {
+                            $this->ouHosts();
+                        }
+                    ]
+                ]
+            ]
         ];
 
         echo self::tabFields($tabData, $this->obj);
@@ -568,8 +583,8 @@ class OUManagement extends FOGPage
             case 'ou-general':
                 $this->ouGeneralPost();
                 break;
-            case 'ou-membership':
-                $this->ouMembershipPost();
+            case 'ou-host':
+                $this->ouHostPost();
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
