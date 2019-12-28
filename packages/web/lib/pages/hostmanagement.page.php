@@ -1879,51 +1879,45 @@ class HostManagement extends FOGPage
      */
     public function hostGroups()
     {
+        $this->headerData = [
+            _('Group Name'),
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
-                'host-groups',
+                'host-group',
                 $this->obj->get('id')
             )
             . '" ';
 
         $buttons = self::makeButton(
-            'groups-add',
+            'host-group-send',
             _('Add selected'),
             'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
-            'groups-remove',
+            'host-group-remove',
             _('Remove selected'),
             'btn btn-danger pull-left',
             $props
         );
 
-        $this->headerData = [
-            _('Group Name'),
-            _('Group Associated')
-        ];
-        $this->attributes = [
-            [],
-            []
-        ];
-
-        echo '<!-- Groups -->';
-        echo '<div class="box-group" id="groups">';
-        echo '<div class="box box-solid">';
-        echo '<div id="updategroups" class="">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Host Groups');
+        echo _('Host Group Associations');
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'host-groups-table', $buttons);
+        $this->render(12, 'host-group-table', $buttons);
         echo '</div>';
         echo '<div clas="box-footer with-border">';
         echo $this->assocDelModal('group');
-        echo '</div>';
-        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
@@ -1934,16 +1928,16 @@ class HostManagement extends FOGPage
      */
     public function hostGroupPost()
     {
-        if (isset($_POST['updategroups'])) {
+        if (isset($_POST['confirmadd'])) {
             $groups = filter_input_array(
                 INPUT_POST,
                 [
-                    'group' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $groups = $groups['group'];
+            $groups = $groups['additems'];
             if (count($groups ?: []) > 0) {
                 $this->obj->addGroup($groups);
             }
@@ -2222,50 +2216,45 @@ class HostManagement extends FOGPage
      */
     public function hostSnapins()
     {
+        $this->headerData = [
+            _('Snapin Name'),
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=host-snapins" ';
+            . self::makeTabUpdateURL(
+                'host-snapin',
+                $this->obj->get('id')
+            )
+            . '" ';
 
         $buttons = self::makeButton(
-            'snapins-add',
+            'host-snapin-send',
             _('Add selected'),
             'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
-            'snapins-remove',
+            'host-snapin-remove',
             _('Remove selected'),
             'btn btn-danger pull-left',
             $props
         );
 
-        $this->headerData = [
-            _('Snapin Name'),
-            _('Snapin Created'),
-            _('Snapin Associated')
-        ];
-        $this->attributes = [
-            [],
-            [],
-            []
-        ];
-
-        echo '<!-- Snapins -->';
-        echo '<div class="box-group" id="snapins">';
-        echo '<div class="box box-solid">';
-        echo '<div id="updatesnapins" class="">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Host Snapins');
+        echo _('Host Snapin Associations');
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'host-snapins-table', $buttons);
+        $this->render(12, 'host-snapin-table', $buttons);
         echo '</div>';
-        echo '<div class="box-footer with-border">';
+        echo '<div clas="box-footer with-border">';
         echo $this->assocDelModal('snapin');
-        echo '</div>';
-        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
@@ -2276,16 +2265,16 @@ class HostManagement extends FOGPage
      */
     public function hostSnapinPost()
     {
-        if (isset($_POST['updatesnapins'])) {
+        if (isset($_POST['confirmadd'])) {
             $snapins = filter_input_array(
                 INPUT_POST,
                 [
-                    'snapin' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $snapins = $snapins['snapin'];
+            $snapins = $snapins['additems'];
             if (count($snapins ?: []) > 0) {
                 $this->obj->addSnapin($snapins);
             }
@@ -3753,22 +3742,22 @@ class HostManagement extends FOGPage
                 'name' => _('Associations'),
                 'tabData' => [
                     [
-                        'name' => _('Groups'),
-                        'id' => 'host-groups',
+                        'name' => _('Group Associations'),
+                        'id' => 'host-group',
                         'generator' => function () {
                             $this->hostGroups();
                         }
                     ],
                     [
-                        'name' => _('Printers'),
+                        'name' => _('Printer Associations'),
                         'id' => 'host-printers',
                         'generator' => function () {
                             $this->hostPrinters();
                         }
                     ],
                     [
-                        'name' => _('Snapins'),
-                        'id' => 'host-snapins',
+                        'name' => _('Snapin Associations'),
+                        'id' => 'host-snapin',
                         'generator' => function () {
                             $this->hostSnapins();
                         }
@@ -3881,13 +3870,13 @@ class HostManagement extends FOGPage
             case 'host-powermanagement':
                 $this->hostPowermanagementPost();
                 break;
-            case 'host-groups':
+            case 'host-group':
                 $this->hostGroupPost();
                 break;
             case 'host-printers':
                 $this->hostPrinterPost();
                 break;
-            case 'host-snapins':
+            case 'host-snapin':
                 $this->hostSnapinPost();
                 break;
             case 'host-service':
