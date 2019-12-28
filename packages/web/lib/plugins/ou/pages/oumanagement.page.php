@@ -571,11 +571,10 @@ class OUManagement extends FOGPage
     public function editPost()
     {
         header('Content-type: application/json');
-        self::$HookManager
-            ->processEvent(
-                'OU_EDIT_POST',
-                ['OU' => &$this->obj]
-            );
+        self::$HookManager->processEvent(
+            'OU_EDIT_POST',
+            ['OU' => &$this->obj]
+        );
         $serverFault = false;
         try {
             global $tab;
@@ -612,17 +611,16 @@ class OUManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'OU' => &$this->obj,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'OU' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
         http_response_code($code);
         echo $msg;
         exit;

@@ -68,6 +68,7 @@
                 return;
             }
             table.draw(false);
+            table.rows({selected: true}).deselect();
             createnewModal.modal('hide');
         });
     });

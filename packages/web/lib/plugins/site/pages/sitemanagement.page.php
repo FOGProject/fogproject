@@ -94,15 +94,14 @@ class SiteManagement extends FOGPage
             'btn btn-primary pull-right'
         );
 
-        self::$HookManager
-            ->processEvent(
-                'SITE_ADD_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'buttons' => &$buttons,
-                    'Site' => self::getClass('Site')
-                ]
-            );
+        self::$HookManager->processEvent(
+            'SITE_ADD_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'Site' => self::getClass('Site')
+            ]
+        );
         $rendered = self::formFields($fields);
         unset($fields);
 
