@@ -182,7 +182,10 @@ $(function() {
         processing: true,
         serverSide: true,
         ajax: {
-            url: '../management/index.php?node='+Common.node+'&sub=getHostsList&id='+Common.id,
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getHostsList&id='
+                + Common.id,
             type: 'post'
         }
     });

@@ -46,8 +46,8 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
-            + Common.node
-            + '&sub=list',
+                + Common.node
+                + '&sub=list',
             type: 'post'
         }
     });
@@ -68,6 +68,7 @@
                 return;
             }
             table.draw(false);
+            table.rows({selected: true}).deselect();
             createnewModal.modal('hide');
         });
     });

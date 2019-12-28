@@ -135,17 +135,11 @@ $(function() {
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
-            + Common.node
-            + '&sub=getHostsList&id='
-            + Common.id,
+                + Common.node
+                + '&sub=getHostsList&id='
+                + Common.id,
             type: 'post'
         }
-    });
-
-    siteHostsTable.on('draw', function() {
-        Common.iCheck('#site-host-table input');
-        $('#site-host-table input.associated').on('ifChanged', onSiteHostCheckboxSelect);
-        onHostSelect(siteHostsTable.rows({selected: true}));
     });
 
     siteHostDeleteConfirmBtn.on('click', function(e) {
@@ -158,6 +152,13 @@ $(function() {
             siteHostsTable.rows({selected: true}).deselect();
         });
     });
+
+    siteHostsTable.on('draw', function() {
+        Common.iCheck('#site-host-table input');
+        $('#site-host-table input.associated').on('ifChanged', onSiteHostCheckboxSelect);
+        onHostSelect(siteHostsTable.rows({selected: true}));
+    });
+
     var onSiteHostCheckboxSelect = function(e) {
         $.checkItemUpdate(siteHostsTable, this, e, siteHostUpdateBtn);
     };
@@ -245,9 +246,9 @@ $(function() {
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
-            + Common.node
-            + '&sub=getUsersList&id='
-            + Common.id,
+                + Common.node
+                + '&sub=getUsersList&id='
+                + Common.id,
             type: 'post'
         }
     });

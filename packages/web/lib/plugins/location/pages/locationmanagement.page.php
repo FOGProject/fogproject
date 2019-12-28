@@ -657,7 +657,7 @@ class LocationManagement extends FOGPage
                         'id' => 'location-host',
                         'generator' => function () {
                             $this->locationHosts();
-                            
+
                         }
                     ]
                 ]
@@ -674,11 +674,10 @@ class LocationManagement extends FOGPage
     public function editPost()
     {
         header('Content-type: application/json');
-        self::$HookManager
-            ->processEvent(
-                'LOCATION_EDIT_POST',
-                ['Location' => &$this->obj]
-            );
+        self::$HookManager->processEvent(
+            'LOCATION_EDIT_POST',
+            ['Location' => &$this->obj]
+        );
         $serverFault = false;
         try {
             global $tab;
@@ -715,17 +714,16 @@ class LocationManagement extends FOGPage
                 ]
             );
         }
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'Location' => &$this->obj,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
-            );
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Location' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
         http_response_code($code);
         echo $msg;
         exit;
@@ -739,7 +737,7 @@ class LocationManagement extends FOGPage
     {
         $join = [
             'LEFT OUTER JOIN `locationAssoc` ON '
-            . " `hosts`.`hostID` = `locationAssoc`.`laHostID` "
+            . "`hosts`.`hostID` = `locationAssoc`.`laHostID` "
             . "AND `locationAssoc`.`laLocationID` = '" . $this->obj->get('id') . "'"
         ];
         $columns[] = [

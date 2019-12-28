@@ -22,8 +22,8 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
-            + Common.node
-            + '&sub=getExportList',
+                + Common.node
+                + '&sub=getExportList',
             type: 'post'
         }
     });
