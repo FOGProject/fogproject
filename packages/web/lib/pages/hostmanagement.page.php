@@ -1970,7 +1970,7 @@ class HostManagement extends FOGPage
         );
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
-                'host-printers',
+                'host-printer',
                 $this->obj->get('id')
             )
             . '" ';
@@ -1981,9 +1981,6 @@ class HostManagement extends FOGPage
         echo '<div class="box-group" id="printers">';
         echo '<div class="box box-info">';
         echo '<div class="box-header with-border">';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
         echo '<h4 class="box-title">';
         echo _('Host Printer Configuration');
         echo '</h4>';
@@ -1993,7 +1990,7 @@ class HostManagement extends FOGPage
             'form-horizontal',
             'printer-config-form',
             self::makeTabUpdateURL(
-                'host-printers',
+                'host-printer',
                 $this->obj->get('id')
             ),
             'post',
@@ -2103,61 +2100,63 @@ class HostManagement extends FOGPage
         echo '</div>';
         echo '</div>';
 
-        $buttons = self::makeButton(
-            'printer-default',
-            _('Update default'),
-            'btn btn-primary pull-right',
-            $props
-        );
+        // DEFAULT Printer
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Host Default Printer');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo _('TODO: Make Functional');
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo _('Buttons to go here, update');
+        echo '</div>';
+        echo '</div>';
+
+        // Printer Associations
+        $this->headerData = [
+            _('Printer Name'),
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'host-printer',
+                $this->obj->get('id')
+            )
+            . '" ';
+
         $buttons .= self::makeButton(
-            'printer-add',
+            'host-printer-send',
             _('Add selected'),
             'btn btn-success pull-right',
             $props
         );
         $buttons .= self::makeButton(
-            'printer-remove',
+            'host-printer-remove',
             _('Remove selected'),
             'btn btn-danger pull-left',
             $props
         );
-        $this->headerData = [
-            _('Default'),
-            _('Printer Alias'),
-            _('Printer Type'),
-            _('Printer Associated')
-        ];
-        $this->attributes = [
-            [
-                'class' => 'col-md-1'
-            ],
-            [],
-            [],
-            []
-        ];
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
         echo '<h4 class="box-title">';
-        echo _('Update/Remove printers');
+        echo _('Host Printer Associations');
         echo '</h4>';
         echo '<div>';
-        echo '<p class="help-block">';
-        echo _('Changes will automatically be saved');
-        echo '</p>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div id="updateprinters" class="">';
         echo '<div class="box-body">';
-        $this->render(12, 'host-printers-table', $buttons);
+        $this->render(12, 'host-printer-table', $buttons);
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $this->assocDelModal('printer');
         echo '</div>';
         echo '</div>';
-        echo '</div>';
+
         echo '</div>';
     }
     /**
@@ -2171,16 +2170,16 @@ class HostManagement extends FOGPage
             $level = filter_input(INPUT_POST, 'level');
             $this->obj->set('printerLevel', $level);
         }
-        if (isset($_POST['updateprinters'])) {
+        if (isset($_POST['confirmadd'])) {
             $printers = filter_input_array(
                 INPUT_POST,
                 [
-                    'printer' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $printers = $printers['printer'];
+            $printers = $printers['additems'];
             if (count($printers ?: []) > 0) {
                 $this->obj->addPrinter($printers);
             }
@@ -3750,7 +3749,7 @@ class HostManagement extends FOGPage
                     ],
                     [
                         'name' => _('Printer Associations'),
-                        'id' => 'host-printers',
+                        'id' => 'host-printer',
                         'generator' => function () {
                             $this->hostPrinters();
                         }
@@ -3873,7 +3872,7 @@ class HostManagement extends FOGPage
             case 'host-group':
                 $this->hostGroupPost();
                 break;
-            case 'host-printers':
+            case 'host-printer':
                 $this->hostPrinterPost();
                 break;
             case 'host-snapin':

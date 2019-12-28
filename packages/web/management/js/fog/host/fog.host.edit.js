@@ -757,7 +757,7 @@
                         checkval = ' checked';
                     }
                     return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="moduleAssoc_'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="hostModuleAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
                         + checkval
@@ -1106,7 +1106,7 @@
                         checkval = ' checked';
                     }
                     return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="snapinAssoc_'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="hostGroupAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
                         + checkval
@@ -1152,133 +1152,15 @@
     // PRINTER TAB
     var printerConfigForm = $('#printer-config-form'),
         printerConfigBtn = $('#printer-config-send'),
-        printerAddBtn = $('#printer-add'),
+        // Associations
+        hostPrinterUpdateBtn = $('#host-printer-send'),
+        hostPrinterRemoveBtn = $('#host-printer-remove'),
+        hostPrinterDeleteConfirmBtn = $('#confirmprinterDeleteModal'),
+        // Default
         printerDefaultBtn = $('#printer-default'),
-        printerRemoveBtn = $('#printer-remove'),
         DEFAULT_PRINTER_ID = -1;
 
-    printerAddBtn.prop('disabled', true);
-    printerRemoveBtn.prop('disabled', true);
-
-    function onPrintersSelect(selected) {
-        var disabled = selected.count() == 0;
-        printerAddBtn.prop('disabled', disabled);
-        printerRemoveBtn.prop('disabled', disabled);
-    }
-
-    var printersTable = $('#host-printers-table').registerTable(onPrintersSelect, {
-        order: [
-            [3, 'asc'],
-            [1, 'asc']
-        ],
-        columns: [
-            {data: 'isDefault'},
-            {data: 'name'},
-            {data: 'config'},
-            {data: 'association'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            {
-                responsivePriority: -1,
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (data > 0) {
-                        checkval = ' checked';
-                    }
-                    return '<div class="radio">'
-                        + '<input belongsto="defaultPrinters" type="radio" class="default" name="default" id="printer_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + ' wasoriginaldefault="'
-                        + checkval
-                        + '" '
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 0,
-            },
-            {
-                responsivePriority: 0,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=printer&sub=edit&id=' + row.id + '">' + data + '</a>';
-                },
-                targets: 1
-            },
-            {
-                render: function(data, type, row) {
-                    return row.config == 'Local' ? 'TCP/IP' : row.config;
-                },
-                targets: 2
-            },
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="printerAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 3
-            }
-        ],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='+Common.node+'&sub=getPrintersList&id='+Common.id,
-            type: 'post'
-        }
-    });
-
-    printersTable.on('draw', function() {
-        Common.iCheck('#host-printers input');
-        $('#host-printers-table input.default').on('ifClicked', onRadioSelect);
-        onPrintersSelect(printersTable.rows({selected: true}));
-    });
-    printerDefaultBtn.prop('disabled', true);
-
-    var onRadioSelect = function(event) {
-        if($(this).attr('belongsto') === 'defaultPrinters') {
-            var id = parseInt($(this).val());
-            if(DEFAULT_PRINTER_ID === -1 && $(this).attr('wasoriginaldefault') === ' checked') {
-                DEFAULT_PRINTER_ID = id;
-            }
-            if (id === DEFAULT_PRINTER_ID) {
-                $(this).iCheck('uncheck');
-                DEFAULT_PRINTER_ID = 0;
-            } else {
-                DEFAULT_PRINTER_ID = id;
-            }
-            printerDefaultBtn.prop('disabled', false);
-        }
-    };
-
-    // Setup default printer watcher
-    $('.default').on('ifClicked', onRadioSelect);
-
-    printerDefaultBtn.on('click',function() {
-        printerAddBtn.prop('disabled', true);
-        printerRemoveBtn.prop('disabled', true);
-
-        var method = printerDefaultBtn.attr('method'),
-            action = printerDefaultBtn.attr('action'),
-            opts = {
-                defaultsel: 1,
-                default: DEFAULT_PRINTER_ID
-            };
-        $.apiCall(method,action, opts, function(err) {
-            printerDefaultBtn.prop('disabled', !err);
-            onPrintersSelect(printersTable.rows({selected: true}));
-        });
-    });
-
+    // Config area
     printerConfigForm.serialize2 = printerConfigForm.serialize;
     printerConfigForm.serialize = function() {
         return printerConfigForm.serialize2() + '&levelup';
@@ -1297,52 +1179,126 @@
             printersTable.rows({selected: true}).deselect();
         });
     });
-    printerAddBtn.on('click',function() {
+
+    // Default area
+    printerDefaultBtn.prop('disabled', true);
+    printerDefaultBtn.on('click',function() {
         printerAddBtn.prop('disabled', true);
+        printerRemoveBtn.prop('disabled', true);
 
-        var method = printerAddBtn.attr('method'),
-            action = printerAddBtn.attr('action'),
-            rows = printersTable.rows({selected: true}),
-            toAdd = $.getSelectedIds(printersTable),
+        var method = printerDefaultBtn.attr('method'),
+            action = printerDefaultBtn.attr('action'),
             opts = {
-                updateprinters: 1,
-                printer: toAdd
+                defaultsel: 1,
+                default: DEFAULT_PRINTER_ID
             };
+        $.apiCall(method,action, opts, function(err) {
+            printerDefaultBtn.prop('disabled', !err);
+            onPrintersSelect(printersTable.rows({selected: true}));
+        });
+    });
 
+    // Association area
+    function disablePrinterButtons(disable) {
+        hostPrinterUpdateBtn.prop('disabled', disable);
+        hostPrinterRemoveBtn.prop('disabled', disable);
+    }
+
+    function onPrinterSelect(selected) {
+        var disabled = selected.count() == 0;
+        disablePrinterButtons(disabled);
+    }
+
+    hostPrinterUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = hostPrintersTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(hostPrintersTable),
+            opts = {
+                confirmadd: 1,
+                additems: toAdd
+            };
         $.apiCall(method,action,opts,function(err) {
-            printerAddBtn.prop('disabled', false);
+            disablePrinterButtons(false);
             if (err) {
                 return;
             }
-            $('#host-printers-table').find('.default:disabled').each(function() {
-                if ($.inArray($(this).val(), toAdd) != -1) {
-                    $(this).prop('disabled', false);
-                    Common.iCheck(this);
-                }
-            });
-            $('#host-printers-table').find('.associated').each(function() {
-                if ($.inArray($(this).val(), toAdd) != -1) {
-                    $(this).iCheck('check');
-                }
-            });
-            printersTable.draw(false);
-            printersTable.rows({selected: true}).deselect();
+            hostPrintersTable.draw(false);
+            hostPrintersTable.rows({selected: true}).deselect();
+        })
+    });
+
+    var hostPrintersTable = $('#host-printer-table').registerTable(onPrinterSelect, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'name'},
+            {data: 'association'}
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                responsivePriority: -1,
+                render: function(data, type, row) {
+                    return '<a href="../management/index.php?node=printer&sub=edit&id='
+                        + row.id
+                        + '">'
+                        + data
+                        + '</a>';
+                },
+                targets: 0
+            },
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="hostPrinterAssoc_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getPrintersList&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
+
+    hostPrinterDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(hostPrintersTable, hostPrinterUpdateBtn.attr('action'), function(err) {
+            $('#printerDelModal').modal('hide');
+            if (err) {
+                return;
+            }
+            hostPrintersTable.draw(false);
+            hostPrintersTable.rows({selected: true}).deselect();
         });
     });
 
-    printerRemoveBtn.on('click', function() {
-        $('#printerDelModal').modal('show');
+    hostPrintersTable.on('draw', function() {
+        Common.iCheck('#host-printer-table input');
+        $('#host-printer-table input.associated').on('ifChanged', onHostPrinterCheckboxSelect);
+        onPrinterSelect(hostPrintersTable.rows({selected: true}));
     });
-    $('#confirmprinterDeleteModal').on('click', function(e) {
-        $.deleteAssociated(printersTable, printerRemoveBtn.attr('action'), function(err) {
-            if (err) {
-                return;
-            }
-            $('#printerDelModal').modal('hide');
-            printersTable.draw(false);
-            printersTable.rows({selected: true}).deselect();
-        });
-    });
+
+    var onHostPrinterCheckboxSelect = function(e) {
+        $.checkItemUpdate(hostPrintersTable, this, e, hostPrinterUpdateBtn);
+    };
 
     // ---------------------------------------------------------------
     // SNAPINS TAB
@@ -1409,7 +1365,7 @@
                         checkval = ' checked';
                     }
                     return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="snapinAssoc_'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="hostSnapinAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
                         + checkval
@@ -1533,8 +1489,8 @@
         macsTable.search(Common.search).draw();
         //Associations
         hostGroupsTable.search(Common.search).draw();
-        printersTable.search(Common.search).draw();
-        snapinsTable.search(Common.search).draw();
+        hostPrintersTable.search(Common.search).draw();
+        hostSnapinsTable.search(Common.search).draw();
         // FOG Client
         modulesTable.search(Common.search).draw();
         powermanagementTable.search(Common.search).draw();
