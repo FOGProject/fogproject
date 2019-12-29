@@ -714,25 +714,45 @@
         });
     });
 
+    // SERVICE SETTINGS
     // ---------------------------------------------------------------
-    // SERVICE TAB
-    var modulesEnableBtn = $('#modules-enable'),
-        modulesDisableBtn = $('#modules-disable'),
-        modulesUpdateBtn = $('#modules-update'),
-        modulesDispBtn = $('#displayman-send'),
-        modulesAloBtn = $('#alo-send'),
-        modulesEnforceBtn = $('#enforcebtn');
+    // CLIENT SETTINGS TAB
+    var hostModuleUpdateBtn = $('#host-module-send'),
+        hostModuleRemoveBtn = $('#host-module-remove'),
+        hostModuleDeleteConfirmBtn = $('#confirmmoduleDeleteModal');
 
-    function onModulesDisable(selected) {
-        var disabled = selected.count() == 0;
-        modulesDisableBtn.prop('disabled', disabled);
-    }
-    function onModulesEnable(selected) {
-        var disabled = selected.count() == 0;
-        modulesEnableBtn.prop('disabled', disabled);
+    // Association area
+    function disableModuleButtons(disable) {
+        hostModuleUpdateBtn.prop('disabled', disable);
+        hostModuleRemoveBtn.prop('disabled', disable);
     }
 
-    var modulesTable = $('#modules-to-update').registerTable(onModulesEnable, {
+    function onModuleSelect(selected) {
+        var disabled = selected.count() == 0;
+        disableModuleButtons(disabled);
+    }
+
+    hostModuleUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = hostModulesTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(hostModulesTable),
+            opts = {
+                confirmadd: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableModuleButtons(false);
+            if (err) {
+                return;
+            }
+            hostModulesTable.draw(false);
+            hostModulesTable.rows({selected: true}).deselect();
+        })
+    });
+
+    var hostModulesTable = $('#host-module-table').registerTable(onModuleSelect, {
         order: [
             [1, 'asc'],
             [0, 'asc']
@@ -745,9 +765,6 @@
         columnDefs: [
             {
                 responsivePriority: -1,
-                render: function(data, type, row) {
-                    return row.name;
-                },
                 targets: 0
             },
             {
@@ -770,112 +787,155 @@
         processing: true,
         serverSide: true,
         ajax: {
-            url: '../management/index.php?node='+Common.node+'&sub=getModulesList&id='+Common.id,
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getModulesList&id='
+                + Common.id,
             type: 'post'
         }
     });
-    modulesTable.on('draw', function() {
-        Common.iCheck('#modules-to-update input');
+
+    hostModuleDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(hostModulesTable, hostModuleUpdateBtn.attr('action'), function(err) {
+            $('#moduleDelModal').modal('hide');
+            if (err) {
+                return;
+            }
+            hostModulesTable.draw(false);
+            hostModulesTable.rows({selected: true}).deselect();
+        });
     });
 
-    modulesUpdateBtn.on('click', function(e) {
+    hostModulesTable.on('draw', function() {
+        Common.iCheck('#host-module-table input');
+        $('#host-module-table input.associated').on('ifChanged', onHostModuleCheckboxSelect);
+        onModuleSelect(hostModulesTable.rows({selected: true}));
+    });
+
+    var onHostModuleCheckboxSelect = function(e) {
+        $.checkItemUpdate(hostModulesTable, this, e, hostModuleUpdateBtn);
+    };
+
+    function onModulesDisable(selected) {
+        var disabled = selected.count() == 0;
+        modulesDisableBtn.prop('disabled', disabled);
+    }
+    function onModulesEnable(selected) {
+        var disabled = selected.count() == 0;
+        modulesEnableBtn.prop('disabled', disabled);
+    }
+
+    // Display manager area
+    var hostModuleDisplaymanBtn = $('#host-displayman-send'),
+        hostModuleDisplayForm = $('#host-displayman-form');
+
+    function disableModuleDisplayButtons(disable) {
+        hostModuleDisplaymanBtn.prop('disabled', disable);
+    }
+
+    hostModuleDisplayForm.on('submit', function(e) {
         e.preventDefault();
-        $(this).prop('disabled', true);
-        var method = modulesUpdateBtn.attr('method'),
-            action = modulesUpdateBtn.attr('action'),
-            toEnable = [],
-            toDisable = [],
+    });
+
+    hostModuleDisplaymanBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
             opts = {
-                updatemodulessel: 1,
-                enablemodules: toEnable,
+                confirmdisplaysend: 1,
+                x: $('#x').val(),
+                y: $('#y').val(),
+                r: $('#r').val()
             };
-        $.each($('.associated:checked'), function() {
-            toEnable.push(this.value);
-        });
+        disableModuleDisplayButtons(true);
         $.apiCall(method,action,opts,function(err) {
-            modulesUpdateBtn.prop('disabled', false);
+            disableModuleDisplayButtons(false);
             if (err) {
                 return;
             }
-            modulesTable.draw(false);
-            modulesTable.rows({selected: true}).deselect();
+            var url = '../management/index.php?node='
+                + Common.node
+                + '&sub=getHostDisplayManVals'
+                + '&id='
+                + Common.id;
+            Pace.ignore(function() {
+                $.get(url, function(data) {
+                    $('#x').val(data.x);
+                    $('#y').val(data.y);
+                    $('#r').val(data.r);
+                }, 'json');
+            });
         });
     });
-    modulesEnableBtn.on('click', function(e) {
+
+    // Auto log out area
+    var hostModuleAloBtn = $('#host-alo-send'),
+        hostModuleAloForm = $('#host-alo-form');
+
+    function disableModuleAloButtons(disable) {
+        hostModuleAloBtn.prop('disabled', disable);
+    }
+
+    hostModuleAloForm.on('submit', function(e) {
         e.preventDefault();
-        $('#modules-to-update_wrapper .buttons-select-all').trigger('click');
-        $('#modules-to-update_wrapper .associated').iCheck('check');
-        $(this).prop('disabled', true);
-        modulesDisableBtn.prop('disabled', false);
-        var method = modulesEnableBtn.attr('method'),
-            action = modulesEnableBtn.attr('action'),
-            rows = modulesTable.rows({selected: true}),
-            toEnable = $.getSelectedIds(modulesTable),
+    });
+
+    hostModuleAloBtn.on('click', function(e) {
+        e.preventDefault();
+        disableModuleAloButtons(true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
             opts = {
-                enablemodulessel: 1,
-                enablemodules: toEnable
+                confirmalosend: 1,
+                tme: $('#tme').val()
             };
         $.apiCall(method,action,opts,function(err) {
-            modulesEnableBtn.prop('disabled', false);
+            disableModuleAloButtons(false);
             if (err) {
                 return;
             }
-            modulesTable.draw(false);
-            modulesTable.rows({selected: true}).deselect();
+            var url = '../management/index.php?node='
+                + Common.node
+                + '&sub=getHostAloVals'
+                + '&id='
+                + Common.id;
+            Pace.ignore(function() {
+                $.get(url, function(data) {
+                    $('#tme').val(data.tme);
+                }, 'json');
+            });
         });
     });
-    modulesDisableBtn.on('click', function(e) {
+
+    // Host enforce ad join reboot and hostname changes area
+    var hostModuleEnforceBtn = $('#host-enforce-send'),
+        hostModuleEnforceForm = $('#host-enforce-form');
+
+    function disableModuleEnforceButtons(disable) {
+        hostModuleEnforceBtn.prop('disabled', disable);
+    }
+
+    hostModuleEnforceForm.on('submit', function(e) {
         e.preventDefault();
-        $('#modules-to-update_wrapper .buttons-select-none').trigger('click');
-        $('#modules-to-update_wrapper .associated').iCheck('uncheck');
-        $(this).prop('disabled', true);
-        modulesEnableBtn.prop('disabled', false);
-        var method = modulesEnableBtn.attr('method'),
-            action = modulesEnableBtn.attr('action'),
-            rows = modulesTable.rows({selected: true}),
-            toDisable = [],
+    })
+
+    hostModuleEnforceBtn.on('click', function(e) {
+        e.preventDefault();
+        disableModuleEnforceButtons(true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
             opts = {
-                disablemodulessel: 1,
-                disablemodules: toDisable
+                confirmenforcesend: 1,
+                enforce: $('#enforce').iCheck('update')[0].checked ? 1 : 0
             };
-        $('#modules-to-update').find('.associated').each(function() {
-            if (!$(this).is(':checked')) {
-                toDisable.push($(this).val());
-            }
-        });
         $.apiCall(method,action,opts,function(err) {
-            modulesDisableBtn.prop('disabled', false);
+            disableModuleEnforceButtons(false);
             if (err) {
                 return;
             }
-            modulesTable.draw(false);
-            modulesTable.rows({selected: true}).deselect();
         });
     });
-    modulesDispBtn.on('click', function(e) {
-        e.preventDefault();
-        var form = $('#host-dispman');
-        modulesDispBtn.prop('disabled', true);
-        form.processForm(function(err) {
-            modulesDispBtn.prop('disabled', false);
-        });
-    });
-    modulesAloBtn.on('click', function(e) {
-        e.preventDefault();
-        var form = $('#host-alo');
-        modulesAloBtn.prop('disabled', true);
-        form.processForm(function(err) {
-            modulesAloBtn.prop('disabled', false);
-        });
-    });
-    modulesEnforceBtn.on('click', function(e) {
-        e.preventDefault();
-        var form = $('#host-enforce');
-        modulesEnforceBtn.prop('disabled', true);
-        form.processForm(function(err) {
-            modulesEnforceBtn.prop('disabled', false);
-        });
-    });
+
     // ---------------------------------------------------------------
     // POWER MANAGMENT TAB
 
@@ -1150,55 +1210,13 @@
 
     // ---------------------------------------------------------------
     // PRINTER TAB
-    var printerConfigForm = $('#printer-config-form'),
-        printerConfigBtn = $('#printer-config-send'),
         // Associations
-        hostPrinterUpdateBtn = $('#host-printer-send'),
-        hostPrinterRemoveBtn = $('#host-printer-remove'),
-        hostPrinterDeleteConfirmBtn = $('#confirmprinterDeleteModal'),
-        // Default
-        printerDefaultBtn = $('#printer-default'),
-        DEFAULT_PRINTER_ID = -1;
-
-    // Config area
-    printerConfigForm.serialize2 = printerConfigForm.serialize;
-    printerConfigForm.serialize = function() {
-        return printerConfigForm.serialize2() + '&levelup';
-    }
-    printerConfigForm.on('submit',function(e) {
-        e.preventDefault();
-    });
-    printerConfigBtn.on('click', function() {
-        printerConfigBtn.prop('disabled', true);
-        printerConfigForm.processForm(function(err) {
-            printerConfigBtn.prop('disabled', false);
-            if (err) {
-                return;
-            }
-            printersTable.draw(false);
-            printersTable.rows({selected: true}).deselect();
-        });
-    });
-
-    // Default area
-    printerDefaultBtn.prop('disabled', true);
-    printerDefaultBtn.on('click',function() {
-        printerAddBtn.prop('disabled', true);
-        printerRemoveBtn.prop('disabled', true);
-
-        var method = printerDefaultBtn.attr('method'),
-            action = printerDefaultBtn.attr('action'),
-            opts = {
-                defaultsel: 1,
-                default: DEFAULT_PRINTER_ID
-            };
-        $.apiCall(method,action, opts, function(err) {
-            printerDefaultBtn.prop('disabled', !err);
-            onPrintersSelect(printersTable.rows({selected: true}));
-        });
-    });
 
     // Association area
+    var hostPrinterUpdateBtn = $('#host-printer-send'),
+        hostPrinterRemoveBtn = $('#host-printer-remove'),
+        hostPrinterDeleteConfirmBtn = $('#confirmprinterDeleteModal');
+
     function disablePrinterButtons(disable) {
         hostPrinterUpdateBtn.prop('disabled', disable);
         hostPrinterRemoveBtn.prop('disabled', disable);
@@ -1226,6 +1244,7 @@
             }
             hostPrintersTable.draw(false);
             hostPrintersTable.rows({selected: true}).deselect();
+            setTimeout(hostPrinterDefaultSelectorUpdate, 1000);
         })
     });
 
@@ -1287,6 +1306,7 @@
             }
             hostPrintersTable.draw(false);
             hostPrintersTable.rows({selected: true}).deselect();
+            setTimeout(hostPrinterDefaultSelectorUpdate, 1000);
         });
     });
 
@@ -1298,7 +1318,71 @@
 
     var onHostPrinterCheckboxSelect = function(e) {
         $.checkItemUpdate(hostPrintersTable, this, e, hostPrinterUpdateBtn);
+        setTimeout(hostPrinterDefaultSelectorUpdate, 1000);
     };
+
+    // Default area
+    var hostPrinterDefaultUpdateBtn = $('#host-printer-default-send'),
+        hostPrinterDefaultSelector = $('#printerselector'),
+        hostPrinterDefaultSelectorUpdate = function() {
+            var url = '../management/index.php?node='
+                + Common.node
+                + '&sub=getHostDefaultPrinters&id='
+                + Common.id;
+            Pace.ignore(function() {
+                hostPrinterDefaultSelector.html('');
+                $.get(url, function(data) {
+                    hostPrinterDefaultSelector.html(data.content);
+                }, 'json');
+            });
+        };
+
+    function disablePrinterDefaultButtons(disable) {
+        hostPrinterDefaultUpdateBtn.prop('disabled', disable);
+    }
+
+    hostPrinterDefaultSelectorUpdate();
+
+    hostPrinterDefaultUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                confirmdefault: 1,
+                default: $('#printer option:selected').val()
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disablePrinterDefaultButtons(false);
+            if (err) {
+                return;
+            }
+        });
+    });
+
+    // Config area
+    var hostPrinterConfigForm = $('#printer-config-form'),
+        hostPrinterConfigBtn = $('#printer-config-send');
+
+    hostPrinterConfigForm.on('submit',function(e) {
+        e.preventDefault();
+    });
+
+    hostPrinterConfigBtn.on('click', function(e) {
+        e.preventDefault();
+        hostPrinterConfigBtn.prop('disabled', true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                confirmlevelup: 1,
+                level: $('.checked input[name="level"]').val()
+            };
+        $.apiCall(method,action,opts,function(err) {
+            hostPrinterConfigBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+        });
+    });
 
     // ---------------------------------------------------------------
     // SNAPINS TAB
@@ -1492,7 +1576,7 @@
         hostPrintersTable.search(Common.search).draw();
         hostSnapinsTable.search(Common.search).draw();
         // FOG Client
-        modulesTable.search(Common.search).draw();
+        hostModulesTable.search(Common.search).draw();
         powermanagementTable.search(Common.search).draw();
         // History
         loginTable.search(Common.search).draw();

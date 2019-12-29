@@ -1964,10 +1964,15 @@ class HostManagement extends FOGPage
      */
     public function hostPrinters()
     {
-        $printerLevel = (
-            filter_input(INPUT_POST, 'level') ?:
-            $this->obj->get('printerLevel')
-        );
+        // Printer Associations
+        $this->headerData = [
+            _('Printer Name'),
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'host-printer',
@@ -1975,28 +1980,65 @@ class HostManagement extends FOGPage
             )
             . '" ';
 
+        $buttons .= self::makeButton(
+            'host-printer-send',
+            _('Add selected'),
+            'btn btn-success pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'host-printer-remove',
+            _('Remove selected'),
+            'btn btn-danger pull-left',
+            $props
+        );
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Host Printer Associations');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'host-printer-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('printer');
+        echo '</div>';
+        echo '</div>';
+
+        // DEFAULT Printer
+        $buttons = self::makeButton(
+            'host-printer-default-send',
+            _('Update'),
+            'btn btn-info pull-right',
+            $props
+        );
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Host Default Printer');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo '<span id="printerselector"></span>';
+        echo '</div>';
+        echo '<div class="box-footer">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
+
         // =========================================================
         // Printer Configuration
-        echo '<!-- Printers -->';
-        echo '<div class="box-group" id="printers">';
+        $printerLevel = (
+            filter_input(INPUT_POST, 'level') ?:
+            $this->obj->get('printerLevel')
+        );
         echo '<div class="box box-info">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
         echo _('Host Printer Configuration');
         echo '</h4>';
         echo '</div>';
-        echo '<div id="printerconf" class="">';
-        echo self::makeFormTag(
-            'form-horizontal',
-            'printer-config-form',
-            self::makeTabUpdateURL(
-                'host-printer',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
         echo '<div class="box-body">';
         echo '<div class="radio">';
         echo self::makeLabel(
@@ -2093,71 +2135,13 @@ class HostManagement extends FOGPage
         echo self::makeButton(
             'printer-config-send',
             _('Update'),
-            'btn btn-primary pull-right'
-        );
-        echo '</div>';
-        echo '</form>';
-        echo '</div>';
-        echo '</div>';
-
-        // DEFAULT Printer
-        echo '<div class="box box-info">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Host Default Printer');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo _('TODO: Make Functional');
-        echo '</div>';
-        echo '<div class="box-footer">';
-        echo _('Buttons to go here, update');
-        echo '</div>';
-        echo '</div>';
-
-        // Printer Associations
-        $this->headerData = [
-            _('Printer Name'),
-            _('Associated')
-        ];
-        $this->attributes = [
-            [],
-            ['width' => 16]
-        ];
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'host-printer',
-                $this->obj->get('id')
-            )
-            . '" ';
-
-        $buttons .= self::makeButton(
-            'host-printer-send',
-            _('Add selected'),
-            'btn btn-success pull-right',
+            'btn btn-primary pull-right',
             $props
         );
-        $buttons .= self::makeButton(
-            'host-printer-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Host Printer Associations');
-        echo '</h4>';
-        echo '<div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'host-printer-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('printer');
         echo '</div>';
         echo '</div>';
 
-        echo '</div>';
+
     }
     /**
      * Host printer post.
@@ -2166,10 +2150,6 @@ class HostManagement extends FOGPage
      */
     public function hostPrinterPost()
     {
-        if (isset($_POST['levelup'])) {
-            $level = filter_input(INPUT_POST, 'level');
-            $this->obj->set('printerLevel', $level);
-        }
         if (isset($_POST['confirmadd'])) {
             $printers = filter_input_array(
                 INPUT_POST,
@@ -2184,15 +2164,6 @@ class HostManagement extends FOGPage
                 $this->obj->addPrinter($printers);
             }
         }
-        if (isset($_POST['defaultsel'])) {
-            $this->obj->updateDefault(
-                filter_input(
-                    INPUT_POST,
-                    'default'
-                ),
-                isset($_POST['default'])
-            );
-        }
         if (isset($_POST['confirmdel'])) {
             $printers = filter_input_array(
                 INPUT_POST,
@@ -2206,6 +2177,18 @@ class HostManagement extends FOGPage
             if (count($printers ?: []) > 0) {
                 $this->obj->removePrinter($printers);
             }
+        }
+        if (isset($_POST['confirmdefault'])) {
+            $this->obj->updateDefault(
+                filter_input(
+                    INPUT_POST,
+                    'default'
+                )
+            );
+        }
+        if (isset($_POST['confirmlevelup'])) {
+            $level = filter_input(INPUT_POST, 'level');
+            $this->obj->set('printerLevel', $level);
         }
     }
     /**
@@ -2298,94 +2281,66 @@ class HostManagement extends FOGPage
      *
      * @return void
      */
-    public function hostService()
+    public function hostModules()
     {
-        $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=host-service" ';
-        $splitButtons = self::makeSplitButton(
-            'modules-update',
-            _('Bulk Changes'),
-            [
-                [
-                    'id' => 'modules-enable',
-                    'text' => _('Enable All'),
-                    'props' => $props
-                ],
-                [
-                    'id' => 'modules-disable',
-                    'text' => _('Disable All'),
-                    'props' => $props
-                ]
-            ],
-            'right',
-            'primary',
-            $props
-        );
-        $dispBtn = self::makeButton(
-            'displayman-send',
-            _('Update'),
-            'btn btn-primary pull-right',
-            $props
-        );
-        $aloBtn = self::makeButton(
-            'alo-send',
-            _('Update'),
-            'btn btn-primary pull-right',
-            $props
-        );
+        // Association Area
         $this->headerData = [
             _('Module Name'),
-            _('Module Associated')
+            _('Associated')
         ];
         $this->attributes = [
             [],
-            []
+            ['width' => 16]
         ];
-        $labelClass = 'col-sm-3 control-label';
-        // Modules Enable/Disable/Selected
-        echo '<!-- Modules/Service Settings -->';
-        echo '<div class="box-group" id="modules">';
-        echo '<div class="box box-info">';
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'host-module',
+                $this->obj->get('id')
+            )
+            . '" ';
+
+        $buttons = self::makeButton(
+            'host-module-send',
+            _('Add selected'),
+            'btn btn-primary pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'host-module-remove',
+            _('Remove selected'),
+            'btn btn-danger pull-left',
+            $props
+        );
+
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
         echo '<h4 class="box-title">';
-        echo _('Host module settings');
+        echo _('Host Module Associations');
         echo '</h4>';
-        echo '<div>';
-        echo '<p class="help-block">';
-        echo _('Modules disabled globally cannot be enabled here');
-        echo '<br/>';
-        echo _('Changes will automatically be saved');
-        echo '</p>';
         echo '</div>';
-        echo '</div>';
-        echo '<div id="updatemodules" class="">';
         echo '<div class="box-body">';
-        echo $this->render(12, 'modules-to-update', $splitButtons);
+        $this->render(12, 'host-module-table', $buttons);
+        echo '</div>';
+        echo '<div clas="box-footer with-border">';
+        echo $this->assocDelModal('module');
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        // Display Manager Element.
-        $keys = [
-            'FOG_CLIENT_DISPLAYMANAGER_R',
-            'FOG_CLIENT_DISPLAYMANAGER_X',
-            'FOG_CLIENT_DISPLAYMANAGER_Y'
-        ];
-        list(
-            $r,
-            $x,
-            $y
-        ) = self::getSetting($keys);
+
+        // Display Manager area
+        $labelClass = 'col-sm-3 control-label';
+        $buttons = self::makeButton(
+            'host-displayman-send',
+            _('Update'),
+            'btn btn-primary pull-right',
+            $props
+        );
         // If the x, y, and/or r inputs are set.
         $ix = filter_input(INPUT_POST, 'x');
         $iy = filter_input(INPUT_POST, 'y');
         $ir = filter_input(INPUT_POST, 'r');
         if (!$ix) {
             // If x not set check hosts setting
-            $ix = $this->obj->get('hostscreen')->get('width');
+            $ix = $this->obj->getDispVals('width');
             if ($ix) {
                 $x = $ix;
             }
@@ -2394,7 +2349,7 @@ class HostManagement extends FOGPage
         }
         if (!$iy) {
             // If y not set check hosts setting
-            $iy = $this->obj->get('hostscreen')->get('height');
+            $iy = $this->obj->getDispVals('height');
             if ($iy) {
                 $y = $iy;
             }
@@ -2403,7 +2358,7 @@ class HostManagement extends FOGPage
         }
         if (!$ir) {
             // If r not set check hosts setting
-            $ir = $this->obj->get('hostscreen')->get('refresh');
+            $ir = $this->obj->getDispVals('refresh');
             if ($ir) {
                 $r = $ir;
             }
@@ -2446,7 +2401,7 @@ class HostManagement extends FOGPage
             }
             $fields[
                 self::makeLabel(
-                    'col-sm-3 control-label',
+                    $labelClass,
                     $name,
                     $get[1]
                 )
@@ -2463,44 +2418,39 @@ class HostManagement extends FOGPage
 
         $rendered = self::formFields($fields);
         unset($fields);
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Host Display Manager Settings');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
         echo self::makeFormTag(
             'form-horizontal',
-            'host-dispman',
+            'host-displayman-form',
             self::makeTabUpdateURL(
-                'host-service',
+                'host-module',
                 $this->obj->get('id')
             ),
             'post',
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Display Manager Settings');
-        echo '</h4>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-body">';
         echo $rendered;
-        echo self::makeInput(
-            '',
-            'dispmansend',
-            '',
-            'hidden',
-            '',
-            '1'
-        );
+        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo $dispBtn;
+        echo $buttons;
         echo '</div>';
         echo '</div>';
-        echo '</form>';
 
         // Auto Log Out
+        $buttons = self::makeButton(
+            'host-alo-send',
+            _('Update'),
+            'btn btn-primary pull-right',
+            $props
+        );
         $tme = filter_input(INPUT_POST, 'tme');
         if (!$tme) {
             $tme = $this->obj->getAlo();
@@ -2510,7 +2460,7 @@ class HostManagement extends FOGPage
         }
         $fields = [
             self::makeLabel(
-                'col-sm-3 control-label',
+                $labelClass,
                 'tme',
                 _('Auto Logout Time')
                 . '<br/>('
@@ -2529,47 +2479,34 @@ class HostManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
+        echo '<div class="box box-warning">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Auto Logout Settings');
+        echo '</h4>';
+        echo '<p class="help-block">';
+        echo _('Minimum time limit for Auto Logout to become active is 5 minutes.');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-body">';
         echo self::makeFormTag(
             'form-horizontal',
-            'host-alo',
+            'host-alo-form',
             self::makeTabUpdateURL(
-                'host-service',
+                'host-module',
                 $this->obj->get('id')
             ),
             'post',
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-warning">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Auto Logout Settings');
-        echo '</h4>';
-        echo '<div>';
-        echo '<p class="help-block">';
-        echo _('Minimum time limit for Auto Logout to become active is 5 minutes.');
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-body">';
         echo $rendered;
-        echo self::makeInput(
-            '',
-            'alosend',
-            '',
-            'hidden',
-            '',
-            1
-        );
+        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo $aloBtn;
+        echo $buttons;
         echo '</div>';
         echo '</div>';
-        echo '</form>';
 
         // Hostname changer reboot/domain join reboot forced.
         $enforce = (
@@ -2595,8 +2532,8 @@ class HostManagement extends FOGPage
                 ($enforce ? 'checked' : '')
             )
         ];
-        $enforcebtn = self::makeButton(
-            'enforcebtn',
+        $buttons = self::makeButton(
+            'host-enforce-send',
             _('Update'),
             'btn btn-primary pull-right',
             $props
@@ -2613,23 +2550,11 @@ class HostManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo self::makeFormTag(
-            'form-horizontal',
-            'host-enforce',
-            self::makeTabUpdateURL(
-                'host-service',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
         echo '<div class="box box-warning">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
         echo _('Enforce Hostname | AD Join Reboots');
         echo '</h4>';
-        echo '<div>';
         echo '<p class="help-block">';
         echo _(
             'This tells the client to force reboots for host name '
@@ -2643,28 +2568,24 @@ class HostManagement extends FOGPage
         );
         echo '</p>';
         echo '</div>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '</div>';
         echo '<div class="box-body">';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'host-enforce-form',
+            self::makeTabUpdateURL(
+                'host-module',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
         echo $rendered;
+        echo '</form>';
         echo '</div>';
         echo '<div class="box-footer">';
-        echo self::makeInput(
-            '',
-            'enforcesend',
-            '',
-            'hidden',
-            '',
-            '1'
-        );
-        echo $enforcebtn;
+        echo $buttons;
         echo '</div>';
-        echo '</div>';
-        echo '</form>';
-
-        // End Box Group
         echo '</div>';
     }
     /**
@@ -2672,59 +2593,55 @@ class HostManagement extends FOGPage
      *
      * @return void
      */
-    public function hostServicePost()
+    public function hostModulePost()
     {
-        if (isset($_POST['enablemodulessel'])) {
-            $enablemodules = filter_input_array(
+        if (isset($_POST['confirmadd'])) {
+            $modules = filter_input_array(
                 INPUT_POST,
                 [
-                    'enablemodules' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $enablemodules = $enablemodules['enablemodules'];
-            $this->obj->addModule($enablemodules);
+            $modules = $modules['additems'];
+            if (count($modules ?: [])) {
+                $this->obj->addModule($modules);
+            }
         }
-        if (isset($_POST['disablemodulessel'])) {
-            $disablemodules = filter_input_array(
+        if (isset($_POST['confirmdel'])) {
+            $modules = filter_input_array(
                 INPUT_POST,
                 [
-                    'disablemodules' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $disablemodules = $disablemodules['disablemodules'];
-            $this->obj->removeModule($disablemodules);
+            $modules = $modules['remitems'];
+            if (count($modules ?: [])) {
+                $this->obj->removeModule($modules);
+            }
         }
-        if (isset($_POST['updatemodulessel'])) {
-            $enablemodules = filter_input_array(
-                INPUT_POST,
-                [
-                    'enablemodules' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $enablemodules = $enablemodules['enablemodules'];
-            $this->obj->set('modules', $enablemodules);
-        }
-        if (isset($_POST['dispmansend'])) {
-            $x = filter_input(INPUT_POST, 'x');
-            $y = filter_input(INPUT_POST, 'y');
-            $r = filter_input(INPUT_POST, 'r');
+        if (isset($_POST['confirmdisplaysend'])) {
+            $x = (int)filter_input(INPUT_POST, 'x');
+            $y = (int)filter_input(INPUT_POST, 'y');
+            $r = (int)filter_input(INPUT_POST, 'r');
             $this->obj->setDisp($x, $y, $r);
         }
-        if (isset($_POST['alosend'])) {
+        if (isset($_POST['confirmalosend'])) {
             $tme = (int)filter_input(INPUT_POST, 'tme');
             if (!(is_numeric($tme) && $tme > 4)) {
                 $tme = 0;
             }
             $this->obj->setAlo($tme);
         }
-        if (isset($_POST['enforcesend'])) {
-            $enforce = (int)isset($_POST['enforce']);
+        if (isset($_POST['confirmenforcesend'])) {
+            $enforce = (
+                filter_input(INPUT_POST, $_POST['enforce']) >= 1 ?
+                1 :
+                0
+            );
             $this->obj->set('enforce', $enforce);
         }
     }
@@ -3771,10 +3688,10 @@ class HostManagement extends FOGPage
                 'name' => _('Service Settings'),
                 'tabData' => [
                     [
-                        'name' => _('Client Module Settings'),
-                        'id' => 'host-service',
+                        'name' => _('Client Settings'),
+                        'id' => 'host-module',
                         'generator' => function () {
-                            $this->hostService();
+                            $this->hostModules();
                         }
                     ],
                     [
@@ -3878,8 +3795,8 @@ class HostManagement extends FOGPage
             case 'host-snapin':
                 $this->hostSnapinPost();
                 break;
-            case 'host-service':
-                $this->hostServicePost();
+            case 'host-module':
+                $this->hostModulePost();
                 break;
             case 'host-inventory':
                 $this->hostInventoryPost();
@@ -4170,6 +4087,14 @@ class HostManagement extends FOGPage
             'dt' => 'association',
             'removeFromQuery' => true
         ];
+        $modulesFilterStr = "SELECT `%s`
+            FROM `%s`
+            WHERE `modules`.`short_name` "
+            . "NOT IN ('"
+            . implode("','", $notWhere)
+            . "') AND `modules`.`short_name` IN ('"
+            . implode("','", $keys)
+            . "')";
         $modulesTotalStr = "SELECT COUNT(`%s`)
             FROM `%s`
             WHERE `modules`.`short_name` "
@@ -4183,7 +4108,7 @@ class HostManagement extends FOGPage
             $where,
             $columns,
             '',
-            '',
+            $modulesFilterStr,
             $modulesTotalStr
         );
     }
@@ -5054,6 +4979,101 @@ class HostManagement extends FOGPage
         );
 
         echo Route::getData();
+        exit;
+    }
+    /**
+     * Get the hosts display man values
+     *
+     * @return void
+     */
+    public function getHostDisplayManVals()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        echo json_encode(
+            [
+                'x' => $this->obj->getDispVals('width'),
+                'y' => $this->obj->getDispVals('height'),
+                'r' => $this->obj->getDispVals('refresh')
+            ]
+        );
+        exit;
+    }
+    /**
+     * Get the hosts display man values
+     *
+     * @return void
+     */
+    public function getHostAloVals()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        echo json_encode(
+            [
+                'tme' => $this->obj->getAlo()
+            ]
+        );
+        exit;
+    }
+    /**
+     * Gets the printer selector for setting default printers.
+     *
+     * @return string
+     */
+    public function getHostDefaultPrinters()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        Route::ids(
+            'printerassociation',
+            ['hostID' => $this->obj->get('id')],
+            'printerID'
+        );
+        $printersAssigned = json_decode(Route::getData(), true);
+        if (!count($printersAssigned ?: [])) {
+            echo json_encode(
+                ['content' => _('No printers assigned to this host')]
+            );
+            exit;
+        }
+        Route::names(
+            'printer',
+            ['id' => $printersAssigned]
+        );
+        $printerNames = json_decode(Route::getData());
+        foreach ($printerNames as &$printer) {
+            $printers[$printer->id] = $printer->name;
+            unset($printer);
+        }
+        unset($printerNames);
+        Route::ids(
+            'printerassociation',
+            [
+                'hostID' => $this->obj->get('id'),
+                'isDefault' => '1'
+            ],
+            'printerID'
+        );
+        $defaultprinter = json_decode(Route::getData(), true);
+        $defaultprinter = array_shift($defaultprinter);
+        $printerSelector = self::selectForm(
+            'printer',
+            $printers,
+            $defaultprinter,
+            true,
+            '',
+            true
+        );
+        echo json_encode(['content' => $printerSelector]);
         exit;
     }
 }

@@ -2652,11 +2652,12 @@ abstract class FOGPage extends FOGBase
     /**
      * Build select form in generic form.
      *
-     * @param string $name     The name of the select item.
-     * @param array  $items    The items to generate.
-     * @param string $selected The item to select.
-     * @param bool   $useidsel Use id of array as selector/value.
-     * @param string $addClass Add additional Classes.
+     * @param string $name           The name of the select item.
+     * @param array  $items          The items to generate.
+     * @param string $selected       The item to select.
+     * @param bool   $useidsel       Use id of array as selector/value.
+     * @param string $addClass       Add additional Classes.
+     * @param bool   $addidtodisplay Add the id to the display.
      *
      * @return string
      */
@@ -2665,7 +2666,8 @@ abstract class FOGPage extends FOGBase
         $items = [],
         $selected = '',
         $useidsel = false,
-        $addClass = ''
+        $addClass = '',
+        $addidtodisplay = false
     ) {
         ob_start();
         printf(
@@ -2687,7 +2689,7 @@ abstract class FOGPage extends FOGBase
                 (
                     $useidsel ?
                     $id :
-                    $item
+                    ($addidtodisplay ? $item . ' - (' . $id . ')' : $item)
                 ),
                 (
                     $useidsel ? (
