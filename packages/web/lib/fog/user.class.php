@@ -318,7 +318,7 @@ class User extends FOGController
             self::clearAuthCookie();
             $current_time = self::niceDate()->getTimestamp();
             $current_Date = self::niceDate()->format('Y-m-d H:i:s');
-            $cookieexp = $current_time + $regenTIme;
+            $cookieexp = $current_time + (182 * 24 * 60 * 60);
             $password = self::getToken(16);
             $selector = self::getToken(32);
             $expire = self::niceDate()
