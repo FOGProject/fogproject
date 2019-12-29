@@ -1022,9 +1022,9 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
-            + Common.node
-            + '&sub=getPowermanagementList&id='
-            + Common.id,
+                + Common.node
+                + '&sub=getPowermanagementList&id='
+                + Common.id,
             type: 'post'
         }
     });
@@ -1208,8 +1208,7 @@
 
     // ---------------------------------------------------------------
     // PRINTER TAB
-        // Associations
-
+    //
     // Association area
     var hostPrinterUpdateBtn = $('#host-printer-send'),
         hostPrinterRemoveBtn = $('#host-printer-remove'),
@@ -1491,14 +1490,30 @@
 
     // ---------------------------------------------------------------
     // INVENTORY TAB
-    var inventoryForm = $('#host-inventory-form'),
-        inventoryFormBtn = $('#inventory-send');
-    inventoryFormBtn.on('click', function(e) {
+    var hostInventoryForm = $('#host-inventory-form'),
+        hostInventoryUpdateBtn = $('#host-inventory-send');
+
+    hostInventoryForm.on('submit', function(e) {
+        e.preventDefault();
+    });
+
+    hostInventoryUpdateBtn.on('click', function(e) {
         e.preventDefault();
         $(this).prop('disabled', true);
-        inventoryForm.processForm(function(err) {
-            inventoryFormBtn.prop('disabled', false);
-        });
+        var method = hostInventoryForm.attr('method'),
+            action = hostInventoryForm.attr('action'),
+            opts = {
+                confirminventoryadd: 1,
+                pu: $('#pu').val(),
+                other1: $('#other1').val(),
+                other2: $('#other2').val()
+            };
+        $.apiCall(method,action,opts,function(err) {
+            hostInventoryUpdateBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+        })
     });
 
     // HISTORY TABS
@@ -1516,12 +1531,13 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
-            + Common.node
-            + '&sub=getLoginHist&id='
-            + Common.id,
+                + Common.node
+                + '&sub=getLoginHist&id='
+                + Common.id,
             type: 'post'
         }
     });
+
     // ---------------------------------------------------------------
     // IMAGE HISTORY TAB
     var imageTable = $('#host-image-table').registerTable(null, {
@@ -1538,12 +1554,13 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
-            + Common.node
-            + '&sub=getImageHist&id='
-            + Common.id,
+                + Common.node
+                + '&sub=getImageHist&id='
+                + Common.id,
             type: 'post'
         }
     });
+
     // ---------------------------------------------------------------
     // SNAPIN HISTORY TAB
     var snapinTable = $('#host-snapin-table').registerTable(null, {
@@ -1559,9 +1576,9 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
-            + Common.node
-            + '&sub=getSnapinHist&id='
-            + Common.id,
+                + Common.node
+                + '&sub=getSnapinHist&id='
+                + Common.id,
             type: 'post'
         }
     });
@@ -1569,7 +1586,7 @@
     // Enable searching
     if (Common.search && Common.search.length > 0) {
         macsTable.search(Common.search).draw();
-        //Associations
+        // Associations
         hostGroupsTable.search(Common.search).draw();
         hostPrintersTable.search(Common.search).draw();
         hostSnapinsTable.search(Common.search).draw();

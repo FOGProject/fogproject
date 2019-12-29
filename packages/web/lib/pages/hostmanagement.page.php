@@ -3437,7 +3437,7 @@ class HostManagement extends FOGPage
         ];
 
         $buttons = self::makeButton(
-            'inventory-send',
+            'host-inventory-send',
             _('Update'),
             'btn btn-primary pull-right'
         );
@@ -3470,14 +3470,6 @@ class HostManagement extends FOGPage
         echo $rendered;
         echo '</div>';
         echo '<div class="box-footer">';
-        echo self::makeInput(
-            '',
-            'updateinv',
-            '',
-            'hidden',
-            '',
-            '1'
-        );
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -3490,7 +3482,7 @@ class HostManagement extends FOGPage
      */
     public function hostInventoryPost()
     {
-        if (isset($_POST['updateinv'])) {
+        if (isset($_POST['confirminventoryadd'])) {
             $pu = filter_input(INPUT_POST, 'pu');
             $other1 = filter_input(INPUT_POST, 'other1');
             $other2 = filter_input(INPUT_POST, 'other2');
