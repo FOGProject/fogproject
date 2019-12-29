@@ -637,9 +637,7 @@
         ADClearBtn = $('#ad-clear'),
         ADJoinDomain = $('#adEnabled');
 
-    ADJoinDomain.on('ifClicked', function(e) {
-        e.preventDefault();
-        $(this).prop('checked', !this.checked);
+    ADJoinDomain.on('ifChanged', function(e) {
         if (!this.checked) {
             return;
         }

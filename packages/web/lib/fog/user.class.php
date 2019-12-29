@@ -15,7 +15,6 @@
  *
  * @category User
  * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -52,18 +51,6 @@ class User extends FOGController
     protected $databaseFieldsRequired = [
         'name',
         'password'
-    ];
-    /**
-     * The additional fields
-     *
-     * @var array
-     */
-    protected $additionalFields = [
-        'authID',
-        'authIP',
-        'authTime',
-        'authLastActivity',
-        'authUserAgent'
     ];
     /**
      * Generates an encrypted hash
@@ -219,12 +206,6 @@ class User extends FOGController
                     ->set('type', $type);
             }
             $sessionid = self::_getSessionID();
-            $this
-                ->set('authUserAgent', self::$useragent)
-                ->set('authIP', self::$remoteaddr)
-                ->set('authTime', time())
-                ->set('authLastActivity', time())
-                ->set('authID', $sessionid);
             $_SESSION['FOG_USER'] = $this->get('id');
             self::log(
                 sprintf(
@@ -263,7 +244,6 @@ class User extends FOGController
                 'password' => &$password
             ]
         );
-        $_SESSION['OBSOLETE'] = true;
         return $this;
     }
     /**
@@ -331,50 +311,57 @@ class User extends FOGController
             $ist,
             $rst
         ) = self::getSetting($keys);
-        $_SESSION['OBSOLETE'] = false;
-        if ($ali) {
-            $_SESSION['FOG_USER'] = $this->get('id');
-            return true;
-        }
-        $authip =(
-            $this->get('authIP') && $this->get('authIP') != self::$remoteaddr
-        );
-        $authuser = (
-            $this->get('authUserAgent')
-            && $this->get('authUserAgent') != self::$useragent
-        );
-        $authid = (
-            $this->get('authID') && $this->get('authID') != self::_getSessionID()
-        );
-        if ($authip || $authuser || $authid) {
-            $_SESSION['OBSOLETE'] = true;
-        } elseif ($this->get('authLastActivity')
-            && !$ali
-        ) {
-            $active = time() - $this->get('authLastActivity');
-            $timeout = $ist * 60 * 60;
-            if ($active >= $timeout) {
-                $_SESSION['OBSOLETE'] = true;
-            }
-        }
-        if ($_SESSION['OBSOLETE']) {
-            $_SESSION['OBSOLETE'] = false;
-            self::redirect('../management/index.php?node=logout');
-        }
-        $authTime = time() - $this->get('authTime');
+        $_SESSION['lastactivity'] = time();
+        $authTime = time() - $_SESSION['lastactivity'];
         $regenTime = $rst * 60 * 60;
         if ($authTime > $regenTime) {
+            self::clearAuthCookie();
+            $current_time = self::niceDate()->getTimestamp();
+            $current_Date = self::niceDate()->format('Y-m-d H:i:s');
+            $cookieexp = $current_time + $regenTIme;
+            $password = self::getToken(16);
+            $selector = self::getToken(32);
+            $expire = self::niceDate()
+                ->setTimestamp($cookieexp)
+                ->format('Y-m-d H:i:s');
+            setcookie('foguserauthpass', $password, $cookieexp);
+            setcookie('foguserauthsel', $selector, $cookieexp);
+
+            // Build and create authorization/authentication system.
+            Route::ids(
+                'userauth',
+                ['userID' => $this->get('id')]
+            );
+            $authid = json_decode(Route::getData(), true);
+            $userauth = new UserAuth(array_shift($authid));
+            $password_hash = self::generateHash($password);
+            $selector_hash = self::generateHash($selector);
+            $userauth
+                ->set('expire', $expire)
+                ->set('isExpired', '0')
+                ->set('selector', $selector_hash)
+                ->set('password', $password_hash)
+                ->save();
+            setcookie('foguserauthid', $userauth->get('id'), $cookieexp);
             $sessionid = self::_getSessionID();
             session_write_close();
             session_start();
             session_id($sessionid);
-            $this
-                ->set('authID', $sessionid)
-                ->set('authTime', time());
+            $_SESSION['FOG_USER'] = $this->get('id');
+            $_SESSION['lastactivity'] = time();
         }
-        $this->set('authLastActivity', time());
         if (!isset($_SESSION['FOG_USER'])) {
             $_SESSION['FOG_USER'] = $this->get('id');
+        }
+        if ($ali) {
+            $_SESSION['lastactivity'] = time();
+            return true;
+        } else {
+            $lastactivity = time() - $_SESSION['lastactivity'];
+            $timeout = $ist * 60 * 60;
+            if ($lastactivity > $timeout) {
+                self::redirect('../management/index.php?node=logout');
+            }
         }
         return true;
     }
@@ -412,11 +399,6 @@ class User extends FOGController
         }
         $messages = $_SESSION['FOG_MESSAGES'];
         // Destroy session
-        $this
-            ->set('authID', null)
-            ->set('authIP', null)
-            ->set('authTime', null)
-            ->set('authLastActivity', null);
         session_unset();
         session_destroy();
         session_write_close();
