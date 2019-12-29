@@ -345,30 +345,35 @@ class Host extends FOGController
      * Updates the default printer
      *
      * @param int   $printerid the printer id to update
-     * @param mixed $onoff     whether to enable or disable
      *
      * @return object
      */
-    public function updateDefault($printerid, $onoff)
+    public function updateDefault($printerid)
     {
+        $printers = array_diff(
+            $this->get('printers'),
+            [$printerid]
+        );
         self::getClass('PrinterAssociationManager')
             ->update(
                 [
-                    'printerID' => $this->get('printers'),
+                    'printerID' => $printers,
                     'hostID' => $this->get('id')
                 ],
                 '',
                 ['isDefault' => 0]
             );
-        self::getClass('PrinterAssociationManager')
-            ->update(
-                [
-                    'printerID' => $printerid,
-                    'hostID' => $this->get('id')
-                ],
-                '',
-                ['isDefault' => $onoff]
-            );
+        if ($printerid) {
+            self::getClass('PrinterAssociationManager')
+                ->update(
+                    [
+                        'printerID' => $printerid,
+                        'hostID' => $this->get('id')
+                    ],
+                    '',
+                    ['isDefault' => 1]
+                );
+        }
         return $this;
     }
     /**
@@ -381,22 +386,28 @@ class Host extends FOGController
         if (count(self::$_hostscreen)) {
             return;
         }
-        if (!$this->get('hostscreen')->isValid()) {
-            $keys = [
-                'FOG_CLIENT_DISPLAYMANAGER_R',
-                'FOG_CLIENT_DISPLAYMANAGER_X',
-                'FOG_CLIENT_DISPLAYMANAGER_y'
-            ];
-            list(
-                $refresh,
-                $width,
-                $height
-            ) = self::getSetting($keys);
-        } else {
-            $refresh = $this->get('hostscreen')->get('refresh');
-            $width = $this->get('hostscreen')->get('width');
-            $height = $this->get('hostscreen')->get('height');
-        }
+        $keys = [
+            'FOG_CLIENT_DISPLAYMANAGER_R',
+            'FOG_CLIENT_DISPLAYMANAGER_X',
+            'FOG_CLIENT_DISPLAYMANAGER_y'
+        ];
+        list(
+            $refresh,
+            $width,
+            $height
+        ) = self::getSetting($keys);
+        $refresh = (
+            $this->get('hostscreen')->get('refresh') ?:
+            $refresh
+        );
+        $width = (
+            $this->get('hostscreen')->get('width') ?:
+            $width
+        );
+        $height = (
+            $this->get('hostscreen')->get('height') ?:
+            $height
+        );
         self::$_hostscreen = [
             'refresh' => $refresh,
             'width' => $width,
@@ -447,12 +458,10 @@ class Host extends FOGController
         if (!empty(self::$_hostalo)) {
             return;
         }
-        if (!$this->get('hostalo')->isValid()) {
-            self::$_hostalo = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
-        } else {
-            self::$_hostalo = $this->get('hostalo')->get('time');
-        }
-        return;
+        self::$_hostalo = (
+            $this->get('hostalo')->get('time') ?:
+            self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN')
+        );
     }
     /**
      * Gets the auto logout time
