@@ -1519,7 +1519,7 @@
     // HISTORY TABS
     // ---------------------------------------------------------------
     // LOGIN HISTORY TAB
-    var loginTable = $('#host-login-table').registerTable(null, {
+    var hostHistoryLoginTable = $('#host-login-table').registerTable(null, {
         columns: [
             {data: 'createdTime'},
             {data: 'action'},
@@ -1540,7 +1540,7 @@
 
     // ---------------------------------------------------------------
     // IMAGE HISTORY TAB
-    var imageTable = $('#host-image-table').registerTable(null, {
+    var hostHistoryImageTable = $('#host-image-table').registerTable(null, {
         columns: [
             {data: 'createdBy'},
             {data: 'start'},
@@ -1563,7 +1563,7 @@
 
     // ---------------------------------------------------------------
     // SNAPIN HISTORY TAB
-    var snapinTable = $('#host-snapin-table').registerTable(null, {
+    var hostHistorySnapinTable = $('#host-snapin-table').registerTable(null, {
         columns: [
             {data: 'snapinLink'},
             {data: 'checkin'},
@@ -1594,8 +1594,8 @@
         hostModulesTable.search(Common.search).draw();
         powermanagementTable.search(Common.search).draw();
         // History
-        loginTable.search(Common.search).draw();
-        imageTable.search(Common.search).draw();
-        snapinTable.search(Common.search).draw();
+        hostHistoryLoginTable.search(Common.search).draw();
+        hostHistorymageTable.search(Common.search).draw();
+        hostHistorySnapinTable.search(Common.search).draw();
     }
 })(jQuery);
