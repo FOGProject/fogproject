@@ -146,22 +146,11 @@ $(function() {
             [0, 'asc']
         ],
         columns: [
-            {data: 'name'},
+            {data: 'mainLink'},
             {data: 'association'},
         ],
         rowId: 'id',
         columnDefs: [
-            {
-                responsivePriority: -1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=host&sub=edit&id='
-                        + row.id
-                        + '">'
-                        + data
-                        + '</a>';
-                },
-                targets: 0
-            },
             {
                 render: function(data, type, row) {
                     var checkval = '';

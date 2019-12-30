@@ -1143,22 +1143,11 @@
             [0, 'asc']
         ],
         columns: [
-            {data: 'name'},
+            {data: 'mainLink'},
             {data: 'association'}
         ],
         rowId: 'id',
         columnDefs: [
-            {
-                responsivePriority: -1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=group&sub=edit&id='
-                        + row.id
-                        + '">'
-                        + data
-                        + '</a>';
-                },
-                targets: 0
-            },
             {
                 render: function(data, type, row) {
                     var checkval = '';
@@ -1253,22 +1242,11 @@
             [0, 'asc']
         ],
         columns: [
-            {data: 'name'},
+            {data: 'mainLink'},
             {data: 'association'}
         ],
         rowId: 'id',
         columnDefs: [
-            {
-                responsivePriority: -1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=printer&sub=edit&id='
-                        + row.id
-                        + '">'
-                        + data
-                        + '</a>';
-                },
-                targets: 0
-            },
             {
                 render: function(data, type, row) {
                     var checkval = '';
@@ -1425,22 +1403,11 @@
             [0, 'asc']
         ],
         columns: [
-            {data: 'name'},
+            {data: 'mainLink'},
             {data: 'association'}
         ],
         rowId: 'id',
         columnDefs: [
-            {
-                responsivePriority: -1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=snapin&sub=edit&id='
-                        + row.id
-                        + '">'
-                        + data
-                        + '</a>';
-                },
-                targets: 0
-            },
             {
                 render: function(data, type, row) {
                     var checkval = '';
