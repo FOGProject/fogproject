@@ -20,7 +20,7 @@
  * @link     https://fogproject.org
  */
 
-$isLoggedIn = self::$FOGUser->isValid();
+$isLoggedIn = self::$FOGUser->isValid() && self::$FOGUser->isLoggedIn();
 echo '<!DOCTYPE html>';
 echo '<html lang="';
 echo ProcessLogin::getLocale();
