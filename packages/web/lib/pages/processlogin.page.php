@@ -254,6 +254,7 @@ class ProcessLogin extends FOGPage
             } else {
                 self::clearAuthCookie();
             }
+            $_SESSION['rememberme'] = $rememberme;
         } catch (Exception $e) {
             $code = HTTPResponseCodes::HTTP_FORBIDDEN;
             $msg = json_encode(
