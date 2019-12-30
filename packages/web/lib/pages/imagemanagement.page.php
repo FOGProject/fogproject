@@ -1269,39 +1269,40 @@ class ImageManagement extends FOGPage
      */
     public function imageHosts()
     {
+        $this->headerData = [
+            _('Host name'),
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
-                'image-hosts',
+                'image-host',
                 $this->obj->get('id')
             )
             . '" ';
 
         $buttons = self::makeButton(
-            'host-add',
+            'image-host-send',
             _('Add selected'),
             'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
-            'host-remove',
+            'image-host-remove',
             _('Remove selected'),
             'btn btn-danger pull-left',
             $props
         );
 
-        $this->headerData = [
-            _('Host Name'),
-            _('Host Associated')
-        ];
-        $this->attributes = [
-            [],
-            []
-        ];
-
-        echo '<!-- Hosts -->';
-        echo '<div class="box-group" id="hosts">';
-        echo '<div class="box box-solid">';
-        echo '<div class="updatehost" class="">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Image Host Associations');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
         $this->render(12, 'image-host-table', $buttons);
         echo '</div>';
@@ -1309,8 +1310,42 @@ class ImageManagement extends FOGPage
         echo $this->assocDelModal('host');
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
+    }
+    /**
+     * Image host post elements
+     *
+     * @return void
+     */
+    public function imageHostPost()
+    {
+        if (isset($_POST['confirmadd'])) {
+            $hosts = filter_input_array(
+                INPUT_POST,
+                [
+                    'additems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $hosts = $hosts['additems'];
+            if (count($hosts ?: []) > 0) {
+                $this->obj->addHost($hosts);
+            }
+        }
+        if (isset($_POST['confirmdel'])) {
+            $hosts = filter_input_array(
+                INPUT_POST,
+                [
+                    'remitems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $hosts = $hosts['remitems'];
+            if (count($hosts ?: []) > 0) {
+                $this->obj->removeHost($hosts);
+            }
+        }
     }
     /**
      * Edit this image
@@ -1342,7 +1377,7 @@ class ImageManagement extends FOGPage
                 'tabData' => [
                     [
                         'name' => _('Hosts'),
-                        'id' => 'image-hosts',
+                        'id' => 'image-host',
                         'generator' => function () {
                             $this->imageHosts();
                         }
@@ -1451,7 +1486,7 @@ class ImageManagement extends FOGPage
             case 'image-storagegroups':
                 $this->imageStoragegroupsPost();
                 break;
-            case 'image-hosts':
+            case 'image-host':
                 $this->imageHostPost();
             }
             if (!$this->obj->save()) {
@@ -1950,42 +1985,6 @@ class ImageManagement extends FOGPage
             '',
             $columns
         );
-    }
-    /**
-     * Image host post elements
-     *
-     * @return void
-     */
-    public function imageHostPost()
-    {
-        if (isset($_POST['updatehost'])) {
-            $hosts = filter_input_array(
-                INPUT_POST,
-                [
-                    'host' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $hosts = $hosts['host'];
-            if (count($hosts ?: []) > 0) {
-                $this->obj->addHost($hosts);
-            }
-        }
-        if (isset($_POST['confirmdel'])) {
-            $hosts = filter_input_array(
-                INPUT_POST,
-                [
-                    'remitems' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $hosts = $hosts['remitems'];
-            if (count($hosts ?: []) > 0) {
-                $this->obj->removeHost($hosts);
-            }
-        }
     }
     /**
      * Get the current active tasks.

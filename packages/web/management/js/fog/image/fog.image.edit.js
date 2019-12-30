@@ -8,9 +8,8 @@
             text = text.replace(': ' + originalName, ': ' + newName);
             document.title = text;
             e.text(text);
-        };
-
-    var generalForm = $('#image-general-form'),
+        },
+        generalForm = $('#image-general-form'),
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
         generalDeleteModal = $('#deleteModal'),
@@ -248,38 +247,56 @@
     });
 
     // ---------------------------------------------------------------
-    // HOST TAB
-    var hostAddBtn = $('#host-add'),
-        hostRemoveBtn = $('#host-remove');
-    hostAddBtn.prop('disabled', true);
-    hostRemoveBtn.prop('disabled', true);
+    // HOST ASSOCIATION TAB
+    var imageHostUpdateBtn = $('#image-host-send'),
+        imageHostRemoveBtn = $('#image-host-remove'),
+        imageHostDeleteConfirmBtn = $('#confirmhostDeleteModal');
+
+    function disableHostButtons(disable) {
+        imageHostUpdateBtn.prop('disabled', disable);
+        imageHostRemoveBtn.prop('disabled', disable);
+    }
+
     function onHostSelect(selected) {
         var disabled = selected.count() == 0;
-        hostAddBtn.prop('disabled', disabled);
-        hostRemoveBtn.prop('disabled', disabled);
+        disableHostButtons(disabled);
     }
-    var hostTable = $('#image-host-table').registerTable(onHostSelect, {
+
+    imageHostUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = imageHostsTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(imageHostsTable),
+            opts = {
+                confirmadd: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableHostButtons(false);
+            if (err) {
+                return;
+            }
+            imageHostsTable.draw(false);
+            imageHostsTable.rows({selected: true}).deselect();
+        });
+    });
+
+    imageHostRemoveBtn.on('click', function(e) {
+        $('#hostDelModal').modal('show');
+    });
+
+    var imageHostsTable = $('#image-host-table').registerTable(onHostSelect, {
         order: [
             [1, 'asc'],
             [0, 'asc']
         ],
         columns: [
-            {data: 'name'},
+            {data: 'mainLink'},
             {data: 'association'}
         ],
         rowId: 'id',
         columnDefs: [
-            {
-                responsivePriority: -1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=host&sub=edit&id='
-                        + row.id
-                        + '">'
-                        + data
-                        + '</a>';
-                },
-                targets: 0
-            },
             {
                 render: function(data, type, row) {
                     var checkval = '';
@@ -287,11 +304,9 @@
                         checkval = ' checked';
                     }
                     return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="memberAssoc_'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="imageHostAssoc_'
                         + row.id
-                        + '" value="'
-                        + row.id
-                        + '"'
+                        + '" value="' + row.id + '"'
                         + checkval
                         + '/>'
                         + '</div>';
@@ -300,6 +315,7 @@
             }
         ],
         processing: true,
+        serverSide: true,
         ajax: {
             url: '../management/index.php?node='
                 + Common.node
@@ -308,51 +324,31 @@
             type: 'post'
         }
     });
-    hostTable.on('draw', function() {
-        Common.iCheck('#image-host-table input');
-        onHostSelect(hostTable.rows({selected: true}));
-    });
-    hostAddBtn.on('click', function() {
-        hostAddBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = hostTable.rows({selected: true}),
-            toAdd = $.getSelectedIds(hostTable),
-            opts = {
-                updatehost: '1',
-                host: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            if (!err) {
-                hostTable.draw(false);
-                hostTable.rows({selected: true}).deselect();
-                $('#image-host-table').find('.associated').each(function() {
-                    if ($.inArray($(this).val(), toAdd) != -1) {
-                        $(this).iCheck('check');
-                    }
-                });
-            } else {
-                hostAddBtn.prop('disabled', false);
-            }
-        });
-    });
-    hostRemoveBtn.on('click', function() {
-        $('#hostDelModal').modal('show');
-    });
-    $('#confirmhostDeleteModal').on('click', function(e) {
-        $.deleteAssociated(hostTable, hostRemoveBtn.attr('action'), function(err) {
+
+    imageHostDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(imageHostsTable, imageHostUpdateBtn.attr('action'), function(err) {
+            $('#hostDelModal').modal('hide');
             if (err) {
                 return;
             }
-            $('#hostDelModal').modal('hide');
-            hostTable.draw(false);
-            hostTable.rows({selected: true}).deselect();
+            imageHostsTable.draw(false);
+            imageHostsTable.rows({selected: true}).deselect();
         });
     });
 
+    imageHostsTable.on('draw', function(e) {
+        Common.iCheck('#image-host-table input');
+        $('#image-host-table input.associated').on('ifChanged', onImageHostCheckboxSelect);
+        onHostSelect(imageHostsTable.rows({selected: true}));
+    });
+
+    var onImageHostCheckboxSelect = function(e) {
+        $.checkItemUpdate(imageHostsTable, this, e, imageHostUpdateBtn);
+    };
+
     if (Common.search && Common.search.length > 0) {
         storagegroupsTable.search(Common.search).draw();
-        hostTable.search(Common.search).draw();
+        imageHostsTable.search(Common.search).draw();
     }
     $('.slider').slider();
 })(jQuery);
