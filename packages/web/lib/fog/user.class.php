@@ -314,7 +314,11 @@ class User extends FOGController
         $authTime = time() - $_SESSION['lastactivity'];
         $regenTime = $rst * 60 * 60;
         if ($authTime > $regenTime) {
+            $sessionid = self::_getSessionID();
             self::clearAuthCookie();
+            session_write_close();
+            session_start();
+            session_id($sessionid);
             $current_time = self::niceDate()->getTimestamp();
             $current_Date = self::niceDate()->format('Y-m-d H:i:s');
             $cookieexp = $current_time + (182 * 24 * 60 * 60);
@@ -342,19 +346,12 @@ class User extends FOGController
                 ->set('password', $password_hash)
                 ->save();
             setcookie('foguserauthid', $userauth->get('id'), $cookieexp);
-            $sessionid = self::_getSessionID();
-            session_write_close();
-            session_start();
-            session_id($sessionid);
             $_SESSION['FOG_USER'] = $this->get('id');
-            $_SESSION['lastactivity'] = time();
         }
         if (!isset($_SESSION['FOG_USER'])) {
             $_SESSION['FOG_USER'] = $this->get('id');
         }
-        if ($ali) {
-            return true;
-        } else {
+        if (!$ali) {
             $timeout = $ist * 60 * 60;
             if ($authTime > $timeout) {
                 self::redirect('../management/index.php?node=logout');
