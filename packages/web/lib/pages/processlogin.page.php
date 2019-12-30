@@ -229,7 +229,7 @@ class ProcessLogin extends FOGPage
                 // Setup Cookie stuff.
                 $current_time = self::nicedate()->getTimestamp();
                 $current_date = self::niceDate()->format('Y-m-d H:i:s');
-                $cookieexp = $current_time + (182 * 24 * 60 * 60);
+                $cookieexp = $current_time + (2 * 24 * 60 * 60);
                 $password = self::getToken(16);
                 $selector = self::getToken(32);
                 $expire = self::niceDate()
@@ -306,11 +306,11 @@ class ProcessLogin extends FOGPage
                     $userauth->password
                 );
                 if (!$isSelectorVerified || !$isPasswordVerified || $isExpired) {
+                    self::clearAuthCookie();
                     Route::delete(
                         'userauth',
                         $userauth->id
                     );
-                    self::clearAuthCookie();
                     return self::mainLoginForm();
                 }
                 self::$FOGUser = new User($userauth->userID);
