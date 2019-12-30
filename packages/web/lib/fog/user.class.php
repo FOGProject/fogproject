@@ -316,6 +316,9 @@ class User extends FOGController
         if ($authTime > $regenTime) {
             $sessionid = self::_getSessionID();
             $remember = $_SESSION['rememberme'];
+            if ($remember) {
+                $userauth = new UserAuth($_COOKIE['foguserauthid']);
+            }
             self::clearAuthCookie();
             session_write_close();
             session_start();
@@ -324,7 +327,7 @@ class User extends FOGController
             if ($remember) {
                 $current_time = self::niceDate()->getTimestamp();
                 $current_Date = self::niceDate()->format('Y-m-d H:i:s');
-                $cookieexp = $current_time + (182 * 24 * 60 * 60);
+                $cookieexp = $current_time + (2 * 24 * 60 * 60);
                 $password = self::getToken(16);
                 $selector = self::getToken(32);
                 $expire = self::niceDate()
@@ -332,14 +335,6 @@ class User extends FOGController
                     ->format('Y-m-d H:i:s');
                 setcookie('foguserauthpass', $password, $cookieexp);
                 setcookie('foguserauthsel', $selector, $cookieexp);
-
-                // Build and create authorization/authentication system.
-                Route::ids(
-                    'userauth',
-                    ['userID' => $this->get('id')]
-                );
-                $authid = json_decode(Route::getData(), true);
-                $userauth = new UserAuth(array_shift($authid));
                 $password_hash = self::generateHash($password);
                 $selector_hash = self::generateHash($selector);
                 $userauth
@@ -373,16 +368,6 @@ class User extends FOGController
     {
         self::$HookManager
             ->processEvent('USER_LOGGING_OUT');
-        // Delete any authorizations we may have.
-        if ($_COOKIE['foguserauthid']) {
-            Route::deletemass(
-                'userauth',
-                [
-                    'id' => $_COOKIE['foguserauthid'],
-                    'userID' => $this->get('id')
-                ]
-            );
-        }
         // Clear all the cookies
         self::clearAuthCookie();
 
