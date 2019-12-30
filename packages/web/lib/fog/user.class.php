@@ -311,7 +311,6 @@ class User extends FOGController
             $ist,
             $rst
         ) = self::getSetting($keys);
-        $_SESSION['lastactivity'] = time();
         $authTime = time() - $_SESSION['lastactivity'];
         $regenTime = $rst * 60 * 60;
         if ($authTime > $regenTime) {
@@ -354,15 +353,14 @@ class User extends FOGController
             $_SESSION['FOG_USER'] = $this->get('id');
         }
         if ($ali) {
-            $_SESSION['lastactivity'] = time();
             return true;
         } else {
-            $lastactivity = time() - $_SESSION['lastactivity'];
             $timeout = $ist * 60 * 60;
-            if ($lastactivity > $timeout) {
+            if ($authTime > $timeout) {
                 self::redirect('../management/index.php?node=logout');
             }
         }
+        $_SESSION['lastactivity'] = time();
         return true;
     }
     /**
