@@ -315,37 +315,41 @@ class User extends FOGController
         $regenTime = $rst * 60 * 60;
         if ($authTime > $regenTime) {
             $sessionid = self::_getSessionID();
+            $remember = $_SESSION['rememberme'];
             self::clearAuthCookie();
             session_write_close();
             session_start();
             session_id($sessionid);
-            $current_time = self::niceDate()->getTimestamp();
-            $current_Date = self::niceDate()->format('Y-m-d H:i:s');
-            $cookieexp = $current_time + (182 * 24 * 60 * 60);
-            $password = self::getToken(16);
-            $selector = self::getToken(32);
-            $expire = self::niceDate()
-                ->setTimestamp($cookieexp)
-                ->format('Y-m-d H:i:s');
-            setcookie('foguserauthpass', $password, $cookieexp);
-            setcookie('foguserauthsel', $selector, $cookieexp);
+            // Only set cookie if we are to be remembered
+            if ($remember) {
+                $current_time = self::niceDate()->getTimestamp();
+                $current_Date = self::niceDate()->format('Y-m-d H:i:s');
+                $cookieexp = $current_time + (182 * 24 * 60 * 60);
+                $password = self::getToken(16);
+                $selector = self::getToken(32);
+                $expire = self::niceDate()
+                    ->setTimestamp($cookieexp)
+                    ->format('Y-m-d H:i:s');
+                setcookie('foguserauthpass', $password, $cookieexp);
+                setcookie('foguserauthsel', $selector, $cookieexp);
 
-            // Build and create authorization/authentication system.
-            Route::ids(
-                'userauth',
-                ['userID' => $this->get('id')]
-            );
-            $authid = json_decode(Route::getData(), true);
-            $userauth = new UserAuth(array_shift($authid));
-            $password_hash = self::generateHash($password);
-            $selector_hash = self::generateHash($selector);
-            $userauth
-                ->set('expire', $expire)
-                ->set('isExpired', '0')
-                ->set('selector', $selector_hash)
-                ->set('password', $password_hash)
-                ->save();
-            setcookie('foguserauthid', $userauth->get('id'), $cookieexp);
+                // Build and create authorization/authentication system.
+                Route::ids(
+                    'userauth',
+                    ['userID' => $this->get('id')]
+                );
+                $authid = json_decode(Route::getData(), true);
+                $userauth = new UserAuth(array_shift($authid));
+                $password_hash = self::generateHash($password);
+                $selector_hash = self::generateHash($selector);
+                $userauth
+                    ->set('expire', $expire)
+                    ->set('isExpired', '0')
+                    ->set('selector', $selector_hash)
+                    ->set('password', $password_hash)
+                    ->save();
+                setcookie('foguserauthid', $userauth->get('id'), $cookieexp);
+            }
             $_SESSION['FOG_USER'] = $this->get('id');
         }
         if (!isset($_SESSION['FOG_USER'])) {
