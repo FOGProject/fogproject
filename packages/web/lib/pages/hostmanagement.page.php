@@ -3995,12 +3995,8 @@ class HostManagement extends FOGPage
     {
         $join = [
             'LEFT OUTER JOIN `printerAssoc` ON '
-            . "`printers`.`pID` = `printerAssoc`.`paHostID` "
+            . "`printers`.`pID` = `printerAssoc`.`paPrinterID` "
             . "AND `printerAssoc`.`paHostID` = '" . $this->obj->get('id') . "'"
-        ];
-        $columns[] = [
-            'db' => 'paIsDefault',
-            'dt' => 'isDefault'
         ];
         $columns[] = [
             'db' => 'hostAssoc',
