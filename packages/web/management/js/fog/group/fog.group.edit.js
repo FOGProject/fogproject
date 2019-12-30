@@ -211,9 +211,9 @@
         ADClearBtn = $('#ad-clear'),
         ADJoinDomain = $('#adEnabled');
 
-    ADJoinDomain.on('ifClicked', function(e) {
+    ADJoinDomain.on('ifChanged', function(e) {
         e.preventDefault();
-        $(this).prop('checked', !this.checked);
+        $(this).iCheck('update');
         if (!this.checked) {
             return;
         }
@@ -284,21 +284,48 @@
         });
     });
 
+    // ASSOCIATIONS
     // ---------------------------------------------------------------
-    // HOST MEMBERSHIP TAB
-    var hostsAddBtn = $('#hosts-add'),
-        hostsRemoveBtn = $('#hosts-remove');
+    // HOST ASSOCIATION TAB
+    var groupHostUpdateBtn = $('#group-host-send'),
+        groupHostRemoveBtn = $('#group-host-remove'),
+        groupHostDeleteConfirmBtn = $('#confirmhostDeleteModal');
 
-    hostsAddBtn.prop('disabled', true);
-    hostsRemoveBtn.prop('disabled', true);
-
-    function onHostsSelect (selected) {
-        var disabled = selected.count() == 0;
-        hostsAddBtn.prop('disabled', disabled);
-        hostsRemoveBtn.prop('disabled', disabled);
+    function disableHostButtons(disable) {
+        groupHostUpdateBtn.prop('disabled', disable);
+        groupHostRemoveBtn.prop('disabled', disable);
     }
 
-    var hostsTable = $('#group-hosts-table').registerTable(onHostsSelect, {
+    function onHostSelect(selected) {
+        var disabled = selected.count() == 0;
+        disableHostButtons(disabled);
+    }
+
+    groupHostUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = groupHostsTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(groupHostsTable),
+            opts = {
+                confirmadd: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableHostButtons(false);
+            if (err) {
+                return;
+            }
+            groupHostsTable.draw(false);
+            groupHostsTable.rows({selected: true}).deselect();
+        });
+    });
+
+    groupHostRemoveBtn.on('click', function(e) {
+        $('#hostDelModal').modal('show');
+    });
+
+    var groupHostsTable = $('#group-host-table').registerTable(onHostSelect, {
         order: [
             [1, 'asc'],
             [0, 'asc']
@@ -327,7 +354,7 @@
                         checkval = ' checked';
                     }
                     return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="hostAssoc_'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="groupHostAssoc_'
                         + row.id
                         + '" value="' + row.id + '"'
                         + checkval
@@ -341,51 +368,33 @@
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
-            + Common.node
-            + '&sub=getHostsList&id='
-            + Common.id,
+                + Common.node
+                + '&sub=getHostsList&id='
+                + Common.id,
             type: 'post'
         }
     });
-    hostsTable.on('draw', function() {
-        Common.iCheck('#group-hosts-table input');
-    });
 
-    hostsAddBtn.on('click', function() {
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = hostsTable.rows({selected: true}),
-            toAdd = $.getSelectedIds(hostsTable),
-            opts = {
-                updatehosts: 1,
-                host: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            if (err) {
-                return;
-            }
-            hostsTable.draw(false);
-            hostsTable.rows({selected: true}).deselect();
-        });
-    });
-
-    hostsRemoveBtn.on('click', function() {
-        $('#hostDelModal').modal('show');
-    });
-    $('#confirmhostDeleteModal').on('click', function(e) {
-        $.deleteAssociated(hostsTable, hostsRemoveBtn.attr('action'), function(err) {
-            if (err) {
-                return;
-            }
+    groupHostDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(groupHostsTable, groupHostUpdateBtn.attr('action'), function(err) {
             $('#hostDelModal').modal('hide');
-            hostsTable.draw(false);
-            hostsTable.rows({selected: true}).deselect();
+            if (err) {
+                return;
+            }
+            groupHostsTable.draw(false);
+            groupHostsTable.rows({selected: true}).deselect();
         });
     });
 
-    if (Common.search && Common.search.length > 0) {
-        hostsTable.search(Common.search).draw();
-    }
+    groupHostsTable.on('draw', function() {
+        Common.iCheck('#group-host-table input');
+        $('#group-host-table input.associated').on('ifChanged', onGroupHostCheckboxSelect);
+        onHostSelect(groupHostsTable.rows({selected: true}));
+    })
+
+    var onGroupHostCheckboxSelect = function(e) {
+        $.checkItemUpdate(groupHostsTable, this, e, groupHostUpdateBtn);
+    };
 
     // ---------------------------------------------------------------
     // PRINTER TAB
@@ -548,10 +557,6 @@
         });
     });
 
-    if (Common.search && Common.search.length > 0) {
-        printersTable.search(Common.search).draw();
-    }
-
     // ---------------------------------------------------------------
     // SNAPINS TAB
     var snapinsAddBtn = $('#snapins-add'),
@@ -632,9 +637,6 @@
             $('#snapinDelModal').modal('hide');
         });
     });
-    if (Common.search && Common.search.length > 0) {
-        snapinsTable.search(Common.search).draw();
-    }
 
     // ---------------------------------------------------------------
     // SERVICE TAB
@@ -797,9 +799,6 @@
         var form = $('#group-alo');
         form.processForm();
     });
-    if (Common.search && Common.search.length > 0) {
-        modulesTable.search(Common.search).draw();
-    }
 
     // ---------------------------------------------------------------
     // POWER MANAGEMENT TAB
@@ -913,4 +912,10 @@
             $('#scheduleModal').modal('hide');
         });
     });
+    if (Common.search && Common.search.length > 0) {
+        groupHostsTable.search(Common.search).draw();
+        printersTable.search(Common.search).draw();
+        snapinsTable.search(Common.search).draw();
+        modulesTable.search(Common.search).draw();
+    }
 })(jQuery)

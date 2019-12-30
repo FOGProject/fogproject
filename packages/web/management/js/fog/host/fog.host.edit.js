@@ -638,6 +638,8 @@
         ADJoinDomain = $('#adEnabled');
 
     ADJoinDomain.on('ifChanged', function(e) {
+        e.preventDefault();
+        $(this).iCheck('update');
         if (!this.checked) {
             return;
         }

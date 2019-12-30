@@ -760,6 +760,7 @@ class GroupManagement extends FOGPage
                 throw new Exception(_('Please use another group name'));
             }
         }
+        // Set the group relative items.
         $this->obj
             ->set('name', $group)
             ->set('description', $desc)
@@ -767,6 +768,8 @@ class GroupManagement extends FOGPage
             ->set('kernelArgs', $args)
             ->set('kernelDevice', $dev)
             ->set('init', $init);
+
+        // Same but set all hosts in this group
         self::getClass('HostManager')
             ->update(
                 ['id' => $this->obj->get('hosts')],
@@ -905,51 +908,45 @@ class GroupManagement extends FOGPage
      */
     public function groupHosts()
     {
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'group-hosts',
-                $this->obj->get('id')
-            )
-            . '" ';
-
-        $buttons = self::makeButton(
-            'hosts-add',
-            _('Add selected'),
-            'btn btn-primary pull-right',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'hosts-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-
         $this->headerData = [
             _('Host Name'),
             _('Associated')
         ];
         $this->attributes = [
             [],
-            []
+            ['width' => 16]
         ];
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'group-host',
+                $this->obj->get('id')
+            )
+            . '" ';
 
-        echo '<!-- Hosts -->';
-        echo '<div class="box-group" id="hosts">';
-        echo '<div class="box box-solid">';
-        echo '<div id="updatehosts" class="">';
+        $buttons = self::makeButton(
+            'group-host-send',
+            _('Add selected'),
+            'btn btn-primary pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'group-host-remove',
+            _('Remove selected'),
+            'btn btn-danger pull-left',
+            $props
+        );
+
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Group Hosts');
+        echo _('Group Host Associations');
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'group-hosts-table', $buttons);
+        $this->render(12, 'group-host-table', $buttons);
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $this->assocDelModal('host');
-        echo '</div>';
-        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
@@ -960,16 +957,16 @@ class GroupManagement extends FOGPage
      */
     public function groupHostPost()
     {
-        if (isset($_POST['updatehosts'])) {
+        if (isset($_POST['confirmadd'])) {
             $hosts = filter_input_array(
                 INPUT_POST,
                 [
-                    'host' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $hosts = $hosts['host'];
+            $hosts = $hosts['additems'];
             if (count($hosts ?: []) > 0) {
                 $this->obj->addHost($hosts);
             }
@@ -2004,7 +2001,7 @@ class GroupManagement extends FOGPage
                 'tabData' => [
                     [
                         'name' => _('Hosts'),
-                        'id' => 'group-hosts',
+                        'id' => 'group-host',
                         'generator' => function () {
                             $this->groupHosts();
                         }
@@ -2256,7 +2253,7 @@ class GroupManagement extends FOGPage
             case 'group-active-directory':
                 $this->groupADPost();
                 break;
-            case 'group-hosts':
+            case 'group-host':
                 $this->groupHostPost();
                 break;
             case 'group-printers':
