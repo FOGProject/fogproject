@@ -2317,6 +2317,9 @@ class HostManagement extends FOGPage
         echo '<h4 class="box-title">';
         echo _('Host Module Associations');
         echo '</h4>';
+        echo '<p class="help-block">';
+        echo _('Disabled items are not displayed. Legacy items are removed.');
+        echo '</p>';
         echo '</div>';
         echo '<div class="box-body">';
         $this->render(12, 'host-module-table', $buttons);
@@ -2326,187 +2329,193 @@ class HostManagement extends FOGPage
         echo '</div>';
         echo '</div>';
 
-        // Display Manager area
         $labelClass = 'col-sm-3 control-label';
-        $buttons = self::makeButton(
-            'host-displayman-send',
-            _('Update'),
-            'btn btn-primary pull-right',
-            $props
-        );
-        // If the x, y, and/or r inputs are set.
-        $ix = filter_input(INPUT_POST, 'x');
-        $iy = filter_input(INPUT_POST, 'y');
-        $ir = filter_input(INPUT_POST, 'r');
-        if (!$ix) {
-            // If x not set check hosts setting
-            $ix = $this->obj->getDispVals('width');
-            if ($ix) {
+        // Display Manager area
+        $dispEnabled = self::getSetting('FOG_CLIENT_DISPLAYMANAGER_ENABLED');
+        if ($dispEnabled) {
+            $buttons = self::makeButton(
+                'host-displayman-send',
+                _('Update'),
+                'btn btn-primary pull-right',
+                $props
+            );
+            // If the x, y, and/or r inputs are set.
+            $ix = filter_input(INPUT_POST, 'x');
+            $iy = filter_input(INPUT_POST, 'y');
+            $ir = filter_input(INPUT_POST, 'r');
+            if (!$ix) {
+                // If x not set check hosts setting
+                $ix = $this->obj->getDispVals('width');
+                if ($ix) {
+                    $x = $ix;
+                }
+            } else {
                 $x = $ix;
             }
-        } else {
-            $x = $ix;
-        }
-        if (!$iy) {
-            // If y not set check hosts setting
-            $iy = $this->obj->getDispVals('height');
-            if ($iy) {
+            if (!$iy) {
+                // If y not set check hosts setting
+                $iy = $this->obj->getDispVals('height');
+                if ($iy) {
+                    $y = $iy;
+                }
+            } else {
                 $y = $iy;
             }
-        } else {
-            $y = $iy;
-        }
-        if (!$ir) {
-            // If r not set check hosts setting
-            $ir = $this->obj->getDispVals('refresh');
-            if ($ir) {
+            if (!$ir) {
+                // If r not set check hosts setting
+                $ir = $this->obj->getDispVals('refresh');
+                if ($ir) {
+                    $r = $ir;
+                }
+            } else {
                 $r = $ir;
             }
-        } else {
-            $r = $ir;
-        }
-        $names = [
-            'x' => [
-                'width',
-                _('Screen Width')
-                . '<br/>('
-                . _('in pixels')
-                . ')'
-            ],
-            'y' => [
-                'height',
-                _('Screen Height')
-                . '<br/>('
-                . _('in pixels')
-                . ')'
-            ],
-            'r' => [
-                'refresh',
-                _('Screen Refresh Rate')
-                . '<br/>('
-                . _('in Hz')
-                . ')'
-            ]
-        ];
-        foreach ($names as $name => &$get) {
-            switch ($name) {
-            case 'r':
-                $val = $r;
-                break;
-            case 'x':
-                $val = $x;
-                break;
-            case 'y':
-                $val = $y;
-            }
-            $fields[
-                self::makeLabel(
-                    $labelClass,
+            $names = [
+                'x' => [
+                    'width',
+                    _('Screen Width')
+                    . '<br/>('
+                    . _('in pixels')
+                    . ')'
+                ],
+                'y' => [
+                    'height',
+                    _('Screen Height')
+                    . '<br/>('
+                    . _('in pixels')
+                    . ')'
+                ],
+                'r' => [
+                    'refresh',
+                    _('Screen Refresh Rate')
+                    . '<br/>('
+                    . _('in Hz')
+                    . ')'
+                ]
+            ];
+            foreach ($names as $name => &$get) {
+                switch ($name) {
+                case 'r':
+                    $val = $r;
+                    break;
+                case 'x':
+                    $val = $x;
+                    break;
+                case 'y':
+                    $val = $y;
+                }
+                $fields[
+                    self::makeLabel(
+                        $labelClass,
+                        $name,
+                        $get[1]
+                    )
+                ] = self::makeInput(
+                    'form-control',
                     $name,
-                    $get[1]
-                )
-            ] = self::makeInput(
-                'form-control',
-                $name,
-                '',
-                'number',
-                $name,
-                $val
-            );
-            unset($get);
-        }
+                    '',
+                    'number',
+                    $name,
+                    $val
+                );
+                unset($get);
+            }
 
-        $rendered = self::formFields($fields);
-        unset($fields);
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Host Display Manager Settings');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo self::makeFormTag(
-            'form-horizontal',
-            'host-displayman-form',
-            self::makeTabUpdateURL(
-                'host-module',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
-        echo '</div>';
-        echo '<div class="box-footer">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
+            $rendered = self::formFields($fields);
+            unset($fields);
+            echo '<div class="box box-primary">';
+            echo '<div class="box-header with-border">';
+            echo '<h4 class="box-title">';
+            echo _('Host Display Manager Settings');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="box-body">';
+            echo self::makeFormTag(
+                'form-horizontal',
+                'host-displayman-form',
+                self::makeTabUpdateURL(
+                    'host-module',
+                    $this->obj->get('id')
+                ),
+                'post',
+                'application/x-www-form-urlencoded',
+                true
+            );
+            echo $rendered;
+            echo '</form>';
+            echo '</div>';
+            echo '<div class="box-footer">';
+            echo $buttons;
+            echo '</div>';
+            echo '</div>';
+        }
 
         // Auto Log Out
-        $buttons = self::makeButton(
-            'host-alo-send',
-            _('Update'),
-            'btn btn-primary pull-right',
-            $props
-        );
-        $tme = filter_input(INPUT_POST, 'tme');
-        if (!$tme) {
-            $tme = $this->obj->getAlo();
-        }
-        if (!$tme) {
-            $tme = 0;
-        }
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'tme',
-                _('Auto Logout Time')
-                . '<br/>('
-                . _('in minutes')
-                . ')'
-            ) => self::makeInput(
-                'form-control',
-                'tme',
-                '',
-                'number',
-                'tme',
-                $tme
-            )
-        ];
+        $aloEnabled = self::getSetting('FOG_CLIENT_AUTOLOGOFF_ENABLED');
+        if ($aloEnabled) {
+            $buttons = self::makeButton(
+                'host-alo-send',
+                _('Update'),
+                'btn btn-primary pull-right',
+                $props
+            );
+            $tme = filter_input(INPUT_POST, 'tme');
+            if (!$tme) {
+                $tme = $this->obj->getAlo();
+            }
+            if (!$tme) {
+                $tme = 0;
+            }
+            $fields = [
+                self::makeLabel(
+                    $labelClass,
+                    'tme',
+                    _('Auto Logout Time')
+                    . '<br/>('
+                    . _('in minutes')
+                    . ')'
+                ) => self::makeInput(
+                    'form-control',
+                    'tme',
+                    '',
+                    'number',
+                    'tme',
+                    $tme
+                )
+            ];
 
-        $rendered = self::formFields($fields);
-        unset($fields);
+            $rendered = self::formFields($fields);
+            unset($fields);
 
-        echo '<div class="box box-warning">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Auto Logout Settings');
-        echo '</h4>';
-        echo '<p class="help-block">';
-        echo _('Minimum time limit for Auto Logout to become active is 5 minutes.');
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo self::makeFormTag(
-            'form-horizontal',
-            'host-alo-form',
-            self::makeTabUpdateURL(
-                'host-module',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
-        echo '</div>';
-        echo '<div class="box-footer">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
+            echo '<div class="box box-warning">';
+            echo '<div class="box-header with-border">';
+            echo '<h4 class="box-title">';
+            echo _('Auto Logout Settings');
+            echo '</h4>';
+            echo '<p class="help-block">';
+            echo _('Minimum time limit for Auto Logout to become active is 5 minutes.');
+            echo '</p>';
+            echo '</div>';
+            echo '<div class="box-body">';
+            echo self::makeFormTag(
+                'form-horizontal',
+                'host-alo-form',
+                self::makeTabUpdateURL(
+                    'host-module',
+                    $this->obj->get('id')
+                ),
+                'post',
+                'application/x-www-form-urlencoded',
+                true
+            );
+            echo $rendered;
+            echo '</form>';
+            echo '</div>';
+            echo '<div class="box-footer">';
+            echo $buttons;
+            echo '</div>';
+            echo '</div>';
+        }
 
         // Hostname changer reboot/domain join reboot forced.
         $enforce = (
@@ -4075,29 +4084,12 @@ class HostManagement extends FOGPage
             'dt' => 'association',
             'removeFromQuery' => true
         ];
-        $modulesFilterStr = "SELECT `%s`
-            FROM `%s`
-            WHERE `modules`.`short_name` "
-            . "NOT IN ('"
-            . implode("','", $notWhere)
-            . "') AND `modules`.`short_name` IN ('"
-            . implode("','", $keys)
-            . "')";
-        $modulesTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            WHERE `modules`.`short_name` "
-            . "NOT IN ('"
-            . implode("','", $notWhere)
-            . "')";
         return $this->obj->getItemsList(
             'module',
             'moduleassociation',
             $join,
             $where,
-            $columns,
-            '',
-            $modulesFilterStr,
-            $modulesTotalStr
+            $columns
         );
     }
     /**
