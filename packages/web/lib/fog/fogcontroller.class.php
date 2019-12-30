@@ -1259,6 +1259,28 @@ abstract class FOGController extends FOGBase
                 'db' => $real,
                 'dt' => $common
             ];
+            switch ($common) {
+            case 'id':
+                $idField = $real;
+                break;
+            case 'name':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => 'mainLink',
+                    'formatter' => function($d, $row) use ($primary, $idField) {
+                        if (!$d) {
+                            return;
+                        }
+                        return '<a href="../management/index.php?node=' . $primary . '&'
+                            . 'sub=edit&id='
+                            . $row[$idField]
+                            . '">'
+                            . $d
+                            . '</a>';
+
+                    }
+                ];
+            }
             unset($real);
         }
         foreach ($addColumns as &$column) {

@@ -1638,7 +1638,7 @@ class HostManagement extends FOGPage
                         'pending' => 0
                     ]
                 );
-            if (count($imageIgnore) > 0) {
+            if (count($imageIgnore ?: []) > 0) {
                 self::getClass('MACAddressAssociationManager')
                     ->update(
                         [
@@ -1649,7 +1649,7 @@ class HostManagement extends FOGPage
                         ['imageIgnore' => 1]
                     );
             }
-            if (count($clientIgnore) > 0) {
+            if (count($clientIgnore ?: []) > 0) {
                 self::getClass('MACAddressAssociationManager')
                     ->update(
                         [
@@ -1660,7 +1660,7 @@ class HostManagement extends FOGPage
                         ['clientIgnore' => 1]
                     );
             }
-            if (count($pending) > 0) {
+            if (count($pending ?: []) > 0) {
                 self::getClass('MACAddressAssociationManager')
                     ->update(
                         [
@@ -1738,7 +1738,7 @@ class HostManagement extends FOGPage
                 ['imageIgnore' => $flags]
             );
             $imageIgnore = $items['imageIgnore'];
-            if (count($imageIgnore) > 0) {
+            if (count($imageIgnore ?: []) > 0) {
                 self::getClass('MACAddressAssociationManager')
                     ->update(
                         [
@@ -1756,7 +1756,7 @@ class HostManagement extends FOGPage
                 ['imageIgnore' => $flags]
             );
             $imageIgnore = $items['imageIgnore'];
-            if (count($imageIgnore) > 0) {
+            if (count($imageIgnore ?: []) > 0) {
                 self::getClass('MACAddressAssociationManager')
                     ->update(
                         [
@@ -1774,7 +1774,7 @@ class HostManagement extends FOGPage
                 ['clientIgnore' => $flags]
             );
             $clientIgnore = $items['clientIgnore'];
-            if (count($clientIgnore) > 0) {
+            if (count($clientIgnore ?: []) > 0) {
                 self::getClass('MACAddressAssociationManager')
                     ->update(
                         [
@@ -1792,7 +1792,7 @@ class HostManagement extends FOGPage
                 ['clientIgnore' => $flags]
             );
             $clientIgnore = $items['clientIgnore'];
-            if (count($clientIgnore) > 0) {
+            if (count($clientIgnore ?: []) > 0) {
                 self::getClass('MACAddressAssociationManager')
                     ->update(
                         [
@@ -1810,7 +1810,7 @@ class HostManagement extends FOGPage
                 ['pending' => $flags]
             );
             $pending = $items['pending'];
-            if (count($pending) > 0) {
+            if (count($pending ?: []) > 0) {
                 self::getClass('MACAddressAssociationManager')
                     ->update(
                         [
@@ -1828,7 +1828,7 @@ class HostManagement extends FOGPage
                 ['pending' => $flags]
             );
             $pending = $items['pending'];
-            if (count($pending) > 0) {
+            if (count($pending ?: []) > 0) {
                 self::getClass('MACAddressAssociationManager')
                     ->update(
                         [
