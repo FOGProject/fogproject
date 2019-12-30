@@ -1138,21 +1138,32 @@ class Route extends FOGBase
                 '',
                 true
             );
+            if ($search == 'host') {
+                $j = "LEFT OUTER JOIN `hostMAC`
+                    ON `hosts`.`hostID` = `hostMAC`.`hmHostID`";
+                $w = " OR `hostMAC`.`hmMAC` LIKE :item";
+            } else {
+                $j = '';
+                $w = '';
+            }
             $sql = "SELECT `{$classVars['databaseFields']['id']}`,"
                 . "`{$classVars['databaseFields']['name']}`
                 FROM `{$classVars['databaseTable']}`
-                WHERE `{$classVars['databaseFields']['id']}` LIKE '%"
-                . $item
-                . "%' OR `{$classVars['databaseFields']['name']}` LIKE '%"
-                . $item
-                . "%'";
-            $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
+                {$j}
+                WHERE `{$classVars['databaseFields']['id']}` LIKE :item
+                OR `{$classVars['databaseFields']['name']}` LIKE :item
+                ${w}";
             if ($limit > 0) {
-                $vals = self::$DB->query($sql." LIMIT $limit")->fetch(
-                    '',
-                    'fetch_all'
-                )->get();
+                $sql .= " LIMIT $limit";
             }
+            $vals = self::$DB->query(
+                $sql,
+                [],
+                ['item' => '%'.$item.'%']
+            )->fetch(
+                '',
+                'fetch_all'
+            )->get();
             foreach ($vals as &$val) {
                 if (!self::$ajax) {
                     $api = stripos(
@@ -2174,7 +2185,13 @@ class Route extends FOGBase
             . $classVars['databaseTable']
             . '`';
 
-        $sql = self::_buildSql($sql, $classVars, $whereItems, false, $operator);
+        $sql = self::_buildSql(
+            $sql,
+            $classVars,
+            $whereItems,
+            false,
+            $operator
+        );
 
         $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
         foreach ($vals as &$val) {
