@@ -156,7 +156,7 @@ class User extends FOGController
                 $passValid = false;
             }
         }
-        if ($remember) {
+        if ($remember && $passValid) {
             // As we're doing remember me, set to always on
             self::setSetting('FOG_ALWAYS_LOGGED_IN', '1');
             // Setup Cookie stuff.
@@ -174,7 +174,7 @@ class User extends FOGController
             $password_hash = UserAuth::generateHash($password);
             $selector_hash = UserAuth::generateHash($selector);
             $auth = self::getClass('UserAuth')
-                ->set('userID', self::$FOGUser->get('id'))
+                ->set('userID', $this->get('id'))
                 ->set('expire', $expire)
                 ->set('selector', $selector_hash)
                 ->set('password', $password_hash)
@@ -182,6 +182,9 @@ class User extends FOGController
 
             // Set the id in the cook for this particular auth item.
             setcookie('foguserauthid', $auth->get('id'), $cookieexp);
+        }
+        if (!$passValid) {
+            $this->logout();
         }
         return $passValid;
     }
