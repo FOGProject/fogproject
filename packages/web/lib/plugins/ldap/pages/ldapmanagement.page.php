@@ -1411,9 +1411,18 @@ class LDAPManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<div class="box box-solid">';
+        echo '<div class="box box-solid" id="ldap-global">';
+        echo '<div class="box-body">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
+        echo '</div>';
+        echo '</div>';
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $buttons;
