@@ -228,7 +228,6 @@ class ProcessLogin extends FOGPage
                 self::setSetting('FOG_ALWAYS_LOGGED_IN', '1');
                 // Setup Cookie stuff.
                 $current_time = self::nicedate()->getTimestamp();
-                $current_date = self::niceDate()->format('Y-m-d H:i:s');
                 $cookieexp = $current_time + (2 * 24 * 60 * 60);
                 $password = self::getToken(16);
                 $selector = self::getToken(32);
@@ -239,12 +238,11 @@ class ProcessLogin extends FOGPage
                 setcookie('foguserauthsel', $selector, $cookieexp);
 
                 // Build and create authorization/authentication system.
-                $password_hash = User::generateHash($password);
-                $selector_hash = User::generateHash($selector);
+                $password_hash = UserAuth::generateHash($password);
+                $selector_hash = UserAuth::generateHash($selector);
                 $auth = self::getClass('UserAuth')
                     ->set('userID', self::$FOGUser->get('id'))
                     ->set('expire', $expire)
-                    ->set('isExpired', '0')
                     ->set('selector', $selector_hash)
                     ->set('password', $password_hash)
                     ->save();
@@ -254,7 +252,6 @@ class ProcessLogin extends FOGPage
             } else {
                 self::clearAuthCookie();
             }
-            $_SESSION['rememberme'] = $rememberme;
         } catch (Exception $e) {
             $code = HTTPResponseCodes::HTTP_FORBIDDEN;
             $msg = json_encode(
@@ -283,12 +280,12 @@ class ProcessLogin extends FOGPage
             if (self::$FOGUser->isValid()) {
                 return;
             } else {
-                $id = $_COOKIE['foguserauthid'];
+                $id = filter_input(INPUT_COOKIE, 'foguserauthid');
                 if (!$id) {
                     return self::mainLoginForm();
                 }
-                $selector = $_COOKIE['foguserauthsel'];
-                $password = $_COOKIE['foguserauthpass'];
+                $selector = filter_input(INPUT_COOKIE, 'foguserauthsel');
+                $password = filter_input(INPUT_COOKIE, 'foguserauthpass');
                 Route::indiv('userauth', $id);
                 $userauth = json_decode(Route::getData());
                 $current_date = self::niceDate()->format('Y-m-d H:i:s');
@@ -314,8 +311,7 @@ class ProcessLogin extends FOGPage
                     return self::mainLoginForm();
                 }
                 self::$FOGUser = new User($userauth->userID);
-                self::$FOGUser->isLoggedIn();
-                if (self::$FOGUser->isValid()) {
+                if (self::$FOGUser->isLoggedIn() && self::$FOGUser->isValid()) {
                     return;
                 }
                 self::mainLoginForm();

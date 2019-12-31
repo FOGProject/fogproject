@@ -311,22 +311,16 @@ class User extends FOGController
             $ist,
             $rst
         ) = self::getSetting($keys);
-        $authTime = time() - $_SESSION['lastactivity'];
+        $authTime = 0;
+        if (isset($_SESSION['lastactivity'])) {
+            $authTime = time() - $_SESSION['lastactivity'];
+        }
         $regenTime = $rst * 60 * 60;
         if ($authTime > $regenTime) {
-            $sessionid = self::_getSessionID();
-            $remember = $_SESSION['rememberme'];
-            if ($remember) {
-                $userauth = new UserAuth($_COOKIE['foguserauthid']);
-            }
-            self::clearAuthCookie();
-            session_write_close();
-            session_start();
-            session_id($sessionid);
-            // Only set cookie if we are to be remembered
-            if ($remember) {
+            $id = filter_input(INPUT_COOKIE, 'foguserauthid');
+            $userauth = new UserAuth($id);
+            if ($userauth->isValid()) {
                 $current_time = self::niceDate()->getTimestamp();
-                $current_Date = self::niceDate()->format('Y-m-d H:i:s');
                 $cookieexp = $current_time + (2 * 24 * 60 * 60);
                 $password = self::getToken(16);
                 $selector = self::getToken(32);
@@ -335,17 +329,25 @@ class User extends FOGController
                     ->format('Y-m-d H:i:s');
                 setcookie('foguserauthpass', $password, $cookieexp);
                 setcookie('foguserauthsel', $selector, $cookieexp);
-                $password_hash = self::generateHash($password);
-                $selector_hash = self::generateHash($selector);
+                setcookie('foguserauthid', $userauth->get('id'), $cookieexp);
+
+                $password_hash = $userauth->generateHash($password);
+                $selector_hash = $userauth->generateHash($selector);
+
                 $userauth
                     ->set('expire', $expire)
-                    ->set('isExpired', '0')
                     ->set('selector', $selector_hash)
                     ->set('password', $password_hash)
                     ->save();
-                setcookie('foguserauthid', $userauth->get('id'), $cookieexp);
             }
-            $_SESSION['FOG_USER'] = $this->get('id');
+            if (!$userauth->get('userID')) {
+                self::redirect('../management/index.php?node=logout');
+            }
+
+            $sessionid = self::_getSessionID();
+            session_write_close();
+            session_start();
+            session_id($sessionid);
         }
         if (!isset($_SESSION['FOG_USER'])) {
             $_SESSION['FOG_USER'] = $this->get('id');

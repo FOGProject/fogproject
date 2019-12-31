@@ -20,7 +20,7 @@
  * @link     https://fogproject.org
  */
 
-$isLoggedIn = self::$FOGUser->isValid() && self::$FOGUser->isLoggedIn();
+$isLoggedIn = self::$FOGUser->isLoggedIn() && self::$FOGUser->isvalid();
 echo '<!DOCTYPE html>';
 echo '<html lang="';
 echo ProcessLogin::getLocale();
@@ -28,7 +28,8 @@ echo '">';
 echo '<head>';
 echo '<meta charset="utf-8"/>';
 echo '<meta http-equiv="X-UA-Compatible" content="IE=edge"/>';
-echo '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />';
+echo '<meta name="viewport" content="width=device-width, '
+    . 'initial-scale=1, maximum-scale=1, user-scalable=no" />';
 echo '<meta name="theme-color" content="#367fa9"/>';
 echo '<link rel="shortcut icon" href="../favicon.ico"/>';
 echo '<title>';
@@ -48,7 +49,8 @@ foreach ((array)$this->stylesheets as &$stylesheet) {
     unset($stylesheet);
 }
 unset($this->stylesheets);
-echo '<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->';
+echo '<!-- HTML5 Shim and Respond.js IE8 support of HTML5 '
+    . 'elements and media queries -->';
 echo '<!--[if lt IE 9]>';
 echo '<script src="dist/js/html5shiv.min.js"></script>';
 echo '<script src="dist/js/respond.min.js"></script>';
