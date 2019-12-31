@@ -312,11 +312,11 @@ class User extends FOGController
             $rst
         ) = self::getSetting($keys);
         $authTime = 0;
-        if (isset($_SESSION['lastactivity'])) {
-            $authTime = time() - $_SESSION['lastactivity'];
+        if (isset($_SESSION['sessioncreated'])) {
+            $authTime = time() - $_SESSION['sessioncreated'];
         }
         $regenTime = $rst * 60 * 60;
-        if ($authTime > $regenTime) {
+        if (!$authTime || $authTime > $regenTime) {
             $id = filter_input(INPUT_COOKIE, 'foguserauthid');
             $userauth = new UserAuth($id);
             if ($userauth->isValid()) {
@@ -348,13 +348,17 @@ class User extends FOGController
             session_write_close();
             session_start();
             session_id($sessionid);
+            $_SESSION['sessioncreated'] = time();
         }
         if (!isset($_SESSION['FOG_USER'])) {
             $_SESSION['FOG_USER'] = $this->get('id');
         }
         if (!$ali) {
             $timeout = $ist * 60 * 60;
-            if ($authTime > $timeout) {
+            if (isset($_SESSION['lastactivity'])) {
+                $lastactivity = time() - $_SESSION['lastactivity'];
+            }
+            if ($lastactivity > $timeout) {
                 self::redirect('../management/index.php?node=logout');
             }
         }
