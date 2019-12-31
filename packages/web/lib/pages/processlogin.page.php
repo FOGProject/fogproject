@@ -204,7 +204,8 @@ class ProcessLogin extends FOGPage
             );
             self::$FOGUser = self::attemptLogin(
                 $uname,
-                $upass
+                $upass,
+                $rememberme
             );
             if (!self::$FOGUser->isValid()) {
                 throw new Exception(self::$foglang['InvalidLogin']);
@@ -223,35 +224,6 @@ class ProcessLogin extends FOGPage
                     'password' => $upass
                 ]
             );
-            if ($rememberme) {
-                // As we're doing remember me, set to always on
-                self::setSetting('FOG_ALWAYS_LOGGED_IN', '1');
-                // Setup Cookie stuff.
-                $current_time = self::nicedate()->getTimestamp();
-                $cookieexp = $current_time + (2 * 24 * 60 * 60);
-                $password = self::getToken(16);
-                $selector = self::getToken(32);
-                $expire = self::niceDate()
-                    ->setTimestamp($cookieexp)
-                    ->format('Y-m-d H:i:s');
-                setcookie('foguserauthpass', $password, $cookieexp);
-                setcookie('foguserauthsel', $selector, $cookieexp);
-
-                // Build and create authorization/authentication system.
-                $password_hash = UserAuth::generateHash($password);
-                $selector_hash = UserAuth::generateHash($selector);
-                $auth = self::getClass('UserAuth')
-                    ->set('userID', self::$FOGUser->get('id'))
-                    ->set('expire', $expire)
-                    ->set('selector', $selector_hash)
-                    ->set('password', $password_hash)
-                    ->save();
-
-                // Set the id in the cook for this particular auth item.
-                setcookie('foguserauthid', $auth->get('id'), $cookieexp);
-            } else {
-                self::clearAuthCookie();
-            }
         } catch (Exception $e) {
             $code = HTTPResponseCodes::HTTP_FORBIDDEN;
             $msg = json_encode(

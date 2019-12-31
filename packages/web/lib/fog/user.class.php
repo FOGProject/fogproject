@@ -76,13 +76,15 @@ class User extends FOGController
      * @param string $username  the username to test
      * @param string $password  the password to test
      * @param string $adminTest the admin test
+     * @param bool   $remember  Are we remembering user?
      *
      * @return bool
      */
     public function passwordValidate(
         $username,
         $password,
-        $adminTest = false
+        $adminTest = false,
+        $remember = false
     ) {
         /**
          * Test the username for funky characters and return
@@ -103,7 +105,7 @@ class User extends FOGController
         );
         $typeIsValid = true;
         $ident = (int)$tmpUser->get('id');
-        if (!$tmpUser->isValid() && $typeIsValid) {
+        if (!$tmpUser->isValid()) {
             $tmpUser = self::getClass('User')
                 ->set('name', $username)
                 ->load('name');
@@ -154,6 +156,33 @@ class User extends FOGController
                 $passValid = false;
             }
         }
+        if ($remember) {
+            // As we're doing remember me, set to always on
+            self::setSetting('FOG_ALWAYS_LOGGED_IN', '1');
+            // Setup Cookie stuff.
+            $current_time = self::nicedate()->getTimestamp();
+            $cookieexp = $current_time + (2 * 24 * 60 * 60);
+            $password = self::getToken(16);
+            $selector = self::getToken(32);
+            $expire = self::niceDate()
+                ->setTimestamp($cookieexp)
+                ->format('Y-m-d H:i:s');
+            setcookie('foguserauthpass', $password, $cookieexp);
+            setcookie('foguserauthsel', $selector, $cookieexp);
+
+            // Build and create authorization/authentication system.
+            $password_hash = UserAuth::generateHash($password);
+            $selector_hash = UserAuth::generateHash($selector);
+            $auth = self::getClass('UserAuth')
+                ->set('userID', self::$FOGUser->get('id'))
+                ->set('expire', $expire)
+                ->set('selector', $selector_hash)
+                ->set('password', $password_hash)
+                ->save();
+
+            // Set the id in the cook for this particular auth item.
+            setcookie('foguserauthid', $auth->get('id'), $cookieexp);
+        }
         return $passValid;
     }
     /**
@@ -170,12 +199,14 @@ class User extends FOGController
      *
      * @param string $username the username
      * @param string $password the password
+     * @param bool   $remember Are we remembering user?
      *
      * @return object
      */
     public function validatePw(
         $username,
-        $password
+        $password,
+        $remember = false
     ) {
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
@@ -188,7 +219,7 @@ class User extends FOGController
             self::PATTERN,
             $username
         );
-        if ($this->passwordValidate($username, $password)
+        if ($this->passwordValidate($username, $password, false, $remember)
             || self::$FOGUser->isValid()
         ) {
             if (!$test) {
@@ -339,9 +370,6 @@ class User extends FOGController
                     ->set('selector', $selector_hash)
                     ->set('password', $password_hash)
                     ->save();
-            }
-            if (!$userauth->get('userID')) {
-                self::redirect('../management/index.php?node=logout');
             }
 
             $sessionid = self::_getSessionID();
