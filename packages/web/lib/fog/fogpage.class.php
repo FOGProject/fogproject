@@ -616,22 +616,8 @@ abstract class FOGPage extends FOGBase
                 self::$foglang['CreateNew'],
                 $refNode
             ),
-            'export' => sprintf(
-                self::$foglang[
-                    sprintf(
-                        'Export%s',
-                        $refNode
-                    )
-                ]
-            ),
-            'import' => sprintf(
-                self::$foglang[
-                    sprintf(
-                        'Import%s',
-                        $refNode
-                    )
-                ]
-            ),
+            'export' => self::$foglang['Export'] . ' ' . self::$foglang[$refNode],
+            'import' => self::$foglang['Import'] . ' ' . self::$foglang[$refNode]
         ];
         switch ($node) {
         case 'home':

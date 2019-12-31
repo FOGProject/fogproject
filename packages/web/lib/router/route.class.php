@@ -186,21 +186,18 @@ class Route extends FOGBase
         /**
          * Define the event so plugins/hooks can modify what/when/where.
          */
-        self::$HookManager
-            ->processEvent(
-                'API_VALID_CLASSES',
-                ['validClasses' => &self::$validClasses]
-            );
-        self::$HookManager
-            ->processEvent(
-                'API_TASKING_CLASSES',
-                ['validTaskingClasses' => &self::$validTaskingClasses]
-            );
-        self::$HookManager
-            ->processEvent(
-                'API_ACTIVE_TASK_CLASSES',
-                ['validActiveTasks' => &self::$validActiveTasks]
-            );
+        self::$HookManager->processEvent(
+            'API_VALID_CLASSES',
+            ['validClasses' => &self::$validClasses]
+        );
+        self::$HookManager->processEvent(
+            'API_TASKING_CLASSES',
+            ['validTaskingClasses' => &self::$validTaskingClasses]
+        );
+        self::$HookManager->processEvent(
+            'API_ACTIVE_TASK_CLASSES',
+            ['validActiveTasks' => &self::$validActiveTasks]
+        );
         /**
          * If the router is already defined,
          * don't re-instantiate it.
@@ -1124,6 +1121,10 @@ class Route extends FOGBase
         $data = [];
         $data['_query'] = $item;
         $data['_lang']['AllResults'] = _('See all results');
+        self::$HookManager->processEvent(
+            'SEARCH_PAGES',
+            ['searchPages' => &self::$searchPages]
+        );
         foreach (self::$searchPages as &$search) {
             if ($search == 'task') {
                 continue;
@@ -1184,11 +1185,10 @@ class Route extends FOGBase
             unset($items);
             unset($search);
         }
-        self::$HookManager
-            ->processEvent(
-                'API_UNISEARCH_RESULTS',
-                ['data' => &$data]
-            );
+        self::$HookManager->processEvent(
+            'API_UNISEARCH_RESULTS',
+            ['data' => &$data]
+        );
         self::$data = $data;
     }
     /**
@@ -1215,15 +1215,14 @@ class Route extends FOGBase
             unset($obj);
         }
         self::listem($classname, ['id' => $ids]);
-        self::$HookManager
-            ->processEvent(
-                'API_MASSDATA_MAPPING',
-                [
-                    'data' => &self::$data,
-                    'classname' => &$classname,
-                    'classman' => &$classman
-                ]
-            );
+        self::$HookManager->processEvent(
+            'API_MASSDATA_MAPPING',
+            [
+                'data' => &self::$data,
+                'classname' => &$classname,
+                'classman' => &$classman
+            ]
+        );
     }
     /**
      * Displays the individual item.
@@ -1247,15 +1246,14 @@ class Route extends FOGBase
             $classname,
             $class
         );
-        self::$HookManager
-            ->processEvent(
-                'API_INDIVDATA_MAPPING',
-                [
-                    'data' => &self::$data,
-                    'classname' => &$classname,
-                    'class' => &$class
-                ]
-            );
+        self::$HookManager->processEvent(
+            'API_INDIVDATA_MAPPING',
+            [
+                'data' => &self::$data,
+                'classname' => &$classname,
+                'class' => &$class
+            ]
+        );
     }
     /**
      * Enables editing/updating a specified object.
@@ -2096,15 +2094,14 @@ class Route extends FOGBase
         default:
             $data = $class->get();
         }
-        self::$HookManager
-            ->processEvent(
-                'API_GETTER',
-                [
-                    'data' => &$data,
-                    'classname' => &$classname,
-                    'class' => &$class
-                ]
-            );
+        self::$HookManager->processEvent(
+            'API_GETTER',
+            [
+                'data' => &$data,
+                'classname' => &$classname,
+                'class' => &$class
+            ]
+        );
         return $data;
     }
     /**

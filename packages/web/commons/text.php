@@ -96,6 +96,7 @@ $foglang['Row'] = _('Row');
 $foglang['Errors'] = _('Errors');
 $foglang['Error'] = _('Error');
 $foglang['Export'] = _('Export');
+$foglang['Import'] = _('Import');
 $foglang['Schedule'] = _('Schedule');
 $foglang['Deploy'] = _('Deploy');
 $foglang['Capture'] = _('Capture');
