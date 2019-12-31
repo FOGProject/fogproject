@@ -2703,17 +2703,20 @@ abstract class FOGBase
      * @return void
      */
     public static function clearAuthCookie() {
-        if (isset($_COOKIE['foguserauthid'])) {
+        $id = filter_input(INPUT_COOKIE, 'foguserauthid');
+        $pass = filter_input(INPUT_COOKIE, 'foguserauthpass');
+        $sel = filter_input(INPUT_COOKIE, 'foguserauthsel');
+        if (isset($id)) {
             Route::delete(
                 'userauth',
-                $_COOKIE['foguserauthid']
+                $id
             );
             setcookie('foguserauthid', '');
         }
-        if (isset($_COOKIE['foguserauthpass'])) {
+        if (isset($pass)) {
             setcookie('foguserauthpass', '');
         }
-        if (isset($_COOKIE['foguserauthsel'])) {
+        if (isset($sel)) {
             setcookie('foguserauthsel', '');
         }
     }
