@@ -183,9 +183,6 @@ class User extends FOGController
             // Set the id in the cook for this particular auth item.
             setcookie('foguserauthid', $auth->get('id'), $cookieexp);
         }
-        if (!$passValid) {
-            $this->logout();
-        }
         return $passValid;
     }
     /**
@@ -350,7 +347,7 @@ class User extends FOGController
             $authTime = time() - $_SESSION['sessioncreated'];
         }
         $regenTime = $rst * 60 * 60;
-        if (!$authTime || $authTime > $regenTime) {
+        if ($authTime > $regenTime) {
             $id = filter_input(INPUT_COOKIE, 'foguserauthid');
             $userauth = new UserAuth($id);
             if ($userauth->isValid()) {
