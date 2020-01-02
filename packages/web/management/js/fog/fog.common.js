@@ -413,9 +413,7 @@ $.fn.processForm = function(cb, input) {
         input = ':input';
     }
     var form = $(this),
-        opts = form.attr('enctype') != 'multipart/form-data' ?
-        form.serialize() :
-        new FormData(form[0]);
+        opts = new FormData(form[0]),
         method = form.attr('method'),
         action = form.attr('action');
     form.setContainerDisable(true);
@@ -431,7 +429,7 @@ $.fn.processForm = function(cb, input) {
         if (cb && typeof cb === 'function') {
             cb(err, data);
         }
-    }, form.attr('enctype') != 'multipart/form-data');
+    }, false);
 };
 $.fn.registerModal = function(onOpen, onClose, opts) {
     var e = this;
