@@ -376,7 +376,7 @@ class BootMenu extends FOGBase
         $this->_kernel = sprintf(
             'kernel %s %s initrd=%s root=/dev/ram0 rw '
             . 'ramdisk_size=%s%sweb=%s consoleblank=0%s rootfstype=ext4%s%s '
-            . '%s nvme_core.default_ps_max_latency_us=0',
+            . '%s',
             $bzImage,
             $this->_loglevel,
             basename($initrd),
@@ -1813,7 +1813,13 @@ class BootMenu extends FOGBase
             return;
         }
 
-        Route::listem('pxemenuoptions');
+        Route::listem(
+            'pxemenuoptions',
+            false,
+            false,
+            'AND',
+            'id'
+        );
         $Menus = json_decode(
             Route::getData()
         );
@@ -1910,7 +1916,10 @@ class BootMenu extends FOGBase
         }
         Route::listem(
             'pxemenuoptions',
-            ['regMenu' => $RegArrayOfStuff]
+            ['regMenu' => $RegArrayOfStuff],
+            false,
+            'AND',
+            'id'
         );
         $Menus = json_decode(
             Route::getData()

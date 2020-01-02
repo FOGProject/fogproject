@@ -92,6 +92,7 @@ class SnapinReplicator extends FOGService
                 throw new Exception(_(' * Snapin replication is globally disabled'));
             }
             foreach ($this->checkIfNodeMaster() as &$StorageNode) {
+                $skip = false;
                 self::wlog(
                     sprintf(
                         ' * %s',
@@ -149,25 +150,33 @@ class SnapinReplicator extends FOGService
                  * Get the snapin ids that are valid.
                  */
                 $find = [
-                    'isEnabled' => 1,
-                    'toReplicate' => 1
+                    'isEnabled' => [1],
+                    'toReplicate' => [1]
                 ];
                 Route::ids(
                     'snapin',
                     $find
                 );
                 $snapinIDs = json_decode(Route::getData(), true);
-                $SnapinAssocCount = self::getClass('SnapinGroupAssociationManager')
-                    ->count(
-                        [
-                            'storagegroupID' => $myStorageGroupID,
-                            'snapinID' => $snapinIDs
-                        ]
-                    );
+                Route::count(
+                    'snapingroupassociation',
+                    [
+                        'storagegroupID' => $myStorageGroupID,
+                        'snapinID' => $snapinIDs
+                    ]
+                );
+                $SnapinAssocCount = json_decode(Route::getData());
+                $SnapinAssocCount = $SnapinAssocCount->total;
                 $SnapinCount = count($snapinIDs ?: []);
-                if ($SnapinAssocCount < 1
-                    || $SnapinCount < 1
-                ) {
+                if ($SnapinCount <= 0) {
+                    $this->outall(
+                        sprintf(
+                            ' | %s',
+                            _('There are no snapins available!')
+                        )
+                    );
+                    $skip = true;
+                } elseif ($SnapinAssocCount < 1) {
                     $this->outall(
                         sprintf(
                             ' | %s.',
@@ -181,9 +190,12 @@ class SnapinReplicator extends FOGService
                             _('snapins to a storage group')
                         )
                     );
-                    continue;
+                    $skip = true;
                 }
                 unset($SnapinAssocCount, $SnapinCount);
+                if ($skip) {
+                    continue;
+                }
                 $find = [
                     'storagegroupID' => $myStorageGroupID,
                     'snapinID' => $snapinIDs
