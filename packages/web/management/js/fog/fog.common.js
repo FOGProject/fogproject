@@ -500,8 +500,8 @@ $.fn.setContainerDisable = function(disabled) {
     }
     // Use native DOM query to select all the nested inputs
     // as it is faster
-    var inputs = document.querySelectorAll('input:not([type="checkbox"]), select, button, .btn, textarea');
-    var ichecks = document.querySelectorAll('.checkbox');
+    var inputs = $(this).find('input:not([type="checkbox"]), select, button, .btn, textarea').toArray(),
+        ichecks = $(this).find('.checkbox').toArray();
     inputs.forEach(function(inputObj) {
         $(inputObj).prop('disabled', disabled);
     });

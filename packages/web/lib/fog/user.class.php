@@ -342,7 +342,7 @@ class User extends FOGController
             $ist,
             $rst
         ) = self::getSetting($keys);
-        $authTime = 0;
+        $authTime = time() + ($rst * 60 * 60);
         if (isset($_SESSION['sessioncreated'])) {
             $authTime = time() - $_SESSION['sessioncreated'];
         }
@@ -377,6 +377,7 @@ class User extends FOGController
             session_start();
             session_id($sessionid);
             $_SESSION['sessioncreated'] = time();
+            $_SESSION['authtime'] = time();
         }
         if (!isset($_SESSION['FOG_USER'])) {
             $_SESSION['FOG_USER'] = $this->get('id');
