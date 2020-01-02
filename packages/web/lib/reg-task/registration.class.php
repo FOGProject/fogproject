@@ -253,7 +253,7 @@ class Registration extends FOGBase
                         _('Done, No image assigned!')
                     );
                 }
-                Route::indiv('tasktype', self::DEPLOY);
+                Route::indiv('tasktype', TaskType::DEPLOY);
                 $tasktype = json_decode(Route::getData());
                 $task = self::$Host->createImagePackage(
                     $tasktype,
