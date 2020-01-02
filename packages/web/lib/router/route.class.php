@@ -480,7 +480,14 @@ class Route extends FOGBase
             true
         );
 
-        $where = self::_buildSql('', $classVars, $whereItems, true, $operator);
+        $where = self::_buildSql(
+            '',
+            $classVars,
+            $whereItems,
+            true,
+            $operator,
+            $orderby
+        );
 
         /**
          * Any custom fields that we need removed
@@ -1092,6 +1099,7 @@ class Route extends FOGBase
      * @param mixed  $whereItems    Any special things to search for.
      * @param bool   $inputoverride Override php://input to blank.
      * @param string $operator      The operator for the SQL. AND is default.
+     * @param string $orderby       How to order the returned values.
      *
      * @return void
      */
@@ -1099,9 +1107,10 @@ class Route extends FOGBase
         $class,
         $whereItems = false,
         $inputoverride = false,
-        $operator = 'AND'
+        $operator = 'AND',
+        $orderby = 'name'
     ) {
-        self::listem($class, $whereItems, $inputoverride, $operator);
+        self::listem($class, $whereItems, $inputoverride, $operator, $orderby);
         self::$data = ['total' => self::$data['recordsFiltered']];
     }
     /**
@@ -2146,6 +2155,7 @@ class Route extends FOGBase
      * @param array  $whereItems The items to filter.
      * @param string $getField   The field to get.
      * @param string $operator   The operator for the SQL. AND is default.
+     * @param string $orderby       How to order the returned values.
      *
      * @return void
      */
@@ -2153,7 +2163,8 @@ class Route extends FOGBase
         $class,
         $whereItems = [],
         $getField = 'id',
-        $operator = 'AND'
+        $operator = 'AND',
+        $orderby = 'name'
     ) {
         if (empty($operator)) {
             $operator = 'AND';
@@ -2168,6 +2179,10 @@ class Route extends FOGBase
         $vars = json_decode(
             file_get_contents('php://input')
         );
+
+        if (empty($orderby)) {
+            $orderby = 'name';
+        }
 
         if (count($whereItems ?: []) < 1) {
             $whereItems = self::getsearchbody($classname);
@@ -2187,7 +2202,8 @@ class Route extends FOGBase
             $classVars,
             $whereItems,
             false,
-            $operator
+            $operator,
+            $orderby
         );
 
         $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
@@ -2209,10 +2225,14 @@ class Route extends FOGBase
     public static function deletemass(
         $class,
         $whereItems = [],
-        $operator = 'AND'
+        $operator = 'AND',
+        $orderby = 'name'
     ) {
         if (empty($operator)) {
             $operator = 'AND';
+        }
+        if (empty($orderby)) {
+            $orderby = 'name';
         }
         $data = [];
         $classname = strtolower($class);
@@ -2233,7 +2253,14 @@ class Route extends FOGBase
             . $classVars['databaseTable']
             . '`';
 
-        $sql = self::_buildSql($sql, $classVars, $whereItems, false, $operator);
+        $sql = self::_buildSql(
+            $sql,
+            $classVars,
+            $whereItems,
+            false,
+            $operator,
+            $orderby
+        );
 
         return self::$DB->query($sql);
     }
@@ -2244,6 +2271,7 @@ class Route extends FOGBase
      * @param array  $classVars  The current class variables.
      * @param mixed  $whereItems The where items to build up.
      * @param bool   $retWhere   Only return where element.
+     * @param string $orderby    How to order the returned values.
      *
      * @return string
      */
@@ -2252,10 +2280,14 @@ class Route extends FOGBase
         $classVars,
         $whereItems = '',
         $retWhere = false,
-        $operator = 'AND'
+        $operator = 'AND',
+        $orderby = 'name'
     ) {
         if (empty($operator)) {
             $operator = 'AND';
+        }
+        if (empty($orderby)) {
+            $orderby = 'name';
         }
         if (is_string($whereItems)) {
             $whereurl = urldecode($whereItems);
@@ -2309,7 +2341,7 @@ class Route extends FOGBase
         }
         $sql .= ' ORDER BY `'
             . (
-                $classVars['databaseFields']['name'] ?:
+                $classVars['databaseFields'][$orderby] ?:
                 $classVars['databaseFields']['id']
             )
             . '` ASC';
@@ -2322,17 +2354,22 @@ class Route extends FOGBase
      * @param string $class      The class to get list of.
      * @param string $whereItems If we want to filter items.
      * @param string $operator   The operator for the SQL. AND is default.
+     * @param string $orderby    How to order the returned values.
      *
      * @return mixed
      */
     public function names(
         $class,
         $whereItems = [],
-        $operator = 'AND'
+        $operator = 'AND',
+        $orderby = 'name'
     ) {
         header('Content-type: application/json');
         if (empty($operator)) {
             $operator = 'AND';
+        }
+        if (empty($orderby)) {
+            $orderby = 'name';
         }
         $data = [];
         $classname = strtolower($class);
@@ -2354,7 +2391,14 @@ class Route extends FOGBase
             $whereItems = self::getsearchbody($classname);
         }
 
-        $sql = self::_buildSql($sql, $classVars, $whereItems, false, $operator);
+        $sql = self::_buildSql(
+            $sql,
+            $classVars,
+            $whereItems,
+            false,
+            $operator,
+            $orderby
+        );
         $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
         foreach ($vals as &$val) {
             $data[] = [

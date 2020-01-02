@@ -93,6 +93,7 @@ class ImageReplicator extends FOGService
                 throw new Exception(_(' * Image replication is globally disabled'));
             }
             foreach ($this->checkIfNodeMaster() as &$StorageNode) {
+                $skip = false;
                 self::wlog(
                     sprintf(
                         '* %s',
@@ -168,9 +169,16 @@ class ImageReplicator extends FOGService
                 $ImageAssocCount = json_decode(Route::getData());
                 $ImageAssocCount = $ImageAssocCount->total;
                 $ImageCount = count($imageIDs ?: []);
-                if ($ImageAssocCount < 1
-                    || $ImageCount < 1
-                ) {
+                if ($ImageCount <= 0) {
+                    $this->outall(
+                        sprintf(
+                            ' | %s.',
+                            _('There are no images available!')
+                        )
+                    );
+                    $skip = true;
+                }
+                if ($ImageAssocCount <= 0) {
                     $this->outall(
                         sprintf(
                             ' | %s.',
@@ -184,9 +192,12 @@ class ImageReplicator extends FOGService
                             _('images to a storage group')
                         )
                     );
-                    continue;
+                    $skip = true;
                 }
                 unset($ImageAssocCount, $ImageCount);
+                if ($skip) {
+                    continue;
+                }
                 $find = [
                     'storagegroupID' => $myStorageGroupID,
                     'imageID' => $imageIDs
