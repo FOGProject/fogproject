@@ -2395,7 +2395,7 @@ class GroupManagement extends FOGPage
 
         $sqlStr = "SELECT `%s`,"
             . "IF(COUNT(`msHostID`) = COUNT(`gmHostID`),'associated','dissociated') "
-            . "AS `msHostID` "
+            . "AS `groupAssoc` "
             . "FROM `%s`";
         foreach ($join as &$j) {
             $sqlStr .= ' ' . $j . ' ';
@@ -2409,8 +2409,9 @@ class GroupManagement extends FOGPage
             . implode("','", $notWhere)
             . "')";
         $columns[] = [
-            'db' => 'msHostID',
-            'dt' => 'association'
+            'db' => 'groupAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
         ];
         $sqlFilterStr = "SELECT COUNT(`%s`) "
             . "FROM `%s` "
