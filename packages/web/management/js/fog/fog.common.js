@@ -412,25 +412,26 @@ $.fn.processForm = function(cb, input) {
     if (undefined === input) {
         input = ':input';
     }
-    var opts = $(this).attr('enctype') != 'multipart/form-data' ?
-        $(this).serialize() :
-        new FormData($(this)[0]);
-        method = $(this).attr('method'),
-        action = $(this).attr('action');
-    $(this).setContainerDisable(true);
-    if (!$(this).validateForm(input)) {
-        $(this).setContainerDisable(false);
+    var form = $(this),
+        opts = form.attr('enctype') != 'multipart/form-data' ?
+        form.serialize() :
+        new FormData(form[0]);
+        method = form.attr('method'),
+        action = form.attr('action');
+    form.setContainerDisable(true);
+    if (!form.validateForm(input)) {
+        form.setContainerDisable(false);
         if (cb && typeof cb === 'function') {
             cb('invalid', null);
         }
         return;
     }
     $.apiCall(method, action, opts, function(err, data) {
-        $(this).setContainerDisable(false);
+        form.setContainerDisable(false);
         if (cb && typeof cb === 'function') {
             cb(err, data);
         }
-    }, $(this).attr('enctype') != 'multipart/form-data');
+    }, form.attr('enctype') != 'multipart/form-data');
 };
 $.fn.registerModal = function(onOpen, onClose, opts) {
     var e = this;
@@ -498,15 +499,14 @@ $.fn.setContainerDisable = function(disabled) {
     if(disabled !== false) {
         disabled = true;
     }
-    // Use native DOM query to select all the nested inputs
-    // as it is faster
     var inputs = $(this).find('input:not([type="checkbox"]), select, button, .btn, textarea').toArray(),
         ichecks = $(this).find('.checkbox').toArray();
-    inputs.forEach(function(inputObj) {
-        $(inputObj).prop('disabled', disabled);
+    $.each(inputs, function(index, value) {
+        $(value).prop('disabled', disabled);
     });
-    ichecks.forEach(function(inputObj) {
-        $(inputObj).iCheck((disabled) ? 'disable' : 'enable');
+    $.each(ichecks, function(index, value) {
+        var check = disabled ? 'disable' : 'enable';
+        $(value).iCheck(check);
     });
 };
 $.fn.setLoading = function(loading) {
