@@ -3,15 +3,24 @@
     var reportString = window.atob(Common.f),
         reportButtons = [
             {
-                text: 'Refresh',
+                text: '<i class="fa fa-refresh"></i> Refresh',
                 action: function(e, dt, node, config) {
                     dt.clear().draw();
                     dt.ajax.reload();
                 }
             },
-            'copy',
-            'csv',
-            'excel',
+            {
+                extend: 'copy',
+                text: '<i class="fa fa-copy"></i> Copy'
+            },
+            {
+                extend: 'csv',
+                text: '<i class="fa fa-file-excel-o"></i> CSV'
+            },
+            {
+                extend: 'excel',
+                text: '<i class="fa fa-file-excel-o"></i> Excel'
+            },
             {
                 extend: 'pdfHtml5',
                 download: 'open',
@@ -27,8 +36,14 @@
                     doc.content[1].table.widths = widths;
                 }
             },
-            'print',
-            'colvis'
+            {
+                extend: 'print',
+                text: '<i class="fa fa-print"></i> Print'
+            },
+            {
+                extend: 'colvis',
+                text: '<i class="fa fa-columns"></i> Column Visibility'
+            }
         ];
 
     // This will call our respective calls
