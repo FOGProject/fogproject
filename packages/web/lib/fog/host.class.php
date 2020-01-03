@@ -358,7 +358,8 @@ class Host extends FOGController
             ->update(
                 [
                     'printerID' => $printers,
-                    'hostID' => $this->get('id')
+                    'hostID' => $this->get('id'),
+                    'isDefault' => '1'
                 ],
                 '',
                 ['isDefault' => 0]
@@ -368,7 +369,8 @@ class Host extends FOGController
                 ->update(
                     [
                         'printerID' => $printerid,
-                        'hostID' => $this->get('id')
+                        'hostID' => $this->get('id'),
+                        'isDefault' => ['0', '']
                     ],
                     '',
                     ['isDefault' => 1]

@@ -1722,51 +1722,66 @@ class SnapinManagement extends FOGPage
      */
     public function snapinStoragegroups()
     {
+        // Storage Group Associations
+        $this->headerData = [
+            _('Storage Group Name'),
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=snapin-storagegroups" ';
+            . self::makeTabUpdateURL(
+                'snapin-storagegroup',
+                $this->obj->get('id')
+            )
+            . '" ';
 
-        $buttons = self::makeButton(
-            'storagegroups-primary',
-            _('Update Primary Group'),
-            'btn btn-primary pull-right',
-            $props
-        );
         $buttons .= self::makeButton(
-            'storagegroups-add',
+            'snapin-storagegroup-send',
             _('Add selected'),
             'btn btn-success pull-right',
             $props
         );
         $buttons .= self::makeButton(
-            'storagegroups-remove',
+            'snapin-storagegroup-remove',
             _('Remove selected'),
             'btn btn-danger pull-left',
             $props
         );
-
-        $this->headerData = [
-            _('Storage Group Name'),
-            _('Storage Group Primary'),
-            _('Storage Group Associated')
-        ];
-        $this->attributes = [
-            [],
-            [],
-            []
-        ];
-
-        echo '<!-- Storage Groups -->';
-        echo '<div class="box-group" id="storagegroups">';
-        echo '<div class="box box-solid">';
-        echo '<div class="updatestoragegroups" class="">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Snapin Storage Group Associations');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'snapin-storagegroups-table', $buttons);
+        $this->render(12, 'snapin-storagegroup-table', $buttons);
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $this->assocDelModal('storagegroup');
         echo '</div>';
         echo '</div>';
+
+        // Primary Storage Group
+        $buttons = self::makeButton(
+            'snapin-storagegroup-primary-send',
+            _('Update'),
+            'btn btn-info pull-right',
+            $props
+        );
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Snapin Primary Storage Group');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo '<span id="storagegroupselector"></span>';
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $buttons;
         echo '</div>';
         echo '</div>';
     }
@@ -1775,18 +1790,18 @@ class SnapinManagement extends FOGPage
      *
      * @return void
      */
-    public function snapinStoragegroupsPost()
+    public function snapinStoragegroupPost()
     {
-        if (isset($_POST['updatestoragegroups'])) {
+        if (isset($_POST['confirmadd'])) {
             $storagegroup = filter_input_array(
                 INPUT_POST,
                 [
-                    'storagegroups' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $storagegroup = $storagegroup['storagegroups'];
+            $storagegroup = $storagegroup['additems'];
             if (count($storagegroup ?: []) > 0) {
                 $this->obj->addGroup($storagegroup);
             }
@@ -1805,14 +1820,19 @@ class SnapinManagement extends FOGPage
                 $this->obj->removeGroup($storagegroup);
             }
         }
-        if (isset($_POST['primarysel'])) {
+        if (isset($_POST['confirmprimary'])) {
             $primary = filter_input(
                 INPUT_POST,
                 'primary'
             );
+            $storagegroups = array_diff(
+                $this->obj->get('storagegroups'),
+                [$primary]
+            );
             self::getClass('SnapinGroupAssociationManager')->update(
                 [
                     'snapinID' => $this->obj->get('id'),
+                    'storagegroupID' => $storagegroups,
                     'primary' => '1'
                 ],
                 '',
@@ -1822,82 +1842,87 @@ class SnapinManagement extends FOGPage
                 self::getClass('SnapinGroupAssociationManager')->update(
                     [
                         'snapinID' => $this->obj->get('id'),
-                        'storagegroupID' => $primary
+                        'storagegroupID' => $primary,
+                        'primary' => ['0', '']
                     ],
                     '',
-                    ['primary' => '1']
+                    ['primary' => 1]
                 );
             }
         }
     }
     /**
-     * Snapin Membership tab
+     * Present the hosts list.
      *
      * @return void
      */
-    public function snapinMembership()
+    public function snapinHosts()
     {
+        $this->headerData = [
+            _('Host Name'),
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=snapin-membership" ';
+            . self::makeTabUpdateURL(
+                'snapin-host',
+                $this->obj->get('id')
+            )
+            . '" ';
 
         $buttons = self::makeButton(
-            'membership-add',
+            'snapin-host-send',
             _('Add selected'),
             'btn btn-primary pull-right',
             $props
         );
         $buttons .= self::makeButton(
-            'membership-remove',
+            'snapin-host-remove',
             _('Remove selected'),
             'btn btn-danger pull-left',
             $props
         );
 
-        $this->headerData = [
-            _('Host Name'),
-            _('Host Associated')
-        ];
-        $this->attributes = [
-            [],
-            []
-        ];
-
-        echo '<!-- Host Membership -->';
-        echo '<div class="box-group" id="membership">';
-        echo '<div class="box box-solid">';
-        echo '<div class="updatemembership" class="">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Snapin Host Associations');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'snapin-membership-table', $buttons);
+        $this->render(12, 'snapin-host-table', $buttons);
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $this->assocDelModal('host');
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
     }
     /**
-     * Snapin membership post elements
+     * Update host.
      *
      * @return void
      */
-    public function snapinMembershipPost()
+    public function snapinHostPost()
     {
-        if (isset($_POST['updatemembership'])) {
-            $membership = filter_input_array(
+        if (isset($_POST['confirmadd'])) {
+            $hosts = filter_input_array(
                 INPUT_POST,
                 [
-                    'membership' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $membership = $membership['membership'];
-            $this->obj->addHost($membership);
+            $hosts = $hosts['additems'];
+            if (count($hosts ?: [])) {
+                $this->obj->addHost($hosts);
+            }
         }
         if (isset($_POST['confirmdel'])) {
-            $membership = filter_input_array(
+            $hosts = filter_input_array(
                 INPUT_POST,
                 [
                     'remitems' => [
@@ -1905,13 +1930,10 @@ class SnapinManagement extends FOGPage
                     ]
                 ]
             );
-            $membership = $membership['remitems'];
-            self::getClass('SnapinAssociationManager')->destroy(
-                [
-                    'snapinID' => $this->obj->get('id'),
-                    'hostID' => $membership
-                ]
-            );
+            $hosts = $hosts['remitems'];
+            if (count($hosts ?: [])) {
+                $this->obj->removeHost($hosts);
+            }
         }
     }
     /**
@@ -1945,14 +1967,14 @@ class SnapinManagement extends FOGPage
                 'tabData' => [
                     [
                         'name' => _('Hosts'),
-                        'id' => 'snapin-membership',
+                        'id' => 'snapin-host',
                         'generator' => function () {
-                            $this->snapinMembership();
+                            $this->snapinHosts();
                         }
                     ],
                     [
                         'name' => _('Storage Groups'),
-                        'id' => 'snapin-storagegroups',
+                        'id' => 'snapin-storagegroup',
                         'generator' => function () {
                             $this->snapinStoragegroups();
                         }
@@ -1983,11 +2005,11 @@ class SnapinManagement extends FOGPage
             case 'snapin-general':
                 $this->snapinGeneralPost();
                 break;
-            case 'snapin-storagegroups':
-                $this->snapinStoragegroupsPost();
+            case 'snapin-storagegroup':
+                $this->snapinStoragegroupPost();
                 break;
-            case 'snapin-membership':
-                $this->snapinMembershipPost();
+            case 'snapin-host':
+                $this->snapinHostPost();
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
@@ -2087,5 +2109,60 @@ class SnapinManagement extends FOGPage
             '',
             $columns
         );
+    }
+    /**
+     * Gets the storage group selector for setting primary storage groups.
+     *
+     * @return string
+     */
+    public function getSnapinPrimaryStoragegroups()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        Route::ids(
+            'snapingroupassociation',
+            ['snapinID' => $this->obj->get('id')],
+            'storagegroupID'
+        );
+        $storagegroupsAssigned = json_decode(Route::getData(), true);
+        if (!count($storagegroupsAssigned ?: [])) {
+            echo json_encode(
+                ['content' => _('No storagegroups assigned to this snapin')]
+            );
+            exit;
+        }
+        Route::names(
+            'storagegroup',
+            ['id' => $storagegroupsAssigned]
+        );
+        $storagegroupNames = json_decode(Route::getData());
+        foreach ($storagegroupNames as &$storagegroup) {
+            $storagegroups[$storagegroup->id] = $storagegroup->name;
+            unset($storagegroup);
+        }
+        unset($storagegroupNames);
+        Route::ids(
+            'snapingroupassociation',
+            [
+                'snapinID' => $this->obj->get('id'),
+                'primary' => '1'
+            ],
+            'storagegroupID'
+        );
+        $primarystoragegroup = json_decode(Route::getData(), true);
+        $primarystoragegroup = array_shift($primarystoragegroup);
+        $storagegroupSelector = self::selectForm(
+            'storagegroup',
+            $storagegroups,
+            $primarystoragegroup,
+            true,
+            '',
+            true
+        );
+        echo json_encode(['content' => $storagegroupSelector]);
+        exit;
     }
 }

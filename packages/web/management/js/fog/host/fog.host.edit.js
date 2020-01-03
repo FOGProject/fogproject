@@ -1233,7 +1233,7 @@
             hostPrintersTable.draw(false);
             hostPrintersTable.rows({selected: true}).deselect();
             setTimeout(hostPrinterDefaultSelectorUpdate, 1000);
-        })
+        });
     });
 
     var hostPrintersTable = $('#host-printer-table').registerTable(onPrinterSelect, {
