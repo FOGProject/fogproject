@@ -4,13 +4,6 @@ var shouldReAuth,
     deleteLang,
     exportButtons = [
         {
-            text: '<i class="fa fa-refresh"></i> Refresh',
-            action: function(e, dt, node, config) {
-                dt.clear().draw();
-                dt.ajax.reload();
-            }
-        },
-        {
             extend: 'copy',
             text: '<i class="fa fa-copy"></i> Copy'
         },
@@ -45,6 +38,13 @@ var shouldReAuth,
         {
             extend: 'colvis',
             text: '<i class="fa fa-columns"></i> Column Visibility'
+        },
+        {
+            text: '<i class="fa fa-refresh"></i> Refresh',
+            action: function(e, dt, node, config) {
+                dt.clear().draw();
+                dt.ajax.reload();
+            }
         }
     ],
     $_GET,
