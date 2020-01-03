@@ -588,7 +588,7 @@ class Route extends FOGBase
                     'db' => $real,
                     'dt' => $common,
                     'formatter' => function ($d, $row) {
-                        $socketstr = socket_strerror($d);
+                        $socketstr = socket_strerror((int)$d);
                         $labelType = 'danger';
                         if ($d == 0) {
                             $labelType = 'success';
