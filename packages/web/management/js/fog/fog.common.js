@@ -4,15 +4,19 @@ var shouldReAuth,
     deleteLang,
     exportButtons = [
         {
-            text: 'Refresh',
+            text: '<i class="fa fa-refresh"></i> Refresh',
             action: function(e, dt, node, config) {
                 dt.clear().draw();
                 dt.ajax.reload();
             }
         },
-        'copy',
+        {
+            extend: 'copy',
+            text: '<i class="fa fa-copy"></i> Copy'
+        },
         {
             extend: 'csv',
+            text: '<i class="fa fa-file-excel-o"></i> CSV',
             header: false
         },
         {
@@ -22,6 +26,7 @@ var shouldReAuth,
         /*{
             extend: 'pdfHtml5',
             download: 'open',
+            text: '<i class="fa fa-file-pdf-o"></i> PDF',
             customize: function (doc) {
                 var colspan = doc.content[1].table.body[0].length,
                     widths = [];
@@ -33,8 +38,14 @@ var shouldReAuth,
                 doc.content[1].table.widths = widths;
             }
         },*/
-        'print',
-        'colvis'
+        {
+            extend: 'print',
+            text: '<i class="fa fa-print"></i> Print'
+        },
+        {
+            extend: 'colvis',
+            text: '<i class="fa fa-columns"></i> Column Visibility'
+        }
     ],
     $_GET,
     Common;
