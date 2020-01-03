@@ -1,15 +1,6 @@
 (function($) {
     var exportTable = $('#ldap-export-table').registerTable(null, {
-        buttons: [
-            'copy',
-            {
-                extend: 'csv',
-                header: false
-            },
-            'excel',
-            'print',
-            'colvis'
-        ],
+        buttons: exportButtons,
         order: [
             [0, 'asc']
         ],
@@ -29,7 +20,9 @@
             {data: 'bindDN'}, // 12
             {data: 'bindPwd'}, // 13
             {data: 'grpSearchDN'}, // 14
-            {data: 'useGroupMatch'} // 15
+            {data: 'useGroupMatch'}, // 15
+            {data: 'displayNameOn'}, // 16
+            {data: 'displayNameAttr'} // 17
         ],
         columnDefs: [
             {
@@ -61,6 +54,10 @@
                 visible: false
             },
             {
+                targets: 10,
+                visible: false
+            },
+            {
                 targets: 11,
                 visible: false
             },
@@ -79,11 +76,20 @@
             {
                 targets: 15,
                 visible: false
+            },
+            {
+                targets: 16,
+                visible: false
+            },
+            {
+                targets: 17,
+                visible: false
             }
         ],
         rowId: 'id',
         processing: true,
         serverSide: true,
+        select: false,
         ajax: {
             url: '../management/index.php?node='
             + Common.node

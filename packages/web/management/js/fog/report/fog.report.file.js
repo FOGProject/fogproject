@@ -3,13 +3,6 @@
     var reportString = window.atob(Common.f),
         reportButtons = [
             {
-                text: '<i class="fa fa-refresh"></i> Refresh',
-                action: function(e, dt, node, config) {
-                    dt.clear().draw();
-                    dt.ajax.reload();
-                }
-            },
-            {
                 extend: 'copy',
                 text: '<i class="fa fa-copy"></i> Copy'
             },
@@ -43,6 +36,13 @@
             {
                 extend: 'colvis',
                 text: '<i class="fa fa-columns"></i> Column Visibility'
+            },
+            {
+                text: '<i class="fa fa-refresh"></i> Refresh',
+                action: function(e, dt, node, config) {
+                    dt.clear().draw();
+                    dt.ajax.reload();
+                }
             }
         ];
 
@@ -71,6 +71,7 @@
                     rowId: 'id',
                     processing: true,
                     serverSide: true,
+                    select: false,
                     ajax: {
                         url: '../management/index.php?node=report&sub=getList&f='
                             + Common.f,
@@ -98,6 +99,7 @@
                     rowId: 'id',
                     processing: true,
                     serverSide: true,
+                    select: false,
                     ajax: {
                         url: '../management/index.php?node=report&sub=getList&f='
                             + Common.f,
@@ -124,6 +126,7 @@
                     rowId: 'id',
                     processing: true,
                     serverSide: true,
+                    select: false,
                     ajax: {
                         url: '../management/index.php?node=report&sub=getList&f='
                             + Common.f,
@@ -153,6 +156,7 @@
                     rowId: 'id',
                     processing: true,
                     serverSide: true,
+                    select: false,
                     ajax: {
                         url: '../management/index.php?node=report&sub=getList&f='
                             + Common.f,
@@ -178,6 +182,7 @@
                     rowId: 'id',
                     processing: true,
                     serverSide: true,
+                    select: false,
                     ajax: {
                         url: '../management/index.php?node=report&sub=getList&f='
                             + Common.f,
@@ -203,6 +208,7 @@
                     rowId: 'id',
                     processing: true,
                     serverSide: true,
+                    select: false,
                     ajax: {
                         url: '../management/index.php?node=report&sub=getList&f='
                             + Common.f,
@@ -229,6 +235,7 @@
                     rowId: 'id',
                     processing: true,
                     serverSide: true,
+                    select: false,
                     ajax: {
                         url: '../management/index.php?node=report&sub=getList&f='
                             + Common.f,
@@ -252,6 +259,7 @@
                     rowId: 'id',
                     processing: true,
                     serverSide: true,
+                    select: false,
                     ajax: {
                         url: '../management/index.php?node=report&sub=getList&f='
                             + Common.f,

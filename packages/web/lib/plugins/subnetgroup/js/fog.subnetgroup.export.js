@@ -1,15 +1,6 @@
 (function($) {
     var exportTable = $('#subnet-export-table').registerTable(null, {
-        buttons: [
-            'copy',
-            {
-                extend: 'csv',
-                header: false
-            },
-            'excel',
-            'print',
-            'colvis'
-        ],
+        buttons: exportButtons,
         order: [
             [0, 'asc']
         ],
@@ -20,6 +11,7 @@
         rowId: 'id',
         processing: true,
         serverSide: true,
+        select: false,
         ajax: {
             url: '../management/index.php?node='
             + Common.node

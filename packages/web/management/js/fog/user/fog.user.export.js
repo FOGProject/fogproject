@@ -43,6 +43,7 @@
         rowId: 'id',
         processing: true,
         serverSide: true,
+        select: false,
         ajax: {
             url: '../management/index.php?node='
             + Common.node
