@@ -103,7 +103,6 @@
         $(this).prop('disabled', true);
         resetEncryptionCancelBtn.prop('disabled', true);
 
-
         // Reset our encryption data.
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
@@ -111,14 +110,15 @@
                 id: Common.id
             };
         $.apiCall(method,action,opts,function(err) {
-            if (!err) {
-                // Enable our general form buttons.
-                generalFormBtn.prop('disabled', false);
-                generalDeleteBtn.prop('disabled', false);
-                resetEncryptionBtn.prop('disabled', false);
-                // Hide modal
-                resetEncryptionModal.modal('hide');
+            // Enable our general form buttons.
+            generalFormBtn.prop('disabled', false);
+            generalDeleteBtn.prop('disabled', false);
+            resetEncryptionBtn.prop('disabled', false);
+            if (err) {
+                return;
             }
+            // Hide modal
+            resetEncryptionModal.modal('hide');
         });
     });
 
@@ -519,7 +519,6 @@
     $('#host-macaddresses-table input.clientIgnore').on('ifClicked', onMacsCheckboxSelect);
     $('#host-macaddresses-table input.pending').on('ifClicked', onMacsCheckboxSelect);
 
-
     // ---------------------------------------------------------------
     // TASKING TAB
     var taskItem = $('.taskitem'),
@@ -629,485 +628,7 @@
         });
     });
 
-    // FOG CLIENT AREA
-    // ---------------------------------------------------------------
-    // ACTIVE DIRECTORY TAB
-    var ADForm = $('#active-directory-form'),
-        ADFormBtn = $('#ad-send'),
-        ADClearBtn = $('#ad-clear'),
-        ADJoinDomain = $('#adEnabled');
 
-    ADJoinDomain.on('ifChanged', function(e) {
-        e.preventDefault();
-        $(this).iCheck('update');
-        if (!this.checked) {
-            return;
-        }
-        var indomain = $('#adDomain'),
-            inou = $('#adOU'),
-            inuser = $('#adUsername'),
-            inpass = $('#adPassword');
-        if (indomain.val() && inou.val() && inuser.val() && inpass.val()) {
-            return;
-        }
-        Pace.ignore(function() {
-            $.get('../management/index.php?sub=adInfo', function(data) {
-                if (!indomain.val()) {
-                    indomain.val(data.domainname);
-                }
-                if (!inou.val()) {
-                    inou.val(data.ou)
-                }
-                if (!inuser.val()) {
-                    inuser.val(data.domainuser);
-                }
-                if (!inpass.val()) {
-                    inpass.val(data.domainpass);
-                }
-            }, 'json');
-        });
-    });
-
-    ADForm.on('submit',function(e) {
-        e.preventDefault();
-    });
-    ADFormBtn.on('click',function() {
-        ADFormBtn.prop('disabled', true);
-        ADClearBtn.prop('disabled', true);
-        ADForm.processForm(function(err) {
-            ADFormBtn.prop('disabled', false);
-            ADClearBtn.prop('disabled', false);
-        });
-    });
-    ADClearBtn.on('click',function() {
-        ADClearBtn.prop('disabled', true);
-        ADFormBtn.prop('disabled', true);
-
-        var restoreMap = [];
-        ADForm.find('input[type="text"], input[type="password"], textarea').each(function(i, e) {
-            restoreMap.push({checkbox: false, e: e, val: $(e).val()});
-            $(e).val('');
-            $(e).prop('disabled', true);
-        });
-        ADForm.find('input[type=checkbox]').each(function(i, e) {
-            restoreMap.push({checkbox: true, e: e, val: $(e).iCheck('update')[0].checked});
-            $(e).iCheck('uncheck');
-            $(e).iCheck('disable');
-        });
-
-        ADForm.find('input[type=text], input[type=password], textarea').val('');
-        ADForm.find('input[type=checkbox]').iCheck('uncheck');
-
-        ADForm.processForm(function(err) {
-            ADClearBtn.prop('disabled', false);
-            ADFormBtn.prop('disabled', false);
-            for (var i = 0; i < restoreMap.length; i++) {
-                field = restoreMap[i];
-                if (field.checkbox) {
-                    if (err) {
-                        $(field.e).iCheck((field.val ? 'check' : 'uncheck'));
-                    }
-                    $(field.e).iCheck('enable');
-                } else {
-                    if (err) {
-                        $(field.e).val(field.val);
-                    }
-                    $(field.e).prop('disabled', false);
-                }
-            }
-        });
-    });
-
-    // SERVICE SETTINGS
-    // ---------------------------------------------------------------
-    // CLIENT SETTINGS TAB
-    var hostModuleUpdateBtn = $('#host-module-send'),
-        hostModuleRemoveBtn = $('#host-module-remove'),
-        hostModuleDeleteConfirmBtn = $('#confirmmoduleDeleteModal');
-
-    // Association area
-    function disableModuleButtons(disable) {
-        hostModuleUpdateBtn.prop('disabled', disable);
-        hostModuleRemoveBtn.prop('disabled', disable);
-    }
-
-    function onModuleSelect(selected) {
-        var disabled = selected.count() == 0;
-        disableModuleButtons(disabled);
-    }
-
-    hostModuleUpdateBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = hostModulesTable.rows({selected: true}),
-            toAdd = $.getSelectedIds(hostModulesTable),
-            opts = {
-                confirmadd: 1,
-                additems: toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            disableModuleButtons(false);
-            if (err) {
-                return;
-            }
-            hostModulesTable.draw(false);
-            hostModulesTable.rows({selected: true}).deselect();
-        })
-    });
-
-    hostModuleRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#moduleDelModal').modal('show');
-    });
-
-    var hostModulesTable = $('#host-module-table').registerTable(onModuleSelect, {
-        order: [
-            [1, 'asc'],
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'name'},
-            {data: 'association'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            {
-                responsivePriority: -1,
-                targets: 0
-            },
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="hostModuleAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 1
-            }
-        ],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getModulesList&id='
-                + Common.id,
-            type: 'post'
-        }
-    });
-
-    hostModuleDeleteConfirmBtn.on('click', function(e) {
-        $.deleteAssociated(hostModulesTable, hostModuleUpdateBtn.attr('action'), function(err) {
-            $('#moduleDelModal').modal('hide');
-            if (err) {
-                return;
-            }
-            hostModulesTable.draw(false);
-            hostModulesTable.rows({selected: true}).deselect();
-        });
-    });
-
-    hostModulesTable.on('draw', function() {
-        Common.iCheck('#host-module-table input');
-        $('#host-module-table input.associated').on('ifChanged', onHostModuleCheckboxSelect);
-        onModuleSelect(hostModulesTable.rows({selected: true}));
-    });
-
-    var onHostModuleCheckboxSelect = function(e) {
-        $.checkItemUpdate(hostModulesTable, this, e, hostModuleUpdateBtn);
-    };
-
-    function onModulesDisable(selected) {
-        var disabled = selected.count() == 0;
-        modulesDisableBtn.prop('disabled', disabled);
-    }
-    function onModulesEnable(selected) {
-        var disabled = selected.count() == 0;
-        modulesEnableBtn.prop('disabled', disabled);
-    }
-
-    // Display manager area
-    var hostModuleDisplaymanBtn = $('#host-displayman-send'),
-        hostModuleDisplayForm = $('#host-displayman-form');
-
-    function disableModuleDisplayButtons(disable) {
-        hostModuleDisplaymanBtn.prop('disabled', disable);
-    }
-
-    hostModuleDisplayForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-
-    hostModuleDisplaymanBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            opts = {
-                confirmdisplaysend: 1,
-                x: $('#x').val(),
-                y: $('#y').val(),
-                r: $('#r').val()
-            };
-        disableModuleDisplayButtons(true);
-        $.apiCall(method,action,opts,function(err) {
-            disableModuleDisplayButtons(false);
-            if (err) {
-                return;
-            }
-            var url = '../management/index.php?node='
-                + Common.node
-                + '&sub=getHostDisplayManVals'
-                + '&id='
-                + Common.id;
-            Pace.ignore(function() {
-                $.get(url, function(data) {
-                    $('#x').val(data.x);
-                    $('#y').val(data.y);
-                    $('#r').val(data.r);
-                }, 'json');
-            });
-        });
-    });
-
-    // Auto log out area
-    var hostModuleAloBtn = $('#host-alo-send'),
-        hostModuleAloForm = $('#host-alo-form');
-
-    function disableModuleAloButtons(disable) {
-        hostModuleAloBtn.prop('disabled', disable);
-    }
-
-    hostModuleAloForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-
-    hostModuleAloBtn.on('click', function(e) {
-        e.preventDefault();
-        disableModuleAloButtons(true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            opts = {
-                confirmalosend: 1,
-                tme: $('#tme').val()
-            };
-        $.apiCall(method,action,opts,function(err) {
-            disableModuleAloButtons(false);
-            if (err) {
-                return;
-            }
-            var url = '../management/index.php?node='
-                + Common.node
-                + '&sub=getHostAloVals'
-                + '&id='
-                + Common.id;
-            Pace.ignore(function() {
-                $.get(url, function(data) {
-                    $('#tme').val(data.tme);
-                }, 'json');
-            });
-        });
-    });
-
-    // Host enforce ad join reboot and hostname changes area
-    var hostModuleEnforceBtn = $('#host-enforce-send'),
-        hostModuleEnforceForm = $('#host-enforce-form');
-
-    function disableModuleEnforceButtons(disable) {
-        hostModuleEnforceBtn.prop('disabled', disable);
-    }
-
-    hostModuleEnforceForm.on('submit', function(e) {
-        e.preventDefault();
-    })
-
-    hostModuleEnforceBtn.on('click', function(e) {
-        e.preventDefault();
-        disableModuleEnforceButtons(true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            opts = {
-                confirmenforcesend: 1,
-                enforce: $('#enforce').iCheck('update')[0].checked ? 1 : 0
-            };
-        $.apiCall(method,action,opts,function(err) {
-            disableModuleEnforceButtons(false);
-            if (err) {
-                return;
-            }
-        });
-    });
-
-    // ---------------------------------------------------------------
-    // POWER MANAGMENT TAB
-
-    // The form Control elements of Power Management.
-    var powermanagementForm = $('#host-powermanagement-cron-form'),
-        powermanagementFormBtn = $('#powermanagement-send'),
-        // Insert Form cron elements.
-        minutes = $('.cronmin', powermanagementForm),
-        hours = $('.cronhour', powermanagementForm),
-        dom = $('.crondom', powermanagementForm),
-        month = $('.cronmonth', powermanagementForm),
-        dow = $('.crondow', powermanagementForm),
-        instantModal = $('#ondemandModal'),
-        instantBtn = $('#ondemandBtn'),
-        instantModalCancelBtn = $('#ondemandCancelBtn'),
-        instantModalCreateBtn = $('#ondemandCreateBtn'),
-        instantForm = $('#host-powermanagement-instant-form'),
-        scheduleModal = $('#scheduleModal'),
-        scheduleBtn = $('#scheduleBtn'),
-        scheduleModalCancelBtn = $('#scheduleCancelBtn'),
-        scheduleModalCreateBtn = $('#scheduleCreateBtn'),
-        scheduleForm = $('#host-powermanagement-cron-form'),
-        pmdelete = $('#pm-delete');
-
-    // FOG Cron
-    $('.fogcron').cron({
-        initial: '* * * * *',
-        onChange: function() {
-            vals = $(this).cron('value').split(' ');
-            minutes.val(vals[0]);
-            hours.val(vals[1]);
-            dom.val(vals[2]);
-            month.val(vals[3]);
-            dow.val(vals[4]);
-        }
-    });
-    powermanagementForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-    powermanagementFormBtn.on('click', function() {
-        powermanagementFormBtn.prop('disabled', true);
-        powermanagementForm.processForm(function(err) {
-            powermanagementFormBtn.prop('disabled', false);
-            if (err) {
-                return;
-            }
-            minutes.val('');
-            hours.val('');
-            dom.val('');
-            month.val('');
-            dow.val('');
-            action.val('');
-            specialCrons.val('');
-            ondemand.iCheck('uncheck');
-        });
-    });
-
-    // The Power Management List element.
-    function onPMSelect(selected) {
-        var disable = selected.count() == 0;
-    }
-
-    var powermanagementTable = $('#host-powermanagement-table').registerTable(onPMSelect, {
-        columns: [
-            {data: 'id'},
-            {data: 'action'}
-        ],
-        columnDefs: [
-            {
-                targets: 0,
-                render: function(data, type, row) {
-                    return row.min
-                        + ' '
-                        + row.hour
-                        + ' '
-                        + row.dom
-                        + ' '
-                        + row.month
-                        + ' '
-                        + row.dow;
-                }
-            }
-        ],
-        rowId: 'id',
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: '../management/index.php?node='
-                + Common.node
-                + '&sub=getPowermanagementList&id='
-                + Common.id,
-            type: 'post'
-        }
-    });
-
-    instantBtn.on('click', function(e) {
-        e.preventDefault();
-        instantModal.modal('show');
-    });
-    scheduleBtn.on('click', function(e) {
-        e.preventDefault();
-        scheduleModal.modal('show');
-    });
-    instantModal.registerModal(
-        function(e) {
-            instantModalCreateBtn.on('click', function() {
-                $(this).prop('disabled', true);
-                instantForm.processForm(function(err) {
-                    instantModalCreateBtn.prop('disabled', false);
-                    if (err) {
-                        return;
-                    }
-                    instantModal.modal('hide');
-                    powermanagementTable.draw(false);
-                });
-            });
-        },
-        function(e) {
-            $(this).modal('hide');
-        }
-    );
-    scheduleModal.registerModal(
-        function(e) {
-            scheduleModalCreateBtn.on('click', function() {
-                $(this).prop('disabled', true);
-                scheduleForm.processForm(function(err) {
-                    scheduleModalCreateBtn.prop('disabled', false);
-                    if (err) {
-                        return;
-                    }
-                    scheduleModal.modal('hide');
-                    powermanagementTable.draw(false);
-                });
-            });
-        },
-        function(e) {
-            $(this).modal('hide');
-        }
-    );
-
-    pmdelete.on('click', function(e) {
-        scheduleBtn.prop('disabled', true);
-        instantBtn.prop('disabled', true);
-
-
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = powermanagementTable.rows({selected: true}),
-            toDel = $.getSelectedIds(powermanagementTable),
-            opts = {
-                pmdelete: 1,
-                rempowermanagements: toDel
-            };
-        $.apiCall(method,action,opts,function(err) {
-            scheduleBtn.prop('disabled', false);
-            instantBtn.prop('disabled', false);
-            if (err) {
-                return;
-            }
-            powermanagementTable.draw(false);
-            powermanagementTable.rows({selected: true}).deselect();
-        });
-    });
 
     // ASSOCIATIONS
     // ---------------------------------------------------------------
@@ -1477,6 +998,473 @@
     var onHostSnapinCheckboxSelect = function(e) {
         $.checkItemUpdate(hostSnapinsTable, this, e, hostSnapinUpdateBtn);
     };
+
+    // FOG CLIENT AREA
+    // ---------------------------------------------------------------
+    // CLIENT SETTINGS TAB
+    var hostModuleUpdateBtn = $('#host-module-send'),
+        hostModuleRemoveBtn = $('#host-module-remove'),
+        hostModuleDeleteConfirmBtn = $('#confirmmoduleDeleteModal');
+
+    // Association area
+    function disableModuleButtons(disable) {
+        hostModuleUpdateBtn.prop('disabled', disable);
+        hostModuleRemoveBtn.prop('disabled', disable);
+    }
+
+    function onModuleSelect(selected) {
+        var disabled = selected.count() == 0;
+        disableModuleButtons(disabled);
+    }
+
+    hostModuleUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = hostModulesTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(hostModulesTable),
+            opts = {
+                confirmadd: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableModuleButtons(false);
+            if (err) {
+                return;
+            }
+            hostModulesTable.draw(false);
+            hostModulesTable.rows({selected: true}).deselect();
+        });
+    });
+
+    hostModuleRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#moduleDelModal').modal('show');
+    });
+
+    var hostModulesTable = $('#host-module-table').registerTable(onModuleSelect, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'name'},
+            {data: 'association'}
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                responsivePriority: -1,
+                targets: 0
+            },
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="hostModuleAssoc_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getModulesList&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
+
+    hostModuleDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(hostModulesTable, hostModuleUpdateBtn.attr('action'), function(err) {
+            $('#moduleDelModal').modal('hide');
+            if (err) {
+                return;
+            }
+            hostModulesTable.draw(false);
+            hostModulesTable.rows({selected: true}).deselect();
+        });
+    });
+
+    hostModulesTable.on('draw', function() {
+        Common.iCheck('#host-module-table input');
+        $('#host-module-table input.associated').on('ifChanged', onHostModuleCheckboxSelect);
+        onModuleSelect(hostModulesTable.rows({selected: true}));
+    });
+
+    var onHostModuleCheckboxSelect = function(e) {
+        $.checkItemUpdate(hostModulesTable, this, e, hostModuleUpdateBtn);
+    };
+
+    // Display manager area
+    var hostModuleDisplaymanBtn = $('#host-displayman-send'),
+        hostModuleDisplayForm = $('#host-displayman-form');
+
+    function disableModuleDisplayButtons(disable) {
+        hostModuleDisplaymanBtn.prop('disabled', disable);
+    }
+
+    hostModuleDisplayForm.on('submit', function(e) {
+        e.preventDefault();
+    });
+
+    hostModuleDisplaymanBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                confirmdisplaysend: 1,
+                x: $('#x').val(),
+                y: $('#y').val(),
+                r: $('#r').val()
+            };
+        disableModuleDisplayButtons(true);
+        $.apiCall(method,action,opts,function(err) {
+            disableModuleDisplayButtons(false);
+            if (err) {
+                return;
+            }
+            var url = '../management/index.php?node='
+                + Common.node
+                + '&sub=getHostDisplayManVals'
+                + '&id='
+                + Common.id;
+            Pace.ignore(function() {
+                $.get(url, function(data) {
+                    $('#x').val(data.x);
+                    $('#y').val(data.y);
+                    $('#r').val(data.r);
+                }, 'json');
+            });
+        });
+    });
+
+    // Auto log out area
+    var hostModuleAloBtn = $('#host-alo-send'),
+        hostModuleAloForm = $('#host-alo-form');
+
+    function disableModuleAloButtons(disable) {
+        hostModuleAloBtn.prop('disabled', disable);
+    }
+
+    hostModuleAloForm.on('submit', function(e) {
+        e.preventDefault();
+    });
+
+    hostModuleAloBtn.on('click', function(e) {
+        e.preventDefault();
+        disableModuleAloButtons(true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                confirmalosend: 1,
+                tme: $('#tme').val()
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableModuleAloButtons(false);
+            if (err) {
+                return;
+            }
+            var url = '../management/index.php?node='
+                + Common.node
+                + '&sub=getHostAloVals'
+                + '&id='
+                + Common.id;
+            Pace.ignore(function() {
+                $.get(url, function(data) {
+                    $('#tme').val(data.tme);
+                }, 'json');
+            });
+        });
+    });
+
+    // Host enforce ad join reboot and hostname changes area
+    var hostModuleEnforceBtn = $('#host-enforce-send'),
+        hostModuleEnforceForm = $('#host-enforce-form');
+
+    function disableModuleEnforceButtons(disable) {
+        hostModuleEnforceBtn.prop('disabled', disable);
+    }
+
+    hostModuleEnforceForm.on('submit', function(e) {
+        e.preventDefault();
+    })
+
+    hostModuleEnforceBtn.on('click', function(e) {
+        e.preventDefault();
+        disableModuleEnforceButtons(true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                confirmenforcesend: 1,
+                enforce: $('#enforce').iCheck('update')[0].checked ? 1 : 0
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableModuleEnforceButtons(false);
+        });
+    });
+
+    // ---------------------------------------------------------------
+    // ACTIVE DIRECTORY TAB
+    var ADForm = $('#active-directory-form'),
+        ADFormBtn = $('#ad-send'),
+        ADClearBtn = $('#ad-clear'),
+        ADJoinDomain = $('#adEnabled');
+
+    ADJoinDomain.on('ifChanged', function(e) {
+        e.preventDefault();
+        $(this).iCheck('update');
+        if (!this.checked) {
+            return;
+        }
+        var indomain = $('#adDomain'),
+            inou = $('#adOU'),
+            inuser = $('#adUsername'),
+            inpass = $('#adPassword');
+        if (indomain.val() && inou.val() && inuser.val() && inpass.val()) {
+            return;
+        }
+        Pace.ignore(function() {
+            $.get('../management/index.php?sub=adInfo', function(data) {
+                if (!indomain.val()) {
+                    indomain.val(data.domainname);
+                }
+                if (!inou.val()) {
+                    inou.val(data.ou)
+                }
+                if (!inuser.val()) {
+                    inuser.val(data.domainuser);
+                }
+                if (!inpass.val()) {
+                    inpass.val(data.domainpass);
+                }
+            }, 'json');
+        });
+    });
+
+    ADForm.on('submit',function(e) {
+        e.preventDefault();
+    });
+    ADFormBtn.on('click',function() {
+        ADFormBtn.prop('disabled', true);
+        ADClearBtn.prop('disabled', true);
+        ADForm.processForm(function(err) {
+            ADFormBtn.prop('disabled', false);
+            ADClearBtn.prop('disabled', false);
+        });
+    });
+    ADClearBtn.on('click',function() {
+        ADClearBtn.prop('disabled', true);
+        ADFormBtn.prop('disabled', true);
+
+        var restoreMap = [];
+        ADForm.find('input[type="text"], input[type="password"], textarea').each(function(i, e) {
+            restoreMap.push({checkbox: false, e: e, val: $(e).val()});
+            $(e).val('');
+            $(e).prop('disabled', true);
+        });
+        ADForm.find('input[type=checkbox]').each(function(i, e) {
+            restoreMap.push({checkbox: true, e: e, val: $(e).iCheck('update')[0].checked});
+            $(e).iCheck('uncheck');
+            $(e).iCheck('disable');
+        });
+
+        ADForm.find('input[type=text], input[type=password], textarea').val('');
+        ADForm.find('input[type=checkbox]').iCheck('uncheck');
+
+        ADForm.processForm(function(err) {
+            ADClearBtn.prop('disabled', false);
+            ADFormBtn.prop('disabled', false);
+            for (var i = 0; i < restoreMap.length; i++) {
+                field = restoreMap[i];
+                if (field.checkbox) {
+                    if (err) {
+                        $(field.e).iCheck((field.val ? 'check' : 'uncheck'));
+                    }
+                    $(field.e).iCheck('enable');
+                } else {
+                    if (err) {
+                        $(field.e).val(field.val);
+                    }
+                    $(field.e).prop('disabled', false);
+                }
+            }
+        });
+    });
+
+    // ---------------------------------------------------------------
+    // POWER MANAGMENT TAB
+
+    // The form Control elements of Power Management.
+    var powermanagementForm = $('#host-powermanagement-cron-form'),
+        powermanagementFormBtn = $('#powermanagement-send'),
+        // Insert Form cron elements.
+        minutes = $('.cronmin', powermanagementForm),
+        hours = $('.cronhour', powermanagementForm),
+        dom = $('.crondom', powermanagementForm),
+        month = $('.cronmonth', powermanagementForm),
+        dow = $('.crondow', powermanagementForm),
+        instantModal = $('#ondemandModal'),
+        instantBtn = $('#ondemandBtn'),
+        instantModalCancelBtn = $('#ondemandCancelBtn'),
+        instantModalCreateBtn = $('#ondemandCreateBtn'),
+        instantForm = $('#host-powermanagement-instant-form'),
+        scheduleModal = $('#scheduleModal'),
+        scheduleBtn = $('#scheduleBtn'),
+        scheduleModalCancelBtn = $('#scheduleCancelBtn'),
+        scheduleModalCreateBtn = $('#scheduleCreateBtn'),
+        scheduleForm = $('#host-powermanagement-cron-form'),
+        pmdelete = $('#pm-delete');
+
+    // FOG Cron
+    $('.fogcron').cron({
+        initial: '* * * * *',
+        onChange: function() {
+            vals = $(this).cron('value').split(' ');
+            minutes.val(vals[0]);
+            hours.val(vals[1]);
+            dom.val(vals[2]);
+            month.val(vals[3]);
+            dow.val(vals[4]);
+        }
+    });
+    powermanagementForm.on('submit', function(e) {
+        e.preventDefault();
+    });
+    powermanagementFormBtn.on('click', function() {
+        powermanagementFormBtn.prop('disabled', true);
+        powermanagementForm.processForm(function(err) {
+            powermanagementFormBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            minutes.val('');
+            hours.val('');
+            dom.val('');
+            month.val('');
+            dow.val('');
+            action.val('');
+            specialCrons.val('');
+            ondemand.iCheck('uncheck');
+        });
+    });
+
+    // The Power Management List element.
+    function onPMSelect(selected) {
+        var disable = selected.count() == 0;
+    }
+
+    var powermanagementTable = $('#host-powermanagement-table').registerTable(onPMSelect, {
+        columns: [
+            {data: 'id'},
+            {data: 'action'}
+        ],
+        columnDefs: [
+            {
+                targets: 0,
+                render: function(data, type, row) {
+                    return row.min
+                        + ' '
+                        + row.hour
+                        + ' '
+                        + row.dom
+                        + ' '
+                        + row.month
+                        + ' '
+                        + row.dow;
+                }
+            }
+        ],
+        rowId: 'id',
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getPowermanagementList&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
+
+    instantBtn.on('click', function(e) {
+        e.preventDefault();
+        instantModal.modal('show');
+    });
+    scheduleBtn.on('click', function(e) {
+        e.preventDefault();
+        scheduleModal.modal('show');
+    });
+    instantModal.registerModal(
+        function(e) {
+            instantModalCreateBtn.on('click', function() {
+                $(this).prop('disabled', true);
+                instantForm.processForm(function(err) {
+                    instantModalCreateBtn.prop('disabled', false);
+                    if (err) {
+                        return;
+                    }
+                    instantModal.modal('hide');
+                    powermanagementTable.draw(false);
+                });
+            });
+        },
+        function(e) {
+            $(this).modal('hide');
+        }
+    );
+    scheduleModal.registerModal(
+        function(e) {
+            scheduleModalCreateBtn.on('click', function() {
+                $(this).prop('disabled', true);
+                scheduleForm.processForm(function(err) {
+                    scheduleModalCreateBtn.prop('disabled', false);
+                    if (err) {
+                        return;
+                    }
+                    scheduleModal.modal('hide');
+                    powermanagementTable.draw(false);
+                });
+            });
+        },
+        function(e) {
+            $(this).modal('hide');
+        }
+    );
+
+    pmdelete.on('click', function(e) {
+        scheduleBtn.prop('disabled', true);
+        instantBtn.prop('disabled', true);
+
+
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = powermanagementTable.rows({selected: true}),
+            toDel = $.getSelectedIds(powermanagementTable),
+            opts = {
+                pmdelete: 1,
+                rempowermanagements: toDel
+            };
+        $.apiCall(method,action,opts,function(err) {
+            scheduleBtn.prop('disabled', false);
+            instantBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            powermanagementTable.draw(false);
+            powermanagementTable.rows({selected: true}).deselect();
+        });
+    });
 
     // ---------------------------------------------------------------
     // INVENTORY TAB

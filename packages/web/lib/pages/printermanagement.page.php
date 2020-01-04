@@ -489,7 +489,7 @@ class PrinterManagement extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -1415,7 +1415,7 @@ class PrinterManagement extends FOGPage
         echo $printerCups;
         echo $printerLocal;
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $buttons;
         echo $this->deleteModal();
         echo '</div>';

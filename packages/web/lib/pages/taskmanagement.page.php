@@ -365,7 +365,7 @@ class TaskManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'active-tasks-table');
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo '<div class="btn-group">';
         echo $this->_buttons;
         echo '</div>';
@@ -462,7 +462,7 @@ class TaskManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'active-multicast-table');
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo '<div class="btn-group">';
         echo $this->_buttons;
         echo '</div>';
@@ -572,7 +572,7 @@ class TaskManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'active-snapintasks-table');
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo '<div class="btn-group">';
         echo $this->_buttons;
         echo '</div>';
@@ -672,7 +672,7 @@ class TaskManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'scheduled-task-table');
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo '<div class="btn-group">';
         echo $this->_buttons;
         echo '</div>';

@@ -606,7 +606,7 @@ class GroupManagement extends FOGPage
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $buttons;
         echo $modalreset;
         echo $this->deleteModal();
@@ -745,7 +745,7 @@ class GroupManagement extends FOGPage
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -1067,7 +1067,7 @@ class GroupManagement extends FOGPage
         );
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo self::makeButton(
             'printer-config-send',
             _('Update'),
@@ -1222,342 +1222,155 @@ class GroupManagement extends FOGPage
      */
     public function groupModules()
     {
+        // Association Area
+        $this->headerData = [
+            _('Module Name')
+        ];
+        $this->attributes = [
+            []
+        ];
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
-                'group-service',
+                'group-module',
                 $this->obj->get('id')
             )
             . '" ';
 
-        $buttons = '<div class="btn-group pull-right">';
-        $buttons .= self::makeButton(
-            'modules-enable',
-            _('Enable All'),
-            'btn btn-success',
-            $props
-        );
-        $buttons .= self::makeButton(
-            'modules-update',
-            _('Update'),
-            'btn btn-primary',
-            $props
-        );
-        $buttons .= '</div>';
-        $buttons .= self::makeButton(
-            'modules-disable',
-            _('Disable All'),
-            'btn btn-danger',
-            $props
-        );
-
-        $this->headerData = [
-            _('Module Name'),
-            _('Module Association')
-        ];
-        $this->attributes = [
-            [],
-            []
-        ];
-
-        echo '<!-- Modules/Service Settings -->';
-        echo '<div class="box-group" id="modules">';
-        echo '<div class="box box-info">';
-        echo '<div class="box-header with-border">';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '<h4 class="box-title">';
-        echo _('Group module settings');
-        echo '</h4>';
-        echo '<div>';
-        echo '<p class="help-block">';
-        echo _('Modules disabled globally cannot be enabled here');
-        echo '<br/>';
-        echo _('Changes will automatically be saved');
-        echo '</p>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div id="updatemodules" class="">';
-        echo '<div class="box-body">';
-        echo $this->render(12, 'modules-to-update', $buttons);
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        $names = [
-            'FOG_CLIENT_DISPLAYMANAGER_R',
-            'FOG_CLIENT_DISPLAYMANAGER_X',
-            'FOG_CLIENT_DISPLAYMANAGER_Y'
-        ];
-        // Display Manager Element.
-        list(
-            $r,
-            $x,
-            $y
-        ) = self::getSetting($names);
-        $names = [
-            'x' => [
-                'width',
-                _('Screen Width')
-                . '<br/>('
-                . _('in pixels')
-                . ')'
-            ],
-            'y' => [
-                'height',
-                _('Screen Height')
-                . '<br/>('
-                . _('in pixels')
-                . ')'
-            ],
-            'r' => [
-                'refresh',
-                _('Screen Refresh Rate')
-                . '<br/>('
-                . _('in Hz')
-                . ')'
-            ]
-        ];
-
-        $labelClass = 'col-sm-3 control-label';
-
-        foreach ($names as $name => &$get) {
-            switch ($name) {
-            case 'r':
-                $val = $r;
-                break;
-            case 'x':
-                $val = $x;
-                break;
-            case 'y':
-                $val = $y;
-            }
-            $fields[
-                self::makeLabel(
-                    $labelClass,
-                    $name,
-                    $get[1]
-                )
-            ] = self::makeInput(
-                'form-control',
-                $name,
-                '',
-                'number',
-                $name,
-                $val
-            );
-            unset($get);
-        }
-
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'group-dispman',
-            self::makeTabUpdateURL(
-                'group-service',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Display Manager Settings');
+        echo _('Group Module Associations');
         echo '</h4>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
+        echo '<p class="help-block">';
+        echo _('Disabled items are not displayed. Legacy items are removed.');
+        echo '<br/>';
+        echo _('Action will be perform on all hosts within this group');
+        echo '</p>';
         echo '</div>';
         echo '<div class="box-body">';
-        echo $rendered;
-        echo self::makeInput(
-            '',
-            'dispmansend',
-            '',
-            'hidden',
-            '',
-            1
-        );
+        $this->render(12, 'group-module-table', $buttons);
         echo '</div>';
-        echo '<div class="box-footer">';
-        echo self::makeButton(
-            'displayman-send',
-            _('Update'),
-            'btn btn-primary pull-right'
-        );
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('module');
         echo '</div>';
         echo '</div>';
-        echo '</form>';
 
-        // Auto Log Out
-        $tme = filter_input(INPUT_POST, 'tme');
-        if (!$tme) {
-            $tme = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
+        $labelClass = 'col-sm-3 control-label';
+        // Display Manager area
+        $dispEnabled = self::getSEtting('FOG_CLIENT_DISPLAYMANAGER_ENABLED');
+        if ($dispEnabled) {
+            $buttons = self::makeButton(
+                'group-displayman-send',
+                _('Update'),
+                'btn btn-primary pull-right',
+                $props
+            );
+            list(
+                $gr,
+                $gx,
+                $gy
+            ) = self::getSetting(
+                [
+                    'FOG_CLIENT_DISPLAYMANAGER_R',
+                    'FOG_CLIENT_DISPLAYMANAGER_X',
+                    'FOG_CLIENT_DISPLAYMANAGER_Y'
+                ]
+            );
+            // If the x, y, and/or r inputs are set.
+            $x = filter_input(INPUT_POST, 'x');
+            $y = filter_input(INPUT_POST, 'y');
+            $r = filter_input(INPUT_POST, 'r');
+            if (!$x) {
+                // If x not set, set to global
+                $x = $gx;
+            }
+            if (!$y) {
+                // If y not set, set to global
+                $y = $gy;
+            }
+            if (!$r) {
+                // If r not set, set to global
+                $r = $gr;
+            }
+            $names = [
+                'x' => [
+                    'width',
+                    _('Screen Width')
+                    . '<br/>('
+                    . _('in pixels')
+                    . ')'
+                ],
+                'y' => [
+                    'height',
+                    _('Screen Height')
+                    . '<br/>('
+                    . _('in pixels')
+                    . ')'
+                ],
+                'r' => [
+                    'refresh',
+                    _('Screen Refresh Rate')
+                    . '<br/>('
+                    . _('in Hz')
+                    . ')'
+                ]
+            ];
+            foreach ($names as $name => &$get) {
+                switch($name) {
+                case 'r':
+                    $val = $r;
+                    break;
+                case 'x':
+                    $val = $x;
+                    break;
+                case 'y':
+                    $val = $y;
+                }
+                $fields[
+                    self::makeLabel(
+                        $labelClass,
+                        $name,
+                        $get[1]
+                    )
+                ] = self::makeInput(
+                    'form-control',
+                    $name,
+                    '',
+                    'number',
+                    $name,
+                    $val
+                );
+                unset($get);
+            }
+
+            $rendered = self::formFields($fields);
+            unset($fields);
+            echo '<div class="box box-primary">';
+            echo '<div class="box-header with-border">';
+            echo '<h4 class="box-title">';
+            echo _('Group Display Manager Settings');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="box-body">';
+            echo self::makeFormTag(
+                'form-horizontal',
+                'group-displayman-form',
+                self::makeTabUpdateURL(
+                    'group-module',
+                    $this->obj->get('id')
+                ),
+                'post',
+                'application/x-www-form-urlencoded',
+                true
+            );
+            echo $rendered;
+            echo '</form>';
+            echo '</div>';
+            echo '<div class="box-footer with-border">';
+            echo $buttons;
+            echo '</div>';
+            echo '</div>';
         }
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'tme',
-                _('Auto Logout Time')
-                . '<br/>('
-                . _('in minutes')
-                . ')'
-            ) => self::makeInput(
-                'form-control',
-                'tme',
-                '',
-                'number',
-                'tme',
-                $tme
-            )
-        ];
-
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'group-alo',
-            self::makeTabUpdateURL(
-                'group-service',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="box box-warning">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Auto Logout Settings');
-        echo '</h4>';
-        echo '<div>';
-        echo '<p class="help-block">';
-        echo _('Minimum time limit for Auto Logout to become active is 5 minutes.');
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo $rendered;
-        echo self::makeInput(
-            '',
-            'alosend',
-            '',
-            'hidden',
-            '',
-            1
-        );
-        echo '</div>';
-        echo '<div class="box-footer">';
-        echo self::makeButton(
-            'alo-send',
-            _('Update'),
-            'btn btn-primary pull-right'
-        );
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
-
-        // Hostname changer reboot/domain join reboot forced.
-        $enforce = (
-            filter_input(INPUT_POST, 'enforce')
-        );
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'enforce',
-                _('Force Reboot')
-            ) => self::makeInput(
-                '',
-                'enforce',
-                '',
-                'checkbox',
-                'enforce',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                $enforce
-            )
-        ];
-
-        $enforcebtn = self::makeButton(
-            'enforcebtn',
-            _('Update'),
-            'btn btn-primary pull-right'
-        );
-
-        self::$HookManager->processEvent(
-            'GROUP_ENFORCE_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$enforcebtn,
-                'Group' => &$this->obj
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'group-enforce',
-            self::makeTabUpdateURL(
-                'group-service',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="box box-warning">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Enforce Hostname | AD Join Reboots');
-        echo '</h4>';
-        echo '<div>';
-        echo '<p class="help-block">';
-        echo _(
-            'This tells the client to force reboots for host name '
-            . 'changing and AD Joining.'
-        );
-        echo '</p>';
-        echo '<p class="help-block">';
-        echo _(
-            'If disabled, the client will not make changes until all users '
-            . 'are logged off'
-        );
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="box-footer">';
-        echo self::makeInput(
-            '',
-            'enforcesend',
-            '',
-            'hidden',
-            '',
-            '1'
-        );
-        echo $enforcebtn;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
-        // End Box Group
-        echo '</div>';
     }
     /**
      * Group Service post.
@@ -2167,7 +1980,7 @@ class GroupManagement extends FOGPage
         echo '</div>';
 
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $taskModal;
         echo '</div>';
         echo '</div>';
