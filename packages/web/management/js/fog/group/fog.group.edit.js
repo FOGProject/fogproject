@@ -1,6 +1,6 @@
 (function($) {
     // ---------------------------------------------------------------
-    // GROUP NAME UPDATE
+    // GENERAL TAB
     var originalName = $('#group').val(),
         updateName = function(newName) {
             var e = $('#pageTitle'),
@@ -23,8 +23,6 @@
     // Mask for product key.
     $('#key').inputmask({mask: Common.masks.productKey});
 
-    // ---------------------------------------------------------------
-    // GENERAL TAB
     generalForm.on('submit',function(e) {
         e.preventDefault();
     });
@@ -72,12 +70,44 @@
     // Reset encryption confirmation modal.
     resetEncryptionBtn.on('click', function(e) {
         e.preventDefault();
+        // Set our general form buttons disabled.
+        $(this).prop('disabled', true);
+        generalFormBtn.prop('disabled', true);
+        generalDeleteBtn.prop('disabled', true);
+
+        // Enable our modal buttons.
+        resetEncryptionConfirmBtn.prop('disabled', false);
+        resetEncryptionCancelBtn.prop('disabled', false);
+
+        // Display the reset encryption modal
         resetEncryptionModal.modal('show');
+    });
+
+    // Modal cancelled
+    resetEncryptionCancelBtn.on('click', function(e) {
+        e.preventDefault();
+
+        // Set our modal buttons disabled.
+        $(this).prop('disabled', true);
+        resetEncryptionConfirmBtn.prop('disabled', true);
+
+        // Enable our general form buttons.
+        generalFormBtn.prop('disabled', false);
+        generalDeleteBtn.prop('disabled', false);
+        resetEncryptionBtn.prop('disabled', false);
+
+        // Hide the modal
+        resetEncryptionModal.modal('hide');
     });
 
     // Modal Confirmed
     resetEncryptionConfirmBtn.on('click', function(e) {
         e.preventDefault();
+
+        // Set our modal buttons disabled.
+        $(this).prop('disabled', true);
+        resetEncryptionCancelBtn.prop('disabled', true);
+
         // Reset our encryption data.
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
@@ -85,17 +115,20 @@
                 groupid: Common.id
             };
         $.apiCall(method, action, opts, function(err) {
+            // Enable our general form buttons.
             generalFormBtn.prop('disabled', false);
             generalDeleteBtn.prop('disabled', false);
             resetEncryptionBtn.prop('disabled', false);
             if (err) {
                 return;
             }
+            // Hide modal
             resetEncryptionModal.modal('hide');
         });
     });
 
-    // Group Image
+    // ---------------------------------------------------------------
+    // IMAGE TAB
     var groupImageUpdateBtn = $('#group-image-send');
 
     function disableImageButtons(disable) {
@@ -103,7 +136,6 @@
     }
 
     groupImageUpdateBtn.on('click', function(e) {
-        console.log('here');
         e.preventDefault();
         disableImageButtons(true);
         var method = $(this).attr('method'),
@@ -226,95 +258,6 @@
                     $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
                 }
             });
-        });
-    });
-
-    // FOG CLIENT AREA
-    // ---------------------------------------------------------------
-    // ACTIVE DIRECTORY TAB
-    var ADForm = $('#active-directory-form'),
-        ADFormBtn = $('#ad-send'),
-        ADClearBtn = $('#ad-clear'),
-        ADJoinDomain = $('#adEnabled');
-
-    ADJoinDomain.on('ifChanged', function(e) {
-        e.preventDefault();
-        $(this).iCheck('update');
-        if (!this.checked) {
-            return;
-        }
-        var indomain = $('#adDomain'),
-            inou = $('#adOU'),
-            inuser = $('#adUsername'),
-            inpass = $('#adPassword');
-        if (indomain.val() && inou.val() && inuser.val() && inpass.val()) {
-            return;
-        }
-        Pace.ignore(function() {
-            $.get('../management/index.php?sub=adInfo', function(data) {
-                if (!indomain.val()) {
-                    indomain.val(data.domainname);
-                }
-                if (!inou.val()) {
-                    inou.val(data.ou)
-                }
-                if (!inuser.val()) {
-                    inuser.val(data.domainuser);
-                }
-                if (!inpass.val()) {
-                    inpass.val(data.domainpass);
-                }
-            }, 'json');
-        });
-    });
-
-    ADForm.on('submit',function(e) {
-        e.preventDefault();
-    });
-    ADFormBtn.on('click',function() {
-        ADFormBtn.prop('disabled', true);
-        ADClearBtn.prop('disabled', true);
-        ADForm.processForm(function(err) {
-            ADFormBtn.prop('disabled', false);
-            ADClearBtn.prop('disabled', false);
-        });
-    });
-    ADClearBtn.on('click',function() {
-        ADClearBtn.prop('disabled', true);
-        ADFormBtn.prop('disabled', true);
-
-        var restoreMap = [];
-        ADForm.find('input[type="text"], input[type="password"], textarea').each(function(i, e) {
-            restoreMap.push({checkbox: false, e: e, val: $(e).val()});
-            $(e).val('');
-            $(e).prop('disabled', true);
-        });
-        ADForm.find('input[type=checkbox]').each(function(i, e) {
-            restoreMap.push({checkbox: true, e: e, val: $(e).iCheck('update')[0].checked});
-            $(e).iCheck('uncheck');
-            $(e).iCheck('disable');
-        });
-
-        ADForm.find('input[type=text], input[type=password], textarea').val('');
-        ADForm.find('input[type=checkbox]').iCheck('uncheck');
-
-        ADForm.processForm(function(err) {
-            ADClearBtn.prop('disabled', false);
-            ADFormBtn.prop('disabled', false);
-            for (var i = 0; i < restoreMap.length; i++) {
-                field = restoreMap[i];
-                if (field.checkbox) {
-                    if (err) {
-                        $(field.e).iCheck((field.val ? 'check' : 'uncheck'));
-                    }
-                    $(field.e).iCheck('enable');
-                } else {
-                    if (err) {
-                        $(field.e).val(field.val);
-                    }
-                    $(field.e).prop('disabled', false);
-                }
-            }
         });
     });
 
@@ -630,166 +573,241 @@
         onSnapinSelect(groupSnapinsTable.rows({selected: true}));
     });
 
+    // FOG CLIENT AREA
     // ---------------------------------------------------------------
-    // SERVICE TAB
-    var modulesEnableBtn = $('#modules-enable'),
-        modulesDisableBtn = $('#modules-disable'),
-        modulesUpdateBtn = $('#modules-update'),
-        modulesDispBtn = $('#displayman-send'),
-        modulesAloBtn = $('#alo-send');
+    // CLIENT SETTINGS TAB
+    var groupModuleUpdateBtn = $('#group-module-send'),
+        groupModuleRemoveBtn = $('#group-module-remove'),
+        groupModuleDeleteConfirmBtn = $('#confirmmoduleDeleteModal');
 
-    function onModulesDisable(selected) {
+    // Association area
+    function disableModuleButtons(disable) {
+        groupModuleUpdateBtn.prop('disabled', disable);
+        groupModuleRemoveBtn.prop('disabled', disable);
+    }
+
+    function onModuleSelect(selected) {
         var disabled = selected.count() == 0;
-        modulesDisableBtn.prop('disabled', disabled);
-    }
-    function onModulesEnable(selected) {
-        var disabled = selected.count() != 0;
-        modulesEnableBtn.prop('disabled', disabled);
+        disableModuleButtons(disabled);
     }
 
-    var modulesTable = $('#modules-to-update').registerTable(onModulesEnable, {
+    groupModuleUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = groupModulesTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(groupModulesTable),
+            opts = {
+                confirmadd: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableModuleButtons(false);
+            if (err) {
+                return;
+            }
+            groupModulesTable.draw(false);
+            groupModulesTable.rows({selected: true}).deselect();
+        });
+    });
+
+    groupModuleRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#moduleDelModal').modal('show');
+    });
+
+    var groupModulesTable = $('#group-module-table').registerTable(onModuleSelect, {
+        order: [
+            [0, 'asc']
+        ],
         columns: [
-            {data: 'name'},
-            {data: 'association'}
+            {data: 'name'}
         ],
         rowId: 'id',
-        columnDefs: [
-            {
-                responsivePriority: -1,
-                render: function(data, type, row) {
-                    return row.name
-                },
-                targets: 0
-            },
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="moduleAssoc_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 1
-            }
-        ],
         processing: true,
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
-            + Common.node
-            + '&sub=getModulesList&id='
-            + Common.id,
+                + Common.node
+                + '&sub=getModulesList',
             type: 'post'
         }
     });
-    modulesTable.on('draw', function() {
-        Common.iCheck('#modules-to-update input');
+
+    groupModuleDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(groupModulesTable, groupModuleUpdateBtn.attr('action'), function(err) {
+            $('#moduleDelModal').modal('hide');
+            if (err) {
+                return;
+            }
+        });
     });
 
-    modulesUpdateBtn.on('click', function(e) {
+    groupModulesTable.on('draw', function() {
+        onModuleSelect(groupModulesTable.rows({selected: true}));
+    });
+
+    // Display manager area
+    var groupModuleDisplaymanBtn = $('#group-displayman-send'),
+        groupModuleDisplayForm = $('#group-displayman-form');
+
+    function disableModuleDisplayButtons(disable) {
+        groupModuleDisplaymanBtn.prop('disabled', disable);
+    }
+
+    groupModuleDisplayForm.on('submit', function(e) {
         e.preventDefault();
-        $(this).prop('disabled', true);
-        var method = modulesUpdateBtn.attr('method'),
-            action = modulesUpdateBtn.attr('action'),
-            toEnable = [],
-            toDisable = [],
+    });
+
+    groupModuleDisplaymanBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
             opts = {
-                enablemodulessel: 1,
-                disablemodulessel: 1,
-                enablemodules: toEnable,
-                disablemodules: toDisable
+                confirmdisplaysend: 1,
+                x: $('#x').val(),
+                y: $('#y').val(),
+                r: $('#r').val()
             };
-        $('#modules-to-update').find('.associated').each(function() {
-            if ($(this).is(':checked')) {
-                toEnable.push($(this).val());
-            } else if (!$(this).is(':checked')) {
-                toDisable.push($(this).val());
-            }
-        });
+        disableModuleDisplayButtons(true);
         $.apiCall(method,action,opts,function(err) {
-            modulesUpdateBtn.prop('disabled', false);
-            if (!err) {
-                modulesTable.draw(false);
-                modulesTable.rows({selected: true}).deselect();
-            }
+            disableModuleDisplayButtons(false);
         });
     });
-    modulesEnableBtn.on('click', function(e) {
+
+    // Auto log out area
+    var groupModuleAloBtn = $('#group-alo-send'),
+        groupModuleAloForm = $('#group-alo-form');
+
+    function disableModuleAloButtons(disable) {
+        groupModuleAloBtn.prop('disabled', disable);
+    }
+
+    groupModuleAloBtn.on('click', function(e) {
         e.preventDefault();
-        $('#modules-to-update_wrapper .buttons-select-all').trigger('click');
-        $('#modules-to-update_wrapper .associated').iCheck('cleck');
-        $(this).prop('disabled', true);
-        modulesDisableBtn.prop('disabled', false);
-        var method = modulesEnableBtn.attr('method'),
-            action = modulesEnableBtn.attr('action'),
-            rows = modulesTable.rows({selected: true}),
-            toEnable = $.getSelectedIds(modulesTable),
+        disableModuleAloButtons(true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
             opts = {
-                enablemodulessel: 1,
-                enablemodules: toEnable
+                confirmalosend: 1
+                tme: $('#tme').val()
             };
         $.apiCall(method,action,opts,function(err) {
-            if (err) {
-                modulesEnableBtn.prop('disabled', false);
-                return;
-            }
-            $('#modules-to-update').find('.associated').each(function() {
-                if ($.inArray($(this).val(), toEnable) != -1) {
-                    $(this).iCheck('check');
+            disableModuleAloButtons(false);
+        });
+    });
+
+    // Host enforce ad join reboot and hostname changes area
+    var groupModuleEnforceBtn = $('#group-enforce-send'),
+        groupModuleEnforceForm = $('#group-enforce-form');
+
+    function disableModuleEnforceButtons(disable) {
+        groupModuleEnforceBtn.prop('disabled', disable);
+    }
+
+    groupModuleEnforceForm.on('submit', function(e) {
+        e.preventDefault();
+    });
+
+    groupModuleEnforceBtn.on('click', function(e) {
+        e.preventDefault();
+        disableModuleEnforceButtons(true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                confirmenforcesend: 1,
+                enforce: $('#enforce').iCheck('update')[0].checked ? 1 : 0
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableModuleEnforceButtons(false);
+        });
+    });
+
+    // ACTIVE DIRECTORY TAB
+    var ADForm = $('#active-directory-form'),
+        ADFormBtn = $('#ad-send'),
+        ADClearBtn = $('#ad-clear'),
+        ADJoinDomain = $('#adEnabled');
+
+    ADJoinDomain.on('ifChanged', function(e) {
+        e.preventDefault();
+        $(this).iCheck('update');
+        if (!this.checked) {
+            return;
+        }
+        var indomain = $('#adDomain'),
+            inou = $('#adOU'),
+            inuser = $('#adUsername'),
+            inpass = $('#adPassword');
+        if (indomain.val() && inou.val() && inuser.val() && inpass.val()) {
+            return;
+        }
+        Pace.ignore(function() {
+            $.get('../management/index.php?sub=adInfo', function(data) {
+                if (!indomain.val()) {
+                    indomain.val(data.domainname);
                 }
-            });
-            modulesTable.draw(false);
-            modulesTable.rows({selected: true}).deselect();
-        });
-    });
-    modulesDisableBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#modules-to-update_wrapper .buttons-select-none').trigger('click');
-        $('#modules-to-update_wrapper .associated').iCheck('uncheck');
-        $(this).prop('disabled', true);
-        modulesEnableBtn.prop('disabled', false);
-        var method = modulesDisableBtn.attr('method'),
-            action = modulesDisableBtn.attr('action'),
-            rows = modulesTable.rows({selected: true}),
-            toDisable = [],
-            opts = {
-                disablemodulessel: 1,
-                disablemodules: toDisable
-            };
-        $('#modules-to-update').find('.associated').each(function() {
-            if (!$(this).is(':checked')) {
-                toDisable.push($(this).val());
-            }
-        });
-        $.apiCall(method,action,opts,function(err) {
-            if (err) {
-                modulesDisableBtn.prop('disabled', false);
-                return;
-            }
-            $('#modules-to-update').find('.associated').each(function() {
-                if ($.inArray($(this).val(), toDisable) != -1) {
-                    $(this).iCheck('uncheck');
+                if (!inou.val()) {
+                    inou.val(data.ou)
                 }
-            });
-            modulesTable.draw(false);
-            modulesTable.rows({selected: true}).deselect();
+                if (!inuser.val()) {
+                    inuser.val(data.domainuser);
+                }
+                if (!inpass.val()) {
+                    inpass.val(data.domainpass);
+                }
+            }, 'json');
         });
     });
-    modulesDispBtn.on('click', function(e) {
+
+    ADForm.on('submit',function(e) {
         e.preventDefault();
-        var form = $('#group-dispman');
-        form.processForm();
     });
-    modulesAloBtn.on('click', function(e) {
-        e.preventDefault();
-        var form = $('#group-alo');
-        form.processForm();
+    ADFormBtn.on('click',function() {
+        ADFormBtn.prop('disabled', true);
+        ADClearBtn.prop('disabled', true);
+        ADForm.processForm(function(err) {
+            ADFormBtn.prop('disabled', false);
+            ADClearBtn.prop('disabled', false);
+        });
+    });
+    ADClearBtn.on('click',function() {
+        ADClearBtn.prop('disabled', true);
+        ADFormBtn.prop('disabled', true);
+
+        var restoreMap = [];
+        ADForm.find('input[type="text"], input[type="password"], textarea').each(function(i, e) {
+            restoreMap.push({checkbox: false, e: e, val: $(e).val()});
+            $(e).val('');
+            $(e).prop('disabled', true);
+        });
+        ADForm.find('input[type=checkbox]').each(function(i, e) {
+            restoreMap.push({checkbox: true, e: e, val: $(e).iCheck('update')[0].checked});
+            $(e).iCheck('uncheck');
+            $(e).iCheck('disable');
+        });
+
+        ADForm.find('input[type=text], input[type=password], textarea').val('');
+        ADForm.find('input[type=checkbox]').iCheck('uncheck');
+
+        ADForm.processForm(function(err) {
+            ADClearBtn.prop('disabled', false);
+            ADFormBtn.prop('disabled', false);
+            for (var i = 0; i < restoreMap.length; i++) {
+                field = restoreMap[i];
+                if (field.checkbox) {
+                    if (err) {
+                        $(field.e).iCheck((field.val ? 'check' : 'uncheck'));
+                    }
+                    $(field.e).iCheck('enable');
+                } else {
+                    if (err) {
+                        $(field.e).val(field.val);
+                    }
+                    $(field.e).prop('disabled', false);
+                }
+            }
+        });
     });
 
     // ---------------------------------------------------------------
@@ -904,10 +922,28 @@
             $('#scheduleModal').modal('hide');
         });
     });
+
+    // ---------------------------------------------------------------
+    // INVENTORY TAB
+
+    // HISTORY TABS
+    // ---------------------------------------------------------------
+    // LOGIN HISTORY TAB
+
+    // ---------------------------------------------------------------
+    // IMAGE HISTORY TAB
+
+    // ---------------------------------------------------------------
+    // SNAPIN HISTORY TAB
+
+    // Enable searching
     if (Common.search && Common.search.length > 0) {
+        // Associations
         groupHostsTable.search(Common.search).draw();
         groupPrintersTable.search(Common.search).draw();
         groupSnapinsTable.search(Common.search).draw();
+        // FOG Client
         modulesTable.search(Common.search).draw();
+        // History
     }
 })(jQuery)

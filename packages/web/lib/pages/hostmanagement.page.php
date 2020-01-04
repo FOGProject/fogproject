@@ -200,7 +200,7 @@ class HostManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'dataTable', $buttons);
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $approvalModal;
         echo $deleteModal;
         echo '</div>';
@@ -365,7 +365,7 @@ class HostManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'dataTable', $buttons);
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         //echo $buttons;
         echo $approvalModal;
         echo $deleteModal;
@@ -694,7 +694,7 @@ class HostManagement extends FOGPage
         echo $renderedad;
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -1318,7 +1318,7 @@ class HostManagement extends FOGPage
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $buttons;
         echo $modalreset;
         echo $this->deleteModal();
@@ -1559,7 +1559,7 @@ class HostManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'host-macaddresses-table', $buttons);
         echo '</div>';
-        echo '<div class-"box-footer with-border">';
+        echo '<div class="box-footer with-border">';
         echo $macAddModal;
         echo '</div>';
         echo '</div>';
@@ -1916,7 +1916,7 @@ class HostManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'host-group-table', $buttons);
         echo '</div>';
-        echo '<div clas="box-footer with-border">';
+        echo '<div class="box-footer with-border">';
         echo $this->assocDelModal('group');
         echo '</div>';
         echo '</div>';
@@ -2022,7 +2022,7 @@ class HostManagement extends FOGPage
         echo '<div class="box-body">';
         echo '<span id="printerselector"></span>';
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -2131,7 +2131,7 @@ class HostManagement extends FOGPage
         );
         echo '</div>';
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo self::makeButton(
             'printer-config-send',
             _('Update'),
@@ -2235,7 +2235,7 @@ class HostManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'host-snapin-table', $buttons);
         echo '</div>';
-        echo '<div clas="box-footer with-border">';
+        echo '<div class="box-footer with-border">';
         echo $this->assocDelModal('snapin');
         echo '</div>';
         echo '</div>';
@@ -2324,7 +2324,7 @@ class HostManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'host-module-table', $buttons);
         echo '</div>';
-        echo '<div clas="box-footer with-border">';
+        echo '<div class="box-footer with-border">';
         echo $this->assocDelModal('module');
         echo '</div>';
         echo '</div>';
@@ -2346,30 +2346,18 @@ class HostManagement extends FOGPage
             if (!$ix) {
                 // If x not set check hosts setting
                 $ix = $this->obj->getDispVals('width');
-                if ($ix) {
-                    $x = $ix;
-                }
-            } else {
-                $x = $ix;
             }
             if (!$iy) {
                 // If y not set check hosts setting
                 $iy = $this->obj->getDispVals('height');
-                if ($iy) {
-                    $y = $iy;
-                }
-            } else {
-                $y = $iy;
             }
             if (!$ir) {
                 // If r not set check hosts setting
                 $ir = $this->obj->getDispVals('refresh');
-                if ($ir) {
-                    $r = $ir;
-                }
-            } else {
-                $r = $ir;
             }
+            $x = $ix;
+            $y = $iy;
+            $r = $ir;
             $names = [
                 'x' => [
                     'width',
@@ -2444,7 +2432,7 @@ class HostManagement extends FOGPage
             echo $rendered;
             echo '</form>';
             echo '</div>';
-            echo '<div class="box-footer">';
+            echo '<div class="box-footer with-border">';
             echo $buttons;
             echo '</div>';
             echo '</div>';
@@ -2511,7 +2499,7 @@ class HostManagement extends FOGPage
             echo $rendered;
             echo '</form>';
             echo '</div>';
-            echo '<div class="box-footer">';
+            echo '<div class="box-footer with-border">';
             echo $buttons;
             echo '</div>';
             echo '</div>';
@@ -2592,7 +2580,7 @@ class HostManagement extends FOGPage
         echo $rendered;
         echo '</form>';
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -2727,7 +2715,7 @@ class HostManagement extends FOGPage
         echo '<div class="box-body">';
         $this->render(12, 'host-powermanagement-table', $buttons.$splitButtons);
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo self::makeModal(
             'ondemandModal',
             _('Create Immediate Power task'),
@@ -3482,7 +3470,7 @@ class HostManagement extends FOGPage
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
@@ -4285,7 +4273,7 @@ class HostManagement extends FOGPage
         echo '</div>';
 
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $taskModal;
         echo '</div>';
         echo '</div>';

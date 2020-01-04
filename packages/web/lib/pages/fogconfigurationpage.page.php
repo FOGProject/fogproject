@@ -128,7 +128,7 @@ class FOGConfigurationPage extends FOGPage
             . FOG_VERSION
             . '">';
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo '</div>';
         echo '</div>';
 
@@ -146,7 +146,7 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="box-body">';
         echo $renderNodes;
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -209,7 +209,7 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="box-body">';
         echo $contents;
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -312,7 +312,7 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="box-body">';
         echo $this->render(12, 'dataTable', $buttons);
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $downloadModal;
         echo '</div>';
         echo '</div>';
@@ -716,7 +716,7 @@ class FOGConfigurationPage extends FOGPage
         echo ': ';
         echo '<span id="lookupcount">' . self::getMACLookupCount() . '</span>';
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $buttons;
         echo $modalupdate;
         echo $modaldelete;

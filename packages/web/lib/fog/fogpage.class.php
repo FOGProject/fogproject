@@ -1618,7 +1618,7 @@ abstract class FOGPage extends FOGBase
                 'btn btn-danger pull-left'
             );
             echo '</div>';
-            echo '<div class="box-footer">';
+            echo '<div class="box-footer with-border">';
             echo $buttons;
             echo '</div>';
             echo '</form>';
@@ -2862,7 +2862,7 @@ abstract class FOGPage extends FOGBase
             // That method would allow plugins and hooks to generate/remove buttons
             // where/as necessary. As well as simplify our coding needs.
             // I forgot we have no need for "search" anymore?
-            echo '<div class="box-footer">';
+            echo '<div class="box-footer with-border">';
             if ($node == 'host') {
                 // Some generalized button generator code here.
             } else {

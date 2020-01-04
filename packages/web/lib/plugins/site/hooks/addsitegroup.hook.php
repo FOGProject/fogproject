@@ -147,7 +147,7 @@ class AddSiteGroup extends Hook
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
-        echo '<div class="box-footer">';
+        echo '<div class="box-footer with-border">';
         echo $buttons;
         echo '</div>';
         echo '</div>';
