@@ -1310,6 +1310,7 @@
         Common.iCheck('#host-printer-table input');
         $('#host-printer-table input.associated').on('ifChanged', onHostPrinterCheckboxSelect);
         onPrinterSelect(hostPrintersTable.rows({selected: true}));
+        hostPrinterDefaultSelectorUpdate();
     });
 
     var onHostPrinterCheckboxSelect = function(e) {
