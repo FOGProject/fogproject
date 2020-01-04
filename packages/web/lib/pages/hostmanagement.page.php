@@ -3532,7 +3532,7 @@ class HostManagement extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'host-login-table');
+        $this->render(12, 'host-login-history-table');
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -3569,7 +3569,7 @@ class HostManagement extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'host-image-table');
+        $this->render(12, 'host-image-history-table');
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -3604,7 +3604,7 @@ class HostManagement extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'host-snapin-table');
+        $this->render(12, 'host-snapin-history-table');
         echo '</div>';
         echo '</div>';
         echo '</div>';

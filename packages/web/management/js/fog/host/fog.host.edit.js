@@ -1488,7 +1488,7 @@
     // HISTORY TABS
     // ---------------------------------------------------------------
     // LOGIN HISTORY TAB
-    var hostHistoryLoginTable = $('#host-login-table').registerTable(null, {
+    var hostHistoryLoginTable = $('#host-login-history-table').registerTable(null, {
         columns: [
             {data: 'createdTime'},
             {data: 'action'},
@@ -1498,6 +1498,7 @@
         rowId: 'id',
         processing: true,
         serverSide: true,
+        select: false,
         ajax: {
             url: '../management/index.php?node='
                 + Common.node
@@ -1509,7 +1510,7 @@
 
     // ---------------------------------------------------------------
     // IMAGE HISTORY TAB
-    var hostHistoryImageTable = $('#host-image-table').registerTable(null, {
+    var hostHistoryImageTable = $('#host-image-history-table').registerTable(null, {
         columns: [
             {data: 'createdBy'},
             {data: 'start'},
@@ -1521,6 +1522,7 @@
         rowId: 'id',
         processing: true,
         serverSide: true,
+        select: false,
         ajax: {
             url: '../management/index.php?node='
                 + Common.node
@@ -1532,7 +1534,7 @@
 
     // ---------------------------------------------------------------
     // SNAPIN HISTORY TAB
-    var hostHistorySnapinTable = $('#host-snapin-table').registerTable(null, {
+    var hostHistorySnapinTable = $('#host-snapin-history-table').registerTable(null, {
         columns: [
             {data: 'snapinLink'},
             {data: 'checkin'},
@@ -1543,6 +1545,7 @@
         rowId: 'id',
         processing: true,
         serverSide: true,
+        select: false,
         ajax: {
             url: '../management/index.php?node='
                 + Common.node
