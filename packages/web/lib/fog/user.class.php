@@ -167,8 +167,24 @@ class User extends FOGController
             $expire = self::niceDate()
                 ->setTimestamp($cookieexp)
                 ->format('Y-m-d H:i:s');
-            setcookie('foguserauthpass', $password, $cookieexp);
-            setcookie('foguserauthsel', $selector, $cookieexp);
+            setcookie(
+                'foguserauthpass',
+                $password,
+                $cookieexp,
+                null,
+                null,
+                null,
+                true
+            );
+            setcookie(
+                'foguserauthsel',
+                $selector,
+                $cookieexp,
+                null,
+                null,
+                null,
+                true
+            );
 
             // Build and create authorization/authentication system.
             $password_hash = UserAuth::generateHash($password);
@@ -180,8 +196,15 @@ class User extends FOGController
                 ->set('password', $password_hash)
                 ->save();
 
-            // Set the id in the cook for this particular auth item.
-            setcookie('foguserauthid', $auth->get('id'), $cookieexp);
+            // Set the id in the cookie for this particular auth item.
+            setcookie('foguserauthid',
+                $auth->get('id'),
+                $cookieexp,
+                null,
+                null,
+                null,
+                true
+            );
         }
         return $passValid;
     }
@@ -361,9 +384,33 @@ class User extends FOGController
                 $expire = self::niceDate()
                     ->setTimestamp($cookieexp)
                     ->format('Y-m-d H:i:s');
-                setcookie('foguserauthpass', $password, $cookieexp);
-                setcookie('foguserauthsel', $selector, $cookieexp);
-                setcookie('foguserauthid', $userauth->get('id'), $cookieexp);
+                setcookie(
+                    'foguserauthpass',
+                    $password,
+                    $cookieexp,
+                    null,
+                    null,
+                    null,
+                    true
+                );
+                setcookie(
+                    'foguserauthsel',
+                    $selector,
+                    $cookieexp,
+                    null,
+                    null,
+                    null,
+                    true
+                );
+                setcookie(
+                    'foguserauthid',
+                    $userauth->get('id'),
+                    $cookieexp,
+                    null,
+                    null,
+                    null,
+                    true
+                );
 
                 $password_hash = $userauth->generateHash($password);
                 $selector_hash = $userauth->generateHash($selector);
