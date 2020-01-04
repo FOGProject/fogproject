@@ -232,7 +232,8 @@
             }
         });
     });
-    storagegroupsRemoveBtn.on('click', function() {
+    storagegroupsRemoveBtn.on('click', function(e) {
+        e.preventDefault();
         $('#storagegroupDelModal').modal('show');
     });
     $('#confirmstoragegroupDeleteModal').on('click', function(e) {
@@ -283,6 +284,7 @@
     });
 
     imageHostRemoveBtn.on('click', function(e) {
+        e.preventDefault();
         $('#hostDelModal').modal('show');
     });
 

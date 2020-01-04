@@ -90,6 +90,7 @@ $(function() {
     });
 
     ouHostRemoveBtn.on('click', function(e) {
+        e.preventDefault();
         $('#hostDelModal').modal('show');
     });
 

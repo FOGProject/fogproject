@@ -90,6 +90,7 @@ $(function() {
     });
 
     accesscontrolRuleRemoveBtn.on('click', function(e) {
+        e.preventDefault();
         $('#ruleDelModal').modal('show');
     });
 
@@ -187,6 +188,7 @@ $(function() {
     });
 
     accesscontrolUserRemoveBtn.on('click', function(e) {
+        e.preventDefault();
         $('#userDelModal').modal('show');
     });
 

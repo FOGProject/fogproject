@@ -2013,7 +2013,7 @@ class HostManagement extends FOGPage
             'btn btn-info pull-right',
             $props
         );
-        echo '<div class="box box-info">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
         echo _('Host Default Printer');
@@ -2033,7 +2033,7 @@ class HostManagement extends FOGPage
             filter_input(INPUT_POST, 'level') ?:
             $this->obj->get('printerLevel')
         );
-        echo '<div class="box box-info">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
         echo _('Host Printer Configuration');
@@ -2718,7 +2718,7 @@ class HostManagement extends FOGPage
             'btn btn-outline pull-right',
             $props
         );
-        echo '<div class="box box-info">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
         echo _('Scheduled Power Management Tasks');
@@ -3473,8 +3473,12 @@ class HostManagement extends FOGPage
             'application/x-www-form-urlencoded',
             true
         );
-        echo '<!-- Inventory -->';
-        echo '<div class="box box-solid">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Host Inventory');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
@@ -3523,9 +3527,7 @@ class HostManagement extends FOGPage
             [],
             []
         ];
-        echo '<!-- Host Login History -->';
-        echo '<div class="box-group" id="loginhistory">';
-        echo '<div class="box box-solid">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
         echo _('Host Login History');
@@ -3533,7 +3535,6 @@ class HostManagement extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         $this->render(12, 'host-login-history-table');
-        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
@@ -3560,9 +3561,7 @@ class HostManagement extends FOGPage
             [],
             []
         ];
-        echo '<!-- Host Image History -->';
-        echo '<div class="box-group" id="imagehistory">';
-        echo '<div class="box box-solid">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
         echo _('Host Image History');
@@ -3570,7 +3569,6 @@ class HostManagement extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         $this->render(12, 'host-image-history-table');
-        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
@@ -3595,9 +3593,7 @@ class HostManagement extends FOGPage
             [],
             []
         ];
-        echo '<!-- Host Snapin History -->';
-        echo '<div class="box-group" id="snapinhistory">';
-        echo '<div class="box box-solid">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
         echo _('Host Snapin History');
@@ -3605,7 +3601,6 @@ class HostManagement extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         $this->render(12, 'host-snapin-history-table');
-        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
@@ -3802,18 +3797,6 @@ class HostManagement extends FOGPage
             case 'host-inventory':
                 $this->hostInventoryPost();
                 break;
-            case 'host-login-history':
-                $dte = filter_input(INPUT_POST, 'dte');
-                self::redirect(
-                    '../management/index.php?node='
-                    . $this->node
-                    . '&sub=edit&id='
-                    . $this->obj->get('id')
-                    . '&dte='
-                    . $dte
-                    . '#'
-                    . $tab
-                );
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

@@ -1581,9 +1581,13 @@ abstract class FOGPage extends FOGBase
         );
         $rendered = self::formFields($fields);
         unset($fields);
-        echo '<!-- Active Directory -->';
         if ($ownElement) {
-            echo '<div class="box box-solid">';
+            echo '<div class="box box-primary">';
+            echo '<div class="box-header with-border">';
+            echo '<h4 class="box-title">';
+            echo $this->childClass . ' ' . _('Active Directory');
+            echo '</h4>';
+            echo '</div>';
             echo self::makeFormTag(
                 'form-horizontal',
                 'active-directory-form',
