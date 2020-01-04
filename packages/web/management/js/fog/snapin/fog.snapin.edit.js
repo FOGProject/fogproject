@@ -383,6 +383,7 @@
                 snapinStoragegroupPrimarySelector.html('');
                 $.get(url, function(data) {
                     snapinStoragegroupPrimarySelector.html(data.content);
+                    snapinStoragegroupPrimaryUpdateBtn.prop('disabled', data.disablebtn);
                 }, 'json');
             });
         };

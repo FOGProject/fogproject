@@ -1330,6 +1330,7 @@
                 hostPrinterDefaultSelector.html('');
                 $.get(url, function(data) {
                     hostPrinterDefaultSelector.html(data.content);
+                    hostPrinterDefaultUpdateBtn.prop('disabled', data.disablebtn);
                 }, 'json');
             });
         };
