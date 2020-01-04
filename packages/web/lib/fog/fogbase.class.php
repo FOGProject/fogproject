@@ -2708,11 +2708,11 @@ abstract class FOGBase
         $pass = filter_input(INPUT_COOKIE, 'foguserauthpass');
         $sel = filter_input(INPUT_COOKIE, 'foguserauthsel');
         if (isset($id)) {
+            setcookie('foguserauthid', '');
             Route::delete(
                 'userauth',
                 $id
             );
-            setcookie('foguserauthid', '');
         }
         if (isset($pass)) {
             setcookie('foguserauthpass', '');
