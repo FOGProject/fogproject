@@ -5004,7 +5004,10 @@ class HostManagement extends FOGPage
         $printersAssigned = json_decode(Route::getData(), true);
         if (!count($printersAssigned ?: [])) {
             echo json_encode(
-                ['content' => _('No printers assigned to this host')]
+                [
+                    'content' => _('No printers assigned to this host'),
+                    'disablebtn' => true
+                ]
             );
             exit;
         }
@@ -5036,7 +5039,12 @@ class HostManagement extends FOGPage
             '',
             true
         );
-        echo json_encode(['content' => $printerSelector]);
+        echo json_encode(
+            [
+                'content' => $printerSelector,
+                'disablebtn' => false
+            ]
+        );
         exit;
     }
 }

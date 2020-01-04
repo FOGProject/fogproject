@@ -2228,7 +2228,10 @@ class GroupManagement extends FOGPage
         $printersAvail = json_decode(Route::getData(), true);
         if (!count($printersAvail ?: [])) {
             echo json_encode(
-                ['content' => _('No printers available to assign')]
+                [
+                    'content' => _('No printers available to assign'),
+                    'disablebtn' => true
+                ]
             );
             exit;
         }
@@ -2246,7 +2249,12 @@ class GroupManagement extends FOGPage
             '',
             true
         );
-        echo json_encode(['content' => $printerSelector]);
+        echo json_encode(
+            [
+                'content' => $printerSelector,
+                'disablebtn' => false
+            ]
+        );
         exit;
     }
     /**

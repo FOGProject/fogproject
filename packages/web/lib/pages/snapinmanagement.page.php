@@ -2130,7 +2130,10 @@ class SnapinManagement extends FOGPage
         $storagegroupsAssigned = json_decode(Route::getData(), true);
         if (!count($storagegroupsAssigned ?: [])) {
             echo json_encode(
-                ['content' => _('No storagegroups assigned to this snapin')]
+                [
+                    'content' => _('No storagegroups assigned to this snapin'),
+                    'disablebtn' => true
+                ]
             );
             exit;
         }
@@ -2162,7 +2165,12 @@ class SnapinManagement extends FOGPage
             '',
             true
         );
-        echo json_encode(['content' => $storagegroupSelector]);
+        echo json_encode(
+            [
+                'content' => $storagegroupSelector,
+                'disablebtn' => false
+            ]
+        );
         exit;
     }
 }

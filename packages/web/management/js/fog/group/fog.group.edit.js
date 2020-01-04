@@ -508,6 +508,7 @@
                 groupPrinterDefaultSelector.html('');
                 $.get(url, function(data) {
                     groupPrinterDefaultSelector.html(data.content);
+                    groupPrinterDefaultUpdateBtn.prop('disabled', data.disablebtn);
                 }, 'json');
             });
         };
