@@ -258,6 +258,7 @@
         Common.iCheck('#snapin-host-table input');
         $('#snapin-host-table input.associated').on('ifChanged', onSnapinHostCheckboxSelect);
         onHostSelect(snapinHostsTable.rows({selected: true}));
+        snapinStoragegroupsPrimarySelectorUpdate();
     });
 
     var onSnapinHostCheckboxSelect = function(e) {

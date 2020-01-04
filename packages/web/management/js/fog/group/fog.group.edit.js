@@ -493,6 +493,7 @@
 
     groupPrintersTable.on('draw', function() {
         onPrinterSelect(groupPrintersTable.rows({selected: true}));
+        groupPrinterDefaultSelectorUpdate();
     });
 
     // Default area
