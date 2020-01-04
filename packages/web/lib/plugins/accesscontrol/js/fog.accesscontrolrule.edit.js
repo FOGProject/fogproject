@@ -95,6 +95,7 @@ $(function() {
     });
 
     accesscontrolruleRoleRemoveBtn.on('click', function(e) {
+        e.preventDefault();
         $('#roleDelModal').modal('show');
     });
 

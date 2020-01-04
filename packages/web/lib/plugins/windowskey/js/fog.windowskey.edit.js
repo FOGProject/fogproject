@@ -142,9 +142,9 @@ $(function() {
         });
     });
 
-    imageRemoveBtn.on('click', function() {
+    imageRemoveBtn.on('click', function(e) {
+        e.preventDefault();
         $('#imageDelModal').modal('show');
-        disableImageButtons(true);
     });
     $('#confirmimageDeleteModal').on('click', function(e) {
         $.deleteAssociated(imagesTable, imageRemoveBtn.attr('action'), function(err) {

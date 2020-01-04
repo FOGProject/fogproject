@@ -25,7 +25,6 @@
  */
 class GroupManagement extends FOGPage
 {
-    private static $_common = [];
     /**
      * The node that uses this class
      *
@@ -43,50 +42,14 @@ class GroupManagement extends FOGPage
     {
         $this->name = 'Group Management';
         parent::__construct($this->name);
-        if ($this->obj) {
-            $this->_getHostCommon();
-        }
         $this->headerData = [
             _('Name'),
             _('Members')
         ];
         $this->attributes = [
             [],
-            ['width' => 5]
+            ['width' => 16]
         ];
-    }
-    /**
-     * Get host common items
-     *
-     * @return void
-     */
-    private function _getHostCommon()
-    {
-        $HostCount = $this->obj->getHostCount();
-        $hostids = $this->obj->get('hosts');
-        $getItems = [
-            'imageID',
-            'productKey',
-            'printerLevel',
-            'useAD',
-            'enforce',
-            'ADDomain',
-            'ADOU',
-            'ADUser',
-            'ADPass',
-            'biosexit',
-            'efiexit',
-        ];
-        foreach ($getItems as &$idField) {
-            $tmp = self::getClass('HostManager')
-                ->distinct(
-                    $idField,
-                    ['id' => $hostids]
-                );
-            self::$_common[] = (bool)($tmp == 1);
-            unset($idField);
-        }
-        self::$Host = new Host(@max($hostids));
     }
     /**
      * Create a new group.
@@ -435,40 +398,15 @@ class GroupManagement extends FOGPage
      */
     public function groupGeneral()
     {
-        list(
-            $imageIDs,
-            $groupKey,
-            $printerLevel,
-            $aduse,
-            $enforcetest,
-            $adDomain,
-            $adOU,
-            $adUser,
-            $adPass,
-            $biosExit,
-            $efiExit
-        ) = self::$_common;
         $exitNorm = Service::buildExitSelector(
             'bootTypeExit',
-            (
-                filter_input(INPUT_POST, 'bootTypeExit') ?: (
-                    $biosExit ?
-                    self::$Host->get('biosexit') :
-                    ''
-                )
-            ),
+            filter_input(INPUT_POST, 'bootTypeExit'),
             true,
             'bootTypeExit'
         );
         $exitEfi = Service::buildExitSelector(
             'efiBootTypeExit',
-            (
-                filter_input(INPUT_POST, 'efiBootTypeExit') ?: (
-                    $efiExit ?
-                    self::$Host->get('efiexit') :
-                    ''
-                )
-            ),
+            filter_input(INPUT_POST, 'efiBootTypeExit'),
             true,
             'efiBootTypeExit'
         );
@@ -480,77 +418,22 @@ class GroupManagement extends FOGPage
             filter_input(INPUT_POST, 'description') ?:
             $this->obj->get('description')
         );
-        $productKey = (
-            filter_input(INPUT_POST, 'key') ?: (
-                $groupKey ?
-                self::$Host->get('productKey') :
-                ''
-            )
-        );
-        $productKeytest = self::aesdecrypt($productKey);
-        $test_base64 = base64_decode($productKeytest);
-        $base64 = mb_detect_encoding(
-            $test_base64,
-            'utf-8',
-            true
-        );
-        $encKey = mb_detect_encoding(
-            $productKeyTest,
-            'utf-8',
-            true
-        );
-        if ($base64) {
-            $productKey = $test_base64;
-        } elseif ($encKey) {
-            $productKey = $productKeytest;
-        }
-        $kern = (
-            filter_input(INPUT_POST, 'kern') ?: (
-                $kern ?
-                self::$Host->get('kernel') :
-                $this->obj->get('kernel')
-            )
+        $productKey = filter_input(INPUT_POST, 'key');
+        $kernel = (
+            filter_input(INPUT_POST, 'kernel') ?:
+            $this->obj->get('kernel')
         );
         $args = (
-            filter_input(INPUT_POST, 'args') ?: (
-                self::$Host->get('kernelArgs') ?:
-                $this->obj->get('kernelArgs')
-            )
+            filter_input(INPUT_POST, 'args') ?:
+            $this->obj->get('kernelArgs')
         );
         $init = (
-            filter_input(INPUT_POST, 'init') ?: (
-                self::$Host->get('init') ?:
-                $this->obj->get('init')
-            )
+            filter_input(INPUT_POST, 'init') ?:
+            $this->obj->get('init')
         );
         $dev = (
-            filter_input(INPUT_POST, 'dev') ?: (
-                self::$Host->get('kernelDevice') ?:
-                $this->obj->get('kernelDevice')
-            )
-        );
-        $modalresetBtn = self::makeButton(
-            'resetencryptionConfirm',
-            _('Confirm'),
-            'btn btn-outline pull-right',
-            ' method="post" action="../management/index.php?sub=clearAES" '
-        );
-        $modalresetBtn .= self::makeButton(
-            'resetencryptionCancel',
-            _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
-        );
-        $modalreset = self::makeModal(
-            'resetencryptionmodal',
-            _('Reset Encryption Data'),
-            _(
-                'Resetting encryption data should only be done '
-                . 'if you re-installed the FOG Client or are using Debugger'
-            ),
-            $modalresetBtn,
-            '',
-            'warning'
+            filter_input(INPUT_POST, 'dev') ?:
+            $this->obj->get('kernelDevice')
         );
 
         $labelClass = 'col-sm-3 control-label';
@@ -599,15 +482,15 @@ class GroupManagement extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
-                'kern',
+                'kernel',
                 _('Group Kernel')
             ) => self::makeInput(
-                'form-control groupkern-input',
-                'kern',
+                'form-control groupkernel-input',
+                'kernel',
                 'customBzimage',
                 'text',
-                'kern',
-                $kern
+                'kernel',
+                $kernel
             ),
             self::makeLabel(
                 $labelClass,
@@ -686,6 +569,28 @@ class GroupManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
+        $modalresetBtn = self::makeButton(
+            'resetencryptionConfirm',
+            _('Confirm'),
+            'btn btn-outline pull-right',
+            ' method="post" action="../management/index.php?sub=clearAES" '
+        );
+        $modalresetBtn .= self::makeButton(
+            'resetencryptionCancel',
+            _('Cancel'),
+            'btn btn-outline pull-left'
+        );
+        $modalreset = self::makeModal(
+            'resetencryptionmodal',
+            _('Reset Encryption Data'),
+            _(
+                'Resetting encryption data should only be done '
+                . 'if you re-installed the FOG Client or are using Debugger'
+            ),
+            $modalresetBtn,
+            '',
+            'warning'
+        );
         echo self::makeFormTag(
             'form-horizontal',
             'group-general-form',
@@ -737,8 +642,8 @@ class GroupManagement extends FOGPage
             )
         );
         $productKey = substr($productKey, 0, 29);
-        $kern = trim(
-            filter_input(INPUT_POST, 'kern')
+        $kernel = trim(
+            filter_input(INPUT_POST, 'kernel')
         );
         $args = trim(
             filter_input(INPUT_POST, 'args')
@@ -764,7 +669,7 @@ class GroupManagement extends FOGPage
         $this->obj
             ->set('name', $group)
             ->set('description', $desc)
-            ->set('kernel', $kern)
+            ->set('kernel', $kernel)
             ->set('kernelArgs', $args)
             ->set('kernelDevice', $dev)
             ->set('init', $init);
@@ -775,12 +680,12 @@ class GroupManagement extends FOGPage
                 ['id' => $this->obj->get('hosts')],
                 '',
                 [
-                    'kernel' => $kern,
+                    'kernel' => $kernel,
                     'kernelArgs' => $args,
                     'kernelDevice' => $dev,
                     'init' => $init,
-                    'efiexit' => $ebte,
                     'biosexit' => $bte,
+                    'efiexit' => $ebte,
                     'productKey' => trim($productKey)
                 ]
             );
@@ -792,14 +697,16 @@ class GroupManagement extends FOGPage
      */
     public function groupImage()
     {
-        $imageID = (
-            self::$_common[0] ?
-            self::$Host->get('imageID') :
-            ''
-        );
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'group-image',
+                $this->obj->get('id')
+            )
+            . '" ';
+        $image = filter_input(INPUT_POST, 'image');
         // Group Images
         $imageSelector = self::getClass('ImageManager')
-            ->buildSelectBox($imageID, 'image');
+            ->buildSelectBox($image, 'image');
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -812,9 +719,10 @@ class GroupManagement extends FOGPage
         ];
 
         $buttons = self::makeButton(
-            'image-send',
+            'group-image-send',
             _('Update'),
-            'btn btn-primary pull-right'
+            'btn btn-primary pull-right',
+            $props
         );
 
         self::$HookManager->processEvent(
@@ -828,18 +736,12 @@ class GroupManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo self::makeFormTag(
-            'form-horizontal',
-            'group-image-form',
-            self::makeTabUpdateURL(
-                'group-image',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="box box-solid">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Group Image Association');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
         echo '</div>';
@@ -847,7 +749,6 @@ class GroupManagement extends FOGPage
         echo $buttons;
         echo '</div>';
         echo '</div>';
-        echo '</form>';
     }
     /**
      * Group image post element
@@ -856,10 +757,12 @@ class GroupManagement extends FOGPage
      */
     public function groupImagePost()
     {
-        $image = trim(
-            filter_input(INPUT_POST, 'image')
-        );
-        $this->obj->addImage($image);
+        if (isset($_POST['confirmimage'])) {
+            $image = trim(
+                filter_input(INPUT_POST, 'image')
+            );
+            $this->obj->addImage($image);
+        }
     }
     /**
      * Group active directory post element
@@ -993,45 +896,85 @@ class GroupManagement extends FOGPage
      */
     public function groupPrinters()
     {
-        $printerLevel = (
-            filter_input(INPUT_POST, 'level') ?: (
-                self::$_common[2] ?
-                self::$Host->get('printerLevel') :
-                0
-            )
-        );
-
+        // Printer Associations
+        $this->headerData = [
+            _('Printer Name')
+        ];
+        $this->attributes = [
+            []
+        ];
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
-                'group-printers',
+                'group-printer',
                 $this->obj->get('id')
             )
             . '" ';
-
-        echo '<!-- Printers -->';
-        echo '<div class="box-group" id="printers">';
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'printer-config-form',
-            self::makeTabUpdateURL(
-                'group-printers',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
+        $buttons = self::makeButton(
+            'group-printer-send',
+            _('Add selected'),
+            'btn btn-success pull-right',
+            $props
         );
-        echo '<div class="box box-info">';
+        $buttons .= self::makeButton(
+            'group-printer-remove',
+            _('Remove selected'),
+            'btn btn-danger pull-left',
+            $props
+        );
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
+        echo '<h4 class="box-title">';
+        echo _('Group Printer Assignment');
+        echo '</h4>';
+        echo '<p class="help-block">';
+        echo _('This will perform the action on all hosts in this group');
+        echo '</p>';
         echo '</div>';
+        echo '<div class="box-body">';
+        echo $this->render(12, 'group-printer-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('printer');
+        echo '</div>';
+        echo '</div>';
+
+        // DEFAULT Printer
+        $buttons = self::makeButton(
+            'group-printer-default-send',
+            _('Update'),
+            'btn btn-info pull-right',
+            $props
+        );
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Group Default Printer');
+        echo '</h4>';
+        echo '<p class="help-block">';
+        echo _('This will add and set '
+            . '(as needed) the default printer for all hosts in this group');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo '<span id="printerselector"></span>';
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
+
+        // =========================================================
+        // Printer Configuration
+        $printerLevel = filter_input(INPUT_POST, 'level');
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
         echo _('Group Printer Configuration');
         echo '</h4>';
+        echo '<p class="help-block">';
+        echo _('This will set the configuration level to all hosts in this group');
+        echo '</p>';
         echo '</div>';
-        echo '<div id="printerconf" class="">';
         echo '<div class="box-body">';
         echo '<div class="radio">';
         echo self::makeLabel(
@@ -1128,65 +1071,9 @@ class GroupManagement extends FOGPage
         echo self::makeButton(
             'printer-config-send',
             _('Update'),
-            'btn btn-primary pull-right'
-        );
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
-
-        $buttons = '<div class="btn-group pull-right">';
-        $buttons .= self::makeButton(
-            'printer-add',
-            _('Add selected'),
-            'btn btn-success',
+            'btn btn-primary pull-right',
             $props
         );
-        $buttons .= self::makeButton(
-            'printer-default',
-            _('Update default'),
-            'btn btn-primary',
-            $props
-        );
-        $buttons .= '</div>';
-        $buttons .= self::makeButton(
-            'printer-remove',
-            _('Remove selected'),
-            'btn btn-danger pull-left',
-            $props
-        );
-        $this->headerData = [
-            _('Default'),
-            _('Printer Alias'),
-            _('Printer Type')
-        ];
-        $this->attributes = [
-            ['width' => '5'],
-            [],
-            []
-        ];
-        echo '<div class="box box-primary">';
-        echo '<div class="box-header with-border">';
-        echo '<div class="box-tools pull-right">';
-        echo self::$FOGCollapseBox;
-        echo '</div>';
-        echo '<h4 class="box-title">';
-        echo _('Update/Remove printers');
-        echo '</h4>';
-        echo '<div>';
-        echo '<p class="help-block">';
-        echo _('Changes will automatically be saved');
-        echo '</p>';
-        echo '</div>';
-        echo '</div>';
-        echo '<div id="updateprinters" class="">';
-        echo '<div class="box-body">';
-        $this->render(12, 'group-printers-table', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        echo $this->assocDelModal('printer');
-        echo '</div>';
-        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
@@ -1197,37 +1084,19 @@ class GroupManagement extends FOGPage
      */
     public function groupPrinterPost()
     {
-        if (isset($_POST['levelup'])) {
-            $level = filter_input(INPUT_POST, 'level');
-            self::getClass('HostManager')
-                ->update(
-                    ['id' => $this->get('hosts')],
-                    '',
-                    ['printerLevel' => $level]
-                );
-        }
-        if (isset($_POST['updateprinters'])) {
+        if (isset($_POST['confirmadd'])) {
             $printers = filter_input_array(
                 INPUT_POST,
                 [
-                    'printer' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $printers = $printers['printer'];
+            $printers = $printers['additems'];
             if (count($printers ?: []) > 0) {
                 $this->obj->addPrinter($printers);
             }
-        }
-        if (isset($_POST['defaultsel'])) {
-            $this->obj->updateDefault(
-                filter_input(
-                    INPUT_POST,
-                    'default'
-                ),
-                isset($_POST['default'])
-            );
         }
         if (isset($_POST['confirmdel'])) {
             $printers = filter_input_array(
@@ -1243,6 +1112,24 @@ class GroupManagement extends FOGPage
                 $this->obj->removePrinter($printers);
             }
         }
+        if (isset($_POST['confirmdefault'])) {
+            $default = filter_input(INPUT_POST, 'default');
+            $this->obj->addPrinter($default);
+            $this->obj->updateDefault(
+                filter_input(
+                    INPUT_POST,
+                    'default'
+                )
+            );
+        }
+        if (isset($_POST['confirmlevelup'])) {
+            $level = filter_input(INPUT_POST, 'level');
+            self::getClass('HostManager')->update(
+                ['id' => $this->get('hosts')],
+                '',
+                ['printerLevel' => $level]
+            );
+        }
     }
     /**
      * Group snapins.
@@ -1251,52 +1138,44 @@ class GroupManagement extends FOGPage
      */
     public function groupSnapins()
     {
+        $this->headerData = [
+            _('Snapin Name')
+        ];
+        $this->attributes = [
+            []
+        ];
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
-                'group-snapins',
+                'group-snapin',
                 $this->obj->get('id')
             )
             . '" ';
-
         $buttons = self::makeButton(
-            'snapins-add',
+            'group-snapin-send',
             _('Add selected'),
-            'btn btn-primary pull-right',
+            'btn btn-success pull-right',
             $props
         );
         $buttons .= self::makeButton(
-            'snapins-remove',
+            'group-snapin-remove',
             _('Remove selected'),
             'btn btn-danger pull-left',
             $props
         );
-
-        $this->headerData = [
-            _('Snapin Name'),
-            _('Snapin Created')
-        ];
-        $this->attributes = [
-            [],
-            []
-        ];
-
-        echo '<!-- Snapins -->';
-        echo '<div class="box-group" id="snapins">';
-
-        echo '<div class="box box-solid">';
+        echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
-        echo _('Group Snapins');
+        echo _('Group Snapin Assignment');
         echo '</h4>';
+        echo '<p class="help-block">';
+        echo _('This will perform the action on all hosts in this group');
+        echo '</p>';
         echo '</div>';
-        echo '<div id="updatesnapins" class="">';
         echo '<div class="box-body">';
-        $this->render(12, 'group-snapins-table', $buttons);
+        echo $this->render(12, 'group-snapin-table', $buttons);
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $this->assocDelModal('snapin');
-        echo '</div>';
-        echo '</div>';
         echo '</div>';
         echo '</div>';
     }
@@ -1307,16 +1186,16 @@ class GroupManagement extends FOGPage
      */
     public function groupSnapinPost()
     {
-        if (isset($_POST['updatesnapins'])) {
+        if (isset($_POST['confirmadd'])) {
             $snapins = filter_input_array(
                 INPUT_POST,
                 [
-                    'snapin' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $snapins = $snapins['snapin'];
+            $snapins = $snapins['additems'];
             if (count($snapins ?: []) > 0) {
                 $this->obj->addSnapin($snapins);
             }
@@ -1341,7 +1220,7 @@ class GroupManagement extends FOGPage
      *
      * @return void
      */
-    public function groupService()
+    public function groupModules()
     {
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
@@ -1587,8 +1466,7 @@ class GroupManagement extends FOGPage
 
         // Hostname changer reboot/domain join reboot forced.
         $enforce = (
-            filter_input(INPUT_POST, 'enforce') ?:
-            self::$Host->get('enforce')
+            filter_input(INPUT_POST, 'enforce')
         );
 
         $fields = [
@@ -1686,7 +1564,7 @@ class GroupManagement extends FOGPage
      *
      * @return void
      */
-    public function groupServicePost()
+    public function groupModulePost()
     {
         if (isset($_POST['enablemodulessel'])) {
             $enablemodules = filter_input_array(
@@ -1913,52 +1791,6 @@ class GroupManagement extends FOGPage
      */
     public function edit()
     {
-        list(
-            $imageIDs,
-            $groupKey,
-            $printerLevel,
-            $aduse,
-            $enforcetest,
-            $adDomain,
-            $adOU,
-            $adUser,
-            $adPass,
-            $biosExit,
-            $efiExit
-        ) = self::$_common;
-        self::$HookManager->processEvent(
-            'GROUP_COMMON_HOOK',
-            ['common' => &self::$_common]
-        );
-        $hostids = $this->obj->get('hosts');
-        self::$Host = new Host(@max($hostids));
-        $useAD = (
-            $aduse ?
-            self::$Host->get('useAD') :
-            ''
-        );
-        $ADDomain = (
-            $adDomain ?
-            self::$Host->get('ADDomain') :
-            ''
-        );
-        $ADOU = (
-            $adOU ?
-            self::$Host->get('ADOU') :
-            ''
-        );
-        $ADUser = (
-            $adUser ?
-            self::$Host->get('ADUser') :
-            ''
-        );
-        $adPass = (
-            $adPass ?
-            '********************************' :
-            ''
-        );
-        $ADPass = $adPass;
-
         $this->title = sprintf(
             '%s: %s',
             _('Edit'),
@@ -2000,22 +1832,22 @@ class GroupManagement extends FOGPage
                 'name' => _('Associations'),
                 'tabData' => [
                     [
-                        'name' => _('Hosts'),
+                        'name' => _('Host Associations'),
                         'id' => 'group-host',
                         'generator' => function () {
                             $this->groupHosts();
                         }
                     ],
                     [
-                        'name' => _('Printers'),
-                        'id' => 'group-printers',
+                        'name' => _('Printer Associations'),
+                        'id' => 'group-printer',
                         'generator' => function () {
                             $this->groupPrinters();
                         }
                     ],
                     [
-                        'name' => _('Snapins'),
-                        'id' => 'group-snapins',
+                        'name' => _('Snapin Associations'),
+                        'id' => 'group-snapin',
                         'generator' => function () {
                             $this->groupSnapins();
                         }
@@ -2030,10 +1862,10 @@ class GroupManagement extends FOGPage
                 'name' => _('Service Settings'),
                 'tabData' => [
                     [
-                        'name' => _('Client Module Settings'),
-                        'id' => 'group-service',
+                        'name' => _('Client Settings'),
+                        'id' => 'group-module',
                         'generator' => function () {
-                            $this->groupService();
+                            $this->groupModules();
                         }
                     ],
                     [
@@ -2069,7 +1901,121 @@ class GroupManagement extends FOGPage
             }
         ];
 
+        // History Items
+        $tabData[] = [
+            'tabs' => [
+                'name' => _('History Items'),
+                'tabData' => [
+                    [
+                        'name' => _('Login History'),
+                        'id' => 'group-login-history',
+                        'generator' => function() {
+                            echo 'TODO: Make Functional';
+                            //$this->groupLoginHistory();
+                        }
+                    ],
+                    [
+                        'name' => _('Imaging History'),
+                        'id' => 'group-imaging-history',
+                        'generator' => function() {
+                            echo 'TODO: Make Functional';
+                            //$this->groupImageHistory();
+                        }
+                    ],
+                    [
+                        'name' => _('Snapin History'),
+                        'id' => 'group-snapin-history',
+                        'generator' => function() {
+                            echo 'TODO: Make Functional';
+                            //$this->groupSnapinHistory();
+                        }
+                    ]
+                ]
+            ]
+        ];
+
         echo self::tabFields($tabData, $this->obj);
+    }
+    /**
+     * Submit the edit function.
+     *
+     * @return void
+     */
+    public function editPost()
+    {
+        header('Content-type: appication/json');
+        self::$HookManager->processEvent(
+            'GROUP_EDIT_POST',
+            ['Group' => &$this->obj]
+        );
+        $serverFault = false;
+        try {
+            global $tab;
+            switch ($tab) {
+            case 'group-general':
+                $this->groupGeneralPost();
+                break;
+            case 'group-image':
+                $this->groupImagePost();
+                break;
+            case 'group-active-directory':
+                $this->groupADPost();
+                break;
+            case 'group-powermanagement':
+                $this->groupPowermanagementPost();
+                break;
+            case 'group-host':
+                $this->groupHostPost();
+                break;
+            case 'group-printer':
+                $this->groupPrinterPost();
+                break;
+            case 'group-snapin':
+                $this->groupSnapinPost();
+                break;
+            case 'group-module':
+                $this->groupModulePost();
+                break;
+            }
+            if (!$this->obj->save()) {
+                $serverFault = true;
+                throw new Exception(_('Group update failed!'));
+            }
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            $hook = 'GROUP_EDIT_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Group updated!'),
+                    'title' => _('Group Update Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'GROUP_EDIT_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Group Update Fail')
+                ]
+            );
+        }
+        self::$HookManager->processEvent(
+            $hook,
+            [
+                'Group' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ]
+        );
+        http_response_code($code);
+        echo $msg;
+        exit;
     }
     /**
      * Display inventory page, separated as groups can contain
@@ -2228,87 +2174,6 @@ class GroupManagement extends FOGPage
         echo '</div>';
     }
     /**
-     * Submit the edit function.
-     *
-     * @return void
-     */
-    public function editPost()
-    {
-        header('Content-type: appication/json');
-        self::$HookManager->processEvent(
-            'GROUP_EDIT_POST',
-            ['Group' => &$this->obj]
-        );
-
-        $serverFault = false;
-        try {
-            global $tab;
-            switch ($tab) {
-            case 'group-general':
-                $this->groupGeneralPost();
-                break;
-            case 'group-image':
-                $this->groupImagePost();
-                break;
-            case 'group-active-directory':
-                $this->groupADPost();
-                break;
-            case 'group-host':
-                $this->groupHostPost();
-                break;
-            case 'group-printers':
-                $this->groupPrinterPost();
-                break;
-            case 'group-snapins':
-                $this->groupSnapinPost();
-                break;
-            case 'group-service':
-                $this->groupServicePost();
-                break;
-            case 'group-powermanagement':
-                $this->groupPowermanagementPost();
-            }
-            if (!$this->obj->save()) {
-                $serverFault = true;
-                throw new Exception(_('Group update failed!'));
-            }
-            $code = HTTPResponseCodes::HTTP_ACCEPTED;
-            $hook = 'GROUP_EDIT_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Group updated!'),
-                    'title' => _('Group Update Success')
-                ]
-            );
-        } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $hook = 'GROUP_EDIT_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Group Update Fail')
-                ]
-            );
-        }
-        self::$HookManager->processEvent(
-            $hook,
-            [
-                'Group' => &$this->obj,
-                'hook' => &$hook,
-                'code' => &$code,
-                'msg' => &$msg,
-                'serverFault' => &$serverFault
-            ]
-        );
-        http_response_code($code);
-        echo $msg;
-        exit;
-    }
-    /**
      * Presents the hosts list table.
      *
      * @return void
@@ -2343,6 +2208,45 @@ class GroupManagement extends FOGPage
     {
         Route::listem('printer');
         echo Route::getData();
+        exit;
+    }
+    /**
+     * Presents the selector for groups
+     *
+     * @return void
+     */
+    public function getPrintersSelect()
+    {
+        header('Content-tyep: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        $printerID = trim(filter_input(INPUT_GET, 'printerID'));
+
+        Route::ids('printer');
+        $printersAvail = json_decode(Route::getData(), true);
+        if (!count($printersAvail ?: [])) {
+            echo json_encode(
+                ['content' => _('No printers available to assign')]
+            );
+            exit;
+        }
+        Route::names('printer');
+        $printerNames = json_decode(Route::getData());
+        foreach ($printerNames as &$printer) {
+            $printers[$printer->id] = $printer->name;
+            unset($printer);
+        }
+        $printerSelector = self::selectForm(
+            'printer',
+            $printers,
+            $printerID,
+            true,
+            '',
+            true
+        );
+        echo json_encode(['content' => $printerSelector]);
         exit;
     }
     /**

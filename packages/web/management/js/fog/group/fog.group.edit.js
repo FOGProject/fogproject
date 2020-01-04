@@ -8,14 +8,8 @@
             text = text.replace(': ' + originalName, ': ' + newName);
             document.title = text;
             e.text(text);
-        };
-
-    // Mask for product key.
-    $('#key').inputmask({mask: Common.masks.productKey});
-
-    // ---------------------------------------------------------------
-    // GENERAL TAB
-    var generalForm = $('#group-general-form'),
+        },
+        generalForm = $('#group-general-form'),
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
         generalDeleteModal = $('#deleteModal'),
@@ -26,6 +20,11 @@
         resetEncryptionCancelBtn = $('#resetencryptionCancel'),
         resetEncryptionConfirmBtn = $('#resetencryptionConfirm');
 
+    // Mask for product key.
+    $('#key').inputmask({mask: Common.masks.productKey});
+
+    // ---------------------------------------------------------------
+    // GENERAL TAB
     generalForm.on('submit',function(e) {
         e.preventDefault();
     });
@@ -93,6 +92,32 @@
                 return;
             }
             resetEncryptionModal.modal('hide');
+        });
+    });
+
+    // Group Image
+    var groupImageUpdateBtn = $('#group-image-send');
+
+    function disableImageButtons(disable) {
+        groupImageUpdateBtn.prop('disabled', disable);
+    }
+
+    groupImageUpdateBtn.on('click', function(e) {
+        console.log('here');
+        e.preventDefault();
+        disableImageButtons(true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            image = $('#image option:selected').val(),
+            opts = {
+                confirmimage: 1,
+                image: image
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableImageButtons(false);
+            if (err) {
+                return;
+            }
         });
     });
 
@@ -204,6 +229,7 @@
         });
     });
 
+    // FOG CLIENT AREA
     // ---------------------------------------------------------------
     // ACTIVE DIRECTORY TAB
     var ADForm = $('#active-directory-form'),
@@ -246,9 +272,17 @@
         e.preventDefault();
     });
     ADFormBtn.on('click',function() {
-        ADForm.processForm();
+        ADFormBtn.prop('disabled', true);
+        ADClearBtn.prop('disabled', true);
+        ADForm.processForm(function(err) {
+            ADFormBtn.prop('disabled', false);
+            ADClearBtn.prop('disabled', false);
+        });
     });
     ADClearBtn.on('click',function() {
+        ADClearBtn.prop('disabled', true);
+        ADFormBtn.prop('disabled', true);
+
         var restoreMap = [];
         ADForm.find('input[type="text"], input[type="password"], textarea').each(function(i, e) {
             restoreMap.push({checkbox: false, e: e, val: $(e).val()});
@@ -265,6 +299,8 @@
         ADForm.find('input[type=checkbox]').iCheck('uncheck');
 
         ADForm.processForm(function(err) {
+            ADClearBtn.prop('disabled', false);
+            ADFormBtn.prop('disabled', false);
             for (var i = 0; i < restoreMap.length; i++) {
                 field = restoreMap[i];
                 if (field.checkbox) {
@@ -279,8 +315,6 @@
                     $(field.e).prop('disabled', false);
                 }
             }
-            ADClearBtn.prop('disabled', false);
-            ADFormBtn.prop('disabled', false);
         });
     });
 
@@ -322,6 +356,7 @@
     });
 
     groupHostRemoveBtn.on('click', function(e) {
+        e.preventDefault();
         $('#hostDelModal').modal('show');
     });
 
@@ -387,244 +422,210 @@
 
     // ---------------------------------------------------------------
     // PRINTER TAB
-    var printerConfigForm = $('#printer-config-form'),
-        printerConfigBtn = $('#printer-config-send'),
-        printerAddBtn = $('#printer-add'),
-        printerDefaultBtn = $('#printer-default'),
-        printerRemoveBtn = $('#printer-remove'),
-        DEFAULT_PRINTER_ID = -1;
+    //
+    // Association Area
+    var groupPrinterUpdateBtn = $('#group-printer-send'),
+        groupPrinterRemoveBtn = $('#group-printer-remove'),
+        groupPrinterDeleteConfirmBtn = $('#confirmprinterDeleteModal');
 
-    printerAddBtn.prop('disabled', true);
-    printerRemoveBtn.prop('disabled', true);
-
-    function onPrintersSelect (selected) {
-        var disabled = selected.count() == 0;
-        printerAddBtn.prop('disabled', disabled);
-        printerRemoveBtn.prop('disabled', disabled);
+    function disablePrinterButtons(disable) {
+        groupPrinterUpdateBtn.prop('disabled', disable);
+        groupPrinterRemoveBtn.prop('disabled', disable);
     }
 
-    var printersTable = $('#group-printers-table').registerTable(onPrintersSelect, {
+    function onPrinterSelect(selected) {
+        var disabled = selected.count() == 0;
+        disablePrinterButtons(disabled);
+    }
+
+    groupPrinterUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = groupPrintersTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(groupPrintersTable),
+            opts = {
+                confirmadd: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disablePrinterButtons(false);
+            if (err) {
+                return;
+            }
+            setTimeout(groupPrinterDefaultSelectorUpdate, 1000);
+        });
+    });
+
+    groupPrinterRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#printerDelModal').modal('show');
+    });
+
+    var groupPrintersTable = $('#group-printer-table').registerTable(onPrinterSelect, {
         order: [
-            [1, 'asc']
+            [0, 'asc']
         ],
         columns: [
-            {data: 'isDefault'},
-            {data: 'name'},
-            {data: 'config'}
+            {data: 'mainlink'}
         ],
         rowId: 'id',
-        columnDefs: [
-            {
-                responsivePriority: -1,
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.isDefault) {
-                        checkval = ' checked';
-                    }
-                    return '<div class="radio">'
-                        + '<input belongsto="defaultPrinters" type="radio" class="default" name="default" id="printer_'
-                        + row.id
-                        + '" value="' + row.id + '"'
-                        + ' wasoriginaldefault="'
-                        + checkval
-                        + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>'
-                },
-                targets: 0,
-            },
-            {
-                responsivePriority: 0,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=printer&sub=edit&id='
-                        + row.id
-                        + '">'
-                        + data
-                        + '</a>';
-                },
-                targets: 1
-            },
-            {
-                render: function(data, type, row) {
-                    return row.config == 'Local' ? 'TCP/IP' : row.config;
-                },
-                targets: 2
-            },
-        ],
         processing: true,
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
-            + Common.node
-            + '&sub=getPrintersList&id='
-            + Common.id,
+                + Common.node
+                + '&sub=getPrintersList&id='
+                + Common.id,
             type: 'post'
         }
     });
 
-    printersTable.on('draw', function() {
-        Common.iCheck('#group-printers input');
-        $('.default').on('ifClicked', onRadioSelect);
+    groupPrinterDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(groupPrintersTable, groupPrinterUpdateBtn.attr('action'), function(err) {
+            $('#printerDelModal').modal('hide');
+            if (err) {
+                return;
+            }
+            setTimeout(groupPrinterDefaultSelectorUpdate, 1000);
+        });
     });
 
-    var onRadioSelect = function(event) {
-        if ($(this).attr('belongsto') === 'defaultPrinters') {
-            var id = parseInt($(this).val());
-            if (DEFAULT_PRINTER_ID === -1
-                && $(this).attr('wasoriginaldefault') === ' checked'
-            ) {
-                DEFAULT_PRINTER_ID = id;
-            }
-            if (id === DEFAULT_PRINTER_ID) {
-                $(this).iCheck('uncheck');
-                DEFAULT_PRINTER_ID = 0;
-            } else {
-                DEFAULT_PRINTER_ID = id;
-            }
-            printerDefaultBtn.prop('disabled', false);
-        }
-    };
+    groupPrintersTable.on('draw', function() {
+        onPrinterSelect(groupPrintersTable.rows({selected: true}));
+    });
 
-    // Setup default printer watcher
-    $('.default').on('ifClicked', onRadioSelect);
+    // Default area
+    var groupPrinterDefaultUpdateBtn = $('#group-printer-default-send'),
+        groupPrinterDefaultSelector = $('#printerselector'),
+        groupPrinterDefaultSelectorUpdate = function() {
+            var url = '../management/index.php?node='
+                + Common.node
+                + '&sub=getPrintersSelect&printerID='
+                + $('#printer option:selected').val();
+            Pace.ignore(function() {
+                groupPrinterDefaultSelector.html('');
+                $.get(url, function(data) {
+                    groupPrinterDefaultSelector.html(data.content);
+                }, 'json');
+            });
+        };
 
-    printerDefaultBtn.on('click', function() {
-        printerAddBtn.prop('disabled', true);
-        printerRemoveBtn.prop('disabled', true);
+    function disablePrinterDefaultButtons(disable) {
+        groupPrinterDefaultUpdateBtn.prop('disabled', disable);
+    }
 
-        var method = printerDefaultBtn.attr('method'),
-            action = printerDefaultBtn.attr('action'),
+    groupPrinterDefaultSelectorUpdate();
+
+    groupPrinterDefaultUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
             opts = {
-                defaultsel: 1,
-                'default': DEFAULT_PRINTER_ID
+                confirmdefault: 1,
+                default: $('#printer option:selected').val()
             };
         $.apiCall(method,action,opts,function(err) {
-            printerDefaultBtn.prop('disabled', !err);
-            onPrintersSelect(printersTable.rows({selected: true}));
+            disablePrinterDefaultButtons(false);
+            if (err) {
+                return;
+            }
         });
     });
 
-    printerConfigForm.serialize2 = printerConfigForm.serialize;
-    printerConfigForm.serialize = function() {
-        return printerConfigForm.serialize2() + '&levelup';
-    };
-    printerConfigForm.on('submit',function(e) {
+    // Config area
+    var groupPrinterConfigBtn = $('#printer-config-send');
+
+    groupPrinterConfigBtn.on('click', function(e) {
         e.preventDefault();
-    });
-    printerConfigBtn.on('click', function() {
-        printerConfigForm.processForm();
-    });
-    printerAddBtn.on('click', function() {
-        var method = printerAddBtn.attr('method'),
-            action = printerAddBtn.attr('action'),
-            rows = printersTable.rows({selected: true}),
-            toAdd = $.getSelectedIds(printersTable),
+        groupPrinterConfigBtn.prop('disabled', true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
             opts = {
-                updateprinters: 1,
-                printer: toAdd
+                confirmlevelup: 1,
+                level: $('.checked input[name="level"]').val()
             };
-
-        $.apiCall(method, action, opts, function(err) {
+        $.apiCall(method,action,opts,function(err) {
+            groupPrinterConfigBtn.prop('disabled', false);
             if (err) {
                 return;
             }
-            printersTable.draw(false);
-            printersTable.rows({selected: true}).deselect();
-        });
-    });
-
-    printerRemoveBtn.on('click', function() {
-        $('#printerDelModal').modal('show');
-    });
-    $('#confirmprinterDeleteModal').on('click', function(e) {
-        $.deleteAssociated(printersTable, printerRemoveBtn.attr('action'), function(err) {
-            if (err) {
-                return;
-            }
-            $('#printerDelModal').modal('hide');
         });
     });
 
     // ---------------------------------------------------------------
     // SNAPINS TAB
-    var snapinsAddBtn = $('#snapins-add'),
-        snapinsRemoveBtn = $('#snapins-remove');
+    var groupSnapinUpdateBtn = $('#group-snapin-send'),
+        groupSnapinRemoveBtn = $('#group-snapin-remove'),
+        groupSnapinDeleteConfirmBtn = $('#confirmsnapinDeleteModal');
 
-    snapinsAddBtn.prop('disabled', true);
-    snapinsRemoveBtn.prop('disabled', true);
-
-    function onSnapinSelect (selected) {
-        var disabled = selected.count() == 0;
-        snapinsAddBtn.prop('disabled', disabled);
-        snapinsRemoveBtn.prop('disabled', disabled);
+    function disableSnapinButtons(disable) {
+        groupSnapinUpdateBtn.prop('disabled', disable);
+        groupSnapinRemoveBtn.prop('disabled', disable);
     }
 
-    var snapinsTable = $('#group-snapins-table').registerTable(onSnapinSelect, {
+    function onSnapinSelect(selected) {
+        var disabled = selected.count() == 0;
+        disableSnapinButtons(disabled);
+    }
+
+    groupSnapinUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = groupSnapinsTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(groupSnapinsTable),
+            opts = {
+                confirmadd: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableSnapinButtons(false);
+            if (err) {
+                return;
+            }
+            groupSnapinsTable.draw(false);
+            groupSnapinsTable.rows({selected: true}).deselect();
+        });
+    });
+
+    groupSnapinRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#snapinDelModal').modal('show');
+    });
+
+    var groupSnapinsTable = $('#group-snapin-table').registerTable(onSnapinSelect, {
+        order: [
+            [0, 'asc']
+        ],
         columns: [
-            {data: 'name'},
-            {data: 'createdTime'}
+            {data: 'mainlink'}
         ],
         rowId: 'id',
-        columnDefs: [
-            {
-                responsivePriority: -1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=snapin&sub=edit&id='
-                        + row.id
-                        + '">'
-                        + data
-                        + '</a>';
-                },
-                targets: 0
-            }
-        ],
         processing: true,
         serverSide: true,
         ajax: {
             url: '../management/index.php?node='
-            + Common.node
-            + '&sub=getSnapinsList&id='
-            + Common.id,
+                + Common.node
+                + '&sub=getSnapinsList&id='
+                + Common.id,
             type: 'post'
         }
     });
-    snapinsTable.on('draw', function() {
-        Common.iCheck('#group-snapins-table input');
-    });
 
-    snapinsAddBtn.on('click', function() {
-        var method = snapinsAddBtn.attr('method'),
-            action = snapinsAddBtn.attr('action'),
-            rows = snapinsTable.rows({selected: true}),
-            toAdd = $.getSelectedIds(snapinsTable),
-            opts = {
-                updatesnapins: 1,
-                snapin: toAdd
-            };
-        $.apiCall(method, action, opts, function(err) {
-            if (err) {
-                return;
-            }
-            snapinsTable.draw(false);
-            snapinsTable.rows({selected: true}).deselect();
-        });
-    });
-
-    snapinsRemoveBtn.on('click', function() {
-        snapinsAddBtn.prop('disabled', true);
-        snapinsRemoveBtn.prop('disabled', true);
-        $('#snapinDelModal').modal('show');
-    });
-    $('#confirmsnapinDeleteModal').on('click', function(e) {
-        $.deleteAssociated(snapinsTable, snapinsRemoveBtn.attr('action'), function(err) {
-            if (err) {
-                snapinsAddBtn.prop('disabled', false);
-                snapinsRemoveBtn.prop('disabled', false);
-                return;
-            }
+    groupSnapinDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(groupSnapinsTable, groupSnapinUpdateBtn.attr('action'), function(err) {
             $('#snapinDelModal').modal('hide');
+            if (err) {
+                return;
+            }
+            groupSnapinsTable.draw(false);
+            groupSnapinsTable.rows({selected: true}).deselect();
         });
+    });
+
+    groupSnapinsTable.on('draw', function() {
+        onSnapinSelect(groupSnapinsTable.rows({selected: true}));
     });
 
     // ---------------------------------------------------------------
@@ -903,8 +904,8 @@
     });
     if (Common.search && Common.search.length > 0) {
         groupHostsTable.search(Common.search).draw();
-        printersTable.search(Common.search).draw();
-        snapinsTable.search(Common.search).draw();
+        groupPrintersTable.search(Common.search).draw();
+        groupSnapinsTable.search(Common.search).draw();
         modulesTable.search(Common.search).draw();
     }
 })(jQuery)

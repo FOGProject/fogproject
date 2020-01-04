@@ -89,6 +89,7 @@ $(function() {
     });
 
     siteHostRemoveBtn.on('click', function(e) {
+        e.preventDefault();
         $('#hostDelModal').modal('show');
     });
 
@@ -189,6 +190,7 @@ $(function() {
     });
 
     siteUserRemoveBtn.on('click', function(e) {
+        e.preventDefault();
         $('#userDelModal').modal('show');
     });
 

@@ -154,10 +154,11 @@ class Group extends FOGController
      */
     public function removePrinter($removeArray)
     {
-        self::getClass('PrinterAssociationManager')->destroy(
+        Route::deletemass(
+            'printerassociation',
             [
-                'hostID' => $this->get('hosts'),
-                'printerID' => $removeArray
+                'printerID' => $removeArray,
+                'hostID' => $this->get('hosts')
             ]
         );
         return $this;
@@ -166,27 +167,43 @@ class Group extends FOGController
      * Updates the default printer
      *
      * @param int   $printerid the printer id to update
-     * @param mixed $onoff     whether to enable or disable
      *
      * @return object
      */
-    public function updateDefault($printerid, $onoff)
+    public function updateDefault($printerid)
     {
-        self::getClass('PrinterAssociationManager')
-            ->update(
-                ['hostID' => $this->get('hosts')],
-                '',
-                ['isDefault' => 0]
-            );
+        Route::ids(
+            'printerassociation',
+            ['hostID' => $this->get('hosts')],
+            'printerID'
+        );
+        $printers = json_decode(Route::getData(), true);
+        $printers = array_diff(
+            $printers,
+            [$printerid]
+        );
         self::getClass('PrinterAssociationManager')
             ->update(
                 [
+                    'printerID' => $printers,
                     'hostID' => $this->get('hosts'),
-                    'printerID' => $printerid
+                    'isDefault' => '1'
                 ],
                 '',
-                ['isDefault' => $onoff]
+                ['isDefault' => 0]
             );
+        if ($printerid) {
+            self::getClass('PrinterAssociationManager')
+                ->update(
+                    [
+                        'printerID' => $printerid,
+                        'hostID' => $this->get('hosts'),
+                        'isDefault' => ['0', '']
+                    ],
+                    '',
+                    ['isDefault' => 1]
+                );
+        }
         return $this;
     }
     /**
@@ -236,14 +253,13 @@ class Group extends FOGController
      */
     public function removeSnapin($removeArray)
     {
-        self::getClass('SnapinAssociationManager')
-            ->destroy(
-                [
-                    'hostID' => $this->get('hosts'),
-                    'snapinID' => $removeArray,
-                ]
-            );
-
+        Route::deletemass(
+            'snapinassociation',
+            [
+                'snapinID' => $removeArray,
+                'hostID' => $this->get('hosts')
+            ]
+        );
         return $this;
     }
     /**

@@ -699,18 +699,22 @@
         ADForm.find('input[type=checkbox]').iCheck('uncheck');
 
         ADForm.processForm(function(err) {
+            ADClearBtn.prop('disabled', false);
+            ADFormBtn.prop('disabled', false);
             for (var i = 0; i < restoreMap.length; i++) {
                 field = restoreMap[i];
                 if (field.checkbox) {
-                    if (err) $(field.e).iCheck((field.val ? 'check' : 'uncheck'));
+                    if (err) {
+                        $(field.e).iCheck((field.val ? 'check' : 'uncheck'));
+                    }
                     $(field.e).iCheck('enable');
                 } else {
-                    if (err) $(field.e).val(field.val);
+                    if (err) {
+                        $(field.e).val(field.val);
+                    }
                     $(field.e).prop('disabled', false);
                 }
             }
-            ADClearBtn.prop('disabled', false);
-            ADFormBtn.prop('disabled', false);
         });
     });
 
@@ -750,6 +754,11 @@
             hostModulesTable.draw(false);
             hostModulesTable.rows({selected: true}).deselect();
         })
+    });
+
+    hostModuleRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#moduleDelModal').modal('show');
     });
 
     var hostModulesTable = $('#host-module-table').registerTable(onModuleSelect, {
@@ -1137,6 +1146,11 @@
         })
     });
 
+    hostGroupRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#groupDelModal').modal('show');
+    });
+
     var hostGroupsTable = $('#host-group-table').registerTable(onGroupSelect, {
         order: [
             [1, 'asc'],
@@ -1234,6 +1248,11 @@
             hostPrintersTable.rows({selected: true}).deselect();
             setTimeout(hostPrinterDefaultSelectorUpdate, 1000);
         });
+    });
+
+    hostPrinterRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#printerDelModal').modal('show');
     });
 
     var hostPrintersTable = $('#host-printer-table').registerTable(onPrinterSelect, {
@@ -1337,12 +1356,7 @@
     });
 
     // Config area
-    var hostPrinterConfigForm = $('#printer-config-form'),
-        hostPrinterConfigBtn = $('#printer-config-send');
-
-    hostPrinterConfigForm.on('submit',function(e) {
-        e.preventDefault();
-    });
+    var hostPrinterConfigBtn = $('#printer-config-send');
 
     hostPrinterConfigBtn.on('click', function(e) {
         e.preventDefault();
@@ -1395,6 +1409,11 @@
             hostSnapinsTable.draw(false);
             hostSnapinsTable.rows({selected: true}).deselect();
         })
+    });
+
+    hostSnapinRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#snapinDelModal').modal('show');
     });
 
     var hostSnapinsTable = $('#host-snapin-table').registerTable(onSnapinSelect, {

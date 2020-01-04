@@ -200,6 +200,7 @@
     });
 
     snapinHostRemoveBtn.on('click', function(e) {
+        e.preventDefault();
         $('#hostDelModal').modal('show');
     });
 
@@ -302,6 +303,11 @@
         });
     });
 
+    snapinStoragegroupRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#storagegroupDelModal').modal('show');
+    });
+
     var snapinStoragegroupsTable = $('#snapin-storagegroup-table').registerTable(onStoragegroupSelect, {
         order: [
             [1, 'asc'],
@@ -343,7 +349,7 @@
 
     snapinStoragegroupDeleteConfirmBtn.on('click', function(e) {
         $.deleteAssociated(snapinStoragegroupsTable, snapinStoragegroupUpdateBtn.attr('action'), function(err) {
-            $('#storagegroupDelModal').modal('show');
+            $('#storagegroupDelModal').modal('hide');
             if (err) {
                 return;
             }
