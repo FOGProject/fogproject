@@ -36,6 +36,12 @@ class ServiceConfigurationPage extends FOGPage
      */
     private static $_modNames = [];
     /**
+     * The actual modules themselves
+     *
+     * @var array
+     */
+    private static $_modules = [];
+    /**
      * The node this page works off of.
      *
      * @var string
@@ -54,6 +60,27 @@ class ServiceConfigurationPage extends FOGPage
         parent::__construct($this->name);
         self::$_moduleName = self::getGlobalModuleStatus();
         self::$_modNames = self::getGlobalModuleStatus(true);
+        // Loop the client module options
+        $notWhere = [
+            'clientupdater',
+            'dircleanup',
+            'greenfog',
+            'usercleanup'
+        ];
+        $modkeys = array_keys(self::getGlobalModuleStatus());
+        $where = array_diff(
+            $modkeys,
+            $notWhere
+        );
+
+        Route::listem(
+            'module',
+            ['shortName' => $where]
+        );
+        $Modules = json_decode(
+            Route::getData()
+        );
+        self::$_modules = $Modules->data;
     }
     /**
      * Presents the home for this page.
@@ -105,12 +132,13 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary pull-right',
             $props
         );
-        Route::search('module', 'display manager');
-        $Modules = json_decode(
-            Route::getData()
-        );
-        $Module = $Modules->modules[0];
-        unset($Modules);
+        foreach (self::$_modules as &$module) {
+            if ('display manager' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
         $disps = [
             'FOG_CLIENT_DISPLAYMANAGER_R',
             'FOG_CLIENT_DISPLAYMANAGER_X',
@@ -254,16 +282,16 @@ class ServiceConfigurationPage extends FOGPage
     public function serviceDisplaymanagerPost()
     {
         self::$HookManager->processEvent('MODULE_DISPLAYMANAGER_POST');
-        Route::search(
-            'module',
-            'display manager'
-        );
-        $Modules = json_decode(
-            Route::getData()
-        );
+        foreach (self::$_modules as &$module) {
+            if ('display manager' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
         $Module = self::getClass(
             'Module',
-            $Modules->modules[0]->id
+            $Module->id
         );
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['displaymanager'])
@@ -306,15 +334,13 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary pull-right',
             $props
         );
-        Route::search(
-            'module',
-            'auto log out'
-        );
-        $Modules = json_decode(
-            Route::getData()
-        );
-        $Module = $Modules->modules[0];
-        unset($Modules);
+        foreach (self::$_modules as &$module) {
+            if ('auto log out' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -420,13 +446,16 @@ class ServiceConfigurationPage extends FOGPage
     public function serviceAutologoutPost()
     {
         self::$HookManager->processEvent('MODULE_AUTOLOGOUT_POST');
-        Route::search('module', 'auto log out');
-        $Modules = json_decode(
-            Route::getData()
-        );
+        foreach (self::$_modules as &$module) {
+            if ('auto log out' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
         $Module = self::getClass(
             'Module',
-            $Modules->modules[0]->id
+            $Module->id
         );
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['autologout'])
@@ -468,15 +497,13 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary pull-right',
             $props
         );
-        Route::search(
-            'module',
-            'snapins'
-        );
-        $Modules = json_decode(
-            Route::getData()
-        );
-        $Module = $Modules->modules[0];
-        unset($Modules);
+        foreach (self::$_modules as &$module) {
+            if ('snapins' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -564,16 +591,16 @@ class ServiceConfigurationPage extends FOGPage
     public function serviceSnapinclientPost()
     {
         self::$HookManager->processEvent('MODULE_SNAPINCLIENT_POST');
-        Route::search(
-            'module',
-            'snapins'
-        );
-        $Modules = json_decode(
-            Route::getData()
-        );
+        foreach (self::$_modules as &$module) {
+            if ('snapins' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
         $Module = self::getClass(
             'Module',
-            $Modules->modules[0]->id
+            $Module->id
         );
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['snapinclient'])
@@ -610,15 +637,13 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary pull-right',
             $props
         );
-        Route::search(
-            'module',
-            'host registration'
-        );
-        $Modules = json_decode(
-            Route::getData()
-        );
-        $Module = $Modules->modules[0];
-        unset($Modules);
+        foreach (self::$_modules as &$module) {
+            if ('host registration' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -706,11 +731,17 @@ class ServiceConfigurationPage extends FOGPage
     public function serviceHostregisterPost()
     {
         self::$HookManager->processEvent('MODULE_HOSTREGISTER_POST');
-        Route::search('module', 'host registration');
-        $Modules = json_decode(
-            Route::getData()
+        foreach (self::$_modules as &$module) {
+            if ('host registration' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
+        $Module = self::getClass(
+            'Module',
+            $Module->id
         );
-        $Module = self::getClass('Module', $Modules->modules[0]->id);
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['hostregister'])
             ->load('name');
@@ -746,12 +777,13 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary pull-right',
             $props
         );
-        Route::search('module', 'hostname changer');
-        $Modules = json_decode(
-            Route::getData()
-        );
-        $Module = $Modules->modules[0];
-        unset($Modules);
+        foreach (self::$_modules as &$module) {
+            if ('hostname changer' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -839,11 +871,17 @@ class ServiceConfigurationPage extends FOGPage
     public function serviceHostnamechangerPost()
     {
         self::$HookManager->processEvent('MODULE_HOSTNAMECHANGER_POST');
-        Route::search('module', 'hostname changer');
-        $Modules = json_decode(
-            Route::getData()
+        foreach (self::$_modules as &$module) {
+            if ('hostname changer' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
+        $Module = self::getClass(
+            'Module',
+            $Module->id
         );
-        $Module = self::getClass('Module', $Modules->modules[0]->id);
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['hostnamechanger'])
             ->load('name');
@@ -879,12 +917,13 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary pull-right',
             $props
         );
-        Route::search('module', 'printer manager');
-        $Modules = json_decode(
-            Route::getData()
-        );
-        $Module = $Modules->modules[0];
-        unset($Modules);
+        foreach (self::$_modules as &$module) {
+            if ('printer manager' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -972,11 +1011,17 @@ class ServiceConfigurationPage extends FOGPage
     public function servicePrintermanagerPost()
     {
         self::$HookManager->processEvent('MODULE_PRINTERMANAGER_POST');
-        Route::search('module', 'printer manager');
-        $Modules = json_decode(
-            Route::getData()
+        foreach (self::$_modules as &$module) {
+            if ('printer manager' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
+        $Module = self::getClass(
+            'Module',
+            $Module->id
         );
-        $Module = self::getClass('Module', $Modules->modules[0]->id);
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['printermanager'])
             ->load('name');
@@ -1012,12 +1057,13 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary pull-right',
             $props
         );
-        Route::search('module', 'task reboot');
-        $Modules = json_decode(
-            Route::getData()
-        );
-        $Module = $Modules->modules[0];
-        unset($Modules);
+        foreach (self::$_modules as &$module) {
+            if ('task reboot' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -1105,11 +1151,17 @@ class ServiceConfigurationPage extends FOGPage
     public function serviceTaskrebootPost()
     {
         self::$HookManager->processEvent('MODULE_TASKREBOOT_POST');
-        Route::search('module', 'task reboot');
-        $Modules = json_decode(
-            Route::getData()
+        foreach (self::$_modules as &$module) {
+            if ('task reboot' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
+        $Module = self::getClass(
+            'Module',
+            $Module->id
         );
-        $Module = self::getClass('Module', $Modules->modules[0]->id);
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['taskreboot'])
             ->load('name');
@@ -1145,12 +1197,13 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary pull-right',
             $props
         );
-        Route::search('module', 'user tracker');
-        $Modules = json_decode(
-            Route::getData()
-        );
-        $Module = $Modules->modules[0];
-        unset($Modules);
+        foreach (self::$_modules as &$module) {
+            if ('user tracker' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -1238,11 +1291,17 @@ class ServiceConfigurationPage extends FOGPage
     public function serviceUsertrackerPost()
     {
         self::$HookManager->processEvent('MODULE_USERTRACKER_POST');
-        Route::search('module', 'user tracker');
-        $Modules = json_decode(
-            Route::getData()
+        foreach (self::$_modules as &$module) {
+            if ('user tracker' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
+        $Module = self::getClass(
+            'Module',
+            $Module->id
         );
-        $Module = self::getClass('Module', $Modules->modules[0]->id);
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['usertracker'])
             ->load('name');
@@ -1278,12 +1337,13 @@ class ServiceConfigurationPage extends FOGPage
             'btn btn-primary pull-right',
             $props
         );
-        Route::search('module', 'power management');
-        $Modules = json_decode(
-            Route::getData()
-        );
-        $Module = $Modules->modules[0];
-        unset($Modules);
+        foreach (self::$_modules as &$module) {
+            if ('power management' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -1371,11 +1431,17 @@ class ServiceConfigurationPage extends FOGPage
     public function servicePowermanagementPost()
     {
         self::$HookManager->processEvent('MODULE_POWERMANAGEMENT_POST');
-        Route::search('module', 'power management');
-        $Modules = json_decode(
-            Route::getData()
+        foreach (self::$_modules as &$module) {
+            if ('power management' === strtolower($module->name)) {
+                $Module = $module;
+                break;
+            }
+            unset($module);
+        }
+        $Module = self::getClass(
+            'Module',
+            $Module->id
         );
-        $Module = self::getClass('Module', $Modules->modules[0]->id);
         $Service = self::getClass('Service')
             ->set('name', self::$_modNames['powermanagement'])
             ->load('name');
@@ -1391,15 +1457,6 @@ class ServiceConfigurationPage extends FOGPage
                 throw new Exception(_('Unable to update module default setting'));
             }
         }
-    }
-    /**
-     * Redirects search to edit
-     *
-     * @return void
-     */
-    public function search()
-    {
-        $this->edit();
     }
     /**
      * Redirects index page to edit
@@ -1448,28 +1505,7 @@ class ServiceConfigurationPage extends FOGPage
             }
         ];
 
-        // Loop the client module options
-        $notWhere = [
-            'clientupdater',
-            'dircleanup',
-            'greenfog',
-            'usercleanup'
-        ];
-        $modkeys = array_keys(self::getGlobalModuleStatus());
-        $where = array_diff(
-            $modkeys,
-            $notWhere
-        );
-
-        Route::listem(
-            'module',
-            ['shortName' => $where]
-        );
-        $Modules = json_decode(
-            Route::getData()
-        );
-        $Modules = $Modules->data;
-        foreach ($Modules as $Module) {
+        foreach (self::$_modules as $Module) {
             $tabData[] = [
                 'name' => $Module->name,
                 'id' => 'service-' . $Module->shortName,
