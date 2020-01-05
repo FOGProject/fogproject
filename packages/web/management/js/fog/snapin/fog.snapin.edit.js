@@ -258,7 +258,7 @@
         Common.iCheck('#snapin-host-table input');
         $('#snapin-host-table input.associated').on('ifChanged', onSnapinHostCheckboxSelect);
         onHostSelect(snapinHostsTable.rows({selected: true}));
-        snapinStoragegroupsPrimarySelectorUpdate();
+        snapinStoragegroupPrimarySelectorUpdate();
     });
 
     var onSnapinHostCheckboxSelect = function(e) {
@@ -300,7 +300,7 @@
             }
             snapinStoragegroupsTable.draw(false);
             snapinStoragegroupsTable.rows({selected: true}).deselect();
-            setTimeout(snapinStoragegroupsPrimarySelectorUpdate, 1000);
+            setTimeout(snapinStoragegroupPrimarySelectorUpdate, 1000);
         });
     });
 
