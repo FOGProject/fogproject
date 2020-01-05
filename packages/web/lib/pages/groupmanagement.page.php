@@ -1874,7 +1874,7 @@ class GroupManagement extends FOGPage
                 ) => self::makeInput(
                     'form-control',
                     'pu',
-                    _('Primary User'),
+                    '',
                     'text',
                     'pu',
                     $puser,
