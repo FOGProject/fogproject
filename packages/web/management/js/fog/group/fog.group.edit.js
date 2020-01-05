@@ -689,7 +689,7 @@
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = {
-                confirmalosend: 1
+                confirmalosend: 1,
                 tme: $('#tme').val()
             };
         $.apiCall(method,action,opts,function(err) {
@@ -929,12 +929,84 @@
     // HISTORY TABS
     // ---------------------------------------------------------------
     // LOGIN HISTORY TAB
+    var groupHistoryLoginTable = $('#group-login-history-table').registerTable(null, {
+        columns: [
+            {data: 'hostLink'},
+            {data: 'createdTime'},
+            {data: 'action'},
+            {data: 'username'},
+            {data: 'description'}
+        ],
+        rowId: 'id',
+        rowGroup: {
+            dataSrc: 'hostLink'
+        },
+        processing: true,
+        serverSide: true,
+        select: false,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getLoginHist&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
 
     // ---------------------------------------------------------------
     // IMAGE HISTORY TAB
+    var groupHistoryImageTable = $('#group-image-history-table').registerTable(null, {
+        columns: [
+            {data: 'hostLink'},
+            {data: 'createdBy'},
+            {data: 'start'},
+            {data: 'finish'},
+            {data: 'diff'},
+            {data: 'imageLink'},
+            {data: 'type'}
+        ],
+        rowId: 'id',
+        rowGroup: {
+            dataSrc: 'hostLink'
+        },
+        processing: true,
+        serverSide: true,
+        select: false,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getImageHist&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
 
     // ---------------------------------------------------------------
     // SNAPIN HISTORY TAB
+    var groupHistorySnapinTable = $('#group-snapin-history-table').registerTable(null, {
+        columns: [
+            {data: 'hostLink'},
+            {data: 'snapinLink'},
+            {data: 'checkin'},
+            {data: 'complete'},
+            {data: 'diff'},
+            {data: 'return'}
+        ],
+        rowId: 'id',
+        rowGroup: {
+            dataSrc: 'hostLink'
+        },
+        processing: true,
+        serverSide: true,
+        select: false,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getSnapinHist&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
 
     // Enable searching
     if (Common.search && Common.search.length > 0) {
@@ -943,7 +1015,10 @@
         groupPrintersTable.search(Common.search).draw();
         groupSnapinsTable.search(Common.search).draw();
         // FOG Client
-        modulesTable.search(Common.search).draw();
+        groupModulesTable.search(Common.search).draw();
         // History
+        groupHistoryLoginTable.search(Common.search).draw();
+        groupHistoryImageTable.search(Common.search).draw();
+        groupHistorySnapinTable.search(Common.search).draw();
     }
 })(jQuery)

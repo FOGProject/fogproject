@@ -2409,6 +2409,15 @@ class HostManagement extends FOGPage
                 unset($get);
             }
 
+            self::$HookManager->processEvent(
+                'HOST_DISPLAYMAN_FIELDS',
+                [
+                    'fields' => &$fields,
+                    'buttons' => &$buttons,
+                    'Host' => &$this->obj
+                ]
+            );
+
             $rendered = self::formFields($fields);
             unset($fields);
             echo '<div class="box box-primary">';
@@ -2471,6 +2480,15 @@ class HostManagement extends FOGPage
                     $tme
                 )
             ];
+
+            self::$HookManager->processEvent(
+                'HOST_ALO_FIELDS',
+                [
+                    'fields' => &$fields,
+                    'buttons' => &$buttons,
+                    'Host' => &$this->obj
+                ]
+            );
 
             $rendered = self::formFields($fields);
             unset($fields);
@@ -2540,7 +2558,7 @@ class HostManagement extends FOGPage
             'HOST_ENFORCE_FIELDS',
             [
                 'fields' => &$fields,
-                'buttons' => &$enforcebtn,
+                'buttons' => &$buttons,
                 'Host' => &$this->obj
             ]
         );
@@ -2873,9 +2891,12 @@ class HostManagement extends FOGPage
     public function hostInventory()
     {
         $props = ' method="post" action="'
-            . $this->formAction
-            . '&tab=host-inventory" ';
-        $cpus = ['cpuman', 'spuversion'];
+            . self::makeTabUpdateURL(
+                'host-inventory',
+                $this->obj->get('id')
+            )
+            . '" ';
+        $cpus = ['cpuman', 'cpuversion'];
         foreach ($cpus as &$x) {
             $this->obj->get('inventory')
                 ->set(
@@ -3884,64 +3905,6 @@ class HostManagement extends FOGPage
         exit;
     }
     /**
-     * Gets the host user tracking info.
-     *
-     * @return void
-     */
-    public function hostlogins()
-    {
-        $date = filter_input(INPUT_GET, 'dte');
-        $MainDate = self::niceDate($date)
-            ->getTimestamp();
-        $MainDate_1 = self::niceDate($date)
-            ->modify('+1 day')
-            ->getTimestamp();
-        Route::listem('UserTracking');
-        $UserTracks = json_decode(
-            Route::getData()
-        );
-        $UserTracks = $UserTracks->usertrackings;
-        $data = null;
-        $Data = [];
-        foreach ((array)$UserTracks as &$Login) {
-            $ldate = self::niceDate($Login->date)
-                ->format('Y-m-d');
-            if ($Login->hostID != $this->obj->get('id')
-                || $ldate != $date
-                || !in_array($Login->action, ['', 0, 1])
-            ) {
-                continue;
-            }
-            $time = self::niceDate($Login->datetime);
-            $Data[$Login->username] = [
-                'user' => $Login->username,
-                'min' => $MainDate,
-                'max' => $MainDate_1
-            ];
-            if (array_key_exists('login', $Data[$Login->username])) {
-                if ($Login->action > 0) {
-                    $Data[$Login->username]['logout'] = (int)$time - 1;
-                    $data[] = $Data[$Login->username];
-                } elseif ($Login->action < 1) {
-                    $Data[$Login->username]['logout'] = (int)$time;
-                    $data[] = $Data[$Login->username];
-                }
-                $Data[$Login->username] = [
-                    'user' => $Login->username,
-                    'min' => $MainDate,
-                    'max' => $MainDate_1
-                ];
-            }
-            if ($Login->action > 0) {
-                $Data[$Login->username]['login'] = (int)$time;
-            }
-            unset($Login);
-        }
-        unset($UserTracks);
-        echo json_encode($data);
-        exit;
-    }
-    /**
      * Presents the groups list table.
      *
      * @return void
@@ -4112,10 +4075,6 @@ class HostManagement extends FOGPage
      */
     public function getPowermanagementList()
     {
-        $where = "`powerManagement`.`pmHostID` = '"
-            . $this->obj->get('id')
-            . "'";
-
         Route::listem(
             'powermanagement',
             ['hostID' => $this->obj->get('id')]

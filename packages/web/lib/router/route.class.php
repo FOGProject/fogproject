@@ -702,6 +702,18 @@ class Route extends FOGBase
                     }
                 ];
                 break;
+            case 'mem':
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => $common,
+                    'formatter' => function($d, $row) {
+                        if (!$d) {
+                            return;
+                        }
+                        return Inventory::getMemory($d);
+                    }
+                ];
+                break;
             case 'storagegroupID':
                 $columns[] = [
                     'db' => $real,
