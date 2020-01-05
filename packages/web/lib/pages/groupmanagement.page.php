@@ -1343,8 +1343,17 @@ class GroupManagement extends FOGPage
                 unset($get);
             }
 
+            self::$HookManager->processEvent(
+                'GROUP_DISPLAYMAN_FIELDS',
+                [
+                    'fields' => &$fields,
+                    'buttons' => &$buttons,
+                    'Group' => &$this->obj
+                ]
+            );
             $rendered = self::formFields($fields);
             unset($fields);
+
             echo '<div class="box box-primary">';
             echo '<div class="box-header with-border">';
             echo '<h4 class="box-title">';
@@ -1371,6 +1380,158 @@ class GroupManagement extends FOGPage
             echo '</div>';
             echo '</div>';
         }
+
+        // Auto log out area
+        $aloEnabled = self::getSetting('FOG_CLIENT_AUTOLOGOFF_ENABLED');
+        if ($aloEnabled) {
+            $buttons = self::makeButton(
+                'group-alo-send',
+                _('Update'),
+                'btn btn-primary pull-right',
+                $props
+            );
+            $tme = filter_input(INPUT_POST, 'tme');
+            if (!$tme) {
+                $tme = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
+            }
+            if (!$tme) {
+                $tme = 0;
+            }
+            $fields = [
+                self::makeLabel(
+                    $labelClass,
+                    'tme',
+                    _('Auto Logout Time')
+                    . '<br/>('
+                    . _('in minutes')
+                    . ')'
+                ) => self::makeInput(
+                    'form-control',
+                    'tme',
+                    '',
+                    'number',
+                    'tme',
+                    $tme
+                )
+            ];
+
+            self::$HookManager->processEvent(
+                'GROUP_ALO_FIELDS',
+                [
+                    'fields' => &$fields,
+                    'buttons' => &$buttons,
+                    'Group' => &$this->obj
+                ]
+            );
+            $rendered = self::formFields($fields);
+            unset($fields);
+
+            echo '<div class="box box-warning">';
+            echo '<div class="box-header with-border">';
+            echo '<h4 class="box-title">';
+            echo _('Auto Logout Settings');
+            echo '</h4>';
+            echo '<p class="help-block">';
+            echo _('Minimum time limmit for Auto Logout to become active is 5 minutes.');
+            echo '</p>';
+            echo '</div>';
+            echo '<div class="box-body">';
+            echo self::makeFormTag(
+                'form-horizontal',
+                'group-alo-form',
+                self::makeTabUpdateURL(
+                    'group-module',
+                    $this->obj->get('id')
+                ),
+                'post',
+                'application/x-www-form-urlencoded',
+                true
+            );
+            echo $rendered;
+            echo '</form>';
+            echo '</div>';
+            echo '<div class="box-footer with-border">';
+            echo $buttons;
+            echo '</div>';
+            echo '</div>';
+        }
+
+        // Hostname change reboot/domain join reboot forced.
+        $enforce = filter_input(INPUT_POST, 'enforce');
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'enforce',
+                _('Force Reboot')
+            ) => self::makeInput(
+                '',
+                'enforce',
+                '',
+                'checkbox',
+                'enforce',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                ($enforce ? 'checked' : '')
+            )
+        ];
+        $buttons = self::makeButton(
+            'group-enforce-send',
+            _('Update'),
+            'btn btn-primary pull-right',
+            $props
+        );
+
+        self::$HookManager->processEvent(
+            'GROUP_ENFORCE_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'Group' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        echo '<div class="box box-warning">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Enforce Hostname | AD Join Reboots');
+        echo '</h4>';
+        echo '<p class="help-block">';
+        echo _(
+            'This tells the client to force reboots for host name '
+            . 'changing and AD Joining.'
+        );
+        echo '</p>';
+        echo '<p class="help-block">';
+        echo _(
+            'If disabled, the client will not make changes until all users '
+            . 'are logged off'
+        );
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo self::makeFormTag(
+            'form-horizontal',
+            'group-enforce-form',
+            self::makeTabUpdateURL(
+                'group-module',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo $rendered;
+        echo '</form>';
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $buttons;
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Group Service post.
@@ -1379,45 +1540,53 @@ class GroupManagement extends FOGPage
      */
     public function groupModulePost()
     {
-        if (isset($_POST['enablemodulessel'])) {
-            $enablemodules = filter_input_array(
+        if (isset($_POST['confirmadd'])) {
+            $modules = filter_input_array(
                 INPUT_POST,
                 [
-                    'enablemodules' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $enablemodules = $enablemodules['enablemodules'];
-            $this->obj->addModule($enablemodules);
+            $modules = $modules['additems'];
+            if (count($modules ?: [])) {
+                $this->obj->addModule($modules);
+            }
         }
-        if (isset($_POST['disablemodulessel'])) {
-            $disablemodules = filter_input_array(
+        if (isset($_POST['confirmdel'])) {
+            $modules = filter_input_array(
                 INPUT_POST,
                 [
-                    'disablemodules' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $disablemodules = $disablemodules['disablemodules'];
-            $this->obj->removeModule($disablemodules);
+            $modules = $modules['remitems'];
+            if (count($modules ?: [])) {
+                $this->obj->removeModule($modules);
+            }
         }
-        if (isset($_POST['dispmansend'])) {
-            $x = filter_input(INPUT_POST, 'x');
-            $y = filter_input(INPUT_POST, 'y');
-            $r = filter_input(INPUT_POST, 'r');
+        if (isset($_POST['confirmdisplaysend'])) {
+            $x = (int)filter_input(INPUT_POST, 'x');
+            $y = (int)filter_input(INPUT_POST, 'y');
+            $r = (int)filter_input(INPUT_POST, 'r');
             $this->obj->setDisp($x, $y, $r);
         }
-        if (isset($_POST['alosend'])) {
+        if (isset($_POST['confirmalosend'])) {
             $tme = (int)filter_input(INPUT_POST, 'tme');
-            if (!(is_numeric($tme) && $tm > 4)) {
+            if (!(is_numeric($tme) && $tme > 4)) {
                 $tme = 0;
             }
             $this->obj->setAlo($tme);
         }
-        if (isset($_POST['enforcesend'])) {
-            $enforce = isset($_POST['enforce']);
+        if (isset($_POST['confirmenforcesend'])) {
+            $enforce = (
+                filter_input(INPUT_POST, $_POST['enforce']) >= 1 ?
+                1 :
+                0
+            );
             self::getClass('HostManager')->update(
                 ['id' => $this->obj->get('hosts')],
                 '',
@@ -1598,6 +1767,739 @@ class GroupManagement extends FOGPage
         }
     }
     /**
+     * Displays Group Host Inventories
+     *
+     * @return void
+     */
+    public function groupInventory()
+    {
+        // Get this group's Host Inventory items.
+        Route::listem(
+            'inventory',
+            ['hostID' => $this->obj->get('hosts')],
+            false,
+            'AND',
+            'hostID'
+        );
+        $inventories = json_decode(Route::getData());
+
+        // Get the host names
+        Route::ids(
+            'host',
+            ['id' => $this->obj->get('hosts')],
+            'name',
+            'AND',
+            'id'
+        );
+        $hostnames = json_decode(Route::getData(), true);
+
+        // Just to make the fields nice and formatted.
+        $labelClass = 'col-sm-3 control-label';
+
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Group Host Inventories');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box box-body">';
+        if (!count($hostnames)) {
+            echo _('No hosts associated to this group yet');
+            echo '</div>';
+            echo '</div>';
+            return;
+        }
+        // Loop and print the inventory data broken out by host names.
+        foreach ($inventories->data as $i => &$inventory) {
+            echo '<div class="panel box box-primary">';
+            echo '<div class="box-header with-border">';
+            echo '<h4 class="box-title">';
+            echo '<a data-toggle="collapse" data-parent="#accordion" href="#'
+                . $hostnames[$i]
+                . '">';
+            echo $hostnames[$i] . ' ' . _('Inventory Data');
+            echo '</a>';
+            echo '</h4>';
+            echo '</div>';
+            echo '<div id="'
+                . $hostnames[$i]
+                . '" class="panel collapse collapse">';
+            $puser = $inventory->primaryUser;
+            $other1 = $inventory->other1;
+            $other2 = $inventory->other2;
+            $sysman = $inventory->sysman;
+            $sysprod = $inventory->sysproduct;
+            $sysver = $inventory->sysversion;
+            $sysser = $inventory->sysserial;
+            $systype = $inventory->systype;
+            $sysuuid = $inventory->sysuuid;
+            $biosven = $inventory->biosvendor;
+            $biosver = $inventory->biosversion;
+            $biosdate = $inventory->biosversion;
+            $mbman = $inventory->mbman;
+            $mbprod = $inventory->mbproductname;
+            $mbver = $inventory->mbversion;
+            $mbser = $inventory->mbserial;
+            $mbast = $inventory->mbasset;
+            $cpuman = $inventory->cpuman;
+            $cpuver = $inventory->cpuversion;
+            $cpucur = $inventory->cpucurrent;
+            $cpumax = $inventory->cpumax;
+            $mem = $inventory->mem;
+            $hdmod = $inventory->hdmodel;
+            $hdfirm = $inventory->hdfirmware;
+            $hdser = $inventory->hdserial;
+            $caseman = $inventory->caseman;
+            $casever = $inventory->caseversion;
+            $caseser = $inventory->caseserial;
+            $caseast = $inventory->caseasset;
+            $fields = [
+                self::makeLabel(
+                    $labelClass,
+                    'pu',
+                    _('Primary User')
+                ) => self::makeInput(
+                    'form-control',
+                    'pu',
+                    _('Primary User'),
+                    'text',
+                    'pu',
+                    $puser,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'other1',
+                    _('Other Tag #1')
+                ) => self::makeInput(
+                    'form-control',
+                    'other1',
+                    '',
+                    'text',
+                    'other1',
+                    $other1,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'other2',
+                    _('Other Tag #2')
+                ) => self::makeInput(
+                    'form-control',
+                    'other2',
+                    '',
+                    'text',
+                    'other2',
+                    $other2,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('System Manufacturer')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $sysman,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('System Product')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $sysprod,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('System Version')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $sysver,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('System Serial')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $sysser,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('System UUID')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $sysuuid,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('System Type')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $systype,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('BIOS Vendor')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $biosven,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('BIOS Version')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $biosver,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('BIOS Date')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $biosdate,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('Motherboard Manufacturer')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $mbman,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('Motherboard Product Name')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $mbprod,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('Motherboard Version')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $mbver,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('Motherboard Serial Number')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $mbser,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('Motherboard Asset Tag')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $mbast,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('CPU Manufacturer')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $cpuman,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('CPU Version')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $cpuver,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('CPU Normal Speed')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $cpucur,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('CPU Max Speed')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $cpumax,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('Memory')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $mem,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('Hard Drive Model')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $hdmod,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('Hard Drive Firmware')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $hdfirm,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('Hard Drive Serial Number')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $hdser,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('Chassis Manufacturer')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $caseman,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('Chassis Version')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $casever,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('Chassis Serial Number')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $caseser,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    '',
+                    _('Chassis Asset Tag')
+                ) => self::makeInput(
+                    'form-control',
+                    '',
+                    '',
+                    'text',
+                    '',
+                    $caseast,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                )
+            ];
+            $rendered = self::formFields($fields);
+            unset($fields);
+            echo '<div class="box-body">';
+            echo self::makeFormTag(
+                'form-horizontal',
+                'group-inventory-form-' . $hostnames[$i],
+                '#',
+                'get',
+                'application/x-www-form-urlencoded',
+                true
+            );
+            echo $rendered;
+            echo '</form>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            unset($inventory);
+        }
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Display Login History for Hosts in this Group
+     *
+     * @return void
+     */
+    public function groupLoginHistory()
+    {
+        $this->headerData = [
+            _('Host Name'),
+            _('Time'),
+            _('Action'),
+            _('Username'),
+            _('Description')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            []
+        ];
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Group Login History');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'group-login-history-table');
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Display Image History for Hosts in this Group
+     *
+     * @return void
+     */
+    public function groupImageHistory()
+    {
+        $this->headerData = [
+            _('Host Name'),
+            _('Engineer'),
+            _('Start'),
+            _('End'),
+            _('Duration'),
+            _('Image'),
+            _('Type')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Group Image History');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'group-image-history-table');
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Display Snapin History for Hosts in this Group
+     *
+     * @return void
+     */
+    public function groupSnapinHistory()
+    {
+        $this->headerData = [
+            _('Host Name'),
+            _('Snapin Name'),
+            _('Start Time'),
+            _('Complete'),
+            _('Duration'),
+            _('Return Code')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Group Snapin History');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'group-snapin-history-table');
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
      * The group edit display method
      *
      * @return void
@@ -1686,11 +2588,11 @@ class GroupManagement extends FOGPage
                         'id' => 'group-active-directory',
                         'generator' => function () {
                             $this->adFieldsToDisplay(
-                                $useAD,
-                                $ADDomain,
-                                $ADOU,
-                                $ADUser,
-                                $ADPass
+                                '',
+                                '',
+                                '',
+                                '',
+                                ''
                             );
                         }
                     ],
@@ -1723,24 +2625,21 @@ class GroupManagement extends FOGPage
                         'name' => _('Login History'),
                         'id' => 'group-login-history',
                         'generator' => function() {
-                            echo 'TODO: Make Functional';
-                            //$this->groupLoginHistory();
+                            $this->groupLoginHistory();
                         }
                     ],
                     [
                         'name' => _('Imaging History'),
                         'id' => 'group-imaging-history',
                         'generator' => function() {
-                            echo 'TODO: Make Functional';
-                            //$this->groupImageHistory();
+                            $this->groupImageHistory();
                         }
                     ],
                     [
                         'name' => _('Snapin History'),
                         'id' => 'group-snapin-history',
                         'generator' => function() {
-                            echo 'TODO: Make Functional';
-                            //$this->groupSnapinHistory();
+                            $this->groupSnapinHistory();
                         }
                     ]
                 ]
@@ -1829,16 +2728,6 @@ class GroupManagement extends FOGPage
         http_response_code($code);
         echo $msg;
         exit;
-    }
-    /**
-     * Display inventory page, separated as groups can contain
-     * a lot of information
-     *
-     * @return void
-     */
-    public function groupInventory()
-    {
-        echo 'TODO: Make Functional';
     }
     /**
      * The group tasks items.
@@ -2102,55 +2991,11 @@ class GroupManagement extends FOGPage
             'greenfog',
             'usercleanup'
         ];
+        $keys = array_diff($keys, $notWhere);
 
-        $where = "`modules`.`short_name` "
-            . "NOT IN ('"
-            . implode("','", $notWhere)
-            . "') AND `modules`.`short_name` IN ('"
-            . implode("','", $keys)
-            . "')";
-        $join = [
-            "LEFT OUTER JOIN `groupMembers` "
-            . "ON `groupMembers`.`gmGroupID` = "
-            . $this->obj->get('id'),
-            "LEFT OUTER JOIN `moduleStatusByHost` "
-            . "ON `modules`.`id` = `moduleStatusByHost`.`msModuleID` "
-            . "AND `moduleStatusByHost`.`msHostID` = `groupMembers`.`gmHostID`"
-        ];
-
-        $sqlStr = "SELECT `%s`,"
-            . "IF(COUNT(`msHostID`) = COUNT(`gmHostID`),'associated','dissociated') "
-            . "AS `groupAssoc` "
-            . "FROM `%s`";
-        foreach ($join as &$j) {
-            $sqlStr .= ' ' . $j . ' ';
-            unset($j);
-        }
-        $sqlStr .= ' %s GROUP BY `short_name` %s %s';
-        $modulesTotalStr = "SELECT COUNT(`%s`)
-            FROM `%s`
-            WHERE `modules`.`short_name` "
-            . "NOT IN ('"
-            . implode("','", $notWhere)
-            . "')";
-        $columns[] = [
-            'db' => 'groupAssoc',
-            'dt' => 'association',
-            'removeFromQuery' => true
-        ];
-        $sqlFilterStr = "SELECT COUNT(`%s`) "
-            . "FROM `%s` "
-            . "WHERE $where";
-        return $this->obj->getItemsList(
-            'module',
-            'moduleassociation',
-            $join,
-            $where,
-            $columns,
-            $sqlStr,
-            $sqlFilterStr,
-            $modulesTotalStr
-        );
+        Route::listem('module', ['shortName' => $keys]);
+        echo Route::getData();
+        exit;
     }
     /**
      * Tasking for this group.
@@ -2180,7 +3025,6 @@ class GroupManagement extends FOGPage
             $isinitneeded = $TaskType->isInitNeededTasking();
             $isdebug = $TaskType->isDebug();
             $hosts = $this->obj->get('hosts');
-            //$image = $this->obj->getImage();
 
             if (!$TaskType->isValid()) {
                 throw new Exception(_('Task type is invalid'));
@@ -2752,6 +3596,86 @@ class GroupManagement extends FOGPage
         );
         http_response_code($code);
         echo $msg;
+        exit;
+    }
+    /**
+     * Get the login history for hosts in this group
+     *
+     * @return void
+     */
+    public function getLoginHist()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $hostID = $this->obj->get('hosts');
+        Route::listem(
+            'usertracking',
+            ['hostID' => $hostID]
+        );
+        echo Route::getData();
+        exit;
+    }
+    /**
+     * Get the image history for hosts in this group.
+     *
+     * @return void
+     */
+    public function getImageHist()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $hostID = $this->obj->get('hosts');
+        Route::listem(
+            'imagingLog',
+            ['hostID' => $hostID]
+        );
+        echo Route::getData();
+        exit;
+    }
+    /**
+     * Gets the snapin history for hosts in this group.
+     *
+     * @return void
+     */
+    public function getSnapinHist()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $hostID = $this->obj->get('hosts');
+
+        $checkStates = [
+            self::getCancelledState(),
+            self::getCompleteState()
+        ];
+
+        Route::ids(
+            'snapinjob',
+            ['hostID' => $hostID]
+        );
+
+        $snapinJobs = json_decode(Route::getData());
+
+        Route::listem(
+            'snapintask',
+            [
+                'jobID' => $snapinJobs,
+                'stateID' => $checkStates
+            ]
+        );
+
+        echo Route::getData();
         exit;
     }
 }
