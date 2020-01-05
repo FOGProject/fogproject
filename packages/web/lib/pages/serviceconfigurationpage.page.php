@@ -260,7 +260,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box-body">';
         echo self::makeInput(
             '',
-            'name',
+            'name_'.$Module->id,
             '',
             'hidden',
             '',
@@ -424,7 +424,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box-body">';
         echo self::makeInput(
             '',
-            'name',
+            'name_'.$Module->id,
             '',
             'hidden',
             '',
@@ -569,7 +569,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box-body">';
         echo self::makeInput(
             '',
-            'name',
+            'name_'.$Module->id,
             '',
             'hidden',
             '',
@@ -709,7 +709,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box-body">';
         echo self::makeInput(
             '',
-            'name',
+            'name_'.$Module->id,
             '',
             'hidden',
             '',
@@ -849,7 +849,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box-body">';
         echo self::makeInput(
             '',
-            'name',
+            'name_'.$Module->id,
             '',
             'hidden',
             '',
@@ -947,14 +947,14 @@ class ServiceConfigurationPage extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
-                'ispmDefault',
+                'ispDefault',
                 _('Enabled by Default')
             ) => self::makeInput(
                 '',
                 'isDefault',
                 '',
                 'checkbox',
-                'ispmDefault',
+                'ispDefault',
                 '',
                 false,
                 false,
@@ -989,7 +989,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box-body">';
         echo self::makeInput(
             '',
-            'name',
+            'name_'.$Module->id,
             '',
             'hidden',
             '',
@@ -1129,7 +1129,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box-body">';
         echo self::makeInput(
             '',
-            'name',
+            'name_'.$Module->id,
             '',
             'hidden',
             '',
@@ -1269,7 +1269,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box-body">';
         echo self::makeInput(
             '',
-            'name',
+            'name_'.$Module->id,
             '',
             'hidden',
             '',
@@ -1409,7 +1409,7 @@ class ServiceConfigurationPage extends FOGPage
         echo '<div class="box-body">';
         echo self::makeInput(
             '',
-            'name',
+            'name_'.$Module->id,
             '',
             'hidden',
             '',
