@@ -1236,6 +1236,19 @@ class GroupManagement extends FOGPage
             )
             . '" ';
 
+        $buttons = self::makeButton(
+            'group-module-send',
+            _('Add selected'),
+            'btn btn-primary pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'group-module-remove',
+            _('Remove selected'),
+            'btn btn-danger pull-left',
+            $props
+        );
+
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
