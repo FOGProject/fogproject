@@ -23,4 +23,15 @@
         });
     }
     $('.slider').slider();
+    var image = $('#image'),
+        path = $('#path');
+    if (path.val().length == 0 || path.val() == null) {
+        image.mirror(path, /[^\w+\/\.-]/g);
+    }
+    path.on('change', function(e) {
+        var start = this.selectionStart,
+            end = this.selectionEnd;
+        this.value = this.value.replace(/[^\w+\/\.-]/g);
+        this.setSelectionRange(start, end);
+    });
 })(jQuery);

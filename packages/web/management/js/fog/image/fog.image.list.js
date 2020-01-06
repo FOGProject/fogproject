@@ -36,9 +36,8 @@
                     var unlock = '<span class="label label-danger"><i class="fa fa-unlock fa-fx"></i></span>';
                     if (row.protected > 0) {
                         return lock;
-                    } else {
-                        return unlock;
                     }
+                    return unlock;
                 },
                 targets: 1
             },
