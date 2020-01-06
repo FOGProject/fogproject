@@ -1585,16 +1585,16 @@ class SnapinManagement extends FOGPage
      */
     public function snapinGeneralPost()
     {
-        $snapin = filter_input(INPUT_POST, 'snapin');
-        $description = filter_input(INPUT_POST, 'description');
-        $packtype = filter_input(INPUT_POST, 'packtype');
-        $runWith = filter_input(INPUT_POST, 'rw');
-        $runWithArgs = filter_input(INPUT_POST, 'rwa');
+        $snapin = trim(filter_input(INPUT_POST, 'snapin'));
+        $description = trim(filter_input(INPUT_POST, 'description'));
+        $packtype = trim(filter_input(INPUT_POST, 'packtype'));
+        $runWith = trim(filter_input(INPUT_POST, 'rw'));
+        $runWithArgs = trim(filter_input(INPUT_POST, 'rwa'));
         $snapinfile = basename(
-            filter_input(INPUT_POST, 'snapinfileexist')
+            trim(filter_input(INPUT_POST, 'snapinfileexist'))
         );
         $uploadfile = basename(
-            $_FILES['snapinfile']['name']
+            trim($_FILES['snapinfile']['name'])
         );
         if ($uploadfile) {
             $snapinfile = $uploadfile;
@@ -1603,9 +1603,9 @@ class SnapinManagement extends FOGPage
         $isEnabled = (int)isset($_POST['isEnabled']);
         $toReplicate = (int)isset($_POST['toReplicate']);
         $hide = (int)isset($_POST['isHidden']);
-        $timeout = filter_input(INPUT_POST, 'timeout');
-        $action = filter_input(INPUT_POST, 'action');
-        $args = filter_input(INPUT_POST, 'args');
+        $timeout = trim(filter_input(INPUT_POST, 'timeout'));
+        $action = trim(filter_input(INPUT_POST, 'action'));
+        $args = trim(filter_input(INPUT_POST, 'args'));
 
         $exists = self::getClass('SnapinManager')
             ->exists($snapin);

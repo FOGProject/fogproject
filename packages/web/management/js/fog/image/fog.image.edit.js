@@ -34,13 +34,6 @@
     generalDeleteBtn.on('click', function() {
         generalDeleteModal.modal('show');
     });
-    $('#andFile').on('ifChecked', function() {
-        opts = {
-            andFile: 1
-        };
-    }).on('ifUnchecked', function() {
-        opts = {};
-    });
     generalDeleteModalConfirm.on('click', function() {
         var method = 'post',
             action = '../management/index.php?node='
@@ -73,182 +66,20 @@
         });
     }
 
-    // ---------------------------------------------------------------
-    // STORAGEGROUPS TAB
-    var storagegroupsAddBtn = $('#storagegroups-add'),
-        storagegroupsRemoveBtn = $('#storagegroups-remove'),
-        storagegroupsPrimaryBtn = $('#storagegroups-primary'),
-        PRIMARY_GROUP_ID = -1;
-    storagegroupsAddBtn.prop('disabled', true);
-    storagegroupsRemoveBtn.prop('disabled', true);
-    function onStoragegroupsSelect(selected) {
-        var disabled = selected.count() == 0;
-        storagegroupsAddBtn.prop('disabled', disabled);
-        storagegroupsRemoveBtn.prop('disabled', disabled);
-    }
-    var storagegroupsTable = $('#image-storagegroups-table').registerTable(onStoragegroupsSelect, {
-        order: [
-            [2, 'asc'],
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'name'},
-            {data: 'primary'},
-            {data: 'association'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            {
-                responsivePriority: -1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=storagegroup&sub=edit&id='
-                        + row.id
-                        + '">'
-                        + data
-                        + '</a>';
-                },
-                targets: 0
-            },
-            {
-                responsivePriority: 20000,
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.primary > 0 && row.origID == Common.id) {
-                        checkval = ' checked';
-                    }
-                    return '<div class="radio">'
-                        + '<input belongsto="isPrimaryGroup'
-                        + row.origID
-                        + '" type="radio" class="primary" name="primary" id="group_'
-                        + row.id
-                        + '" value="'
-                        + row.id
-                        + '"'
-                        + ' wasoriginalprimary="'
-                        + checkval
-                        + '" '
-                        + checkval
-                        + (row.origID != Common.id ? ' disabled' : '')
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 1
-            },
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="storagegroupsAssoc_'
-                        + row.id
-                        + '" value="'
-                        + row.id
-                        + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 2
-            }
-        ],
-        processing: true,
-        ajax: {
-            url: '../management/index.php?node='+Common.node+'&sub=getStoragegroupsList&id='+Common.id,
-            type: 'post'
-        }
-    });
-    storagegroupsTable.on('draw', function() {
-        Common.iCheck('#image-storagegroups-table input');
-        $('#image-storagegroups-table input.primary').on('ifClicked', onRadioSelect);
-        $('#image-storagegroups-table input.associated').on('ifClicked', onCheckboxSelect);
-        onStoragegroupsSelect(storagegroupsTable.rows({selected: true}));
-    });
-    var onRadioSelect = function(event) {
-        var id = parseInt($(this).attr('value'));
-        if ($(this).attr('belongsto') === 'isPrimaryGroup'+Common.id) {
-            if (PRIMARY_GROUP_ID === -1 && $(this).attr('wasoriginalprimary') === ' checked') {
-                PRIMARY_GROUP_ID = id;
-            }
-            if (id === PRIMARY_GROUP_ID) {
-                PRIMARY_GROUP_ID = id;
-            } else {
-                PRIMARY_GROUP_ID = id;
-            }
-            storagegroupsPrimaryBtn.prop('disabled', false);
-        }
-    };
-    var onCheckboxSelect = function(event) {
-    };
-    // Setup primary group watcher
-    $('.primary').on('ifClicked', onRadioSelect);
-    $('.associated').on('ifClicked', onCheckboxSelect);
-    storagegroupsPrimaryBtn.on('click', function() {
-        storagegroupsAddBtn.prop('disabled', true);
-        storagegroupsRemoveBtn.prop('disabled', true);
-        storagegroupsPrimaryBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            opts = {
-                'primarysel': '1',
-                'primary': PRIMARY_GROUP_ID
-            };
-        $.apiCall(method,action,opts,function(err) {
-            storagegroupsPrimaryBtn.prop('disabled', !err);
-            onStoragegroupsSelect(storagegroupsTable.rows({selected: true}));
-            $('.primary[value='+PRIMARY_GROUP_ID+']').iCheck('check');
-        });
-    });
-    storagegroupsAddBtn.on('click', function() {
-        storagegroupsAddBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = storagegroupsTable.rows({selected: true}),
-            toAdd = $.getSelectedIds(storagegroupsTable),
-            opts = {
-                'updatestoragegroups': '1',
-                'storagegroups': toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            if (!err) {
-                storagegroupsTable.draw(false);
-                storagegroupsTable.rows({selected: true}).deselect();
-                // Unset the primary radio from disabled.
-                $('#image-storagegroups-table').find('.primary').each(function() {
-                    if ($.inArray($(this).val(), toAdd) != -1) {
-                        $(this).prop('disabled', false);
-                        Common.iCheck(this);
-                    }
-                });
-                // Check the associated checkbox.
-                $('#image-storagegroups-table').find('.associated').each(function() {
-                    if ($.inArray($(this).val(), toAdd) != -1) {
-                        $(this).iCheck('check');
-                    }
-                });
-            } else {
-                storagegroupsAddBtn.prop('disabled', false);
-            }
-        });
-    });
-    storagegroupsRemoveBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#storagegroupDelModal').modal('show');
-    });
-    $('#confirmstoragegroupDeleteModal').on('click', function(e) {
-        $.deleteAssociated(storagegroupsTable, storagegroupsRemoveBtn.attr('action'), function(err) {
-            if (err) {
-                return;
-            }
-            $('#storagegroupDelModal').modal('hide');
-            storagegroupsTable.draw(false);
-            storagegroupsTable.rows({selected: true}).deselect();
-        });
+    // Should we delete the image files too?
+    $('#andFile').on('ifChecked', function() {
+        opts = {
+            andFile: 1
+        };
+    }).on('ifUnchecked', function() {
+        opts = {};
     });
 
+    $('.slider').slider();
+
+    // ASSOCIATIONS
     // ---------------------------------------------------------------
-    // HOST ASSOCIATION TAB
+    // HOST TAB
     var imageHostUpdateBtn = $('#image-host-send'),
         imageHostRemoveBtn = $('#image-host-remove'),
         imageHostDeleteConfirmBtn = $('#confirmhostDeleteModal');
@@ -348,9 +179,151 @@
         $.checkItemUpdate(imageHostsTable, this, e, imageHostUpdateBtn);
     };
 
+    // ---------------------------------------------------------------
+    // STORAGEGROUP TAB
+    var imageStoragegroupUpdateBtn = $('#image-storagegroup-send'),
+        imageStoragegroupRemoveBtn = $('#image-storagegroup-remove'),
+        imageStoragegroupDeleteConfirmBtn = $('#confirmstoragegroupDeleteModal');
+
+    function disableStoragegroupButtons(disable) {
+        imageStoragegroupUpdateBtn.prop('disabled', disable);
+        imageStoragegroupRemoveBtn.prop('disabled', disable);
+    }
+
+    function onStoragegroupSelect(selected) {
+        var disabled = selected.count() == 0;
+        disableStoragegroupButtons(disabled);
+    }
+
+    imageStoragegroupUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = imageStoragegroupsTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(imageStoragegroupsTable),
+            opts = {
+                confirmadd: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableStoragegroupButtons(false);
+            if (err) {
+                return;
+            }
+            imageStoragegroupsTable.draw(false);
+            imageStoragegroupsTable.rows({selected: true}).deselect();
+            setTimeout(imageStoragegroupPrimarySelectorUpdate, 1000);
+        });
+    });
+
+    imageStoragegroupRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#storagegroupDelModal').modal('show');
+    });
+
+    var imageStoragegroupsTable = $('#image-storagegroup-table').registerTable(onStoragegroupSelect, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'mainLink'},
+            {data: 'association'}
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="imageStoragegroupAssoc_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getStoragegroupsList&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
+
+    imageStoragegroupDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(imageStoragegroupsTable, imageStoragegroupUpdateBtn.attr('action'), function(err) {
+            $('#storagegroupDelModal').modal('hide');
+            if (err) {
+                return;
+            }
+            imageStoragegroupsTable.draw(false);
+            imageStoragegroupsTable.rows({selected: true}).deselect();
+            setTimeout(imageStoragegroupPrimarySelectorUpdate, 1000);
+        });
+    });
+
+    imageStoragegroupsTable.on('draw', function() {
+        Common.iCheck('#image-storagegroup-table input');
+        $('#image-storagegroup-table input.associated').on('ifChanged', onImageStoragegroupCheckboxSelect);
+        onStoragegroupSelect(imageStoragegroupsTable.rows({selected: true}));
+    });
+
+    var onImageStoragegroupCheckboxSelect = function(e) {
+        $.checkItemUpdate(imageStoragegroupsTable, this, e, imageStoragegroupUpdateBtn);
+        setTimeout(imageStoragegroupPrimarySelectorUpdate, 1000);
+    };
+
+    // Primary area
+    var imageStoragegroupPrimaryUpdateBtn = $('#image-storagegroup-primary-send'),
+        imageStoragegroupPrimarySelector = $('#storagegroupselector'),
+        imageStoragegroupPrimarySelectorUpdate = function() {
+            var url = '../management/index.php?node='
+                + Common.node
+                + '&sub=getImagePrimaryStoragegroups&id='
+                + Common.id;
+            Pace.ignore(function() {
+                imageStoragegroupPrimarySelector.html('');
+                $.get(url, function(data) {
+                    imageStoragegroupPrimarySelector.html(data.content);
+                    imageStoragegroupPrimaryUpdateBtn.prop('disabled', data.disablebtn);
+                }, 'json');
+            });
+        };
+
+    function disableStoragegroupPrimaryButtons(disable) {
+        imageStoragegroupPrimaryUpdateBtn.prop('disabled', disable);
+    }
+
+    imageStoragegroupPrimarySelectorUpdate();
+
+    imageStoragegroupPrimaryUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            opts = {
+                confirmprimary: 1,
+                primary: $('#storagegroup option:selected').val()
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableStoragegroupPrimaryButtons(false);
+            if (err) {
+                return;
+            }
+        });
+    });
+
     if (Common.search && Common.search.length > 0) {
-        storagegroupsTable.search(Common.search).draw();
+        imageStoragegroupsTable.search(Common.search).draw();
         imageHostsTable.search(Common.search).draw();
     }
-    $('.slider').slider();
 })(jQuery);

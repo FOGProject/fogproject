@@ -1151,54 +1151,66 @@ class ImageManagement extends FOGPage
      */
     public function imageStoragegroups()
     {
+        // Storage Group Associations
+        $this->headerData = [
+            _('Storage Group Name'),
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
-                'image-storagegroups',
+                'image-storagegroup',
                 $this->obj->get('id')
             )
             . '" ';
 
-        $buttons = self::makeButton(
-            'storagegroups-primary',
-            _('Update Primary Group'),
-            'btn btn-primary pull-right',
-            $props
-        );
         $buttons .= self::makeButton(
-            'storagegroups-add',
+            'image-storagegroup-send',
             _('Add selected'),
             'btn btn-success pull-right',
             $props
         );
         $buttons .= self::makeButton(
-            'storagegroups-remove',
+            'image-storagegroup-remove',
             _('Remove selected'),
             'btn btn-danger pull-left',
             $props
         );
-
-        $this->headerData = [
-            _('Storage Group Name'),
-            _('Storage Group Primary'),
-            _('Storage Group Associated')
-        ];
-        $this->attributes = [
-            [],
-            [],
-            []
-        ];
-
-        echo '<!-- Storage Groups -->';
-        echo '<div class="box-group" id="storagegroups">';
-        echo '<div class="box box-solid">';
-        echo '<div class="updatestoragegroups" class="">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Image Storage Group Associations');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'image-storagegroups-table', $buttons);
+        $this->render(12, 'image-storagegroup-table', $buttons);
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $this->assocDelModal('storagegroup');
         echo '</div>';
         echo '</div>';
+
+        // Primary Storage Group
+        $buttons = self::makeButton(
+            'image-storagegroup-primary-send',
+            _('Update'),
+            'btn btn-info pull-right',
+            $props
+        );
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Image Primary Storage Group');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo '<span id="storagegroupselector"></span>';
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $buttons;
         echo '</div>';
         echo '</div>';
     }
@@ -1207,18 +1219,18 @@ class ImageManagement extends FOGPage
      *
      * @return void
      */
-    public function imageStoragegroupsPost()
+    public function imageStoragegroupPost()
     {
-        if (isset($_POST['updatestoragegroups'])) {
+        if (isset($_POST['confirmadd'])) {
             $storagegroup = filter_input_array(
                 INPUT_POST,
                 [
-                    'storagegroups' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $storagegroup = $storagegroup['storagegroups'];
+            $storagegroup = $storagegroup['additems'];
             if (count($storagegroup ?: []) > 0) {
                 $this->obj->addGroup($storagegroup);
             }
@@ -1237,14 +1249,19 @@ class ImageManagement extends FOGPage
                 $this->obj->removeGroup($storagegroup);
             }
         }
-        if (isset($_POST['primarysel'])) {
+        if (isset($_POST['confirmprimary'])) {
             $primary = filter_input(
                 INPUT_POST,
                 'primary'
             );
+            $storagegroups = array_diff(
+                $this->obj->get('storagegroups'),
+                [$primary]
+            );
             self::getClass('ImageAssociationManager')->update(
                 [
                     'imageID' => $this->obj->get('id'),
+                    'storagegroupID' => $storagegroups,
                     'primary' => '1'
                 ],
                 '',
@@ -1254,10 +1271,11 @@ class ImageManagement extends FOGPage
                 self::getClass('ImageAssociationManager')->update(
                     [
                         'imageID' => $this->obj->get('id'),
-                        'storagegroupID' => $primary
+                        'storagegroupID' => $primary,
+                        'primary' => ['0', '']
                     ],
                     '',
-                    ['primary' => '1']
+                    ['primary' => 1]
                 );
             }
         }
@@ -1384,7 +1402,7 @@ class ImageManagement extends FOGPage
                     ],
                     [
                         'name' => _('Storage Groups'),
-                        'id' => 'image-storagegroups',
+                        'id' => 'image-storagegroup',
                         'generator' => function () {
                             $this->imageStoragegroups();
                         }
@@ -1483,8 +1501,8 @@ class ImageManagement extends FOGPage
             case 'image-general':
                 $this->imageGeneralPost();
                 break;
-            case 'image-storagegroups':
-                $this->imageStoragegroupsPost();
+            case 'image-storagegroup':
+                $this->imageStoragegroupPost();
                 break;
             case 'image-host':
                 $this->imageHostPost();
@@ -1938,7 +1956,10 @@ class ImageManagement extends FOGPage
             . "`nfsGroups`.`ngID` = `imageGroupAssoc`.`igaStorageGroupID` "
             . "AND `imageGroupAssoc`.`igaImageID` = '" . $this->obj->get('id') . "'"
         ];
-
+        $columns[] = [
+            'db' => 'igaStoragegroupID',
+            'dt' => 'origID'
+        ];
         $columns[] = [
             'db' => 'igaPrimary',
             'dt' => 'primary'
@@ -1947,10 +1968,6 @@ class ImageManagement extends FOGPage
             'db' => 'imageAssoc',
             'dt' => 'association',
             'removeFromQuery' => true
-        ];
-        $columns[] = [
-            'db' => 'igaImageID',
-            'dt' => 'origID'
         ];
         return $this->obj->getItemsList(
             'storagegroup',
@@ -2019,5 +2036,68 @@ class ImageManagement extends FOGPage
             '',
             $columns
         );
+    }
+    /**
+     * Gets the storage group selector for setting primary storage groups.
+     *
+     * @return string
+     */
+    public function getImagePrimaryStoragegroups()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        Route::ids(
+            'imageassociation',
+            ['imageID' => $this->obj->get('id')],
+            'storagegroupID'
+        );
+        $storagegroupsAssigned = json_decode(Route::getData(), true);
+        if (!count($storagegroupsAssigned ?: [])) {
+            echo json_encode(
+                [
+                    'content' => _('No storagegroups assigned to this image'),
+                    'disablebtn' => true
+                ]
+            );
+            exit;
+        }
+        Route::names(
+            'storagegroup',
+            ['id' => $storagegroupsAssigned]
+        );
+        $storagegroupNames = json_decode(Route::getData());
+        foreach ($storagegroupNames as &$storagegroup) {
+            $storagegroups[$storagegroup->id] = $storagegroup->name;
+            unset($storagegroup);
+        }
+        unset($storagegroupNames);
+        Route::ids(
+            'imageassociation',
+            [
+                'imageID' => $this->obj->get('id'),
+                'primary' => '1'
+            ],
+            'storagegroupID'
+        );
+        $primarystoragegroup = json_decode(Route::getData(), true);
+        $primarystoragegroup = array_shift($primarystoragegroup);
+        $storagegroupSelector = self::selectForm(
+            'storagegroup',
+            $storagegroups,
+            $primarystoragegroup,
+            true,
+            '',
+            true
+        );
+        echo json_encode(
+            [
+                'content' => $storagegroupSelector,
+                'disablebtn' => false
+            ]
+        );
+        exit;
     }
 }
