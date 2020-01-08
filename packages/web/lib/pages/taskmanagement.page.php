@@ -64,10 +64,11 @@ class TaskManagement extends FOGPage
             . $this->formAction
             . '" ';
 
-        $this->_buttons = self::makeButton(
-            'resume-refresh',
-            _('Resume Reload'),
-            'btn btn-success pull-right'
+        $this->_buttons .= self::makeButton(
+            'cancel-selected',
+            _('Cancel Selected'),
+            'btn btn-danger pull-left',
+            $props
         );
         $this->_buttons .= self::makeButton(
             'pause-refresh',
@@ -75,10 +76,9 @@ class TaskManagement extends FOGPage
             'btn btn-warning pull-left'
         );
         $this->_buttons .= self::makeButton(
-            'cancel-selected',
-            _('Cancel Selected'),
-            'btn btn-danger pull-left',
-            $props
+            'resume-refresh',
+            _('Resume Reload'),
+            'btn btn-success pull-right'
         );
     }
     /**

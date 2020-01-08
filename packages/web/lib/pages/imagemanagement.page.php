@@ -1701,10 +1701,12 @@ class ImageManagement extends FOGPage
             _('Create'),
             'btn btn-primary pull-right'
         );
+
         $buttons .= self::makeButton(
-            'session-resume',
-            _('Resume Reload'),
-            'btn btn-success pull-right'
+            'session-cancel',
+            _('Cancel Selected'),
+            'btn btn-danger pull-left',
+            $props
         );
         $buttons .= self::makeButton(
             'session-pause',
@@ -1712,10 +1714,9 @@ class ImageManagement extends FOGPage
             'btn btn-warning pull-left'
         );
         $buttons .= self::makeButton(
-            'session-cancel',
-            _('Cancel Selected'),
-            'btn btn-danger pull-left',
-            $props
+            'session-resume',
+            _('Resume Reload'),
+            'btn btn-success pull-right'
         );
 
         $modalBtns = self::makeButton(
