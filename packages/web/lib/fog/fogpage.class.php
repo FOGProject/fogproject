@@ -1073,6 +1073,13 @@ abstract class FOGPage extends FOGBase
                     );
                     $actionbox .= '<div class="btn-group pull-right">';
                     if (method_exists($this, 'addModal')) {
+                        if ($node == 'host') {
+                            $actionbox .= self::makeButton(
+                                'addSelectedToGroup',
+                                _('Add selected to group'),
+                                'btn btn-default'
+                            );
+                        }
                         $actionbox .= self::makeButton(
                             'createnew',
                             _('Add'),
@@ -1101,11 +1108,6 @@ abstract class FOGPage extends FOGBase
                         );
                     }
                     if ($node == 'host') {
-                        $actionbox .= self::makeButton(
-                            'addSelectedToGroup',
-                            _('Add selected to group'),
-                            'btn btn-default'
-                        );
                         $modals .= self::makeModal(
                             'addToGroupModal',
                             _('Add To Group(s)'),
