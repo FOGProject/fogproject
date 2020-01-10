@@ -335,7 +335,7 @@ class ProcessLogin extends FOGPage
             '',
             true
         );
-        echo '<span class="glyphicon glyphicon-user form-control-feedback"></span>';
+        echo '<span class="fa fa-user form-control-feedback"></span>';
         echo '</div>';
         echo '<div class="form-group has-feedback">';
         echo self::makeInput(
@@ -347,7 +347,7 @@ class ProcessLogin extends FOGPage
             '',
             true
         );
-        echo '<span class="glyphicon glyphicon-lock form-control-feedback"></span>';
+        echo '<span class="fa fa-lock form-control-feedback"></span>';
         echo '</div>';
         echo '<div class="form-group">';
         echo self::_getLanguages();
