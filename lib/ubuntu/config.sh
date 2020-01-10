@@ -53,7 +53,9 @@ elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]
                 [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm"
                 [[ -z $phpldap ]] && phpldap="php${php_ver}-ldap"
                 [[ -z $phpcmd ]] && phpcmd="php"
-                if [[ -z $php_ver || $php_ver != "7.1" ]]; then
+                x="*php5* *php-5*"
+                eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                if [[ $? -ne 0 ]]; then
                     if [[ $autoaccept != yes ]]; then
                         echo " *** Detected a potential need to reinstall apache and php files."
                         echo " *** This will remove the /etc/php* and /etc/apache2* directories"
