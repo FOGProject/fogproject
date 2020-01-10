@@ -361,10 +361,6 @@ abstract class FOGPage extends FOGBase
                 self::$foglang['Dashboard'],
                 'fa fa-dashboard'
             ],
-            'user' => [
-                self::$foglang['Users'],
-                'fa fa-users'
-            ],
             'host' => [
                 self::$foglang['Hosts'],
                 'fa fa-desktop'
@@ -376,18 +372,6 @@ abstract class FOGPage extends FOGBase
             'image' => [
                 self::$foglang['Images'],
                 'fa fa-hdd-o'
-            ],
-            'ipxe' => [
-                _('iPXE Menu'),
-                'fa fa-bars'
-            ],
-            'storagenode' => [
-                self::$foglang['StorageNodes'],
-                'fa fa-archive'
-            ],
-            'storagegroup' => [
-                self::$foglang['StorageGroups'],
-                'fa fa-object-group'
             ],
             'snapin' => [
                 self::$foglang['Snapins'],
@@ -405,9 +389,25 @@ abstract class FOGPage extends FOGBase
                 self::$foglang['Tasks'],
                 'fa fa-tasks'
             ],
+            'storagenode' => [
+                self::$foglang['StorageNodes'],
+                'fa fa-archive'
+            ],
+            'storagegroup' => [
+                self::$foglang['StorageGroups'],
+                'fa fa-object-group'
+            ],
             'report' => [
                 self::$foglang['Reports'],
                 'fa fa-file-text'
+            ],
+            'user' => [
+                self::$foglang['Users'],
+                'fa fa-users'
+            ],
+            'ipxe' => [
+                _('iPXE Menu'),
+                'fa fa-bars'
             ],
             'about' => [
                 self::$foglang['FOG Configuration'],
@@ -415,7 +415,7 @@ abstract class FOGPage extends FOGBase
             ],
             'client' => [
                 _('FOG Client'),
-                'fa fa-file'
+                'fa fa-file-download'
             ]
         ];
         if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
