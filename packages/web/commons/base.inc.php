@@ -35,7 +35,6 @@ header(
     . "font-src 'self' data:;"
 );
 header('Access-Control-Allow-Origin: *');
-header('Set-Cookie: name=value; httpOnly');
 /**
  * Our required files, text for language and init to initialize system.
  */

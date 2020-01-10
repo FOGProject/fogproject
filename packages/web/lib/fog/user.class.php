@@ -374,6 +374,13 @@ class User extends FOGController
         }
         $regenTime = $rst * 60 * 60;
         if ($authTime > $regenTime) {
+            $sessionid = self::_getSessionID();
+            session_write_close();
+            session_start();
+            session_id($sessionid);
+            $_SESSION['sessioncreated'] = time();
+            $_SESSION['authtime'] = time();
+
             $id = filter_input(INPUT_COOKIE, 'foguserauthid');
             $userauth = new UserAuth($id);
             if ($userauth->isValid()) {
@@ -421,13 +428,6 @@ class User extends FOGController
                     ->set('password', $password_hash)
                     ->save();
             }
-
-            $sessionid = self::_getSessionID();
-            session_write_close();
-            session_start();
-            session_id($sessionid);
-            $_SESSION['sessioncreated'] = time();
-            $_SESSION['authtime'] = time();
         }
         if (!isset($_SESSION['FOG_USER'])) {
             $_SESSION['FOG_USER'] = $this->get('id');
