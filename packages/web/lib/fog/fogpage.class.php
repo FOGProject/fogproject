@@ -415,7 +415,7 @@ abstract class FOGPage extends FOGBase
             ],
             'client' => [
                 _('FOG Client'),
-                'fa fa-file-download'
+                'fa fa-cloud-download'
             ]
         ];
         if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
