@@ -6086,7 +6086,7 @@ msgstr ""
 msgid " | This is not the master node"
 msgstr "Es Nodo Maestro"
 
-msgid "Interface not ready, waiting."
+msgid "Interface not ready, waiting for it to come up"
 msgstr ""
 
 #, fuzzy

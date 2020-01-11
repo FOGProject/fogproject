@@ -5397,8 +5397,8 @@ msgstr "Impossibile ridichiarare il percorso"
 msgid " | This is not the master node"
 msgstr " | Questo non è il nodo master"
 
-msgid "Interface not ready, waiting."
-msgstr "Interfaccia non pronta, in attesa."
+msgid "Interface not ready, waiting for it to come up"
+msgstr "Interfaccia non pronta, in attesa che venga visualizzata"
 
 msgid "Waiting for mysql to be available"
 msgstr "In attesa di mysql sia disponibile"

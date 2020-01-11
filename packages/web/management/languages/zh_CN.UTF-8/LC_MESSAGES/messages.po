@@ -5996,7 +5996,7 @@ msgstr ""
 msgid " | This is not the master node"
 msgstr "|这不是主节点"
 
-msgid "Interface not ready, waiting."
+msgid "Interface not ready, waiting for it to come up"
 msgstr ""
 
 msgid "Waiting for mysql to be available"

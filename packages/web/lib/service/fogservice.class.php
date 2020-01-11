@@ -130,10 +130,13 @@ abstract class FOGService extends FOGBase
      */
     public function waitInterfaceReady()
     {
-        self::getIPAddress();
-        if (!count(self::$ips)) {
+        self::getIPAddress(true);
+        if (!count(self::$ips) || !in_array(self::getSetting('FOG_WEB_HOST'), self::$ips)) {
             self::outall(
-                _('Interface not ready, waiting.')
+                sprintf('%s: %s',
+                    _('Interface not ready, waiting for it to come up'),
+                    self::getSetting('FOG_WEB_HOST')
+                )
             );
             sleep(10);
             $this->waitInterfaceReady();
