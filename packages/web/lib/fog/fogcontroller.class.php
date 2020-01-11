@@ -835,6 +835,10 @@ abstract class FOGController extends FOGBase
                 _('Invalid type, merge to add, diff to remove')
             );
         }
+        $array = array_filter($array);
+        if (count($array) < 1) {
+            return $this;
+        }
         switch ($array_type) {
         case 'merge':
             foreach ((array)$array as &$a) {
