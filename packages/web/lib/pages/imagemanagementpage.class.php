@@ -521,7 +521,7 @@ class ImageManagementPage extends FOGPage
             . '<option value="6"%s>%s</option>'
             . '</select>',
             (
-                !$imagemanage || $imagemanage == 0 ?
+                $imagemanage == 0 ?
                 ' selected' :
                 ''
             ),
@@ -551,7 +551,7 @@ class ImageManagementPage extends FOGPage
             ),
             _('Partclone Uncompressed Split 200MiB'),
             (
-                $imagemanage == 5 ?
+                !$imagemanage || $imagemanage == 5 ?
                 ' selected' :
                 ''
             ),
