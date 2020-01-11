@@ -34,7 +34,7 @@ elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]
             libcurl="libcurl4"
         fi
         case $OSVersion in
-            19)
+            19|20)
                 php_ver="7.3"
                 [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm"
                 [[ -z $phpldap ]] && phpldap="php${php_ver}-ldap"
