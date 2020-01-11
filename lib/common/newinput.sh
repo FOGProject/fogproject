@@ -19,11 +19,11 @@ while [[ -z $hostname ]]; do
     blHost="N"
     if [[ -z $autoaccept ]]; then
         echo
-        echo " *** New option 'hostname' since FOG 1.5.6 ***"
-        echo
-        echo "  Would you like to change the default hostname >${strSuggestedHostname}<?"
-        echo "  The fully qualified hostname is used for the webserver certificate."
-        echo -n "  If you are not sure, select No. [y/N] "
+        echo "  Which hostname would you like to use? Currently is: ${strSuggestedHostname}"
+        echo "  Note: This hostname will be in the certificate we generate for your"
+        echo "  FOG webserver. The hostname will only be used for this but won't be"
+        echo "  set as a local hostname on your server!"
+        echo -n "  Would you like to change it? If you are not sure, select No. [y/N] "
         read blHost
     fi
     case $blHost in
