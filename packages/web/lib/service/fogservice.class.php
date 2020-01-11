@@ -133,7 +133,8 @@ abstract class FOGService extends FOGBase
         self::getIPAddress(true);
         if (!count(self::$ips) || !in_array(self::getSetting('FOG_WEB_HOST'), self::$ips)) {
             self::outall(
-                sprintf('%s: %s',
+                sprintf(
+                    '%s: %s',
                     _('Interface not ready, waiting for it to come up'),
                     self::getSetting('FOG_WEB_HOST')
                 )
