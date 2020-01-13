@@ -92,12 +92,22 @@
     generalDeleteBtn.on('click', function() {
         generalDeleteModal.modal('show');
     });
+    $('#andFile').on('ifChanged', function(e) {
+        e.preventDefault();
+        $(this).iCheck('update');
+        if (!this.checked) {
+            opts = {};
+            return;
+        }
+        opts = {andFile: 1};
+    });
     generalDeleteModalConfirm.on('click', function() {
         var method = 'post',
             action = '../management/index.php?node='
                 + Common.node
                 + '&sub=delete&id='
                 + Common.id;
+        $('#andFile').trigger('change');
         $.apiCall(method, action, opts, function(err) {
             if (err) {
                 return;
@@ -108,15 +118,6 @@
                     + '&sub=list';
             }, 2000);
         });
-    });
-
-    // Should we delete the file itself?
-    $('#andFile').on('ifChecked', function() {
-        opts = {
-            andFile: 1
-        };
-    }).on('ifUnchecked', function() {
-        opts = {};
     });
 
     // Make sure selectors are select2 friendly
