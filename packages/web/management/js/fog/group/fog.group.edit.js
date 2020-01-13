@@ -42,12 +42,14 @@
     generalDeleteBtn.on('click', function() {
         generalDeleteModal.modal('show');
     });
-    $('#andHosts').on('ifChecked', function() {
-        opts = {
-            andHosts: 1
-        };
-    }).on('ifUnchecked', function() {
-        opts = {};
+    $('#andHosts').on('ifChanged', function(e) {
+        e.preventDefault();
+        $(this).iCheck('update');
+        if (!this.checked) {
+            opts = {};
+            return;
+        }
+        opts = {andHosts: 1};
     });
     generalDeleteModalConfirm.on('click', function() {
         var method = 'post',
@@ -55,6 +57,7 @@
             + Common.node
             + '&sub=delete&id='
             + Common.id;
+        $('#andHosts').trigger('change');
         $.apiCall(method, action, opts, function(err) {
             if (err) {
                 return;

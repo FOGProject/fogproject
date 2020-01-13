@@ -315,7 +315,7 @@ $.notifyFromAPI = function(res, isError) {
     $.debugLog(res);
 };
 $.reAuth = function(count, cb) {
-    deleteConfirmButton.text(deleteLang.replace('{0}', count));
+    deleteConfirmButton.text(deleteLang.replace('{0}', count).replace('{node}', Common.node + (count != 1 ? 's' : '')));
     // enable all buttons / focus on the input box incase
     //   the modal is already being shown
     reAuthModal.setContainerDisable(false);
@@ -751,7 +751,9 @@ function reinitialize() {
 
 function setupIntegrations() {
     Pace.options = {
-        ajax: false,
+        ajax: {
+            trackMethods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH']
+        },
         restartOnRequestAfter: false
     };
     PNotify.prototype.options.styling = "bootstrap3";

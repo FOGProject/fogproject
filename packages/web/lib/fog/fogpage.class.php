@@ -1141,7 +1141,40 @@ abstract class FOGPage extends FOGBase
                             'password',
                             'deletePassword'
                         )
-                        . '</div>',
+                        . '</div>'
+                        . '<br/>'
+                        . (
+                            in_array($node, ['snapin', 'image', 'group']) ?
+                            self::makeLabel(
+                                'control-label',
+                                (
+                                    in_array($node, ['snapin', 'image']) ?
+                                    'andFile' : 'andHosts'
+                                ),
+                                self::makeInput(
+                                    '',
+                                    (
+                                        in_array($node, ['snapin', 'image']) ?
+                                        'andFile' :
+                                        'andHosts'
+                                    ),
+                                    '',
+                                    'checkbox',
+                                    (
+                                        in_array($node, ['snapin', 'image']) ?
+                                        'andFile' :
+                                        'andHosts'
+                                    )
+                                )
+                                . ' '
+                                . (
+                                    in_array($node, ['snapin', 'image']) ?
+                                    _('Remove associated files') :
+                                    _('Delete associated hosts')
+                                )
+                            ) :
+                            ''
+                        ),
                         self::makeButton(
                             'closeDeleteModal',
                             _('Cancel'),
@@ -1152,7 +1185,7 @@ abstract class FOGPage extends FOGBase
                             'confirmDeleteModal',
                             _('Delete')
                             . ' {0} '
-                            . _($node.'s'),
+                            . _('{node}'),
                             'btn btn-outline pull-right'
                         ),
                         '',
@@ -1826,13 +1859,13 @@ abstract class FOGPage extends FOGBase
             $extra .= '<br/>';
             $extra .= self::makeLabel(
                 'control-label',
-                'andHosts',
+                'andFile',
                 self::makeInput(
                     '',
-                    'andHosts',
+                    'andFile',
                     '',
                     'checkbox',
-                    'andHosts'
+                    'andFile'
                 )
                 . ' '
                 . _('Remove file data')

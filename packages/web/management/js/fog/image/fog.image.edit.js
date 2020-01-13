@@ -34,6 +34,16 @@
     generalDeleteBtn.on('click', function() {
         generalDeleteModal.modal('show');
     });
+    // Should we delete the image files too?
+    $('#andFile').on('ifChanged', function(e) {
+        e.preventDefault();
+        $(this).iCheck('update');
+        if (!this.checked) {
+            opts = {};
+            return;
+        }
+        opts = {andFile: 1};
+    });
     generalDeleteModalConfirm.on('click', function() {
         var method = 'post',
             action = '../management/index.php?node='
@@ -41,6 +51,7 @@
                 + '&sub=delete&id='
                 + Common.id,
             opts = {};
+        $('#andFile').trigger('change');
         $.apiCall(method, action, opts, function(err) {
             if (err) {
                 return;
@@ -65,15 +76,6 @@
             $('.imagepath-input').val(this.value).trigger('change');
         });
     }
-
-    // Should we delete the image files too?
-    $('#andFile').on('ifChecked', function() {
-        opts = {
-            andFile: 1
-        };
-    }).on('ifUnchecked', function() {
-        opts = {};
-    });
 
     $('.slider').slider();
 
