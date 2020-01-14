@@ -114,6 +114,8 @@ class PDODB extends DatabaseManager
                 _('SQL Error'),
                 $this->sqlerror()
             );
+            self::debug($msg);
+            self::error($msg);
         }
     }
     /**
@@ -187,6 +189,8 @@ class PDODB extends DatabaseManager
                     _('Error Message'),
                     $this->sqlerror()
                 );
+                self::debug($msg);
+                self::error($msg);
             }
         }
         return $this;
@@ -229,6 +233,8 @@ class PDODB extends DatabaseManager
                 $main->sqlerror()
             );
             self::$_dbName = false;
+            self::debug($msg);
+            self::error($msg);
         }
         return $main;
     }
@@ -266,7 +272,6 @@ class PDODB extends DatabaseManager
             self::$_query = $sql;
             self::_prepare();
             self::_execute($paramvals);
-            $this->info($sql);
             if (!self::$_dbName) {
                 self::currentDb($this);
             }
@@ -293,6 +298,8 @@ class PDODB extends DatabaseManager
                     self::_debugDumpParams()
                 );
             }
+            self::debug($sql);
+            self::error($msg);
             $this->error = $msg;
         }
         return $this;
@@ -434,6 +441,8 @@ class PDODB extends DatabaseManager
             $msg = _('Cannot connect to database');
             self::$_link = false;
         }
+        self::debug($msg);
+        self::error($msg);
         return $msg;
     }
     /**
@@ -445,7 +454,7 @@ class PDODB extends DatabaseManager
     {
         if (is_bool(self::$_link)) {
             if (!self::$_link) {
-                die(_('Database connection unavailable'));
+                $this->sqlerror();
             }
         }
         return self::$_link->lastInsertId();
@@ -558,6 +567,8 @@ class PDODB extends DatabaseManager
             }
 
         } catch (PDOException $e) {
+            self::debug($e->getMessage());
+            self::error($e->getMessage());
         }
         return (self::$_link = false);
     }

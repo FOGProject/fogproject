@@ -56,11 +56,7 @@ class Initiator
          */
         self::$_sanitizeItems = function (&$val, &$key) use (&$value) {
             if (is_string($val)) {
-                $value[$key] = htmlspecialchars(
-                    $val,
-                    ENT_QUOTES | ENT_HTML401,
-                    'utf-8'
-                );
+                $value[$key] = filter_var($val);
             }
             if (is_array($val)) {
                 array_walk($val, self::$_sanitizeItems);
@@ -320,11 +316,7 @@ class Initiator
             if (is_array($value)) {
                 array_walk($value, self::$_sanitizeItems);
             } else {
-                $value = htmlspecialchars(
-                    $value,
-                    ENT_QUOTES | ENT_HTML401,
-                    'utf-8'
-                );
+                $value = filter_var($value);
             }
         }
         return $value;

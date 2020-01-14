@@ -186,7 +186,7 @@ class FOGPageManager extends FOGBase
             if (!$class->node) {
                 throw new Exception(_('No node associated'));
             }
-            $this->info(
+            self::info(
                 sprintf(
                     _('Adding FOGPage: %s, Node: %s'),
                     get_class($class),

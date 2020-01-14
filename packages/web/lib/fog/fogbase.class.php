@@ -738,15 +738,24 @@ abstract class FOGBase
      */
     public static function error($txt, $data = [])
     {
-        if ((self::$service || self::$ajax) || !self::$debug) {
-            return;
-        }
         $data = self::_setString($txt, $data);
         $string = sprintf(
             'FOG ERROR: %s: %s',
-            get_class($this),
+            __CLASS__,
             $data
         );
+        $log_filename = 'fog_gui_log';
+        if (!file_exists($log_filename)) {
+            mkdir($log_filename, 0777, true);
+        }
+        $log_file_data = $log_filename
+            . '/gui_error_log_'
+            . self::niceDate()->format('d-m-Y')
+            . '.log';
+        file_put_contents($log_file_data, $string."\n", FILE_APPEND);
+        if ((self::$service || self::$ajax) || !self::$debug) {
+            return;
+        }
         printf('<div class="debug debug-error">%s</div>', $string);
     }
     /**
@@ -759,15 +768,24 @@ abstract class FOGBase
      */
     public static function debug($txt, $data = [])
     {
-        if ((self::$service || self::$ajax) || !self::$debug) {
-            return;
-        }
         $data = self::_setString($txt, $data);
         $string = sprintf(
             'FOG DEBUG: %s: %s',
-            get_class($this),
+            __CLASS__,
             $data
         );
+        $log_filename = 'fog_gui_log';
+        if (!file_exists($log_filename)) {
+            mkdir($log_filename, 0777, true);
+        }
+        $log_file_data = $log_filename
+            . '/gui_debug_log_'
+            . self::niceDate()->format('d-m-Y')
+            . '.log';
+        file_put_contents($log_file_data, $string."\n", FILE_APPEND);
+        if ((self::$service || self::$ajax) || !self::$debug) {
+            return;
+        }
         printf('<div class="debug debug-error">%s</div>', $string);
     }
     /**
@@ -780,15 +798,24 @@ abstract class FOGBase
      */
     public static function info($txt, $data = [])
     {
-        if (!self::$info || self::$service || self::$ajax) {
-            return;
-        }
         $data = self::_setString($txt, $data);
         $string = sprintf(
             'FOG INFO: %s: %s',
-            get_class($this),
+            __CLASS__,
             $data
         );
+        $log_filename = 'fog_gui_log';
+        if (!file_exists($log_filename)) {
+            mkdir($log_filename, 0777, true);
+        }
+        $log_file_data = $log_filename
+            . '/gui_info_log_'
+            . self::niceDate()->format('d-m-Y')
+            . '.log';
+        file_put_contents($log_file_data, $string."\n", FILE_APPEND);
+        if (!self::$info || self::$service || self::$ajax) {
+            return;
+        }
         printf('<div class="debug debug-info">%s</div>', $string);
     }
     /**

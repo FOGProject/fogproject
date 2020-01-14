@@ -242,7 +242,7 @@ abstract class FOGController extends FOGBase
      *
      * @param mixed $key the key to get
      *
-     * @return object
+     * @return mixed
      */
     public function get($key = '')
     {
