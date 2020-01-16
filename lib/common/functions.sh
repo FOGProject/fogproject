@@ -31,20 +31,12 @@ backupReports() {
 registerStorageNode() {
     [[ -z $webroot ]] && webroot="/"
     dots "Checking if this node is registered"
-    if [ ! -z "$serverCert" ]; then
-        storageNodeExists=$(wget -qO - ${httpproto}://$ipaddress/${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
-    else
-        storageNodeExists=$(wget --no-check-certificate -qO - ${httpproto}://$ipaddress/${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
-    fi
+    storageNodeExists=$(wget --no-check-certificate -qO - ${httpproto}://$ipaddress/${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
     echo "Done"
     if [[ $storageNodeExists != exists ]]; then
         [[ -z $maxClients ]] && maxClients=10
         dots "Node being registered"
-        if [ ! -z "$serverCert" ]; then
-	    wget -qO - $httpproto://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$(echo -n $ipaddress| base64)&path=$(echo -n $storageLocation|base64)&ftppath=$(echo -n $storageLocation|base64)&snapinpath=$(echo -n $snapindir|base64)&sslpath=$(echo -n $sslpath|base64)&ip=$(echo -n $ipaddress|base64)&maxClients=$(echo -n $maxClients|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&interface=$(echo -n $interface|base64)&bandwidth=$(echo -n $interface|base64)&webroot=$(echo -n $webroot|base64)&fogverified"
-        else
-	    wget --no-check-certificate -qO - $httpproto://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$(echo -n $ipaddress| base64)&path=$(echo -n $storageLocation|base64)&ftppath=$(echo -n $storageLocation|base64)&snapinpath=$(echo -n $snapindir|base64)&sslpath=$(echo -n $sslpath|base64)&ip=$(echo -n $ipaddress|base64)&maxClients=$(echo -n $maxClients|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&interface=$(echo -n $interface|base64)&bandwidth=$(echo -n $interface|base64)&webroot=$(echo -n $webroot|base64)&fogverified"
-	fi
+	wget --no-check-certificate -qO - $httpproto://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$(echo -n $ipaddress| base64)&path=$(echo -n $storageLocation|base64)&ftppath=$(echo -n $storageLocation|base64)&snapinpath=$(echo -n $snapindir|base64)&sslpath=$(echo -n $sslpath|base64)&ip=$(echo -n $ipaddress|base64)&maxClients=$(echo -n $maxClients|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&interface=$(echo -n $interface|base64)&bandwidth=$(echo -n $interface|base64)&webroot=$(echo -n $webroot|base64)&fogverified"
         echo "Done"
     else
         echo " * Node is registered"
@@ -53,10 +45,7 @@ registerStorageNode() {
 updateStorageNodeCredentials() {
     [[ -z $webroot ]] && webroot="/"
     dots "Ensuring node username and passwords match"
-    if [ ! -z "$serverCert" ]; then
-        wget -qO - $httpproto://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=$(echo -n $ipaddress|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&fogverified"
-    else
-        wget --no-check-certificate -qO - $httpproto://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=$(echo -n $ipaddress|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&fogverified"
+    wget --no-check-certificate -qO - $httpproto://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=$(echo -n $ipaddress|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&fogverified"
     fi
     echo "Done"
 }
@@ -64,11 +53,7 @@ backupDB() {
     dots "Backing up database"
     if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
         [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        if [ ! -z "$serverCert" ]; then
-	    wget -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "${httpproto}://$hostname/$webroot/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        else
-	    wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "${httpproto}://$hostname/$webroot/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-	fi
+	wget --no-check-certificate -O $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql "${httpproto}://$hostname/$webroot/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
     errorStat $?
 }
@@ -79,11 +64,7 @@ updateDB() {
             local replace='s/[]"\/$&*.^|[]/\\&/g'
             local escstorageLocation=$(echo $storageLocation | sed -e $replace)
             sed -i -e "s/'\/images\/'/'$escstorageLocation'/g" $webdirdest/commons/schema.php
-            if [ ! -z "$serverCert" ]; then
-	        wget -qO - --post-data="confirm&fogverified" --no-proxy ${httpproto}://${hostname}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    	    else
-	        wget --no-check-certificate -qO - --post-data="confirm&fogverified" --no-proxy ${httpproto}://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-	    fi
+	    wget --no-check-certificate -qO - --post-data="confirm&fogverified" --no-proxy ${httpproto}://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             errorStat $?
             ;;
         *)
@@ -773,25 +754,6 @@ checkSELinux() {
                 ;;
         esac
     done
-}
-rulesFirewall() {
-	fwstate=$(firewall-cmd --state 2>&1)
-	[[ "x$fwstate" == "xrunning" ]] && fwrunning=1
-	[[ $fwrunning -ne 1 ]] && return
-	echo " * The local firewall seems to be currently enabled on your system."
-	echo " * We will attempt to add rules to the active zone."
-        systemctl start firewalld >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        systemctl enable firewalld >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        for service in http https tftp ftp mysql nfs mountd rpc-bind proxy-dhcp samba
-        do
-            firewall-cmd --permanent --add-service=$service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        done
-        if [[ $bldhcp -eq 1 ]]; then
-            firewall-cmd --permanent --add-service=dhcp >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        fi
-        firewall-cmd --permanent --add-port=49152-65532/udp >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        firewall-cmd --permanent --direct --add-rule ipv4 filter INPUT 0 -p igmp -j ACCEPT >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        firewall-cmd --reload >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 }
 checkFirewall() {
     command -v iptables >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1678,7 +1640,11 @@ createSSLCA() {
 	mkdir -p $webdirdest/management/other/ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 	cp -f "$serverCert" $webdirdest/management/other/ssl/srvpublic.crt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 	cp -f "$serverKey" $sslpath/.srvprivate.key >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-	cp -f "$externalCA" /etc/pki/ca-trust/source/anchors/chain.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+	if [[ $osid -eq 2 ]]; then
+	    cp -f "$externalCA" /usr/local/share/ca-certificates/chain.crt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        else
+	    cp -f "$externalCA" /etc/pki/ca-trust/source/anchors/chain.crt >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+	fi
 	openssl x509 -outform der -in "$externalCA" -out $webdirdest/management/other/ca.cert.der >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 	errorStat $?
     else
@@ -1791,9 +1757,14 @@ EOF
                     echo "    SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA" >> "$etcconf"
                     echo "    SSLHonorCipherOrder On" >> "$etcconf"
                     echo "    SSLCertificateFile ${webdirdest}management/other/ssl/srvpublic.crt" >> "$etcconf"
-                    echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
+                    echo "    SSLCertificateKeyFile  ${sslpath}/.srvprivate.key" >> "$etcconf"
+                    #echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
 		    if [ ! -z "$externalCA" ]; then
-		        echo "    SSLCACertificateFile /etc/pki/ca-trust/source/anchors/chain.pem" >> "$etcconf"
+		        if [[ $osid -eq 2 ]]; then
+			    echo "    SSLCACertificateFile /usr/local/share/ca-certificates/chain.crt" >> "$etcconf"
+		        else
+			    echo "    SSLCACertificateFile /etc/pki/ca-trust/source/anchors/chain.crt" >> "$etcconf"
+			fi
 		    else
 			echo "    SSLCertificateChainFile $webdirdest/management/other/ca.cert.der" >> "$etcconf"
 		    fi
@@ -1878,7 +1849,11 @@ EOF
             ;;
     esac
     dots "Starting and checking status of web services"
-    update-ca-trust
+    if [[ $osid -eq 2 ]]; then
+	    update-ca-certificates >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    else
+	    trust extract-compat >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    fi
     case $systemctl in
         yes)
             case $osid in
@@ -2070,7 +2045,11 @@ configureHttpd() {
     fi
     dots "Copying new files to web folder"
     cp -Rf $webdirsrc/* $webdirdest/
-    cp -f $webdirsrc/index.php /var/www/html/
+    if [[ $osid -eq 2 ]]; then
+	cp -f $webdirsrc/index.php /var/www/
+    else
+        cp -f $webdirsrc/index.php /var/www/html/
+    fi
     errorStat $?
     for i in $(find $backupPath/fog_web_${version}.BACKUP/management/other/ -maxdepth 1 -type f -not -name gpl-3.0.txt -a -not -name index.php -a -not -name 'ca.*' 2>>$workingdir/error_logs/fog_error_${version}.log); do
         cp -Rf $i ${webdirdest}/management/other/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
