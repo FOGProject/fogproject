@@ -2283,6 +2283,9 @@ downloadfiles() {
     if [[ $version =~ ^[0-9]\.[0-9]\.[0-9]$ ]]
     then
         urls=( "https://fogproject.org/binaries${version}.zip" )
+        if [[ $armsupport == 1 ]]; then
+            urls+=( "https://fogproject.org/binaries_arm_${version}.zip" )
+        fi
     else
         clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
         urls=( "https://fogproject.org/inits/init.xz" "https://fogproject.org/inits/init_32.xz" "https://fogproject.org/kernels/bzImage" "https://fogproject.org/kernels/bzImage32" "https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi" "https://github.com/FOGProject/fog-client/releases/download/${clientVer}/SmartInstaller.exe" )
