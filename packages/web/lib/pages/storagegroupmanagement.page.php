@@ -386,12 +386,21 @@ class StorageGroupManagement extends FOGPage
             ->set('description', $description);
     }
     /**
-     * Presents the image membership.
+     * Display storage group images.
      *
      * @return void
      */
-    public function imageMembership()
+    public function storagegroupImages()
     {
+        // Image Associations
+        $this->headerData = [
+            _('Image Name'),
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'storagegroup-image',
@@ -400,163 +409,136 @@ class StorageGroupManagement extends FOGPage
             . '" ';
 
         $buttons .= self::makeButton(
-            'image-add',
+            'storagegroup-image-send',
             _('Add selected'),
             'btn btn-success pull-right',
             $props
         );
-        $buttons .= self::makeSplitButton(
-            'image-set-primary',
-            _('Make Primary'),
-            [
-                [
-                    'id' => 'image-rem-primary',
-                    'text' => _('Unset Primary'),
-                    'props' => $props
-                ]
-            ],
-            'right',
-            'primary',
-            $props
-        );
         $buttons .= self::makeButton(
-            'image-remove',
+            'storagegroup-image-remove',
             _('Remove selected'),
             'btn btn-danger pull-left',
             $props
         );
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Storage Group Image Associations');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'storagegroup-image-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('image');
+        echo '</div>';
+        echo '</div>';
 
+        // Make this storage group primary for these images?
+        $buttons = self::makeButton(
+            'storagegroup-image-primary-send',
+            _('Make primary'),
+            'btn btn-info pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'storagegroup-image-primary-remove',
+            _('Unset primary'),
+            'btn btn-warning pull-left',
+            $props
+        );
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Set Storage Group as Primary for Images');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'storagegroup-image-primary-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo self::makeModal(
+            'unsetImagePrimaryModal',
+            _('Unset storage group as primary group'),
+            _(
+                'Please confirm you would like to unset the primary group from the'
+                . ' selected images'
+            ),
+            self::makeButton(
+                "closeImagePrimaryDeleteModal",
+                _('Cancel'),
+                'btn btn-outline pull-left',
+                'data-dismiss="modal"'
+            )
+            . self::makeButton(
+                "confirmImagePrimaryDeleteModal",
+                _('Unset'),
+                'btn btn-outline pull-right'
+            ),
+            '',
+            'warning'
+        );
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Storage Group images post
+     *
+     * @return void
+     */
+    public function storagegroupImagePost()
+    {
+        if (isset($_POST['confirmadd'])) {
+            $images = filter_input_array(
+                INPUT_POST,
+                [
+                    'additems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $images = $images['additems'];
+            if (count($images ?: []) > 0) {
+                $this->obj->addImage($images);
+            }
+        }
+        if (isset($_POST['confirmdel'])) {
+            $images = filter_input_array(
+                INPUT_POST,
+                [
+                    'remitems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $images = $images['remitems'];
+            if (count($images ?: []) > 0) {
+                $this->obj->removeImage($images);
+            }
+        }
+        if (isset($_POST['confirmaddprimary'])) {
+            // TODO
+        }
+        if (isset($_POST['confirmremprimary'])) {
+            // TODO
+        }
+    }
+    /**
+     * Display storage group snapins.
+     *
+     * @return void
+     */
+    public function storagegroupSnapins()
+    {
+        // Snapin Associations
         $this->headerData = [
-            _('Image Name'),
-            _('Primary'),
-            _('Image Associated')
+            _('Snapin Name'),
+            _('Associated')
         ];
         $this->attributes = [
             [],
-            [],
-            []
+            ['width' => 16]
         ];
-
-        echo '<!-- Images -->';
-        echo '<div class="box-group" id="image">';
-        echo '<div class="box box-solid">';
-        echo '<div id="updateimage" class="">';
-        echo '<div class="box-body">';
-        $this->render(12, 'image-membership-table', $buttons);
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-    }
-    /**
-     * Actually updates the snapin storage groups
-     *
-     * @return void
-     */
-    public function imageMembershipPost()
-    {
-        if (isset($_POST['updateimage'])) {
-            $image = filter_input_array(
-                INPUT_POST,
-                [
-                    'image' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $image = $image['image'];
-            if (count($image ?: []) > 0) {
-                $this->obj->addImage($image);
-            }
-        }
-        if (isset($_POST['imagedel'])) {
-            $image = filter_input_array(
-                INPUT_POST,
-                [
-                    'imageRemove' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $image = $image['imageRemove'];
-            if (count($image ?: []) > 0) {
-                $this->obj->removeImage($image);
-            }
-        }
-        if (isset($_POST['primarysel'])) {
-            $image = filter_input_array(
-                INPUT_POST,
-                [
-                    'primary' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $image = $image['primary'];
-            Route::ids(
-                'imageassociation',
-                [
-                    'imageID' => $image,
-                    'storagegroupID' => $this->obj->get('id')
-                ]
-            );
-            $assocImages = json_decode(Route::getData(), true);
-            $images = array_diff(
-                $image,
-                $assocImages
-            );
-            if (count($images ?: []) > 0 ) {
-                self::getClass('ImageAssociationManager')->update(
-                    [
-                        'imageID' => $images,
-                        'primary' => 0
-                    ],
-                    '',
-                    ['primary' => '1']
-                );
-            }
-        }
-        if (isset($_POST['primaryrem'])) {
-            $image = filter_input_array(
-                INPUT_POST,
-                [
-                    'primary' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $image = $image['primary'];
-            Route::ids(
-                'imageassociation',
-                [
-                    'imageID' => $image,
-                    'storagegroupID' => $this->obj->get('id')
-                ]
-            );
-            $assocImages = json_decode(Route::getData(), true);
-            $images = array_diff(
-                $image,
-                $assocImages
-            );
-            if (count($images ?: []) > 0) {
-                self::getClass('ImageAssociationManager')->update(
-                    [
-                        'imageID' => $images,
-                        'primary' => 1
-                    ],
-                    '',
-                    ['primary' => '0']
-                );
-            }
-        }
-    }
-    /**
-     * Presents the snapin membership.
-     *
-     * @return void
-     */
-    public function snapinMembership()
-    {
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
                 'storagegroup-snapin',
@@ -565,255 +547,233 @@ class StorageGroupManagement extends FOGPage
             . '" ';
 
         $buttons .= self::makeButton(
-            'snapin-add',
+            'storagegroup-snapin-send',
             _('Add selected'),
             'btn btn-success pull-right',
             $props
         );
-        $buttons .= self::makeSplitButton(
-            'snapin-set-primary',
-            _('Make Primary'),
-            [
-                [
-                    'id' => 'snapin-rem-primary',
-                    'text' => _('Unset Primary'),
-                    'props' => $props
-                ]
-            ],
-            'right',
-            'primary',
-            $props
-        );
         $buttons .= self::makeButton(
-            'snapin-remove',
+            'storagegroup-snapin-remove',
             _('Remove selected'),
             'btn btn-danger pull-left',
             $props
         );
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Storage Group Snapin Associations');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'storagegroup-snapin-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('snapin');
+        echo '</div>';
+        echo '</div>';
 
+        // Make this storage group primary for these snapins?
+        $buttons = self::makeButton(
+            'storagegroup-snapin-primary-send',
+            _('Make primary'),
+            'btn btn-info pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'storagegroup-snapin-primary-remove',
+            _('Unset primary'),
+            'btn btn-warning pull-left',
+            $props
+        );
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Set Storage Group as Primary for Snapins');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'storagegroup-snapin-primary-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo self::makeModal(
+            'unsetSnapinPrimaryModal',
+            _('Unset storage group as primary group'),
+            _(
+                'Please confirm you would like to unset the primary group from the'
+                . ' selected snapins'
+            ),
+            self::makeButton(
+                "closeSnapinPrimaryDeleteModal",
+                _('Cancel'),
+                'btn btn-outline pull-left',
+                'data-dismiss="modal"'
+            )
+            . self::makeButton(
+                "confirmSnapinPrimaryDeleteModal",
+                _('Unset'),
+                'btn btn-outline pull-right'
+            ),
+            '',
+            'warning'
+        );
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Storage Group snapins post
+     *
+     * @return void
+     */
+    public function storagegroupSnapinPost()
+    {
+        if (isset($_POST['confirmadd'])) {
+            $snapins = filter_input_array(
+                INPUT_POST,
+                [
+                    'additems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $snapins = $snapins['additems'];
+            if (count($snapins ?: []) > 0) {
+                $this->obj->addSnapin($snapins);
+            }
+        }
+        if (isset($_POST['confirmdel'])) {
+            $snapins = filter_input_array(
+                INPUT_POST,
+                [
+                    'remitems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $snapins = $snapins['remitems'];
+            if (count($snapins ?: []) > 0) {
+                $this->obj->removeSnapin($snapins);
+            }
+        }
+        if (isset($_POST['confirmaddprimary'])) {
+            // TODO
+        }
+        if (isset($_POST['confirmremprimary'])) {
+            // TODO
+        }
+    }
+    /**
+     * Display storage group storage nodes.
+     *
+     * @return void
+     */
+    public function storagegroupStoragenodes()
+    {
+        // Storage Node Associations
         $this->headerData = [
-            _('Snapin Name'),
-            _('Primary'),
-            _('Snapin Associated')
+            _('Storage Node Name'),
+            _('Associated')
         ];
         $this->attributes = [
             [],
-            [],
-            []
+            ['width' => 16]
         ];
-
-        echo '<!-- Snapins -->';
-        echo '<div class="box-group" id="snapin">';
-        echo '<div class="box box-solid">';
-        echo '<div id="updatesnapins" class="">';
-        echo '<div class="box-body">';
-        $this->render(12, 'snapin-membership-table', $buttons);
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-    }
-    /**
-     * Actually updates the snapin storage groups
-     *
-     * @return void
-     */
-    public function snapinMembershipPost()
-    {
-        if (isset($_POST['updatesnapin'])) {
-            $snapin = filter_input_array(
-                INPUT_POST,
-                [
-                    'snapin' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $snapin = $snapin['snapin'];
-            throw new Exception(json_encode($snapin));
-            if (count($snapin ?: []) > 0) {
-                $this->obj->addSnapin($snapin);
-            }
-        }
-        if (isset($_POST['snapindel'])) {
-            $snapin = filter_input_array(
-                INPUT_POST,
-                [
-                    'snapinRemove' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $snapin = $snapin['snapinRemove'];
-            if (count($snapin ?: []) > 0) {
-                $this->obj->removeSnapin($snapin);
-            }
-        }
-        if (isset($_POST['primarysel'])) {
-            $snapin = filter_input_array(
-                INPUT_POST,
-                [
-                    'primary' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $snapin = $snapin['primary'];
-            Route::ids(
-                'snapingroupassociation',
-                [
-                    'snapinID' => $snapin,
-                    'storagegroupID' => $this->obj->get('id')
-                ]
-            );
-            $assocSnapins = json_decode(Route::getData(), true);
-            $snapins = array_diff(
-                $snapin,
-                $assocSnapins
-            );
-            if (count($snapins ?: []) > 0) {
-                self::getClass('SnapinGroupAssociationManager')->update(
-                    [
-                        'snapinID' => $snapins,
-                        'primary' => 0
-                    ],
-                    '',
-                    ['primary' => '1']
-                );
-            }
-        }
-        if (isset($_POST['primaryrem'])) {
-            $snapin = filter_input_array(
-                INPUT_POST,
-                [
-                    'primary' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $snapin = $snapin['primary'];
-            Route::ids(
-                'snapingroupassociation',
-                [
-                    'snapinID' => $snapin,
-                    'storagegroupID' => $this->obj->get('id')
-                ]
-            );
-            $assocSnapins = json_decode(Route::getData(), true);
-            $snapins = array_diff(
-                $snapin,
-                $assocSnapins
-            );
-            if (count($snapins ?: []) > 0) {
-                self::getClass('SnapinGroupAssociationManager')->update(
-                    [
-                        'snapinID' => $snapins,
-                        'primary' => 1
-                    ],
-                    '',
-                    ['primary' => '0']
-                );
-            }
-        }
-    }
-    /**
-     * Presents the storage group membership.
-     *
-     * @return void
-     */
-    public function storagegroupMembership()
-    {
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
-                'storagegroup-membership',
+                'storagegroup-storagenode',
                 $this->obj->get('id')
             )
             . '" ';
 
-        $buttons = self::makeButton(
-            'membership-master',
-            _('Update Master Node'),
-            'btn btn-primary master pull-right',
-            $props
-        );
         $buttons .= self::makeButton(
-            'membership-add',
+            'storagegroup-storagenode-send',
             _('Add selected'),
             'btn btn-success pull-right',
             $props
         );
         $buttons .= self::makeButton(
-            'membership-remove',
+            'storagegroup-storagenode-remove',
             _('Remove selected'),
             'btn btn-danger pull-left',
             $props
         );
-
-        $this->headerData = [
-            _('Storage Node Name'),
-            _('Storage Node Master'),
-            _('Storage Node Associated')
-        ];
-        $this->attributes = [
-            [],
-            [],
-            []
-        ];
-
-        echo '<!-- Storage Nodes -->';
-        echo '<div class="box-group" id="membership">';
-        echo '<div class="box box-solid">';
-        echo '<div id="updatestoragenodes" class="">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Storage Group Storage Node Associations');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'storagegroup-membership-table', $buttons);
+        $this->render(12, 'storagegroup-storagenode-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $this->assocDelModal('storagenode');
         echo '</div>';
         echo '</div>';
+
+        // Master Storage Node
+        $buttons = self::makeButton(
+            'storagegroup-storagenode-master-send',
+            _('Update'),
+            'btn btn-info pull-right',
+            $props
+        );
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Storage Group Master Storage Node');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo '<span id="storagenodeselector"></span>';
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $buttons;
         echo '</div>';
         echo '</div>';
     }
-    /**
-     * Updates the storage group membership.
-     *
-     * @return void
-     */
-    public function storagegroupMembershipPost()
+    public function storagegroupStoragenodePost()
     {
-        if (isset($_POST['updatemembership'])) {
-            $membership = filter_input_array(
+        if (isset($_POST['confirmadd'])) {
+            $storagenodes = filter_input_array(
                 INPUT_POST,
                 [
-                    'membership' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $membership = $membership['membership'];
-            if (count($membership ?: []) > 0) {
-                $this->obj->addNode($membership);
+            $storagenodes = $storagenodes['additems'];
+            if (count($storagenodes ?: []) > 0) {
+                $this->obj->addNode($storagenodes);
             }
         }
-        if (isset($_POST['membershipdel'])) {
-            $membership = filter_input_array(
+        if (isset($_POST['confirmdel'])) {
+            $storagenodes = filter_input_array(
                 INPUT_POST,
                 [
-                    'membershipRemove' => [
+                    'remitems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $membership = $membership['membershipRemove'];
-            if (count($membership ?: []) > 0) {
-                $this->obj->removeNode($membership);
+            $storagenodes = $storagenodes['remitems'];
+            if (count($storagenodes ?: []) > 0) {
+                $this->obj->removeNode($storagenodes);
             }
         }
-        if (isset($_POST['mastersel'])) {
+        if (isset($_POST['confirmmaster'])) {
             $master = filter_input(
                 INPUT_POST,
                 'master'
             );
+            $storagenodes = array_diff(
+                $this->obj->get('allnodes'),
+                [$master]
+            );
             self::getClass('StorageNodeManager')->update(
                 [
                     'storagegroupID' => $this->obj->get('id'),
+                    'id' => $storagenodes,
                     'isMaster' => '1'
                 ],
                 '',
@@ -823,7 +783,8 @@ class StorageGroupManagement extends FOGPage
                 self::getClass('StorageNodeManager')->update(
                     [
                         'storagegroupID' => $this->obj->get('id'),
-                        'id' => $master
+                        'id' => $master,
+                        'isMaster' => ['0', '']
                     ],
                     '',
                     ['isMaster' => '1']
@@ -862,23 +823,23 @@ class StorageGroupManagement extends FOGPage
                 'tabData' => [
                     [
                         'name' => _('Images'),
-                        'id' => 'image-membership',
+                        'id' => 'storagegroup-image',
                         'generator' => function () {
-                            $this->imageMembership();
+                            $this->storagegroupImages();
                         }
                     ],
                     [
                         'name' => _('Snapins'),
-                        'id' => 'snapin-membership',
+                        'id' => 'storagegroup-snapin',
                         'generator' => function () {
-                            $this->snapinMembership();
+                            $this->storagegroupSnapins();
                         }
                     ],
                     [
                         'name' => _('Storage Nodes'),
-                        'id' => 'storagegroup-membership',
+                        'id' => 'storagegroup-storagenode',
                         'generator' => function () {
-                            $this->storagegroupMembership();
+                            $this->storagegroupStoragenodes();
                         }
                     ]
                 ]
@@ -908,13 +869,13 @@ class StorageGroupManagement extends FOGPage
                 $this->storagegroupGeneralPost();
                 break;
             case 'storagegroup-image':
-                $this->imageMembershipPost();
+                $this->storagegroupImagePost();
                 break;
             case 'storagegroup-snapin':
-                $this->snapinMembershipPost();
+                $this->storagegroupSnapinPost();
                 break;
-            case 'storagegroup-membership':
-                $this->storagegroupMembershipPost();
+            case 'storagegroup-storagenode':
+                $this->storagegroupStoragenodePost();
                 break;
             }
             if (!$this->obj->save()) {
@@ -1053,5 +1014,67 @@ class StorageGroupManagement extends FOGPage
             '',
             $columns
         );
+    }
+    /**
+     * Gets the storage node selector for setting master storage nodes.
+     *
+     * @return string
+     */
+    public function getStoragegroupMasterStoragenodes()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        Route::ids(
+            'storagenode',
+            ['storagegroupID' => $this->obj->get('id')]
+        );
+        $storagenodesAssigned = json_decode(Route::getData(), true);
+        if (!count($storagenodesAssigned ?: [])) {
+            echo json_encode(
+                [
+                    'content' => _('No storage nodes assigned to this storage group'),
+                    'disablebtn' => true
+                ]
+            );
+            exit;
+        }
+        Route::names(
+            'storagenode',
+            ['id' => $storagenodesAssigned]
+        );
+        $storagenodeNames = json_decode(Route::getData());
+        foreach ($storagenodeNames as &$storagenode) {
+            $storagenodes[$storagenode->id] = $storagenode->name;
+            unset($storagenode);
+        }
+        unset($storagenodeNames);
+        Route::ids(
+            'storagenode',
+            [
+                'storagegroupID' => $this->obj->get('id'),
+                'isMaster' => '1'
+            ],
+            'id'
+        );
+        $masterstoragenode = json_decode(Route::getData(), true);
+        $masterstoragenode = array_shift($masterstoragenode);
+        $storagenodeSelector = self::selectForm(
+            'storagenode',
+            $storagenodes,
+            $masterstoragenode,
+            true,
+            '',
+            true
+        );
+        echo json_encode(
+            [
+                'content' => $storagenodeSelector,
+                'disablebtn' => false
+            ]
+        );
+        exit;
     }
 }
