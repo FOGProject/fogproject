@@ -377,29 +377,21 @@ abstract class FOGPage extends FOGBase
                 self::$foglang['Snapins'],
                 'fa fa-cube'
             ],
-            'printer' => [
-                self::$foglang['Printers'],
-                'fa fa-print'
-            ],
-            'service' => [
-                self::$foglang['ClientSettings'],
-                'fa fa-cogs'
-            ],
-            'task' => [
-                self::$foglang['Tasks'],
-                'fa fa-tasks'
+            'storagegroup' => [
+                self::$foglang['StorageGroups'],
+                'fa fa-object-group'
             ],
             'storagenode' => [
                 self::$foglang['StorageNodes'],
                 'fa fa-archive'
             ],
-            'storagegroup' => [
-                self::$foglang['StorageGroups'],
-                'fa fa-object-group'
+            'printer' => [
+                self::$foglang['Printers'],
+                'fa fa-print'
             ],
-            'report' => [
-                self::$foglang['Reports'],
-                'fa fa-file-text'
+            'task' => [
+                self::$foglang['Tasks'],
+                'fa fa-tasks'
             ],
             'user' => [
                 self::$foglang['Users'],
@@ -413,6 +405,14 @@ abstract class FOGPage extends FOGBase
                 self::$foglang['FOG Configuration'],
                 'fa fa-wrench'
             ],
+            'report' => [
+                self::$foglang['Reports'],
+                'fa fa-file-text'
+            ],
+            'service' => [
+                self::$foglang['ClientSettings'],
+                'fa fa-cogs'
+            ],
             'client' => [
                 _('FOG Client'),
                 'fa fa-cloud-download'
@@ -420,7 +420,7 @@ abstract class FOGPage extends FOGBase
         ];
         if (self::getSetting('FOG_PLUGINSYS_ENABLED')) {
             self::arrayInsertAfter(
-                'about',
+                'client',
                 $menu,
                 'plugin',
                 [
