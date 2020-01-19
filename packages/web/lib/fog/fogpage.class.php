@@ -2714,7 +2714,7 @@ abstract class FOGPage extends FOGBase
                 (
                     $useidsel ?
                     $id :
-                    ($addidtodisplay ? $item . ' - (' . $id . ')' : $item)
+                    $item
                 ),
                 (
                     $useidsel ? (
@@ -2727,7 +2727,7 @@ abstract class FOGPage extends FOGBase
                         ''
                     )
                 ),
-                $item
+                ($addidtodisplay ? $item . ' - (' . $id . ')' : $item)
             );
             unset($item);
         }
