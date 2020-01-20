@@ -670,7 +670,7 @@
 
     if (Common.search && Common.search.length > 0) {
         storagegroupImagesTable.search(Common.search).draw();
-        //storagegroupImagesPrimaryTable.search(Common.search).draw();
+        storagegroupImagesPrimaryTable.search(Common.search).draw();
         storagegroupSnapinsTable.search(Common.search).draw();
         storagegroupSnapinsPrimaryTable.search(Common.search).draw();
         storagegroupStoragenodesTable.search(Common.search).draw();
