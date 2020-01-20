@@ -435,6 +435,7 @@ class StorageGroupManagement extends FOGPage
         echo '</div>';
 
         // Make this storage group primary for these images?
+        $this->headerData[1] = _('Primary');
         $buttons = self::makeButton(
             'storagegroup-image-primary-send',
             _('Make primary'),
@@ -517,10 +518,63 @@ class StorageGroupManagement extends FOGPage
             }
         }
         if (isset($_POST['confirmaddprimary'])) {
-            // TODO
+            $images = filter_input_array(
+                INPUT_POST,
+                [
+                    'additems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $images = $images['additems'];
+            $imagesToAssoc = array_diff(
+                $images,
+                $this->obj->get('images')
+            );
+            if (count($imagesToAssoc ?: []) > 0) {
+                $this->obj->addImage($imagesToAssoc)->save();
+            }
+            if (count($images ?: []) > 0) {
+                self::getClass('ImageAssociationManager')->update(
+                    [
+                        'imageID' => $images,
+                        'primary' => 1
+                    ],
+                    '',
+                    ['primary' => '0']
+                );
+                self::getClass('ImageAssociationManager')->update(
+                    [
+                        'storagegroupID' => $this->obj->get('id'),
+                        'imageID' => $images,
+                        'primary' => ['0', '']
+                    ],
+                    '',
+                    ['primary' => '1']
+                );
+            }
         }
-        if (isset($_POST['confirmremprimary'])) {
-            // TODO
+        if (isset($_POST['confirmdelprimary'])) {
+            $images = filter_input_array(
+                INPUT_POST,
+                [
+                    'remitems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $images = $images['remitems'];
+            if (count($images ?: []) > 0) {
+                self::getClass('ImageAssociationManager')->update(
+                    [
+                        'storagegroupID' => $this->obj->get('id'),
+                        'imageID' => $images,
+                        'primary' => 1
+                    ],
+                    '',
+                    ['primary' => '0']
+                );
+            }
         }
     }
     /**
@@ -573,6 +627,7 @@ class StorageGroupManagement extends FOGPage
         echo '</div>';
 
         // Make this storage group primary for these snapins?
+        $this->headerData[1] = _('Primary');
         $buttons = self::makeButton(
             'storagegroup-snapin-primary-send',
             _('Make primary'),
@@ -655,10 +710,63 @@ class StorageGroupManagement extends FOGPage
             }
         }
         if (isset($_POST['confirmaddprimary'])) {
-            // TODO
+            $snapins = filter_input_array(
+                INPUT_POST,
+                [
+                    'additems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $snapins = $snapins['additems'];
+            $snapinsToAssoc = array_diff(
+                $snapins,
+                $this->obj->get('snapins')
+            );
+            if (count($snapinsToAssoc ?: []) > 0) {
+                $this->obj->addSnapin($snapinsToAssoc)->save();
+            }
+            if (count($snapins ?: []) > 0) {
+                self::getClass('SnapinGroupAssociationManager')->update(
+                    [
+                        'snapinID' => $snapins,
+                        'primary' => 1
+                    ],
+                    '',
+                    ['primary' => '0']
+                );
+                self::getClass('SnapinGroupAssociationManager')->update(
+                    [
+                        'storagegroupID' => $this->obj->get('id'),
+                        'snapinID' => $snapins,
+                        'primary' => ['0', '']
+                    ],
+                    '',
+                    ['primary' => '1']
+                );
+            }
         }
-        if (isset($_POST['confirmremprimary'])) {
-            // TODO
+        if (isset($_POST['confirmdelprimary'])) {
+            $snapins = filter_input_array(
+                INPUT_POST,
+                [
+                    'remitems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $snapins = $snapins['remitems'];
+            if (count($snapins ?: []) > 0) {
+                self::getClass('SnapinGroupAssociationManager')->update(
+                    [
+                        'storagegroupID' => $this->obj->get('id'),
+                        'snapinID' => $snapins,
+                        'primary' => 1
+                    ],
+                    '',
+                    ['primary' => '0']
+                );
+            }
         }
     }
     /**
@@ -962,7 +1070,9 @@ class StorageGroupManagement extends FOGPage
         $join = [
             'LEFT OUTER JOIN `snapinGroupAssoc` ON '
             . "`snapins`.`sID` = `snapinGroupAssoc`.`sgaSnapinID`"
-            . "AND `snapinGroupAssoc`.`sgaStorageGroupID` = '" . $this->obj->get('id') . "'"
+            . "AND `snapinGroupAssoc`.`sgaStorageGroupID` = '"
+            . $this->obj->get('id')
+            . "'"
         ];
         $columns[] = [
             'db' => 'sgaSnapinID',

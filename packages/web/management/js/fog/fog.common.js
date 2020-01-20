@@ -980,7 +980,6 @@ function clearAllIntervals(){
 
     var ajaxPageLoading = false;
 
-    // TODO: DRY - move all initialization code into one function that's executed here and on page reload.
     reinitialize();
 
     window.onpopstate = function(event){
