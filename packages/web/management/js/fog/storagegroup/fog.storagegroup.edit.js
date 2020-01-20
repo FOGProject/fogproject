@@ -150,6 +150,7 @@
         Common.iCheck('#storagegroup-image-table input');
         $('#storagegroup-image-table input.associated').on('ifChanged', onStoragegroupImageCheckboxSelect);
         onImageSelect(storagegroupImagesTable.rows({selected: true}));
+        storagegroupImagesPrimaryTable.draw(false);
     });
 
     var onStoragegroupImageCheckboxSelect = function(e) {
@@ -157,7 +158,135 @@
     }
 
     // Image Primary Settings
-    // TODO
+    var storagegroupImagePrimaryUpdateBtn = $('#storagegroup-image-primary-send'),
+        storagegroupImagePrimaryRemoveBtn = $('#storagegroup-image-primary-remove'),
+        storagegroupImagePrimaryDeleteConfirmBtn = $('#confirmImagePrimaryDeleteModal');
+
+    function disableImagePrimaryButtons(disable) {
+        storagegroupImagePrimaryUpdateBtn.prop('disabled', disable);
+        storagegroupImagePrimaryRemoveBtn.prop('disabled', disable);
+    }
+
+    function onImagePrimarySelect(selected) {
+        var disabled = selected.count() == 0;
+        disableImagePrimaryButtons(disabled);
+    }
+
+    storagegroupImagePrimaryUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = storagegroupImagesPrimaryTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(storagegroupImagesPrimaryTable),
+            opts = {
+                confirmaddprimary: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableImagePrimaryButtons(false);
+            if (err) {
+                return;
+            }
+            storagegroupImagesPrimaryTable.draw(false);
+            storagegroupImagesPrimaryTable.rows({selected: true}).deselect();
+        });
+    });
+
+    storagegroupImagePrimaryRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#unsetImagePrimaryModal').modal('show');
+    });
+
+    var storagegroupImagesPrimaryTable = $('#storagegroup-image-primary-table').registerTable(onImagePrimarySelect, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'mainLink'},
+            {data: 'primary'}
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    console.log(data);
+                    if (data >= 1) {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="primary" name="primary[]" id="storagegroupImagePrimary_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getImagesList&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
+
+    storagegroupImagePrimaryDeleteConfirmBtn.on('click', function(e) {
+        var action = storagegroupImagePrimaryUpdateBtn.attr('action'),
+            method = storagegroupImagePrimaryUpdateBtn.attr('method'),
+            rows = storagegroupImagesPrimaryTable.rows({selected: true}),
+            opts = {
+                confirmdelprimary: 1,
+                remitems: rows.ids().toArray()
+            };
+        $.apiCall(method,action,opts,function(err) {
+            $('#unsetImagePrimaryModal').modal('hide');
+            if (err) {
+                return;
+            }
+            storagegroupImagesTable.draw(false);
+            storagegroupImagesPrimaryTable.draw(false);
+            storagegroupImagesPrimaryTable.rows({selected: true}).deselect();
+        });
+    });
+
+    storagegroupImagesPrimaryTable.on('draw', function(e) {
+        Common.iCheck('#storagegroup-image-primary-table input');
+        $('#storagegroup-image-primary-table input.primary').on('ifChanged', onStoragegroupImagePrimaryCheckboxSelect);
+        onImagePrimarySelect(storagegroupImagesPrimaryTable.rows({selected: true}));
+    });
+
+    var onStoragegroupImagePrimaryCheckboxSelect = function(e) {
+        $(this).iCheck('update');
+        var method = storagegroupImagePrimaryUpdateBtn.attr('method'),
+            action = storagegroupImagePrimaryUpdateBtn.attr('action'),
+            opts = {};
+        if (this.checked) {
+            opts = {
+                confirmaddprimary: 1,
+                additems: [e.target.value]
+            };
+        } else {
+            opts = {
+                confirmdelprimary: 1,
+                remitems: [e.target.value]
+            };
+        }
+        $.apiCall(method,action,opts,function(err) {
+            if (err) {
+                return;
+            }
+            storagegroupImagesTable.draw(false);
+            storagegroupImagesPrimaryTable.draw(false);
+            storagegroupImagesPrimaryTable.rows({selected: true}).deselect();
+        });
+    }
 
     // ----------------------------------------------------
     // SNAPIN TAB
@@ -256,6 +385,7 @@
         Common.iCheck('#storagegroup-snapin-table input');
         $('#storagegroup-snapin-table input.associated').on('ifChanged', onStoragegroupSnapinCheckboxSelect);
         onSnapinSelect(storagegroupSnapinsTable.rows({selected: true}));
+        storagegroupSnapinsPrimaryTable.draw(false);
     });
 
     var onStoragegroupSnapinCheckboxSelect = function(e) {
@@ -263,7 +393,135 @@
     }
 
     // Snapin Primary Settings
-    // TODO
+    var storagegroupSnapinPrimaryUpdateBtn = $('#storagegroup-snapin-primary-send'),
+        storagegroupSnapinPrimaryRemoveBtn = $('#storagegroup-snapin-primary-remove'),
+        storagegroupSnapinPrimaryDeleteConfirmBtn = $('#confirmSnapinPrimaryDeleteModal');
+
+    function disableSnapinPrimaryButtons(disable) {
+        storagegroupSnapinPrimaryUpdateBtn.prop('disabled', disable);
+        storagegroupSnapinPrimaryRemoveBtn.prop('disabled', disable);
+    }
+
+    function onSnapinPrimarySelect(selected) {
+        var disabled = selected.count() == 0;
+        disableSnapinPrimaryButtons(disabled);
+    }
+
+    storagegroupSnapinPrimaryUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = storagegroupSnapinsPrimaryTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(storagegroupSnapinsPrimaryTable),
+            opts = {
+                confirmaddprimary: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableSnapinPrimaryButtons(false);
+            if (err) {
+                return;
+            }
+            storagegroupSnapinsPrimaryTable.draw(false);
+            storagegroupSnapinsPrimaryTable.rows({selected: true}).deselect();
+        });
+    });
+
+    storagegroupSnapinPrimaryRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#unsetSnapinPrimaryModal').modal('show');
+    });
+
+    var storagegroupSnapinsPrimaryTable = $('#storagegroup-snapin-primary-table').registerTable(onSnapinPrimarySelect, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'mainLink'},
+            {data: 'primary'}
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    console.log(data);
+                    if (data >= 1) {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="primary" name="primary[]" id="storagegroupSnapinPrimary_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getSnapinsList&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
+
+    storagegroupSnapinPrimaryDeleteConfirmBtn.on('click', function(e) {
+        var action = storagegroupSnapinPrimaryUpdateBtn.attr('action'),
+            method = storagegroupSnapinPrimaryUpdateBtn.attr('method'),
+            rows = storagegroupSnapinsPrimaryTable.rows({selected: true}),
+            opts = {
+                confirmdelprimary: 1,
+                remitems: rows.ids().toArray()
+            };
+        $.apiCall(method,action,opts,function(err) {
+            $('#unsetSnapinPrimaryModal').modal('hide');
+            if (err) {
+                return;
+            }
+            storagegroupSnapinsTable.draw(false);
+            storagegroupSnapinsPrimaryTable.draw(false);
+            storagegroupSnapinsPrimaryTable.rows({selected: true}).deselect();
+        });
+    });
+
+    storagegroupSnapinsPrimaryTable.on('draw', function(e) {
+        Common.iCheck('#storagegroup-snapin-primary-table input');
+        $('#storagegroup-snapin-primary-table input.primary').on('ifChanged', onStoragegroupSnapinPrimaryCheckboxSelect);
+        onSnapinPrimarySelect(storagegroupSnapinsPrimaryTable.rows({selected: true}));
+    });
+
+    var onStoragegroupSnapinPrimaryCheckboxSelect = function(e) {
+        $(this).iCheck('update');
+        var method = storagegroupSnapinPrimaryUpdateBtn.attr('method'),
+            action = storagegroupSnapinPrimaryUpdateBtn.attr('action'),
+            opts = {};
+        if (this.checked) {
+            opts = {
+                confirmaddprimary: 1,
+                additems: [e.target.value]
+            };
+        } else {
+            opts = {
+                confirmdelprimary: 1,
+                remitems: [e.target.value]
+            };
+        }
+        $.apiCall(method,action,opts,function(err) {
+            if (err) {
+                return;
+            }
+            storagegroupSnapinsTable.draw(false);
+            storagegroupSnapinsPrimaryTable.draw(false);
+            storagegroupSnapinsPrimaryTable.rows({selected: true}).deselect();
+        });
+    }
 
     // ----------------------------------------------------
     // STORAGE NODE TAB
@@ -414,7 +672,7 @@
         storagegroupImagesTable.search(Common.search).draw();
         //storagegroupImagesPrimaryTable.search(Common.search).draw();
         storagegroupSnapinsTable.search(Common.search).draw();
-        //storagegroupSnapinsPrimaryTable.search(Common.search).draw();
+        storagegroupSnapinsPrimaryTable.search(Common.search).draw();
         storagegroupStoragenodesTable.search(Common.search).draw();
     }
 })(jQuery);

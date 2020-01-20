@@ -437,7 +437,7 @@ class StorageGroup extends FOGController
     {
         parent::save();
         return $this
-            ->assocSetter('StorageGroup', 'storagenode')
+            ->assocSetter('StorageGroup', 'storagenode', true)
             ->assocSetter('Image', 'image')
             ->assocSetter('SnapinGroup', 'snapin')
             ->load();
