@@ -1836,7 +1836,7 @@ EOF
                     echo "    SSLHonorCipherOrder On" >> "$etcconf"
                     echo "    SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt" >> "$etcconf"
                     echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
-                    echo "    SSLCertificateChainFile $webdirdest/management/other/ca.cert.der" >> "$etcconf"
+                    echo "    SSLCACertificateFile $webdirdest/management/other/ca.cert.pem" >> "$etcconf"
                     echo "    <Directory $webdirdest>" >> "$etcconf"
                     echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                     echo "    </Directory>" >> "$etcconf"
