@@ -418,16 +418,24 @@ class Image extends FOGController
         if (!$imageID) {
             return true;
         }
-        $primaryCount = self::getClass('ImageAssociationManager')
-            ->count(
-                [
-                    'imageID' => $imageID,
-                    'primary' => 1
-                ]
-            );
+        $find = [
+            'imageID' => $imageID,
+            'primary' => 1
+        ];
+        Route::count(
+            'imageassociation',
+            $find
+        );
+        $primaryCount = json_decode(Route::getData());
+        $primaryCount = $primaryCount->total;
         if ($primaryCount < 1) {
-            $primaryCount = self::getClass('ImageAssociationManager')
-                ->count(['imageID' => $imageID]);
+            unset($find['primary']);
+            Route::count(
+                'imageassociation',
+                $find
+            );
+            $primaryCount = json_decode(Route::getData());
+            $primaryCount = $primaryCount->total;
         }
         if ($primaryCount < 1) {
             Route::indiv('image', $imageID);

@@ -355,7 +355,12 @@ class StorageNode extends FOGController
             'storagenodeID' => $this->get('id'),
             'typeID' => $usedtasks,
         ];
-        $countTasks = self::getClass('TaskManager')->count($findTasks);
+        Route::count(
+            'task',
+            $findTasks
+        );
+        $countTasks = json_decode(Route::getData());
+        $countTasks = $countTasks->total;
         $index = array_search(8, $usedtasks);
         if ($index === false) {
             return $countTasks;
@@ -394,7 +399,12 @@ class StorageNode extends FOGController
             'storagenodeID' => $this->get('id'),
             'typeID' => $usedtasks
         ];
-        $countTasks = self::getClass('TaskManager')->count($findTasks);
+        Route::count(
+            'task',
+            $findTasks
+        );
+        $countTasks = json_encode(Route::getData());
+        $countTasks = $countTasks->total;
         $index = array_search(8, $usedtasks);
         if ($index === false) {
             return $countTasks;

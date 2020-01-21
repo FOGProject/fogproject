@@ -105,8 +105,12 @@ class Snapin extends FOGController
         );
         $snapinJobIDs = json_decode(Route::getData(), true);
         foreach ((array)$snapinJobIDs as &$sjID) {
-            $jobCount = self::getClass('SnapinTaskManager')
-                ->count(['jobID' => $sjID]);
+            Route::count(
+                'snapintask',
+                ['jobID' => $sjID]
+            );
+            $jobCount = json_decode(Route::getData());
+            $jobCount = $jobCount->total;
             if ($jobCount > 0) {
                 continue;
             }
@@ -337,16 +341,24 @@ class Snapin extends FOGController
      */
     public static function getPrimaryGroup($groupID, $snapinID)
     {
-        $primaryCount = self::getClass('SnapinGroupAssociationManager')
-            ->count(
-                [
-                    'snapinID' => $snapinID,
-                    'primary' => 1,
-                ]
-            );
+        $find = [
+            'snapinID' => $snapinID,
+            'primary' => 1
+        ];
+        Route::count(
+            'snapingroupassociation',
+            $find
+        );
+        $primaryCount = json_decode(Route::getData());
+        $primaryCount = $primaryCount->total;
         if ($primaryCount < 1) {
-            $primaryCount = self::getClass('SnapinGroupAssociationManager')
-                ->count(['snapinID' => $snapinID]);
+            unset($find['primary']);
+            Route::count(
+                'snapingroupassociation',
+                $find
+            );
+            $primaryCount = json_decode(Route::getData());
+            $primaryCount = $primaryCount->total;
         }
         if ($primaryCount < 1) {
             Route::ids('storagegroup');

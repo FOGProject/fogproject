@@ -568,14 +568,17 @@ class DashboardPage extends FOGPage
             $period
         );
         foreach ((array)$dates as $index => &$date) {
-            $count = self::getClass('ImagingLogManager')
-                ->count(
-                    [
-                        'start' => $date->format('Y-m-d%'),
-                        'finish' => $date->format('Y-m-d%')
-                    ],
-                    'OR'
-                );
+            Route::count(
+                'imaginglog',
+                [
+                    'start' => $date->format('Y-m-d%'),
+                    'finish' => $date->format('Y-m-d%')
+                ],
+                false,
+                'OR'
+            );
+            $count = json_decode(Route::getData());
+            $count = $count->total;
             $data[] = [
                 ($date->getTimestamp() * 1000),
                 $count

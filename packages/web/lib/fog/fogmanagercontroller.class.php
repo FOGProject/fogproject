@@ -266,7 +266,9 @@ abstract class FOGManagerController extends FOGBase
             $requestColumn = $request['columns'][$columnIdx];
             $columnIdx = array_search($requestColumn['data'], $dtColumns);
             $column = $columns[$columnIdx];
-            if ($requestColumn['orderable'] != 'true') {
+            if ($requestColumn['orderable'] != 'true'
+                || $requestColumn['removeFromQuery']
+            ) {
                 continue;
             }
             $dir = $request['order'][$i]['dir'] === 'asc' ?
@@ -309,6 +311,7 @@ abstract class FOGManagerController extends FOGBase
                 $column = $columns[$columnIdx];
                 if ($requestColumn['searchable'] != 'true'
                     || !isset($column['db'])
+                    || $column['removeFromQuery']
                 ) {
                     continue;
                 }
@@ -326,6 +329,7 @@ abstract class FOGManagerController extends FOGBase
                 if ($requestColumn['searchable'] != 'true'
                     || $str == ''
                     || !isset($column['db'])
+                    || $column['removeFromQuery']
                 ) {
                     continue;
                 }
@@ -652,7 +656,7 @@ abstract class FOGManagerController extends FOGBase
         $out = [];
         for ($i = 0, $len = count($a ?: []); $i < $len; $i++) {
             if (!isset($a[$i][$prop])
-                || isset($a[$i]['removeFromQuery'])
+                || $a[$i]['removeFromQuery']
             ) {
                 continue;
             }
@@ -676,132 +680,6 @@ abstract class FOGManagerController extends FOGBase
             return implode($join, $a);
         }
         return $a;
-    }
-    /**
-     * Returns the count of items.
-     *
-     * @param array  $findWhere     what to find and count
-     * @param string $whereOperator how to scan for where multiples
-     * @param string $compare       how to compare items
-     *
-     * @return int
-     */
-    public function count(
-        $findWhere = [],
-        $whereOperator = 'AND',
-        $compare = '='
-    ) {
-        if (empty($findWhere)) {
-            $findWhere = [];
-        }
-        if (empty($whereOperator)) {
-            $whereOperator = 'AND';
-        }
-        if (empty($compare)) {
-            $compare = '=';
-        }
-        $whereArray = [];
-        $countVals = $countKeys = [];
-        if (count($findWhere ?: [])) {
-            foreach ((array) $findWhere as $field => &$value) {
-                $field = trim($field);
-                if (is_array($value) && count($value) > 0) {
-                    foreach ((array) $value as $index => &$val) {
-                        $key = sprintf(
-                            '%s_%d',
-                            $field,
-                            $index
-                        );
-                        $countKeys[] = sprintf(':%s', $key);
-                        $countVals[$key] = $val;
-                        unset($val);
-                    }
-                    if (is_array($countKeys) && count($countKeys) > 0) {
-                        $whereArray[] = sprintf(
-                            '`%s` IN (%s)',
-                            $this->databaseFields[$field],
-                            implode(',', $countKeys)
-                        );
-                    }
-                    unset($countKeys);
-                } else {
-                    if (is_array($value)) {
-                        $value = '';
-                    }
-                    $countVals[$field] = $value;
-                    $whereArray[] = sprintf(
-                        '`%s` %s :%s',
-                        $this->databaseFields[$field],
-                        (
-                            preg_match(
-                                '#%#',
-                                $value
-                            ) ?
-                            'LIKE' :
-                            trim($compare)
-                        ),
-                        $field
-                    );
-                }
-                unset($value, $field);
-            }
-        }
-        $knownEnable = [
-            'Image',
-            'Snapin',
-            'StorageNode',
-        ];
-        $nonEnable = !(in_array($this->childClass, $knownEnable));
-        $isEnabled = array_key_exists(
-            'isEnabled',
-            $this->databaseFields
-        );
-        if ($nonEnable && $isEnabled) {
-            $isEnabled = sprintf(
-                '`%s`=1',
-                $this->databaseFields['isEnabled']
-            );
-        }
-        $query = sprintf(
-            $this->countQueryTemplate,
-            $this->databaseTable,
-            $this->databaseFields['id'],
-            $this->databaseTable,
-            (
-                count($whereArray ?: []) ?
-                sprintf(
-                    ' WHERE %s%s',
-                    implode(
-                        sprintf(
-                            ' %s ',
-                            $whereOperator
-                        ),
-                        (array) $whereArray
-                    ),
-                    (
-                        $isEnabled ?
-                        sprintf(
-                            ' AND %s',
-                            $isEnabled
-                        ) :
-                        ''
-                    )
-                ) :
-                (
-                    $isEnabled ?
-                    sprintf(
-                        ' WHERE %s',
-                        $isEnabled
-                    ) :
-                    ''
-                )
-            )
-        );
-
-        return (int)self::$DB
-            ->query($query, [], $countVals)
-            ->fetch()
-            ->get('total');
     }
     /**
      * Inserts data in mass to the database.

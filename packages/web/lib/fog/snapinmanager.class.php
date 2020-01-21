@@ -209,8 +209,12 @@ class SnapinManager extends FOGManagerController
             /**
              * Get the snapin task count.
              */
-            $jobCount = self::getClass('SnapinTaskManager')
-                ->count(['jobID' => $jobID]);
+            Route::count(
+                'snapintask',
+                ['jobID' => $jobID]
+            );
+            $jobCount = json_decode(Route::getData());
+            $jobCount = $jobCount->total;
             /*
              * If we still have tasks start with the next job ID.
              */

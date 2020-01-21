@@ -1996,18 +1996,20 @@ class FOGConfigurationPage extends FOGPage
                     case 'FOG_KEY_SEQUENCE':
                         switch ($row['settingKey']) {
                         case 'FOG_QUICKREG_IMG_ID':
-                            $objGetter = 'imagemanager';
+                            $objGetter = 'image';
                             break;
                         case 'FOG_QUICKREG_GROUP_ASSOC':
-                            $objGetter = 'groupmanager';
+                            $objGetter = 'group';
                             break;
                         case 'FOG_KEY_SEQUENCE':
-                            $objGetter = 'keysequencemanager';
+                            $objGetter = 'keysequence';
                             break;
                         }
                         $input = _('No Data');
-                        if (self::getClass($objGetter)->count() > 0) {
-                            $input = self::getClass($objGetter)->buildSelectBox(
+                        Route::count($objGetter);
+                        $count = json_decode(Route::getData());
+                        if ($count->total > 0) {
+                            $input = self::getClass($objGetter.'manager')->buildSelectBox(
                                 $row['settingValue'],
                                 $row['settingID']
                             );

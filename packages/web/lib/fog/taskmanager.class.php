@@ -93,8 +93,12 @@ class TaskManager extends FOGManagerController
             self::getClass('MulticastSessionAssociationManager')
                 ->destroy(['id' => $MulticastSessionAssocIDs]);
         }
-        $StillLeft = self::getClass('MulticastSessionAssociationManager')
-            ->count(['msID' => $MulticastSessionIDs]);
+        Route::count(
+            'multicastsessionassociation',
+            ['msID' => $MulticastSessionIDs]
+        );
+        $StillLeft = json_decode(Route::getData());
+        $StillLeft = $StillLeft->total;
         if (count($SnapinTaskIDs) > 0) {
             self::getClass('SnapinTaskManager')->cancel($SnapinTaskIDs);
         }

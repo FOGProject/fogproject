@@ -257,7 +257,7 @@ class Route extends FOGBase
             [__CLASS__, 'active'],
             'active'
         )->get(
-            "${expanded}/count",
+            "${expanded}/count/[*:whereItems]?",
             [__CLASS__, 'count'],
             'count'
         )->get(

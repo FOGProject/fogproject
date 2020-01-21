@@ -1814,20 +1814,24 @@ class ImageManagement extends FOGPage
             throw new Exception(_('Session with that name already exists!'));
         }
         if ($sessioncount < 1) {
-            $sessioncount = self::getClass('HostManager')->count();
+            Route::count('host');
+            $hosts = json_decode(Route::getData());
+            $sessioncount = $hosts->total;
         }
         if (!$sessiontimeout) {
             $sessiontimeout = self::getSetting('FOG_UDPCAST_MAXWAIT');
         }
-        $countmc = self::getClass('MulticastSessionManager')
-            ->count(
-                [
-                    'stateID' => self::fastmerge(
-                        (array)self::getQueuedStates(),
-                        (array)self::getProgressState()
-                    )
-                ]
-            );
+        Route::count(
+            'multicastsession',
+            [
+                'stateID' => self::fastmerge(
+                    (array)self::getQueuedStates(),
+                    (array)self::getProgressState()
+                )
+            ]
+        );
+        $countmc = json_encode(Route::getData());
+        $countmc = $countmc->total;
         $countmctot = self::getSetting('FOG_MULTICAST_MAX_SESSIONS');
         if ($countmc >= $countmctot) {
             throw new Exception(
