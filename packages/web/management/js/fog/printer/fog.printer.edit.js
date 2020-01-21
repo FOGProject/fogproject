@@ -21,9 +21,8 @@
             $('#printercopy').select2();
             document.title = text;
             e.text(text);
-        };
-
-    var generalForm = $('#printer-general-form'),
+        },
+        generalForm = $('#printer-general-form'),
         generalFormBtn = $('#general-send'),
         generalDeleteBtn = $('#general-delete'),
         generalDeleteModal = $('#deleteModal'),
@@ -66,164 +65,6 @@
             }, 2000);
         });
     });
-    // ---------------------------------------------------------------
-    // MEMBERSHIP TAB
-    var membershipDefaultBtn = $('#membership-default'),
-        membershipAddBtn = $('#membership-add'),
-        membershipRemoveBtn = $('#membership-remove');
-    membershipAddBtn.prop('disabled', true);
-    membershipRemoveBtn.prop('disabled', true);
-    function onMembershipSelect(selected) {
-        var disabled = selected.count() == 0;
-        membershipAddBtn.prop('disabled', disabled);
-        membershipRemoveBtn.prop('disabled', disabled);
-    }
-    function onCheckboxSelect(selected) {
-    }
-    var membershipTable = $('#printer-hosts-table').registerTable(onMembershipSelect, {
-        order: [
-            [2, 'asc'],
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'name'},
-            {data: 'isDefault'},
-            {data: 'association'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            {
-                responsivePriority: -1,
-                render: function(data, type, row) {
-                    return '<a href="../management/index.php?node=host&sub=edit&id='
-                        + row.id
-                        + '">'
-                        + data
-                        + '</a>';
-                },
-                targets: 0
-            },
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association !== 'associated') {
-                        checkval = ' disabled';
-                    } else if (row.isDefault > 0) {
-                        checkval = ' checked';
-                    } else {
-                        checkval = '';
-                    }
-                    return '<div class="checkbox">'
-                        + '<input type="checkbox" class="default" name="default[]" id="memberDefault_'
-                        + row.id
-                        + '" value="'
-                        + row.id
-                        + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 1
-            },
-            {
-                render: function(data, type, row) {
-                    var checkval = '';
-                    if (row.association === 'associated') {
-                        checkval = ' checked';
-                    }
-                    return '<div class="checkbox">'
-                        + '<input type="checkbox" class="associated" name="associate[]" id="memberAssoc_'
-                        + row.id
-                        + '" value="'
-                        + row.id
-                        + '"'
-                        + checkval
-                        + '/>'
-                        + '</div>';
-                },
-                targets: 2
-            }
-        ],
-        processing: true,
-        ajax: {
-            url: '../management/index.php?node='+Common.node+'&sub=getHostsList&id='+Common.id,
-            type: 'post'
-        }
-    });
-    membershipTable.on('draw', function() {
-        Common.iCheck('#printer-hosts-table input');
-        $('#printer-hosts-table input.associated').on('ifClicked', onCheckboxSelect);
-    });
-    membershipDefaultBtn.on('click', function() {
-        membershipDefaultBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = membershipTable.rows({selected: true}),
-            defaulton = [],
-            opts = {
-                updatedefault: '1',
-                defaulton: defaulton
-            };
-        // Get all the checked default options.
-        $('#printer-hosts-table').find('.default:checked').each(function() {
-            defaulton.push($(this).val());
-        });
-        $.apiCall(method,action,opts,function(err) {
-            membershipDefaultBtn.prop('disabled', true);
-            if (!err) {
-                membershipTable.draw(false);
-                membershipTable.rows({selected: true}).deselect();
-            } else {
-                membershipDefaultBtn.prop('disabled', false);
-            }
-        });
-    });
-    membershipAddBtn.on('click', function() {
-        membershipAddBtn.prop('disabled', true);
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            rows = membershipTable.rows({selected: true}),
-            toAdd = $.getSelectedIds(membershipTable),
-            opts = {
-                'updatemembership': '1',
-                'membership': toAdd
-            };
-        $.apiCall(method,action,opts,function(err) {
-            if (!err) {
-                membershipTable.draw(false);
-                membershipTable.rows({selected: true}).deselect();
-                $('#printer-hosts-table').find('.default:disabled').each(function() {
-                    if ($.inArray($(this).val(), toAdd) != -1) {
-                        $(this).prop('disabled', false);
-                        Common.iCheck(this);
-                    }
-                });
-                $('#printer-hosts-table').find('.associated').each(function() {
-                    if ($.inArray($(this).val(), toAdd) != -1) {
-                        $(this).iCheck('check');
-                    }
-                });
-            } else {
-                membershipAddBtn.prop('disabled', false);
-            }
-        });
-    });
-    membershipRemoveBtn.on('click', function() {
-        $('#hostDelModal').modal('show');
-    });
-    $('#confirmhostDeleteModal').on('click', function(e) {
-        $.deleteAssociated(membershipTable, membershipRemoveBtn.attr('action'), function(err) {
-            if (err) {
-                return;
-            }
-            $('#hostDelModal').modal('hide');
-            membershipTable.draw(false);
-            membershipTable.rows({selected: true}).deselect();
-        });
-    });
-    if (Common.search && Common.search.length > 0) {
-        membershipTable.search(Common.search).draw();
-    }
 
     // Hides the fields not currently selected.
     $('.network,.iprint,.cups,.local').addClass('hidden');
@@ -278,4 +119,244 @@
             $('[name="configFile"]').val(val);
         });
     });
+
+    // Associations
+    // ---------------------------------------------------------------
+    // HOST TAB
+
+    // Host Associations
+    var printerHostUpdateBtn = $('#printer-host-send'),
+        printerHostRemoveBtn = $('#printer-host-remove'),
+        printerHostDeleteConfirmBtn = $('#confirmhostDeleteModal');
+
+    function disableHostButtons(disable) {
+        printerHostUpdateBtn.prop('disabled', disable);
+        printerHostRemoveBtn.prop('disabled', disable);
+    }
+
+    function onHostSelect(selected) {
+        var disabled = selected.count() == 0;
+        disableHostButtons(disabled);
+    }
+
+    printerHostUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = printerHostsTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(printerHostsTable),
+            opts = {
+                confirmadd: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableHostButtons(false);
+            if (err) {
+                return;
+            }
+            printerHostsTable.draw(false);
+            printerHostsTable.rows({selected: true}).deselect();
+        });
+    });
+
+    printerHostRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#hostDelModal').modal('show');
+    });
+
+    var printerHostsTable = $('#printer-host-table').registerTable(onHostSelect, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'mainLink'},
+            {data: 'association'}
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (row.association === 'associated') {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="associated" name="associate[]" id="printerHostAssoc_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getHostsList&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
+
+    printerHostDeleteConfirmBtn.on('click', function(e) {
+        $.deleteAssociated(printerHostsTable, printerHostUpdateBtn.attr('action'), function(err) {
+            $('#hostDelModal').modal('hide');
+            if (err) {
+                return;
+            }
+            printerHostsTable.draw(false);
+            printerHostsDefaultTable.draw(false);
+            printerHostsTable.rows({selected: true}).deselect();
+        });
+    });
+
+    printerHostsTable.on('draw', function(e) {
+        Common.iCheck('#printer-host-table input');
+        $('#printer-host-table input.associated').on('ifChanged', onPrinterHostCheckboxSelect);
+        onHostSelect(printerHostsTable.rows({selected: true}));
+    });
+
+    var onPrinterHostCheckboxSelect = function(e) {
+        $.checkItemUpdate(printerHostsTable, this, e, printerHostUpdateBtn);
+    };
+
+    // Host Default Settings
+    var printerHostDefaultUpdateBtn = $('#printer-host-default-send'),
+        printerHostDefaultRemoveBtn = $('#printer-host-default-remove'),
+        printerHostDefaultDeleteConfirmBtn = $('#confirmHostDefaultDeleteModal');
+
+    function disableHostDefaultButtons(disable) {
+        printerHostDefaultUpdateBtn.prop('disabled', disable);
+        printerHostDefaultRemoveBtn.prop('disabled', disable);
+    }
+
+    function onHostDefaultSelect(selected) {
+        var disabled = selected.count() == 0;
+        disableHostDefaultButtons(disabled);
+    }
+
+    printerHostDefaultUpdateBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            rows = printerHostsDefaultTable.rows({selected: true}),
+            toAdd = $.getSelectedIds(printerHostsDefaultTable),
+            opts = {
+                confirmadddefault: 1,
+                additems: toAdd
+            };
+        $.apiCall(method,action,opts,function(err) {
+            disableHostButtons(false);
+            if (err) {
+                return;
+            }
+            printerHostsTable.draw(false);
+            printerHostsDefaultTable.draw(false);
+            printerHostsDefaultTable.rows({selected: true}).deselect();
+        });
+    });
+
+    printerHostDefaultRemoveBtn.on('click', function(e) {
+        e.preventDefault();
+        $('#unsetHostDefaultModal').modal('show');
+    });
+
+    var printerHostsDefaultTable = $('#printer-host-default-table').registerTable(onHostDefaultSelect, {
+        order: [
+            [1, 'asc'],
+            [0, 'asc']
+        ],
+        columns: [
+            {data: 'mainLink'},
+            {data: 'isDefault'}
+        ],
+        rowId: 'id',
+        columnDefs: [
+            {
+                render: function(data, type, row) {
+                    var checkval = '';
+                    if (data >= 1) {
+                        checkval = ' checked';
+                    }
+                    return '<div class="checkbox">'
+                        + '<input type="checkbox" class="default" name="default[]" id="printerHostDefault_'
+                        + row.id
+                        + '" value="' + row.id + '"'
+                        + checkval
+                        + '/>'
+                        + '</div>';
+                },
+                targets: 1
+            }
+        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getHostsList&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
+
+    printerHostDefaultDeleteConfirmBtn.on('click', function(e) {
+        var method = printerHostDefaultUpdateBtn.attr('method'),
+            action = printerHostDefaultUpdateBtn.attr('action'),
+            rows = printerHostsDefaultTable.rows({selected: true}),
+            opts = {
+                confirmdeldefault: 1,
+                remitems: $.getSelectedIds(printerHostsDefaultTable)
+            };
+        $.apiCall(method,action,opts,function(err) {
+            $('#unsetHostDefaultModal').modal('hide');
+            if (err) {
+                return;
+            }
+            printerHostsDefaultTable.draw(false);
+            printerHostsDefaultTable.rows({selected: true}).deselect();
+        });
+    });
+
+    printerHostsDefaultTable.on('draw', function(e) {
+        Common.iCheck('#printer-host-default-table input');
+        $('#printer-host-default-table input.default').on('ifChanged', onPrinterHostDefaultCheckboxSelect);
+        onHostDefaultSelect(printerHostsDefaultTable.rows({selected: true}));
+    });
+
+    var onPrinterHostDefaultCheckboxSelect = function(e) {
+        $(this).iCheck('update');
+        var method = printerHostDefaultUpdateBtn.attr('method'),
+            action = printerHostDefaultUpdateBtn.attr('action'),
+            opts = {};
+        if (this.checked) {
+            opts = {
+                confirmadddefault: 1,
+                additems: [e.target.value]
+            };
+        } else {
+            opts = {
+                confirmdeldefault: 1,
+                remitems: [e.target.value]
+            };
+        }
+        $.apiCall(method,action,opts,function(err) {
+            if (err) {
+                return;
+            }
+            printerHostsTable.draw(false);
+            printerHostsDefaultTable.draw(false);
+            printerHostsDefaultTable.rows({selected: true}).deselect();
+        });
+    };
+
+    if (Common.search && Common.search.length > 0) {
+        printerHostsTable.search(Common.search).draw();
+        printerHostsDefaultTable.search(Common.search).draw();
+    }
 })(jQuery);

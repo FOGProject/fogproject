@@ -142,6 +142,7 @@
                 return;
             }
             storagegroupImagesTable.draw(false);
+            storagegroupImagesPrimaryTable.draw(false);
             storagegroupImagesTable.rows({selected: true}).deselect();
         });
     });
@@ -150,12 +151,11 @@
         Common.iCheck('#storagegroup-image-table input');
         $('#storagegroup-image-table input.associated').on('ifChanged', onStoragegroupImageCheckboxSelect);
         onImageSelect(storagegroupImagesTable.rows({selected: true}));
-        storagegroupImagesPrimaryTable.draw(false);
     });
 
     var onStoragegroupImageCheckboxSelect = function(e) {
         $.checkItemUpdate(storagegroupImagesTable, this, e, storagegroupImageUpdateBtn);
-    }
+    };
 
     // Image Primary Settings
     var storagegroupImagePrimaryUpdateBtn = $('#storagegroup-image-primary-send'),
@@ -187,6 +187,7 @@
             if (err) {
                 return;
             }
+            storagegroupImagesTable.draw(false);
             storagegroupImagesPrimaryTable.draw(false);
             storagegroupImagesPrimaryTable.rows({selected: true}).deselect();
         });
@@ -243,14 +244,13 @@
             rows = storagegroupImagesPrimaryTable.rows({selected: true}),
             opts = {
                 confirmdelprimary: 1,
-                remitems: rows.ids().toArray()
+                remitems: $.getSelectedIds(storagegroupImagesPrimaryTable)
             };
         $.apiCall(method,action,opts,function(err) {
             $('#unsetImagePrimaryModal').modal('hide');
             if (err) {
                 return;
             }
-            storagegroupImagesTable.draw(false);
             storagegroupImagesPrimaryTable.draw(false);
             storagegroupImagesPrimaryTable.rows({selected: true}).deselect();
         });
@@ -286,7 +286,7 @@
             storagegroupImagesPrimaryTable.draw(false);
             storagegroupImagesPrimaryTable.rows({selected: true}).deselect();
         });
-    }
+    };
 
     // ----------------------------------------------------
     // SNAPIN TAB
@@ -377,6 +377,7 @@
                 return;
             }
             storagegroupSnapinsTable.draw(false);
+            storagegroupSnapinsPrimaryTable.draw(false);
             storagegroupSnapinsTable.rows({selected: true}).deselect();
         });
     });
@@ -385,12 +386,11 @@
         Common.iCheck('#storagegroup-snapin-table input');
         $('#storagegroup-snapin-table input.associated').on('ifChanged', onStoragegroupSnapinCheckboxSelect);
         onSnapinSelect(storagegroupSnapinsTable.rows({selected: true}));
-        storagegroupSnapinsPrimaryTable.draw(false);
     });
 
     var onStoragegroupSnapinCheckboxSelect = function(e) {
         $.checkItemUpdate(storagegroupSnapinsTable, this, e, storagegroupSnapinUpdateBtn);
-    }
+    };
 
     // Snapin Primary Settings
     var storagegroupSnapinPrimaryUpdateBtn = $('#storagegroup-snapin-primary-send'),
@@ -422,6 +422,7 @@
             if (err) {
                 return;
             }
+            storagegroupSnapinsTable.draw(false);
             storagegroupSnapinsPrimaryTable.draw(false);
             storagegroupSnapinsPrimaryTable.rows({selected: true}).deselect();
         });
@@ -446,7 +447,6 @@
             {
                 render: function(data, type, row) {
                     var checkval = '';
-                    console.log(data);
                     if (data >= 1) {
                         checkval = ' checked';
                     }
@@ -478,14 +478,13 @@
             rows = storagegroupSnapinsPrimaryTable.rows({selected: true}),
             opts = {
                 confirmdelprimary: 1,
-                remitems: rows.ids().toArray()
+                remitems: $.getSelectedIds(storagegrouPSnapinsPrimaryTable)
             };
         $.apiCall(method,action,opts,function(err) {
             $('#unsetSnapinPrimaryModal').modal('hide');
             if (err) {
                 return;
             }
-            storagegroupSnapinsTable.draw(false);
             storagegroupSnapinsPrimaryTable.draw(false);
             storagegroupSnapinsPrimaryTable.rows({selected: true}).deselect();
         });
@@ -521,7 +520,7 @@
             storagegroupSnapinsPrimaryTable.draw(false);
             storagegroupSnapinsPrimaryTable.rows({selected: true}).deselect();
         });
-    }
+    };
 
     // ----------------------------------------------------
     // STORAGE NODE TAB
@@ -627,7 +626,7 @@
     var onStoragegroupStoragenodeCheckboxSelect = function(e) {
         $.checkItemUpdate(storagegroupStoragenodesTable, this, e, storagegroupStoragenodeUpdateBtn);
         setTimeout(storagegroupStoragenodeMasterSelectorUpdate, 1000);
-    }
+    };
 
     // Master area
     var storagegroupStoragenodeMasterUpdateBtn = $('#storagegroup-storagenode-master-send'),
