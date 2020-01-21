@@ -44,18 +44,17 @@ class LoadGlobals extends FOGBase
         if (!$GLOBALS['DB']) {
             return;
         }
+        $GLOBALS['HookManager'] = FOGCore::getClass('HookManager');
+        $GLOBALS['EventManager'] = FOGCore::getClass('EventManager');
+        $GLOBALS['FOGURLRequests'] = FOGCore::getClass('FOGURLRequests');
+        FOGCore::setEnv();
         if (session_status() != PHP_SESSION_NONE) {
             $GLOBALS['currentUser'] = new User((int)$_SESSION['FOG_USER']);
         } else {
             $GLOBALS['currentUser'] = new User(0);
         }
-        $GLOBALS['HookManager'] = FOGCore::getClass('HookManager');
-        $GLOBALS['HookManager']
-            ->load();
-        $GLOBALS['EventManager'] = FOGCore::getClass('EventManager');
-        $GLOBALS['EventManager']
-            ->load();
-        $GLOBALS['FOGURLRequests'] = FOGCore::getClass('FOGURLRequests');
+        $GLOBALS['HookManager']->load();
+        $GLOBALS['EventManager']->load();
         $subs = [
             'configure',
             'authorize',
@@ -66,7 +65,6 @@ class LoadGlobals extends FOGBase
             unset($subs);
             exit;
         }
-        FOGCore::setEnv();
         self::$_loadedglobals = true;
         unset($subs);
     }
