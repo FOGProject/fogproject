@@ -64,19 +64,6 @@ class Printer extends FOGController
         'hosts'
     ];
     /**
-     * Removes the printer.
-     *
-     * @param string $key The key to match for removing.
-     *
-     * @return bool
-     */
-    public function destroy($key = 'id')
-    {
-        self::getClass('PrinterAssociationManager')
-            ->destroy(['printerID'=>$this->get('id')]);
-        return parent::destroy($key);
-    }
-    /**
      * Stores/updates the printer
      *
      * @return object
