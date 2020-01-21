@@ -1715,12 +1715,15 @@ abstract class FOGBase
         if (count($MACs ?: []) < 1) {
             return [];
         }
-        $count = self::getClass('MACAddressAssociationManager')->count(
+        Route::count(
+            'macaddressassociation',
             [
                 'mac' => $MACs,
                 'pending' => [0, '']
             ]
         );
+        $count = json_decode(Route::getData());
+        $count = $count->total;
         if ($count > 0) {
             $find = [
                 'mac' => $MACs,
@@ -2440,7 +2443,9 @@ abstract class FOGBase
      */
     public static function getMACLookupCount()
     {
-        return self::getClass('OUIManager')->count();
+        Route::count('oui');
+        $count = json_decode(Route::getData());
+        return $count->total;
     }
     /**
      * Resolves a hostname to its IP address

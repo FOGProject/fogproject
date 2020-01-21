@@ -211,11 +211,19 @@ class FOGCore extends FOGBase
             $view
         ) = self::getSetting($getSettings);
         self::$defaultscreen = $view;
-        self::$pendingHosts = self::getClass('HostManager')
-            ->count(['pending' => 1]);
+        Route::count(
+            'host',
+            ['pending' => 1]
+        );
+        self::$pendingHosts = json_decode(Route::getData());
+        self::$pendingHosts = self::$pendingHosts->total;
         if (DatabaseManager::getColumns('hostMAC', 'hmMAC')) {
-            self::$pendingMACs = self::getClass('MACAddressAssociationManager')
-                ->count(['pending' => 1]);
+            Route::count(
+                'macaddressassociation',
+                ['pending' => 1]
+            );
+            self::$pendingMACs = json_decode(Route::getData());
+            self::$pendingMACs = self::$pendingMACs->total;
         }
         self::$fogpingactive = $hostLookup;
         self::$fogdeleteactive = $authdelete;

@@ -107,10 +107,12 @@ class Group extends FOGController
      */
     public function getHostCount()
     {
-        return self::getClass('HostManager')
-            ->count(
-                ['id' => $this->get('hosts')]
-            );
+        Route::count(
+            'host',
+            ['id' => $this->get('hosts')]
+        );
+        $total = json_decode(Route::getData());
+        return $total->total;
     }
     /**
      * Adds printers to hosts in this group
@@ -430,13 +432,15 @@ class Group extends FOGController
             self::getQueuedStates(),
             (array)self::getProgressState()
         );
-        $TaskCount = self::getClass('TaskManager')
-            ->count(
-                [
-                    'hostID' => $this->get('hosts'),
-                    'stateID' => $states,
-                ]
-            );
+        Route::count(
+            'task',
+            [
+                'hostID' => $this->get('hosts'),
+                'stateID' => $states
+            ]
+        );
+        $total = json_decode(Route::getData());
+        $TaskCount = $total->total;
         if ($TaskCount > 0) {
             throw new Exception(_('There is a host in a tasking'));
         }
