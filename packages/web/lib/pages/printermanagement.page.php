@@ -1453,9 +1453,9 @@ class PrinterManagement extends FOGPage
                 'tabData' => [
                     [
                         'name' => _('Hosts'),
-                        'id' => 'printer-hosts',
+                        'id' => 'printer-host',
                         'generator' => function () {
-                            $this->printerMembership();
+                            $this->printerHosts();
                         }
                     ]
                 ]
@@ -1529,114 +1529,125 @@ class PrinterManagement extends FOGPage
             ->set('ip', $ip);
     }
     /**
-     * Printer Membership tab
+     * Printer hosts display.
      *
      * @return void
      */
-    public function printerMembership()
+    public function printerHosts()
     {
+        // Host Associations
+        $this->headerData = [
+            _('Host Name'),
+            _('Associated')
+        ];
+        $this->attributes = [
+            [],
+            ['width' => 16]
+        ];
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
-                'printer-hosts',
+                'printer-host',
                 $this->obj->get('id')
             )
             . '" ';
 
-        $buttons = self::makeButton(
-            'membership-default',
-            _('Update Default'),
-            'btn btn-primary pull-right',
-            $props
-        );
         $buttons .= self::makeButton(
-            'membership-add',
+            'printer-host-send',
             _('Add selected'),
             'btn btn-success pull-right',
             $props
         );
         $buttons .= self::makeButton(
-            'membership-remove',
+            'printer-host-remove',
             _('Remove selected'),
             'btn btn-danger pull-left',
             $props
         );
-
-        $this->headerData = [
-            _('Host Name'),
-            _('Default Printer'),
-            _('Host Associated')
-        ];
-        $this->attributes = [
-            [],
-            [],
-            []
-        ];
-
-        echo '<!-- Host Membership -->';
-        echo '<div class="box-group" id="membership">';
-        echo '<div class="box box-solid">';
-        echo '<div class="updatemembership" class="">';
+        echo '<div class="box box-primary">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Printer Host Associations');
+        echo '</h4>';
+        echo '</div>';
         echo '<div class="box-body">';
-        $this->render(12, 'printer-hosts-table', $buttons);
+        echo $this->render(12, 'printer-host-table', $buttons);
         echo '</div>';
         echo '<div class="box-footer with-border">';
         echo $this->assocDelModal('host');
         echo '</div>';
         echo '</div>';
+
+        // Set Printer as default on hosts.
+        $this->headerData[1] = _('Default');
+        $buttons = self::makeButton(
+            'printer-host-default-send',
+            _('Make default'),
+            'btn btn-info pull-right',
+            $props
+        );
+        $buttons .= self::makeButton(
+            'printer-host-default-remove',
+            _('Unset default'),
+            'btn btn-warning pull-left',
+            $props
+        );
+        echo '<div class="box box-info">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo _('Set Printer as Default for Hosts');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'printer-host-default-table', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo self::makeModal(
+            'unsetHostDefaultModal',
+            _('Unset printer as default printer'),
+            _(
+                'Please confirm you would like to unset the default printer from '
+                . ' the selected hosts'
+            ),
+            self::makeButton(
+                "closeHostDefaultDeleteModal",
+                _('Cancel'),
+                'btn btn-outline pull-left',
+                'data-dismiss="modal"'
+            )
+            . self::makeButton(
+                "confirmHostDefaultDeleteModal",
+                _('Unset'),
+                'btn btn-outline pull-right'
+            ),
+            '',
+            'warning'
+        );
         echo '</div>';
         echo '</div>';
     }
     /**
-     * Printer membership post elements
+     * Printer host post elements
      *
      * @return void
      */
-    public function printerMembershipPost()
+    public function printerHostPost()
     {
-        if (isset($_POST['updatedefault'])) {
-            $items = filter_input_array(
+        if (isset($_POST['confirmadd'])) {
+            $hosts = filter_input_array(
                 INPUT_POST,
                 [
-                    'defaulton' => [
+                    'additems' => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $defaulton = $items['defaulton'];
-            self::getClass('PrinterAssociationManager')
-                ->update(
-                    [
-                        'printerID' => $this->obj->get('id'),
-                    ],
-                    '',
-                    ['isDefault' => 0]
-                );
-            if (count($defaulton ?: [])) {
-                self::getClass('PrinterAssociationManager')
-                    ->update(
-                        [
-                            'printerID' => $this->obj->get('id'),
-                            'hostID' => $defaulton
-                        ],
-                        '',
-                        ['isDefault' => 1]
-                    );
+            $hosts = $hosts['additems'];
+            if (count($hosts ?: []) > 0) {
+                $this->obj->addHost($hosts);
             }
         }
-        if (isset($_POST['updatemembership'])) {
-            $membership = filter_input_array(
-                INPUT_POST,
-                [
-                    'membership' => [
-                        'flags' => FILTER_REQUIRE_ARRAY
-                    ]
-                ]
-            );
-            $membership = $membership['membership'];
-            $this->obj->addHost($membership);
-        }
         if (isset($_POST['confirmdel'])) {
-            $membership = filter_input_array(
+            $hosts = filter_input_array(
                 INPUT_POST,
                 [
                     'remitems' => [
@@ -1644,17 +1655,73 @@ class PrinterManagement extends FOGPage
                     ]
                 ]
             );
-            $membership = $membership['remitems'];
-            self::getClass('PrinterAssociationManager')->destroy(
+            $hosts = $hosts['remitems'];
+            if (count($hosts ?: []) > 0) {
+                $this->obj->removeHost($hosts);
+            }
+        }
+        if (isset($_POST['confirmadddefault'])) {
+            $hosts = filter_input_array(
+                INPUT_POST,
                 [
-                    'printerID' => $this->obj->get('id'),
-                    'hostID' => $membership
+                    'additems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
                 ]
             );
+            $hosts = $hosts['additems'];
+            $hostsToAssoc = array_diff(
+                $hosts,
+                $this->obj->get('hosts')
+            );
+            if (count($hostsToAssoc ?: []) > 0) {
+                $this->obj->addHost($hostsToAssoc)->save();
+            }
+            if (count($hosts ?: []) > 0) {
+                self::getClass('PrinterAssociationManager')->update(
+                    [
+                        'hostID' => $hosts,
+                        'isDefault' => 1
+                    ],
+                    '',
+                    ['isDefault' => '0']
+                );
+                self::getClass('PrinterAssociationManager')->update(
+                    [
+                        'printerID' => $this->obj->get('id'),
+                        'hostID' => $hosts,
+                        'isDefault' => ['0', '']
+                    ],
+                    '',
+                    ['isDefault' => '1']
+                );
+            }
+        }
+        if (isset($_POST['confirmdeldefault'])) {
+            $hosts = filter_input_array(
+                INPUT_POST,
+                [
+                    'remitems' => [
+                        'flags' => FILTER_REQUIRE_ARRAY
+                    ]
+                ]
+            );
+            $hosts = $hosts['remitems'];
+            if (count($hosts ?: []) > 0) {
+                self::getClass('PrinterAssociationManager')->update(
+                    [
+                        'printerID' => $this->obj->get('id'),
+                        'hostID' => $hosts,
+                        'isDefault' => 1,
+                    ],
+                    '',
+                    ['isDefault' => '0']
+                );
+            }
         }
     }
     /**
-     * Printer -> host membership list
+     * Printer -> host list
      *
      * @return void
      */
@@ -1702,8 +1769,8 @@ class PrinterManagement extends FOGPage
             case 'printer-general':
                 $this->printerGeneralPost();
                 break;
-            case 'printer-hosts':
-                $this->printerMembershipPost();
+            case 'printer-host':
+                $this->printerHostPost();
                 break;
             }
             if (!$this->obj->save()) {
