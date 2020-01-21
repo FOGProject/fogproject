@@ -477,8 +477,8 @@ $.fn.registerTable = function(onSelect, opts) {
         autoWidth: false,
         responsive: true,
         lengthMenu: [
-            [10, 25, 50, 100, -1],
-            [10, 25, 50, 100, 'All']
+            [10, 25, 50, 100, 250, 500, -1],
+            [10, 25, 50, 100, 250, 500, 'All']
         ],
         pageLength: $('#pageLength').val(),
         buttons: [

@@ -820,7 +820,7 @@ class FOGConfigurationPage extends FOGPage
         header('Content-type: application/json');
         self::$HookManager->processEvent('SETTINGS_POST');
         $regenrange = range(0, 24, .25);
-        $viewvals = [-1, 10, 25, 50, 100];
+        $viewvals = [-1, 10, 25, 50, 100, 250, 500];
         array_shift($regenrange);
         $checkbox = [
             'FOG_ENFORCE_HOST_CHANGES' => true,
