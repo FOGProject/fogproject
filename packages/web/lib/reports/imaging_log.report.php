@@ -56,6 +56,8 @@ class Imaging_Log extends ReportManagement
         echo '<div class="box-body">';
         echo $this->render(12, 'imaginglog-table');
         echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo '</div>';
         echo '</div>';
     }
     /**

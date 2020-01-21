@@ -583,7 +583,7 @@ installPackages() {
             case $linuxReleaseName in
 				*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) addUbuntuRepo ;;
                 *[Dd][Ee][Bb][Ii][Aa][Nn]*)
-                    if [[$OSVersion -ge 10 ]]; then
+                    if [[ $OSVersion -ge 10 ]]; then
                         packages="${packages// libcurl3 / libcurl4 }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         packages="${packages// mysql / mariadb }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         packages="${packages// mysql-server / mariadb-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
