@@ -1458,7 +1458,7 @@ writeUpdateFile() {
                 sed -i "s/sslpath=.*/sslpath='$escsslpath'/g" $fogprogramdir/.fogsettings || \
                 echo "sslpath='$sslpath'" >> $fogprogramdir/.fogsettings
             grep -q "backupPath=" $fogprogramdir/.fogsettings && \
-                sed -i "s/backupPath=.*/backupPath='$esbackupPath'/g" $fogprogramdir/.fogsettings || \
+                sed -i "s/backupPath=.*/backupPath='$escbackupPath'/g" $fogprogramdir/.fogsettings || \
                 echo "backupPath='$backupPath'" >> $fogprogramdir/.fogsettings
             grep -q "armsupport=" $fogprogramdir/.fogsettings && \
                 sed -i "s/armsupport=.*/armsupport='$escarmsupport'/g" $fogprogramdir/.fogsettings || \
