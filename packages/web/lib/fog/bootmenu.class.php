@@ -155,11 +155,7 @@ class BootMenu extends FOGBase
         if (false !== stripos($_REQUEST['arch'], 'arm')) {
             $grubChain = 'chain -ar ${boot-url}/service/ipxe/grub_aa64.exe '
                 . '--configfile="%s"';
-            $refind = sprintf(
-                'imgfetch ${boot-url}/service/ipxe/refind_aa64.conf%s'
-                . 'chain -ar ${boot-url}/service/ipxe/refind_aa64.efi',
-                "\n"
-            );
+            $refind = 'chain -ar ${boot-url}/service/ipxe/refind_aa64.efi';
         }
         if (false !== stripos($_REQUEST['arch'], 'i386')) {
             // use i386 boot loaders instead.
