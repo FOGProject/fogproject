@@ -1271,7 +1271,7 @@ configureUsers() {
     dots "Setting up $username user"
     getent passwd $username > /dev/null
     if [[ $? -eq 0 ]]; then
-        if [[ ! -f "$fogprogramdir/.fogsettings" ]]; then
+        if [[ ! -f "$fogprogramdir/.fogsettings" && ! -x /home/$username/warnfogaccount.sh ]]; then
             echo "Already exists"
             echo
             echo "The account \"$username\" already exists but this seems to be a"
@@ -1350,6 +1350,7 @@ else
 fi
 EOF
     chmod 755 /home/$username/warnfogaccount.sh
+    chown $username:$username /home/$username/warnfogaccount.sh
     errorStat $?
     dots "Setting up $username password"
     if [[ -z $password ]]; then
