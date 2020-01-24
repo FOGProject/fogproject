@@ -1947,12 +1947,8 @@ abstract class FOGBase
         if (!$string) {
             return;
         }
-        $name = (
-            self::$FOGUser->isValid() ?
-            self::$FOGUser->get('name') :
-            'fog'
-        );
-        if (!self::$FOGUser->isValid()) {
+        $userValid = self::$FOGUser instanceof User && self::$FOGUser->isValid();
+        if (!$userValid) {
             return;
         }
         if (self::$DB) {
@@ -2194,6 +2190,8 @@ abstract class FOGBase
     }
     /**
      * Get IP Addresses of the server.
+     *
+     * @param bool $force Wither to force an ip.
      *
      * @return array
      */
