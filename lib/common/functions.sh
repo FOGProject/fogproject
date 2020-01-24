@@ -2155,10 +2155,13 @@ downloadfiles() {
         cnt=0
         filename=$(basename -- "$url")
         hashfile="${filename}.sha256"
-	# make sure we download the most recent hash file to start with
-        [[ -f $hashfile ]] && rm -f $hashfile
         baseurl=$(dirname -- "$url")
         hashurl="${baseurl}/${hashfile}"
+        # make sure we download the most recent hash file to start with
+        if [[ -f $hashfile ]]; then
+            rm -f $hashfile
+            curl --silent -kOL $hashurl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        fi
         while [[ $checksum -ne 0 && $cnt -lt 10 ]]; do
             sha256sum --check $hashfile >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             checksum=$?
