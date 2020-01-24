@@ -2197,9 +2197,9 @@ abstract class FOGBase
      *
      * @return array
      */
-    protected static function getIPAddress()
+    protected static function getIPAddress($force = false)
     {
-        if (count(self::$ips ?: []) > 0) {
+        if (!$force && count(self::$ips ?: []) > 0) {
             return self::$ips;
         }
         $output = [];

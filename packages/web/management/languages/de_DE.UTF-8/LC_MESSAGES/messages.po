@@ -5359,8 +5359,8 @@ msgstr "Route kann nicht nochmal neu definiert werden"
 msgid " | This is not the master node"
 msgstr " | Dies ist nicht der Master-Knoten"
 
-msgid "Interface not ready, waiting."
-msgstr "Schnittstelle nicht bereit, warten."
+msgid "Interface not ready, waiting for it to come up"
+msgstr "Netzwerkschnittstelle nicht bereit, warte auf deren Start"
 
 msgid "Waiting for mysql to be available"
 msgstr "Warten auf die Verfügbarkeit von MySQL"
