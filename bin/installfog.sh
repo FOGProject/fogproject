@@ -57,9 +57,10 @@ help() {
     echo -e "\t-T    --no-tftpbuild\t\tDo not rebuild the tftpd config file"
     echo -e "\t-P    --no-pxedefault\t\tDo not overwrite pxe default file"
     echo -e "\t-F    --no-vhost\t\tDo not overwrite vhost file"
+    echo -e "\t-A    --arm-support\t\tInstall kernel and initrd for ARM platforms"
     exit 0
 }
-optspec="h?odEUHSCKYyXxTPFf:c:-:W:D:B:s:e:b:"
+optspec="h?odEUHSCKYyXxTPFAf:c:-:W:D:B:s:e:b:"
 while getopts "$optspec" o; do
     case $o in
         -)
@@ -172,6 +173,9 @@ while getopts "$optspec" o; do
                     ;;
                 no-pxedefault)
                     snotpxedefaultfile="true"
+                    ;;
+                arm-support)
+                    sarmsupport=1
                     ;;
                 *)
                     if [[ $OPTERR == 1 && ${optspec:0:1} != : ]]; then
@@ -287,6 +291,9 @@ while getopts "$optspec" o; do
         P)
             snotpxedefaultfile="true"
             ;;
+        A)
+            sarmsupport=1
+            ;;
         :)
             echo "Option -$OPTARG requires a value"
             help
@@ -368,6 +375,7 @@ echo "Done"
 [[ -z $doupdate ]] && doupdate=1
 [[ -z $ignorehtmldoc ]] && ignorehtmldoc=0
 [[ -z $httpproto ]] && httpproto="http"
+[[ -z $armsupport ]] && armsupport=0
 [[ -z $fogpriorconfig ]] && fogpriorconfig="$fogprogramdir/.fogsettings"
 #clearScreen
 if [[ -z $* || $* != +(-h|-?|--help|--uninstall) ]]; then
@@ -394,6 +402,7 @@ case $doupdate in
             [[ -n $sdocroot ]] && docroot=$sdocroot
             [[ -n $signorehtmldoc ]] && ignorehtmldoc=$signorehtmldoc
             [[ -n $scopybackold ]] && copybackold=$scopybackold
+            [[ -n $sarmsupport ]] && armsupport=$sarmsupport
         fi
         ;;
     *)
