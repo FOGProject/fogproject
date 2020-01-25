@@ -678,6 +678,7 @@ abstract class FOGService extends FOGBase
                                 } else {
                                     // we should re-try HTTPS because we don't know about the storage node setup
                                     // and letting curl follow the redirect doesn't work for POST requests
+                                    $hashurl = sprintf('%s://%s/fog/status/gethash.php', 'https', $testip);
                                     $rhash = self::$FOGURLRequests->process(
                                         $hashurl,
                                         'POST',
