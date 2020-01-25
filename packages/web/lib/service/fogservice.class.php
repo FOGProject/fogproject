@@ -643,8 +643,21 @@ abstract class FOGService extends FOGBase
                                 ['file' => base64_encode($remotefilename)]
                             );
                             $rsize = array_shift($rsize);
-                            if (is_int($rsize) || $res === "") {
+                            if (is_int($rsize)) {
                                 $remotesize = $rsize;
+                            } else {
+                                // we should re-try HTTPS because we don't know about the storage node setup
+                                // and letting curl follow the redirect doesn't work for POST requests
+                                $sizeurl = sprintf('%s://%s/fog/status/getsize.php', 'https', $testip);
+                                $rsize = self::$FOGURLRequests->process(
+                                    $sizeurl,
+                                    'POST',
+                                    ['file' => base64_encode($remotefilename)]
+                                );
+                                $rsize = array_shift($rsize);
+                                if (is_int($rsize)) {
+                                    $remotesize = $rsize;
+                                }
                             }
                         }
                         if (is_null($remotesize)) {
@@ -662,6 +675,18 @@ abstract class FOGService extends FOGBase
                                 $rhash = array_shift($rhash);
                                 if (strlen($rhash) == 64) {
                                     $remotehash = $rhash;
+                                } else {
+                                    // we should re-try HTTPS because we don't know about the storage node setup
+                                    // and letting curl follow the redirect doesn't work for POST requests
+                                    $rhash = self::$FOGURLRequests->process(
+                                        $hashurl,
+                                        'POST',
+                                        ['file' => base64_encode($remotefilename)]
+                                    );
+                                    $rhash = array_shift($rhash);
+                                    if (strlen($rhash) == 64) {
+                                        $remotehash = $rhash;
+                                    }
                                 }
                             }
                             if (is_null($remotehash)) {
