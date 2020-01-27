@@ -59,10 +59,10 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.5.7.914');
+        define('FOG_VERSION', '1.5.7.915');
         define('FOG_CHANNEL', 'Alpha');
         define('FOG_SCHEMA', 277);
         define('FOG_BCACHE_VER', 141);
-        define('FOG_CLIENT_VERSION', '0.11.17');
+        define('FOG_CLIENT_VERSION', '0.11.18');
     }
 }
