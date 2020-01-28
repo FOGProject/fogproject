@@ -131,8 +131,12 @@ class OUManager extends FOGManagerController
         );
         if (isset($findWhere['id'])) {
             $findWhere = ['ouID' => $findWhere['id']];
+            unset($findWhere['id']);
         }
-        self::getClass('OUAssociationManager')->destroy($findWhere);
+        Route::deletemass(
+            'ouassociation',
+            $findWhere
+        );
         return true;
     }
 }

@@ -168,8 +168,9 @@ class AddSiteGroup extends Hook
         $insert_fields = ['hostID', 'siteID'];
         $insert_values = [];
         $hosts = $obj->get('hosts');
-        if (count($hosts) > 0) {
-            self::getClass('SiteHostAssociationManager')->destroy(
+        if (count($hosts ?: [])) {
+            Route::deletemass(
+                'sitehostassociation',
                 ['hostID' => $hosts]
             );
             if ($siteID > 0) {

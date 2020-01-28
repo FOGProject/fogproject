@@ -109,8 +109,10 @@ class Location extends FOGController
      */
     public function destroy($key = 'id')
     {
-        self::getClass('LocationAssociationManager')
-            ->destroy(['locationID' => $this->get('id')]);
+        Route::deletemass(
+            'locationassociation',
+            ['locationID' => $this->get('id')]
+        );
         return parent::destroy($key);
     }
     /**

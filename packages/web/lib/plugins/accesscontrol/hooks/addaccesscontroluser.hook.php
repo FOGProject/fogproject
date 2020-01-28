@@ -158,10 +158,10 @@ class AddAccessControlUser extends Hook
         $insert_fields = ['userID', 'accesscontrolID'];
         $insert_values = [];
         $users = [$obj->get('id')];
-        if (count($users) > 0) {
-            self::getClass('AccessControlAssociation')->destroy(
-            //['userID' => $userID]
-                'userID'
+        if (count($users ?: []) > 0) {
+            Route::deletemass(
+                'accesscontrolassociation',
+                ['userID' => $userID]
             );
             if ($accesscontrolID > 0) {
                 foreach ((array)$users as $ind => &$userID) {

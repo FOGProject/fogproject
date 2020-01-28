@@ -172,8 +172,9 @@ class AddLocationGroup extends Hook
         $insert_fields = ['hostID', 'locationID'];
         $insert_values = [];
         $hosts = $obj->get('hosts');
-        if (count($hosts) > 0) {
-            self::getClass('LocationAssociationManager')->destroy(
+        if (count($hosts ?: [])) {
+            Route::deletemass(
+                'locationassociation',
                 ['hostID' => $hosts]
             );
             foreach ((array)$hosts as $ind => &$hostID) {

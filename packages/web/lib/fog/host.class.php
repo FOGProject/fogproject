@@ -206,42 +206,43 @@ class Host extends FOGController
      */
     public function destroy($key = 'id')
     {
-        $find = ['hostID' => $this->get('id')];
-        self::getClass('NodeFailureManager')
-            ->destroy($find);
-        self::getClass('ImagingLogManager')
-            ->destroy($find);
+        $findWhere = ['hostID' => $this->get('id')];
         Route::ids(
             'snapinjob',
             $find
         );
-        $snapinjobids = ['jobID' => json_decode(Route::getData(), true)];
-        self::getClass('SnapinTaskManager')
-            ->destroy($snapinjobids);
-        self::getClass('SnapinJobManager')
-            ->destroy($find);
-        self::getClass('TaskManager')
-            ->destroy($find);
-        self::getClass('ScheduledTaskManager')
-            ->destroy($find);
-        self::getClass('HostAutoLogoutManager')
-            ->destroy($find);
-        self::getClass('HostScreenSettingManager')
-            ->destroy($find);
-        self::getClass('GroupAssociationManager')
-            ->destroy($find);
-        self::getClass('SnapinAssociationManager')
-            ->destroy($find);
-        self::getClass('PrinterAssociationManager')
-            ->destroy($find);
-        self::getClass('ModuleAssociationManager')
-            ->destroy($find);
-        self::getClass('InventoryManager')
-            ->destroy($find);
-        self::getClass('MACAddressAssociationManager')
-            ->destroy($find);
-        self::getClass('PowerManagementManager')
-            ->destroy($find);
+        $SnapinJobIDs = ['jobID' => json_decode(Route::getData(), true)];
+        $removeItems = [
+            'nodefailure',
+            'imaginglog',
+            'snapintask',
+            'snapinjob',
+            'task',
+            'scheduledtask',
+            'hostautologout',
+            'hostscreensetting',
+            'groupassociation',
+            'snapinassociation',
+            'printerassociation',
+            'moduleassociation',
+            'inventory',
+            'macaddressassociation',
+            'powermanagement',
+        ];
+        foreach ($removeItems as &$item) {
+            switch ($item) {
+            case 'snapintask':
+                $find = $SnapinJobIDs;
+                break;
+            default:
+                $find = $findWhere;
+            }
+            Route::deletemass(
+                $item,
+                $find
+            );
+            unset($item);
+        }
         self::$HookManager->processEvent(
             'DESTROY_HOST',
             ['Host' => &$this]

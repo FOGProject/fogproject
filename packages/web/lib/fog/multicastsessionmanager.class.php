@@ -83,7 +83,9 @@ class MulticastSessionManager extends FOGManagerController
         /*
          * Remove the other entries
          */
-        self::getClass('MulticastSessionAssociationManager')
-            ->destroy($findWhere);
+        Route::deletemass(
+            'multicastsessionassociation',
+            $findWhere
+        );
     }
 }

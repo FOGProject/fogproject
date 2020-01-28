@@ -228,7 +228,8 @@ class HostManagement extends FOGPage
         $pending = $items['pending'];
         if (isset($_POST['confirmdel'])) {
             self::checkauth();
-            self::getClass('HostManager')->destroy(
+            Route::deletemass(
+                'host',
                 [
                     'id' => $remitems,
                     'pending' => 1

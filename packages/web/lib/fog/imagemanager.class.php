@@ -178,6 +178,7 @@ class ImageManager extends FOGManagerController
         if (isset($findWhere['id'])) {
             $findWhere = ['imageID' => $findWhere['id']];
             $msFindWhere = ['image' => $findWhere['id']];
+            unset($findWhere['id']);
         }
         /**
          * Get running task ID's using these images
@@ -198,14 +199,14 @@ class ImageManager extends FOGManagerController
         /**
          * Cancel any mc tasks using the destroyed images
          */
-        if (count($mcTaskIDs)) {
+        if (count($mcTaskIDs ?: [])) {
             self::getClass('MulticastSessionManager')
                 ->cancel($mcTaskIDs);
         }
         /**
          * Cancel any tasks using the destroyed images
          */
-        if (count($taskIDs)) {
+        if (count($taskIDs ?: [])) {
             self::getClass('TaskManager')
                 ->cancel($taskIDs);
         }
@@ -213,7 +214,9 @@ class ImageManager extends FOGManagerController
          * Remove the storage group associations with these
          * images.
          */
-        return self::getClass('ImageAssociationManager')
-            ->destroy($findWhere);
+        Route::deletemass(
+            'imageassociation',
+            $findWhere
+        );
     }
 }

@@ -115,8 +115,10 @@ class Image extends FOGController
             '',
             ['imageID' => 0]
         );
-        self::getClass('ImageAssociationManager')
-            ->destroy($find);
+        Route::deletemass(
+            'imageassociation',
+            $find
+        );
         self::$HookManager->processEvent(
             'DESTROY_IMAGE',
             ['Image' => &$this]

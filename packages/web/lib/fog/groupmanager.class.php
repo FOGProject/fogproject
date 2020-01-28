@@ -113,10 +113,14 @@ class GroupManager extends FOGManagerController
          */
         if (isset($findWhere['id'])) {
             $findWhere = ['groupID' => $findWhere['id']];
+            unset($findWhere['id']);
         }
         /**
          * Remove any group entries
          */
-        return self::getClass('GroupAssociationManager')->destroy($findWhere);
+        Route::deletemass(
+            'groupassociation',
+            $findWhere
+        );
     }
 }

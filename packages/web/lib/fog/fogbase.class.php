@@ -654,7 +654,7 @@ abstract class FOGBase
                 return false;
             }
             if ($DateTime < $DateInterval) {
-                self::getClass('NodeFailure', $NodeFailure->id)->destroy();
+                Route::delete('nodefailure', $NodeFailure->id);
                 return false;
             }
 

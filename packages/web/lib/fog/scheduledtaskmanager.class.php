@@ -147,6 +147,9 @@ class ScheduledTaskManager extends FOGManagerController
      */
     public function cancel($scheduledtaskids)
     {
-        $this->destroy(['id' => $scheduledtaskids]);
+        Route::deletemass(
+            'scheduledtask',
+            ['id' => $scheduledtaskids]
+        );
     }
 }

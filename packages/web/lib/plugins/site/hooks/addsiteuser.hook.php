@@ -184,8 +184,9 @@ class AddSiteUser extends Hook
         $insert_fields = ['userID', 'siteID'];
         $insert_values = [];
         $users = [$obj->get('id')];
-        if (count($users) > 0) {
-            self::getClass('SiteUserAssociationManager')->destroy(
+        if (count($users ?: [])) {
+            Route::deletemass(
+                'siteuserassociation',
                 ['userID' => $users]
             );
             if ($siteID > 0) {

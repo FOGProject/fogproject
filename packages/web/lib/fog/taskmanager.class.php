@@ -89,9 +89,11 @@ class TaskManager extends FOGManagerController
             $findNew
         );
         $MulticastSessionIDs = json_decode(Route::getData(), true);
-        if (count($MulticastSessionAssocIDs) > 0) {
-            self::getClass('MulticastSessionAssociationManager')
-                ->destroy(['id' => $MulticastSessionAssocIDs]);
+        if (count($MulticastSessionAssocIDs ?: [])) {
+            Route::deletemass(
+                'multicastsessionassociation',
+                ['id' => $MulticastSessionAssocIDs]
+            );
         }
         Route::count(
             'multicastsessionassociation',
@@ -99,13 +101,13 @@ class TaskManager extends FOGManagerController
         );
         $StillLeft = json_decode(Route::getData());
         $StillLeft = $StillLeft->total;
-        if (count($SnapinTaskIDs) > 0) {
+        if (count($SnapinTaskIDs ?: [])) {
             self::getClass('SnapinTaskManager')->cancel($SnapinTaskIDs);
         }
-        if (count($SnapinJobIDs) > 0) {
+        if (count($SnapinJobIDs ?: [])) {
             self::getClass('SnapinJobManager')->cancel($SnapinJobIDs);
         }
-        if ($StillLeft < 1 && count($MulticastSessionIDs) > 0) {
+        if ($StillLeft < 1 && count($MulticastSessionIDs ?: [])) {
             self::getClass('MulticastSessionManager')->cancel($MulticastSessionIDs);
         }
     }

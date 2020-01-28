@@ -1774,7 +1774,8 @@ class GroupManagement extends FOGPage
             }
         }
         if (isset($_POST['pmdelete'])) {
-            self::getClass('PowerManagementManager')->destroy(
+            Route::deletemass(
+                'powermanagement',
                 ['hostID' => $hostIDs]
             );
         }
