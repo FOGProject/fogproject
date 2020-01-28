@@ -91,8 +91,10 @@ class Snapin extends FOGController
             'jobID'
         );
         $snapinJobIDs = json_decode(Route::getData(), true);
-        self::getClass('SnapinTaskManager')
-            ->destroy($find);
+        Route::deletemass(
+            'snapintask',
+            $find
+        );
         Route::ids(
             'snapinjob',
             [
@@ -120,10 +122,14 @@ class Snapin extends FOGController
             self::getClass('SnapinJobManager')
                 ->cancel($sjID);
         }
-        self::getClass('SnapinGroupAssociationManager')
-            ->destroy($find);
-        self::getClass('SnapinAssociationManager')
-            ->destroy($find);
+        Route::deletemass(
+            'snapingroupassociation',
+            $find
+        );
+        Route::deletemass(
+            'snapinassociation',
+            $find
+        );
 
         return parent::destroy($key);
     }

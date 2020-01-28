@@ -105,10 +105,10 @@ class LocationManager extends FOGManagerController
     public function uninstall()
     {
         $res = true;
-        self::getClass('Service')
-            ->set('name', 'FOG_SNAPIN_LOCATION_SEND_ENABLED')
-            ->load('name')
-            ->destroy();
+        Route::deletemass(
+            'service',
+            ['name' => 'FOG_SNAPIN_LOCATION_SEND_ENABLED']
+        );
         self::getClass('LocationAssociationManager')->uninstall();
         return parent::uninstall();
     }
@@ -147,8 +147,12 @@ class LocationManager extends FOGManagerController
         );
         if (isset($findWhere['id'])) {
             $findWhere = ['locationID' => $findWhere['id']];
+            unset($findWhere['id']);
         }
-        self::getClass('LocationAssociationManager')->destroy($findWhere);
+        Route::deletemass(
+            'locationassociation',
+            $findWhere
+        );
         return true;
     }
 }

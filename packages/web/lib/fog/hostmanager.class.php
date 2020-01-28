@@ -332,6 +332,7 @@ class HostManager extends FOGManagerController
          */
         if (isset($findWhere['id'])) {
             $findWhere = ['hostID' => $findWhere['id']];
+            unset($findWhere['id']);
         }
         /**
          * Get the snapin job ids associated.
@@ -341,66 +342,37 @@ class HostManager extends FOGManagerController
             $findWhere
         );
         $SnapinJobIDs = ['jobID' => json_decode(Route::getData(), true)];
-        /*
-         * Remove any host node failure entries
-         */
-        self::getClass('NodeFailureManager')->destroy($findWhere);
-        /*
-         * Remove imaging log entries
-         */
-        self::getClass('ImagingLogManager')->destroy($findWhere);
-        /*
-         * Remove any snapin task entries
-         */
-        self::getClass('SnapinTaskManager')->destroy($SnapinJobIDs);
-        /*
-         * Remove any snapin job entries
-         */
-        self::getClass('SnapinJobManager')->destroy($findWhere);
-        /*
-         * Remove any task entries
-         */
-        self::getClass('TaskManager')->destroy($findWhere);
-        /*
-         * Remove any scheduled task entries
-         */
-        self::getClass('ScheduledTaskManager')->destroy($findWhere);
-        /*
-         * Remove any auto logout entries
-         */
-        self::getClass('HostAutoLogoutManager')->destroy($findWhere);
-        /*
-         * Remove any host screen entries
-         */
-        self::getClass('HostScreenSettingManager')->destroy($findWhere);
-        /*
-         * Remove any group entries
-         */
-        self::getClass('GroupAssociationManager')->destroy($findWhere);
-        /*
-         * Remove any snapin entries
-         */
-        self::getClass('SnapinAssociationManager')->destroy($findWhere);
-        /*
-         * Remove any printer entries
-         */
-        self::getClass('PrinterAssociationManager')->destroy($findWhere);
-        /*
-         * Remove any module entries
-         */
-        self::getClass('ModuleAssociationManager')->destroy($findWhere);
-        /*
-         * Remove any inventory entries
-         */
-        self::getClass('InventoryManager')->destroy($findWhere);
-        /*
-         * Remove any mac association entries
-         */
-        self::getClass('MACAddressAssociationManager')->destroy($findWhere);
-        /*
-         * Remove any power management entries
-         */
-        self::getClass('PowerManagementManager')->destroy($findWhere);
+        $removeItems = [
+            'nodefailure',
+            'imaginglog',
+            'snapintask',
+            'snapinjob',
+            'task',
+            'scheduledtask',
+            'hostautologout',
+            'hostscreensetting',
+            'groupassociation',
+            'snapinassociation',
+            'printerassociation',
+            'moduleassociation',
+            'inventory',
+            'macaddressassociation',
+            'powermanagement',
+        ];
+        foreach ($removeItems as &$item) {
+            switch ($item) {
+            case 'snapintask':
+                $find = $SnapinJobIDs;
+                break;
+            default:
+                $find = $findWhere;
+            }
+            Route::deletemass(
+                $item,
+                $find
+            );
+            unset($item);
+        }
         /*
          * Remove the main host items
          */

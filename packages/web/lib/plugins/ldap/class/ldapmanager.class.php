@@ -169,12 +169,15 @@ class LDAPManager extends FOGManagerController
             Route::getData(),
             true
         );
-        self::getClass('Service')->destroy(
+        Route::deletemass(
+            'service',
             ['category' => 'Plugin: LDAP']
         );
-        if (count($userIDs ?: []) > 0) {
-            self::getClass('UserManager')
-                ->destroy(['id' => $userIDs]);
+        if (count($userIDs ?: [])) {
+            Route::deletemass(
+                'user',
+                ['id' => $userIDs]
+            );
         }
         return parent::uninstall();
     }

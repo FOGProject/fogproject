@@ -62,10 +62,14 @@ class PrinterManager extends FOGManagerController
          */
         if (isset($findWhere['id'])) {
             $findWhere = ['printerID' => $findWhere['id']];
+            unset($findWhere['id']);
         }
         /**
          * Remove any printer associations
          */
-        return self::getClass('PrinterAssociationManager')->destroy($findWhere);
+        Route::deletemass(
+            'printerassociation',
+            $findWhere
+        );
     }
 }

@@ -2285,10 +2285,12 @@ abstract class FOGPage extends FOGBase
         }
         $hosts = self::getClass('Group', $groupid)
             ->get('hosts');
-        self::getClass('PowerManagementManager')
-            ->destroy(
+        if (count($hosts ?: [])) {
+            Route::deletemass(
+                'powermanagement',
                 ['hostID' => $hosts]
             );
+        }
     }
     /**
      * Perform the actual delete
@@ -2313,9 +2315,16 @@ abstract class FOGPage extends FOGBase
             if ($this->obj instanceof Group) {
                 if (isset($_POST['andHosts'])) {
                     $del = ['id' => $this->obj->get('hosts')];
-                    $HostMan = self::getClass('HostManager');
-
-                    if (!$HostMan->destroy($del)) {
+                    Route::deletemass(
+                        'host',
+                        $del
+                    );
+                    Route::count(
+                        'host',
+                        $del
+                    );
+                    $hcount = json_decode(Route::getData());
+                    if ($hcount) {
                         $serverFault = true;
                         throw new Exception(_('Failed to remove hosts'));
                     }

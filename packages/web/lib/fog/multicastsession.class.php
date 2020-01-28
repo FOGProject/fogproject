@@ -114,8 +114,10 @@ class MulticastSession extends FOGController
             '',
             ['stateID' => self::getCancelledState()]
         );
-        self::getClass('MulticastSessionAssociationManager')
-            ->destroy(['msID' => $this->get('id')]);
+        Route::deletemass(
+            'multicastsessionassociation',
+            ['msID' => $this->get('id')]
+        );
         return $this
             ->set('stateID', self::getCancelledState())
             ->set('name', '')
@@ -142,8 +144,10 @@ class MulticastSession extends FOGController
             '',
             ['stateID' => self::getCompleteState()]
         );
-        self::getClass('MulticastSessionAssociationManager')
-            ->destroy(['msID' => $this->get('id')]);
+        Route::deletemass(
+            'multicastsessionassociation',
+            ['msID' => $this->get('id')]
+        );
         return $this
             ->set('stateID', self::getCompleteState())
             ->set('name', '')

@@ -117,10 +117,14 @@ class CaponeManager extends FOGManagerController
      */
     public function uninstall()
     {
-        self::getClass('ServiceManager')
-            ->destroy(['name' => 'FOG_PLUGIN_CAPONE_%']);
-        self::getClass('PXEMenuOptionsManager')
-            ->destroy(['name' => 'fog.capone']);
+        Route::deletemass(
+            'service',
+            ['name' => 'FOG_PLUGIN_CAPONE_%']
+        );
+        Route::deletemass(
+            'pxemenuoptions',
+            ['name' => 'fog.capone']
+        );
         return parent::uninstall();
     }
 }

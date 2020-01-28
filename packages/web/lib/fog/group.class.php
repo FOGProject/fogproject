@@ -82,10 +82,10 @@ class Group extends FOGController
      */
     public function destroy($field = 'id')
     {
-        self::getClass('GroupAssociationManager')
-            ->destroy(
-                ['groupID' => $this->get('id')]
-            );
+        Route::deletemass(
+            'groupassociation',
+            ['groupID' => $this->get('id')]
+        );
         return parent::destroy($field);
     }
     /**
@@ -327,10 +327,10 @@ class Group extends FOGController
         $y,
         $r
     ) {
-        self::getClass('HostScreenSettingManager')
-            ->destroy(
-                ['hostID' => $this->get('hosts')]
-            );
+        Route::deletemass(
+            'hostscreensetting',
+            ['hostID' => $this->get('hosts')]
+        );
         $insert_fields = [
             'hostID',
             'width',
@@ -359,10 +359,10 @@ class Group extends FOGController
      */
     public function setAlo($time)
     {
-        self::getClass('HostAutoLogoutManager')
-            ->destroy(
-                ['hostID' => $this->get('hosts')]
-            );
+        Route::deletemass(
+            'hostautologout',
+            ['hostID' => $this->get('hosts')]
+        );
         $insert_fields = [
             'hostID',
             'time',
@@ -561,10 +561,10 @@ class Group extends FOGController
                     ->set('isDD', $Image->get('imageTypeID'))
                     ->set('storagegroupID', $StorageGroup->get('id'));
                 if ($MulticastSession->save()) {
-                    self::getClass('MulticastSessionAssociationManager')
-                        ->destroy(
-                            ['hostID' => $hostids]
-                        );
+                    Route::deletemass(
+                        'multicastsessionassociation',
+                        ['hostID' => $hostids]
+                    );
                     $randomnumber = mt_rand(24576, 32766) * 2;
                     while ($randomnumber == $MulticastSession->get('port')) {
                         $randomnumber = mt_rand(24576, 32766) * 2;

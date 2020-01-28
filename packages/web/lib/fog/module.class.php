@@ -75,8 +75,10 @@ class Module extends FOGController
      */
     public function destroy($key = 'id')
     {
-        self::getClass('ModuleAssociationManager')
-            ->destroy(['moduleID' => $this->get('id')]);
+        Route::deletemass(
+            'moduleassociation',
+            ['moduleID' => $this->get('id')]
+        );
         return parent::destroy($key);
     }
     /**

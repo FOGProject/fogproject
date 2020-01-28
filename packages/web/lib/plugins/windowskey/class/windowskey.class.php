@@ -68,8 +68,10 @@ class WindowsKey extends FOGController
      */
     public function destroy($key = 'id')
     {
-        self::getClass('WindowsKeyAssociationManager')
-            ->destroy(['windowskeyID' => $this->get('id')]);
+        Route::deletemass(
+            'windowskeyassociation',
+            ['windowskeyID' => $this->get('id')]
+        );
         return parent::destroy($key);
     }
     /**

@@ -169,8 +169,9 @@ class AddWindowsKeyImage extends Hook
         $insert_fields = ['imageID', 'windowskeyID'];
         $insert_values = [];
         $images = [$obj->get('id')];
-        if (count($images) > 0) {
-            self::getClass('WindowsKeyAssociationManager')->destroy(
+        if (count($images ?: [])) {
+            Route::deletemass(
+                'windowskeyassociation',
                 ['imageID' => $images]
             );
             if ($keyID > 0) {

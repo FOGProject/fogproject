@@ -119,7 +119,7 @@ abstract class TaskingElement extends FOGBase
                     ->Task
                     ->getImage();
                 $getter = 'enablednodes';
-                if (count($this->StorageGroup->get($getter)) < 1) {
+                if (count($this->StorageGroup->get($getter) ?: [])) {
                     $getter = 'allnodes';
                 }
                 Route::listem(
@@ -205,10 +205,10 @@ abstract class TaskingElement extends FOGBase
     protected static function checkStorageNodes(&$StorageGroup)
     {
         $getter = 'enablednodes';
-        if (count($StorageGroup->get($getter)) < 1) {
+        if (!count($StorageGroup->get($getter) ?: [])) {
             $getter = 'allnodes';
         }
-        if (count($StorageGroup->get($getter)) < 1) {
+        if (!count($StorageGroup->get($getter) ?: [])) {
             throw new Exception(
                 sprintf(
                     '%s, %s?',
@@ -270,13 +270,13 @@ abstract class TaskingElement extends FOGBase
     protected function imageLog($checkin = false)
     {
         if ($checkin === true) {
-            self::getClass('ImagingLogManager')
-                ->destroy(
-                    [
-                        'hostID' => self::$Host->get('id'),
-                        'finish' => '0000-00-00 00:00:00'
-                    ]
-                );
+            Route::deletemass(
+                'imaginglog',
+                [
+                    'hostID' => self::$Host->get('id'),
+                    'finish' => '0000-00-00 00:00:00'
+                ]
+            );
             return self::getClass('ImagingLog')
                 ->set('hostID', self::$Host->get('id'))
                 ->set('start', self::formatTime('', 'Y-m-d H:i:s'))

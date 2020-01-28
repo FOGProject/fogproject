@@ -66,8 +66,10 @@ class OU extends FOGController
      */
     public function destroy($key = 'id')
     {
-        self::getClass('OUAssociationManager')
-            ->destroy(['ouID' => $this->get('id')]);
+        Route::deletemass(
+            'ouassociation',
+            ['ouID' => $this->get('id')]
+        );
         return parent::destroy($key);
     }
     /**

@@ -187,8 +187,9 @@ class AddOUHost extends Hook
         $insert_fields = ['hostID', 'ouID'];
         $insert_values = [];
         $hosts = [$obj->get('id')];
-        if (count($hosts) > 0) {
-            self::getClass('OUAssociationManager')->destroy(
+        if (count($hosts ?: [])) {
+            Route::deletemass(
+                'ouassociation',
                 ['hostID' => $hosts]
             );
             foreach ((array)$hosts as $ind => &$hostID) {

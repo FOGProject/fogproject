@@ -178,6 +178,7 @@ class SnapinManager extends FOGManagerController
          */
         if (isset($findWhere['id'])) {
             $findWhere = ['snapinID' => $findWhere['id']];
+            unset($findWhere['id']);
         }
         /**
          * Get any snapin jobs with these snapins.
@@ -240,7 +241,9 @@ class SnapinManager extends FOGManagerController
         /*
          * Remove the storage group associations for these snapins
          */
-        return self::getClass('SnapinAssociationManager')
-            ->destroy($findWhere);
+        Route::deletemass(
+            'snapinassociation',
+            $findWhere
+        );
     }
 }
