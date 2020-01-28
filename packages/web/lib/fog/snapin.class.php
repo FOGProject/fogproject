@@ -118,9 +118,8 @@ class Snapin extends FOGController
             }
             $sjIDs[] = $sjID;
         }
-        if (count($sjIDs) > 0) {
-            self::getClass('SnapinJobManager')
-                ->cancel($sjID);
+        if (count($sjIDs ?: [])) {
+            self::getClass('SnapinJobManager')->cancel($sjIDs);
         }
         Route::deletemass(
             'snapingroupassociation',
