@@ -2277,6 +2277,10 @@ class Route extends FOGBase
         $itemIDs = json_decode(Route::getData(), true);
         switch ($classname) {
         case 'host':
+            Route::ids(
+                'snapinjob',
+                ['hostID' => $itemIDs]
+            );
             $snapinjobIDs = ['jobID' => json_decode(Route::getData(), true)];
             $findWhere = ['hostID' => $itemIDs];
             $removeItems = [
@@ -2328,15 +2332,66 @@ class Route extends FOGBase
             break;
         case 'snapin':
             $findWhere = ['snapinID' => $itemIDs];
+            Route::ids(
+                'snapintask',
+                $findWhere,
+                'jobID'
+            );
+            $snapinjobIDs = json_decode(Route::getData(), true);
             $removeItems = [
                 'snapinassociation' => $findWhere,
                 'snapingroupassociation' => $findWhere
             ];
+            $queuedStates = self::getQueuedStates();
+            $queuedStates[] = self::getProgressState();
+            Route::ids(
+                'snapinjob',
+                [
+                    'id' => $snapinjobIDs,
+                    'stateID' => $queuedStates
+                ]
+            );
+            $snapinjobIDs = json_decode(Route::getData(), true);
+            foreach ((array)$snapinjobIDs as &$sjID) {
+                Route::count(
+                    'snapintask',
+                    ['jobID' => $sjID]
+                );
+                $jobCount = json_decode(Route::getData());
+                if ($jobCount->total) {
+                    continue;
+                }
+                $sjIDs[] = $sjID;
+                unset($sjID);
+            }
+            if (count($sjIDs ?: [])) {
+                self::getClass('SnapinJobManager')->cancel($sjIDs);
+            }
             break;
+        default:
+            $findWhere = [];
+            $removeItems = [];
         }
 
         if (count($whereItems ?: []) < 1) {
             $whereItems = self::getsearchbody($classname);
+        }
+
+        self::$HookManager->processEvent(
+            'DELETEMASS_API',
+            [
+                'classname' => &$classname,
+                'itemIDs' => &$itemIDs,
+                'removeItems' => &$removeItems
+            ]
+        );
+
+        foreach ((array)$removeItems as $item => $vals) {
+            Route::deletemass(
+                $item,
+                $find
+            );
+            unset($item);
         }
 
         $sql = 'DELETE FROM `'
