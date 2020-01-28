@@ -99,12 +99,6 @@ abstract class FOGManagerController extends FOGBase
      */
     protected $updateQueryTemplate = 'UPDATE `%s` SET %s %s';
     /**
-     * The destroy template.
-     *
-     * @var string
-     */
-    protected $destroyQueryTemplate = 'DELETE FROM `%s` WHERE `%s`.`%s` IN (%s)';
-    /**
      * The exists template.
      *
      * @var string
@@ -879,82 +873,6 @@ abstract class FOGManagerController extends FOGBase
         );
 
         return (bool) self::$DB->query($query, [], $queryVals);
-    }
-    /**
-     * Destroys items related to the main object.
-     *
-     * @param array  $findWhere     what to find
-     * @param string $whereOperator how to combine where items
-     * @param string $orderBy       how to order fields
-     * @param string $sort          how the sort order
-     * @param string $compare       how to compare
-     * @param string $groupBy       how to group fields
-     * @param bool   $not           use not operator
-     *
-     * @return bool
-     */
-    public function destroy(
-        $findWhere = [],
-        $whereOperator = 'AND',
-        $orderBy = 'name',
-        $sort = 'ASC',
-        $compare = '=',
-        $groupBy = false,
-        $not = false
-    ) {
-        // Fail safe defaults
-        if (empty($findWhere)) {
-            $findWhere = [];
-        }
-        if (empty($whereOperator)) {
-            $whereOperator = 'AND';
-        }
-        if (empty($sort)) {
-            $sort = 'ASC';
-        }
-        $this->orderBy($orderBy);
-        if (empty($compare)) {
-            $compare = '=';
-        }
-        $ids = [];
-        Route::names(
-            $this->childClass,
-            $findWhere
-        );
-        $Items = json_decode(
-            Route::getData()
-        );
-        foreach ($Items as &$Item) {
-            $ids[] = $Item->id;
-            unset($Item);
-        }
-        $destroyVals = [];
-        $ids = array_chunk($ids, 500);
-        foreach ((array)$ids as &$id) {
-            foreach ((array) $id as $index => &$id_1) {
-                $keyStr = sprintf('id_%d', $index);
-                $destroyKeys[] = sprintf(':%s', $keyStr);
-                $destroyVals[$keyStr] = $id_1;
-                unset($id_1);
-            }
-            if (count($findWhere ?: []) > 0 && count($ids ?: []) < 1) {
-                return true;
-            }
-            $query = sprintf(
-                $this->destroyQueryTemplate,
-                $this->databaseTable,
-                $this->databaseTable,
-                $this->databaseFields['id'],
-                implode(',', (array) $destroyKeys)
-            );
-            unset($destroyKeys);
-            if (!self::$DB->query($query, [], $destroyVals)) {
-                return false;
-            }
-            unset($destroyVals, $destroyKeys);
-        }
-
-        return true;
     }
     /**
      * Builds a select box/option box from the elements.

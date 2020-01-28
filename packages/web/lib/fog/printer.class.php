@@ -216,4 +216,19 @@ class Printer extends FOGController
         );
         return $optionPrinter;
     }
+    /**
+     * Destroy this particular object.
+     *
+     * @param string $key the key to destroy for match
+     *
+     * @return bool
+     */
+    public function destroy($key = 'id')
+    {
+        Route::deletemass(
+            'printerassociation',
+            ['printerID' => $this->get('id')]
+        );
+        return parent::destroy($key);
+    }
 }
