@@ -1812,13 +1812,29 @@ class Route extends FOGBase
     public static function delete($class, $id)
     {
         $classname = strtolower($class);
-        $class = new $class($id);
-        if (!$class->isValid()) {
+        $classVars = self::getClass(
+            $class,
+            '',
+            true
+        );
+        $vars = json_decode(
+            file_get_contents('php://input')
+        );
+        $whereItems = ['id' => $id];
+        self::count($classname, $whereItems);
+        $count = json_decode(Route::getData());
+        if (!$count->total) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_FOUND
             );
         }
-        $class->destroy();
+        $sql = 'DELETE FROM `'
+            . $classVars['databaseTable']
+            . '` WHERE `'
+            . $classVars['databaseFields']['id']
+            . '` = :id';
+
+        return self::$DB->query($sql, [], $whereItems);
         self::$data = '';
     }
     /**
@@ -2256,6 +2272,68 @@ class Route extends FOGBase
         $vars = json_decode(
             file_get_contents('php://input')
         );
+
+        self::ids($classname, $whereItems);
+        $itemIDs = json_decode(Route::getData(), true);
+        switch ($classname) {
+        case 'host':
+            $snapinjobIDs = ['jobID' => json_decode(Route::getData(), true)];
+            $findWhere = ['hostID' => $itemIDs];
+            $removeItems = [
+                'nodefailure' => $findWhere,
+                'imaginglog' => $findWhere,
+                'snapintask' => $snapinjobIDs,
+                'snapinjob' => $findWhere,
+                'task' => $findWhere,
+                'scheduledtask' => $findWhere,
+                'hostautologout' => $findWhere,
+                'hostscreensetting' => $findWhere,
+                'groupassociation' => $findWhere,
+                'snapinassociation' => $findWhere,
+                'printerassociation' => $findWhere,
+                'moduleassociation' => $findWhere,
+                'inventory' => $findWhere,
+                'macaddressassociation' => $findWhere,
+                'powermanagement' => $findWhere
+            ];
+            break;
+        case 'group':
+            $findWhere = ['groupID' => $itemIDs];
+            $removeItems = [
+                'groupassociation' => $findWhere
+            ];
+            break;
+        case 'image':
+            $findWhere = ['imageID' => $itemIDs];
+            self::getClass('HostManager')->update(
+                $find,
+                '',
+                ['imageID' => 0]
+            );
+            $removeItems = [
+                'imageassociation' => $findWhere
+            ];
+            break;
+        case 'module':
+            $findWhere = ['moduleID' => $itemIDs];
+            $removeItems = [
+                'moduleassociation' => $findWhere
+            ];
+            break;
+        case 'printer':
+            $findWhere = ['printerID' => $itemIDs];
+            $removeItems = [
+                'printerassociation' => $findWhere
+            ];
+            break;
+        case 'snapin':
+            $findWhere = ['snapinID' => $itemIDs];
+            $removeItems = [
+                'snapinassociation' => $findWhere,
+                'snapingroupassociation' => $findWhere
+            ];
+            break;
+        }
 
         if (count($whereItems ?: []) < 1) {
             $whereItems = self::getsearchbody($classname);

@@ -187,4 +187,19 @@ class AccessControl extends FOGController
         );
         $this->set('accesscontrolrules', (array)$ruleIDs);
     }
+    /**
+     * Destroy this particular object.
+     *
+     * @param string $key the key to destroy for match
+     *
+     * @return bool
+     */
+    public function destroy($key = 'id')
+    {
+        Route::deletemass(
+            'accesscontrolassociation',
+            ['accesscontrolID' => $this->get('id')]
+        );
+        return parent::destroy($key);
+    }
 }
