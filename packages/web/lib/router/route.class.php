@@ -547,14 +547,11 @@ class Route extends FOGBase
                 $columns[] = [
                     'db' => $real,
                     'dt' => 'mainlink',
-                    'formatter' => function ($d, $row) use ($classname) {
+                    'formatter' => function ($d, $row) use ($classname, $tmpcolumns) {
                         return '<a href="../management/index.php?node='
                             . ($classname == 'pxemenuoptions' ? 'ipxe' : $classname)
                             . '&sub=edit&id='
-                            . self::getClass($classname)
-                            ->set('name', $d)
-                            ->load('name')
-                            ->get('id')
+                            . $row[$tmpcolumns['id']]
                             . '">'
                             . $d
                             . '</a>';
@@ -611,7 +608,7 @@ class Route extends FOGBase
                 $columns[] = [
                     'db' => $real,
                     'dt' => 'groupLink',
-                    'formatter' => function ($d, $row) {
+                    'formatter' => function ($d, $row) use ($tmpcolumns) {
                         if (!$d) {
                             return;
                         }
@@ -619,7 +616,7 @@ class Route extends FOGBase
                             . 'sub=edit&id='
                             . $d
                             . '">'
-                            . self::getClass('Group', $d)->get('name')
+                            . $row[$tmpcolumns['name']]
                             . '</a>';
                     }
                 ];
@@ -632,7 +629,7 @@ class Route extends FOGBase
                 $columns[] = [
                     'db' => $real,
                     'dt' => 'hostLink',
-                    'formatter' => function ($d, $row) {
+                    'formatter' => function ($d, $row) use ($tmpcolumns){
                         if (!$d) {
                             return;
                         }
@@ -640,7 +637,7 @@ class Route extends FOGBase
                             . 'sub=edit&id='
                             . $d
                             . '">'
-                            . self::getClass('Host', $d)->get('name')
+                            . $row[$tmpcolumns['name']]
                             . '</a>';
                     }
                 ];
@@ -672,7 +669,7 @@ class Route extends FOGBase
                         if ($image->isValid()) {
                             return '<a href="../management/index.php?node=image&'
                                 . 'sub=edit&id='
-                                . $image->get('id')
+                                . $d
                                 . '">'
                                 . $imageName
                                 . '</a>';
@@ -689,7 +686,7 @@ class Route extends FOGBase
                 $columns[] = [
                     'db' => $real,
                     'dt' => 'snapinLink',
-                    'formatter' => function ($d, $row) {
+                    'formatter' => function ($d, $row) use ($tmpcolumns) {
                         if (!$d) {
                             return;
                         }
@@ -697,7 +694,7 @@ class Route extends FOGBase
                             . 'sub=edit&id='
                             . $d
                             . '">'
-                            . self::getClass('Snapin', $d)->get('name')
+                            . $row[$tmpcolumns['name']]
                             . '</a>';
                     }
                 ];
@@ -722,7 +719,7 @@ class Route extends FOGBase
                 $columns[] = [
                     'db' => $real,
                     'dt' => 'storagegroupLink',
-                    'formatter' => function ($d, $row) {
+                    'formatter' => function ($d, $row) use ($tmpcolumns) {
                         if (!$d) {
                             return;
                         }
@@ -730,7 +727,7 @@ class Route extends FOGBase
                             . 'sub=edit&id='
                             . $d
                             . '">'
-                            . self::getClass('StorageGroup', $d)->get('name')
+                            . $row[$tmpcolumns['name']]
                             . '</a>';
                     }
                 ];
@@ -743,7 +740,7 @@ class Route extends FOGBase
                 $columns[] = [
                     'db' => $real,
                     'dt' => 'storagenodeLink',
-                    'formatter' => function ($d, $row) {
+                    'formatter' => function ($d, $row) use ($tmpcolumns) {
                         if (!$d) {
                             return;
                         }
@@ -751,7 +748,7 @@ class Route extends FOGBase
                             . 'sub=edit&id='
                             . $d
                             . '">'
-                            . self::getClass('StorageNode', $d)->get('name')
+                            . $row[$tmpcolumns['name']]
                             . '</a>';
                     }
                 ];
@@ -764,7 +761,7 @@ class Route extends FOGBase
                 $columns[] = [
                     'db' => $real,
                     'dt' => 'userLink',
-                    'formatter' => function ($d, $row) {
+                    'formatter' => function ($d, $row) use ($tmpcolumns) {
                         if (!$d) {
                             return;
                         }
@@ -772,7 +769,7 @@ class Route extends FOGBase
                             . 'sub=edit&id='
                             . $d
                             . '">'
-                            . self::getClass('User', $d)->get('name')
+                            . $row[$tmpcolumns['name']]
                             . '</a>';
                     }
                 ];
@@ -2386,12 +2383,12 @@ class Route extends FOGBase
             ]
         );
 
-        foreach ((array)$removeItems as $item => $vals) {
+        foreach ((array)$removeItems as $item => &$vals) {
             Route::deletemass(
                 $item,
-                $find
+                $vals
             );
-            unset($item);
+            unset($vals);
         }
 
         $sql = 'DELETE FROM `'
