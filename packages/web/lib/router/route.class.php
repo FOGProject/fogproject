@@ -616,7 +616,7 @@ class Route extends FOGBase
                             . 'sub=edit&id='
                             . $d
                             . '">'
-                            . $row[$tmpcolumns['name']]
+                            . self::getClass('group', $d)->get('name')
                             . '</a>';
                     }
                 ];
@@ -629,7 +629,7 @@ class Route extends FOGBase
                 $columns[] = [
                     'db' => $real,
                     'dt' => 'hostLink',
-                    'formatter' => function ($d, $row) use ($tmpcolumns){
+                    'formatter' => function ($d, $row) {
                         if (!$d) {
                             return;
                         }
@@ -637,7 +637,7 @@ class Route extends FOGBase
                             . 'sub=edit&id='
                             . $d
                             . '">'
-                            . $row[$tmpcolumns['name']]
+                            . self::getClass('host', $d)->get('name')
                             . '</a>';
                     }
                 ];
@@ -694,7 +694,7 @@ class Route extends FOGBase
                             . 'sub=edit&id='
                             . $d
                             . '">'
-                            . $row[$tmpcolumns['name']]
+                            . self::getClass('snapin', $d)->get('name')
                             . '</a>';
                     }
                 ];
@@ -727,7 +727,7 @@ class Route extends FOGBase
                             . 'sub=edit&id='
                             . $d
                             . '">'
-                            . $row[$tmpcolumns['name']]
+                            . self::getClass('storagegroup', $d)->get('name')
                             . '</a>';
                     }
                 ];
@@ -748,7 +748,7 @@ class Route extends FOGBase
                             . 'sub=edit&id='
                             . $d
                             . '">'
-                            . $row[$tmpcolumns['name']]
+                            . self::getClass('storagenode', $d)->get('name')
                             . '</a>';
                     }
                 ];
@@ -769,7 +769,7 @@ class Route extends FOGBase
                             . 'sub=edit&id='
                             . $d
                             . '">'
-                            . $row[$tmpcolumns['name']]
+                            . self::getClass('user', $d)->get('name')
                             . '</a>';
                     }
                 ];
