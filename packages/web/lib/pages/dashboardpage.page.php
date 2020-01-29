@@ -149,6 +149,20 @@ class DashboardPage extends FOGPage
     public function index()
     {
         
+        Route::count(
+            'host',
+            ['pending' => 1]
+        );
+        $pendingHosts = json_decode(Route::getData());
+        $pendingHosts = $pendingHosts->total;
+        if (DatabaseManager::getColumns('hostMAC', 'hmMAC')) {
+            Route::count(
+                'macaddressassociation',
+                ['pending' => 1]
+            );
+            $pendingMACs = json_decode(Route::getData());
+            $pendingMACs = $pendingMACs->total;
+        }
         $pendingInfo = '%s <a href="?node=%s&sub=%s"><b>%s</b></a> %s';
         $hostPend = sprintf(
             $pendingInfo,
@@ -167,18 +181,18 @@ class DashboardPage extends FOGPage
             _('to review.')
         );
         $setMesg = '';
-        if (self::$pendingHosts > 0) {
-            $title = self::$pendingHosts
+        if ($pendingHosts > 0) {
+            $title = $pendingHosts
                 . ' '
                 . (
-                    self::$pendingHosts != 1 ?
+                    $pendingHosts != 1 ?
                     _('Pending hosts') :
                     _('Pending host')
                 );
             self::displayAlert($title, $hostPend, 'warning', true, true);
         }
-        if (self::$pendingMACs > 0) {
-            $title = self::$pendingMACs . ' ' . _('Pending macs');
+        if ($pendingMACs > 0) {
+            $title = $pendingMACs . ' ' . _('Pending macs');
             self::displayAlert($title, $macPend, 'warning', true, true);
         }
         $SystemUptime = self::$FOGCore->systemUptime();
