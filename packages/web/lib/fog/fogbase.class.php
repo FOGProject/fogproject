@@ -744,12 +744,12 @@ abstract class FOGBase
             __CLASS__,
             $data
         );
-        $log_filename = 'fog_gui_log';
+        $log_filename = '../management/logs';
         if (!file_exists($log_filename)) {
             mkdir($log_filename, 0777, true);
         }
         $log_file_data = $log_filename
-            . '/gui_error_log_'
+            . '/error_log_'
             . self::niceDate()->format('d-m-Y')
             . '.log';
         file_put_contents($log_file_data, $string."\n", FILE_APPEND);
@@ -774,12 +774,12 @@ abstract class FOGBase
             __CLASS__,
             $data
         );
-        $log_filename = 'fog_gui_log';
+        $log_filename = '../management/logs';
         if (!file_exists($log_filename)) {
             mkdir($log_filename, 0777, true);
         }
         $log_file_data = $log_filename
-            . '/gui_debug_log_'
+            . '/debug_log_'
             . self::niceDate()->format('d-m-Y')
             . '.log';
         file_put_contents($log_file_data, $string."\n", FILE_APPEND);
@@ -804,12 +804,12 @@ abstract class FOGBase
             __CLASS__,
             $data
         );
-        $log_filename = 'fog_gui_log';
+        $log_filename = '../management/logs';
         if (!file_exists($log_filename)) {
             mkdir($log_filename, 0777, true);
         }
         $log_file_data = $log_filename
-            . '/gui_info_log_'
+            . '/info_log_'
             . self::niceDate()->format('d-m-Y')
             . '.log';
         file_put_contents($log_file_data, $string."\n", FILE_APPEND);
