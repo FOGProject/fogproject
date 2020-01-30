@@ -84,7 +84,8 @@
             var hostTable = $('#hostlist-table'),
                 table = hostTable.registerTable(null, {
                     order: [
-                        [0, 'asc']
+                        [0, 'asc'],
+                        [2, 'desc']
                     ],
                     buttons: reportButtons,
                     columns: [
@@ -94,7 +95,7 @@
                         {data: 'imageLink'}
                     ],
                     rowGroup: {
-                        dataSrc: 'deployed'
+                        dataSrc: 'mainlink'
                     },
                     rowId: 'id',
                     processing: true,
@@ -112,7 +113,7 @@
             var userloginTable = $('#userlogin-table'),
                 table = userloginTable.registerTable(null, {
                     order: [
-                        [0, 'asc']
+                        [1, 'asc']
                     ],
                     buttons: reportButtons,
                     columns: [
@@ -139,7 +140,8 @@
             var imagingLogTable = $('#imaginglog-table'),
                 table = imagingLogTable.registerTable(null, {
                     order: [
-                        [0, 'asc']
+                        [0, 'asc'],
+                        [2, 'desc']
                     ],
                     buttons: reportButtons,
                     columns: [
@@ -179,6 +181,9 @@
                         {data: 'sysuuid'}
 
                     ],
+                    rowGroup: {
+                        dataSrc: 'hostLink'
+                    },
                     rowId: 'id',
                     processing: true,
                     serverSide: true,
