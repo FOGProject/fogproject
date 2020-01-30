@@ -56,9 +56,6 @@ $.apiCall = function(method, action, data, cb, processData) {
     if (undefined === processData) {
         processData = true;
     }
-    console.log(method);
-    console.log(action);
-    console.log(data);
     Pace.track(function() {
         $.ajax('', {
             type: method,

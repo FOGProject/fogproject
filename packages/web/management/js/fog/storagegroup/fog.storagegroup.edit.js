@@ -212,7 +212,6 @@
             {
                 render: function(data, type, row) {
                     var checkval = '';
-                    console.log(data);
                     if (data >= 1) {
                         checkval = ' checked';
                     }
