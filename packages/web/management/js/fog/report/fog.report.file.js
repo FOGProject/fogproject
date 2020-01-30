@@ -140,8 +140,8 @@
             var imagingLogTable = $('#imaginglog-table'),
                 table = imagingLogTable.registerTable(null, {
                     order: [
-                        [0, 'asc'],
-                        [2, 'desc']
+                        [2, 'desc'],
+                        [0, 'asc']
                     ],
                     buttons: reportButtons,
                     columns: [
