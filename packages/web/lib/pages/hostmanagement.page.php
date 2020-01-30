@@ -3856,36 +3856,50 @@ class HostManagement extends FOGPage
      */
     public function saveGroup()
     {
-        $group = filter_input(INPUT_POST, 'group');
-        $newgroup = filter_input(INPUT_POST, 'group_new');
-        $hostids = filter_input(
+        header('Content-type: application/json');
+        $flags = ['flags' => FILTER_REQUIRE_ARRAY];
+        $items = filter_input_array(
             INPUT_POST,
-            'hostIDArray'
+            [
+                'groups' => $flags,
+                'hosts' => $flags,
+                'groups_new' => $flags
+            ]
         );
-        $hostids = array_values(
-            array_filter(
-                array_unique(
-                    explode(',', $hostids)
-                )
-            )
-        );
+        $groups = $items['groups'];
+        $hosts = $items['hosts'];
+        $groups_new = $items['groups_new'];
         try {
-            $Group = new Group($group);
-            if ($newgroup) {
-                $Group
-                    ->set('name', $newgroup)
-                    ->load('name');
+            if (!count($hosts ?: [])) {
+                throw new Exception(_('No hosts selected to be added'));
             }
-            $Group->addHost($hostids);
-            if (!$Group->save()) {
-                $serverFault = true;
-                throw new Exception(_('Failed to create new Group'));
+            if (!count($groups ?: []) && !count($groups_new ?: [])) {
+                throw new Exception(_('No groups are being created or selected'));
+            }
+            if (count($groups ?: [])) {
+                foreach ($groups as &$group) {
+                    $Group = new Group($group);
+                    if (!$Group->isValid()) {
+                        continue;
+                    }
+                    $Group->addHost($hosts)->save();
+                    unset($group);
+                }
+            }
+            if (count($groups_new ?: [])) {
+                foreach ($groups_new as &$group) {
+                    self::getClass('Group')
+                        ->set('name', $group)
+                        ->addHost($hosts)
+                        ->save();
+                    unset($group);
+                }
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $msg = json_encode(
                 [
-                    'msg' => _('Successfully added selected hosts to the group!'),
-                    'title' => _('Host Add to Group Success')
+                    'msg' => _('Successfully added hosts to the provided groups!'),
+                    'title' => _('Add Hosts to Groups Success')
                 ]
             );
         } catch (Exception $e) {
@@ -3897,7 +3911,7 @@ class HostManagement extends FOGPage
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Host Add to Group Fail')
+                    'title' => _('Add Hosts to Group Fail')
                 ]
             );
         }

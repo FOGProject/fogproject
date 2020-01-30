@@ -21,6 +21,7 @@
     }
 
     function loadGroupSelect(){
+        var hostGroupUpdateBtn = $('#confirmGroupAdd');
         groupModalSelect.select2({
             tags: true,
             tokenSeparators: [',', ' '],
@@ -38,7 +39,7 @@
                     return {
                         results: $.map(data, function(item) {
                             return {
-                                id: item.name,
+                                id: item.id || item.name,
                                 name: item.name,
                                 text: item.name
                             };
@@ -74,7 +75,40 @@
             }
         });
 
-        groupModalSelect.val(null).trigger("change");
+        hostGroupUpdateBtn.on('click', function(e) {
+            e.preventDefault();
+            var items = groupModalSelect.find('option').map(function() {return $(this).val()}).get(),
+                hosts = $.getSelectedIds(table),
+                groups = [],
+                groups_new = [];
+            $.map(items, function(item) {
+                item = $.trim(item);
+                if (item === '') {
+                    return;
+                }
+                if ($.isNumeric(item)) {
+                    groups.push(item);
+                } else {
+                    groups_new.push(item);
+                }
+            });
+            var action = '../management/index.php?node='
+                + Common.node
+                + '&sub=saveGroup',
+                method = 'post',
+                opts = {
+                    hosts: hosts,
+                    groups: groups,
+                    groups_new: groups_new
+                };
+            $.apiCall(method,action,opts,function(err) {
+                if (err) {
+                    return;
+                }
+                groupModalSelect.val(null);
+                groupModal.modal('hide');
+            });
+        });
     }
 
     var table = $('#dataTable').registerTable(onSelect, {
