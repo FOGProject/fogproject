@@ -92,7 +92,19 @@
                         {data: 'mainlink'},
                         {data: 'primac'},
                         {data: 'deployed'},
-                        {data: 'imageLink'}
+                        {data: 'imageLink'},
+                        {data: 'name'}
+                    ],
+                    columnDefs: [
+                        {
+                            orderData: [4],
+                            targets: [0]
+                        },
+                        {
+                            targets: [4],
+                            visible: false,
+                            searchable: false
+                        }
                     ],
                     rowId: 'id',
                     processing: true,
@@ -116,7 +128,19 @@
                     columns: [
                         {data: 'username'},
                         {data: 'hostLink'},
-                        {data: 'createdTime'}
+                        {data: 'createdTime'},
+                        {data: 'hostname'}
+                    ],
+                    columnDefs: [
+                        {
+                            orderData: [3],
+                            targets: [0]
+                        },
+                        {
+                            targets: [3],
+                            visible: false,
+                            searchable: false
+                        }
                     ],
                     rowGroup: {
                         dataSrc: 'hostLink'
@@ -147,7 +171,19 @@
                         {data: 'finish'},
                         {data: 'diff'},
                         {data: 'imageLink'},
-                        {data: 'type'}
+                        {data: 'type'},
+                        {data: 'hostname'}
+                    ],
+                    columnDefs: [
+                        {
+                            orderData: [6],
+                            targets: [0]
+                        },
+                        {
+                            targets: [6],
+                            visible: false,
+                            searchable: false
+                        }
                     ],
                     rowGroup: {
                         dataSrc: 'hostLink'
@@ -175,12 +211,20 @@
                         {data: 'hostLink'},
                         {data: 'sysserial'},
                         {data: 'sysproduct'},
-                        {data: 'sysuuid'}
-
+                        {data: 'sysuuid'},
+                        {data: 'hostname'}
                     ],
-                    rowGroup: {
-                        dataSrc: 'hostLink'
-                    },
+                    columnDefs: [
+                        {
+                            orderData: [4],
+                            targets: [0]
+                        },
+                        {
+                            targets: [4],
+                            visible: false,
+                            searchable: false
+                        }
+                    ],
                     rowId: 'id',
                     processing: true,
                     serverSide: true,

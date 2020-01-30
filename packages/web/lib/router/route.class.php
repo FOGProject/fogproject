@@ -804,6 +804,24 @@ class Route extends FOGBase
                 'removeFromQuery' => true
             ];
             break;
+        case 'inventory':
+            $columns[] = ['db' => 'hostName', 'dt' => 'hostname'];
+            $columns[] = [
+                'db' => 'hostID',
+                'dt' => 'hostLink',
+                'formatter' => function($d, $row) {
+                    if (!$d) {
+                        return;
+                    }
+                    return '<a href="../management/index.php?node=host&'
+                        . 'sub=edit&id='
+                        . $d
+                        . '">'
+                        . $row['hostName']
+                        . '</a>';
+                }
+            ];
+            break;
         case 'scheduledtask':
             $columns[] = [
                 'db' => 'stGroupHostID',
@@ -985,6 +1003,10 @@ class Route extends FOGBase
                     $end = $row['ilFinishTime'];
                     return self::diff($start, $end);
                 }
+            ];
+            $columns[] = [
+                'db' => 'hostName',
+                'dt' => 'hostname',
             ];
             break;
         case 'storagegroup':

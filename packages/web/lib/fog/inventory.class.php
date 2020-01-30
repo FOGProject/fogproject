@@ -83,6 +83,22 @@ class Inventory extends FOGController
     protected $additionalFields = [
         'host'
     ];
+    protected $sqlQueryStr = "SELECT `%s`
+        FROM `%s`
+        LEFT OUTER JOIN `hosts`
+        ON `inventory`.`iHostID` = `hosts`.`hostID`
+        %s
+        %s
+        %s";
+    protected $sqlFilterStr = "SELECT COUNT(`%s`)
+        FROM `%s`
+        LEFT OUTER JOIN `hosts`
+        ON `inventory`.`iHostID` = `hosts`.`hostID`
+        %s";
+    protected $sqlTotalStr = "SELECT COUNT(`%s`)
+        FROM `%s`
+        LEFT OUTER JOIN `hosts`
+        ON `inventory`.`iHostID` = `hosts`.`hostID`";
     /**
      * Return the associated host object.
      *
