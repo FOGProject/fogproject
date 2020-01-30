@@ -653,9 +653,6 @@ msgstr "Última versión"
 msgid "Latest Development Version"
 msgstr "Última versión desarrollada"
 
-msgid "Latest SVN Version"
-msgstr "Última versión SVN"
-
 msgid "Image is protected and cannot be deleted"
 msgstr "Imagen protegida y no puede ser borrada"
 

@@ -2665,7 +2665,7 @@ abstract class FOGPage extends FOGBase
     {
         $urls = array(
             'https://fogproject.org/globalusers',
-            'https://fogproject.org/version/index.php?stable&dev&svn'
+            'https://fogproject.org/version/index.php?stable&dev'
         );
         $resp = self::$FOGURLRequests->process($urls);
         $data['sites'] = array_shift($resp);
