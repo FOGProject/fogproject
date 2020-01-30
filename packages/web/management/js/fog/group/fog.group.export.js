@@ -1,5 +1,5 @@
 (function($) {
-    var exportTable = $('#group-export-tabe').registerTable(null, {
+    var exportTable = $('#group-export-table').registerTable(null, {
         buttons: exportButtons,
         order: [
             [0, 'asc']
