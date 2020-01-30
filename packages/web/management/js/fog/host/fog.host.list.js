@@ -93,18 +93,35 @@
     }
 
     function loadGroupSelect(){
-        var fetchAdapter = $.fn.select2.amd.require('select2/data/fetchAdapter');
-
         groupModalSelect.select2({
-            url: '../management/index.php?node=group&sub=getNames',
-            dataAdapter: fetchAdapter,
-            width: '100%',
             tags: true,
+            multiple: true,
+            tokenSeparators: [',', ' '],
+            ajax: {
+                url: '../group/names',
+                dataType: 'json',
+                processResults: function(data, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: $.map(data, function(item) {
+                            return {
+                                text: item.name,
+                                id: item.id
+                            };
+                        })
+                    };
+                }
+            },
+            width: '100%',
             placeholder: 'Select or create group',
             createTag: function (params) {
+                var term = $.trim(params.term);
+                if (term === '') {
+                    return;
+                }
                 return {
-                    id: params.term,
-                    text: params.term,
+                    id: term,
+                    text: term,
                     newOption: true
                 }
             },
