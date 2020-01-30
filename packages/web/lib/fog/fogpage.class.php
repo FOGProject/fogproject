@@ -3375,17 +3375,6 @@ abstract class FOGPage extends FOGBase
         exit;
     }
     /**
-     * Returns the class names
-     *
-     * @return void
-     */
-    public function getNames()
-    {
-        Route::names($this->childClass);
-        echo Route::getData();
-        exit;
-    }
-    /**
      * Present the export information.
      *
      * @return void
