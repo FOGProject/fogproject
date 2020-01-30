@@ -94,9 +94,6 @@
                         {data: 'deployed'},
                         {data: 'imageLink'}
                     ],
-                    rowGroup: {
-                        dataSrc: 'mainlink'
-                    },
                     rowId: 'id',
                     processing: true,
                     serverSide: true,
