@@ -97,4 +97,46 @@ class Module extends FOGController
         $hosts = json_decode(Route::getData(), true);
         $this->set('hosts', (array)$hosts);
     }
+    /**
+     * Add host to the group.
+     *
+     * @param array $addArray the host to add
+     *
+     * @return object
+     */
+    public function addHost($addArray)
+    {
+        return $this->addRemItem(
+            'hosts',
+            (array)$addArray,
+            'merge'
+        );
+    }
+    /**
+     * Remove host from the group.
+     *
+     * @param array $removeArray the host to remove
+     *
+     * @return object
+     */
+    public function removeHost($removeArray)
+    {
+        return $this->addRemItem(
+            'hosts',
+            (array)$removeArray,
+            'diff'
+        );
+    }
+    /**
+     * Saves the group elements.
+     *
+     * @return object
+     */
+    public function save()
+    {
+        parent::save();
+        return $this
+            ->assocSetter('Module', 'host')
+            ->load();
+    }
 }
