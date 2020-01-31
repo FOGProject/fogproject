@@ -93,6 +93,7 @@ abstract class FOGPage extends FOGBase
         'host',
         'group',
         'image',
+        'module',
         'ipxe',
         'storagenode',
         'storagegroup',
@@ -388,6 +389,10 @@ abstract class FOGPage extends FOGBase
             'printer' => [
                 self::$foglang['Printers'],
                 'fa fa-print'
+            ],
+            'module' => [
+                _('Modules'),
+                'fa fa-cogs'
             ],
             'task' => [
                 self::$foglang['Tasks'],
