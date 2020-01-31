@@ -1146,7 +1146,9 @@ abstract class FOGController extends FOGBase
             $assocstr
         ];
         $insert_values = [];
-        if ($assocstr == 'moduleID') {
+        if ($assocstr == 'moduleID'
+            || strtolower($classCall) == 'moduleassociation'
+        ) {
             $insert_fields[] = 'state';
         }
         foreach ($diff as &$id) {
@@ -1154,7 +1156,9 @@ abstract class FOGController extends FOGBase
                 $this->get('id'),
                 $id
             ];
-            if ($assocstr == 'moduleID') {
+            if ($assocstr == 'moduleID'
+                || strtolower($classCall) == 'moduleassociation'
+            ) {
                 $insert_val[] = 1;
             }
             $insert_values[] = $insert_val;
