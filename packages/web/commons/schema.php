@@ -3737,3 +3737,11 @@ $this->schema[] = array(
 $this->schema[] = array(
     "UPDATE `globalSettings` SET `settingValue`=275000 WHERE settingKey='FOG_KERNEL_RAMDISK_SIZE'"
 );
+// 268
+$this->schema[] = array(
+    "UPDATE `globalSettings` SET "
+    . "`settingDesc`='Email address(s) to send the reports to. Separate "
+    . "multiple emails by comma (e.g. user_a@domain.com, user_b@domain2.com). "
+    . "Token \$\{user-name\} is replaced by the task creators username.'"
+    . "WHERE `settingKey`='FOG_EMAIL_ADDRESS'"
+);
