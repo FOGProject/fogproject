@@ -252,6 +252,17 @@ class TaskQueue extends TaskingElement
         $primaryUser = ucwords(
             self::$Host->get('inventory')->get('primaryUser')
         );
+        $replaceUser = '#\$\{user-name\}#';
+        $emailAddress = preg_replace(
+            $replaceUser,
+            lcfirst($engineer),
+            $emailAddress
+        );
+        $emailAddress = preg_replace(
+            $reg,
+            $nodeName,
+            $emailAddress
+        );
         $Inventory = self::$Host->get('inventory');
         $mac = self::$Host->get('mac')->__toString();
         $ImageName = $this->Task->getImage()->get('name');

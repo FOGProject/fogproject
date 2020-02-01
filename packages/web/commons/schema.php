@@ -4034,3 +4034,11 @@ $this->schema[] = [
     . "PRIMARY KEY(`uaID`)"
     . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
 ];
+// 278 is #268 in 1.5.8
+$this->schema[] = [
+    "UPDATE `globalSettings` SET "
+    . "`settingDesc`='Email address(es) to send the reports to. Separate "
+    . "multiple emails by comma (e.g. user_a@domain.com, user_b@domain2.com). "
+    . "Token \$\{user-name\} is replaced by the task creators username.'"
+    . "WHERE `settingKey`='FOG_EMAIL_ADDRESS'"
+];
