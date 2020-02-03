@@ -1764,8 +1764,8 @@ CN = $ipaddress
 [v3_req]
 subjectAltName = @alt_names
 [alt_names]
-DNS.1 = $ipaddress
-DNS.2 = $hostname
+IP.1 = $ipaddress
+DNS.1 = $hostname
 EOF
         openssl req -new -sha512 -key $sslprivkey -out $sslpath/fog.csr -config $sslpath/req.cnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
 $ipaddress
@@ -1779,8 +1779,8 @@ EOF
 [v3_ca]
 subjectAltName = @alt_names
 [alt_names]
-DNS.1 = $ipaddress
-DNS.2 = $hostname
+IP.1 = $ipaddress
+DNS.1 = $hostname
 EOF
     openssl x509 -req -in $sslpath/fog.csr -CA $sslpath/CA/.fogCA.pem -CAkey $sslpath/CA/.fogCA.key -CAcreateserial -out $webdirdest/management/other/ssl/srvpublic.crt -days 3650 -extensions v3_ca -extfile $sslpath/ca.cnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
