@@ -469,7 +469,7 @@ configureTFTPandPXE() {
     [[ -d $tftpdirdst && ! -d ${tftpdirdst}.prev ]] && mkdir -p ${tftpdirdst}.prev >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ -d ${tftpdirdst}.prev ]] && cp -Rf $tftpdirdst/* ${tftpdirdst}.prev/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     if [[ "x$httpproto" = "xhttps" ]]; then
-        dots "Compiling iPXE binaries that trust our SSL certificate"
+        dots "Compiling iPXE binaries trusting your SSL certificate"
         cd $buildipxesrc
         ./buildipxe.sh ${sslpath}CA/.fogCA.pem >>$workingdir/error_logs/fog_ipxe-build_${version}.log 2>&1
         errorStat $?
