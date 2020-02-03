@@ -1062,7 +1062,8 @@ configureMySql() {
     errorStat $?
     mysql $sqloptionsroot --execute="quit" >/dev/null 2>&1
     if [[ $? -eq 0 ]]; then
-        if [[ -z $autoaccept ]]; then
+        mysqlrootauth=$(mysql $sqloptionsroot --database=mysql --execute="SELECT Host,User,plugin FROM user WHERE Host='localhost' AND User='root' AND plugin='unix_socket'")
+        if [[ -z $mysqlrootauth && -z $autoaccept ]]; then
             echo
             echo "   The installer detected a blank database *root* password. This"
             echo "   is very common on a new install or if you upgrade from any"
@@ -1094,8 +1095,9 @@ configureMySql() {
                 echo
             fi
         else
-            # Obviously this is an auto install with no DB root password parameter passed
-            # on the command line - probably just a blind test install. Don't care about it.
+            # Obviously this is an auto install with no DB root password parameter passed or
+            # a DB setup with authentication method being local unix_socket without password.
+            # Either way we don't care and just set a random password not being used anyway.
             snmysqlrootpass=$(generatePassword 20)
         fi
         mysqladmin $sqloptionsroot password "${snmysqlrootpass}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
