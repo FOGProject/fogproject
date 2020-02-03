@@ -69,18 +69,18 @@ cp ${FOGDIR}/src/ipxe/src-efi/config/console.h config/
 
 # Build the files
 make EMBED=ipxescript ${BUILDOPTS} bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi
-make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 EMBED=ipxescript ${BUILDOPTS} bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi
+[[ "x$armsupport" == "x1" ]] && make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 EMBED=ipxescript ${BUILDOPTS} bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi
 
 # Copy the files to upload
+[[ "x$armsupport" == "x1" ]] && cp bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/arm64-efi/
 cp bin-i386-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/i386-efi/
 cp bin-x86_64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/
-cp bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/arm64-efi/
 
 # Build with 10 second delay
 make EMBED=ipxescript10sec ${BUILDOPTS} bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi
-make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 EMBED=ipxescript10sec ${BUILDOPTS} bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi
+[[ "x$armsupport" == "x1" ]] && make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 EMBED=ipxescript10sec ${BUILDOPTS} bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi
 
 # Copy the files to upload
+[[ "x$armsupport" == "x1" ]] && cp bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/10secdelay/arm64-efi/
 cp bin-i386-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/10secdelay/i386-efi/
 cp bin-x86_64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/10secdelay/
-cp bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/10secdelay/arm64-efi/
