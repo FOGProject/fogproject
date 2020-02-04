@@ -20,8 +20,13 @@ bindir=$(dirname $(readlink -f "$BASH_SOURCE"))
 cd $bindir
 workingdir=$(pwd)
 if [[ ! $EUID -eq 0 ]]; then
-    exec sudo $0 $@ || echo "FOG Installation must be run as root user"
+    echo "FOG Installation must be run as root user"
     exit 1 # Fail Sudo
+fi
+which useradd >/dev/null 2>&1
+if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
+    echo "Please switch to a proper root environment to run the installer (e.g. sudo -i)"
+    exit 1
 fi
 . ../lib/common/functions.sh
 help() {
