@@ -817,7 +817,7 @@ checkFirewall() {
                 else
                     echo " * We were unable to disable the firewall on your system. Read up on how"
                     echo " * You can disable it manually. Proceeding with the installation anyway..."
-                    echo " * Hit ENTER so we know you've read this message."
+                    echo " * Hit [Enter] so we know you've read this message."
                     read
                 fi
                 ;;
@@ -1266,7 +1266,7 @@ configureUsers() {
                 exit 1
             fi
         fi
-        echo "Already setup"
+        echo "Skipped"
     else
         useradd -s "/bin/bash" -d "/home/${username}" -m ${username} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         errorStat $?
