@@ -902,7 +902,7 @@ abstract class FOGManagerController extends FOGBase
             $waszero = false;
             if ($matchID === 0) {
                 $waszero = true;
-                $matchID = 1;
+                $matchID = 9;
             }
         }
         $elementName = trim($elementName);

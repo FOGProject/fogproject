@@ -232,7 +232,7 @@ $foglang['Password'] = _('Password');
 $foglang['FOGSites'] = _('Estimated FOG Sites');
 $foglang['LatestVer'] = _('Latest Version');
 $foglang['LatestDevVer'] = _('Latest Development Version');
-$foglang['LatestSvnVer'] = _('Latest SVN Version');
+$foglang['LatestAlphaVer'] = _('Latest Alpha Version');
 // Image class Translates
 $foglang['ProtectedImage'] = _('Image is protected and cannot be deleted');
 $foglang['ProtectedSnapin'] = _('Snapin is protected and cannot be deleted');
