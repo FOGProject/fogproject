@@ -3854,7 +3854,7 @@ $this->schema[] = [
     "UPDATE `globalSettings` SET `settingValue` = '"
     . STORAGE_FTP_USERNAME
     . "' WHERE `settingKey` = 'FOG_TFTP_FTP_USERNAME'",
-    "UPDATE `globalSettings` SET `settingValue` = 275000 WHERE "
+    "UPDATE `globalSettings` SET `settingValue` = '275000' WHERE "
     . "`settingKey` = 'FOG_KERNEL_RAMDISK_SIZE'"
 ];
 // 275
