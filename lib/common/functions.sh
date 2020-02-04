@@ -97,7 +97,7 @@ updateDB() {
     dots "Update fogstorage database password"
     mysql $sqloptionsuser --password=${snmysqlpass} --execute="INSERT INTO \`globalSettings\` (\`settingKey\`,\`settingDesc\`,\`settingValue\`,\`settingCategory\`) VALUES ('FOG_STORAGENODE_MYSQLPASS', 'This setting defines the password the storage nodes should use to connect to the fog server.', \"$snmysqlstoragepass\", 'FOG Storage Nodes') ON DUPLICATE KEY UPDATE \`settingValue\`=\"$snmysqlstoragepass\"" $mysqldbname >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
-	dots "Granting access to fogstorage database user"
+    dots "Granting access to fogstorage database user"
     if [[ -n $snmysqlrootpass ]]; then
         [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
         cat >../tmp/fog-db-grant-fogstorage-access.sql <<EOF
@@ -454,7 +454,7 @@ configureFTP() {
 configureDefaultiPXEfile() {
     dots 'Configuring default iPXE file'
     [[ -z $webroot ]] && webroot='/'
-	echo -e "#!ipxe\ncpuid --ext 29 && set arch x86_64 || set arch \${buildarch}\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${httpproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
+    echo -e "#!ipxe\ncpuid --ext 29 && set arch x86_64 || set arch \${buildarch}\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${httpproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
     errorStat $?
 }
 configureTFTPandPXE() {
@@ -570,10 +570,10 @@ addUbuntuRepo() {
     if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) && $OSVersion -ge 18 ]]; then
         # Fix missing universe section for ubuntu 18.04 LIVE
         LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y universe >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-	else
-		LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-		LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/apache2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-	fi
+    else
+        LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/apache2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    fi
     return $?
 }
 installPackages() {
@@ -591,8 +591,8 @@ installPackages() {
                 *[Ff][Ee][Dd][Oo][Rr][Aa]*)
                     packages="$packages php-json"
                     packages="${packages// mysql / mariadb }" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-					packages="${packages// mysql-server / mariadb-server }" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-					packages="${packages// dhcp / dhcp-server }" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    packages="${packages// mysql-server / mariadb-server }" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    packages="${packages// dhcp / dhcp-server }" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 *)
                     x="epel-release"
@@ -603,7 +603,7 @@ installPackages() {
                     fi
                     y="http://rpms.remirepo.net/enterprise/remi-release-${OSVersion}.rpm"
                     x=$(basename $y | awk -F[.] '{print $1}')
-					eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ ! $? -eq 0 ]]; then
                         rpm -Uvh $y >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -624,7 +624,12 @@ installPackages() {
             packages="${packages// php${php_ver}-mcrypt/}"
             packages="${packages} php${php_ver}-bcmath bc"
             case $linuxReleaseName in
-				*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) addUbuntuRepo ;;
+                *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*)
+                    if [[ $OSVersion -gt 17 ]]; then
+                        packages="${packages// libcurl3 / libcurl4 }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    fi
+                    addUbuntuRepo
+                    ;;
                 *[Dd][Ee][Bb][Ii][Aa][Nn]*)
                     if [[ $OSVersion -ge 10 ]]; then
                         packages="${packages// libcurl3 / libcurl4 }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1322,7 +1327,7 @@ EOF
     if [[ -z $password ]]; then
         [[ -f $webdirdest/lib/fog/config.class.php ]] && password=$(awk -F '"' -e '/TFTP_FTP_PASSWORD/,/);/{print $2}' $webdirdest/lib/fog/config.class.php | grep -v "^$")
     fi
-	if [[ -n "$(checkPasswordChars)" ]]; then
+    if [[ -n "$(checkPasswordChars)" ]]; then
         echo "Failed"
         echo "# The fog system account password includes characters we cannot properly"
         echo "# handle. Please remove the following character(s) in "
@@ -1645,7 +1650,7 @@ writeUpdateFile() {
         echo "snmysqluser='$snmysqluser'" >> "$fogprogramdir/.fogsettings"
         echo "snmysqlpass='$escsnmysqlpass'" >> "$fogprogramdir/.fogsettings"
         echo "snmysqlhost='$snmysqlhost'" >> "$fogprogramdir/.fogsettings"
-		echo "mysqldbname='$mysqldbname'" >> "$fogprogramdir/.fogsettings"
+        echo "mysqldbname='$mysqldbname'" >> "$fogprogramdir/.fogsettings"
         echo "installlang='$installlang'" >> "$fogprogramdir/.fogsettings"
         echo "storageLocation='$storageLocation'" >> "$fogprogramdir/.fogsettings"
         echo "fogupdateloaded=1" >> "$fogprogramdir/.fogsettings"
@@ -1984,7 +1989,7 @@ configureHttpd() {
         sed -i '/LoadModule mpm_worker_module modules\/mod_mpm_worker.so/s/^/#/g' $httpdconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         # Enable proxy
         sed -i '/LoadModule proxy_html_module modules\/mod_proxy_html.so/s/^#//g' $httpdconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-		sed -i '/LoadModule xml2enc_module modules\/mod_xml2enc.so/s/^#//g' $httpdconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i '/LoadModule xml2enc_module modules\/mod_xml2enc.so/s/^#//g' $httpdconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i '/LoadModule proxy_module modules\/mod_proxy.so/s/^#//g' $httpdconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i '/LoadModule proxy_http_module modules\/mod_proxy_http.so/s/^#//g' $httpdconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i '/LoadModule proxy_fcgi_module modules\/mod_proxy_fcgi.so/s/^#//g' $httpdconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -2484,5 +2489,5 @@ generatePassword() {
     echo ${genpassword::($position)}$special${genpassword:($position)}
 }
 checkPasswordChars() {
-	echo "$i" | tr -d '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~'
+    echo "$i" | tr -d '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~'
 }
