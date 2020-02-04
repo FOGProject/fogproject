@@ -51,7 +51,6 @@ if [[ $guessdefaults == 1 ]]; then
         strSuggestedDNS=$(head -n 1 /tmp/nameservers.txt) #Get first DNS Address from the file.
 	rm -f /tmp/nameservers.txt #Cleanup after ourselves.
     fi
-    strSuggestedSNUser="fogstorage"
     strSuggestedHostname=$(hostname -f)
 fi
 displayOSChoices
@@ -259,8 +258,8 @@ case $installtype in
                     ;;
             esac
         done
-	[[ -z $snmysqlhost ]] && snmysqlhost='localhost'
-	[[ -z $snmysqluser ]] && snmysqluser='root'
+        [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
+        [[ -z $snmysqluser ]] && snmysqluser='fogmaster'
         ;;
     [Ss])
         while [[ -z $snmysqlhost ]]; do
@@ -270,20 +269,7 @@ case $installtype in
             echo -n "  runs the web server, dhcp, and tftp.  IP or Hostname: "
             read snmysqlhost
         done
-        while [[ -z $snmysqluser ]]; do
-            snmysqluser=$strSuggestedSNUser
-            if [[ -z $autoaccept ]]; then
-                echo
-                echo "  What is the username to access the database?"
-                echo "  This information is storage in the management portal under ";
-                echo "  'FOG Configuration' -> "
-                echo "  'FOG Settings' -> "
-                echo "  'FOG Storage Nodes' -> "
-                echo -n "  'FOG_STORAGENODE_MYSQLUSER'. Username [$strSuggestedSNUser]: "
-                read snmysqluser
-                [[ -z $snmysqluser ]] && snmysqluser=$strSuggestedSNUser
-            fi
-        done
+        snmysqluser='fogstorage'
         while [[ -z $snmysqlpass ]]; do
             echo
             echo "  What is the password to access the database?  "

@@ -30,7 +30,7 @@
 [[ -z $sqlserverlist ]] && sqlserverlist="mysql-server mariadb-server mariadb-galera-server MariaDB-server MariaDB-Galera-server"
 command -v systemctl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 exitcode=$?
-ps -p 1 -o comm= | grep systemd
+ps -p 1 -o comm= | grep systemd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 bootcode=$?
 [[ $exitcode -eq 0 && $bootcode -eq 0 && -z $systemctl ]] && systemctl="yes"
 if [[ $systemctl == yes ]]; then
