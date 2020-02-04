@@ -106,6 +106,7 @@ class DatabaseManager extends FOGCore
             'dbrunning.php',
             'checkcredentials.php',
             'getversion.php',
+            'kernelvers.php'
         ];
         /**
          * The script filename
