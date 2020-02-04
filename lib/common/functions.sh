@@ -640,6 +640,9 @@ installPackages() {
             packages="${packages} php${php_ver}-bcmath bc"
             case $linuxReleaseName in
                 *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*)
+                    if [[ $OSVersion -gt 17 ]]; then
+                        packages="${packages// libcurl3 / libcurl4 }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    fi
                     addUbuntuRepo
                     ;;
                 *[Dd][Ee][Bb][Ii][Aa][Nn]*)
