@@ -464,9 +464,9 @@ configureTFTPandPXE() {
     [[ -d $tftpdirdst && ! -d ${tftpdirdst}.prev ]] && mkdir -p ${tftpdirdst}.prev >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ -d ${tftpdirdst}.prev ]] && cp -Rf $tftpdirdst/* ${tftpdirdst}.prev/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     if [[ "x$httpproto" = "xhttps" ]]; then
-        dots "Compiling iPXE binaries that trust our SSL Certificate."
+        dots "Compiling iPXE binaries trusting your SSL certificate"
         cd $buildipxesrc
-        ./buildipxe.sh ${sslpath}CA/.fogCA.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        ./buildipxe.sh ${sslpath}CA/.fogCA.pem >>$workingdir/error_logs/fog_ipxe-build_${version}.log 2>&1
         errorStat $?
         cd $workingdir
     fi
@@ -1037,7 +1037,8 @@ configureMySql() {
     errorStat $?
     mysql $sqloptionsroot --execute="quit" >/dev/null 2>&1
     if [[ $? -eq 0 ]]; then
-        if [[ -z $autoaccept ]]; then
+        mysqlrootauth=$(mysql $sqloptionsroot --database=mysql --execute="SELECT Host,User,plugin FROM user WHERE Host='localhost' AND User='root' AND plugin='unix_socket'")
+        if [[ -z $mysqlrootauth && -z $autoaccept ]]; then
             echo
             echo "   The installer detected a blank database *root* password. This"
             echo "   is very common on a new install or if you upgrade from any"
@@ -1069,8 +1070,9 @@ configureMySql() {
                 echo
             fi
         else
-            # Obviously this is an auto install with no DB root password parameter passed
-            # on the command line - probably just a blind test install. Don't care about it.
+            # Obviously this is an auto install with no DB root password parameter passed or
+            # a DB setup with authentication method being local unix_socket without password.
+            # Either way we don't care and just set a randome password not being used anyway.
             snmysqlrootpass=$(generatePassword 20)
         fi
         mysqladmin $sqloptionsroot password "${snmysqlrootpass}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1726,8 +1728,8 @@ CN = $ipaddress
 [v3_req]
 subjectAltName = @alt_names
 [alt_names]
-DNS.1 = $ipaddress
-DNS.2 = $hostname
+IP.1 = $ipaddress
+DNS.1 = $hostname
 EOF
         openssl req -new -sha512 -key $sslprivkey -out $sslpath/fog.csr -config $sslpath/req.cnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
 $ipaddress
@@ -1741,8 +1743,8 @@ EOF
 [v3_ca]
 subjectAltName = @alt_names
 [alt_names]
-DNS.1 = $ipaddress
-DNS.2 = $hostname
+IP.1 = $ipaddress
+DNS.1 = $hostname
 EOF
     openssl x509 -req -in $sslpath/fog.csr -CA $sslpath/CA/.fogCA.pem -CAkey $sslpath/CA/.fogCA.key -CAcreateserial -out $webdirdest/management/other/ssl/srvpublic.crt -days 3650 -extensions v3_ca -extfile $sslpath/ca.cnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
