@@ -132,9 +132,12 @@ abstract class FOGService extends FOGBase
     public function waitInterfaceReady()
     {
         self::getIPAddress(true);
-        if (!count(self::$ips) || !in_array(self::getSetting('FOG_WEB_HOST'), self::$ips)) {
+        if (!count(self::$ips)
+            || !in_array(self::getSetting('FOG_WEB_HOST'), self::$ips)
+        ) {
             self::outall(
-                sprintf('%s: %s',
+                sprintf(
+                    '%s: %s',
                     _('Interface not ready, waiting for it to come up'),
                     self::getSetting('FOG_WEB_HOST')
                 )
@@ -437,9 +440,16 @@ abstract class FOGService extends FOGBase
             $username = self::$FOGFTP->username = $StorageNode->user;
             $password = self::$FOGFTP->password = $StorageNode->pass;
             $ip = self::$FOGFTP->host = $StorageNode->ip;
-            $sizeurl = sprintf('%s://%s/fog/status/getsize.php', self::$httpproto, $ip);
-            $hashurl = sprintf('%s://%s/fog/status/gethash.php', self::$httpproto, $ip);
-            //$url = self::$httpproto . '://' . $ip . '/fog/status/gethash.php';
+            $sizeurl = sprintf(
+                '%s://%s/fog/status/getsize.php',
+                'http',
+                $ip
+            );
+            $hashurl = sprintf(
+                '%s://%s/fog/status/gethash.php',
+                'http',
+                $ip
+            );
             $nodename = $StorageNode->name;
             if (!self::$FOGFTP->connect()) {
                 self::outall(
@@ -551,27 +561,61 @@ abstract class FOGService extends FOGBase
                         ['file' => base64_encode($remotefilename)]
                     );
                     $rsize = array_shift($rsize);
-                    if (is_int($rsize) || $res === "") {
+                    if (is_int($rsize)) {
                         $remotesize = $rsize;
+                    } else {
+                        // we should re-try HTTPS because we don't know about the storage node setup
+                        // and letting curl follow the redirect doesn't work for POST requests
+                        $sizeurl = sprintf(
+                            '%s://%s/fog/status/getsize.php',
+                            'https',
+                            $testip
+                        );
+                        $rsize = self::$FOGURLRequests->process(
+                            $sizeurl,
+                            'POST',
+                            ['file' => base64_encode($remotefilename)]
+                        );
+                        $rsize = array_shift($rsize);
+                        if (is_int($rsize)) {
+                            $remotesize = $rsize;
+                        }
                     }
                 }
                 if (is_null($remotesize)) {
                     $remotesize = self::$FOGFTP->size($remotefilename);
                 }
-                if ($localsize == $remotesize) {
-                    $localhash = self::getHash($localfilename);
-                    $remotehash = null;
-                    if ($avail) {
-                        $rhash = self::$FOGURLRequests->process(
-                            $hashurl,
-                            'POST',
-                            ['file' => base64_encode($remotefilename)]
-                        );
-                        $rhash = array_shift($rhash);
-                        if (strlen($rhash) == 64) {
-                            $remotehash = $rhash;
-                        }
-                    }
+				if ($localsize == $remotesize) {
+					$localhash = self::getHash($localfilename);
+					$remotehash = null;
+					if ($avail) {
+						$rhash = self::$FOGURLRequests->process(
+							$hashurl,
+							'POST',
+							['file' => base64_encode($remotefilename)]
+						);
+						$rhash = array_shift($rhash);
+						if (strlen($rhash) == 64) {
+							$remotehash = $rhash;
+						} else {
+							// we should re-try HTTPS because we don't know about the storage node setup
+                            // and letting curl follow the redirect doesn't work for POST requests
+                            $hashurl = sprintf(
+                                '%s://%s/fog/status/gethash.php',
+                                'https',
+                                $testip
+                            );
+							$rhash = self::$FOGURLRequests->process(
+								$hashurl,
+								'POST',
+								['file' => base64_encode($remotefilename)]
+							);
+							$rhash = array_shift($rhash);
+							if (strlen($rhash) == 64) {
+								$remotehash = $rhash;
+							}
+						}
+					}
                     if (is_null($remotehash)) {
                         if ($localsize < 10485760) {
                             $remotehash = hash_file('sha256', $ftpstart.$remotefilename);

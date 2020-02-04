@@ -261,7 +261,7 @@ case $installtype in
         [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
         [[ -z $snmysqluser ]] && snmysqluser='fogmaster'
         while [[ -z $dohttps ]]; do
-            if [[ -z $autoaccept ]]; then
+            if [[ -z $autoaccept && -z $shttpproto ]]; then
                 echo
                 echo "  Using encrypted connections is state of the art on the web and we"
                 echo "  encourage you to enable this for your FOG server. But using HTTPS"
@@ -270,6 +270,7 @@ case $installtype in
                 echo -n "  Would you like to enable secure HTTPS on your FOG server? [y/N] "
                 read dohttps
             fi
+            [[ "$shttpproto" == "https" ]] && dohttps="yes"
             case $dohttps in
                 [Nn]|[Nn][Oo]|"")
                     dohttps=0

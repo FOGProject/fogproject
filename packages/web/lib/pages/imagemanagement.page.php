@@ -126,7 +126,7 @@ class ImageManagement extends FOGPage
             . '<option value="6"%s>%s</option>'
             . '</select>',
             (
-                !$imagemanage || $imagemanage == 0 ?
+                $imagemanage == 0 ?
                 ' selected' :
                 ''
             ),
@@ -156,7 +156,7 @@ class ImageManagement extends FOGPage
             ),
             _('Partclone Uncompressed Split 200MiB'),
             (
-                $imagemanage == 5 ?
+                !$imagemanage || $imagemanage == 5 ?
                 ' selected' :
                 ''
             ),
@@ -223,7 +223,7 @@ class ImageManagement extends FOGPage
             ) => self::makeInput(
                 'form-control slider imagecompression-input',
                 'compression',
-                '6',
+                '19',
                 'text',
                 'compression',
                 $compression,
@@ -434,7 +434,7 @@ class ImageManagement extends FOGPage
             . '<option value="6"%s>%s</option>'
             . '</select>',
             (
-                !$imagemanage || $imagemanage == 0 ?
+                $imagemanage == 0 ?
                 ' selected' :
                 ''
             ),
@@ -464,7 +464,7 @@ class ImageManagement extends FOGPage
             ),
             _('Partclone Uncompressed Split 200MiB'),
             (
-                $imagemanage == 5 ?
+                !$imagemanage || $imagemanage == 5 ?
                 ' selected' :
                 ''
             ),
@@ -531,7 +531,7 @@ class ImageManagement extends FOGPage
             ) => self::makeInput(
                 'form-control slider imagecompression-input',
                 'compression',
-                '6',
+                '19',
                 'text',
                 'compression',
                 $compression,
@@ -943,7 +943,7 @@ class ImageManagement extends FOGPage
             ) => self::makeInput(
                 'form-control slider imagecompression-input',
                 'compression',
-                '6',
+                '19',
                 'text',
                 'compression',
                 $compression,
