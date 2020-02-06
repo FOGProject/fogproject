@@ -1395,7 +1395,8 @@ class BootMenu extends FOGBase
                     array(
                         'Host' => &self::$Host,
                         'StorageNode' => &$StorageNode,
-                        'StorageGroup' => &$StorageGroup
+                        'StorageGroup' => &$StorageGroup,
+                        'TaskType' => &$TaskType
                     )
                 );
                 if (!$StorageGroup || !$StorageGroup->isValid()) {
@@ -1426,7 +1427,8 @@ class BootMenu extends FOGBase
                     array(
                         'Host' => &self::$Host,
                         'StorageNode' => &$StorageNode,
-                        'StorageGroup' => &$StorageGroup
+                        'StorageGroup' => &$StorageGroup,
+                        'TaskType' => &$TaskType
                     )
                 );
                 $osid = (int)$Image->get('osID');
