@@ -416,7 +416,6 @@ case $doupdate in
             [[ -n $sdocroot ]] && docroot=$sdocroot
             [[ -n $signorehtmldoc ]] && ignorehtmldoc=$signorehtmldoc
             [[ -n $scopybackold ]] && copybackold=$scopybackold
-            [[ -n $sarmsupport ]] && armsupport=$sarmsupport
         fi
         ;;
     *)
@@ -430,6 +429,7 @@ esac
 [[ -n $ssslpath ]] && sslpath=$ssslpath
 [[ -n $srecreateCA ]] && recreateCA=$srecreateCA
 [[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
+[[ -n $sarmsupport ]] && armsupport=$sarmsupport
 
 [[ -f $fogpriorconfig ]] && grep -l webroot $fogpriorconfig >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 case $? in
