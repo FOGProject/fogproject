@@ -392,6 +392,13 @@ class LDAPManagementPage extends FOGPage
     public function addPost()
     {
         self::$HookManager->processEvent('LDAP_ADD');
+        $ports = array_map(
+            'trim',
+            explode(
+                ',',
+                self::getSetting('LDAP_PORTS')
+            )
+        );
         $name = filter_input(
             INPUT_POST,
             'name'
@@ -472,7 +479,7 @@ class LDAPManagementPage extends FOGPage
                     _('Please select an LDAP port to use')
                 );
             }
-            if (!in_array($port, array(389, 636))) {
+            if (!in_array($port, $ports)) {
                 throw new Exception(
                     _('Please select a valid ldap port')
                 );
@@ -652,7 +659,13 @@ class LDAPManagementPage extends FOGPage
             $searchScope,
             true
         );
-        $ports = array(389, 636);
+        $ports = array_map(
+            'trim',
+            explode(
+                ',',
+                self::getSetting('LDAP_PORTS')
+            )
+        );
         $portssel = self::selectForm(
             'port',
             $ports,
@@ -857,6 +870,13 @@ class LDAPManagementPage extends FOGPage
                 'LDAP_EDIT_POST',
                 array('LDAP'=> &$this->obj)
             );
+        $ports = array_map(
+            'trim',
+            explode(
+                ',',
+                self::getSetting('LDAP_PORTS')
+            )
+        );
         $name = filter_input(
             INPUT_POST,
             'name'
@@ -934,7 +954,7 @@ class LDAPManagementPage extends FOGPage
                     _('Please select an LDAP port to use')
                 );
             }
-            if (!in_array($port, array(389, 636))) {
+            if (!in_array($port, $ports)) {
                 throw new Exception(
                     _('Please select a valid ldap port')
                 );

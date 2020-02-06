@@ -134,7 +134,13 @@ class LDAP extends FOGController
     private function _ldapUp($timeout = 3)
     {
         $ldap = 'ldap';
-        $ports = array(389, 636);
+        $ports = array_map(
+            'trim',
+            explode(
+                ',',
+                self::getSetting('LDAP_PORTS')
+            )
+        );
         $port = $this->get('port');
         $address = $this->get('address');
         if (!in_array($port, $ports)) {
