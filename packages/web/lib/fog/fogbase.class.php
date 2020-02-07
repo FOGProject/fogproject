@@ -807,7 +807,7 @@ abstract class FOGBase
         $date = self::niceDate();
         $string = sprintf(
             '[%s] FOG INFO: %s: %s',
-            $date->format('l F d Y H:i:s')
+            $date->format('l F d Y H:i:s'),
             __CLASS__,
             $data
         );
