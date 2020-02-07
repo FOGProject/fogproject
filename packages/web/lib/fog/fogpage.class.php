@@ -379,11 +379,11 @@ abstract class FOGPage extends FOGBase
                 'fa fa-cube'
             ],
             'storagegroup' => [
-                self::$foglang['StorageGroups'],
+                self::$foglang['Storagegroups'],
                 'fa fa-object-group'
             ],
             'storagenode' => [
-                self::$foglang['StorageNodes'],
+                self::$foglang['Storagenodes'],
                 'fa fa-archive'
             ],
             'printer' => [
