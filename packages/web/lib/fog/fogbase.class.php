@@ -740,8 +740,10 @@ abstract class FOGBase
     public static function error($txt, $data = [])
     {
         $data = self::_setString($txt, $data);
+        $date = self::niceDate();
         $string = sprintf(
-            'FOG ERROR: %s: %s',
+            '[%s] FOG ERROR: %s: %s',
+            $date->format('l F d Y H:i:s'),
             __CLASS__,
             $data
         );
@@ -751,7 +753,7 @@ abstract class FOGBase
         }
         $log_file_data = $log_filename
             . '/error_log_'
-            . self::niceDate()->format('d-m-Y')
+            . $date->format('d-m-Y')
             . '.log';
         file_put_contents($log_file_data, $string."\n", FILE_APPEND);
         if ((self::$service || self::$ajax) || !self::$debug) {
@@ -770,8 +772,10 @@ abstract class FOGBase
     public static function debug($txt, $data = [])
     {
         $data = self::_setString($txt, $data);
+        $date = self::niceDate();
         $string = sprintf(
-            'FOG DEBUG: %s: %s',
+            '[%s] FOG DEBUG: %s: %s',
+            $date->format('l F d Y H:i:s'),
             __CLASS__,
             $data
         );
@@ -781,7 +785,7 @@ abstract class FOGBase
         }
         $log_file_data = $log_filename
             . '/debug_log_'
-            . self::niceDate()->format('d-m-Y')
+            . $date->format('d-m-Y')
             . '.log';
         file_put_contents($log_file_data, $string."\n", FILE_APPEND);
         if ((self::$service || self::$ajax) || !self::$debug) {
@@ -800,8 +804,10 @@ abstract class FOGBase
     public static function info($txt, $data = [])
     {
         $data = self::_setString($txt, $data);
+        $date = self::niceDate();
         $string = sprintf(
-            'FOG INFO: %s: %s',
+            '[%s] FOG INFO: %s: %s',
+            $date->format('l F d Y H:i:s')
             __CLASS__,
             $data
         );
@@ -811,7 +817,7 @@ abstract class FOGBase
         }
         $log_file_data = $log_filename
             . '/info_log_'
-            . self::niceDate()->format('d-m-Y')
+            . $date->format('d-m-Y')
             . '.log';
         file_put_contents($log_file_data, $string."\n", FILE_APPEND);
         if (!self::$info || self::$service || self::$ajax) {
