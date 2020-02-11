@@ -36,8 +36,7 @@ if [[ $guessdefaults == 1 ]]; then
     fi
     strSuggestedRoute=$(ip route | grep -E "default.*${strSuggestedInterface}|${strSuggestedInterface}.*default" | head -n1 | cut -d' ' -f3 | tr -d [:blank:])
     if [[ -z $strSuggestedRoute ]]; then
-        strSuggestedRoute=$(route -n | grep -E "^.*UG.*${strSuggestedInterface}$"  | head -n1)
-        strSuggestedRoute=$(echo ${strSuggestedRoute:16:16} | tr -d [:blank:])
+        strSuggestedRoute=$(route -n 2>/dev/null | grep -E "^.*UG.*${strSuggestedInterface}$" | head -n1 | awk '{print $2}' | tr -d [:blank:])
     fi
     strSuggestedDNS=""
     [[ -f /etc/resolv.conf ]] && strSuggestedDNS=$(cat /etc/resolv.conf | grep -E "^nameserver" | head -n 1 | tr -d "nameserver" | tr -d [:blank:] | grep "^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$")
