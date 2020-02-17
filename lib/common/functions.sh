@@ -106,6 +106,7 @@ GRANT INSERT,UPDATE ON $mysqldbname.hosts TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.inventory TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.multicastSessions TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.multicastSessionsAssoc TO 'fogstorage'@'%' ;
+GRANT INSERT,UPDATE ON $mysqldbname.nfsGroupMembers TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.tasks TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.taskStates TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.taskLog TO 'fogstorage'@'%' ;
