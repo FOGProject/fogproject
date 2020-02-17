@@ -2,58 +2,54 @@
 
 ## Introduction
 
- FOG is a free open-source cloning/imaging solution/rescue suite. FOG can be used to image Windows XP, Vista, Windows 7 Windows 8, Windows 8.1, and Windows 10 PCs using PXE, PartClone, and a Web GUI to tie it together. Includes features like memory and disk test, disk wipe, and task scheduling.
+ FOG is a free open-source cloning/imaging solution/rescue suite. FOG can be used to image Windows XP, Vista, Windows 7, Window 8, and Windows 10 PCs using PXE, PartClone, and a Web GUI to tie it together. Includes features like memory and disk test, disk wipe, av scan, task scheduling, inventory management, and remote installation of software packages. Features can be triggered remotely from the web GUI, once the machine has been registered.
 
-## Install Stable
+## Install stable version
 
 0. Install and update your chosen linux server
 
 1. Download the file(s)
 
- - All that is needed to start installation is to download the files to perform the install. Choose one of the following methods you prefer;
+* All that is needed to start installation is to download the files to perform the install. Choose one of the following methods you prefer;
 
- - **git** ` git clone https://github.com/fogproject/fogproject.git fog_stable/`
+  * **ZIP archive** `wget https://github.com/FOGProject/fogproject/archive/master.zip; unzip master.zip`
 
-2. Go into the downloaded source/bin folder
+  * **TAR/GZ archive** `wget https://github.com/FOGProject/fogproject/archive/master.tar.gz; tar xzf master.tar.gz`
 
- - `cd fog_stable/bin`
+  * **git** `git clone https://github.com/fogproject/fogproject.git fogproject-master`
 
-3. Run the Install and follow all prompts accordingly
+2. Run the install script **as root** and follow all prompts accordingly
 
- - `sudo ./installfog.sh`
+```
+sudo -i
+cd /path/to/fogproject-master/bin
+./installfog.sh
+```
 
-4. Enjoy
+3. Enjoy
 
-## Install Development AKA trunk
+## Install latest development version
 
 0. Install and update your chosen linux server
 
-
 1. Download the file(s)
 
- - All that is needed to start installation is to download the files to perform the install. Choose one of the following methods you prefer;
+* All that is needed to start the installation is to download the files to perform the install. Choose one of the following methods you prefer;
 
-2. Go into the downloaded source/bin folder
+  * **git** `git clone https://github.com/fogproject/fogproject.git fogproject-dev-branch; cd fogproject-dev-branch; git checkout dev-branch` (**recommended if you want to keep up with current developments!**
 
- - ### Initial setup
+  * **ZIP archive** `wget https://github.com/FOGProject/fogproject/archive/dev-branch.zip; unzip dev-branch.zip`
 
- - **git** `git clone https://github.com/fogproject/fogproject.git trunk/; git checkout dev-branch; cd trunk/bin/`
+  * **TAR/GZ archive** `wget https://github.com/FOGProject/fogproject/archive/dev-branch.tar.gz; tar xzf dev-branch.tar.gz`
 
- - **Update setup**
+2. Run the install script **as root** and follow all prompts accordingly
 
- - **git** `cd trunk/; git pull; cd bin/`
-
-3. Run the Install and follow all prompts accordingly
-
- - **Manual prompts** (NOTE: Recommended to run this if fresh install)
-
- - `sudo ./installfog.sh`
-
- - **Auto-Accepted**
-
- - `sudo ./installfog.sh -y`
-
-4. Enjoy
+```
+sudo -i
+cd /path/to/fogproject-dev-branch/bin
+./installfog.sh
+```
+3. Enjoy
 
 All should now be installed and you can start configuring and registering systems. Please see: http://fogproject.org/wiki/index.php/Managing_FOG to assist you in setting up further.
 
@@ -64,11 +60,11 @@ There are many resources for assistance.
 
 ## Development
 
- Download the source with git and checkout the `working` for the latest code or a more specific feature branch you would like to help work on.
+ Download the source with git and checkout the branch `dev-branch` for the latest code or a more specific feature branch you would like to help work on.
 
  As you are running a development branch, please post bugs to either:
 
  - A new issue on https://github.com/FOGProject/fogproject/issues
  - https://forums.fogproject.org/category/17/bug-reports
 
- If you would like to create a pull request, please make the pull request into the `working` branch.
+ If you would like to create a pull request, please make the pull request into the `dev-branch` branch.
