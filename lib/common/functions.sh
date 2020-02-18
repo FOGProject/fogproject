@@ -43,7 +43,7 @@ registerStorageNode() {
     if [[ $storageNodeExists != exists ]]; then
         [[ -z $maxClients ]] && maxClients=10
         dots "Node being registered"
-        wget --no-check-certificate -qO - $httpproto://$ipaddress/${webroot}/maintenance/create_update_node.php --post-data="newNode&name=$(echo -n $ipaddress| base64)&path=$(echo -n $storageLocation|base64)&ftppath=$(echo -n $storageLocation|base64)&snapinpath=$(echo -n $snapindir|base64)&sslpath=$(echo -n $sslpath|base64)&ip=$(echo -n $ipaddress|base64)&maxClients=$(echo -n $maxClients|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&interface=$(echo -n $interface|base64)&bandwidth=$(echo -n $interface|base64)&webroot=$(echo -n $webroot|base64)&fogverified"
+        curl -s -k -X POST -d "newNode" -d "name=$(echo -n $ipaddress|base64)" -d "path=$(echo -n $storageLocation|base64)" -d "ftppath=$(echo -n $storageLocation|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n $sslpath|base64)" -d "ip=$(echo -n $ipaddress|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "interface=$(echo -n $interface|base64)" -d "bandwidth=1" -d "webroot=$(echo -n $webroot|base64)" -d "fogverified" $httpproto://$ipaddress/${webroot}/maintenance/create_update_node.php
         echo "Done"
     else
         echo " * Node is registered"
@@ -52,7 +52,7 @@ registerStorageNode() {
 updateStorageNodeCredentials() {
     [[ -z $webroot ]] && webroot="/"
     dots "Ensuring node username and passwords match"
-    wget --no-check-certificate -qO - $httpproto://$ipaddress${webroot}maintenance/create_update_node.php --post-data="nodePass&ip=$(echo -n $ipaddress|base64)&user=$(echo -n $username|base64)&pass=$(echo -n $password|base64)&fogverified"
+    curl -s -k -X POST -d "nodePass" -d "ip=$(echo -n $ipaddress|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "fogverified" $httpproto://$ipaddress${webroot}maintenance/create_update_node.php
     echo "Done"
 }
 backupDB() {
@@ -106,6 +106,7 @@ GRANT INSERT,UPDATE ON $mysqldbname.hosts TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.inventory TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.multicastSessions TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.multicastSessionsAssoc TO 'fogstorage'@'%' ;
+GRANT INSERT,UPDATE ON $mysqldbname.nfsGroupMembers TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.tasks TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.taskStates TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.taskLog TO 'fogstorage'@'%' ;
