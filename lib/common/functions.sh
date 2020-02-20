@@ -478,9 +478,7 @@ configureTFTPandPXE() {
     fi
     dots "Setting up and starting TFTP and PXE Servers"
     cd $tftpdirsrc
-    for tftpdir in $(ls -d */); do
-        [[ ! -d $tftpdirdst/$tftpdir ]] && mkdir -p $tftpdirdst/$tftpdir >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    done
+    find -type d -exec mkdir -p /tftpboot/{} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     local findoptions=""
     [[ $notpxedefaultfile == true ]] && findoptions="! -name default"
     find -type f $findoptions -exec cp -Rfv {} $tftpdirdst/{} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
