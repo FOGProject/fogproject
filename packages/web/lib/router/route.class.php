@@ -1305,7 +1305,7 @@ class Route extends FOGBase
                        $class->get('online') ?
                         $class->get('logfiles') :
                         []
-                    ),
+                   ),
                     'snapinfiles' => (
                         $class->get('online') ?
                         $class->get('snapinfiles') :
@@ -1323,7 +1323,7 @@ class Route extends FOGBase
                        $class->get('online') ?
                         $class->get($item) :
                         []
-                    )
+                   )
                 );
             }
             $data = FOGCore::fastmerge(

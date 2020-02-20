@@ -305,7 +305,7 @@ class MulticastManager extends FOGService
                                             $curTask->getID(),
                                             $curTask->getName(),
                                             _(' Task state has been updated, now the task is queued!')
-                                            )
+                                        )
                                     );
                                 }
 

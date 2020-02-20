@@ -35,46 +35,46 @@ class Snapin_Log extends ReportManagementPage
             'Snapin',
             '',
             'name'
-                );
+        );
         $snapinHostIDs = self::getSubObjectIDs(
             'SnapinAssociation',
             '',
             'hostID'
-             );
+        );
         $HostNames = self::getSubObjectIDs(
             'Host',
             array('id' => $snapinHostIDs),
             'name'
-             );
+        );
         unset($snapinHostIDs);
         $snapinNames = array_values(
             array_filter(
                 array_unique(
                     (array)$snapinNames
-                     )
-               )
-             );
+                )
+            )
+        );
         $HostNames = array_values(
             array_filter(
                 array_unique(
                     (array)$HostNames
-                        )
-                     )
-             );
+                )
+            )
+        );
         natcasesort($snapinNames);
         natcasesort($HostNames);
         if (is_array($snapinNames) && count($snapinNames) > 0) {
             $snapinSelForm = self::selectForm(
                 'snapinsearch',
                 $snapinNames
-                     );
+            );
             unset($snapinNames);
         }
         if (is_array($HostNames) && count($HostNames) > 0) {
             $hostSelForm = self::selectForm(
                 'hostsearch',
                 $HostNames
-                         );
+            );
             unset($HostNames);
         }
         $fields = array(
@@ -121,11 +121,11 @@ class Snapin_Log extends ReportManagementPage
         $hostsearch = filter_input(
             INPUT_POST,
             'hostsearch'
-         );
+        );
         $snapinsearch = filter_input(
             INPUT_POST,
             'snapinsearch'
-    );
+        );
         if (!$hostsearch) {
             $hostsearch = '%';
         }
@@ -207,8 +207,7 @@ class Snapin_Log extends ReportManagementPage
                          'snapinID' => $snapinIDs,
                          'jobID' => $jobIDs
              )
-
-    );
+        );
         $SnapinTasks = json_decode(
             Route::getData()
         );

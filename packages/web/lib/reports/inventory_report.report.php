@@ -78,7 +78,7 @@ class Inventory_Report extends ReportManagementPage
                 $locationSelForm = self::selectForm(
                     'locationsearch',
                     $locationNames
-                        );
+                );
                 unset($locationNames);
                 $fields += array('<label for="locationsearch">'
                     . _('Enter a location name to search for')
@@ -240,12 +240,12 @@ class Inventory_Report extends ReportManagementPage
                 'Location',
                 array('name' => $locationsearch),
                 'id'
-                );
+            );
             $locationHostIDs = self::getSubObjectIDs(
                 'LocationAssociation',
                 array('locationID' => $locationIDs),
                 'hostID'
-                );
+            );
             $groupHostIDs = array_intersect($locationHostIDs, $groupHostIDs);
         }
         if (in_array('site', (array)self::$pluginsinstalled) && $sitesearch) {
@@ -253,12 +253,12 @@ class Inventory_Report extends ReportManagementPage
                 'Site',
                 array('name' => $sitesearch),
                 'id'
-                );
+            );
             $siteHostIDs = self::getSubObjectIDs(
                 'SiteHostAssociation',
                 array('siteID' => $siteIDs),
                 'hostID'
-                );
+            );
             $groupHostIDs = array_intersect($siteHostIDs, $groupHostIDs);
         }
         $sysproductIDs = self::getSubObjectIDs(

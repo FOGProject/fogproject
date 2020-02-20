@@ -229,12 +229,12 @@ class Host_List extends ReportManagementPage
                 'Site',
                 array('name' => $sitesearch),
                 'id'
-                );
+            );
             $siteHostIDs = self::getSubObjectIDs(
                 'SiteHostAssociation',
                 array('siteID' => $siteIDs),
                 'hostID'
-                );
+            );
             $groupHostIDs = array_intersect($siteHostIDs, $groupHostIDs);
         }
 

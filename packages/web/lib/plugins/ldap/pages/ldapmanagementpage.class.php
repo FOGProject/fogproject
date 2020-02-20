@@ -1127,7 +1127,7 @@ class LDAPManagementPage extends FOGPage
                                         'error' => _('Not all elements in filter or ports setting are integer'),
                                         'title' => _('Settings Update Fail')
                                 )
-                        );
+                );
             } else {
                 self::setSetting('LDAP_PORTS', $ports);
                 self::setSetting('FOG_USER_FILTER', $filter);
@@ -1136,7 +1136,7 @@ class LDAPManagementPage extends FOGPage
                                         'msg' => _('Settings successfully stored!'),
                                         'title' => _('Settings Update Success')
                                 )
-                        );
+                );
             }
         } catch (Exception $e) {
             $msg = json_encode(

@@ -749,7 +749,7 @@ class SnapinManagementPage extends FOGPage
                     $_SERVER['CONTENT_LENGTH'] > 0) {
                 throw new Exception(
                     _('$_POST variable is empty, check apache error log.')
-               );
+                );
             }
             if (!$name) {
                 throw new Exception(
