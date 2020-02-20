@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-14 20:31+0100\n"
+"POT-Creation-Date: 2019-08-10 16:23+0100\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -658,10 +658,6 @@ msgstr "最新版本"
 
 #, fuzzy
 msgid "Latest Development Version"
-msgstr "最新版本"
-
-#, fuzzy
-msgid "Latest SVN Version"
 msgstr "最新版本"
 
 msgid "Image is protected and cannot be deleted"
@@ -4115,10 +4111,6 @@ msgid "this is just another to ensure safety"
 msgstr ""
 
 #, fuzzy
-msgid "No Printer Manaagement"
-msgstr "没有打印机管理"
-
-#, fuzzy
 msgid ""
 "This setting only adds and removes printers that are managed by FOG. If the "
 "printer exists in printer management but is not assigned to a host, it will "
@@ -6000,7 +5992,7 @@ msgstr ""
 msgid " | This is not the master node"
 msgstr "|这不是主节点"
 
-msgid "Interface not ready, waiting."
+msgid "Interface not ready, waiting for it to come up"
 msgstr ""
 
 msgid "Waiting for mysql to be available"
@@ -7477,3 +7469,12 @@ msgstr "文件大小不匹配"
 #, fuzzy
 msgid "FTP connection failed"
 msgstr "FTP连接失败"
+
+msgid "Snapin file to big, increase post_max_size in php.ini."
+msgstr "Snapin文件太大，在php.ini中增加post_max_size。"
+
+msgid "$_POST variable is empty, check apache error log."
+msgstr "$ _POST变量为空，检查apache错误日志。"
+
+msgid "MAC address is already in use by another host"
+msgstr "MAC地址已被其他主机使用"

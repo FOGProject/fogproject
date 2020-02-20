@@ -367,7 +367,7 @@ class Snapin extends FOGController
             ->count(
                 array(
                     'snapinID' => $this->get('id'),
-                    'prmary' => 1,
+                    'primary' => 1,
                 )
             );
         if ($primaryCount < 1) {

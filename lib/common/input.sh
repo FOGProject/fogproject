@@ -29,15 +29,14 @@ if [[ $guessdefaults == 1 ]]; then
             ;;
     esac
     allinterfaces=$(getAllNetworkInterfaces)
-    strSuggestedInterface=${allinterfaces[0]}
+    strSuggestedInterface=$(echo ${allinterfaces} | awk '{print $1}')
     if [[ -z $strSuggestedInterface ]]; then
         echo "ERROR: Not able to find a network interface that is up on your system."
         exit 1
     fi
     strSuggestedRoute=$(ip route | grep -E "default.*${strSuggestedInterface}|${strSuggestedInterface}.*default" | head -n1 | cut -d' ' -f3 | tr -d [:blank:])
     if [[ -z $strSuggestedRoute ]]; then
-        strSuggestedRoute=$(route -n | grep -E "^.*UG.*${strSuggestedInterface}$"  | head -n1)
-        strSuggestedRoute=$(echo ${strSuggestedRoute:16:16} | tr -d [:blank:])
+        strSuggestedRoute=$(route -n 2>/dev/null | grep -E "^.*UG.*${strSuggestedInterface}$" | head -n1 | awk '{print $2}' | tr -d [:blank:])
     fi
     strSuggestedDNS=""
     [[ -f /etc/resolv.conf ]] && strSuggestedDNS=$(cat /etc/resolv.conf | grep -E "^nameserver" | head -n 1 | tr -d "nameserver" | tr -d [:blank:] | grep "^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$")
@@ -50,8 +49,7 @@ if [[ $guessdefaults == 1 ]]; then
         sed -i '/^$/d' /tmp/nameservers.txt #Delete blank lines from temp file.
         strSuggestedDNS=$(head -n 1 /tmp/nameservers.txt) #Get first DNS Address from the file.
 	rm -f /tmp/nameservers.txt #Cleanup after ourselves.	
-    fi	    
-    strSuggestedSNUser="fogstorage"
+    fi
     strSuggestedHostname=$(hostname -f)
 fi
 displayOSChoices
@@ -251,8 +249,34 @@ case $installtype in
                     ;;
             esac
         done
-	[[ -z $snmysqlhost ]] && snmysqlhost='localhost'
-	[[ -z $snmysqluser ]] && snmysqluser='root'
+        [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
+        [[ -z $snmysqluser ]] && snmysqluser='fogmaster'
+        while [[ -z $dohttps ]]; do
+            if [[ -z $autoaccept && -z $shttpproto ]]; then
+                echo
+                echo "  Using encrypted connections is state of the art on the web and we"
+                echo "  encourage you to enable this for your FOG server. But using HTTPS"
+                echo "  has some implications within FOG, PXE and fog-client and you want"
+                echo "  to read https://wiki.fogproject.org/HTTPS before you decide!"
+                echo -n "  Would you like to enable secure HTTPS on your FOG server? [y/N] "
+                read dohttps
+            fi
+            [[ "$shttpproto" == "https" ]] && dohttps="yes"
+            case $dohttps in
+                [Nn]|[Nn][Oo]|"")
+                    dohttps=0
+                    httpproto="http"
+                    ;;
+                [Yy]|[Yy][Ee][Ss])
+                    dohttps=1
+                    httpproto="https"
+                    ;;
+                *)
+                    echo "  Invalid input, please try again."
+                    dohttps=""
+                    ;;
+            esac
+        done
         ;;
     [Ss])
         while [[ -z $snmysqlhost ]]; do
@@ -262,6 +286,7 @@ case $installtype in
             echo -n "  runs the web server, dhcp, and tftp.  IP or Hostname: "
             read snmysqlhost
         done
+        strSuggestedSNUser='fogstorage'
         while [[ -z $snmysqluser ]]; do
             snmysqluser=$strSuggestedSNUser
             if [[ -z $autoaccept ]]; then

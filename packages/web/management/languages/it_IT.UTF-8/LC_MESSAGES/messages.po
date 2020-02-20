@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FOG\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-14 20:31+0100\n"
+"POT-Creation-Date: 2019-08-10 16:23+0100\n"
 "PO-Revision-Date: 2017-09-27 12:32+0200\n"
 "Last-Translator: Luca Berton <mr.evolution85@gmail.com>\n"
 "Language-Team: Luca Berton <mr.evolution85@gmail.com>\n"
@@ -655,9 +655,6 @@ msgstr "Ultima versione"
 
 msgid "Latest Development Version"
 msgstr "Ultima versione di sviluppo"
-
-msgid "Latest SVN Version"
-msgstr "Ultima versione di SVN"
 
 msgid "Image is protected and cannot be deleted"
 msgstr "L'immagine è protetta e non può essere cancellato"
@@ -3746,9 +3743,6 @@ msgstr "Tra impostazioni host e globali"
 msgid "this is just another to ensure safety"
 msgstr "questo è solo un altro per garantire la sicurezza"
 
-msgid "No Printer Manaagement"
-msgstr "Nessuna gestione della stampante"
-
 msgid ""
 "This setting only adds and removes printers that are managed by FOG. If the "
 "printer exists in printer management but is not assigned to a host, it will "
@@ -4150,7 +4144,7 @@ msgid "Select management level for these hosts"
 msgstr "Seleziona il livello di gestione per questi host"
 
 msgid "No Printer Management"
-msgstr "No Printer Management"
+msgstr "Nessuna gestione della stampante"
 
 msgid "Printer Associations"
 msgstr "Associazioni stampanti"
@@ -5400,8 +5394,8 @@ msgstr "Impossibile ridichiarare il percorso"
 msgid " | This is not the master node"
 msgstr " | Questo non è il nodo master"
 
-msgid "Interface not ready, waiting."
-msgstr "Interfaccia non pronta, in attesa."
+msgid "Interface not ready, waiting for it to come up"
+msgstr "Interfaccia non pronta, in attesa che venga visualizzata"
 
 msgid "Waiting for mysql to be available"
 msgstr "In attesa di mysql sia disponibile"
@@ -6675,3 +6669,12 @@ msgstr "Errore di dimensioni del file"
 #, fuzzy
 msgid "FTP connection failed"
 msgstr "La connessione FTP non è riuscita"
+
+msgid "Snapin file is too big, increase post_max_size in php.ini."
+msgstr "Il file snap-in è troppo grande, aumenta post_max_size in php.ini."
+
+msgid "$_POST variable is empty, check apache error log."
+msgstr "La variabile $ _POST è vuota, controlla il log degli errori di apache."
+
+msgid "MAC address is already in use by another host"
+msgstr "L'indirizzo MAC è già in uso da un altro host"

@@ -1519,7 +1519,7 @@ class HostManagementPage extends FOGPage
                 ''
             )
             . '/>';
-        echo _('No Printer Manaagement');
+        echo _('No Printer Management');
         echo '</label>';
         echo '</div>';
         echo '<div class="radio">';
@@ -3223,7 +3223,7 @@ class HostManagementPage extends FOGPage
             $this->obj->get('ADDomain'),
             $this->obj->get('ADOU'),
             $this->obj->get('ADUser'),
-            $this->obj->get('ADPass'),
+            '',
             $this->obj->get('ADPassLegacy'),
             $this->obj->get('enforce')
         );
@@ -3766,6 +3766,8 @@ class HostManagementPage extends FOGPage
             ->getTimestamp();
         Route::listem(
             'UserTracking',
+            'name',
+            'ASC',
             array(
                 'hostID' => $this->obj->get('id'),
                 'action' => array('', 0, 1)

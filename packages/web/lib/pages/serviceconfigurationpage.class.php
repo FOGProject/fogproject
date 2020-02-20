@@ -74,6 +74,7 @@ class ServiceConfigurationPage extends FOGPage
             "$servicelink#usercleanup" => self::$foglang['UserCleanup'],
             "$servicelink#usertracker" => self::$foglang['UserTracker'],
         );
+        $this->obj = new Service($id);
         self::$HookManager
             ->processEvent(
                 'SUB_MENULINK_DATA',

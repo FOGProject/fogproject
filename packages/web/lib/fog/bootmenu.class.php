@@ -143,6 +143,11 @@ class BootMenu extends FOGBase
             );
         }
 
+        if (stripos($_REQUEST['arch'], 'arm') !== false) {
+            //use arm boot loaders instead
+            $refind = 'chain -ar ${boot-url}/service/ipxe/refind_aa64.efi';
+        }
+
         $grub = array(
             'basic' => sprintf(
                 $grubChain,
@@ -385,7 +390,7 @@ class BootMenu extends FOGBase
         $this->_kernel = sprintf(
             'kernel %s %s initrd=%s root=/dev/ram0 rw '
             . 'ramdisk_size=%s%sweb=%s consoleblank=0%s rootfstype=ext4%s%s '
-            . '%s',
+            . '%s nvme_core.default_ps_max_latency_us=0',
             $bzImage,
             $this->_loglevel,
             basename($initrd),
@@ -1390,7 +1395,8 @@ class BootMenu extends FOGBase
                     array(
                         'Host' => &self::$Host,
                         'StorageNode' => &$StorageNode,
-                        'StorageGroup' => &$StorageGroup
+                        'StorageGroup' => &$StorageGroup,
+                        'TaskType' => &$TaskType
                     )
                 );
                 if (!$StorageGroup || !$StorageGroup->isValid()) {
@@ -1421,7 +1427,8 @@ class BootMenu extends FOGBase
                     array(
                         'Host' => &self::$Host,
                         'StorageNode' => &$StorageNode,
-                        'StorageGroup' => &$StorageGroup
+                        'StorageGroup' => &$StorageGroup,
+                        'TaskType' => &$TaskType
                     )
                 );
                 $osid = (int)$Image->get('osID');

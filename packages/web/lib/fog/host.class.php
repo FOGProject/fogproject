@@ -318,14 +318,11 @@ class Host extends FOGController
                 && $CurrPriMAC[0] != $RealPriMAC
             ) {
                 self::getClass('MACAddressAssociationManager')
-                    ->update(
+                    ->destroy(
                         array(
-                            'mac' => $CurrPriMAC[0],
                             'hostID' => $this->get('id'),
-                            'primary' => 1
-                        ),
-                        '',
-                        array('primary' => 0)
+                            'mac' => $CurrPriMAC[0]
+                        )
                     );
             }
             $HostWithMAC = array_diff(
@@ -1692,6 +1689,16 @@ class Host extends FOGController
         if (is_array($mac) && count($mac) > 0) {
             $mac = array_shift($mac);
         }
+        $host = $mac->getHost();
+        if ($host instanceof Host && $host->isValid()) {
+            throw new Exception(
+                sprintf(
+                    "%s: %s",
+                    _('MAC address is already in use by another host'),
+                    $host->get('name')
+                )
+            );
+        }
         return $this->set('mac', $mac);
     }
     /**
@@ -2070,6 +2077,8 @@ class Host extends FOGController
         $productKey = '',
         $enforce = ''
     ) {
+        $adpasspat = "/^\*{32}$/";
+        $pass = (preg_match($adpasspat, $pass) ? $this->get('ADPass') : $pass);
         if ($this->get('id')) {
             if (!$override) {
                 if (empty($useAD)) {
