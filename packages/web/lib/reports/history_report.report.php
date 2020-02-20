@@ -48,8 +48,8 @@ class History_Report extends ReportManagementPage
             array_filter(
                 array_unique(
                     (array)$userNames
-                    )
-                 )
+                )
+            )
         );
         natcasesort($userNames);
 
@@ -57,7 +57,7 @@ class History_Report extends ReportManagementPage
             $userSelForm = self::selectForm(
                 'usersearch',
                 $userNames
-                );
+            );
             unset($userNames);
         }
         $fields = array(
@@ -157,7 +157,7 @@ class History_Report extends ReportManagementPage
             'createdBy' => $usersearch,
             'info' => $info
         )
-    );
+        );
         $Historys = json_decode(
             Route::getData()
         );
