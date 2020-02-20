@@ -479,9 +479,7 @@ configureTFTPandPXE() {
     dots "Setting up and starting TFTP and PXE Servers"
     cd $tftpdirsrc
     find -type d -exec mkdir -p /tftpboot/{} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    local findoptions=""
-    [[ $notpxedefaultfile == true ]] && findoptions="! -name default"
-    find -type f $findoptions -exec cp -Rfv {} $tftpdirdst/{} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    find -type f -exec cp -Rfv {} $tftpdirdst/{} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     cd $workingdir
     chown -R $username $tftpdirdst >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     chown -R $username $webdirdest/service/ipxe >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1483,7 +1481,6 @@ writeUpdateFile() {
     escbootfilename=$(echo $bootfilename | sed -e $replace)
     escpackages=$(echo $packages | sed -e $replace)
     escnoTftpBuild=$(echo $noTftpBuild | sed -e $replace)
-    escnotpxedefaultfile=$(echo $notpxedefaultfile | sed -e $replace)
     escsslpath=$(echo $sslpath | sed -e $replace)
     escbackupPath=$(echo $backupPath | sed -e $replace)
     escarmsupport=$(echo $sarmsupport | sed -e $replace)
@@ -1601,8 +1598,7 @@ writeUpdateFile() {
                 sed -i "s/noTftpBuild=.*/noTftpBuild='$escnoTftpBuild'/g" $fogprogramdir/.fogsettings || \
                 echo "noTftpBuild='$noTftpBuild'" >> $fogprogramdir/.fogsettings
             grep -q "notpxedefaultfile=" $fogprogramdir/.fogsettings && \
-                sed -i "s/notpxedefaultfile=.*/notpxedefaultfile='$notpxedefaultfile'/g" $fogprogramdir/.fogsettings || \
-                echo "notpxedefaultfile='$escnotpxedefaultfile'" >> $fogprogramdir/.fogsettings
+                sed -i "/notpxedefaultfile=.*$/d" $fogprogramdir/.fogsettings
             grep -q "sslpath=" $fogprogramdir/.fogsettings && \
                 sed -i "s/sslpath=.*/sslpath='$escsslpath'/g" $fogprogramdir/.fogsettings || \
                 echo "sslpath='$sslpath'" >> $fogprogramdir/.fogsettings
@@ -1661,7 +1657,6 @@ writeUpdateFile() {
             echo "bootfilename='$bootfilename'" >> "$fogprogramdir/.fogsettings"
             echo "packages='$packages'" >> "$fogprogramdir/.fogsettings"
             echo "noTftpBuild='$noTftpBuild'" >> "$fogprogramdir/.fogsettings"
-            echo "notpxedefaultfile='$notpxedefaultfile'" >> "$fogprogramdir/.fogsettings"
             echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
             echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
             echo "armsupport='$armsupport'" >> "$fogprogramdir/.fogsettings"
@@ -1710,7 +1705,6 @@ writeUpdateFile() {
         echo "bootfilename='$bootfilename'" >> "$fogprogramdir/.fogsettings"
         echo "packages='$packages'" >> "$fogprogramdir/.fogsettings"
         echo "noTftpBuild='$noTftpBuild'" >> "$fogprogramdir/.fogsettings"
-        echo "notpxedefaultfile='$notpxedefaultfile'" >> "$fogprogramdir/.fogsettings"
         echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
         echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
         echo "armsupport='$armsupport'" >> "$fogprogramdir/.fogsettings"
