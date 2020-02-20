@@ -48,16 +48,16 @@ class History_Report extends ReportManagementPage
             array_filter(
                 array_unique(
                     (array)$userNames
-                    )
-                 )
+                )
+            )
         );
         natcasesort($userNames);
 
-        if (count($userNames) > 0) {
+        if (is_array($userNames) && count($userNames) > 0) {
             $userSelForm = self::selectForm(
                 'usersearch',
                 $userNames
-                );
+            );
             unset($userNames);
         }
         $fields = array(
@@ -157,7 +157,7 @@ class History_Report extends ReportManagementPage
             'createdBy' => $usersearch,
             'info' => $info
         )
-    );
+        );
         $Historys = json_decode(
             Route::getData()
         );
@@ -197,7 +197,7 @@ class History_Report extends ReportManagementPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             echo '<div class="text-center">';
             printf(
                 $this->reportString,

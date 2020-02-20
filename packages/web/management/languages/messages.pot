@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-14 20:31+0100\n"
+"POT-Creation-Date: 2019-08-10 16:23+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -650,9 +650,6 @@ msgid "Latest Version"
 msgstr ""
 
 msgid "Latest Development Version"
-msgstr ""
-
-msgid "Latest SVN Version"
 msgstr ""
 
 msgid "Image is protected and cannot be deleted"
@@ -3653,9 +3650,6 @@ msgstr ""
 msgid "this is just another to ensure safety"
 msgstr ""
 
-msgid "No Printer Manaagement"
-msgstr ""
-
 msgid ""
 "This setting only adds and removes printers that are managed by FOG. If the "
 "printer exists in printer management but is not assigned to a host, it will "
@@ -5290,7 +5284,7 @@ msgstr ""
 msgid " | This is not the master node"
 msgstr ""
 
-msgid "Interface not ready, waiting."
+msgid "Interface not ready, waiting for it to come up"
 msgstr ""
 
 msgid "Waiting for mysql to be available"
@@ -6544,4 +6538,13 @@ msgid "File size mismatch"
 msgstr ""
 
 msgid "FTP connection failed"
+msgstr ""
+
+msgid "Snapin file is too big, increase post_max_size in php.ini."
+msgstr ""
+
+msgid "$_POST variable is empty, check apache error log."
+msgstr ""
+
+msgid "MAC address is already in use by another host"
 msgstr ""

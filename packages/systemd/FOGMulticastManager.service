@@ -15,13 +15,14 @@
 
 [Unit]
 Description=FOGMulticastManager
-After=syslog.target network.target mysql.service
+After=syslog.target network.target network-online.target mysql.service
+StartLimitIntervalSec=0
 
 [Service]
-PrivateTmp=true
-ExecStart=/opt/fog/service/FOGMulticastManager/FOGMulticastManager &
-ExecReload=/bin/kill -HUP $MAINPID
-KillSignal=SIGINT
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/bin/env php /opt/fog/service/FOGMulticastManager/FOGMulticastManager
 
 [Install]
 WantedBy=multi-user.target

@@ -306,12 +306,6 @@ class ProcessLogin extends FOGPage
                 . '<i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i>'
                 . '</b>'
                 . '</p>'
-                . '<p>'
-                . self::$foglang['LatestSvnVer']
-                . ': <b>'
-                . '<i class="icon fa fa-circle-o-notch fa-spin fa-fw"></i>'
-                . '</b>'
-                . '</p>'
                 . '</div>';
         }
         // Login form

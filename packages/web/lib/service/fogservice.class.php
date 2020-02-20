@@ -130,10 +130,14 @@ abstract class FOGService extends FOGBase
      */
     public function waitInterfaceReady()
     {
-        self::getIPAddress();
-        if (!count(self::$ips)) {
+        self::getIPAddress(true);
+        if (!count(self::$ips) || !in_array(self::getSetting('FOG_WEB_HOST'), self::$ips)) {
             self::outall(
-                _('Interface not ready, waiting.')
+                sprintf(
+                    '%s: %s',
+                    _('Interface not ready, waiting for it to come up'),
+                    self::getSetting('FOG_WEB_HOST')
+                )
             );
             sleep(10);
             $this->waitInterfaceReady();
@@ -594,9 +598,17 @@ abstract class FOGService extends FOGBase
                 $filescheck = array_unique(array_merge((array)$localfilescheck, (array)$remotefilescheck));
                 $testavail = -1;
                 $allsynced = true;
+
+                $resp = self::$FOGURLRequests->isAvailable($testip, 1, 80);
+                $avail = true;
+                $testavail = array_filter($resp);
+                $testavail = array_shift($testavail);
+                if (!$testavail) {
+                    $avail = false;
+                }
+
                 foreach ($filescheck as $j => &$filename) {
                     $filesequal = false;
-                    $avail = true;
                     $lindex = array_search($filename, $localfilescheck);
                     $rindex = array_search($filename, $remotefilescheck);
                     $localfilename = sprintf('%s%s%s', $path, "/", $localfilescheck[$lindex]);
@@ -622,33 +634,63 @@ abstract class FOGService extends FOGBase
                         ));
                         self::$FOGFTP->delete($remotefilename);
                     } else {
-                        $resp = self::$FOGURLRequests->isAvailable($testip, 1, 80);
-                        $testavail = array_filter($resp);
-                        $testavail = array_shift($testavail);
-                        if (!$testavail) {
-                            $avail = false;
-                        }
                         $localsize = self::getFilesize($localfilename);
+                        $remotesize = null;
                         if ($avail) {
-                            $remotesize = self::$FOGURLRequests->process(
+                            $rsize = self::$FOGURLRequests->process(
                                 $sizeurl,
                                 'POST',
                                 ['file' => base64_encode($remotefilename)]
                             );
-                            $remotesize = array_shift($remotesize);
-                        } else {
+                            $rsize = array_shift($rsize);
+                            if (is_int($rsize)) {
+                                $remotesize = $rsize;
+                            } else {
+                                // we should re-try HTTPS because we don't know about the storage node setup
+                                // and letting curl follow the redirect doesn't work for POST requests
+                                $sizeurl = sprintf('%s://%s/fog/status/getsize.php', 'https', $testip);
+                                $rsize = self::$FOGURLRequests->process(
+                                    $sizeurl,
+                                    'POST',
+                                    ['file' => base64_encode($remotefilename)]
+                                );
+                                $rsize = array_shift($rsize);
+                                if (is_int($rsize)) {
+                                    $remotesize = $rsize;
+                                }
+                            }
+                        }
+                        if (is_null($remotesize)) {
                             $remotesize = self::$FOGFTP->size($remotefilename);
                         }
                         if ($localsize == $remotesize) {
                             $localhash = self::getHash($localfilename);
+                            $remotehash = null;
                             if ($avail) {
-                                $remotehash = self::$FOGURLRequests->process(
+                                $rhash = self::$FOGURLRequests->process(
                                     $hashurl,
                                     'POST',
                                     ['file' => base64_encode($remotefilename)]
                                 );
-                                $remotehash = array_shift($remotehash);
-                            } else {
+                                $rhash = array_shift($rhash);
+                                if (strlen($rhash) == 64) {
+                                    $remotehash = $rhash;
+                                } else {
+                                    // we should re-try HTTPS because we don't know about the storage node setup
+                                    // and letting curl follow the redirect doesn't work for POST requests
+                                    $hashurl = sprintf('%s://%s/fog/status/gethash.php', 'https', $testip);
+                                    $rhash = self::$FOGURLRequests->process(
+                                        $hashurl,
+                                        'POST',
+                                        ['file' => base64_encode($remotefilename)]
+                                    );
+                                    $rhash = array_shift($rhash);
+                                    if (strlen($rhash) == 64) {
+                                        $remotehash = $rhash;
+                                    }
+                                }
+                            }
+                            if (is_null($remotehash)) {
                                 if ($localsize < 10485760) {
                                     $remotehash = hash_file('sha256', $ftpstart.$remotefilename);
                                 } else {

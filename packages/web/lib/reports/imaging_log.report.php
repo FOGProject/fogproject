@@ -41,63 +41,63 @@ class Imaging_Log extends ReportManagementPage
             'User',
             '',
             'name'
-                        );
+        );
         
         $imageNames = self::getSubObjectIDs(
             'Image',
             '',
             'name'
-                );
+        );
         $HostNames = self::getSubObjectIDs(
             'Host',
             '',
             'name'
-                );
+        );
         $userNames = array_values(
             array_filter(
                 array_unique(
                     (array)$userNames
-                         )
-                   )
-                 );
+                )
+            )
+        );
 
         $imageNames = array_values(
             array_filter(
                 array_unique(
                     (array)$imageNames
-                         )
-                   )
-                 );
+                )
+            )
+        );
         $HostNames = array_values(
             array_filter(
                 array_unique(
                     (array)$HostNames
-                                )
-                        )
-                );
+                )
+            )
+        );
         natcasesort($userNames);
         natcasesort($imageNames);
         natcasesort($HostNames);
 
-        if (count($userNames) > 0) {
+        if (is_array($userNames) && count($userNames) > 0) {
             $userSelForm = self::selectForm(
                 'usersearch',
                 $userNames
-                        );
+            );
             unset($userNames);
         }
-        if (count($imageNames) > 0) {
+        if (is_array($imageNames) && count($imageNames) > 0) {
             $imageSelForm = self::selectForm(
                 'imagesearch',
                 $imageNames
-                        );
+            );
             unset($imageNames);
         }
-        if (count($HostNames) > 0) {
+        if (is_array($HostNames) && count($HostNames) > 0) {
             $hostSelForm = self::selectForm(
                 'hostsearch',
                 $HostNames
-                                );
+            );
             unset($HostNames);
         }
         $fields = array(
@@ -141,7 +141,7 @@ class Imaging_Log extends ReportManagementPage
         $hostsearch = filter_input(
             INPUT_POST,
             'hostsearch'
-         );
+        );
         $imagesearch = filter_input(
             INPUT_POST,
             'imagesearch'
@@ -231,7 +231,7 @@ class Imaging_Log extends ReportManagementPage
                         'createdBy' => $userNames,
             'image' => $imageNames
              )
-    );
+        );
         $ImagingLogs = json_decode(
             Route::getData()
         );
@@ -323,7 +323,7 @@ class Imaging_Log extends ReportManagementPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             echo '<div class="text-center">';
             printf(
                 $this->reportString,

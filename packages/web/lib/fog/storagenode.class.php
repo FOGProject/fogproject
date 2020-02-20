@@ -303,11 +303,12 @@ class StorageNode extends FOGController
     public function getUsedSlotCount()
     {
         $countTasks = 0;
+        $multicastTaskID = array(8);
         $usedtasks = $this->get('usedtasks');
         $findTasks = array(
             'stateID' => self::getProgressState(),
             'storagenodeID' => $this->get('id'),
-            'typeID' => $usedtasks,
+            'typeID' => array_diff($this->get('usedtasks'), $multicastTaskID),
         );
         $countTasks = self::getClass('TaskManager')->count($findTasks);
         $index = array_search(8, $usedtasks);
@@ -315,20 +316,14 @@ class StorageNode extends FOGController
             return $countTasks;
         }
         $MulticastCount = self::getSubObjectIDs(
-            'MulticastSessionAssociation',
+            'MulticastSession',
             array(
-                'taskID' => self::getSubObjectIDs(
-                    'Task',
-                    array(
-                        'stateID' => self::getProgressState(),
-                        'typeID' => 8,
-                    )
+                        'stateID' => self::getProgressState()
                 ),
-            ),
             'msID'
         );
-        $countTasks += count($MulticastCount);
 
+        $countTasks += count($MulticastCount);
         return $countTasks;
     }
     /**
@@ -339,11 +334,12 @@ class StorageNode extends FOGController
     public function getQueuedSlotCount()
     {
         $countTasks = 0;
+        $multicastTaskID = array(8);
         $usedtasks = $this->get('usedtasks');
         $findTasks = array(
             'stateID' => self::getQueuedStates(),
             'storagenodeID' => $this->get('id'),
-            'typeID' => $usedtasks,
+            'typeID' => array_diff($this->get('usedtasks'), $multicastTaskID),
         );
         $countTasks = self::getClass('TaskManager')->count($findTasks);
         $index = array_search(8, $usedtasks);
@@ -351,20 +347,11 @@ class StorageNode extends FOGController
             return $countTasks;
         }
         $MulticastCount = self::getSubObjectIDs(
-            'MulticastSessionAssociation',
-            array(
-                'taskID' => self::getSubObjectIDs(
-                    'Task',
-                    array(
-                        'stateID' => self::getQueuedStates(),
-                        'typeID' => 8,
-                    )
-                ),
-            ),
+            'MulticastSession',
+            array('stateID' => self::getQueuedStates()),
             'msID'
         );
         $countTasks += count($MulticastCount);
-
         return $countTasks;
     }
 }

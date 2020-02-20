@@ -1619,10 +1619,10 @@ class GroupManagementPage extends FOGPage
         );
         $adPass = (
             $adPass ?
-            self::$Host->get('ADPass') :
+            '********************************' :
             ''
         );
-        $ADPass = self::$Host->get('ADPass');
+        $ADPass = $adPass;
         $ADPassLegacy = (
             $adPassLegacy ?
             self::$Host->get('ADPassLegacy') :

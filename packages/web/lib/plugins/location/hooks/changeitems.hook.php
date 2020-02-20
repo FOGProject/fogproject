@@ -81,6 +81,13 @@ class ChangeItems extends Hook
                 'BOOT_TASK_NEW_SETTINGS',
                 array(
                     $this,
+                    'storageNodeSetting'
+                )
+            )
+            ->register(
+                'BOOT_TASK_NEW_SETTINGS',
+                array(
+                    $this,
                     'storageGroupSetting'
                 )
             )

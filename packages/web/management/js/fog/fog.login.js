@@ -33,19 +33,12 @@
             } else {
                 dev = version.dev;
             }
-            if (typeof(version.svn) == 'undefined'
-                    || !version.svn) {
-                svn = 'Error contacting server';
-            } else {
-                svn = version.svn;
-            }
             ResultContainers.each(function(ind,val) {
                 if (ind === 0) {
                     $(this).html(sites);
                 } else {
                     if (ind === 1) $(this).html(stable);
                     if (ind === 2) $(this).html(dev);
-                    if (ind === 3) $(this).html(svn);
                 }
             });
         },

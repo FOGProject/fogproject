@@ -41,7 +41,7 @@ if (isset($_POST['newNode'])) {
         return;
     }
     FOGCore::getClass('StorageNode')
-        ->set('name', trim($_POST['ip']))
+        ->set('name', trim($_POST['name']))
         ->set('path', trim($_POST['path']))
         ->set('ftppath', trim($_POST['ftppath']))
         ->set('snapinpath', trim($_POST['snapinpath']))

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-10 15:46-0400\n"
+"POT-Creation-Date: 2019-08-10 16:23+0100\n"
 "PO-Revision-Date: 2018-06-04 13:41+0200\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -652,9 +652,6 @@ msgstr "Última versión"
 
 msgid "Latest Development Version"
 msgstr "Última versión desarrollada"
-
-msgid "Latest SVN Version"
-msgstr "Última versión SVN"
 
 msgid "Image is protected and cannot be deleted"
 msgstr "Imagen protegida y no puede ser borrada"
@@ -4105,10 +4102,6 @@ msgstr ""
 msgid "this is just another to ensure safety"
 msgstr ""
 
-#, fuzzy
-msgid "No Printer Manaagement"
-msgstr "Impresora"
-
 msgid ""
 "This setting only adds and removes printers that are managed by FOG. If the "
 "printer exists in printer management but is not assigned to a host, it will "
@@ -6090,7 +6083,7 @@ msgstr ""
 msgid " | This is not the master node"
 msgstr "Es Nodo Maestro"
 
-msgid "Interface not ready, waiting."
+msgid "Interface not ready, waiting for it to come up"
 msgstr ""
 
 #, fuzzy
@@ -7389,3 +7382,12 @@ msgstr "MAC Address inválida!"
 
 msgid "Device must be a string"
 msgstr ""
+
+msgid "Snapin file is too big, increase post_max_size in php.ini."
+msgstr "El archivo Snapin es demasiado grande, aumente post_max_size en php.ini."
+
+msgid "$_POST variable is empty, check apache error log."
+msgstr "La variable $_POST está vacía, verifique el registro de errores de apache."
+
+msgid "MAC address is already in use by another host"
+msgstr "La dirección MAC ya está en uso por otro host"

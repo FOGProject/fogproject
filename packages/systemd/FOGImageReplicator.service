@@ -14,13 +14,14 @@
 
 [Unit]
 Description=FOGImageReplicator
-After=syslog.target network.target mysql.service
+After=syslog.target network.target network-online.target mysql.service
+StartLimitIntervalSec=0
 
 [Service]
-PrivateTmp=true
-ExecStart=/opt/fog/service/FOGImageReplicator/FOGImageReplicator &
-ExecReload=/bin/kill -HUP $MAINPID
-KillSignal=SIGINT
+Type=simple
+Restart=Always
+RestartSec=1
+ExecStart=/usr/bin/env php /opt/fog/service/FOGImageReplicator/FOGImageReplicator
 
 [Install]
 WantedBy=multi-user.target
