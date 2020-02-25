@@ -30,7 +30,7 @@ if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
 fi
 . ../lib/common/functions.sh
 help() {
-    echo -e "Usage: $0 [-h?dEUuHSCKYXTPFA] [-f <filename>] [-N <databasename>]"
+    echo -e "Usage: $0 [-h?dEUuHSCKYXTFA] [-f <filename>] [-N <databasename>]"
     echo -e "\t\t[-D </directory/to/document/root/>] [-c <ssl-path>]"
     echo -e "\t\t[-W <webroot/to/fog/after/docroot/>] [-B </backup/path/>]"
     echo -e "\t\t[-s <192.168.1.10>] [-e <192.168.1.254>] [-b <undionly.kpxe>]"
@@ -60,7 +60,6 @@ help() {
     echo -e "\t-E    --no-exportbuild\t\tSkip building nfs file"
     echo -e "\t-X    --exitFail\t\tDo not exit if item fails"
     echo -e "\t-T    --no-tftpbuild\t\tDo not rebuild the tftpd config file"
-    echo -e "\t-P    --no-pxedefault\t\tDo not overwrite pxe default file"
     echo -e "\t-F    --no-vhost\t\tDo not overwrite vhost file"
     echo -e "\t-A    --arm-support\t\tInstall kernel and initrd for ARM platforms"
     exit 0
@@ -176,9 +175,6 @@ while getopts "$optspec" o; do
                 no-tftpbuild)
                     snoTftpBuild="true"
                     ;;
-                no-pxedefault)
-                    snotpxedefaultfile="true"
-                    ;;
                 arm-support)
                     sarmsupport=1
                     ;;
@@ -293,9 +289,6 @@ while getopts "$optspec" o; do
         T)
             snoTftpBuild="true"
             ;;
-        P)
-            snotpxedefaultfile="true"
-            ;;
         A)
             sarmsupport=1
             ;;
@@ -408,7 +401,6 @@ case $doupdate in
             . "$fogpriorconfig"
             doOSSpecificIncludes
             [[ -n $sblexports ]] && blexports=$sblexports
-            [[ -n $snotpxedefaultfile ]] && notpxedefaultfile=$snotpxedefaultfile
             [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
             [[ -n $sbootfilename ]] && bootfilename=$sbootfilename
             [[ -n $sbackupPath ]] && backupPath=$sbackupPath
