@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class LocationDeleteItems extends Hook
+class LocationDeleteMassItems extends Hook
 {
     /**
      * The name of this hook.
