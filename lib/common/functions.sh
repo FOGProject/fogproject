@@ -397,6 +397,12 @@ configureUDPCast() {
     cd /tmp
     tar xvzf "$udpcasttmp" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     cd $udpcastout
+    grep -q 'BCM[0-9][0-9][0-9][0-9]' /proc/cpuinfo >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ $? -eq 0 ]]; then
+        wget -qO config.guess "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        wget -qO config.sub "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        chmod +x config.guess config.sub >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    fi
     errorStat $?
     dots "Configuring UDPCast"
     ./configure >>$workingdir/error_logs/fog_error_${version}.log 2>&1
