@@ -79,7 +79,7 @@ class PrinterAssociationManager extends FOGManagerController
                     'paHostID'
                 ]
             ],
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'paID',
             'paID'

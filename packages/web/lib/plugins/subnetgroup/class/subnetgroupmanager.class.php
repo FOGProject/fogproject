@@ -71,7 +71,7 @@ class SubnetGroupManager extends FOGManagerController
             [
                 'sgID'
             ],
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'sgID',
             'sgID'

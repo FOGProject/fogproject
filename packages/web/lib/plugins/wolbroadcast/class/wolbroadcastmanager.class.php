@@ -63,7 +63,7 @@ class WolbroadcastManager extends FOGManagerController
                 false
             ],
             ['wbID'],
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'wbID',
             'wbID'

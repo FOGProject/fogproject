@@ -84,7 +84,7 @@ class AccessControlRuleManager extends FOGManagerController
                 false
             ],
             [],
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'ruleID',
             'ruleID'

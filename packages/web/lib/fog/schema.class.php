@@ -311,7 +311,7 @@ class Schema extends FOGController
         $nulls,
         $default,
         $unique,
-        $engine = 'MyISAM',
+        $engine = 'InnoDB',
         $charset = 'utf8',
         $prime = '',
         $autoin = ''
@@ -325,7 +325,7 @@ class Schema extends FOGController
             throw new Exception(_('Fields and types must have equal count'));
         }
         if (empty($engine)) {
-            $engine = 'MyISAM';
+            $engine = 'InnoDB';
         }
         if (empty($charset)) {
             $charset = 'utf8';

@@ -74,7 +74,7 @@ class OUManager extends FOGManagerController
                 'ouID',
                 'ouName'
             ],
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'ouID',
             'ouID'
