@@ -59,7 +59,7 @@ class SiteManager extends FOGManagerController
                 false
             ],
             [],
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'sID',
             'sID'

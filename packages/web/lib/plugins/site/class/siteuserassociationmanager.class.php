@@ -63,7 +63,7 @@ class SiteUserAssociationManager extends FOGManagerController
                 false,
             ],
             [],
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'suaID',
             'suaID'

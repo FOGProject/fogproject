@@ -62,7 +62,7 @@ class OUAssociationManager extends FOGManagerController
                 'oaID',
                 'oaHostID'
             ],
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'oaID',
             'oaID'

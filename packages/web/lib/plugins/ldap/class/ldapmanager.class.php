@@ -134,7 +134,7 @@ class LDAPManager extends FOGManagerController
                 'lsID',
                 'lsName'
             ],
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'lsID',
             'lsID'

@@ -83,7 +83,7 @@ class PowerManagementManager extends FOGManagerController
                 false
             ],
             ['pmID'],
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'pmID',
             'pmID'

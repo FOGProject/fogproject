@@ -188,6 +188,7 @@ class DatabaseManager extends FOGCore
      */
     private static function _getVersion()
     {
+        self::_convertEngine();
         $query = sprintf(
             'SELECT `vValue` FROM `%s`.`schemaVersion`',
             self::$DB->dbName()
@@ -230,5 +231,30 @@ class DatabaseManager extends FOGCore
             ->query($sql)
             ->fetch()
             ->get('total');
+    }
+    /**
+     * Converts myisam to innodb
+     *
+     * @return void
+     */
+    private static function _convertEngine()
+    {
+        $sql = "SELECT CONCAT('ALTER TABLE `"
+            . self::$DB->dbName()
+            . "`.`', TABLE_NAME, '` ENGINE='InnoDB') as Q "
+            . "FROM INFORMATION_SCHEMA.TABLES WHERE ENGINE='MyISAM' AND "
+            . "TABLE_SCHEMA = '"
+            . self::$DB->dbName()
+            . "'";
+        $convert = self::$DB
+            ->query($sql)
+            ->fetch('','fetch_all')
+            ->get('Q');
+        if (!count($convert ?: [])) {
+            return;
+        }
+        foreach ($convert as $q) {
+            self::$DB->query($q);
+        }
     }
 }
