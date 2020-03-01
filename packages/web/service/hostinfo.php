@@ -34,13 +34,16 @@ try {
     $Image = $Task->getImage();
     if ($TaskType->isInitNeededTasking()) {
         if ($TaskType->isMulticast()) {
-            Route::ids('multicastsessionassociation');
+            Route::listem(
+                'multicastsessionassociation',
+                ['taskID' => $Task->get('id')]
+            );
             $ids = json_decode(
                 Route::getData()
             );
             $msIDs = [];
-            foreach ($ids as &$id) {
-                $msIDs[] = $id->id;
+            foreach ($ids->data as &$id) {
+                $msIDs[] = $id->msID;
                 unset($id);
             }
 
