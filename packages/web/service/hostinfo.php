@@ -42,7 +42,8 @@ try {
                 @max(
                     FOGCore::getSubObjectIDs(
                         'MulticastSessionAssociation',
-                        array('taskID' => $Task->get('id'))
+                        array('taskID' => $Task->get('id')),
+                        'msID'
                     )
                 )
             );
