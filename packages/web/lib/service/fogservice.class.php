@@ -58,6 +58,12 @@ abstract class FOGService extends FOGBase
      */
     public $procPipes = [];
     /**
+     * Node IPs we have in the database to check in service startup
+     *
+     * @var array
+     */
+    public static $knownips = [];
+    /**
      * Initializes the FOGService class
      *
      * @return void
@@ -73,6 +79,12 @@ abstract class FOGService extends FOGBase
             '/%s/',
             $logpath
         );
+        Route::ids(
+            'storagenode',
+            ['isEnabled' => 1],
+            'ip'
+        );
+        self::$knownips = json_decode(Route::getData(), true);
     }
     /**
      * Checks if the node runnning this is indeed the master
@@ -133,6 +145,7 @@ abstract class FOGService extends FOGBase
     {
         self::getIPAddress(true);
         if (!count(self::$ips)
+            || !array_intersect(self::$knownips, self::$ips)
             || !in_array(self::getSetting('FOG_WEB_HOST'), self::$ips)
         ) {
             self::outall(

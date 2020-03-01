@@ -88,6 +88,9 @@ class TaskQueue extends TaskingElement
                         ]
                     );
                     $method = 'getOptimalStorageNode';
+                    if ($this->Task->isCapture()) {
+                        $this->Task->getImage()->set('size', '')->save();
+                    }
                     if ($this->Task->isCapture()
                         || $this->Task->isMulticast()
                     ) {
