@@ -170,7 +170,7 @@ try {
     $productKey = FOGCore::$Host->get('productKey');
     $productKeytest = FOGCore::aesdecrypt($productKey);
     if ($test_base64 = base64_decode($productKeytest)) {
-        if (mb_detect_encoding($test_base64)) {
+        if (mb_detect_encoding($test_base64, 'utf-8', true)) {
             $productKey = $test_base64;
         } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
             $productKey = $productKeytest;
