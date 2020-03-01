@@ -61,17 +61,19 @@ try {
         if (empty($str[6])) {
             return;
         }
-        if (strpos($Image->get('size'), $str[6]) !== false) {
-            return;
+        if ($Task->isCapture()) {
+            if (strpos($Image->get('size'), $str[6]) !== false) {
+                return;
+            }
+            $Image->set(
+                'size',
+                sprintf(
+                    '%s%s:',
+                    trim($Image->get('size')),
+                    $str[6]
+                )
+            )->save();
         }
-        $Image->set(
-            'size',
-            sprintf(
-                '%s%s:',
-                trim($Image->get('size')),
-                $str[6]
-            )
-        )->save();
     }
 } catch (Exception $e) {
     echo $e->getMessage();
