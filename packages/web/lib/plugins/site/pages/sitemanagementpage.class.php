@@ -461,7 +461,7 @@ class SiteManagementPage extends FOGPage
             . 'host" id="host-${host_id}" '
             . 'value="${host_id}"/>'
             . '</label>',
-            '<a href="?node=user&sub=edit&id=${host_id}">'
+            '<a href="?node=host&sub=edit&id=${host_id}">'
             . '${host_name}</a>'
         );
         $this->attributes = array(
