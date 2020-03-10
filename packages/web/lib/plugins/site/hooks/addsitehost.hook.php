@@ -260,23 +260,23 @@ class AddSiteHost extends Hook
             $sID = array_shift($Sites);
         }
         $UserIsRestricted = self::getSubObjectIDs(
-        'SiteUserRestriction',
-        array('userID' => self::$FOGUser->get('id')),
-        'isRestricted'
-    )[0];
+            'SiteUserRestriction',
+            array('userID' => self::$FOGUser->get('id')),
+            'isRestricted'
+        )[0];
         if ($UserIsRestricted == 1) {
             $SitesFiltered = array_diff(
-            self::getSubObjectIDs(
+                self::getSubObjectIDs(
                 'Site',
                 '',
                 'id'
             ),
-            self::getSubObjectIDs(
+                self::getSubObjectIDs(
                 'SiteUserAssociation',
                 array('userID' => self::$FOGUser->get('id')),
                 'siteID'
             )
-        );
+            );
         }
         self::arrayInsertAfter(
             '<label for="productKey">'
