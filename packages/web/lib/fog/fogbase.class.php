@@ -1558,8 +1558,7 @@ abstract class FOGBase
             if (!$key && isset($data[2]) && strlen($data[2]) == $iv_size) {
                 $key = pack('H*', $data[2]);
             }
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return $encdata;
         }
         restore_error_handler();
