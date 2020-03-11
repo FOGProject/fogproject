@@ -1444,7 +1444,7 @@ class AccessControlManagementPage extends FOGPage
         );
         $items = $items->accesscontrolrules;
         $getter = 'accesscontrolrulesnotinme';
-        $returnData = function(&$item) use (&$getter) {
+        $returnData = function (&$item) use (&$getter) {
             $this->obj->get($getter);
             if (!in_array($item->id, (array)$this->obj->get($getter))) {
                 return;
@@ -1742,7 +1742,7 @@ class AccessControlManagementPage extends FOGPage
         );
         $items = $items->users;
         $getter = 'usersnotinme';
-        $returnData = function(&$item) use (&$getter) {
+        $returnData = function (&$item) use (&$getter) {
             $this->obj->get($getter);
             if (!in_array($item->id, (array)$this->obj->get($getter))) {
                 return;

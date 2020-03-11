@@ -144,12 +144,12 @@ class AddSiteGroup extends Hook
             '<label for="updatesite">'
             . _('Make Changes?')
             . '</label>' => '<button type="submit" class="btn btn-info btn-block" '
-            . 'id="updatesite">'
+            . 'id="group-edit">'
             . _('Update')
             . '</button>'
         );
         $arguments['data'] = array();
-        foreach((array)$fields as $field => &$input) {
+        foreach ((array)$fields as $field => &$input) {
             $arguments['data'][] = array(
                 'field' => $field,
                 'input' => $input
@@ -215,7 +215,7 @@ class AddSiteGroup extends Hook
                 unset($hostID);
             }
             if (count($insert_values) > 0) {
-                self::getClass('SiteAssociationManager')
+                self::getClass('SiteHostAssociationManager')
                     ->insertBatch(
                         $insert_fields,
                         $insert_values

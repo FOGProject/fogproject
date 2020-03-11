@@ -26,85 +26,99 @@ class MulticastTask extends FOGService
      *
      * @param string $root            root to look for items
      * @param int    $myStorageNodeID this services storage id
+     * @param string $queuedStates    the queued states.
      *
      * @return array
      */
-    public function getAllMulticastTasks($root, $myStorageNodeID)
-    {
-        $StorageNode = self::getClass('StorageNode', $myStorageNodeID);
+    public static function getAllMulticastTasks(
+        $root,
+        $myStorageNodeID,
+        $queuedStates
+    ) {
+        Route::indiv(
+            'storagenode',
+            $myStorageNodeID
+        );
+        $StorageNode = json_decode(
+            Route::getData()
+        );
         self::$HookManager->processEvent(
             'CHECK_NODE_MASTER',
             array(
                 'StorageNode' => &$StorageNode,
-                'FOGServiceClass' => &$this
+                'FOGServiceClass' => __CLASS__
             )
         );
-        if (!$StorageNode->get('isMaster')) {
+        if (!$StorageNode->isMaster) {
             return;
         }
         $Interface = self::getMasterInterface(
             self::resolveHostname(
-                $StorageNode->get('ip')
+                $StorageNode->ip
             )
         );
         unset($StorageNode);
-        $Tasks = array();
-        $find = array(
-            'stateID' =>
-            self::fastmerge(
-                self::getQueuedStates(),
-                (array)self::getProgressState()
-            )
+        Route::active('multicastsession');
+        $Tasks = json_decode(
+            Route::getData()
         );
-        foreach ((array)self::getClass('MulticastSessionManager')
-            ->find($find) as $index => &$MultiSess
-        ) {
-            $taskIDs = self::getSubObjectIDs(
-                'MulticastSessionAssociation',
-                array(
-                    'msID' => $MultiSess->get('id')
-                ),
+        $NewTasks = [];
+        foreach ($Tasks->multicastsessions as &$Task) {
+            $find = ['msID' => $Task->id];
+            Route::ids(
+                'multicastsessionassociation',
+                $find,
                 'taskID'
             );
-            $count = self::getClass('MulticastSessionAssociationManager')
-                ->count(
-                    array(
-                        'msID' => $MultiSess->get('id')
-                    )
-                );
+            $taskIDs = json_decode(Route::getData(), true);
+            $count = count($taskIDs ?: []);
             if ($count < 1) {
-                $count = $MultiSess->get('sessclients');
+                $count = $Task->sessclients;
             }
             if ($count < 1) {
-                $MultiSess->set('stateID', self::getCancelledState())->save();
+                self::getClass('MulticastSessionManager')->update(
+                    ['id' => $Task->id],
+                    '',
+                    [
+                        'stateID' => self::getCancelledState(),
+                        'name' => ''
+                    ]
+                );
                 self::outall(
-                    _('Task not created as there are no associated Tasks')
+                    _('Task not created as there are no associated tasks')
                 );
                 self::outall(
                     _('Or there was no number defined for joining session')
                 );
                 continue;
             }
-            $Image = $MultiSess->getImage();
-            $fullPath = sprintf('%s/%s', $root, $MultiSess->get('logpath'));
+            Route::indiv(
+                'image',
+                $Task->image->id
+            );
+            $Image = json_decode(
+                Route::getData()
+            );
+            $fullPath = sprintf('%s/%s', $root, $Task->logpath);
             if (!file_exists($fullPath)) {
+                self::outall(_(' | Unable to find image path'));
                 continue;
             }
-            $Tasks[] = new self(
-                $MultiSess->get('id'),
-                $MultiSess->get('name'),
-                $MultiSess->get('port'),
+            $NewTasks[] = new self(
+                $Task->id,
+                $Task->name,
+                $Task->port,
                 $fullPath,
                 $Interface,
                 $count,
-                $MultiSess->get('isDD'),
-                $Image->get('osID'),
-                $MultiSess->get('clients') == -2 ? 1 : 0,
+                $Task->isDD,
+                $Image->osID,
+                ($Task->clients == -2 ? 1 : 0),
                 $taskIDs
             );
-            unset($MultiSess, $index);
+            unset($Task);
         }
-        return array_filter($Tasks);
+        return array_filter($NewTasks);
     }
     /**
      * Session ID
@@ -376,6 +390,34 @@ class MulticastTask extends FOGService
         ->get('bitrate');
     }
     /**
+     * Returns the rexmit hello interval
+     *
+     * @return string
+     */
+    public function getHelloInterval()
+    {
+        return self::getClass(
+            'Image',
+            $this->_MultiSess->get('image')
+        )->getStorageGroup()
+        ->getMasterStorageNode()
+        ->get('helloInterval');
+    }
+
+
+    /**
+     * Returns the partition id to be cloned, 0 for all
+     *
+     * @return int
+     */
+    public function getPartitions()
+    {
+        return (int)self::getClass(
+            'Image',
+            $this->_MultiSess->get('image')
+        )->getPartitionType();
+    }
+    /**
      * Returns the session class
      *
      * @return object
@@ -418,8 +460,22 @@ class MulticastTask extends FOGService
             false,
             ''
         );
+        if ($address) {
+            $address = long2ip(
+                ip2long($address) + (
+                    (
+                        $this->getPortBase() / 2 + 1
+                    ) % self::getSetting('FOG_MULTICAST_MAX_SESSIONS')
+                )
+            );
+        }
         $buildcmd = array(
             UDPSENDERPATH,
+            (
+                $this->getHelloInterval() ?
+                sprintf(' --rexmit-hello-interval %s', $this->getHelloInterval()) :
+                null
+            ),
             (
                 $this->getBitrate() ?
                 sprintf(' --max-bitrate %s', $this->getBitrate()) :
@@ -465,6 +521,7 @@ class MulticastTask extends FOGService
                     $filelist[] = $this->getImagePath();
                     break;
                 }
+                // no break
             case 5:
             case 6:
             case 7:
@@ -585,7 +642,14 @@ class MulticastTask extends FOGService
             break;
         }
         natcasesort($filelist);
-        $filelist = array_values((array)$filelist);
+        $partid = self::getPartitions();
+        if ($partid < 1) {
+            $filelist = array_values((array)$filelist);
+        } else {
+            $filelist = array_values(
+                preg_grep("/^d[0-9]p$partid\.img$/", (array)$filelist)
+            );
+        }
         ob_start();
         foreach ($filelist as $i => &$file) {
             printf(
@@ -645,20 +709,18 @@ class MulticastTask extends FOGService
      */
     public function updateStats()
     {
-        $find = array(
-            'id' => self::getSubObjectIDs(
-                'MulticastSessionAssociation',
-                array('msID' => $this->_intID),
-                'taskID'
-            )
+        Route::listem(
+            'multicastsessionassociation',
+            ['msID' => $this->_intID]
         );
-        foreach ((array)self::getClass('TaskManager')
-            ->find($find) as &$Task
-        ) {
-            $TaskPercent[] = $Task->get('percent');
+        $MSAssocs = json_decode(
+            Route::getData()
+        );
+        $TaskPercent = [];
+        foreach ($MSAssocs as &$Task) {
+            $TaskPercent[] = self::getClass('Task', $Task->taskID)->get('percent');
             unset($Task);
         }
-        unset($Tasks);
         $TaskPercent = array_unique((array)$TaskPercent);
         $this->_MultiSess
             ->set('percent', @max($TaskPercent))

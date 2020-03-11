@@ -318,14 +318,11 @@ class Host extends FOGController
                 && $CurrPriMAC[0] != $RealPriMAC
             ) {
                 self::getClass('MACAddressAssociationManager')
-                    ->update(
+                    ->destroy(
                         array(
-                            'mac' => $CurrPriMAC[0],
                             'hostID' => $this->get('id'),
-                            'primary' => 1
-                        ),
-                        '',
-                        array('primary' => 0)
+                            'mac' => $CurrPriMAC[0]
+                        )
                     );
             }
             $HostWithMAC = array_diff(
@@ -1296,6 +1293,7 @@ class Host extends FOGController
         $sessionjoin = false,
         $wol = false
     ) {
+        $taskName .= ' - ' . $this->get('name');
         try {
             if (!$this->isValid()) {
                 throw new Exception(self::$foglang['HostNotValid']);
@@ -1691,6 +1689,16 @@ class Host extends FOGController
         if (is_array($mac) && count($mac) > 0) {
             $mac = array_shift($mac);
         }
+        $host = $mac->getHost();
+        if ($host instanceof Host && $host->isValid()) {
+            throw new Exception(
+                sprintf(
+                    "%s: %s",
+                    _('MAC address is already in use by another host'),
+                    $host->get('name')
+                )
+            );
+        }
         return $this->set('mac', $mac);
     }
     /**
@@ -2069,6 +2077,8 @@ class Host extends FOGController
         $productKey = '',
         $enforce = ''
     ) {
+        $adpasspat = "/^\*{32}$/";
+        $pass = (preg_match($adpasspat, $pass) ? $this->get('ADPass') : $pass);
         if ($this->get('id')) {
             if (!$override) {
                 if (empty($useAD)) {
@@ -2157,17 +2167,34 @@ class Host extends FOGController
     {
         $val =  (int)$this->get('pingstatus');
         $socketstr = socket_strerror($val);
-        $strtoupdate = '<i class="icon-ping-%s fa fa-exclamation-circle %s'
+        $strtoupdate = '<i class="icon-ping-%s fa fa-%s %s'
             . '" data-toggle="tooltip" '
             . 'data-placement="right" '
-            . 'title="'
-            . $socketstr
+            . 'title="%s'
             . '"></i>';
+
         ob_start();
-        if ($val === 0) {
-            printf($strtoupdate, 'up', 'green');
-        } else {
-            printf($strtoupdate, 'down', 'red');
+        switch ($val) {
+                case 0:
+                        printf($strtoupdate, 'windows', 'windows', 'green', 'Windows');
+                        break;
+                case 111:
+                        $taskID = self::getSubObjectIDs(
+                            'Task',
+                            array('hostID' => $this->get('id'),
+                                      'stateID' => 2
+                                ),
+                            'id'
+                        );
+                        if (is_null($taskID)) {
+                            printf($strtoupdate, 'linux', 'linux', 'blue', 'Linux');
+                        } else {
+                            printf($strtoupdate, 'fos', 'cogs', 'green', 'FOS');
+                        }
+
+                        break;
+                default:
+                        printf($strtoupdate, 'down', 'exclamation-circle', 'red', 'Unknown');
         }
         return ob_get_clean();
     }

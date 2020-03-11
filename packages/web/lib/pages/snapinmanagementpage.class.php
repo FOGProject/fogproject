@@ -724,10 +724,33 @@ class SnapinManagementPage extends FOGPage
         $isEnabled = (int)isset($_POST['isEnabled']);
         $toReplicate = (int)isset($_POST['toReplicate']);
         $hide = (int)isset($_POST['isHidden']);
-        $tiemout = (int)filter_input(INPUT_POST, 'timeout');
+        $timeout = (int)filter_input(INPUT_POST, 'timeout');
         $action = filter_input(INPUT_POST, 'action');
         $args = filter_input(INPUT_POST, 'args');
         try {
+            $phpPostMaxSize = ini_get('post_max_size');
+            switch (strtolower(substr($phpPostMaxSize, -1))) {
+                case 'g':
+                    $phpPostMaxSize = ((int)$phpPostMaxSize) * 1024;
+                    // no break
+                case 'm':
+                    $phpPostMaxSize = ((int)$phpPostMaxSize) * 1024;
+                    // no break
+                case 'k':
+                    $phpPostMaxSize = ((int)$phpPostMaxSize) * 1024;
+            }
+            if (isset($_SERVER['CONTENT_LENGTH']) && $phpPostMaxSize > 0 &&
+                    $_SERVER['CONTENT_LENGTH'] > $phpPostMaxSize) {
+                throw new Exception(
+                    _('Snapin file is too big, increase post_max_size in php.ini.')
+                );
+            }
+            if (empty($_POST) && isset($_SERVER['CONTENT_LENGTH']) &&
+                    $_SERVER['CONTENT_LENGTH'] > 0) {
+                throw new Exception(
+                    _('$_POST variable is empty, check apache error log.')
+                );
+            }
             if (!$name) {
                 throw new Exception(
                     _('A snapin name is required!')
@@ -768,50 +791,51 @@ class SnapinManagementPage extends FOGPage
                 dirname($_FILES['snapin']['tmp_name']),
                 basename($_FILES['snapin']['tmp_name'])
             );
+            $dest = sprintf(
+                '/%s/%s',
+                trim(
+                    $StorageNode->get('snapinpath'),
+                    '/'
+                ),
+                $snapinfile
+            );
             set_time_limit(0);
             $hash = '';
             $size = 0;
             if ($uploadfile && file_exists($src)) {
                 $hash = hash_file('sha512', $src);
                 $size = self::getFilesize($src);
-            }
-            $dest = sprintf(
-                '/%s/%s',
-                trim(
-                    $StorageNode->get('snapinpath'), '/'
-                ),
-                $snapinfile
-            );
-            self::$FOGFTP
-                ->set('host', $StorageNode->get('ip'))
-                ->set('username', $StorageNode->get('user'))
-                ->set('password', $StorageNode->get('pass'));
-            if (!self::$FOGFTP->connect()) {
-                throw new Exception(
-                    sprintf(
-                        '%s: %s: %s.',
-                        _('Storage Node'),
-                        $StorageNode->get('ip'),
-                        _('FTP Connection has failed')
-                    )
-                );
-            }
-            if (!self::$FOGFTP->chdir($StorageNode->get('snapinpath'))) {
-                if (!self::$FOGFTP->mkdir($StorageNode->get('snapinpath'))) {
+                self::$FOGFTP
+                    ->set('host', $StorageNode->get('ip'))
+                    ->set('username', $StorageNode->get('user'))
+                    ->set('password', $StorageNode->get('pass'));
+                if (!self::$FOGFTP->connect()) {
                     throw new Exception(
-                        _('Failed to add snapin')
+                        sprintf(
+                            '%s: %s: %s.',
+                            _('Storage Node'),
+                            $StorageNode->get('ip'),
+                            _('FTP Connection has failed')
+                        )
                     );
                 }
+                if (!self::$FOGFTP->chdir($StorageNode->get('snapinpath'))) {
+                    if (!self::$FOGFTP->mkdir($StorageNode->get('snapinpath'))) {
+                        throw new Exception(
+                            _('Failed to add snapin')
+                        );
+                    }
+                }
+                self::$FOGFTP->delete($dest);
+                if (!self::$FOGFTP->put($dest, $src)) {
+                    throw new Exception(
+                        _('Failed to add/update snapin file')
+                    );
+                }
+                self::$FOGFTP
+                    ->chmod(0777, $dest)
+                    ->close();
             }
-            self::$FOGFTP->delete($dest);
-            if (!self::$FOGFTP->put($dest, $src)) {
-                throw new Exception(
-                    _('Failed to add/update snapin file')
-                );
-            }
-            self::$FOGFTP
-                ->chmod(0777, $dest)
-                ->close();
             $Snapin = self::getClass('Snapin')
                 ->set('name', $name)
                 ->set('packtype', $packtype)
@@ -1271,7 +1295,7 @@ class SnapinManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=snap-storage" enctype="multipart/form-data">';
-        if (count($this->data)) {
+        if (is_array($this->data) && count($this->data)) {
             echo '<div class="text-center">';
             echo '<div class="checkbox">';
             echo '<label for="groupMeShow">';
@@ -1366,7 +1390,7 @@ class SnapinManagementPage extends FOGPage
             );
             unset($StorageGroup);
         }
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             self::$HookManager->processEvent(
                 'SNAPIN_EDIT_STORAGE_GROUP',
                 array(
@@ -1461,6 +1485,29 @@ class SnapinManagementPage extends FOGPage
         $timeout = (int)filter_input(INPUT_POST, 'timeout');
         $action = filter_input(INPUT_POST, 'action');
         $args = filter_input(INPUT_POST, 'args');
+        $phpPostMaxSize = ini_get('post_max_size');
+        switch (strtolower(substr($phpPostMaxSize, -1))) {
+            case 'g':
+                $phpPostMaxSize = ((int)$phpPostMaxSize) * 1024;
+                // no break
+            case 'm':
+                $phpPostMaxSize = ((int)$phpPostMaxSize) * 1024;
+                // no break
+            case 'k':
+                $phpPostMaxSize = ((int)$phpPostMaxSize) * 1024;
+        }
+        if (isset($_SERVER['CONTENT_LENGTH']) && $phpPostMaxSize > 0 &&
+                $_SERVER['CONTENT_LENGTH'] > $phpPostMaxSize) {
+            throw new Exception(
+                _('Snapin file is too big, increase post_max_size in php.ini.')
+            );
+        }
+        if (empty($_POST) && isset($_SERVER['CONTENT_LENGTH']) &&
+                $_SERVER['CONTENT_LENGTH'] > 0) {
+            throw new Exception(
+                _('$_POST variable is empty, check apache error log.')
+            );
+        }
         if (!$name) {
             throw new Exception(
                 _('A snapin name is required!')
@@ -1524,7 +1571,8 @@ class SnapinManagementPage extends FOGPage
         $dest = sprintf(
             '/%s/%s',
             trim(
-                $StorageNode->get('snapinpath'), '/'
+                $StorageNode->get('snapinpath'),
+                '/'
             ),
             $snapinfile
         );

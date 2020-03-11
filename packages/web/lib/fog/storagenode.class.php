@@ -43,6 +43,7 @@ class StorageNode extends FOGController
         'path' => 'ngmRootPath',
         'ftppath' => 'ngmFTPPath',
         'bitrate' => 'ngmMaxBitrate',
+        'helloInterval' => 'ngmHelloInterval',
         'snapinpath' => 'ngmSnapinPath',
         'sslpath' => 'ngmSSLPath',
         'ip' => 'ngmHostname',
@@ -113,6 +114,9 @@ class StorageNode extends FOGController
             }
             return rtrim(parent::get($key), '/');
         }
+        if ($key === 'pass') {
+            return htmlspecialchars_decode(parent::get($key), ENT_QUOTES | ENT_HTML401);
+        }
         $loaders = array(
             'snapinfiles' => 'getSnapinfiles',
             'images' => 'getImages',
@@ -181,16 +185,26 @@ class StorageNode extends FOGController
      */
     public function getLogfiles()
     {
+        $paths = array_values(
+            array_filter(
+                $this->_getData('logfiles')
+            )
+        );
+        natcasesort($paths);
+        $this->set('logfiles', (array)$paths);
+    }
+    /**
+     * Get's the storage node snapins, logfiles, and images
+     * in a single multi call rather than three individual calls.
+     *
+     * @return array
+     */
+    private function _getData($item)
+    {
         if (!$this->get('online')) {
             return;
         }
-        $url = sprintf(
-            '%s://%s/fog/status/getfiles.php?path=%s',
-            self::$httpproto,
-            $this->get('ip'),
-            '%s'
-        );
-        $paths = array(
+        $logpaths = array(
             '/var/log/nginx',
             '/var/log/httpd',
             '/var/log/apache2',
@@ -200,83 +214,26 @@ class StorageNode extends FOGController
             '/var/log/php5-fpm',
             '/var/log/php5.6-fpm',
         );
-        $url = sprintf(
-            $url,
-            urlencode(implode(':', $paths))
+        $items = array(
+            'images' => urlencode($this->get('path')),
+            'snapinfiles' => urlencode($this->get('snapinpath')),
+            'logfiles' => urlencode(implode(':', $logpaths))
         );
-        $paths = self::$FOGURLRequests->process($url);
-        foreach ((array)$paths as $index => &$response) {
-            $tmppath = self::fastmerge(
-                (array)$tmppath,
-                (array)json_decode($response, true)
-            );
-            unset($response);
-        }
-        $paths = array_filter($tmppath);
-        $paths = array_values($paths);
-        natcasesort($paths);
-        $this->set('logfiles', (array)$paths);
-    }
-    /**
-     * Get's the storage node snapins, logfiles, and images
-     * in a single multi call rather than three individual calls.
-     *
-     * @return void
-     */
-    private function _getData()
-    {
-        if (!$this->get('online')) {
+        if (!array_key_exists($item, $items)) {
             return;
         }
         $url = sprintf(
-            '%s://%s/fog/status/getfiles.php',
+            '%s://%s/fog/status/getfiles.php?path=%s',
             self::$httpproto,
-            $this->get('ip')
+            $this->get('ip'),
+            $items[$item]
         );
-        $keys = array(
-            'images' => urlencode($this->get('path')),
-            'snapinfiles' => urlencode($this->get('snapinpath'))
+        $response = self::$FOGURLRequests->process($url);
+        return preg_grep(
+            '#dev|postdownloadscripts|ssl#',
+            json_decode($response[0], true),
+            PREG_GREP_INVERT
         );
-        $urls = array();
-        foreach ((array)$keys as $key => &$data) {
-            $urls[] = sprintf(
-                '%s?path=%s',
-                $url,
-                $data
-            );
-            unset($data);
-        }
-        $paths = self::$FOGURLRequests->process($urls);
-        $pat = '#dev|postdownloadscripts|ssl#';
-        $values = array();
-        $index = 0;
-        foreach ((array)$keys as $key => &$data) {
-            $values = $paths[$index];
-            unset($paths[$index]);
-            $values = json_decode($values, true);
-            $values = array_map('basename', (array)$values);
-            $values = preg_replace(
-                $pat,
-                '',
-                $values
-            );
-            $values = array_unique(
-                (array)$values
-            );
-            $values = array_filter(
-                (array)$values
-            );
-            if ($key === 'images') {
-                $values = self::getSubObjectIDs(
-                    'Image',
-                    array('path' => $values)
-                );
-            }
-            $this->set($key, $values);
-            $index++;
-            unset($data);
-        }
-        unset($values, $paths);
     }
     /**
      * Loads the snapins available on this node.
@@ -285,7 +242,9 @@ class StorageNode extends FOGController
      */
     public function getSnapinfiles()
     {
-        $this->_getData();
+        $response = $this->_getData('snapinfiles');
+        $values = array_map('basename', (array)$response);
+        $this->set('snapinfiles', $values);
     }
     /**
      * Loads the images available on this node.
@@ -294,7 +253,13 @@ class StorageNode extends FOGController
      */
     public function getImages()
     {
-        $this->_getData();
+        $response = $this->_getData('images');
+        $values = array_map('basename', (array)$response);
+        $values = self::getSubObjectIDs(
+            'Image',
+            array('path' => $values)
+        );
+        $this->set('images', $values);
     }
     /**
      * Gets this node's load of clients.
@@ -338,11 +303,12 @@ class StorageNode extends FOGController
     public function getUsedSlotCount()
     {
         $countTasks = 0;
+        $multicastTaskID = array(8);
         $usedtasks = $this->get('usedtasks');
         $findTasks = array(
             'stateID' => self::getProgressState(),
             'storagenodeID' => $this->get('id'),
-            'typeID' => $usedtasks,
+            'typeID' => array_diff($this->get('usedtasks'), $multicastTaskID),
         );
         $countTasks = self::getClass('TaskManager')->count($findTasks);
         $index = array_search(8, $usedtasks);
@@ -350,20 +316,14 @@ class StorageNode extends FOGController
             return $countTasks;
         }
         $MulticastCount = self::getSubObjectIDs(
-            'MulticastSessionAssociation',
+            'MulticastSession',
             array(
-                'taskID' => self::getSubObjectIDs(
-                    'Task',
-                    array(
-                        'stateID' => self::getProgressState(),
-                        'typeID' => 8,
-                    )
+                        'stateID' => self::getProgressState()
                 ),
-            ),
             'msID'
         );
-        $countTasks += count($MulticastCount);
 
+        $countTasks += count($MulticastCount);
         return $countTasks;
     }
     /**
@@ -374,11 +334,12 @@ class StorageNode extends FOGController
     public function getQueuedSlotCount()
     {
         $countTasks = 0;
+        $multicastTaskID = array(8);
         $usedtasks = $this->get('usedtasks');
         $findTasks = array(
             'stateID' => self::getQueuedStates(),
             'storagenodeID' => $this->get('id'),
-            'typeID' => $usedtasks,
+            'typeID' => array_diff($this->get('usedtasks'), $multicastTaskID),
         );
         $countTasks = self::getClass('TaskManager')->count($findTasks);
         $index = array_search(8, $usedtasks);
@@ -386,20 +347,11 @@ class StorageNode extends FOGController
             return $countTasks;
         }
         $MulticastCount = self::getSubObjectIDs(
-            'MulticastSessionAssociation',
-            array(
-                'taskID' => self::getSubObjectIDs(
-                    'Task',
-                    array(
-                        'stateID' => self::getQueuedStates(),
-                        'typeID' => 8,
-                    )
-                ),
-            ),
+            'MulticastSession',
+            array('stateID' => self::getQueuedStates()),
             'msID'
         );
         $countTasks += count($MulticastCount);
-
         return $countTasks;
     }
 }

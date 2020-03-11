@@ -41,7 +41,7 @@ if (isset($_POST['newNode'])) {
         return;
     }
     FOGCore::getClass('StorageNode')
-        ->set('name', trim($_POST['ip']))
+        ->set('name', trim($_POST['name']))
         ->set('path', trim($_POST['path']))
         ->set('ftppath', trim($_POST['ftppath']))
         ->set('snapinpath', trim($_POST['snapinpath']))
@@ -59,7 +59,8 @@ if (isset($_POST['newNode'])) {
     foreach ((array)FOGCore::getClass('StorageNodeManager')
         ->find(array('ip' => $_POST['ip'])) as &$Node
     ) {
-        if ($Node->get('pass') === trim($_POST['pass'])) {
+        if (($Node->get('pass') === trim($_POST['pass'])) &&
+            ($Node->get('user') === trim($_POST['user']))) {
             continue;
         }
         $Node

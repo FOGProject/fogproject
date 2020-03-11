@@ -130,7 +130,7 @@ class FOGFTP extends FOGGetSet
         if (!$mode) {
             $mode = $this->get('mode');
         }
-        ftp_chmod(
+        @ftp_chmod(
             $this->_link,
             $mode,
             $filename
@@ -216,6 +216,7 @@ class FOGFTP extends FOGGetSet
             }
             $this->_link = $connectmethod($host, $port, $timeout);
             if ($this->_link === false) {
+                trigger_error(_('FTP connection failed'), E_USER_NOTICE);
                 $this->ftperror($this->data);
             }
             if ($autologin) {
@@ -241,7 +242,7 @@ class FOGFTP extends FOGGetSet
             return $this;
         }
         if (!$this->rmdir($path)
-            && !ftp_delete($this->_link, $path)
+            && !@ftp_delete($this->_link, $path)
         ) {
             $filelist = $this->nlist($path);
             foreach ((array)$filelist as &$file) {
@@ -820,7 +821,7 @@ class FOGFTP extends FOGGetSet
      */
     public function rmdir($directory)
     {
-        return ftp_rmdir($this->_link, $directory);
+        return @ftp_rmdir($this->_link, $directory);
     }
     /**
      * Set the options for the ftp session

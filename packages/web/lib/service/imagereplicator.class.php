@@ -327,4 +327,13 @@ class ImageReplicator extends FOGService
         $this->_commonOutput();
         parent::serviceRun();
     }
+    /**
+     * Do some housekeeping jobs in between the replication.
+     *
+     * @return void
+     */
+    public function doHousekeeping()
+    {
+        parent::cleanupProcList();
+    }
 }

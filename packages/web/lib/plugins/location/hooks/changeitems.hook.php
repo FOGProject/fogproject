@@ -81,6 +81,13 @@ class ChangeItems extends Hook
                 'BOOT_TASK_NEW_SETTINGS',
                 array(
                     $this,
+                    'storageNodeSetting'
+                )
+            )
+            ->register(
+                'BOOT_TASK_NEW_SETTINGS',
+                array(
+                    $this,
                     'storageGroupSetting'
                 )
             )
@@ -336,6 +343,6 @@ class ChangeItems extends Hook
         if (!$arguments['FOGServiceClass'] instanceof MulticastTask) {
             return;
         }
-        $arguments['StorageNode']->set('isMaster', 1);
+        $arguments['StorageNode']->isMaster = 1;
     }
 }

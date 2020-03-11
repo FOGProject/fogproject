@@ -232,4 +232,89 @@ class Site extends FOGController
         );
         $this->set('hostsnotinme', (array)$hostids);
     }
+    /**
+     * Set's values for associative fields.
+     *
+     * @param string $assocItem    the assoc item to work from/with
+     * @param string $alterItem    the alternate item to work with
+     * @param bool   $implicitCall call class implicitely instead of appending
+     *                             with association
+     *
+     * @return object
+     */
+    public function assocSetter($assocItem, $alterItem = '', $implicitCall = false)
+    {
+        // Lower our item
+        $alterItem = strtolower($alterItem ?: $assocItem);
+        // Getter is pluralized
+        $plural = "{$alterItem}s";
+        // Class to call, if implicit leave off association.
+        $classCall = ($implicitCall ? $assocItem : "{$assocItem}Association");
+        // Main object and string setters.
+        $obj = strtolower(get_class($this));
+        $objstr = "{$obj}ID";
+        $assocstr = "{$alterItem}ID";
+
+        // Don't work on item that isn't loaded yet.
+        if (!$this->isLoaded($plural)) {
+            return $this;
+        }
+
+        // Get the current items.
+        $items = $this->get($plural);
+        Route::ids(
+            $classCall,
+            [$objstr => $this->get('id')],
+            $assocstr
+        );
+        $cur = json_decode(Route::getData(), true);
+
+        // Get the items differing between the current and what we have associated.
+        // Remove the items if there's anything to remove.
+        // Take in account that the array_diff function returns different values depending the order of the factors. In this way:
+        // When we delete hosts or users from the webUI:
+        $delItems = array_diff($cur, $items);
+        // When we add hosts or users from the webUI:
+        $addItems = array_diff($items, $cur);
+        if (count($delItems)) {
+            Route::deletemass(
+                $classCall,
+                [
+                    $objstr => $this->get('id'),
+                    $assocstr => $delItems,
+                ]
+            );
+            return $this;
+        }
+        if (count($addItems)) {
+            $items = $addItems;
+            // Setup our insert.
+            $insert_fields = [
+                $objstr,
+                $assocstr
+            ];
+            $insert_values = [];
+            if ($assocstr == 'moduleID') {
+                $insert_fields[] = 'state';
+            }
+            foreach ($items as &$id) {
+                $insert_val = [
+                    $this->get('id'),
+                    $id
+                ];
+                if ($assocstr == 'moduleID') {
+                    $insert_val[] = 1;
+                }
+                $insert_values[] = $insert_val;
+                unset($insert_val, $id);
+            }
+            if (count($insert_values ?: []) > 0) {
+                self::getClass("{$classCall}manager")->insertBatch(
+                    $insert_fields,
+                    $insert_values
+                );
+            }
+        }
+        return $this;
+    }
 }

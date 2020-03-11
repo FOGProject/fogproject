@@ -376,9 +376,6 @@ $this->schema[] = array(
     . "('FOG_TFTP_FTP_PASSWORD','Password used to access the tftp server via ftp.','"
     . TFTP_FTP_PASSWORD
     . "','TFTP Server'),"
-    . "('FOG_TFTP_PXE_CONFIG_DIR','Location of pxe boot files on the PXE server.','"
-    . TFTP_PXE_CONFIG_DIR
-    . "','TFTP Server'),"
     . "('FOG_TFTP_PXE_KERNEL_DIR','Location of kernel files on the PXE server.','"
     . TFTP_PXE_KERNEL_DIR
     . "','TFTP Server'),"
@@ -406,12 +403,6 @@ $this->schema[] = array(
     . "('FOG_PXE_BOOT_IMAGE','The settings defines where the fog boot file "
     . "system image is located.','"
     . PXE_IMAGE
-    . "','TFTP Server'),"
-    . "('FOG_PXE_IMAGE_DNSADDRESS','Since the fog boot image has an "
-    . "incomplete dhcp implementation, you can specify a dns address "
-    . "to be used with the boot image. If you are going to use this "
-    . "settings, you should turn <b>FOG_USE_SLOPPY_NAME_LOOKUPS</b> off.','"
-    . PXE_IMAGE_DNSADDRESS
     . "','TFTP Server'),"
     . "('FOG_NFS_HOST','This setting defines the hostname or ip address "
     . "of the NFS server used with FOG.','"
@@ -466,10 +457,6 @@ $this->schema[] = array(
     . "snapin files. These files must be hosted on the web server.','"
     . SNAPINDIR
     . "','Web Server'),"
-    . "('FOG_QUEUESIZE','This setting defines how many unicast "
-    . "tasks to allow to be active at one time.','"
-    . QUEUESIZE
-    . "','General Settings'),"
     . "('FOG_CHECKIN_TIMEOUT','This setting defines the amount "
     . "of time between client checks to determine if they are "
     . "active clients.','"
@@ -478,10 +465,6 @@ $this->schema[] = array(
     . "('FOG_USER_MINPASSLENGTH','This setting defines the "
     . "minimum number of characters in a user\'s password.','"
     . USER_MINPASSLENGTH
-    . "','User Management'),"
-    . "('FOG_USER_VALIDPASSCHARS','This setting defines the "
-    . "valid characters used in a password.','"
-    . USER_VALIDPASSCHARS
     . "','User Management'),"
     . "('FOG_NFS_ETH_MONITOR','This setting defines which "
     . "interface is monitored for traffic summaries.','"
@@ -768,8 +751,6 @@ $this->schema[] = array(
     "UPDATE `schemaVersion` set vValue = '15'",
 );
 // 16
-$fogstoragenodeuser = "fogstorage";
-$fogstoragenodepass = "fs".rand(1000, 100000000000);
 $this->schema[] = array(
     "ALTER TABLE `tasks` ADD COLUMN `taskBPM` varchar(250) NOT NULL AFTER "
     . "`taskPCT`, ADD COLUMN `taskTimeElapsed` varchar(250) NOT NULL AFTER "
@@ -842,7 +823,7 @@ $this->schema[] = array(
     . "`ngmMaxClients`,`ngmUser`,`ngmPass`) "
     . "VALUES "
     . "('DefaultMember','Auto generated fog nfs group member','1',"
-    . "'1','/images/','1','"
+    . "'1','/images','1','"
     . STORAGE_HOST
     . "','10','"
     . STORAGE_FTP_USERNAME
@@ -858,13 +839,7 @@ $this->schema[] = array(
     . "VALUES "
     . "('FOG_STORAGENODE_MYSQLUSER','This setting defines the username "
     . "the storage nodes should use to connect to the fog server.',"
-    . "'$fogstoragenodeuser','FOG Storage Nodes'),"
-    . "('FOG_STORAGENODE_MYSQLPASS','This setting defines the password "
-    . "the storage nodes should use to connect to the fog server.',"
-    . "'$fogstoragenodepass','FOG Storage Nodes')",
-    "GRANT ALL ON `"
-    . DATABASE_NAME
-    . "`.* TO '$fogstoragenodeuser'@'%' IDENTIFIED BY '$fogstoragenodepass'",
+    . "'fogstorage','FOG Storage Nodes')",
     "UPDATE `schemaVersion` set `vValue`='16'",
 );
 // 17
@@ -1706,17 +1681,8 @@ $this->schema[] = array(
     . "('FOG_PXE_BOOT_IMAGE_32','The settings defines where the 32 bit "
     . "fog boot file system image is located.','init_32.xz','TFTP Server')",
 );
-// 87
-$this->schema[] = array(
-    "INSERT IGNORE INTO `globalSettings` "
-    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`)"
-    . "VALUES "
-    . "('FOG_MINING_ENABLE','This setting defines whether to have the "
-    . "imaging client give up a resources for mining cryptocurrency. "
-    . "This is a means to donate to the FOG project without any real money.','"
-    . FOG_DONATE_MINING
-    . "','General Settings')",
-);
+// 87 - used to be FOG_MINING_ENABLE but was entirely removed
+$this->schema[] = array();
 // 88
 $this->schema[] = array(
     "ALTER TABLE `images` "
@@ -1735,15 +1701,8 @@ $this->schema[] = array(
     . "('FOG_BOOT_EXIT_TYPE','The method of booting to the hard drive. "
     . "Most will accept sanboot, but some require exit.','','FOG Boot Settings')",
 );
-// 91
-$this->schema[] = array(
-    "INSERT IGNORE INTO `globalSettings` "
-    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
-    . "VALUES "
-    . "('FOG_MINING_MAX_CORES','This setting defines the maximum number "
-    . "of CPU cores you are willing to dedicate to mining "
-    . "cryptocurrency.','1','General Settings')",
-);
+// 91 - used to be FOG_MINING_MAX_CORES but was entirely removed
+$this->schema[] = array();
 // 92
 $this->schema[] = array(
     "ALTER TABLE `snapinJobs` "
@@ -1763,18 +1722,8 @@ $this->schema[] = array(
     . "cryptocurrency that will be donated to the FOG Project.',"
     . "'donate.png','','mode=donate.full','fog','1','both')",
 );
-// 95
-$this->schema[] = array(
-    "INSERT IGNORE INTO `globalSettings` "
-    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
-    . "VALUES "
-    . "('FOG_MINING_FULL_RESTART_HOUR','This setting define the hour of "
-    . "the day, in 24 hour format, for when you would like the donation "
-    . "task to reboot.','6','General Settings'),"
-    . "('FOG_MINING_FULL_RUN_ON_WEEKEND','If set to 1, then "
-    . "FOG_MINING_FULL_RESTART_HOUR is ignored over weekends.',"
-    . "'1','General Settings')",
-);
+// 95 - used to be two FOG_MINING_* settings but were entirely removed
+$this->schema[] = array();
 // 96
 $this->schema[] = array(
     "ALTER TABLE `tasks` ADD COLUMN `taskPassreset` "
@@ -1786,8 +1735,6 @@ $this->schema[] = array(
 );
 // 98
 $this->schema[] = array(
-    "DELETE FROM `globalSettings` where "
-    . "`settingKey`='FOG_TFTP_PXE_CONFIG_DIR' limit 1",
     "UPDATE `globalSettings` set `settingValue`='bzImage' "
     . "WHERE `settingKey`='FOG_TFTP_PXE_KERNEL'",
     "UPDATE `globalSettings` set `settingValue` = '"
@@ -1803,22 +1750,8 @@ $this->schema[] = array(
     "UPDATE `globalSettings` set `settingValue`='memtest.bin' "
     . "WHERE `settingKey`='FOG_MEMTEST_KERNEL'",
 );
-// 99
-$this->schema[] = array(
-    "UPDATE `globalSettings` set `settingCategory`='Donations' "
-    . "WHERE `settingKey`='FOG_MINING_ENABLE'",
-    "UPDATE `globalSettings` set `settingCategory`='Donations' "
-    . "WHERE `settingKey`='FOG_MINING_MAX_CORES'",
-    "UPDATE `globalSettings` set `settingCategory`='Donations' "
-    . "WHERE `settingKey`='FOG_MINING_FULL_RESTART_HOUR'",
-    "UPDATE `globalSettings` set `settingCategory`='Donations' "
-    . "WHERE `settingKey`='FOG_MINING_FULL_RUN_ON_WEEKEND'",
-    "INSERT IGNORE INTO `globalSettings` "
-    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
-    . "VALUES "
-    . "('FOG_MINING_PACKAGE_PATH','Where should we pull the donation "
-    . "script from?','http://fogproject.org/fogpackage.zip','Donations')",
-);
+// 99 - used to be FOG_MINING_* settings but were entirely removed
+$this->schema[] = array();
 // 100
 $this->schema[] = array(
     "UPDATE `imageTypes` SET `imageTypeName`="
@@ -2892,7 +2825,7 @@ $this->schema[] = array(
 // 186
 $this->schema[] = array(
     "DELETE FROM `globalSettings` WHERE `settingKey`='FOG_NEW_CLIENT'",
-    "ALTER TABLE .`hosts` ADD COLUMN `hostADPassLegacy` LONGTEXT AFTER `hostADPass`",
+    "ALTER TABLE `hosts` ADD COLUMN `hostADPassLegacy` LONGTEXT AFTER `hostADPass`",
     "UPDATE `globalSettings` SET "
     . "`settingDesc`='This setting defines the default value "
     . "to populate the hosts Active Directory password value "
@@ -3210,8 +3143,6 @@ $this->schema[] = array(
 );
 // 220
 $this->schema[] = array(
-    "DELETE FROM `globalSettings` WHERE `settingKey` "
-    . "IN ('FOG_QUEUESIZE','FOG_PXE_IMAGE_DNSADDRESS')",
     "CREATE TABLE `groupMembers_new` ("
     . "`gmID` int(11) NOT NULL AUTO_INCREMENT,"
     . "`gmHostID` int(11) NOT NULL,"
@@ -3680,8 +3611,8 @@ $this->schema[] = array(
     . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
     . "VALUES "
     . "('FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT',"
-    . "'Compression Format Setting (Default to PIGZ non-split)',"
-    . "'1','General Settings'),"
+    . "'Compression Format Setting (Default to Partclone Gzip)',"
+    . "'0','General Settings'),"
     . "('FOG_TASKING_ADV_SHUTDOWN_ENABLED',"
     . "'Tasking shutdown element checked (Default is off)',"
     . "'0','General Settings'),"
@@ -3743,7 +3674,6 @@ $this->schema[] = array(
 // 258
 $this->schema[] = array(
     "DELETE FROM `taskTypes` WHERE `ttID` IN (23, 24)",
-    "DELETE FROM `globalSettings` WHERE `settingKey` LIKE 'FOG_MINING%'",
     "ALTER TABLE `taskTypes` auto_increment=1",
     "ALTER TABLE `globalSettings` auto_increment=1"
 );
@@ -3780,4 +3710,38 @@ $this->schema[] = array(
     . "('FOG_QUICKREG_PROD_KEY_BIOS','Try pulling systems SLIC product key."
     . " Values are 0 or 1, default is 0.'"
     . " ,'0', 'FOG Quick Registration')"
+);
+// 264
+$this->schema[] = array(
+    "ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmHelloInterval` "
+    . "VARCHAR(8) AFTER `ngmMaxBitrate`",
+);
+// 265
+$this->schema[] = array(
+    "UPDATE `nfsGroupMembers` SET `ngmUser`='"
+    . STORAGE_FTP_USERNAME
+    . "' WHERE ngmID=1"
+);
+// 266
+$this->schema[] = array(
+    "UPDATE `globalSettings` SET `settingValue`='"
+    . STORAGE_FTP_USERNAME
+    . "' WHERE settingKey='FOG_TFTP_FTP_USERNAME'",
+    "UPDATE `nfsGroupMembers` SET `ngmUser`='"
+    . STORAGE_FTP_USERNAME
+    . "' WHERE ngmHostname='"
+    . STORAGE_HOST
+    . "'"
+);
+// 267
+$this->schema[] = array(
+    "UPDATE `globalSettings` SET `settingValue`=275000 WHERE settingKey='FOG_KERNEL_RAMDISK_SIZE'"
+);
+// 268
+$this->schema[] = array(
+    "UPDATE `globalSettings` SET "
+    . "`settingDesc`='Email address(s) to send the reports to. Separate "
+    . "multiple emails by comma (e.g. user_a@domain.com, user_b@domain2.com). "
+    . "Token \$\{user-name\} is replaced by the task creators username.'"
+    . "WHERE `settingKey`='FOG_EMAIL_ADDRESS'"
 );

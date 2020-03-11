@@ -1889,8 +1889,8 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
         echo '<br/>';
         echo '<div class="row">';
-        echo '<a href="http://standards.ieee.org/regauth/oui/oui.txt">';
-        echo 'http://standards.ieee.org/regauth/oui/oui.txt';
+        echo '<a href="http://standards-oui.ieee.org/oui.txt">';
+        echo 'http://standards-oui.ieee.org/oui.txt';
         echo '</a>';
         echo '</div>';
         echo '<br/>';
@@ -1923,7 +1923,7 @@ class FOGConfigurationPage extends FOGPage
     {
         if (isset($_GET['update'])) {
             self::clearMACLookupTable();
-            $url = 'http://linuxnet.ca/ieee/oui.txt';
+            $url = 'http://standards-oui.ieee.org/oui.txt';
             if (($fh = fopen($url, 'rb')) === false) {
                 throw new Exception(_('Could not read temp file'));
             }
@@ -2431,6 +2431,12 @@ class FOGConfigurationPage extends FOGPage
                         . '${service_value}" autocomplete="off" class='
                         . '"form-control" id="${service_name}"/>';
                     break;
+                case 'FOG_AD_DEFAULT_PASSWORD':
+                    $type .= '<input name="${service_id}" type="password" value="'
+                        . ($Service->value ? '********************************' : '')
+                        . '" autocomplete="off" class='
+                        . '"form-control" id="${service_name}"/>';
+                break;
                 default:
                     $type .= '<input type="password" name="${service_id}" value="'
                         . '${service_value}" autocomplete="off" class='
@@ -2767,6 +2773,13 @@ class FOGConfigurationPage extends FOGPage
                     $set = '';
                 }
                 switch ($name) {
+                case 'FOG_AD_DEFAULT_PASSWORD':
+                    $set = (
+                        preg_match('/^\*{32}$/', $set) ?
+                        self::getSetting($name) :
+                        $set
+                    );
+                    break;
                 case 'FOG_API_TOKEN':
                     $set = base64_decode($set);
                     break;
@@ -2774,8 +2787,6 @@ class FOGConfigurationPage extends FOGPage
                     if ($set < 128) {
                         $set = 128;
                     }
-                    break;
-                case 'FOG_AD_DEFAULT_PASSWORD':
                     break;
                 case 'FOG_CLIENT_BANNER_SHA':
                     continue 2;
@@ -2930,7 +2941,8 @@ class FOGConfigurationPage extends FOGPage
             }
             Route::indiv(
                 'storagenode',
-                array_shift($nodeIDs)
+                array_shift($nodeIDs),
+                'logfiles'
             );
             $StorageNode = json_decode(
                 Route::getData()

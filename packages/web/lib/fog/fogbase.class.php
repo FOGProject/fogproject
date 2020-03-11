@@ -526,31 +526,31 @@ abstract class FOGBase
         // disabling sysuuid detection code for now as it is causing
         // trouble with machines having the same UUID like we've seen
         // on some MSI motherboards having FFFFFFFF-FFFF-FFFF-FFFF...
-/*        $sysuuid = filter_input(INPUT_POST, 'sysuuid');
-        if (!$sysuuid) {
-            $sysuuid = filter_input(INPUT_GET, 'sysuuid');
-        }
- */
+        /*        $sysuuid = filter_input(INPUT_POST, 'sysuuid');
+                if (!$sysuuid) {
+                    $sysuuid = filter_input(INPUT_GET, 'sysuuid');
+                }
+         */
         // If encoded decode and store value
         if ($encoded === true) {
             $mac = base64_decode($mac);
             //            $sysuuid = base64_decode($sysuuid);
         }
         // See if we can find the host by system uuid rather than by mac's first.
-/*        if ($sysuuid) {
-            $Inventory = self::getClass('Inventory')
-                ->set('sysuuid', $sysuuid)
-                ->load('sysuuid');
-            $Host = self::getClass('Inventory')
-                ->set('sysuuid', $sysuuid)
-                ->load('sysuuid')
-                ->getHost();
-            if ($Host->isValid() && !$returnmacs) {
-                self::$Host = $Host;
-                return;
-            }
-        }
- */
+        /*        if ($sysuuid) {
+                    $Inventory = self::getClass('Inventory')
+                        ->set('sysuuid', $sysuuid)
+                        ->load('sysuuid');
+                    $Host = self::getClass('Inventory')
+                        ->set('sysuuid', $sysuuid)
+                        ->load('sysuuid')
+                        ->getHost();
+                    if ($Host->isValid() && !$returnmacs) {
+                        self::$Host = $Host;
+                        return;
+                    }
+                }
+         */
         // Trim the mac list.
         $mac = trim($mac);
         // Parsing the macs
@@ -1196,7 +1196,11 @@ abstract class FOGBase
         if (!$format) {
             $format = 'm/d/Y';
         }
-        $tz = new DateTimeZone(self::$TimeZone);
+        if (empty(self::$TimeZone)) {
+            $tz = new DateTimeZone('UTC');
+        } else {
+            $tz = new DateTimeZone(self::$TimeZone);
+        }
 
         return DateTime::createFromFormat(
             $format,
@@ -1379,7 +1383,11 @@ abstract class FOGBase
         if (!is_string($new_key)) {
             throw new Exception(_('New key must be a string'));
         }
-        $array[$old_key] = trim($array[$old_key]);
+        $array[$old_key] = (
+            is_string($array[$old_key]) ?
+            trim($array[$old_key]) :
+            $array[$old_key]
+        );
         if (!self::$service && is_string($array[$old_key])) {
             $item = mb_convert_encoding(
                 $array[$old_key],
@@ -1530,16 +1538,30 @@ abstract class FOGBase
         $key = false,
         $enctype = 'aes-128-cbc'
     ) {
-        $iv_size = openssl_cipher_iv_length($enctype);
+        $iv_size = openssl_cipher_iv_length($enctype) * 2;
         if (false === strpos($encdata, '|')) {
             return $encdata;
         }
         $data = explode('|', $encdata);
-        $iv = pack('H*', $data[0]);
-        $encoded = pack('H*', $data[1]);
-        if (!$key && $data[2]) {
-            $key = pack('H*', $data[2]);
+        if (strlen($data[0]) != $iv_size || strlen($data[1]) != $iv_size) {
+            return $encdata;
         }
+        // add error handler to catch warnings we might get from pack() with non-hex strings
+        set_error_handler(
+            function ($severity, $message, $file, $line) {
+                throw new ErrorException($message, $severity, $severity, $file, $line);
+            }
+        );
+        try {
+            $iv = pack('H*', $data[0]);
+            $encoded = pack('H*', $data[1]);
+            if (!$key && isset($data[2]) && strlen($data[2]) == $iv_size) {
+                $key = pack('H*', $data[2]);
+            }
+        } catch (Exception $e) {
+            return $encdata;
+        }
+        restore_error_handler();
         if (empty($key)) {
             return '';
         }
@@ -1651,7 +1673,7 @@ abstract class FOGBase
                     $padding
                 );
                 if (!$test) {
-                    throw new Exception(_('Failed to decrypt data'));
+                    throw new Exception(_('Failed to decrypt data on server'));
                 }
                 $dataun .= $decrypt;
             }
@@ -2217,9 +2239,9 @@ abstract class FOGBase
      *
      * @return array
      */
-    protected static function getIPAddress()
+    protected static function getIPAddress($force = false)
     {
-        if (count(self::$ips) > 0) {
+        if (!$force && count(self::$ips) > 0) {
             return self::$ips;
         }
         $output = array();
@@ -2234,12 +2256,6 @@ abstract class FOGBase
                 $IPs,
                 $retVal
             );
-        }
-        $test = self::$FOGURLRequests->isAvailable('http://ipinfo.io/ip');
-        $test = array_shift($test);
-        if (false !== $test) {
-            $res = self::$FOGURLRequests->process('http://ipinfo.io/ip');
-            $IPs[] = $res[0];
         }
         natcasesort($IPs);
         $retIPs = function (&$IP) {
@@ -2300,13 +2316,19 @@ abstract class FOGBase
      *
      * @return string|int|float
      */
-    public static function getFilesize($file)
+    public static function getFilesize($path)
     {
-        $file = escapeshellarg($file);
-
-        return trim(
-            shell_exec("du -b $file | awk '{print $1}'")
-        );
+        $size = 0;
+        if (is_dir($path)) {
+            foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path)) as $file) {
+                if ($file->getFilename() != ".") {
+                    $size += filesize($file);
+                }
+            }
+        } else {
+            $size = filesize($path);
+        }
+        return is_numeric($size) ? $size : 0;
     }
     /**
      * Perform enmass wake on lan.
@@ -2420,27 +2442,17 @@ abstract class FOGBase
      */
     public static function getHash($file)
     {
-        usleep(50000);
-        $file = escapeshellarg($file);
         $filesize = self::getFilesize($file);
-        if ($filesize <= 10485760) {
-            return trim(
-                shell_exec("sha512sum $file | awk '{print $1}'")
-            );
+        $fp = fopen($file, 'r');
+        if ($fp) {
+            $data = fread($fp, 10485760);
+            if ($filesize >= 20971520) {
+                fseek($fp, -10485760, SEEK_END);
+                $data .= fread($fp, 10485760);
+            }
+            fclose($fp);
         }
-        return trim(
-            shell_exec(
-                sprintf(
-                    "(%s -c %d %s; %s -c %d %s) | sha512sum | awk '{print $1}'",
-                    'head',
-                    10486760,
-                    $file,
-                    'tail',
-                    10486760,
-                    $file
-                )
-            )
-        );
+        return isset($data) ? hash('sha256', $data) : '';
     }
     /**
      * Attempts to login

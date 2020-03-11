@@ -1619,10 +1619,10 @@ class GroupManagementPage extends FOGPage
         );
         $adPass = (
             $adPass ?
-            self::$Host->get('ADPass') :
+            '********************************' :
             ''
         );
-        $ADPass = self::$Host->get('ADPass');
+        $ADPass = $adPass;
         $ADPassLegacy = (
             $adPassLegacy ?
             self::$Host->get('ADPassLegacy') :
@@ -1783,7 +1783,7 @@ class GroupManagementPage extends FOGPage
                     break;
                 case _('Host MAC'):
                     $this->ReportMaker->addCSVCell(
-                        $Host->mac
+                        $Host->primac
                     );
                     break;
                 case _('Host Desc'):
@@ -1976,6 +1976,14 @@ class GroupManagementPage extends FOGPage
                         $level
                     );
                     $this->obj->updateDefault($default);
+                }
+                if (isset($_POST['levelup'])) {
+                    // using addPrinter with empty arrays only updates the printerLevel for us
+                    $this->obj->addPrinter(
+                        array(),
+                        array(),
+                        $level
+                    );
                 }
                 break;
             case 'group-snapins':

@@ -13,9 +13,10 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-[[ -z $username ]] && username="fog"
+[[ -z $username || "x$username" = "xfog" ]] && username="fogproject"
 [[ -z $webdirsrc ]] && webdirsrc="../packages/web"
 [[ -z $tftpdirsrc ]] && tftpdirsrc="../packages/tftp"
+[[ -z $buildipxesrc ]] && buildipxesrc="../utils/FOGiPXE"
 [[ -z $udpcastsrc ]] && udpcastsrc="../packages/udpcast-20120424.tar.gz"
 [[ -z $udpcasttmp ]] && udpcasttmp="/tmp/udpcast.tar.gz"
 [[ -z $udpcastout ]] && udpcastout="udpcast-20120424"
@@ -29,7 +30,7 @@
 [[ -z $sqlserverlist ]] && sqlserverlist="mysql-server mariadb-server mariadb-galera-server MariaDB-server MariaDB-Galera-server"
 command -v systemctl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 exitcode=$?
-ps -p 1 -o comm= | grep systemd
+ps -p 1 -o comm= | grep systemd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 bootcode=$?
 [[ $exitcode -eq 0 && $bootcode -eq 0 && -z $systemctl ]] && systemctl="yes"
 if [[ $systemctl == yes ]]; then

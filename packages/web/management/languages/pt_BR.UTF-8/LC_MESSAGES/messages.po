@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-11 13:07-0400\n"
+"POT-Creation-Date: 2019-08-10 16:23+0100\n"
 "PO-Revision-Date: 2016-05-22 15:14-0400\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -658,10 +658,6 @@ msgstr "Última versão"
 
 #, fuzzy
 msgid "Latest Development Version"
-msgstr "Última versão"
-
-#, fuzzy
-msgid "Latest SVN Version"
 msgstr "Última versão"
 
 msgid "Image is protected and cannot be deleted"
@@ -4132,10 +4128,6 @@ msgid "this is just another to ensure safety"
 msgstr ""
 
 #, fuzzy
-msgid "No Printer Manaagement"
-msgstr "Sem gerenciamento de impressoras"
-
-#, fuzzy
 msgid ""
 "This setting only adds and removes printers that are managed by FOG. If the "
 "printer exists in printer management but is not assigned to a host, it will "
@@ -6022,7 +6014,7 @@ msgstr ""
 msgid " | This is not the master node"
 msgstr " | Este não é o nó mestre"
 
-msgid "Interface not ready, waiting."
+msgid "Interface not ready, waiting for it to come up"
 msgstr ""
 
 msgid "Waiting for mysql to be available"
@@ -6067,26 +6059,26 @@ msgid "Files do not match on server: "
 msgstr ""
 
 #, fuzzy
-msgid "File does not exist."
-msgstr "O método não existe"
+msgid "File does not exist"
+msgstr "Arquivo não existe"
 
 #, fuzzy
 msgid "Deleting remote file"
-msgstr "Menu Criar falhou"
+msgstr "Excluindo arquivo remoto"
 
 msgid "No need to sync"
-msgstr ""
+msgstr "Não há necessidade de sincronizar"
 
 #, fuzzy
 msgid "file to"
 msgstr "Falhei em"
 
-msgid " * All files synced for this item."
-msgstr ""
+msgid "All files synced for this item."
+msgstr "Todos os arquivos sincronizados para este item."
 
 #, fuzzy
 msgid "Starting Sync Actions"
-msgstr " * Começando ações são sincronizadas"
+msgstr "Começando ações são sincronizadas"
 
 msgid "Started sync for"
 msgstr "sync começou para"
@@ -6099,69 +6091,56 @@ msgid " * Multicast service is globally disabled"
 msgstr ""
 
 #, fuzzy
-msgid "Cleaning"
-msgstr "Claro"
-
-#, fuzzy
-msgid "task"
+msgid "Task ID"
 msgstr "Tarefa"
 
 #, fuzzy
-msgid "as they have been removed"
-msgstr "Chave inválida a ser removido"
-
-#, fuzzy
-msgid "is being cleaned"
-msgstr "vírus apuradas"
-
-#, fuzzy
-msgid "has been cancelled"
-msgstr "foi atualizado com sucesso"
-
-#, fuzzy
-msgid "has been completed"
-msgstr "foi destruído"
-
-#, fuzzy
-msgid "No tasks found"
-msgstr "tarefa encontrados"
+msgid "No new tasks found"
+msgstr "Nenhuma classe válida enviada"
 
 #, fuzzy
 msgid "is new"
 msgstr "Linha"
 
 #, fuzzy
-msgid "failed to execute"
-msgstr "Falha ao criar"
-
-#, fuzzy
-msgid "image file"
-msgstr "Nenhuma imagem especificada"
+msgid "failed to execute, image file"
+msgstr "Falha ao excluir arquivos de imagem"
 
 #, fuzzy
 msgid "not found on this node"
 msgstr "Imagem não encontrada no nó"
 
-msgid "no clients are included"
+msgid "failed to execute, there are no clients included"
 msgstr ""
 
-#, fuzzy
-msgid "port must be even and numeric"
-msgstr "Você deve digitar um nome"
+msgid "failed to execute, port must be even and numeric"
+msgstr ""
 
 #, fuzzy
 msgid "failed to start"
 msgstr "Falha ao destruir"
 
 #, fuzzy
-msgid "has been cleaned"
-msgstr "foi destruído"
+msgid "could not be killed"
+msgstr "Não foi possível ler arquivo temporário"
 
-msgid "image file found"
+#, fuzzy
+msgid "has been killed"
+msgstr "foi atualizado com sucesso"
+
+#, fuzzy
+msgid "unable to be updated"
+msgstr "Falha ao atualizar"
+
+msgid "image file found, file"
 msgstr ""
 
 #, fuzzy
 msgid "client"
+msgstr "Cliente"
+
+#, fuzzy
+msgid "clients"
 msgstr "Cliente"
 
 #, fuzzy
@@ -6186,6 +6165,30 @@ msgstr ""
 #, fuzzy
 msgid "is no longer running"
 msgstr " não existe mais"
+
+#, fuzzy
+msgid "has been completed"
+msgstr "foi destruído"
+
+#, fuzzy
+msgid "has been cancelled"
+msgstr "foi atualizado com sucesso"
+
+#, fuzzy
+msgid "is now cancelled"
+msgstr "foi atualizado com sucesso"
+
+#, fuzzy
+msgid "could not be cancelled"
+msgstr "foi atualizado com sucesso"
+
+#, fuzzy
+msgid "is now completed"
+msgstr "foi destruído"
+
+#, fuzzy
+msgid "could not be completed"
+msgstr "Não foi possível ler arquivo temporário"
 
 #, fuzzy
 msgid "Wait time has changed to"
@@ -6408,11 +6411,15 @@ msgstr ""
 msgid "Not syncing Snapin"
 msgstr "Sem conexão para obter Snapin"
 
-msgid "Task not created as there are no associated Tasks"
+msgid "Task not created as there are no associated tasks"
 msgstr ""
 
 msgid "Or there was no number defined for joining session"
 msgstr ""
+
+#, fuzzy
+msgid " | Unable to find image path"
+msgstr "Falha ao destruir Storage Node"
 
 msgid "No fields passed"
 msgstr "Nenhum campo passado"
@@ -7481,3 +7488,23 @@ msgstr "ID Inválido"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Evento deve ser uma string"
+
+msgid "File hash mismatch"
+msgstr "Incompatibilidade de hash de arquivo"
+
+#, fuzzy
+msgid "File size mismatch"
+msgstr "Incompatibilidade de tamanho de arquivo"
+
+#, fuzzy
+msgid "FTP connection failed"
+msgstr "Conexão FTP falhou"
+
+msgid "Snapin file is too big, increase post_max_size in php.ini."
+msgstr "O arquivo Snapin é muito grande, aumente post_max_size no php.ini."
+
+msgid "$_POST variable is empty, check apache error log."
+msgstr "A variável $ _POST está vazia, verifique o log de erros do apache."
+
+msgid "MAC address is already in use by another host"
+msgstr "O endereço MAC já está sendo usado por outro host"
