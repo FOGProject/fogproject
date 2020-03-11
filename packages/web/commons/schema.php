@@ -3745,3 +3745,10 @@ $this->schema[] = array(
     . "Token \$\{user-name\} is replaced by the task creators username.'"
     . "WHERE `settingKey`='FOG_EMAIL_ADDRESS'"
 );
+// 269
+$this->schema[] = array(
+    "UPDATE `taskTypes` SET `ttDescription`='Normal wipe will boot "
+    . "the client computer and perform a full disk wipe. This method"
+    . "writes ONE pass of random data to the hard disk.' "
+    . "WHERE `ttID`=19",
+);
