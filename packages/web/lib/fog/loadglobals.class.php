@@ -34,13 +34,17 @@ class LoadGlobals extends FOGBase
      */
     private static function _init()
     {
+        global $sub;
         if (self::$_loadedglobals) {
             return;
         }
         $GLOBALS['FOGFTP'] = new FOGFTP();
+        $GLOBALS['FOGCore'] = new FOGCore();
         DatabaseManager::establish();
         $GLOBALS['DB'] = DatabaseManager::getDB();
-        $GLOBALS['FOGCore'] = new FOGCore();
+        if (!$GLOBALS['DB']) {
+            return;
+        }
         FOGCore::setEnv();
         if (session_status() != PHP_SESSION_NONE) {
             $GLOBALS['currentUser'] = new User((int)$_SESSION['FOG_USER']);

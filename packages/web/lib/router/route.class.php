@@ -264,18 +264,26 @@ class Route extends FOGBase
                 'list'
             )
             ->get(
-                "${expanded}/[i:id]",
+                "${expanded}/[details]/?[*:item]?",
+                array(__CLASS__, 'listdetails'),
+                'listdetails'
+            )
+            ->get(
+                "${expanded}/[i:id]/?[*:item]?",
                 array(__CLASS__, 'indiv'),
                 'indiv'
-            )->get(
+            )
+            ->get(
                 "${expanded}/names/[*:whereItems]?",
-                [__CLASS__, 'names'],
+                array(__CLASS__, 'names'),
                 'names'
-            )->get(
+            )
+            ->get(
                 "${expanded}/ids/[*:whereItems]?/[*:getField]?",
-                [__CLASS__, 'ids'],
+                array(__CLASS__, 'ids'),
                 'ids'
-            )->put(
+            )
+            ->put(
                 "${expanded}/[i:id]/[update|edit]?",
                 array(__CLASS__, 'edit'),
                 'update'
@@ -422,7 +430,8 @@ class Route extends FOGBase
         $class,
         $sortby = 'name',
         $bypass = false,
-        $find = array()
+        $find = array(),
+        $item = ''
     ) {
         $classname = strtolower($class);
         $classman = self::getClass($class)->getManager();
@@ -441,7 +450,8 @@ class Route extends FOGBase
             foreach (self::getClass('Plugin')->getPlugins() as $class) {
                 self::$data[$classname.'s'][] = self::getter(
                     $classname,
-                    $class
+                    $class,
+                    $item
                 );
                 if ($class->isActive() && !$class->isInstalled()) {
                     self::$data['count_active']++;
@@ -467,7 +477,8 @@ class Route extends FOGBase
                 }
                 self::$data[$classname.'s'][] = self::getter(
                     $classname,
-                    $class
+                    $class,
+                    $item
                 );
                 self::$data['count']++;
                 unset($class);
@@ -483,6 +494,26 @@ class Route extends FOGBase
                     'classman' => &$classman
                 )
             );
+    }
+    /**
+     * Presents the equivalent of a detailed page list.
+     *
+     * @param string $class  The class to work with.
+     * @param string $sortby How to sort the data.
+     * @param bool   $bypass Allow showing hidden data.
+     * @param array  $find   Additional filter items.
+     *
+     * @return void
+     */
+    public static function listdetails(
+        $class,
+        $item,
+        $sortby = 'name',
+        $bypass = false,
+        $find = array()
+    ) {
+        $item = empty($item) ? 'all' : $item;
+        self::listem($class, $sortby, $bypass, $find, $item);
     }
     /**
      * Presents the equivalent of a page's search.
@@ -528,7 +559,7 @@ class Route extends FOGBase
      *
      * @return void
      */
-    public static function indiv($class, $id)
+    public static function indiv($class, $id, $item = '')
     {
         $classname = strtolower($class);
         $class = new $class($id);
@@ -540,7 +571,8 @@ class Route extends FOGBase
         self::$data = array();
         self::$data = self::getter(
             $classname,
-            $class
+            $class,
+            $item
         );
         self::$HookManager
             ->processEvent(
@@ -603,61 +635,129 @@ class Route extends FOGBase
         }
         switch ($classname) {
         case 'host':
-            if (count($vars->macs)) {
+            if (isset($vars->macs)) {
+                $macsToAdd = array_diff(
+                    (array)$vars->macs,
+                    $class->getMyMacs()
+                );
+                $primac = array_shift($macsToAdd);
+                $macsToRem = array_diff(
+                    $class->getMyMacs(),
+                    (array)$vars->macs
+                );
                 $class
-                    ->removeAddMAC($vars->macs)
-                    ->addPriMAC(array_shift($vars->macs))
-                    ->addAddMAC($vars->macs);
+                    ->removeAddMAC($macsToRem)
+                    ->addPriMAC($primac)
+                    ->addAddMAC($macsToAdd);
             }
-            if (count($vars->snapins)) {
+            if (isset($vars->snapins)) {
+                $snapinsToAdd = array_diff(
+                    (array)$vars->snapins,
+                    $class->get('snapins')
+                );
+                $snapinsToRem = array_diff(
+                    $class->get('snapins'),
+                    (array)$vars->snapins
+                );
                 $class
-                    ->removeSnapin($class->get('snapins'))
-                    ->addSnapin($vars->snapins);
+                    ->removeSnapin($snapinsToRem)
+                    ->addSnapin($snapinsToAdd);
             }
-            if (count($vars->printers)) {
+            if (isset($vars->printers)) {
+                $printersToAdd = array_diff(
+                    (array)$vars->printers,
+                    $class->get('printers')
+                );
+                $printersToRem = array_diff(
+                    $class->get('printers'),
+                    (array)$vars->printers
+                );
                 $class
-                    ->removePrinter($class->get('printers'))
-                    ->addPrinter($vars->printers);
+                    ->removePrinter($printersToRem)
+                    ->addPrinter($printersToAdd);
             }
-            if (count($vars->modules)) {
+            if (isset($vars->modules)) {
+                $modulesToAdd = array_diff(
+                    (array)$vars->modules,
+                    $class->get('modules')
+                );
+                $modulesToRem = array_diff(
+                    $class->get('modules'),
+                    (array)$vars->modules
+                );
                 $class
-                    ->removeModule($class->get('modules'))
-                    ->addModule($vars->modules);
+                    ->removeModule($modulesToAdd)
+                    ->addModule($modulesToRem);
             }
-            if (count($vars->groups)) {
+            if (isset($vars->groups)) {
+                $groupsToAdd = array_diff(
+                    (array)$vars->groups,
+                    $class->get('groups')
+                );
+                $groupsToRem = array_diff(
+                    $class->get('groups'),
+                    (array)$vars->groups
+                );
                 $class
-                    ->removeGroup($class->get('groups'))
-                    ->addGroup($vars->groups);
+                    ->removeGroup($groupsToRem)
+                    ->addGroup($groupsToAdd);
             }
             break;
         case 'group':
-            if (count($vars->snapins)) {
+            if (isset($vars->snapins)) {
+                Route::ids('snapin');
+                $snapins = json_decode(
+                    Route::getData(),
+                    true
+                );
+                $snapinsToRem = array_diff(
+                    $snapins,
+                    (array)$vars->snapins
+                );
                 $class
-                    ->removeSnapin(
-                        self::getSubObjectIDs('Snapin')
-                    )
+                    ->removeSnapin($snapinsToRem)
                     ->addSnapin($vars->snapins);
             }
-            if (count($vars->printers)) {
+            if (isset($vars->printers)) {
+                Route::ids('printer');
+                $printers = json_decode(
+                    Route::getData(),
+                    true
+                );
+                $printersToRem = array_diff(
+                    $printers,
+                    (array)$vars->printers
+                );
                 $class
-                    ->removePrinter(
-                        self::getSubObjectIDs('Printer')
-                    )
+                    ->removePrinter($printersToRem)
                     ->addPrinter($vars->printers);
             }
-            if (count($vars->modules)) {
+            if (isset($vars->modules)) {
+                Route::ids('module');
+                $modules = json_decode(
+                    Route::getData(),
+                    true
+                );
+                $modulesToRem = array_diff(
+                    $modules,
+                    (array)$vars->modules
+                );
                 $class
-                    ->removeModule(
-                        self::getSubObjectIDs('Module')
-                    )
-                    ->addModule($vars->modules);
+                    ->removeModule($modulesToRem)
+                    ->addPrinter($vars->modules);
             }
-            if (count($vars->hosts)) {
+            if (isset($vars->hosts)) {
+                $hostsToAdd = array_diff(
+                    (array)$vars->hosts,
+                    $class->get('hosts')
+                );
+                $hostsToRem = array_diff(
+                    $class->get('hosts'),
+                    (array)$vars->hosts
+                );
                 $class
-                    ->removeHost(
-                        $class->get('hosts')
-                    )
-                    ->addHost($vars->hosts);
+                    ->removeHost($hostsToRem)
+                    ->addHost($hostsToAdd);
             }
             if ($vars->imageID) {
                 $class
@@ -666,28 +766,46 @@ class Route extends FOGBase
             break;
         case 'image':
         case 'snapin':
-            if (count($vars->hosts)) {
+            if (isset($vars->hosts)) {
+                $hostsToAdd = array_diff(
+                    (array)$vars->hosts,
+                    $class->get('hosts')
+                );
+                $hostsToRem = array_diff(
+                    $class->get('hosts'),
+                    (array)$vars->hosts
+                );
                 $class
-                    ->removeHost(
-                        $class->get('hosts')
-                    )
-                    ->addHost($vars->hosts);
+                    ->removeHost($hostsToRem)
+                    ->addHost($hostsToAdd);
             }
-            if (count($vars->storagegroups)) {
+            if (isset($vars->storagegroups)) {
+                $storageGroupsToAdd = array_diff(
+                    (array)$vars->storagegroups,
+                    $class->get('storagegroups')
+                );
+                $storageGroupsToRem = array_diff(
+                    $class->get('storagegroups'),
+                    (array)$vars->storagegroups
+                );
                 $class
-                    ->removeGroup(
-                        $class->get('storagegroups')
-                    )
-                    ->addGroup($vars->storagegroups);
+                    ->removeGroup($storageGroupsToRem)
+                    ->addgroup($storageGroupsToAdd);
             }
             break;
         case 'printer':
-            if (count($vars->hosts)) {
+            if (isset($vars->hosts)) {
+                $hostsToAdd = array_diff(
+                    (array)$vars->hosts,
+                    $class->get('hosts')
+                );
+                $hostsToRem = array_diff(
+                    $class->get('hosts'),
+                    (array)$vars->hosts
+                );
                 $class
-                    ->removeHost(
-                        $class->get('hosts')
-                    )
-                    ->addHost($vars->hosts);
+                    ->removeHost($hostsToRem)
+                    ->addHost($hostsToAdd);
             }
             break;
         }
@@ -810,37 +928,37 @@ class Route extends FOGBase
                     ->addPriMAC(array_shift($vars->macs))
                     ->addAddMAC($vars->macs);
             }
-            if (count($vars->snapins)) {
+            if (isset($vars->snapins)) {
                 $class
                     ->addSnapin($vars->snapins);
             }
-            if (count($vars->printers)) {
+            if (isset($vars->printers)) {
                 $class
                     ->addPrinter($vars->printers);
             }
-            if (count($vars->modules)) {
+            if (isset($vars->modules)) {
                 $class
                     ->addModule($vars->modules);
             }
-            if (count($vars->groups)) {
+            if (isset($vars->groups)) {
                 $class
                     ->addGroup($vars->groups);
             }
             break;
         case 'group':
-            if (count($vars->snapins)) {
+            if (isset($vars->snapins)) {
                 $class
                     ->addSnapin($vars->snapins);
             }
-            if (count($vars->printers)) {
+            if (isset($vars->printers)) {
                 $class
                     ->addPrinter($vars->printers);
             }
-            if (count($vars->modules)) {
+            if (isset($vars->modules)) {
                 $class
                     ->addModule($vars->modules);
             }
-            if (count($vars->hosts)) {
+            if (isset($vars->hosts)) {
                 $class
                     ->addHost($vars->hosts);
                 if (isset($vars->imageID)) {
@@ -851,17 +969,17 @@ class Route extends FOGBase
             break;
         case 'image':
         case 'snapin':
-            if (count($vars->hosts)) {
+            if (isset($vars->hosts)) {
                 $class
                     ->addHost($vars->hosts);
             }
-            if (count($vars->storagegroups)) {
+            if (isset($vars->storagegroups)) {
                 $class
                     ->addGroup($vars->storagegroups);
             }
             break;
         case 'printer':
-            if (count($vars->hosts)) {
+            if (isset($vars->hosts)) {
                 $class
                     ->addHost($vars->hosts);
             }
@@ -1095,7 +1213,7 @@ class Route extends FOGBase
      *
      * @return object|array
      */
-    public static function getter($classname, $class)
+    public static function getter($classname, $class, $item = '')
     {
         if (!$class instanceof $classname) {
             return;
@@ -1180,14 +1298,14 @@ class Route extends FOGBase
             );
             break;
         case 'storagenode':
-            $data = FOGCore::fastmerge(
-                $class->get(),
-                array(
-                    'logfiles' => (
-                        $class->get('online') ?
+            $extra = array();
+            if ($item == 'all') {
+                $extra = array(
+                   'logfiles' => (
+                       $class->get('online') ?
                         $class->get('logfiles') :
                         []
-                    ),
+                   ),
                     'snapinfiles' => (
                         $class->get('online') ?
                         $class->get('snapinfiles') :
@@ -1197,7 +1315,21 @@ class Route extends FOGBase
                         $class->get('online') ?
                         $class->get('images') :
                         []
-                    ),
+                    )
+                );
+            } elseif (!empty($item)) {
+                $extra = array(
+                   "$item" => (
+                       $class->get('online') ?
+                        $class->get($item) :
+                        []
+                   )
+                );
+            }
+            $data = FOGCore::fastmerge(
+                $class->get(),
+                $extra,
+                array(
                     'storagegroup' => self::getter(
                         'storagegroup',
                         $class->get('storagegroup')

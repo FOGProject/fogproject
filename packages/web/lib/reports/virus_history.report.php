@@ -78,7 +78,6 @@ class Virus_History extends ReportManagementPage
         );
         $Viruses = $Viruses->viruss;
         foreach ((array)$Viruses as &$Virus) {
-            
             self::getClass('HostManager')
                 ->getHostByMacAddresses($Virus->mac);
             if (!self::$Host->isValid()) {
@@ -131,7 +130,7 @@ class Virus_History extends ReportManagementPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             echo '<div class="text-center">';
             printf(
                 $this->reportString,

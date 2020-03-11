@@ -222,11 +222,11 @@ abstract class FOGController extends FOGBase
             _('Returning value of key'),
             $key,
             _('Value'),
-            print_r($this->data[$key], 1)
+            print_r(isset($this->data[$key]) ? $this->data[$key] : 'null', 1)
         );
         self::info($msg);
 
-        return $this->data[$key];
+        return isset($this->data[$key]) ? $this->data[$key] : null;
     }
     /**
      * Set value to key.
@@ -307,7 +307,7 @@ abstract class FOGController extends FOGBase
                 print_r($value, 1)
             );
             self::info($msg);
-            if (!is_array($this->data[$key])) {
+            if (isset($this->data[$key]) && !is_array($this->data[$key])) {
                 $this->data[$key] = array($this->data[$key]);
             }
             $this->data[$key][] = $value;
@@ -835,6 +835,10 @@ abstract class FOGController extends FOGBase
                 _('Invalid type, merge to add, diff to remove')
             );
         }
+        $array = array_filter($array);
+        if (count($array) < 1) {
+            return $this;
+        }
         switch ($array_type) {
         case 'merge':
             foreach ((array)$array as &$a) {
@@ -972,7 +976,7 @@ abstract class FOGController extends FOGBase
                     $this->databaseFields[$fields[1]]
                 );
             }
-            if ($fields[3]) {
+            if (isset($fields[3])) {
                 array_walk($fields[3], $whereInfo);
             }
             $c->buildQuery($join, $whereArrayAnd, $c, $not, $compare);

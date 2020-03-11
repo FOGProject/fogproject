@@ -7,28 +7,143 @@
  * @category Snapin_Log
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- * @link     https://fogproject.org
- */
-/**
- * Snapin Log report
- *
- * @category Snapin_Log
- * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @author   Fernando Gietz <fernando.gietz@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 class Snapin_Log extends ReportManagementPage
 {
+    public function file()
+    {
+        $this->title = _('FOG Snapin - Search');
+        unset(
+                     $this->data,
+                     $this->form,
+                     $this->headerData,
+                     $this->templates,
+                     $this->attributes
+             );
+        $this->templates = array(
+                 '${field}',
+                 '${input}'
+             );
+        $this->attributes = array(
+                     array('class' => 'col-xs-4'),
+                array('class' => 'col-xs-8 form-group')
+             );
+        $snapinNames = self::getSubObjectIDs(
+            'Snapin',
+            '',
+            'name'
+        );
+        $snapinHostIDs = self::getSubObjectIDs(
+            'SnapinAssociation',
+            '',
+            'hostID'
+        );
+        $HostNames = self::getSubObjectIDs(
+            'Host',
+            array('id' => $snapinHostIDs),
+            'name'
+        );
+        unset($snapinHostIDs);
+        $snapinNames = array_values(
+            array_filter(
+                array_unique(
+                    (array)$snapinNames
+                )
+            )
+        );
+        $HostNames = array_values(
+            array_filter(
+                array_unique(
+                    (array)$HostNames
+                )
+            )
+        );
+        natcasesort($snapinNames);
+        natcasesort($HostNames);
+        if (is_array($snapinNames) && count($snapinNames) > 0) {
+            $snapinSelForm = self::selectForm(
+                'snapinsearch',
+                $snapinNames
+            );
+            unset($snapinNames);
+        }
+        if (is_array($HostNames) && count($HostNames) > 0) {
+            $hostSelForm = self::selectForm(
+                'hostsearch',
+                $HostNames
+            );
+            unset($HostNames);
+        }
+        $fields = array(
+                 '<label for="snapinsearch">'
+                 . _('Enter a snapin name to search for')
+                 . '</label>' => $snapinSelForm,
+                 '<label for="hostsearch">'
+                 . _('Enter a hostname to search for')
+                 . '</label>' => $hostSelForm,
+                 '<label for="performsearch">'
+                 . _('Perform search')
+                 . '</label>' => '<button type="submit" name="performsearch" '
+        . 'class="btn btn-info btn-block" id="performsearch">'
+            . _('Search')
+            . '</button>'
+             );
+        array_walk($fields, $this->fieldsToData);
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+                 . $this->formAction
+                 . '">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+
     /**
      * Initial display
      *
      * @return void
      */
-    public function file()
+    public function filePost()
     {
-        $this->title = _('FOG Snapin Log');
+        $this->title = _('Found snapin information');
+        $hostsearch = filter_input(
+            INPUT_POST,
+            'hostsearch'
+        );
+        $snapinsearch = filter_input(
+            INPUT_POST,
+            'snapinsearch'
+        );
+        if (!$hostsearch) {
+            $hostsearch = '%';
+        }
+        if (!$snapinsearch) {
+            $snapinsearch = '%';
+        }
+        $hostIDs = self::getSubObjectIDs(
+            'Host',
+            array('name' => $hostsearch)
+        );
+        $jobIDs = self::getSubObjectIDs(
+            'SnapinJob',
+            array('hostID' => $hostIDs)
+        );
+        $snapinIDs = self::getSubObjectIDs(
+            'Snapin',
+            array('name' => $snapinsearch)
+        );
         $this->headerData = array(
             _('Host Name'),
             _('Snapin Name'),
@@ -84,7 +199,15 @@ class Snapin_Log extends ReportManagementPage
             unset($csvHeader);
         }
         $this->ReportMaker->endCSVLine();
-        Route::listem('snapintask');
+        Route::listem(
+            'snapintask',
+            'jobID',
+            'false',
+            array(
+                         'snapinID' => $snapinIDs,
+                         'jobID' => $jobIDs
+             )
+        );
         $SnapinTasks = json_decode(
             Route::getData()
         );
@@ -205,7 +328,7 @@ class Snapin_Log extends ReportManagementPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             echo '<div class="text-center">';
             printf(
                 $this->reportString,

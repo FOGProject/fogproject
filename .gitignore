@@ -70,3 +70,4 @@ packages/FOGService.msi
 packages/clientfiles
 packages/inits
 packages/kernels
+tmp/*

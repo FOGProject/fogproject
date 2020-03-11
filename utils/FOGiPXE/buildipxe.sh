@@ -1,13 +1,20 @@
 #!/bin/bash
-BUILDOPTS="TRUST=/var/www/fog/management/other/ca.cert.pem CERT=/var/www/fog/management/other/ca.cert.pem"
-IPXEGIT="https://git.ipxe.org/ipxe.git"
+if [[ -r $1 ]]; then
+  BUILDOPTS="CERT=$1 TRUST=$1"
+elif [[ -r /opt/fog/snapins/ssl/CA/.fogCA.pem ]]; then
+  BUILDOPTS="CERT=/opt/fog/snapins/ssl/CA/.fogCA.pem TRUST=/opt/fog/snapins/ssl/CA/.fogCA.pem"
+fi
+IPXEGIT="https://github.com/ipxe/ipxe"
 
 # Change directory to base ipxe files
 SCRIPT=$(readlink -f "$BASH_SOURCE")
-BASE=$(dirname $(dirname $(dirname $(dirname "$SCRIPT") ) ) )
+FOGDIR=$(dirname $(dirname $(dirname "$SCRIPT") ) )
+BASE=$(dirname "$FOGDIR")
 
 if [[ -d ${BASE}/ipxe ]]; then
   cd ${BASE}/ipxe
+  git clean -fd
+  git reset --hard
   git pull
   cd src/
 else
@@ -18,29 +25,33 @@ fi
 
 # Get current header and script from fogproject repo
 echo "Copy (overwrite) iPXE headers and scripts..."
-cp ${BASE}/fogproject/src/ipxe/src/ipxescript .
-cp ${BASE}/fogproject/src/ipxe/src/ipxescript10sec .
-cp ${BASE}/fogproject/src/ipxe/src/config/general.h config/
-cp ${BASE}/fogproject/src/ipxe/src/config/settings.h config/
-cp ${BASE}/fogproject/src/ipxe/src/config/console.h config/
+cp ${FOGDIR}/src/ipxe/src/ipxescript .
+cp ${FOGDIR}/src/ipxe/src/ipxescript10sec .
+cp ${FOGDIR}/src/ipxe/src/config/general.h config/
+cp ${FOGDIR}/src/ipxe/src/config/settings.h config/
+cp ${FOGDIR}/src/ipxe/src/config/console.h config/
 
 # Build the files
-make bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn EMBED=ipxescript ${BUILDOPTS} $*
+make EMBED=ipxescript bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb ${BUILDOPTS}
 
 # Copy files to repo location as required
-cp bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn ${BASE}/fogproject/packages/tftp/
+cp bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb ${FOGDIR}/packages/tftp/
+cp bin/ipxe.lkrn ${FOGDIR}/packages/tftp/ipxe.krn
 
 # Build with 10 second delay
-make bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn EMBED=ipxescript10sec ${BUILDOPTS} $*
+make EMBED=ipxescript10sec bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb ${BUILDOPTS}
 
 # Copy files to repo location as required
-cp bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn ${BASE}/fogproject/packages/tftp/10secdelay/
+cp bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb ${FOGDIR}/packages/tftp/10secdelay/
+cp bin/ipxe.lkrn ${FOGDIR}/packages/tftp/10secdelay/ipxe.krn
 
 
 
 # Change to the efi layout
 if [[ -d ${BASE}/ipxe-efi ]]; then
   cd ${BASE}/ipxe-efi/
+  git clean -fd
+  git reset --hard
   git pull
   cd src/
 else
@@ -50,29 +61,26 @@ fi
 
 # Get current header and script from fogproject repo
 echo "Copy (overwrite) iPXE headers and scripts..."
-cp ${BASE}/fogproject/src/ipxe/src-efi/ipxescript .
-cp ${BASE}/fogproject/src/ipxe/src-efi/ipxescript10sec .
-cp ${BASE}/fogproject/src/ipxe/src-efi/config/general.h config/
-cp ${BASE}/fogproject/src/ipxe/src-efi/config/settings.h config/
-cp ${BASE}/fogproject/src/ipxe/src-efi/config/console.h config/
+cp ${FOGDIR}/src/ipxe/src-efi/ipxescript .
+cp ${FOGDIR}/src/ipxe/src-efi/ipxescript10sec .
+cp ${FOGDIR}/src/ipxe/src-efi/config/general.h config/
+cp ${FOGDIR}/src/ipxe/src-efi/config/settings.h config/
+cp ${FOGDIR}/src/ipxe/src-efi/config/console.h config/
 
 # Build the files
-make bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek}.efi EMBED=ipxescript ${BUILDOPTS} $*
+make EMBED=ipxescript bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${BUILDOPTS}
+[[ "x$armsupport" == "x1" ]] && make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 EMBED=ipxescript bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${BUILDOPTS}
 
 # Copy the files to upload
-cp bin-i386-efi/{snp{,only},ipxe,intel,realtek}.efi ${BASE}/fogproject/packages/tftp/i386-efi/
-cp bin-x86_64-efi/{snp{,only},ipxe,intel,realtek}.efi ${BASE}/fogproject/packages/tftp/
+[[ "x$armsupport" == "x1" ]] && cp bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/arm64-efi/
+cp bin-i386-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/i386-efi/
+cp bin-x86_64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/
 
 # Build with 10 second delay
-make bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek}.efi EMBED=ipxescript10sec ${BUILDOPTS} $*
+make EMBED=ipxescript10sec bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${BUILDOPTS}
+[[ "x$armsupport" == "x1" ]] && make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 EMBED=ipxescript10sec bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${BUILDOPTS}
 
 # Copy the files to upload
-cp bin-i386-efi/{snp{,only},ipxe,intel,realtek}.efi ${BASE}/fogproject/packages/tftp/10secdelay/i386-efi/
-cp bin-x86_64-efi/{snp{,only},ipxe,intel,realtek}.efi ${BASE}/fogproject/packages/tftp/10secdelay/
-
-echo "Done building the SSL ready iPXE binaries. Now we need to re-run the"
-echo "FOG installer to install those binaries... Hit ENTER to proceed or"
-echo "Ctrl+C if you want to quit and copy the files by hand."
-read
-cd ${BASE}/fogproject/bin/
-./installfog.sh -y
+[[ "x$armsupport" == "x1" ]] && cp bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/10secdelay/arm64-efi/
+cp bin-i386-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/10secdelay/i386-efi/
+cp bin-x86_64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/10secdelay/

@@ -136,10 +136,7 @@ class Task extends TaskType
         }
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
         $find = array(
-            'stateID' => self::fastmerge(
-                (array)self::getQueuedStates(),
-                (array)self::getProgressState()
-            ),
+            'stateID' => self::getQueuedStates(),
             'typeID' => $used,
             'storagegroupID' => $this->get('storagegroupID'),
             'storagenodeID' => $this->get('storagenodeID')
@@ -252,7 +249,7 @@ class Task extends TaskType
      */
     public function getStorageGroup()
     {
-        return $this->get('storagegroup');
+        return new StorageGroup($this->get('storagenode')->get('storagegroupID'));
     }
     /**
      * Returns the storage node object.

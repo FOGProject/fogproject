@@ -31,6 +31,24 @@ class DatabaseManager extends FOGCore
     public static function establish()
     {
         /**
+         * Certain scripts don't use the database at all
+         * so we skip connecting to the DB entirely for those.
+         */
+        $noDBpattern = array(
+            'status\/bandwidth\.php$',
+            'status\/freespace\.php$',
+            'status\/getfiles\.php$',
+            'status\/gethash\.php$',
+            'status\/getservertime\.php$',
+            'status\/getsize\.php$',
+            'status\/hw\.php$',
+            'status\/newtoken\.php$'
+        );
+        $noDBpattern = '#'.implode($noDBpattern, "|").'#';
+        if (preg_match($noDBpattern, self::$scriptname)) {
+            return;
+        }
+        /**
          * If the db is already connected,
          * return immediately.
          */
@@ -64,11 +82,7 @@ class DatabaseManager extends FOGCore
             && false === strpos(self::$scriptname, 'dbrunning'))
         ) {
             echo json_encode(_('A valid database connection could not be made'));
-            if (self::$json
-                || self::$ajax
-            ) {
-                exit(10);
-            }
+            exit(10);
         }
         /**
          * Get the version
@@ -91,6 +105,7 @@ class DatabaseManager extends FOGCore
         $okayFiles = array(
             'checkcredentials.php',
             'getversion.php',
+            'kernelvers.php',
         );
         /**
          * The script filename

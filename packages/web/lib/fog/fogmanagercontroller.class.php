@@ -180,6 +180,7 @@ abstract class FOGManagerController extends FOGBase
         if (empty($compare)) {
             $compare = '=';
         }
+        $findVals = array();
         $not = (
             $not ?
             ' NOT ' :
@@ -340,7 +341,9 @@ abstract class FOGManagerController extends FOGBase
         $idFields = array();
         foreach ((array) $idField as &$id) {
             $id = trim($id);
-            $idFields += (array) $this->databaseFields[$id];
+            if (isset($this->databaseFields[$id])) {
+                $idFields += (array) $this->databaseFields[$id];
+            }
             unset($id);
         }
         $idFields = array_filter($idFields);
@@ -838,7 +841,7 @@ abstract class FOGManagerController extends FOGBase
             $waszero = false;
             if ($matchID === 0) {
                 $waszero = true;
-                $matchID = 1;
+                $matchID = 9;  //default to Windows 10 (9)
             }
         }
         $elementName = trim($elementName);

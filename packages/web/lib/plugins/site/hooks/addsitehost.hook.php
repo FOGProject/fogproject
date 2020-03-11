@@ -29,7 +29,7 @@ class AddSiteHost extends Hook
     public $name = 'AddSiteHost';
     /**
      * The description of this hook.
-     * 
+     *
      * @var string
      */
     public $description = 'Add Hosts to a Site';
@@ -316,12 +316,12 @@ class AddSiteHost extends Hook
                 'siteID',
                 'hostID'
             );
-            $insert_valuse = array();
+            $insert_values = array();
             $insert_values[] = array(
                 $site,
-                $arguements['Host']->get('id')
+                $arguments['Host']->get('id')
             );
-            if (count($insert_valeus)) {
+            if (count($insert_values)) {
                 self::getClass('SiteHostAssociationManager')
                     ->insertBatch(
                         $insert_fields,

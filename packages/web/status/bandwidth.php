@@ -41,8 +41,8 @@ $getBytes = function ($dev) {
     }
     $txpath = "/sys/class/net/$dev/statistics/tx_bytes";
     $rxpath = "/sys/class/net/$dev/statistics/rx_bytes";
-    $tx = file_get_contents($txpath);
-    $rx = file_get_contents($rxpath);
+    $tx = trim(file_get_contents($txpath));
+    $rx = trim(file_get_contents($rxpath));
     return [$rx,$tx];
 };
 // Make sure a device is set
@@ -88,7 +88,7 @@ if (count($interface) < 1) {
     // If accessed by hostname resolve to ip
     $resName = FOGCore::resolveHostname($srvAddr);
     // Use the resolved name to find our interface
-    $dev = FOGCore::getMasterInterface($resname);
+    $dev = FOGCore::getMasterInterface($resName);
 }
 // Trim the device
 $dev = trim($dev);
@@ -103,9 +103,9 @@ if (!$dev) {
     exit;
 }
 // Set our rx and tx data values
-list($rxlast,$txlast) = $getBytes($dev);
+list($rxlast, $txlast) = $getBytes($dev);
 usleep(100000);
-list($rxcur,$txcur) = $getBytes($dev);
+list($rxcur, $txcur) = $getBytes($dev);
 $rx = round(ceil((int)(($rxcur - $rxlast)) / 1024 * 8 / 100), 2);
 $tx = round(ceil((int)(($txcur - $txlast)) / 1024 * 8 / 100), 2);
 // Setup our return array

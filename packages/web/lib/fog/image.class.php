@@ -377,8 +377,7 @@ class Image extends FOGController
     public function getStorageGroup()
     {
         $groupids = $this->get('storagegroups');
-        $count = count($groupids);
-        if ($count < 1) {
+        if (is_array($groupids) && count($groupids) < 1) {
             $groupids = self::getSubObjectIDs('StorageGroup');
             $groupids = @min($groupids);
             if ($groupids < 1) {
@@ -393,7 +392,7 @@ class Image extends FOGController
             $primaryGroup[] = $groupid;
             unset($groupid);
         }
-        if (count($primaryGroup) < 1) {
+        if (is_array($primaryGroup) && count($primaryGroup) < 1) {
             $primaryGroup = @min((array) $groupids);
         } else {
             $primaryGroup = array_shift($primaryGroup);

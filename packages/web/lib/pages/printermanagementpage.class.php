@@ -433,6 +433,14 @@ class PrinterManagementPage extends FOGPage
             . $model
             . '" id="modellocal" class="printermodel-input form-control" '
             . '/>'
+            . '</div>',
+            '<label for="configFilelocal">'
+            . _('Printer Config File')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="configFile" value="'
+            . $configFile
+            . '" id="configFilelocal" class="printerconfigfile-input form-control" '
+            . '/>'
             . '</div>'
         );
         array_walk($fields, $this->fieldsToData);
@@ -832,6 +840,14 @@ class PrinterManagementPage extends FOGPage
             . '<input type="text" name="model" value="'
             . $model
             . '" id="modellocal" class="printermodel-input form-control" '
+            . '/>'
+            . '</div>',
+            '<label for="configFilelocal">'
+            . _('Printer Config File')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="configFile" value="'
+            . $configFile
+            . '" id="configFilelocal" class="printerconfigfile-input form-control" '
             . '/>'
             . '</div>'
         );

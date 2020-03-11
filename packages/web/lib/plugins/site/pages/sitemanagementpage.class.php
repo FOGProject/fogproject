@@ -111,7 +111,11 @@ class SiteManagementPage extends FOGPage
                 'id' => $Site->id,
                 'name' => $Site->name,
                 'description' => $Site->description,
-                'hosts' => $Site->hostcount
+//                'hosts' => $Site->getHostCount()
+                'hosts' => self::getClass('SiteHostAssociationManager')
+                        ->count(
+                            ['siteID' => $Site->id]
+                        )
             );
             unset($Site);
         };
@@ -479,7 +483,7 @@ class SiteManagementPage extends FOGPage
         );
         $items = $items->hosts;
         $getter = 'hostsnotinme';
-        $returnData = function(&$item) use(&$getter) {
+        $returnData = function (&$item) use (&$getter) {
             $this->obj->get($getter);
             if (!in_array($item->id, (array)$this->obj->get($getter))) {
                 return;
@@ -682,7 +686,7 @@ class SiteManagementPage extends FOGPage
         );
         $items = $items->users;
         $getter = 'usersnotinme';
-        $returnData = function(&$item) use (&$getter) {
+        $returnData = function (&$item) use (&$getter) {
             $this->obj->get($getter);
             if (!in_array($item->id, (array)$this->obj->get($getter))) {
                 return;

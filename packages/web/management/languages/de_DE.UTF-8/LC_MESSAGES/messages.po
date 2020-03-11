@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-11 13:07-0400\n"
+"POT-Creation-Date: 2019-08-10 16:23+0100\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -656,10 +656,6 @@ msgstr "Neueste Version"
 #, fuzzy
 msgid "Latest Development Version"
 msgstr "Neueste Entwicklungsversion"
-
-#, fuzzy
-msgid "Latest SVN Version"
-msgstr "Neueste SVN-Version"
 
 msgid "Image is protected and cannot be deleted"
 msgstr "Image ist geschützt und kann nicht gelöscht werden"
@@ -4131,10 +4127,6 @@ msgid "this is just another to ensure safety"
 msgstr "ist diese eine weitere, um die Sicherheit zu erhöhen"
 
 #, fuzzy
-msgid "No Printer Manaagement"
-msgstr "Keine Druckerverwaltung"
-
-#, fuzzy
 msgid ""
 "This setting only adds and removes printers that are managed by FOG. If the "
 "printer exists in printer management but is not assigned to a host, it will "
@@ -6020,8 +6012,8 @@ msgstr "Route kann nicht nochmal neu definiert werden"
 msgid " | This is not the master node"
 msgstr " | Dies ist nicht der Master-Knoten"
 
-msgid "Interface not ready, waiting."
-msgstr "Schnittstelle nicht bereit, warten."
+msgid "Interface not ready, waiting for it to come up"
+msgstr "Netzwerkschnittstelle nicht bereit, warte auf deren Start"
 
 msgid "Waiting for mysql to be available"
 msgstr "Warten auf die Verfügbarkeit von MySQL"
@@ -6065,8 +6057,8 @@ msgid "Files do not match on server: "
 msgstr ""
 
 #, fuzzy
-msgid "File does not exist."
-msgstr "Methode ist nicht vorhanden"
+msgid "File does not exist"
+msgstr "Datei existiert nicht"
 
 #, fuzzy
 msgid "Deleting remote file"
@@ -6077,14 +6069,14 @@ msgstr "Synchronisierung nicht erforderlich"
 
 #, fuzzy
 msgid "file to"
-msgstr "für diese Datei"
+msgstr "Datei nach"
 
-msgid " * All files synced for this item."
-msgstr ""
+msgid "All files synced for this item."
+msgstr "Alle Dateien für dieses Element wurden synchronisiert."
 
 #, fuzzy
 msgid "Starting Sync Actions"
-msgstr " * Starte Sync-Aktionen"
+msgstr "Starte Sync-Aktionen"
 
 msgid "Started sync for"
 msgstr "Die Synchronistaion wurde gestartet für"
@@ -6097,69 +6089,56 @@ msgid " * Multicast service is globally disabled"
 msgstr " * Multicast Service ist global deaktiviert"
 
 #, fuzzy
-msgid "Cleaning"
-msgstr "bereinige"
+msgid "Task ID"
+msgstr "Task"
 
 #, fuzzy
-msgid "task"
-msgstr "den Task"
-
-#, fuzzy
-msgid "as they have been removed"
-msgstr "wie sie entfernt wurden"
-
-#, fuzzy
-msgid "is being cleaned"
-msgstr "wird bereinigt"
-
-#, fuzzy
-msgid "has been cancelled"
-msgstr "wurde abgebrochen"
-
-#, fuzzy
-msgid "has been completed"
-msgstr "wurde abgeschlossen"
-
-#, fuzzy
-msgid "No tasks found"
-msgstr "Keine Tasks gefunden"
+msgid "No new tasks found"
+msgstr "Keine neuen Tasks gefunden"
 
 #, fuzzy
 msgid "is new"
 msgstr "ist neu"
 
 #, fuzzy
-msgid "failed to execute"
-msgstr "Konnte nicht ausgeführt werden"
-
-#, fuzzy
-msgid "image file"
-msgstr "Imagedatei"
+msgid "failed to execute, image file"
+msgstr "Löschen der Imagedateien fehlgeschlagen"
 
 #, fuzzy
 msgid "not found on this node"
 msgstr "auf diesem Knoten nicht gefunden"
 
-msgid "no clients are included"
-msgstr "Keine Clients enthalten "
+msgid "failed to execute, there are no clients included"
+msgstr ""
 
-#, fuzzy
-msgid "port must be even and numeric"
-msgstr "Der Port muss eine gerade Zahl haben"
+msgid "failed to execute, port must be even and numeric"
+msgstr ""
 
 #, fuzzy
 msgid "failed to start"
 msgstr "Starten fehlgeschlagen"
 
 #, fuzzy
-msgid "has been cleaned"
-msgstr "wurde bereinigt"
+msgid "could not be killed"
+msgstr "Temporäre Datei konnte nicht gelesen werden."
 
-msgid "image file found"
-msgstr "Imagedatei gefunden"
+#, fuzzy
+msgid "has been killed"
+msgstr "wurde abgebrochen"
+
+#, fuzzy
+msgid "unable to be updated"
+msgstr "Aktualisierung fehlgeschlagen"
+
+msgid "image file found, file"
+msgstr ""
 
 #, fuzzy
 msgid "client"
+msgstr "Client"
+
+#, fuzzy
+msgid "clients"
 msgstr "Client"
 
 #, fuzzy
@@ -6184,6 +6163,30 @@ msgstr "läuft bereits mit PID"
 #, fuzzy
 msgid "is no longer running"
 msgstr "läuft nicht mehr"
+
+#, fuzzy
+msgid "has been completed"
+msgstr "wurde abgeschlossen"
+
+#, fuzzy
+msgid "has been cancelled"
+msgstr "wurde abgebrochen"
+
+#, fuzzy
+msgid "is now cancelled"
+msgstr "wurde abgebrochen"
+
+#, fuzzy
+msgid "could not be cancelled"
+msgstr "wurde abgebrochen"
+
+#, fuzzy
+msgid "is now completed"
+msgstr "wurde abgeschlossen"
+
+#, fuzzy
+msgid "could not be completed"
+msgstr "Temporäre Datei konnte nicht gelesen werden."
 
 #, fuzzy
 msgid "Wait time has changed to"
@@ -6406,11 +6409,15 @@ msgstr "Replizieren von SSL-freiem privatem Schlüssel"
 msgid "Not syncing Snapin"
 msgstr "Snapin wird nicht synchronisiert"
 
-msgid "Task not created as there are no associated Tasks"
-msgstr "Task wird nicht erstellt, da keine zugeordneten Tasks vorhanden sind"
+msgid "Task not created as there are no associated tasks"
+msgstr ""
 
 msgid "Or there was no number defined for joining session"
 msgstr "oder es wurde keine Nummer für die Beitrittssitzung definiert"
+
+#, fuzzy
+msgid " | Unable to find image path"
+msgstr "Fehler beim Finden des Master Storage Nodes"
 
 msgid "No fields passed"
 msgstr "Keine Felder übergeben"
@@ -7483,3 +7490,23 @@ msgstr "Ungültig"
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Gerätename muss eine Zeichenfolge sein."
+
+msgid "File hash mismatch"
+msgstr "Hash der Datei stimmt nicht überein"
+
+#, fuzzy
+msgid "File size mismatch"
+msgstr "Dateigröße stimmt nicht überein"
+
+#, fuzzy
+msgid "FTP connection failed"
+msgstr "FTP-Verbindung fehlgeschlagen"
+
+msgid "Snapin file is too big, increase post_max_size in php.ini."
+msgstr "Snapin Datei ist zu groß, post_max_size in php.ini erhöhen."
+
+msgid "$_POST variable is empty, check apache error log."
+msgstr "$_POST Variable ist leer, siehe Apache Errorlog"
+
+msgid "MAC address is already in use by another host"
+msgstr "Die MAC-Adresse wird bereits von einem andern Host verwendet"

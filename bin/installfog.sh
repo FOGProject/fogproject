@@ -16,15 +16,22 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+bindir=$(dirname $(readlink -f "$BASH_SOURCE") )
+cd $bindir
 workingdir=$(pwd)
 if [[ ! $EUID -eq 0 ]]; then
-    exec sudo $0 $@ || echo "FOG Installation must be run as root user"
-    exit 1 # Fail Sudo
+    echo "FOG Installation must be run as root user"
+    exit 1
+fi
+which useradd >/dev/null 2>&1
+if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
+    echo "Please switch to a proper root environment to run the installer (e.g. sudo -i)"
+    exit 1
 fi
 . ../lib/common/functions.sh
 help() {
-    echo -e "Usage: $0 [-h?dEUuHSCKYXT] [-f <filename>]"
-    echo -e "\t\t[-D </directory/to/document/root/>] [-c <sslPath>]"
+    echo -e "Usage: $0 [-h?dEUuHSCKYXTFA] [-f <filename>] [-N <databasename>]"
+    echo -e "\t\t[-D </directory/to/document/root/>] [-c <ssl-path>]"
     echo -e "\t\t[-W <webroot/to/fog/after/docroot/>] [-B </backup/path/>]"
     echo -e "\t\t[-s <192.168.1.10>] [-e <192.168.1.254>] [-b <undionly.kpxe>]"
     echo -e "\t-h -? --help\t\t\tDisplay this info"
@@ -37,7 +44,7 @@ help() {
     echo -e "\t-K    --recreate-keys\t\tRecreate the SSL Keys"
     echo -e "\t-Y -y --autoaccept\t\tAuto accept defaults and install"
     echo -e "\t-f    --file\t\t\tUse different update file"
-    echo -e "\t-c    --ssl-file\t\tSpecify the ssl path"
+    echo -e "\t-c    --ssl-path\t\tSpecify the ssl path"
     echo -e "\t               \t\t\t\tdefaults to /opt/fog/snapins/ssl"
     echo -e "\t-D    --docroot\t\t\tSpecify the Apache Docroot for fog"
     echo -e "\t               \t\t\t\tdefaults to OS DocumentRoot"
@@ -53,11 +60,11 @@ help() {
     echo -e "\t-E    --no-exportbuild\t\tSkip building nfs file"
     echo -e "\t-X    --exitFail\t\tDo not exit if item fails"
     echo -e "\t-T    --no-tftpbuild\t\tDo not rebuild the tftpd config file"
-    echo -e "\t-P    --no-pxedefault\t\tDo not overwrite pxe default file"
     echo -e "\t-F    --no-vhost\t\tDo not overwrite vhost file"
+    echo -e "\t-A    --arm-support\t\tInstall kernel and initrd for ARM platforms"
     exit 0
 }
-optspec="h?odEUHSCKYyXxTPFf:c:-:W:D:B:s:e:b:"
+optspec="h?odEUHSCKYyXxTPFAf:c:-:W:D:B:s:e:b:N:"
 while getopts "$optspec" o; do
     case $o in
         -)
@@ -71,9 +78,9 @@ while getopts "$optspec" o; do
                     ;;
                 ssl-path)
                     ssslpath="${OPTARG}"
-                    ssslpath="${sslpath#'/'}"
-                    ssslpath="${sslpath%'/'}"
-                    sslpath="/${sslpath}/"
+                    ssslpath="${ssslpath#'/'}"
+                    ssslpath="${ssslpath%'/'}"
+                    ssslpath="/${ssslpath}/"
                     ;;
                 no-vhost)
                     novhost="y"
@@ -143,6 +150,8 @@ while getopts "$optspec" o; do
                         exit 5
                     fi
                     sstartrange=$OPTARG
+                    dodhcp="Y"
+                    bldhcp=1
                     ;;
                 endrange)
                     if [[ $(validip $OPTARG) != 0 ]]; then
@@ -151,6 +160,8 @@ while getopts "$optspec" o; do
                         exit 6
                     fi
                     sendrange=$OPTARG
+                    dodhcp="Y"
+                    bldhcp=1
                     ;;
                 bootfile)
                     sbootfilename=$OPTARG
@@ -164,8 +175,8 @@ while getopts "$optspec" o; do
                 no-tftpbuild)
                     snoTftpBuild="true"
                     ;;
-                no-pxedefault)
-                    snotpxedefaultfile="true"
+                arm-support)
+                    sarmsupport=1
                     ;;
                 *)
                     if [[ $OPTERR == 1 && ${optspec:0:1} != : ]]; then
@@ -185,9 +196,9 @@ while getopts "$optspec" o; do
             ;;
         c)
             ssslpath="${OPTARG}"
-            ssslpath="${sslpath#'/'}"
-            ssslpath="${sslpath%'/'}"
-            ssslpath="/${sslpath}/"
+            ssslpath="${ssslpath#'/'}"
+            ssslpath="${ssslpath%'/'}"
+            ssslpath="/${ssslpath}/"
             ;;
         d)
             guessdefaults=0
@@ -253,6 +264,8 @@ while getopts "$optspec" o; do
                 exit 5
             fi
             sstartrange=$OPTARG
+            dodhcp="Y"
+            bldhcp=1
             ;;
         e)
             if [[ $(validip $OPTARG) != 0 ]]; then
@@ -261,6 +274,8 @@ while getopts "$optspec" o; do
                 exit 6
             fi
             sendrange=$OPTARG
+            dodhcp="Y"
+            bldhcp=1
             ;;
         b)
             sbootfilename=$OPTARG
@@ -274,8 +289,16 @@ while getopts "$optspec" o; do
         T)
             snoTftpBuild="true"
             ;;
-        P)
-            snotpxedefaultfile="true"
+        A)
+            sarmsupport=1
+            ;;
+        N)
+            if [[ -z $OPTARG ]]; then
+                echo "Please specify a database name"
+                help
+                exit 4
+            fi
+            smysqldbname=$OPTARG
             ;;
         :)
             echo "Option -$OPTARG requires a value"
@@ -346,10 +369,11 @@ echo "Done"
 [[ -z $dodhcp ]] && dodhcp=""
 [[ -z $bldhcp ]] && bldhcp=""
 [[ -z $installtype ]] && installtype=""
-[[ -z $interface ]] && interface="" #interface=$(getFirstGoodInterface)
-[[ -z $ipaddress  ]] && ipaddress="" #ipaddress=$(/sbin/ip addr show $interface | awk -F'[ /]+' '/global/ {print $3}')
-[[ -z $routeraddress ]] && routeraddress="" #routeraddress=$(/sbin/ip route | awk "/$interface/ && /via/ {print \$3}")
-[[ -z $plainrouter ]] && plainrouter="" #plainrouter=$routeraddress
+[[ -z $interface ]] && interface=""
+[[ -z $ipaddress  ]] && ipaddress=""
+[[ -z $hostname  ]] && hostname=""
+[[ -z $routeraddress ]] && routeraddress=""
+[[ -z $plainrouter ]] && plainrouter=""
 [[ -z $blexports ]] && blexports=1
 [[ -z $installlang ]] && installlang=0
 [[ -z $bluseralreadyexists ]] && bluseralreadyexists=0
@@ -357,6 +381,8 @@ echo "Done"
 [[ -z $doupdate ]] && doupdate=1
 [[ -z $ignorehtmldoc ]] && ignorehtmldoc=0
 [[ -z $httpproto ]] && httpproto="http"
+[[ -z $armsupport ]] && armsupport=0
+[[ -z $mysqldbname ]] && mysqldbname="fog"
 [[ -z $fogpriorconfig ]] && fogpriorconfig="$fogprogramdir/.fogsettings"
 #clearScreen
 if [[ -z $* || $* != +(-h|-?|--help|--uninstall) ]]; then
@@ -365,6 +391,8 @@ if [[ -z $* || $* != +(-h|-?|--help|--uninstall) ]]; then
 fi
 displayBanner
 echo -e "   Version: $version Installer/Updater\n"
+checkSELinux
+checkFirewall
 case $doupdate in
     1)
         if [[ -f $fogpriorconfig ]]; then
@@ -373,18 +401,12 @@ case $doupdate in
             . "$fogpriorconfig"
             doOSSpecificIncludes
             [[ -n $sblexports ]] && blexports=$sblexports
-            [[ -n $snotpxedefaultfile ]] && notpxedefaultfile=$snotpxedefaultfile
             [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
             [[ -n $sbootfilename ]] && bootfilename=$sbootfilename
-            [[ -n $sendrange ]] && endrange=$sendrange
-            [[ -n $sstartrange ]] && startrange=$sstartrange
             [[ -n $sbackupPath ]] && backupPath=$sbackupPath
             [[ -n $swebroot ]] && webroot=$swebroot
             [[ -n $sdocroot ]] && docroot=$sdocroot
-            [[ -n $srecreateCA ]] && recreateCA=$srecreateCA
-            [[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
             [[ -n $signorehtmldoc ]] && ignorehtmldoc=$signorehtmldoc
-            [[ -n $ssslpath ]] && sslpath=$ssslpath
             [[ -n $scopybackold ]] && copybackold=$scopybackold
         fi
         ;;
@@ -394,6 +416,12 @@ case $doupdate in
 esac
 # evaluation of command line options
 [[ -n $shttpproto ]] && httpproto=$shttpproto
+[[ -n $sstartrange ]] && startrange=$sstartrange
+[[ -n $sendrange ]] && endrange=$sendrange
+[[ -n $ssslpath ]] && sslpath=$ssslpath
+[[ -n $srecreateCA ]] && recreateCA=$srecreateCA
+[[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
+[[ -n $sarmsupport ]] && armsupport=$sarmsupport
 
 [[ -f $fogpriorconfig ]] && grep -l webroot $fogpriorconfig >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 case $? in
@@ -415,8 +443,11 @@ if [[ -z $backupPath ]]; then
     backupPath="/$backupPath/"
 fi
 [[ -z $bootfilename ]] && bootfilename="undionly.kpxe"
+[[ -n $smysqldbname ]] && mysqldbname=$smysqldbname
+
 [[ ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]] && . ../lib/common/input.sh
-fullrelease="1.5.4"
+# ask user input for newly added options like hostname etc.
+. ../lib/common/newinput.sh
 echo
 echo "   ######################################################################"
 echo "   #     FOG now has everything it needs for this setup, but please     #"
@@ -429,14 +460,6 @@ echo "   ######################################################################"
 echo "   #             This script should be run by the root user.            #"
 echo "   #      It will prepend the running with sudo if root is not set      #"
 echo "   ######################################################################"
-echo "   #           ** Notice ** FOG is difficult to setup securely          #"
-echo "   #        SELinux and IPTables are usually asked to be disabled       #"
-echo "   #           There have been strides in adding capabilities           #"
-echo "   #          The recommendations would now be more appropriate         #"
-echo "   #    to set SELinux to permissive and to disable firewall for now.   #"
-echo "   #  You can find some methods to enable SELinux and maintain firewall #"
-echo "   #   settings and ports. If you feel comfortable doing so please do   #"
-echo "   ######################################################################"
 echo "   #            Please see our wiki for more information at:            #"
 echo "   ######################################################################"
 echo "   #             https://wiki.fogproject.org/wiki/index.php             #"
@@ -445,9 +468,10 @@ echo
 echo " * Here are the settings FOG will use:"
 echo " * Base Linux: $osname"
 echo " * Detected Linux Distribution: $linuxReleaseName"
+echo " * Interface: $interface"
 echo " * Server IP Address: $ipaddress"
 echo " * Server Subnet Mask: $submask"
-echo " * Interface: $interface"
+echo " * Server Hostname: $hostname"
 case $installtype in
     N)
         echo " * Installation Type: Normal Server"
@@ -492,9 +516,7 @@ while [[ -z $blGo ]]; do
         [Yy]|[Yy][Ee][Ss])
             echo " * Installation Started"
             echo
-            echo " * Installing required packages, if this fails"
-            echo " | make sure you have an active internet connection."
-            echo
+            checkInternetConnection
             if [[ $ignorehtmldoc -eq 1 ]]; then
                 [[ -z $newpackagelist ]] && newpackagelist=""
                 for z in $packages; do
@@ -543,6 +565,7 @@ while [[ -z $blGo ]]; do
             configureUsers
             case $installtype in
                 [Ss])
+                    checkDatabaseConnection
                     backupReports
                     configureMinHttpd
                     configureStorage
@@ -564,6 +587,7 @@ while [[ -z $blGo ]]; do
                     else
                         registerStorageNode
                         updateStorageNodeCredentials
+                        [[ -n $snmysqlhost ]] && fogserver=$snmysqlhost || fogserver="fog-server"
                         echo
                         echo " * Setup complete"
                         echo
@@ -573,13 +597,13 @@ while [[ -z $blGo ]]; do
                         echo " | below."
                         echo
                         echo " * Management Server URL:"
-                        echo "   ${httpproto}://fog-server${webroot}"
+                        echo "   ${httpproto}://${fogserver}${webroot}"
                         echo
                         echo "   You will need this, write this down!"
-                        echo "   Username:  $username"
-                        echo "   Password:  $password"
-                        echo "   Interface: $interface"
-                        echo "   Address:   $ipaddress"
+                        echo "   IP Address:          $ipaddress"
+                        echo "   Interface:           $interface"
+                        echo "   Management Username: $username"
+                        echo "   Management Password: $password"
                         echo
                     fi
                     ;;

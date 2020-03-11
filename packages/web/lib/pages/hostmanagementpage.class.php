@@ -823,7 +823,7 @@ class HostManagementPage extends FOGPage
             unset($PowerManagement);
         }
         // Current data.
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             echo '<div class="panel panel-info">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
@@ -1519,7 +1519,7 @@ class HostManagementPage extends FOGPage
                 ''
             )
             . '/>';
-        echo _('No Printer Manaagement');
+        echo _('No Printer Management');
         echo '</label>';
         echo '</div>';
         echo '<div class="radio">';
@@ -1583,7 +1583,7 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'HOST_ADD_PRINTER',
@@ -1685,7 +1685,7 @@ class HostManagementPage extends FOGPage
             );
             unset($Printer);
         }
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'HOST_EDIT_PRINTER',
@@ -1808,7 +1808,7 @@ class HostManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=host-snapins">';
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'HOST_ADD_SNAPIN',
@@ -1894,7 +1894,7 @@ class HostManagementPage extends FOGPage
             );
             unset($Snapin);
         }
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'HOST_EDIT_SNAPIN',
@@ -2608,7 +2608,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         $paneltype = 'info';
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             $paneltype = 'warning';
         }
         echo '<!-- Virus -->';
@@ -2941,7 +2941,7 @@ class HostManagementPage extends FOGPage
             $stateName = $Task->state->name;
             unset($Task);
             $createdBy = (
-                $log->createdBy ?:
+                $Log->createdBy ?:
                 self::$FOGUser->get('name')
             );
             $Image = $Log->image;
@@ -3223,7 +3223,7 @@ class HostManagementPage extends FOGPage
             $this->obj->get('ADDomain'),
             $this->obj->get('ADOU'),
             $this->obj->get('ADUser'),
-            $this->obj->get('ADPass'),
+            '',
             $this->obj->get('ADPassLegacy'),
             $this->obj->get('enforce')
         );
@@ -3764,7 +3764,15 @@ class HostManagementPage extends FOGPage
         $MainDate_1 = self::niceDate($date)
             ->modify('+1 day')
             ->getTimestamp();
-        Route::listem('UserTracking');
+        Route::listem(
+            'UserTracking',
+            'name',
+            'ASC',
+            array(
+                'hostID' => $this->obj->get('id'),
+                'action' => array('', 0, 1)
+            )
+        );
         $UserTracks = json_decode(
             Route::getData()
         );

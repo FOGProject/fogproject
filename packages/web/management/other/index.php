@@ -171,7 +171,7 @@ echo '<li><a href="?node=client">'
     . '</a></li>';
 echo '<li><a href="https://www.paypal.com/cgi-bin/webscr?item_name=Donation'
     . '+to+FOG+-+A+Free+Cloning+Solution&cmd=_donations&business=fogproject.org'
-    . '@gmail.com">'
+    . '@gmail.com" target="_blank">'
     . _('Donate to FOG')
     . '</a></li>';
 if (self::$FOGUser->isValid()) {

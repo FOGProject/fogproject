@@ -76,14 +76,14 @@ class User_Tracking extends ReportManagementPage
         );
         natcasesort($UserNames);
         natcasesort($HostNames);
-        if (count($UserNames) > 0) {
+        if (is_array($UserNames) && count($UserNames) > 0) {
             $userSelForm = self::selectForm(
                 'usersearch',
                 $UserNames
             );
             unset($UserNames);
         }
-        if (count($HostNames) > 0) {
+        if (is_array($HostNames) && count($HostNames) > 0) {
             $hostSelForm = self::selectForm(
                 'hostsearch',
                 $HostNames
@@ -337,7 +337,7 @@ class User_Tracking extends ReportManagementPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        if (count($this->data) > 0) {
+        if (is_array($this->data) && count($this->data) > 0) {
             echo '<div class="text-center">';
             printf(
                 $this->reportString,

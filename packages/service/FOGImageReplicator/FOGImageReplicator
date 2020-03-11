@@ -47,6 +47,7 @@ while (true) {
     }
     if (FOGCore::niceDate() < $nextrun) {
         usleep(100000);
+        $ServiceClass->doHousekeeping();
         continue;
     }
     $nextrun = FOGCore::niceDate()

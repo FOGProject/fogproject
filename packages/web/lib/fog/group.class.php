@@ -446,6 +446,7 @@ class Group extends FOGController
         $sessionjoin = false,
         $wol = false
     ) {
+        $taskName .= ' - ' . $this->get('name');
         $hostCount = $this->getHostCount();
         if ($hostCount < 1) {
             throw new Exception(_('No hosts to task'));
@@ -556,6 +557,7 @@ class Group extends FOGController
                     'isForced',
                     'stateID',
                     'typeID',
+                    'storagenodeID',
                     'wol',
                     'imageID',
                     'shutdown',
@@ -571,6 +573,7 @@ class Group extends FOGController
                         0,
                         self::getQueuedState(),
                         $TaskType->get('id'),
+                        $StorageNode->get('id'),
                         $wol,
                         $Image->get('id'),
                         $shutdown,
@@ -637,6 +640,7 @@ class Group extends FOGController
                     'isForced',
                     'stateID',
                     'typeID',
+                    'storagenodeID',
                     'wol',
                     'imageID',
                     'shutdown',
@@ -652,6 +656,7 @@ class Group extends FOGController
                         0,
                         self::getQueuedState(),
                         $TaskType->get('id'),
+                        $StorageNode->get('id'),
                         $wol,
                         $imageIDs[$i],
                         $shutdown,
@@ -674,7 +679,9 @@ class Group extends FOGController
                     $ids,
                     $multicastsessionassocs
                 );
-                $this->_createSnapinTasking($now, $deploySnapins);
+                if ($TaskType->isSnapinTask()) {
+                    $this->_createSnapinTasking($now, $deploySnapins);
+                }
             }
         } elseif ($TaskType->isSnapinTasking()) {
             $hostIDs = $this->_createSnapinTasking($now, $deploySnapins);
@@ -802,15 +809,7 @@ class Group extends FOGController
         if ($snapin === false) {
             return;
         }
-        $hostIDs = array_values(
-            self::getSubObjectIDs(
-                'SnapinAssociation',
-                array(
-                    'hostID' => $this->get('hosts'),
-                ),
-                'hostID'
-            )
-        );
+        $hostIDs = $this->get('hosts');
         $hostCount = count($hostIDs);
         $snapinJobs = array();
         for ($i = 0; $i < $hostCount; ++$i) {
@@ -899,6 +898,8 @@ class Group extends FOGController
         $enforce
     ) {
         $pass = trim($pass);
+        $adpasspat = "/^\*{32}$/";
+        $pass = (preg_match($adpasspat, $pass) ? $this->get('ADPass') : $pass);
         self::getClass('HostManager')
             ->update(
                 array(
@@ -971,15 +972,18 @@ class Group extends FOGController
      */
     protected function loadHosts()
     {
-        $this->set(
-            'hosts',
-            (array)self::getSubObjectIDs(
-                'GroupAssociation',
-                array('groupID' => $this->get('id')),
-                'hostID'
-            )
-        );
-        $this->getHostCount();
+        $groupid = $this->get('id');
+        if ($groupid > 0) {
+            $this->set(
+                'hosts',
+                (array)self::getSubObjectIDs(
+                    'GroupAssociation',
+                    array('groupID' => $groupid),
+                    'hostID'
+                )
+            );
+            $this->getHostCount();
+        }
     }
     /**
      * Loads hosts not in this group.
