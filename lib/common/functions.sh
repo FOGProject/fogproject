@@ -1156,12 +1156,13 @@ configureMySql() {
             echo "   Unable to connect to the database using the given password!"
             echo -n "   Try again: "
             read -rs snmysqlrootpass
-            echo
-            echo
+            mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="quit" >/dev/null 2>&1
+            if [[ $? -ne 0 ]]; then
+                echo
+                echo "   Failed! Terminating installer now."
+                exit 1
+            fi
         fi
-        mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="quit" >/dev/null 2>&1
-        echo "   Failed! Terminating installer now."
-        exit 1
     fi
 
     snmysqlstoragepass=$(mysql -s $sqloptionsroot --password="${snmysqlrootpass}" --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
