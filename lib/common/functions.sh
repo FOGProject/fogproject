@@ -664,7 +664,7 @@ installPackages() {
                         addOndrejRepo
                     fi
                     ;;
-                *[Dd][Ee][Bb][Ii][Aa][Nn]*)
+                *[Bb][Ii][Aa][Nn]*)
                     if [[ $OSVersion -ge 10 ]]; then
                         packages="${packages// libcurl3 / libcurl4 }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         packages="${packages// mysql-client / mariadb-client }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
