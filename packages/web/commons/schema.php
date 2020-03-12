@@ -3748,7 +3748,13 @@ $this->schema[] = array(
 // 269
 $this->schema[] = array(
     "UPDATE `taskTypes` SET `ttDescription`='Normal wipe will boot "
-    . "the client computer and perform a full disk wipe. This method"
+    . "the client computer and perform a full disk wipe. This method "
     . "writes ONE pass of random data to the hard disk.' "
-    . "WHERE `ttID`=19",
+    . "WHERE `ttID`=19"
+);
+// 270
+$this->schema[] = array(
+    "UPDATE `globalSettings` SET "
+    . "`settingDesc`='Compression Format Setting (Default to Partclone Zstd)', `settingValue`=5 "
+    . "WHERE `settingKey`='FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT' AND `settingValue`=0"
 );
