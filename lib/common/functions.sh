@@ -98,17 +98,44 @@ updateDB() {
     mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_STORAGENODE_MYSQLPASS', 'This setting defines the password the storage nodes should use to connect to the fog server.', \"$snmysqlstoragepass\", 'FOG Storage Nodes') ON DUPLICATE KEY UPDATE settingValue=\"$snmysqlstoragepass\"" $mysqldbname >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Granting access to fogstorage database user"
-    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="quit" >/dev/null 2>&1
-    connect_as_fogmaster=$?
-    mysql ${host} -s --user=fogstorage --password="${snmysqlstoragepass}" --execute="quit" >/dev/null 2>&1
+    mysql ${host} -s --user=fogstorage --password="${snmysqlstoragepass}" --execute="INSERT INTO $mysqldbname.taskLog VALUES ( 0, '999test', 3, '127.0.0.1', NOW(), 'fog');" >/dev/null 2>&1
     connect_as_fogstorage=$?
-    if [[ $connect_as_fogmaster -eq 0 && $connect_as_fogstorage -eq 0 ]]; then
+    if [[ $connect_as_fogstorage -eq 0 ]]; then
+        mysql $sqloptionsuser --password="${snmysqlpass}" --execute="DELETE FROM $mysqldbname.taskLog WHERE taskID='999test' AND ip='127.0.0.1';" >/dev/null 2>&1
         echo "Skipped"
         return
+    fi
+
+    # we still need to grant access for the fogstorage DB user
+    # and therefore need root DB access
+    mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="quit" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ $? -ne 0 ]]; then
+        echo
+        echo "   To improve the overall security the installer will restrict"
+        echo "   permissions for the *fogstorage* database user."
+        echo "   Please provide the database *root* user password. Be asured"
+        echo "   that this password will only be used while the FOG installer"
+        echo -n "   is running and won't be stored anywhere: "
+        read -rs snmysqlrootpass
+        echo
+        echo
+        mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="quit" >/dev/null 2>&1
+        if [[ $? -ne 0 ]]; then
+            echo "   Unable to connect to the database using the given password!"
+            echo -n "   Try again: "
+            read -rs snmysqlrootpass
+            mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="quit" >/dev/null 2>&1
+            if [[ $? -ne 0 ]]; then
+                echo
+                echo "   Failed! Terminating installer now."
+                exit 1
+            fi
+        fi
     fi
     [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
     cat >../tmp/fog-db-grant-fogstorage-access.sql <<EOF
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ANSI' ;
+GRANT SELECT ON $mysqldbname.* TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.hosts TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.inventory TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.multicastSessions TO 'fogstorage'@'%' ;
@@ -1172,7 +1199,7 @@ configureMySql() {
     elif [[ -n $(echo $snmysqlstoragepass | grep "^fs[0-9][0-9]*$") ]]; then
         snmysqlstoragepass=$(generatePassword 20)
         echo
-        echo "   The current fogstorage database password does not meet high"
+        echo "   The current *fogstorage* database password does not meet high"
         echo "   security standards. We will generate a new password and update"
         echo "   all the settings on this FOG server for you. Please take note"
         echo "   of the following credentials that you need to manually update"
@@ -1216,7 +1243,6 @@ BEGIN
     DROP USER 'fogstorage'@'%';
   END IF ;
   CREATE USER 'fogstorage'@'%' IDENTIFIED BY '${snmysqlstoragepass}' ;
-  GRANT SELECT ON $mysqldbname.* TO 'fogstorage'@'%' ;
 END ;$$
 DELIMITER ;
 CALL $mysqldbname.create_user_if_not_exists() ;
