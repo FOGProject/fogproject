@@ -40,7 +40,7 @@ class EventManager extends FOGBase
      *
      * @var mixed
      */
-    public $events;
+    //public $events;
     /**
      * Registers events and listeners within the system.
      *

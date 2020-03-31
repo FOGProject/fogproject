@@ -40,7 +40,7 @@ class HookManager extends EventManager
      *
      * @var array
      */
-    public $events = [];
+    //public $events = [];
     /**
      * Processes the system for customizable elements.
      *
@@ -51,7 +51,7 @@ class HookManager extends EventManager
      */
     public function processEvent($event, $arguments = [])
     {
-        $this->events[] = $event;
+        //$this->events[] = $event;
         $exists = self::getClass('HookEventManager')->exists(
             $event,
             '',
