@@ -239,9 +239,8 @@ class DatabaseManager extends FOGCore
      */
     private static function _convertEngine()
     {
-        $sql = "SELECT CONCAT('ALTER TABLE `"
-            . self::$DB->dbName()
-            . "`.`', TABLE_NAME, '` ENGINE='InnoDB') as Q "
+        $sql = "SELECT CONCAT('ALTER TABLE "
+            . "',TABLE_SCHEMA,'.',TABLE_NAME,' ENGINE=InnoDB') AS Q "
             . "FROM INFORMATION_SCHEMA.TABLES WHERE ENGINE='MyISAM' AND "
             . "TABLE_SCHEMA = '"
             . self::$DB->dbName()
