@@ -2210,7 +2210,7 @@ abstract class FOGBase
         }
         self::getIPAddress();
         exec(
-            "/sbin/ip route | grep '$ip_find' | awk -F'[ /]+' '/src/ {print $4}'",
+            "/sbin/ip route | grep '$ip_find' | awk -F'[ /]+' '/kernel.*src/ {print $4}'",
             $Interfaces,
             $retVal
         );
