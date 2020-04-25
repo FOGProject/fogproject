@@ -44,7 +44,10 @@ elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]
     DEBIAN_FRONTEND=noninteractive apt-get purge -yq sysv-rc-conf >/dev/null 2>&1
     if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) ]]; then
         case $OSVersion in
-            19|20)
+            20)
+                php_ver="7.4"
+                ;;
+            19)
                 php_ver="7.3"
                 ;;
             18)
