@@ -267,15 +267,15 @@ class AddSiteHost extends Hook
         if ($UserIsRestricted == 1) {
             $SitesFiltered = array_diff(
                 self::getSubObjectIDs(
-                'Site',
-                '',
-                'id'
-            ),
+                    'Site',
+                    '',
+                    'id'
+                ),
                 self::getSubObjectIDs(
-                'SiteUserAssociation',
-                array('userID' => self::$FOGUser->get('id')),
-                'siteID'
-            )
+                    'SiteUserAssociation',
+                    array('userID' => self::$FOGUser->get('id')),
+                    'siteID'
+                )
             );
         }
         self::arrayInsertAfter(
