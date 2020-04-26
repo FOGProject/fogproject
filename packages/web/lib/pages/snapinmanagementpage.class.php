@@ -239,7 +239,7 @@ class SnapinManagementPage extends FOGPage
             /**
              * Tell if packtype is true or not.
              */
-            if ($Snapin->packtype < 0) {
+            if ($Snapin->packtype <= 0) {
                 $packtype = _('No');
             } else {
                 $packtype = _('Yes');
