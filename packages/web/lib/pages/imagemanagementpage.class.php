@@ -551,7 +551,7 @@ class ImageManagementPage extends FOGPage
             ),
             _('Partclone Uncompressed Split 200MiB'),
             (
-                !$imagemanage || $imagemanage == 5 ?
+                !isset($imagemanage) || $imagemanage == 5 ?
                 ' selected' :
                 ''
             ),

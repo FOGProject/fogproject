@@ -161,6 +161,9 @@ class TaskQueue extends TaskingElement
                         throw new Exception($msg);
                     }
                 }
+                if ($this->Task->isCapture()) {
+                    $this->Task->getImage()->set('size', '')->save();
+                }
                 $this->Task
                     ->set(
                         'storagenodeID',
