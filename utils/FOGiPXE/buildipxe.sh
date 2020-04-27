@@ -17,6 +17,8 @@ if [[ -d ${BASE}/ipxe ]]; then
   git reset --hard
   git pull
   cd src/
+  # make sure this is being re-compiled in case the CA has changed!
+  touch crypto/rootcert.c
 else
   git clone ${IPXEGIT} ${BASE}/ipxe
   cd ${BASE}/ipxe/src/
@@ -54,6 +56,8 @@ if [[ -d ${BASE}/ipxe-efi ]]; then
   git reset --hard
   git pull
   cd src/
+  # make sure this is being re-compiled in case the CA has changed!
+  touch crypto/rootcert.c
 else
   git clone ${IPXEGIT} ${BASE}/ipxe-efi
   cd ${BASE}/ipxe-efi/src/

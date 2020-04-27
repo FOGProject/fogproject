@@ -321,7 +321,7 @@ class MulticastManager extends FOGService
                                         _('failed to start')
                                     )
                                 );
-                                if (!$curTask->kilTask()) {
+                                if (!$curTask->killTask()) {
                                     self::outall(
                                         sprintf(
                                             $startStr,
@@ -425,7 +425,7 @@ class MulticastManager extends FOGService
                                     )
                                 );
 
-                                if (!$curTask->kilTask()) {
+                                if (!$curTask->killTask()) {
                                     self::outall(
                                         sprintf(
                                             $startStr,
@@ -568,7 +568,7 @@ class MulticastManager extends FOGService
                             $jobcancelled = true;
                         }
                         if ($SessCompleted
-                            || count($inTaskCompletedIDs) > 0
+                            || count($inTaskCompletedIDs) >= count($taskIDs)
                             || ($runningTask->isNamedSession()
                             && $runningTask->getSessClients())
                         ) {

@@ -1383,7 +1383,11 @@ abstract class FOGBase
         if (!is_string($new_key)) {
             throw new Exception(_('New key must be a string'));
         }
-        $array[$old_key] = trim($array[$old_key]);
+        $array[$old_key] = (
+            is_string($array[$old_key]) ?
+            trim($array[$old_key]) :
+            $array[$old_key]
+        );
         if (!self::$service && is_string($array[$old_key])) {
             $item = mb_convert_encoding(
                 $array[$old_key],
@@ -1534,22 +1538,30 @@ abstract class FOGBase
         $key = false,
         $enctype = 'aes-128-cbc'
     ) {
-        $iv_size = openssl_cipher_iv_length($enctype);
+        $iv_size = openssl_cipher_iv_length($enctype) * 2;
         if (false === strpos($encdata, '|')) {
             return $encdata;
         }
         $data = explode('|', $encdata);
-        if ($iv = pack('H*', $data[0])) {
-            return '';
+        if (strlen($data[0]) != $iv_size || strlen($data[1]) != $iv_size) {
+            return $encdata;
         }
-        if ($encoded != pack('H*', $data[1])) {
-            return '';
-        }
-        if (!$key && $data[2]) {
-            if ($key != pack('H*', $data[2])) {
-                return '';
+        // add error handler to catch warnings we might get from pack() with non-hex strings
+        set_error_handler(
+            function ($severity, $message, $file, $line) {
+                throw new ErrorException($message, $severity, $severity, $file, $line);
             }
+        );
+        try {
+            $iv = pack('H*', $data[0]);
+            $encoded = pack('H*', $data[1]);
+            if (!$key && isset($data[2]) && strlen($data[2]) == $iv_size) {
+                $key = pack('H*', $data[2]);
+            }
+        } catch (Exception $e) {
+            return $encdata;
         }
+        restore_error_handler();
         if (empty($key)) {
             return '';
         }
@@ -2198,7 +2210,7 @@ abstract class FOGBase
         }
         self::getIPAddress();
         exec(
-            "/sbin/ip route | grep '$ip_find' | awk -F'[ /]+' '/src/ {print $4}'",
+            "/sbin/ip route | grep '$ip_find' | awk -F'[ /]+' '/kernel.*src/ {print $4}'",
             $Interfaces,
             $retVal
         );

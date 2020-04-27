@@ -32,7 +32,7 @@ checkDatabaseConnection() {
     dots "Checking connection to master database"
     [[ -n $snmysqlhost ]] && host="--host=$snmysqlhost"
     sqloptionsuser="${host} -s --user=${snmysqluser}"
-    mysql $sqloptionsuser --password=${snmysqlpass} --execute="quit" >/dev/null 2>&1
+    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="quit" >/dev/null 2>&1
     errorStat $?
 }
 registerStorageNode() {
@@ -95,13 +95,47 @@ updateDB() {
             ;;
     esac
     dots "Update fogstorage database password"
-    mysql $sqloptionsuser --password=${snmysqlpass} --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_STORAGENODE_MYSQLPASS', 'This setting defines the password the storage nodes should use to connect to the fog server.', \"$snmysqlstoragepass\", 'FOG Storage Nodes') ON DUPLICATE KEY UPDATE settingValue=\"$snmysqlstoragepass\"" $mysqldbname >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_STORAGENODE_MYSQLPASS', 'This setting defines the password the storage nodes should use to connect to the fog server.', \"$snmysqlstoragepass\", 'FOG Storage Nodes') ON DUPLICATE KEY UPDATE settingValue=\"$snmysqlstoragepass\"" $mysqldbname >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Granting access to fogstorage database user"
-    if [[ -n $snmysqlrootpass ]]; then
-        [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
-        cat >../tmp/fog-db-grant-fogstorage-access.sql <<EOF
+    mysql ${host} -s --user=fogstorage --password="${snmysqlstoragepass}" --execute="INSERT INTO $mysqldbname.taskLog VALUES ( 0, '999test', 3, '127.0.0.1', NOW(), 'fog');" >/dev/null 2>&1
+    connect_as_fogstorage=$?
+    if [[ $connect_as_fogstorage -eq 0 ]]; then
+        mysql $sqloptionsuser --password="${snmysqlpass}" --execute="DELETE FROM $mysqldbname.taskLog WHERE taskID='999test' AND ip='127.0.0.1';" >/dev/null 2>&1
+        echo "Skipped"
+        return
+    fi
+
+    # we still need to grant access for the fogstorage DB user
+    # and therefore need root DB access
+    mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="quit" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ $? -ne 0 ]]; then
+        echo
+        echo "   To improve the overall security the installer will restrict"
+        echo "   permissions for the *fogstorage* database user."
+        echo "   Please provide the database *root* user password. Be asured"
+        echo "   that this password will only be used while the FOG installer"
+        echo -n "   is running and won't be stored anywhere: "
+        read -rs snmysqlrootpass
+        echo
+        echo
+        mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="quit" >/dev/null 2>&1
+        if [[ $? -ne 0 ]]; then
+            echo "   Unable to connect to the database using the given password!"
+            echo -n "   Try again: "
+            read -rs snmysqlrootpass
+            mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="quit" >/dev/null 2>&1
+            if [[ $? -ne 0 ]]; then
+                echo
+                echo "   Failed! Terminating installer now."
+                exit 1
+            fi
+        fi
+    fi
+    [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
+    cat >../tmp/fog-db-grant-fogstorage-access.sql <<EOF
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ANSI' ;
+GRANT SELECT ON $mysqldbname.* TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.hosts TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.inventory TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.multicastSessions TO 'fogstorage'@'%' ;
@@ -116,11 +150,8 @@ GRANT INSERT,UPDATE ON $mysqldbname.imagingLog TO 'fogstorage'@'%' ;
 FLUSH PRIVILEGES ;
 SET SQL_MODE=@OLD_SQL_MODE ;
 EOF
-        mysql $sqloptionsroot --password=${snmysqlrootpass} <../tmp/fog-db-grant-fogstorage-access.sql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        errorStat $?
-    else
-        echo "Skipped"
-    fi
+    mysql $sqloptionsroot --password="${snmysqlrootpass}" <../tmp/fog-db-grant-fogstorage-access.sql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    errorStat $?
 }
 validip() {
     local ip=$1
@@ -345,7 +376,11 @@ addToAddress() {
 }
 getAllNetworkInterfaces() {
     gatewayif=$(ip -4 route show | grep "^default via" | awk '{print $5}')
-    interfaces="$gatewayif $(ip -4 link | grep -v LOOPBACK | grep UP | awk -F': |@' '{print $2}' | tr '\n' ' ' | sed "s/${gatewayif}//g")"
+    if [[ -z ${gatewayif} ]]; then
+        interfaces="$(ip -4 link | grep -v LOOPBACK | grep UP | awk -F': |@' '{print $2}' | tr '\n' ' ')"
+    else
+        interfaces="$gatewayif $(ip -4 link | grep -v LOOPBACK | grep UP | awk -F': |@' '{print $2}' | tr '\n' ' ' | sed "s/${gatewayif}//g")"
+    fi
     echo -n $interfaces
 }
 checkInternetConnection() {
@@ -397,6 +432,12 @@ configureUDPCast() {
     cd /tmp
     tar xvzf "$udpcasttmp" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     cd $udpcastout
+    grep -q 'BCM[0-9][0-9][0-9][0-9]' /proc/cpuinfo >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ $? -eq 0 ]]; then
+        wget -qO config.guess "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        wget -qO config.sub "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        chmod +x config.guess config.sub >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    fi
     errorStat $?
     dots "Configuring UDPCast"
     ./configure >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -469,7 +510,7 @@ configureTFTPandPXE() {
     [[ -e ${tftpdirdst}.fogbackup ]] && rm -rf ${tftpdirdst}.fogbackup >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ -d $tftpdirdst && ! -d ${tftpdirdst}.prev ]] && mkdir -p ${tftpdirdst}.prev >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ -d ${tftpdirdst}.prev ]] && cp -Rf $tftpdirdst/* ${tftpdirdst}.prev/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    if [[ "x$httpproto" = "xhttps" ]]; then
+    if [[ "x$httpproto" = "xhttps" && ( ${sslpath}CA/.fogCA.pem -nt /tftpboot/undionly.kkpxe ) ]]; then
         dots "Compiling iPXE binaries trusting your SSL certificate"
         cd $buildipxesrc
         ./buildipxe.sh ${sslpath}CA/.fogCA.pem >>$workingdir/error_logs/fog_ipxe-build_${version}.log 2>&1
@@ -654,7 +695,7 @@ installPackages() {
                         addOndrejRepo
                     fi
                     ;;
-                *[Dd][Ee][Bb][Ii][Aa][Nn]*)
+                *[Bb][Ii][Aa][Nn]*)
                     if [[ $OSVersion -ge 10 ]]; then
                         packages="${packages// libcurl3 / libcurl4 }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         packages="${packages// mysql-client / mariadb-client }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1072,8 +1113,11 @@ configureMySql() {
     sqloptionsuser="${host} -s --user=${snmysqluser}"
     mysqladmin $host ping >/dev/null 2>&1 || mysqladmin $host ping >/dev/null 2>&1 || mysqladmin $host ping >/dev/null 2>&1
     errorStat $?
+
+    dots "Setting up MySQL user and database"
     mysql $sqloptionsroot --execute="quit" >/dev/null 2>&1
-    if [[ $? -eq 0 ]]; then
+    connect_as_root=$?
+    if [[ $connect_as_root -eq 0 ]]; then
         mysqlrootauth=$(mysql $sqloptionsroot --database=mysql --execute="SELECT Host,User,plugin FROM user WHERE Host='localhost' AND User='root' AND plugin='unix_socket'")
         if [[ -z $mysqlrootauth && -z $autoaccept ]]; then
             echo
@@ -1106,44 +1150,60 @@ configureMySql() {
                 echo
                 echo
             fi
-        else
-            # Obviously this is an auto install with no DB root password parameter passed or
-            # a DB setup with authentication method being local unix_socket without password.
-            # Either way we don't care and just set a random password not being used anyway.
-            snmysqlrootpass=$(generatePassword 20)
+            # WARN: Since MariaDB 10.3 (maybe earlier) setting a password when auth plugin is
+            # set to unix_socket will actually switch to auth plugin mysql_native_password
+            # automatically which was not the case in MariaDB 10.1 and is causing trouble.
+            # So now we try to be more conservative and only reset the pass when we get one
+            # to make sure the user is in charge of this.
+            mysqladmin $sqloptionsroot password "${snmysqlrootpass}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
-        mysqladmin $sqloptionsroot password "${snmysqlrootpass}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        snmysqlstoragepass=$(mysql -s $sqloptionsroot --password=${snmysqlrootpass} --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
+        snmysqlstoragepass=$(mysql -s $sqloptionsroot --password="${snmysqlrootpass}" --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
     else
-        snmysqlstoragepass=$(mysql -s $sqloptionsuser --password=${snmysqlpass} --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
-        if [[ -z $snmysqlstoragepass && -z $autoaccept ]]; then
-            echo
-            echo "   To improve the overall security the installer will create an"
-            echo "   unpriviledged database user account for FOG's database access."
-            echo "   Please provide the database *root* user password. Be asured"
-            echo "   that this password will only be used while the FOG installer"
-            echo -n "   is running and won't be stored anywhere: "
+        snmysqlstoragepass=$(mysql $sqloptionsuser --password="${snmysqlpass}" --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
+    fi
+    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="quit" >/dev/null 2>&1
+    connect_as_fogmaster=$?
+    mysql ${host} -s --user=fogstorage --password="${snmysqlstoragepass}" --execute="quit" >/dev/null 2>&1
+    connect_as_fogstorage=$?
+    if [[ $connect_as_fogmaster -eq 0 && $connect_as_fogstorage -eq 0 ]]; then
+        echo "Skipped"
+        return
+    fi
+
+    # If we reach this point it's clear that this install is not setup with
+    # unpriviledged DB users yet and we need to have root DB access now.
+    if [[ $connect_as_root -ne 0 ]]; then
+        echo
+        echo "   To improve the overall security the installer will create an"
+        echo "   unpriviledged database user account for FOG's database access."
+        echo "   Please provide the database *root* user password. Be asured"
+        echo "   that this password will only be used while the FOG installer"
+        echo -n "   is running and won't be stored anywhere: "
+        read -rs snmysqlrootpass
+        echo
+        echo
+        mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="quit" >/dev/null 2>&1
+        if [[ $? -ne 0 ]]; then
+            echo "   Unable to connect to the database using the given password!"
+            echo -n "   Try again: "
             read -rs snmysqlrootpass
-            echo
-            echo
-            mysql $sqloptionsroot --password=${snmysqlrootpass} --execute="quit" >/dev/null 2>&1
+            mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="quit" >/dev/null 2>&1
             if [[ $? -ne 0 ]]; then
-                echo "   Unable to connect to the database using the given password!"
-                echo -n "   Try again: "
-                read -rs snmysqlrootpass
                 echo
-                echo
+                echo "   Failed! Terminating installer now."
+                exit 1
             fi
-            snmysqlstoragepass=$(mysql -s $sqloptionsroot --password=${snmysqlrootpass} --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
         fi
     fi
+
+    snmysqlstoragepass=$(mysql -s $sqloptionsroot --password="${snmysqlrootpass}" --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
     # generate a new fogstorage password if it doesn't exist yet or if it's old style fs0123456789
     if [[ -z $snmysqlstoragepass ]]; then
         snmysqlstoragepass=$(generatePassword 20)
     elif [[ -n $(echo $snmysqlstoragepass | grep "^fs[0-9][0-9]*$") ]]; then
         snmysqlstoragepass=$(generatePassword 20)
         echo
-        echo "   The current fogstorage database password does not meet high"
+        echo "   The current *fogstorage* database password does not meet high"
         echo "   security standards. We will generate a new password and update"
         echo "   all the settings on this FOG server for you. Please take note"
         echo "   of the following credentials that you need to manually update"
@@ -1157,10 +1217,8 @@ configureMySql() {
             read
         fi
     fi
-    dots "Setting up MySQL user and database"
-    if [[ -n $snmysqlrootpass ]]; then
-        [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
-        cat >../tmp/fog-db-and-user-setup.sql <<EOF
+    [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
+    cat >../tmp/fog-db-and-user-setup.sql <<EOF
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ANSI' ;
 DELETE FROM mysql.user WHERE User='' ;
 DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1') ;
@@ -1189,7 +1247,6 @@ BEGIN
     DROP USER 'fogstorage'@'%';
   END IF ;
   CREATE USER 'fogstorage'@'%' IDENTIFIED BY '${snmysqlstoragepass}' ;
-  GRANT SELECT ON $mysqldbname.* TO 'fogstorage'@'%' ;
 END ;$$
 DELIMITER ;
 CALL $mysqldbname.create_user_if_not_exists() ;
@@ -1197,11 +1254,8 @@ DROP PROCEDURE IF EXISTS $mysqldbname.create_user_if_not_exists ;
 FLUSH PRIVILEGES ;
 SET SQL_MODE=@OLD_SQL_MODE ;
 EOF
-        mysql $sqloptionsroot --password=${snmysqlrootpass} <../tmp/fog-db-and-user-setup.sql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        errorStat $?
-    else
-        echo "Skipped"
-    fi
+    mysql $sqloptionsroot --password="${snmysqlrootpass}" <../tmp/fog-db-and-user-setup.sql >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    errorStat $?
 }
 configureFOGService() {
     [[ ! -d $servicedst ]] && mkdir -p $servicedst >>$workingdir/error_logs/fog_error_${version}.log 2>&1

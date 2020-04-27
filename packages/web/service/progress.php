@@ -58,8 +58,8 @@ try {
                 ->save();
         }
         $str[6] = trim($str[6]);
-        if (empty($str[6])) {
-            return;
+        if (empty($str[6]) || !$Task->isCapture()) {
+            exit;
         }
         if (strpos($Image->get('size'), $str[6]) !== false) {
             return;

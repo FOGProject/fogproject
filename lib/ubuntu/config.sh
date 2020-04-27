@@ -20,35 +20,42 @@
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
 if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
     sysvrcconf="sysv-rc-conf"
-    if [[ $OSVersion -gt 9  ]]; then
-        [[ -z $php_ver || ${php_ver%.*} -lt 7 ]] && php_ver="7.3"
-    elif [[ $OSVersion -gt 8 ]]; then
-        [[ -z $php_ver || ${php_ver%.*} -lt 7 ]] && php_ver="7.0"
-    else
-        [[ -z $php_ver ]] && php_ver="5"
+    case $OSVersion in
+        8)
+            php_ver="5"
+            ;;
+        9)
+            php_ver="7.0"
+            x="*php5*"
+            ;;
+        10)
+            php_ver="7.3"
+            x="*php5* *php7.0*"
+            ;;
+    esac
+    old_php=$(eval $packageQuery 2>/dev/null | awk '{print $2}' | tr '\n' ' ')
+    if [[ -n "$old_php" ]]; then
+        dots "Removing old PHP version before installing the new one"
+        DEBIAN_FRONTEND=noninteractive apt-get purge -yq ${old_php} >/dev/null 2>&1
+        [[ $? -ne 0 ]] && echo "Failed" || echo "Done"
+        apt-get clean -yq >/dev/null 2>&1
     fi
 elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get purge -yq sysv-rc-conf >/dev/null 2>&1
     if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) ]]; then
         case $OSVersion in
-            19|20)
+            20)
+                php_ver="7.4"
+                ;;
+            19)
                 php_ver="7.3"
-                [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm"
-                [[ -z $phpldap ]] && phpldap="php${php_ver}-ldap"
-                [[ -z $phpcmd ]] && phpcmd="php"
                 ;;
             18)
                 php_ver="7.2"
-                [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm"
-                [[ -z $phpldap ]] && phpldap="php${php_ver}-ldap"
-                [[ -z $phpcmd ]] && phpcmd="php"
                 ;;
             *)
                 sysvrcconf="sysv-rc-conf"
                 php_ver="7.1"
-                [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm"
-                [[ -z $phpldap ]] && phpldap="php${php_ver}-ldap"
-                [[ -z $phpcmd ]] && phpcmd="php"
                 x="*php5* *php-5*"
                 eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 if [[ $? -ne 0 ]]; then
