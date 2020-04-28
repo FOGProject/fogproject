@@ -583,6 +583,20 @@ class Route extends FOGBase
             case 'pingstatus':
                 $columns[] = [
                     'db' => $real,
+                    'dt' => 'pingstatuscode',
+                    'formatter' => function($d, $row) {
+                        return (int)$d;
+                    }
+                ];
+                $columns[] = [
+                    'db' => $real,
+                    'dt' => 'pingstatustext',
+                    'formatter' => function($d, $row) {
+                        return socket_strerror((int)$d);
+                    }
+                ];
+                $columns[] = [
+                    'db' => $real,
                     'dt' => $common,
                     'formatter' => function ($d, $row) {
                         $socketstr = socket_strerror((int)$d);
