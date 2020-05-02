@@ -513,6 +513,9 @@ class HostManagementPage extends FOGPage
                 )
             );
         echo '<div class="col-xs-9">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -520,9 +523,6 @@ class HostManagementPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '">';
         if (!isset($_POST['enforcesel'])) {
             $_POST['enforcesel'] = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
         }
