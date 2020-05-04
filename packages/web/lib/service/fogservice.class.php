@@ -157,6 +157,7 @@ abstract class FOGService extends FOGBase
             );
             sleep(10);
             $this->waitInterfaceReady();
+            return;
         }
         foreach (self::$ips as &$ip) {
             self::outall(
