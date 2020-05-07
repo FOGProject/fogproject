@@ -568,7 +568,7 @@ class MulticastManager extends FOGService
                             $jobcancelled = true;
                         }
                         if ($SessCompleted
-                            || count($inTaskCompletedIDs) >= count($taskIDs)
+                            || count($inTaskCompletedIDs) > 0
                             || ($runningTask->isNamedSession()
                             && $runningTask->getSessClients())
                         ) {
