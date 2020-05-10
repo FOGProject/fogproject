@@ -2141,8 +2141,6 @@ class HostManagement extends FOGPage
         );
         echo '</div>';
         echo '</div>';
-
-
     }
     /**
      * Host printer post.
@@ -4320,7 +4318,7 @@ class HostManagement extends FOGPage
                         _('Select Snapin to run')
                     )
                 ] = $snapinSelector;
-            } else if (TaskType::PASSWORD_RESET == $type) {
+            } elseif (TaskType::PASSWORD_RESET == $type) {
                 $fields [
                     self::makeLabel(
                         $labelClass,

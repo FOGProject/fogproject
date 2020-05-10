@@ -58,7 +58,7 @@ echo '<![endif]-->';
 echo '</head>';
 echo '<body class="';
 echo 'hold-transition ';
-echo ($isLoggedIn ? 'skin-blue sidebar-mini' : 'login-page');
+echo($isLoggedIn ? 'skin-blue sidebar-mini' : 'login-page');
 echo '">';
 echo '<!-- FOG Management only works when JavaScript is enabled. -->';
 echo '<noscript>';

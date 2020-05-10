@@ -382,7 +382,8 @@ class FOGURLRequests extends FOGBase
                 $execrun = curl_multi_exec(
                     $master,
                     $running
-                )) == CURLM_CALL_MULTI_PERFORM) {
+                )
+            ) == CURLM_CALL_MULTI_PERFORM) {
             }
             if ($execrun != CURLM_OK) {
                 break;

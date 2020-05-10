@@ -639,7 +639,7 @@ class AccessControlRuleManagement extends FOGPage
                     [
                         'name' => _('Role Association'),
                         'id' => 'accesscontrolrule-role',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->accesscontrolruleRoles();
                         }
                     ]

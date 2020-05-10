@@ -565,7 +565,6 @@ class PDODB extends DatabaseManager
             if (self::$_link) {
                 return self::$_link->query('SELECT 1') ? true : false;
             }
-
         } catch (PDOException $e) {
             self::debug($e->getMessage());
             self::error($e->getMessage());

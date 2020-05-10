@@ -34,9 +34,9 @@ $decodePath = urldecode(
         $path
     )
 );
-Route::ids('storagenode',[], 'path');
+Route::ids('storagenode', [], 'path');
 $imagePaths = json_decode(Route::getData(), true);
-Route::ids('storagenode',[], 'snapinpath');
+Route::ids('storagenode', [], 'snapinpath');
 $snapinPaths = json_decode(Route::getData(), true);
 $validPaths = [
     '/var/log/apache2',

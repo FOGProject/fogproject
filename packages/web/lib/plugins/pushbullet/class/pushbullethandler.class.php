@@ -546,7 +546,7 @@ class PushbulletHandler extends Pushbullet
      *                               that should send the SMS message.
      *                               Only devices which have the 'has_sms'
      *                               property set to true in their descriptions
-     *                               can send SMS messages. Use 
+     *                               can send SMS messages. Use
      *                               {@link getDevices()}
      *                               to check if they're capable to do so.
      * @param mixed  $toNumber       Phone number of the recipient.

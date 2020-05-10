@@ -61,7 +61,6 @@ class UserManagement extends FOGPage
                 ->set('token', self::createSecToken())
                 ->save();
         }
-
     }
     /**
      * Page to enable creating a new user.
@@ -378,12 +377,12 @@ class UserManagement extends FOGPage
         self::$HookManager->processEvent('USER_ADD_POST');
         $userPat = "/(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$/";
         $userErr =  _('Username must begin with 2 numbers or letters.')
-			. ' '
-			. _('Username must end with a number or letter.')
-			. ' '
-			. _('You may use _, ., -, or a space between.')
-			. ' '
-			. _('It must be between 3 and 50 characters.');
+            . ' '
+            . _('Username must end with a number or letter.')
+            . ' '
+            . _('You may use _, ., -, or a space between.')
+            . ' '
+            . _('It must be between 3 and 50 characters.');
         $user = strtolower(
             trim(
                 filter_input(INPUT_POST, 'user')
@@ -575,12 +574,12 @@ class UserManagement extends FOGPage
     {
         $userPat = "/(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$/";
         $userErr =  _('Username must begin with 2 numbers or letters.')
-			. ' '
-			. _('Username must end with a number or letter.')
-			. ' '
-			. _('You may use _, ., -, or a space between.')
-			. ' '
-			. _('It must be between 3 and 50 characters.');
+            . ' '
+            . _('Username must end with a number or letter.')
+            . ' '
+            . _('You may use _, ., -, or a space between.')
+            . ' '
+            . _('It must be between 3 and 50 characters.');
         $user = strtolower(
             trim(
                 filter_input(INPUT_POST, 'user')
@@ -724,7 +723,7 @@ class UserManagement extends FOGPage
             isset($_POST['apienabled']) ?
             ' checked' :
             (
-                $this->obj->get('api') ? 
+                $this->obj->get('api') ?
                 ' checked' :
                 ''
             )

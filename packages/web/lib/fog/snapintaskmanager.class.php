@@ -114,7 +114,7 @@ class SnapinTaskManager extends FOGManagerController
         /**
          * Cancel tasks if they are snapin only tasks
          */
-        if (count($hostTasksToCancel ?: [] ) > 0) {
+        if (count($hostTasksToCancel ?: []) > 0) {
             self::getClass('TaskManager')
                 ->update(
                     ['id' => (array)$hostTasksToCancel],

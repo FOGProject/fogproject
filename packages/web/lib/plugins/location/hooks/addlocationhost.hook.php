@@ -221,7 +221,7 @@ class AddLocationHost extends Hook
         }
         $obj = $arguments['Host'];
         try {
-            switch($tab) {
+            switch ($tab) {
             case 'host-location':
                 $this->hostLocationPost($obj);
                 break;

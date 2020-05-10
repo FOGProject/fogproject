@@ -206,7 +206,7 @@ class AddLocationGroup extends Hook
         }
         $obj = $arguments['Group'];
         try {
-            switch($tab) {
+            switch ($tab) {
             case 'group-location':
                 $this->groupLocationPost($obj);
                 break;

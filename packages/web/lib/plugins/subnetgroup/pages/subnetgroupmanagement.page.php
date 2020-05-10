@@ -259,12 +259,12 @@ class SubnetGroupManagement extends FOGPage
         $subnets = trim(
             filter_input(INPUT_POST, 'subnets')
         );
-		$subnetsMatch = "/^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))"
+        $subnetsMatch = "/^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))"
             . "(( )*,( )*([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))+)"
             . "*$/";
 
         $serverFault = false;
-        try{
+        try {
             $exists = self::getClass('SubnetGroupManager')
                 ->exists($subnetgroup);
             if ($exists) {
@@ -291,7 +291,7 @@ class SubnetGroupManagement extends FOGPage
                     . _('Can be a comma seperated list.')
                 );
             }
-            $subnets = preg_replace('/\s+/','', $subnets);
+            $subnets = preg_replace('/\s+/', '', $subnets);
             $subnets = str_replace(',', ', ', $subnets);
             $SubnetGroup = self::getClass('SubnetGroup')
                 ->set('name', $subnetgroup)
@@ -478,7 +478,7 @@ class SubnetGroupManagement extends FOGPage
         $subnets = trim(
             filter_input(INPUT_POST, 'subnets')
         );
-		$subnetsMatch = "/^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))"
+        $subnetsMatch = "/^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))"
             . "(( )*,( )*([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))+)"
             . "*$/";
 
@@ -512,7 +512,7 @@ class SubnetGroupManagement extends FOGPage
                 . _('Can be a comma seperated list.')
             );
         }
-        $subnets = preg_replace('/\s+/','', $subnets);
+        $subnets = preg_replace('/\s+/', '', $subnets);
         $subnets = str_replace(',', ', ', $subnets);
 
         $this->obj

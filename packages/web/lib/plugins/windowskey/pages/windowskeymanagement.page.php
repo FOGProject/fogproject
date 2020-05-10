@@ -329,7 +329,7 @@ class WindowsKeyManagement extends FOGPage
         $keyenc = mb_detect_encoding($keytest, 'utf-8', true);
         if ($keyb64) {
             $key = $test_base64;
-        } else if ($keyenc) {
+        } elseif ($keyenc) {
             $key = $keytest;
         }
 

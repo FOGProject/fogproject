@@ -174,7 +174,7 @@ class LDAPPluginHook extends Hook
     {
         if ($arguments['type'] == self::LDAP_ADMIN) {
             $arguments['type'] = 0;
-        } else if ($arguments['type'] == self::LDAP_MOBILE) {
+        } elseif ($arguments['type'] == self::LDAP_MOBILE) {
             $arguments['type'] = 1;
         }
     }

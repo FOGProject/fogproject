@@ -247,7 +247,7 @@ class DatabaseManager extends FOGCore
             . "'";
         $convert = self::$DB
             ->query($sql)
-            ->fetch('','fetch_all')
+            ->fetch('', 'fetch_all')
             ->get('Q');
         if (!count($convert ?: [])) {
             return;

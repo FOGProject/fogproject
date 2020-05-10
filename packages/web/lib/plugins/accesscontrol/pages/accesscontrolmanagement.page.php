@@ -615,7 +615,7 @@ class AccessControlManagement extends FOGPage
         );
 
         $serverFault = false;
-        try{
+        try {
             global $tab;
             switch ($tab) {
             case 'accesscontrol-general':

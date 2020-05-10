@@ -148,7 +148,6 @@ class DashboardPage extends FOGPage
      */
     public function index()
     {
-        
         Route::count(
             'host',
             ['pending' => 1]

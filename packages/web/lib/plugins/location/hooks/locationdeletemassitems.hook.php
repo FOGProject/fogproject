@@ -70,7 +70,7 @@ class LocationDeleteMassItems extends Hook
      */
     public function deletemassitems($arguments)
     {
-        switch($arguments['classname']) {
+        switch ($arguments['classname']) {
         case 'host':
             $arguments['removeItems']['locationassociation'] = [
                 'hostID' => $arguments['itemIDs']

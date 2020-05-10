@@ -500,7 +500,7 @@ abstract class FOGService extends FOGBase
                 if (file_exists($ftpstart.$remItem.'/'.$removefile)) {
                     $remotefilescheck[0] = $remItem . '/' . $removefile;
                 }
-            } else if (is_dir($myAdd)) {
+            } elseif (is_dir($myAdd)) {
                 $remItem = "{$removeDir}{$removeFile}";
                 $path = realpath($myAdd);
                 $localfilescheck = self::globrecursive(
@@ -553,7 +553,7 @@ abstract class FOGService extends FOGBase
                         . '(' . $nodename . ')'
                     );
                     continue;
-                } else if (!is_int($lindex)) {
+                } elseif (!is_int($lindex)) {
                     self::outall(
                         '  # '
                         . $name
@@ -599,37 +599,37 @@ abstract class FOGService extends FOGBase
                 if (is_null($remotesize)) {
                     $remotesize = self::$FOGFTP->size($remotefilename);
                 }
-				if ($localsize == $remotesize) {
-					$localhash = self::getHash($localfilename);
-					$remotehash = null;
-					if ($avail) {
-						$rhash = self::$FOGURLRequests->process(
-							$hashurl,
-							'POST',
-							['file' => base64_encode($remotefilename)]
-						);
-						$rhash = array_shift($rhash);
-						if (strlen($rhash) == 64) {
-							$remotehash = $rhash;
-						} else {
-							// we should re-try HTTPS because we don't know about the storage node setup
+                if ($localsize == $remotesize) {
+                    $localhash = self::getHash($localfilename);
+                    $remotehash = null;
+                    if ($avail) {
+                        $rhash = self::$FOGURLRequests->process(
+                            $hashurl,
+                            'POST',
+                            ['file' => base64_encode($remotefilename)]
+                        );
+                        $rhash = array_shift($rhash);
+                        if (strlen($rhash) == 64) {
+                            $remotehash = $rhash;
+                        } else {
+                            // we should re-try HTTPS because we don't know about the storage node setup
                             // and letting curl follow the redirect doesn't work for POST requests
                             $hashurl = sprintf(
                                 '%s://%s/fog/status/gethash.php',
                                 'https',
                                 $testip
                             );
-							$rhash = self::$FOGURLRequests->process(
-								$hashurl,
-								'POST',
-								['file' => base64_encode($remotefilename)]
-							);
-							$rhash = array_shift($rhash);
-							if (strlen($rhash) == 64) {
-								$remotehash = $rhash;
-							}
-						}
-					}
+                            $rhash = self::$FOGURLRequests->process(
+                                $hashurl,
+                                'POST',
+                                ['file' => base64_encode($remotefilename)]
+                            );
+                            $rhash = array_shift($rhash);
+                            if (strlen($rhash) == 64) {
+                                $remotehash = $rhash;
+                            }
+                        }
+                    }
                     if (is_null($remotehash)) {
                         if ($localsize < 10485760) {
                             $remotehash = hash_file('sha256', $ftpstart.$remotefilename);
@@ -717,7 +717,8 @@ abstract class FOGService extends FOGBase
                 $includeFile = escapeshellarg($includeFile);
                 $includeFile = trim($includeFile, "'");
                 $includeFile = '"' . $includeFile . '"';
-                $cmd .= $includeFile . ' ';;
+                $cmd .= $includeFile . ' ';
+                ;
             }
             $cmd .= "--ignore-time -vvv --exclude \".srvprivate\" ";
             $cmd .= "$myAddItem $remItem;";

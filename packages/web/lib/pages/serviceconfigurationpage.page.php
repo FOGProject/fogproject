@@ -111,7 +111,6 @@ class ServiceConfigurationPage extends FOGPage
         echo '</a>';
         echo '</div>';
         echo '</div>';
-
     }
     /**
      * Presents the displaymanager page.

@@ -204,7 +204,7 @@ class AddOUGroup extends Hook
         }
         $obj = $arguments['Group'];
         try {
-            switch($tab) {
+            switch ($tab) {
             case 'group-ou':
                 $this->groupOUPost($obj);
                 break;

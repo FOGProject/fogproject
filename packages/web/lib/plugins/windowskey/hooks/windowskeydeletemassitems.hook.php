@@ -70,7 +70,7 @@ class WindowsKeyDeleteItems extends Hook
      */
     public function deletemassitems($arguments)
     {
-        switch($arguments['classname']) {
+        switch ($arguments['classname']) {
         case 'image':
             $arguments['removeItems']['windowskeyassociation'] = [
                 'imageID' => $arguments['itemIDs']

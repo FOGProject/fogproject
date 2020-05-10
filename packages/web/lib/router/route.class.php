@@ -288,7 +288,6 @@ class Route extends FOGBase
             '/pendingmacs',
             [__CLASS__, 'pendingmacs'],
             'pendingmacs'
-
         )->get(
             '/whoami',
             [__CLASS__, 'whoami'],
@@ -584,14 +583,14 @@ class Route extends FOGBase
                 $columns[] = [
                     'db' => $real,
                     'dt' => 'pingstatuscode',
-                    'formatter' => function($d, $row) {
+                    'formatter' => function ($d, $row) {
                         return (int)$d;
                     }
                 ];
                 $columns[] = [
                     'db' => $real,
                     'dt' => 'pingstatustext',
-                    'formatter' => function($d, $row) {
+                    'formatter' => function ($d, $row) {
                         return socket_strerror((int)$d);
                     }
                 ];
@@ -603,7 +602,7 @@ class Route extends FOGBase
                         $labelType = 'danger';
                         if ($d == 0) {
                             $labelType = 'success';
-                        } else if ($d == 6) {
+                        } elseif ($d == 6) {
                             $labelType = 'warning';
                         }
                         return '<span class="label label-'
@@ -717,7 +716,7 @@ class Route extends FOGBase
                 $columns[] = [
                     'db' => $real,
                     'dt' => $common,
-                    'formatter' => function($d, $row) {
+                    'formatter' => function ($d, $row) {
                         if (!$d) {
                             return;
                         }
@@ -823,7 +822,7 @@ class Route extends FOGBase
             $columns[] = [
                 'db' => 'hostID',
                 'dt' => 'hostLink',
-                'formatter' => function($d, $row) {
+                'formatter' => function ($d, $row) {
                     if (!$d) {
                         return;
                     }

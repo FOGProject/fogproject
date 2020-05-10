@@ -429,7 +429,8 @@ class Page extends FOGBase
      *
      * @return bool
      */
-    private static function _isContentOnly() {
+    private static function _isContentOnly()
+    {
         self::$FOGUser->isLoggedIn();
         return (bool)filter_input(INPUT_GET, 'contentOnly');
     }

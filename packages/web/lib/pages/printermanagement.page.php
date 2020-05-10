@@ -71,7 +71,7 @@ class PrinterManagement extends FOGPage
     public function getPrinterInfo()
     {
         echo json_encode(
-            [ 
+            [
                 'file' => $this->obj->get('file'),
                 'port' => $this->obj->get('port'),
                 'model' => $this->obj->get('model'),

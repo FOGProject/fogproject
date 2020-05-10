@@ -862,7 +862,7 @@ abstract class FOGPage extends FOGBase
     ) {
         echo '<div class="box-body">';
         echo '<div class="';
-        echo (
+        echo(
             $isCallout ?
             'callout callout-' :
             'alert alert-'
@@ -940,7 +940,7 @@ abstract class FOGPage extends FOGBase
      * @param string $pull          Pull the button group.
      * @param string $class         The class to give.
      * @param string $props         Properties for the base button.
-     * 
+     *
      * @return string
      */
     public static function makeSplitButton(
@@ -1860,7 +1860,7 @@ abstract class FOGPage extends FOGBase
                 . ' '
                 . _('Delete associated hosts')
             );
-        } else if ($this->obj instanceof Image || $this->obj instanceof Snapin) {
+        } elseif ($this->obj instanceof Image || $this->obj instanceof Snapin) {
             $extra .= '<br/>';
             $extra .= self::makeLabel(
                 'control-label',
@@ -2664,7 +2664,7 @@ abstract class FOGPage extends FOGBase
                     ),
                     'title' => (
                         $numFailed > 0 ?
-                        _('Import Partially Succeeded') : 
+                        _('Import Partially Succeeded') :
                         _('Import Succeeded')
                     )
                 ]

@@ -70,7 +70,7 @@ class AccessControlDeleteItems extends Hook
      */
     public function deletemassitems($arguments)
     {
-        switch($arguments['classname']) {
+        switch ($arguments['classname']) {
         case 'user':
             $arguments['removeItems']['accesscontrolassociation'] = [
                 'userID' => $arguments['itemIDs']
@@ -80,6 +80,7 @@ class AccessControlDeleteItems extends Hook
             $arguments['removeItems']['accesscontrolruleassociation'] = [
                 'accesscontrolruleID' => $arguments['itemIDs']
             ];
+            // no break
         default:
             $arguments['removeItems']['accesscontrolassociation'] = [
                 'accesscontrolID' => $arguments['itemIDs']

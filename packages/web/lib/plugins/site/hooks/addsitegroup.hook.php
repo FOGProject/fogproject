@@ -221,7 +221,7 @@ class AddSiteGroup extends Hook
             );
         } catch (Exception $e) {
             $arguments['code'] = (
-                $arguments['serverFault'] ? 
+                $arguments['serverFault'] ?
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
                 HTTPResponseCodes::HTTP_BAD_REQUEST
             );

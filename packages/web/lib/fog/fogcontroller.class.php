@@ -1257,8 +1257,7 @@ abstract class FOGController extends FOGBase
             $sqlTotalStr = $qTotalStr;
         }
 
-        foreach ($privars as $common => &$real)
-        {
+        foreach ($privars as $common => &$real) {
             $columns[] = [
                 'db' => $real,
                 'dt' => $common
@@ -1271,7 +1270,7 @@ abstract class FOGController extends FOGBase
                 $columns[] = [
                     'db' => $real,
                     'dt' => 'mainLink',
-                    'formatter' => function($d, $row) use ($primary, $idField) {
+                    'formatter' => function ($d, $row) use ($primary, $idField) {
                         if (!$d) {
                             return;
                         }
@@ -1281,7 +1280,6 @@ abstract class FOGController extends FOGBase
                             . '">'
                             . $d
                             . '</a>';
-
                     }
                 ];
             }

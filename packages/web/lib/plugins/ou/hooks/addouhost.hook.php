@@ -221,7 +221,7 @@ class AddOUHost extends Hook
         }
         $obj = $arguments['Host'];
         try {
-            switch($tab) {
+            switch ($tab) {
             case 'host-ou':
                 $this->hostOUPost($obj);
                 break;

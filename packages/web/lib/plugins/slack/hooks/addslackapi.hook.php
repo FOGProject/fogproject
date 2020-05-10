@@ -85,16 +85,17 @@ class AddSlackAPI extends Hook
                 $arguments['columns'][] = [
                     'db' => $real,
                     'dt' => 'DT_RowId',
-                    'formatter' => function($d, $row) {
+                    'formatter' => function ($d, $row) {
                         return $d;
                     }
                 ];
                 $arguments['columns'][] = [
                     'db' => $real,
                     'dt' => $common,
-                    'formatter' => function($d, $row) {
+                    'formatter' => function ($d, $row) {
                         $team = self::getClass(
-                            'Slack', $d
+                            'Slack',
+                            $d
                         )->call('auth.test');
                         return $team['team'];
                     }
@@ -109,7 +110,8 @@ class AddSlackAPI extends Hook
                             'Slack',
                             $row['sID']
                         )->call('auth.test');
-                        return $team['user'];;
+                        return $team['user'];
+                        ;
                     }
                 ];
                 break;

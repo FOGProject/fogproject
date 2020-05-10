@@ -821,7 +821,8 @@ class ImageManagement extends FOGPage
             $isen = '';
         }
         $torep = (int)isset($_POST['toReplicate']) ?:
-            $this->obj->get('toReplicate');;
+            $this->obj->get('toReplicate');
+        ;
         if ($torep) {
             $torep = 'checked';
         } else {
@@ -1559,7 +1560,7 @@ class ImageManagement extends FOGPage
         $timeout = (int)filter_input(INPUT_POST, 'sessiontimeout');
         $shutdown = (
             isset($_POST['sessionshutdown']) ?
-            ' checked' : 
+            ' checked' :
             ''
         );
         $image = filter_input(INPUT_POST, 'image');
@@ -1955,7 +1956,6 @@ class ImageManagement extends FOGPage
      */
     public function getStoragegroupsList()
     {
-
         $join = [
             'LEFT OUTER JOIN `imageGroupAssoc` ON '
             . "`nfsGroups`.`ngID` = `imageGroupAssoc`.`igaStorageGroupID` "

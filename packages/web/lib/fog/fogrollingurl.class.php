@@ -65,7 +65,7 @@ class FOGRollingURL
         $method = 'GET',
         $postData = [],
         $headers = [],
-        $options = [] 
+        $options = []
     ) {
         $this->url = $url;
         $this->method = $method;
