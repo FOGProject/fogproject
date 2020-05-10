@@ -904,10 +904,12 @@ class Host extends FOGController
         $sessionjoin = false,
         $wol = false
     ) {
-        $taskName .= ' - '
-            . $this->get('name')
-            . ' '
-            . self::niceDate()->format('Y-m-d H:i:s');
+        if (!$sessionjoin) {
+            $taskName .= ' - '
+                . $this->get('name')
+                . ' '
+                . self::niceDate()->format('Y-m-d H:i:s');
+        }
         $serverFault = false;
         try {
             if (!$this->isValid()) {
