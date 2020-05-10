@@ -2709,7 +2709,7 @@ abstract class FOGBase
         $codeAlphabet .= "abcdefghijklmnopqrstuvwxyz";
         $codeAlphabet .= "0123456789";
         $max = strlen($codeAlphabet) - 1;
-        for($i = 0; $i < $length; $i++) {
+        for ($i = 0; $i < $length; $i++) {
             $token .= $codeAlphabet[self::cryptoRandSecure(0, $max)];
         }
         return $token;
@@ -2740,7 +2740,8 @@ abstract class FOGBase
      *
      * @return void
      */
-    public static function clearAuthCookie() {
+    public static function clearAuthCookie()
+    {
         $id = filter_input(INPUT_COOKIE, 'foguserauthid');
         $pass = filter_input(INPUT_COOKIE, 'foguserauthpass');
         $sel = filter_input(INPUT_COOKIE, 'foguserauthsel');

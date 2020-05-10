@@ -209,7 +209,7 @@ class SiteManagement extends FOGPage
         );
 
         $serverFault = false;
-        try{
+        try {
             $exists = self::getClass('SiteManager')
                 ->exists($site);
             if ($exists) {

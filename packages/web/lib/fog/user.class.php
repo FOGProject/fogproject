@@ -197,7 +197,8 @@ class User extends FOGController
                 ->save();
 
             // Set the id in the cookie for this particular auth item.
-            setcookie('foguserauthid',
+            setcookie(
+                'foguserauthid',
                 $auth->get('id'),
                 $cookieexp,
                 null,

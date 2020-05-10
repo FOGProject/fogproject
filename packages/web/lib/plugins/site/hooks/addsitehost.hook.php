@@ -219,7 +219,7 @@ class AddSiteHost extends Hook
             return;
         }
         $obj = $arguments['Host'];
-        try{
+        try {
             switch ($tab) {
             case 'host-site':
                 $this->hostSitePost($obj);

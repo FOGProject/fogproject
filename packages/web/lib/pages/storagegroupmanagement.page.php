@@ -970,7 +970,7 @@ class StorageGroupManagement extends FOGPage
         );
 
         $serverFault = false;
-        try{
+        try {
             global $tab;
             switch ($tab) {
             case 'storagegroup-general':

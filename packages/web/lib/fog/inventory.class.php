@@ -130,7 +130,8 @@ class Inventory extends FOGController
      *
      * @return float
      */
-    public static function getMemory($val) {
+    public static function getMemory($val)
+    {
         return self::getMem($val);
     }
 }

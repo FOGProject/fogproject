@@ -512,6 +512,7 @@ class MulticastTask extends FOGService
                     $filelist[] = $this->getImagePath();
                     break;
                 }
+                // no break
             case 5:
             case 6:
             case 7:

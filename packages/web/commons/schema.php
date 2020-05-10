@@ -2412,7 +2412,7 @@ $this->schema[] = self::fastmerge(
     ),
     $tmpSchema->dropDuplicateData(
         DATABASE_NAME,
-        [ 
+        [
             'imageTypes',
             ['imageTypeValue']
         ]
@@ -3994,7 +3994,7 @@ $mmaxwait = (
 );
 $ginit = (
     count($columngInit ?: []) ?
-    '' : 
+    '' :
     "ALTER TABLE `groups` ADD COLUMN `groupInit` "
     . "LONGTEXT NOT NULL AFTER `groupPrimaryDisk`"
 );

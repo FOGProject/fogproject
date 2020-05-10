@@ -88,7 +88,7 @@ class AddLDAPMenuItem extends Hook
         }
         $arguments['menu']['globalsettings'] = _('Global Options');
         $arguments['menu']['export'] = self::$foglang['Export'] . ' ' . _('LDAP');
-        $arguments['menu']['import'] = self::$foglang['Import'] . ' ' . _('LDAP'); 
+        $arguments['menu']['import'] = self::$foglang['Import'] . ' ' . _('LDAP');
     }
     /**
      * Sets the menu item into the menu

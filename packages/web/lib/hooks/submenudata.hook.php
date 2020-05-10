@@ -70,7 +70,7 @@ class SubMenuData extends Hook
         if (!$arguments['node']) {
             return;
         }
-        switch(strtolower($arguments['node'])) {
+        switch (strtolower($arguments['node'])) {
         case 'home':
         case 'client':
         case 'report':

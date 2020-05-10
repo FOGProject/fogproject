@@ -97,7 +97,6 @@ class AddSiteAPI extends Hook
      */
     public function injectAPIElements($arguments)
     {
-
         array_push(
             $arguments['validClasses'],
             $this->node,

@@ -92,7 +92,7 @@ class AddWindowsKeyJS extends Hook
                 $filepaths
                     = "../lib/plugins/{$this->node}/js/fog.{$node}.js";
             } else {
-                $filepaths 
+                $filepaths
                     = "../lib/plugins/{$this->node}/js/fog.{$node}.{$subset}.js";
             }
             if ($subset && !file_exists($filepaths)) {

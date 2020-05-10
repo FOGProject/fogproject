@@ -657,7 +657,6 @@ class LocationManagement extends FOGPage
                         'id' => 'location-host',
                         'generator' => function () {
                             $this->locationHosts();
-
                         }
                     ]
                 ]

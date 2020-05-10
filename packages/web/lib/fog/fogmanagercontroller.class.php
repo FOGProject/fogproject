@@ -1149,7 +1149,7 @@ abstract class FOGManagerController extends FOGBase
     /**
      * Gets the columns for this item.
      *
-     * @return [] 
+     * @return []
      */
     public function getColumns()
     {

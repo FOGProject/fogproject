@@ -1329,7 +1329,7 @@ class GroupManagement extends FOGPage
                 ]
             ];
             foreach ($names as $name => &$get) {
-                switch($name) {
+                switch ($name) {
                 case 'r':
                     $val = $r;
                     break;
@@ -2638,21 +2638,21 @@ class GroupManagement extends FOGPage
                     [
                         'name' => _('Login History'),
                         'id' => 'group-login-history',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->groupLoginHistory();
                         }
                     ],
                     [
                         'name' => _('Imaging History'),
                         'id' => 'group-imaging-history',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->groupImageHistory();
                         }
                     ],
                     [
                         'name' => _('Snapin History'),
                         'id' => 'group-snapin-history',
-                        'generator' => function() {
+                        'generator' => function () {
                             $this->groupSnapinHistory();
                         }
                     ]
@@ -3066,7 +3066,7 @@ class GroupManagement extends FOGPage
                         _('Select Snapin to run')
                     )
                 ] = $snapinSelector;
-            } else if (TaskType::PASSWORD_RESET == $type) {
+            } elseif (TaskType::PASSWORD_RESET == $type) {
                 $fields [
                     self::makeLabel(
                         $labelClass,
