@@ -124,10 +124,15 @@ class MulticastManager extends FOGService
      */
     private static function _getMCExistingTask(
         $KnownTasks,
-        $id
+        $curTask
     ) {
         foreach ((array)$KnownTasks as &$Known) {
-            if ($Known->getID() == $id) {
+            if ($Known->getID() == $curTask->getID()) {
+                // This is very important for MC session joins via PXE menu
+                $curTaskTaskIDs = $curTask->getTaskIDs();
+                if (count($curTaskTaskIDs) > count($Known->getTaskIDs())) {
+                    $Known->setTaskIDs($curTaskTaskIDs);
+                }
                 return $Known;
             }
             unset($Known);
@@ -411,7 +416,7 @@ class MulticastManager extends FOGService
 
                         $runningTask = self::_getMCExistingTask(
                             $KnownTasks,
-                            $curTask->getID()
+                            $curTask
                         );
 
                         if ($groupOpenSlots > 0 && !$runningTask->isRunning($runningTask->procRef)) {
@@ -568,7 +573,7 @@ class MulticastManager extends FOGService
                             $jobcancelled = true;
                         }
                         if ($SessCompleted
-                            || count($inTaskCompletedIDs) > 0
+                            || (count($inTaskCompletedIDs) > 0 && count($inTaskCompletedIDs) >= count($taskIDs))
                             || ($runningTask->isNamedSession()
                             && $runningTask->getSessClients())
                         ) {
