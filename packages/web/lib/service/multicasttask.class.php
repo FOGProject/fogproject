@@ -512,7 +512,6 @@ class MulticastTask extends FOGService
                     $filelist[] = $this->getImagePath();
                     break;
                 }
-                // no break
             case 5:
             case 6:
             case 7:
@@ -704,5 +703,16 @@ class MulticastTask extends FOGService
         $this->_MultiSess
             ->set('percent', @max($TaskPercent))
             ->save();
+    }
+    /**
+     * Updates task ID list in case of MC session joins via PXE menu
+     *
+     * @param array $newTaskIDs The array of task ids to set.
+     *
+     * @return void
+     */
+    public function setTaskIDs($newTaskIDs = [])
+    {
+        $this->_taskIDs = $newTaskIDs;
     }
 }
