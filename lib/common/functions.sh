@@ -628,14 +628,17 @@ installPackages() {
                     if [[ ! $? -eq 0 ]]; then
                         y="https://dl.fedoraproject.org/pub/epel/epel-release-latest-${OSVersion}.noarch.rpm"
                         $packageinstaller $y >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        errorStat $? "skipOk"
                     fi
                     y="http://rpms.remirepo.net/enterprise/remi-release-${OSVersion}.rpm"
-                    x=$(basename $y | awk -F[.] '{print $1}')
+                    x="$(basename $y | awk -F[.] '{print $1}')*"
                     eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ ! $? -eq 0 ]]; then
                         rpm -Uvh $y >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                        rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        errorStat $? "skipOk"
                     fi
+                    rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    errorStat $? "skipOk"
                     if [[ -n $repoenable ]]; then
                         if [[ $OSVersion -le 7 ]]; then
                             $repoenable epel >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
@@ -959,11 +962,12 @@ doOSSpecificIncludes() {
 }
 errorStat() {
     local status=$1
+    local skipOk=$2
     if [[ $status != 0 ]]; then
         echo "Failed!"
         [[ -z $exitFail ]] && exit $status
     fi
-    echo "OK"
+    [[ -z $skipOk ]] && echo "OK"
 }
 stopInitScript() {
     for serviceItem in $serviceList; do
