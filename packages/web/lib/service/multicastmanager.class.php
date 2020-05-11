@@ -108,16 +108,21 @@ class MulticastManager extends FOGService
      * Gets the multicast task
      *
      * @param array $KnownTasks the known tasks
-     * @param int   $id         the id to get
+     * @param int   $curTask    the current task
      *
      * @return object
      */
     private static function _getMCExistingTask(
         $KnownTasks,
-        $id
+        $curTask
     ) {
         foreach ($KnownTasks as &$Known) {
-            if ($Known->getID() == $id) {
+            if ($Known->getID() == $curTask->getID()) {
+                // This is very important for MC session joins via PXE menu
+                $curTaskTaskIDs = $curTask->getTaskIDs();
+                if (count($curTaskTaskIDs) > count($Known->getTaskIDs())) {
+                    $Known->setTaskIDs($curTaskTaskIDs);
+                }
                 return $Known;
             }
             unset($Known);
@@ -374,7 +379,7 @@ class MulticastManager extends FOGService
                         $jobcancelled = $jobcompleted = false;
                         $runningTask = self::_getMCExistingTask(
                             $KnownTasks,
-                            $curTask->getID()
+                            $curTask
                         );
                         $taskIDs = $runningTask->getTaskIDs();
                         $find = [];
