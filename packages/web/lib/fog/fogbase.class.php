@@ -1701,7 +1701,7 @@ abstract class FOGBase
         $MAClist = array();
         $MACs = $stringlist;
         $lowerAndTrim = function ($element) {
-            return filter_var(strtolower(trim($element)), FILTER_VALIDATE_MAC);
+            return strtolower(trim($element));
         };
         if (!is_array($stringlist)) {
             $MACs = array_map($lowerAndTrim, explode('|', $stringlist));
