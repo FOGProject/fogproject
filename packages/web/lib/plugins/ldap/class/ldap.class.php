@@ -25,9 +25,6 @@
  */
 class LDAP extends FOGController
 {
-    const LDAP_PORTS = [389, 636];
-    const LDAP_PORT = 389;
-    const LDAPS_PORT = 636;
     /**
      * Ldap connection itself
      *
@@ -64,7 +61,8 @@ class LDAP extends FOGController
         'grpSearchDN' => 'lsGrpSearchDN',
         'useGroupMatch' => 'lsUseGroupMatch',
         'displayNameOn' => 'lsDisplayNameEnabled',
-        'displayNameAttr' => 'lsDisplayNameAttr'
+        'displayNameAttr' => 'lsDisplayNameAttr',
+        'isLdaps' => 'lsIsLDAPs'
     ];
     /**
      * The required fields
@@ -138,8 +136,9 @@ class LDAP extends FOGController
     private function _ldapUp($timeout = 3)
     {
         $ldap = 'ldap';
-        $ports = self::LDAP_PORTS;
+        $ldaps = $this->get('isLdaps');
         $port = $this->get('port');
+        $ports = explode(',', self::getSetting('FOG_PLUGIN_LDAP_PORTS'));
         $address = $this->get('address');
         if (!in_array($port, $ports)) {
             throw new Exception(_('Port is not valid ldap/ldaps port'));
@@ -156,14 +155,15 @@ class LDAP extends FOGController
         }
         fclose($sock);
         return sprintf(
-            '%s%s://%s',
+            '%s%s://%s:%s',
             $ldap,
             (
-                $port == self::LDAPS_PORT ?
+                $ldaps ?
                 's' :
                 ''
             ),
-            $address
+            $address,
+            $port
         );
     }
     /**

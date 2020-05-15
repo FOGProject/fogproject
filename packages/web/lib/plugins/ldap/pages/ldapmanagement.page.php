@@ -129,6 +129,14 @@ class LDAPManagement extends FOGPage
             $this->obj->get('displayNameAttr')
         );
 
+        $isLDAPs = (
+            isset($_POST['isLDAPs']) ?: $this->obj->get('isLdaps')
+        );
+
+        $isLDAPsOn = (
+            $isLDAPs ? 'checked' : ''
+        );
+
         $labelClass = 'col-sm-3 control-label';
 
         $fields = [
@@ -168,6 +176,23 @@ class LDAPManagement extends FOGPage
                 'address',
                 $address,
                 true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isLDAPs',
+                _('Use LDAP SSL')
+            ) => self::makeInput(
+                '',
+                'isLDAPs',
+                '',
+                'checkbox',
+                'isLDAPs',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $isLDAPsOn
             ),
             self::makeLabel(
                 $labelClass,
@@ -453,6 +478,14 @@ class LDAPManagement extends FOGPage
             $this->obj->get('displayNameAttr')
         );
 
+        $isLDAPs = (
+            isset($_POST['isLDAPs']) ?: $this->obj->get('isLdaps')
+        );
+
+        $isLDAPsOn = (
+            $isLDAPs ? 'checked' : ''
+        );
+
         $labelClass = 'col-sm-3 control-label';
 
         $fields = [
@@ -492,6 +525,23 @@ class LDAPManagement extends FOGPage
                 'address',
                 $address,
                 true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isLDAPs',
+                _('Use LDAP SSL')
+            ) => self::makeInput(
+                '',
+                'isLDAPs',
+                '',
+                'checkbox',
+                'isLDAPs',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $isLDAPsOn
             ),
             self::makeLabel(
                 $labelClass,
@@ -740,6 +790,8 @@ class LDAPManagement extends FOGPage
             filter_input(INPUT_POST, 'displayNameAttr')
         );
 
+        $isLDAPs = (int)isset($_POST['isLDAPs']);
+
         $serverFault = false;
         try {
             if (!is_numeric($searchScope)) {
@@ -770,6 +822,7 @@ class LDAPManagement extends FOGPage
                 ->set('description', $description)
                 ->set('address', $address)
                 ->set('searchDN', $searchDN)
+                ->set('isLdaps', $isLDAPs)
                 ->set('port', $port)
                 ->set('userNamAttr', $userNameAttr)
                 ->set('grpMemberAttr', $grpMemberAttr)
@@ -937,6 +990,14 @@ class LDAPManagement extends FOGPage
             $this->obj->get('displayNameAttr')
         );
 
+        $isLDAPs = (
+            isset($_POST['isLDAPs']) ?: $this->obj->get('isLdaps')
+        );
+
+        $isLDAPsOn = (
+            $isLDAPs ? 'checked' : ''
+        );
+
         $labelClass = 'col-sm-3 control-label';
 
         $fields = [
@@ -976,6 +1037,23 @@ class LDAPManagement extends FOGPage
                 'address',
                 $address,
                 true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isLDAPs',
+                _('Use LDAP SSL')
+            ) => self::makeInput(
+                '',
+                'isLDAPs',
+                '',
+                'checkbox',
+                'isLDAPs',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $isLDAPsOn
             ),
             self::makeLabel(
                 $labelClass,
@@ -1246,6 +1324,9 @@ class LDAPManagement extends FOGPage
         $displayNameAttr = trim(
             filter_input(INPUT_POST, 'displayNameAttr')
         );
+
+        $isLDAPs = (int)isset($_POST['isLDAPs']);
+
         if (!is_numeric($searchScope)) {
             $searchScope = 0;
         }
@@ -1276,6 +1357,7 @@ class LDAPManagement extends FOGPage
             ->set('description', $description)
             ->set('address', $address)
             ->set('searchDN', $searchDN)
+            ->set('isLdaps', $isLDAPs)
             ->set('port', $port)
             ->set('userNamAttr', $userNameAttr)
             ->set('grpMemberAttr', $grpMemberAttr)
