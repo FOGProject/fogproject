@@ -161,7 +161,7 @@ class LDAP extends FOGController
             '%s%s://%s',
             $ldap,
             (
-                $port == 636 ?
+                in_array($port, [ 636, 686, 3269, 7636 ]) ?
                 's' :
                 ''
             ),
