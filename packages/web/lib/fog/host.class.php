@@ -1293,7 +1293,9 @@ class Host extends FOGController
         $sessionjoin = false,
         $wol = false
     ) {
-        $taskName .= ' - ' . $this->get('name');
+        if (!$sessionjoin) {
+            $taskName .= ' - ' . $this->get('name');
+        }
         try {
             if (!$this->isValid()) {
                 throw new Exception(self::$foglang['HostNotValid']);
