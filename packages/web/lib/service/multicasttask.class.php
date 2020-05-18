@@ -726,4 +726,13 @@ class MulticastTask extends FOGService
             ->set('percent', @max($TaskPercent))
             ->save();
     }
+    /**
+     * Updates task ID list in case of MC session joins via PXE menu
+     *
+     * @return void
+     */
+    public function setTaskIDs($newTaskIDs)
+    {
+        $this->_taskIDs = $newTaskIDs;
+    }
 }

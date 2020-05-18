@@ -1252,6 +1252,8 @@ class Route extends FOGBase
                     'image' => $class->get('imagename')->get(),
                     'imagename' => $class->getImageName(),
                     'pingstatus' => $class->getPingCodeStr(),
+                    'pingstatuscode' => (int)$class->get('pingstatus'),
+                    'pingstatustext' => socket_strerror($class->get('pingstatus')),
                     'primac' => $class->get('mac')->__toString(),
                     'macs' => $class->getMyMacs()
                 )
