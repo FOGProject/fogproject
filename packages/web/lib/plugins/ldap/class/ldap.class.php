@@ -276,14 +276,10 @@ class LDAP extends FOGController
         if (empty($user)) {
             return false;
         }
-        $port = (int)$this->get('port');
         /**
          * Open connection to the server
          */
-        self::$_ldapconn = ldap_connect(
-            $server,
-            $port
-        );
+        self::$_ldapconn = ldap_connect($server);
         /**
          * If we can't connect return immediately
          */
@@ -590,14 +586,10 @@ class LDAP extends FOGController
         if (empty($user)) {
             return false;
         }
-        $port = (int)$this->get('port');
         /**
          * Open connection to the server
          */
-        self::$_ldapconn = ldap_connect(
-            $server,
-            $port
-        );
+        self::$_ldapconn = ldap_connect($server);
         /**
          * If we can't connect return immediately
          */
