@@ -837,7 +837,8 @@ abstract class FOGManagerController extends FOGBase
         $template = false
     ) {
         global $node;
-        if ($node === 'image') {
+        global $sub;
+        if ($node === 'image' && $sub === 'add') {
             $waszero = false;
             if ($matchID === 0) {
                 $waszero = true;
