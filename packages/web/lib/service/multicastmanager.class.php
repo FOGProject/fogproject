@@ -615,15 +615,11 @@ class MulticastManager extends FOGService
                                             _('could not be killed')
                                         )
                                     );
-                                } else {
-                                    self::outall(
-                                        sprintf(
-                                            $startStr,
-                                            $runningTask->getID(),
-                                            $runningTask->getName(),
-                                            _('has been killed')
-                                        )
-                                    );
+                                }
+                                // Set msClients to zero as a marker for a completed
+                                // multicast session with unregistered clients
+                                if (count($taskIDs) == 0) {
+                                    $Session->set('clients', 0)->save();
                                 }
                             }
                         } else {
