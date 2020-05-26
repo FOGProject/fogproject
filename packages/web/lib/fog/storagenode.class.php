@@ -303,12 +303,11 @@ class StorageNode extends FOGController
     public function getUsedSlotCount()
     {
         $countTasks = 0;
-        $multicastTaskID = array(8);
         $usedtasks = $this->get('usedtasks');
         $findTasks = array(
             'stateID' => self::getProgressState(),
             'storagenodeID' => $this->get('id'),
-            'typeID' => array_diff($this->get('usedtasks'), $multicastTaskID),
+            'typeID' => $usedtasks,
         );
         $countTasks = self::getClass('TaskManager')->count($findTasks);
         $index = array_search(8, $usedtasks);
@@ -334,12 +333,11 @@ class StorageNode extends FOGController
     public function getQueuedSlotCount()
     {
         $countTasks = 0;
-        $multicastTaskID = array(8);
         $usedtasks = $this->get('usedtasks');
         $findTasks = array(
             'stateID' => self::getQueuedStates(),
             'storagenodeID' => $this->get('id'),
-            'typeID' => array_diff($this->get('usedtasks'), $multicastTaskID),
+            'typeID' => $usedtasks,
         );
         $countTasks = self::getClass('TaskManager')->count($findTasks);
         $index = array_search(8, $usedtasks);
