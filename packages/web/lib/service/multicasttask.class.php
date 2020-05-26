@@ -245,22 +245,19 @@ class MulticastTask extends FOGService
         $this->_MultiSess = new MulticastSession($this->getID());
     }
     /**
-     * Get session clients
-     *
-     * @return object
-     */
-    public function getSessClients()
-    {
-        return $this->_MultiSess->get('clients') == 0;
-    }
-    /**
      * Is this a named session
      *
      * @return bool
      */
-    public function isNamedSession()
+    public function isNamedSessionFinished()
     {
-        return (bool)$this->_isNameSess;
+        if ($this->_isNameSess
+                && $this->_MultiSess->get('clients') == 0
+                && !$this->isRunning($this->procRef)) {
+            return true;
+        } else {
+            return false;
+        }
     }
     /**
      * Returns the task ids
