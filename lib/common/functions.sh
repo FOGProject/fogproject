@@ -2251,11 +2251,15 @@ class Config
 }" > "${webdirdest}/lib/fog/config.class.php"
     errorStat $?
     dots "Creating redirection index file"
-    [[ ! -f ${docroot}/index.php ]] && echo "<?php
+    if [[ ! -f ${docroot}/index.php ]]; then
+        echo "<?php
 header('Location: /fog/index.php');
 die();
 ?>" > ${docroot}/index.php && chown ${apacheuser}:${apacheuser} ${docroot}/index.php
-    errorStat $?
+        errorStat $?
+    else
+        echo "Skipped"
+    fi
     downloadfiles
     if [[ $osid -eq 2 ]]; then
         php -m | grep mysqlnd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
