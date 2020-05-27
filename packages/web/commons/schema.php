@@ -4028,3 +4028,9 @@ $this->schema[] = [
     . "Token \$\{user-name\} is replaced by the task creators username.'"
     . "WHERE `settingKey`='FOG_EMAIL_ADDRESS'"
 ];
+// 279
+$this->schema[] = [
+    "ALTER TABLE `users` "
+    . "MODIFY `uName` VARCHAR(255),"
+    . "MODIFY `uCreateBy` VARCHAR(255)"
+];
