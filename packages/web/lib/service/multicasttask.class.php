@@ -696,7 +696,9 @@ class MulticastTask extends FOGService
     public function killTask()
     {
         $this->killTasking();
-        unlink($this->getUDPCastLogFile());
+        if (file_exists($this->getUDPCastLogFile())) {
+            unlink($this->getUDPCastLogFile());
+        }
         return true;
     }
     /**
