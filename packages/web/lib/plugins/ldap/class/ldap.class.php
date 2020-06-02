@@ -286,12 +286,11 @@ class LDAP extends FOGController
         if (!self::$_ldapconn) {
             error_log(
                 sprintf(
-                    '%s %s() %s %s:%d',
+                    '%s %s() %s %s',
                     _('Plugin'),
                     __METHOD__,
                     _('We cannot connect to LDAP server'),
-                    $server,
-                    $port
+                    $server
                 )
             );
             return false;
@@ -378,12 +377,11 @@ class LDAP extends FOGController
             if (!$bind) {
                 error_log(
                     sprintf(
-                        '%s %s() %s %s:%d',
+                        '%s %s() %s %s',
                         _('Plugin'),
                         __METHOD__,
                         _('Cannot bind to the LDAP server'),
-                        $server,
-                        $port
+                        $server
                     )
                 );
                 return false;
@@ -596,12 +594,11 @@ class LDAP extends FOGController
         if (!self::$_ldapconn) {
             error_log(
                 sprintf(
-                    '%s %s() %s %s:%d',
+                    '%s %s() %s %s',
                     _('Plugin'),
                     __METHOD__,
                     _('We cannot connect to LDAP server'),
-                    $server,
-                    $port
+                    $server
                 )
             );
             return false;
@@ -699,12 +696,11 @@ class LDAP extends FOGController
             if (!$bind) {
                 error_log(
                     sprintf(
-                        '%s %s() %s %s:%d',
+                        '%s %s() %s %s',
                         _('Plugin'),
                         __METHOD__,
                         _('Cannot bind to the LDAP server'),
-                        $server,
-                        $port
+                        $server
                     )
                 );
                 return false;
