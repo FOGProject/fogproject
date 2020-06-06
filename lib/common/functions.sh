@@ -992,7 +992,20 @@ errorStat() {
     local skipOk=$2
     if [[ $status != 0 ]]; then
         echo "Failed!"
-        [[ -z $exitFail ]] && exit $status
+        if [[ -z $exitFail ]]; then
+            echo
+            echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            echo "!! The installer was not able to run all the way to the end as   !!"
+            echo "!! something has caused it to fail. The following few lines are  !!"
+            echo "!! from the error log file which might help us figure out what's !!"
+            echo "!! wrong. Please add this information when reporting an error.   !!"
+            echo "!! As well you might want to take a look at the full error log   !!"
+            echo "!! in $workingdir/error_logs/fog_error_${version}.log !!"
+            echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+            echo
+            tail -n 5 $workingdir/error_logs/fog_error_${version}.log
+            exit $status
+        fi
     fi
     [[ -z $skipOk ]] && echo "OK"
 }
