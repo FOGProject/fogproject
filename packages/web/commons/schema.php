@@ -4034,3 +4034,18 @@ $this->schema[] = [
     . "MODIFY `uName` VARCHAR(255),"
     . "MODIFY `uCreateBy` VARCHAR(255)"
 ];
+// 280
+$this->schema[] = [
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_LOG_INFO',"
+    . "'Turn logging on for Informational messages. (Defaults to off)',"
+    . "'0','Logging Settings'),"
+    . "('FOG_LOG_DEBUG',"
+    . "'Turn logging on for Debug messages. (Defaults to off)',"
+    . "'0','Logging Settings'),"
+    . "('FOG_LOG_ERROR',"
+    . "'Turn logging on for Errors messages. (Defaults to off)',"
+    . "'0','Logging Settings')"
+];
