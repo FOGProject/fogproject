@@ -747,15 +747,18 @@ abstract class FOGBase
             __CLASS__,
             $data
         );
-        $log_filename = '../management/logs';
-        if (!file_exists($log_filename)) {
-            mkdir($log_filename, 0777, true);
+        $tolog = self::getSetting('FOG_LOG_ERROR') > 0;
+        if ($tolog) {
+          $log_filename = '../management/logs';
+          if (!file_exists($log_filename)) {
+              mkdir($log_filename, 0777, true);
+          }
+          $log_file_data = $log_filename
+              . '/error_log_'
+              . $date->format('d-m-Y')
+              . '.log';
+          file_put_contents($log_file_data, $string."\n", FILE_APPEND);
         }
-        $log_file_data = $log_filename
-            . '/error_log_'
-            . $date->format('d-m-Y')
-            . '.log';
-        file_put_contents($log_file_data, $string."\n", FILE_APPEND);
         if ((self::$service || self::$ajax) || !self::$debug) {
             return;
         }
@@ -779,15 +782,18 @@ abstract class FOGBase
             __CLASS__,
             $data
         );
-        $log_filename = '../management/logs';
-        if (!file_exists($log_filename)) {
-            mkdir($log_filename, 0777, true);
+        $tolog = self::getSetting('FOG_LOG_DEBUG') > 0;
+        if ($tolog) {
+          $log_filename = '../management/logs';
+          if (!file_exists($log_filename)) {
+              mkdir($log_filename, 0777, true);
+          }
+          $log_file_data = $log_filename
+              . '/debug_log_'
+              . $date->format('d-m-Y')
+              . '.log';
+          file_put_contents($log_file_data, $string."\n", FILE_APPEND);
         }
-        $log_file_data = $log_filename
-            . '/debug_log_'
-            . $date->format('d-m-Y')
-            . '.log';
-        file_put_contents($log_file_data, $string."\n", FILE_APPEND);
         if ((self::$service || self::$ajax) || !self::$debug) {
             return;
         }
@@ -811,15 +817,18 @@ abstract class FOGBase
             __CLASS__,
             $data
         );
-        $log_filename = '../management/logs';
-        if (!file_exists($log_filename)) {
-            mkdir($log_filename, 0777, true);
+        $tolog = self::getSetting('FOG_LOG_INFO') > 0;
+        if ($tolog) {
+          $log_filename = '../management/logs';
+          if (!file_exists($log_filename)) {
+              mkdir($log_filename, 0777, true);
+          }
+          $log_file_data = $log_filename
+              . '/info_log_'
+              . $date->format('d-m-Y')
+              . '.log';
+          file_put_contents($log_file_data, $string."\n", FILE_APPEND);
         }
-        $log_file_data = $log_filename
-            . '/info_log_'
-            . $date->format('d-m-Y')
-            . '.log';
-        file_put_contents($log_file_data, $string."\n", FILE_APPEND);
         if (!self::$info || self::$service || self::$ajax) {
             return;
         }

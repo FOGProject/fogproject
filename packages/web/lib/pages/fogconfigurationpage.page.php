@@ -866,7 +866,10 @@ class FOGConfigurationPage extends FOGPage
             'FOG_REAUTH_ON_DELETE' => true,
             'FOG_REAUTH_ON_EXPORT' => true,
             'FOG_ALWAYS_LOGGED_IN' => true,
-            'FOG_PLUGINSYS_ENABLED' => true
+            'FOG_PLUGINSYS_ENABLED' => true,
+            'FOG_LOG_INFO' => true,
+            'FOG_LOG_ERROR' => true,
+            'FOG_LOG_DEBUG' => true
         ];
         Route::ids('image');
         $imageids = json_decode(
@@ -1764,7 +1767,10 @@ class FOGConfigurationPage extends FOGPage
             'FOG_ENABLE_SHOW_PASSWORDS' => true,
             'FOG_IMAGE_LIST_MENU' => true,
             'FOG_REAUTH_ON_DELETE' => true,
-            'FOG_REAUTH_ON_EXPORT' => true
+            'FOG_REAUTH_ON_EXPORT' => true,
+            'FOG_LOG_INFO' => true,
+            'FOG_LOG_ERROR' => true,
+            'FOG_LOG_DEBUG' => true,
         ];
         self::$HookManager->processEvent(
             'NEEDSTOBECHECKBOX',

@@ -293,7 +293,7 @@ abstract class FOGController extends FOGBase
                 $this->loadItem($key);
             }
             $msg = sprintf(
-                '%s: %s, $s: %s',
+                '%s: %s, %s: %s',
                 _('Setting Key'),
                 $key,
                 _('Value'),
