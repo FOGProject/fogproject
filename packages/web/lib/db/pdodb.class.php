@@ -457,7 +457,8 @@ class PDODB extends DatabaseManager
                 $this->sqlerror();
             }
         }
-        return self::$_link->lastInsertId();
+        $stmt = self::$_link->query('SELECT LAST_INSERT_ID()');
+        return $stmt->fetchColumn();
     }
     /**
      * Returns the field count
