@@ -621,7 +621,7 @@ class Group extends FOGController
                 $this->_createSnapinTasking($now, -1);
             } elseif ($TaskType->isDeploy()) {
                 $hostIDs = $hostids;
-                $imageIDs = self::getSubObjectIDs(
+                $imageIDs[] = self::getSubObjectIDs(
                     'Host',
                     array(
                         'id' => $hostIDs,
