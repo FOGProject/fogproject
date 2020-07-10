@@ -42,54 +42,52 @@ if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
     fi
 elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get purge -yq sysv-rc-conf >/dev/null 2>&1
-    if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) ]]; then
-        case $OSVersion in
-            20)
-                php_ver="7.4"
-                ;;
-            19)
-                php_ver="7.3"
-                ;;
-            18)
-                php_ver="7.2"
-                ;;
-            *)
-                sysvrcconf="sysv-rc-conf"
-                php_ver="7.1"
-                x="*php5* *php-5*"
-                eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                if [[ $? -ne 0 ]]; then
-                    if [[ $autoaccept != yes ]]; then
-                        echo " *** Detected a potential need to reinstall apache and php files."
-                        echo " *** This will remove the /etc/php* and /etc/apache2* directories"
-                        echo " ***  and remove/purge the apache and php files from this system."
-                        echo " *** If you're okay with this please type Y, anything else will"
-                        echo " ***  continue the installation, but may mean you will need to"
-                        echo " ***  remove the files later and make proper changes as "
-                        echo " ***  necessary. (Y/N): "
-                        read dummy
-                    else
-                        dummy="y"
-                    fi
-                    case $dummy in
-                        [Yy])
-                            dots "Removing apache and php files"
-                            rm -rf /etc/php* /etc/apache2*
-                            echo "Done"
-                            dots "Stopping web services"
-                            if [[ $systemctl == yes ]]; then
-                                systemctl is-active --quiet apache2 && systemctl stop apache2 >/dev/null 2>&1 || true
-                            fi
-                            [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
-                            dots "Removing the apache and php packages"
-                            DEBIAN_FRONTEND=noninteractive apt-get purge -yq 'apache2*' 'php5*' 'php7*' 'libapache*' >/dev/null 2>&1
-                            [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
-                            apt-get clean -yq >/dev/null 2>&1
-                            ;;
-                    esac
+    case $OSVersion in
+        20)
+            php_ver="7.4"
+            ;;
+        19)
+            php_ver="7.3"
+            ;;
+        18)
+            php_ver="7.2"
+            ;;
+        *)
+            sysvrcconf="sysv-rc-conf"
+            php_ver="7.1"
+            x="*php5* *php-5*"
+            eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            if [[ $? -ne 0 ]]; then
+                if [[ $autoaccept != yes ]]; then
+                    echo " *** Detected a potential need to reinstall apache and php files."
+                    echo " *** This will remove the /etc/php* and /etc/apache2* directories"
+                    echo " ***  and remove/purge the apache and php files from this system."
+                    echo " *** If you're okay with this please type Y, anything else will"
+                    echo " ***  continue the installation, but may mean you will need to"
+                    echo " ***  remove the files later and make proper changes as "
+                    echo " ***  necessary. (Y/N): "
+                    read dummy
+                else
+                    dummy="y"
                 fi
-        esac
-    fi
+                case $dummy in
+                    [Yy])
+                        dots "Removing apache and php files"
+                        rm -rf /etc/php* /etc/apache2*
+                        echo "Done"
+                        dots "Stopping web services"
+                        if [[ $systemctl == yes ]]; then
+                            systemctl is-active --quiet apache2 && systemctl stop apache2 >/dev/null 2>&1 || true
+                        fi
+                        [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
+                        dots "Removing the apache and php packages"
+                        DEBIAN_FRONTEND=noninteractive apt-get purge -yq 'apache2*' 'php5*' 'php7*' 'libapache*' >/dev/null 2>&1
+                        [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
+                        apt-get clean -yq >/dev/null 2>&1
+                        ;;
+                esac
+            fi
+    esac
 else
     [[ -z $php_ver ]] && php_ver=5
 fi
