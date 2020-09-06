@@ -824,7 +824,7 @@ checkSELinux() {
     [[ "$currentmode" != "enforcing" && "$configmode" != "enforcing" ]] && return
     echo " * SELinux is currently enabled on your system. This is often causing"
     echo " * issues and we recommend to disable it on FOG servers as of now."
-    echo " * Should the installer disable SELinux for you now? (Y/n)"
+    echo -n " * Should the installer disable SELinux for you now? (Y/n) "
     sedisable=""
     while [[ -z $sedisable ]]; do
         if [[ -n $autoaccept ]]; then
@@ -866,7 +866,7 @@ checkFirewall() {
     [[ $fwrunning -ne 1 ]] && return
     echo " * The local firewall seems to be currently enabled on your system. This can cause"
     echo " * issues on FOG servers if you are not well experienced and know what you are doing."
-    echo " * Should the installer try to disable the local firewall for you now? (y/N)"
+    echo -n " * Should the installer try to disable the local firewall for you now? (y/N) "
     fwdisable=""
     while [[ -z $fwdisable ]]; do
         if [[ -n $autoaccept ]]; then
