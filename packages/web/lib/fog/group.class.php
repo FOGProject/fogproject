@@ -621,7 +621,7 @@ class Group extends FOGController
                 $this->_createSnapinTasking($now, -1);
             } elseif ($TaskType->isDeploy()) {
                 $hostIDs = $hostids;
-                $imageIDs[] = self::getSubObjectIDs(
+                $imageIDs = self::getSubObjectIDs(
                     'Host',
                     array(
                         'id' => $hostIDs,
@@ -633,6 +633,9 @@ class Group extends FOGController
                     false,
                     ''
                 );
+                if (!is_array($imageIDs)) {
+                    $imageIDs = array($imageIDs);
+                }
                 $batchFields = array(
                     'name',
                     'createdBy',
