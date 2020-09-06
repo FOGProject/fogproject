@@ -461,6 +461,7 @@ class FOGFTP extends FOGGetSet
             if (!$password) {
                 $password = $this->get('password');
             }
+            $password = htmlspecialchars_decode($password, ENT_QUOTES | ENT_HTML401);
             if (ftp_login($this->_link, $username, $password) === false) {
                 $this->ftperror($this->data);
             }
