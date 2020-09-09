@@ -251,32 +251,6 @@ case $installtype in
         done
         [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
         [[ -z $snmysqluser ]] && snmysqluser='fogmaster'
-        while [[ -z $dohttps ]]; do
-            if [[ -z $autoaccept && -z $shttpproto ]]; then
-                echo
-                echo "  Using encrypted connections is state of the art on the web and we"
-                echo "  encourage you to enable this for your FOG server. But using HTTPS"
-                echo "  has some implications within FOG, PXE and fog-client and you want"
-                echo "  to read https://wiki.fogproject.org/HTTPS before you decide!"
-                echo -n "  Would you like to enable secure HTTPS on your FOG server? [y/N] "
-                read dohttps
-            fi
-            [[ "$shttpproto" == "https" ]] && dohttps="yes"
-            case $dohttps in
-                [Nn]|[Nn][Oo]|"")
-                    dohttps=0
-                    httpproto="http"
-                    ;;
-                [Yy]|[Yy][Ee][Ss])
-                    dohttps=1
-                    httpproto="https"
-                    ;;
-                *)
-                    echo "  Invalid input, please try again."
-                    dohttps=""
-                    ;;
-            esac
-        done
         ;;
     [Ss])
         while [[ -z $snmysqlhost ]]; do
@@ -314,3 +288,29 @@ case $installtype in
         done
         ;;
 esac
+while [[ -z $dohttps ]]; do
+    if [[ -z $autoaccept && -z $shttpproto ]]; then
+        echo
+        echo "  Using encrypted connections is state of the art on the web and we"
+        echo "  encourage you to enable this for your FOG server. But using HTTPS"
+        echo "  has some implications within FOG, PXE and fog-client and you want"
+        echo "  to read https://wiki.fogproject.org/HTTPS before you decide!"
+        echo -n "  Would you like to enable secure HTTPS on your FOG server? [y/N] "
+        read dohttps
+    fi
+    [[ "$shttpproto" == "https" ]] && dohttps="yes"
+    case $dohttps in
+        [Nn]|[Nn][Oo]|"")
+            dohttps=0
+            httpproto="http"
+            ;;
+        [Yy]|[Yy][Ee][Ss])
+            dohttps=1
+            httpproto="https"
+            ;;
+        *)
+            echo "  Invalid input, please try again."
+            dohttps=""
+            ;;
+    esac
+done
