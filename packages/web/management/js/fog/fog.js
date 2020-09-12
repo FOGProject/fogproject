@@ -1768,7 +1768,7 @@ function MACUpdate() {
     } else {
         $('.additionalMACsRow').show();
     }
-    if ($('.pendingMACsRow').find('.addrow').length < 1) {
+    if ($('.pendingMACsCell').find('.addrow').length < 1) {
         $('.pendingMACsRow').hide().parents('tr').hide();
     } else {
         $('.pendingMACsRow').show();
