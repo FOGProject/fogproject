@@ -2369,18 +2369,20 @@ die();
 }
 downloadfiles() {
     dots "Downloading kernel, init and fog-client binaries"
+    clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
+    fosURL="https://github.com/FOGProject/fos/releases/download"
+    fogclientURL="https://github.com/FOGProject/fog-client/releases/download"
     [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
     cwd=$(pwd)
     cd ../tmp/
     if [[ $version =~ ^[0-9]\.[0-9]\.[0-9]$ ]]
     then
-        urls=( "https://fogproject.org/binaries${version}.zip" )
+        urls=( "${fosURL}/${version}/init.xz" "${fosURL}/${version}/init_32.xz" "${fosURL}/${version}/bzImage" "${fosURL}/${version}/bzImage32" "${fogclientURL}/${clientVer}/FOGService.msi" "${fogclientURL}/${clientVer}/SmartInstaller.exe" )
         if [[ $armsupport == 1 ]]; then
-            urls+=( "https://fogproject.org/binaries${version}_arm.zip" )
+            urls+=( "${fosURL}/${version}/arm_init.cpio.gz" "${fosURL}/${version}/arm_Image" )
         fi
     else
-        clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
-        urls=( "https://fogproject.org/inits/init.xz" "https://fogproject.org/inits/init_32.xz" "https://fogproject.org/kernels/bzImage" "https://fogproject.org/kernels/bzImage32" "https://github.com/FOGProject/fog-client/releases/download/${clientVer}/FOGService.msi" "https://github.com/FOGProject/fog-client/releases/download/${clientVer}/SmartInstaller.exe" )
+        urls=( "https://fogproject.org/inits/init.xz" "https://fogproject.org/inits/init_32.xz" "https://fogproject.org/kernels/bzImage" "https://fogproject.org/kernels/bzImage32" "${fogclientURL}/${clientVer}/FOGService.msi" "${fogclientURL}/${clientVer}/SmartInstaller.exe" )
         if [[ $armsupport == 1 ]]; then
             urls+=( "https://fogproject.org/inits/arm_init.cpio.gz" "https://fogproject.org/kernels/arm_Image" )
         fi
@@ -2416,19 +2418,6 @@ downloadfiles() {
         fi
     done
     echo "Done"
-    if [[ $version =~ ^[0-9]\.[0-9]\.[0-9]$ ]]
-    then
-        dots "Extracting the binaries archive"
-        unzip -o binaries${version}.zip >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        errorStat $?
-        copypath="packages/*/"
-        if [[ $armsupport == 1 ]]; then
-            dots "Extracting the ARM binaries archive"
-            unzip -o binaries${version}_arm.zip >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            errorStat $?
-            copypath_arm="packages_arm/*/"
-        fi
-    fi
     dots "Copying binaries to destination paths"
     cp -vf ${copypath}bzImage ${webdirdest}/service/ipxe/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat $?
     cp -vf ${copypath}bzImage32 ${webdirdest}/service/ipxe/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || errorStat $?
