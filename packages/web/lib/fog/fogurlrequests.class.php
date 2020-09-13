@@ -551,6 +551,7 @@ class FOGURLRequests extends FOGBase
         if ($file) {
             $this->options[CURLOPT_FILE] = $file;
         }
+        $this->options[CURLOPT_USERAGENT] = 'Mozilla/5.0 (Linux x86_64; rv:80.0) Gecko/20100101 Firefox/80.0';
         foreach ((array) $urls as &$url) {
             if ($method === 'GET') {
                 $this->get($url);
