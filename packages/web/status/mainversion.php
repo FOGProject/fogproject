@@ -33,7 +33,7 @@ $urls = array(
 $resp = $FOGURLRequests->process($urls);
 
 $tags = json_decode(array_shift($resp));
-foreach ($tags AS $tag) {
+foreach ($tags as $tag) {
     if (preg_match('/^[0-9]\.[0-9]\.[0-9]$/', $tag->name)) {
         $stableversion = $tag->name;
         break;
@@ -41,11 +41,11 @@ foreach ($tags AS $tag) {
 }
 $systemclass = array_shift($resp);
 if (preg_match("/FOG_VERSION', '([0-9.RCalphbet-]*)'/", $systemclass, $fogver)) {
-     $devversion = $fogver[1];
+    $devversion = $fogver[1];
 }
 $systemclass = array_shift($resp);
 if (preg_match("/FOG_VERSION', '([0-9.RCalphbet-]*)'/", $systemclass, $fogver)) {
-     $alphaversion = $fogver[1];
+    $alphaversion = $fogver[1];
 }
 
 $stablecheck = version_compare($curversion, $stableversion, '=');
@@ -62,7 +62,7 @@ if (!$stablecheck && !$devcheck && !$alphacheck) {
     $result = "<b>Your version of FOG is up to date.</b><br/>";
     if ($stablecheck) {
         $result .= "You're running the latest stable version: " . $stableversion;
-    } else if ($devcheck) {
+    } elseif ($devcheck) {
         $result .= "You're running the latest dev-branch version: " . $devversion;
     } else {
         $result .= "You're running the latest alpha-branch version: " . $alphaversion;
