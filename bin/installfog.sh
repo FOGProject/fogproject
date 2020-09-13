@@ -30,6 +30,8 @@ if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
     echo "of the su command as it is important to load root's environment)."
     exit 1
 fi
+timestamp=$(date +%s)
+backupconfig=""
 . ../lib/common/functions.sh
 help() {
     echo -e "Usage: $0 [-h?dEUuHSCKYXTFA] [-f <filename>] [-N <databasename>]"
@@ -659,3 +661,13 @@ while [[ -z $blGo ]]; do
             ;;
     esac
 done
+if [[ -n "${backupconfig}" ]]; then
+    echo " * Changed configurations:"
+    echo
+    echo "   The FOG installer changed configuration files and created the"
+    echo "   following backup files from your origional files:"
+    for conffile in ${backupconfig}; do
+        echo "   * ${conffile} <=> ${conffile}.${timestamp}"
+    done
+    echo
+fi

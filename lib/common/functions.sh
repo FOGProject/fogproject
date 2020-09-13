@@ -452,9 +452,6 @@ configureUDPCast() {
 }
 configureFTP() {
     dots "Setting up and starting VSFTP Server..."
-    if [[ -f $ftpconfig ]]; then
-        mv $ftpconfig ${ftpconfig}.fogbackup
-    fi
     if [[ -f $ftpxinetd ]]; then
         mv $ftpxinetd ${ftpxinetd}.fogbackup
     fi
@@ -466,7 +463,9 @@ configureFTP() {
     if [[ $vsvermaj -gt 3 ]] || [[ $vsvermaj -eq 3 && $vsverbug -ge 2 ]]; then
         seccompsand="seccomp_sandbox=NO"
     fi
+    mv -fv "${ftpconfig}" "${ftpconfig}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     echo -e  "max_per_ip=200\nanonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\n$seccompsand" > "$ftpconfig"
+    diffconfig "${ftpconfig}"
     case $systemctl in
         yes)
             systemctl enable vsftpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1285,7 +1284,9 @@ configureNFS() {
     if [[ $blexports != 1 ]]; then
         echo "Skipped"
     else
+        mv -fv "${nfsconfig}" "${nfsconfig}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         echo -e "$storageLocation *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)\n$storageLocation/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=1)" > "$nfsconfig"
+        diffconfig "${nfsconfig}"
         errorStat $?
         dots "Setting up and starting RPCBind"
         if [[ $systemctl == yes ]]; then
@@ -1888,20 +1889,23 @@ EOF
             echo "Skipped"
             ;;
         *)
-            if [[ $recreateCA != yes && $recreateKeys != yes && -f $etcconf ]]; then
-                echo "Skipped"
-            else
+                if [[ $osid -eq 2 ]]; then
+                    a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    a2ensite 000-default >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                fi
+                mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                echo "<VirtualHost *:80>" > "$etcconf"
+                echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
+                if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
+                    echo "        SetHandler application/x-httpd-php" >> "$etcconf"
+                else
+                    echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
+                fi
+                echo "    </FilesMatch>" >> "$etcconf"
+                echo "    ServerName $ipaddress" >> "$etcconf"
+                echo "    ServerAlias $hostname" >> "$etcconf"
+                echo "    DocumentRoot $docroot" >> "$etcconf"
                 if [[ $httpproto == https ]]; then
-                    echo "<VirtualHost *:80>" > "$etcconf"
-                    echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
-                    if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
-                        echo "        SetHandler application/x-httpd-php" >> "$etcconf"
-                    else
-                        echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
-                    fi
-                    echo "    </FilesMatch>" >> "$etcconf"
-                    echo "    ServerName $ipaddress" >> "$etcconf"
-                    echo "    ServerAlias $hostname" >> "$etcconf"
                     echo "    RewriteEngine On" >> "$etcconf"
                     echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
                     echo "    RewriteRule .* - [F]" >> "$etcconf"
@@ -1939,18 +1943,7 @@ EOF
                     echo "    RewriteRule ^/fog/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
                     echo "</VirtualHost>" >> "$etcconf"
                 else
-                    echo "<VirtualHost *:80>" > "$etcconf"
-                    echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
-                    if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
-                        echo "        SetHandler application/x-httpd-php" >> "$etcconf"
-                    else
-                        echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
-                    fi
-                    echo "    </FilesMatch>" >> "$etcconf"
                     echo "    KeepAlive Off" >> "$etcconf"
-                    echo "    ServerName $ipaddress" >> "$etcconf"
-                    echo "    ServerAlias $hostname" >> "$etcconf"
-                    echo "    DocumentRoot $docroot" >> "$etcconf"
                     echo "    <Directory $webdirdest>" >> "$etcconf"
                     echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                     echo "    </Directory>" >> "$etcconf"
@@ -1962,6 +1955,7 @@ EOF
                     echo "    RewriteRule ^/fog/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
                     echo "</VirtualHost>" >> "$etcconf"
                 fi
+                diffconfig "${etcconf}"
                 errorStat $?
                 ln -s $webdirdest $webdirdest/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 case $osid in
@@ -1996,7 +1990,6 @@ EOF
                     a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     a2dissite "000-default" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 fi
-            fi
             ;;
     esac
     dots "Starting and checking status of web services"
@@ -2080,21 +2073,6 @@ configureHttpd() {
             esac
             ;;
     esac
-    if [[ -f $etcconf ]]; then
-        case $novhost in
-            [Yy]|[Yy][Ee][Ss])
-                ;;
-            *)
-                dots "Removing vhost file"
-                if [[ $osid -eq 2 ]]; then
-                    a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2ensite 000-default >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                fi
-                rm $etcconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                errorStat $?
-                ;;
-        esac
-    fi
     dots "Setting up Apache and PHP files"
     if [[ ! -f $phpini ]]; then
         echo "Failed"
@@ -2456,7 +2434,6 @@ configureDHCP() {
     esac
     case $bldhcp in
         1)
-            [[ -f $dhcpconfig ]] && cp -f $dhcpconfig ${dhcpconfig}.fogbackup
             serverip=$(ip -4 -o addr show $interface | awk -F'([ /])+' '/global/ {print $4}')
             [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | grep -oE 'inet[:]? addr[:]?([0-9]{1,3}\.){3}[0-9]{1,3}' | awk -F'(inet[:]? ?addr[:]?)' '{print $2}')
             [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface))
@@ -2470,6 +2447,7 @@ configureDHCP() {
                 echo "Could not find dhcp config file"
                 exit 1
             fi
+            mv -fv "${dhcptouse}" "${dhcptouse}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             [[ -z $bootfilename ]] && bootfilename="undionly.kpxe"
             echo "# DHCP Server Configuration file\n#see /usr/share/doc/dhcp*/dhcpd.conf.sample" > $dhcptouse
             echo "# This file was created by FOG" >> "$dhcptouse"
@@ -2545,6 +2523,7 @@ configureDHCP() {
             echo "        }" >> "$dhcptouse"
             echo "    }" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
+            diffconfig "${dhcptouse}"
             case $systemctl in
                 yes)
                     systemctl enable $dhcpd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -2631,4 +2610,14 @@ generatePassword() {
 }
 checkPasswordChars() {
     echo "$i" | tr -d '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~'
+}
+diffconfig() {
+    local conffile="$1"
+    [[ ! -f "${conffile}.${timestamp}" ]] && return 0
+    diff -q "${conffile}" "${conffile}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ $? -eq 0 ]]; then
+        rm -f "${conffile}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    else
+        backupconfig="${backupconfig} ${conffile}"
+    fi
 }
