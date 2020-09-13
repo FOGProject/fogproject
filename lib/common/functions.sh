@@ -1833,6 +1833,15 @@ EOF
     [[ -z $sslprivkey ]] && sslprivkey="$sslpath/.srvprivate.key"
     if [[ $recreateKeys == yes || $recreateCA == yes || $caCreated != yes || ! -e $sslpath || ! -e $sslprivkey ]]; then
         dots "Creating SSL Private Key"
+        if [[ $(validip $ipaddress) -ne 0 ]]; then
+            echo -e "\n"
+            echo "  You seem to be using a DNS name instead of an IP address."
+            echo "  This would cause an error when generating SSL key and certs"
+            echo "  and so we will stop here! Please adjust variable 'ipaddress'"
+            echo "  in .fogsettings file if this is an update and make sure you"
+            echo "  provide an IP address when re-running the installer."
+            exit 1
+        fi
         mkdir -p $sslpath >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         openssl genrsa -out $sslprivkey 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         cat > $sslpath/req.cnf << EOF
