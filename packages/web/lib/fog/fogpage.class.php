@@ -2663,13 +2663,27 @@ abstract class FOGPage extends FOGBase
      */
     public function loginInfo()
     {
+        $stable = '';
+        $development = '';
         $urls = array(
             'https://fogproject.org/globalusers',
-            'https://fogproject.org/version/index.php?stable&dev'
+            'https://api.github.com/repos/fogproject/fogproject/tags',
+            'https://raw.githubusercontent.com/FOGProject/fogproject/dev-branch/packages/web/lib/fog/system.class.php'
         );
         $resp = self::$FOGURLRequests->process($urls);
         $data['sites'] = array_shift($resp);
-        $data['version'] = array_shift($resp);
+        $tags = json_decode(array_shift($resp));
+        $systemclass = array_shift($resp);
+        foreach ($tags as $tag) {
+            if (preg_match('/^[0-9]\.[0-9]\.[0-9]$/', $tag->name)) {
+                $stable = $tag->name;
+                break;
+            }
+        }
+        if (preg_match("/FOG_VERSION', '([0-9.RCalphbet-]*)'/", $systemclass, $fogver)) {
+            $development = $fogver[1];
+        }
+        $data['version'] = json_encode(array('stable' => $stable, 'dev' => $development));
         echo json_encode($data);
         exit;
     }
