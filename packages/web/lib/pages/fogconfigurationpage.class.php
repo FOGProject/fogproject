@@ -1960,7 +1960,6 @@ class FOGConfigurationPage extends FOGPage
                     $mak
                 );
             }
-            fclose($fh);
             if (count($items) > 0) {
                 list(
                     $first_id,
