@@ -269,8 +269,8 @@ class TaskQueue extends TaskingElement
         $Inventory = self::$Host->get('inventory');
         $mac = self::$Host->get('mac')->__toString();
         $ImageName = $this->Task->getImage()->get('name');
-        $ImageStartTime = self::niceDate($this->Task->get('checkInTime'));
-        $ImageEndTime = self::niceDate();
+        $ImageStartTime = self::niceDate($this->Task->get('checkInTime'))->format('Y-m-d H:i:s');
+        $ImageEndTime = self::niceDate()->format('Y-m-d H:i:s');
         $duration = self::diff($ImageStartTime, $ImageEndTime);
         $Snapins = implode(',', (array)$SnapinNames);
         $email = [
