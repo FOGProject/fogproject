@@ -2621,3 +2621,35 @@ diffconfig() {
         backupconfig="${backupconfig} ${conffile}"
     fi
 }
+setupFogAnalytics() {
+    dots "Setting up FOG Analytics"
+    # Make sure required directories exist.
+    mkdir -p /opt/fog/analytics >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    mkdir -p /var/log/fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    # If the analytics settings file does not exist, create it.
+    if [[ ! -f /opt/fog/analytics/settings ]]; then
+        echo "day_of_week=$(awk 'BEGIN{srand();print int(rand()*(0-6))+6 }')" > /opt/fog/analytics/settings
+        echo "hour_of_day=$(awk 'BEGIN{srand();print int(rand()*(0-23))+23 }')" >> /opt/fog/analytics/settings
+        echo "minute_of_hour=$(awk 'BEGIN{srand();print int(rand()*(0-59))+59 }')" >> /opt/fog/analytics/settings
+        echo "analytics_log=/var/log/fog/analytics.log" >> /opt/fog/analytics/settings
+        echo "user_to_run_as=root" >> /opt/fog/analytics/settings
+    fi
+    # Source settings file.
+    source /opt/fog/analytics/settings >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    # Build the cron.d file.
+    cat > /etc/cron.d/fog_analytics << END_OF_THE_FILE
+SHELL=/bin/bash
+PATH=${PATH}
+${minute_of_hour} ${hour_of_day} * * ${day_of_week} ${user_to_run_as} /opt/fog/analytics/report_analytics.sh >> ${analytics_log} 2>&1
+END_OF_THE_FILE
+    # If the reporting script exists, delete it.
+    if [[ -f /opt/fog/analytics/report_analytics.sh ]]; then
+        rm -f /opt/fog/analytics/report_analytics.sh >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    fi
+    # Put new reporting script into position.
+    cp $workingdir/../utils/FOGAnalytics/report_analytics.sh /opt/fog/analytics/report_analytics.sh >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    # Make sure reporting script is executable.
+    chmod +x /opt/fog/analytics/report_analytics.sh >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    echo "Done"
+}
+
