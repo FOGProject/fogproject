@@ -630,7 +630,7 @@ while [[ -z $blGo ]]; do
                     writeUpdateFile
                     linkOptFogDir
                     updateStorageNodeCredentials
-		    setupFogAnalytics
+                    setupFogAnalytics
                     echo
                     echo " * Setup complete"
                     echo
