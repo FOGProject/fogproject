@@ -21,6 +21,6 @@ echo "payload=${payload}"
 
 
 # Send to reporting endpoint.
-curl -X POST -H "Content-Type: application/json"  -d "${payload}" https://fog-popularity-entries.theworkmans.us:/api/records
+curl -X POST -H "Content-Type: application/json"  -d "${payload}" https://fog-analytics-entries.theworkmans.us:/api/records
 
 
