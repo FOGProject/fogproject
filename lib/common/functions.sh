@@ -2561,3 +2561,30 @@ diffconfig() {
 		backupconfig="${backupconfig} ${conffile}"
 	fi
 }
+setupFogAnalytics() {
+    local ranalytics="/opt/fog/analytics/report_analytics.sh"
+    dots "Setting up FOG Analytics"
+    # Make sure required directories exist
+    mkdir -p /opt/fog/analytics >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    mkdir -p /var/log/fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    # If the analytics settings file does not exist, create it.
+    if [[ ! -f /opt/fog/analytics/settings ]]; then
+        /usr/bin/awk -f $workingdir/../utils/analytics/analyticcronrandom.awk >> /opt/fog/analytics/settings
+    fi
+    # Pull in our analytics settings
+    source /opt/fog/analytics/settings >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    # Build the cron.d file
+    cat > /etc/cron.d/fog_analytics <<< END_OF_ANALYTICS_FILE
+SHELL=/bin/bash
+PATH=${PATH}
+${minute_of_hour} ${hour_of_day} * * ${day_of_week} ${user_to_run_as} ${ranalytics} >> ${analytics_log} 2>&1
+END_OF_ANALYTICS_FILE
+    # If the reporting script exists, create a backup of it.
+	mv -fv "${ranalytics}" "${ranalytics}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    # Copy the new reporting script
+    cp $workingdir/../utils/analytics/report_analytics.sh ${ranalytics} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    # list change into backupconfig variable
+    diffconfig "${ranalytics}"
+    chmod +x ${ranalytics} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    echo "Done"
+}
