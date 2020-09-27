@@ -2574,7 +2574,7 @@ setupFogAnalytics() {
     # Pull in our analytics settings
     source /opt/fog/analytics/settings >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     # Build the cron.d file
-    cat > /etc/cron.d/fog_analytics <<< END_OF_ANALYTICS_FILE
+    cat > /etc/cron.d/fog_analytics <<END_OF_ANALYTICS_FILE
 SHELL=/bin/bash
 PATH=${PATH}
 ${minute_of_hour} ${hour_of_day} * * ${day_of_week} ${user_to_run_as} ${ranalytics} >> ${analytics_log} 2>&1
