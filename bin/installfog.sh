@@ -477,7 +477,15 @@ echo " * Hostname: $hostname"
 case $installtype in
     N)
         echo " * Installation Type: Normal Server"
-        echo " * Internationalization: $installlang"
+        echo -n " * Internationalization: "
+        case $installlang in
+            1)
+                echo "Yes"
+                ;;
+            *)
+                echo "No"
+                ;;
+        esac
         echo " * Image Storage Location: $storageLocation"
         case $bldhcp in
             1)
