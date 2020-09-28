@@ -507,6 +507,15 @@ case $installtype in
         echo " * MySQL Database User: $snmysqluser"
         ;;
 esac
+echo -n " * SEnd OS Name, OS Version, and FOG Version: "
+case $sendreports in
+    Y)
+        echo "Yes"
+        ;;
+    *)
+        echo "No"
+        ;;
+esac
 echo
 while [[ -z $blGo ]]; do
     echo
@@ -630,6 +639,7 @@ while [[ -z $blGo ]]; do
                     writeUpdateFile
                     linkOptFogDir
                     updateStorageNodeCredentials
+                    setupFogReporting
                     echo
                     echo " * Setup complete"
                     echo

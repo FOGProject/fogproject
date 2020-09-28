@@ -1689,6 +1689,9 @@ writeUpdateFile() {
             grep -q "sslprivkey=" $fogprogramdir/.fogsettings && \
                 sed -i "s/sslprivkey=.*/sslprivkey='$escsslprivkey'/g" $fogprogramdir/.fogsettings || \
                 echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
+            grep -q "sendreports=" $fogprogramdir/.fogsettings && \
+                sed -i "s/sendreports=.*/sendreports='$sendreports'/g" $fogprogramdir/.fogsettings || \
+                echo "sendreports='$sendreports'" >> $fogprogramdir/.fogsettings
         else
             echo "## Start of FOG Settings" > "$fogprogramdir/.fogsettings"
             echo "## Created by the FOG Installer" >> "$fogprogramdir/.fogsettings"
@@ -1735,6 +1738,7 @@ writeUpdateFile() {
             echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
             echo "php_verAdds='$php_verAdds'" >> "$fogprogramdir/.fogsettings"
             echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
+            echo "sendreports='$sendreports'" >> $fogprogramdir/.fogsettings
             echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
         fi
     else
@@ -1783,6 +1787,7 @@ writeUpdateFile() {
         echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
         echo "php_verAdds='$php_verAdds'" >> "$fogprogramdir/.fogsettings"
         echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
+        echo "sendreports='$sendreports'" >> $fogprogramdir/.fogsettings
         echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
     fi
 }
@@ -2620,4 +2625,37 @@ diffconfig() {
     else
         backupconfig="${backupconfig} ${conffile}"
     fi
+}
+setupFogReporting() {
+    [[ $sendreports == "N" ]] && return
+    local rreports="/opt/fog/reporting/report.sh"
+    dots "Setting up FOG External Reporting"
+    # Make sure required directories exist
+    mkdir -p /opt/fog/reporting >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    mkdir -p /var/log/fog >>$workingdir/error_logs/fog_error_${version
+}.log 2>&1
+    # If the report settings file does not exist, create it.
+    if [[ ! -f /opt/fog/reporting/settings ]]; then
+        /usr/bin/awk -f $workingdir/../utils/reporting/reportingcronrandom.awk >> /opt/fog/reporting/settings
+    fi
+    # Pull in our reporting settings
+    source /opt/fog/reporting/settings >>$workingdir/error_log/fog_error_${version}.log 2>&1
+
+    crondfile="/etc/cron.d/fog_reporting"
+    mv -fv "${crondfile}" "${crondfile}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    # Build the cron.d file
+    cat > ${crondfile} <<END_OF_REPORTING_FILE
+SHELL=/bin/bash
+PATH=${PATH}
+${minute_of_hour} ${hour_of_day} * * ${day_of_week} ${user_to_run_as} ${rreports} >> ${reporting_log} 2>&1
+END_OF_REPORTING_FILE
+    diffconfig "${crondfile}"
+    # If the reporting script exists, create a backup of it.
+    mv -fv "${rreports}" "${rreports}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    # Copy the new reporting script
+    cp $workingdir/../utils/reporting/report.sh ${rreports} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    # List change into backupconfig variable
+    diffconfig "${rreports}"
+    chmod +x ${rreports} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+	echo "Done"
 }
