@@ -733,14 +733,13 @@ class FOGConfigurationPage extends FOGPage
         if (isset($_POST['update'])) {
             self::clearMACLookupTable();
             $url = 'http://standards-oui.ieee.org/oui.txt';
-            if (($fh = fopen($url, 'rb')) === false) {
-                throw new Exception(_('Could not read temp file'));
-            }
+            $data = self::$FOGURLRequests->process($url);
+            $data = array_shift($data);
             $items = [];
             $start = 18;
             $imported = 0;
             $pat = '#^([0-9a-fA-F]{2}[:\-]){2}([0-9a-fA-F]{2}).*$#';
-            while (($line = fgets($fh, 4096)) !== false) {
+            foreach (preg_split("/((\r?\n)|(\n?\r))/", $data) as $line) {
                 $line = trim($line);
                 if (!preg_match($pat, $line)) {
                     continue;
@@ -769,7 +768,6 @@ class FOGConfigurationPage extends FOGPage
                     $mak
                 ];
             }
-            fclose($fh);
             if (count($items) > 0) {
                 list(
                     $first_id,
