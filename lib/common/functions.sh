@@ -2567,7 +2567,7 @@ diffconfig() {
 	fi
 }
 setupFogAnalytics() {
-    if [[ $sendanalytics != "Y" ]]; then
+    if [[ $sendanalytics == "N" ]]; then
         return
     fi
     local ranalytics="/opt/fog/analytics/report_analytics.sh"
