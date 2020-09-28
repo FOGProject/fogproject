@@ -39,3 +39,28 @@ while [[ -z $hostname ]]; do
             ;;
     esac
 done
+while [[ -z $sendanalytics ]]; do
+    blAnalytics="N"
+    if [[ -z $autoaccept ]]; then
+        echo "  FOG would like to collect some data:"
+        echo "      We would like to collect the following information:"
+        echo "        1. OS Name (CentOS, RedHat, Debian, etc....)"
+        echo "        2. OS Version (8.0.2004, 7.2.1409, 9, etc....)"
+        echo "        3. FOG Version (1.5.9, 1.6, etc....)"
+        echo
+        echo -n "  Are you ok with sending this information? [y/N] "
+        read blAnalytics
+    fi
+    case $blAnalytics in
+        [Nn]|[Nn][Oo]|"")
+            sendanalytics="N"
+            ;;
+        [Yy]|[Yy][Ee][Ss])
+            sendanalytics="Y"
+            ;;
+        *)
+            sendanalytics=""
+            echo "  Invalid input, please try again."
+            ;;
+    esac
+done
