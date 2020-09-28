@@ -239,6 +239,13 @@ class DatabaseManager extends FOGCore
      */
     private static function _convertEngine()
     {
+        $sql_mode = "SELECT @@GLOBAL.sql_mode sql_mode";
+        $sql_modeo = self::$DB->query($sql_mode)->fetch()->get('sql_mode');
+        $sql_modes = false;
+        if (false === stripos($sql_modeo, 'NO_ENGINE_SUBSTITUTION')) {
+            $sql_modes = "SET GLOBAL sql_mode = 'NO_ENGINE_SUBSTITUTION'";
+            self::$DB->query($sql_modes);
+        }
         $sql = "SELECT CONCAT('ALTER TABLE "
             . "',TABLE_SCHEMA,'.',TABLE_NAME,' ENGINE=InnoDB') AS Q "
             . "FROM INFORMATION_SCHEMA.TABLES WHERE ENGINE='MyISAM' AND "
@@ -249,6 +256,10 @@ class DatabaseManager extends FOGCore
             ->query($sql)
             ->fetch('', 'fetch_all')
             ->get('Q');
+        if (false !== $sql_modes) {
+            $sql_modes = "SET GLOBAL sql_mode = '$sql_modeo'";
+            self::$DB->query($sql_modes);
+        }
         if (!count($convert ?: [])) {
             return;
         }
