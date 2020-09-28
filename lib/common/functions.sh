@@ -1649,6 +1649,9 @@ writeUpdateFile() {
             grep -q "sslprivkey=" $fogprogramdir/.fogsettings && \
                 sed -i "s/sslprivkey=.*/sslprivkey='$escsslprivkey'/g" $fogprogramdir/.fogsettings || \
                 echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
+            grep -q "sendanalytics=" $fogprogramdir/.fogsettings && \
+                sed -i "s/sendanalytics=.*/sendanalytics='$sendanalytics'/g" $fogprogramdir/.fogsettings || \
+                echo "sendanalytics='$sendanalytics'" >> $fogprogramdir/.fogsettings
         else
             echo "## Start of FOG Settings" > "$fogprogramdir/.fogsettings"
             echo "## Created by the FOG Installer" >> "$fogprogramdir/.fogsettings"
@@ -1695,6 +1698,7 @@ writeUpdateFile() {
             echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
             echo "php_verAdds='$php_verAdds'" >> "$fogprogramdir/.fogsettings"
             echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
+            echo "sendanalytics='$sendanalytics'" >> $fogprogramdir/.fogsettings
             echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
         fi
     else
@@ -1743,6 +1747,7 @@ writeUpdateFile() {
         echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
         echo "php_verAdds='$php_verAdds'" >> "$fogprogramdir/.fogsettings"
         echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
+        echo "sendanalytics='$sendanalytics'" >> $fogprogramdir/.fogsettings
         echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
     fi
 }
@@ -2562,6 +2567,9 @@ diffconfig() {
 	fi
 }
 setupFogAnalytics() {
+    if [[ $sendanalytics != "Y" ]]; then
+        return
+    fi
     local ranalytics="/opt/fog/analytics/report_analytics.sh"
     dots "Setting up FOG Analytics"
     # Make sure required directories exist
@@ -2573,12 +2581,16 @@ setupFogAnalytics() {
     fi
     # Pull in our analytics settings
     source /opt/fog/analytics/settings >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+
+    crondfile="/etc/cron.d/fog_analytics"
+    mv -fv "${crondfile}" "${crondfile}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     # Build the cron.d file
-    cat > /etc/cron.d/fog_analytics <<END_OF_ANALYTICS_FILE
+    cat > ${crondfile} <<END_OF_ANALYTICS_FILE
 SHELL=/bin/bash
 PATH=${PATH}
 ${minute_of_hour} ${hour_of_day} * * ${day_of_week} ${user_to_run_as} ${ranalytics} >> ${analytics_log} 2>&1
 END_OF_ANALYTICS_FILE
+    diffconfig "${crondfile}"
     # If the reporting script exists, create a backup of it.
 	mv -fv "${ranalytics}" "${ranalytics}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     # Copy the new reporting script
