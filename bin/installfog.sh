@@ -514,7 +514,7 @@ case $installtype in
         ;;
 esac
 echo -n " * Send OS Name, OS Version, and FOG Version: "
-case $sendanalytics in
+case $sendreports in
     Y)
         echo "Yes"
         ;;
@@ -645,7 +645,7 @@ while [[ -z $blGo ]]; do
                     writeUpdateFile
                     linkOptFogDir
                     updateStorageNodeCredentials
-                    setupFogAnalytics
+                    setupFogReporting
                     echo
                     echo " * Setup complete"
                     echo
