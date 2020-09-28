@@ -39,8 +39,8 @@ while [[ -z $hostname ]]; do
             ;;
     esac
 done
-while [[ -z $sendanalytics ]]; do
-    blAnalytics="Y"
+while [[ -z $sendreports ]]; do
+    blReports="Y"
     if [[ -z $autoaccept ]]; then
         echo "  FOG would like to collect some data:"
         echo "      We would like to collect the following information:"
@@ -54,17 +54,17 @@ while [[ -z $sendanalytics ]]; do
         echo "      versions of FOG being used."
         echo
         echo -n "  Are you ok with sending this information? [Y/n] "
-        read blAnalytics
+        read blReports
     fi
-    case $blAnalytics in
+    case $blReports in
         [Yy]|[Yy][Ee][Ss]|"")
-            sendanalytics="Y"
+            sendreports="Y"
             ;;
         [Nn]|[Nn][Oo])
-            sendanalytics="N"
+            sendreports="N"
             ;;
         *)
-            sendanalytics=""
+            sendreports=""
             echo "  Invalid input, please try again."
             ;;
     esac
