@@ -2638,7 +2638,7 @@ setupFogReporting() {
         /usr/bin/awk -f $workingdir/../utils/reporting/reportingcronrandom.awk >> /opt/fog/reporting/settings
     fi
     # Pull in our reporting settings
-    source /opt/fog/reporting/settings >>$workingdir/error_log/fog_error_${version}.log 2>&1
+    source /opt/fog/reporting/settings >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 
     crondfile="/etc/cron.d/fog_reporting"
     mv -fv "${crondfile}" "${crondfile}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
