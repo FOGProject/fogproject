@@ -2632,14 +2632,13 @@ setupFogReporting() {
     dots "Setting up FOG External Reporting"
     # Make sure required directories exist
     mkdir -p /opt/fog/reporting >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    mkdir -p /var/log/fog >>$workingdir/error_logs/fog_error_${version
-}.log 2>&1
+    mkdir -p /var/log/fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     # If the report settings file does not exist, create it.
     if [[ ! -f /opt/fog/reporting/settings ]]; then
         /usr/bin/awk -f $workingdir/../utils/reporting/reportingcronrandom.awk >> /opt/fog/reporting/settings
     fi
     # Pull in our reporting settings
-    source /opt/fog/reporting/settings >>$workingdir/error_log/fog_error_${version}.log 2>&1
+    source /opt/fog/reporting/settings >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 
     crondfile="/etc/cron.d/fog_reporting"
     mv -fv "${crondfile}" "${crondfile}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
