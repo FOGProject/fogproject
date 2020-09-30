@@ -507,7 +507,7 @@ case $installtype in
         echo " * MySQL Database User: $snmysqluser"
         ;;
 esac
-echo -n " * SEnd OS Name, OS Version, and FOG Version: "
+echo -n " * Send OS Name, OS Version, and FOG Version: "
 case $sendreports in
     Y)
         echo "Yes"
