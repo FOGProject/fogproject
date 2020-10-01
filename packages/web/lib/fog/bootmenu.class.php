@@ -1676,6 +1676,10 @@ class BootMenu extends FOGBase
                     'value' => 'seconds='.$timeout,
                     'active' => in_array($TaskType->get('id'), range(18, 20)),
                 ],
+                [
+                    'value' => 'bitlockerbypass=1',
+                    'active' => $Task->get('bypassbitlocker') > 0
+                ],
                 $TaskType->get('kernelArgs'),
                 $kargs,
                 self::$Host->get('kernelArgs'),

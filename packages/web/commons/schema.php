@@ -4049,3 +4049,8 @@ $this->schema[] = [
     . "'Turn logging on for Errors messages. (Defaults to off)',"
     . "'0','Logging Settings')"
 ];
+// 281
+$this->schema[] = [
+    "ALTER TABLE `tasks` ADD `taskBypassBitlocker` "
+    . "ENUM('0','1') NOT NULL DEFAULT '0'",
+];
