@@ -4054,3 +4054,13 @@ $this->schema[] = [
     "ALTER TABLE `tasks` ADD `taskBypassBitlocker` "
     . "ENUM('0','1') NOT NULL DEFAULT '0'",
 ];
+// 282 is #269 and #270 in 1.5.9
+$this->schema[] = [
+    "UPDATE `taskTypes` SET `ttDescription`='Normal wipe will boot "
+    . "the client computer and perform a full disk wipe. This method "
+    . "writes ONE pass of random data to the hard disk.' "
+    . "WHERE `ttID`=19",
+    "UPDATE `globalSettings` SET "
+    . "`settingDesc`='Compression Format Setting (Default to Partclone Zstd)', `settingValue`=5 "
+    . "WHERE `settingKey`='FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT' AND `settingValue`=0"
+];
