@@ -26,6 +26,7 @@ class HTTPResponseCodes
     const HTTP_SWITCHING_PROTOCOLS = 101;
     const HTTP_PROCESSING = 102;
     // Success
+    const HTTP_OK = 200;
     const HTTP_SUCCESS = 200;
     const HTTP_CREATED = 201;
     const HTTP_ACCEPTED = 202;
@@ -55,7 +56,7 @@ class HTTPResponseCodes
     const HTTP_METHOD_NOT_ALLOWED = 405;
     const HTTP_NOT_ACCEPTABLE = 406;
     const HTTP_PROXY_AUTHENTICATION_REQUIRED = 407;
-    const HTTP_REQUEST_TIME_OUT = 408;
+    const HTTP_REQUEST_TIMEOUT = 408;
     const HTTP_CONFLICT = 409;
     const HTTP_GONE = 410;
     const HTTP_LENGTH_REQUIRED = 411;
@@ -90,12 +91,16 @@ class HTTPResponseCodes
     // Unofficial
     const HTTP_CHECKPOINT = 103;
     const HTTP_EARLY_HINTS = 103;
+    const HTTP_THIS_IS_FINE = 218;
+    const HTTP_PAGE_EXPIRED = 419;
     const HTTP_METHOD_FAILURE = 420;
     const HTTP_ENHANCE_YOUR_CALM = 420;
+    const HTTP_REQUEST_HEADER_FIELDS_TOO_LARGE_SHOPIFY = 430;
     const HTTP_BLOCKED_BY_WINDOWS_PARENTAL_CONTROLS = 450;
     const HTTP_INVALID_TOKEN = 498;
     const HTTP_TOKEN_REQUIRED = 499;
     const HTTP_BANDWIDTH_LIMIT_EXCEEDED = 509;
+    const HTTP_SITE_IS_OVERLOADED = 529;
     const HTTP_SITE_IS_FROZEN = 530;
     const HTTP_NETWORK_READ_TIMEOUT_ERROR = 598;
     const HTTP_NETWORK_CONNECT_TIMEOUT_ERROR = 599;
@@ -105,9 +110,10 @@ class HTTPResponseCodes
     const HTTP_REDIRECT = 451;
     // nginx
     const HTTP_NO_RESPONSE = 444;
+    const HTTP_REQUEST_HEADER_TOO_LARGE = 494;
     const HTTP_SSL_CERTIFICATE_ERROR = 495;
     const HTTP_SSL_CERTIFICATE_REQUIRED = 496;
-    const HTTP_REQUEST_SEND_TO_HTTPS_PORT = 497;
+    const HTTP_REQUEST_SENT_TO_HTTPS_PORT = 497;
     const HTTP_CLIENT_CLOSED_REQUEST = 499;
     // Cloudflare
     const HTTP_UNKNOWN_ERROR = 520;
@@ -135,6 +141,7 @@ class HTTPResponseCodes
         100 => '100 Continue',
         101 => '101 Switching Protocols',
         102 => '102 Processing',
+        103 => '103 Early Hints',
         // Success
         200 => '200 OK',
         201 => '201 Created',
@@ -165,7 +172,7 @@ class HTTPResponseCodes
         405 => '405 Method Not Allowed',
         406 => '406 Not Acceptable',
         407 => '407 Proxy Authentication Required',
-        408 => '408 Request Time-out',
+        408 => '408 Request Timeout',
         409 => '409 Conflict',
         410 => '410 Gone',
         411 => '411 Length Required',
@@ -176,10 +183,11 @@ class HTTPResponseCodes
         416 => '416 Range Not Satisfiable',
         417 => '417 Expectation Failed',
         418 => "418 I'm a teapot",
-        421 => '421 Misdirect Request',
+        421 => '421 Misdirected Request',
         422 => '422 Unprocessable Entity',
         423 => '423 Locked',
         424 => '424 Failed Dependency',
+        425 => '425 Too Early',
         426 => '426 Upgrade Required',
         428 => '428 Precondition Required',
         429 => '429 Too Many Requests',
@@ -190,7 +198,7 @@ class HTTPResponseCodes
         501 => '501 Not Implemented',
         502 => '502 Bad Gateway',
         503 => '503 Service Unavailable',
-        504 => '504 Gateway Time-out',
+        504 => '504 Gateway Timeout',
         505 => '505 HTTP Version Not Supported',
         506 => '506 Variant Also Negotiates',
         507 => '507 Insufficient Storage',
