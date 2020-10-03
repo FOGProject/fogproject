@@ -65,8 +65,8 @@ backupDB() {
         echo "Failed"
         if [[ -z $autoaccept ]]; then
             echo
-            echo "   We were not able to backup the current database! Just press"
-            echo "   [Enter] to proceed anyway or Ctrl+C to stop the installer."
+            echo "    We were not able to backup the current database! Just press"
+            echo "    [Enter] to proceed anyway or Ctrl+C to stop the installer."
             read
         fi
     else
@@ -384,8 +384,8 @@ getAllNetworkInterfaces() {
     echo -n $interfaces
 }
 checkInternetConnection() {
-    sites=( "k.root-servers.net" "m.root-servers.net" "f.root-servers.net" )
-    ips=( "193.0.14.129" "202.12.27.33" "192.5.5.241" )
+    sites=("k.root-servers.net" "m.root-servers.net" "f.root-servers.net")
+    ips=("193.0.14.129" "202.12.27.33" "192.5.5.241")
     dots "Testing internet connection"
     for i in $(seq 0 2); do
         ping -c 1 ${ips[$i]} >/dev/null 2>&1
@@ -394,7 +394,7 @@ checkInternetConnection() {
         if [[ $? -ne 0 ]]; then
             echo "Internet connection detected but there seems to be a DNS problem." | tee -a $workingdir/error_logs/fog_error_${version}.log
             echo "Check the contents of /etc/resolv.conf" | tee -a $workingdir/error_logs/fog_error_${version}.log
-            echo "If this is CentOS, RHEL, or Fedora or an other RH variant," | tee -a $workingdir/error_logs/fog_error_${version}.log
+            echo "If this is CentOS, RHEL, or Fedora, or an other RH variant," | tee -a $workingdir/error_logs/fog_error_${version}.log
             echo "also check the DNS entries in /etc/sysconfig/network-scripts/ifcfg-*" | tee -a $workingdir/error_logs/fog_error_${version}.log
         fi
         echo "Done"
@@ -451,7 +451,7 @@ configureUDPCast() {
     cd $cur
 }
 configureFTP() {
-    dots "Setting up and starting VSFTP Server..."
+    dots "Setting up and starting VSFTP Server"
     if [[ -f $ftpxinetd ]]; then
         mv $ftpxinetd ${ftpxinetd}.fogbackup
     fi
@@ -618,9 +618,9 @@ installPackages() {
             case $linuxReleaseName in
                 *[Ff][Ee][Dd][Oo][Rr][Aa]*)
                     packages="$packages php-json"
-                    packages="${packages// mysql / mariadb }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    packages="${packages// mysql-server / mariadb-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    packages="${packages// dhcp / dhcp-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    packages="${packages// mysql / mariadb }" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    packages="${packages// mysql-server / mariadb-server }" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    packages="${packages// dhcp / dhcp-server }" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 *)
                     x="epel-release"
@@ -686,7 +686,6 @@ installPackages() {
                         packages="${packages// mysql-server / mariadb-server }">>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     fi
                     ;;
-
             esac
             ;;
         3)
@@ -1287,7 +1286,7 @@ configureNFS() {
             esac
         fi
         errorStat $?
-        dots "Setting up and starting NFS Server..."
+        dots "Setting up and starting NFS Server"
         for nfsItem in $nfsservice; do
             if [[ $systemctl == yes ]]; then
                 systemctl is-enabled --quiet $nfsItem && true || systemctl enable $nfsItem >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -2612,5 +2611,5 @@ END_OF_REPORTING_FILE
     # List change into backupconfig variable
     diffconfig "${rreports}"
     chmod +x ${rreports} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-	echo "Done"
+    echo "Done"
 }
