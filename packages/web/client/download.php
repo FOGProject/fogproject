@@ -20,12 +20,6 @@
  * @link     https://fogproject.org
  */
 /**
- * If legacy client is clicked, prep variable as the legacy filename.
- */
-if (isset($_REQUEST['legclient'])) {
-    $filename = 'FogService.zip';
-}
-/**
  * If new client is clicked, prep variable as the new client MSI.
  */
 if (isset($_REQUEST['newclient'])) {
