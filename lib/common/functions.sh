@@ -452,6 +452,9 @@ configureUDPCast() {
 }
 configureFTP() {
     dots "Setting up and starting VSFTP Server"
+    if [[ -f $ftpxinetd ]]; then
+        mv $ftpxinetd ${ftpxinetd}.fogbackup
+    fi
     vsftp=$(vsftpd -version 0>&1 | awk -F'version ' '{print $2}')
     vsvermaj=$(echo $vsftp | awk -F. '{print $1}')
     vsverbug=$(echo $vsftp | awk -F. '{print $3}')
@@ -460,8 +463,7 @@ configureFTP() {
     if [[ $vsvermaj -gt 3 ]] || [[ $vsvermaj -eq 3 && $vsverbug -ge 2 ]]; then
         seccompsand="seccomp_sandbox=NO"
     fi
-	mv -fv "${ftpconfig}" "${ftpconfig}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-	mv -fv "${ftpxinetd}" "${ftpxinetd}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    mv -fv "${ftpconfig}" "${ftpconfig}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     echo -e  "max_per_ip=200\nanonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\nchmod_enable=YES\n$seccompsand" > "$ftpconfig"
     diffconfig "${ftpconfig}"
     case $systemctl in
