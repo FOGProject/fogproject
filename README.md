@@ -30,9 +30,9 @@ cd /path/to/fogproject-master/bin
 
 ## Install latest development version
 
-0. Install and update your chosen linux server
+0. Install and update your linux server distro
 
-1. Download the file(s)
+1. Download the installation file(s)
 
 * All that is needed to start the installation is to download the files to perform the install. Choose one of the following methods you prefer;
 
