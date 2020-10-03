@@ -1859,12 +1859,32 @@ EOF
             echo "Skipped"
             ;;
         *)
-                if [[ $osid -eq 2 ]]; then
-                    a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2ensite 000-default >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                fi
-                mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                echo "<VirtualHost *:80>" > "$etcconf"
+            if [[ $osid -eq 2 ]]; then
+                a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                a2ensite 000-default >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            fi
+            mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            echo "<VirtualHost *:80>" > "$etcconf"
+            echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
+            if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
+                echo "        SetHandler application/x-httpd-php" >> "$etcconf"
+            else
+                echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
+            fi
+            echo "    </FilesMatch>" >> "$etcconf"
+            echo "    ServerName $ipaddress" >> "$etcconf"
+            echo "    ServerAlias $hostname" >> "$etcconf"
+            echo "    DocumentRoot $docroot" >> "$etcconf"
+            if [[ $httpproto == https ]]; then
+                echo "    RewriteEngine On" >> "$etcconf"
+                echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
+                echo "    RewriteRule .* - [F]" >> "$etcconf"
+                echo "    RewriteRule /management/other/ca.cert.der$ - [L]" >> "$etcconf"
+                echo "    RewriteCond %{HTTPS} off" >> "$etcconf"
+                echo "    RewriteRule (.*) https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
+                echo "</VirtualHost>" >> "$etcconf"
+                echo "<VirtualHost *:443>" >> "$etcconf"
+                echo "    KeepAlive Off" >> "$etcconf"
                 echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
                 if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
                     echo "        SetHandler application/x-httpd-php" >> "$etcconf"
@@ -1875,91 +1895,71 @@ EOF
                 echo "    ServerName $ipaddress" >> "$etcconf"
                 echo "    ServerAlias $hostname" >> "$etcconf"
                 echo "    DocumentRoot $docroot" >> "$etcconf"
-                if [[ $httpproto == https ]]; then
-                    echo "    RewriteEngine On" >> "$etcconf"
-                    echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
-                    echo "    RewriteRule .* - [F]" >> "$etcconf"
-                    echo "    RewriteRule /management/other/ca.cert.der$ - [L]" >> "$etcconf"
-                    echo "    RewriteCond %{HTTPS} off" >> "$etcconf"
-                    echo "    RewriteRule (.*) https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
-                    echo "</VirtualHost>" >> "$etcconf"
-                    echo "<VirtualHost *:443>" >> "$etcconf"
-                    echo "    KeepAlive Off" >> "$etcconf"
-                    echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
-                    if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
-                        echo "        SetHandler application/x-httpd-php" >> "$etcconf"
+                echo "    SSLEngine On" >> "$etcconf"
+                echo "    SSLProtocol all -SSLv3 -SSLv2" >> "$etcconf"
+                echo "    SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA" >> "$etcconf"
+                echo "    SSLHonorCipherOrder On" >> "$etcconf"
+                echo "    SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt" >> "$etcconf"
+                echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
+                echo "    SSLCACertificateFile $webdirdest/management/other/ca.cert.pem" >> "$etcconf"
+                echo "    <Directory $webdirdest>" >> "$etcconf"
+                echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+                echo "    </Directory>" >> "$etcconf"
+                echo "    RewriteEngine On" >> "$etcconf"
+                echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
+                echo "    RewriteRule .* - [F]" >> "$etcconf"
+                echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
+                echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
+                echo "    RewriteRule ^/fog/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
+                echo "</VirtualHost>" >> "$etcconf"
+            else
+                echo "    KeepAlive Off" >> "$etcconf"
+                echo "    <Directory $webdirdest>" >> "$etcconf"
+                echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+                echo "    </Directory>" >> "$etcconf"
+                echo "    RewriteEngine On" >> "$etcconf"
+                echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
+                echo "    RewriteRule .* - [F]" >> "$etcconf"
+                echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
+                echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
+                echo "    RewriteRule ^/fog/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
+                echo "</VirtualHost>" >> "$etcconf"
+            fi
+            diffconfig "${etcconf}"
+            errorStat $?
+            ln -s $webdirdest $webdirdest/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            case $osid in
+                1)
+                    phpfpmconf='/etc/php-fpm.d/www.conf';
+                    ;;
+                2)
+                    if [[ $php_ver == 5 ]]; then
+                        phpfpmconf="/etc/php$php_ver/fpm/pool.d/www.conf"
                     else
-                        echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
+                        phpfpmconf="/etc/php/$php_ver/fpm/pool.d/www.conf"
                     fi
-                    echo "    </FilesMatch>" >> "$etcconf"
-                    echo "    ServerName $ipaddress" >> "$etcconf"
-                    echo "    ServerAlias $hostname" >> "$etcconf"
-                    echo "    DocumentRoot $docroot" >> "$etcconf"
-                    echo "    SSLEngine On" >> "$etcconf"
-                    echo "    SSLProtocol all -SSLv3 -SSLv2" >> "$etcconf"
-                    echo "    SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA" >> "$etcconf"
-                    echo "    SSLHonorCipherOrder On" >> "$etcconf"
-                    echo "    SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt" >> "$etcconf"
-                    echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
-                    echo "    SSLCACertificateFile $webdirdest/management/other/ca.cert.pem" >> "$etcconf"
-                    echo "    <Directory $webdirdest>" >> "$etcconf"
-                    echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
-                    echo "    </Directory>" >> "$etcconf"
-                    echo "    RewriteEngine On" >> "$etcconf"
-                    echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
-                    echo "    RewriteRule .* - [F]" >> "$etcconf"
-                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
-                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
-                    echo "    RewriteRule ^/fog/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
-                    echo "</VirtualHost>" >> "$etcconf"
-                else
-                    echo "    KeepAlive Off" >> "$etcconf"
-                    echo "    <Directory $webdirdest>" >> "$etcconf"
-                    echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
-                    echo "    </Directory>" >> "$etcconf"
-                    echo "    RewriteEngine On" >> "$etcconf"
-                    echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
-                    echo "    RewriteRule .* - [F]" >> "$etcconf"
-                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
-                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
-                    echo "    RewriteRule ^/fog/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
-                    echo "</VirtualHost>" >> "$etcconf"
-                fi
-                diffconfig "${etcconf}"
-                errorStat $?
-                ln -s $webdirdest $webdirdest/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                case $osid in
-                    1)
-                        phpfpmconf='/etc/php-fpm.d/www.conf';
-                        ;;
-                    2)
-                        if [[ $php_ver == 5 ]]; then
-                            phpfpmconf="/etc/php$php_ver/fpm/pool.d/www.conf"
-                        else
-                            phpfpmconf="/etc/php/$php_ver/fpm/pool.d/www.conf"
-                        fi
-                        ;;
-                    3)
-                        phpfpmconf='/etc/php/php-fpm.d/www.conf'
-                        ;;
-                esac
-                if [[ -n $phpfpmconf ]]; then
-                    sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sed -i 's/^[;]pm\.max_requests = .*/pm.max_requests = 2000/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sed -i 's/^[;]php_admin_value\[memory_limit\] = .*/php_admin_value[memory_limit] = 256M/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sed -i 's/pm\.max_children = .*/pm.max_children = 50/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sed -i 's/pm\.min_spare_servers = .*/pm.min_spare_servers = 5/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sed -i 's/pm\.max_spare_servers = .*/pm.max_spare_servers = 10/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sed -i 's/pm\.start_servers = .*/pm.start_servers = 5/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                fi
-                if [[ $osid -eq 2 ]]; then
-                    a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2enmod proxy_fcgi setenvif >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2dissite "000-default" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                fi
+                    ;;
+                3)
+                    phpfpmconf='/etc/php/php-fpm.d/www.conf'
+                    ;;
+            esac
+            if [[ -n $phpfpmconf ]]; then
+                sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sed -i 's/^[;]pm\.max_requests = .*/pm.max_requests = 2000/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sed -i 's/^[;]php_admin_value\[memory_limit\] = .*/php_admin_value[memory_limit] = 256M/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sed -i 's/pm\.max_children = .*/pm.max_children = 50/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sed -i 's/pm\.min_spare_servers = .*/pm.min_spare_servers = 5/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sed -i 's/pm\.max_spare_servers = .*/pm.max_spare_servers = 10/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sed -i 's/pm\.start_servers = .*/pm.start_servers = 5/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            fi
+            if [[ $osid -eq 2 ]]; then
+                a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                a2enmod proxy_fcgi setenvif >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                a2dissite "000-default" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            fi
             ;;
     esac
     dots "Starting and checking status of web services"
