@@ -1,9 +1,11 @@
 #!/bin/bash
 if [[ -r $1 ]]; then
-  BUILDOPTS="CERT=$1 TRUST=$1"
+  cert=$1
 elif [[ -r /opt/fog/snapins/ssl/CA/.fogCA.pem ]]; then
-  BUILDOPTS="CERT=/opt/fog/snapins/ssl/CA/.fogCA.pem TRUST=/opt/fog/snapins/ssl/CA/.fogCA.pem"
+  cert="/opt/fog/snapins/ssl/CA/.fogCA.pem"
 fi
+
+BUILDOPTS="CERT=${cert} TRUST=${cert}"
 IPXEGIT="https://github.com/ipxe/ipxe"
 
 # Change directory to base ipxe files
