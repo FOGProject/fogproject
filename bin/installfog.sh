@@ -16,12 +16,12 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-bindir=$(dirname $(readlink -f "$BASH_SOURCE") )
+bindir=$(dirname $(readlink -f "$BASH_SOURCE"))
 cd $bindir
 workingdir=$(pwd)
 if [[ ! $EUID -eq 0 ]]; then
     echo "FOG Installation must be run as root user"
-    exit 1
+    exit 1 # Fail Sudo
 fi
 which useradd >/dev/null 2>&1
 if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
@@ -374,8 +374,8 @@ echo "Done"
 [[ -z $bldhcp ]] && bldhcp=""
 [[ -z $installtype ]] && installtype=""
 [[ -z $interface ]] && interface=""
-[[ -z $ipaddress  ]] && ipaddress=""
-[[ -z $hostname  ]] && hostname=""
+[[ -z $ipaddress ]] && ipaddress=""
+[[ -z $hostname ]] && hostname=""
 [[ -z $routeraddress ]] && routeraddress=""
 [[ -z $plainrouter ]] && plainrouter=""
 [[ -z $blexports ]] && blexports=1
@@ -448,7 +448,6 @@ if [[ -z $backupPath ]]; then
 fi
 [[ -z $bootfilename ]] && bootfilename="undionly.kpxe"
 [[ -n $smysqldbname ]] && mysqldbname=$smysqldbname
-
 [[ ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]] && . ../lib/common/input.sh
 # ask user input for newly added options like hostname etc.
 . ../lib/common/newinput.sh
@@ -475,11 +474,19 @@ echo " * Detected Linux Distribution: $linuxReleaseName"
 echo " * Interface: $interface"
 echo " * Server IP Address: $ipaddress"
 echo " * Server Subnet Mask: $submask"
-echo " * Server Hostname: $hostname"
+echo " * Hostname: $hostname"
 case $installtype in
     N)
         echo " * Installation Type: Normal Server"
-        echo " * Internationalization: $installlang"
+        echo -n " * Internationalization: "
+        case $installlang in
+            1)
+                echo "Yes"
+                ;;
+            *)
+                echo "No"
+                ;;
+        esac
         echo " * Image Storage Location: $storageLocation"
         case $bldhcp in
             1)
@@ -675,7 +682,7 @@ if [[ -n "${backupconfig}" ]]; then
     echo " * Changed configurations:"
     echo
     echo "   The FOG installer changed configuration files and created the"
-    echo "   following backup files from your origional files:"
+    echo "   following backup files from your original files:"
     for conffile in ${backupconfig}; do
         echo "   * ${conffile} <=> ${conffile}.${timestamp}"
     done
