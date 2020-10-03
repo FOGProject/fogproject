@@ -1055,8 +1055,8 @@ $this->schema[] = array(
     . "'",
     "ALTER TABLE `nfsGroupMembers` ADD `ngmGraphEnabled` "
     . "ENUM('0','1') NOT NULL DEFAULT '1'",
-        "UPDATE `schemaVersion` set `vValue`='26'",
-    );
+    "UPDATE `schemaVersion` set `vValue`='26'",
+);
 // 27
 $this->schema[] = array(
     "ALTER TABLE `tasks` CHANGE `taskCreateTime` `taskCreateTime` "
@@ -1681,7 +1681,7 @@ $this->schema[] = array(
     . "('FOG_PXE_BOOT_IMAGE_32','The settings defines where the 32 bit "
     . "fog boot file system image is located.','init_32.xz','TFTP Server')",
 );
-// 87 - used to be FOG_MINING_ENABLE but was entirely removed
+// 87 - used to be FOG_MINING_ENABLE but was entirely removed.
 $this->schema[] = array();
 // 88
 $this->schema[] = array(
@@ -1707,7 +1707,7 @@ $this->schema[] = array();
 $this->schema[] = array(
     "ALTER TABLE `snapinJobs` "
     . "ADD COLUMN `sjStateID` INT(11) NOT NULL AFTER `sjHostID`",
-    );
+);
 // 93
 $this->schema[] = array(
     "ALTER TABLE `snapinJobs` CHANGE `sjStateID` `sjStateID` INT(11) NOT NULL",
@@ -1722,13 +1722,13 @@ $this->schema[] = array(
     . "cryptocurrency that will be donated to the FOG Project.',"
     . "'donate.png','','mode=donate.full','fog','1','both')",
 );
-// 95 - used to be two FOG_MINING_* settings but were entirely removed
+// 95 - used to be two FOG_MINING_* settings but were entirely removed.
 $this->schema[] = array();
 // 96
 $this->schema[] = array(
     "ALTER TABLE `tasks` ADD COLUMN `taskPassreset` "
     . "varchar(250)  NOT NULL AFTER `taskLastMemberID`",
-    );
+);
 // 97
 $this->schema[] = array(
     "truncate table `tasks`",
@@ -1757,7 +1757,7 @@ $this->schema[] = array(
     "UPDATE `imageTypes` SET `imageTypeName`="
     . "'Single Disk (NTFS Only, Resizable)' "
     . "WHERE `imageTypes`.`imageTypeName`='Single Partition (NTFS Only, Resizable)'",
-    );
+);
 // 101
 $this->schema[] = array(
     "INSERT IGNORE INTO `globalSettings` "
@@ -1841,7 +1841,7 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `hosts` "
     . "ADD COLUMN `hostProductKey` varchar(50) NOT NULL AFTER `hostADPass`",
-    );
+);
 // 113
 $this->schema[] = array(
     "INSERT IGNORE INTO `globalSettings` "
@@ -1950,8 +1950,8 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `images` ADD COLUMN `imagePartitionTypeID` "
     . "mediumint(9) NOT NULL AFTER `imageTypeID`",
-        "UPDATE images SET imagePartitionTypeID='1'",
-    );
+    "UPDATE images SET imagePartitionTypeID='1'",
+);
 // 122
 $this->schema[] = array(
     "CREATE TABLE IF NOT EXISTS `pxeMenu` ("
@@ -2695,7 +2695,7 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `snapins`
     ADD COLUMN `snapinProtect` mediumint(9) NOT NULL",
-    );
+);
 // 176
 $this->schema[] = array(
     "INSERT IGNORE INTO `globalSettings` "
