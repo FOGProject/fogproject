@@ -1633,6 +1633,8 @@ writeUpdateFile() {
             grep -q "noTftpBuild=" $fogprogramdir/.fogsettings && \
                 sed -i "s/noTftpBuild=.*/noTftpBuild='$escnoTftpBuild'/g" $fogprogramdir/.fogsettings || \
                 echo "noTftpBuild='$noTftpBuild'" >> $fogprogramdir/.fogsettings
+            grep -q "notpxedefaultfile=" $fogprogramdir/.fogsettings && \
+                sed -i "/notpxedefaultfile=.*$/d" $fogprogramdir/.fogsettings
             grep -q "sslpath=" $fogprogramdir/.fogsettings && \
                 sed -i "s/sslpath=.*/sslpath='$escsslpath'/g" $fogprogramdir/.fogsettings || \
                 echo "sslpath='$sslpath'" >> $fogprogramdir/.fogsettings
