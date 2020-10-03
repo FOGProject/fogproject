@@ -95,7 +95,7 @@ updateDB() {
             ;;
     esac
     dots "Update fogstorage database password"
-    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO \`globalSettings\` (\`settingKey\`,\`settingDesc\`,\`settingValue\`,\`settingCategory\`) VALUES ('FOG_STORAGENODE_MYSQLPASS', 'This setting defines the password the storage nodes should use to connect to the fog server.', \"$snmysqlstoragepass\", 'FOG Storage Nodes') ON DUPLICATE KEY UPDATE \`settingValue\`=\"$snmysqlstoragepass\"" $mysqldbname >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_STORAGENODE_MYSQLPASS', 'This setting defines the password the storage nodes should use to connect to the fog server.', \"$snmysqlstoragepass\", 'FOG Storage Nodes') ON DUPLICATE KEY UPDATE settingValue=\"$snmysqlstoragepass\"" $mysqldbname >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Granting access to fogstorage database user"
     mysql ${host} -s --user=fogstorage --password="${snmysqlstoragepass}" --execute="INSERT INTO $mysqldbname.taskLog VALUES ( 0, '999test', 3, '127.0.0.1', NOW(), 'fog');" >/dev/null 2>&1
@@ -1148,7 +1148,7 @@ configureMySql() {
             # to make sure the user is in charge of this.
             mysqladmin $sqloptionsroot password "${snmysqlrootpass}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
-        snmysqlstoragepass=$(mysql -s $sqloptionsroot --password="${snmysqlrootpass}" --execute="SELECT \`settingValue\` FROM \`globalSettings\` WHERE \`settingKey\` LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
+        snmysqlstoragepass=$(mysql -s $sqloptionsroot --password="${snmysqlrootpass}" --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
     else
         snmysqlstoragepass=$(mysql $sqloptionsuser --password="${snmysqlpass}" --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
     fi
@@ -1223,6 +1223,7 @@ CREATE PROCEDURE $mysqldbname.create_user_if_not_exists()
 BEGIN
   DECLARE masteruser BIGINT DEFAULT 0 ;
   DECLARE storageuser BIGINT DEFAULT 0 ;
+
   SELECT COUNT(*) INTO masteruser FROM mysql.user
     WHERE User = '${snmysqluser}' and  Host = '${snmysqlhost}' ;
   IF masteruser > 0 THEN
@@ -1230,6 +1231,7 @@ BEGIN
   END IF ;
   CREATE USER '${snmysqluser}'@'${snmysqlhost}' IDENTIFIED BY '${snmysqlpass}' ;
   GRANT ALL PRIVILEGES ON $mysqldbname.* TO '${snmysqluser}'@'${snmysqlhost}' ;
+
   SELECT COUNT(*) INTO storageuser FROM mysql.user
     WHERE User = 'fogstorage' and  Host = '%' ;
   IF storageuser > 0 THEN
