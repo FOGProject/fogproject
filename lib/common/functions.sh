@@ -803,26 +803,22 @@ checkSELinux() {
     [[ $exitcode -ne 0 ]] && return
     currentmode=$(LANG=C sestatus | grep "^Current mode" | awk '{print $3}')
     configmode=$(LANG=C sestatus | grep "^Mode from config file" | awk '{print $5}')
-    [[ "$currentmode" != "enforcing" && "$configmode" != "enforcing" ]] && return
+    [[ "x$currentmode" != "xenforcing" && "x$configmode" != "xenforcing" ]] && return
     echo " * SELinux is currently enabled on your system. This is often causing"
-    echo " * issues and we recommend to disable it on FOG servers as of now."
-    echo -n " * Should the installer disable SELinux for you now? (Y/n) "
+    echo " * issues and we recommend setting to permissive on FOG Servers as of now."
+    echo -n " * Should the installer set this for you now? (Y/n) "
     sedisable=""
     while [[ -z $sedisable ]]; do
-        if [[ -n $autoaccept ]]; then
-            sedisable="Y"
-        else
-            read -r sedisable
-        fi
+        [[ -n $autoaccept ]] && sedisable="Y" || read -r sedisable
         case $sedisable in
             [Yy]|[Yy][Ee][Ss]|"")
                 sedisable="Y"
                 setenforce 0
                 sed -i 's/^SELINUX=.*$/SELINUX=permissive/' /etc/selinux/config
-                echo -e " * SELinux disabled - proceeding with installation...\n"
+                echo -e " * SELinux set permissive -- proceeding with installation...\n"
                 ;;
             [Nn]|[Nn][Oo])
-                echo " * You sure know what you are doing, just keep in mind we told you! :-)"
+                echo -e " * You sure know what you're doing, just keep in mind we told you! :-)\n"
                 ;;
             *)
                 sedisable=""
@@ -832,7 +828,7 @@ checkSELinux() {
     done
 }
 checkFirewall() {
-    command -v iptables >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    command -v iptables >>$workingdir/error_logs/fog_error_${version}.log
     iptcmd=$?
     if [[ $iptcmd -eq 0 ]]; then
         rulesnum=$(iptables -L -n | wc -l)
@@ -846,16 +842,12 @@ checkFirewall() {
         [[ "x$fwstate" == "xrunning" ]] && fwrunning=1
     fi
     [[ $fwrunning -ne 1 ]] && return
-    echo " * The local firewall seems to be currently enabled on your system. This can cause"
-    echo " * issues on FOG servers if you are not well experienced and know what you are doing."
+    echo " * The local firewall, currently, seems to be enabled on your system. This can cause"
+    echo " * issues on FOG Servers if you are not well experienced and know what you are doing."
     echo -n " * Should the installer try to disable the local firewall for you now? (y/N) "
     fwdisable=""
     while [[ -z $fwdisable ]]; do
-        if [[ -n $autoaccept ]]; then
-            fwdisable="N"
-        else
-            read -r fwdisable
-        fi
+        [[ -n $autoaccept ]] && fwdisable="N" || read -r fwdisable
         case $fwdisable in
             [Yy]|[Yy][Ee][Ss])
                 ufw stop >/dev/null 2>&1
@@ -866,6 +858,7 @@ checkFirewall() {
                 systemctl is-enabled --quiet firewalld && systemctl disable firewalld >/dev/null 2>&1 || true
                 systemctl is-active --quiet iptables && systemctl stop iptables >/dev/null 2>&1 || true
                 systemctl is-enabled --quiet iptables && systemctl disable iptables >/dev/null 2>&1 || true
+                local cannotdisablefw=0
                 if [[ $iptcmd -eq 0 ]]; then
                     rulesnum=$(iptables -L -n | wc -l)
                     policy=$(iptables -L -n | grep "^Chain" | grep -v "ACCEPT" -c)
@@ -875,13 +868,13 @@ checkFirewall() {
                     fwstate=$(firewall-cmd --state 2>&1)
                     [[ "x$fwstate" == "xrunning" ]] && cannotdisablefw=1
                 fi
-                if [[ $cannotdisablefw -eq 1 ]]; then
+                if [[ $cannotdisablefw -eq 0 ]]; then
+                    echo -e " * Firewall disabled - proceeding with installation...\n"
+                else
                     echo " * We were unable to disable the firewall on your system. Read up on how"
                     echo " * you can disable it manually. Proceeding with the installation anyway..."
                     echo " * Hit [Enter] so we know you've read this message."
                     read
-                else
-                    echo -e " * Firewall disabled - proceeding with installation...\n"
                 fi
                 ;;
             [Nn]|[Nn][Oo]|"")
