@@ -2315,15 +2315,15 @@ die();
     chown -R ${username}:${apacheuser} "$webdirdest/service/ipxe"
 }
 downloadfiles() {
+    local copypath=""
     dots "Downloading kernel, init and fog-client binaries"
     clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
     fosURL="https://github.com/FOGProject/fos/releases/download"
     fogclientURL="https://github.com/FOGProject/fog-client/releases/download"
-    [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
+    [[ ! -d ../tmp/  ]] && mkdir -p ../tmp/ >/dev/null 2>&1
     cwd=$(pwd)
     cd ../tmp/
-    if [[ $version =~ ^[0-9]\.[0-9]\.[0-9]$ ]]
-    then
+    if [[ $version =~ ^[0-9]\.[0-9]\.[0-9]$ ]]; then
         urls=( "${fosURL}/${version}/init.xz" "${fosURL}/${version}/init_32.xz" "${fosURL}/${version}/bzImage" "${fosURL}/${version}/bzImage32" "${fogclientURL}/${clientVer}/FOGService.msi" "${fogclientURL}/${clientVer}/SmartInstaller.exe" )
         if [[ $armsupport == 1 ]]; then
             urls+=( "${fosURL}/${version}/arm_init.cpio.gz" "${fosURL}/${version}/arm_Image" )
@@ -2334,8 +2334,7 @@ downloadfiles() {
             urls+=( "https://fogproject.org/inits/arm_init.cpio.gz" "https://fogproject.org/kernels/arm_Image" )
         fi
     fi
-    for url in "${urls[@]}"
-    do
+    for url in "${urls[@]}"; do
         checksum=1
         cnt=0
         filename=$(basename -- "$url")
@@ -2347,19 +2346,16 @@ downloadfiles() {
             rm -f $hashfile
             curl --silent -kOL $hashurl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
-        while [[ $checksum -ne 0 && $cnt -lt 10 ]]
-        do
+        while [[ $checksum -ne 0 && $cnt -lt 10 ]]; do
             [[ -f $hashfile ]] && sha256sum --check $hashfile >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             checksum=$?
-            if [[ $checksum -ne 0 ]]
-            then
-                curl --silent -kOL $url >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                curl --silent -kOL $hashurl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            if [[ $checksum -ne 0 ]]; then
+                curl --silent -kOL $url >>$workingdir/error_logs/fog_error_${version}.log
+                curl --silent -kOL $hashurl >>$workingdir/error_logs/fog_error_${version}.log
             fi
             let cnt+=1
         done
-        if [[ $checksum -ne 0 ]]
-        then
+        if [[ $checksum -ne 0 ]]; then
             echo " * Could not download $filename properly"
             [[ -z $exitFail ]] && exit 1
         fi
