@@ -62,12 +62,21 @@ packages/web/management/other/*
 *config.class.php
 *.well-known
 packages/web/fog
-*.bak*
+packages/web/.vscode
 
 # Erroneous Packages #
 ######################
 packages/FOGService.msi
-packages/clientfiles
-packages/inits
-packages/kernels
+packages/web/client/FOGService.msi
+packages/web/management/bower_components
+packages/web/management/dist
+packages/web/management/plugins
+packages/web/service/ipxe/bzImage*
+packages/web/service/ipxe/init*.xz
+packages/web/service/ipxe/*.sha256
+rpttmp
 tmp/*
+
+# Local Scripts #
+#################
+packages/web/status/injectHosts.php
