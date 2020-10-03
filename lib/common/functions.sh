@@ -77,7 +77,7 @@ updateDB() {
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
-            local replace='s/[]"\/$&*.^|[]/\\&/g';
+            local replace='s/[]"\/$&*.^|[]/\\&/g'
             local escstorageLocation=$(echo $storageLocation | sed -e $replace)
             sed -i -e "s/'\/images\/'/'$escstorageLocation'/g" $webdirdest/commons/schema.php
             wget --no-check-certificate -qO - --post-data="confirm&fogverified" --no-proxy ${httpproto}://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -400,7 +400,7 @@ checkInternetConnection() {
         echo "Done"
         return
     done
-    echo "There was not interface with an active internet connection found." | tee -a $workingdir/error_logs/fog_error_${version}.log
+    echo "There was no interface with an active internet connection found." | tee -a $workingdir/error_logs/fog_error_${version}.log
     echo
 }
 join() {
@@ -2505,71 +2505,69 @@ configureDHCP() {
     esac
 }
 vercomp() {
-	[[ $1 == $2 ]] && return 0
-	local IFS=.
-	local i ver1=($1) ver2=($2)
-	for ((i=${#ver1[@]}; i<${#ver2}; i++)); do
-		ver1[i]=0
-	done
-	for ((i=0; i<${#ver1[@]}; i++)); do
-		[[ -z ${ver2[i]} ]] && ver2[i]=0
-		if ((10#${ver1[i]} > 10#${ver2[i]})); then
-			return 1
-		fi
-		if ((10#${ver1[i]} < 10#${ver2[i]})); then
-			return 2
-		fi
-	done
-	return 0
+    [[ $1 == $2 ]] && return 0
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    for ((i=${#ver1[@]}; i<${#ver2}; i++)); do
+        ver1[i]=0
+    done
+    for ((i=0; i<${#ver1[@]}; i++)); do
+        [[ -z ${ver2[i]} ]] && ver2[i]=0
+        if ((10#${ver1[i]} > 10#${ver2[i]})); then
+            return 1
+        fi
+        if ((10#${ver1[i]} < 10#${ver2[i]})); then
+            return 2
+        fi
+    done
+    return 0
 }
 languagemogen() {
-	local languages="$1"
-	local langpath="$2"
-	local IFS=$'\n'
-	local lang=''
-	for lang in ${languages[@]}; do
-		[[ ! -d "${langpath}/${lang}.UTF-8" ]] && continue
-		msgfmt -o \
-			"${langpath}/${lang}.UTF-8/LC_MESSAGES/messages.mo" \
-			"${langpath}/${lang}.UTF-8/LC_MESSAGES/messages.po" \
-			>>$workingdir/error_logs/fog_error_${version}.log 2>&1
-	done
+    local languages="$1"
+    local langpath="$2"
+    local IFS=$'\n'
+    local lang=''
+    for lang in ${languages[@]}; do
+        [[ ! -d "${langpath}/${lang}.UTF-8" ]] && continue
+        msgfmt -o \
+            "${langpath}/${lang}.UTF-8/LC_MESSAGES/messages.mo" \
+            "${langpath}/${lang}.UTF-8/LC_MESSAGES/messages.po" \
+            >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    done
 }
 generatePassword() {
-	local length="$1"
-	[[ $length -ge 12 && $length -le 128 ]] || length=20
+    local length="$1"
+    [[ $length -ge 12 && $length -le 128 ]] || length=20
 
-	while [[ ${#genpassword} -lt $((length-1)) || -z $special ]]; do
-		newchar=$(head -c1 /dev/urandom | tr -dc '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~')
-		if [[ -n $(echo $newchar | tr -dc '!#$%&()*+,-./:;<=>?@[]^_{|}~') ]]; then
-			special=${newchar}
-		elif [[ ${#genpassword} -lt $((length-1)) ]]; then
-			genpassword=${genpassword}${newchar}
-		fi
-	done
-	# 9$(date +%N) seems weird but it's important because date may return
-	# a leading 0 causing modulo to fail on reading it as octal number
-	position=$(( 9$(date +%N) % $length ))
-	# inject the special character at a random position
-	echo ${genpassword::($position)}$special${genpassword:($position)}
+    while [[ ${#genpassword} -lt $((length-1)) || -z $special ]]; do
+        newchar=$(head -c1 /dev/urandom | tr -dc '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~')
+        if [[ -n $(echo $newchar | tr -dc '!#$%&()*+,-./:;<=>?@[]^_{|}~') ]]; then
+            special=${newchar}
+        elif [[ ${#genpassword} -lt $((length-1)) ]]; then
+            genpassword=${genpassword}${newchar}
+        fi
+    done
+    # 9$(date +%N) seems weird but it's important because date may return
+    # a leading 0 causing modulo to fail on reading it as octal number
+    position=$(( 9$(date +%N) % $length ))
+    # inject the special character at a random position
+    echo ${genpassword::($position)}$special${genpassword:($position)}
 }
 checkPasswordChars() {
-	echo "$i" | tr -d '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~'
+    echo "$i" | tr -d '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~'
 }
 diffconfig() {
-	local conffile="$1"
-	[[ ! -f "${conffile}.${timestamp}" ]] && return 0
-	diff -q "${conffile}" "${conffile}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-	if [[ $? -eq 0 ]]; then
-		rm -f "${conffile}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-	else
-		backupconfig="${backupconfig} ${conffile}"
-	fi
+    local conffile="$1"
+    [[ ! -f "${conffile}.${timestamp}" ]] && return 0
+    diff -q "${conffile}" "${conffile}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ $? -eq 0 ]]; then
+        rm -f "${conffile}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    else
+        backupconfig="${backupconfig} ${conffile}"
+    fi
 }
 setupFogReporting() {
-    if [[ $sendreports == "N" ]]; then
-        return
-    fi
+    [[ $sendreports == "N" ]] && return
     local rreports="/opt/fog/reporting/report.sh"
     dots "Setting up FOG External Reporting"
     # Make sure required directories exist
@@ -2592,10 +2590,10 @@ ${minute_of_hour} ${hour_of_day} * * ${day_of_week} ${user_to_run_as} ${rreports
 END_OF_REPORTING_FILE
     diffconfig "${crondfile}"
     # If the reporting script exists, create a backup of it.
-	mv -fv "${rreports}" "${rreports}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    mv -fv "${rreports}" "${rreports}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     # Copy the new reporting script
     cp $workingdir/../utils/reporting/report.sh ${rreports} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    # list change into backupconfig variable
+    # List change into backupconfig variable
     diffconfig "${rreports}"
     chmod +x ${rreports} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     echo "Done"
