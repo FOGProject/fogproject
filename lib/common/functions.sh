@@ -802,7 +802,7 @@ checkSELinux() {
     [[ $exitcode -ne 0 ]] && return
     currentmode=$(LANG=C sestatus | grep "^Current mode" | awk '{print $3}')
     configmode=$(LANG=C sestatus | grep "^Mode from config file" | awk '{print $5}')
-    [[ $currentmode != "enforcing" && $configmode != "enforcing" ]] && return
+    [[ "x$currentmode" != "xenforcing" && "x$configmode" != "xenforcing" ]] && return
     echo " * SELinux is currently enabled on your system. This is often causing"
     echo " * issues and we recommend setting to permissive on FOG Servers as of now."
     echo -n " * Should the installer set this for you now? (Y/n) "
@@ -871,7 +871,7 @@ checkFirewall() {
                     echo -e " * Firewall disabled - proceeding with installation...\n"
                 else
                     echo " * We were unable to disable the firewall on your system. Read up on how"
-                    echo " * You can disable it manually. Proceeding with the installation anyway..."
+                    echo " * you can disable it manually. Proceeding with the installation anyway..."
                     echo " * Hit [Enter] so we know you've read this message."
                     read
                 fi
@@ -879,7 +879,7 @@ checkFirewall() {
             [Nn]|[Nn][Oo]|"")
                 fwdisable="N"
                 echo " * You sure know what you are doing, just keep in mind we told you! :-)"
-                if [[ -z $autoaccept  ]]; then
+                if [[ -z $autoaccept ]]; then
                     echo " * Hit ENTER so we know you've read this message."
                     read
                 fi
