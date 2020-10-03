@@ -377,7 +377,7 @@ addToAddress() {
 getAllNetworkInterfaces() {
     gatewayif=$(ip -4 route show | grep "^default via" | awk '{print $5}')
     if [[ -z ${gatewayif} ]]; then
-        interfaces="$(ip -4 link | grep -V LOOPBACK | grep UP | awk -F': |@' '{print $2}' | tr '\n' ' ')"
+        interfaces="$(ip -4 link | grep -v LOOPBACK | grep UP | awk -F': |@' '{print $2}' | tr '\n' ' ')"
     else
         interfaces="$gatewayif $(ip -4 link | grep -v LOOPBACK | grep UP | awk -F': |@' '{print $2}' | tr '\n' ' ' | sed "s/${gatewayif}//g")"
     fi
