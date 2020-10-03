@@ -1868,7 +1868,7 @@ EOF
             echo "<VirtualHost *:80>" > "$etcconf"
             echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
             if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
-                echo "    SetHandler application/x-httpd-php" >> "$etcconf"
+                echo "        SetHandler application/x-httpd-php" >> "$etcconf"
             else
                 echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
             fi
