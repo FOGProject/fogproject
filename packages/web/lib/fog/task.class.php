@@ -58,7 +58,8 @@ class Task extends TaskType
         'passreset' => 'taskPassreset',
         'isDebug' => 'taskIsDebug',
         'imageID' => 'taskImageID',
-        'wol' => 'taskWOL'
+        'wol' => 'taskWOL',
+        'bypassbitlocker' => 'taskBypassBitlocker'
     ];
     /**
      * The required fields.

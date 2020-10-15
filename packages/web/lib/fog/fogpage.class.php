@@ -3218,7 +3218,7 @@ abstract class FOGPage extends FOGBase
             . 'placeholder="' . $placeholder . '" '
             . 'type="' . $type . '" '
             . 'id="' . $id . '" '
-            . 'value="' . $value . '" '
+            . 'value="' . filter_var($value, FILTER_SANITIZE_STRING) . '" '
             . ($required ? 'required ' : '')
             . ($readonly ? 'readonly ' : '')
             . ($disabled ? 'disabled ' : '')
