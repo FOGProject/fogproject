@@ -4,7 +4,9 @@
 read -r os_name os_version <<< $(lsb_release -ir | cut -d':' -f2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | tr '\n' ' ')
 
 # Get the FOG Version.
-fog_version=$(cat /var/www/fog/lib/fog/system.class.php | grep FOG_VERSION | cut -d',' -f2 | cut -d"'" -f2)
+source /opt/fog/.fogsettings
+system_class_php=${docroot}/${webroot}/lib/fog/system.class.php
+fog_version=$(cat ${system_class_php} | grep FOG_VERSION | cut -d',' -f2 | cut -d"'" -f2)
 
 # Format payload.
 payload='{"fog_version":"'${fog_version}'","os_name":"'${os_name}'","os_version":"'${os_version}'"}'
