@@ -31,7 +31,7 @@ while getopts "$optspec" o; do
                     noBackupSnapins=1
                     ;;
                 no-images)
-                    nobackupImages=1
+                    noBackupImages=1
                     ;;
                 *)
                     if [[ $OPTERR -eq 1 && ${optspec:0:1} != : ]]; then
@@ -59,7 +59,7 @@ while getopts "$optspec" o; do
             noBackupSnapins=1
             ;;
         [Ii])
-            nobackupImages=1
+            noBackupImages=1
             ;;
         :)
             usage

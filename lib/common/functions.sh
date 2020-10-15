@@ -77,7 +77,7 @@ updateDB() {
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
-            local replace='s/[]"\/$&*.^|[]/\\&/g';
+            local replace='s/[]"\/$&*.^|[]/\\&/g'
             local escstorageLocation=$(echo $storageLocation | sed -e $replace)
             sed -i -e "s/'\/images\/'/'$escstorageLocation'/g" $webdirdest/commons/schema.php
             wget --no-check-certificate -qO - --post-data="confirm&fogverified" --no-proxy ${httpproto}://${ipaddress}/${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -95,7 +95,7 @@ updateDB() {
             ;;
     esac
     dots "Update fogstorage database password"
-    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO \`globalSettings\` (\`settingKey\`,\`settingDesc\`,\`settingValue\`,\`settingCategory\`) VALUES ('FOG_STORAGENODE_MYSQLPASS', 'This setting defines the password the storage nodes should use to connect to the fog server.', \"$snmysqlstoragepass\", 'FOG Storage Nodes') ON DUPLICATE KEY UPDATE \`settingValue\`=\"$snmysqlstoragepass\"" $mysqldbname >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_STORAGENODE_MYSQLPASS', 'This setting defines the password the storage nodes should use to connect to the fog server.', \"$snmysqlstoragepass\", 'FOG Storage Nodes') ON DUPLICATE KEY UPDATE settingValue=\"$snmysqlstoragepass\"" $mysqldbname >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     dots "Granting access to fogstorage database user"
     mysql ${host} -s --user=fogstorage --password="${snmysqlstoragepass}" --execute="INSERT INTO $mysqldbname.taskLog VALUES ( 0, '999test', 3, '127.0.0.1', NOW(), 'fog');" >/dev/null 2>&1
@@ -377,7 +377,7 @@ addToAddress() {
 getAllNetworkInterfaces() {
     gatewayif=$(ip -4 route show | grep "^default via" | awk '{print $5}')
     if [[ -z ${gatewayif} ]]; then
-        interfaces="$(ip -4 link | grep -V LOOPBACK | grep UP | awk -F': |@' '{print $2}' | tr '\n' ' ')"
+        interfaces="$(ip -4 link | grep -v LOOPBACK | grep UP | awk -F': |@' '{print $2}' | tr '\n' ' ')"
     else
         interfaces="$gatewayif $(ip -4 link | grep -v LOOPBACK | grep UP | awk -F': |@' '{print $2}' | tr '\n' ' ' | sed "s/${gatewayif}//g")"
     fi
@@ -400,7 +400,7 @@ checkInternetConnection() {
         echo "Done"
         return
     done
-    echo "There was not interface with an active internet connection found." | tee -a $workingdir/error_logs/fog_error_${version}.log
+    echo "There was no interface with an active internet connection found." | tee -a $workingdir/error_logs/fog_error_${version}.log
     echo
 }
 join() {
@@ -452,6 +452,9 @@ configureUDPCast() {
 }
 configureFTP() {
     dots "Setting up and starting VSFTP Server"
+    if [[ -f $ftpxinetd ]]; then
+        mv $ftpxinetd ${ftpxinetd}.fogbackup
+    fi
     vsftp=$(vsftpd -version 0>&1 | awk -F'version ' '{print $2}')
     vsvermaj=$(echo $vsftp | awk -F. '{print $1}')
     vsverbug=$(echo $vsftp | awk -F. '{print $3}')
@@ -460,8 +463,7 @@ configureFTP() {
     if [[ $vsvermaj -gt 3 ]] || [[ $vsvermaj -eq 3 && $vsverbug -ge 2 ]]; then
         seccompsand="seccomp_sandbox=NO"
     fi
-	mv -fv "${ftpconfig}" "${ftpconfig}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-	mv -fv "${ftpxinetd}" "${ftpxinetd}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    mv -fv "${ftpconfig}" "${ftpconfig}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     echo -e  "max_per_ip=200\nanonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\nchmod_enable=YES\n$seccompsand" > "$ftpconfig"
     diffconfig "${ftpconfig}"
     case $systemctl in
@@ -802,7 +804,7 @@ checkSELinux() {
     [[ $exitcode -ne 0 ]] && return
     currentmode=$(LANG=C sestatus | grep "^Current mode" | awk '{print $3}')
     configmode=$(LANG=C sestatus | grep "^Mode from config file" | awk '{print $5}')
-    [[ $currentmode != "enforcing" && $configmode != "enforcing" ]] && return
+    [[ "x$currentmode" != "xenforcing" && "x$configmode" != "xenforcing" ]] && return
     echo " * SELinux is currently enabled on your system. This is often causing"
     echo " * issues and we recommend setting to permissive on FOG Servers as of now."
     echo -n " * Should the installer set this for you now? (Y/n) "
@@ -871,7 +873,7 @@ checkFirewall() {
                     echo -e " * Firewall disabled - proceeding with installation...\n"
                 else
                     echo " * We were unable to disable the firewall on your system. Read up on how"
-                    echo " * You can disable it manually. Proceeding with the installation anyway..."
+                    echo " * you can disable it manually. Proceeding with the installation anyway..."
                     echo " * Hit [Enter] so we know you've read this message."
                     read
                 fi
@@ -879,7 +881,7 @@ checkFirewall() {
             [Nn]|[Nn][Oo]|"")
                 fwdisable="N"
                 echo " * You sure know what you are doing, just keep in mind we told you! :-)"
-                if [[ -z $autoaccept  ]]; then
+                if [[ -z $autoaccept ]]; then
                     echo " * Hit ENTER so we know you've read this message."
                     read
                 fi
@@ -1148,7 +1150,7 @@ configureMySql() {
             # to make sure the user is in charge of this.
             mysqladmin $sqloptionsroot password "${snmysqlrootpass}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
-        snmysqlstoragepass=$(mysql -s $sqloptionsroot --password="${snmysqlrootpass}" --execute="SELECT \`settingValue\` FROM \`globalSettings\` WHERE \`settingKey\` LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
+        snmysqlstoragepass=$(mysql -s $sqloptionsroot --password="${snmysqlrootpass}" --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
     else
         snmysqlstoragepass=$(mysql $sqloptionsuser --password="${snmysqlpass}" --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
     fi
@@ -1223,6 +1225,7 @@ CREATE PROCEDURE $mysqldbname.create_user_if_not_exists()
 BEGIN
   DECLARE masteruser BIGINT DEFAULT 0 ;
   DECLARE storageuser BIGINT DEFAULT 0 ;
+
   SELECT COUNT(*) INTO masteruser FROM mysql.user
     WHERE User = '${snmysqluser}' and  Host = '${snmysqlhost}' ;
   IF masteruser > 0 THEN
@@ -1230,6 +1233,7 @@ BEGIN
   END IF ;
   CREATE USER '${snmysqluser}'@'${snmysqlhost}' IDENTIFIED BY '${snmysqlpass}' ;
   GRANT ALL PRIVILEGES ON $mysqldbname.* TO '${snmysqluser}'@'${snmysqlhost}' ;
+
   SELECT COUNT(*) INTO storageuser FROM mysql.user
     WHERE User = 'fogstorage' and  Host = '%' ;
   IF storageuser > 0 THEN
@@ -1631,6 +1635,8 @@ writeUpdateFile() {
             grep -q "noTftpBuild=" $fogprogramdir/.fogsettings && \
                 sed -i "s/noTftpBuild=.*/noTftpBuild='$escnoTftpBuild'/g" $fogprogramdir/.fogsettings || \
                 echo "noTftpBuild='$noTftpBuild'" >> $fogprogramdir/.fogsettings
+            grep -q "notpxedefaultfile=" $fogprogramdir/.fogsettings && \
+                sed -i "/notpxedefaultfile=.*$/d" $fogprogramdir/.fogsettings
             grep -q "sslpath=" $fogprogramdir/.fogsettings && \
                 sed -i "s/sslpath=.*/sslpath='$escsslpath'/g" $fogprogramdir/.fogsettings || \
                 echo "sslpath='$sslpath'" >> $fogprogramdir/.fogsettings
@@ -1862,7 +1868,7 @@ EOF
             echo "<VirtualHost *:80>" > "$etcconf"
             echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
             if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
-                echo "    SetHandler application/x-httpd-php" >> "$etcconf"
+                echo "        SetHandler application/x-httpd-php" >> "$etcconf"
             else
                 echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
             fi
@@ -2045,7 +2051,6 @@ configureHttpd() {
             echo "   Apache configs not found!"
             exit 1
         fi
-        echo -e "<FilesMatch \.php$>\n\tSetHandler \"proxy:unix:/run/php-fpm/php-fpm.sock|fcgi://127.0.0.1/\"\n</FilesMatch>\n<IfModule dir_module>\n\tDirectoryIndex index.php index.html\n</IfModule>" >> $httpdconf
         # Enable Event
         sed -i '/LoadModule mpm_event_module modules\/mod_mpm_event.so/s/^#//g' $httpdconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         # Disable prefork and worker
@@ -2061,8 +2066,10 @@ configureHttpd() {
         sed -i '/LoadModule socache_shmcb_module modules\/mod_socache_shmcb.so/s/^#//g' $httpdconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         # Enable ssl
         sed -i '/LoadModule ssl_module modules\/mod_ssl.so/s/^#//g' $httpdconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        # Enable rewrite
+        sed -i '/LoadModule rewrite_module modules\/mod_rewrite.so/s/^#//g' $httpdconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         # Enable our virtual host file for fog
-        grep -q "^Include conf/extra/fog\.conf" $httpdconf | echo -e "# FOG Virtual Host\nListen 443\nInclude conf/extra/fog.conf" >> $httpdconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        grep -q "^Include conf/extra/fog\.conf" $httpdconf || echo -e "# FOG Virtual Host\nListen 443\nInclude conf/extra/fog.conf" >>$httpdconf
         # Enable php extensions
         sed -i 's/;extension=bcmath/extension=bcmath/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/;extension=curl/extension=curl/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -2076,7 +2083,7 @@ configureHttpd() {
         sed -i 's/;extension=posix/extension=posix/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/;extension=sockets/extension=sockets/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/;extension=zip/extension=zip/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/$open_basedir\ =/;open_basedir\ =/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/^open_basedir\ =/;open_basedir\ =/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
     sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 3000M/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     sed -i 's/upload_max_filesize\ \=\ 2M/upload_max_filesize\ \=\ 3000M/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -2505,71 +2512,69 @@ configureDHCP() {
     esac
 }
 vercomp() {
-	[[ $1 == $2 ]] && return 0
-	local IFS=.
-	local i ver1=($1) ver2=($2)
-	for ((i=${#ver1[@]}; i<${#ver2}; i++)); do
-		ver1[i]=0
-	done
-	for ((i=0; i<${#ver1[@]}; i++)); do
-		[[ -z ${ver2[i]} ]] && ver2[i]=0
-		if ((10#${ver1[i]} > 10#${ver2[i]})); then
-			return 1
-		fi
-		if ((10#${ver1[i]} < 10#${ver2[i]})); then
-			return 2
-		fi
-	done
-	return 0
+    [[ $1 == $2 ]] && return 0
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    for ((i=${#ver1[@]}; i<${#ver2}; i++)); do
+        ver1[i]=0
+    done
+    for ((i=0; i<${#ver1[@]}; i++)); do
+        [[ -z ${ver2[i]} ]] && ver2[i]=0
+        if ((10#${ver1[i]} > 10#${ver2[i]})); then
+            return 1
+        fi
+        if ((10#${ver1[i]} < 10#${ver2[i]})); then
+            return 2
+        fi
+    done
+    return 0
 }
 languagemogen() {
-	local languages="$1"
-	local langpath="$2"
-	local IFS=$'\n'
-	local lang=''
-	for lang in ${languages[@]}; do
-		[[ ! -d "${langpath}/${lang}.UTF-8" ]] && continue
-		msgfmt -o \
-			"${langpath}/${lang}.UTF-8/LC_MESSAGES/messages.mo" \
-			"${langpath}/${lang}.UTF-8/LC_MESSAGES/messages.po" \
-			>>$workingdir/error_logs/fog_error_${version}.log 2>&1
-	done
+    local languages="$1"
+    local langpath="$2"
+    local IFS=$'\n'
+    local lang=''
+    for lang in ${languages[@]}; do
+        [[ ! -d "${langpath}/${lang}.UTF-8" ]] && continue
+        msgfmt -o \
+            "${langpath}/${lang}.UTF-8/LC_MESSAGES/messages.mo" \
+            "${langpath}/${lang}.UTF-8/LC_MESSAGES/messages.po" \
+            >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    done
 }
 generatePassword() {
-	local length="$1"
-	[[ $length -ge 12 && $length -le 128 ]] || length=20
+    local length="$1"
+    [[ $length -ge 12 && $length -le 128 ]] || length=20
 
-	while [[ ${#genpassword} -lt $((length-1)) || -z $special ]]; do
-		newchar=$(head -c1 /dev/urandom | tr -dc '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~')
-		if [[ -n $(echo $newchar | tr -dc '!#$%&()*+,-./:;<=>?@[]^_{|}~') ]]; then
-			special=${newchar}
-		elif [[ ${#genpassword} -lt $((length-1)) ]]; then
-			genpassword=${genpassword}${newchar}
-		fi
-	done
-	# 9$(date +%N) seems weird but it's important because date may return
-	# a leading 0 causing modulo to fail on reading it as octal number
-	position=$(( 9$(date +%N) % $length ))
-	# inject the special character at a random position
-	echo ${genpassword::($position)}$special${genpassword:($position)}
+    while [[ ${#genpassword} -lt $((length-1)) || -z $special ]]; do
+        newchar=$(head -c1 /dev/urandom | tr -dc '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~')
+        if [[ -n $(echo $newchar | tr -dc '!#$%&()*+,-./:;<=>?@[]^_{|}~') ]]; then
+            special=${newchar}
+        elif [[ ${#genpassword} -lt $((length-1)) ]]; then
+            genpassword=${genpassword}${newchar}
+        fi
+    done
+    # 9$(date +%N) seems weird but it's important because date may return
+    # a leading 0 causing modulo to fail on reading it as octal number
+    position=$(( 9$(date +%N) % $length ))
+    # inject the special character at a random position
+    echo ${genpassword::($position)}$special${genpassword:($position)}
 }
 checkPasswordChars() {
-	echo "$i" | tr -d '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~'
+    echo "$i" | tr -d '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~'
 }
 diffconfig() {
-	local conffile="$1"
-	[[ ! -f "${conffile}.${timestamp}" ]] && return 0
-	diff -q "${conffile}" "${conffile}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-	if [[ $? -eq 0 ]]; then
-		rm -f "${conffile}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-	else
-		backupconfig="${backupconfig} ${conffile}"
-	fi
+    local conffile="$1"
+    [[ ! -f "${conffile}.${timestamp}" ]] && return 0
+    diff -q "${conffile}" "${conffile}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ $? -eq 0 ]]; then
+        rm -f "${conffile}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    else
+        backupconfig="${backupconfig} ${conffile}"
+    fi
 }
 setupFogReporting() {
-    if [[ $sendreports == "N" ]]; then
-        return
-    fi
+    [[ $sendreports == "N" ]] && return
     local rreports="/opt/fog/reporting/report.sh"
     dots "Setting up FOG External Reporting"
     # Make sure required directories exist
@@ -2592,10 +2597,10 @@ ${minute_of_hour} ${hour_of_day} * * ${day_of_week} ${user_to_run_as} ${rreports
 END_OF_REPORTING_FILE
     diffconfig "${crondfile}"
     # If the reporting script exists, create a backup of it.
-	mv -fv "${rreports}" "${rreports}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    mv -fv "${rreports}" "${rreports}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     # Copy the new reporting script
     cp $workingdir/../utils/reporting/report.sh ${rreports} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    # list change into backupconfig variable
+    # List change into backupconfig variable
     diffconfig "${rreports}"
     chmod +x ${rreports} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     echo "Done"

@@ -10,7 +10,7 @@ echo Received DHCP answer on interface net1 && goto proxycheck
 
 :dhcpnet2
 isset ${net2/mac} && ifopen net2 && dhcp net2 || goto dhcpall
-echo Received DHCP anser on infterface net2 && goto proxycheck
+echo Received DHCP answer on interface net2 && goto proxycheck
 
 :dhcpall
 dhcp && goto proxycheck || goto dhcperror

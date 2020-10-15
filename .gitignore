@@ -64,25 +64,19 @@ packages/web/management/other/*
 packages/web/fog
 packages/web/.vscode
 
-# Checksum #
-############
-bin/checksum_*
+# Erroneous Packages #
+######################
 packages/FOGService.msi
-packages/clientfiles
-packages/inits
-packages/kernels
 packages/web/client/FOGService.msi
 packages/web/management/bower_components
 packages/web/management/dist
 packages/web/management/plugins
-packages/web/service/ipxe/bzImage
-packages/web/service/ipxe/bzImage32
-packages/web/service/ipxe/init.xz
-packages/web/service/ipxe/init_32.xz
+packages/web/service/ipxe/bzImage*
+packages/web/service/ipxe/init*.xz
+packages/web/service/ipxe/*.sha256
 rpttmp
+tmp/*
 
 # Local Scripts #
 #################
 packages/web/status/injectHosts.php
-tmp/
-packages/web/service/ipxe/*.sha256

@@ -4335,36 +4335,60 @@ class HostManagement extends FOGPage
                     true
                 );
             }
-            if ($isinitneeded
-                && !$isdebug
-            ) {
-                $shutdownchecked = self::getSetting(
-                    'FOG_TASKING_ADV_SHUTDOWN_ENABLED'
-                ) ? ' checked' : '';
-                $fields = self::fastmerge(
-                    $fields,
-                    [
-                        '<div class="hideFromDebug">'
-                        . self::makeLabel(
-                            $labelClass,
-                            'shutdown',
-                            _('Shutdown when complete')
-                        ) => self::makeInput(
-                            '',
-                            'shutdown',
-                            '',
-                            'checkbox',
-                            'shutdown',
-                            '',
-                            false,
-                            false,
-                            -1,
-                            -1,
-                            $shutdownchecked
-                        )
-                        . '</div>'
-                    ]
-                );
+            if ($isinitneeded) {
+                if ($iscapturetask) {
+                    $fields = self::fastmerge(
+                        $fields,
+                        [
+                            self::makeLabel(
+                                $labelClass,
+                                'bitlocker',
+                                _('Bypass Bitlocker Detection')
+                            ) => self::makeInput(
+                                '',
+                                'bitlocker',
+                                '',
+                                'checkbox',
+                                'bitlocker',
+                                '',
+                                false,
+                                false,
+                                -1,
+                                -1,
+                                ''
+                            )
+                        ]
+                    );
+                }
+                if (!$isdebug) {
+                    $shutdownchecked = self::getSetting(
+                        'FOG_TASKING_ADV_SHUTDOWN_ENABLED'
+                    ) ? ' checked' : '';
+                    $fields = self::fastmerge(
+                        $fields,
+                        [
+                            '<div class="hideFromDebug">'
+                            . self::makeLabel(
+                                $labelClass,
+                                'shutdown',
+                                _('Shutdown when complete')
+                            ) => self::makeInput(
+                                '',
+                                'shutdown',
+                                '',
+                                'checkbox',
+                                'shutdown',
+                                '',
+                                false,
+                                false,
+                                -1,
+                                -1,
+                                $shutdownchecked
+                            )
+                            . '</div>'
+                        ]
+                    );
+                }
             }
             if (TaskType::WAKE_UP != $type) {
                 $wolchecked = self::getSetting(
@@ -4645,6 +4669,9 @@ class HostManagement extends FOGPage
                 $enableDebug = true;
             }
 
+            // Bypass Bitlocker
+            $bypassbitlocker = isset($_POST['bitlocker']);
+
             // WOL setup
             $wol = false;
             $wolon = isset($_POST['wol']);
@@ -4752,7 +4779,8 @@ class HostManagement extends FOGPage
                     self::$FOGUser->get('name'),
                     $passreset,
                     false,
-                    $wol
+                    $wol,
+                    $bypassbitlocker
                 );
             } else {
                 $ScheduledTask = self::getClass('ScheduledTask')
@@ -4765,7 +4793,8 @@ class HostManagement extends FOGPage
                     ->set('isGroupTask', 0)
                     ->set('other3', self::$FOGUser->get('name'))
                     ->set('isActive', 1)
-                    ->set('other4', $wol);
+                    ->set('other4', $wol)
+                    ->set('other5', $bypassbitlocker);
                 if ($scheduleType == 'single') {
                     $ScheduledTask->set(
                         'scheduleTime',

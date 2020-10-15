@@ -699,16 +699,17 @@ class Host extends FOGController
     /**
      * Creates the tasking so I don't have to keep typing it in for each element.
      *
-     * @param string $taskName    the name to assign to the tasking
-     * @param int    $taskTypeID  the task type id to set the tasking
-     * @param string $username    the username to associate with the tasking
-     * @param int    $groupID     the Storage Group ID to associate with
-     * @param int    $memID       the Storage Node ID to associate with
-     * @param bool   $imagingTask if the task is an imaging type
-     * @param bool   $shutdown    if the task is to be shutdown once completed
-     * @param string $passreset   if the task is a password reset task
-     * @param bool   $debug       if the task is a debug task
-     * @param bool   $wol         if the task is to wol
+     * @param string $taskName        the name to assign to the tasking
+     * @param int    $taskTypeID      the task type id to set the tasking
+     * @param string $username        the username to associate with the tasking
+     * @param int    $groupID         the Storage Group ID to associate with
+     * @param int    $memID           the Storage Node ID to associate with
+     * @param bool   $imagingTask     if the task is an imaging type
+     * @param bool   $shutdown        if the task is to be shutdown once completed
+     * @param string $passreset       if the task is a password reset task
+     * @param bool   $debug           if the task is a debug task
+     * @param bool   $wol             if the task is to wol
+     * @param bool   $bypassbitlocker bypass bitlocker checks
      *
      * @return object
      */
@@ -722,7 +723,8 @@ class Host extends FOGController
         $shutdown = false,
         $passreset = false,
         $debug = false,
-        $wol = false
+        $wol = false,
+        $bypassbitlocker = false
     ) {
         $Task = self::getClass('Task')
             ->set('name', $taskName)
@@ -739,7 +741,8 @@ class Host extends FOGController
             ->set('tasktype', new TaskType($taskTypeID))
             ->set('TaskState', new TaskState(self::getQueuedState()))
             ->set('StorageGroup', $this->getImage()->getStorageGroup())
-            ->set('StorageNode', new StorageNode());
+            ->set('StorageNode', new StorageNode())
+            ->set('bypassbitlocker', ($bypassbitlocker ? '1' : '0'));
         if ($imagingTask) {
             $Task->set('imageID', $this->getImage()->get('id'));
         }
@@ -879,16 +882,17 @@ class Host extends FOGController
     /**
      * Creates tasking for the host based on the type
      *
-     * @param int    $TaskType      the task type
-     * @param string $taskName      the name of the task
-     * @param bool   $shutdown      whether to shutdown or reboot
-     * @param bool   $debug         is this a debug task
-     * @param mixed  $deploySnapins snapins to deploy
-     * @param bool   $isGroupTask   is the tasking a group task
-     * @param string $username      the username creating the task
-     * @param string $passreset     username that needs password reset
-     * @param bool   $sessionjoin   is this task joining an mc task
-     * @param bool   $wol           should we wake the host up
+     * @param int    $TaskType        the task type
+     * @param string $taskName        the name of the task
+     * @param bool   $shutdown        whether to shutdown or reboot
+     * @param bool   $debug           is this a debug task
+     * @param mixed  $deploySnapins   snapins to deploy
+     * @param bool   $isGroupTask     is the tasking a group task
+     * @param string $username        the username creating the task
+     * @param string $passreset       username that needs password reset
+     * @param bool   $sessionjoin     is this task joining an mc task
+     * @param bool   $wol             should we wake the host up
+     * @param bool   $bypassbitlocker bypass bitlocker?
      *
      * @return string
      */
@@ -902,7 +906,8 @@ class Host extends FOGController
         $username = '',
         $passreset = '',
         $sessionjoin = false,
-        $wol = false
+        $wol = false,
+        $bypassbitlocker = false
     ) {
         if (!$sessionjoin) {
             $taskName .= ' - '
@@ -1016,7 +1021,8 @@ class Host extends FOGController
                     $shutdown,
                     $passreset,
                     $debug,
-                    $wol
+                    $wol,
+                    $bypassbitlocker
                 );
                 $Task->set('imageID', $this->get('imageID'));
                 if (!$Task->save()) {
