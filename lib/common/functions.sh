@@ -384,20 +384,31 @@ getAllNetworkInterfaces() {
     echo -n $interfaces
 }
 checkInternetConnection() {
-    sites=("k.root-servers.net" "m.root-servers.net" "f.root-servers.net")
+    httpurls=("http://neverssl.com" "http://httpbin.org/get")
+    httpsurls=("https://github.com" "https://fogproject.org")
+    failedurls=0
     ips=("193.0.14.129" "202.12.27.33" "192.5.5.241")
     dots "Testing internet connection"
+    for url in "${httpurls[@]}"; do
+        echo "Testing connection to ${url}" >> $workingdir/error_logs/fog_error_${version}.log
+        curl --silent -k $url >/dev/null 2>&1
+        [[ $? -eq 0 ]] && failedurls=0 && break
+        failedurls=1
+    done
+    for url in "${httpsurls[@]}"; do
+        echo "Testing connection to ${url}" >> $workingdir/error_logs/fog_error_${version}.log
+        curl --silent -k $url >/dev/null 2>&1
+        [[ $? -eq 0 ]] && failedurls=0 && break
+        failedurls=1
+    done
+    [[ $failedurls -eq 0 ]] && echo "Done" && return
     for i in $(seq 0 2); do
         ping -c 1 ${ips[$i]} >/dev/null 2>&1
         [[ $? -ne 0 ]] && continue
-        ping -c 1 ${sites[$i]} >/dev/null 2>&1
-        if [[ $? -ne 0 ]]; then
-            echo "Internet connection detected but there seems to be a DNS problem." | tee -a $workingdir/error_logs/fog_error_${version}.log
-            echo "Check the contents of /etc/resolv.conf" | tee -a $workingdir/error_logs/fog_error_${version}.log
-            echo "If this is CentOS, RHEL, or Fedora, or an other RH variant," | tee -a $workingdir/error_logs/fog_error_${version}.log
-            echo "also check the DNS entries in /etc/sysconfig/network-scripts/ifcfg-*" | tee -a $workingdir/error_logs/fog_error_${version}.log
-        fi
-        echo "Done"
+        echo "Internet connection detected but there seems to be a problem." | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo "Check the contents of /etc/resolv.conf to make sure DNS works." | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo "If you are behind a proxy server you need setup .curlrc to" | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo "send requests through your proxy instead of directly." | tee -a $workingdir/error_logs/fog_error_${version}.log
         return
     done
     echo "There was no interface with an active internet connection found." | tee -a $workingdir/error_logs/fog_error_${version}.log
