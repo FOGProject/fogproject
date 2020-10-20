@@ -266,26 +266,21 @@ class Inventory_Report extends ReportManagementPage
             array('sysproduct' => $sysproductsearch),
             'hostID'
         );
-        $groupHostIDs = array_intersect($sysproductIDs, $groupHostIDs);
-
-        if ($groupsearch) {
-            Route::listem(
-                'host',
-                'name',
-                'false',
-                array(
-                    'id' => $groupHostIDs,
-                    'name' => $hostpattern
-                )
-            );
+        if (count($groupHostIDs) > 0) {
+            $groupHostIDs = array_intersect($sysproductIDs, $groupHostIDs);
         } else {
-            Route::listem(
-                'host',
-                'name',
-                'false',
-                array('name' => $hostpattern)
-            );
+            $groupHostIDs = $sysproductIDs;
         }
+
+        Route::listem(
+            'host',
+            'name',
+            'false',
+            array(
+                'id' => $groupHostIDs,
+                'name' => $hostpattern
+            )
+        );
 
         $Hosts = json_decode(
             Route::getData()
