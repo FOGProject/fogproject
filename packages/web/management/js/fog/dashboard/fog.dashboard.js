@@ -458,37 +458,6 @@ function setupBandwidth() {
         urls,
         names;
 
-    function setStuff(data) {
-        urls = data.urls;
-        names = data.names;
-        colors = data.colors;
-        updateBandwidth();
-    }
-    // Let's find out which are actually available.
-    Pace.ignore(function() {
-        $.ajax({
-            url: '../management/index.php?node=home&sub=testUrls',
-            type: 'post',
-            data: {
-                url: nodeurls,
-                names: nodenames,
-                colors: nodecolors
-            },
-            dataType: 'json',
-            success: function(data) {
-                setStuff(data);
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                $('#graph-bandwidth').html(
-                    '<div class="alert alert-warning">'
-                    + '<h4>Unavailable</h4>'
-                    + 'Unable to get bandwidth information'
-                    + '</div>'
-                );
-            }
-        });
-    });
-
     // Bandwidth chart
     function updateBandwidth() {
         var GraphBandwidthOpts = {
@@ -652,6 +621,36 @@ function setupBandwidth() {
         // Actually fetch our data.
         fetchData();
     }
+
+    function setStuff(data) {
+        urls = data.urls;
+        names = data.names;
+        colors = data.colors;
+        updateBandwidth();
+    }
+    // Let's find out which are actually available.
+    Pace.ignore(function() {
+        $.ajax({
+            url: '../management/index.php?node=home&sub=testUrls',
+            type: 'post',
+            data: {
+                url: nodeurls,
+                names: nodenames,
+                colors: nodecolors
+            },
+            dataType: 'json',
+            success: setStuff,
+            error: function(jqXHR, textStatus, errorThrown) {
+                $('#graph-bandwidth').html(
+                    '<div class="alert alert-warning">'
+                    + '<h4>Unavailable</h4>'
+                    + 'Unable to get bandwidth information'
+                    + '</div>'
+                );
+            }
+        });
+    });
+
     // If the user presses the off button, we should stop
     // displaying, notice we still collect data, we just don't
     // display it. When you press on again, it should update
