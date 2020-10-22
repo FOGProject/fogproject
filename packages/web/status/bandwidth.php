@@ -91,7 +91,7 @@ if (count($interface) < 1) {
     // If accessed by hostname resolve to ip
     $resName = FOGCore::resolveHostname($srvAddr);
     // Use the resolved name to find our interface
-    $dev = FOGCore::getMasterInterface($resname);
+    $dev = FOGCore::getMasterInterface($resName);
 }
 // Trim the device
 $dev = trim($dev);
