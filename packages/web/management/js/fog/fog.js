@@ -727,7 +727,7 @@ function setADFields() {
                 if (!$('#adDomain[type="text"]').val()) {
                     $('#adDomain').val(jdata.domainname);
                 }
-                if (!$('#adOU[type="text"]').val()) {
+                if (!$('#adOU').val()) {
                     $('#adOU').val(jdata.ou);
                 }
                 if (!$('adUsername[type="text"]').val()) {

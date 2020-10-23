@@ -2522,6 +2522,27 @@ abstract class FOGPage extends FOGBase
             false,
             ''
         );
+        $OUs = array_unique(
+            array_filter(
+                explode(
+                    '|',
+                    $ou
+                )
+            )
+        );
+        if (count($OUs ?: []) > 1) {
+            foreach ($OUs as &$OU) {
+                if (false !== strpos($OU, ';')) {
+                    $ou = str_replace(';', '', $OU);
+                    unset($OU);
+                    break;
+                }
+                unset($OU);
+            }
+        }
+        if (count($OUs ?: []) == 1) {
+            $ou = array_shift($OUs);
+        }
         echo json_encode(
             array(
                 'domainname' => $domainname,
