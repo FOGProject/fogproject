@@ -1076,7 +1076,7 @@ class HostManagement extends FOGPage
             ->processEvent(
                 $hook,
                 [
-                    'Host' => &$Host,
+                    'Host' => &self::$Host,
                     'hook' => &$hook,
                     'code' => &$code,
                     'msg' => &$msg,
