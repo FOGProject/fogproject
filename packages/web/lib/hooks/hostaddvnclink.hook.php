@@ -1,38 +1,44 @@
 <?php
 /**
- * Change host name hook.
+ * Add host VNC link.
  *
  * PHP version 5
  *
- * @category ChangeHostname
+ * @category Add VNC Link
  * @package  FOGProject
  * @author   Peter Gilchrist <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * Change host name hook.
+ * Add host VNC link
  *
- * @category ChangeHostname
+ * @category Add VNC Link
  * @package  FOGProject
  * @author   Peter Gilchrist <nah@nah.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class ChangeHostname extends Hook
+class HostAddVNCLink extends Hook
 {
     /**
      * The name of this hook.
      *
      * @var string
      */
-    public $name = 'ChangeHostname';
+    public $name = 'HostAddVNCLink';
     /**
      * The description of this hook.
      *
      * @var string
      */
-    public $description = 'Appends "Chicken-" to all hostnames ';
+    public $description = 'Adds Host VNC Link to the Host api call';
+    /**
+     * The default vnc port to use for connecting.
+     *
+     * @var int
+     */
+    private static $_port = 5800;
     /**
      * Is this hook active or not.
      *
@@ -65,15 +71,14 @@ class ChangeHostname extends Hook
             return;
         }
         foreach ($arguments['data']['data'] as $i => &$data) {
-            $arguments['data']['data'][$i]['mainlink'] = preg_replace(
-                "/${data['name']}/",
-                "Chicken-${data['name']}",
-                $data['mainlink']
-            );
-            $arguments['data']['data'][$i]['name'] = sprintf(
-                '%s-%s',
-                'Chicken',
-                $data['name']
+            $arguments['data']['data'][$i]['vnclink'] = sprintf(
+                '<a href="vnc://%s:%d" target="_blank" title='
+                . '"%s: %s">%s</a>',
+                $data['name'],
+                self::$_port,
+                _('Open VNC Connection To'),
+                $data['name'],
+                _('VNC')
             );
             unset($data);
         }
