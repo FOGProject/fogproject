@@ -435,6 +435,10 @@ installFOGServices() {
     chmod +x -R $servicedst/
     mkdir -p $servicelogs
     errorStat $?
+    # Adds login log, allows web user write access
+    touch $servicelogs/logins.txt
+    chown www-data:root $servicelogs/logins.txt
+    chmod 644 $servicelogs/logins.txt
 }
 configureUDPCast() {
     dots "Setting up UDPCast"
