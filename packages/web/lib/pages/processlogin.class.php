@@ -254,9 +254,20 @@ class ProcessLogin extends FOGPage
             $this->_username,
             $this->_password
         );
-        $logins = '/var/log/fog/logins.txt';
         if (!self::$FOGUser->isValid()) {
-            file_put_contents($logins, $_SERVER['REMOTE_ADDR'] . ' - ' . $_SERVER['HTTP_USER_AGENT'] . ' - Login failed - username ' . $uname . " failed to login\n", FILE_APPEND);
+            error_log(
+                sprintf(
+                    '%s - %s - %s - %s: %s %s'
+                    $_SERVER['REMOTE_ADDR'],
+                    $_SERVER['HTTP_USER_AGENT'],
+                    _('Login failed'),
+                    _('username'),
+                    $uname,
+                    _('failed to login')
+                ),
+                3,
+                BASE_PATH . 'fog_login_failed.log'
+            );
             $this->_setRedirMode();
         }
         self::$HookManager
@@ -267,7 +278,19 @@ class ProcessLogin extends FOGPage
                     'password' => $this->_password
                 )
             );
-        file_put_contents($logins, $_SERVER['REMOTE_ADDR'] . ' - ' . $_SERVER['HTTP_USER_AGENT'] . ' - Login accepted - username ' . $uname . " logged in\n", FILE_APPEND);
+        error_log(
+            sprintf(
+                '%s - %s - %s - %s: %s %s'
+                $_SERVER['REMOTE_ADDR'],
+                $_SERVER['HTTP_USER_AGENT'],
+                _('Login accepted'),
+                _('username'),
+                $uname,
+                _('logged in')
+            ),
+            3,
+            BASE_PATH . 'fog_login_accepted.log'
+        );
         $this->_setRedirMode();
     }
     /**
