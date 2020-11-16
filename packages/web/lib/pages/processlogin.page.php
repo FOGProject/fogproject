@@ -224,6 +224,19 @@ class ProcessLogin extends FOGPage
                     'password' => $upass
                 ]
             );
+            error_log(
+                sprintf(
+                    '%s - %s - %s - %s: %s %s',
+                    $_SERVER['REMOTE_ADDR'],
+                    $_SERVER['HTTP_USER_AGENT'],
+                    _('Login accepted'),
+                    _('username'),
+                    $uname,
+                    _('logged in')
+                ),
+                3,
+                BASE_PATH . 'fog_login_accepted.log'
+            );
         } catch (Exception $e) {
             $code = HTTPResponseCodes::HTTP_FORBIDDEN;
             $msg = json_encode(
@@ -231,6 +244,19 @@ class ProcessLogin extends FOGPage
                     'error' => $e->getMessage(),
                     'title' => _('Login Failed')
                 ]
+            );
+            error_log(
+                sprintf(
+                    '%s - %s - %s - %s: %s %s',
+                    $_SERVER['REMOTE_ADDR'],
+                    $_SERVER['HTTP_USER_AGENT'],
+                    _('Login failed'),
+                    _('username'),
+                    $uname,
+                    $e->getMessage()
+                ),
+                3,
+                BASE_PATH . 'fog_login_failed.log'
             );
         }
         http_response_code($code);
