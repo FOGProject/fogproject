@@ -235,7 +235,7 @@ class ProcessLogin extends FOGPage
                     _('logged in')
                 ),
                 3,
-                BASE_PATH . 'fog_login_accepted.log'
+                BASEPATH . 'fog_login_accepted.log'
             );
         } catch (Exception $e) {
             $code = HTTPResponseCodes::HTTP_FORBIDDEN;
@@ -256,7 +256,7 @@ class ProcessLogin extends FOGPage
                     $e->getMessage()
                 ),
                 3,
-                BASE_PATH . 'fog_login_failed.log'
+                BASEPATH . 'fog_login_failed.log'
             );
         }
         http_response_code($code);
