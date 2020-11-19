@@ -192,7 +192,6 @@ class BootMenu extends FOGBase
             . self::$httpproto
             . '://${fog-ip}/${fog-webroot}',
         ];
-        $this->_parseMe($Send);
         if (self::$Host->isValid()) {
             if (!self::$Host->get('inventory')->get('sysuuid')) {
                 self::$Host
@@ -362,6 +361,13 @@ class BootMenu extends FOGBase
             $StorageNode = new StorageNode($first->id);
         }
         if ($StorageNode->isValid()) {
+            $Send['storage-ip'] = [
+                sprintf(
+                    'set storage-ip %s',
+                    trim($StorageNode->get('ip'))
+                )
+            ];
+            $this->_parseMe($Send);
             $this->_storage = sprintf(
                 'storage=%s:/%s/ storageip=%s',
                 trim($StorageNode->get('ip')),
