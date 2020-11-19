@@ -1635,7 +1635,7 @@ class Route extends FOGBase
             $key = $class->key($key);
             $val = $vars->$key;
             if ('id' == $key
-                || is_null($val)
+                || NULL === $val
             ) {
                 continue;
             }
@@ -1699,7 +1699,7 @@ class Route extends FOGBase
         foreach ($classVars['databaseFieldsRequired'] as &$key) {
             $key = $class->key($key);
             $val = $class->get($key);
-            if (is_null($val)) {
+            if (NULL === $val) {
                 self::setErrorMessage(
                     self::$foglang['RequiredDB'],
                     HTTPResponseCodes::HTTP_EXPECTATION_FAILED
