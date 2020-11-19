@@ -255,6 +255,19 @@ class ProcessLogin extends FOGPage
             $this->_password
         );
         if (!self::$FOGUser->isValid()) {
+            error_log(
+                sprintf(
+                    '%s - %s - %s - %s: %s %s'
+                    $_SERVER['REMOTE_ADDR'],
+                    $_SERVER['HTTP_USER_AGENT'],
+                    _('Login failed'),
+                    _('username'),
+                    $uname,
+                    _('failed to login')
+                ),
+                3,
+                BASE_PATH . 'fog_login_failed.log'
+            );
             $this->_setRedirMode();
         }
         self::$HookManager
@@ -265,6 +278,19 @@ class ProcessLogin extends FOGPage
                     'password' => $this->_password
                 )
             );
+        error_log(
+            sprintf(
+                '%s - %s - %s - %s: %s %s'
+                $_SERVER['REMOTE_ADDR'],
+                $_SERVER['HTTP_USER_AGENT'],
+                _('Login accepted'),
+                _('username'),
+                $uname,
+                _('logged in')
+            ),
+            3,
+            BASE_PATH . 'fog_login_accepted.log'
+        );
         $this->_setRedirMode();
     }
     /**
