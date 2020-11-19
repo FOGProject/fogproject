@@ -257,7 +257,7 @@ class ProcessLogin extends FOGPage
         if (!self::$FOGUser->isValid()) {
             error_log(
                 sprintf(
-                    '%s - %s - %s - %s: %s %s'
+                    "%s - %s - %s - %s: %s %s\n",
                     $_SERVER['REMOTE_ADDR'],
                     $_SERVER['HTTP_USER_AGENT'],
                     _('Login failed'),
@@ -280,7 +280,7 @@ class ProcessLogin extends FOGPage
             );
         error_log(
             sprintf(
-                '%s - %s - %s - %s: %s %s'
+                "%s - %s - %s - %s: %s %s\n",
                 $_SERVER['REMOTE_ADDR'],
                 $_SERVER['HTTP_USER_AGENT'],
                 _('Login accepted'),
