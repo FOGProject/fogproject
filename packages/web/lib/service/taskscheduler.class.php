@@ -224,7 +224,7 @@ class TaskScheduler extends FOGService
                     );
                     $Item
                         ->createImagePackage(
-                            $Task->get('taskType'),
+                            $Task->get('taskTypeID'),
                             $Task->get('name'),
                             $Task->get('shutdown'),
                             false,

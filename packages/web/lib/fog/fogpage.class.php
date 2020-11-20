@@ -1769,7 +1769,7 @@ abstract class FOGPage extends FOGBase
                     );
                 } else {
                     $ScheduledTask = self::getClass('ScheduledTask')
-                        ->set('taskType', $TaskType->get('id'))
+                        ->set('taskTypeID', $TaskType->get('id'))
                         ->set('name', $taskName)
                         ->set('hostID', $this->obj->get('id'))
                         ->set('shutdown', $enableShutdown)
