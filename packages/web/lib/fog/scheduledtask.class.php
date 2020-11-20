@@ -37,7 +37,7 @@ class ScheduledTask extends FOGController
         'name' => 'stName',
         'description' => 'stDesc',
         'type' => 'stType',
-        'taskType' => 'stTaskTypeID',
+        'taskTypeID' => 'stTaskTypeID',
         'minute' => 'stMinute',
         'hour' => 'stHour',
         'dayOfMonth' => 'stDOM',
@@ -62,7 +62,7 @@ class ScheduledTask extends FOGController
      */
     protected $databaseFieldsRequired = array(
         'type',
-        'taskType',
+        'taskTypeID',
         'hostID',
     );
     /**
@@ -117,7 +117,7 @@ class ScheduledTask extends FOGController
      */
     public function isMulticast()
     {
-        return (bool)self::getClass('TaskType', $this->get('taskType'))
+        return (bool)self::getClass('TaskType', $this->get('taskTypeID'))
             ->isMulticast();
     }
     /**
@@ -136,7 +136,7 @@ class ScheduledTask extends FOGController
      */
     public function getTaskType()
     {
-        return new TaskType($this->get('taskType'));
+        return new TaskType($this->get('taskTypeID'));
     }
     /**
      * Returns if this is group based.
