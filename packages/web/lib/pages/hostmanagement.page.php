@@ -4784,7 +4784,7 @@ class HostManagement extends FOGPage
                 );
             } else {
                 $ScheduledTask = self::getClass('ScheduledTask')
-                    ->set('taskType', $TaskType->id)
+                    ->set('taskTypeID', $TaskType->id)
                     ->set('name', $taskName)
                     ->set('hostID', $this->obj->get('id'))
                     ->set('shutdown', $enableShutdown)

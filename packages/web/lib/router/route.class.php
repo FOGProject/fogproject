@@ -909,7 +909,7 @@ class Route extends FOGBase
             ];
             $columns[] = [
                 'db' => 'stTaskTypeID',
-                'dt' => 'taskType',
+                'dt' => 'taskTypeName',
                 'formatter' => function ($d, $row) {
                     return self::getClass('TaskType', $d)->get('name');
                 }
