@@ -23,7 +23,7 @@
     var table = $('#scheduled-task-table').registerTable(onSelect, {
         columns: [
             {data: 'hostLink'},
-            {data: 'taskType'},
+            {data: 'taskTypeName'},
             {data: 'starttime'},
             {data: 'isActive'},
             {data: 'type'}

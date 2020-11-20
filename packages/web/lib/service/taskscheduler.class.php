@@ -202,7 +202,7 @@ class TaskScheduler extends FOGService
                         _('task found')
                     )
                 );
-                Route::indiv('tasktype', $Task->get('taskType'));
+                Route::indiv('tasktype', $Task->get('taskTypeID'));
                 $tasktype = json_decode(Route::getData());
                 $Item->createImagePackage(
                     $tasktype,

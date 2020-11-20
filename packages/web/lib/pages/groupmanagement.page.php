@@ -3547,7 +3547,7 @@ class GroupManagement extends FOGPage
                 );
             } else {
                 $ScheduledTask = self::getClass('ScheduledTask')
-                    ->set('taskType', $type)
+                    ->set('taskTypeID', $type)
                     ->set('name', $taskName)
                     ->set('hostID', $this->obj->get('id'))
                     ->set('shutdown', $enableShutdown)
