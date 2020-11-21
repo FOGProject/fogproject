@@ -69,7 +69,7 @@ class FOGCron extends FOGBase
             $dom,
             $month,
             $dow
-        ) = array_map('trim', preg_split('/\s+/', $cron));
+        ) = array_map('trim', preg_split('/\s/', $cron));
         if (is_numeric($dow) && $dow == 0) {
             $dow = 7;
         }
