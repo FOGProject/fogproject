@@ -122,6 +122,15 @@ class Route extends FOGBase
         'task'
     );
     /**
+     * Names not unique
+     *
+     * @var array
+     */
+    public static $nonUniqueNameClasses = array(
+        'scheduledtask',
+        'task'
+    );
+    /**
      * Valid active tasking classes.
      *
      * @var array
@@ -612,7 +621,9 @@ class Route extends FOGBase
         $exists = self::getClass($classname)
             ->getManager()
             ->exists($vars->name);
-        if (strtolower($class->get('name')) != $vars->name
+        $uniqueNames = !in_array($classname, self::$nonUniqueNameClasses);
+        if ($uniqueNames
+            && strtolower($class->get('name')) != $vars->name
             && $exists
         ) {
             self::setErrorMessage(
@@ -903,7 +914,8 @@ class Route extends FOGBase
         $exists = self::getClass($classname)
             ->getManager()
             ->exists($vars->name);
-        if ($exists) {
+        $uniqueNames = !in_array($classname, self::$nonUniqueNameClasses);
+        if ($exists && $uniqueNames) {
             self::setErrorMessage(
                 _('Already created'),
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
