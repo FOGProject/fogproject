@@ -1889,6 +1889,7 @@ EOF
                 echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
             fi
             echo "    </FilesMatch>" >> "$etcconf"
+            echo "    KeepAlive Off" >> "$etcconf"
             echo "    ServerName $ipaddress" >> "$etcconf"
             echo "    ServerAlias $hostname" >> "$etcconf"
             echo "    DocumentRoot $docroot" >> "$etcconf"
@@ -1930,7 +1931,6 @@ EOF
                 echo "    RewriteRule ^/fog/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
                 echo "</VirtualHost>" >> "$etcconf"
             else
-                echo "    KeepAlive Off" >> "$etcconf"
                 echo "    <Directory $webdirdest>" >> "$etcconf"
                 echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                 echo "    </Directory>" >> "$etcconf"
