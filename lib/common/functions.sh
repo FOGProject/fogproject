@@ -389,15 +389,16 @@ checkInternetConnection() {
     failedurls=0
     ips=("193.0.14.129" "202.12.27.33" "192.5.5.241")
     dots "Testing internet connection"
+    DEBIAN_FRONTEND=noninteractive $packageinstaller curl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     for url in "${httpurls[@]}"; do
         echo "Testing connection to ${url}" >> $workingdir/error_logs/fog_error_${version}.log
-        curl --silent -k $url >/dev/null 2>&1
+        curl --silent -k $url >/dev/null 2>>$workingdir/error_logs/fog_error_${version}.log
         [[ $? -eq 0 ]] && failedurls=0 && break
         failedurls=1
     done
     for url in "${httpsurls[@]}"; do
         echo "Testing connection to ${url}" >> $workingdir/error_logs/fog_error_${version}.log
-        curl --silent -k $url >/dev/null 2>&1
+        curl --silent -k $url >/dev/null 2>>$workingdir/error_logs/fog_error_${version}.log
         [[ $? -eq 0 ]] && failedurls=0 && break
         failedurls=1
     done
@@ -405,10 +406,11 @@ checkInternetConnection() {
     for i in $(seq 0 2); do
         ping -c 1 ${ips[$i]} >/dev/null 2>&1
         [[ $? -ne 0 ]] && continue
-        echo "Internet connection detected but there seems to be a problem." | tee -a $workingdir/error_logs/fog_error_${version}.log
-        echo "Check the contents of /etc/resolv.conf to make sure DNS works." | tee -a $workingdir/error_logs/fog_error_${version}.log
-        echo "If you are behind a proxy server you need setup .curlrc to" | tee -a $workingdir/error_logs/fog_error_${version}.log
-        echo "send requests through your proxy instead of directly." | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo "Warning"
+        echo "Internet connection detected but there seems to be a problem with DNS" | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo "resolution or sending HTTP requests. Check the contents of the file" | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo "/etc/resolv.conf. If you are behind a proxy server you need to setup" | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo ".curlrc to send the requests through your proxy." | tee -a $workingdir/error_logs/fog_error_${version}.log
         return
     done
     echo "There was no interface with an active internet connection found." | tee -a $workingdir/error_logs/fog_error_${version}.log
