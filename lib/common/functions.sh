@@ -389,16 +389,20 @@ checkInternetConnection() {
     failedurls=0
     ips=("193.0.14.129" "202.12.27.33" "192.5.5.241")
     dots "Testing internet connection"
-    DEBIAN_FRONTEND=noninteractive $packageinstaller curl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    DEBIAN_FRONTEND=noninteractive $packageinstaller wget curl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     for url in "${httpurls[@]}"; do
         echo "Testing connection to ${url}" >> $workingdir/error_logs/fog_error_${version}.log
         curl --silent -k $url >/dev/null 2>>$workingdir/error_logs/fog_error_${version}.log
+        [[ $? -eq 0 ]] && failedurls=0 && break
+        wget -t 2 -O /dev/null -q --no-check-certificate $url >/dev/null 2>>$workingdir/error_logs/fog_error_${version}.log
         [[ $? -eq 0 ]] && failedurls=0 && break
         failedurls=1
     done
     for url in "${httpsurls[@]}"; do
         echo "Testing connection to ${url}" >> $workingdir/error_logs/fog_error_${version}.log
         curl --silent -k $url >/dev/null 2>>$workingdir/error_logs/fog_error_${version}.log
+        [[ $? -eq 0 ]] && failedurls=0 && break
+        wget -t 2 -O /dev/null -q --no-check-certificate $url >/dev/null 2>>$workingdir/error_logs/fog_error_${version}.log
         [[ $? -eq 0 ]] && failedurls=0 && break
         failedurls=1
     done
