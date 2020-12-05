@@ -73,7 +73,7 @@ class Pending_MAC_List extends ReportManagementPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false'
+                'class' => 'l parser-false filter-false'
             ),
             array(),
             array(),

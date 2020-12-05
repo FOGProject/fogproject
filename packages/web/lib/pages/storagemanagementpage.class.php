@@ -244,7 +244,7 @@ class StorageManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'width' => 22
             ),
             array(),
@@ -1183,7 +1183,7 @@ class StorageManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'width' => 22
             ),
             array(),
