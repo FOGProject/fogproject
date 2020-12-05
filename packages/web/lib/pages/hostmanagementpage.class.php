@@ -230,13 +230,13 @@ class HostManagementPage extends FOGPage
             array(
                 'width' => 16,
                 'id' => 'host-${host_name}',
-                'class' => 'filter-false',
+                'class' => 'l parser-false filter-false',
                 'title' => '${host_desc}',
                 'data-toggle' => 'tooltip',
                 'data-placement' => 'right'
             ),
             array(
-                'class' => 'l filter-false form-group',
+                'class' => 'l parser-false filter-false form-group',
                 'width' => 16
             ),
         );
@@ -255,7 +255,7 @@ class HostManagementPage extends FOGPage
             array('width' => 145),
             array(
                 'width' => 60,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(
                 'width' => 20
@@ -782,13 +782,13 @@ class HostManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             )
         );
         Route::listem('powermanagement');
@@ -1447,7 +1447,7 @@ class HostManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(),
             array()
@@ -1657,10 +1657,10 @@ class HostManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false col-xs-1'
+                'class' => 'parser-false filter-false col-xs-1'
             ),
             array(
-                'class' => 'filter-false col-xs-1'
+                'class' => 'parser-false filter-false col-xs-1'
             ),
             array(),
             array()
@@ -1773,7 +1773,7 @@ class HostManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(),
             array()
@@ -1876,7 +1876,7 @@ class HostManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(),
             array()

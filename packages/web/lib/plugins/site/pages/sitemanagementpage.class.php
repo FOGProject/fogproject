@@ -92,12 +92,12 @@ class SiteManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'width' => 16
             ),
             array(),
             array(),
-            array('class' => 'filter-false'),
+            array('class' => 'parser-false filter-false'),
         );
         /**
          * Lambda function to return data either by list or search.
@@ -467,7 +467,7 @@ class SiteManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(
                 'data-toggle' => 'tooltip',
@@ -669,7 +669,7 @@ class SiteManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(
                 'data-toggle' => 'tooltip',

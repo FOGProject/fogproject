@@ -110,7 +110,7 @@ class PluginManagementPage extends FOGPage
             array_unshift(
                 $this->attributes,
                 array(
-                    'class' => 'filter-false form-group',
+                    'class' => 'parser-false filter-false form-group',
                     'width' => 16
                 )
             );
@@ -497,7 +497,7 @@ class PluginManagementPage extends FOGPage
                     $this->attributes = array(
                         array(
                             'width' => 16,
-                            'class' => 'filter-false'
+                            'class' => 'parser-false filter-false'
                         ),
                         array(),
                         array(),

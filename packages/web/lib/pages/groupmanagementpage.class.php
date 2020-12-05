@@ -137,10 +137,10 @@ class GroupManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false'),
+                'class' => 'parser-false filter-false'),
             array(),
             array('class' => 'text-center'),
-            array()
+            array('class' => 'parser-false filter-false')
         );
         $this->_getHostCommon();
         /**
@@ -775,10 +775,10 @@ class GroupManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false col-xs-1'
+                'class' => 'parser-false filter-false col-xs-1'
             ),
             array(
-                'class' => 'filter-false col-xs-1'
+                'class' => 'parser-false filter-false col-xs-1'
             ),
             array(),
             array()
@@ -1008,7 +1008,7 @@ class GroupManagementPage extends FOGPage
             '${snapin_created}'
         );
         $this->attributes = array(
-            array('class' => 'filter-false col-xs-1'),
+            array('class' => 'parser-false filter-false col-xs-1'),
             array(),
             array()
         );

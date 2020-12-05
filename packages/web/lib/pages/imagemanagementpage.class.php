@@ -207,7 +207,7 @@ class ImageManagementPage extends FOGPage
             ),
             array(
                 'width' => 16,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(),
             array(
@@ -1091,7 +1091,7 @@ class ImageManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'width' => 16
             ),
             array(),
@@ -1203,11 +1203,11 @@ class ImageManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'width' => 16
             ),
             array(
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'width' => 16
             ),
             array(),
@@ -1583,7 +1583,7 @@ class ImageManagementPage extends FOGPage
             array(),
             array(),
             array('class' => 'text-center'),
-            array('class'=>'filter-false'),
+            array('class'=>'parser-false filter-false'),
         );
         $this->templates = array(
             '${mc_name}<br/><small>${image_name}:${os}</small>',

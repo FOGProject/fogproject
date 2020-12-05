@@ -65,7 +65,7 @@ class Virus_History extends ReportManagementPage
             array(),
             array(),
             array(),
-            array('class' => 'filter-false')
+            array('class' => 'parser-false filter-false')
         );
         foreach ((array)$csvHead as $csvHeader => &$classGet) {
             $this->ReportMaker->addCSVCell($csvHeader);
