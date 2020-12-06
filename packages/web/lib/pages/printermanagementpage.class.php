@@ -106,7 +106,7 @@ class PrinterManagementPage extends FOGPage
             array(
                 'width' => 16,
                 'id' => 'printer-${name}',
-                'class' => 'parser-false filter-false',
+                'class' => 'filter-false',
                 'title' => '${desc}',
                 'data-toggle' => 'tooltip',
                 'data-placement' => 'right'
