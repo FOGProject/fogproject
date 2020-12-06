@@ -230,7 +230,7 @@ class HostManagementPage extends FOGPage
             array(
                 'width' => 16,
                 'id' => 'host-${host_name}',
-                'class' => 'l parser-false filter-false',
+                'class' => 'l filter-false',
                 'title' => '${host_desc}',
                 'data-toggle' => 'tooltip',
                 'data-placement' => 'right'
@@ -2872,8 +2872,8 @@ class HostManagementPage extends FOGPage
                 _('Storage Group'),
                 _('Storage Node')
             ),
-            '<small>${start_date}</small><br/><small>${start_time}</small>',
-            '<small>${end_date}</small><br/><small>${end_time}</small>',
+            '<small>${start_date} ${start_time}</small>',
+            '<small>${end_date} ${end_time}</small>',
             '${duration}',
             '${image_name}',
             '${type}',
@@ -3015,6 +3015,7 @@ class HostManagementPage extends FOGPage
         $this->headerData = array(
             _('Snapin Name'),
             _('Start Time'),
+            _('End Time'),
             _('Complete'),
             _('Duration'),
             _('Return Code')
@@ -3023,10 +3024,12 @@ class HostManagementPage extends FOGPage
             '${snapin_name}',
             '${snapin_start}',
             '${snapin_end}',
+            '${snapin_complete}',
             '${snapin_duration}',
             '${snapin_return}'
         );
         $this->attributes = array(
+            array(),
             array(),
             array(),
             array(),
@@ -3056,7 +3059,12 @@ class HostManagementPage extends FOGPage
         foreach ((array)$SnapinTasks as &$SnapinTask) {
             $Snapin = $SnapinTask->snapin;
             $start = self::niceDate($SnapinTask->checkin);
-            $end = self::niceDate($SnapinTask->complete);
+            if ($SnapinTask->complete === '0000-00-00 00:00:00') {
+                $end = _('not finished yet');
+            } else {
+                $end = self::niceDate($SnapinTask->complete);
+                $end = $end->format('Y-m-d H:i:s');
+            }
             if (!self::validDate($start)) {
                 continue;
             }
@@ -3070,12 +3078,8 @@ class HostManagementPage extends FOGPage
             $this->data[] = array(
                 'snapin_name' => $Snapin->name,
                 'snapin_start' => $start->format('Y-m-d H:i:s'),
-                'snapin_end' => sprintf(
-                    '<span data-toggle="tooltip" data-placement="left" '
-                    . 'class="icon" title="%s">%s</span>',
-                    $end->format('Y-m-d H:i:s'),
-                    $SnapinTask->state->name
-                ),
+                'snapin_end' => $end,
+                'snapin_complete' => $SnapinTask->state->name,
                 'snapin_duration' => $diff,
                 'snapin_return'=> $SnapinTask->return,
             );
