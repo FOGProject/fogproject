@@ -257,7 +257,8 @@ class ProcessLogin extends FOGPage
         if (!self::$FOGUser->isValid()) {
             error_log(
                 sprintf(
-                    "%s - %s - %s - %s: %s %s\n",
+                    "[%s] - %s - %s - %s - %s: %s %s\n",
+                    FOGService::getDateTime(),
                     $_SERVER['REMOTE_ADDR'],
                     $_SERVER['HTTP_USER_AGENT'],
                     _('Login failed'),
@@ -266,7 +267,7 @@ class ProcessLogin extends FOGPage
                     _('failed to login')
                 ),
                 3,
-                BASE_PATH . 'fog_login_failed.log'
+                BASEPATH . 'fog_login_failed.log'
             );
             $this->_setRedirMode();
         }
@@ -280,7 +281,8 @@ class ProcessLogin extends FOGPage
             );
         error_log(
             sprintf(
-                "%s - %s - %s - %s: %s %s\n",
+                "[%s] - %s - %s - %s - %s: %s %s\n",
+                FOGService::getDateTime(),
                 $_SERVER['REMOTE_ADDR'],
                 $_SERVER['HTTP_USER_AGENT'],
                 _('Login accepted'),
@@ -289,7 +291,7 @@ class ProcessLogin extends FOGPage
                 _('logged in')
             ),
             3,
-            BASE_PATH . 'fog_login_accepted.log'
+            BASEPATH . 'fog_login_accepted.log'
         );
         $this->_setRedirMode();
     }
