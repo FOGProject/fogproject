@@ -226,7 +226,8 @@ class ProcessLogin extends FOGPage
             );
             error_log(
                 sprintf(
-                    "%s - %s - %s - %s: %s %s\n",
+                    "[%s] - %s - %s - %s - %s: %s %s\n",
+                    FOGService::getDateTime(),
                     $_SERVER['REMOTE_ADDR'],
                     $_SERVER['HTTP_USER_AGENT'],
                     _('Login accepted'),
@@ -247,7 +248,8 @@ class ProcessLogin extends FOGPage
             );
             error_log(
                 sprintf(
-                    "%s - %s - %s - %s: %s %s\n",
+                    "[%s] - %s - %s - %s - %s: %s %s\n",
+                    FOGService::getDateTime(),
                     $_SERVER['REMOTE_ADDR'],
                     $_SERVER['HTTP_USER_AGENT'],
                     _('Login failed'),
