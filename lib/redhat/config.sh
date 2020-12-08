@@ -16,8 +16,6 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-#[[ ! -d /run/rpcbind ]] && mkdir /run/rpcbind
-#[[ ! -f /run/rpcbind/rpcbind.lock ]] && touch /run/rpcbind/rpcbind.lock
 [[ -z $packageQuery ]] && packageQuery="rpm -q \$x"
 case $linuxReleaseName in
     *[Mm][Aa][Gg][Ee][Ii][Aa]*)
@@ -36,26 +34,28 @@ case $linuxReleaseName in
         [[ -z $packages ]] && {
             if [[ $OSVersion -gt 7 ]]; then
                 packages="curl dhcp-server gcc gcc-c++ genisoimage git gzip httpd lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils php php-cli php-common php-fpm php-gd php-json php-ldap php-mbstring php-mysqlnd php-process syslinux tar tftp-server vsftpd wget xinetd xz-devel"
+		[[ -z $dhcpname ]] && dhcpname="dhcp-server"
             else
                 packages="curl dhcp gcc gcc-c++ genisoimage git gzip httpd lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils php php-cli php-common php-fpm php-gd php-ldap php-mbstring php-mysqlnd php-process syslinux tar tftp-server vsftpd wget xinetd xz-devel"
             fi
         }
-        command -v dnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        if [[ $? -eq 0 ]]; then
-            [[ -z $packageinstaller ]] && packageinstaller="dnf -y install"
-            [[ -z $packagelist ]] && packagelist="dnf list"
-            [[ -z $packageupdater ]] && packageupdater="dnf -y update"
-            [[ -z $packageUpdate ]] && packmanUpdate="dnf check-update"
+        pkginst=$(command -v dnf)
+        if [[ -n $pkginst ]]; then
             [[ -z $repoenable ]] && repoenable="dnf config-manager --set-enabled"
         else
-            [[ -z $packageinstaller ]] && packageinstaller="yum -y install"
-            [[ -z $packagelist ]] && packagelist="yum list"
-            [[ -z $packageupdater ]] && packageupdater="yum -y update"
-            [[ -z $packmanUpdate ]] && packmanUpdate="yum -y check-update"
-            command -v yum-config-manager >/dev/null 2>&1
-            [[ ! $? -eq 0 ]] && $packageinstaller yum-utils >/dev/null 2>&1
+            pkginst=$(command -v yum)
+            if [[ -z $pkginst ]]; then
+                echo " ### NO PACKAGE MANAGER FOUND ###"
+                exit 1
+            fi
             [[ -z $repoenable ]] && repoenable="yum-config-manager --enable"
+            command -v yum-config-manager >/dev/null 2>&1
+            [[ ! $? -eq 0 ]] && $pkginst -y install yum-utils >/dev/null 2>&1
         fi
+        [[ -z $packageinstaller ]] && packageinstaller="$pkginst -y install"
+        [[ -z $packagelist ]] && packagelist="$pkginst list"
+        [[ -z $packageupdater ]] && packageupdater="$pkginst -y update"
+        [[ -z $packmanUpdate ]] && packmanUpdate="$pkginst -y check-update"
         [[ -z $dhcpname ]] && dhcpname="dhcp"
         ;;
 esac
