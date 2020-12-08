@@ -235,7 +235,7 @@ abstract class FOGService extends FOGBase
      *
      * @return string
      */
-    protected static function getDateTime()
+    public static function getDateTime()
     {
         return self::niceDate()->format('m-d-y g:i:s a');
     }
