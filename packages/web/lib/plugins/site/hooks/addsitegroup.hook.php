@@ -212,7 +212,7 @@ class AddSiteGroup extends Hook
                 return;
             }
             $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
-            $argumetns['hook'] = 'GROUP_EDIT_SITE_SUCCESS';
+            $arguments['hook'] = 'GROUP_EDIT_SITE_SUCCESS';
             $arguments['msg'] = json_encode(
                 [
                     'msg' => _('Group Site Updated!'),

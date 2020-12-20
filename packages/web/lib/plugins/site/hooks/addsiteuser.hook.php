@@ -228,7 +228,7 @@ class AddSiteUser extends Hook
                 return;
             }
             $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
-            $argumetns['hook'] = 'USER_EDIT_SITE_SUCCESS';
+            $arguments['hook'] = 'USER_EDIT_SITE_SUCCESS';
             $arguments['msg'] = json_encode(
                 [
                     'msg' => _('User Site Updated!'),
