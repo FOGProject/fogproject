@@ -212,7 +212,7 @@ class AddAccessControlUser extends Hook
         } catch (Exception $e) {
             $arguments['code'] = HTTPResponseCodes::HTTP_BAD_REQUEST;
             $arguments['hook'] = 'USER_EDIT_ACCESSCONTROL_FAIL';
-            $argumetns['msg'] = json_encode(
+            $arguments['msg'] = json_encode(
                 [
                     'error' => $e->getMessage(),
                     'title' => _('User Role Update Fail')
