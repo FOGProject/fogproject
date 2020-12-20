@@ -376,7 +376,7 @@ class AddSiteHost extends Hook
             $insertIndex = 5;
         }
         self::getClass('SiteHostAssociation')
-            ->set('hostID', $argumetns['Host']->get('id'))
+            ->set('hostID', $arguments['Host']->get('id'))
             ->load('hostID')
             ->set('siteID', $arguments['data'][$insertIndex])
             ->save();
