@@ -21,6 +21,7 @@ Type=simple
 Restart=always
 RestartSec=1
 ExecStart=/usr/bin/env php /opt/fog/service/FOGImageSize/FOGImageSize
+User=fogproject
 
 [Install]
 WantedBy=multi-user.target
