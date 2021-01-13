@@ -1196,16 +1196,22 @@ class Route extends FOGBase
                 _($search) :
                 _('settings')
             );
+            $searchfor = $search;
+            if ($search === 'ipxe') {
+                $searchfor = 'pxemenuoptions';
+            }
             $classVars = self::getClass(
-                $search,
+                $searchfor,
                 '',
                 true
             );
-            if ($search == 'host') {
+            switch ($search) {
+            case 'host':
                 $j = "LEFT OUTER JOIN `hostMAC`
                     ON `hosts`.`hostID` = `hostMAC`.`hmHostID`";
                 $w = " OR `hostMAC`.`hmMAC` LIKE :item";
-            } else {
+                break;
+            default:
                 $j = '';
                 $w = '';
             }
