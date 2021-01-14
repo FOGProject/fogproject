@@ -650,14 +650,14 @@ installPackages() {
                         $packageinstaller $y >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         errorStat $? "skipOk"
                     fi
-                    y="http://rpms.remirepo.net/enterprise/remi-release-${OSVersion}.rpm"
+                    y="https://rpms.remirepo.net/enterprise/remi-release-${OSVersion}.rpm"
                     x="$(basename $y | awk -F[.] '{print $1}')*"
                     eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ ! $? -eq 0 ]]; then
                         rpm -Uvh $y >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         errorStat $? "skipOk"
                     fi
-                    rpm --import "http://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    rpm --import "https://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     errorStat $? "skipOk"
                     if [[ -n $repoenable ]]; then
                         if [[ $OSVersion -le 7 ]]; then
