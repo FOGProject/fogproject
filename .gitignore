@@ -56,6 +56,7 @@ Thumbs.db
 packages/web/management/other/*
 !packages/web/management/other/index.php
 !packages/web/management/other/gpl-3.0.txt
+packages/web/service/ipxe/backup
 
 # Config file #
 ###############
