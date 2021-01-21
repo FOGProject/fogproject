@@ -998,11 +998,12 @@ class Host extends FOGController
                 );
                 $realImageID = json_decode(Route::getData(), true);
                 if (!in_array($this->get('id'), $hostsWithImgID)) {
+                    $realImageID = array_shift($realImageID);
                     $this->set(
                         'imageID',
-                        array_shift($realImageID)
+                        $realImageID
                     );
-                    if ($this->save()) {
+                    if (!$this->save()) {
                         $serverFault = true;
                         throw new Exception(_('Could not update host'));
                     }
@@ -1140,21 +1141,28 @@ class Host extends FOGController
                 $this->wakeOnLAN();
             }
         } catch (Exception $e) {
+            $errcode = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $message = $e->getMessage();
+            $title = _('Create Task Fail');
             if ($serverFault) {
-                http_response_code(HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR);
-                echo json_encode(
-                    [
-                        'error' => $e->getMessage(),
-                        'title' => _('Create Task Fail')
-                    ]
-                );
-                exit;
+                $errcode = HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR;
             }
-            http_response_code(HTTPResponseCodes::HTTP_BAD_REQUEST);
+            self::error(sprintf(
+                '%s: %s, %s: %s, %s: %s',
+                _('Title'),
+                $title,
+                _('HTML Error Code'),
+                $errcode,
+                _('Message'),
+                $message
+            ));
+            if (preg_match('#/service/ipxe/boot.php', self::$scriptname))
+                throw new Exception($message);
+            http_response_code($errcode);
             echo json_encode(
                 [
-                    'error' => $e->getMessage(),
-                    'title' => _('Create Task Fail')
+                    'error' => $message,
+                    'title' => $title
                 ]
             );
             exit;
