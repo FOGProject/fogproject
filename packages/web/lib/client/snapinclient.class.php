@@ -457,7 +457,7 @@ class SnapinClient extends FOGClient
         while (ob_get_level()) {
             ob_end_clean();
         }
-        header("X-Sendfile: $SnapinFile");
+        header("X-Sendfile: $filepath");
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
         header("Content-Disposition: attachment; filename=$file");
