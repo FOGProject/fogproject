@@ -1285,7 +1285,7 @@ abstract class FOGController extends FOGBase
             }
             unset($real);
         }
-        foreach ($addColumns as &$column) {
+        foreach ((array)$addColumns as &$column) {
             $columns[] = $column;
             unset($column);
         }
