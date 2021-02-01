@@ -822,9 +822,9 @@ class Group extends FOGController
                     $find,
                     'snapinID'
                 );
-                $snapin[$hostID] = json_decode(Route::getData(), true);
+                $snapins[$hostID] = json_decode(Route::getData(), true);
             } else {
-                $snapin[$hostID] = [$snapin];
+                $snapins[$hostID] = [$snapin];
             }
             if (count($snapins[$hostID] ?: []) < 1) {
                 continue;
