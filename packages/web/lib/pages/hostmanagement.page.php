@@ -1376,7 +1376,7 @@ class HostManagement extends FOGPage
         $ebte = trim(
             filter_input(INPUT_POST, 'efiBootTypeExit')
         );
-        if ($host != $this->obj->get('name')) {
+        if (strtolower($host) != strtolower($this->obj->get('name'))) {
             if (!$this->obj->isHostnameSafe($host)) {
                 throw new Exception(_('Please enter a valid hostname'));
             }
