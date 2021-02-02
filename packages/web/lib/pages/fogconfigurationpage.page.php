@@ -2009,15 +2009,10 @@ class FOGConfigurationPage extends FOGPage
                             $objGetter = 'keysequence';
                             break;
                         }
-                        $input = _('No Data');
-                        Route::count($objGetter);
-                        $count = json_decode(Route::getData());
-                        if ($count->total > 0) {
-                            $input = self::getClass($objGetter.'manager')->buildSelectBox(
-                                $row['settingValue'],
-                                $row['settingID']
-                            );
-                        }
+                        $input = self::getClass($objGetter.'manager')->buildSelectBox(
+                            $row['settingValue'],
+                            $row['settingID']
+                        );
                         break;
                     case 'FOG_BOOT_EXIT_TYPE':
                     case 'FOG_EFI_BOOT_EXIT_TYPE':
@@ -2104,17 +2099,15 @@ class FOGConfigurationPage extends FOGPage
                         );
                         break;
                     case 'FOG_QUICKREG_OS_ID':
-                        $ImageName = _('No image specified');
-                        if ($row['settingValue'] > 0) {
-                            $ImageName = self::getClass(
-                                'Image',
-                                $row['settingValue']
-                            )->get('name');
+                        $image = new Image(self::getSetting('FOG_QUICKREG_IMG_ID'));
+                        if (!$image->isValid()) {
+                            $osname = _('No image specified');
                         }
+                        $osname = $image->get('os')->get('name');
                         $input = '<p id="'
                             . $row['settingKey']
                             . '">'
-                            . $ImageName
+                            . $osname
                             . '</p>';
                         break;
                     case 'FOG_CLIENT_BANNER_IMAGE':
