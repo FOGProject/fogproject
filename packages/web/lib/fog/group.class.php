@@ -696,7 +696,7 @@ class Group extends FOGController
                     $ids,
                     $multicastsessionassocs
                 );
-                if ($TaskType->isSnapinTask()) {
+                if ($TaskType->isSnapinTask) {
                     $this->_createSnapinTasking($now, $deploySnapins);
                 }
             }
