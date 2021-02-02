@@ -247,7 +247,7 @@ class MulticastTask extends FOGService
     /**
      * Get session clients
      *
-     * @return object
+     * @return bool
      */
     public function getSessClients()
     {
@@ -261,6 +261,19 @@ class MulticastTask extends FOGService
     public function isNamedSession()
     {
         return (bool)$this->_isNameSess;
+    }
+    /**
+     * Is the named session finished?
+     *
+     * @return bool
+     */
+    public function isNamedSessionFinished()
+    {
+        return (
+            $this->isNamedSession() &&
+            $this->getSessClients() &&
+            !$this->isRunning($this->procRef)
+        );
     }
     /**
      * Returns the task ids
