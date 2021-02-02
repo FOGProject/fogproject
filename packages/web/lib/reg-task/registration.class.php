@@ -315,6 +315,9 @@ class Registration extends FOGBase
                 $hostname = $this->macsimple;
             } else {
                 $hostname = $autoRegSysName;
+                $sysserial = filter_input(INPUT_POST, 'sysserial');
+                $sysserial = base64_decode($sysserial);
+                $hostname = str_replace('{SYSSERIAL}', $sysserial, $hostname);
             }
             $hostname = trim($hostname);
             if (!self::getClass('Host')->isHostnameSafe($hostname)) {
