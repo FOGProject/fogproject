@@ -2171,6 +2171,7 @@ class Route extends FOGBase
                     'isSnapinTask' => $class->isSnapinTask(),
                     'isImagingTask' => $class->isImagingTask(),
                     'isCapture' => $class->isCapture(),
+                    'isDeploy' => $class->isDeploy(),
                     'isInitNeeded' => $class->isInitNeededTasking(),
                     'initIDs' => $class->isInitNeededTasking(true),
                     'isMulticast' => $class->isMulticast(),
