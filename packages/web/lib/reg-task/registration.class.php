@@ -65,7 +65,6 @@ class Registration extends FOGBase
             return;
         }
         try {
-            self::stripAndDecode($_POST);
             $this->MACs = self::getHostItem(
                 false,
                 true,
@@ -150,12 +149,15 @@ class Registration extends FOGBase
     {
         try {
             $productKey = filter_input(INPUT_POST, 'productKey');
+            $productKey = base64_decode($productKey);
             $host = filter_input(INPUT_POST, 'host');
+            $host = base64_decode($host);
             $hostnameSafe = self::getClass('Host')->isHostnameSafe($host);
             if (!$hostnameSafe) {
                 throw new Exception(
                     _(
-                        'Unsafe hostname entered, please try again'
+                        'Unsafe hostname entered, please try again: '
+                        . $host
                     )
                 );
             }
@@ -168,6 +170,7 @@ class Registration extends FOGBase
                 );
             }
             $ip = filter_input(INPUT_POST, 'ip');
+            $ip = base64_decode($ip);
             $imageid = filter_input(INPUT_POST, 'imageid');
             $imageid = (
                 self::getClass('Image', $imageid)->isValid() ?
@@ -175,8 +178,11 @@ class Registration extends FOGBase
                 0
             );
             $primaryuser = filter_input(INPUT_POST, 'primaryuser');
+            $primaryuser = base64_decode($primaryuser);
             $other1 = filter_input(INPUT_POST, 'other1');
+            $other1 = base64_decode($other1);
             $other2 = filter_input(INPUT_POST, 'other2');
+            $other2 = base64_decode($other2);
             $doimage = isset($_POST['doimage']);
             if (isset($_POST['doad'])) {
                 $serviceNames = [
@@ -220,8 +226,10 @@ class Registration extends FOGBase
                 $ADOU = $opt;
             }
             $gID = filter_input(INPUT_POST, 'groupid');
+            $gID = base64_decode($gID);
             $groupsToJoin = explode(',', $gID);
             $sID = filter_input(INPUT_POST, 'snapinid');
+            $sID = base64_decode($sID);
             $snapinsToJoin = explode(',', $sID);
             self::$Host = self::getClass('Host')
                 ->set('name', $host)
@@ -283,7 +291,8 @@ class Registration extends FOGBase
     private static function _deployHost()
     {
         $username = filter_input(INPUT_POST, 'username');
-        $username = ($username ?: 'fog');
+        $username = ($username ?: base64_encode('fog'));
+        $username = base64_decode($username);
         $Image = self::$Host->getImage();
         if (!$Image->isValid()) {
             throw new Exception(
@@ -415,6 +424,7 @@ class Registration extends FOGBase
                 ->addPriMAC($this->PriMAC);
             if ($prodkeyget > 0) {
                 $productKey = filter_input(INPUT_POST, 'productKey');
+                $productKey = base64_decode($productKey);
                 self::$Host->set('productKey', $productKey);
             }
             if (!self::$Host->save()) {
@@ -458,6 +468,7 @@ class Registration extends FOGBase
                 ->addMAC($this->MACs);
             if ($prodkeyget > 0) {
                 $productKey = filter_input(INPUT_POST, 'productKey');
+                $productKey = base64_decode($productKey);
                 self::$Host->set('productKey', $productKey);
             }
             if (!self::$Host->save()) {
