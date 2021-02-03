@@ -1173,47 +1173,6 @@ class Host extends FOGController
         return true;
     }
     /**
-     * Returns task if host image is valid
-     *
-     * @return Task
-     */
-    public function getImageMemberFromHostID()
-    {
-        try {
-            $Image = $this->getImage();
-            if (!$Image->isValid()) {
-                throw new Exception(_('No valid Image defined for this host'));
-            }
-            if (!$Image->get('isEnabled')) {
-                throw new Exception(_('Image is not enabled'));
-            }
-            $StorageGroup = $Image->getStorageGroup();
-            if (!$StorageGroup->isValid()) {
-                throw new Exception('No StorageGroup defined for this host');
-            }
-            $Task = self::getClass('Task')
-                ->set('hostID', $this->get('id'))
-                ->set('storagegroupID', $StorageGroup->get('id'))
-                ->set(
-                    'storagenodeID',
-                    $StorageGroup
-                        ->getOptimalStorageNode()
-                        ->get('id')
-                )
-                ->set('imageID', $Image->get('id'));
-        } catch (Exception $e) {
-            self::error(
-                sprintf(
-                    '%s():xError: %s',
-                    __FUNCTION__,
-                    $e->getMessage()
-                )
-            );
-            $Task = false;
-        }
-        return $Task;
-    }
-    /**
      * Wakes this host up
      *
      * @return object

@@ -65,14 +65,15 @@ class Registration extends FOGBase
             return;
         }
         try {
+            self::stripAndDecode($_POST);
             $this->MACs = self::getHostItem(
                 false,
                 true,
                 true,
                 true
             );
-            $this->regExists($check);
             $this->PriMAC = array_shift($this->MACs);
+            $this->regExists($check);
             $this->macsimple = strtolower(
                 str_replace(
                     [':', '-'],
@@ -94,12 +95,10 @@ class Registration extends FOGBase
                 _('Created by FOG Reg on'),
                 self::formatTime('now', 'F j, Y, g:i a')
             );
-            if (isset($_REQUEST['advanced'])) {
+            if (isset($_POST['advanced'])) {
                 $this->_fullReg();
-            } elseif (self::getSetting('FOG_QUICKREG_AUTOPOP')) {
-                $this->_quickRegAuto();
             } else {
-                $this->_quickReg();
+                $this->_quickRegAuto();
             }
         } catch (Exception $e) {
             die($e->getMessage());
@@ -115,12 +114,21 @@ class Registration extends FOGBase
     public function regExists($check = false)
     {
         try {
+            self::getClass('HostManager')->getHostByMacAddresses($this->PriMAC);
             if (self::$Host->isValid()) {
                 throw new Exception(
-                    sprintf(
-                        '%s %s',
-                        _('Already registered as'),
-                        self::$Host->get('name')
+                    _(
+                        'This machine already registered as '
+                        . self::$Host->get('name')
+                    )
+                );
+            }
+            self::getClass('HostManager')->getHostByMacAddresses($this->MACs);
+            if (self::$Host->isValid()) {
+                throw new Exception(
+                    _(
+                        'This machine already registered as '
+                        . self::$Host->get('name')
                     )
                 );
             }
@@ -141,30 +149,36 @@ class Registration extends FOGBase
     private function _fullReg()
     {
         try {
-            if (self::$Host->isValid()) {
-                return;
+            $productKey = filter_input(INPUT_POST, 'productKey');
+            $host = filter_input(INPUT_POST, 'host');
+            $hostnameSafe = self::getClass('Host')->isHostnameSafe($host);
+            if (!$hostnameSafe) {
+                throw new Exception(
+                    _(
+                        'Unsafe hostname entered, please try again'
+                    )
+                );
             }
-            self::stripAndDecode($_REQUEST);
-            $productKey = $_REQUEST['productKey'];
-            $username = $_REQUEST['username'];
-            $host = $_REQUEST['host'];
-            $host = (
-                self::getClass('Host')->isHostnameSafe($host) ?
-                $host :
-                $this->macsimple
-            );
-            $ip = $_REQUEST['ip'];
-            $imageid = $_REQUEST['imageid'];
+            $hostnameExists = self::getClass('HostManager')->exists($host);
+            if ($hostnameExists) {
+                throw new Exception(
+                    _(
+                        'Hostname already used, please try again'
+                    )
+                );
+            }
+            $ip = filter_input(INPUT_POST, 'ip');
+            $imageid = filter_input(INPUT_POST, 'imageid');
             $imageid = (
                 self::getClass('Image', $imageid)->isValid() ?
                 $imageid :
                 0
             );
-            $primaryuser = $_REQUEST['primaryuser'];
-            $other1 = $_REQUEST['other1'];
-            $other2 = $_REQUEST['other2'];
-            $doimage = trim($_REQUEST['doimage']);
-            if ($_REQUEST['doad']) {
+            $primaryuser = filter_input(INPUT_POST, 'primaryuser');
+            $other1 = filter_input(INPUT_POST, 'other1');
+            $other2 = filter_input(INPUT_POST, 'other2');
+            $doimage = isset($_POST['doimage']);
+            if (isset($_POST['doad'])) {
                 $serviceNames = [
                     'FOG_AD_DEFAULT_DOMAINNAME',
                     'FOG_AD_DEFAULT_OU',
@@ -205,14 +219,10 @@ class Registration extends FOGBase
                 $useAD = 1;
                 $ADOU = $opt;
             }
-            $groupsToJoin = explode(
-                ',',
-                $_REQUEST['groupid']
-            );
-            $snapinsToJoin = explode(
-                ',',
-                $_REQUEST['snapinid']
-            );
+            $gID = filter_input(INPUT_POST, 'groupid');
+            $groupsToJoin = explode(',', $gID);
+            $sID = filter_input(INPUT_POST, 'snapinid');
+            $snapinsToJoin = explode(',', $sID);
             self::$Host = self::getClass('Host')
                 ->set('name', $host)
                 ->set('description', $this->description)
@@ -235,9 +245,10 @@ class Registration extends FOGBase
                 );
             if (!self::$Host->save()) {
                 throw new Exception(
-                    _('Failed to create Host')
+                    _('Failed to create Host!')
                 );
             }
+            self::$Host->load();
             self::$HookManager->processEvent(
                 'HOST_REGISTER',
                 ['Host' => &self::$Host]
@@ -248,30 +259,7 @@ class Registration extends FOGBase
                         _('Done, without imaging!')
                     );
                 }
-                if (!self::$Host->getImageMemberFromHostID()) {
-                    throw new Exception(
-                        _('Done, No image assigned!')
-                    );
-                }
-                Route::indiv('tasktype', TaskType::DEPLOY);
-                $tasktype = json_decode(Route::getData());
-                $task = self::$Host->createImagePackage(
-                    $tasktype,
-                    'AutoRegTask',
-                    false,
-                    false,
-                    true,
-                    false,
-                    $username
-                );
-                if (!$task) {
-                    throw new Exception(
-                        _('Done, Failed to create tasking')
-                    );
-                }
-                throw new Exception(
-                    _('Done, with imaging!')
-                );
+                self::_deployHost();
             } catch (Exception $e) {
                 echo $e->getMessage();
             }
@@ -286,20 +274,66 @@ class Registration extends FOGBase
         }
     }
     /**
+     * Commonize method to deploy tasks for either
+     * quickreg or full reg.
+     *
+     * @throws Exception
+     * @return void
+     */
+    private static function _deployHost()
+    {
+        $username = filter_input(INPUT_POST, 'username');
+        $username = ($username ?: 'fog');
+        $Image = self::$Host->getImage();
+        if (!$Image->isValid()) {
+            throw new Exception(
+                _('Done, without imaging! No image assigned.')
+            );
+        }
+        if (!$Image->get('isEnabled')) {
+            throw new Exception(
+                _('Done, without imaging! Image is not enabled.')
+            );
+        }
+        if (!$Image->getStorageGroup()->isValid()) {
+            throw new Exception(
+                _('Done, without imaging! Image not in storage group.')
+            );
+        }
+        Route::indiv('tasktype', TaskType::DEPLOY);
+        $tasktype = json_decode(Route::getData());
+        $task = self::$Host->createImagePackage(
+            $tasktype,
+            'AutoRegTask',
+            false,
+            false,
+            true,
+            false,
+            $username
+        );
+        if (!$task) {
+            throw new Exception(
+                _('Done, without imaging! Failed to create tasking.')
+            );
+        }
+        throw new Exception(_('Done, with imaging'));
+    }
+    /**
      * Quick registration handler.
      *
      * @return void
      */
     private function _quickRegAuto()
     {
+        if (!self::getSetting('FOG_QUICKREG_AUTOPOP')) {
+            $this->_quickReg();
+        }
         try {
-            if (self::$Host->isValid()) {
-                return;
-            }
             $serviceNames = [
                 'FOG_QUICKREG_GROUP_ASSOC',
                 'FOG_QUICKREG_IMG_ID',
                 'FOG_QUICKREG_IMG_WHEN_REG',
+                'FOG_QUICKREG_PROD_KEY_BIOS',
                 'FOG_QUICKREG_SYS_NAME',
                 'FOG_QUICKREG_SYS_NUMBER'
             ];
@@ -307,6 +341,7 @@ class Registration extends FOGBase
                 $groupsToJoin,
                 $imageid,
                 $performimg,
+                $prodkeyget,
                 $autoRegSysName,
                 $autoRegSysNumber
             ) = self::getSetting($serviceNames);
@@ -365,59 +400,43 @@ class Registration extends FOGBase
                             $autuRegSysName
                         );
                     }
+                    self::setSetting('FOG_QUICKREG_SYS_NUMBER', ++$autoRegSysNumber);
                 }
             }
             if (!self::getClass('Host')->isHostnameSafe($hostname)) {
                 $hostname = $this->macsimple;
             }
-            self::setSetting('FOG_QUICKREG_SYS_NUMBER', ++$autoRegSysNumber);
             self::$Host = self::getClass('Host')
                 ->set('name', $hostname)
                 ->set('description', $this->description)
                 ->set('imageID', $imageid)
                 ->set('modules', $this->modulesToJoin)
                 ->addGroup($groupsToJoin)
-                ->addPriMAC($this->PriMAC)
-                ->addMAC($this->MACs);
-            if (self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS') > 0) {
-                $productKey = base64_decode($_REQUEST['productKey']);
+                ->addPriMAC($this->PriMAC);
+            if ($prodkeyget > 0) {
+                $productKey = filter_input(INPUT_POST, 'productKey');
                 self::$Host->set('productKey', $productKey);
             }
+            if (!self::$Host->save()) {
+                throw new Exception(
+                    _('Failed to create Host!')
+                );
+            }
+            self::$Host->load();
             self::$HookManager->processEvent(
                 'HOST_REGISTER',
                 ['Host' => &self::$Host]
             );
-            if (!self::$Host->save()) {
-                throw new Exception(_('Failed to create Host'));
-            }
-            if ($imageid
-                && $performimg
-                && self::$Host->getImageMemberFromHostID()
-            ) {
-                Route::indiv('tasktype', self::DEPLOY);
-                $tasktype = json_decode(Route::getData());
-                $imageTest = self::$Host
-                    ->createImagePackage(
-                        $tasktype,
-                        'AutoRegTask',
-                        false,
-                        false,
-                        true,
-                        false,
-                        $username
-                    );
-                if ($imageTest) {
+            try {
+                if (!$performimg) {
                     throw new Exception(
-                        _('Done, Failed to create tasking')
+                        _('Done, without imaging!')
                     );
                 }
-                throw new Exception(
-                    _('Done, with imaging!')
-                );
+                self::_deployHost();
+            } catch (Exception $e) {
+                echo $e->getMessage();
             }
-            throw new Exception(
-                _('Done')
-            );
         } catch (Exception $e) {
             echo $e->getMessage();
         }
@@ -430,30 +449,29 @@ class Registration extends FOGBase
     private function _quickReg()
     {
         try {
-            if (self::$Host->isValid()) {
-                return;
-            }
+            $prodkeyget = self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS');
             self::$Host = self::getClass('Host')
                 ->set('name', $this->macsimple)
                 ->set('description', $this->description)
                 ->set('modules', $this->modulesToJoin)
                 ->addPriMAC($this->PriMAC)
                 ->addMAC($this->MACs);
-            if (self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS') > 0) {
-                $productKey = base64_decode($_REQUEST['productKey']);
+            if ($prodkeyget > 0) {
+                $productKey = filter_input(INPUT_POST, 'productKey');
                 self::$Host->set('productKey', $productKey);
             }
+            if (!self::$Host->save()) {
+                throw new Exception(
+                    _('Failed to create Host!')
+                );
+            }
+            self::$Host->load();
             self::$HookManager->processEvent(
                 'HOST_REGISTER',
                 ['Host' => &self::$Host]
             );
-            if (!self::$Host->save()) {
-                throw new Exception(
-                    _('Failed to create Host')
-                );
-            }
             throw new Exception(
-                _('Done')
+                _('Done, without imaging!')
             );
         } catch (Exception $e) {
             echo $e->getMessage();
