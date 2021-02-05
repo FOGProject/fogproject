@@ -739,19 +739,37 @@ installPackages() {
                 for sqlclient in $sqlclientlist; do
                     eval $packagelist "$sqlclient" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
-                        x=$sqlclient
+                        available_sqlclient=$sqlclient
                         break
                     fi
                 done
+                for sqlclient in $sqlclientlist; do
+                    x=$sqlclient
+                    eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    if [[ $? -eq 0 ]]; then
+                        installed_sqlclient=$sqlclient
+                        break
+                    fi
+                done
+                [[ -z $installed_sqlclient ]] && x=$available_sqlclient || x=$installed_sqlclient
                 ;;
             mysql-server)
                 for sqlserver in $sqlserverlist; do
                     eval $packagelist "$sqlserver" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
-                        x=$sqlserver
+                        available_sqlserver=$sqlserver
                         break
                     fi
                 done
+                for sqlserver in $sqlserverlist; do
+                    x=$sqlserver
+                    eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    if [[ $? -eq 0 ]]; then
+                        installed_sqlserver=$sqlserver
+                        break
+                    fi
+                done
+                [[ -z $installed_sqlserver ]] && x=$available_sqlserver || x=$installed_sqlserver
                 ;;
             php${php_ver}-json)
                 for json in $jsontest; do
