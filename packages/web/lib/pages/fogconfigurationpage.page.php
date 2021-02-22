@@ -988,6 +988,9 @@ class FOGConfigurationPage extends FOGPage
                 } elseif (isset($needstobenumeric[$name])) {
                     switch ($needstobenumeric[$name]) {
                     case ($needstobenumeric[$name] === true):
+                        if (in_array(0, $needstobenumeric[$name]) && !$set) {
+                            $set = 0;
+                        }
                         if (!is_numeric($set)) {
                             throw new Exception(
                                 $name . ' ' . _('value must be numeric')
@@ -995,6 +998,9 @@ class FOGConfigurationPage extends FOGPage
                         }
                         break;
                     default:
+                        if (in_array(0, $needstobenumeric[$name]) && !$set) {
+                            $set = 0;
+                        }
                         if (!is_numeric($set)) {
                             throw new Exception(
                                 $name . ' ' . _('value must be numeric')
@@ -2102,8 +2108,9 @@ class FOGConfigurationPage extends FOGPage
                         $image = new Image(self::getSetting('FOG_QUICKREG_IMG_ID'));
                         if (!$image->isValid()) {
                             $osname = _('No image specified');
+                        } else {
+                            $osname = $image->get('os')->get('name');
                         }
-                        $osname = $image->get('os')->get('name');
                         $input = '<p id="'
                             . $row['settingKey']
                             . '">'
