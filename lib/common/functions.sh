@@ -1442,7 +1442,13 @@ EOF
     errorStat $?
     dots "Setting up $username password"
     if [[ -z $password ]]; then
-        [[ -f $webdirdest/lib/fog/config.class.php ]] && password=$(awk -F '"' -e '/TFTP_FTP_PASSWORD/,/);/{print $2}' $webdirdest/lib/fog/config.class.php | grep -v "^$")
+        # if we don't have a password from .fogsettings we check config.class.php as well
+        if [[ -r $webdirdest/lib/fog/config.class.php ]]; then
+            # extract password from old style config
+            password=$(awk -F '"' -e '/TFTP_FTP_PASSWORD/,/);/{print $2}' $webdirdest/lib/fog/config.class.php | grep -v "^$")
+            # if that didn't get us the password we try again new style
+            [[ -z $password ]] && password=$(awk -F "'" -e '/TFTP_FTP_PASSWORD/{print $4}' $webdirdest/lib/fog/config.class.php)
+        fi
     fi
     if [[ -n "$(checkPasswordChars)" ]]; then
         echo "Failed"
@@ -2257,10 +2263,7 @@ class Config
     {
         define('TFTP_HOST', \"${ipaddress}\");
         define('TFTP_FTP_USERNAME', \"${username}\");
-        define(
-            'TFTP_FTP_PASSWORD',
-            \"${password}\"
-        );
+        define('TFTP_FTP_PASSWORD', '${password}');
         define('TFTP_PXE_KERNEL_DIR', \"${webdirdest}/service/ipxe/\");
         define('PXE_KERNEL', 'bzImage');
         define('PXE_KERNEL_RAMDISK', 275000);
@@ -2269,10 +2272,7 @@ class Config
         define('PXE_IMAGE', 'init.xz');
         define('STORAGE_HOST', \"${ipaddress}\");
         define('STORAGE_FTP_USERNAME', \"${username}\");
-        define(
-            'STORAGE_FTP_PASSWORD',
-            \"${password}\"
-        );
+        define('STORAGE_FTP_PASSWORD', '${password}');
         define('STORAGE_DATADIR', '${storageLocation}/');
         define('STORAGE_DATADIR_CAPTURE', '${storageLocationCapture}');
         define('STORAGE_BANDWIDTHPATH', '${webroot}status/bandwidth.php');
