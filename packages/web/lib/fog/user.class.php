@@ -376,9 +376,20 @@ class User extends FOGController
         $regenTime = $rst * 60 * 60;
         if ($authTime > $regenTime) {
             $sessionid = self::_getSessionID();
-            session_write_close();
-            session_start();
-            session_id($sessionid);
+            if ($sessionid !== session_id()) {
+                if (session_id() !== '') {
+                    self::debug(
+                        'PHP session %s was already started, changing to %s',
+                        [
+                            session_id(),
+                            self::_getSessionID()
+                        ]
+                    );
+                    session_write_close();
+                }
+                session_id(session_regenerate_id());
+                session_start();
+            }
             $_SESSION['sessioncreated'] = time();
             $_SESSION['authtime'] = time();
 
