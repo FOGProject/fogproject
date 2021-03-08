@@ -477,7 +477,7 @@ $.fn.registerTable = function(onSelect, opts) {
             [10, 25, 50, 100, 250, 500, -1],
             [10, 25, 50, 100, 250, 500, 'All']
         ],
-        pageLength: $('#pageLength').val(),
+        pageLength: parseInt($('#pageLength').val()),
         buttons: [
             {
                 extend: 'selectAll',
