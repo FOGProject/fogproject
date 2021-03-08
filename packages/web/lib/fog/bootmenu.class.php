@@ -192,12 +192,16 @@ class BootMenu extends FOGBase
             . self::$httpproto
             . '://${fog-ip}/${fog-webroot}',
         ];
-        if (self::$Host->isValid()) {
+
+        $sysuuid = $_REQUEST['sysuuid'];
+        if (self::$Host->isValid()
+            && $sysuuid
+            && self::$Host->get('inventory')->get('sysuuid') != $sysuuid
+        ) {
             if (!self::$Host->get('inventory')->get('sysuuid')) {
                 self::$Host
                     ->get('inventory')
-                    ->set('sysuuid', $_REQUEST['sysuuid'])
-                    ->set('hostID', self::$Host->get('id'))
+                    ->set('sysuuid', $sysuuid)
                     ->save();
             }
         }
@@ -596,7 +600,8 @@ class BootMenu extends FOGBase
      */
     private function _approveHost()
     {
-        if (self::$Host->set('pending', null)->save()) {
+        self::$Host->set('pending', null);
+        if (self::$Host->save()) {
             $Send['approvesuccess'] = [
                 'echo Host approved successfully',
                 'sleep 3'
@@ -1126,12 +1131,16 @@ class BootMenu extends FOGBase
         }
         self::$Host->set('productKey', $_REQUEST['key']);
         if (!self::$Host->save()) {
-            return;
+            $Send['keychangefail'] = [
+                'echo Failed to change key',
+                'sleep 3'
+            ];
+        } else {
+            $Send['keychangesuccess'] = [
+                'echo Successfully changed key',
+                'sleep 3',
+            ];
         }
-        $Send['keychangesuccess'] = [
-            'echo Successfully changed key',
-            'sleep 3',
-        ];
         $this->_parseMe($Send);
         $this->_chainBoot();
     }

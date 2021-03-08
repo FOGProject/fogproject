@@ -1850,8 +1850,7 @@ abstract class FOGBase
             if ($curdate >= $secdate) {
                 self::$Host
                     ->set('pub_key', '')
-                    ->save()
-                    ->load();
+                    ->save();
                 if (self::$newService || self::$json) {
                     throw new Exception('#!ihc');
                 }
