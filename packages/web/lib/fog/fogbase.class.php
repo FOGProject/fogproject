@@ -750,7 +750,7 @@ abstract class FOGBase
         if (self::$mySchema >= FOG_SCHEMA) {
             $tolog = self::getSetting('FOG_LOG_ERROR') > 0;
             if ($tolog) {
-                $log_filename = '../management/logs';
+                $log_filename = BASEPATH . 'management/logs';
                 if (!file_exists($log_filename)) {
                     mkdir($log_filename, 0777, true);
                 }
@@ -787,7 +787,7 @@ abstract class FOGBase
         if (self::$mySchema >= FOG_SCHEMA) {
             $tolog = self::getSetting('FOG_LOG_DEBUG') > 0;
             if ($tolog) {
-                $log_filename = '../management/logs';
+                $log_filename = BASEPATH . 'management/logs';
                 if (!file_exists($log_filename)) {
                     mkdir($log_filename, 0777, true);
                 }
@@ -824,7 +824,7 @@ abstract class FOGBase
         if (self::$mySchema >= FOG_SCHEMA) {
             $tolog = self::getSetting('FOG_LOG_INFO') > 0;
             if ($tolog) {
-                $log_filename = '../management/logs';
+                $log_filename = BASEPATH . 'management/logs';
                 if (!file_exists($log_filename)) {
                     mkdir($log_filename, 0777, true);
                 }
