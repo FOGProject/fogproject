@@ -283,6 +283,9 @@ class AddLocationHost extends Hook
         if (!in_array($sub, $subs)) {
             return;
         }
+        if (str_replace('_', '-', $tab) != 'host-general' && $sub != 'add') {
+            return;
+        }
         self::getClass('LocationAssociationManager')->destroy(
             array(
                 'hostID' => $arguments['Host']->get('id')
