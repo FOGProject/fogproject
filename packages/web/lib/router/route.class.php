@@ -1085,6 +1085,13 @@ class Route extends FOGBase
             break;
         case 'usertracking':
             $columns[] = [
+                'db' => 'utHostID',
+                'dt' => 'hostname',
+                'formatter' => function ($d, $row) {
+                    return self::getClass('Host', $d)->get('name');
+                }
+            ];
+            $columns[] = [
                 'db' => 'utAction',
                 'dt' => 'action',
                 'formatter' => function ($d, $row) {
@@ -2124,7 +2131,8 @@ class Route extends FOGBase
                     'host' => self::getter(
                         'host',
                         $class->get('host')
-                    )
+                    ),
+                    'hostname' => $class->get('host')->get('name')
                 ]
             );
             break;

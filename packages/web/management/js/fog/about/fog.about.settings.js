@@ -35,7 +35,7 @@
         rowGroup: {
             dataSrc: 'category'
         },
-        rowId: 'name',
+        rowId: 'id',
         processing: true,
         serverSide: true,
         ajax: {

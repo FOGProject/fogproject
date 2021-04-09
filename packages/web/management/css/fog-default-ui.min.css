@@ -148,4 +148,8 @@ header.main-header .mobile-logo {
   overflow: hidden !important;
 }
 
+td div.input-group {
+    width: auto !important;
+}
+
 /*# sourceMappingURL=fog-default-ui.min.css.map */
