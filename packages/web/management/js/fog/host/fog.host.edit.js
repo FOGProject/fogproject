@@ -1207,8 +1207,9 @@
             action = $(this).attr('action'),
             opts = {
                 confirmenforcesend: 1,
-                enforce: $('#enforce').iCheck('update')[0].checked ? 1 : 0
+                enforce: $('#enforce').iCheck('update')[0].checked
             };
+      console.log(opts);
         $.apiCall(method,action,opts,function(err) {
             disableModuleEnforceButtons(false);
         });

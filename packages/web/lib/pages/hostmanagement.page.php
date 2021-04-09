@@ -2524,7 +2524,7 @@ class HostManagement extends FOGPage
 
         // Hostname changer reboot/domain join reboot forced.
         $enforce = (
-            filter_input(INPUT_POST, 'enforce') ?:
+            (int)isset($_POST['enforce']) ?:
             $this->obj->get('enforce')
         );
         $fields = [
@@ -2651,11 +2651,7 @@ class HostManagement extends FOGPage
             $this->obj->setAlo($tme);
         }
         if (isset($_POST['confirmenforcesend'])) {
-            $enforce = (
-                filter_input(INPUT_POST, $_POST['enforce']) >= 1 ?
-                1 :
-                0
-            );
+            $enforce = filter_input(INPUT_POST, 'enforce') == 'true' ? 1 : 0;
             $this->obj->set('enforce', $enforce);
         }
     }

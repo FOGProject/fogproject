@@ -57,7 +57,8 @@ class UserTracking extends FOGController
      * @var array
      */
     protected $additionalFields = [
-        'host'
+        'host',
+        'hostname'
     ];
     /**
      * Database -> Class field relationships
