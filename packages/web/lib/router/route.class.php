@@ -164,7 +164,9 @@ class Route extends FOGBase
                     'Location: %s://%s/fog/management/index.php',
                     self::$httpproto,
                     self::$httphost
-                )
+                ),
+                true,
+                308
             );
             exit;
         }

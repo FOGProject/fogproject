@@ -972,15 +972,18 @@ class FOGConfigurationPage extends FOGPage
                 file_get_contents('php://input'),
                 $vars
             );
-            foreach ($vars as $key => &$val) {
+            $combined = $vars + $_POST + $_FILES;
+            foreach ($combined as $key => &$val) {
                 Route::indiv('service', $key);
-                $set = trim($val);
+                if (!$_FILES[$key]) {
+                    $set = trim(filter_input(INPUT_POST, $key));
+                }
                 $Service = json_decode(
                     Route::getData()
                 );
                 $name = trim($Service->name);
                 $val = trim($Service->value);
-                if ($val == $set) {
+                if ($val && $val == $set) {
                     continue;
                 }
                 if (isset($checkbox[$name])) {
@@ -1091,6 +1094,7 @@ class FOGConfigurationPage extends FOGPage
                     if (!move_uploaded_file($src, $dest)) {
                         self::setSetting('FOG_CLIENT_BANNER_SHA', '');
                         $set = '';
+                        throw new Exception(_('Failed to install logo file'));
                     } else {
                         self::setSetting('FOG_CLIENT_BANNER_SHA', $hash);
                     }
@@ -2101,6 +2105,7 @@ class FOGConfigurationPage extends FOGPage
                             false,
                             -1,
                             -1,
+                            '',
                             true
                         );
                         break;
