@@ -857,7 +857,7 @@ abstract class FOGBase
         header('X-XSS-Protection: 1; mode=block');
         header('X-Robots-Tag: none');
         header('X-Frame-Options: SAMEORIGIN');
-        header("Location: $url");
+        header("Location: $url", true, 308);
         exit;
     }
     /**

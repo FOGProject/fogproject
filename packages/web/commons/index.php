@@ -20,5 +20,5 @@
  * @link     https://fogproject.org
  */
 http_response_code(HTTPResponseCodes::HTTP_PERMANENT_REDIRECT);
-header('Location: ../management/index.php');
+header('Location: ../management/index.php', true, 308);
 exit;

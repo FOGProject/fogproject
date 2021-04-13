@@ -19,5 +19,5 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-header('Location: ../management/index.php?node=client');
+header('Location: ../management/index.php?node=client', true, 308);
 exit;
