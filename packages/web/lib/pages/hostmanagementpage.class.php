@@ -2906,6 +2906,9 @@ class HostManagementPage extends FOGPage
         foreach ((array)$Logs as &$Log) {
             $start = $Log->start;
             $finish = $Log->finish;
+            if ($Log->finish === '0000-00-00 00:00:00') {
+                $finish = $start;
+            }
             if (!self::validDate($start)
                 || !self::validDate($finish)
             ) {
@@ -3060,11 +3063,12 @@ class HostManagementPage extends FOGPage
             $Snapin = $SnapinTask->snapin;
             $start = self::niceDate($SnapinTask->checkin);
             if ($SnapinTask->complete === '0000-00-00 00:00:00') {
-                $end = _('not finished yet');
+                $end = $start;
             } else {
                 $end = self::niceDate($SnapinTask->complete);
-                $end = $end->format('Y-m-d H:i:s');
             }
+            $end = $end->format('Y-m-d H:i:s');
+
             if (!self::validDate($start)) {
                 continue;
             }
