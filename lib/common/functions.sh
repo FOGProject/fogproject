@@ -734,7 +734,7 @@ installPackages() {
     local toInstall=""
     for x in $packages; do
         case $x in
-            mysql)
+            mysql|mariadb|MariaDB-client)
                 for sqlclient in $sqlclientlist; do
                     eval $packagelist "$sqlclient" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
@@ -752,7 +752,7 @@ installPackages() {
                 done
                 [[ -z $installed_sqlclient ]] && x=$available_sqlclient || x=$installed_sqlclient
                 ;;
-            mysql-server)
+            mysql-server|mariadb-server|MariaDB-server)
                 for sqlserver in $sqlserverlist; do
                     eval $packagelist "$sqlserver" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
