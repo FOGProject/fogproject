@@ -889,11 +889,11 @@ checkFirewall() {
                 ufw stop >/dev/null 2>&1
                 ufw disable >/dev/null 2>&1
                 systemctl is-active --quiet ufw && systemctl stop ufw >/dev/null 2>&1 || true
-                systemctl is-enabled --quiet ufw && systemctl disable ufw >/dev/null 2>&1 || true
+                systemctl is-enabled --quiet ufw 2>/dev/null && systemctl disable ufw >/dev/null 2>&1 || true
                 systemctl is-active --quiet firewalld && systemctl stop firewalld >/dev/null 2>&1 || true
-                systemctl is-enabled --quiet firewalld && systemctl disable firewalld >/dev/null 2>&1 || true
+                systemctl is-enabled --quiet firewalld 2>/dev/null && systemctl disable firewalld >/dev/null 2>&1 || true
                 systemctl is-active --quiet iptables && systemctl stop iptables >/dev/null 2>&1 || true
-                systemctl is-enabled --quiet iptables && systemctl disable iptables >/dev/null 2>&1 || true
+                systemctl is-enabled --quiet iptables 2>/dev/null && systemctl disable iptables >/dev/null 2>&1 || true
                 local cannotdisablefw=0
                 if [[ $iptcmd -eq 0 ]]; then
                     rulesnum=$(iptables -L -n | wc -l)
