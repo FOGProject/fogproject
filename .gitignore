@@ -80,3 +80,4 @@ tmp/*
 # Local Scripts #
 #################
 packages/web/status/injectHosts.php
+packages/web/lib/plugins/hostext
