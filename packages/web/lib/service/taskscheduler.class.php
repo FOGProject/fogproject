@@ -165,24 +165,31 @@ class TaskScheduler extends FOGService
                 $Timer = $Task->getTimer();
                 self::outall(
                     ' * '
-                    . _('Task run time')
+                    . _('Scheduled Task run time')
                     . ': '
                     . $Timer->toString()
+                );
+                self::outall(
+                    sprintf(
+                        ' * %s ',
+                        $Timer->shouldRunNowCheck()
+                    )
                 );
                 if (!$Timer->shouldRunNow()) {
                     continue;
                 }
-                if ($Task->isGroupBased()) {
-                    $Item = $Task->getGroup();
-                    $type = _('group');
-                } else {
-                    $Item = $Task->getHost();
-                    $type = _('host');
-                }
                 self::outall(
                     ' * '
-                    . _('Found a task that should run.')
+                    . _('Found a scheduled task that should run.')
                 );
+                $type = _('host');
+                $getter = 'getHost';
+                $gbased = 0;
+                if ($Task->isGroupBased()) {
+                    $type = _('group');
+                    $getter = 'getGroup';
+                    $gbased = 1;
+                }
                 self::outall(
                     "\t\t - "
                     . _('Is a')
@@ -202,6 +209,14 @@ class TaskScheduler extends FOGService
                         _('task found')
                     )
                 );
+                $Item = $Task->{$getter}();
+                self::outall(
+                    sprintf(
+                        "\t\t - %s %s",
+                        get_class($Item),
+                        $Item->get('name')
+                    )
+                );
                 Route::indiv('tasktype', $Task->get('taskTypeID'));
                 $tasktype = json_decode(Route::getData());
                 $Item->createImagePackage(
@@ -210,7 +225,7 @@ class TaskScheduler extends FOGService
                     $Task->get('shutdown'),
                     false,
                     $Task->get('other2'),
-                    $Task->isGroupBased(),
+                    $gbased,
                     $Task->get('other3'),
                     false,
                     false,
@@ -225,10 +240,9 @@ class TaskScheduler extends FOGService
                         $Item->get('name')
                     )
                 );
-                if (!$Timer->isSingleRun()) {
-                    continue;
+                if ($Timer->isSingleRun()) {
+                    $Task->set('isActive', 0)->save();
                 }
-                $Task->set('isActive', 0)->save();
                 unset($Task);
             }
             // Power Management Tasks.
@@ -237,9 +251,15 @@ class TaskScheduler extends FOGService
                 $Timer = $Task->getTimer();
                 self::outall(
                     ' * '
-                    . _('Task run time')
+                    . _('Power Management Task run time')
                     . ': '
                     . $Timer->toString()
+                );
+                self::outall(
+                    sprintf(
+                        ' * %s ',
+                        $Timer->shouldRunNowCheck()
+                    )
                 );
                 if (!$Timer->shouldRunNow()) {
                     continue;
