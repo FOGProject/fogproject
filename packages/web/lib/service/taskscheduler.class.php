@@ -172,14 +172,37 @@ class TaskScheduler extends FOGService
                     )
                 );
             $Tasks = self::fastmerge((array)$Tasks, (array)$PMs);
+            self::outall(
+                sprintf(
+                    "* %s.",
+                    _('Running loop of all tasks')
+                )
+            );
             foreach ((array)$Tasks as &$Task) {
+                $taskClass = get_class($Task);
+                self::outall(
+                    sprintf(
+                        '* %s %s',
+                        _('Attempting to run checks for'),
+                        $taskClass
+                        
+                    )
+                );
                 if (!$Task->isValid()) {
+                    self::outall(
+                        sprintf(
+                            '* %s %s',
+                            $Task->get('id'),
+                            _('Does not appear to be valid')
+                        )
+                    );
                     continue;
                 }
                 $Timer = $Task->getTimer();
                 self::outall(
                     sprintf(
-                        ' * Task run time: %s',
+                        ' * %s Task run time: %s',
+                        $taskClass,
                         $Timer->toString()
                     )
                 );
@@ -192,10 +215,14 @@ class TaskScheduler extends FOGService
                 if (!$Timer->shouldRunNow()) {
                     continue;
                 }
-                $taskClass = get_class($Task);
                 switch (strtolower($taskClass)) {
                 case 'scheduledtask':
-                    self::outall(" * Found a task that should run.");
+                    self::outall(
+                        sprintf(
+                            ' * %s.',
+                            _('Found a scheduled task that should run')
+                        )
+                    );
                     $getter = 'getHost';
                     $type = _('host');
                     $gbased = 0;
