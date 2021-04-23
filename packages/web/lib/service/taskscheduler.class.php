@@ -186,16 +186,18 @@ class TaskScheduler extends FOGService
                 if (!$Timer->shouldRunNow()) {
                     continue;
                 }
-                if ($Task instanceof ScheduledTask) {
-                    $isGroupBased = $Task->isGroupBased();
-                    if ($isGroupBased) {
-                        $Item = $Task->getGroup();
-                        $type = _('group');
-                    } else {
-                        $Item = $Task->getHost();
-                        $type = _('host');
-                    }
+                $taskClass = get_class($Task);
+                switch (strtolower($taskClass)) {
+                case 'scheduledtask':
                     self::outall(" * Found a task that should run.");
+                    $getter = 'getHost';
+                    $type = _('host');
+                    $gbased = 0;
+                    if ($Task->isGroupBased()) {
+                        $getter = 'getGroup';
+                        $type = _('group');
+                        $gbased = 1;
+                    }
                     self::outall(
                         sprintf(
                             "\t\t - %s %s %s.",
@@ -215,6 +217,7 @@ class TaskScheduler extends FOGService
                             _('task found')
                         )
                     );
+                    $Item = $Task->{$getter}();
                     self::outall(
                         sprintf(
                             "\t\t - %s %s",
@@ -222,19 +225,18 @@ class TaskScheduler extends FOGService
                             $Item->get('name')
                         )
                     );
-                    $Item
-                        ->createImagePackage(
-                            $Task->get('taskTypeID'),
-                            $Task->get('name'),
-                            $Task->get('shutdown'),
-                            false,
-                            $Task->get('other2'),
-                            $Task->isGroupBased(),
-                            $Task->get('other3'),
-                            false,
-                            false,
-                            (bool)$Task->get('other4')
-                        );
+                    $Item->createImagePackage(
+                        $Task->get('taskTypeID'),
+                        $Task->get('name'),
+                        $Task->get('shutdown'),
+                        false,
+                        $Task->get('other2'),
+                        $gbased,
+                        $Task->get('other3'),
+                        false,
+                        false,
+                        (bool)$Task->get('other4')
+                    );
                     self::outall(
                         sprintf(
                             "\t\t - %s %s %s!",
@@ -243,13 +245,13 @@ class TaskScheduler extends FOGService
                             $Item->get('name')
                         )
                     );
-                    if (!$Timer->isSingleRun()) {
-                        continue;
+                    if ($Timer->isSingleRun()) {
+                        $Task
+                            ->set('isActive', 0)
+                            ->save();
                     }
-                    $Task
-                        ->set('isActive', 0)
-                        ->save();
-                } elseif ($Task instanceof PowerManagement) {
+                    break;
+                case 'powermanagement':
                     self::outall(
                         ' * Found a wake on lan task that should run.'
                     );
@@ -260,6 +262,11 @@ class TaskScheduler extends FOGService
                             _('Task sent to'),
                             $Task->getHost()->get('name')
                         )
+                    );
+                    break;
+                default:
+                    self::outall(
+                        ' * Task is not instance of PowerManagement or ScheduledTask'
                     );
                 }
             }
