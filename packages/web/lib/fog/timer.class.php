@@ -122,6 +122,24 @@ class Timer extends FOGCron
         return (bool) ($Time <= $CurrTime);
     }
     /**
+     * Should run now checking for logging.
+     *
+     * @return string
+     */
+    public function shouldRunNowCheck()
+    {
+        if ($this->_blSingle) {
+            if ($this->_shouldSingleRun()) {
+                return _('This is a single run task that should run now.');
+            }
+            return _('This is a single run task that should not run now.');
+        }
+        if (self::shouldRunCron($this->_lngSingle)) {
+            return _('This is a cron style task that should run now.');
+        }
+        return _('This is a cron style task that should not run now.');
+    }
+    /**
      * Should run common.
      *
      * @return bool
