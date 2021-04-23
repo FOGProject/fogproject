@@ -138,7 +138,7 @@ class TaskScheduler extends FOGService
             $findWhere = array(
                 'isActive' => 1
             );
-            $taskCount = self::getClass('ScheduledTaskManager')
+            $schedCnt = $taskCount = self::getClass('ScheduledTaskManager')
                 ->count($findWhere);
             $taskCount += self::getClass('PowerManagementManager')
                 ->count(
@@ -147,6 +147,7 @@ class TaskScheduler extends FOGService
                         'onDemand' => 0
                     )
                 );
+            $pmCnt = $taskCount - $schedCnt;
             if ($taskCount < 1) {
                 throw new Exception(' * No tasks found!');
             }
@@ -162,49 +163,30 @@ class TaskScheduler extends FOGService
                 )
             );
             unset($taskCount);
-            $Tasks = (array)self::getClass('ScheduledTaskManager')
+            $ScheduledTasks = (array)self::getClass('ScheduledTaskManager')
                 ->find($findWhere);
-            $PMs = (array)self::getClass('PowerManagementManager')
-                ->find(
-                    array(
-                        'action' => 'wol',
-                        'onDemand' => array(0, '')
-                    )
-                );
-            $Tasks = self::fastmerge((array)$Tasks, (array)$PMs);
             self::outall(
                 sprintf(
-                    "* %s.",
-                    _('Running loop of all tasks')
+                    ' * %d %s.',
+                    $schedCnt,
+                    _('scheduled task(s) to run')
                 )
             );
-            foreach ((array)$Tasks as &$Task) {
-                $taskClass = get_class($Task);
-                self::outall(
-                    sprintf(
-                        '* %s %s',
-                        _('Attempting to run checks for'),
-                        $taskClass
-                        
-                    )
-                );
-                if (!$Task->isValid()) {
-                    self::outall(
-                        sprintf(
-                            '* %s %s',
-                            $Task->get('id'),
-                            _('Does not appear to be valid')
-                        )
-                    );
-                    continue;
-                }
+            self::outall(
+                sprintf(
+                    ' * %d %s.',
+                    $pmCnt,
+                    _('power management task(s) to run')
+                )
+            );
+            foreach ($ScheduledTasks as &$Task) {
+                $Task = self::getClass('ScheduledTask', $Task->get('id'));
                 $Timer = $Task->getTimer();
                 self::outall(
-                    sprintf(
-                        ' * %s Task run time: %s',
-                        $taskClass,
-                        $Timer->toString()
-                    )
+                    ' * '
+                    . _('Scheduled Task run time')
+                    . ': '
+                    . $Timer->toString()
                 );
                 self::outall(
                     sprintf(
@@ -212,96 +194,108 @@ class TaskScheduler extends FOGService
                         $Timer->shouldRunNowCheck()
                     )
                 );
-                if (!$Timer->shouldRunNow()) {
-                    continue;
+                if (!$Timer->shouldRunNow()) continue;
+                self::outall(
+                    ' * '
+                    . _('Found a scheduled task that should run.')
+                );
+                $type = _('host');
+                $getter = 'getHost';
+                $gbased = 0;
+                if ($Task->isGroupBased()) {
+                    $type = _('group');
+                    $getter = 'getGroup';
+                    $gbased = 1;
                 }
-                switch (strtolower($taskClass)) {
-                case 'scheduledtask':
-                    self::outall(
-                        sprintf(
-                            ' * %s.',
-                            _('Found a scheduled task that should run')
-                        )
-                    );
-                    $getter = 'getHost';
-                    $type = _('host');
-                    $gbased = 0;
-                    if ($Task->isGroupBased()) {
-                        $getter = 'getGroup';
-                        $type = _('group');
-                        $gbased = 1;
-                    }
-                    self::outall(
-                        sprintf(
-                            "\t\t - %s %s %s.",
-                            _('Is a'),
-                            $type,
-                            _('based task')
-                        )
-                    );
-                    self::outall(
-                        sprintf(
-                            "\t\t - %s %s!",
-                            (
-                                $Task->isMulticast() ?
-                                _('Multicast') :
-                                _('Unicast')
-                            ),
-                            _('task found')
-                        )
-                    );
-                    $Item = $Task->{$getter}();
-                    self::outall(
-                        sprintf(
-                            "\t\t - %s %s",
-                            get_class($Item),
-                            $Item->get('name')
-                        )
-                    );
-                    $Item->createImagePackage(
-                        $Task->get('taskTypeID'),
-                        $Task->get('name'),
-                        $Task->get('shutdown'),
-                        false,
-                        $Task->get('other2'),
-                        $gbased,
-                        $Task->get('other3'),
-                        false,
-                        false,
-                        (bool)$Task->get('other4')
-                    );
-                    self::outall(
-                        sprintf(
-                            "\t\t - %s %s %s!",
-                            _('Tasks started for'),
-                            $type,
-                            $Item->get('name')
-                        )
-                    );
-                    if ($Timer->isSingleRun()) {
-                        $Task
-                            ->set('isActive', 0)
-                            ->save();
-                    }
-                    break;
-                case 'powermanagement':
-                    self::outall(
-                        ' * Found a wake on lan task that should run.'
-                    );
-                    $Task->wakeOnLAN();
-                    self::outall(
-                        sprintf(
-                            ' | %s %s',
-                            _('Task sent to'),
-                            $Task->getHost()->get('name')
-                        )
-                    );
-                    break;
-                default:
-                    self::outall(
-                        ' * Task is not instance of PowerManagement or ScheduledTask'
-                    );
+                self::outall(
+                    "\t\t - "
+                    . _('Is a')
+                    . ' '
+                    . $type
+                    . ' '
+                    . _('based task.')
+                );
+                self::outall(
+                    sprintf(
+                        "\t\t - %s %s!",
+                        (
+                            $Task->isMulticast() ?
+                            _('Multicast') :
+                            _('Unicaset')
+                        ),
+                        _('task found')
+                    )
+                );
+                $Item = $Task->{$getter}();
+                self::outall(
+                    sprintf(
+                        "\t\t - %s %s",
+                        get_class($Item),
+                        $Item->get('name')
+                    )
+                );
+                $Item->createImagePackage(
+                    $Task->get('taskTypeID'),
+                    $Task->get('name'),
+                    $Task->get('shutdown'),
+                    false,
+                    $Task->get('other2'),
+                    $gbased,
+                    $Task->get('other3'),
+                    false,
+                    false,
+                    (bool)$Task->get('other4')
+                );
+                self::outall(
+                    sprintf(
+                        "\t\t - %s %s %s!",
+                        _('Task started for'),
+                        $type,
+                        $Item->get('name')
+                    )
+                );
+                if ($Timer->isSingleRun()) {
+                    $Task
+                        ->set('isActive', 0)
+                        ->save();
                 }
+            }
+            $PMTasks = (array)self::getClass('PowerManagementManager')
+                ->find(
+                    array(
+                        'action' => 'wol',
+                        'onDemand' => array(0, '')
+                    )
+                );
+            foreach ($PMTasks as &$Task) {
+                $Task = self::getClass('PowerManagement', $Task->id);
+                $Timer = $Task->getTimer();
+                self::outall(
+                    ' * '
+                    . _('Power Management Task run time')
+                    . ': '
+                    . $Timer->toString()
+                );
+                self::outall(
+                    sprintf(
+                        ' * %s.',
+                        $Timer->shouldRunNowCheck()
+                    )
+                );
+                if (!$Timer->shouldRunNow()) continue;
+                self::outall(
+                    ' * '
+                    . _('Found a wake on lan task that should run.')
+                );
+                $Task->wakeOnLAN();
+                self::outall(
+                    sprintf(
+                        ' | %s %s',
+                        _('Task sent to'),
+                        $Task->getHost()->get('name')
+                    )
+                );
+                unset($Task);
             }
         } catch (Exception $e) {
             self::outall($e->getMessage());
