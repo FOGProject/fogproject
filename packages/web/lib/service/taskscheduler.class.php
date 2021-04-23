@@ -268,7 +268,7 @@ class TaskScheduler extends FOGService
                     )
                 );
             foreach ($PMTasks as &$Task) {
-                $Task = self::getClass('PowerManagement', $Task->id);
+                $Task = self::getClass('PowerManagement', $Task->get('id'));
                 $Timer = $Task->getTimer();
                 self::outall(
                     ' * '
