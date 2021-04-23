@@ -183,6 +183,12 @@ class TaskScheduler extends FOGService
                         $Timer->toString()
                     )
                 );
+                self::outall(
+                    sprintf(
+                        ' * %s',
+                        $Timer->shouldRunNowCheck()
+                    )
+                );
                 if (!$Timer->shouldRunNow()) {
                     continue;
                 }
