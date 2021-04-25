@@ -26,8 +26,8 @@
 [[ -z $fogprogramdir ]] && fogprogramdir="/opt/fog"
 [[ -z $nfsconfig ]] && nfsconfig="/etc/exports"
 [[ -z $nfsservice ]] && nfsservice="nfs-server nfs-kernel-server nfs"
-[[ -z $sqlclientlist ]] && sqlclientlist="mysql mariadb MariaDB-client"
-[[ -z $sqlserverlist ]] && sqlserverlist="mysql-server mariadb-server mariadb-galera-server MariaDB-server MariaDB-Galera-server"
+[[ -z $sqlclientlist ]] && sqlclientlist="mariadb-client mariadb MariaDB-client mysql"
+[[ -z $sqlserverlist ]] && sqlserverlist="mariadb-galera-server mariadb-server MariaDB-Galera-server MariaDB-server mysql-server"
 command -v systemctl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 exitcode=$?
 ps -p 1 -o comm= | grep systemd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
