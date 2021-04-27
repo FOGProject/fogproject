@@ -124,7 +124,7 @@ class Timer extends FOGCron
     public function shouldRunNowCheck() {
         if ($this->_blSingle) {
             if ($this->_shouldSingleRun()) {
-                return _('This is a single run task that should run.')
+                return _('This is a single run task that should run.');
             }
             return _('This is a single run task that should not run.');
         }
