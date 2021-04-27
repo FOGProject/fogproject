@@ -129,9 +129,15 @@ class Timer extends FOGCron
             return _('This is a single run task that should not run.');
         }
         if (self::shouldRunCron($this->_lngSingle)) {
-            return _('This is a cron style task that should run at: ', $this->_lngSingle);
+            return _(
+                'This is a cron style task that should run at: '
+                . $this->_lngSingle
+            );
         }
-        return _('This is a cron style task that should run at: ', $this->_lngSingle);
+        return _(
+            'This is a cron style task that should run at: '
+            . $this->_lngSingle
+        );
     }
     /**
      * Should run common.
