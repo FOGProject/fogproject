@@ -2372,7 +2372,12 @@ abstract class FOGBase
             $ip = $Node->get('ip');
             $nodeURLs[] = sprintf(
                 $url,
-                self::$httpproto,
+                'https',
+                $ip
+            );
+            $nodeURLs[] = sprintf(
+                $url,
+                'http',
                 $ip
             );
             unset($Node);
