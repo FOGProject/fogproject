@@ -121,23 +121,23 @@ class Timer extends FOGCron
         $Time = self::niceDate()->setTimestamp($this->_lngSingle);
         return (bool) ($Time <= $CurrTime);
     }
-    public function shouldRunNowCheck() {
+    /**
+     * Should run now checking for logging.
+     *
+     * @return string
+     */
+    public function shouldRunNowCheck()
+    {
         if ($this->_blSingle) {
             if ($this->_shouldSingleRun()) {
-                return _('This is a single run task that should run.');
+                return _('This is a single run task that should run now.');
             }
-            return _('This is a single run task that should not run.');
+            return _('This is a single run task that should not run now.');
         }
         if (self::shouldRunCron($this->_lngSingle)) {
-            return _(
-                'This is a cron style task that should run at: '
-                . $this->_lngSingle
-            );
+            return _('This is a cron style task that should run now.');
         }
-        return _(
-            'This is a cron style task that should run at: '
-            . $this->_lngSingle
-        );
+        return _('This is a cron style task that should not run now.');
     }
     /**
      * Should run common.
