@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fog-project-2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-04 11:44-0500\n"
+"POT-Creation-Date: 2021-05-04 12:54-0500\n"
 "PO-Revision-Date: 2017-11-21 07:36-0400\n"
 "Last-Translator: René Schatz <rene.schatz@zoll.bund.de>\n"
 "Language-Team: German\n"
@@ -34,8 +34,8 @@ msgid "O/S"
 msgstr "O/S"
 
 #: commons/text.php:27 lib/plugins/site/pages/sitemanagement.page.php:562
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:619
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:564
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:619
 #: lib/plugins/ldap/pages/ldapmanagement.page.php:1383
 #: lib/plugins/subnetgroup/pages/subnetgroupmanagement.page.php:533
 #: lib/plugins/tasktypeedit/pages/tasktypeeditmanagement.page.php:762
@@ -49,8 +49,8 @@ msgstr "O/S"
 #: lib/pages/groupmanagement.page.php:2525
 #: lib/pages/hostmanagement.page.php:3620
 #: lib/pages/imagemanagement.page.php:1378
-#: lib/pages/ipxemanagement.page.php:711
 #: lib/pages/modulemanagement.page.php:596
+#: lib/pages/ipxemanagement.page.php:711
 #: lib/pages/printermanagement.page.php:1434
 #: lib/pages/snapinmanagement.page.php:1950
 #: lib/pages/storagegroupmanagement.page.php:912
@@ -60,8 +60,8 @@ msgid "Edit"
 msgstr "Bearbeiten"
 
 #: commons/text.php:28 lib/plugins/site/pages/sitemanagement.page.php:320
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:441
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:320
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:441
 #: lib/plugins/ldap/pages/ldapmanagement.page.php:1235
 #: lib/plugins/subnetgroup/pages/subnetgroupmanagement.page.php:425
 #: lib/plugins/tasktypeedit/pages/tasktypeeditmanagement.page.php:663
@@ -77,8 +77,8 @@ msgstr "Bearbeiten"
 #: lib/pages/hostmanagement.page.php:158 lib/pages/hostmanagement.page.php:324
 #: lib/pages/hostmanagement.page.php:1264
 #: lib/pages/imagemanagement.page.php:1060
-#: lib/pages/ipxemanagement.page.php:614
 #: lib/pages/modulemanagement.page.php:436
+#: lib/pages/ipxemanagement.page.php:614
 #: lib/pages/printermanagement.page.php:1390
 #: lib/pages/snapinmanagement.page.php:1545
 #: lib/pages/storagegroupmanagement.page.php:323
@@ -134,12 +134,12 @@ msgid "Management"
 msgstr "Verwaltung"
 
 #: commons/text.php:40 lib/plugins/site/pages/sitemanagement.page.php:315
-#: lib/plugins/site/hooks/addsitehost.hook.php:131
 #: lib/plugins/site/hooks/addsitegroup.hook.php:115
+#: lib/plugins/site/hooks/addsitehost.hook.php:131
 #: lib/plugins/site/hooks/addsiteuser.hook.php:131
 #: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:107
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:436
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:315
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:436
 #: lib/plugins/ldap/pages/ldapmanagement.page.php:1230
 #: lib/plugins/ldap/pages/ldapmanagement.page.php:1471
 #: lib/plugins/subnetgroup/pages/subnetgroupmanagement.page.php:420
@@ -152,8 +152,8 @@ msgstr "Verwaltung"
 #: lib/plugins/capone/pages/caponemanagement.page.php:318
 #: lib/plugins/capone/pages/caponemanagement.page.php:494
 #: lib/plugins/location/pages/locationmanagement.page.php:453
-#: lib/plugins/location/hooks/addlocationgroup.hook.php:119
 #: lib/plugins/location/hooks/addlocationhost.hook.php:134
+#: lib/plugins/location/hooks/addlocationgroup.hook.php:119
 #: lib/plugins/taskstateedit/pages/taskstateeditmanagement.page.php:393
 #: lib/plugins/windowskey/pages/windowskeymanagement.page.php:380
 #: lib/plugins/windowskey/hooks/addwindowskeyimage.hook.php:118
@@ -173,8 +173,8 @@ msgstr "Verwaltung"
 #: lib/pages/hostmanagement.page.php:3454
 #: lib/pages/imagemanagement.page.php:1055
 #: lib/pages/imagemanagement.page.php:1200
-#: lib/pages/ipxemanagement.page.php:609
 #: lib/pages/modulemanagement.page.php:431
+#: lib/pages/ipxemanagement.page.php:609
 #: lib/pages/printermanagement.page.php:1385
 #: lib/pages/serviceconfigurationpage.page.php:130
 #: lib/pages/serviceconfigurationpage.page.php:332
@@ -325,7 +325,7 @@ msgstr "Benutzer"
 #: lib/service/multicastmanager.class.php:208
 #: lib/service/fogservice.class.php:369 lib/service/fogservice.class.php:388
 #: lib/service/fogservice.class.php:447 lib/pages/groupmanagement.page.php:46
-#: lib/pages/ipxemanagement.page.php:42 lib/pages/modulemanagement.page.php:46
+#: lib/pages/modulemanagement.page.php:46 lib/pages/ipxemanagement.page.php:42
 msgid "Name"
 msgstr "Name"
 
@@ -433,8 +433,8 @@ msgid "Service"
 msgstr "Service"
 
 #: commons/text.php:89 lib/plugins/site/pages/sitemanagement.page.php:570
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:627
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:572
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:627
 #: lib/plugins/ldap/pages/ldapmanagement.page.php:1391
 #: lib/plugins/subnetgroup/pages/subnetgroupmanagement.page.php:541
 #: lib/plugins/tasktypeedit/pages/tasktypeeditmanagement.page.php:770
@@ -448,8 +448,8 @@ msgstr "Service"
 #: lib/pages/groupmanagement.page.php:2533
 #: lib/pages/hostmanagement.page.php:3628
 #: lib/pages/imagemanagement.page.php:1385
-#: lib/pages/ipxemanagement.page.php:718
 #: lib/pages/modulemanagement.page.php:604
+#: lib/pages/ipxemanagement.page.php:718
 #: lib/pages/printermanagement.page.php:1442
 #: lib/pages/snapinmanagement.page.php:1958
 #: lib/pages/storagegroupmanagement.page.php:920
@@ -500,14 +500,14 @@ msgstr "Zeile"
 msgid "Errors"
 msgstr "Fehler"
 
-#: commons/text.php:99 lib/fog/eventmanager.class.php:102
-#: lib/fog/eventmanager.class.php:165 lib/fog/fogcontroller.class.php:177
+#: commons/text.php:99 lib/fog/fogcontroller.class.php:177
 #: lib/fog/fogcontroller.class.php:310 lib/fog/fogcontroller.class.php:360
 #: lib/fog/fogcontroller.class.php:415 lib/fog/fogcontroller.class.php:540
 #: lib/fog/fogcontroller.class.php:550 lib/fog/fogcontroller.class.php:561
 #: lib/fog/fogcontroller.class.php:651 lib/fog/fogcontroller.class.php:774
 #: lib/fog/fogcontroller.class.php:784 lib/fog/fogcontroller.class.php:795
-#: lib/fog/fogcontroller.class.php:927 lib/fog/fogpage.class.php:1760
+#: lib/fog/fogcontroller.class.php:927 lib/fog/eventmanager.class.php:102
+#: lib/fog/eventmanager.class.php:165 lib/fog/fogpage.class.php:1760
 #: lib/db/pdodb.class.php:187 lib/db/pdodb.class.php:230
 #: lib/db/pdodb.class.php:289 lib/db/pdodb.class.php:349
 #: lib/db/pdodb.class.php:405
@@ -569,8 +569,8 @@ msgid "Kernel"
 msgstr "Kernel"
 
 #: commons/text.php:112 commons/text.php:135
-#: lib/plugins/location/hooks/addlocationgroup.hook.php:148
 #: lib/plugins/location/hooks/addlocationhost.hook.php:163
+#: lib/plugins/location/hooks/addlocationgroup.hook.php:148
 #: lib/pages/pluginmanagement.page.php:44
 msgid "Location"
 msgstr "Ort"
@@ -1590,8 +1590,8 @@ msgid "Site Description"
 msgstr "Site Beschreibung"
 
 #: lib/plugins/site/pages/sitemanagement.page.php:93
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:128
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:93
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:128
 #: lib/plugins/ldap/pages/ldapmanagement.page.php:369
 #: lib/plugins/pushbullet/pages/pushbulletmanagement.page.php:80
 #: lib/plugins/subnetgroup/pages/subnetgroupmanagement.page.php:118
@@ -1614,8 +1614,8 @@ msgstr "Site Beschreibung"
 #: lib/pages/imagemanagement.page.php:322
 #: lib/pages/imagemanagement.page.php:1702
 #: lib/pages/imagemanagement.page.php:1743
-#: lib/pages/ipxemanagement.page.php:182
 #: lib/pages/modulemanagement.page.php:129
+#: lib/pages/ipxemanagement.page.php:182
 #: lib/pages/printermanagement.page.php:458
 #: lib/pages/snapinmanagement.page.php:522
 #: lib/pages/storagegroupmanagement.page.php:94
@@ -1654,11 +1654,11 @@ msgstr "Drucker erstellen fehlgeschlagen!"
 #: lib/plugins/hostext/class/hostextmanager.class.php:94
 #: lib/plugins/ou/pages/oumanagement.page.php:447
 #: lib/plugins/location/pages/locationmanagement.page.php:549
-#: lib/reports/imaging_log.report.php:34
-#: lib/reports/hosts_and_users.report.php:35
 #: lib/reports/inventory_report.report.php:34
+#: lib/reports/imaging_log.report.php:34
 #: lib/reports/pending_mac_list.report.php:34
 #: lib/reports/product_keys.report.php:34 lib/reports/host_list.report.php:34
+#: lib/reports/hosts_and_users.report.php:35
 #: lib/pages/groupmanagement.page.php:815
 #: lib/pages/groupmanagement.page.php:2423
 #: lib/pages/groupmanagement.page.php:2454
@@ -1677,9 +1677,9 @@ msgstr "Host-Name"
 
 #: lib/plugins/site/pages/sitemanagement.page.php:392
 #: lib/plugins/site/pages/sitemanagement.page.php:477
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:532
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:394
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:479
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:532
 #: lib/plugins/ou/pages/oumanagement.page.php:448
 #: lib/plugins/location/pages/locationmanagement.page.php:550
 #: lib/pages/groupmanagement.page.php:816
@@ -1702,9 +1702,9 @@ msgstr "zugeordneter Host"
 
 #: lib/plugins/site/pages/sitemanagement.page.php:407
 #: lib/plugins/site/pages/sitemanagement.page.php:492
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:547
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:409
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:494
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:547
 #: lib/plugins/location/pages/locationmanagement.page.php:565
 #: lib/plugins/windowskey/pages/windowskeymanagement.page.php:470
 #: lib/pages/groupmanagement.page.php:831
@@ -1730,9 +1730,9 @@ msgstr "ausgewählte Images hinzufügen"
 
 #: lib/plugins/site/pages/sitemanagement.page.php:413
 #: lib/plugins/site/pages/sitemanagement.page.php:498
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:553
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:415
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:500
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:553
 #: lib/plugins/location/pages/locationmanagement.page.php:571
 #: lib/plugins/windowskey/pages/windowskeymanagement.page.php:476
 #: lib/pages/groupmanagement.page.php:837
@@ -1776,8 +1776,8 @@ msgid "Site User Associations"
 msgstr "Site Zugehörigkeit"
 
 #: lib/plugins/site/pages/sitemanagement.page.php:580
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:637
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:582
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:637
 #: lib/plugins/ou/pages/oumanagement.page.php:551
 #: lib/plugins/location/pages/locationmanagement.page.php:653
 #: lib/plugins/windowskey/pages/windowskeymanagement.page.php:566
@@ -1825,46 +1825,40 @@ msgstr "Host Aktualisierung erfolgreich!"
 msgid "Site Update Fail"
 msgstr "Drucker-Update fehlgeschlagen!"
 
-#: lib/plugins/site/hooks/addsitehost.hook.php:85
+#: lib/plugins/site/hooks/addsitemenuitem.hook.php:85
+#, fuzzy
+msgid "Export Sites"
+msgstr "Sites exportieren"
+
+#: lib/plugins/site/hooks/addsitemenuitem.hook.php:86
+#, fuzzy
+msgid "Import Sites"
+msgstr "Sites importieren"
+
+#: lib/plugins/site/hooks/addsitemenuitem.hook.php:98
+#, fuzzy
+msgid "Sites"
+msgstr "Sites"
+
 #: lib/plugins/site/hooks/addsitegroup.hook.php:85
+#: lib/plugins/site/hooks/addsitehost.hook.php:85
 #: lib/plugins/site/hooks/addsiteuser.hook.php:85
 #, fuzzy
 msgid "Site Association"
 msgstr "Site Zugehörigkeit"
-
-#: lib/plugins/site/hooks/addsitehost.hook.php:125
-#: lib/plugins/site/hooks/addsitehost.hook.php:274
-#, fuzzy
-msgid "Host Site"
-msgstr "Hostliste"
-
-#: lib/plugins/site/hooks/addsitehost.hook.php:160
-#: lib/plugins/site/hooks/addsitegroup.hook.php:144
-#: lib/plugins/site/hooks/addsiteuser.hook.php:160
-#, fuzzy
-msgid "Site"
-msgstr "Sites"
-
-#: lib/plugins/site/hooks/addsitehost.hook.php:234
-#, fuzzy
-msgid "Host Site Updated!"
-msgstr "Site aktualisiert!"
-
-#: lib/plugins/site/hooks/addsitehost.hook.php:235
-#, fuzzy
-msgid "Host Site Update Success"
-msgstr "Host Aktualisierung erfolgreich!"
-
-#: lib/plugins/site/hooks/addsitehost.hook.php:248
-#, fuzzy
-msgid "Host Update Site Fail"
-msgstr "Host-Update fehlgeschlagen"
 
 #: lib/plugins/site/hooks/addsitegroup.hook.php:109
 #: lib/plugins/site/hooks/addsitegroup.hook.php:258
 #, fuzzy
 msgid "Group Site"
 msgstr "Gruppen-Snapins"
+
+#: lib/plugins/site/hooks/addsitegroup.hook.php:144
+#: lib/plugins/site/hooks/addsitehost.hook.php:160
+#: lib/plugins/site/hooks/addsiteuser.hook.php:160
+#, fuzzy
+msgid "Site"
+msgstr "Sites"
 
 #: lib/plugins/site/hooks/addsitegroup.hook.php:218
 #, fuzzy
@@ -1880,6 +1874,27 @@ msgstr "Gruppe erfolgreich aktualisiert"
 #, fuzzy
 msgid "Group Update Site Fail"
 msgstr "Gruppe aktualisieren fehlgeschlagen"
+
+#: lib/plugins/site/hooks/addsitehost.hook.php:125
+#: lib/plugins/site/hooks/addsitehost.hook.php:274
+#, fuzzy
+msgid "Host Site"
+msgstr "Hostliste"
+
+#: lib/plugins/site/hooks/addsitehost.hook.php:234
+#, fuzzy
+msgid "Host Site Updated!"
+msgstr "Site aktualisiert!"
+
+#: lib/plugins/site/hooks/addsitehost.hook.php:235
+#, fuzzy
+msgid "Host Site Update Success"
+msgstr "Host Aktualisierung erfolgreich!"
+
+#: lib/plugins/site/hooks/addsitehost.hook.php:248
+#, fuzzy
+msgid "Host Update Site Fail"
+msgstr "Host-Update fehlgeschlagen"
 
 #: lib/plugins/site/hooks/addsiteuser.hook.php:125
 #: lib/plugins/site/hooks/addsiteuser.hook.php:274
@@ -1901,48 +1916,6 @@ msgstr "Benutzeraktualisierung erfolgreich!"
 #, fuzzy
 msgid "User Site Update Fail"
 msgstr "Drucker-Update fehlgeschlagen!"
-
-#: lib/plugins/site/hooks/addsitemenuitem.hook.php:85
-#, fuzzy
-msgid "Export Sites"
-msgstr "Sites exportieren"
-
-#: lib/plugins/site/hooks/addsitemenuitem.hook.php:86
-#, fuzzy
-msgid "Import Sites"
-msgstr "Sites importieren"
-
-#: lib/plugins/site/hooks/addsitemenuitem.hook.php:98
-#, fuzzy
-msgid "Sites"
-msgstr "Sites"
-
-#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:62
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:640
-#, fuzzy
-msgid "Role Association"
-msgstr "Regel Zuordnung"
-
-#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:102
-#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:241
-#, fuzzy
-msgid "User Role"
-msgstr "Benutzer-Bereinigung"
-
-#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:208
-#, fuzzy
-msgid "User role updated!"
-msgstr "Benutzer aktualisiert"
-
-#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:209
-#, fuzzy
-msgid "User Role Update Success"
-msgstr "Benutzeraktualisierung erfolgreich!"
-
-#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:218
-#, fuzzy
-msgid "User Role Update Fail"
-msgstr "Modulupdate fehlgeschlagen"
 
 #: lib/plugins/accesscontrol/hooks/addaccesscontrolmenuitem.hook.php:83
 #, fuzzy
@@ -1995,6 +1968,135 @@ msgstr "Zugriffskontrollen"
 #, fuzzy
 msgid "Access Control Rules"
 msgstr "Zugriffskontrollregeln"
+
+#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:62
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:640
+#, fuzzy
+msgid "Role Association"
+msgstr "Regel Zuordnung"
+
+#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:102
+#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:241
+#, fuzzy
+msgid "User Role"
+msgstr "Benutzer-Bereinigung"
+
+#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:208
+#, fuzzy
+msgid "User role updated!"
+msgstr "Benutzer aktualisiert"
+
+#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:209
+#, fuzzy
+msgid "User Role Update Success"
+msgstr "Benutzeraktualisierung erfolgreich!"
+
+#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:218
+#, fuzzy
+msgid "User Role Update Fail"
+msgstr "Modulupdate fehlgeschlagen"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:42
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:68
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:151
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:290
+#, fuzzy
+msgid "Accesscontrol Name"
+msgstr "Zugriffskontrollen"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:43
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:81
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:85
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:164
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:168
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:303
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:307
+#, fuzzy
+msgid "Accesscontrol Description"
+msgstr "Rollenbeschreibung"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:57
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:121
+#, fuzzy
+msgid "Create New Accesscontrol"
+msgstr "Neuen Schlüssel erstellen"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:72
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:155
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:294
+#, fuzzy
+msgid "Access Control Name"
+msgstr "Zugriffskontrollen"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:217
+#, fuzzy
+msgid "An accesscontrol already exists with this name!"
+msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:225
+#, fuzzy
+msgid "Add accesscontrol failed!"
+msgstr "Standort hinzufügen fehlgeschlagen"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:231
+#, fuzzy
+msgid "Accesscontrol added!"
+msgstr "Zugriffskontrollen"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:232
+#, fuzzy
+msgid "Accesscontrol Create Success"
+msgstr "Snapin erfolgreich hinzugefügt"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:245
+#, fuzzy
+msgid "Accesscontrol Create Fail"
+msgstr "Snapin erstellen fehlgeschlagen"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:378
+#, fuzzy
+msgid "An accesscontrol with this name already exists!"
+msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:423
+#, fuzzy
+msgid "Accesscontrol User Associations"
+msgstr "Site Zugehörigkeit"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:478
+#, fuzzy
+msgid "Accesscontrol Rule Name"
+msgstr "Zugriffskontrollen"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:508
+#, fuzzy
+msgid "Accesscontrol Rule Associations"
+msgstr "Zugriffskontrollregeln"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:585
+#, fuzzy
+msgid "Rule Association"
+msgstr "Regel Zuordnung"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:632
+#, fuzzy
+msgid "Accesscontrol update failed!"
+msgstr "Drucker-Update fehlgeschlagen!"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:638
+#, fuzzy
+msgid "Accesscontrol updated!"
+msgstr "Zugriffskontrollen"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:639
+#, fuzzy
+msgid "Accesscontrol Update Success"
+msgstr "Benutzeraktualisierung erfolgreich!"
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:652
+#, fuzzy
+msgid "Accesscontrol Update Fail"
+msgstr "Kernel-Update"
 
 #: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:42
 #, fuzzy
@@ -2104,108 +2206,6 @@ msgstr "Benutzeraktualisierung erfolgreich!"
 #, fuzzy
 msgid "Accesscontrol Rule Update Fail"
 msgstr "Modulupdate fehlgeschlagen"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:42
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:68
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:151
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:290
-#, fuzzy
-msgid "Accesscontrol Name"
-msgstr "Zugriffskontrollen"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:43
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:81
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:85
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:164
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:168
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:303
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:307
-#, fuzzy
-msgid "Accesscontrol Description"
-msgstr "Rollenbeschreibung"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:57
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:121
-#, fuzzy
-msgid "Create New Accesscontrol"
-msgstr "Neuen Schlüssel erstellen"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:72
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:155
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:294
-#, fuzzy
-msgid "Access Control Name"
-msgstr "Zugriffskontrollen"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:217
-#, fuzzy
-msgid "An accesscontrol already exists with this name!"
-msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:225
-#, fuzzy
-msgid "Add accesscontrol failed!"
-msgstr "Standort hinzufügen fehlgeschlagen"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:231
-#, fuzzy
-msgid "Accesscontrol added!"
-msgstr "Zugriffskontrollen"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:232
-#, fuzzy
-msgid "Accesscontrol Create Success"
-msgstr "Snapin erfolgreich hinzugefügt"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:245
-#, fuzzy
-msgid "Accesscontrol Create Fail"
-msgstr "Snapin erstellen fehlgeschlagen"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:378
-#, fuzzy
-msgid "An accesscontrol with this name already exists!"
-msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:423
-#, fuzzy
-msgid "Accesscontrol User Associations"
-msgstr "Site Zugehörigkeit"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:478
-#, fuzzy
-msgid "Accesscontrol Rule Name"
-msgstr "Zugriffskontrollen"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:508
-#, fuzzy
-msgid "Accesscontrol Rule Associations"
-msgstr "Zugriffskontrollregeln"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:585
-#, fuzzy
-msgid "Rule Association"
-msgstr "Regel Zuordnung"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:632
-#, fuzzy
-msgid "Accesscontrol update failed!"
-msgstr "Drucker-Update fehlgeschlagen!"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:638
-#, fuzzy
-msgid "Accesscontrol updated!"
-msgstr "Zugriffskontrollen"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:639
-#, fuzzy
-msgid "Accesscontrol Update Success"
-msgstr "Benutzeraktualisierung erfolgreich!"
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:652
-#, fuzzy
-msgid "Accesscontrol Update Fail"
-msgstr "Kernel-Update"
 
 #: lib/plugins/ldap/pages/ldapmanagement.page.php:45
 msgid "LDAP Management"
@@ -3170,10 +3170,6 @@ msgstr "Verknüpfen des Slack Accounts fehlgeschlagen"
 msgid "Slack Accounts"
 msgstr "Slack Accounts"
 
-#: lib/plugins/slack/class/slackhandler.class.php:251
-msgid "Invalid method called"
-msgstr "Ungültige Methode aufgerufen"
-
 #: lib/plugins/slack/class/slack.class.php:61
 msgid "Channel call is invalid"
 msgstr "Kanalaufruf ist ungültig"
@@ -3181,6 +3177,10 @@ msgstr "Kanalaufruf ist ungültig"
 #: lib/plugins/slack/class/slack.class.php:84
 msgid "User call is invalid"
 msgstr "Benutzeraufruf ist ungültig"
+
+#: lib/plugins/slack/class/slackhandler.class.php:251
+msgid "Invalid method called"
+msgstr "Ungültige Methode aufgerufen"
 
 #: lib/plugins/hostext/config/plugin.config.php:27
 msgid ""
@@ -3483,10 +3483,6 @@ msgstr "Benutzer importieren"
 msgid "OUs"
 msgstr ""
 
-#: lib/plugins/capone/hooks/addbootmenuitem.hook.php:85
-msgid "Capone Deploy"
-msgstr "Capone Verteilung"
-
 #: lib/plugins/capone/hooks/addcaponeapi.hook.php:97
 msgid "Edit Capone ID"
 msgstr ""
@@ -3504,6 +3500,10 @@ msgstr "Snapins importieren"
 #: lib/plugins/capone/hooks/addcaponemenuitem.hook.php:99
 #, fuzzy
 msgid "Capone"
+msgstr "Capone Verteilung"
+
+#: lib/plugins/capone/hooks/addbootmenuitem.hook.php:85
+msgid "Capone Deploy"
 msgstr "Capone Verteilung"
 
 #: lib/plugins/capone/pages/caponemanagement.page.php:42
@@ -3766,11 +3766,31 @@ msgstr "Standort erfolgreich aktualisiert"
 msgid "Location Update Fail"
 msgstr "Standort Aktualisierung fehlgeschlagen"
 
-#: lib/plugins/location/hooks/addlocationgroup.hook.php:88
 #: lib/plugins/location/hooks/addlocationhost.hook.php:88
+#: lib/plugins/location/hooks/addlocationgroup.hook.php:88
 #, fuzzy
 msgid "Location Association"
 msgstr "Standort Zugehörigkeiten"
+
+#: lib/plugins/location/hooks/addlocationhost.hook.php:128
+#: lib/plugins/location/hooks/addlocationhost.hook.php:275
+msgid "Host Location"
+msgstr "Host Standort"
+
+#: lib/plugins/location/hooks/addlocationhost.hook.php:235
+#, fuzzy
+msgid "Host Location Updated!"
+msgstr "Standort aktualisiert"
+
+#: lib/plugins/location/hooks/addlocationhost.hook.php:236
+#, fuzzy
+msgid "Host Location Update Success"
+msgstr "Standort erfolgreich aktualisiert"
+
+#: lib/plugins/location/hooks/addlocationhost.hook.php:249
+#, fuzzy
+msgid "Host Update Location Fail"
+msgstr "Host-Update fehlgeschlagen"
 
 #: lib/plugins/location/hooks/addlocationgroup.hook.php:113
 #: lib/plugins/location/hooks/addlocationgroup.hook.php:260
@@ -3792,26 +3812,6 @@ msgstr "Standort erfolgreich aktualisiert"
 #, fuzzy
 msgid "Group Update Location Fail"
 msgstr "Gruppe aktualisieren fehlgeschlagen"
-
-#: lib/plugins/location/hooks/addlocationhost.hook.php:128
-#: lib/plugins/location/hooks/addlocationhost.hook.php:275
-msgid "Host Location"
-msgstr "Host Standort"
-
-#: lib/plugins/location/hooks/addlocationhost.hook.php:235
-#, fuzzy
-msgid "Host Location Updated!"
-msgstr "Standort aktualisiert"
-
-#: lib/plugins/location/hooks/addlocationhost.hook.php:236
-#, fuzzy
-msgid "Host Location Update Success"
-msgstr "Standort erfolgreich aktualisiert"
-
-#: lib/plugins/location/hooks/addlocationhost.hook.php:249
-#, fuzzy
-msgid "Host Update Location Fail"
-msgstr "Host-Update fehlgeschlagen"
 
 #: lib/plugins/location/hooks/addlocationmenuitem.hook.php:88
 #, fuzzy
@@ -4093,6 +4093,21 @@ msgstr "Windows-Schlüssel erfolgreich aktualisiert"
 msgid "Windows Key Update Fail"
 msgstr "Windows-Schlüssel aktualisieren fehlgeschlagen"
 
+#: lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:85
+#, fuzzy
+msgid "Export Windows Keys"
+msgstr "Windows-Schlüssel exportieren"
+
+#: lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:86
+#, fuzzy
+msgid "Import Windows Keys"
+msgstr "Windows-Schlüssel importieren"
+
+#: lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:98
+#, fuzzy
+msgid "Windows Keys"
+msgstr "Windows Keys"
+
 #: lib/plugins/windowskey/hooks/addwindowskeyimage.hook.php:87
 #, fuzzy
 msgid "Key Association"
@@ -4124,48 +4139,6 @@ msgstr "Windows-Schlüssel aktualisieren fehlgeschlagen"
 msgid "Image Windows Key"
 msgstr "Windows-Schlüssel importieren"
 
-#: lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:85
-#, fuzzy
-msgid "Export Windows Keys"
-msgstr "Windows-Schlüssel exportieren"
-
-#: lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:86
-#, fuzzy
-msgid "Import Windows Keys"
-msgstr "Windows-Schlüssel importieren"
-
-#: lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:98
-#, fuzzy
-msgid "Windows Keys"
-msgstr "Windows Keys"
-
-#: lib/reports/imaging_log.report.php:35
-#: lib/pages/groupmanagement.page.php:2492
-#: lib/pages/groupmanagement.page.php:3220
-#: lib/pages/hostmanagement.page.php:3588
-#: lib/pages/hostmanagement.page.php:4492 lib/pages/taskmanagement.page.php:446
-#: lib/pages/taskmanagement.page.php:556 lib/pages/taskmanagement.page.php:654
-msgid "Start Time"
-msgstr "Startzeit"
-
-#: lib/reports/imaging_log.report.php:36
-msgid "End Time"
-msgstr "Endzeit"
-
-#: lib/reports/imaging_log.report.php:37
-#: lib/pages/groupmanagement.page.php:2458
-#: lib/pages/groupmanagement.page.php:2494
-#: lib/pages/hostmanagement.page.php:3556
-#: lib/pages/hostmanagement.page.php:3590
-msgid "Duration"
-msgstr "Dauer"
-
-#: lib/reports/hosts_and_users.report.php:31
-#: lib/reports/hosts_and_users.report.php:48
-#, fuzzy
-msgid "User Logins"
-msgstr "CPU-Anzahl"
-
 #: lib/reports/inventory_report.report.php:31
 #: lib/reports/inventory_report.report.php:50
 #, fuzzy
@@ -4190,6 +4163,27 @@ msgstr "Systemprodukt"
 #, fuzzy
 msgid "System UUID"
 msgstr "System UUID"
+
+#: lib/reports/imaging_log.report.php:35
+#: lib/pages/groupmanagement.page.php:2492
+#: lib/pages/groupmanagement.page.php:3220
+#: lib/pages/hostmanagement.page.php:3588
+#: lib/pages/hostmanagement.page.php:4492 lib/pages/taskmanagement.page.php:446
+#: lib/pages/taskmanagement.page.php:556 lib/pages/taskmanagement.page.php:654
+msgid "Start Time"
+msgstr "Startzeit"
+
+#: lib/reports/imaging_log.report.php:36
+msgid "End Time"
+msgstr "Endzeit"
+
+#: lib/reports/imaging_log.report.php:37
+#: lib/pages/groupmanagement.page.php:2458
+#: lib/pages/groupmanagement.page.php:2494
+#: lib/pages/hostmanagement.page.php:3556
+#: lib/pages/hostmanagement.page.php:3590
+msgid "Duration"
+msgstr "Dauer"
 
 #: lib/reports/pending_mac_list.report.php:31
 #: lib/reports/pending_mac_list.report.php:45
@@ -4247,6 +4241,12 @@ msgstr "Snapin-Datei"
 msgid "Snapin Arguments"
 msgstr "Snapin-Argumente"
 
+#: lib/reports/hosts_and_users.report.php:31
+#: lib/reports/hosts_and_users.report.php:48
+#, fuzzy
+msgid "User Logins"
+msgstr "CPU-Anzahl"
+
 #: lib/reports/history_report.report.php:31
 #: lib/reports/history_report.report.php:49
 #, fuzzy
@@ -4272,146 +4272,6 @@ msgstr "Pfad ist nicht verfügbar"
 #, fuzzy
 msgid "No nodes available"
 msgstr "Pfad ist nicht verfügbar"
-
-#: lib/fog/eventmanager.class.php:58 lib/fog/eventmanager.class.php:143
-msgid "Event must be a string"
-msgstr "Ereignisname muss eine Zeichenfolge sein."
-
-#: lib/fog/eventmanager.class.php:61
-msgid "Listener must be an array or an object"
-msgstr "Listener muss ein Array oder ein Objekt sein"
-
-#: lib/fog/eventmanager.class.php:66
-msgid "Class must extend event"
-msgstr "Die Klasse muss das Ereignis verlängern."
-
-#: lib/fog/eventmanager.class.php:76
-msgid "Second paramater must be in [class,function]"
-msgstr ""
-
-#: lib/fog/eventmanager.class.php:80
-msgid "Class must extend hook"
-msgstr "Klasse muss Haken erweitern."
-
-#: lib/fog/eventmanager.class.php:85
-msgid "Method does not exist"
-msgstr "Diese Methode ist nicht vorhanden"
-
-#: lib/fog/eventmanager.class.php:95
-msgid "Register must be managed from hooks or events"
-msgstr "Register muss von Haken oder Ereignissen gemanagt werden"
-
-#: lib/fog/eventmanager.class.php:101
-#, fuzzy
-msgid "Could not register"
-msgstr "Konnte nicht registriert werden."
-
-#: lib/fog/eventmanager.class.php:104 lib/fog/eventmanager.class.php:167
-#, fuzzy
-msgid "Event"
-msgstr "Ereignis"
-
-#: lib/fog/eventmanager.class.php:106
-#, fuzzy
-msgid "Class"
-msgstr "Klasse"
-
-#: lib/fog/eventmanager.class.php:146
-#, fuzzy
-msgid "Event Data must be an array"
-msgstr "Ereignisdaten müssen ein Array sein."
-
-#: lib/fog/eventmanager.class.php:149
-msgid "Event and data are not set"
-msgstr "Ereignis und Daten sind nicht gesetzt"
-
-#: lib/fog/eventmanager.class.php:164
-#, fuzzy
-msgid "Could not notify"
-msgstr "Konnte nicht benachrichtigen"
-
-#: lib/fog/tasktype.class.php:115
-msgid "Icon File not found"
-msgstr "Icon-Datei nicht gefunden"
-
-#: lib/fog/tasktype.class.php:141
-msgid "No icons found"
-msgstr "Keine Symbole gefunden"
-
-#: lib/fog/timer.class.php:133
-msgid "This is a single run task that should run now."
-msgstr ""
-
-#: lib/fog/timer.class.php:135
-msgid "This is a single run task that should not run now."
-msgstr ""
-
-#: lib/fog/timer.class.php:138
-msgid "This is a cron style task that should run now."
-msgstr ""
-
-#: lib/fog/timer.class.php:140
-msgid "This is a cron style task that should not run now."
-msgstr ""
-
-#: lib/fog/uploadexception.class.php:50
-#, fuzzy
-msgid "The uploaded file exceeds the upload_max_filesize"
-msgstr "Die hochgeladene Datei überschreitet die Upload_max_filesize"
-
-#: lib/fog/uploadexception.class.php:51
-msgid "directive in php.ini"
-msgstr "Richtlinie in der php.ini"
-
-#: lib/fog/uploadexception.class.php:57
-#, fuzzy
-msgid "The uploaded file exceeds the max_file_size"
-msgstr "Die hochgeladene Datei überschreitet die Upload_max_filesize"
-
-#: lib/fog/uploadexception.class.php:58
-#, fuzzy
-msgid "directive specified in the HTML form"
-msgstr ""
-"Die hochgeladene Datei überschreitet die Max_file_size-Richtlinie im HTML-"
-"Formular"
-
-#: lib/fog/uploadexception.class.php:62
-msgid "The uploaded file was only partially uploaded"
-msgstr "Die hochgeladene Datei wurde nur teilweise hochgeladen"
-
-#: lib/fog/uploadexception.class.php:65
-msgid "No file was uploaded"
-msgstr "Keine Datei wurde hochgeladen"
-
-#: lib/fog/uploadexception.class.php:68
-msgid "Missing a temporary folder"
-msgstr "Ein temporärer Ordner fehlt"
-
-#: lib/fog/uploadexception.class.php:71
-msgid "Failed to write file to disk"
-msgstr "Datei auf Festplatte speichern fehlgeschlagen"
-
-#: lib/fog/uploadexception.class.php:74
-msgid "File upload stopped by an extension"
-msgstr "Datei-Upload durch eine Erweiterung gestoppt"
-
-#: lib/fog/uploadexception.class.php:79
-#, fuzzy
-msgid "Unknown upload error occurred"
-msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
-
-#: lib/fog/uploadexception.class.php:80
-#, fuzzy
-msgid "Return code"
-msgstr "Rückgabewert"
-
-#: lib/fog/user.class.php:269
-msgid "user successfully logged in"
-msgstr "Benutzer erfolgreich angemeldet"
-
-#: lib/fog/user.class.php:283
-msgid "user failed to login"
-msgstr "Benutzer konnte sich nicht anmelden"
 
 #: lib/fog/fogbase.class.php:455
 #, fuzzy
@@ -4537,112 +4397,80 @@ msgstr "Nachricht"
 msgid "Unable to Authenticate"
 msgstr "Authentifizieren nicht möglich"
 
-#: lib/fog/powermanagementmanager.class.php:110 lib/fog/fogpage.class.php:3369
-#, fuzzy
-msgid "Wake On Lan"
-msgstr "Wake On Lan"
-
-#: lib/fog/event.class.php:186
-msgid "Registered"
-msgstr "Registriert"
-
-#: lib/fog/bootmenu.class.php:1461
-#, fuzzy
-msgid "No valid storage nodes found"
-msgstr "Keine gültigen Speicherknoten gefunden"
-
-#: lib/fog/page.class.php:361
-#, fuzzy
-msgid "The current user is invalid."
-msgstr "Task-Typ ist nicht gültig"
-
-#: lib/fog/page.class.php:372 management/other/index.php:36
-#, fuzzy
-msgid "FOG Project"
-msgstr "Objekt"
-
-#: lib/fog/printer.class.php:187 lib/pages/printermanagement.page.php:106
-#: lib/pages/printermanagement.page.php:517
-#: lib/pages/printermanagement.page.php:1032
-msgid "TCP/IP Port Printer"
-msgstr "TCP/IP-Port Drucker"
-
-#: lib/fog/printer.class.php:188 lib/pages/printermanagement.page.php:107
-#: lib/pages/printermanagement.page.php:518
-#: lib/pages/printermanagement.page.php:1033
-msgid "iPrint Printer"
-msgstr "iPrint Drucker"
-
-#: lib/fog/printer.class.php:189 lib/pages/printermanagement.page.php:108
-#: lib/pages/printermanagement.page.php:519
-#: lib/pages/printermanagement.page.php:1034
-msgid "Network Printer"
-msgstr "Netzwerk-Drucker"
-
-#: lib/fog/printer.class.php:190 lib/pages/printermanagement.page.php:109
-#: lib/pages/printermanagement.page.php:520
-#: lib/pages/printermanagement.page.php:1035
-msgid "CUPS Printer"
-msgstr "CUPS Drucker"
-
-#: lib/fog/scheduledtask.class.php:130 lib/router/route.class.php:884
-msgid "Cron"
-msgstr "Cron"
-
-#: lib/fog/scheduledtask.class.php:130 lib/router/route.class.php:892
-msgid "Delayed"
-msgstr "Verzögert"
-
-#: lib/fog/schema.class.php:202
-msgid "Could not read tmp file."
-msgstr "Tmp-Datei konnte nicht gelesen werden."
-
-#: lib/fog/schema.class.php:236
-msgid "Error Opening DB File"
-msgstr "Fehler beim Öffnen der DB-Datei"
-
-#: lib/fog/schema.class.php:247
-msgid "Error performing query"
-msgstr "Fehler beim Ausführen der Anfrage"
-
-#: lib/fog/schema.class.php:275
-msgid "Exists item must be boolean"
-msgstr "Bestehendes Objekt muss boolean sein"
-
-#: lib/fog/schema.class.php:320
-msgid "Must have a name to create the table"
-msgstr "Zum Erstellen der Tabelle muss sie einen Namen haben"
-
-#: lib/fog/schema.class.php:325
-#, fuzzy
-msgid "Fields and types must have equal count"
-msgstr "Feld und Werte müssen gleiches Ergebnis haben"
-
-#: lib/fog/schema.class.php:414
-msgid "Need the table name to drop"
-msgstr "Der Name der zu entfernenden Tabelle wird benötigt."
-
-#: lib/fog/service.class.php:107
-msgid "Please Select an option"
-msgstr "Bitte wählen Sie eine Option"
-
-#: lib/fog/fogftp.class.php:160
-#, fuzzy
-msgid "FTP Connection Failed"
-msgstr "FTP-Verbindung fehlgeschlagen"
-
-#: lib/fog/system.class.php:40
-msgid "You are currently running PHP Version"
+#: lib/fog/timer.class.php:133
+msgid "This is a single run task that should run now."
 msgstr ""
 
-#: lib/fog/system.class.php:44
-msgid "FOG Needs at least"
+#: lib/fog/timer.class.php:135
+msgid "This is a single run task that should not run now."
 msgstr ""
 
-#: lib/fog/system.class.php:48
+#: lib/fog/timer.class.php:138
+msgid "This is a cron style task that should run now."
+msgstr ""
+
+#: lib/fog/timer.class.php:140
+msgid "This is a cron style task that should not run now."
+msgstr ""
+
+#: lib/fog/uploadexception.class.php:50
 #, fuzzy
-msgid "and below"
-msgstr "Nur Teilstruktur"
+msgid "The uploaded file exceeds the upload_max_filesize"
+msgstr "Die hochgeladene Datei überschreitet die Upload_max_filesize"
+
+#: lib/fog/uploadexception.class.php:51
+msgid "directive in php.ini"
+msgstr "Richtlinie in der php.ini"
+
+#: lib/fog/uploadexception.class.php:57
+#, fuzzy
+msgid "The uploaded file exceeds the max_file_size"
+msgstr "Die hochgeladene Datei überschreitet die Upload_max_filesize"
+
+#: lib/fog/uploadexception.class.php:58
+#, fuzzy
+msgid "directive specified in the HTML form"
+msgstr ""
+"Die hochgeladene Datei überschreitet die Max_file_size-Richtlinie im HTML-"
+"Formular"
+
+#: lib/fog/uploadexception.class.php:62
+msgid "The uploaded file was only partially uploaded"
+msgstr "Die hochgeladene Datei wurde nur teilweise hochgeladen"
+
+#: lib/fog/uploadexception.class.php:65
+msgid "No file was uploaded"
+msgstr "Keine Datei wurde hochgeladen"
+
+#: lib/fog/uploadexception.class.php:68
+msgid "Missing a temporary folder"
+msgstr "Ein temporärer Ordner fehlt"
+
+#: lib/fog/uploadexception.class.php:71
+msgid "Failed to write file to disk"
+msgstr "Datei auf Festplatte speichern fehlgeschlagen"
+
+#: lib/fog/uploadexception.class.php:74
+msgid "File upload stopped by an extension"
+msgstr "Datei-Upload durch eine Erweiterung gestoppt"
+
+#: lib/fog/uploadexception.class.php:79
+#, fuzzy
+msgid "Unknown upload error occurred"
+msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
+
+#: lib/fog/uploadexception.class.php:80
+#, fuzzy
+msgid "Return code"
+msgstr "Rückgabewert"
+
+#: lib/fog/user.class.php:269
+msgid "user successfully logged in"
+msgstr "Benutzer erfolgreich angemeldet"
+
+#: lib/fog/user.class.php:283
+msgid "user failed to login"
+msgstr "Benutzer konnte sich nicht anmelden"
 
 #: lib/fog/fogcontroller.class.php:160
 #, fuzzy
@@ -4738,7 +4566,7 @@ msgstr "Objekt"
 #: lib/fog/fogcontroller.class.php:559 lib/fog/fogcontroller.class.php:746
 #: lib/fog/fogcontroller.class.php:756 lib/fog/fogcontroller.class.php:769
 #: lib/fog/fogcontroller.class.php:781 lib/fog/fogcontroller.class.php:793
-#: lib/service/imagesize.class.php:192 lib/service/snapinhash.class.php:191
+#: lib/service/snapinhash.class.php:191 lib/service/imagesize.class.php:192
 msgid "ID"
 msgstr "ID"
 
@@ -4817,6 +4645,183 @@ msgstr "Ungültige ID übergeben"
 msgid "Failed"
 msgstr "fehlgeschlagen"
 
+#: lib/fog/page.class.php:361
+#, fuzzy
+msgid "The current user is invalid."
+msgstr "Task-Typ ist nicht gültig"
+
+#: lib/fog/page.class.php:372 management/other/index.php:36
+#, fuzzy
+msgid "FOG Project"
+msgstr "Objekt"
+
+#: lib/fog/event.class.php:186
+msgid "Registered"
+msgstr "Registriert"
+
+#: lib/fog/printer.class.php:187 lib/pages/printermanagement.page.php:106
+#: lib/pages/printermanagement.page.php:517
+#: lib/pages/printermanagement.page.php:1032
+msgid "TCP/IP Port Printer"
+msgstr "TCP/IP-Port Drucker"
+
+#: lib/fog/printer.class.php:188 lib/pages/printermanagement.page.php:107
+#: lib/pages/printermanagement.page.php:518
+#: lib/pages/printermanagement.page.php:1033
+msgid "iPrint Printer"
+msgstr "iPrint Drucker"
+
+#: lib/fog/printer.class.php:189 lib/pages/printermanagement.page.php:108
+#: lib/pages/printermanagement.page.php:519
+#: lib/pages/printermanagement.page.php:1034
+msgid "Network Printer"
+msgstr "Netzwerk-Drucker"
+
+#: lib/fog/printer.class.php:190 lib/pages/printermanagement.page.php:109
+#: lib/pages/printermanagement.page.php:520
+#: lib/pages/printermanagement.page.php:1035
+msgid "CUPS Printer"
+msgstr "CUPS Drucker"
+
+#: lib/fog/eventmanager.class.php:58 lib/fog/eventmanager.class.php:143
+msgid "Event must be a string"
+msgstr "Ereignisname muss eine Zeichenfolge sein."
+
+#: lib/fog/eventmanager.class.php:61
+msgid "Listener must be an array or an object"
+msgstr "Listener muss ein Array oder ein Objekt sein"
+
+#: lib/fog/eventmanager.class.php:66
+msgid "Class must extend event"
+msgstr "Die Klasse muss das Ereignis verlängern."
+
+#: lib/fog/eventmanager.class.php:76
+msgid "Second paramater must be in [class,function]"
+msgstr ""
+
+#: lib/fog/eventmanager.class.php:80
+msgid "Class must extend hook"
+msgstr "Klasse muss Haken erweitern."
+
+#: lib/fog/eventmanager.class.php:85
+msgid "Method does not exist"
+msgstr "Diese Methode ist nicht vorhanden"
+
+#: lib/fog/eventmanager.class.php:95
+msgid "Register must be managed from hooks or events"
+msgstr "Register muss von Haken oder Ereignissen gemanagt werden"
+
+#: lib/fog/eventmanager.class.php:101
+#, fuzzy
+msgid "Could not register"
+msgstr "Konnte nicht registriert werden."
+
+#: lib/fog/eventmanager.class.php:104 lib/fog/eventmanager.class.php:167
+#, fuzzy
+msgid "Event"
+msgstr "Ereignis"
+
+#: lib/fog/eventmanager.class.php:106
+#, fuzzy
+msgid "Class"
+msgstr "Klasse"
+
+#: lib/fog/eventmanager.class.php:146
+#, fuzzy
+msgid "Event Data must be an array"
+msgstr "Ereignisdaten müssen ein Array sein."
+
+#: lib/fog/eventmanager.class.php:149
+msgid "Event and data are not set"
+msgstr "Ereignis und Daten sind nicht gesetzt"
+
+#: lib/fog/eventmanager.class.php:164
+#, fuzzy
+msgid "Could not notify"
+msgstr "Konnte nicht benachrichtigen"
+
+#: lib/fog/system.class.php:40
+msgid "You are currently running PHP Version"
+msgstr ""
+
+#: lib/fog/system.class.php:44
+msgid "FOG Needs at least"
+msgstr ""
+
+#: lib/fog/system.class.php:48
+#, fuzzy
+msgid "and below"
+msgstr "Nur Teilstruktur"
+
+#: lib/fog/powermanagementmanager.class.php:110 lib/fog/fogpage.class.php:3369
+#, fuzzy
+msgid "Wake On Lan"
+msgstr "Wake On Lan"
+
+#: lib/fog/scheduledtask.class.php:130 lib/router/route.class.php:884
+msgid "Cron"
+msgstr "Cron"
+
+#: lib/fog/scheduledtask.class.php:130 lib/router/route.class.php:892
+msgid "Delayed"
+msgstr "Verzögert"
+
+#: lib/fog/schema.class.php:202
+msgid "Could not read tmp file."
+msgstr "Tmp-Datei konnte nicht gelesen werden."
+
+#: lib/fog/schema.class.php:236
+msgid "Error Opening DB File"
+msgstr "Fehler beim Öffnen der DB-Datei"
+
+#: lib/fog/schema.class.php:247
+msgid "Error performing query"
+msgstr "Fehler beim Ausführen der Anfrage"
+
+#: lib/fog/schema.class.php:275
+msgid "Exists item must be boolean"
+msgstr "Bestehendes Objekt muss boolean sein"
+
+#: lib/fog/schema.class.php:320
+msgid "Must have a name to create the table"
+msgstr "Zum Erstellen der Tabelle muss sie einen Namen haben"
+
+#: lib/fog/schema.class.php:325
+#, fuzzy
+msgid "Fields and types must have equal count"
+msgstr "Feld und Werte müssen gleiches Ergebnis haben"
+
+#: lib/fog/schema.class.php:414
+msgid "Need the table name to drop"
+msgstr "Der Name der zu entfernenden Tabelle wird benötigt."
+
+#: lib/fog/service.class.php:107
+msgid "Please Select an option"
+msgstr "Bitte wählen Sie eine Option"
+
+#: lib/fog/bootmenu.class.php:1461
+#, fuzzy
+msgid "No valid storage nodes found"
+msgstr "Keine gültigen Speicherknoten gefunden"
+
+#: lib/fog/fogmanagercontroller.class.php:691
+msgid "No fields passed"
+msgstr "Keine Felder übergeben"
+
+#: lib/fog/fogmanagercontroller.class.php:694
+msgid "No values passed"
+msgstr "Keine Werte übergeben"
+
+#: lib/fog/fogmanagercontroller.class.php:731
+#, fuzzy
+msgid "No data to insert"
+msgstr "Keine Daten zum Einfügen"
+
+#: lib/fog/fogmanagercontroller.class.php:964
+#, fuzzy
+msgid "No items found"
+msgstr "Keine Elemente gefunden"
+
 #: lib/fog/fogcore.class.php:40 lib/fog/fogpage.class.php:2832
 #: lib/pages/groupmanagement.page.php:3267
 #: lib/pages/hostmanagement.page.php:4539
@@ -4845,23 +4850,22 @@ msgstr "Laufende Version"
 msgid "Unavailable"
 msgstr "Nicht verfügbar"
 
-#: lib/fog/fogmanagercontroller.class.php:691
-msgid "No fields passed"
-msgstr "Keine Felder übergeben"
-
-#: lib/fog/fogmanagercontroller.class.php:694
-msgid "No values passed"
-msgstr "Keine Werte übergeben"
-
-#: lib/fog/fogmanagercontroller.class.php:731
+#: lib/fog/fogftp.class.php:160
 #, fuzzy
-msgid "No data to insert"
-msgstr "Keine Daten zum Einfügen"
+msgid "FTP Connection Failed"
+msgstr "FTP-Verbindung fehlgeschlagen"
 
-#: lib/fog/fogmanagercontroller.class.php:964
-#, fuzzy
-msgid "No items found"
-msgstr "Keine Elemente gefunden"
+#: lib/fog/fogurlrequests.class.php:365
+msgid "Window size must be greater than 1"
+msgstr "Fenstergröße muss größer sein als 1"
+
+#: lib/fog/tasktype.class.php:115
+msgid "Icon File not found"
+msgstr "Icon-Datei nicht gefunden"
+
+#: lib/fog/tasktype.class.php:141
+msgid "No icons found"
+msgstr "Keine Symbole gefunden"
 
 #: lib/fog/fogpage.class.php:406
 #, fuzzy
@@ -5283,10 +5287,6 @@ msgstr "Kein Knoten verknüpft"
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr "Hinzufügen von FOGPage: %s, Knoten: %s"
 
-#: lib/fog/fogurlrequests.class.php:365
-msgid "Window size must be greater than 1"
-msgstr "Fenstergröße muss größer sein als 1"
-
 #: lib/fog/group.class.php:429
 msgid "Select a valid image"
 msgstr "Wählen Sie ein gültiges Abbild"
@@ -5530,104 +5530,6 @@ msgstr ""
 msgid "VNC"
 msgstr ""
 
-#: lib/service/imagesize.class.php:93
-#, fuzzy
-msgid " * Image size is globally disabled"
-msgstr " * Imagegröße ist global deaktiviert"
-
-#: lib/service/imagesize.class.php:108
-#, fuzzy
-msgid "Starting Image Size Service"
-msgstr "Imagegrößen-Service startet"
-
-#: lib/service/imagesize.class.php:114 lib/service/snapinhash.class.php:113
-#: lib/service/snapinreplicator.class.php:121
-#: lib/service/imagereplicator.class.php:122
-msgid "We are group ID"
-msgstr "Wir sind Gruppen-ID "
-
-#: lib/service/imagesize.class.php:116 lib/service/snapinhash.class.php:115
-#: lib/service/snapinreplicator.class.php:123
-#: lib/service/imagereplicator.class.php:124
-#, fuzzy
-msgid "We are group name"
-msgstr "Wir sind Gruppenname "
-
-#: lib/service/imagesize.class.php:123 lib/service/snapinhash.class.php:122
-#: lib/service/snapinreplicator.class.php:130
-#: lib/service/imagereplicator.class.php:131
-msgid "We are node ID"
-msgstr "Wir sind Knoten-ID "
-
-#: lib/service/imagesize.class.php:125 lib/service/snapinhash.class.php:124
-#: lib/service/snapinreplicator.class.php:132
-#: lib/service/imagereplicator.class.php:133
-#, fuzzy
-msgid "We are node name"
-msgstr "Wir sind Knotenname "
-
-#: lib/service/imagesize.class.php:132
-#, fuzzy
-msgid "Finding any images associated"
-msgstr "Suche nach zugeordneten Images"
-
-#: lib/service/imagesize.class.php:133 lib/service/snapinhash.class.php:132
-#, fuzzy
-msgid "with this group"
-msgstr "mit dieser Gruppe"
-
-#: lib/service/imagesize.class.php:134 lib/service/snapinhash.class.php:133
-#, fuzzy
-msgid "as its primary group"
-msgstr "als primäre Gruppe finden"
-
-#: lib/service/imagesize.class.php:161
-#, fuzzy
-msgid "No images associated with this group as master"
-msgstr "Keine Images mit dieser Gruppe als Master verknüpft"
-
-#: lib/service/imagesize.class.php:169 lib/service/snapinhash.class.php:168
-#: lib/service/fogservice.class.php:377
-msgid "Found"
-msgstr "Gefundene"
-
-#: lib/service/imagesize.class.php:173
-#, fuzzy
-msgid "images"
-msgstr "Images"
-
-#: lib/service/imagesize.class.php:174
-#, fuzzy
-msgid "image"
-msgstr "Image"
-
-#: lib/service/imagesize.class.php:176
-msgid "to update size values as needed"
-msgstr "Größenwerte nach Bedarf aktualisieren"
-
-#: lib/service/imagesize.class.php:190
-#, fuzzy
-msgid "Trying image size for"
-msgstr "Versuche Imagegröße für"
-
-#: lib/service/imagesize.class.php:211
-#, fuzzy
-msgid "Path is unavailable"
-msgstr "Pfad ist nicht verfügbar"
-
-#: lib/service/imagesize.class.php:219
-msgid "Getting image size for"
-msgstr "Empfange Imagegrößé für"
-
-#: lib/service/imagesize.class.php:228
-#, fuzzy
-msgid "Size"
-msgstr "Größe"
-
-#: lib/service/imagesize.class.php:243 lib/service/snapinhash.class.php:234
-msgid "Completed"
-msgstr "Abgeschlossen"
-
 #: lib/service/multicastmanager.class.php:203
 msgid " * Multicast service is globally disabled"
 msgstr " * Multicast Service ist global deaktiviert"
@@ -5845,15 +5747,60 @@ msgstr "Snapin-Hashs global deaktiviert"
 msgid "Starting Snapin Hashing Service"
 msgstr "Snapin-Hash-Service wird gestartet"
 
+#: lib/service/snapinhash.class.php:113
+#: lib/service/snapinreplicator.class.php:121
+#: lib/service/imagesize.class.php:114
+#: lib/service/imagereplicator.class.php:122
+msgid "We are group ID"
+msgstr "Wir sind Gruppen-ID "
+
+#: lib/service/snapinhash.class.php:115
+#: lib/service/snapinreplicator.class.php:123
+#: lib/service/imagesize.class.php:116
+#: lib/service/imagereplicator.class.php:124
+#, fuzzy
+msgid "We are group name"
+msgstr "Wir sind Gruppenname "
+
+#: lib/service/snapinhash.class.php:122
+#: lib/service/snapinreplicator.class.php:130
+#: lib/service/imagesize.class.php:123
+#: lib/service/imagereplicator.class.php:131
+msgid "We are node ID"
+msgstr "Wir sind Knoten-ID "
+
+#: lib/service/snapinhash.class.php:124
+#: lib/service/snapinreplicator.class.php:132
+#: lib/service/imagesize.class.php:125
+#: lib/service/imagereplicator.class.php:133
+#, fuzzy
+msgid "We are node name"
+msgstr "Wir sind Knotenname "
+
 #: lib/service/snapinhash.class.php:131
 #, fuzzy
 msgid "Finding any snapins associated"
 msgstr "Verbundene Snapins"
 
+#: lib/service/snapinhash.class.php:132 lib/service/imagesize.class.php:133
+#, fuzzy
+msgid "with this group"
+msgstr "mit dieser Gruppe"
+
+#: lib/service/snapinhash.class.php:133 lib/service/imagesize.class.php:134
+#, fuzzy
+msgid "as its primary group"
+msgstr "als primäre Gruppe finden"
+
 #: lib/service/snapinhash.class.php:160
 #, fuzzy
 msgid "No snapins associated with this group as master"
 msgstr "Keine Snapins mit dieser Gruppe als Master verbunden"
+
+#: lib/service/snapinhash.class.php:168 lib/service/imagesize.class.php:169
+#: lib/service/fogservice.class.php:377
+msgid "Found"
+msgstr "Gefundene"
 
 #: lib/service/snapinhash.class.php:172
 #, fuzzy
@@ -5876,6 +5823,10 @@ msgstr "Empfange Snapin-Hash und Größe für"
 #: lib/service/snapinhash.class.php:218
 msgid "Hash"
 msgstr "Hash"
+
+#: lib/service/snapinhash.class.php:234 lib/service/imagesize.class.php:243
+msgid "Completed"
+msgstr "Abgeschlossen"
 
 #: lib/service/snapinreplicator.class.php:92
 msgid " * Snapin replication is globally disabled"
@@ -6003,6 +5954,59 @@ msgstr ""
 #, fuzzy
 msgid "Task sent to"
 msgstr "Task gesendet an"
+
+#: lib/service/imagesize.class.php:93
+#, fuzzy
+msgid " * Image size is globally disabled"
+msgstr " * Imagegröße ist global deaktiviert"
+
+#: lib/service/imagesize.class.php:108
+#, fuzzy
+msgid "Starting Image Size Service"
+msgstr "Imagegrößen-Service startet"
+
+#: lib/service/imagesize.class.php:132
+#, fuzzy
+msgid "Finding any images associated"
+msgstr "Suche nach zugeordneten Images"
+
+#: lib/service/imagesize.class.php:161
+#, fuzzy
+msgid "No images associated with this group as master"
+msgstr "Keine Images mit dieser Gruppe als Master verknüpft"
+
+#: lib/service/imagesize.class.php:173
+#, fuzzy
+msgid "images"
+msgstr "Images"
+
+#: lib/service/imagesize.class.php:174
+#, fuzzy
+msgid "image"
+msgstr "Image"
+
+#: lib/service/imagesize.class.php:176
+msgid "to update size values as needed"
+msgstr "Größenwerte nach Bedarf aktualisieren"
+
+#: lib/service/imagesize.class.php:190
+#, fuzzy
+msgid "Trying image size for"
+msgstr "Versuche Imagegröße für"
+
+#: lib/service/imagesize.class.php:211
+#, fuzzy
+msgid "Path is unavailable"
+msgstr "Pfad ist nicht verfügbar"
+
+#: lib/service/imagesize.class.php:219
+msgid "Getting image size for"
+msgstr "Empfange Imagegrößé für"
+
+#: lib/service/imagesize.class.php:228
+#, fuzzy
+msgid "Size"
+msgstr "Größe"
 
 #: lib/service/imagereplicator.class.php:93
 msgid " * Image replication is globally disabled"
@@ -6151,6 +6155,10 @@ msgstr "Task gestartet"
 msgid "Sync finished - "
 msgstr ""
 
+#: lib/db/databasemanager.class.php:84
+msgid "A valid database connection could not be made"
+msgstr "Eine gültige Datenbankverbindung konnte nicht hergestellt werden"
+
 #: lib/db/pdodb.class.php:105
 msgid "Failed to connect"
 msgstr "Verbindung nicht möglich"
@@ -6214,10 +6222,6 @@ msgstr "Debug"
 #: lib/db/pdodb.class.php:441
 msgid "Cannot connect to database"
 msgstr "Kann keine Verbindung zur Datenbank herstellen"
-
-#: lib/db/databasemanager.class.php:84
-msgid "A valid database connection could not be made"
-msgstr "Eine gültige Datenbankverbindung konnte nicht hergestellt werden"
 
 #: lib/pages/clientmanagement.page.php:78
 #, fuzzy
@@ -8390,6 +8394,98 @@ msgstr "Task-Typ erstellen fehlgeschlagen"
 msgid "No storagegroups assigned to this image"
 msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
+#: lib/pages/modulemanagement.page.php:47
+#, fuzzy
+msgid "Short Name"
+msgstr "Host-Name"
+
+#: lib/pages/modulemanagement.page.php:61
+#: lib/pages/modulemanagement.page.php:157
+#, fuzzy
+msgid "Create New Module"
+msgstr "Neuen Schlüssel erstellen"
+
+#: lib/pages/modulemanagement.page.php:88
+#: lib/pages/modulemanagement.page.php:92
+#: lib/pages/modulemanagement.page.php:203
+#: lib/pages/modulemanagement.page.php:207
+#: lib/pages/modulemanagement.page.php:390
+#: lib/pages/modulemanagement.page.php:394
+#, fuzzy
+msgid "Module Description"
+msgstr "Rollenbeschreibung"
+
+#: lib/pages/modulemanagement.page.php:99
+#: lib/pages/modulemanagement.page.php:214
+#: lib/pages/modulemanagement.page.php:401
+#, fuzzy
+msgid "Module Short Name"
+msgstr "Modulname"
+
+#: lib/pages/modulemanagement.page.php:111
+#: lib/pages/modulemanagement.page.php:226
+#: lib/pages/modulemanagement.page.php:413
+#, fuzzy
+msgid "Module Default?"
+msgstr "Standarddrucker aktualisieren"
+
+#: lib/pages/modulemanagement.page.php:289
+#, fuzzy
+msgid "A module already exists with this name!"
+msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
+
+#: lib/pages/modulemanagement.page.php:299
+#, fuzzy
+msgid "Add module failed!"
+msgstr "Benutzer hinzufügen fehlgeschlagen!"
+
+#: lib/pages/modulemanagement.page.php:305
+#, fuzzy
+msgid "Module added!"
+msgstr "Drucker hinzugefügt"
+
+#: lib/pages/modulemanagement.page.php:306
+#, fuzzy
+msgid "Module Create Success"
+msgstr "Drucker hinzufügen erfolgreich."
+
+#: lib/pages/modulemanagement.page.php:319
+#, fuzzy
+msgid "Module Create Fail"
+msgstr "Drucker erstellen fehlgeschlagen!"
+
+#: lib/pages/modulemanagement.page.php:492
+#, fuzzy
+msgid "Please use another module name"
+msgstr "Bitte geben Sie einen anderen Hostnamen ein"
+
+#: lib/pages/modulemanagement.page.php:540
+#, fuzzy
+msgid "Module Host Associations"
+msgstr "Regel Zuordnung"
+
+#: lib/pages/modulemanagement.page.php:654
+#, fuzzy
+msgid "Module update failed!"
+msgstr "Drucker-Update fehlgeschlagen!"
+
+#: lib/pages/modulemanagement.page.php:660
+#, fuzzy
+msgid "Module updated!"
+msgstr "Drucker aktualisiert!"
+
+#: lib/pages/modulemanagement.page.php:661
+#: lib/pages/serviceconfigurationpage.page.php:1567
+#, fuzzy
+msgid "Module Update Success"
+msgstr "Modulupdate erfolgreich"
+
+#: lib/pages/modulemanagement.page.php:674
+#: lib/pages/serviceconfigurationpage.page.php:1576
+#, fuzzy
+msgid "Module Update Fail"
+msgstr "Modulupdate fehlgeschlagen"
+
 #: lib/pages/ipxemanagement.page.php:44
 #: lib/pages/printermanagement.page.php:1581
 msgid "Default"
@@ -8508,98 +8604,6 @@ msgstr "Modulupdate erfolgreich"
 #: lib/pages/ipxemanagement.page.php:769
 #, fuzzy
 msgid "Menu Update Fail"
-msgstr "Modulupdate fehlgeschlagen"
-
-#: lib/pages/modulemanagement.page.php:47
-#, fuzzy
-msgid "Short Name"
-msgstr "Host-Name"
-
-#: lib/pages/modulemanagement.page.php:61
-#: lib/pages/modulemanagement.page.php:157
-#, fuzzy
-msgid "Create New Module"
-msgstr "Neuen Schlüssel erstellen"
-
-#: lib/pages/modulemanagement.page.php:88
-#: lib/pages/modulemanagement.page.php:92
-#: lib/pages/modulemanagement.page.php:203
-#: lib/pages/modulemanagement.page.php:207
-#: lib/pages/modulemanagement.page.php:390
-#: lib/pages/modulemanagement.page.php:394
-#, fuzzy
-msgid "Module Description"
-msgstr "Rollenbeschreibung"
-
-#: lib/pages/modulemanagement.page.php:99
-#: lib/pages/modulemanagement.page.php:214
-#: lib/pages/modulemanagement.page.php:401
-#, fuzzy
-msgid "Module Short Name"
-msgstr "Modulname"
-
-#: lib/pages/modulemanagement.page.php:111
-#: lib/pages/modulemanagement.page.php:226
-#: lib/pages/modulemanagement.page.php:413
-#, fuzzy
-msgid "Module Default?"
-msgstr "Standarddrucker aktualisieren"
-
-#: lib/pages/modulemanagement.page.php:289
-#, fuzzy
-msgid "A module already exists with this name!"
-msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
-
-#: lib/pages/modulemanagement.page.php:299
-#, fuzzy
-msgid "Add module failed!"
-msgstr "Benutzer hinzufügen fehlgeschlagen!"
-
-#: lib/pages/modulemanagement.page.php:305
-#, fuzzy
-msgid "Module added!"
-msgstr "Drucker hinzugefügt"
-
-#: lib/pages/modulemanagement.page.php:306
-#, fuzzy
-msgid "Module Create Success"
-msgstr "Drucker hinzufügen erfolgreich."
-
-#: lib/pages/modulemanagement.page.php:319
-#, fuzzy
-msgid "Module Create Fail"
-msgstr "Drucker erstellen fehlgeschlagen!"
-
-#: lib/pages/modulemanagement.page.php:492
-#, fuzzy
-msgid "Please use another module name"
-msgstr "Bitte geben Sie einen anderen Hostnamen ein"
-
-#: lib/pages/modulemanagement.page.php:540
-#, fuzzy
-msgid "Module Host Associations"
-msgstr "Regel Zuordnung"
-
-#: lib/pages/modulemanagement.page.php:654
-#, fuzzy
-msgid "Module update failed!"
-msgstr "Drucker-Update fehlgeschlagen!"
-
-#: lib/pages/modulemanagement.page.php:660
-#, fuzzy
-msgid "Module updated!"
-msgstr "Drucker aktualisiert!"
-
-#: lib/pages/modulemanagement.page.php:661
-#: lib/pages/serviceconfigurationpage.page.php:1567
-#, fuzzy
-msgid "Module Update Success"
-msgstr "Modulupdate erfolgreich"
-
-#: lib/pages/modulemanagement.page.php:674
-#: lib/pages/serviceconfigurationpage.page.php:1576
-#, fuzzy
-msgid "Module Update Fail"
 msgstr "Modulupdate fehlgeschlagen"
 
 #: lib/pages/pluginmanagement.page.php:42
@@ -10202,62 +10206,6 @@ msgstr "Benutzeraktualisierung erfolgreich!"
 msgid "User Update Fail"
 msgstr "Benutzer-Update fehlgeschlagen"
 
-#: lib/reg-task/registration.class.php:94
-msgid "Created by FOG Reg on"
-msgstr "Erstellt von FOG Reg am"
-
-#: lib/reg-task/registration.class.php:120
-#: lib/reg-task/registration.class.php:129
-#, fuzzy
-msgid "This machine already registered as "
-msgstr "Bereits registriert als"
-
-#: lib/reg-task/registration.class.php:159
-msgid "Unsafe hostname entered, please try again: "
-msgstr ""
-
-#: lib/reg-task/registration.class.php:168
-msgid "Hostname already used, please try again"
-msgstr ""
-
-#: lib/reg-task/registration.class.php:256
-#: lib/reg-task/registration.class.php:432
-#: lib/reg-task/registration.class.php:476
-#, fuzzy
-msgid "Failed to create Host!"
-msgstr "Host erstellen fehlgeschlagen"
-
-#: lib/reg-task/registration.class.php:267
-#: lib/reg-task/registration.class.php:443
-#: lib/reg-task/registration.class.php:485
-msgid "Done, without imaging!"
-msgstr "Erledigt, ohne Image"
-
-#: lib/reg-task/registration.class.php:299
-#, fuzzy
-msgid "Done, without imaging! No image assigned."
-msgstr "Erledigt, kein Image zugeordnet!"
-
-#: lib/reg-task/registration.class.php:304
-#, fuzzy
-msgid "Done, without imaging! Image is not enabled."
-msgstr "Erledigt, ohne Image"
-
-#: lib/reg-task/registration.class.php:309
-#, fuzzy
-msgid "Done, without imaging! Image not in storage group."
-msgstr "Erledigt, ohne Image"
-
-#: lib/reg-task/registration.class.php:325
-#, fuzzy
-msgid "Done, without imaging! Failed to create tasking."
-msgstr "Fertig, Tasking konnte nicht erstellt werden"
-
-#: lib/reg-task/registration.class.php:328
-#, fuzzy
-msgid "Done, with imaging"
-msgstr "Erledigt, mit Image!"
-
 #: lib/reg-task/taskingelement.class.php:172 service/progress.php:31
 msgid "No Active Task found for Host"
 msgstr "Keinen aktiven Task gefunden für Host"
@@ -10421,6 +10369,62 @@ msgstr "Aktualisierung des Task-Logs fehlgeschlagen"
 msgid "Failed to update imaging log"
 msgstr "Update des Image-Logs fehlgeschlagen"
 
+#: lib/reg-task/registration.class.php:94
+msgid "Created by FOG Reg on"
+msgstr "Erstellt von FOG Reg am"
+
+#: lib/reg-task/registration.class.php:120
+#: lib/reg-task/registration.class.php:129
+#, fuzzy
+msgid "This machine already registered as "
+msgstr "Bereits registriert als"
+
+#: lib/reg-task/registration.class.php:159
+msgid "Unsafe hostname entered, please try again: "
+msgstr ""
+
+#: lib/reg-task/registration.class.php:168
+msgid "Hostname already used, please try again"
+msgstr ""
+
+#: lib/reg-task/registration.class.php:256
+#: lib/reg-task/registration.class.php:432
+#: lib/reg-task/registration.class.php:476
+#, fuzzy
+msgid "Failed to create Host!"
+msgstr "Host erstellen fehlgeschlagen"
+
+#: lib/reg-task/registration.class.php:267
+#: lib/reg-task/registration.class.php:443
+#: lib/reg-task/registration.class.php:485
+msgid "Done, without imaging!"
+msgstr "Erledigt, ohne Image"
+
+#: lib/reg-task/registration.class.php:299
+#, fuzzy
+msgid "Done, without imaging! No image assigned."
+msgstr "Erledigt, kein Image zugeordnet!"
+
+#: lib/reg-task/registration.class.php:304
+#, fuzzy
+msgid "Done, without imaging! Image is not enabled."
+msgstr "Erledigt, ohne Image"
+
+#: lib/reg-task/registration.class.php:309
+#, fuzzy
+msgid "Done, without imaging! Image not in storage group."
+msgstr "Erledigt, ohne Image"
+
+#: lib/reg-task/registration.class.php:325
+#, fuzzy
+msgid "Done, without imaging! Failed to create tasking."
+msgstr "Fertig, Tasking konnte nicht erstellt werden"
+
+#: lib/reg-task/registration.class.php:328
+#, fuzzy
+msgid "Done, with imaging"
+msgstr "Erledigt, mit Image!"
+
 #: management/other/index.php:67
 msgid "You must enable JavaScript to use FOG Management."
 msgstr ""
@@ -10482,6 +10486,11 @@ msgstr ""
 msgid "All rights reserved."
 msgstr ""
 
+#: service/hostinfo.php:31
+#, fuzzy
+msgid "Invalid tasking!"
+msgstr "Ungültiger Vorgang"
+
 #: service/Test.php:145
 msgid "Invalid unit passed"
 msgstr "Ungültige Einheit übergeben"
@@ -10505,16 +10514,6 @@ msgstr "Fertig"
 msgid "There are no groups on this server"
 msgstr "Es gibt keine Gruppen auf diesem Server."
 
-#: service/hostinfo.php:31
-#, fuzzy
-msgid "Invalid tasking!"
-msgstr "Ungültiger Vorgang"
-
-#: service/imagelisting.php:30
-#, fuzzy
-msgid "There are no images on this server"
-msgstr "Es gibt keine Images auf diesem Server."
-
 #: service/locationlisting.php:30
 #, fuzzy
 msgid "There are no locations on this server"
@@ -10529,19 +10528,33 @@ msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
 msgid "The primary mac associated is"
 msgstr "Die zugeordnete Primär-MAC lautet"
 
+#: service/imagelisting.php:30
+#, fuzzy
+msgid "There are no images on this server"
+msgstr "Es gibt keine Images auf diesem Server."
+
 #: service/oulisting.php:30
 #, fuzzy
 msgid "There are no ous on this server"
 msgstr "Es gibt keine Gruppen auf diesem Server."
 
-#: service/progress.php:39
-msgid "Invalid image"
-msgstr "Ungültiges Image"
-
 #: service/snapinlisting.php:30
 #, fuzzy
 msgid "There are no snapins on this server"
 msgstr "Es gibt keine Snapins auf diesem Server."
+
+#: service/progress.php:39
+msgid "Invalid image"
+msgstr "Ungültiges Image"
+
+#: status/bandwidth.php:40
+#, fuzzy
+msgid "Device must be a string"
+msgstr "Gerätename muss eine Zeichenfolge sein."
+
+#: status/bandwidth.php:86 status/kernelvers.php:30
+msgid "Unauthorized"
+msgstr ""
 
 #: status/getfiles.php:28
 #, fuzzy
@@ -10562,10 +10575,6 @@ msgstr "Icon-Datei nicht gefunden"
 #, fuzzy
 msgid "No data found"
 msgstr "Nicht gefunden"
-
-#: status/kernelvers.php:30 status/bandwidth.php:86
-msgid "Unauthorized"
-msgstr ""
 
 #: status/kernelvers.php:63
 msgid "bzImage - 64 bit"
@@ -10596,11 +10605,6 @@ msgstr "Datei kann zum Lesen nicht geöffnet werden"
 #: status/logtoview.php:161
 msgid "IP Passed is incorrect"
 msgstr "IP ist inkorrekt"
-
-#: status/bandwidth.php:40
-#, fuzzy
-msgid "Device must be a string"
-msgstr "Gerätename muss eine Zeichenfolge sein."
 
 #~ msgid "Export Users"
 #~ msgstr "Benutzer exportieren"
