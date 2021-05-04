@@ -632,7 +632,12 @@ installPackages() {
     case $osid in
         1)
             packages="$packages php-bcmath bc"
-            [[ $installlang -eq 1 ]] && packages="$packages php-intl"
+            if [[ $installlang -eq 1 ]]; then
+                packages="$packages php-intl"
+                for i in fr de eu es pt zh en; do
+                    packages="$packages glibc-langpack-${i}"
+                done
+            fi
             packages="${packages// mod_fastcgi/}"
             packages="${packages// mod_evasive/}"
             packages="${packages// php-mcrypt/}"
@@ -674,7 +679,12 @@ installPackages() {
             packages="${packages// libapache2-mod-fastcgi/}"
             packages="${packages// libapache2-mod-evasive/}"
             packages="${packages// php${php_ver}-mcrypt/}"
-            packages="${packages} php${php_ver}-bcmath bc"
+            if [[ $installlang -eq 1 ]]; then
+                packages="$packages php${php_ver}-intl"
+                for i in fr de eu es pt zh en; do
+                    packages="$packages language-pack-${i}"
+                done
+            fi
             [[ $installlang -eq 1 ]] && packages="$packages php${php_ver}-intl"
             case $linuxReleaseName in
                 *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*)
