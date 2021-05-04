@@ -632,6 +632,7 @@ installPackages() {
     case $osid in
         1)
             packages="$packages php-bcmath bc"
+            [[ $installlang -eq 1 ]] && packages="$packages php-intl"
             packages="${packages// mod_fastcgi/}"
             packages="${packages// mod_evasive/}"
             packages="${packages// php-mcrypt/}"
@@ -674,6 +675,7 @@ installPackages() {
             packages="${packages// libapache2-mod-evasive/}"
             packages="${packages// php${php_ver}-mcrypt/}"
             packages="${packages} php${php_ver}-bcmath bc"
+            [[ $installlang -eq 1 ]] && packages="$packages php${php_ver}-intl"
             case $linuxReleaseName in
                 *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*)
                     if [[ $OSVersion -gt 17 ]]; then

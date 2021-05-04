@@ -193,7 +193,6 @@ class FOGCore extends FOGBase
     {
         self::$pluginsinstalled = (array)self::getActivePlugins();
         $getSettings = [
-            'FOG_DEFAULT_LOCALE',
             'FOG_HOST_LOOKUP',
             'FOG_MEMORY_LIMIT',
             'FOG_REAUTH_ON_DELETE',
@@ -202,7 +201,6 @@ class FOGCore extends FOGBase
             'FOG_VIEW_DEFAULT_SCREEN',
         ];
         list(
-            $locale,
             $hostLookup,
             $memoryLimit,
             $authdelete,
@@ -231,7 +229,6 @@ class FOGCore extends FOGBase
                 ini_set('memory_limit', sprintf('%dM', $memoryLimit));
             }
         }
-        self::$locale = $locale;
         return self::getClass(__CLASS__);
     }
 }

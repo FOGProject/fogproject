@@ -54,6 +54,7 @@ Thumbs.db
 # Imported Images #
 ###################
 packages/web/management/other/*
+packages/web/management/languages/*
 !packages/web/management/other/index.php
 !packages/web/management/other/gpl-3.0.txt
 packages/web/service/ipxe/backup

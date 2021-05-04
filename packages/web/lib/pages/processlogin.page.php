@@ -46,143 +46,22 @@ class ProcessLogin extends FOGPage
      */
     private static function _getLanguages()
     {
-        $translang = self::_translang();
+        $selected = (
+            $_SESSION['FOG_LANG'] ?:
+            self::getSetting('FOG_DEFAULT_LOCALE')
+        );
         $langmenu = '<select class="form-control fog-select2" name="ulang" id="ulang">';
-        foreach ((array)self::$foglang['Language'] as &$lang) {
+        foreach ((array)self::$foglang['Language'] as $base => &$lang) {
             $langmenu .= '<option value="'
-                . $lang
+                . $base
                 . '"'
-                . ($translang == $lang ? ' selected' : '')
+                . ($base == $selected ? ' selected' : '')
                 . '>'
                 . $lang
                 . '</option>';
             unset($lang);
         }
         return $langmenu . '</select>';
-    }
-    /**
-     * Returns the language.
-     *
-     * @param string $lang Two Letter Code to return language.
-     *
-     * @return string
-     */
-    private static function _returnLang($lang)
-    {
-        return self::$foglang['Language'][$lang];
-    }
-    /**
-     * The translation.
-     *
-     * @return string
-     */
-    private static function _translang()
-    {
-        switch (self::$locale) {
-        case 'de_DE':
-            $lang = 'de';
-            break;
-        case 'en_US':
-            $lang = 'en';
-            break;
-        case 'es_ES':
-            $lang = 'es';
-            break;
-        case 'eu_ES':
-            $lang = 'eu';
-            break;
-        case 'fr_FR':
-            $lang = 'fr';
-            break;
-        case 'it_IT':
-            $lang = 'it';
-            break;
-        case 'pt_BR':
-            $lang = 'pt';
-            break;
-        case 'zh_CN':
-            $lang = 'zh';
-            break;
-        default:
-            $lang = self::getSetting('FOG_DEFAULT_LOCALE');
-        }
-        return self::_returnLang($lang);
-    }
-    /**
-     * Set the session language.
-     *
-     * @return void
-     */
-    private static function _specLang()
-    {
-        $ulang = filter_input(INPUT_POST, 'ulang');
-        if (!isset($ulang)) {
-            $ulang = self::_translang();
-        }
-        switch ($ulang) {
-        case self::$foglang['Language']['de']:
-            self::$locale = 'de_DE';
-            break;
-        case self::$foglang['Language']['en']:
-            self::$locale = 'en_US';
-            break;
-        case self::$foglang['Language']['es']:
-            self::$locale = 'es_ES';
-            break;
-        case self::$foglang['Language']['eu']:
-            self::$Locale = 'eu_ES';
-            break;
-        case self::$foglang['Language']['fr']:
-            self::$locale = 'fr_FR';
-            break;
-        case self::$foglang['Language']['it']:
-            self::$locale = 'it_IT';
-            break;
-        case self::$foglang['Language']['pt']:
-            self::$locale = 'pt_BR';
-            break;
-        case self::$foglang['Language']['zh']:
-            self::$locale = 'zh_CN';
-            break;
-        default:
-            self::$locale = self::_translang();
-        }
-    }
-    /**
-     * Sets the language we need.
-     *
-     * @return void
-     */
-    public static function setLang()
-    {
-        $langs = [
-            'de_DE' => true,
-            'en_US' => true,
-            'es_ES' => true,
-            'eu_ES' => true,
-            'fr_FR' => true,
-            'it_IT' => true,
-            'pt_BR' => true,
-            'zh_CN' => true,
-        ];
-        self::_specLang();
-        setlocale(
-            (int)LC_MESSAGES,
-            sprintf(
-                '%s.UTF-8',
-                self::$locale
-            )
-        );
-        $domain = 'messages';
-        bindtextdomain(
-            $domain,
-            './languages'
-        );
-        bind_textdomain_codeset(
-            $domain,
-            'UTF-8'
-        );
-        textdomain($domain);
     }
     /**
      * The processing post form.
@@ -193,11 +72,14 @@ class ProcessLogin extends FOGPage
     {
         header('Content-type: application/json');
         try {
-            self::setLang();
+            $ulang = filter_input(INPUT_POST, 'ulang');
             $uname = filter_input(INPUT_POST, 'uname');
             $upass = filter_input(INPUT_POST, 'upass');
             $rememberme = isset($_POST['remember-me']);
             $type = self::$FOGUser->get('type');
+            if ($_SESSION['FOG_LANG'] != $ulang) {
+                Initiator::language($ulang);
+            }
             self::$HookManager->processEvent(
                 'USER_TYPE_HOOK',
                 ['type' => &$type]
@@ -210,6 +92,7 @@ class ProcessLogin extends FOGPage
             if (!self::$FOGUser->isValid()) {
                 throw new Exception(self::$foglang['InvalidLogin']);
             }
+            // Setup language stuff
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $msg = json_encode(
                 [
@@ -319,24 +202,12 @@ class ProcessLogin extends FOGPage
         }
     }
     /**
-     * Gets the locale.
-     *
-     * @return string
-     */
-    public static function getLocale()
-    {
-        $lang = explode('_', self::$locale);
-        $lang = $lang[0];
-        return $lang;
-    }
-    /**
      * Presents the login form.
      *
      * @return void
      */
     public static function mainLoginForm()
     {
-        self::setLang();
         echo '<div class="login-box">';
         echo '<div class="login-logo">';
         echo '<a href="./index.php"><b>FOG</b> Project</a>';
