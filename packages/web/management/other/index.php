@@ -21,10 +21,10 @@
  */
 
 $isLoggedIn = self::$FOGUser->isLoggedIn() && self::$FOGUser->isvalid();
+$ulang = $_SESSION['FOG_LANG'] ?: FOGCore::getSetting('FOG_DEFAULT_LOCALE'); 
+Initiator::language($ulang);
 echo '<!DOCTYPE html>';
-echo '<html lang="';
-echo ProcessLogin::getLocale();
-echo '">';
+echo '<html lang="' . $ulang . '">';
 echo '<head>';
 echo '<meta charset="utf-8"/>';
 echo '<meta http-equiv="X-UA-Compatible" content="IE=edge"/>';

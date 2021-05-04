@@ -2435,12 +2435,15 @@ abstract class FOGBase
      *
      * @param string $username the username to attempt
      * @param string $password the password to attempt
-     * @param bool   $remember Are we remembering usera?
+     * @param bool   $remember Are we remembering user?
      *
      * @return object
      */
-    public static function attemptLogin($username, $password, $remember = false)
-    {
+    public static function attemptLogin(
+        $username,
+        $password,
+        $remember = false
+    ) {
         return self::getClass('User')
             ->validatePw($username, $password, $remember);
     }

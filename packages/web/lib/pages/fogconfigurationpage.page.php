@@ -976,7 +976,7 @@ class FOGConfigurationPage extends FOGPage
             foreach ($combined as $key => &$val) {
                 Route::indiv('service', $key);
                 if (!$_FILES[$key]) {
-                    $set = trim(filter_input(INPUT_POST, $key));
+                    $set = trim(filter_var($val));
                 }
                 $Service = json_decode(
                     Route::getData()
