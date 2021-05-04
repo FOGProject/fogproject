@@ -169,6 +169,44 @@ class Initiator
         }
     }
     /**
+     * Initiates language configuration
+     * 
+     * @param string $lang
+     *
+     * @return void
+     */
+    public static function language($lang = 'en')
+    {
+        $validLangs = [
+            'de' => 'DE',
+            'en' => 'US',
+            'es' => 'ES',
+            'eu' => 'ES',
+            'fr' => 'FR',
+            'it' => 'IT',
+            'pt' => 'BR',
+            'zh' => 'CN'
+        ];
+        if (!in_array($lang, array_keys($validLangs))) die('Invalid Language');
+
+        if (PHP_SESSION_NONE != session_status() && $_SESSION['FOG_LANG'] != $lang) {
+            $_SESSION['FOG_LANG'] = $lang;
+        }
+
+        $lang = "{$lang}_{$validLangs[$lang]}.UTF-8";
+        $domain = 'messages';
+        $apppath = realpath(__DIR__ . '/../management/languages');
+
+        if (defined('LC_MESSAGES')) {
+            setlocale(LC_MESSAGES, $lang);
+        } else {
+            putenv("LC_ALL=$lang");
+        }
+
+        bindtextdomain($domain, $apppath);
+        textdomain($domain);
+    }
+    /**
      * Stores session csrf token.
      *
      * @param string $key   The session key to store.
