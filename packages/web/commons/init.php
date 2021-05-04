@@ -181,16 +181,17 @@ class Initiator
             $_SESSION['FOG_LANG'] = $lang;
         }
         
-        $lang = "{$lang}_{$validLangs[$lang]}.UTF-8";
+        $lang = "{$lang}_{$validLangs[$lang]}";
         $domain = 'messages';
         $apppath = realpath(__DIR__ . '/../management/languages');
 
         if (defined('LC_MESSAGES')) {
-            setlocale(LC_MESSAGES, $lang);
+            setlocale(LC_MESSAGES, $lang.".UTF-8");
         } else {
             putenv("LC_ALL=$lang");
         }
 
+        bind_textdomain_codeset($domain, 'UTF-8');
         bindtextdomain($domain, $apppath);
         textdomain($domain);
     }

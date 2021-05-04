@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-04 11:44-0500\n"
+"POT-Creation-Date: 2021-05-04 12:54-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,8 +39,8 @@ msgid "O/S"
 msgstr ""
 
 #: commons/text.php:27 lib/plugins/site/pages/sitemanagement.page.php:562
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:619
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:564
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:619
 #: lib/plugins/ldap/pages/ldapmanagement.page.php:1383
 #: lib/plugins/subnetgroup/pages/subnetgroupmanagement.page.php:533
 #: lib/plugins/tasktypeedit/pages/tasktypeeditmanagement.page.php:762
@@ -54,8 +54,8 @@ msgstr ""
 #: lib/pages/groupmanagement.page.php:2525
 #: lib/pages/hostmanagement.page.php:3620
 #: lib/pages/imagemanagement.page.php:1378
-#: lib/pages/ipxemanagement.page.php:711
 #: lib/pages/modulemanagement.page.php:596
+#: lib/pages/ipxemanagement.page.php:711
 #: lib/pages/printermanagement.page.php:1434
 #: lib/pages/snapinmanagement.page.php:1950
 #: lib/pages/storagegroupmanagement.page.php:912
@@ -65,8 +65,8 @@ msgid "Edit"
 msgstr ""
 
 #: commons/text.php:28 lib/plugins/site/pages/sitemanagement.page.php:320
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:441
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:320
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:441
 #: lib/plugins/ldap/pages/ldapmanagement.page.php:1235
 #: lib/plugins/subnetgroup/pages/subnetgroupmanagement.page.php:425
 #: lib/plugins/tasktypeedit/pages/tasktypeeditmanagement.page.php:663
@@ -82,8 +82,8 @@ msgstr ""
 #: lib/pages/hostmanagement.page.php:158 lib/pages/hostmanagement.page.php:324
 #: lib/pages/hostmanagement.page.php:1264
 #: lib/pages/imagemanagement.page.php:1060
-#: lib/pages/ipxemanagement.page.php:614
 #: lib/pages/modulemanagement.page.php:436
+#: lib/pages/ipxemanagement.page.php:614
 #: lib/pages/printermanagement.page.php:1390
 #: lib/pages/snapinmanagement.page.php:1545
 #: lib/pages/storagegroupmanagement.page.php:323
@@ -139,12 +139,12 @@ msgid "Management"
 msgstr ""
 
 #: commons/text.php:40 lib/plugins/site/pages/sitemanagement.page.php:315
-#: lib/plugins/site/hooks/addsitehost.hook.php:131
 #: lib/plugins/site/hooks/addsitegroup.hook.php:115
+#: lib/plugins/site/hooks/addsitehost.hook.php:131
 #: lib/plugins/site/hooks/addsiteuser.hook.php:131
 #: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:107
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:436
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:315
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:436
 #: lib/plugins/ldap/pages/ldapmanagement.page.php:1230
 #: lib/plugins/ldap/pages/ldapmanagement.page.php:1471
 #: lib/plugins/subnetgroup/pages/subnetgroupmanagement.page.php:420
@@ -157,8 +157,8 @@ msgstr ""
 #: lib/plugins/capone/pages/caponemanagement.page.php:318
 #: lib/plugins/capone/pages/caponemanagement.page.php:494
 #: lib/plugins/location/pages/locationmanagement.page.php:453
-#: lib/plugins/location/hooks/addlocationgroup.hook.php:119
 #: lib/plugins/location/hooks/addlocationhost.hook.php:134
+#: lib/plugins/location/hooks/addlocationgroup.hook.php:119
 #: lib/plugins/taskstateedit/pages/taskstateeditmanagement.page.php:393
 #: lib/plugins/windowskey/pages/windowskeymanagement.page.php:380
 #: lib/plugins/windowskey/hooks/addwindowskeyimage.hook.php:118
@@ -178,8 +178,8 @@ msgstr ""
 #: lib/pages/hostmanagement.page.php:3454
 #: lib/pages/imagemanagement.page.php:1055
 #: lib/pages/imagemanagement.page.php:1200
-#: lib/pages/ipxemanagement.page.php:609
 #: lib/pages/modulemanagement.page.php:431
+#: lib/pages/ipxemanagement.page.php:609
 #: lib/pages/printermanagement.page.php:1385
 #: lib/pages/serviceconfigurationpage.page.php:130
 #: lib/pages/serviceconfigurationpage.page.php:332
@@ -326,7 +326,7 @@ msgstr ""
 #: lib/service/multicastmanager.class.php:208
 #: lib/service/fogservice.class.php:369 lib/service/fogservice.class.php:388
 #: lib/service/fogservice.class.php:447 lib/pages/groupmanagement.page.php:46
-#: lib/pages/ipxemanagement.page.php:42 lib/pages/modulemanagement.page.php:46
+#: lib/pages/modulemanagement.page.php:46 lib/pages/ipxemanagement.page.php:42
 msgid "Name"
 msgstr ""
 
@@ -433,8 +433,8 @@ msgid "Service"
 msgstr ""
 
 #: commons/text.php:89 lib/plugins/site/pages/sitemanagement.page.php:570
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:627
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:572
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:627
 #: lib/plugins/ldap/pages/ldapmanagement.page.php:1391
 #: lib/plugins/subnetgroup/pages/subnetgroupmanagement.page.php:541
 #: lib/plugins/tasktypeedit/pages/tasktypeeditmanagement.page.php:770
@@ -448,8 +448,8 @@ msgstr ""
 #: lib/pages/groupmanagement.page.php:2533
 #: lib/pages/hostmanagement.page.php:3628
 #: lib/pages/imagemanagement.page.php:1385
-#: lib/pages/ipxemanagement.page.php:718
 #: lib/pages/modulemanagement.page.php:604
+#: lib/pages/ipxemanagement.page.php:718
 #: lib/pages/printermanagement.page.php:1442
 #: lib/pages/snapinmanagement.page.php:1958
 #: lib/pages/storagegroupmanagement.page.php:920
@@ -500,14 +500,14 @@ msgstr ""
 msgid "Errors"
 msgstr ""
 
-#: commons/text.php:99 lib/fog/eventmanager.class.php:102
-#: lib/fog/eventmanager.class.php:165 lib/fog/fogcontroller.class.php:177
+#: commons/text.php:99 lib/fog/fogcontroller.class.php:177
 #: lib/fog/fogcontroller.class.php:310 lib/fog/fogcontroller.class.php:360
 #: lib/fog/fogcontroller.class.php:415 lib/fog/fogcontroller.class.php:540
 #: lib/fog/fogcontroller.class.php:550 lib/fog/fogcontroller.class.php:561
 #: lib/fog/fogcontroller.class.php:651 lib/fog/fogcontroller.class.php:774
 #: lib/fog/fogcontroller.class.php:784 lib/fog/fogcontroller.class.php:795
-#: lib/fog/fogcontroller.class.php:927 lib/fog/fogpage.class.php:1760
+#: lib/fog/fogcontroller.class.php:927 lib/fog/eventmanager.class.php:102
+#: lib/fog/eventmanager.class.php:165 lib/fog/fogpage.class.php:1760
 #: lib/db/pdodb.class.php:187 lib/db/pdodb.class.php:230
 #: lib/db/pdodb.class.php:289 lib/db/pdodb.class.php:349
 #: lib/db/pdodb.class.php:405
@@ -568,8 +568,8 @@ msgid "Kernel"
 msgstr ""
 
 #: commons/text.php:112 commons/text.php:135
-#: lib/plugins/location/hooks/addlocationgroup.hook.php:148
 #: lib/plugins/location/hooks/addlocationhost.hook.php:163
+#: lib/plugins/location/hooks/addlocationgroup.hook.php:148
 #: lib/pages/pluginmanagement.page.php:44
 msgid "Location"
 msgstr ""
@@ -1566,8 +1566,8 @@ msgid "Site Description"
 msgstr ""
 
 #: lib/plugins/site/pages/sitemanagement.page.php:93
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:128
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:93
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:128
 #: lib/plugins/ldap/pages/ldapmanagement.page.php:369
 #: lib/plugins/pushbullet/pages/pushbulletmanagement.page.php:80
 #: lib/plugins/subnetgroup/pages/subnetgroupmanagement.page.php:118
@@ -1590,8 +1590,8 @@ msgstr ""
 #: lib/pages/imagemanagement.page.php:322
 #: lib/pages/imagemanagement.page.php:1702
 #: lib/pages/imagemanagement.page.php:1743
-#: lib/pages/ipxemanagement.page.php:182
 #: lib/pages/modulemanagement.page.php:129
+#: lib/pages/ipxemanagement.page.php:182
 #: lib/pages/printermanagement.page.php:458
 #: lib/pages/snapinmanagement.page.php:522
 #: lib/pages/storagegroupmanagement.page.php:94
@@ -1625,11 +1625,11 @@ msgstr ""
 #: lib/plugins/hostext/class/hostextmanager.class.php:94
 #: lib/plugins/ou/pages/oumanagement.page.php:447
 #: lib/plugins/location/pages/locationmanagement.page.php:549
-#: lib/reports/imaging_log.report.php:34
-#: lib/reports/hosts_and_users.report.php:35
 #: lib/reports/inventory_report.report.php:34
+#: lib/reports/imaging_log.report.php:34
 #: lib/reports/pending_mac_list.report.php:34
 #: lib/reports/product_keys.report.php:34 lib/reports/host_list.report.php:34
+#: lib/reports/hosts_and_users.report.php:35
 #: lib/pages/groupmanagement.page.php:815
 #: lib/pages/groupmanagement.page.php:2423
 #: lib/pages/groupmanagement.page.php:2454
@@ -1648,9 +1648,9 @@ msgstr ""
 
 #: lib/plugins/site/pages/sitemanagement.page.php:392
 #: lib/plugins/site/pages/sitemanagement.page.php:477
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:532
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:394
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:479
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:532
 #: lib/plugins/ou/pages/oumanagement.page.php:448
 #: lib/plugins/location/pages/locationmanagement.page.php:550
 #: lib/pages/groupmanagement.page.php:816
@@ -1672,9 +1672,9 @@ msgstr ""
 
 #: lib/plugins/site/pages/sitemanagement.page.php:407
 #: lib/plugins/site/pages/sitemanagement.page.php:492
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:547
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:409
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:494
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:547
 #: lib/plugins/location/pages/locationmanagement.page.php:565
 #: lib/plugins/windowskey/pages/windowskeymanagement.page.php:470
 #: lib/pages/groupmanagement.page.php:831
@@ -1699,9 +1699,9 @@ msgstr ""
 
 #: lib/plugins/site/pages/sitemanagement.page.php:413
 #: lib/plugins/site/pages/sitemanagement.page.php:498
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:553
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:415
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:500
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:553
 #: lib/plugins/location/pages/locationmanagement.page.php:571
 #: lib/plugins/windowskey/pages/windowskeymanagement.page.php:476
 #: lib/pages/groupmanagement.page.php:837
@@ -1742,8 +1742,8 @@ msgid "Site User Associations"
 msgstr ""
 
 #: lib/plugins/site/pages/sitemanagement.page.php:580
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:637
 #: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:582
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:637
 #: lib/plugins/ou/pages/oumanagement.page.php:551
 #: lib/plugins/location/pages/locationmanagement.page.php:653
 #: lib/plugins/windowskey/pages/windowskeymanagement.page.php:566
@@ -1784,38 +1784,33 @@ msgstr ""
 msgid "Site Update Fail"
 msgstr ""
 
-#: lib/plugins/site/hooks/addsitehost.hook.php:85
+#: lib/plugins/site/hooks/addsitemenuitem.hook.php:85
+msgid "Export Sites"
+msgstr ""
+
+#: lib/plugins/site/hooks/addsitemenuitem.hook.php:86
+msgid "Import Sites"
+msgstr ""
+
+#: lib/plugins/site/hooks/addsitemenuitem.hook.php:98
+msgid "Sites"
+msgstr ""
+
 #: lib/plugins/site/hooks/addsitegroup.hook.php:85
+#: lib/plugins/site/hooks/addsitehost.hook.php:85
 #: lib/plugins/site/hooks/addsiteuser.hook.php:85
 msgid "Site Association"
-msgstr ""
-
-#: lib/plugins/site/hooks/addsitehost.hook.php:125
-#: lib/plugins/site/hooks/addsitehost.hook.php:274
-msgid "Host Site"
-msgstr ""
-
-#: lib/plugins/site/hooks/addsitehost.hook.php:160
-#: lib/plugins/site/hooks/addsitegroup.hook.php:144
-#: lib/plugins/site/hooks/addsiteuser.hook.php:160
-msgid "Site"
-msgstr ""
-
-#: lib/plugins/site/hooks/addsitehost.hook.php:234
-msgid "Host Site Updated!"
-msgstr ""
-
-#: lib/plugins/site/hooks/addsitehost.hook.php:235
-msgid "Host Site Update Success"
-msgstr ""
-
-#: lib/plugins/site/hooks/addsitehost.hook.php:248
-msgid "Host Update Site Fail"
 msgstr ""
 
 #: lib/plugins/site/hooks/addsitegroup.hook.php:109
 #: lib/plugins/site/hooks/addsitegroup.hook.php:258
 msgid "Group Site"
+msgstr ""
+
+#: lib/plugins/site/hooks/addsitegroup.hook.php:144
+#: lib/plugins/site/hooks/addsitehost.hook.php:160
+#: lib/plugins/site/hooks/addsiteuser.hook.php:160
+msgid "Site"
 msgstr ""
 
 #: lib/plugins/site/hooks/addsitegroup.hook.php:218
@@ -1828,6 +1823,23 @@ msgstr ""
 
 #: lib/plugins/site/hooks/addsitegroup.hook.php:232
 msgid "Group Update Site Fail"
+msgstr ""
+
+#: lib/plugins/site/hooks/addsitehost.hook.php:125
+#: lib/plugins/site/hooks/addsitehost.hook.php:274
+msgid "Host Site"
+msgstr ""
+
+#: lib/plugins/site/hooks/addsitehost.hook.php:234
+msgid "Host Site Updated!"
+msgstr ""
+
+#: lib/plugins/site/hooks/addsitehost.hook.php:235
+msgid "Host Site Update Success"
+msgstr ""
+
+#: lib/plugins/site/hooks/addsitehost.hook.php:248
+msgid "Host Update Site Fail"
 msgstr ""
 
 #: lib/plugins/site/hooks/addsiteuser.hook.php:125
@@ -1845,40 +1857,6 @@ msgstr ""
 
 #: lib/plugins/site/hooks/addsiteuser.hook.php:248
 msgid "User Site Update Fail"
-msgstr ""
-
-#: lib/plugins/site/hooks/addsitemenuitem.hook.php:85
-msgid "Export Sites"
-msgstr ""
-
-#: lib/plugins/site/hooks/addsitemenuitem.hook.php:86
-msgid "Import Sites"
-msgstr ""
-
-#: lib/plugins/site/hooks/addsitemenuitem.hook.php:98
-msgid "Sites"
-msgstr ""
-
-#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:62
-#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:640
-msgid "Role Association"
-msgstr ""
-
-#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:102
-#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:241
-msgid "User Role"
-msgstr ""
-
-#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:208
-msgid "User role updated!"
-msgstr ""
-
-#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:209
-msgid "User Role Update Success"
-msgstr ""
-
-#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:218
-msgid "User Role Update Fail"
 msgstr ""
 
 #: lib/plugins/accesscontrol/hooks/addaccesscontrolmenuitem.hook.php:83
@@ -1921,6 +1899,112 @@ msgstr ""
 
 #: lib/plugins/accesscontrol/hooks/addaccesscontrolmenuitem.hook.php:107
 msgid "Access Control Rules"
+msgstr ""
+
+#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:62
+#: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:640
+msgid "Role Association"
+msgstr ""
+
+#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:102
+#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:241
+msgid "User Role"
+msgstr ""
+
+#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:208
+msgid "User role updated!"
+msgstr ""
+
+#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:209
+msgid "User Role Update Success"
+msgstr ""
+
+#: lib/plugins/accesscontrol/hooks/addaccesscontroluser.hook.php:218
+msgid "User Role Update Fail"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:42
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:68
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:151
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:290
+msgid "Accesscontrol Name"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:43
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:81
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:85
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:164
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:168
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:303
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:307
+msgid "Accesscontrol Description"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:57
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:121
+msgid "Create New Accesscontrol"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:72
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:155
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:294
+msgid "Access Control Name"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:217
+msgid "An accesscontrol already exists with this name!"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:225
+msgid "Add accesscontrol failed!"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:231
+msgid "Accesscontrol added!"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:232
+msgid "Accesscontrol Create Success"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:245
+msgid "Accesscontrol Create Fail"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:378
+msgid "An accesscontrol with this name already exists!"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:423
+msgid "Accesscontrol User Associations"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:478
+msgid "Accesscontrol Rule Name"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:508
+msgid "Accesscontrol Rule Associations"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:585
+msgid "Rule Association"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:632
+msgid "Accesscontrol update failed!"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:638
+msgid "Accesscontrol updated!"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:639
+msgid "Accesscontrol Update Success"
+msgstr ""
+
+#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:652
+msgid "Accesscontrol Update Fail"
 msgstr ""
 
 #: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:42
@@ -2013,90 +2097,6 @@ msgstr ""
 
 #: lib/plugins/accesscontrol/pages/accesscontrolrulemanagement.page.php:696
 msgid "Accesscontrol Rule Update Fail"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:42
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:68
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:151
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:290
-msgid "Accesscontrol Name"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:43
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:81
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:85
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:164
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:168
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:303
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:307
-msgid "Accesscontrol Description"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:57
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:121
-msgid "Create New Accesscontrol"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:72
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:155
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:294
-msgid "Access Control Name"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:217
-msgid "An accesscontrol already exists with this name!"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:225
-msgid "Add accesscontrol failed!"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:231
-msgid "Accesscontrol added!"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:232
-msgid "Accesscontrol Create Success"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:245
-msgid "Accesscontrol Create Fail"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:378
-msgid "An accesscontrol with this name already exists!"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:423
-msgid "Accesscontrol User Associations"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:478
-msgid "Accesscontrol Rule Name"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:508
-msgid "Accesscontrol Rule Associations"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:585
-msgid "Rule Association"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:632
-msgid "Accesscontrol update failed!"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:638
-msgid "Accesscontrol updated!"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:639
-msgid "Accesscontrol Update Success"
-msgstr ""
-
-#: lib/plugins/accesscontrol/pages/accesscontrolmanagement.page.php:652
-msgid "Accesscontrol Update Fail"
 msgstr ""
 
 #: lib/plugins/ldap/pages/ldapmanagement.page.php:45
@@ -2942,16 +2942,16 @@ msgstr ""
 msgid "Slack Accounts"
 msgstr ""
 
-#: lib/plugins/slack/class/slackhandler.class.php:251
-msgid "Invalid method called"
-msgstr ""
-
 #: lib/plugins/slack/class/slack.class.php:61
 msgid "Channel call is invalid"
 msgstr ""
 
 #: lib/plugins/slack/class/slack.class.php:84
 msgid "User call is invalid"
+msgstr ""
+
+#: lib/plugins/slack/class/slackhandler.class.php:251
+msgid "Invalid method called"
 msgstr ""
 
 #: lib/plugins/hostext/config/plugin.config.php:27
@@ -3213,10 +3213,6 @@ msgstr ""
 msgid "OUs"
 msgstr ""
 
-#: lib/plugins/capone/hooks/addbootmenuitem.hook.php:85
-msgid "Capone Deploy"
-msgstr ""
-
 #: lib/plugins/capone/hooks/addcaponeapi.hook.php:97
 msgid "Edit Capone ID"
 msgstr ""
@@ -3231,6 +3227,10 @@ msgstr ""
 
 #: lib/plugins/capone/hooks/addcaponemenuitem.hook.php:99
 msgid "Capone"
+msgstr ""
+
+#: lib/plugins/capone/hooks/addbootmenuitem.hook.php:85
+msgid "Capone Deploy"
 msgstr ""
 
 #: lib/plugins/capone/pages/caponemanagement.page.php:42
@@ -3459,26 +3459,9 @@ msgstr ""
 msgid "Location Update Fail"
 msgstr ""
 
-#: lib/plugins/location/hooks/addlocationgroup.hook.php:88
 #: lib/plugins/location/hooks/addlocationhost.hook.php:88
+#: lib/plugins/location/hooks/addlocationgroup.hook.php:88
 msgid "Location Association"
-msgstr ""
-
-#: lib/plugins/location/hooks/addlocationgroup.hook.php:113
-#: lib/plugins/location/hooks/addlocationgroup.hook.php:260
-msgid "Group Location"
-msgstr ""
-
-#: lib/plugins/location/hooks/addlocationgroup.hook.php:220
-msgid "Group Location Updated!"
-msgstr ""
-
-#: lib/plugins/location/hooks/addlocationgroup.hook.php:221
-msgid "Group Location Update Success"
-msgstr ""
-
-#: lib/plugins/location/hooks/addlocationgroup.hook.php:234
-msgid "Group Update Location Fail"
 msgstr ""
 
 #: lib/plugins/location/hooks/addlocationhost.hook.php:128
@@ -3496,6 +3479,23 @@ msgstr ""
 
 #: lib/plugins/location/hooks/addlocationhost.hook.php:249
 msgid "Host Update Location Fail"
+msgstr ""
+
+#: lib/plugins/location/hooks/addlocationgroup.hook.php:113
+#: lib/plugins/location/hooks/addlocationgroup.hook.php:260
+msgid "Group Location"
+msgstr ""
+
+#: lib/plugins/location/hooks/addlocationgroup.hook.php:220
+msgid "Group Location Updated!"
+msgstr ""
+
+#: lib/plugins/location/hooks/addlocationgroup.hook.php:221
+msgid "Group Location Update Success"
+msgstr ""
+
+#: lib/plugins/location/hooks/addlocationgroup.hook.php:234
+msgid "Group Update Location Fail"
 msgstr ""
 
 #: lib/plugins/location/hooks/addlocationmenuitem.hook.php:88
@@ -3738,6 +3738,18 @@ msgstr ""
 msgid "Windows Key Update Fail"
 msgstr ""
 
+#: lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:85
+msgid "Export Windows Keys"
+msgstr ""
+
+#: lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:86
+msgid "Import Windows Keys"
+msgstr ""
+
+#: lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:98
+msgid "Windows Keys"
+msgstr ""
+
 #: lib/plugins/windowskey/hooks/addwindowskeyimage.hook.php:87
 msgid "Key Association"
 msgstr ""
@@ -3763,44 +3775,6 @@ msgstr ""
 msgid "Image Windows Key"
 msgstr ""
 
-#: lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:85
-msgid "Export Windows Keys"
-msgstr ""
-
-#: lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:86
-msgid "Import Windows Keys"
-msgstr ""
-
-#: lib/plugins/windowskey/hooks/addwindowskeymenuitem.hook.php:98
-msgid "Windows Keys"
-msgstr ""
-
-#: lib/reports/imaging_log.report.php:35
-#: lib/pages/groupmanagement.page.php:2492
-#: lib/pages/groupmanagement.page.php:3220
-#: lib/pages/hostmanagement.page.php:3588
-#: lib/pages/hostmanagement.page.php:4492 lib/pages/taskmanagement.page.php:446
-#: lib/pages/taskmanagement.page.php:556 lib/pages/taskmanagement.page.php:654
-msgid "Start Time"
-msgstr ""
-
-#: lib/reports/imaging_log.report.php:36
-msgid "End Time"
-msgstr ""
-
-#: lib/reports/imaging_log.report.php:37
-#: lib/pages/groupmanagement.page.php:2458
-#: lib/pages/groupmanagement.page.php:2494
-#: lib/pages/hostmanagement.page.php:3556
-#: lib/pages/hostmanagement.page.php:3590
-msgid "Duration"
-msgstr ""
-
-#: lib/reports/hosts_and_users.report.php:31
-#: lib/reports/hosts_and_users.report.php:48
-msgid "User Logins"
-msgstr ""
-
 #: lib/reports/inventory_report.report.php:31
 #: lib/reports/inventory_report.report.php:50
 msgid "Inventory List"
@@ -3822,6 +3796,27 @@ msgstr ""
 #: lib/pages/groupmanagement.page.php:2000
 #: lib/pages/hostmanagement.page.php:3057
 msgid "System UUID"
+msgstr ""
+
+#: lib/reports/imaging_log.report.php:35
+#: lib/pages/groupmanagement.page.php:2492
+#: lib/pages/groupmanagement.page.php:3220
+#: lib/pages/hostmanagement.page.php:3588
+#: lib/pages/hostmanagement.page.php:4492 lib/pages/taskmanagement.page.php:446
+#: lib/pages/taskmanagement.page.php:556 lib/pages/taskmanagement.page.php:654
+msgid "Start Time"
+msgstr ""
+
+#: lib/reports/imaging_log.report.php:36
+msgid "End Time"
+msgstr ""
+
+#: lib/reports/imaging_log.report.php:37
+#: lib/pages/groupmanagement.page.php:2458
+#: lib/pages/groupmanagement.page.php:2494
+#: lib/pages/hostmanagement.page.php:3556
+#: lib/pages/hostmanagement.page.php:3590
+msgid "Duration"
 msgstr ""
 
 #: lib/reports/pending_mac_list.report.php:31
@@ -3876,6 +3871,11 @@ msgstr ""
 msgid "Snapin Arguments"
 msgstr ""
 
+#: lib/reports/hosts_and_users.report.php:31
+#: lib/reports/hosts_and_users.report.php:48
+msgid "User Logins"
+msgstr ""
+
 #: lib/reports/history_report.report.php:31
 #: lib/reports/history_report.report.php:49
 msgid "Full History"
@@ -3897,134 +3897,6 @@ msgstr ""
 
 #: lib/fog/storagegroup.class.php:326
 msgid "No nodes available"
-msgstr ""
-
-#: lib/fog/eventmanager.class.php:58 lib/fog/eventmanager.class.php:143
-msgid "Event must be a string"
-msgstr ""
-
-#: lib/fog/eventmanager.class.php:61
-msgid "Listener must be an array or an object"
-msgstr ""
-
-#: lib/fog/eventmanager.class.php:66
-msgid "Class must extend event"
-msgstr ""
-
-#: lib/fog/eventmanager.class.php:76
-msgid "Second paramater must be in [class,function]"
-msgstr ""
-
-#: lib/fog/eventmanager.class.php:80
-msgid "Class must extend hook"
-msgstr ""
-
-#: lib/fog/eventmanager.class.php:85
-msgid "Method does not exist"
-msgstr ""
-
-#: lib/fog/eventmanager.class.php:95
-msgid "Register must be managed from hooks or events"
-msgstr ""
-
-#: lib/fog/eventmanager.class.php:101
-msgid "Could not register"
-msgstr ""
-
-#: lib/fog/eventmanager.class.php:104 lib/fog/eventmanager.class.php:167
-msgid "Event"
-msgstr ""
-
-#: lib/fog/eventmanager.class.php:106
-msgid "Class"
-msgstr ""
-
-#: lib/fog/eventmanager.class.php:146
-msgid "Event Data must be an array"
-msgstr ""
-
-#: lib/fog/eventmanager.class.php:149
-msgid "Event and data are not set"
-msgstr ""
-
-#: lib/fog/eventmanager.class.php:164
-msgid "Could not notify"
-msgstr ""
-
-#: lib/fog/tasktype.class.php:115
-msgid "Icon File not found"
-msgstr ""
-
-#: lib/fog/tasktype.class.php:141
-msgid "No icons found"
-msgstr ""
-
-#: lib/fog/timer.class.php:133
-msgid "This is a single run task that should run now."
-msgstr ""
-
-#: lib/fog/timer.class.php:135
-msgid "This is a single run task that should not run now."
-msgstr ""
-
-#: lib/fog/timer.class.php:138
-msgid "This is a cron style task that should run now."
-msgstr ""
-
-#: lib/fog/timer.class.php:140
-msgid "This is a cron style task that should not run now."
-msgstr ""
-
-#: lib/fog/uploadexception.class.php:50
-msgid "The uploaded file exceeds the upload_max_filesize"
-msgstr ""
-
-#: lib/fog/uploadexception.class.php:51
-msgid "directive in php.ini"
-msgstr ""
-
-#: lib/fog/uploadexception.class.php:57
-msgid "The uploaded file exceeds the max_file_size"
-msgstr ""
-
-#: lib/fog/uploadexception.class.php:58
-msgid "directive specified in the HTML form"
-msgstr ""
-
-#: lib/fog/uploadexception.class.php:62
-msgid "The uploaded file was only partially uploaded"
-msgstr ""
-
-#: lib/fog/uploadexception.class.php:65
-msgid "No file was uploaded"
-msgstr ""
-
-#: lib/fog/uploadexception.class.php:68
-msgid "Missing a temporary folder"
-msgstr ""
-
-#: lib/fog/uploadexception.class.php:71
-msgid "Failed to write file to disk"
-msgstr ""
-
-#: lib/fog/uploadexception.class.php:74
-msgid "File upload stopped by an extension"
-msgstr ""
-
-#: lib/fog/uploadexception.class.php:79
-msgid "Unknown upload error occurred"
-msgstr ""
-
-#: lib/fog/uploadexception.class.php:80
-msgid "Return code"
-msgstr ""
-
-#: lib/fog/user.class.php:269
-msgid "user successfully logged in"
-msgstr ""
-
-#: lib/fog/user.class.php:283
-msgid "user failed to login"
 msgstr ""
 
 #: lib/fog/fogbase.class.php:455
@@ -4137,104 +4009,72 @@ msgstr ""
 msgid "Unable to Authenticate"
 msgstr ""
 
-#: lib/fog/powermanagementmanager.class.php:110 lib/fog/fogpage.class.php:3369
-msgid "Wake On Lan"
+#: lib/fog/timer.class.php:133
+msgid "This is a single run task that should run now."
 msgstr ""
 
-#: lib/fog/event.class.php:186
-msgid "Registered"
+#: lib/fog/timer.class.php:135
+msgid "This is a single run task that should not run now."
 msgstr ""
 
-#: lib/fog/bootmenu.class.php:1461
-msgid "No valid storage nodes found"
+#: lib/fog/timer.class.php:138
+msgid "This is a cron style task that should run now."
 msgstr ""
 
-#: lib/fog/page.class.php:361
-msgid "The current user is invalid."
+#: lib/fog/timer.class.php:140
+msgid "This is a cron style task that should not run now."
 msgstr ""
 
-#: lib/fog/page.class.php:372 management/other/index.php:36
-msgid "FOG Project"
+#: lib/fog/uploadexception.class.php:50
+msgid "The uploaded file exceeds the upload_max_filesize"
 msgstr ""
 
-#: lib/fog/printer.class.php:187 lib/pages/printermanagement.page.php:106
-#: lib/pages/printermanagement.page.php:517
-#: lib/pages/printermanagement.page.php:1032
-msgid "TCP/IP Port Printer"
+#: lib/fog/uploadexception.class.php:51
+msgid "directive in php.ini"
 msgstr ""
 
-#: lib/fog/printer.class.php:188 lib/pages/printermanagement.page.php:107
-#: lib/pages/printermanagement.page.php:518
-#: lib/pages/printermanagement.page.php:1033
-msgid "iPrint Printer"
+#: lib/fog/uploadexception.class.php:57
+msgid "The uploaded file exceeds the max_file_size"
 msgstr ""
 
-#: lib/fog/printer.class.php:189 lib/pages/printermanagement.page.php:108
-#: lib/pages/printermanagement.page.php:519
-#: lib/pages/printermanagement.page.php:1034
-msgid "Network Printer"
+#: lib/fog/uploadexception.class.php:58
+msgid "directive specified in the HTML form"
 msgstr ""
 
-#: lib/fog/printer.class.php:190 lib/pages/printermanagement.page.php:109
-#: lib/pages/printermanagement.page.php:520
-#: lib/pages/printermanagement.page.php:1035
-msgid "CUPS Printer"
+#: lib/fog/uploadexception.class.php:62
+msgid "The uploaded file was only partially uploaded"
 msgstr ""
 
-#: lib/fog/scheduledtask.class.php:130 lib/router/route.class.php:884
-msgid "Cron"
+#: lib/fog/uploadexception.class.php:65
+msgid "No file was uploaded"
 msgstr ""
 
-#: lib/fog/scheduledtask.class.php:130 lib/router/route.class.php:892
-msgid "Delayed"
+#: lib/fog/uploadexception.class.php:68
+msgid "Missing a temporary folder"
 msgstr ""
 
-#: lib/fog/schema.class.php:202
-msgid "Could not read tmp file."
+#: lib/fog/uploadexception.class.php:71
+msgid "Failed to write file to disk"
 msgstr ""
 
-#: lib/fog/schema.class.php:236
-msgid "Error Opening DB File"
+#: lib/fog/uploadexception.class.php:74
+msgid "File upload stopped by an extension"
 msgstr ""
 
-#: lib/fog/schema.class.php:247
-msgid "Error performing query"
+#: lib/fog/uploadexception.class.php:79
+msgid "Unknown upload error occurred"
 msgstr ""
 
-#: lib/fog/schema.class.php:275
-msgid "Exists item must be boolean"
+#: lib/fog/uploadexception.class.php:80
+msgid "Return code"
 msgstr ""
 
-#: lib/fog/schema.class.php:320
-msgid "Must have a name to create the table"
+#: lib/fog/user.class.php:269
+msgid "user successfully logged in"
 msgstr ""
 
-#: lib/fog/schema.class.php:325
-msgid "Fields and types must have equal count"
-msgstr ""
-
-#: lib/fog/schema.class.php:414
-msgid "Need the table name to drop"
-msgstr ""
-
-#: lib/fog/service.class.php:107
-msgid "Please Select an option"
-msgstr ""
-
-#: lib/fog/fogftp.class.php:160
-msgid "FTP Connection Failed"
-msgstr ""
-
-#: lib/fog/system.class.php:40
-msgid "You are currently running PHP Version"
-msgstr ""
-
-#: lib/fog/system.class.php:44
-msgid "FOG Needs at least"
-msgstr ""
-
-#: lib/fog/system.class.php:48
-msgid "and below"
+#: lib/fog/user.class.php:283
+msgid "user failed to login"
 msgstr ""
 
 #: lib/fog/fogcontroller.class.php:160
@@ -4321,7 +4161,7 @@ msgstr ""
 #: lib/fog/fogcontroller.class.php:559 lib/fog/fogcontroller.class.php:746
 #: lib/fog/fogcontroller.class.php:756 lib/fog/fogcontroller.class.php:769
 #: lib/fog/fogcontroller.class.php:781 lib/fog/fogcontroller.class.php:793
-#: lib/service/imagesize.class.php:192 lib/service/snapinhash.class.php:191
+#: lib/service/snapinhash.class.php:191 lib/service/imagesize.class.php:192
 msgid "ID"
 msgstr ""
 
@@ -4389,6 +4229,170 @@ msgstr ""
 msgid "Failed"
 msgstr ""
 
+#: lib/fog/page.class.php:361
+msgid "The current user is invalid."
+msgstr ""
+
+#: lib/fog/page.class.php:372 management/other/index.php:36
+msgid "FOG Project"
+msgstr ""
+
+#: lib/fog/event.class.php:186
+msgid "Registered"
+msgstr ""
+
+#: lib/fog/printer.class.php:187 lib/pages/printermanagement.page.php:106
+#: lib/pages/printermanagement.page.php:517
+#: lib/pages/printermanagement.page.php:1032
+msgid "TCP/IP Port Printer"
+msgstr ""
+
+#: lib/fog/printer.class.php:188 lib/pages/printermanagement.page.php:107
+#: lib/pages/printermanagement.page.php:518
+#: lib/pages/printermanagement.page.php:1033
+msgid "iPrint Printer"
+msgstr ""
+
+#: lib/fog/printer.class.php:189 lib/pages/printermanagement.page.php:108
+#: lib/pages/printermanagement.page.php:519
+#: lib/pages/printermanagement.page.php:1034
+msgid "Network Printer"
+msgstr ""
+
+#: lib/fog/printer.class.php:190 lib/pages/printermanagement.page.php:109
+#: lib/pages/printermanagement.page.php:520
+#: lib/pages/printermanagement.page.php:1035
+msgid "CUPS Printer"
+msgstr ""
+
+#: lib/fog/eventmanager.class.php:58 lib/fog/eventmanager.class.php:143
+msgid "Event must be a string"
+msgstr ""
+
+#: lib/fog/eventmanager.class.php:61
+msgid "Listener must be an array or an object"
+msgstr ""
+
+#: lib/fog/eventmanager.class.php:66
+msgid "Class must extend event"
+msgstr ""
+
+#: lib/fog/eventmanager.class.php:76
+msgid "Second paramater must be in [class,function]"
+msgstr ""
+
+#: lib/fog/eventmanager.class.php:80
+msgid "Class must extend hook"
+msgstr ""
+
+#: lib/fog/eventmanager.class.php:85
+msgid "Method does not exist"
+msgstr ""
+
+#: lib/fog/eventmanager.class.php:95
+msgid "Register must be managed from hooks or events"
+msgstr ""
+
+#: lib/fog/eventmanager.class.php:101
+msgid "Could not register"
+msgstr ""
+
+#: lib/fog/eventmanager.class.php:104 lib/fog/eventmanager.class.php:167
+msgid "Event"
+msgstr ""
+
+#: lib/fog/eventmanager.class.php:106
+msgid "Class"
+msgstr ""
+
+#: lib/fog/eventmanager.class.php:146
+msgid "Event Data must be an array"
+msgstr ""
+
+#: lib/fog/eventmanager.class.php:149
+msgid "Event and data are not set"
+msgstr ""
+
+#: lib/fog/eventmanager.class.php:164
+msgid "Could not notify"
+msgstr ""
+
+#: lib/fog/system.class.php:40
+msgid "You are currently running PHP Version"
+msgstr ""
+
+#: lib/fog/system.class.php:44
+msgid "FOG Needs at least"
+msgstr ""
+
+#: lib/fog/system.class.php:48
+msgid "and below"
+msgstr ""
+
+#: lib/fog/powermanagementmanager.class.php:110 lib/fog/fogpage.class.php:3369
+msgid "Wake On Lan"
+msgstr ""
+
+#: lib/fog/scheduledtask.class.php:130 lib/router/route.class.php:884
+msgid "Cron"
+msgstr ""
+
+#: lib/fog/scheduledtask.class.php:130 lib/router/route.class.php:892
+msgid "Delayed"
+msgstr ""
+
+#: lib/fog/schema.class.php:202
+msgid "Could not read tmp file."
+msgstr ""
+
+#: lib/fog/schema.class.php:236
+msgid "Error Opening DB File"
+msgstr ""
+
+#: lib/fog/schema.class.php:247
+msgid "Error performing query"
+msgstr ""
+
+#: lib/fog/schema.class.php:275
+msgid "Exists item must be boolean"
+msgstr ""
+
+#: lib/fog/schema.class.php:320
+msgid "Must have a name to create the table"
+msgstr ""
+
+#: lib/fog/schema.class.php:325
+msgid "Fields and types must have equal count"
+msgstr ""
+
+#: lib/fog/schema.class.php:414
+msgid "Need the table name to drop"
+msgstr ""
+
+#: lib/fog/service.class.php:107
+msgid "Please Select an option"
+msgstr ""
+
+#: lib/fog/bootmenu.class.php:1461
+msgid "No valid storage nodes found"
+msgstr ""
+
+#: lib/fog/fogmanagercontroller.class.php:691
+msgid "No fields passed"
+msgstr ""
+
+#: lib/fog/fogmanagercontroller.class.php:694
+msgid "No values passed"
+msgstr ""
+
+#: lib/fog/fogmanagercontroller.class.php:731
+msgid "No data to insert"
+msgstr ""
+
+#: lib/fog/fogmanagercontroller.class.php:964
+msgid "No items found"
+msgstr ""
+
 #: lib/fog/fogcore.class.php:40 lib/fog/fogpage.class.php:2832
 #: lib/pages/groupmanagement.page.php:3267
 #: lib/pages/hostmanagement.page.php:4539
@@ -4413,20 +4417,20 @@ msgstr ""
 msgid "Unavailable"
 msgstr ""
 
-#: lib/fog/fogmanagercontroller.class.php:691
-msgid "No fields passed"
+#: lib/fog/fogftp.class.php:160
+msgid "FTP Connection Failed"
 msgstr ""
 
-#: lib/fog/fogmanagercontroller.class.php:694
-msgid "No values passed"
+#: lib/fog/fogurlrequests.class.php:365
+msgid "Window size must be greater than 1"
 msgstr ""
 
-#: lib/fog/fogmanagercontroller.class.php:731
-msgid "No data to insert"
+#: lib/fog/tasktype.class.php:115
+msgid "Icon File not found"
 msgstr ""
 
-#: lib/fog/fogmanagercontroller.class.php:964
-msgid "No items found"
+#: lib/fog/tasktype.class.php:141
+msgid "No icons found"
 msgstr ""
 
 #: lib/fog/fogpage.class.php:406
@@ -4801,10 +4805,6 @@ msgstr ""
 msgid "Adding FOGPage: %s, Node: %s"
 msgstr ""
 
-#: lib/fog/fogurlrequests.class.php:365
-msgid "Window size must be greater than 1"
-msgstr ""
-
 #: lib/fog/group.class.php:429
 msgid "Select a valid image"
 msgstr ""
@@ -5016,91 +5016,6 @@ msgstr ""
 msgid "VNC"
 msgstr ""
 
-#: lib/service/imagesize.class.php:93
-msgid " * Image size is globally disabled"
-msgstr ""
-
-#: lib/service/imagesize.class.php:108
-msgid "Starting Image Size Service"
-msgstr ""
-
-#: lib/service/imagesize.class.php:114 lib/service/snapinhash.class.php:113
-#: lib/service/snapinreplicator.class.php:121
-#: lib/service/imagereplicator.class.php:122
-msgid "We are group ID"
-msgstr ""
-
-#: lib/service/imagesize.class.php:116 lib/service/snapinhash.class.php:115
-#: lib/service/snapinreplicator.class.php:123
-#: lib/service/imagereplicator.class.php:124
-msgid "We are group name"
-msgstr ""
-
-#: lib/service/imagesize.class.php:123 lib/service/snapinhash.class.php:122
-#: lib/service/snapinreplicator.class.php:130
-#: lib/service/imagereplicator.class.php:131
-msgid "We are node ID"
-msgstr ""
-
-#: lib/service/imagesize.class.php:125 lib/service/snapinhash.class.php:124
-#: lib/service/snapinreplicator.class.php:132
-#: lib/service/imagereplicator.class.php:133
-msgid "We are node name"
-msgstr ""
-
-#: lib/service/imagesize.class.php:132
-msgid "Finding any images associated"
-msgstr ""
-
-#: lib/service/imagesize.class.php:133 lib/service/snapinhash.class.php:132
-msgid "with this group"
-msgstr ""
-
-#: lib/service/imagesize.class.php:134 lib/service/snapinhash.class.php:133
-msgid "as its primary group"
-msgstr ""
-
-#: lib/service/imagesize.class.php:161
-msgid "No images associated with this group as master"
-msgstr ""
-
-#: lib/service/imagesize.class.php:169 lib/service/snapinhash.class.php:168
-#: lib/service/fogservice.class.php:377
-msgid "Found"
-msgstr ""
-
-#: lib/service/imagesize.class.php:173
-msgid "images"
-msgstr ""
-
-#: lib/service/imagesize.class.php:174
-msgid "image"
-msgstr ""
-
-#: lib/service/imagesize.class.php:176
-msgid "to update size values as needed"
-msgstr ""
-
-#: lib/service/imagesize.class.php:190
-msgid "Trying image size for"
-msgstr ""
-
-#: lib/service/imagesize.class.php:211
-msgid "Path is unavailable"
-msgstr ""
-
-#: lib/service/imagesize.class.php:219
-msgid "Getting image size for"
-msgstr ""
-
-#: lib/service/imagesize.class.php:228
-msgid "Size"
-msgstr ""
-
-#: lib/service/imagesize.class.php:243 lib/service/snapinhash.class.php:234
-msgid "Completed"
-msgstr ""
-
 #: lib/service/multicastmanager.class.php:203
 msgid " * Multicast service is globally disabled"
 msgstr ""
@@ -5289,12 +5204,53 @@ msgstr ""
 msgid "Starting Snapin Hashing Service"
 msgstr ""
 
+#: lib/service/snapinhash.class.php:113
+#: lib/service/snapinreplicator.class.php:121
+#: lib/service/imagesize.class.php:114
+#: lib/service/imagereplicator.class.php:122
+msgid "We are group ID"
+msgstr ""
+
+#: lib/service/snapinhash.class.php:115
+#: lib/service/snapinreplicator.class.php:123
+#: lib/service/imagesize.class.php:116
+#: lib/service/imagereplicator.class.php:124
+msgid "We are group name"
+msgstr ""
+
+#: lib/service/snapinhash.class.php:122
+#: lib/service/snapinreplicator.class.php:130
+#: lib/service/imagesize.class.php:123
+#: lib/service/imagereplicator.class.php:131
+msgid "We are node ID"
+msgstr ""
+
+#: lib/service/snapinhash.class.php:124
+#: lib/service/snapinreplicator.class.php:132
+#: lib/service/imagesize.class.php:125
+#: lib/service/imagereplicator.class.php:133
+msgid "We are node name"
+msgstr ""
+
 #: lib/service/snapinhash.class.php:131
 msgid "Finding any snapins associated"
 msgstr ""
 
+#: lib/service/snapinhash.class.php:132 lib/service/imagesize.class.php:133
+msgid "with this group"
+msgstr ""
+
+#: lib/service/snapinhash.class.php:133 lib/service/imagesize.class.php:134
+msgid "as its primary group"
+msgstr ""
+
 #: lib/service/snapinhash.class.php:160
 msgid "No snapins associated with this group as master"
+msgstr ""
+
+#: lib/service/snapinhash.class.php:168 lib/service/imagesize.class.php:169
+#: lib/service/fogservice.class.php:377
+msgid "Found"
 msgstr ""
 
 #: lib/service/snapinhash.class.php:172
@@ -5315,6 +5271,10 @@ msgstr ""
 
 #: lib/service/snapinhash.class.php:218
 msgid "Hash"
+msgstr ""
+
+#: lib/service/snapinhash.class.php:234 lib/service/imagesize.class.php:243
+msgid "Completed"
 msgstr ""
 
 #: lib/service/snapinreplicator.class.php:92
@@ -5429,6 +5389,50 @@ msgstr ""
 
 #: lib/service/taskscheduler.class.php:275
 msgid "Task sent to"
+msgstr ""
+
+#: lib/service/imagesize.class.php:93
+msgid " * Image size is globally disabled"
+msgstr ""
+
+#: lib/service/imagesize.class.php:108
+msgid "Starting Image Size Service"
+msgstr ""
+
+#: lib/service/imagesize.class.php:132
+msgid "Finding any images associated"
+msgstr ""
+
+#: lib/service/imagesize.class.php:161
+msgid "No images associated with this group as master"
+msgstr ""
+
+#: lib/service/imagesize.class.php:173
+msgid "images"
+msgstr ""
+
+#: lib/service/imagesize.class.php:174
+msgid "image"
+msgstr ""
+
+#: lib/service/imagesize.class.php:176
+msgid "to update size values as needed"
+msgstr ""
+
+#: lib/service/imagesize.class.php:190
+msgid "Trying image size for"
+msgstr ""
+
+#: lib/service/imagesize.class.php:211
+msgid "Path is unavailable"
+msgstr ""
+
+#: lib/service/imagesize.class.php:219
+msgid "Getting image size for"
+msgstr ""
+
+#: lib/service/imagesize.class.php:228
+msgid "Size"
 msgstr ""
 
 #: lib/service/imagereplicator.class.php:93
@@ -5560,6 +5564,10 @@ msgstr ""
 msgid "Sync finished - "
 msgstr ""
 
+#: lib/db/databasemanager.class.php:84
+msgid "A valid database connection could not be made"
+msgstr ""
+
 #: lib/db/pdodb.class.php:105
 msgid "Failed to connect"
 msgstr ""
@@ -5618,10 +5626,6 @@ msgstr ""
 
 #: lib/db/pdodb.class.php:441
 msgid "Cannot connect to database"
-msgstr ""
-
-#: lib/db/databasemanager.class.php:84
-msgid "A valid database connection could not be made"
 msgstr ""
 
 #: lib/pages/clientmanagement.page.php:78
@@ -7540,6 +7544,82 @@ msgstr ""
 msgid "No storagegroups assigned to this image"
 msgstr ""
 
+#: lib/pages/modulemanagement.page.php:47
+msgid "Short Name"
+msgstr ""
+
+#: lib/pages/modulemanagement.page.php:61
+#: lib/pages/modulemanagement.page.php:157
+msgid "Create New Module"
+msgstr ""
+
+#: lib/pages/modulemanagement.page.php:88
+#: lib/pages/modulemanagement.page.php:92
+#: lib/pages/modulemanagement.page.php:203
+#: lib/pages/modulemanagement.page.php:207
+#: lib/pages/modulemanagement.page.php:390
+#: lib/pages/modulemanagement.page.php:394
+msgid "Module Description"
+msgstr ""
+
+#: lib/pages/modulemanagement.page.php:99
+#: lib/pages/modulemanagement.page.php:214
+#: lib/pages/modulemanagement.page.php:401
+msgid "Module Short Name"
+msgstr ""
+
+#: lib/pages/modulemanagement.page.php:111
+#: lib/pages/modulemanagement.page.php:226
+#: lib/pages/modulemanagement.page.php:413
+msgid "Module Default?"
+msgstr ""
+
+#: lib/pages/modulemanagement.page.php:289
+msgid "A module already exists with this name!"
+msgstr ""
+
+#: lib/pages/modulemanagement.page.php:299
+msgid "Add module failed!"
+msgstr ""
+
+#: lib/pages/modulemanagement.page.php:305
+msgid "Module added!"
+msgstr ""
+
+#: lib/pages/modulemanagement.page.php:306
+msgid "Module Create Success"
+msgstr ""
+
+#: lib/pages/modulemanagement.page.php:319
+msgid "Module Create Fail"
+msgstr ""
+
+#: lib/pages/modulemanagement.page.php:492
+msgid "Please use another module name"
+msgstr ""
+
+#: lib/pages/modulemanagement.page.php:540
+msgid "Module Host Associations"
+msgstr ""
+
+#: lib/pages/modulemanagement.page.php:654
+msgid "Module update failed!"
+msgstr ""
+
+#: lib/pages/modulemanagement.page.php:660
+msgid "Module updated!"
+msgstr ""
+
+#: lib/pages/modulemanagement.page.php:661
+#: lib/pages/serviceconfigurationpage.page.php:1567
+msgid "Module Update Success"
+msgstr ""
+
+#: lib/pages/modulemanagement.page.php:674
+#: lib/pages/serviceconfigurationpage.page.php:1576
+msgid "Module Update Fail"
+msgstr ""
+
 #: lib/pages/ipxemanagement.page.php:44
 #: lib/pages/printermanagement.page.php:1581
 msgid "Default"
@@ -7640,82 +7720,6 @@ msgstr ""
 
 #: lib/pages/ipxemanagement.page.php:769
 msgid "Menu Update Fail"
-msgstr ""
-
-#: lib/pages/modulemanagement.page.php:47
-msgid "Short Name"
-msgstr ""
-
-#: lib/pages/modulemanagement.page.php:61
-#: lib/pages/modulemanagement.page.php:157
-msgid "Create New Module"
-msgstr ""
-
-#: lib/pages/modulemanagement.page.php:88
-#: lib/pages/modulemanagement.page.php:92
-#: lib/pages/modulemanagement.page.php:203
-#: lib/pages/modulemanagement.page.php:207
-#: lib/pages/modulemanagement.page.php:390
-#: lib/pages/modulemanagement.page.php:394
-msgid "Module Description"
-msgstr ""
-
-#: lib/pages/modulemanagement.page.php:99
-#: lib/pages/modulemanagement.page.php:214
-#: lib/pages/modulemanagement.page.php:401
-msgid "Module Short Name"
-msgstr ""
-
-#: lib/pages/modulemanagement.page.php:111
-#: lib/pages/modulemanagement.page.php:226
-#: lib/pages/modulemanagement.page.php:413
-msgid "Module Default?"
-msgstr ""
-
-#: lib/pages/modulemanagement.page.php:289
-msgid "A module already exists with this name!"
-msgstr ""
-
-#: lib/pages/modulemanagement.page.php:299
-msgid "Add module failed!"
-msgstr ""
-
-#: lib/pages/modulemanagement.page.php:305
-msgid "Module added!"
-msgstr ""
-
-#: lib/pages/modulemanagement.page.php:306
-msgid "Module Create Success"
-msgstr ""
-
-#: lib/pages/modulemanagement.page.php:319
-msgid "Module Create Fail"
-msgstr ""
-
-#: lib/pages/modulemanagement.page.php:492
-msgid "Please use another module name"
-msgstr ""
-
-#: lib/pages/modulemanagement.page.php:540
-msgid "Module Host Associations"
-msgstr ""
-
-#: lib/pages/modulemanagement.page.php:654
-msgid "Module update failed!"
-msgstr ""
-
-#: lib/pages/modulemanagement.page.php:660
-msgid "Module updated!"
-msgstr ""
-
-#: lib/pages/modulemanagement.page.php:661
-#: lib/pages/serviceconfigurationpage.page.php:1567
-msgid "Module Update Success"
-msgstr ""
-
-#: lib/pages/modulemanagement.page.php:674
-#: lib/pages/serviceconfigurationpage.page.php:1576
-msgid "Module Update Fail"
 msgstr ""
 
 #: lib/pages/pluginmanagement.page.php:42
@@ -9136,55 +9140,6 @@ msgstr ""
 msgid "User Update Fail"
 msgstr ""
 
-#: lib/reg-task/registration.class.php:94
-msgid "Created by FOG Reg on"
-msgstr ""
-
-#: lib/reg-task/registration.class.php:120
-#: lib/reg-task/registration.class.php:129
-msgid "This machine already registered as "
-msgstr ""
-
-#: lib/reg-task/registration.class.php:159
-msgid "Unsafe hostname entered, please try again: "
-msgstr ""
-
-#: lib/reg-task/registration.class.php:168
-msgid "Hostname already used, please try again"
-msgstr ""
-
-#: lib/reg-task/registration.class.php:256
-#: lib/reg-task/registration.class.php:432
-#: lib/reg-task/registration.class.php:476
-msgid "Failed to create Host!"
-msgstr ""
-
-#: lib/reg-task/registration.class.php:267
-#: lib/reg-task/registration.class.php:443
-#: lib/reg-task/registration.class.php:485
-msgid "Done, without imaging!"
-msgstr ""
-
-#: lib/reg-task/registration.class.php:299
-msgid "Done, without imaging! No image assigned."
-msgstr ""
-
-#: lib/reg-task/registration.class.php:304
-msgid "Done, without imaging! Image is not enabled."
-msgstr ""
-
-#: lib/reg-task/registration.class.php:309
-msgid "Done, without imaging! Image not in storage group."
-msgstr ""
-
-#: lib/reg-task/registration.class.php:325
-msgid "Done, without imaging! Failed to create tasking."
-msgstr ""
-
-#: lib/reg-task/registration.class.php:328
-msgid "Done, with imaging"
-msgstr ""
-
 #: lib/reg-task/taskingelement.class.php:172 service/progress.php:31
 msgid "No Active Task found for Host"
 msgstr ""
@@ -9329,6 +9284,55 @@ msgstr ""
 msgid "Failed to update imaging log"
 msgstr ""
 
+#: lib/reg-task/registration.class.php:94
+msgid "Created by FOG Reg on"
+msgstr ""
+
+#: lib/reg-task/registration.class.php:120
+#: lib/reg-task/registration.class.php:129
+msgid "This machine already registered as "
+msgstr ""
+
+#: lib/reg-task/registration.class.php:159
+msgid "Unsafe hostname entered, please try again: "
+msgstr ""
+
+#: lib/reg-task/registration.class.php:168
+msgid "Hostname already used, please try again"
+msgstr ""
+
+#: lib/reg-task/registration.class.php:256
+#: lib/reg-task/registration.class.php:432
+#: lib/reg-task/registration.class.php:476
+msgid "Failed to create Host!"
+msgstr ""
+
+#: lib/reg-task/registration.class.php:267
+#: lib/reg-task/registration.class.php:443
+#: lib/reg-task/registration.class.php:485
+msgid "Done, without imaging!"
+msgstr ""
+
+#: lib/reg-task/registration.class.php:299
+msgid "Done, without imaging! No image assigned."
+msgstr ""
+
+#: lib/reg-task/registration.class.php:304
+msgid "Done, without imaging! Image is not enabled."
+msgstr ""
+
+#: lib/reg-task/registration.class.php:309
+msgid "Done, without imaging! Image not in storage group."
+msgstr ""
+
+#: lib/reg-task/registration.class.php:325
+msgid "Done, without imaging! Failed to create tasking."
+msgstr ""
+
+#: lib/reg-task/registration.class.php:328
+msgid "Done, with imaging"
+msgstr ""
+
 #: management/other/index.php:67
 msgid "You must enable JavaScript to use FOG Management."
 msgstr ""
@@ -9387,6 +9391,10 @@ msgstr ""
 msgid "All rights reserved."
 msgstr ""
 
+#: service/hostinfo.php:31
+msgid "Invalid tasking!"
+msgstr ""
+
 #: service/Test.php:145
 msgid "Invalid unit passed"
 msgstr ""
@@ -9407,14 +9415,6 @@ msgstr ""
 msgid "There are no groups on this server"
 msgstr ""
 
-#: service/hostinfo.php:31
-msgid "Invalid tasking!"
-msgstr ""
-
-#: service/imagelisting.php:30
-msgid "There are no images on this server"
-msgstr ""
-
 #: service/locationlisting.php:30
 msgid "There are no locations on this server"
 msgstr ""
@@ -9427,16 +9427,28 @@ msgstr ""
 msgid "The primary mac associated is"
 msgstr ""
 
+#: service/imagelisting.php:30
+msgid "There are no images on this server"
+msgstr ""
+
 #: service/oulisting.php:30
 msgid "There are no ous on this server"
+msgstr ""
+
+#: service/snapinlisting.php:30
+msgid "There are no snapins on this server"
 msgstr ""
 
 #: service/progress.php:39
 msgid "Invalid image"
 msgstr ""
 
-#: service/snapinlisting.php:30
-msgid "There are no snapins on this server"
+#: status/bandwidth.php:40
+msgid "Device must be a string"
+msgstr ""
+
+#: status/bandwidth.php:86 status/kernelvers.php:30
+msgid "Unauthorized"
 msgstr ""
 
 #: status/getfiles.php:28
@@ -9453,10 +9465,6 @@ msgstr ""
 
 #: status/freespace.php:50
 msgid "No data found"
-msgstr ""
-
-#: status/kernelvers.php:30 status/bandwidth.php:86
-msgid "Unauthorized"
 msgstr ""
 
 #: status/kernelvers.php:63
@@ -9485,8 +9493,4 @@ msgstr ""
 
 #: status/logtoview.php:161
 msgid "IP Passed is incorrect"
-msgstr ""
-
-#: status/bandwidth.php:40
-msgid "Device must be a string"
 msgstr ""
