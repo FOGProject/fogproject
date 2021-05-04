@@ -416,6 +416,7 @@ abstract class FOGBase
     {
         self::$useragent = self::_getUserAgent();
         self::_init();
+        Initiator::language($_SESSION['FOG_LANG']);
 
         return $this;
     }
