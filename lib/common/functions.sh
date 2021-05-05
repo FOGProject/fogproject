@@ -679,9 +679,11 @@ installPackages() {
             packages="${packages// libapache2-mod-fastcgi/}"
             packages="${packages// libapache2-mod-evasive/}"
             packages="${packages// php${php_ver}-mcrypt/}"
+            packages="${packages} php${php_ver}-bcmath bc"
+            packages="${packages/php-gettext/$phpgettext}"
             if [[ $installlang -eq 1 ]]; then
                 packages="$packages php${php_ver}-intl"
-                for i in fr de eu es pt zh en; do
+                for i in fr de eu es pt zh-hans en; do
                     packages="$packages language-pack-${i}"
                 done
             fi
