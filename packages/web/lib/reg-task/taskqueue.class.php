@@ -64,13 +64,13 @@ class TaskQueue extends TaskingElement
                     if (!$MulticastSession->save()) {
                         throw new Exception(_('Failed to update Session'));
                     }
-                    if (self::$Host->isValid()) {
-                        self::$Host
-                            ->set(
-                                'imageID',
-                                $MulticastSession->get('image')
-                            );
+                    if (!self::$Host->isValid()) {
+                        throw new Exception('##@GO');
                     }
+                    self::$Host->set(
+                        'imageID',
+                        $MulticastSession->get('image')
+                    );
                 } elseif ($this->Task->isForced()) {
                     self::$HookManager->processEvent(
                         'TASK_GROUP',
@@ -147,18 +147,21 @@ class TaskQueue extends TaskingElement
                         throw new Exception($msg);
                     }
                 }
-                $this->Task
-                    ->set(
-                        'storagenodeID',
-                        $this->StorageNode->get('id')
-                    );
+                $this->Task->set(
+                    'storagenodeID',
+                    $this->StorageNode->get('id')
+                );
                 if (!$this->imageLog(true)) {
                     throw new Exception(_('Failed to update/create image log'));
                 }
             }
-            $this->Task
-                ->set('stateID', self::getProgressState())
-                ->set('checkInTime', self::formatTime('now', 'Y-m-d H:i:s'));
+            $this->Task->set(
+                'stateID',
+                self::getProgressState()
+            )->set(
+                'checkInTime',
+                self::formatTime('now', 'Y-m-d H:i:s')
+            );
             if (!$this->Task->save()) {
                 throw new Exception(_('Failed to update Task'));
             }
@@ -432,6 +435,9 @@ class TaskQueue extends TaskingElement
                 ->set('pct', 100)
                 ->set('percent', 100)
                 ->set('stateID', self::getCompleteState());
+            if (!self::$Host->isValid()) {
+                throw new Exception('##');
+            }
             if (!self::$Host->save()) {
                 throw new Exception(_('Failed to update Host'));
             }

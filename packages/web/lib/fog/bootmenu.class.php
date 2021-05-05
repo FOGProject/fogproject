@@ -600,6 +600,7 @@ class BootMenu extends FOGBase
      */
     private function _approveHost()
     {
+        if (!self::$Host->isValid()) return;
         self::$Host->set('pending', null);
         if (self::$Host->save()) {
             $Send['approvesuccess'] = [
@@ -1126,9 +1127,7 @@ class BootMenu extends FOGBase
      */
     public function keyset()
     {
-        if (!self::$Host->isValid()) {
-            return;
-        }
+        if (!self::$Host->isValid()) return;
         self::$Host->set('productKey', $_REQUEST['key']);
         if (!self::$Host->save()) {
             $Send['keychangefail'] = [
