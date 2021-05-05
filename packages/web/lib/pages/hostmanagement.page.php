@@ -55,13 +55,13 @@ class HostManagement extends FOGPage
                 $this->obj->get('efiexit')
             );
         }
-        $this->exitNorm = Service::buildExitSelector(
+        $this->exitNorm = Setting::buildExitSelector(
             'bootTypeExit',
             $this->exitNorm,
             true,
             'bootTypeExit'
         );
-        $this->exitEfi = Service::buildExitSelector(
+        $this->exitEfi = Setting::buildExitSelector(
             'efiBootTypeExit',
             $this->exitEfi,
             true,

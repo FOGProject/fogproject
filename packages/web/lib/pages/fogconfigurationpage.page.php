@@ -448,12 +448,12 @@ class FOGConfigurationPage extends FOGPage
         $where = "`settingKey` IN ('"
             . implode("','", $ServicesToSee)
             . "')";
-        $serviceMan = self::getClass('ServiceManager');
-        $table = $serviceMan->getTable();
-        $dbcolumns = $serviceMan->getColumns();
-        $sqlStr = $serviceMan->getQueryStr();
-        $filterStr = $serviceMan->getFilterStr();
-        $totalStr = $serviceMan->getTotalStr()
+        $settingMan = self::getClass('SettingManager');
+        $table = $settingMan->getTable();
+        $dbcolumns = $settingMan->getColumns();
+        $sqlStr = $settingMan->getQueryStr();
+        $filterStr = $settingMan->getFilterStr();
+        $totalStr = $settingMan->getTotalStr()
             . ($where ? ' WHERE ' . $where : '');
         $columns = [];
         foreach ($dbcolumns as $common => &$real) {
@@ -478,7 +478,7 @@ class FOGConfigurationPage extends FOGPage
                         break;
                     case 'FOG_BOOT_EXIT_TYPE':
                     case 'FOG_EFI_BOOT_EXIT_TYPE':
-                        $input = Service::buildExitSelector(
+                        $input = Setting::buildExitSelector(
                             $row['settingID'],
                             $row['settingValue'],
                             false,
@@ -583,7 +583,7 @@ class FOGConfigurationPage extends FOGPage
             );
             $items = [];
             foreach ($vars as $key => &$val) {
-                Route::indiv('service', $key);
+                Route::indiv('setting', $key);
                 $set = trim($val);
                 $Service = json_decode(
                     Route::getData()
@@ -608,13 +608,13 @@ class FOGConfigurationPage extends FOGPage
                 unset($val);
             }
             if (count($items) > 0) {
-                $ServiceMan = new ServiceManager();
+                $SettingMan = new SettingManager();
                 $insert_fields = [
                     'id',
                     'name',
                     'value'
                 ];
-                if (!$ServiceMan->insertBatch($insert_fields, $items)) {
+                if (!$SettingMan->insertBatch($insert_fields, $items)) {
                     $serverFault = true;
                     throw new Exception(_('Settings update failed!'));
                 }
@@ -957,14 +957,6 @@ class FOGConfigurationPage extends FOGPage
             'FOG_PROXY_IP' => true,
         ];
         unset($findWhere, $setWhere);
-        $pName = filter_input(INPUT_POST, 'category');
-        Route::listem(
-            'service',
-            ['category' => $pName]
-        );
-        $Services = json_decode(
-            Route::getData()
-        );
 
         $serverFault = false;
         try {
@@ -974,15 +966,15 @@ class FOGConfigurationPage extends FOGPage
             );
             $combined = $vars + $_POST + $_FILES;
             foreach ($combined as $key => &$val) {
-                Route::indiv('service', $key);
+                Route::indiv('setting', $key);
                 if (!$_FILES[$key]) {
                     $set = trim(filter_var($val));
                 }
-                $Service = json_decode(
+                $Setting = json_decode(
                     Route::getData()
                 );
-                $name = trim($Service->name);
-                $val = trim($Service->value);
+                $name = trim($Setting->name);
+                $val = trim($Setting->value);
                 if ($val && $val == $set) {
                     continue;
                 }
@@ -1100,16 +1092,16 @@ class FOGConfigurationPage extends FOGPage
                     }
                 }
                 $items[] = [$key, $name, $set];
-                unset($Service);
+                unset($Setting);
             }
             if (count($items) > 0) {
-                $ServiceMan = self::getClass('ServiceManager');
+                $SettingMan = self::getClass('SettingManager');
                 $insert_fields = [
                     'id',
                     'name',
                     'value'
                 ];
-                if (!$ServiceMan->insertBatch($insert_fields, $items)) {
+                if (!$SettingMan->insertBatch($insert_fields, $items)) {
                     $serverFault = true;
                     throw new Exception(_('Settings update failed!'));
                 }
@@ -1864,12 +1856,12 @@ class FOGConfigurationPage extends FOGPage
             // User Management
             'FOG_USER_MINPASSLENGTH' => true,
         ];
-        $serviceMan = self::getClass('ServiceManager');
-        $table = $serviceMan->getTable();
-        $dbcolumns = $serviceMan->getColumns();
-        $sqlStr = $serviceMan->getQueryStr();
-        $filterStr = $serviceMan->getFilterStr();
-        $totalStr = $serviceMan->getTotalStr();
+        $settingMan = self::getClass('SettingManager');
+        $table = $settingMan->getTable();
+        $dbcolumns = $settingMan->getColumns();
+        $sqlStr = $settingMan->getQueryStr();
+        $filterStr = $settingMan->getFilterStr();
+        $totalStr = $settingMan->getTotalStr();
         $columns = [];
         foreach ($dbcolumns as $common => &$real) {
             $columns[] = [
@@ -2026,7 +2018,7 @@ class FOGConfigurationPage extends FOGPage
                         break;
                     case 'FOG_BOOT_EXIT_TYPE':
                     case 'FOG_EFI_BOOT_EXIT_TYPE':
-                        $input = Service::buildExitSelector(
+                        $input = Setting::buildExitSelector(
                             $row['settingID'],
                             $row['settingValue'],
                             false,

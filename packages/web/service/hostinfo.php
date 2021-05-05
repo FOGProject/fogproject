@@ -120,7 +120,7 @@ try {
             ]
         ];
         Route::ids(
-            'service',
+            'setting',
             $find,
             'value'
         );

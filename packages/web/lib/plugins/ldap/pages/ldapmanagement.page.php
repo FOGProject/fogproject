@@ -1412,18 +1412,18 @@ class LDAPManagement extends FOGPage
             ]
         ];
         Route::ids(
-            'service',
+            'setting',
             $find,
             'value'
         );
-        $services = json_decode(
+        $settings = json_decode(
             Route::getData(),
             true
         );
         list(
             $ports,
             $filters
-        ) = $services;
+        ) = $settings;
 
         $port = (
             filter_input(INPUT_POST, 'port') ?:

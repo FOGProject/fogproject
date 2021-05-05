@@ -431,18 +431,18 @@ class CaponeManagement extends FOGPage
             ]
         ];
         Route::ids(
-            'service',
+            'setting',
             $find,
             'value'
         );
-        $services = json_decode(
+        $settings = json_decode(
             Route::getData(),
             true
         );
         list(
             $dmiField,
             $actionType
-        ) = $services;
+        ) = $settings;
 
         $actionFields = [
             _('Reboot after deploy'),

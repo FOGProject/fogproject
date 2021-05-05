@@ -98,27 +98,25 @@ class AddLocationMenuItem extends Hook
     {
         $arguments['hook_main'][$this->node]
             = [_('Locations'), 'fa fa-globe'];
-        $Service = self::getClass('Service')
+        $Setting = self::getClass('Setting')
             ->set(
                 'name',
                 'FOG_SNAPIN_LOCATION_SEND_ENABLED'
             )->load('name');
-        if (!$Service->isValid()) {
-            $Service
-                ->set(
-                    'description',
-                    sprintf(
-                        '%s %s. %s %s. %s.',
-                        _('This setting defines sending the'),
-                        _('location url based on the host that checks in'),
-                        _('It tells the client to download snapins from'),
-                        _('the host defined location where available'),
-                        _('Default is disabled')
-                    )
-                )->set('value', 0)
-                ->set('category', 'FOG Client - Snapins')
-                ->save();
-        }
+        if ($Setting->isValid()) return;
+        $Setting->set(
+            'description',
+            sprintf(
+                '%s %s. %s %s. %s.',
+                _('This setting defines sending the'),
+                _('location url based on the host that checks in'),
+                _('It tells the client to download snapins from'),
+                _('the host defined location where available'),
+                _('Default is disabled')
+            )
+        )->set('value', 0)
+        ->set('category', 'FOG Client - Snapins')
+        ->save();
     }
     /**
      * Adds the location page to search elements.

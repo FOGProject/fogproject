@@ -222,7 +222,7 @@ if ($isLoggedIn) {
     $pageLength = self::getSetting('FOG_VIEW_DEFAULT_SCREEN');
     if (in_array(strtolower($pageLength), ['search','list'])) {
         $pageLength = 10;
-        $Service = self::getClass('Service')
+        $Setting = self::getClass('Setting')
             ->set('name', 'FOG_VIEW_DEFAULT_SCREEN')
             ->load('name')
             ->set(
@@ -233,7 +233,7 @@ if ($isLoggedIn) {
                 )
             )->set('value', $pageLength)
             ->save();
-        unset($Service);
+        unset($Setting);
     }
     echo FOGPage::makeInput(
         'pageLength',
