@@ -87,7 +87,7 @@ class Route extends FOGBase
         'printerassociation',
         'pxemenuoptions',
         'scheduledtask',
-        'service',
+        'setting',
         'snapin',
         'snapinassociation',
         'snapingroupassociation',

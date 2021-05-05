@@ -276,7 +276,7 @@ abstract class FOGBase
         'module',
         'plugin',
         'printer',
-        'service',
+        'setting',
         'snapin',
         'storagegroup',
         'storagenode',
@@ -1096,7 +1096,7 @@ abstract class FOGBase
         }
         $find = ['name' => array_values($services)];
         Route::ids(
-            'service',
+            'setting',
             $find,
             'value'
         );
@@ -2068,7 +2068,7 @@ abstract class FOGBase
      */
     public static function setSetting($key, $value)
     {
-        return self::getClass('ServiceManager')->update(
+        return self::getClass('SettingManager')->update(
             ['name' => $key],
             '',
             ['value' => trim($value)]

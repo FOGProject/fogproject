@@ -398,13 +398,13 @@ class GroupManagement extends FOGPage
      */
     public function groupGeneral()
     {
-        $exitNorm = Service::buildExitSelector(
+        $exitNorm = Setting::buildExitSelector(
             'bootTypeExit',
             filter_input(INPUT_POST, 'bootTypeExit'),
             true,
             'bootTypeExit'
         );
-        $exitEfi = Service::buildExitSelector(
+        $exitEfi = Setting::buildExitSelector(
             'efiBootTypeExit',
             filter_input(INPUT_POST, 'efiBootTypeExit'),
             true,

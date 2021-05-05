@@ -1,25 +1,25 @@
 <?php
 /**
- * The service/global settings manager class.
+ * The global settings manager class.
  *
  * PHP version 5
  *
- * @category ServiceManager
+ * @category SettingManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * The service/global settings manager class.
+ * The global settings manager class.
  *
- * @category ServiceManager
+ * @category SettingManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class ServiceManager extends FOGManagerController
+class SettingManager extends FOGManagerController
 {
     /**
      * The base table name.

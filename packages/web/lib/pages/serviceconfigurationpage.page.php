@@ -292,7 +292,7 @@ class ServiceConfigurationPage extends FOGPage
             'Module',
             $Module->id
         );
-        $Service = self::getClass('Service')
+        $Setting = self::getClass('Setting')
             ->set('name', self::$_modNames['displaymanager'])
             ->load('name');
         if (isset($_POST['update'])) {
@@ -456,7 +456,7 @@ class ServiceConfigurationPage extends FOGPage
             'Module',
             $Module->id
         );
-        $Service = self::getClass('Service')
+        $Service = self::getClass('Setting')
             ->set('name', self::$_modNames['autologout'])
             ->load('name');
         if (isset($_POST['update'])) {
@@ -601,7 +601,7 @@ class ServiceConfigurationPage extends FOGPage
             'Module',
             $Module->id
         );
-        $Service = self::getClass('Service')
+        $Service = self::getClass('Setting')
             ->set('name', self::$_modNames['snapinclient'])
             ->load('name');
         if (isset($_POST['update'])) {
@@ -741,7 +741,7 @@ class ServiceConfigurationPage extends FOGPage
             'Module',
             $Module->id
         );
-        $Service = self::getClass('Service')
+        $Service = self::getClass('Setting')
             ->set('name', self::$_modNames['hostregister'])
             ->load('name');
         if (isset($_POST['update'])) {
@@ -881,7 +881,7 @@ class ServiceConfigurationPage extends FOGPage
             'Module',
             $Module->id
         );
-        $Service = self::getClass('Service')
+        $Service = self::getClass('Setting')
             ->set('name', self::$_modNames['hostnamechanger'])
             ->load('name');
         if (isset($_POST['update'])) {
@@ -1021,7 +1021,7 @@ class ServiceConfigurationPage extends FOGPage
             'Module',
             $Module->id
         );
-        $Service = self::getClass('Service')
+        $Service = self::getClass('Setting')
             ->set('name', self::$_modNames['printermanager'])
             ->load('name');
         if (isset($_POST['update'])) {
@@ -1161,7 +1161,7 @@ class ServiceConfigurationPage extends FOGPage
             'Module',
             $Module->id
         );
-        $Service = self::getClass('Service')
+        $Service = self::getClass('Setting')
             ->set('name', self::$_modNames['taskreboot'])
             ->load('name');
         if (isset($_POST['update'])) {
@@ -1301,7 +1301,7 @@ class ServiceConfigurationPage extends FOGPage
             'Module',
             $Module->id
         );
-        $Service = self::getClass('Service')
+        $Service = self::getClass('Setting')
             ->set('name', self::$_modNames['usertracker'])
             ->load('name');
         if (isset($_POST['update'])) {
@@ -1441,7 +1441,7 @@ class ServiceConfigurationPage extends FOGPage
             'Module',
             $Module->id
         );
-        $Service = self::getClass('Service')
+        $Service = self::getClass('Setting')
             ->set('name', self::$_modNames['powermanagement'])
             ->load('name');
         if (isset($_POST['update'])) {

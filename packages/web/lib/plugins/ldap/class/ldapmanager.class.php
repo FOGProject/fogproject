@@ -174,7 +174,7 @@ class LDAPManager extends FOGManagerController
             true
         );
         Route::deletemass(
-            'service',
+            'setting',
             ['category' => 'Plugin: LDAP']
         );
         if (count($userIDs ?: [])) {

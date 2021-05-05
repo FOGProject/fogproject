@@ -103,7 +103,7 @@ class CaponeManager extends FOGManagerController
             '',
             $category
         ];
-        self::getClass('ServiceManager')
+        self::getClass('SettingManager')
             ->insertBatch(
                 $insert_fields,
                 $insert_values
@@ -118,7 +118,7 @@ class CaponeManager extends FOGManagerController
     public function uninstall()
     {
         Route::deletemass(
-            'service',
+            'setting',
             ['name' => 'FOG_PLUGIN_CAPONE_%']
         );
         Route::deletemass(

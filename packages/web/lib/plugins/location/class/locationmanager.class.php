@@ -106,7 +106,7 @@ class LocationManager extends FOGManagerController
     {
         $res = true;
         Route::deletemass(
-            'service',
+            'setting',
             ['name' => 'FOG_SNAPIN_LOCATION_SEND_ENABLED']
         );
         self::getClass('LocationAssociationManager')->uninstall();

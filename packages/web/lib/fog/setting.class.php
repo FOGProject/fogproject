@@ -1,34 +1,34 @@
 <?php
 /**
- * The service/global settings class.
+ * The global settings class.
  *
  * PHP version 5
  *
- * @category Service
+ * @category Setting
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
 /**
- * The service/global settings class.
+ * The global settings class.
  *
- * @category Service
+ * @category Setting 
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class Service extends FOGController
+class Setting extends FOGController
 {
     /**
-     * The service table name.
+     * The setting table name.
      *
      * @var string
      */
     protected $databaseTable = 'globalSettings';
     /**
-     * The service fields and common names.
+     * The setting fields and common names.
      *
      * @var array
      */
