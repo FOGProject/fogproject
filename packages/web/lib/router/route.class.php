@@ -1201,7 +1201,7 @@ class Route extends FOGBase
                 continue;
             }
             $data['_lang'][$search] = (
-                $search != 'service' ?
+                $search != 'setting' ?
                 _($search) :
                 _('settings')
             );
