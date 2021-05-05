@@ -816,7 +816,7 @@ function setupUniversalSearch() {
               text: item.name,
               url: '../management/index.php?node='
               + (
-                key != 'service' ?
+                key != 'setting' ?
                 key + '&sub=edit&id=' + item.id :
                 'about&sub=settings&search=' + item.name
               )
