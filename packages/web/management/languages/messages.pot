@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-04 12:54-0500\n"
+"POT-Creation-Date: 2021-05-05 06:18-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -802,7 +802,7 @@ msgid "Plugins"
 msgstr ""
 
 #: commons/text.php:161 lib/pages/groupmanagement.page.php:2849
-#: lib/pages/hostmanagement.page.php:4207
+#: lib/pages/hostmanagement.page.php:4210
 msgid "Basic Tasks"
 msgstr ""
 
@@ -1529,7 +1529,7 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
-#: commons/init.php:416
+#: commons/init.php:417
 msgid "Missing one or more extensions."
 msgstr ""
 
@@ -1586,7 +1586,7 @@ msgstr ""
 #: lib/pages/groupmanagement.page.php:2819
 #: lib/pages/hostmanagement.page.php:632 lib/pages/hostmanagement.page.php:2706
 #: lib/pages/hostmanagement.page.php:2718
-#: lib/pages/hostmanagement.page.php:4177
+#: lib/pages/hostmanagement.page.php:4180
 #: lib/pages/imagemanagement.page.php:322
 #: lib/pages/imagemanagement.page.php:1702
 #: lib/pages/imagemanagement.page.php:1743
@@ -1642,7 +1642,7 @@ msgstr ""
 #: lib/pages/printermanagement.page.php:1540
 #: lib/pages/snapinmanagement.page.php:1864
 #: lib/pages/taskmanagement.page.php:49 lib/pages/taskmanagement.page.php:555
-#: lib/reg-task/taskqueue.class.php:278
+#: lib/reg-task/taskqueue.class.php:281
 msgid "Host Name"
 msgstr ""
 
@@ -3802,7 +3802,7 @@ msgstr ""
 #: lib/pages/groupmanagement.page.php:2492
 #: lib/pages/groupmanagement.page.php:3220
 #: lib/pages/hostmanagement.page.php:3588
-#: lib/pages/hostmanagement.page.php:4492 lib/pages/taskmanagement.page.php:446
+#: lib/pages/hostmanagement.page.php:4495 lib/pages/taskmanagement.page.php:446
 #: lib/pages/taskmanagement.page.php:556 lib/pages/taskmanagement.page.php:654
 msgid "Start Time"
 msgstr ""
@@ -3827,7 +3827,7 @@ msgstr ""
 #: lib/reports/pending_mac_list.report.php:35
 #: lib/pages/hostmanagement.page.php:272 lib/pages/hostmanagement.page.php:506
 #: lib/pages/hostmanagement.page.php:754 lib/pages/hostmanagement.page.php:1427
-#: lib/pages/hostmanagement.page.php:1545 lib/reg-task/taskqueue.class.php:281
+#: lib/pages/hostmanagement.page.php:1545 lib/reg-task/taskqueue.class.php:284
 msgid "MAC Address"
 msgstr ""
 
@@ -4373,7 +4373,7 @@ msgstr ""
 msgid "Please Select an option"
 msgstr ""
 
-#: lib/fog/bootmenu.class.php:1461
+#: lib/fog/bootmenu.class.php:1460
 msgid "No valid storage nodes found"
 msgstr ""
 
@@ -4395,7 +4395,7 @@ msgstr ""
 
 #: lib/fog/fogcore.class.php:40 lib/fog/fogpage.class.php:2832
 #: lib/pages/groupmanagement.page.php:3267
-#: lib/pages/hostmanagement.page.php:4539
+#: lib/pages/hostmanagement.page.php:4542
 msgid "day"
 msgstr ""
 
@@ -4405,7 +4405,7 @@ msgstr ""
 
 #: lib/fog/fogcore.class.php:58 lib/fog/fogpage.class.php:2818
 #: lib/pages/groupmanagement.page.php:3253
-#: lib/pages/hostmanagement.page.php:4525
+#: lib/pages/hostmanagement.page.php:4528
 msgid "min"
 msgstr ""
 
@@ -4499,7 +4499,7 @@ msgstr ""
 #: lib/pages/hostmanagement.page.php:1444
 #: lib/pages/hostmanagement.page.php:2700
 #: lib/pages/hostmanagement.page.php:2712
-#: lib/pages/hostmanagement.page.php:4182
+#: lib/pages/hostmanagement.page.php:4185
 #: lib/pages/imagemanagement.page.php:1725
 #: lib/pages/imagemanagement.page.php:1737
 #: lib/pages/printermanagement.page.php:1613
@@ -4721,17 +4721,17 @@ msgid "Schedule Power"
 msgstr ""
 
 #: lib/fog/fogpage.class.php:2825 lib/pages/groupmanagement.page.php:3260
-#: lib/pages/hostmanagement.page.php:4532
+#: lib/pages/hostmanagement.page.php:4535
 msgid "hour"
 msgstr ""
 
 #: lib/fog/fogpage.class.php:2839 lib/pages/groupmanagement.page.php:3274
-#: lib/pages/hostmanagement.page.php:4546
+#: lib/pages/hostmanagement.page.php:4549
 msgid "month"
 msgstr ""
 
 #: lib/fog/fogpage.class.php:2846 lib/pages/groupmanagement.page.php:3281
-#: lib/pages/hostmanagement.page.php:4553
+#: lib/pages/hostmanagement.page.php:4556
 msgid "weekday"
 msgstr ""
 
@@ -4822,7 +4822,7 @@ msgid "No hosts available to task"
 msgstr ""
 
 #: lib/fog/group.class.php:528 lib/fog/host.class.php:969
-#: lib/pages/hostmanagement.page.php:4757
+#: lib/pages/hostmanagement.page.php:4760
 msgid "Image is not enabled"
 msgstr ""
 
@@ -4871,7 +4871,7 @@ msgid "Unable to create association"
 msgstr ""
 
 #: lib/fog/host.class.php:1146 lib/pages/groupmanagement.page.php:3596
-#: lib/pages/hostmanagement.page.php:4831
+#: lib/pages/hostmanagement.page.php:4834
 msgid "Create Task Fail"
 msgstr ""
 
@@ -6747,12 +6747,12 @@ msgid "Group Update Fail"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:2831
-#: lib/pages/hostmanagement.page.php:4189
+#: lib/pages/hostmanagement.page.php:4192
 msgid "Create new tasking"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:2870
-#: lib/pages/hostmanagement.page.php:4228
+#: lib/pages/hostmanagement.page.php:4231
 msgid "Advanced Tasks"
 msgstr ""
 
@@ -6774,57 +6774,57 @@ msgid "Groups cannot create capture tasks"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3066
-#: lib/pages/hostmanagement.page.php:4314
+#: lib/pages/hostmanagement.page.php:4317
 msgid "Select Snapin to run"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3074
-#: lib/pages/hostmanagement.page.php:4322
+#: lib/pages/hostmanagement.page.php:4325
 msgid "Account Name"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3099
-#: lib/pages/hostmanagement.page.php:4370
+#: lib/pages/hostmanagement.page.php:4373
 msgid "Shutdown when complete"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3127
-#: lib/pages/hostmanagement.page.php:4399
+#: lib/pages/hostmanagement.page.php:4402
 msgid "Wake Up"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3157
-#: lib/pages/hostmanagement.page.php:4429
+#: lib/pages/hostmanagement.page.php:4432
 msgid "Debug Task"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3180
-#: lib/pages/hostmanagement.page.php:4452
+#: lib/pages/hostmanagement.page.php:4455
 msgid "Schedule Immediately"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3206
-#: lib/pages/hostmanagement.page.php:4478
+#: lib/pages/hostmanagement.page.php:4481
 msgid "Schedule Later"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3234
-#: lib/pages/hostmanagement.page.php:4506
+#: lib/pages/hostmanagement.page.php:4509
 msgid "Schedule Crontab Style"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3248
-#: lib/pages/hostmanagement.page.php:4520
+#: lib/pages/hostmanagement.page.php:4523
 msgid "Cron Entry"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3314
-#: lib/pages/hostmanagement.page.php:4586
+#: lib/pages/hostmanagement.page.php:4589
 msgid "Create task form success"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3322
-#: lib/pages/hostmanagement.page.php:4594
+#: lib/pages/hostmanagement.page.php:4597
 msgid "Create task form fail"
 msgstr ""
 
@@ -6845,57 +6845,57 @@ msgid "Task Type is invalid"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3413
-#: lib/pages/hostmanagement.page.php:4633
+#: lib/pages/hostmanagement.page.php:4636
 msgid "Password reset requires a user account"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3475
-#: lib/pages/hostmanagement.page.php:4700
+#: lib/pages/hostmanagement.page.php:4703
 msgid "Invalid scheduling type"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3484
-#: lib/pages/hostmanagement.page.php:4709
+#: lib/pages/hostmanagement.page.php:4712
 msgid "Scheduled time is in the past"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3509
-#: lib/pages/hostmanagement.page.php:4734
+#: lib/pages/hostmanagement.page.php:4737
 msgid "Minutes field is invalid"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3512
-#: lib/pages/hostmanagement.page.php:4737
+#: lib/pages/hostmanagement.page.php:4740
 msgid "Hours field is invalid"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3515
-#: lib/pages/hostmanagement.page.php:4740
+#: lib/pages/hostmanagement.page.php:4743
 msgid "Day of Month field is invalid"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3518
-#: lib/pages/hostmanagement.page.php:4743
+#: lib/pages/hostmanagement.page.php:4746
 msgid "Month field is invalid"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3521
-#: lib/pages/hostmanagement.page.php:4746
+#: lib/pages/hostmanagement.page.php:4749
 msgid "Day of Week field is invalid"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3575
-#: lib/pages/hostmanagement.page.php:4809
+#: lib/pages/hostmanagement.page.php:4812
 msgid "Failed to create scheduled task"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3582
-#: lib/pages/hostmanagement.page.php:4817
+#: lib/pages/hostmanagement.page.php:4820
 msgid "Create tasking succeeded"
 msgstr ""
 
 #: lib/pages/groupmanagement.page.php:3583
-#: lib/pages/hostmanagement.page.php:4818
+#: lib/pages/hostmanagement.page.php:4821
 msgid "Create Task Success"
 msgstr ""
 
@@ -7177,75 +7177,79 @@ msgstr ""
 msgid "Group Associations"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:3807
+#: lib/pages/hostmanagement.page.php:3806
+msgid "Host is not valid!"
+msgstr ""
+
+#: lib/pages/hostmanagement.page.php:3810
 msgid "Host update failed!"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:3813
+#: lib/pages/hostmanagement.page.php:3816
 msgid "Host updated!"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:3814
+#: lib/pages/hostmanagement.page.php:3817
 msgid "Host Update Success"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:3827
+#: lib/pages/hostmanagement.page.php:3830
 msgid "Host Update Fail"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:3868
+#: lib/pages/hostmanagement.page.php:3871
 msgid "No hosts selected to be added"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:3871
+#: lib/pages/hostmanagement.page.php:3874
 msgid "No groups are being created or selected"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:3895
+#: lib/pages/hostmanagement.page.php:3898
 msgid "Successfully added hosts to the provided groups!"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:3896
+#: lib/pages/hostmanagement.page.php:3899
 msgid "Add Hosts to Groups Success"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:3908
+#: lib/pages/hostmanagement.page.php:3911
 msgid "Add Hosts to Group Fail"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:4285
+#: lib/pages/hostmanagement.page.php:4288
 msgid "Cannot task pending hosts"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:4290
+#: lib/pages/hostmanagement.page.php:4293
 msgid "Assigned image is invalid"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:4295
+#: lib/pages/hostmanagement.page.php:4298
 msgid "Assigned image is not enabled"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:4301
+#: lib/pages/hostmanagement.page.php:4304
 msgid "Assigned image is protected"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:4342
+#: lib/pages/hostmanagement.page.php:4345
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:4624
+#: lib/pages/hostmanagement.page.php:4627
 msgid "Pending hosts cannot be tasked"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:4754
+#: lib/pages/hostmanagement.page.php:4757
 msgid "Image is invalid"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:4762
+#: lib/pages/hostmanagement.page.php:4765
 msgid "Image is protected"
 msgstr ""
 
-#: lib/pages/hostmanagement.page.php:4993
+#: lib/pages/hostmanagement.page.php:4996
 msgid "No printers assigned to this host"
 msgstr ""
 
@@ -9212,75 +9216,75 @@ msgstr ""
 msgid "before me on this node"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:156
+#: lib/reg-task/taskqueue.class.php:155
 msgid "Failed to update/create image log"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:163 lib/reg-task/taskqueue.class.php:439
+#: lib/reg-task/taskqueue.class.php:166 lib/reg-task/taskqueue.class.php:445
 msgid "Failed to update Task"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:166
+#: lib/reg-task/taskqueue.class.php:169
 msgid "Failed to update/create task log"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:277
+#: lib/reg-task/taskqueue.class.php:280
 msgid "Machine Details"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:279
+#: lib/reg-task/taskqueue.class.php:282
 msgid "Computer Model"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:280
+#: lib/reg-task/taskqueue.class.php:283
 msgid "Serial Number"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:283
+#: lib/reg-task/taskqueue.class.php:286
 msgid "Image Used"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:284
+#: lib/reg-task/taskqueue.class.php:287
 msgid "Snapin Used"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:286
+#: lib/reg-task/taskqueue.class.php:289
 msgid "Imaged By"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:287 lib/reg-task/taskqueue.class.php:322
+#: lib/reg-task/taskqueue.class.php:290 lib/reg-task/taskqueue.class.php:325
 msgid "Imaged For"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:288
+#: lib/reg-task/taskqueue.class.php:291
 msgid "Imaging Started"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:289
+#: lib/reg-task/taskqueue.class.php:292
 msgid "Imaging Completed"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:290
+#: lib/reg-task/taskqueue.class.php:293
 msgid "Imaging Duration"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:308
+#: lib/reg-task/taskqueue.class.php:311
 msgid "Image Task Completed"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:323
+#: lib/reg-task/taskqueue.class.php:326
 msgid "Call"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:436
+#: lib/reg-task/taskqueue.class.php:442
 msgid "Failed to update Host"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:449
+#: lib/reg-task/taskqueue.class.php:455
 msgid "Failed to update task log"
 msgstr ""
 
-#: lib/reg-task/taskqueue.class.php:453
+#: lib/reg-task/taskqueue.class.php:459
 msgid "Failed to update imaging log"
 msgstr ""
 

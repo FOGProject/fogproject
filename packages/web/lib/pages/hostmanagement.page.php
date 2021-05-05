@@ -3802,6 +3802,9 @@ class HostManagement extends FOGPage
                 $this->hostInventoryPost();
                 break;
             }
+            if (!$this->obj->isValid()) {
+                throw new Exception(_('Host is not valid!'));
+            }
             if (!$this->obj->save()) {
                 $serverFault = true;
                 throw new Exception(_('Host update failed!'));
