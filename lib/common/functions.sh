@@ -640,7 +640,6 @@ installPackages() {
             packages="${packages// mod_fastcgi/}"
             packages="${packages// mod_evasive/}"
             packages="${packages// php-mcrypt/}"
-            packages="${packages/php-gettext/$phpgettext/}"
             case $linuxReleaseName in
                 *[Ff][Ee][Dd][Oo][Rr][Aa]*)
                     packages="$packages php-json"
@@ -680,6 +679,7 @@ installPackages() {
             packages="${packages// libapache2-mod-evasive/}"
             packages="${packages// php${php_ver}-mcrypt/}"
             packages="${packages} php${php_ver}-bcmath bc"
+            packages="${packages/php-gettext/$phpgettext}"
             if [[ $installlang -eq 1 ]]; then
                 packages="$packages php${php_ver}-intl"
                 for i in fr de eu es pt zh-hans en; do
