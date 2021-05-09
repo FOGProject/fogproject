@@ -635,7 +635,7 @@ installPackages() {
             if [[ $installlang -eq 1 ]]; then
                 packages="$packages php-intl"
                 for i in fr de eu es pt zh en; do
-                    packages="$packages glibc-langpack-${i}"
+                    packages="$packages glibc-langpack-${i}";
                 done
             fi
             packages="${packages// mod_fastcgi/}"
@@ -684,10 +684,9 @@ installPackages() {
             if [[ $installlang -eq 1 ]]; then
                 packages="$packages php${php_ver}-intl"
                 for i in fr de eu es pt zh-hans en; do
-                    packages="$packages language-pack-${i}"
+                    packages="$packages language-pack-${i}";
                 done
             fi
-            [[ $installlang -eq 1 ]] && packages="$packages php${php_ver}-intl"
             case $linuxReleaseName in
                 *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*)
                     if [[ $OSVersion -gt 17 ]]; then
