@@ -1160,7 +1160,18 @@ configureMySql() {
     mysql $sqloptionsroot --execute="quit" >/dev/null 2>&1
     connect_as_root=$?
     if [[ $connect_as_root -eq 0 ]]; then
-        mysqlrootauth=$(mysql $sqloptionsroot --database=mysql --execute="SELECT Host,User,plugin FROM user WHERE Host='localhost' AND User='root' AND plugin='unix_socket'")
+        # Try to detect if we can login to the database as root without a password
+        # as there are many legacy installs with empty root password and we want to
+        # make things more secure. Since MariaDB 10.1 the authentication plugin
+        # called unix_socket is used by default for the DB root account and we want
+        # to check if that is the case here first. In case it is a root login with
+        # empty or without password is also possible but unix_socket makes it way
+        # more secure and if it's set to unix_socket we don't mess with it!
+        # MariaDB 10.4 introduced a new table called mysql.global_priv to keep the
+        # login information. While mysql.user still exists mysql.global_priv is now
+        # in charge. So we need to check that first.
+        mysqlrootauth=$(mysql $sqloptionsroot --database=mysql --execute="SELECT * FROM global_priv WHERE Host='localhost' AND User='root' AND Priv LIKE '%unix_socket%'" 2>/dev/null)
+        [[ -z $mysqlrootauth ]] && mysqlrootauth=$(mysql $sqloptionsroot --database=mysql --execute="SELECT Host,User,plugin FROM user WHERE Host='localhost' AND User='root' AND plugin='unix_socket'" 2>/dev/null)
         if [[ -z $mysqlrootauth && -z $autoaccept ]]; then
             echo
             echo "   The installer detected a blank database *root* password. This"
@@ -1195,8 +1206,8 @@ configureMySql() {
             # WARN: Since MariaDB 10.3 (maybe earlier) setting a password when auth plugin is
             # set to unix_socket will actually switch to auth plugin mysql_native_password
             # automatically which was not the case in MariaDB 10.1 and is causing trouble.
-            # So now we try to be more conservative and only reset the pass when we get one
-            # to make sure the user is in charge of this.
+            # So instead of SET PASSWORD we now use mysqladmin as it does not alter the
+            # MariaDB auth plugin used.
             mysqladmin $sqloptionsroot password "${snmysqlrootpass}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
         snmysqlstoragepass=$(mysql -s $sqloptionsroot --password="${snmysqlrootpass}" --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" $mysqldbname 2>/dev/null | tail -1)
