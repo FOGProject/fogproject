@@ -295,8 +295,13 @@ class HostManager extends FOGManagerController
                 'hostID'
             );
             $MACHost = json_decode(Route::getData(), true);
-            if (count($MACHost) > 1) {
-                throw new Exception(self::$foglang['ErrorMultipleHosts']);
+            $macs = (array)$macs;
+            if (count($MACHost ?: []) > 1 && count($macs ?: []) > 0) {
+                $maclist = implode(', ', $macs);
+                throw new Exception(
+                    self::$foglang['ErrorMultipleHosts']
+                    . ", MACs: $maclist"
+                );
             }
         }
         self::$Host = new Host(@max($MACHost));
