@@ -215,7 +215,9 @@ class Schema extends FOGController
             fclose($fh);
             ini_set('max_execution_time', $orig_exec_time);
             ini_set('request_terminate_timeout', $orig_term_time);
-            unlink($file);
+            if (file_exists($file)) {
+                unlink($file);
+            }
             return;
         }
         set_time_limit($orig_exec_time);
