@@ -1640,7 +1640,7 @@ class FOGConfigurationPage extends FOGPage
                     $data .= fread($fh, 4096);
                 }
                 fclose($fh);
-                unlink($tmpfile);
+                if (file_exists($tmpfile)) unlink($tmpfile);
                 echo json_encode(
                     [
                         'title' => _('Export Success'),

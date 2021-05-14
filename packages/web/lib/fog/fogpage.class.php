@@ -1823,7 +1823,9 @@ abstract class FOGPage extends FOGBase
                         ->delete($orig)
                         ->rename($tmpfile, $orig)
                         ->close();
-                    unlink($tmpfile);
+                    if (file_exists($tmpfile)) {
+                        unlink($tmpfile);
+                    }
                     $code = HTTPResponseCodes::HTTP_SUCCESS;
                     http_response_code($code);
                     echo json_encode(

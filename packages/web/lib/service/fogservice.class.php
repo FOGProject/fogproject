@@ -254,7 +254,7 @@ abstract class FOGService extends FOGBase
                 $max_size = 500000;
             }
             if ($filesize >= $max_size) {
-                unlink($path);
+                if (file_exists($path)) unlink($path);
             }
         }
         $fh = fopen($path, 'ab');
