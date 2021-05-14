@@ -2575,7 +2575,7 @@ abstract class FOGPage extends FOGBase
                     }
                     $dlUrl = $_SESSION['dl-kernel-file'];
                     if (false === stripos($dlUrl, 'https://fogproject.org/') &&
-                        false === strpos($dlUrl, 'https://github.com/FOGProject/')
+                        false === stripos($dlUrl, 'https://github.com/FOGProject/')
                     ) {
                         throw new Exception(_('Specified download URL not allowed!'));
                     }
