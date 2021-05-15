@@ -184,7 +184,7 @@ class Registration extends FOGBase
             $other2 = filter_input(INPUT_POST, 'other2');
             $other2 = base64_decode($other2);
             $doimage = isset($_POST['doimage']);
-            if (isset($_POST['doad'])) {
+            if ($_POST['doad']) {
                 $serviceNames = [
                     'FOG_AD_DEFAULT_DOMAINNAME',
                     'FOG_AD_DEFAULT_OU',
