@@ -1475,13 +1475,7 @@ EOF
             [[ -z $password ]] && password=$(awk -F "'" -e '/TFTP_FTP_PASSWORD/{print $4}' $webdirdest/lib/fog/config.class.php)
         fi
     fi
-    if [[ -n "$(checkPasswordChars)" ]]; then
-        echo "Failed"
-        echo "# The fog system account password includes characters we cannot properly"
-        echo "# handle. Please remove the following character(s) in "
-        echo "# your .fogsettings file before re-running the installer: $passcheck"
-        exit 1
-    fi
+    checkPasswordChars "$password"
     cnt=0
     ret=999
     while [[ $ret -ne 0 && $cnt -lt 10  ]]; do
@@ -2617,7 +2611,16 @@ generatePassword() {
     echo ${genpassword::($position)}$special${genpassword:($position)}
 }
 checkPasswordChars() {
-    echo "$i" | tr -d '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~'
+    checkpass="$(echo "$1" | tr -d '0-9a-zA-Z!#$%&()*+,-./:;<=>?@[]^_{|}~')"
+    if [[ -n "$checkpass" ]]; then
+        echo "Failed"
+        echo ""
+        echo "# The fog system account password includes characters we cannot properly"
+        echo "# handle. Please remove the following character(s) in line password= of"
+        echo "# your .fogsettings file before re-running the installer: $checkpass"
+        echo ""
+        exit 1
+    fi
 }
 diffconfig() {
     local conffile="$1"
