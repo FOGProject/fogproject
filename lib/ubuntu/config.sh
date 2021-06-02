@@ -35,6 +35,7 @@ if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
             ;;
         11)
             php_ver="7.4"
+            x="*php5* *php7.0* *php7.3*"
             phpgettext="php${php_ver}-gettext"
             ;;
     esac
