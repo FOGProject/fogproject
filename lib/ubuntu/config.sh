@@ -20,6 +20,7 @@
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
 if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
     sysvrcconf="sysv-rc-conf"
+    phpgettext="php-gettext"
     case $OSVersion in
         8)
             php_ver="5"
@@ -31,6 +32,10 @@ if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
         10)
             php_ver="7.3"
             x="*php5* *php7.0*"
+            ;;
+        11)
+            php_ver="7.4"
+            phpgettext="php${php_ver}-gettext"
             ;;
     esac
     old_php=$(eval $packageQuery 2>/dev/null | awk '{print $2}' | tr '\n' ' ')
