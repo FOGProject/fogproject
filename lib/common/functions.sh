@@ -703,7 +703,7 @@ installPackages() {
                             DEBIAN_FRONTEND=noninteractive apt-get install -yq ppa-purge >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                             ppa-purge -y ppa:ondrej/apache2 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                             # for php we want to purge all packages first as we don't want ppa-purge to try downgrading those
-                            DEBIAN_FRONTEND=noninteractive apt-get purge -yq 'php5*' 'php7*' 'libapache*' >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                            DEBIAN_FRONTEND=noninteractive apt-get purge -yq 'php5*' 'php7*' 'php8*' 'libapache*' >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                             ppa-purge -y ppa:ondrej/php >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                             DEBIAN_FRONTEND=noninteractive apt-get purge -yq ppa-purge >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         fi
