@@ -72,7 +72,7 @@ class SnapinManagementPage extends FOGPage
         /**
          * The real name not using our name passer.
          */
-        $this->name = 'Snapin Management';
+        $this->name = self::$foglang['Snapin Management'];
         /**
          * Pull in the FOG Page class items.
          */

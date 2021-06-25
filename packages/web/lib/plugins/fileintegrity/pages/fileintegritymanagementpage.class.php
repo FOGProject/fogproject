@@ -36,7 +36,7 @@ class FileIntegrityManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'File Integrity Management';
+        $this->name = _('File Integrity Management');
         self::$foglang['ExportFileintegrity'] = _('Export Checksums');
         parent::__construct($this->name);
         $this->menu['list'] = sprintf(

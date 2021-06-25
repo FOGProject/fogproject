@@ -36,7 +36,7 @@ class ServerInfo extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Hardware Information';
+        $this->name = _('Hardware Information');
         parent::__construct($this->name);
         global $id;
         $this->obj = new StorageNode($id);

@@ -36,7 +36,7 @@ class TaskManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Task Management';
+        $this->name = _('Task Management');
         parent::__construct($this->name);
         $this->menu = array(
             'active' => self::$foglang['ActiveTasks'],

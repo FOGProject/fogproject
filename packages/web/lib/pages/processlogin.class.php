@@ -74,7 +74,8 @@ class ProcessLogin extends FOGPage
             self::getSetting('FOG_DEFAULT_LOCALE')
         );
         ob_start();
-        foreach ((array)self::$foglang['Language'] as $base => &$lang) {
+        global $foglangt;
+        foreach ($foglangt['Language'] as $base => &$lang) {
             printf(
                 '<option value="%s"%s>%s</option>',
                 $base,

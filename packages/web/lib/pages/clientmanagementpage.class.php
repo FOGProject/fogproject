@@ -42,7 +42,7 @@ class ClientManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Client Management';
+        $this->name = _('Client Management');
         parent::__construct($this->name);
         $this->menu = array();
     }

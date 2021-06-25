@@ -42,7 +42,7 @@ class GroupManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Group Management';
+        $this->name = self::$foglang['Group Management'];
         parent::__construct($this->name);
         global $id;
         if ($id) {

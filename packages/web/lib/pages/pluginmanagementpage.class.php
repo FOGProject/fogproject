@@ -48,7 +48,7 @@ class PluginManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Plugin Management';
+        $this->name = self::$foglang['Plugin Management'];
         parent::__construct($this->name);
         Route::listem('plugin');
         self::$_plugins = json_decode(

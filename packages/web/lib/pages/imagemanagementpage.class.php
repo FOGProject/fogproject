@@ -39,7 +39,7 @@ class ImageManagementPage extends FOGPage
         /**
          * The real name not using our name passer.
          */
-        $this->name = 'Image Management';
+        $this->name = self::$foglang['Image Management'];
         /**
          * Pull in the FOGPage class items.
          */
