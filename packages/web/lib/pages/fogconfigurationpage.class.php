@@ -2303,14 +2303,15 @@ class FOGConfigurationPage extends FOGPage
             case 'FOG_DEFAULT_LOCALE':
                 $locale = self::getSetting('FOG_DEFAULT_LOCALE');
                 ob_start();
-                $langs =& self::$foglang['Language'];
+                global $foglangt;
+                $langs =& $foglangt['Language'];
                 foreach ($langs as $lang => &$humanreadable) {
                     printf(
                         '<option value="%s"%s>%s</option>',
                         $lang,
                         (
                             $locale == $lang
-                            || $locale == self::$foglang['Language'][$lang] ?
+                            || $locale == $foglangt['Language'][$lang] ?
                             ' selected' :
                             ''
                         ),
