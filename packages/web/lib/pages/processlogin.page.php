@@ -50,8 +50,9 @@ class ProcessLogin extends FOGPage
             $_SESSION['FOG_LANG'] ?:
             self::getSetting('FOG_DEFAULT_LOCALE')
         );
+        global $foglang;
         $langmenu = '<select class="form-control fog-select2" name="ulang" id="ulang">';
-        foreach ((array)self::$foglang['Language'] as $base => &$lang) {
+        foreach ($foglang['Language'] as $base => &$lang) {
             $langmenu .= '<option value="'
                 . $base
                 . '"'

@@ -331,6 +331,7 @@ abstract class FOGBase
         if (self::$_initialized === true) {
             return;
         }
+        Initiator::language($_SESSION['FOG_LANG']);
         global $foglang;
         global $FOGFTP;
         global $FOGCore;
@@ -341,7 +342,11 @@ abstract class FOGBase
         global $FOGURLRequests;
         global $FOGPageManager;
         global $TimeZone;
-        self::$foglang = &$foglang;
+        foreach ($foglang as $call => &$val) {
+            self::$foglang[$call] = _($val);
+            unset($val);
+        }
+        self::$foglang['Language'] = $foglang['Language'];
         self::$FOGFTP = &$FOGFTP;
         self::$FOGCore = &$FOGCore;
         self::$DB = &$DB;
@@ -416,7 +421,6 @@ abstract class FOGBase
     {
         self::$useragent = self::_getUserAgent();
         self::_init();
-        Initiator::language($_SESSION['FOG_LANG']);
 
         return $this;
     }
