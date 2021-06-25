@@ -173,7 +173,7 @@ class Page extends FOGBase
                     'fa fa-print'
                 ),
                 'service' => array(
-                    self::$foglang['ClientSettings'],
+                    self::$foglang['Service Configuration'],
                     'fa fa-cogs'
                 ),
                 'task' => array(

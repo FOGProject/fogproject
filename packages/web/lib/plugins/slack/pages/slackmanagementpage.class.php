@@ -36,7 +36,7 @@ class SlackManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Slack Management';
+        $this->name = _('Slack Management');
         parent::__construct($this->name);
         $this->menu = array(
             'list' => sprintf(

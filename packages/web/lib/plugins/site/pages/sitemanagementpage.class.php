@@ -34,7 +34,7 @@ class SiteManagementPage extends FOGPage
         /**
          * The name to give.
          */
-        $this->name = 'Site Control Management';
+        $this->name = _('Site Control Management');
         /**
          * Add this page to the PAGES_WITH_OBJECTS hook event.
          */

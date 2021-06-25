@@ -36,7 +36,7 @@ class UserManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = _('User Management');
+        $this->name = self::$foglang['User Management'];
         parent::__construct($this->name);
         global $id;
         if ($id) {

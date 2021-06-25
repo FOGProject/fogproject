@@ -38,7 +38,7 @@ class ServiceConfigurationPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Service Configuration';
+        $this->name = _('Service Configuration');
         parent::__construct($this->name);
         $servicelink = sprintf(
             '?node=%s',

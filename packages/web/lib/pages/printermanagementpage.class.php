@@ -43,7 +43,7 @@ class PrinterManagementPage extends FOGPage
     public function __construct($name = '')
     {
         global $id;
-        $this->name = 'Printer Management';
+        $this->name = self::$foglang['Printer Management'];
         parent::__construct($this->name);
         if ($id) {
             $this->_config = _('TCP/IP');

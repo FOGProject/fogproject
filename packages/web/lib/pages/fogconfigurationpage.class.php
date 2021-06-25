@@ -36,7 +36,7 @@ class FOGConfigurationPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'FOG Configuration';
+        $this->name = _('FOG Configuration');
         parent::__construct($this->name);
         $this->menu = array(
             'home' => self::$foglang['Home'],

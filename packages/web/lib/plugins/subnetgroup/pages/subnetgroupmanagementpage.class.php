@@ -38,7 +38,7 @@ class SubnetgroupManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Subnetgroup Management';
+        $this->name = _('Subnetgroup Management');
 
         self::$HookManager->processEvent(
             'PAGES_WITH_OBJECTS',

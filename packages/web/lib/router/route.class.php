@@ -997,12 +997,13 @@ class Route extends FOGBase
             }
             break;
         }
+        global $foglang;
         foreach ($classVars['databaseFieldsRequired'] as &$key) {
             $key = $class->key($key);
             $val = $class->get($key);
             if (null === $val) {
                 self::setErrorMessage(
-                    self::$foglang['RequiredDB'],
+                    $foglang['RequiredDB'],
                     HTTPResponseCodes::HTTP_EXPECTATION_FAILED
                 );
             }
