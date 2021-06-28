@@ -320,7 +320,6 @@ abstract class FOGBase
         if (self::$_initialized === true) {
             return;
         }
-        Initiator::language($_SESSION['FOG_LANG']);
         global $foglang;
         global $FOGFTP;
         global $FOGCore;
@@ -331,10 +330,7 @@ abstract class FOGBase
         global $FOGURLRequests;
         global $FOGPageManager;
         global $TimeZone;
-        foreach ($foglang as $call => &$val) {
-            self::$foglang[$call] = _($foglang[$call]);
-            unset($val);
-        }
+        self::$foglang = &$foglang;
         self::$FOGFTP = &$FOGFTP;
         self::$FOGCore = &$FOGCore;
         self::$DB = &$DB;
