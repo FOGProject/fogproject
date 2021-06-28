@@ -47,7 +47,6 @@ class ProcessLogin extends FOGPage
     private static function _getLanguages()
     {
         $selected = (
-            $_SESSION['FOG_LANG'] ?:
             self::getSetting('FOG_DEFAULT_LOCALE')
         );
         global $foglang;
@@ -79,7 +78,8 @@ class ProcessLogin extends FOGPage
             $rememberme = isset($_POST['remember-me']);
             $type = self::$FOGUser->get('type');
             if ($_SESSION['FOG_LANG'] != $ulang) {
-                Initiator::language($ulang);
+                $_SESSION['FOG_LANG'] = $ulang;
+                Initiator::language($_SESSION['FOG_LANG']);
             }
             self::$HookManager->processEvent(
                 'USER_TYPE_HOOK',
