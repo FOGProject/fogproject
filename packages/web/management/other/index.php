@@ -19,8 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-$ulang = $_SESSION['FOG_LANG'] ?: FOGCore::getSetting('FOG_DEFAULT_LOCALE');
-Initiator::language($ulang);
+$ulang = $_SESSION['FOG_LANG'];
 echo '<!DOCTYPE html>';
 echo '<html lang="' . $ulang . '">';
 echo '<head>';

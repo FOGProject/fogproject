@@ -70,7 +70,6 @@ class ProcessLogin extends FOGPage
     private function _getLanguages()
     {
         $selected = (
-            $_SESSION['FOG_LANG'] ?:
             self::getSetting('FOG_DEFAULT_LOCALE')
         );
         ob_start();
@@ -127,13 +126,14 @@ class ProcessLogin extends FOGPage
     public function processMainLogin()
     {
         global $currentUser;
-        $ulang = filter_input(INPUT_POST, 'ulang') ?: $_SESSION['FOG_LANG'];
+        $ulang = filter_input(INPUT_POST, 'ulang') ?: self::getSetting('FOG_DEFAULT_LOCALE');
         $uname = filter_input(INPUT_POST, 'uname');
         $upass = filter_input(INPUT_POST, 'upass');
         $this->_username = $uname;
         $this->_password = $upass;
         $type = self::$FOGUser->get('type');
         if ($_SESSION['FOG_LANG'] != $ulang) {
+            $_SESSION['FOG_LANG'] = $ulang;
             Initiator::language($ulang);
         }
         self::$HookManager
