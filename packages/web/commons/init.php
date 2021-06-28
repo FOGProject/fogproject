@@ -328,6 +328,10 @@ class Initiator
          * Initialize the configuration.
          */
         new Config();
+        /**
+         * Language Starting
+         */
+        self::language($_SESSION['FOG_LANG']);
     }
     /**
      * Sanitizes output
