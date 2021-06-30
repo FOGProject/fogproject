@@ -384,24 +384,40 @@ getAllNetworkInterfaces() {
     echo -n $interfaces
 }
 checkInternetConnection() {
-    sites=( "k.root-servers.net" "m.root-servers.net" "f.root-servers.net" )
-    ips=( "193.0.14.129" "202.12.27.33" "192.5.5.241" )
+    sites="fogproject.org www.kernel.org github.com"
     dots "Testing internet connection"
-    for i in $(seq 0 2); do
-        ping -c 1 ${ips[$i]} >/dev/null 2>&1
+    # Try to find a command to check DNS. If none, bypass check using true
+    dns_command=$(command -v host)
+    [[ -z $dns_command ]] && dns_command=$(command -v nslookup)
+    [[ -z $dns_command ]] && dns_command="true"
+    # Check DNS
+    dns_ok=0
+    for site in $sites; do
+        host $site >/dev/null 2>&1
         [[ $? -ne 0 ]] && continue
-        ping -c 1 ${sites[$i]} >/dev/null 2>&1
-        if [[ $? -ne 0 ]]; then
-            echo "Internet connection detected but there seems to be a DNS problem." | tee -a $workingdir/error_logs/fog_error_${version}.log
-            echo "Check the contents of /etc/resolv.conf" | tee -a $workingdir/error_logs/fog_error_${version}.log
-            echo "If this is CentOS, RHEL, or Fedora or an other RH variant," | tee -a $workingdir/error_logs/fog_error_${version}.log
-            echo "also check the DNS entries in /etc/sysconfig/network-scripts/ifcfg-*" | tee -a $workingdir/error_logs/fog_error_${version}.log
-        fi
-        echo "Done"
-        return
+        dns_ok=1
     done
-    echo "There was no interface with an active internet connection found." | tee -a $workingdir/error_logs/fog_error_${version}.log
-    echo
+    if [[ $dns_ok -eq 0 ]]; then
+        echo "There seems to be a DNS problem." | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo "Check the contents of /etc/resolv.conf" | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo "If this is CentOS, RHEL, or Fedora or an other RH variant," | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo "also check the DNS entries in /etc/sysconfig/network-scripts/ifcfg-*" | tee -a $workingdir/error_logs/fog_error_${version}.log
+        return
+    fi
+    # Check http
+    http_ok=0
+    for site in $sites; do
+        curl --silent -o /dev/null "https://$site"
+        [[ $? -ne 0 ]] && continue
+        http_ok=1
+    done
+
+    if [[ $http_ok -eq 0 ]]; then
+        echo "There was no interface with an active internet connection found." | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo "If you are using a proxy server, please export http_proxy and https_proxy before running installation." | tee -a $workingdir/error_logs/fog_error_${version}.log
+        return
+    fi
+    echo "Done"
 }
 join() {
     local IFS="$1"
