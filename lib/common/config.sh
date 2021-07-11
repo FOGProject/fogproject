@@ -1,3 +1,4 @@
+# lib/common/config.sh
 #  FOG is a computer imaging solution.
 #  Copyright (C) 2007  Chuck Syperski & Jian Zhang
 #
@@ -71,6 +72,9 @@ else
     case $linuxReleaseName in
         *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Bb][Ii][Aa][Nn]*|*[Mm][Ii][Nn][Tt]*)
             initdsrc="../packages/init.d/ubuntu"
+            ;;
+        *[Aa][Ll][Pp][Ii][Nn][Ee]*)
+            initdsrc="../packages/init.d/alpine"
             ;;
         *)
             initdsrc="../packages/init.d/redhat"

@@ -1,0 +1,21 @@
+#!/bin/openrc-run
+### BEGIN INIT INFO
+# Provides: FOGImageSize
+# Required-Start: $local_fs $remote_fs $network $syslog $network $inetd $apache2 $mysql
+# Required-Stop: $local_fs $remote_fs $network $syslog $network $inetd
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# X-Interactive: true
+# Short-Description: Start/Stop FOGImageSize
+# Long-Description: Created by Chuck Syperski
+# Used to stop and start the FOGImageSize Service.
+### END INIT INFO
+
+name=FOGImageSize
+command=/opt/fog/service/$name/$name
+pidfile=/var/run/fog/$name.pid
+command_background="yes"
+
+depend() {
+        need net
+}
