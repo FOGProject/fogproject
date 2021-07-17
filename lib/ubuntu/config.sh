@@ -18,6 +18,7 @@
 #
 [[ -z $repo ]] && repo="php"
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
+[[ -z $webserver ]] && webserver="apache2"
 if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
     sysvrcconf="sysv-rc-conf"
     phpgettext="php-gettext"
@@ -63,7 +64,7 @@ elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]
             php_ver="7.1"
             x="*php5* *php-5*"
             eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-            if [[ $? -ne 0 ]]; then
+            if [[ $webserver == "apache2" && $? -ne 0 ]]; then
                 if [[ $autoaccept != yes ]]; then
                     echo " *** Detected a potential need to reinstall apache and php files."
                     echo " *** This will remove the /etc/php* and /etc/apache2* directories"
@@ -83,7 +84,7 @@ elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]
                         echo "Done"
                         dots "Stopping web services"
                         if [[ $systemctl == yes ]]; then
-                            systemctl is-active --quiet apache2 && systemctl stop apache2 >/dev/null 2>&1 || true
+                            systemctl is-active --quiet $webserver && systemctl stop $webserver >/dev/null 2>&1 || true
                         fi
                         [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
                         dots "Removing the apache and php packages"
@@ -109,7 +110,10 @@ case $linuxReleaseName in
             x="mysql-server"
             eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             [[ $? -eq 0 ]] && db_packages="mysql-client mysql-server" || db_packages="mariadb-client mariadb-server"
-            packages="apache2 build-essential cpp curl g++ gawk gcc genisoimage git gzip htmldoc isc-dhcp-server isolinux lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 libcurl3 liblzma-dev m4 ${db_packages} net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mysql php${php_ver}-mysqlnd ${sysvrcconf} tar tftpd-hpa tftp-hpa vsftpd wget xinetd zlib1g"
+            if [[ $webserver == "apache2" ]]; then
+                libapache="libapache2-mod-fastcgi libapache2-mod-php${php_ver}"
+            fi
+            packages="build-essential cpp curl g++ gawk gcc genisoimage git gzip htmldoc isc-dhcp-server isolinux lftp ${libapache} libc6 libcurl3 liblzma-dev m4 ${db_packages} net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mysql php${php_ver}-mysqlnd ${sysvrcconf} tar tftpd-hpa tftp-hpa vsftpd wget xinetd zlib1g"
         else
             # make sure we update all the php version numbers with those specified above
             packages=${packages//php[0-9]\.[0-9]/php${php_ver}}
@@ -140,10 +144,11 @@ if [[ -z $webdirdest ]]; then
 fi
 [[ -z $webredirect ]] && webredirect="$docroot/index.php"
 [[ -z $apacheuser ]] && apacheuser="www-data"
-[[ -z $apachelogdir ]] && apachelogdir="/var/log/apache2"
+[[ -z $apachelogdir ]] && apachelogdir="/var/log/$webserver"
 [[ -z $apacheerrlog ]] && apacheerrlog="$apachelogdir/error.log"
 [[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/access.log"
-[[ -z $etcconf ]] && etcconf="/etc/apache2/sites-available/001-fog.conf"
+# This will likely need adjustment as apache2 is only known one for now
+[[ -z $etcconf ]] && etcconf="/etc/$webserver/sites-available/001-fog.conf"
 [[ $php_ver != 5 ]] && phpini="/etc/$phpcmd/$php_ver/fpm/php.ini" || phpini="/etc/$phpcmd/fpm/php.ini"
 [[ -z $storageLocation ]] && storageLocation="/images"
 [[ -z $storageLocationCapture ]] && storageLocationCapture="${storageLocation}/dev"

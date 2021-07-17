@@ -19,6 +19,7 @@
 [[ -z $packageQuery ]] && packageQuery="rpm -q \$x"
 case $linuxReleaseName in
     *[Mm][Aa][Gg][Ee][Ii][Aa]*)
+        webserver="apache"
         [[ -z $packages ]] && packages="apache apache-mod_fcgid apache-mod_php apache-mod_ssl cdrkit-genisoimage curl dhcp-server gcc gcc-c++ git gzip htmldoc lftp m4 make mariadb mariadb-common mariadb-common-core mariadb-core net-tools nfs-utils perl perl-Crypt-PasswdMD5 php-cli php-curl php-fpm php-gd php-gettext php-ldap php-mbstring php-mysqlnd php-pcntl php-pdo php-pdo_mysql tar tftp-server vsftpd wget xinetd"
         [[ -z $packageinstaller ]] && packageinstaller="urpmi --auto"
         [[ -z $packagelist ]] && packagelist="urpmq"
@@ -30,13 +31,14 @@ case $linuxReleaseName in
         [[ -z $etcconf ]] && etcconf="/etc/httpd/conf/conf.d/fog.conf"
         ;;
     *)
-        [[ -z $etcconf ]] && etcconf="/etc/httpd/conf.d/fog.conf"
+        [[ -z $webserver ]] && webserver="httpd"
+        [[ -z $etcconf ]] && etcconf="/etc/$webserver/conf.d/fog.conf"
         [[ -z $packages ]] && {
             if [[ $OSVersion -gt 7 ]]; then
-                packages="curl dhcp-server gcc gcc-c++ genisoimage git gzip httpd lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils openssl php php-cli php-common php-fpm php-gd php-json php-ldap php-mbstring php-mysqlnd php-process syslinux tar tftp-server vsftpd wget xinetd xz-devel"
-		[[ -z $dhcpname ]] && dhcpname="dhcp-server"
+                packages="curl dhcp-server gcc gcc-c++ genisoimage git gzip lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils openssl php php-cli php-common php-fpm php-gd php-json php-ldap php-mbstring php-mysqlnd php-process syslinux tar tftp-server vsftpd wget xinetd xz-devel"
+                [[ -z $dhcpname ]] && dhcpname="dhcp-server"
             else
-                packages="curl dhcp gcc gcc-c++ genisoimage git gzip httpd lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils openssl php php-cli php-common php-fpm php-gd php-ldap php-mbstring php-mysqlnd php-process syslinux tar tftp-server vsftpd wget xinetd xz-devel"
+                packages="curl dhcp gcc gcc-c++ genisoimage git gzip lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils openssl php php-cli php-common php-fpm php-gd php-ldap php-mbstring php-mysqlnd php-process syslinux tar tftp-server vsftpd wget xinetd xz-devel"
             fi
         }
         pkginst=$(command -v dnf)
@@ -72,9 +74,17 @@ if [[ -z $webdirdest ]]; then
 fi
 [[ -z $webredirect ]] && webredirect="${webdirdest}/index.php"
 [[ -z $apacheuser ]] && apacheuser="apache"
-[[ -z $apachelogdir ]] && apachelogdir="/var/log/httpd"
-[[ -z $apacheerrlog ]] && apacheerrlog="$apachelogdir/error_log"
-[[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/access_log"
+[[ -z $apachelogdir ]] && apachelogdir="/var/log/$webserver"
+if [[ $webserver == httpd ]]; then
+    httperrlog="error_log"
+    httpacclog="access_log"
+elif [[ $websever == nginx ]]; then
+    httperrlog="error.log"
+    httpacclog="access.log"
+fi
+[[ $webserver == httpd ]]
+[[ -z $apacheerrlog ]] && apacheerrlog="$apachelogdir/$httperrlog"
+[[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/$httpacclog"
 [[ -z $phpini ]] && phpini="/etc/php.ini"
 [[ -z $storageLocation ]] && storageLocation="/images"
 [[ -z $storageLocationCapture ]] && storageLocationCapture="${storageLocation}/dev"
