@@ -1,4 +1,5 @@
 #!/bin/bash
+# lib/alpine/config.sh
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -13,17 +14,17 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-[[ -z $packages ]] && packages="bc cdrtools curl dhcp gcc git gzip lftp m4 make mariadb mod_fastcgi net-tools nfs-utils openssh openssl perl perl-crypt-passwdmd5 php php-apache php-fpm php-gd syslinux tar tftp-hpa vsftpd wget xinetd xz"
-[[ -z $packageinstaller ]] && packageinstaller="pacman -Sy --noconfirm"
-[[ -z $packagelist ]] && packagelist="pacman -Si"
-[[ -z $packageupdater ]] && packageupdater="pacman -Syu --noconfirm"
+[[ -z $packages ]] && packages="openrc bc cdrkit curl gcc g++ git gzip lftp m4 make mariadb mariadb-client net-tools nfs-utils openssh openssl perl perl-crypt-passwdmd5 php7 php7-session php7-fpm php7-mbstring php7-mcrypt php7-soap php7-openssl php7-gmp php7-pdo_odbc php7-json php7-dom php7-pdo php7-zip php7-mysqli php7-sqlite3 php7-apcu php7-pdo_pgsql php7-bcmath php7-gd php7-odbc php7-pdo_mysql php7-pdo_sqlite php7-gettext php7-xmlreader php7-xmlrpc php7-bz2 php7-iconv php7-pdo_dblib php7-curl php7-sockets php7-mysqli php7-ctype syslinux tar tftp-hpa vsftpd wget xz"
+[[ -z $packageinstaller ]] && packageinstaller="apk add"
+[[ -z $packagelist ]] && packagelist="apk info"
+[[ -z $packageupdater ]] && packageupdater="apk update && apk upgrade"
 [[ -z $packmanUpdate ]] && packmanUpdate="$packageinstaller"
-[[ -z $packageQuery ]] && packageQuery="pacman -Q \$x"
+[[ -z $packageQuery ]] && packageQuery="apk info -e \$x "
 [[ -z $langPackages ]] && langPackages="iso-codes"
-[[ -z $dhcpname ]] && dhcpname="dhcp"
+[[ -z $dhcpname ]] && dhcpname=""
 if [[ -z $webdirdest ]]; then
     if [[ -z $docroot ]]; then
-        docroot="/srv/http/"
+        docroot="/var/www/"
         webdirdest="${docroot}fog/"
     elif [[ "$docroot" != *'fog'* ]]; then
         webdirdest="${docroot}fog/"
@@ -31,30 +32,25 @@ if [[ -z $webdirdest ]]; then
         webdirdest="${docroot}/"
     fi
 fi
-[[ -z $webserver ]] && webserver="apache"
 [[ -z $webredirect ]] && webredirect="${webdirdest}/index.php"
-[[ -z $apacheuser ]] && apacheuser="http"
-if [[ $webserver == "apache" ]]; then
-    [[ -z $apachelogdir ]] && apachelogdir="/var/log/httpd"
-    [[ -z $httpdconf ]] && httpdconf="/etc/httpd/conf/httpd.conf"
-    [[ -z $etcconf ]] && etcconf="/etc/httpd/conf/extra/fog.conf"
-else
-    # This is all just a guess, will most likely need a ton of refinement
-    [[ -z $apachelogdir ]] && apachelogdir="/var/log/$webserver"
-    [[ -z $httpdconf ]] && httpdconf="/etc/$webserver/conf/httpd.conf"
-    [[ -z $etcconf ]] && etcconf="/etc/$webserver/conf/extra/fog.conf"
-fi
-[[ -z $apacheerrlog ]] && apacheerrlog="$apachelogdir/error_log"
-[[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/access_log"
-[[ -z $phpini ]] && phpini="/etc/php/php.ini"
+[[ -z $apacheuser ]] && apacheuser="nginx"
+[[ -z $apachelogdir ]] && apachelogdir="/var/log/nginx"
+[[ -z $apacheerrlog ]] && apacheerrlog="$apachelogdir/error.log"
+[[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/access.log"
+[[ -z $httpdconf ]] && httpdconf="/etc/nginx/nginx.conf"
+[[ -z $etcconf ]] && etcconf="/etc/nginx/http.d/default.conf"
+[[ -z $phpini ]] && phpini="/etc/php7/php.ini"
 [[ -z $storageLocation ]] && storageLocation="/images"
 [[ -z $storageLocationCapture ]] && storageLocationCapture="${storageLocation}/dev"
 [[ -z $dhcpconfig ]] && dhcpconfig="/etc/dhcpd.conf"
 [[ -z $dhcpconfigother ]] && dhcpconfigother="/etc/dhcp/dhcpd.conf"
-[[ -z $tftpdirdst ]] && tftpdirdst="/srv/tftp"
+[[ -z $tftpdirdst ]] && tftpdirdst="/var/tftpboot"
 [[ -z $tftpconfig ]] && tftpconfig="/etc/xinetd.d/tftpd"
 [[ -z $ftpxinetd ]] && ftpxinetd="/etc/xinetd.d/vsftpd"
 [[ -z $ftpconfig ]] && ftpconfig="/etc/vsftpd.conf"
 [[ -z $dhcpd ]] && dhcpd="dhcpd4"
 [[ -z $snapindir ]] && snapindir="/opt/fog/snapins"
+[[ -z $php_ver ]] && php_ver="7"
+[[ -z $phpfpm ]] && phpfpm="php-fpm${php_ver}"
+[[ -z $webserver ]] && webserver="nginx"
 packages="${packages} ${webserver}"

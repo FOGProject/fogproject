@@ -23,7 +23,10 @@ if [[ ! $EUID -eq 0 ]]; then
     echo "FOG Installation must be run as root user"
     exit 1 # Fail Sudo
 fi
-which useradd >/dev/null 2>&1
+# Begin adjusting per @redvex2460 in PR 438
+# Use a more appropriate method for user add command lookup
+[[ -z $useraddcmd ]] && useraddcmd=$(command -v useradd) || true
+[[ -z $useraddcmd ]] && useraddcmd=$(command -v adduser) || true
 if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
     echo "Please switch to a proper root environment to run the installer!"
     echo "Use 'sudo -i' or 'su -' (skip the ' and note the hyphen at the end"
@@ -320,7 +323,8 @@ while getopts "$optspec" o; do
 done
 [[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
 [[ -z $OS ]] && OS=$(uname -s)
-if [[ $OS =~ ^[^Ll][^Ii][^Nn][^Uu][^Xx] ]]; then
+# Minor change to do our checks here.
+if [[ $OS =~ [^Ll][^Ii][^Nn][^Uu][^Xx] ]]; then
     echo "We do not currently support Installation on non-Linux Operating Systems"
     exit 2 # Fail OS Check
 else
@@ -359,6 +363,8 @@ if [[ ! $exitcode -eq 0 ]]; then
             ;;
         *[Aa][Rr][Cc][Hh]*)
             pacman -Sy --noconfirm lsb-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            ;;
+        *[Aa][Ll][Pp][Ii][Nn][Ee]*)
             ;;
     esac
 fi
