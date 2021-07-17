@@ -208,6 +208,9 @@ class ImageSize extends FOGService
                                 _('Path is unavailable')
                             )
                         );
+                        $Image
+                            ->set('srvsize', 0)
+                            ->save();
                         continue;
                     }
                     self::outall(
