@@ -2034,11 +2034,8 @@ EOF
                         echo "    location = /50x.html {" >> "$etcconf"
                         echo "        root /var/lib/nginx/html;" >> "$etcconf"
                         echo "    }" >> "$etcconf"
-                        echo "    location ~ ^/fog/(.*)$ {" >> "$etcconf"
-                        echo "        try_files $uri $uri/ /fog/api/index.php?$args;" >> "$etcconf"
-                        echo "    }" >> "$etcconf"
-                        echo "    location  ${docroot} {" >> "$etcconf"
-                        echo "        rewrite ^/fog/(.*)$ /fog/api/index.php?\$1 last;" >> "$etcconf"
+                        echo "    location ~ ^/fog/(.*)\$ {" >> "$etcconf"
+                        echo "        try_files \$uri \$uri/ /fog/api/index.php;" >> "$etcconf"
                         echo "    }" >> "$etcconf"
                         echo "}" >> "$etcconf"
                     else
@@ -2063,7 +2060,6 @@ EOF
                         if [[ ! -x $webdirdest/management/other/ssl/srvchained.crt ]]; then
                             cat $webdirdest/management/other/{ca.cert.pem,ssl/srvpublic.crt} >> $webdirdest/management/other/ssl/srvchained.crt
                         fi
-                        echo $webdirdest;
                         echo "server {" > "$etcconf"
                         echo "    listen 443 ssl;" >> "$etcconf"
                         echo "    server_name $ipaddress $hostname;" >> "$etcconf"
@@ -2079,8 +2075,8 @@ EOF
                         echo "    ssl_session_cache shared:SSL:50m;" >> "$etcconf"
                         echo "    add_header Strict-Transport-Security max-age=15768000;" >> "$etcconf"
                         echo "    include ${phploc};" >> "$etcconf"
-                        echo "    location ~ ^/fog/(.*)$ {" >> "$etcconf"
-                        echo "        try_files $uri $uri/ /fog/api/index.php?$args;" >> "$etcconf"
+                        echo "    location ~ ^/fog/(.*)\$ {" >> "$etcconf"
+                        echo "        try_files \$uri \$uri/ /fog/api/index.php;" >> "$etcconf"
                         echo "    }" >> "$etcconf"
                         echo "}" >> "$etcconf"
                         # Going to add display errors but only if debugmode is configured

@@ -143,7 +143,11 @@ if [[ -z $webdirdest ]]; then
     fi
 fi
 [[ -z $webredirect ]] && webredirect="$docroot/index.php"
-[[ -z $apacheuser ]] && apacheuser="www-data"
+if [[ $webserver == apache2 ]]; then
+    [[ -z $apacheuser ]] && apacheuser="www-data"
+else
+    [[ -z $apacheuser ]] && apacheuser="nginx"
+fi
 [[ -z $apachelogdir ]] && apachelogdir="/var/log/$webserver"
 [[ -z $apacheerrlog ]] && apacheerrlog="$apachelogdir/error.log"
 [[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/access.log"
