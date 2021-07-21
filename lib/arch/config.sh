@@ -33,13 +33,14 @@ if [[ -z $webdirdest ]]; then
 fi
 [[ -z $webserver ]] && webserver="apache"
 [[ -z $webredirect ]] && webredirect="${webdirdest}/index.php"
-[[ -z $apacheuser ]] && apacheuser="http"
 if [[ $webserver == "apache" ]]; then
+    [[ -z $apacheuser ]] && apacheuser="http"
     [[ -z $apachelogdir ]] && apachelogdir="/var/log/httpd"
     [[ -z $httpdconf ]] && httpdconf="/etc/httpd/conf/httpd.conf"
     [[ -z $etcconf ]] && etcconf="/etc/httpd/conf/extra/fog.conf"
 else
     # This is all just a guess, will most likely need a ton of refinement
+    [[ -z $apacheuser ]] && apacheuser="nginx"
     [[ -z $apachelogdir ]] && apachelogdir="/var/log/$webserver"
     [[ -z $httpdconf ]] && httpdconf="/etc/$webserver/conf/httpd.conf"
     [[ -z $etcconf ]] && etcconf="/etc/$webserver/conf/extra/fog.conf"

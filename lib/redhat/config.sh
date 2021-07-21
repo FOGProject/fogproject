@@ -73,16 +73,16 @@ if [[ -z $webdirdest ]]; then
     fi
 fi
 [[ -z $webredirect ]] && webredirect="${webdirdest}/index.php"
-[[ -z $apacheuser ]] && apacheuser="apache"
 [[ -z $apachelogdir ]] && apachelogdir="/var/log/$webserver"
 if [[ $webserver == httpd ]]; then
+    [[ -z $apacheuser ]] && apacheuser="apache"
     httperrlog="error_log"
     httpacclog="access_log"
 elif [[ $websever == nginx ]]; then
+    [[ -z $apacheuser ]] && apacheuser="nginx"
     httperrlog="error.log"
     httpacclog="access.log"
 fi
-[[ $webserver == httpd ]]
 [[ -z $apacheerrlog ]] && apacheerrlog="$apachelogdir/$httperrlog"
 [[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/$httpacclog"
 [[ -z $phpini ]] && phpini="/etc/php.ini"
