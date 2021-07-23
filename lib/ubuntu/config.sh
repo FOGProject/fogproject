@@ -60,6 +60,10 @@ elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]
         18)
             php_ver="7.2"
             ;;
+        16)
+            sysvrcconf="sysv-rc-conf"
+            php_ver="7.0"
+            ;;
         *)
             sysvrcconf="sysv-rc-conf"
             php_ver="7.1"
