@@ -496,7 +496,7 @@ class User extends FOGController
     public function getDisplayName()
     {
         $displayName = $this->get('display');
-        if (isset($displayName)) {
+        if (!empty($displayName) && isset($displayName)) {
             return $displayName;
         }
 
