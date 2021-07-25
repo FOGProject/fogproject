@@ -2059,9 +2059,9 @@ EOF
                     else
                         echo "    return 308 https://\$host\$request_uri;" >> "$etcconf"
                         echo "}" >> "$etcconf"
+                        echo "Continued (See Below)"
                         # Creates the diffie helman param file.
-                        if [[ ! -x "/etc/ssl/fog/dhparam.pem" ]]; then
-                            echo "Still in progress"
+                        if [[ ! -f /etc/ssl/fog/dhparam.pem ]]; then
                             dots "Creating DHParam file"
                             openssl dhparam -dsaparam -out /etc/ssl/fog/dhparam.pem 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                             echo "Done"
