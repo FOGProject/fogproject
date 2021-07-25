@@ -581,10 +581,11 @@ configureTFTPandPXE() {
     [[ -e ${tftpdirdst}.fogbackup ]] && rm -rf ${tftpdirdst}.fogbackup >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ -d $tftpdirdst && ! -d ${tftpdirdst}.prev ]] && mkdir -p ${tftpdirdst}.prev >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ -d ${tftpdirdst}.prev ]] && cp -Rf $tftpdirdst/* ${tftpdirdst}.prev/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    sslpath=${sslpath//\/$}
     if [[ "x$httpproto" = "xhttps" ]]; then
         dots "Compiling iPXE binaries trusting your SSL certificate"
         cd $buildipxesrc
-        ./buildipxe.sh ${sslpath//\/}CA/.fogCA.pem >>$workingdir/error_logs/fog_ipxe-build_${version}.log 2>&1
+        ./buildipxe.sh ${sslpath}/CA/.fogCA.pem >>$workingdir/error_logs/fog_ipxe-build_${version}.log 2>&1
         errorStat $?
         cd $workingdir
     fi
@@ -1630,6 +1631,7 @@ clearScreen() {
     clear
 }
 writeUpdateFile() {
+    sslpath=${sslpath//\/$}
     tmpDte=$(date +%c)
     replace='s/[]"\/$&*.^|[]/\\&/g';
     escversion=$(echo $version | sed -e $replace)
@@ -1667,7 +1669,7 @@ writeUpdateFile() {
     escbootfilename=$(echo $bootfilename | sed -e $replace)
     escpackages=$(echo $packages | sed -e $replace)
     escnoTftpBuild=$(echo $noTftpBuild | sed -e $replace)
-    escsslpath=$(echo ${sslpath//\/$} | sed -e $replace)
+    escsslpath=$(echo $sslpath | sed -e $replace)
     escbackupPath=$(echo $backupPath | sed -e $replace)
     escarmsupport=$(echo $sarmsupport | sed -e $replace)
     escphp_ver=$(echo $php_ver | sed -e $replace)
@@ -1788,7 +1790,7 @@ writeUpdateFile() {
                 sed -i "/notpxedefaultfile=.*$/d" $fogprogramdir/.fogsettings
             grep -q "sslpath=" $fogprogramdir/.fogsettings && \
                 sed -i "s/sslpath=.*/sslpath='$escsslpath'/g" $fogprogramdir/.fogsettings || \
-                echo "sslpath='${sslpath//\/$}'" >> $fogprogramdir/.fogsettings
+                echo "sslpath='$sslpath'" >> $fogprogramdir/.fogsettings
             grep -q "backupPath=" $fogprogramdir/.fogsettings && \
                 sed -i "s/backupPath=.*/backupPath='$escbackupPath'/g" $fogprogramdir/.fogsettings || \
                 echo "backupPath='$backupPath'" >> $fogprogramdir/.fogsettings
@@ -1850,7 +1852,7 @@ writeUpdateFile() {
             echo "bootfilename='$bootfilename'" >> "$fogprogramdir/.fogsettings"
             echo "packages='$packages'" >> "$fogprogramdir/.fogsettings"
             echo "noTftpBuild='$noTftpBuild'" >> "$fogprogramdir/.fogsettings"
-            echo "sslpath='${sslpath//\/$}'" >> "$fogprogramdir/.fogsettings"
+            echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
             echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
             echo "armsupport='$armsupport'" >> "$fogprogramdir/.fogsettings"
             echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
@@ -1900,7 +1902,7 @@ writeUpdateFile() {
         echo "bootfilename='$bootfilename'" >> "$fogprogramdir/.fogsettings"
         echo "packages='$packages'" >> "$fogprogramdir/.fogsettings"
         echo "noTftpBuild='$noTftpBuild'" >> "$fogprogramdir/.fogsettings"
-        echo "sslpath='${sslpath//\/$}'" >> "$fogprogramdir/.fogsettings"
+        echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
         echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
         echo "armsupport='$armsupport'" >> "$fogprogramdir/.fogsettings"
         echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
@@ -1935,12 +1937,27 @@ displayBanner() {
 }
 createSSLCA() {
     if [[ -z $sslpath ]]; then
-        [[ -d /opt/fog/snapins/CA && -d /opt/fog/snapins/ssl ]] && mv /opt/fog/snapins/CA /opt/fog/snapins/ssl/
-        sslpath='/opt/fog/snapins/ssl'
+        sslpath="/etc/fog/ssl"
     fi
     sslpath=${sslpath//\/$}
-    if [[ $recreateCA == yes || $caCreated != yes || ! -e $sslpath/CA || ! -e $sslpath/CA/.fogCA.key ]]; then
-        mkdir -p $sslpath/CA >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    [[ ! -d $sslpath ]] && mkdir -p $sslpath >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    [[ ! -d $sslpath/CA ]] && mkdir -p $sslpath/CA >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    shopt -s dotglob
+    if [[ x$sslpath != x/opt/fog/snapins/ssl ]]; then
+        if [[ -d /opt/fog/snapins/CA ]]; then
+            mv /opt/fog/snapins/CA/* $sslpath/CA/
+            rm -rf /opt/fog/snapins/CA
+        elif [[ -d /opt/fog/snapins/ssl && -d /opt/fog/snapins/ssl/CA ]]; then
+            mv /opt/fog/snapins/ssl/CA/* $sslpath/CA/
+            rm -rf /opt/fog/snapins/ssl/CA
+        fi
+        if [[ -d /opt/fog/snapins/ssl ]]; then
+            mv /opt/fog/snapins/ssl/* $sslpath/
+            rm -rf /opt/fog/snapins/ssl
+        fi
+    fi
+    shopt -u dotglob
+    if [[ $recreateCA == yes || $caCreated != yes || ! -e $sslpath/CA/.fogCA.key ]]; then
         dots "Creating SSL CA"
         openssl genrsa -out $sslpath/CA/.fogCA.key 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         openssl req -x509 -new -sha512 -nodes -key $sslpath/CA/.fogCA.key -days 3650 -out $sslpath/CA/.fogCA.pem >>$workingdir/error_logs/fog_error_${version}.log 2>&1 << EOF
@@ -1954,7 +1971,6 @@ FOG Server CA
 EOF
         errorStat $?
     fi
-    sslpath=${sslpath//\/$}
     [[ -z $sslprivkey ]] && sslprivkey="$sslpath/.srvprivate.key"
     if [[ $recreateKeys == yes || $recreateCA == yes || $caCreated != yes || ! -e $sslpath || ! -e $sslprivkey ]]; then
         dots "Creating SSL Private Key"
@@ -2044,7 +2060,7 @@ EOF
                         echo "    return 308 https://\$host\$request_uri;" >> "$etcconf"
                         echo "}" >> "$etcconf"
                         # Creates the diffie helman param file.
-                        if [[ ! -x "/etc/ssl/fog/ssl/dhparam.pem" ]]; then
+                        if [[ ! -x "/etc/ssl/fog/dhparam.pem" ]]; then
                             echo "Still in progress"
                             dots "Creating DHParam file"
                             openssl dhparam -dsaparam -out /etc/ssl/fog/dhparam.pem 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
