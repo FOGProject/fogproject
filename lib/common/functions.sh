@@ -2055,6 +2055,7 @@ EOF
                         echo "    location ~ ^/fog/(.*)\$ {" >> "$etcconf"
                         echo "        try_files \$uri \$uri/ /fog/api/index.php;" >> "$etcconf"
                         echo "    }" >> "$etcconf"
+                        echo "    proxy_cookie_domain ~(?P<secure_domain>([-0-9a-z]+\.)?[-0-9a-z]+\.[a-z]+)$ \"$secure_domain; secure\";" >> "$etcconf"
                         echo "}" >> "$etcconf"
                     else
                         echo "    return 308 https://\$host\$request_uri;" >> "$etcconf"
@@ -2092,10 +2093,15 @@ EOF
                         echo "    ssl_session_timeout 1d;" >> "$etcconf"
                         echo "    ssl_session_cache shared:SSL:50m;" >> "$etcconf"
                         echo "    add_header Strict-Transport-Security max-age=15768000;" >> "$etcconf"
+                        echo "    error_page 500 502 503 504 /50x.html;" >> "$etcconf"
                         echo "    include ${phploc};" >> "$etcconf"
+                        echo "    location = /50x.html {" >> "$etcconf"
+                        echo "        root /var/lib/nginx/html;" >> "$etcconf"
+                        echo "    }" >> "$etcconf"
                         echo "    location ~ ^/fog/(.*)\$ {" >> "$etcconf"
                         echo "        try_files \$uri \$uri/ /fog/api/index.php;" >> "$etcconf"
                         echo "    }" >> "$etcconf"
+                        echo "    proxy_cookie_domain ~(?P<secure_domain>([-0-9a-z]+\.)?[-0-9a-z]+\.[a-z]+)$ \"$secure_domain; secure\";" >> "$etcconf"
                         echo "}" >> "$etcconf"
                         # Going to add display errors but only if debugmode is configured
                         # also going to loop through all php*.ini files in /etc/ and change accordingly
