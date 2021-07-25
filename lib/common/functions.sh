@@ -2617,6 +2617,7 @@ downloadfiles() {
     dots "Downloading kernel, init and fog-client binaries"
     clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
     fosURL="https://github.com/FOGProject/fos/releases/download"
+    fosLatestURL="https://github.com/FOGProject/fos/releases/latest/download"
     fogclientURL="https://github.com/FOGProject/fog-client/releases/download"
     [[ ! -d ../tmp/  ]] && mkdir -p ../tmp/ >/dev/null 2>&1
     cwd=$(pwd)
@@ -2627,9 +2628,10 @@ downloadfiles() {
             urls+=( "${fosURL}/${version}/arm_init.cpio.gz" "${fosURL}/${version}/arm_Image" )
         fi
     else
-        urls=( "https://fogproject.org/inits/init.xz" "https://fogproject.org/inits/init_32.xz" "https://fogproject.org/kernels/bzImage" "https://fogproject.org/kernels/bzImage32" "${fogclientURL}/${clientVer}/FOGService.msi" "${fogclientURL}/${clientVer}/SmartInstaller.exe" )
+
+        urls=( "${fosLatestURL}/init.xz" "${fosLatestURL}/init_32.xz" "${fosLatestURL}/bzImage" "${fosLatestURL}/bzImage32" "${fogclientURL}/${clientVer}/FOGService.msi" "${fogclientURL}/${clientVer}/SmartInstaller.exe" )
         if [[ $armsupport == 1 ]]; then
-            urls+=( "https://fogproject.org/inits/arm_init.cpio.gz" "https://fogproject.org/kernels/arm_Image" )
+            urls+=( "${fosLatestURL}/arm_init.cpio.gz" "${fosLatestURL}/arm_Image" )
         fi
     fi
     for url in "${urls[@]}"; do
