@@ -584,7 +584,7 @@ configureTFTPandPXE() {
     if [[ "x$httpproto" = "xhttps" ]]; then
         dots "Compiling iPXE binaries trusting your SSL certificate"
         cd $buildipxesrc
-        ./buildipxe.sh ${sslpath}CA/.fogCA.pem >>$workingdir/error_logs/fog_ipxe-build_${version}.log 2>&1
+        ./buildipxe.sh ${sslpath//\/}CA/.fogCA.pem >>$workingdir/error_logs/fog_ipxe-build_${version}.log 2>&1
         errorStat $?
         cd $workingdir
     fi
@@ -1667,7 +1667,7 @@ writeUpdateFile() {
     escbootfilename=$(echo $bootfilename | sed -e $replace)
     escpackages=$(echo $packages | sed -e $replace)
     escnoTftpBuild=$(echo $noTftpBuild | sed -e $replace)
-    escsslpath=$(echo $sslpath | sed -e $replace)
+    escsslpath=$(echo ${sslpath//\/$} | sed -e $replace)
     escbackupPath=$(echo $backupPath | sed -e $replace)
     escarmsupport=$(echo $sarmsupport | sed -e $replace)
     escphp_ver=$(echo $php_ver | sed -e $replace)
@@ -1788,7 +1788,7 @@ writeUpdateFile() {
                 sed -i "/notpxedefaultfile=.*$/d" $fogprogramdir/.fogsettings
             grep -q "sslpath=" $fogprogramdir/.fogsettings && \
                 sed -i "s/sslpath=.*/sslpath='$escsslpath'/g" $fogprogramdir/.fogsettings || \
-                echo "sslpath='$sslpath'" >> $fogprogramdir/.fogsettings
+                echo "sslpath='${sslpath//\/$}'" >> $fogprogramdir/.fogsettings
             grep -q "backupPath=" $fogprogramdir/.fogsettings && \
                 sed -i "s/backupPath=.*/backupPath='$escbackupPath'/g" $fogprogramdir/.fogsettings || \
                 echo "backupPath='$backupPath'" >> $fogprogramdir/.fogsettings
@@ -1850,7 +1850,7 @@ writeUpdateFile() {
             echo "bootfilename='$bootfilename'" >> "$fogprogramdir/.fogsettings"
             echo "packages='$packages'" >> "$fogprogramdir/.fogsettings"
             echo "noTftpBuild='$noTftpBuild'" >> "$fogprogramdir/.fogsettings"
-            echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
+            echo "sslpath='${sslpath//\/$}'" >> "$fogprogramdir/.fogsettings"
             echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
             echo "armsupport='$armsupport'" >> "$fogprogramdir/.fogsettings"
             echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
@@ -1900,7 +1900,7 @@ writeUpdateFile() {
         echo "bootfilename='$bootfilename'" >> "$fogprogramdir/.fogsettings"
         echo "packages='$packages'" >> "$fogprogramdir/.fogsettings"
         echo "noTftpBuild='$noTftpBuild'" >> "$fogprogramdir/.fogsettings"
-        echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
+        echo "sslpath='${sslpath//\/$}'" >> "$fogprogramdir/.fogsettings"
         echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
         echo "armsupport='$armsupport'" >> "$fogprogramdir/.fogsettings"
         echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
@@ -1936,8 +1936,9 @@ displayBanner() {
 createSSLCA() {
     if [[ -z $sslpath ]]; then
         [[ -d /opt/fog/snapins/CA && -d /opt/fog/snapins/ssl ]] && mv /opt/fog/snapins/CA /opt/fog/snapins/ssl/
-        sslpath='/opt/fog/snapins/ssl/'
+        sslpath='/opt/fog/snapins/ssl'
     fi
+    sslpath=${sslpath//\/$}
     if [[ $recreateCA == yes || $caCreated != yes || ! -e $sslpath/CA || ! -e $sslpath/CA/.fogCA.key ]]; then
         mkdir -p $sslpath/CA >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         dots "Creating SSL CA"
@@ -1953,6 +1954,7 @@ FOG Server CA
 EOF
         errorStat $?
     fi
+    sslpath=${sslpath//\/$}
     [[ -z $sslprivkey ]] && sslprivkey="$sslpath/.srvprivate.key"
     if [[ $recreateKeys == yes || $recreateCA == yes || $caCreated != yes || ! -e $sslpath || ! -e $sslprivkey ]]; then
         dots "Creating SSL Private Key"
@@ -2042,7 +2044,7 @@ EOF
                         echo "    return 308 https://\$host\$request_uri;" >> "$etcconf"
                         echo "}" >> "$etcconf"
                         # Creates the diffie helman param file.
-                        if [[ ! -x "/opt/fog/snapins/ssl/dhparam.pem" ]]; then
+                        if [[ ! -x "/etc/ssl/fog/ssl/dhparam.pem" ]]; then
                             echo "Still in progress"
                             dots "Creating DHParam file"
                             openssl dhparam -dsaparam -out /etc/ssl/fog/dhparam.pem 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -2067,10 +2069,10 @@ EOF
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
                         echo "    ssl_protocols TLSv1.1 TLSv1.2 TLSv1.3;" >> "$etcconf"
                         echo "    ssl_prefer_server_ciphers on;" >> "$etcconf"
-                        echo "    ssl_dhparam /opt/fog/snapins/ssl/dhparam.pem"
-                        echo "    ssl_cipher 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA';" >> "$etcconf"
-                        echo "    ssl_certificate $webdirdest/management/other/ssl/srvchained.crt" >> "$etcconf"
-                        echo "    ssl_certificate_key $sslprivkey" >> "$etcconf"
+                        echo "    ssl_dhparam /etc/ssl/fog/dhparam.pem;" >> "$etcconf"
+                        echo "    ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA';" >> "$etcconf"
+                        echo "    ssl_certificate $webdirdest/management/other/ssl/srvpublic.crt;" >> "$etcconf"
+                        echo "    ssl_certificate_key $sslprivkey;" >> "$etcconf"
                         echo "    ssl_session_timeout 1d;" >> "$etcconf"
                         echo "    ssl_session_cache shared:SSL:50m;" >> "$etcconf"
                         echo "    add_header Strict-Transport-Security max-age=15768000;" >> "$etcconf"
