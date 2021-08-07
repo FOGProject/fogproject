@@ -148,10 +148,9 @@ class Registration extends FOGBase
     private function _fullReg()
     {
         try {
+            self::stripAndDecode($_POST);
             $productKey = filter_input(INPUT_POST, 'productKey');
-            $productKey = base64_decode($productKey);
             $host = filter_input(INPUT_POST, 'host');
-            $host = base64_decode($host);
             $hostnameSafe = self::getClass('Host')->isHostnameSafe($host);
             if (!$hostnameSafe) {
                 throw new Exception(
@@ -170,7 +169,6 @@ class Registration extends FOGBase
                 );
             }
             $ip = filter_input(INPUT_POST, 'ip');
-            $ip = base64_decode($ip);
             $imageid = filter_input(INPUT_POST, 'imageid');
             $imageid = (
                 self::getClass('Image', $imageid)->isValid() ?
@@ -178,11 +176,8 @@ class Registration extends FOGBase
                 0
             );
             $primaryuser = filter_input(INPUT_POST, 'primaryuser');
-            $primaryuser = base64_decode($primaryuser);
             $other1 = filter_input(INPUT_POST, 'other1');
-            $other1 = base64_decode($other1);
             $other2 = filter_input(INPUT_POST, 'other2');
-            $other2 = base64_decode($other2);
             $doimage = isset($_POST['doimage']);
             if ($_POST['doad']) {
                 $serviceNames = [
@@ -226,10 +221,8 @@ class Registration extends FOGBase
                 $ADOU = $opt;
             }
             $gID = filter_input(INPUT_POST, 'groupid');
-            $gID = base64_decode($gID);
             $groupsToJoin = explode(',', $gID);
             $sID = filter_input(INPUT_POST, 'snapinid');
-            $sID = base64_decode($sID);
             $snapinsToJoin = explode(',', $sID);
             self::$Host = self::getClass('Host')
                 ->set('name', $host)
@@ -290,9 +283,9 @@ class Registration extends FOGBase
      */
     private static function _deployHost()
     {
+        self::stripAndDecode($_POST);
         $username = filter_input(INPUT_POST, 'username');
-        $username = ($username ?: base64_encode('fog'));
-        $username = base64_decode($username);
+        $username = ($username ?: 'fog');
         $Image = self::$Host->getImage();
         if (!$Image->isValid()) {
             throw new Exception(
@@ -338,6 +331,7 @@ class Registration extends FOGBase
             $this->_quickReg();
         }
         try {
+            self::stripAndDecode($_POST);
             $serviceNames = [
                 'FOG_QUICKREG_GROUP_ASSOC',
                 'FOG_QUICKREG_IMG_ID',
@@ -360,7 +354,6 @@ class Registration extends FOGBase
             } else {
                 $hostname = $autoRegSysName;
                 $sysserial = filter_input(INPUT_POST, 'sysserial');
-                $sysserial = base64_decode($sysserial);
                 $sysserial = strtoupper($sysserial);
                 $hostname = str_replace('{SYSSERIAL}', $sysserial, $hostname);
             }
@@ -424,7 +417,6 @@ class Registration extends FOGBase
                 ->addPriMAC($this->PriMAC);
             if ($prodkeyget > 0) {
                 $productKey = filter_input(INPUT_POST, 'productKey');
-                $productKey = base64_decode($productKey);
                 self::$Host->set('productKey', $productKey);
             }
             if (!self::$Host->save()) {
@@ -459,6 +451,7 @@ class Registration extends FOGBase
     private function _quickReg()
     {
         try {
+            self::stripAndDecode($_POST);
             $prodkeyget = self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS');
             self::$Host = self::getClass('Host')
                 ->set('name', $this->macsimple)
@@ -468,7 +461,6 @@ class Registration extends FOGBase
                 ->addMAC($this->MACs);
             if ($prodkeyget > 0) {
                 $productKey = filter_input(INPUT_POST, 'productKey');
-                $productKey = base64_decode($productKey);
                 self::$Host->set('productKey', $productKey);
             }
             if (!self::$Host->save()) {
