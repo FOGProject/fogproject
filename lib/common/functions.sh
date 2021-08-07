@@ -1937,26 +1937,26 @@ displayBanner() {
 }
 createSSLCA() {
     if [[ -z $sslpath ]]; then
-        sslpath="/etc/fog/ssl"
+        sslpath="/opt/fog/snapins/ssl"
     fi
     sslpath=${sslpath//\/$}
     [[ ! -d $sslpath ]] && mkdir -p $sslpath >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ ! -d $sslpath/CA ]] && mkdir -p $sslpath/CA >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    shopt -s dotglob
-    if [[ "x$sslpath" != "x/opt/fog/snapins/ssl" ]]; then
-        if [[ -d /opt/fog/snapins/CA ]]; then
-            mv /opt/fog/snapins/CA/* $sslpath/CA/
+    #shopt -s dotglob
+    #if [[ "x$sslpath" != "x/opt/fog/snapins/ssl" ]]; then
+    #    if [[ -d /opt/fog/snapins/CA ]]; then
+    #        mv /opt/fog/snapins/CA/* $sslpath/CA/
             #rm -rf /opt/fog/snapins/CA
-        elif [[ -d /opt/fog/snapins/ssl && -d /opt/fog/snapins/ssl/CA ]]; then
-            mv /opt/fog/snapins/ssl/CA/* $sslpath/CA/
+    #    elif [[ -d /opt/fog/snapins/ssl && -d /opt/fog/snapins/ssl/CA ]]; then
+    #        mv /opt/fog/snapins/ssl/CA/* $sslpath/CA/
             #rm -rf /opt/fog/snapins/ssl/CA
-        fi
-        if [[ -d /opt/fog/snapins/ssl ]]; then
-            mv /opt/fog/snapins/ssl/* $sslpath/
+    #    fi
+    #    if [[ -d /opt/fog/snapins/ssl ]]; then
+    #        mv /opt/fog/snapins/ssl/* $sslpath/
             #rm -rf /opt/fog/snapins/ssl
-        fi
-    fi
-    shopt -u dotglob
+    #    fi
+    #fi
+    #shopt -u dotglob
     if [[ $recreateCA == yes || $caCreated != yes || ! -e $sslpath/CA/.fogCA.key ]]; then
         dots "Creating SSL CA"
         openssl genrsa -out $sslpath/CA/.fogCA.key 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
