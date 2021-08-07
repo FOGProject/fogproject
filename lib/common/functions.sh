@@ -1943,17 +1943,17 @@ createSSLCA() {
     [[ ! -d $sslpath ]] && mkdir -p $sslpath >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     [[ ! -d $sslpath/CA ]] && mkdir -p $sslpath/CA >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     shopt -s dotglob
-    if [[ x$sslpath != x/opt/fog/snapins/ssl ]]; then
+    if [[ "x$sslpath" != "x/opt/fog/snapins/ssl" ]]; then
         if [[ -d /opt/fog/snapins/CA ]]; then
             mv /opt/fog/snapins/CA/* $sslpath/CA/
-            rm -rf /opt/fog/snapins/CA
+            #rm -rf /opt/fog/snapins/CA
         elif [[ -d /opt/fog/snapins/ssl && -d /opt/fog/snapins/ssl/CA ]]; then
             mv /opt/fog/snapins/ssl/CA/* $sslpath/CA/
-            rm -rf /opt/fog/snapins/ssl/CA
+            #rm -rf /opt/fog/snapins/ssl/CA
         fi
         if [[ -d /opt/fog/snapins/ssl ]]; then
             mv /opt/fog/snapins/ssl/* $sslpath/
-            rm -rf /opt/fog/snapins/ssl
+            #rm -rf /opt/fog/snapins/ssl
         fi
     fi
     shopt -u dotglob
@@ -2062,9 +2062,9 @@ EOF
                         echo "}" >> "$etcconf"
                         echo "Continued (See Below)"
                         # Creates the diffie helman param file.
-                        if [[ ! -f /etc/ssl/fog/dhparam.pem ]]; then
+                        if [[ ! -f $sslpath/dhparam.pem ]]; then
                             dots "Creating DHParam file"
-                            openssl dhparam -dsaparam -out /etc/ssl/fog/dhparam.pem 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                            openssl dhparam -dsaparam -out $sslpath/dhparam.pem 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                             echo "Done"
                         fi
                         dots "Setting up Nginx virtualhost${sslenabled}"
@@ -2086,7 +2086,7 @@ EOF
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
                         echo "    ssl_protocols TLSv1.1 TLSv1.2 TLSv1.3;" >> "$etcconf"
                         echo "    ssl_prefer_server_ciphers on;" >> "$etcconf"
-                        echo "    ssl_dhparam /etc/ssl/fog/dhparam.pem;" >> "$etcconf"
+                        echo "    ssl_dhparam ${sslpath}/dhparam.pem;" >> "$etcconf"
                         echo "    ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA';" >> "$etcconf"
                         echo "    ssl_certificate $webdirdest/management/other/ssl/srvpublic.crt;" >> "$etcconf"
                         echo "    ssl_certificate_key $sslprivkey;" >> "$etcconf"
