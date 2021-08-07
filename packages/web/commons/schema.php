@@ -4064,3 +4064,43 @@ $this->schema[] = [
     . "`settingDesc`='Compression Format Setting (Default to Partclone Zstd)', `settingValue`=5 "
     . "WHERE `settingKey`='FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT' AND `settingValue`=0"
 ];
+// 283
+// Only install the table if it doesn't exist already.
+// DMI Keys Valid Strings:
+$dmiStrings = [
+    'bios-vendor',
+    'bios-version',
+    'bios-release-date',
+    'system-manufacturer',
+    'system-product-name',
+    'system-version',
+    'system-serial-number',
+    'system-uuid',
+    'baseboard-manufacturer',
+    'baseboard-product-name',
+    'baseboard-version',
+    'baseboard-serial-number',
+    'baseboard-asset-tag',
+    'chassis-manufacturer',
+    'chassis-type',
+    'chassis-version',
+    'chassis-serial-number',
+    'chassis-asset-tag',
+    'processor-family',
+    'processor-manufacturer',
+    'processor-version',
+    'processor-frequency'
+];
+$dmiStrings = implode(
+    "'),('",
+    $dmiStrings
+);
+$this->schema[] = [
+    "CREATE TABLE IF NOT EXISTS `dmidecodeKeys` ("
+    . "`dkID` INT NOT NULL AUTO_INCREMENT,"
+    . "`dkName` VARCHAR(255) NOT NULL,"
+    . "PRIMARY KEY(`dkID`),"
+    . "UNIQUE INDEX `name` (`dkName`)"
+    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    "INSERT IGNORE INTO `dmidecodeKeys` (`dkName`) VALUES ('$dmiStrings')"
+];
