@@ -3918,7 +3918,7 @@ $columnmsAnon3 = array_filter(
         'msAnon3'
     )
 );
-$columnmsmsShutdown = array_filter(
+$columnmsShutdown = array_filter(
     (array)DatabaseManager::getColumns(
         'multicastSessions',
         'msShutdown'
@@ -3930,7 +3930,7 @@ $columnmsAnon4 = array_filter(
         'msAnon4'
     )
 );
-$columnmsmsMaxwait = array_filter(
+$columnmsMaxwait = array_filter(
     (array)DatabaseManager::getColumns(
         'multicastSessions',
         'msMaxwait'
@@ -3973,7 +3973,7 @@ $pdescription = (
     ''
 );
 $mshutdown = (
-    count($columnAnon3 ?: []) ?
+    count($columnmsAnon3 ?: []) ?
     (
         count($columnmsShutdown ?: []) ?
         '' :
@@ -3983,7 +3983,7 @@ $mshutdown = (
     ''
 );
 $mmaxwait = (
-    count($columnAnon4 ?: []) ?
+    count($columnmsAnon4 ?: []) ?
     (
         count($columnmsMaxwait ?: []) ?
         '' :
