@@ -196,9 +196,7 @@ class SchemaUpdaterPage extends FOGPage
             );
             $newSchema = self::getClass('Schema', 1);
             foreach ((array)$items as $version => &$updates) {
-                usleep(rand(100, 500));
                 foreach ((array)$updates as &$update) {
-                    usleep(rand(1000, 5000));
                     if (!$update) {
                         continue;
                     }

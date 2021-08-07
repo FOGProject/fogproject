@@ -1119,7 +1119,11 @@ abstract class FOGBase
         if ($utc || empty(self::$TimeZone)) {
             $tz = new DateTimeZone('UTC');
         } else {
-            $tz = new DateTimeZone(self::$TimeZone);
+            try {
+                $tz = new DateTimeZone(self::$TimeZone);
+            } catch (Exception $e) {
+                $tz = new DateTimeZone('UTC');
+            }
         }
 
         return new DateTime($date, $tz);
