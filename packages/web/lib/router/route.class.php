@@ -1003,7 +1003,7 @@ class Route extends FOGBase
             $val = $class->get($key);
             if (null === $val) {
                 self::setErrorMessage(
-                    $foglang['RequiredDB'],
+                    $foglang['RequiredDB'] . ": " . $key,
                     HTTPResponseCodes::HTTP_EXPECTATION_FAILED
                 );
             }

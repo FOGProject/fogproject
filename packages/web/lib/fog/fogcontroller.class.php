@@ -869,7 +869,7 @@ abstract class FOGController extends FOGBase
                 $key = $this->key($key);
                 $val = $this->get($key);
                 if (!is_numeric($val) && !$val) {
-                    throw new Exception(self::$foglang['RequiredDB']);
+                    throw new Exception(self::$foglang['RequiredDB'] . ": " . $key);
                 }
                 unset($key);
             }
