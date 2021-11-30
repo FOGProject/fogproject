@@ -426,7 +426,7 @@ class PDODB extends DatabaseManager
                 $errInfo = self::$_queryResult->errorInfo();
                 $this->errorCode = $errInfo[1];
             }
-            if ($errCode !== '00000') {
+            if (isset($errCode) && $errCode !== '00000') {
                 $msg = sprintf(
                     '%s: %s, %s: %s, %s: %s',
                     _('Error Code'),

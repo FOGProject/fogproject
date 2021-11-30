@@ -1008,7 +1008,7 @@ abstract class FOGBase
             $_SESSION['post_request_vals'] = [];
         }
         $sesVars = $_SESSION['post_request_vals'];
-        $setReq = function (&$val, &$key) {
+        $setReq = function ($val, $key) {
             $_POST[$key] = $val;
             unset($val, $key);
         };
@@ -2663,7 +2663,7 @@ abstract class FOGBase
                 $element[0],
                 $match
             );
-            return $match[0];
+            return isset($match[0]) ? $match[0] : '';
         };
 
         $normalfiles = [];

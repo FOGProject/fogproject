@@ -319,25 +319,25 @@ abstract class FOGPage extends FOGBase
         if ($node) {
             $data['node'] = $node;
         }
-        if ($sub) {
+        if (isset($sub) && $sub) {
             $data['sub'] = $sub;
         }
-        if ($id) {
+        if (isset($id) && $id) {
             $data['id'] = $id;
         }
-        if ($type) {
+        if (isset($type) && $type) {
             $data['type'] = $type;
         }
-        if ($f) {
+        if (isset($f) && $f) {
             $data['f'] = $f;
         }
-        if ($tab) {
+        if (isset($tab) && $tab) {
             $tabstr = "#$tab";
         }
         if (count($data ?: []) > 0) {
             $formstr .= http_build_query($data);
         }
-        if ($tabstr) {
+        if (isset($tabstr) && $tabstr) {
             $formstr .= $tabstr;
         }
         $this->formAction = $formstr;
@@ -459,7 +459,7 @@ abstract class FOGPage extends FOGBase
             ]
         );
 
-        if ($menu['plugin']) {
+        if (isset($menu['plugin']) && $menu['plugin']) {
             self::$pluginIsAvailable = true;
         }
 
@@ -620,10 +620,12 @@ abstract class FOGPage extends FOGBase
             'add' => sprintf(
                 self::$foglang['CreateNew'],
                 $refNode
-            ),
-            'export' => self::$foglang['Export'] . ' ' . self::$foglang[$refNode],
-            'import' => self::$foglang['Import'] . ' ' . self::$foglang[$refNode]
+            )
         ];
+        if (isset(self::$foglang[$refNode])) {
+            $menu['export'] = self::$foglang['Export'] . ' ' . self::$foglang[$refNode];
+            $menu['import'] = self::$foglang['Import'] . ' ' . self::$foglang[$refNode];
+        }
         switch ($node) {
         case 'home':
         case 'client':
@@ -1219,7 +1221,7 @@ abstract class FOGPage extends FOGBase
                 . '" class="'
                 . $tableClass
                 . '">';
-            if ($this->data['error']) {
+            if (isset($this->data['error']) && $this->data['error']) {
                 echo '<thead><tr class="header"></tr></thead>';
                 echo '<tbody>';
                 $tablestr = '<tr><td colspan="'
@@ -1315,7 +1317,7 @@ abstract class FOGPage extends FOGBase
         foreach ($this->headerData as $index => &$content) {
             echo '<th'
                 . (
-                    $this->atts[$index] ?
+                    isset($this->atts[$index]) &&  $this->atts[$index] ?
                     ' '
                     . $this->atts[$index]
                     . ' ' :

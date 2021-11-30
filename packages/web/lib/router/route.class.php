@@ -1127,7 +1127,7 @@ class Route extends FOGBase
             );
 
             self::$data = FOGManagerController::complex(
-                $pass_vars,
+                isset($pass_vars) ? $pass_vars : '',
                 $table,
                 $tableID,
                 $columns,
@@ -2361,7 +2361,7 @@ class Route extends FOGBase
             if (count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($classname);
             }
-            if ($vars->getField) {
+            if (isset($vars->getField) && $vars->getField) {
                 $getField = $vars->getField;
             }
 
@@ -2597,7 +2597,7 @@ class Route extends FOGBase
             if (is_string($whereItems)) {
                 $whereurl = urldecode($whereItems);
             }
-            parse_str($whereurl, $test);
+            parse_str(isset($whereurl) ? $whereurl : '', $test);
             if ($test) {
                 $whereItems = [];
                 foreach ($test as $key => &$val) {
@@ -2642,11 +2642,12 @@ class Route extends FOGBase
                 $sql .= $where;
             }
             if ($retWhere) {
-                return $where;
+                return isset($where) ? $where : '';
             }
             $sql .= ' ORDER BY `'
                 . (
-                    $classVars['databaseFields'][$orderby] ?:
+                    isset($classVars['databaseFields'][$orderby]) ?
+                    $classVars['databaseFields'][$orderby] :
                     $classVars['databaseFields']['id']
                 )
                 . '` ASC';

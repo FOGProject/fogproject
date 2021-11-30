@@ -261,7 +261,10 @@ abstract class FOGManagerController extends FOGBase
             $columnIdx = array_search($requestColumn['data'], $dtColumns);
             $column = $columns[$columnIdx];
             if ($requestColumn['orderable'] != 'true'
-                || $requestColumn['removeFromQuery']
+                || (
+                    isset($requestColumn['removeFromQuery'])
+                    && $requestColumn['removeFromQuery']
+                )
             ) {
                 continue;
             }
@@ -650,7 +653,7 @@ abstract class FOGManagerController extends FOGBase
         $out = [];
         for ($i = 0, $len = count($a ?: []); $i < $len; $i++) {
             if (!isset($a[$i][$prop])
-                || $a[$i]['removeFromQuery']
+                || (isset($a[$i]['removeFromQuery']) && $a[$i]['removeFromQuery'])
             ) {
                 continue;
             }
