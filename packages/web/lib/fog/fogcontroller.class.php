@@ -262,11 +262,11 @@ abstract class FOGController extends FOGBase
             _('Returning value of key'),
             $key,
             _('Value'),
-            print_r($this->data[$key], 1)
+            print_r(isset($this->data[$key]) ? $this->data[$key] : '', 1)
         );
         self::info($msg);
 
-        return $this->data[$key];
+        return isset($this->data[$key]) ? $this->data[$key] : '';
     }
     /**
      * Set value to key.

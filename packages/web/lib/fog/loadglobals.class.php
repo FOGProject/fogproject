@@ -60,7 +60,7 @@ class LoadGlobals extends FOGBase
             'authorize',
             'requestClientInfo'
         ];
-        if (in_array($sub, $subs)) {
+        if (in_array(isset($sub) ? $sub : '', $subs)) {
             new DashboardPage();
             unset($subs);
             exit;
