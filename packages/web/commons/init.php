@@ -331,7 +331,7 @@ class Initiator
         /**
          * Language Starting
          */
-        self::language($_SESSION['FOG_LANG']);
+        self::language(isset($_SESSION['FOG_LANG']) ? $_SESSION['FOG_LANG'] : 'en');
     }
     /**
      * Sanitizes output
