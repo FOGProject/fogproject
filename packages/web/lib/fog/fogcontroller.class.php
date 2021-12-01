@@ -1017,7 +1017,7 @@ abstract class FOGController extends FOGBase
                     $this->databaseFields[$fields[1]]
                 );
             }
-            if ($fields[3]) {
+            if (isset($fields[3]) && $fields[3]) {
                 array_walk($fields[3], $whereInfo);
             }
             $c->buildQuery($join, $whereArrayAnd, $c, $not, $compare);

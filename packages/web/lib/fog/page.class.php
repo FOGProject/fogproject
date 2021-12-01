@@ -232,10 +232,10 @@ class Page extends FOGBase
                 $files[] = 'js/jscolor.js';
             }
         }
-        if ($subset && !file_exists($filepaths)) {
+        if (isset($subset) && $subset && !file_exists($filepaths)) {
             $files[] = "js/fog/{$node}/fog.{$node}.list.js";
         }
-        if (file_exists($filepaths)) {
+        if (isset($filepaths) && file_exists($filepaths)) {
             $files[] = $filepaths;
         }
         if ($this->isHomepage

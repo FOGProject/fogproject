@@ -478,7 +478,7 @@ class User extends FOGController
         if (session_status() == PHP_SESSION_NONE) {
             return;
         }
-        $messages = $_SESSION['FOG_MESSAGES'];
+        $messages = isset($_SESSIN['FOG_MESSAGES']) ? $_SESSION['FOG_MESSAGES'] : '';
         // Destroy session
         session_unset();
         session_destroy();
