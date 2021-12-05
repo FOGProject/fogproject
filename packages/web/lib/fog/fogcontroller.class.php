@@ -1028,7 +1028,10 @@ abstract class FOGController extends FOGBase
             $join[$className] = false;
         }
         if (count($this->databaseFieldClassRelationships ?: []) > 0) {
-            array_walk($this->databaseFieldClassRelationships, $joinInfo);
+            foreach ($this->databaseFieldClassRelationships as $key => &$val) {
+                $joinInfo($val, $key);
+                unset($val);
+            }
         }
         return [implode((array) $join), $whereArrayAnd];
     }

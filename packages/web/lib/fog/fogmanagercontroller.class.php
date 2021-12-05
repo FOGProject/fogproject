@@ -181,7 +181,7 @@ abstract class FOGManagerController extends FOGBase
                 if (isset($column['formatter'])) {
                     if (!isset($column['extra'])) {
                         $row[$column['dt']] = $column['formatter'](
-                            $data[$i][$column['db']],
+                            isset($column['db']) ? $data[$i][$column['db']] : '',
                             $data[$i]
                         );
                     } else {
@@ -308,7 +308,7 @@ abstract class FOGManagerController extends FOGBase
                 $column = $columns[$columnIdx];
                 if ($requestColumn['searchable'] != 'true'
                     || !isset($column['db'])
-                    || $column['removeFromQuery']
+                    || (isset($column ['removeFromQuery']) &&$column['removeFromQuery'])
                 ) {
                     continue;
                 }

@@ -78,6 +78,12 @@ abstract class FOGPage extends FOGBase
      */
     public $data = [];
     /**
+     * Table atts
+     *
+     * @var array
+     */
+    public $atts = [];
+    /**
      * Attributes such as class, id, etc...
      *
      * @var array

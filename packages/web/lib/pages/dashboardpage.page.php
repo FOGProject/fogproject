@@ -448,7 +448,7 @@ class DashboardPage extends FOGPage
         echo '</a>';
         echo '&nbsp;&nbsp;';
         echo '<a href="#" id="graph-bandwidth-time-filters-30min" '
-            . 'class="time-filters graph-filters" rel="' . $relhalf . '">';
+            . 'class="time-filters graph-filters" rel="' . $rel30 . '">';
         echo _('30 Minutes');
         echo '</a>';
         echo '&nbsp;&nbsp;';
@@ -490,7 +490,7 @@ class DashboardPage extends FOGPage
             'ActivityQueued' => &$ActivityQueued,
             'ActivitySlots' => &$ActivityTotalClients
         ];
-        if ($error) {
+        if (isset($error) && $error) {
             $data['error'] = $error;
             $data['title'] = _('No Data Available');
         }
@@ -547,7 +547,7 @@ class DashboardPage extends FOGPage
             'free' => $data->free,
             'used' => $data->used
         ];
-        if ($data->error) {
+        if (isset($data->error) && $data->error) {
             $datatmp['error'] = $data->error;
             $datatmp['title'] = $data->title;
         }
