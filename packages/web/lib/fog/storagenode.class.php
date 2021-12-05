@@ -404,7 +404,7 @@ class StorageNode extends FOGController
             $findTasks
         );
         $countTasks = json_encode(Route::getData());
-        $countTasks = $countTasks->total;
+        $countTasks = isset($countTasks->total) ? $countTasks->total : 0;
         $index = array_search(8, $usedtasks);
         if ($index === false) {
             return $countTasks;

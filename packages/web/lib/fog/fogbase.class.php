@@ -1008,12 +1008,15 @@ abstract class FOGBase
             $_SESSION['post_request_vals'] = [];
         }
         $sesVars = $_SESSION['post_request_vals'];
-        $setReq = function ($val, $key) {
+        $setReq = function (&$val, &$key) {
             $_POST[$key] = $val;
             unset($val, $key);
         };
         if (count($sesVars ?: []) > 0) {
-            array_walk($sesVars, $setReq);
+            foreach($sesVars as $key => &$val) {
+                $setReq($val, $key);
+                unset($val);
+            }
         }
         unset($_SESSION['post_request_vals'], $sesVars, $reqVars);
     }
