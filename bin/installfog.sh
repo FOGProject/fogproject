@@ -363,6 +363,7 @@ if [[ ! $exitcode -eq 0 ]]; then
     esac
 fi
 [[ -z $OSVersion ]] && OSVersion=$(lsb_release -r| awk -F'[^0-9]*' /^[Rr]elease\([^.]*\).*/'{print $2}')
+[[ -z $OSMinorVersion ]] && OSMinorVersion=$(lsb_release -r| awk -F'[^0-9]*' /^[Rr]elease\([^.]*\).*/'{print $3}')
 echo "Done"
 . ../lib/common/config.sh
 [[ -z $dnsaddress ]] && dnsaddress=""
