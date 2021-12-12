@@ -50,9 +50,19 @@ elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]
     DEBIAN_FRONTEND=noninteractive apt-get purge -yq sysv-rc-conf >/dev/null 2>&1
     phpgettext="php-gettext"
     case $OSVersion in
-        20|21)
+        21)
+            case $OSMinorVersion in
+                10)
+                    php_ver="8.0"
+                    ;;
+                04)
+                    php_ver="7.4"
+                    ;;
+            esac
+            phpgettext="php${php_ver}-gettext"
+            ;;
+        20)
             php_ver="7.4"
-            [[ $OSVersion -gt 20 ]] && phpgettext="php${php_ver}-gettext"
             ;;
         19)
             php_ver="7.3"
