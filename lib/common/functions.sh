@@ -2482,9 +2482,7 @@ configureDHCP() {
             [[ $(validip $routeraddress) -eq 0 ]] && echo "    option routers $routeraddress;" >> "$dhcptouse" || ( echo "    #option routers 0.0.0.0" >> "$dhcptouse" && echo " !!! No router address found !!!" )
             [[ $(validip $dnsaddress) -eq 0 ]] && echo "    option domain-name-servers $dnsaddress;" >> "$dhcptouse" || ( echo "    #option routers 0.0.0.0" >> "$dhcptouse" && echo " !!! No dns address found !!!" )
             echo "    next-server $ipaddress;" >> "$dhcptouse"
-	    echo " " >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
-	    echo " " >> "$dhcptouse"
             echo "class \"Legacy\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00000\";" >> "$dhcptouse"
             echo "    filename \"undionly.kkpxe\";" >> "$dhcptouse"
