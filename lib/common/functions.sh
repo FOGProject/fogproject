@@ -386,96 +386,66 @@ getAllNetworkInterfaces() {
     echo -n $interfaces
 }
 checkInternetConnection() {
-    # Installs wget/curl for http testing
-    DEBIAN_FRONTEND=noninteractive $packageinstaller wget curl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-
-    # New from @bellegarde-c
-    sites="fogproject.org www.kernel.org github.com"
     dots "Testing internet connection"
-    echo "Continuing (See below)"
-    # Try to find a command to check DNS. If none, bypass check using true
-    # Check DNS
+    DEBIAN_FRONTEND=noninteractive $packageinstaller curl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+
+    http_sites=("neverssl.com" "httpbin.org")
+    https_sites=("github.com" "fogproject.org")
     dns_ok=0
     http_ok=0
+    https_ok=0
 
-    # These have been removed because they don't return non-zero exit code if nothing is returned
-    # Also, it doesnt' appear this was even used for anything later on.
-    # Removing as this didn't return an error code if the host wasn't found
-    #dns_command=$(command -v host)
-    # Similar to the host command
-    #dns_command=$(command -v nslookup)
-    # Using getent hosts in preference for basic dns lookup
-    # Changed out the final `echo "Done"` in preference to be a bit more verbose
-    for site in $sites; do
-        dots "Testing $site"
-        getent hosts $site >/dev/null 2>&1
+    for dnsname in "${http_sites[@]}" "${https_sites[@]}"; do
+        echo -n "Testing DNS name resolution (${dnsname})... " >> $workingdir/error_logs/fog_error_${version}.log
+        getent hosts ${dnsname} >/dev/null 2>&1
         if [[ $? -ne 0 ]]; then
-            echo "Skipped (Site not found)"
+            echo "Failed" >> $workingdir/error_logs/fog_error_${version}.log
             continue
         fi
         dns_ok=1
-        echo "Done"
+        echo "OK" >> $workingdir/error_logs/fog_error_${version}.log
+        break
     done
     if [[ $dns_ok -eq 0 ]]; then
-        echo "There seems to be a DNS problem." | tee -a $workingdir/error_logs/fog_error_${version}.log
-        echo "Check the contents of /etc/resolv.conf" | tee -a $workingdir/error_logs/fog_error_${version}.log
-        echo "If this is CentOS, RHEL, or Fedora or an other RH variant," | tee -a $workingdir/error_logs/fog_error_${version}.log
-        echo "also check the DNS entries in /etc/sysconfig/network-scripts/ifcfg-*" | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo "Failed"
+        echo
+        echo "There seems to be a DNS problem. Check the contents of /etc/resolv.conf" | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo "If this is CentOS, RHEL, or Fedora or an other RH variant, also check" | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo "the DNS entries in /etc/sysconfig/network-scripts/ifcfg-*" | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo
         return
     fi
-    # Using curl to recheck the sites
-    for site in $sites; do
-        dots "Testing connection to https://$site"
-        curl --silent -k https://$site >/dev/null 2>>$workingdir/error_logs/fog_error_${version}.log
+    for url in "${http_sites[@]}"; do
+        echo -n "Testing HTTP connection (http://${url})... " >> $workingdir/error_logs/fog_error_${version}.log
+        curl --silent http://${url} >/dev/null 2>>$workingdir/error_logs/fog_error_${version}.log
         if [[ $? -ne 0 ]]; then
-            echo "Skipped (Not accessible)"
+            echo "Failed" >> $workingdir/error_logs/fog_error_${version}.log
             continue
         fi
         http_ok=1
-        echo "Done"
+        echo "OK" >> $workingdir/error_logs/fog_error_${version}.log
+        break
     done
-    if [[ $http_ok -eq 0 ]]; then
+    for url in "${https_sites[@]}"; do
+        echo -n "Testing HTTPS connection (https://${url})... " >> $workingdir/error_logs/fog_error_${version}.log
+        curl --silent -k https://${url} >/dev/null 2>>$workingdir/error_logs/fog_error_${version}.log
+        if [[ $? -ne 0 ]]; then
+            echo "Failed" >> $workingdir/error_logs/fog_error_${version}.log
+            continue
+        fi
+        https_ok=1
+        echo "OK" >> $workingdir/error_logs/fog_error_${version}.log
+        break
+    done
+    if [[ $http_ok -eq 0 && $https_ok -eq 0 ]]; then
+        echo "Failed"
+        echo
         echo "There was no interface with an active internet connection found." | tee -a $workingdir/error_logs/fog_error_${version}.log
-        echo "If you are using a proxy server, please export http_proxy and https_proxy before running installation." | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo "If you are using a proxy server, please export http_proxy and https_proxy or use .curlrc" | tee -a $workingdir/error_logs/fog_error_${version}.log
+        echo
         return
     fi
-
-    # Old Method
-    #httpurls=("http://neverssl.com" "http://httpbin.org/get")
-    #httpsurls=("https://github.com" "https://fogproject.org")
-    #failedurls=0
-    #ips=("193.0.14.129" "202.12.27.33" "192.5.5.241")
-    #dots "Testing internet connection"
-
-    #for url in "${httpurls[@]}"; do
-    #    echo "Testing connection to ${url}" >> $workingdir/error_logs/fog_error_${version}.log
-    #    curl --silent -k $url >/dev/null 2>>$workingdir/error_logs/fog_error_${version}.log
-    #    [[ $? -eq 0 ]] && failedurls=0 && break
-    #    wget -t 2 -O /dev/null -q --no-check-certificate $url >/dev/null 2>>$workingdir/error_logs/fog_error_${version}.log
-    #    [[ $? -eq 0 ]] && failedurls=0 && break
-    #    failedurls=1
-    #done
-    #for url in "${httpsurls[@]}"; do
-    #    echo "Testing connection to ${url}" >> $workingdir/error_logs/fog_error_${version}.log
-    #    curl --silent -k $url >/dev/null 2>>$workingdir/error_logs/fog_error_${version}.log
-    #    [[ $? -eq 0 ]] && failedurls=0 && break
-    #    wget -t 2 -O /dev/null -q --no-check-certificate $url >/dev/null 2>>$workingdir/error_logs/fog_error_${version}.log
-    #    [[ $? -eq 0 ]] && failedurls=0 && break
-    #    failedurls=1
-    #done
-    #[[ $failedurls -eq 0 ]] && echo "Done" && return
-    #for i in $(seq 0 2); do
-    #    ping -c 1 ${ips[$i]} >/dev/null 2>&1
-    #    [[ $? -ne 0 ]] && continue
-    #    echo "Warning"
-    #    echo "Internet connection detected but there seems to be a problem with DNS" | tee -a $workingdir/error_logs/fog_error_${version}.log
-    #    echo "resolution or sending HTTP requests. Check the contents of the file" | tee -a $workingdir/error_logs/fog_error_${version}.log
-    #    echo "/etc/resolv.conf. If you are behind a proxy server you need to setup" | tee -a $workingdir/error_logs/fog_error_${version}.log
-    #    echo ".curlrc to send the requests through your proxy." | tee -a $workingdir/error_logs/fog_error_${version}.log
-    #    return
-    #done
-    #echo "There was no interface with an active internet connection found." | tee -a $workingdir/error_logs/fog_error_${version}.log
-    #echo
+    echo "Done"
 }
 join() {
     local IFS="$1"
