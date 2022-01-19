@@ -708,6 +708,11 @@ class ImageManagementPage extends FOGPage
             if (self::getClass('ImageManager')->exists($name)) {
                 throw new Exception(_('An image already exists with this name!'));
             }
+            //CES_CUSTOMIZATION 20220117 START        
+            if ($file != $name) {
+                throw new Exception(_('Image name must same with your image path!'));
+            }
+            //CES_CUSTOMIZATION 20220117 END
             if ($file == 'postdownloadscripts'
                 || $file == 'dev'
             ) {
@@ -1360,6 +1365,11 @@ class ImageManagementPage extends FOGPage
                         _('An image already exists with this name!')
                     );
                 }
+                //CES_CUSTOMIZATION 20220117 START        
+                if ($file != $name) {
+                    throw new Exception(_('Image name must same with your image path!'));
+                }
+                //CES_CUSTOMIZATION 20220117 END
                 if ($file == 'postdownloadscripts'
                     || $file == 'dev'
                 ) {
