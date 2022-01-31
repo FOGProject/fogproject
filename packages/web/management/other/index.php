@@ -177,6 +177,13 @@ echo '<li><a href="https://www.paypal.com/cgi-bin/webscr?item_name=Donation'
 if (self::$FOGUser->isValid()) {
     echo '<li class="pull-right">';
     echo '<a href="../management/index.php?node=about">';
+    //CES_CUSTOMIZATION 20220131 START        
+    echo '<b>';
+    echo _('CES Version');
+    echo '</b> ';
+    echo FOG_VERSION_CES;
+    echo _(' | ');
+    //CES_CUSTOMIZATION 20220131 END        
     echo '<b>';
     echo _('Version');
     echo '</b> ';
