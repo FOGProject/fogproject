@@ -388,6 +388,7 @@ echo "Done"
 [[ -z $httpproto ]] && httpproto="http"
 [[ -z $armsupport ]] && armsupport=0
 [[ -z $mysqldbname ]] && mysqldbname="fog"
+[[ -z $tftpAdvOpts ]] && tftpAdvOpts=""
 [[ -z $fogpriorconfig ]] && fogpriorconfig="$fogprogramdir/.fogsettings"
 #clearScreen
 if [[ -z $* || $* != +(-h|-?|--help|--uninstall) ]]; then
