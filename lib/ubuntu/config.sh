@@ -37,6 +37,8 @@ if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
         11)
             php_ver="7.4"
             x="*php5* *php7.0* *php7.3*"
+            phpgettext="php${php_ver}-gettext"
+            ;;
     esac
     old_php=$(eval $packageQuery 2>/dev/null | awk '{print $2}' | tr '\n' ' ')
     if [[ -n "$old_php" ]]; then
