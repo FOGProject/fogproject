@@ -179,15 +179,14 @@ if (self::$FOGUser->isValid()) {
     echo '<a href="../management/index.php?node=about">';
     //CES_CUSTOMIZATION 20220131 START        
     echo '<b>';
-    echo _('CES Version');
+    echo _('iVE VCS CES Version');
     echo '</b> ';
     echo FOG_VERSION_CES;
-    echo _(' | ');
+    //echo '<b>';
+    //echo _('Version');
+    //echo '</b> ';
+    //echo FOG_VERSION;
     //CES_CUSTOMIZATION 20220131 END        
-    echo '<b>';
-    echo _('Version');
-    echo '</b> ';
-    echo FOG_VERSION;
     echo '</a>';
     echo '</li>';
 }
