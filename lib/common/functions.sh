@@ -582,15 +582,14 @@ configureTFTPandPXE() {
                 if [[ -f /etc/systemd/system/fog-tftp.service ]]; then
                     mv -fv /etc/systemd/system/fog-tftp.service "/etc/systemd/system/fog-tftp.service.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 fi
-                echo -e "[Unit]\nDescription=Tftp Server\nRequires=fog-tftp.socket\nDocumentation=man:in.tftpd\n\n[Service]\nExecStart=/usr/sbin/in.tftpd -s ${tftpdirdst}\nStandardInput=socket\n\n[Install]\nWantedBy=multi-user.target\nAlso=fog-tftp.socket" > /etc/systemd/system/fog-tftp.service
+                echo -e "[Unit]\nDescription=Tftp Server\nRequires=fog-tftp.socket\nDocumentation=man:in.tftpd\n\n[Service]\nExecStart=/usr/sbin/in.tftpd -s ${tftpdirdst}\nStandardInput=socket\n\n[Install]\nAlso=fog-tftp.socket" > /etc/systemd/system/fog-tftp.service
                 diffconfig "/etc/systemd/system/fog-tftp.service"
                 cp -v /usr/lib/systemd/system/tftp.socket /etc/systemd/system/fog-tftp.socket >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 systemctl daemon-reload
-                systemctl is-enabled --quiet fog-tftp && true || systemctl enable fog-tftp >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 systemctl is-enabled --quiet fog-tftp.socket && true || systemctl enable fog-tftp.socket >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                systemctl is-active --quiet fog-tftp && systemctl stop fog-tftp >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
-                systemctl is-active --quiet fog-tftp && true || systemctl start fog-tftp >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                systemctl status fog-tftp >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl is-active --quiet fog-tftp.socket && systemctl stop fog-tftp.socket >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                systemctl is-active --quiet fog-tftp.socket && true || systemctl start fog-tftp.socket >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl status fog-tftp.socket >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             fi
             ;;
         *)
