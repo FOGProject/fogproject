@@ -567,7 +567,7 @@ configureTFTPandPXE() {
     case $systemctl in
         yes)
             # make sure xinetd is off for all systemd distros as we don't use it anymore
-            systemctl is-enabled --quiet xinetd && systemctl disable xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+            systemctl is-enabled --quiet xinetd 2>/dev/null && systemctl disable xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
             systemctl is-active --quiet xinetd && systemctl stop xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
             if [[ -f /etc/xinetd.d/tftp ]]; then
                 rm -f /etc/xinetd.d/tftp
