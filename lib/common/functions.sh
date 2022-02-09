@@ -43,7 +43,7 @@ registerStorageNode() {
     if [[ $storageNodeExists != exists ]]; then
         [[ -z $maxClients ]] && maxClients=10
         dots "Node being registered"
-        curl -s -k -X POST -d "newNode" -d "name=$(echo -n $ipaddress|base64)" -d "path=$(echo -n $storageLocation|base64)" -d "ftppath=$(echo -n $storageLocation|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n $sslpath|base64)" -d "ip=$(echo -n $ipaddress|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "interface=$(echo -n $interface|base64)" -d "bandwidth=1" -d "webroot=$(echo -n $webroot|base64)" -d "fogverified" $httpproto://$ipaddress${webroot}/maintenance/create_update_node.php
+        curl -s -k -X POST -d "newNode" -d "name=$(echo -n $ipaddress|base64)" -d "path=$(echo -n $storageLocation|base64)" -d "ftppath=$(echo -n $storageLocation|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n $sslpath|base64)" -d "ip=$(echo -n $ipaddress|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "interface=$(echo -n $interface|base64)" -d "bandwidth=1" -d "webroot=$(echo -n $webroot|base64)" -d "fogverified" ${httpproto}://${ipaddress}${webroot}/maintenance/create_update_node.php
         echo "Done"
     else
         echo " * Node is registered"
@@ -80,7 +80,6 @@ updateDB() {
             local replace='s/[]"\/$&*.^|[]/\\&/g'
             local escstorageLocation=$(echo $storageLocation | sed -e $replace)
             sed -i -e "s/'\/images\/'/'$escstorageLocation'/g" $webdirdest/commons/schema.php
-            #echo "wget --no-check-certificate -qO - --post-data=\"confirm&fogverified\" --no-proxy ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1"
             wget --no-check-certificate -qO - --post-data="confirm&fogverified" --no-proxy ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema >>$workingdir/error_logs/fog_error_${version}.log 2>&1
 
             errorStat $?
@@ -569,29 +568,34 @@ configureTFTPandPXE() {
     find $webdirdest -type d -exec chmod 755 {} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     find $tftpdirdst ! -type d -exec chmod 655 {} \; >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     configureDefaultiPXEfile
-    if [[ -f $tftpconfig ]]; then
-        cp -Rf $tftpconfig ${tftpconfig}.fogbackup >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    fi
-    # thanks @redvex2460
-    if [[ $noTftpBuild != "true" && $osid -ne 4 ]]; then
-        echo -e "# default: off\n# description: The tftp server serves files using the trivial file transfer \n#    protocol.  The tftp protocol is often used to boot diskless \n# workstations, download configuration files to network-aware printers, \n#   and to start the installation process for some operating systems.\nservice tftp\n{\n    socket_type     = dgram\n   protocol        = udp\n wait            = yes\n user            = root\n    server          = /usr/sbin/in.tftpd\n  server_args     = -s ${tftpdirdst}\n    disable         = no\n  per_source      = 11\n  cps         = 100 2\n   flags           = IPv4\n}" > "$tftpconfig"
-    fi
     dots 'Setting up and starting TFTP Server'
     case $systemctl in
         yes)
+            # make sure xinetd is off for all systemd distros as we don't use it anymore
+            systemctl is-enabled --quiet xinetd 2>/dev/null && systemctl disable xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+            systemctl is-active --quiet xinetd && systemctl stop xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+            if [[ -f /etc/xinetd.d/tftp ]]; then
+                rm -f /etc/xinetd.d/tftp
+            fi
             if [[ $osid -eq 2 && -f $tftpconfigupstartdefaults ]]; then
                 echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"-s\"" > "$tftpconfigupstartdefaults"
-                systemctl is-enabled --quiet xinetd && systemctl disable xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
                 systemctl is-enabled --quiet tftpd-hpa && true || systemctl enable tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                systemctl is-active --quiet xinetd && systemctl stop xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
                 systemctl is-active --quiet tftpd-hpa && systemctl stop tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
                 systemctl is-active --quiet tftpd-hpa && true || systemctl start tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 systemctl status tftpd-hpa >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             else
-                systemctl is-enabled --quiet xinetd && true || systemctl enable xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                systemctl is-active --quiet xinetd && systemctl stop xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
-                systemctl is-active --quiet xinetd && true || systemctl start xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                systemctl status xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                if [[ -f /etc/systemd/system/fog-tftp.service ]]; then
+                    mv -fv /etc/systemd/system/fog-tftp.service "/etc/systemd/system/fog-tftp.service.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                fi
+                echo -e "[Unit]\nDescription=Tftp Server\nRequires=fog-tftp.socket\nDocumentation=man:in.tftpd\n\n[Service]\nExecStart=/usr/sbin/in.tftpd -s ${tftpdirdst}\nStandardInput=socket\n\n[Install]\nAlso=fog-tftp.socket" > /etc/systemd/system/fog-tftp.service
+                diffconfig "/etc/systemd/system/fog-tftp.service"
+                cp -v /usr/lib/systemd/system/tftp.socket /etc/systemd/system/fog-tftp.socket >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl daemon-reload
+                systemctl is-enabled --quiet fog-tftp.socket && true || systemctl enable fog-tftp.socket >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl is-active --quiet fog-tftp.socket && systemctl stop fog-tftp.socket >>$workingdir/error_logs/fog_error_${version}.log 2>&1 || true
+                systemctl is-active --quiet fog-tftp.socket && true || systemctl start fog-tftp.socket >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                systemctl status fog-tftp.socket >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+
             fi
             ;;
         *)
@@ -716,6 +720,7 @@ installPackages() {
                 packages="${packages// libapache2-mod-fastcgi/}"
                 packages="${packages// libapache2-mod-evasive/}"
             fi
+            packages="${packages// xinetd/}"
             packages="${packages// php${php_ver}-mcrypt/}"
             packages="${packages} php${php_ver}-bcmath bc"
             packages="${packages/php-gettext/$phpgettext}"
