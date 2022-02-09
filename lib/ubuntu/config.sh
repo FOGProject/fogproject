@@ -125,7 +125,7 @@ case $linuxReleaseName in
             if [[ $webserver == "apache2" ]]; then
                 libapache="libapache2-mod-fastcgi libapache2-mod-php${php_ver}"
             fi
-            packages="build-essential cpp curl g++ gawk gcc genisoimage git gzip htmldoc isc-dhcp-server isolinux lftp ${libapache} libc6 libcurl3 liblzma-dev m4 ${db_packages} net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mysql php${php_ver}-mysqlnd ${sysvrcconf} tar tftpd-hpa tftp-hpa vsftpd wget xinetd zlib1g"
+            packages="build-essential cpp curl g++ gawk gcc genisoimage git gzip htmldoc isc-dhcp-server isolinux lftp ${libapache} libc6 libcurl3 liblzma-dev m4 ${db_packages} net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mysql php${php_ver}-mysqlnd ${sysvrcconf} tar tftpd-hpa tftp-hpa vsftpd wget  zlib1g"
         else
             # make sure we update all the php version numbers with those specified above
             packages=${packages//php[0-9]\.[0-9]/php${php_ver}}
@@ -171,7 +171,6 @@ fi
 [[ -z $dhcpconfig ]] && dhcpconfig="/etc/dhcp3/dhcpd.conf"
 [[ -z $dhcpconfigother ]] && dhcpconfigother="/etc/dhcp/dhcpd.conf"
 [[ -z $tftpdirdst ]] && tftpdirdst="/tftpboot"
-[[ -z $tftpconfig ]] && tftpconfig="/etc/xinetd.d/tftp"
 [[ -z $tftpconfigupstartconf ]] && tftpconfigupstartconf="/etc/init/tftpd-hpa.conf"
 [[ -z $tftpconfigupstartdefaults ]] && tftpconfigupstartdefaults="/etc/default/tftpd-hpa"
 [[ -z $ftpconfig ]] && ftpconfig="/etc/vsftpd.conf"
