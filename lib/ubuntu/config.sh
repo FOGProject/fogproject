@@ -18,7 +18,7 @@
 #
 [[ -z $repo ]] && repo="php"
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
-if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
+if [[ $linuxReleaseName_lower == +(*bian*) ]]; then
     sysvrcconf="sysv-rc-conf"
     phpgettext="php-gettext"
     case $OSVersion in
@@ -46,7 +46,7 @@ if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
         [[ $? -ne 0 ]] && echo "Failed" || echo "Done"
         apt-get clean -yq >/dev/null 2>&1
     fi
-elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; then
+elif [[ $linuxReleaseName_lower == +(*ubuntu*|*mint*) ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get purge -yq sysv-rc-conf >/dev/null 2>&1
     phpgettext="php-gettext"
     case $OSVersion in
@@ -119,8 +119,8 @@ fi
 [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm"
 [[ -z $phpldap ]] && phpldap="php${php_ver}-ldap"
 [[ -z $phpcmd ]] && phpcmd="php"
-case $linuxReleaseName in
-    *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Bb][Ii][Aa][Nn]*|*[Mm][Ii][Nn][Tt]*)
+case $linuxReleaseName_lower in
+    *ubuntu*|*bian*|*mint*)
         if [[ -z $packages ]]; then
             x="mysql-server"
             eval $packageQuery >>$error_log 2>&1

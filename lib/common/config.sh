@@ -42,8 +42,8 @@ if [[ $systemctl == yes ]]; then
     initdSHfullname="FOGSnapinHash.service"
     initdPHfullname="FOGPingHosts.service"
     initdISfullname="FOGImageSize.service"
-    case $linuxReleaseName in
-        *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Bb][Ii][Aa][Nn]*|*[Mm][Ii][Nn][Tt]*)
+    case $linuxReleaseName_lower in
+        *ubuntu*|*bian*|*mint*)
             initdpath="/lib/systemd/system"
             ;;
         *)
@@ -68,8 +68,8 @@ else
     initdSHfullname="FOGSnapinHash"
     initdPHfullname="FOGPingHosts"
     initdISfullname="FOGImageSize"
-    case $linuxReleaseName in
-        *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Bb][Ii][Aa][Nn]*|*[Mm][Ii][Nn][Tt]*)
+    case $linuxReleaseName_lower in
+        *ubuntu*|*bian*|*mint*)
             initdsrc="../packages/init.d/ubuntu"
             ;;
         *)

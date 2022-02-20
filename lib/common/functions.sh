@@ -670,8 +670,8 @@ installPackages() {
             packages="${packages// mod_fastcgi/}"
             packages="${packages// mod_evasive/}"
             packages="${packages// php-mcrypt/}"
-            case $linuxReleaseName in
-                *[Ff][Ee][Dd][Oo][Rr][Aa]*)
+            case $linuxReleaseName_lower in
+                *fedora*)
                     packages="$packages php-json"
                     packages="${packages// mysql / mariadb }" >>$error_log 2>&1
                     packages="${packages// mysql-server / mariadb-server }" >>$error_log 2>&1
@@ -717,12 +717,12 @@ installPackages() {
                     packages="$packages language-pack-${i}";
                 done
             fi
-            case $linuxReleaseName in
-                *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*)
+            case $linuxReleaseName_lower in
+                *ubuntu*|*mint*)
                     if [[ $OSVersion -gt 17 ]]; then
                         packages="${packages// libcurl3 / libcurl4 }">>$error_log 2>&1
                     fi
-                    if [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*) && $OSVersion -ge 18 ]]; then
+                    if [[ $linuxReleaseName_lower == +(*ubuntu*) && $OSVersion -ge 18 ]]; then
                         # Fix missing universe section for Ubuntu 18.04 LIVE
                         LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y universe >>$error_log 2>&1
                         # check to see if we still have packages from deb.sury.org (a.k.a ondrej) installed and try to clean it up
@@ -742,7 +742,7 @@ installPackages() {
                         addOndrejRepo
                     fi
                     ;;
-                *[Bb][Ii][Aa][Nn]*)
+                *bian*)
                     if [[ $OSVersion -ge 10 ]]; then
                         packages="${packages// libcurl3 / libcurl4 }">>$error_log 2>&1
                         packages="${packages// mysql-client / mariadb-client }">>$error_log 2>&1
@@ -760,7 +760,7 @@ installPackages() {
     dots "Preparing Package Manager"
     $packmanUpdate >>$error_log 2>&1
     if [[ $osid -eq 2 ]]; then
-        if [[ $? != 0 ]] && [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; then
+        if [[ $? != 0 ]] && [[ $linuxReleaseName_lower == +(*ubuntu*|*mint*) ]]; then
             cp /etc/apt/sources.list /etc/apt/sources.list.original_fog_$(date +%s)
             sed -i -e 's/\/\/*archive.ubuntu.com\|\/\/*security.ubuntu.com/\/\/old-releases.ubuntu.com/g' /etc/apt/sources.list
             $packmanUpdate >>$error_log 2>&1
@@ -1116,8 +1116,8 @@ enableInitScript() {
                         dots "Enabling $serviceItem Service"
                         sysv-rc-conf $serviceItem off >>$error_log 2>&1
                         sysv-rc-conf $serviceItem on >>$error_log 2>&1
-                        case $linuxReleaseName in
-                            *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*)
+                        case $linuxReleaseName_lower in
+                            *ubuntu*|*mint*)
                                 /usr/lib/insserv/insserv -r $initdpath/$serviceItem >>$error_log 2>&1
                                 /usr/lib/insserv/insserv -d $initdpath/$serviceItem >>$error_log 2>&1
                                 ;;
@@ -2460,8 +2460,8 @@ downloadfiles() {
     cd $cwd
 }
 configureDHCP() {
-    case $linuxReleaseName in
-        *[Dd][Ee][Bb][Ii][Aa][Nn]*)
+    case $linuxReleaseName_lower in
+        *debian*)
             if [[ $bldhcp -eq 1 ]]; then
                 dots "Setting up and starting DHCP Server (incl. debian 9 fix)"
                 sed -i.fog "s/INTERFACESv4=\"\"/INTERFACESv4=\"$interface\"/g" /etc/default/isc-dhcp-server
