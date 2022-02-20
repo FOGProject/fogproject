@@ -30,6 +30,13 @@ if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
     echo "of the su command as it is important to load root's environment)."
     exit 1
 fi
+
+[[ -z $OS ]] && OS=$(uname -s)
+if [[ ! $(echo "$OS" | tr [:upper:] [:lower:]) =~ *linux* ]]; then
+    echo "We do not currently support Installation on non-Linux Operating Systems"
+    exit 2 # Fail OS Check
+fi 
+
 error_log=$/workingdir/error_logs/fog_error_${version}.log
 timestamp=$(date +%s)
 backupconfig=""
@@ -320,33 +327,31 @@ while getopts "$optspec" o; do
     esac
 done
 [[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
-[[ -z $OS ]] && OS=$(uname -s)
-if [[ $OS =~ ^[^Ll][^Ii][^Nn][^Uu][^Xx] ]]; then
-    echo "We do not currently support Installation on non-Linux Operating Systems"
-    exit 2 # Fail OS Check
-else
-    if [[ -f /etc/os-release ]]; then
-        [[ -z $linuxReleaseName ]] && linuxReleaseName=$(sed -n 's/^NAME=\(.*\)/\1/p' /etc/os-release | tr -d '"')
-        [[ -z $OSVersion ]] && OSVersion=$(sed -n 's/^VERSION_ID=\([^.]*\).*/\1/p' /etc/os-release | tr -d '"')
-    elif [[ -f /etc/redhat-release ]]; then
-        [[ -z $linuxReleaseName ]] && linuxReleaseName=$(cat /etc/redhat-release | awk '{print $1}')
-        [[ -z $OSVersion ]] && OSVersion=$(cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*// | awk -F. '{print $1}')
-    elif [[ -f /etc/debian_version ]]; then
-        [[ -z $linuxReleaseName ]] && linuxReleaseName='Debian'
-        [[ -z $OSVersion ]] && OSVersion=$(cat /etc/debian_version)
-    fi
+
+
+if [[ -f /etc/os-release ]]; then
+    [[ -z $linuxReleaseName ]] && linuxReleaseName=$(sed -n 's/^NAME=\(.*\)/\1/p' /etc/os-release | tr -d '"')
+    [[ -z $OSVersion ]] && OSVersion=$(sed -n 's/^VERSION_ID=\([^.]*\).*/\1/p' /etc/os-release | tr -d '"')
+elif [[ -f /etc/redhat-release ]]; then
+    [[ -z $linuxReleaseName ]] && linuxReleaseName=$(cat /etc/redhat-release | awk '{print $1}')
+    [[ -z $OSVersion ]] && OSVersion=$(cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*// | awk -F. '{print $1}')
+elif [[ -f /etc/debian_version ]]; then
+    [[ -z $linuxReleaseName ]] && linuxReleaseName='Debian'
+    [[ -z $OSVersion ]] && OSVersion=$(cat /etc/debian_version)
 fi
+
+$linuxReleaseName_lower=$(echo "$linuxReleaseName" | tr [:upper:] [:lower:])
 [[ ! -d ./error_logs/ ]] && mkdir -p ./error_logs >/dev/null 2>&1
 echo "Installing LSB_Release as needed"
 dots "Attempting to get release information"
 command -v lsb_release >$error_log 2>&1
 exitcode=$?
 if [[ ! $exitcode -eq 0 ]]; then
-    case $linuxReleaseName in
-        *[Bb][Ii][Aa][Nn]*|*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*)
+    case $linuxReleaseName_lower in
+        *bian*|*ubuntu*|*mint*)
             apt-get -yq install lsb-release >>$error_log 2>&1
             ;;
-        *[Cc][Ee][Nn][Tt][Oo][Ss]*|*[Rr][Ee][Dd]*[Hh][Aa][Tt]*|*[Ff][Ee][Dd][Oo][Rr][Aa]*)
+        *centos*|*red*hat*|*fedora*)
             command -v dnf >>$error_log 2>&1
             exitcode=$?
             case $exitcode in
@@ -358,13 +363,13 @@ if [[ ! $exitcode -eq 0 ]]; then
                     ;;
             esac
             ;;
-        *[Aa][Rr][Cc][Hh]*)
+        *arch*)
             pacman -Sy --noconfirm lsb-release >>$error_log 2>&1
             ;;
     esac
 fi
-[[ -z $OSVersion ]] && OSVersion=$(lsb_release -r| awk -F'[^0-9]*' /^[Rr]elease\([^.]*\).*/'{print $2}')
-[[ -z $OSMinorVersion ]] && OSMinorVersion=$(lsb_release -r| awk -F'[^0-9]*' /^[Rr]elease\([^.]*\).*/'{print $3}')
+[[ -z $OSVersion ]] && OSVersion=$(lsb_release -rs| awk -F'\.' '{print $1}')
+[[ -z $OSMinorVersion ]] && OSMinorVersion=$(lsb_release -rs| awk -F'\.' '{print $2}')
 echo "Done"
 . ../lib/common/config.sh
 [[ -z $dnsaddress ]] && dnsaddress=""
