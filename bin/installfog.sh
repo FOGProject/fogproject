@@ -33,7 +33,7 @@ if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
 fi
 
 [[ -z $OS ]] && OS=$(uname -s)
-if [[ ! $(echo "$OS" | tr [:upper:] [:lower:]) =~ *linux* ]]; then
+if [[ $(echo "$OS" | tr [:upper:] [:lower:]) =~ *linux* ]]; then
     echo "We do not currently support Installation on non-Linux Operating Systems"
     exit 2 # Fail OS Check
 fi 
@@ -342,7 +342,7 @@ elif [[ -f /etc/debian_version ]]; then
     [[ -z $OSVersion ]] && OSVersion=$(cat /etc/debian_version)
 fi
 
-$linuxReleaseName_lower=$(echo "$linuxReleaseName" | tr [:upper:] [:lower:])
+linuxReleaseName_lower=$(echo "$linuxReleaseName" | tr [:upper:] [:lower:])
 [[ ! -d ./error_logs/ ]] && mkdir -p ./error_logs >/dev/null 2>&1
 echo "Installing LSB_Release as needed"
 dots "Attempting to get release information"
