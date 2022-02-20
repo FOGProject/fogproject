@@ -19,6 +19,7 @@
 bindir=$(dirname $(readlink -f "$BASH_SOURCE"))
 cd $bindir
 workingdir=$(pwd)
+
 if [[ ! $EUID -eq 0 ]]; then
     echo "FOG Installation must be run as root user"
     exit 1 # Fail Sudo
@@ -37,6 +38,7 @@ if [[ ! $(echo "$OS" | tr [:upper:] [:lower:]) =~ *linux* ]]; then
     exit 2 # Fail OS Check
 fi 
 
+[[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
 error_log=${workingdir}/error_logs/fog_error_${version}.log
 timestamp=$(date +%s)
 backupconfig=""
@@ -326,7 +328,7 @@ while getopts "$optspec" o; do
             ;;
     esac
 done
-[[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
+
 
 
 if [[ -f /etc/os-release ]]; then
