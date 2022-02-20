@@ -33,7 +33,7 @@ if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
 fi
 
 [[ -z $OS ]] && OS=$(uname -s)
-if [[ $(echo "$OS" | tr [:upper:] [:lower:]) =~ *linux* ]]; then
+if [[ ! $(echo "$OS" | tr [:upper:] [:lower:]) =~ "linux" ]]; then
     echo "We do not currently support Installation on non-Linux Operating Systems"
     exit 2 # Fail OS Check
 fi 
@@ -328,8 +328,6 @@ while getopts "$optspec" o; do
             ;;
     esac
 done
-
-
 
 if [[ -f /etc/os-release ]]; then
     [[ -z $linuxReleaseName ]] && linuxReleaseName=$(sed -n 's/^NAME=\(.*\)/\1/p' /etc/os-release | tr -d '"')
