@@ -37,7 +37,7 @@ if [[ ! $(echo "$OS" | tr [:upper:] [:lower:]) =~ *linux* ]]; then
     exit 2 # Fail OS Check
 fi 
 
-error_log=$/workingdir/error_logs/fog_error_${version}.log
+error_log=${workingdir}/error_logs/fog_error_${version}.log
 timestamp=$(date +%s)
 backupconfig=""
 . ../lib/common/functions.sh
