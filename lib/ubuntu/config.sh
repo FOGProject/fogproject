@@ -78,7 +78,7 @@ elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]
             sysvrcconf="sysv-rc-conf"
             php_ver="7.1"
             x="*php5* *php-5*"
-            eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            eval $packageQuery >>$error_log 2>&1
             if [[ $? -ne 0 ]]; then
                 if [[ $autoaccept != yes ]]; then
                     echo " *** Detected a potential need to reinstall apache and php files."
@@ -123,7 +123,7 @@ case $linuxReleaseName in
     *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Bb][Ii][Aa][Nn]*|*[Mm][Ii][Nn][Tt]*)
         if [[ -z $packages ]]; then
             x="mysql-server"
-            eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            eval $packageQuery >>$error_log 2>&1
             [[ $? -eq 0 ]] && db_packages="mysql-client mysql-server" || db_packages="mariadb-client mariadb-server"
             packages="apache2 build-essential cpp curl g++ gawk gcc genisoimage git gzip htmldoc isc-dhcp-server isolinux lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 libcurl3 liblzma-dev m4 ${db_packages} net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mysql php${php_ver}-mysqlnd ${sysvrcconf} tar tftpd-hpa tftp-hpa vsftpd wget zlib1g"
         else

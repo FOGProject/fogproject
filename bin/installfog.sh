@@ -30,6 +30,7 @@ if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
     echo "of the su command as it is important to load root's environment)."
     exit 1
 fi
+error_log=$/workingdir/error_logs/fog_error_${version}.log
 timestamp=$(date +%s)
 backupconfig=""
 . ../lib/common/functions.sh
@@ -338,27 +339,27 @@ fi
 [[ ! -d ./error_logs/ ]] && mkdir -p ./error_logs >/dev/null 2>&1
 echo "Installing LSB_Release as needed"
 dots "Attempting to get release information"
-command -v lsb_release >$workingdir/error_logs/fog_error_${version}.log 2>&1
+command -v lsb_release >$error_log 2>&1
 exitcode=$?
 if [[ ! $exitcode -eq 0 ]]; then
     case $linuxReleaseName in
         *[Bb][Ii][Aa][Nn]*|*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*)
-            apt-get -yq install lsb-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            apt-get -yq install lsb-release >>$error_log 2>&1
             ;;
         *[Cc][Ee][Nn][Tt][Oo][Ss]*|*[Rr][Ee][Dd]*[Hh][Aa][Tt]*|*[Ff][Ee][Dd][Oo][Rr][Aa]*)
-            command -v dnf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            command -v dnf >>$error_log 2>&1
             exitcode=$?
             case $exitcode in
                 0)
-                    dnf -y install redhat-lsb-core >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    dnf -y install redhat-lsb-core >>$error_log 2>&1
                     ;;
                 *)
-                    yum -y install redhat-lsb-core >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    yum -y install redhat-lsb-core >>$error_log 2>&1
                     ;;
             esac
             ;;
         *[Aa][Rr][Cc][Hh]*)
-            pacman -Sy --noconfirm lsb-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            pacman -Sy --noconfirm lsb-release >>$error_log 2>&1
             ;;
     esac
 fi
@@ -428,7 +429,7 @@ esac
 [[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
 [[ -n $sarmsupport ]] && armsupport=$sarmsupport
 
-[[ -f $fogpriorconfig ]] && grep -l webroot $fogpriorconfig >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+[[ -f $fogpriorconfig ]] && grep -l webroot $fogpriorconfig >>$error_log 2>&1
 case $? in
     0)
         if [[ -n $webroot ]]; then
