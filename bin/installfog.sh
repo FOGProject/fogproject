@@ -43,7 +43,7 @@ error_log=${workingdir}/error_logs/fog_error_${version}.log
 timestamp=$(date +%s)
 backupconfig=""
 . ../lib/common/functions.sh
-help() {
+usage() {
     echo -e "Usage: $0 [-h?dEUuHSCKYXTFA] [-f <filename>] [-N <databasename>]"
     echo -e "\t\t[-D </directory/to/document/root/>] [-c <ssl-path>]"
     echo -e "\t\t[-W <webroot/to/fog/after/docroot/>] [-B </backup/path/>]"
@@ -84,7 +84,7 @@ while getopts "$optspec" o; do
         -)
             case $OPTARG in
                 help)
-                    help
+                    usage
                     exit 0
                     ;;
                 uninstall)
@@ -133,7 +133,7 @@ while getopts "$optspec" o; do
                 webroot)
                     if [[ $OPTARG != *('/')* ]]; then
                         echo -e "-$OPTARG needs a url path for access either / or /fog for example.\n\n\t\tfor example if you access fog using http://127.0.0.1/ without any trail\n\t\tset the path to /"
-                        help
+                        usage
                         exit 2
                     fi
                     swebroot="${OPTARG}"
@@ -145,14 +145,14 @@ while getopts "$optspec" o; do
                         fogpriorconfig=$OPTARG
                     else
                         echo "--$OPTARG requires file after"
-                        help
+                        usage
                         exit 3
                     fi
                     ;;
                 backuppath)
                     if [[ ! -d $OPTARG ]]; then
                         echo "Path must be an existing directory"
-                        help
+                        usage
                         exit 4
                     fi
                     sbackupPath=$OPTARG
@@ -160,7 +160,7 @@ while getopts "$optspec" o; do
                 startrange)
                     if [[ $(validip $OPTARG) != 0 ]]; then
                         echo "Invalid ip passed"
-                        help
+                        usage
                         exit 5
                     fi
                     sstartrange=$OPTARG
@@ -170,7 +170,7 @@ while getopts "$optspec" o; do
                 endrange)
                     if [[ $(validip $OPTARG) != 0 ]]; then
                         echo "Invalid ip passed"
-                        help
+                        usage
                         exit 6
                     fi
                     sendrange=$OPTARG
@@ -195,14 +195,14 @@ while getopts "$optspec" o; do
                 *)
                     if [[ $OPTERR == 1 && ${optspec:0:1} != : ]]; then
                         echo "Unknown option: --${OPTARG}"
-                        help
+                        usage
                         exit 7
                     fi
                     ;;
             esac
             ;;
         h|'?')
-            help
+            usage
             exit 0
             ;;
         o)
@@ -248,7 +248,7 @@ while getopts "$optspec" o; do
         W)
             if [[ $OPTARG != *('/')* ]]; then
                 echo -e "-$OPTARG needs a url path for access either / or /fog for example.\n\n\t\tfor example if you access fog using http://127.0.0.1/ without any trail\n\t\tset the path to /"
-                help
+                usage
                 exit 2
             fi
             swebroot=$OPTARG
@@ -258,7 +258,7 @@ while getopts "$optspec" o; do
         f)
             if [[ ! -f $OPTARG ]]; then
                 echo "-$OPTARG requires a file to follow"
-                help
+                usage
                 exit 3
             fi
             fogpriorconfig=$OPTARG
@@ -266,7 +266,7 @@ while getopts "$optspec" o; do
         B)
             if [[ ! -d $OPTARG ]]; then
                 echo "Path must be an existing directory"
-                help
+                usage
                 exit 4
             fi
             sbackupPath=$OPTARG
@@ -274,7 +274,7 @@ while getopts "$optspec" o; do
         s)
             if [[ $(validip $OPTARG) != 0 ]]; then
                 echo "Invalid ip passed"
-                help
+                usage
                 exit 5
             fi
             sstartrange=$OPTARG
@@ -284,7 +284,7 @@ while getopts "$optspec" o; do
         e)
             if [[ $(validip $OPTARG) != 0 ]]; then
                 echo "Invalid ip passed"
-                help
+                usage
                 exit 6
             fi
             sendrange=$OPTARG
@@ -309,20 +309,20 @@ while getopts "$optspec" o; do
         N)
             if [[ -z $OPTARG ]]; then
                 echo "Please specify a database name"
-                help
+                usage
                 exit 4
             fi
             smysqldbname=$OPTARG
             ;;
         :)
             echo "Option -$OPTARG requires a value"
-            help
+            usage
             exit 8
             ;;
         *)
             if [[ $OPTERR == 1 && ${optspec:0:1} != : ]]; then
                 echo "Unknown option: -$OPTARG"
-                help
+                usage
                 exit 7
             fi
             ;;
