@@ -17,8 +17,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 [[ -z $packageQuery ]] && packageQuery="rpm -q \$x"
-case $linuxReleaseName in
-    *[Mm][Aa][Gg][Ee][Ii][Aa]*)
+case $linuxReleaseName_lower in
+    *mageia*)
         webserver="apache"
         [[ -z $packages ]] && packages="apache apache-mod_fcgid apache-mod_php apache-mod_ssl cdrkit-genisoimage curl dhcp-server gcc gcc-c++ git gzip htmldoc lftp m4 make mariadb mariadb-common mariadb-common-core mariadb-core net-tools nfs-utils perl perl-Crypt-PasswdMD5 php-cli php-curl php-fpm php-gd php-gettext php-ldap php-mbstring php-mysqlnd php-pcntl php-pdo php-pdo_mysql tar tftp-server vsftpd wget"
         [[ -z $packageinstaller ]] && packageinstaller="urpmi --auto"

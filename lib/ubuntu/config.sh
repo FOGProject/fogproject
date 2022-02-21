@@ -19,7 +19,7 @@
 [[ -z $repo ]] && repo="php"
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
 [[ -z $webserver ]] && webserver="apache2"
-if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
+if [[ $linuxReleaseName_lower == +(*bian*) ]]; then
     sysvrcconf="sysv-rc-conf"
     phpgettext="php-gettext"
     case $OSVersion in
@@ -47,7 +47,7 @@ if [[ $linuxReleaseName == +(*[Bb][Ii][Aa][Nn]*) ]]; then
         [[ $? -ne 0 ]] && echo "Failed" || echo "Done"
         apt-get clean -yq >/dev/null 2>&1
     fi
-elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]; then
+elif [[ $linuxReleaseName_lower == +(*ubuntu*|*mint*) ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get purge -yq sysv-rc-conf >/dev/null 2>&1
     phpgettext="php-gettext"
     case $OSVersion in
@@ -75,7 +75,7 @@ elif [[ $linuxReleaseName == +(*[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Mm][Ii][Nn][Tt]*) ]]
             sysvrcconf="sysv-rc-conf"
             php_ver="7.1"
             x="*php5* *php-5*"
-            eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            eval $packageQuery >>$error_log 2>&1
             if [[ $webserver == "apache2" && $? -ne 0 ]]; then
                 if [[ $autoaccept != yes ]]; then
                     echo " *** Detected a potential need to reinstall apache and php files."
@@ -116,11 +116,11 @@ fi
 [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm"
 [[ -z $phpldap ]] && phpldap="php${php_ver}-ldap"
 [[ -z $phpcmd ]] && phpcmd="php"
-case $linuxReleaseName in
-    *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Bb][Ii][Aa][Nn]*|*[Mm][Ii][Nn][Tt]*)
+case $linuxReleaseName_lower in
+    *ubuntu*|*bian*|*mint*)
         if [[ -z $packages ]]; then
             x="mysql-server"
-            eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            eval $packageQuery >>$error_log 2>&1
             [[ $? -eq 0 ]] && db_packages="mysql-client mysql-server" || db_packages="mariadb-client mariadb-server"
             if [[ $webserver == "apache2" ]]; then
                 libapache="libapache2-mod-fastcgi libapache2-mod-php${php_ver}"
