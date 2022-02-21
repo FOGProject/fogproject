@@ -28,9 +28,9 @@
 [[ -z $nfsservice ]] && nfsservice="nfs-server nfs-kernel-server nfs"
 [[ -z $sqlclientlist ]] && sqlclientlist="mariadb-client mariadb MariaDB-client mysql"
 [[ -z $sqlserverlist ]] && sqlserverlist="mariadb-galera-server mariadb-server MariaDB-Galera-server MariaDB-server mysql-server"
-command -v systemctl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+command -v systemctl >>$error_log 2>&1
 exitcode=$?
-ps -p 1 -o comm= | grep systemd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+ps -p 1 -o comm= | grep systemd >>$error_log 2>&1
 bootcode=$?
 [[ $exitcode -eq 0 && $bootcode -eq 0 && -z $systemctl ]] && systemctl="yes"
 if [[ $systemctl == yes ]]; then
@@ -42,8 +42,8 @@ if [[ $systemctl == yes ]]; then
     initdSHfullname="FOGSnapinHash.service"
     initdPHfullname="FOGPingHosts.service"
     initdISfullname="FOGImageSize.service"
-    case $linuxReleaseName in
-        *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Bb][Ii][Aa][Nn]*|*[Mm][Ii][Nn][Tt]*)
+    case $linuxReleaseName_lower in
+        *ubuntu*|*bian*|*mint*)
             initdpath="/lib/systemd/system"
             ;;
         *)
@@ -51,13 +51,13 @@ if [[ $systemctl == yes ]]; then
             ;;
     esac
     if [[ -e $initdpath/mariadb.service ]]; then
-        ln -s $initdpath/{mariadb,mysql}.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        ln -s $initdpath/{mariadb,mysqld}.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        ln -s $initdpath/mariadb /etc/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        ln -s $initdpath/mariadb /etc/systemd/system/mysqld.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        ln -s $initdpath/{mariadb,mysql}.service >>$error_log 2>&1
+        ln -s $initdpath/{mariadb,mysqld}.service >>$error_log 2>&1
+        ln -s $initdpath/mariadb /etc/systemd/system/mysql.service >>$error_log 2>&1
+        ln -s $initdpath/mariadb /etc/systemd/system/mysqld.service >>$error_log 2>&1
     elif [[ -e $initdpath/mysqld.service ]]; then
-        ln -s $initdpath/mysql{d,}.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        ln -s $initdpath/mysqld.service /etc/systemd/system/mysql.service >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        ln -s $initdpath/mysql{d,}.service >>$error_log 2>&1
+        ln -s $initdpath/mysqld.service /etc/systemd/system/mysql.service >>$error_log 2>&1
     fi
 else
     initdpath="/etc/init.d"
@@ -68,8 +68,8 @@ else
     initdSHfullname="FOGSnapinHash"
     initdPHfullname="FOGPingHosts"
     initdISfullname="FOGImageSize"
-    case $linuxReleaseName in
-        *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Bb][Ii][Aa][Nn]*|*[Mm][Ii][Nn][Tt]*)
+    case $linuxReleaseName_lower in
+        *ubuntu*|*bian*|*mint*)
             initdsrc="../packages/init.d/ubuntu"
             ;;
         *)
