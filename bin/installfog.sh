@@ -24,6 +24,7 @@ if [[ ! $EUID -eq 0 ]]; then
     echo "FOG Installation must be run as root user"
     exit 1 # Fail Sudo
 fi
+
 which useradd >/dev/null 2>&1
 if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
     echo "Please switch to a proper root environment to run the installer!"
@@ -39,6 +40,7 @@ if [[ ! $(echo "$OS" | tr [:upper:] [:lower:]) =~ "linux" ]]; then
 fi 
 
 [[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
+[[ ! -d ./error_logs/ ]] && mkdir -p ./error_logs >/dev/null 2>&1
 error_log=${workingdir}/error_logs/fog_error_${version}.log
 timestamp=$(date +%s)
 backupconfig=""
@@ -78,6 +80,7 @@ usage() {
     echo -e "\t-A    --arm-support\t\tInstall kernel and initrd for ARM platforms"
     exit 0
 }
+
 optspec="h?odEUHSCKYyXxTPFAf:c:-:W:D:B:s:e:b:N:"
 while getopts "$optspec" o; do
     case $o in
@@ -341,7 +344,7 @@ elif [[ -f /etc/debian_version ]]; then
 fi
 
 linuxReleaseName_lower=$(echo "$linuxReleaseName" | tr [:upper:] [:lower:])
-[[ ! -d ./error_logs/ ]] && mkdir -p ./error_logs >/dev/null 2>&1
+
 echo "Installing LSB_Release as needed"
 dots "Attempting to get release information"
 command -v lsb_release >$error_log 2>&1
@@ -368,8 +371,8 @@ if [[ ! $exitcode -eq 0 ]]; then
             ;;
     esac
 fi
-[[ -z $OSVersion ]] && OSVersion=$(lsb_release -rs| awk -F'\.' '{print $1}')
-[[ -z $OSMinorVersion ]] && OSMinorVersion=$(lsb_release -rs| awk -F'\.' '{print $2}')
+[[ -z $OSVersion ]] && OSVersion=$(lsb_release -rs| awk -F'.' '{print $1}')
+[[ -z $OSMinorVersion ]] && OSMinorVersion=$(lsb_release -rs| awk -F'.' '{print $2}')
 echo "Done"
 . ../lib/common/config.sh
 [[ -z $dnsaddress ]] && dnsaddress=""
