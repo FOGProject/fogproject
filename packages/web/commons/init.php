@@ -170,7 +170,7 @@ class Initiator
     }
     /**
      * Initiates language configuration
-     * 
+     *
      * @param string $lang
      *
      * @return void
@@ -187,7 +187,9 @@ class Initiator
             'pt' => 'BR',
             'zh' => 'CN'
         ];
-        if (!in_array($lang, array_keys($validLangs))) $lang = 'en';
+        if (!in_array($lang, array_keys($validLangs))) {
+            $lang = 'en';
+        }
 
         if (PHP_SESSION_NONE != session_status() && $_SESSION['FOG_LANG'] != $lang) {
             $_SESSION['FOG_LANG'] = $lang;
