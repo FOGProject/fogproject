@@ -194,7 +194,9 @@ class TaskScheduler extends FOGService
                         $Timer->shouldRunNowCheck()
                     )
                 );
-                if (!$Timer->shouldRunNow()) continue;
+                if (!$Timer->shouldRunNow()) {
+                    continue;
+                }
                 self::outall(
                     ' * '
                     . _('Found a scheduled task that should run.')
@@ -282,7 +284,9 @@ class TaskScheduler extends FOGService
                         $Timer->shouldRunNowCheck()
                     )
                 );
-                if (!$Timer->shouldRunNow()) continue;
+                if (!$Timer->shouldRunNow()) {
+                    continue;
+                }
                 self::outall(
                     ' * '
                     . _('Found a wake on lan task that should run.')
