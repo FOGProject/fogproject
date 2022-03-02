@@ -474,7 +474,8 @@ configureUDPCast() {
     dots "Setting up UDPCast"
     cp -Rf "$udpcastsrc" "$udpcasttmp"
     cur=$(pwd)
-    cd /tmp
+    [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
+    cd ../tmp
     tar xvzf "$udpcasttmp" >>$error_log 2>&1
     cd $udpcastout
     grep -q 'BCM[0-9][0-9][0-9][0-9]' /proc/cpuinfo >>$error_log 2>&1
