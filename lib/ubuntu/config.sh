@@ -50,6 +50,10 @@ elif [[ $linuxReleaseName_lower == +(*ubuntu*|*mint*) ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get purge -yq sysv-rc-conf >/dev/null 2>&1
     phpgettext="php-gettext"
     case $OSVersion in
+        22)
+            php_ver="8.1"
+            phpgettext="php${php_ver}-gettext"
+            ;;
         21)
             case $OSMinorVersion in
                 10)
