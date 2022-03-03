@@ -1606,7 +1606,6 @@ writeUpdateFile() {
     eschttpproto=$(echo $httpproto | sed -e $replace)
     escstartrange=$(echo $startrange | sed -e $replace)
     escendrange=$(echo $endrange | sed -e $replace)
-    escbootfilename=$(echo $bootfilename | sed -e $replace)
     escpackages=$(echo $packages | sed -e $replace)
     escnoTftpBuild=$(echo $noTftpBuild | sed -e $replace)
     escsslpath=$(echo $sslpath | sed -e $replace)
@@ -1717,8 +1716,7 @@ writeUpdateFile() {
                 sed -i "s/endrange=.*/endrange='$escendrange'/g" $fogprogramdir/.fogsettings || \
                 echo "endrange='$endrange'" >> $fogprogramdir/.fogsettings
             grep -q "bootfilename=" $fogprogramdir/.fogsettings && \
-                sed -i "s/bootfilename=.*/bootfilename='$escbootfilename'/g" $fogprogramdir/.fogsettings || \
-                echo "bootfilename='$bootfilename'" >> $fogprogramdir/.fogsettings
+                sed -i "/bootfilename=.*$/d" $fogprogramdir/.fogsettings
             grep -q "packages=" $fogprogramdir/.fogsettings && \
                 sed -i "s/packages=.*/packages='$escpackages'/g" $fogprogramdir/.fogsettings || \
                 echo "packages='$packages'" >> $fogprogramdir/.fogsettings
@@ -1785,7 +1783,6 @@ writeUpdateFile() {
             echo "httpproto='$httpproto'" >> "$fogprogramdir/.fogsettings"
             echo "startrange='$startrange'" >> "$fogprogramdir/.fogsettings"
             echo "endrange='$endrange'" >> "$fogprogramdir/.fogsettings"
-            echo "bootfilename='$bootfilename'" >> "$fogprogramdir/.fogsettings"
             echo "packages='$packages'" >> "$fogprogramdir/.fogsettings"
             echo "noTftpBuild='$noTftpBuild'" >> "$fogprogramdir/.fogsettings"
             echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
@@ -1834,7 +1831,6 @@ writeUpdateFile() {
         echo "httpproto='$httpproto'" >> "$fogprogramdir/.fogsettings"
         echo "startrange='$startrange'" >> "$fogprogramdir/.fogsettings"
         echo "endrange='$endrange'" >> "$fogprogramdir/.fogsettings"
-        echo "bootfilename='$bootfilename'" >> "$fogprogramdir/.fogsettings"
         echo "packages='$packages'" >> "$fogprogramdir/.fogsettings"
         echo "noTftpBuild='$noTftpBuild'" >> "$fogprogramdir/.fogsettings"
         echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
@@ -2490,7 +2486,6 @@ configureDHCP() {
                 exit 1
             fi
             mv -fv "${dhcptouse}" "${dhcptouse}.${timestamp}" >>$error_log 2>&1
-            [[ -z $bootfilename ]] && bootfilename="undionly.kpxe"
             echo "# DHCP Server Configuration file\n#see /usr/share/doc/dhcp*/dhcpd.conf.sample" > $dhcptouse
             echo "# This file was created by FOG" >> "$dhcptouse"
             echo "#Definition of PXE-specific options" >> "$dhcptouse"

@@ -180,9 +180,6 @@ while getopts "$optspec" o; do
                     dodhcp="Y"
                     bldhcp=1
                     ;;
-                bootfile)
-                    sbootfilename=$OPTARG
-                    ;;
                 no-exportbuild)
                     sblexports=0
                     ;;
@@ -293,9 +290,6 @@ while getopts "$optspec" o; do
             sendrange=$OPTARG
             dodhcp="Y"
             bldhcp=1
-            ;;
-        b)
-            sbootfilename=$OPTARG
             ;;
         E)
             sblexports=0
@@ -416,7 +410,6 @@ case $doupdate in
             doOSSpecificIncludes
             [[ -n $sblexports ]] && blexports=$sblexports
             [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
-            [[ -n $sbootfilename ]] && bootfilename=$sbootfilename
             [[ -n $sbackupPath ]] && backupPath=$sbackupPath
             [[ -n $swebroot ]] && webroot=$swebroot
             [[ -n $sdocroot ]] && docroot=$sdocroot
@@ -456,7 +449,6 @@ if [[ -z $backupPath ]]; then
     backupPath="${backupPath#'/'}"
     backupPath="/$backupPath/"
 fi
-[[ -z $bootfilename ]] && bootfilename="undionly.kpxe"
 [[ -n $smysqldbname ]] && mysqldbname=$smysqldbname
 [[ ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]] && . ../lib/common/input.sh
 # ask user input for newly added options like hostname etc.
@@ -513,7 +505,7 @@ case $installtype in
                 echo " * On a Windows DHCP server you must set options 066 and 067"
                 echo
                 echo " * Option 066/next-server is the IP of the FOG Server: (e.g. $ipaddress)"
-                echo " * Option 067/filename is the bootfile: (e.g. $bootfilename)"
+                echo " * Option 067/filename is the bootfile: (e.g. undionly.kkpxe or snponly.efi)"
                 ;;
         esac
         ;;
