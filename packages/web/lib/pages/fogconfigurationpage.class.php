@@ -196,14 +196,71 @@ class FOGConfigurationPage extends FOGPage
         $this->kernelUpdatePost();
     }
     /**
+     * Returns HTML formated output from kernel list array.
+     *
+     * @param array $jsonData kernel list array
+     *
+     * @return string
+     */
+    public function generateHtmlKernelList($kernelData) {
+        $html = '<div class="col-xs-12"><a href="#" class="btn btn-info btn-block trigger_expand"><h4 class="title">Expand All</h4></a></div>';
+        foreach($kernelData as $release) {
+            if ($release->prerelease) {
+                continue;
+            }
+            $kab_version = array();
+            $found_kab = preg_match('/(.*)([4-9]\.[0-9][0-9]*\.[0-9][0-9]*)([^0-9]*)(20[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]*)(.*)/', $release->body, $kernel_version, PREG_OFFSET_CAPTURE);
+            foreach ($release->assets as $asset) {
+                $arch_short = "";
+                $arch = "";
+                switch($asset->name) {
+                    case "arm_Image":
+                        $arch_short = "arm64";
+                        $arch = "ARM 64 Bit";
+                        break;
+                    case "bzImage":
+                        $arch_short = "64";
+                        $arch = "AMD/Intel 64 Bit";
+                        break;
+                    case "bzImage32":
+                        $arch_short = "32";
+                        $arch = "AMD/Intel 32 Bit";
+                        break;
+                }
+                if (isset($found_kab) && $found_kab && $arch_short) {
+                    $k_ver = $kernel_version[2][0];
+                    $k_url = base64_encode($asset->browser_download_url);
+                    switch (substr($release->name, 0, 3)) {
+                        case "FOG":
+                            $k_hint = ' (FOG '.explode(' ', $release->name)[1].')';
+                            break;
+                        case "Lat":
+                            $k_hint = ' (devel)';
+                            break;
+                        default:
+                            $k_hint = '';
+                            break;
+                    }
+                    $id = 'Kernel_'.str_replace(".", "_", $k_ver).'_'.$arch_short;
+                    $label = 'Kernel '.$k_ver.' '.$arch.$k_hint;
+                    $k_date = date('F j, Y', strtotime($asset->created_at));
+                    $html .= '<div class="col-xs-12"><a class="expand_trigger btn btn-info btn-block" id="'.$id.'" href="#'.$id.'"><h4 class="title">'.$label.'</h4></a></div><div class="hidefirst" id="'.$id.'">';
+                    $html .= '<div class="col-xs-4">Date:<br/>Version:<br/>Architecture:<br/>Download:</div>';
+                    $html .= '<div class="col-xs-8 text-right">'.$k_date.'<br/>'.$k_ver.'<br/>'.$arch.'<br/><a href="?node=about&sub=kernel&file='.$k_url.'=&arch='.$arch_short.'">Download <i class="fa fa-download fa-2x fa-fw"></i></a></div></div>';
+                }
+            }
+        }
+        return $html;
+    }
+    /**
      * Show the kernel update page.
      *
      * @return void
      */
     public function kernelUpdate()
     {
-        $url = 'https://fogproject.org/kernels/kernelupdate_bootstrap.php';
-        $htmlData = self::$FOGURLRequests->process($url);
+        $url = 'https://api.github.com/repos/FOGProject/fos/releases';
+        $jsonData = json_decode(self::$FOGURLRequests->process($url)[0]);
         echo '<div class="col-xs-9">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
@@ -228,7 +285,7 @@ class FOGConfigurationPage extends FOGPage
         );
         echo '</div>';
         echo '<div class="panel-body">';
-        echo $htmlData[0];
+        echo $this->generateHtmlKernelList($jsonData);
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -243,9 +300,9 @@ class FOGConfigurationPage extends FOGPage
         global $node;
         global $sub;
         if (!isset($_POST['install']) && $sub == 'kernelUpdate') {
-            $url = 'https://fogproject.org/kernels/kernelupdate_bootstrap.php';
-            $htmlData = self::$FOGURLRequests->process($url);
-            echo $htmlData[0];
+            $url = 'https://api.github.com/repos/FOGProject/fos/releases';
+            $jsonData = json_decode(self::$FOGURLRequests->process($url)[0]);
+            echo $this->generateHtmlKernelList($jsonData);
         } elseif (isset($_POST['install'])) {
             $_SESSION['allow_ajax_kdl'] = true;
             $dstName = filter_input(INPUT_POST, 'dstName');
@@ -294,11 +351,7 @@ class FOGConfigurationPage extends FOGPage
             $tmpFile = basename(
                 $file
             );
-            $tmpArch = (
-                $arch == 64 ?
-                'bzImage' :
-                'bzImage32'
-            );
+            $tmpArch = basename(base64_decode($file));
             $formstr = "?node={$node}&sub=kernelUpdate";
             echo '<div class="col-xs-9">';
             echo '<div class="panel panel-info">';
