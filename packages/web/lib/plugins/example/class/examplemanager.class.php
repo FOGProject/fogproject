@@ -66,7 +66,7 @@ class ExampleManager extends FOGManagerController
          *         'eID',
          *         'eHostID'
          *     ),
-         *     'MyISAM',
+         *     'InnoDB',
          *     'utf8',
          *     'eID',
          *     'eID'

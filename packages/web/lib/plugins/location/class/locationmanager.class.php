@@ -86,7 +86,7 @@ class LocationManager extends FOGManagerController
                     'lStorageNodeID'
                 )
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'lID',
             'lID'

@@ -78,7 +78,7 @@ class GreenFogManager extends FOGManagerController
                     'gfAction'
                 ),
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'gfID',
             'gfID'

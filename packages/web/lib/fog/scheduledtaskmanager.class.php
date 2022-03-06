@@ -133,7 +133,7 @@ class ScheduledTaskManager extends FOGManagerController
             array(
                 'stID'
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'stID',
             'stID'

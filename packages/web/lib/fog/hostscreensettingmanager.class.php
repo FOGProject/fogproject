@@ -82,7 +82,7 @@ class HostScreenSettingManager extends FOGManagerController
                 'hssID',
                 'hssHostID'
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'hssID',
             'hssID'

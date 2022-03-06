@@ -64,7 +64,7 @@ class LocationAssociationManager extends FOGManagerController
                 'laID',
                 'laHostID',
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'laID',
             'laID'

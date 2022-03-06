@@ -74,7 +74,7 @@ class WindowsKeyManager extends FOGManagerController
                 'wkKey',
                 'wkName'
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'wkID',
             'wkID'

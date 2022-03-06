@@ -84,7 +84,7 @@ class MACAddressAssociationManager extends FOGManagerController
                     'hmHostID'
                 )
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'hmID',
             'hmID'

@@ -70,7 +70,7 @@ class ServiceManager extends FOGManagerController
                 'settingID',
                 'settingKey'
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'settingID',
             'settingID'

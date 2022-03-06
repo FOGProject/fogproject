@@ -59,7 +59,7 @@ class SiteUserRestrictionManager extends FOGManagerController
                 false
             ),
             array(),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'surID',
             'surID'

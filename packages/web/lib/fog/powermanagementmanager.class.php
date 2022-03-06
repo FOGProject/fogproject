@@ -85,7 +85,7 @@ class PowerManagementManager extends FOGManagerController
             array(
                 'pmID',
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'pmID',
             'pmID'
