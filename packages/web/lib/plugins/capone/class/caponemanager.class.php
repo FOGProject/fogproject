@@ -66,7 +66,7 @@ class CaponeManager extends FOGManagerController
                 'cID',
                 'cKey'
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'cID',
             'cID'

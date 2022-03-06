@@ -129,7 +129,7 @@ class ImageManager extends FOGManagerController
                     'imageTypeID'
                 )
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'imageID',
             'imageID'

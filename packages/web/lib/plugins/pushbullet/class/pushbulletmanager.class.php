@@ -73,7 +73,7 @@ class PushbulletManager extends FOGManagerController
             $notnulls,
             $defaults,
             $keys,
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'pID',
             'pID'

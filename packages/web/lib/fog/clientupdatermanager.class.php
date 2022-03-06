@@ -73,7 +73,7 @@ class ClientUpdaterManager extends FOGManagerController
                     'cuType'
                 )
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'cuID',
             'cuID'

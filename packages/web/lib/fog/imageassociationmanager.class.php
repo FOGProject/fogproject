@@ -69,7 +69,7 @@ class ImageAssociationManager extends FOGManagerController
                     'igaStorageGroupID'
                 )
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'igaID',
             'igaID'

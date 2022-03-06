@@ -66,7 +66,7 @@ class AccessControlAssociationManager extends FOGManagerController
                 'ruaID',
                 'ruaUserID',
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'ruaID',
             'ruaID'

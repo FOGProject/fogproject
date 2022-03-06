@@ -166,7 +166,7 @@ class HostManager extends FOGManagerController
                 'hostID',
                 'hostName'
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'hostID',
             'hostID'

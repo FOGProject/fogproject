@@ -63,7 +63,7 @@ class SiteHostAssociationManager extends FOGManagerController
                 false,
             ),
             array(),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'shaID',
             'shaID'

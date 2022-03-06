@@ -58,7 +58,7 @@ class DirCleanerManager extends FOGManagerController
                 'dcID',
                 'dcPath'
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'dcID',
             'dcID'

@@ -75,7 +75,7 @@ class AccessControlManager extends FOGManagerController
                 'rID',
                 'rName'
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'rID',
             'rID'

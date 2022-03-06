@@ -66,7 +66,7 @@ class SnapinJobManager extends FOGManagerController
                 'sjID',
                 'sjHostID'
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'sjID',
             'sjID'

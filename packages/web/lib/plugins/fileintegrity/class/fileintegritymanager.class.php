@@ -73,7 +73,7 @@ class FileIntegrityManager extends FOGManagerController
             array(
                 'fcsID'
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'fcsID',
             'fcsID'
