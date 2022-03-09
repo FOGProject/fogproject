@@ -24,10 +24,7 @@ if [[ ! $EUID -eq 0 ]]; then
     echo "FOG Installation must be run as root user"
     exit 1 # Fail Sudo
 fi
-# Begin adjusting per @redvex2460 in PR 438
-# Use a more appropriate method for user add command lookup
-[[ -z $useraddcmd ]] && useraddcmd=$(command -v useradd) || true
-[[ -z $useraddcmd ]] && useraddcmd=$(command -v adduser) || true
+which adduser >/dev/null 2>&1
 if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
     echo "Please switch to a proper root environment to run the installer!"
     echo "Use 'sudo -i' or 'su -' (skip the ' and note the hyphen at the end"
@@ -361,9 +358,6 @@ if [[ ! $exitcode -eq 0 ]]; then
                     yum -y install redhat-lsb-core >>$error_log 2>&1
                     ;;
             esac
-            ;;
-        *arch*)
-            pacman -Sy --noconfirm lsb-release >>$error_log 2>&1
             ;;
         *[Aa][Ll][Pp][Ii][Nn][Ee]*)
             ;;

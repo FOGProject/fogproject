@@ -30,7 +30,7 @@
 [[ -z $sqlserverlist ]] && sqlserverlist="mariadb-galera-server mariadb-server MariaDB-Galera-server MariaDB-server mysql-server"
 command -v systemctl >>$error_log 2>&1
 exitcode=$?
-ps -p 1 -o comm= | grep systemd >>$error_log 2>&1
+grep systemd /proc/1/comm >>$error_log 2>&1
 bootcode=$?
 [[ $exitcode -eq 0 && $bootcode -eq 0 && -z $systemctl ]] && systemctl="yes"
 if [[ $systemctl == yes ]]; then
@@ -71,6 +71,9 @@ else
     case $linuxReleaseName_lower in
         *ubuntu*|*bian*|*mint*)
             initdsrc="../packages/init.d/ubuntu"
+            ;;
+        *alpine*)
+            initdsrc="../packages/init.d/alpine"
             ;;
         *)
             initdsrc="../packages/init.d/redhat"

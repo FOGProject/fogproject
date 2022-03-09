@@ -14,7 +14,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-[[ -z $packages ]] && packages="openrc bc cdrkit curl gcc g++ git gzip lftp m4 make mariadb mariadb-client net-tools nfs-utils openssh openssl perl perl-crypt-passwdmd5 php7 php7-session php7-fpm php7-mbstring php7-mcrypt php7-soap php7-openssl php7-gmp php7-pdo_odbc php7-json php7-dom php7-pdo php7-zip php7-mysqli php7-sqlite3 php7-apcu php7-pdo_pgsql php7-bcmath php7-gd php7-odbc php7-pdo_mysql php7-pdo_sqlite php7-gettext php7-xmlreader php7-xmlrpc php7-bz2 php7-iconv php7-pdo_dblib php7-curl php7-sockets php7-mysqli php7-ctype syslinux tar tftp-hpa vsftpd wget xz"
+[[ -z $packages ]] && packages="bash bc cdrkit curl gcc g++ git gzip lftp m4 make mariadb mariadb-client net-tools nfs-utils openrc openssh openssl perl perl-crypt-passwdmd5 php7 php7-session php7-fpm php7-mbstring php7-mcrypt php7-soap php7-openssl php7-gmp php7-pdo_odbc php7-json php7-dom php7-pdo php7-zip php7-mysqli php7-sqlite3 php7-apcu php7-pdo_pgsql php7-bcmath php7-gd php7-odbc php7-pdo_mysql php7-pdo_sqlite php7-gettext php7-xmlreader php7-xmlrpc php7-bz2 php7-iconv php7-pdo_dblib php7-curl php7-sockets php7-mysqli php7-ctype syslinux tar tftp-hpa vsftpd wget xmessage xz"
 [[ -z $packageinstaller ]] && packageinstaller="apk add"
 [[ -z $packagelist ]] && packagelist="apk info"
 [[ -z $packageupdater ]] && packageupdater="apk update && apk upgrade"
