@@ -468,9 +468,6 @@ installFOGServices() {
     errorStat $?
 }
 configureUDPCast() {
-    # If alpine return
-    # similar to @redvex2460 but with better pass in.
-    [[ $osid -eq 4 ]] && return
     dots "Setting up UDPCast"
     cp -Rf "$udpcastsrc" "$udpcasttmp"
     cur=$(pwd)
@@ -609,7 +606,7 @@ configureTFTPandPXE() {
                 sysv-rc-conf xinetd on >>$error_log 2>&1
                 $initdpath/xinetd stop >>$error_log 2>&1
                 $initdpath/xinetd start >>$error_log 2>&1
-            elif [[ $osid -eq 4 ]]; then
+            elif [[ $osid -eq 3 ]]; then
                 $initdpath/in.tftpd stop >>$error_log 2>&1
                 $initdpath/in.tftpd start >>$error_log 2>&1
             else
@@ -764,8 +761,7 @@ installPackages() {
             esac
             ;;
         3)
-            echo $packages | grep -q -v " git" && packages="${packages} git"
-            packages="${packages// php-mcrypt/}"
+            sed -i '/\/v3\.15\/community$/s/^#[[:space:]]*//' /etc/apk/repositories
             ;;
     esac
     errorStat $?
@@ -843,8 +839,8 @@ installPackages() {
                         break
                     fi
                 done
-                # Only add myslqi package for osid 4 for better integration
-                if [[ $osid -eq 4 ]]; then
+                # Only add myslqi package for osid 3 for better integration
+                if [[ $osid -eq 3 ]]; then
                     eval $packagelist php${php_ver}-mysqli >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
                         x="php${php_ver}-mysqli"
@@ -1003,7 +999,7 @@ displayOSChoices() {
                 echo
                 echo "          1) Redhat Based Linux (Redhat, CentOS, Mageia)"
                 echo "          2) Debian Based Linux (Debian, Ubuntu, Kubuntu, Edubuntu)"
-                echo "          3) Arch Linux"
+                echo "          3) Alpine Linux"
                 echo
                 echo -n "  Choice: [$strSuggestedOS] "
                 read osid
@@ -1039,12 +1035,6 @@ doOSSpecificIncludes() {
             . ../lib/ubuntu/config.sh
             ;;
         3)
-            echo -e "\n\n  Starting Arch Installation\n\n"
-            osname="Arch"
-            . ../lib/arch/config.sh
-            systemctl="yes"
-            ;;
-        4)
             echo -e "\n\n  Starting Alpine Installation\n\n"
             osname="Alpine"
             . ../lib/alpine/config.sh
@@ -1095,7 +1085,7 @@ stopInitScript() {
         if [ "$systemctl" == "yes" ]; then
             systemctl is-active --quiet $serviceItem && systemctl stop $serviceItem >>$error_log 2>&1 || true
         else
-            [[ ! -x $initdpath/$serviceItem ]] && continue
+            [[ ! -x $initdpath/$serviceItem ]] && echo "OK" && continue
             $initdpath/$serviceItem status >/dev/null 2>&1 && $initdpath/$serviceItem stop >>$error_log 2>&1
         fi
         echo "OK"
@@ -1175,7 +1165,7 @@ configureMySql() {
     dots "Setting up and starting MySQL"
     dbservice=$(systemctl list-units | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
     # Switchout dbservice for alpine
-    [[ $osid -eq 4 ]] && dbservice=$(rc-service -l | grep mariadb)
+    [[ $osid -eq 3 ]] && dbservice=$(rc-service -l | grep mariadb)
     [[ -z $dbservice ]] && dbservice=$(systemctl list-unit-files | grep -v bad | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
     for mysqlconf in $(grep -rl '.*skip-networking' /etc | grep -v init.d); do
         sed -i '/.*skip-networking/ s/^#*/#/' -i $mysqlconf >>$error_log 2>&1
@@ -1184,11 +1174,6 @@ configureMySql() {
         sed -e '/.*bind-address.*=.*127.0.0.1/ s/^#*/#/' -i $mysqlconf >>$error_log 2>&1
     done
     if [[ $systemctl == yes ]]; then
-        if [[ $osid -eq 3 && ! -f /var/lib/mysql/ibdata1 ]]; then
-            mkdir -p /var/lib/mysql >>$error_log 2>&1
-            chown -R mysql:mysql /var/lib/mysql >>$error_log 2>&1
-            mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql >>$error_log 2>&1
-        fi
         systemctl is-enabled --quiet $dbservice || systemctl enable $dbservice >>$error_log 2>&1
         systemctl is-active --quiet $dbservice && systemctl stop $dbservice >>$error_log 2>&1
         systemctl start $dbservice >>$error_log 2>&1
@@ -1202,8 +1187,15 @@ configureMySql() {
                 sysv-rc-conf mysql on >>$error_log 2>&1
                 service mysql start >>$error_log 2>&1
                 ;;
+            3)
+                rc-update add mariadb default >>$error_log 2>&1
+                service mariadb setup >>$error_log 2>&1
+                service mariadb start >>$error_log 2>&1
+                ;;
         esac
     fi
+    errorStat $?
+    dots "Testing connection to database"
     # if someone still has DB user root set in .fogsettings we want to change that
     [[ "x$snmysqluser" == "xroot" ]] && snmysqluser='fogmaster'
     [[ -z $snmysqlpass ]] && snmysqlpass=$(generatePassword 20)
@@ -1454,6 +1446,7 @@ configureUsers() {
             echo
             exit 1
         else
+            [[ ! -f /var/log/lastlog ]] && touch /var/log/lastlog
             lastlog -u $username | tail -n1 | grep "\*\*.*\*\*" >/dev/null 2>&1
             if [[ $? -eq 1 ]]; then
                 echo "Already exists"
@@ -1475,29 +1468,25 @@ configureUsers() {
         fi
         echo "Skipped"
     else
-        if [[ $osid -eq 4 ]]; then
-            addgroup -S ${username} >>$error_log 2>&1
-            $useraddcmd -s "/bin/bash" -h "/home/${username}" -S ${username} >>$error_log 2>&1
-            touch "/home/${username}/.bashrc"
-            chown $username:$username "/home/${username}/.bashrc" >/dev/null 2>&1
-        else
-            $useraddcmd -s "/bin/bash" -d "/home/${username}" -m ${username} >>$error_log 2>&1
-        fi
+        adduser --system --shell /bin/bash --home /home/${username} ${username} >>$error_log 2>&1
+        retVal=$?
+        [[ $retVal -eq 0 ]] && groupadd --system ${username} >>$error_log 2>&1 || errorStat $?
+        retVal=$?
+        [[ $retVal -eq 0 ]] && usermod -g ${username} -G ${username} ${username} >>$error_log 2>&1 || errorStat $?
+        retVal=$?
+        [[ $retVal -eq 0 ]] && mkdir -p /home/${username} >>$error_log 2>&1 || errorStat $?
+        retVal=$?
+        [[ $retVal -eq 0 ]] && touch /home/${username}/.bashrc >>$error_log 2>&1 || errorStat $?
+        retVal=$?
+        [[ $retVal -eq 0 ]] && chown $username:$username /home/${username} >>$error_log 2>&1 || errorStat $?
         errorStat $?
     fi
-    if [[ ! -d /home/$username ]]; then
-        echo "# It has been noticed that your $username home folder is missing, #"
-        echo "#   has been deleted, or has been moved.                          #"
-        echo "# This may cause issues with capturing images and snapin uploads. #"
-        echo "# If you this move/delete was unintentional you can run:          #"
-        echo " userdel $username"
-        echo " $useraddcmd -s \"/bin/bash\" -d \"/home/$username\" -m \"$username\""
-        #userdel $username
-        #useradd -s "/bin/bash" -d "/home/${username}" -m ${username} >>$error_log 2>&1
-        #errorStat $?
-    fi
     dots "Locking $username as a system account"
-    [[ $osid -ne 4 ]] && chsh -s /bin/bash $username >>$error_log 2>&1
+    if [[ $osid -ne 3 ]]; then
+        chsh -s /bin/bash $username >>$error_log 2>&1
+    else
+        sed -i -e "s|^\(${username}.*:\)[^:]*$|\1/bin/bash|g" /etc/passwd >>$error_log 2>&1
+    fi
     textmessage="You seem to be using the '$username' system account to logon and work \non your FOG Server system.\n\nIt's NOT recommended to use this account! Please create a new\naccount for administrative tasks.\n\nIf you re-run the installer it would reset the '$username' account\npassword and therefore lock you out of the system!\n\nTake care,\nyour FOGProject team"
     grep -q "exit 1" /home/$username/.bashrc >/dev/null 2>&1 || cat >>/home/$username/.bashrc <<EOF
 echo -e "$textmessage"
@@ -2234,7 +2223,7 @@ EOF
                     service $webserver status >>$error_log 2>&1
                     service $phpfpm status >>$error_log 2>&1
                     ;;
-                4)
+                3)
                     rc-service nginx stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     rc-service nginx start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     rc-service $phpfpm stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -2261,7 +2250,7 @@ configureHttpd() {
     case $systemctl in
         yes)
             case $osid in
-                1|3)
+                1)
                     systemctl is-active --quiet $webserver php-fpm && systemctl stop $webserver php-fpm >>$error_log 2>&1 || true
                     ;;
                 2)
@@ -2282,7 +2271,7 @@ configureHttpd() {
                     service php${php_ver}-fpm stop >>$error_log 2>&1
                     errorStat $?
                     ;;
-                4)
+                3)
                     rc-service nginx stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     errorStat $?
                     service php-fpm${php_ver} stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -2302,45 +2291,7 @@ configureHttpd() {
         echo "   Could not find $phpini!"
         exit 1
     fi
-    if [[ $osid -eq 4 ]]; then
-        sed -i 's/;extension=bcmath/extension=bcmath/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=curl/extension=curl/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=ftp/extension=ftp/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=gd/extension=gd/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=gettext/extension=gettext/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=ldap/extension=ldap/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=mysqli/extension=mysqli/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=openssl/extension=openssl/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=pdo_mysql/extension=pdo_mysql/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=posix/extension=posix/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=sockets/extension=sockets/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/;extension=zip/extension=zip/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        sed -i 's/$open_basedir\ =/;open_basedir\ =/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    elif [[ $osid -eq 4 ]]; then
-        if [[ ! -f $httpdconf ]]; then
-            echo "   Apache configs not found!"
-            exit 1
-        fi
-        # Enable Event
-        sed -i '/LoadModule mpm_event_module modules\/mod_mpm_event.so/s/^#//g' $httpdconf >>$error_log 2>&1
-        # Disable prefork and worker
-        sed -i '/LoadModule mpm_prefork_module modules\/mod_mpm_prefork.so/s/^/#/g' $httpdconf >>$error_log 2>&1
-        sed -i '/LoadModule mpm_worker_module modules\/mod_mpm_worker.so/s/^/#/g' $httpdconf >>$error_log 2>&1
-        # Enable proxy
-        sed -i '/LoadModule proxy_html_module modules\/mod_proxy_html.so/s/^#//g' $httpdconf >>$error_log 2>&1
-        sed -i '/LoadModule xml2enc_module modules\/mod_xml2enc.so/s/^#//g' $httpdconf >>$error_log 2>&1
-        sed -i '/LoadModule proxy_module modules\/mod_proxy.so/s/^#//g' $httpdconf >>$error_log 2>&1
-        sed -i '/LoadModule proxy_http_module modules\/mod_proxy_http.so/s/^#//g' $httpdconf >>$error_log 2>&1
-        sed -i '/LoadModule proxy_fcgi_module modules\/mod_proxy_fcgi.so/s/^#//g' $httpdconf >>$error_log 2>&1
-        # Enable socache
-        sed -i '/LoadModule socache_shmcb_module modules\/mod_socache_shmcb.so/s/^#//g' $httpdconf >>$error_log 2>&1
-        # Enable ssl
-        sed -i '/LoadModule ssl_module modules\/mod_ssl.so/s/^#//g' $httpdconf >>$error_log 2>&1
-        # Enable rewrite
-        sed -i '/LoadModule rewrite_module modules\/mod_rewrite.so/s/^#//g' $httpdconf >>$error_log 2>&1
-        # Enable our virtual host file for fog
-        grep -q "^Include conf/extra/fog\.conf" $httpdconf || echo -e "# FOG Virtual Host\nListen 443\nInclude conf/extra/fog.conf" >>$httpdconf
-        # Enable php extensions
+    if [[ $osid -eq 3 ]]; then
         sed -i 's/;extension=bcmath/extension=bcmath/g' $phpini >>$error_log 2>&1
         sed -i 's/;extension=curl/extension=curl/g' $phpini >>$error_log 2>&1
         sed -i 's/;extension=ftp/extension=ftp/g' $phpini >>$error_log 2>&1
@@ -2562,7 +2513,7 @@ die();
         fi
     elif [[ $systemctl == yes ]]; then
         systemctl is-enabled --quiet $webserver php-fpm && true || systemctl enable $webserver php-fpm >>$error_log 2>&1
-    elif [[ $osid -eq 4 ]]; then
+    elif [[ $osid -eq 3 ]]; then
         rc-update add php-fpm${php_ver} >>$error_log 2>&1
         rc-update add $webserver >>$error_log 2>&1
     else
@@ -2617,11 +2568,7 @@ downloadfiles() {
             curl --silent -kOL $hashurl >>$error_log 2>&1
         fi
         while [[ $checksum -ne 0 && $cnt -lt 10 ]]; do
-            if [[ $osid -eq 4 ]]; then
-                [[ -f $hashfile ]] && sha256sum -c $hashfile >>$error_log 2>&1
-            else
-                [[ -f $hashfile ]] && sha256sum --check $hashfile >>$error_log 2>&1
-            fi
+            [[ -f $hashfile ]] && sha256sum -c $hashfile >>$error_log 2>&1
             checksum=$?
             if [[ $checksum -ne 0 ]]; then
                 curl --silent -kOL $url >>$error_log
