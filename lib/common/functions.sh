@@ -1470,7 +1470,7 @@ configureUsers() {
     else
         adduser --system --shell /bin/bash --home /home/${username} ${username} >>$error_log 2>&1
         retVal=$?
-        [[ $retVal -eq 0 ]] && groupadd --system ${username} >>$error_log 2>&1 || errorStat $?
+        [[ $retVal -eq 0 ]] && groupadd -f --system ${username} >>$error_log 2>&1 || errorStat $?
         retVal=$?
         [[ $retVal -eq 0 ]] && usermod -g ${username} -G ${username} ${username} >>$error_log 2>&1 || errorStat $?
         retVal=$?
