@@ -575,7 +575,7 @@ configureTFTPandPXE() {
                 rm -f /etc/xinetd.d/tftp
             fi
             if [[ $osid -eq 2 && -f $tftpconfigupstartdefaults ]]; then
-                echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"-s\"" > "$tftpconfigupstartdefaults"
+                echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"${tftpAdvOpts:+$tftpAdvOpts }-s\"" > "$tftpconfigupstartdefaults"
                 systemctl is-enabled --quiet tftpd-hpa && true || systemctl enable tftpd-hpa >>$error_log 2>&1
                 systemctl is-active --quiet tftpd-hpa && systemctl stop tftpd-hpa >>$error_log 2>&1 || true
                 systemctl is-active --quiet tftpd-hpa && true || systemctl start tftpd-hpa >>$error_log 2>&1
@@ -584,7 +584,7 @@ configureTFTPandPXE() {
                 if [[ -f /etc/systemd/system/fog-tftp.service ]]; then
                     mv -fv /etc/systemd/system/fog-tftp.service "/etc/systemd/system/fog-tftp.service.${timestamp}" >>$error_log 2>&1
                 fi
-                echo -e "[Unit]\nDescription=Tftp Server\nRequires=fog-tftp.socket\nDocumentation=man:in.tftpd\n\n[Service]\nExecStart=/usr/sbin/in.tftpd -s ${tftpdirdst}\nStandardInput=socket\n\n[Install]\nAlso=fog-tftp.socket" > /etc/systemd/system/fog-tftp.service
+                echo -e "[Unit]\nDescription=Tftp Server\nRequires=fog-tftp.socket\nDocumentation=man:in.tftpd\n\n[Service]\nExecStart=/usr/sbin/in.tftpd ${tftpAdvOpts:+$tftpAdvOpts }-s ${tftpdirdst}\nStandardInput=socket\n\n[Install]\nAlso=fog-tftp.socket" > /etc/systemd/system/fog-tftp.service
                 diffconfig "/etc/systemd/system/fog-tftp.service"
                 cp -v /usr/lib/systemd/system/tftp.socket /etc/systemd/system/fog-tftp.socket >>$error_log 2>&1
                 systemctl daemon-reload
@@ -596,7 +596,7 @@ configureTFTPandPXE() {
             ;;
         *)
             if [[ $osid -eq 2 && -f $tftpconfigupstartdefaults ]]; then
-                echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"-s\"" > "$tftpconfigupstartdefaults"
+                echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"${tftpAdvOpts:+$tftpAdvOpts }-s\"" > "$tftpconfigupstartdefaults"
                 sysv-rc-conf xinetd off >>$error_log 2>&1
                 service xinetd stop >>$error_log 2>&1
                 sysv-rc-conf tftpd-hpa on >>$error_log 2>&1
@@ -1631,6 +1631,7 @@ writeUpdateFile() {
     escendrange=$(echo $endrange | sed -e $replace)
     escpackages=$(echo $packages | sed -e $replace)
     escnoTftpBuild=$(echo $noTftpBuild | sed -e $replace)
+    esctftpAdvOpts=$(echo $tftpAdvOpts | sed -e $replace)
     escsslpath=$(echo $sslpath | sed -e $replace)
     escbackupPath=$(echo $backupPath | sed -e $replace)
     escarmsupport=$(echo $sarmsupport | sed -e $replace)
@@ -1747,6 +1748,9 @@ writeUpdateFile() {
             grep -q "noTftpBuild=" $fogprogramdir/.fogsettings && \
                 sed -i "s/noTftpBuild=.*/noTftpBuild='$escnoTftpBuild'/g" $fogprogramdir/.fogsettings || \
                 echo "noTftpBuild='$noTftpBuild'" >> $fogprogramdir/.fogsettings
+            grep -q "tftpAdvOpts=" $fogprogramdir/.fogsettings && \
+                sed -i "s/tftpAdvOpts=.*/tftpAdvOpts='$esctftpAdvOpts'/g" $fogprogramdir/.fogsettings || \
+                echo "tftpAdvOpts='$tftpAdvOpts'" >> $fogprogramdir/.fogsettings
             grep -q "notpxedefaultfile=" $fogprogramdir/.fogsettings && \
                 sed -i "/notpxedefaultfile=.*$/d" $fogprogramdir/.fogsettings
             grep -q "sslpath=" $fogprogramdir/.fogsettings && \
@@ -1812,6 +1816,7 @@ writeUpdateFile() {
             echo "endrange='$endrange'" >> "$fogprogramdir/.fogsettings"
             echo "packages='$packages'" >> "$fogprogramdir/.fogsettings"
             echo "noTftpBuild='$noTftpBuild'" >> "$fogprogramdir/.fogsettings"
+            echo "tftpAdvOpts='$tftpAdvOpts'" >> "$fogprogramdir/.fogsettings"
             echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
             echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
             echo "armsupport='$armsupport'" >> "$fogprogramdir/.fogsettings"
@@ -1861,6 +1866,7 @@ writeUpdateFile() {
         echo "endrange='$endrange'" >> "$fogprogramdir/.fogsettings"
         echo "packages='$packages'" >> "$fogprogramdir/.fogsettings"
         echo "noTftpBuild='$noTftpBuild'" >> "$fogprogramdir/.fogsettings"
+        echo "tftpAdvOpts='$tftpAdvOpts'" >> "$fogprogramdir/.fogsettings"
         echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
         echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
         echo "armsupport='$armsupport'" >> "$fogprogramdir/.fogsettings"
