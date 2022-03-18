@@ -175,8 +175,6 @@ class StorageNode extends FOGController
             }
             unset($Failed);
         }
-
-        return $Failed;
     }
     /**
      * Loads the logfiles available on this node.

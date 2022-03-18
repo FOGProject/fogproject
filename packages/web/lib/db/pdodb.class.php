@@ -412,15 +412,16 @@ class PDODB extends DatabaseManager
     public function sqlerror()
     {
         $msg = '';
-        if (self::$_link) {
-            if (self::$_queryResult instanceof PDOStatement
+        if (isset(self::$_link) && self::$_link) {
+            if (isset(self::$_queryResult)
+                && self::$_queryResult instanceof PDOStatement
                 && self::$_queryResult->errorCode()
             ) {
                 $errCode = self::$_queryResult->errorCode();
                 $errInfo = self::$_queryResult->errorInfo();
                 $this->errorCode = $errInfo[1];
             }
-            if ($errCode !== '00000') {
+            if (isset($errCode) && $errCode !== '00000') {
                 $msg = sprintf(
                     '%s: %s, %s: %s, %s: %s',
                     _('Error Code'),

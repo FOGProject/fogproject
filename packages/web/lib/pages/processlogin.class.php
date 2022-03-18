@@ -132,7 +132,7 @@ class ProcessLogin extends FOGPage
         $this->_username = $uname;
         $this->_password = $upass;
         $type = self::$FOGUser->get('type');
-        if ($_SESSION['FOG_LANG'] != $ulang) {
+        if (isset($_SESSION['FOG_LANG']) && $_SESSION['FOG_LANG'] != $ulang) {
             $_SESSION['FOG_LANG'] = $ulang;
             Initiator::language($ulang);
         }

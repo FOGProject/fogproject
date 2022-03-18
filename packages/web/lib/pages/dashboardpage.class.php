@@ -442,7 +442,7 @@ class DashboardPage extends FOGPage
             'ActivityQueued' => &$ActivityQueued,
             'ActivitySlots' => &$ActivityTotalClients
         ];
-        if ($error) {
+        if (isset($error) && $error) {
             $data['error'] = $error;
             $data['title'] = _('No Data Available');
         }
@@ -497,7 +497,7 @@ class DashboardPage extends FOGPage
             'free' => $data->free,
             'used' => $data->used
         ];
-        if ($data->error) {
+        if (isset($data->error) && $data->error) {
             $datatmp['error'] = $data->error;
             $datatmp['title'] = $data->title;
         }

@@ -28,19 +28,20 @@ class SnapinManagementPage extends FOGPage
      */
     private static $_argTypes = array(
         'MSI' => array('msiexec.exe','/i','/quiet'),
-        'Batch Script' => array('cmd.exe','/c'),
-        'Bash Script' => array('/bin/bash'),
-        'VB Script' => array('cscript.exe'),
+        'Batch Script' => array('cmd.exe','/c',''),
+        'Bash Script' => array('/bin/bash','',''),
+        'VB Script' => array('cscript.exe','',''),
         'Powershell (default)' => array(
             'powershell.exe',
-            '-ExecutionPolicy Bypass -NoProfile -File'
+            '-ExecutionPolicy Bypass -NoProfile -File',
+            ''
         ),
         'Powershell x64' => array(
-            '&quot;%SYSTEMROOT%\\sysnative\\windowspowershell'
-            . '\\v1.0\\powershell.exe',
-            '-ExecutionPolicy Bypass -NoProfile -File'
+            '&quot;%SYSTEMROOT%\\sysnative\\windowspowershell\\v1.0\\powershell.exe&quot;',
+            '-ExecutionPolicy Bypass -NoProfile -File',
+            ''
         ),
-        'Mono' => array('mono'),
+        'Mono' => array('mono','',''),
     );
     /**
      * Template for non-pack.

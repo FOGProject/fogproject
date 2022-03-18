@@ -54,7 +54,7 @@ class Initiator
          *
          * @return void
          */
-        self::$_sanitizeItems = function (&$val, &$key) use (&$value) {
+        self::$_sanitizeItems = function (&$val, $key) use (&$value) {
             if (is_string($val)) {
                 $value[$key] = htmlspecialchars(
                     $val,
@@ -191,7 +191,7 @@ class Initiator
             $lang = 'en';
         }
 
-        if (PHP_SESSION_NONE != session_status() && $_SESSION['FOG_LANG'] != $lang) {
+        if (PHP_SESSION_NONE != session_status()) {
             $_SESSION['FOG_LANG'] = $lang;
         }
 
@@ -344,7 +344,7 @@ class Initiator
         /**
          * Language Starting
          */
-        self::language($_SESSION['FOG_LANG']);
+        self::language(isset($_SESSION['FOG_LANG']) ? $_SESSION['FOG_LANG'] : 'en');
     }
     /**
      * Sanitizes output

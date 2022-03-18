@@ -369,7 +369,7 @@ class FOGURLRequests extends FOGBase
             $options = $this->_getOptions($this->_requests[$i]);
             curl_setopt_array($ch, $options);
             curl_multi_add_handle($master, $ch);
-            $key = (string) $ch;
+            $key = spl_object_id($ch);
             $this->_requestMap[$key] = $i;
         }
         do {
@@ -385,7 +385,7 @@ class FOGURLRequests extends FOGBase
             }
             while ($done = curl_multi_info_read($master)) {
                 $info = curl_getinfo($done['handle'], CURLINFO_HTTP_CODE);
-                $key = (string)$done['handle'];
+                $key = spl_object_id($done['handle']);
                 $output = curl_multi_getcontent($done['handle']);
                 $this->_response[$this->_requestMap[$key]] = $output;
                 if ($this->_callback && is_callable($this->_callback)) {
@@ -496,6 +496,9 @@ class FOGURLRequests extends FOGBase
      */
     private function _validUrl(&$url)
     {
+        if (!isset($url) || empty($url)) {
+            return false;
+        }
         $url = filter_var($url, FILTER_SANITIZE_URL);
         if (false === filter_var($url, FILTER_VALIDATE_URL)) {
             unset($url);

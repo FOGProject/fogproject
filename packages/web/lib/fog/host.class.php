@@ -1003,7 +1003,7 @@ class Host extends FOGController
                 'hostID' => $this->get('id')
             )
         );
-        $SnapinJob = new SnapinJob(@min($sjID));
+        $SnapinJob = new SnapinJob((isset($sjIDs) && is_array($sjIDs) && count($sjIDs)>0) ? min($sjID) : 0);
         $this->set('snapinjob', $SnapinJob);
     }
     /**
@@ -1892,7 +1892,7 @@ class Host extends FOGController
     {
         $MyMACs = $this->getMyMacs();
         $myMACs = $igMACs = $cgMACs = array();
-        $macaddress = function (&$mac) {
+        $macaddress = function ($mac) {
             if (!$mac instanceof MACAddress) {
                 $mac = new MACAddress($mac);
             }

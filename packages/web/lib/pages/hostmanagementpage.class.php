@@ -122,7 +122,12 @@ class HostManagementPage extends FOGPage
                 self::$foglang['Image'] => $this->obj->getImageName(),
                 self::$foglang['LastDeployed'] => $this->obj->get('deployed'),
             );
-            $primaryGroup = @min($this->obj->get('groups'));
+            $primaryGroup = $this->obj->get('groups');
+            if (is_array($primaryGroup) && count($primaryGroup) > 0) {
+                $primaryGroup = min($primaryGroup);
+            } else {
+                $primaryGroup = 0;
+            }
             $Group = new Group($primaryGroup);
             if ($Group->isValid()) {
                 $this->notes[self::$foglang['PrimaryGroup']] = $Group->get('name');
@@ -823,7 +828,7 @@ class HostManagementPage extends FOGPage
             unset($PowerManagement);
         }
         // Current data.
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             echo '<div class="panel panel-info">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
@@ -1583,7 +1588,7 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'HOST_ADD_PRINTER',
@@ -1685,7 +1690,7 @@ class HostManagementPage extends FOGPage
             );
             unset($Printer);
         }
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'HOST_EDIT_PRINTER',
@@ -1808,7 +1813,7 @@ class HostManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=host-snapins">';
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'HOST_ADD_SNAPIN',
@@ -1894,7 +1899,7 @@ class HostManagementPage extends FOGPage
             );
             unset($Snapin);
         }
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'HOST_EDIT_SNAPIN',
@@ -2608,7 +2613,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         $paneltype = 'info';
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             $paneltype = 'warning';
         }
         echo '<!-- Virus -->';
@@ -2948,7 +2953,7 @@ class HostManagementPage extends FOGPage
                 self::$FOGUser->get('name')
             );
             $Image = $Log->image;
-            if (!$Image->id) {
+            if (!isset($Image->id) || !$Image->id) {
                 $imgName = $Image;
                 $imgPath = _('N/A');
             } else {
@@ -3296,6 +3301,12 @@ class HostManagementPage extends FOGPage
                 'domainpasswordlegacy'
             )
         );
+        $productKey = trim(
+            filter_input(
+                INPUT_POST,
+                'productkey'
+            )
+        );
         $enforce = isset($_POST['enforcesel']);
         $this->obj->setAD(
             $useAD,
@@ -3341,10 +3352,6 @@ class HostManagementPage extends FOGPage
             }
             $items = array();
             foreach ((array)$pmid as $index => &$pm) {
-                $onDemandItem = array_search(
-                    $pm,
-                    $onDemand
-                );
                 $items[] = array(
                     $pm,
                     $this->obj->get('id'),
@@ -3353,9 +3360,6 @@ class HostManagementPage extends FOGPage
                     $scheduleCronDOM[$index],
                     $scheduleCronMonth[$index],
                     $scheduleCronDOW[$index],
-                    $onDemandItem !== -1
-                    && $onDemand[$onDemandItem] === $pm ?
-                    1 :
                     0,
                     $action[$index]
                 );
@@ -3650,7 +3654,7 @@ class HostManagementPage extends FOGPage
                         )
                     )
                 );
-                $delvidarr = $delvidarr['delvidarr'];
+                $delvidarr = isset($delvidarr['delvidarr']) ? $delvidarr['delvidarr'] : array();
                 if ($delvid == 'all') {
                     $this->obj->clearAVRecordsForHost();
                 } else {

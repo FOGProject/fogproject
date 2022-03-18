@@ -989,14 +989,13 @@ abstract class FOGBase
             $_SESSION['post_request_vals'] = array();
         }
         $sesVars = $_SESSION['post_request_vals'];
-        $setReq = function (&$val, &$key) {
-            $_POST[$key] = $val;
-            unset($val, $key);
-        };
-        if (count($sesVars) > 0) {
-            array_walk($sesVars, $setReq);
+        if (isset($sesVars) && count($sesVars) > 0) {
+            foreach ($sesVars as $key => $val) {
+                $_POST[$key] = $val;
+                unset($key, $val);
+            }
         }
-        unset($_SESSION['post_request_vals'], $sesVars, $reqVars);
+        unset($_SESSION['post_request_vals'], $sesVars);
     }
     /**
      * Set request vars particularly for post failures really.

@@ -290,7 +290,7 @@ class FOGPageManager extends FOGBase
                 $element[0],
                 $match
             );
-            return $match[0];
+            return isset($match[0]) ? $match[0] : '';
         };
         $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
             BASEPATH,
