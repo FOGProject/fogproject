@@ -919,7 +919,7 @@ abstract class FOGController extends FOGBase
          */
         $whereInfo = function (
             &$value,
-            &$field
+            $field
         ) use (
             &$whereArrayAnd,
             &$c,
@@ -955,7 +955,7 @@ abstract class FOGController extends FOGBase
          */
         $joinInfo = function (
             &$fields,
-            &$class
+            $class
         ) use (
             &$join,
             &$whereArrayAnd,

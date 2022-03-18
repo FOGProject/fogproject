@@ -35,6 +35,7 @@ $decodePath = urldecode(
     )
 );
 $paths = explode(':', $decodePath);
+$files = array();
 foreach ((array)$paths as &$decodedPath) {
     if (!(is_dir($decodedPath)
         && file_exists($decodedPath)

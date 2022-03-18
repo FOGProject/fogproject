@@ -442,13 +442,13 @@ class BootMenu extends FOGBase
         );
         if (isset($_REQUEST['username'])) {
             $this->verifyCreds();
-        } elseif ($_REQUEST['delconf']) {
+        } elseif (isset($_REQUEST['delconf'])) {
             $this->_delHost();
-        } elseif ($_REQUEST['key']) {
+        } elseif (isset($_REQUEST['key'])) {
             $this->keyset();
-        } elseif ($_REQUEST['sessname']) {
+        } elseif (isset($_REQUEST['sessname'])) {
             $this->sesscheck();
-        } elseif ($_REQUEST['aprvconf']) {
+        } elseif (isset($_REQUEST['aprvconf'])) {
             $this->_approveHost();
         } elseif (!self::$Host->isValid()) {
             $this->printDefault();
@@ -493,7 +493,8 @@ class BootMenu extends FOGBase
                 ''
             ),
         );
-        $id = @max(self::getSubObjectIDs('iPXE', $findWhere));
+        $id = self::getSubObjectIDs('iPXE', $findWhere);
+        $id = (isset($id) && is_array($id) && count($id) > 0) ? max($id) : 0;
         self::getClass('iPXE', $id)
             ->set('product', $findWhere['product'])
             ->set('manufacturer', $findWhere['manufacturer'])
@@ -1184,13 +1185,13 @@ class BootMenu extends FOGBase
                 'shutdown' => &$this->_shutdown,
                 'path' => &$this->_path,
                 'timeout' => &$this->_timeout,
-                'KS' => $this->ks
+                'KS' => $this->_KS
             )
         );
         if (count($Send) > 0) {
             array_walk_recursive(
                 $Send,
-                function (&$val, &$key) {
+                function (&$val, $key) {
                     printf('%s%s', implode("\n", (array)$val), "\n");
                     unset($val, $key);
                 }
@@ -1577,6 +1578,10 @@ class BootMenu extends FOGBase
                     true
                 )
             );
+            $addomain = '';
+            $adou = '';
+            $aduser = '';
+            $adpass = '';
             if (self::$Host->get('useAD')) {
                 $addomain = preg_replace(
                     '#\s#',
@@ -1625,31 +1630,31 @@ class BootMenu extends FOGBase
                 ),
                 array(
                     'value' => "chkdsk=$chkdsk",
-                    'active' => $imagingTasks,
+                    'active' => (isset($imagingTasks) && $imagingTasks),
                 ),
                 array(
                     'value' => "img=$img",
-                    'active' => $imagingTasks,
+                    'active' => (isset($imagingTasks) && $imagingTasks),
                 ),
                 array(
                     'value' => "imgType=$imgType",
-                    'active' => $imagingTasks,
+                    'active' => (isset($imagingTasks) && $imagingTasks),
                 ),
                 array(
                     'value' => "imgPartitionType=$imgPartitionType",
-                    'active' => $imagingTasks,
+                    'active' => (isset($imagingTasks) && $imagingTasks),
                 ),
                 array(
                     'value' => "imgid=$imgid",
-                    'active' => $imagingTasks,
+                    'active' => (isset($imagingTasks) && $imagingTasks),
                 ),
                 array(
                     'value' => "imgFormat=$imgFormat",
-                    'active' => $imagingTasks,
+                    'active' => (isset($imagingTasks) && $imagingTasks),
                 ),
                 array(
                     'value' => "PIGZ_COMP=-$PIGZ_COMP",
-                    'active' => $imagingTasks,
+                    'active' => (isset($imagingTasks) && $imagingTasks),
                 ),
                 array(
                     'value' => 'shutdown=1',
@@ -1969,7 +1974,7 @@ class BootMenu extends FOGBase
             'id'
         );
         array_map(
-            function (&$Menu) use (&$Send) {
+            function ($Menu) use (&$Send) {
                 $Send["item-". $Menu->get('name')] = $this->_menuItem(
                     $Menu,
                     trim($Menu->get('description'))
@@ -1980,7 +1985,7 @@ class BootMenu extends FOGBase
         );
         $Send['default'] = array($this->_defaultChoice);
         array_map(
-            function (&$Menu) use (&$Send) {
+            function ($Menu) use (&$Send) {
                 $Send["choice-".$Menu->get('name')] = $this->_menuOpt(
                     $Menu,
                     trim($Menu->get('args'))

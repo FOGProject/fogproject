@@ -1509,7 +1509,7 @@ class Route extends FOGBase
      *
      * @return void
      */
-    public function names($class, $whereItems = [])
+    public static function names($class, $whereItems = [])
     {
         $data = [];
         $classname = strtolower($class);
@@ -1577,7 +1577,7 @@ class Route extends FOGBase
      *
      * @return void
      */
-    public function ids($class, $whereItems = [], $getField = 'id')
+    public static function ids($class, $whereItems = [], $getField = 'id')
     {
         $data = [];
         $classname = strtolower($class);
@@ -1622,7 +1622,7 @@ class Route extends FOGBase
         }
         $sql .= ' ORDER BY `'
             . (
-                $classVars['databaseFields']['name'] ?:
+                (isset($classVars['databaseFields']['name']) && $classVars['databaseFields']['name']) ?:
                 $classVars['databaseFields']['id']
             )
             . '` ASC';

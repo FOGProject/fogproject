@@ -578,7 +578,7 @@ class ImageManagementPage extends FOGPage
             . '</label>' => '<div class="input-group">'
             . '<textarea name="description" class="form-control imagedesc-input" '
             . 'id="description">'
-            . $description
+            . $desc
             . '</textarea>',
             '<label for="storagegroup">'
             . _('Storage Group')

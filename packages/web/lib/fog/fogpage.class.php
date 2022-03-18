@@ -84,6 +84,12 @@ abstract class FOGPage extends FOGBase
      */
     public $templates = array();
     /**
+     * Table atts
+     *
+     * @var array
+     */
+    public $atts = [];
+    /**
      * Attributes such as class, id, etc...
      *
      * @var array
@@ -383,6 +389,8 @@ abstract class FOGPage extends FOGBase
             _('Chassis Serial') => 'caseser',
             _('Chassis Asset') => 'caseasset',
         );
+        $exportMenu = sprintf('Export%s', $this->childClass);
+        $importMenu = sprintf('Import%s', $this->childClass);
         $this->menu = array(
             'list' => sprintf(
                 self::$foglang['ListAll'],
@@ -397,57 +405,43 @@ abstract class FOGPage extends FOGBase
                 self::$foglang['CreateNew'],
                 _($this->childClass)
             ),
-            'export' => sprintf(
-                self::$foglang[
-                    sprintf(
-                        'Export%s',
-                        $this->childClass
-                    )
-                ]
-            ),
-            'import' => sprintf(
-                self::$foglang[
-                    sprintf(
-                        'Import%s',
-                        $this->childClass
-                    )
-                ]
-            ),
+            'export' => isset(self::$foglang[$exportMenu]) ? sprintf(self::$foglang[$exportMenu]) : '',
+            'import' => isset(self::$foglang[$importMenu]) ? sprintf(self::$foglang[$importMenu]) : '',
         );
-        $this->fieldsToData = function (&$input, &$field) {
+        $this->fieldsToData = function (&$input, $field) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => $input,
             );
-            if (is_array($this->span) && count($this->span) === 2) {
+            if (isset($this->span) && is_array($this->span) && count($this->span) === 2) {
                 $this->data[count($this->data)-1][$this->span[0]] = $this->span[1];
             }
             unset($input);
         };
         $nodestr = $substr = $idstr = $typestr = $tabstr = false;
         $formstr = '?';
-        if ($node) {
+        if (isset($node) && $node) {
             $data['node'] = $node;
         }
-        if ($sub) {
+        if (isset($sub) && $sub) {
             $data['sub'] = $sub;
         }
-        if ($id) {
+        if (isset($id) && $id) {
             $data['id'] = $id;
         }
-        if ($type) {
+        if (isset($type) && $type) {
             $data['type'] = $type;
         }
-        if ($f) {
+        if (isset($f) && $f) {
             $data['f'] = $f;
         }
-        if ($tab) {
+        if (isset($tab) && $tab) {
             $tabstr = "#$tab";
         }
-        if (is_array($data) && count($data) > 0) {
+        if (isset($data) && is_array($data) && count($data) > 0) {
             $formstr .= http_build_query($data);
         }
-        if ($tabstr) {
+        if (isset($tabstr) && $tabstr) {
             $formstr .= $tabstr;
         }
         $this->formAction = $formstr;
@@ -499,7 +493,7 @@ abstract class FOGPage extends FOGBase
             $items = json_decode(Route::getData());
             $type = $node.'s';
             $items = $items->$type;
-            if (is_array($items) && count($items) > 0) {
+            if (isset($items) && is_array($items) && count($items) > 0) {
                 array_walk($items, static::$returnData);
             }
             $event = sprintf(
@@ -542,14 +536,14 @@ abstract class FOGPage extends FOGBase
                     $value
                 );
             };
-            if (is_array($args) && count($args) > 0) {
+            if (isset($args) && is_array($args) && count($args) > 0) {
                 array_walk($args, $vals);
             }
             printf(
                 'Index page of: %s%s',
                 get_class($this),
                 (
-                    (is_array($args) && count($args)) ?
+                    (isset($args) && is_array($args) && count($args)) ?
                     sprintf(
                         ', Arguments = %s',
                         implode(
@@ -768,9 +762,9 @@ abstract class FOGPage extends FOGBase
                         'headerData' => $this->headerData,
                         'title' => $this->title,
                         'attributes' => $this->attributes,
-                        'form' => $this->form,
+                        'form' => isset($this->form) ? $this->form : '',
                         'actionbox' => (
-                            (is_array($this->data) && count($this->data) > 0) ?
+                            (isset($this->data) && is_array($this->data) && count($this->data) > 0) ?
                             $actionbox :
                             ''
                         ),
@@ -809,13 +803,13 @@ abstract class FOGPage extends FOGBase
                     ''
                 )
                 . '">';
-            if (is_array($this->data) && count($this->data) < 1) {
+            if (isset($this->data) && is_array($this->data) && count($this->data) < 1) {
                 echo '<thead><tr class="header"></tr></thead>';
                 echo '<tbody>';
                 $tablestr = '<tr><td colspan="'
                     . count($this->templates)
                     . '">';
-                if ($this->data['error']) {
+                if (isset($this->data['error']) && $this->data['error']) {
                     $tablestr .= (
                         is_array($this->data['error']) ?
                         '<p>'
@@ -829,13 +823,14 @@ abstract class FOGPage extends FOGBase
                 echo $tablestr;
                 echo '</tbody>';
             } else {
-                if (is_array($this->headerData) && count($this->headerData) > 0) {
+                if (isset($this->headerData) && is_array($this->headerData) && count($this->headerData) > 0) {
                     echo '<thead>';
                     echo $this->buildHeaderRow();
                     echo '</thead>';
                 }
                 echo '<tbody>';
                 $tablestr = '';
+                $id_field = "{$node}_id";
                 foreach ((array)$this->data as &$rowData) {
                     $tablestr .= '<tr class="'
                         . strtolower($node)
@@ -878,12 +873,13 @@ abstract class FOGPage extends FOGBase
     private function _setAtts()
     {
         foreach ((array)$this->attributes as $index => &$attribute) {
+            $this->atts[$index] = '';
             foreach ((array)$attribute as $name => &$val) {
                 $this->atts[$index] .= sprintf(
                     ' %s="%s" ',
                     $name,
                     (
-                        $this->dataFind ?
+                        (isset($this->dataFind) && $this->dataFind) ?
                         str_replace($this->dataFind, $this->dataReplace, $val) :
                         $val
                     )
@@ -902,7 +898,7 @@ abstract class FOGPage extends FOGBase
     {
         unset($this->atts);
         $this->_setAtts();
-        if (is_array($this->headerData) && count($this->headerData) < 1) {
+        if (isset($this->headerData) && is_array($this->headerData) && count($this->headerData) < 1) {
             return;
         }
         ob_start();
@@ -1419,7 +1415,7 @@ abstract class FOGPage extends FOGBase
             echo '</div>';
             echo '</div>';
         }
-        if (is_array($this->data) && count($this->data)) {
+        if (isset($this->data) && is_array($this->data) && count($this->data)) {
             echo '<div class="col-xs-12">';
             echo '<label class="control-label col-xs-4" for="taskingbtn">';
             echo _('Create');
@@ -1474,7 +1470,7 @@ abstract class FOGPage extends FOGBase
             /**
              * Task type setup.
              */
-            if (!(is_numeric($type) && $type > 0)) {
+            if (!(isset($type) && is_numeric($type) && $type > 0)) {
                 $type = 1;
             }
             $TaskType = new TaskType($type);
@@ -1715,7 +1711,7 @@ abstract class FOGPage extends FOGBase
                             'imageID' => $imageIDs
                         )
                     );
-                    if (is_array($hostIDs) && count($hostIDs) < 1) {
+                    if (isset($hostIDs) && is_array($hostIDs) && count($hostIDs) < 1) {
                         throw new Exception(
                             sprintf(
                                 '%s/%s.',
@@ -1814,7 +1810,7 @@ abstract class FOGPage extends FOGBase
                     $e->getMessage()
                 );
             }
-            if (is_array($error) && count($error)) {
+            if (isset($error) && is_array($error) && count($error)) {
                 throw new Exception(
                     sprintf(
                         '<ul class="nav nav-pills nav-stacked">'
@@ -1975,7 +1971,7 @@ abstract class FOGPage extends FOGBase
                     continue;
                 }
             }
-            if ($object->protected) {
+            if (isset($object) && isset($object->protected) && $object->protected) {
                 continue;
             }
             $this->data[] = array(
@@ -1992,7 +1988,7 @@ abstract class FOGPage extends FOGBase
             );
             unset($object);
         }
-        if (is_array($this->data) && count($this->data) < 1) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) < 1) {
             self::redirect('?node=' . $node);
         }
         $this->data[] = array(
@@ -2274,7 +2270,7 @@ abstract class FOGPage extends FOGBase
         $ADOU = trim($ADOU);
         $ADOU = str_replace(';', '', $ADOU);
         $optFound = $ADOU;
-        if (is_array($OUs) && count($OUs) > 1) {
+        if (isset($OUs) && is_array($OUs) && count($OUs) > 1) {
             ob_start();
             printf(
                 '<option value="">- %s -</option>',
@@ -2533,7 +2529,7 @@ abstract class FOGPage extends FOGBase
                 )
             )
         );
-        if (count($OUs ?: []) > 1) {
+        if (isset($OUs) && count($OUs ?: []) > 1) {
             foreach ($OUs as &$OU) {
                 if (false !== strpos($OU, ';')) {
                     $ou = str_replace(';', '', $OU);
@@ -2543,7 +2539,7 @@ abstract class FOGPage extends FOGBase
                 unset($OU);
             }
         }
-        if (count($OUs ?: []) == 1) {
+        if (isset($OUs) && count($OUs ?: []) == 1) {
             $ou = array_shift($OUs);
         }
         echo json_encode(
@@ -2776,6 +2772,8 @@ abstract class FOGPage extends FOGBase
             '${field}',
             '${input}',
         );
+        $fieldsg = array();
+        $fieldsi = array();
         if ($this->obj instanceof Group) {
             $fieldsg = array(
                 '<label for="massDel">'
@@ -2825,7 +2823,7 @@ abstract class FOGPage extends FOGBase
         array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
             sprintf(
-                '%S_DEL',
+                '%s_DEL',
                 strtoupper($this->childClass)
             ),
             array(
@@ -3395,7 +3393,7 @@ abstract class FOGPage extends FOGBase
         $type = $this->node
             .'s';
         $search = $items->$type;
-        if (is_array($search) && count($search) > 0) {
+        if (isset($search) && is_array($search) && count($search) > 0) {
             array_walk($search, static::$returnData);
         }
         $event = sprintf(
@@ -3517,7 +3515,7 @@ abstract class FOGPage extends FOGBase
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
-        if (count($this->data ?: []) > 0) {
+        if (isset($this->data) && count($this->data ?: []) > 0) {
             $notInMe = $meShow = $objType;
             $meShow .= 'MeShow';
             $notInMe .= 'NotInMe';
@@ -3596,7 +3594,7 @@ abstract class FOGPage extends FOGBase
             ];
             unset($item);
         }
-        if (count($this->data ?: []) > 0) {
+        if (isset($this->data) && count($this->data ?: []) > 0) {
             echo '<div class="panel panel-warning">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
@@ -3670,7 +3668,7 @@ abstract class FOGPage extends FOGBase
             $mac = filter_input(INPUT_GET, 'mac');
         }
         $macs = self::parseMacList($mac);
-        if (is_array($macs) && count($macs) < 1) {
+        if (isset($macs) && is_array($macs) && count($macs) < 1) {
             return;
         }
         self::getClass('WakeOnLan', implode('|', $macs))->send();
@@ -3923,6 +3921,7 @@ abstract class FOGPage extends FOGBase
                 array('isDefault' => 1)
             );
             $totalRows = 0;
+            $uploadErrors = '';
             while (($data = fgetcsv($fh, 1000, ',')) !== false) {
                 $importCount = count($data);
                 if ($importCount > 0

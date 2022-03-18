@@ -170,7 +170,7 @@ class FOGFTP extends FOGGetSet
     ) {
         try {
             $this->_currentConnectionHash = password_hash(
-                serialize($this->data),
+                print_r($this->data, 1),
                 PASSWORD_BCRYPT,
                 ['cost'=>11]
             );
@@ -448,7 +448,7 @@ class FOGFTP extends FOGGetSet
     ) {
         try {
             $this->_currentLoginHash = password_hash(
-                serialize($this->_link),
+                spl_object_id($this->_link),
                 PASSWORD_BCRYPT,
                 ['cost'=>11]
             );

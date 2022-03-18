@@ -19,7 +19,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-$ulang = $_SESSION['FOG_LANG'];
+$ulang = isset($_SESSION['FOG_LANG']) ? $_SESSION['FOG_LANG'] : '';
 echo '<!DOCTYPE html>';
 echo '<html lang="' . $ulang . '">';
 echo '<head>';
@@ -99,7 +99,7 @@ if (self::$FOGUser->isValid()) {
     echo '<h4 class="title">'
         . $this->sectionTitle
         . '</h4>';
-    if (self::$FOGUser->isValid && $this->pageTitle) {
+    if (isset(self::$FOGUser->isValid) && self::$FOGUser->isValid && isset($this->pageTitle) && $this->pageTitle) {
         echo '<h5 class="title">'
             . $this->pageTitle
             . '</h5>';

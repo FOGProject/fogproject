@@ -44,7 +44,7 @@ class DatabaseManager extends FOGCore
             'status\/hw\.php$',
             'status\/newtoken\.php$'
         );
-        $noDBpattern = '#'.implode($noDBpattern, "|").'#';
+        $noDBpattern = '#'.implode("|", $noDBpattern).'#';
         if (preg_match($noDBpattern, self::$scriptname)) {
             return;
         }
