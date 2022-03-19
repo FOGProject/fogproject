@@ -698,7 +698,7 @@ class FOGFTP extends FOGGetSet
                 $remote_file,
                 $local_file,
                 $mode,
-                $resumepos
+                $startpos
             );
         }
         return ftp_put(
@@ -706,7 +706,7 @@ class FOGFTP extends FOGGetSet
             $remote_file,
             $local_file,
             $mode,
-            $resumepos
+            $startpos
         );
     }
     /**
@@ -806,7 +806,7 @@ class FOGFTP extends FOGGetSet
         $oldname,
         $newname
     ) {
-        if (!(ftp_rename($this->_link, $oldname, $newname)
+        if (!(@ftp_rename($this->_link, $oldname, $newname)
             || $this->put($newname, $oldname))
         ) {
             $this->ftperror($this->data);
@@ -946,6 +946,7 @@ class FOGFTP extends FOGGetSet
      */
     public function exists($path)
     {
+        $path = rtrim(preg_replace('#'.DS.'+#', DS, $path), DS);
         $tmppath = dirname($path);
         $rawlisting = $this->rawlist("-a $tmppath");
         $dirlisting = array();
@@ -954,10 +955,12 @@ class FOGFTP extends FOGGetSet
             if (in_array($chunk[8], array('.', '..'))) {
                 continue;
             }
-            $dirlisting[] = sprintf(
-                '/%s/%s',
-                trim(trim($tmppath, '/'), '\\'),
-                $chunk[8]
+            $dirlisting[] = realpath(
+                sprintf(
+                    '/%s/%s',
+                    trim(trim($tmppath, '/'), '\\'),
+                    $chunk[8]
+                )
             );
         }
         return in_array($path, $dirlisting);

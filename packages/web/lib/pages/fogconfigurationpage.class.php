@@ -202,9 +202,10 @@ class FOGConfigurationPage extends FOGPage
      *
      * @return string
      */
-    public function generateHtmlKernelList($kernelData) {
+    public function generateHtmlKernelList($kernelData)
+    {
         $html = '<div class="col-xs-12"><a href="#" class="btn btn-info btn-block trigger_expand"><h4 class="title">Expand All</h4></a></div>';
-        foreach($kernelData as $release) {
+        foreach ($kernelData as $release) {
             if ($release->prerelease) {
                 continue;
             }
@@ -213,7 +214,7 @@ class FOGConfigurationPage extends FOGPage
             foreach ($release->assets as $asset) {
                 $arch_short = "";
                 $arch = "";
-                switch($asset->name) {
+                switch ($asset->name) {
                     case "arm_Image":
                         $arch_short = "arm64";
                         $arch = "ARM 64 Bit";
@@ -488,7 +489,7 @@ class FOGConfigurationPage extends FOGPage
             ' checked' :
             ''
         );
-        $fieldsToData = function (&$input, &$field) {
+        $fieldsToData = function (&$input, $field) {
             $this->data[] = array(
                 'field' => $field,
                 'input' => (
@@ -2807,7 +2808,7 @@ class FOGConfigurationPage extends FOGPage
                 $name = trim(
                     $Service->name
                 );
-                $set = filter_var($_POST[$key]);
+                $set = filter_var(isset($_POST[$key]) ? $_POST[$key] : 0);
                 if (isset($needstobenumeric[$name])) {
                     if ($needstobenumeric[$name] === true
                         && !is_numeric($set)
@@ -3139,7 +3140,7 @@ class FOGConfigurationPage extends FOGPage
                     ),
                 );
                 $logtype = 'error';
-                $logparse = function (&$log) use (&$files, $StorageNode, &$logtype) {
+                $logparse = function ($log) use (&$files, $StorageNode, &$logtype) {
                     $str = sprintf(
                         '%s %s log (%s)',
                         (
@@ -3227,7 +3228,7 @@ class FOGConfigurationPage extends FOGPage
                     base64_encode($ip[$nodename]),
                     $file,
                     (
-                        $value == $_POST['logtype'] ?
+                        (isset($_POST['logtype']) && $value == $_POST['logtype']) ?
                         ' selected' :
                         ''
                     ),
@@ -3254,7 +3255,7 @@ class FOGConfigurationPage extends FOGPage
                 '<option value="%s"%s>%s</option>',
                 $value,
                 (
-                    $value == $_POST['n'] ?
+                    (isset($_POST['n']) && $value == $_POST['n']) ?
                     ' selected' :
                     ''
                 ),

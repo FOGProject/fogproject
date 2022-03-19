@@ -135,6 +135,7 @@ class DatabaseManager extends FOGCore
          * If sub is in the passthru,
          * set the test to true.
          */
+        $test = false;
         if (in_array($sub, $subs)) {
             $test = true;
         }

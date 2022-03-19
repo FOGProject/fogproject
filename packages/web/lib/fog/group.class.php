@@ -537,12 +537,6 @@ class Group extends FOGController
                     ->set('isDD', $Image->get('imageTypeID'))
                     ->set('storagegroupID', $StorageGroup->get('id'));
                 if ($MulticastSession->save()) {
-                    self::getClass('MulticastSessionAssociationManager')
-                        ->destroy(
-                            array(
-                                'hostID' => $hostids,
-                            )
-                        );
                     $randomnumber = mt_rand(24576, 32766) * 2;
                     while ($randomnumber == $MulticastSession->get('port')) {
                         $randomnumber = mt_rand(24576, 32766) * 2;

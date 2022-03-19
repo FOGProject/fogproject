@@ -798,7 +798,7 @@ abstract class FOGPage extends FOGBase
             }
             echo '<table class="table table-responsive'
                 . (
-                    is_array($this->data) && count($this->data) < 1 ?
+                    isset($this->data) && is_array($this->data) && count($this->data) < 1 ?
                     ' noresults' :
                     ''
                 )
@@ -822,7 +822,7 @@ abstract class FOGPage extends FOGBase
                 $tablestr .= '</td></tr>';
                 echo $tablestr;
                 echo '</tbody>';
-            } else {
+            } elseif (isset($this->data)) {
                 if (isset($this->headerData) && is_array($this->headerData) && count($this->headerData) > 0) {
                     echo '<thead>';
                     echo $this->buildHeaderRow();
@@ -872,6 +872,9 @@ abstract class FOGPage extends FOGBase
      */
     private function _setAtts()
     {
+        if (!isset($this->attributes)) {
+            return;
+        }
         foreach ((array)$this->attributes as $index => &$attribute) {
             $this->atts[$index] = '';
             foreach ((array)$attribute as $name => &$val) {
@@ -912,7 +915,7 @@ abstract class FOGPage extends FOGBase
         foreach ($this->headerData as $index => &$content) {
             echo '<th'
                 . (
-                    $this->atts[$index] ?
+                    (isset($this->atts[$index]) && $this->atts[$index]) ?
                     ' '
                     . $this->atts[$index]
                     . ' ' :
@@ -979,7 +982,7 @@ abstract class FOGPage extends FOGBase
         foreach ((array)$this->templates as $index => &$template) {
             echo '<td'
                 . (
-                    $this->atts[$index] ?
+                    isset($this->atts[$index]) && $this->atts[$index] ?
                     ' ' . $this->atts[$index] . ' ' :
                     ''
                 )
@@ -2562,10 +2565,10 @@ abstract class FOGPage extends FOGBase
     {
         try {
             $msg = filter_input(INPUT_POST, 'msg');
-            if ($_SESSION['allow_ajax_kdl']
-                && $_SESSION['dest-kernel-file']
-                && $_SESSION['tmp-kernel-file']
-                && $_SESSION['dl-kernel-file']
+            if (isset($_SESSION['allow_ajax_kdl']) && $_SESSION['allow_ajax_kdl']
+                && isset($_SESSION['dest-kernel-file']) && $_SESSION['dest-kernel-file']
+                && isset($_SESSION['tmp-kernel-file']) && $_SESSION['tmp-kernel-file']
+                && isset($_SESSION['dl-kernel-file']) && $_SESSION['dl-kernel-file']
             ) {
                 if ($msg == 'dl') {
                     $destFilename = $_SESSION['dest-kernel-file'];

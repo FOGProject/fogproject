@@ -70,7 +70,7 @@ class History_Report extends ReportManagementPage
                 . '<input type="text" class="'
                 . 'form-control text-input" name='
                 . '"info" value="'
-                . $info
+                . (isset($info) ? $info : '')
                 . '" autocomplete="off" id="info" />'
                 . '</div>',
                 '<label for="performsearch">'
@@ -123,13 +123,10 @@ class History_Report extends ReportManagementPage
         }
         $info = '%'. $info . '%';
 
-        array_walk(
-            self::$inventoryCsvHead,
-            function (&$classGet, &$csvHeader) {
-                $this->ReportMaker->addCSVCell($csvHeader);
-                unset($classGet, $csvHeader);
-            }
-        );
+        foreach ((array)self::$inventoryCsvHead as $head => &$classGet) {
+            $this->ReportMaker->addCSVCell($head);
+            unset($classGet, $head);
+        }
         $this->ReportMaker->endCSVLine();
         $this->headerData = array(
             _('User'),
@@ -197,7 +194,7 @@ class History_Report extends ReportManagementPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             echo '<div class="text-center">';
             printf(
                 $this->reportString,

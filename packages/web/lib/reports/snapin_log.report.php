@@ -63,20 +63,16 @@ class Snapin_Log extends ReportManagementPage
         );
         natcasesort($snapinNames);
         natcasesort($HostNames);
-        if (is_array($snapinNames) && count($snapinNames) > 0) {
-            $snapinSelForm = self::selectForm(
-                'snapinsearch',
-                $snapinNames
-            );
-            unset($snapinNames);
-        }
-        if (is_array($HostNames) && count($HostNames) > 0) {
-            $hostSelForm = self::selectForm(
-                'hostsearch',
-                $HostNames
-            );
-            unset($HostNames);
-        }
+        $snapinSelForm = self::selectForm(
+            'snapinsearch',
+            $snapinNames
+        );
+        unset($snapinNames);
+        $hostSelForm = self::selectForm(
+            'hostsearch',
+            $HostNames
+        );
+        unset($HostNames);
         $fields = array(
                  '<label for="snapinsearch">'
                  . _('Enter a snapin name to search for')
@@ -328,7 +324,7 @@ class Snapin_Log extends ReportManagementPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             echo '<div class="text-center">';
             printf(
                 $this->reportString,
