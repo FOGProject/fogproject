@@ -717,7 +717,7 @@ class SnapinManagementPage extends FOGPage
             filter_input(INPUT_POST, 'snapinfileexist')
         );
         $uploadfile = basename(
-            $_FILES['snapin']['name']
+            isset($_FILES['snapin']['name']) ? $_FILES['snapin']['name'] : ''
         );
         if ($uploadfile) {
             $snapinfile = $uploadfile;
@@ -787,11 +787,9 @@ class SnapinManagementPage extends FOGPage
             if (!$snapinfile && $_FILES['snapin']['error'] > 0) {
                 throw new UploadException($_FILES['snapin']['error']);
             }
-            $src = sprintf(
-                '%s/%s',
-                dirname($_FILES['snapin']['tmp_name']),
-                basename($_FILES['snapin']['tmp_name'])
-            );
+            $tmp_name = isset($_FILES['snapin']['tmp_name']) ? $_FILES['snapin']['tmp_name'] : '';
+            $src = sprintf('%s/%s', dirname($tmp_name), basename($tmp_name));
+            unset($tmp_name);
             $dest = sprintf(
                 '/%s/%s',
                 trim(
@@ -1474,7 +1472,7 @@ class SnapinManagementPage extends FOGPage
             filter_input(INPUT_POST, 'snapinfileexist')
         );
         $uploadfile = basename(
-            $_FILES['snapin']['name']
+            isset($_FILES['snapin']['name']) ?: ''
         );
         if ($uploadfile) {
             $snapinfile = $uploadfile;
@@ -1551,11 +1549,9 @@ class SnapinManagementPage extends FOGPage
         if (!$snapinfile && $_FILES['snapin']['error'] > 0) {
             throw new UploadException($_FILES['snapin']['error']);
         }
-        $src = sprintf(
-            '%s/%s',
-            dirname($_FILES['snapin']['tmp_name']),
-            basename($_FILES['snapin']['tmp_name'])
-        );
+        $tmp_name = isset($_FILES['snapin']['tmp_name']) ? $_FILES['snapin']['tmp_name'] : '';
+        $src = sprintf('%s/%s', dirname($tmp_name), basename($tmp_name));
+        unset($tmp_name);
         set_time_limit(0);
         if ($uploadfile && file_exists($src)) {
             $hash = hash_file('sha512', $src);

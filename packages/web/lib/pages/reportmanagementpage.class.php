@@ -57,7 +57,7 @@ class ReportManagementPage extends FOGPage
                 $match
             );
 
-            return $match[0];
+            return isset($match[0]) ? $match[0] : null;
         };
         $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
             BASEPATH,

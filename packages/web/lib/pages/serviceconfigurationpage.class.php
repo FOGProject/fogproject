@@ -74,7 +74,7 @@ class ServiceConfigurationPage extends FOGPage
             "$servicelink#usercleanup" => self::$foglang['UserCleanup'],
             "$servicelink#usertracker" => self::$foglang['UserTracker'],
         );
-        $this->obj = new Service($id);
+        $this->obj = new Service($this->id);
         self::$HookManager
             ->processEvent(
                 'SUB_MENULINK_DATA',
@@ -634,8 +634,8 @@ class ServiceConfigurationPage extends FOGPage
                 $GreenFogs = json_encode(
                     Route::getData()
                 );
-                $GreenFogs = $GreenFogs->greenfogs;
-                foreach ((array)$GreenFogs as &$GreenFog) {
+                $GreenFogs = isset($GreenFogs->greenfogs) ?: array();
+                foreach ($GreenFogs as &$GreenFog) {
                     $gftime = self::niceDate(
                         $GreenFog->hour
                         . ':'

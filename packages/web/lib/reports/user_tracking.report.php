@@ -76,20 +76,16 @@ class User_Tracking extends ReportManagementPage
         );
         natcasesort($UserNames);
         natcasesort($HostNames);
-        if (is_array($UserNames) && count($UserNames) > 0) {
-            $userSelForm = self::selectForm(
-                'usersearch',
-                $UserNames
-            );
-            unset($UserNames);
-        }
-        if (is_array($HostNames) && count($HostNames) > 0) {
-            $hostSelForm = self::selectForm(
-                'hostsearch',
-                $HostNames
-            );
-            unset($HostNames);
-        }
+        $userSelForm = self::selectForm(
+            'usersearch',
+            $UserNames
+        );
+        unset($UserNames);
+        $hostSelForm = self::selectForm(
+            'hostsearch',
+            $HostNames
+        );
+        unset($HostNames);
         $fields = array(
             '<label for="usersearch">'
             . _('Enter a username to search for')

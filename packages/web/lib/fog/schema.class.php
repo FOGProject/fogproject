@@ -103,7 +103,7 @@ class Schema extends FOGController
         $queries = array();
         $tablename = $table[0];
         $indexes = (array)$table[1];
-        $dropIndex = $table[2];
+        $dropIndex = (isset($table[2]) ? $table[2] : null);
         if ($indexNeeded) {
             if (count($indexes) < 1) {
                 return;

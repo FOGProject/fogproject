@@ -2257,25 +2257,22 @@ abstract class FOGBase
             );
         }
         natcasesort($IPs);
-        $retIPs = function (&$IP) {
+        $retIPs = array();
+        $Names = array();
+        foreach ($IPs as $IP) {
             $IP = trim($IP);
             if (!filter_var($IP, FILTER_VALIDATE_IP)) {
+                array_push($Names, $IP);
                 $IP = gethostbyname($IP);
+                if (filter_var($IP, FILTER_VALIDATE_IP)) {
+                    array_push($retIPs, $IP);
+                }
+            } else {
+                array_push($retIPs, $IP);
+                array_push($Names, gethostbyaddr($IP));
             }
-            if (filter_var($IP, FILTER_VALIDATE_IP)) {
-                return $IP;
-            }
-        };
-        $retNames = function (&$IP) {
-            $IP = trim($IP);
-            if (filter_var($IP, FILTER_VALIDATE_IP)) {
-                return gethostbyaddr($IP);
-            }
-
-            return $IP;
-        };
-        $IPs = array_map($retIPs, (array) $IPs);
-        $Names = array_map($retNames, (array) $IPs);
+        }
+        $IPs = $retIPs;
         $output = self::fastmerge(
             $IPs,
             $Names,
