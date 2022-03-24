@@ -203,7 +203,7 @@ class ProcessLogin extends FOGPage
         global $node;
         if (in_array($node, array('login', 'logout'))) {
             if (session_status() != PHP_SESSION_NONE) {
-                self::setMessage($_SESSION['FOG_MESSAGES']);
+                self::setMessage(isset($_SESSION['FOG_MESSAGES']) ? $_SESSION['FOG_MESSAGES'] : '');
             }
             unset($_GET['login']);
             self::redirect('index.php');
