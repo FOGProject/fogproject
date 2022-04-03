@@ -1003,7 +1003,7 @@ class Host extends FOGController
                 'hostID' => $this->get('id')
             )
         );
-        $SnapinJob = new SnapinJob((isset($sjIDs) && is_array($sjIDs) && count($sjIDs)>0) ? min($sjID) : 0);
+        $SnapinJob = new SnapinJob((isset($sjID) && is_array($sjID) && count($sjID)>0) ? min($sjID) : false);
         $this->set('snapinjob', $SnapinJob);
     }
     /**
