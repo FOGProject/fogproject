@@ -419,7 +419,7 @@ class PrinterManagementPage extends FOGPage
             . '/>'
             . '</div>',
             '<label for="iplocal">'
-            . _('Printer IP')
+            . _('Printer IP/Hostname')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="ip" value="'
             . $ip
@@ -762,7 +762,7 @@ class PrinterManagementPage extends FOGPage
             . '/>'
             . '</div>',
             '<label for="ipcups">'
-            . _('Printer IP')
+            . _('Printer IP/Hostname')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="ip" value="'
             . $ip
