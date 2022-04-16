@@ -2329,7 +2329,7 @@ class Config
         define('STORAGE_DATADIR_CAPTURE', '${storageLocationCapture}');
         define('STORAGE_BANDWIDTHPATH', '${webroot}status/bandwidth.php');
         define('STORAGE_INTERFACE', '${interface}');
-        define('CAPTURERESIZEPCT', 5);
+        define('CAPTURERESIZEPCT', 7);
         define('WEB_HOST', \"${ipaddress}\");
         define('WOL_HOST', \"${ipaddress}\");
         define('WOL_PATH', '/${webroot}wol/wol.php');
