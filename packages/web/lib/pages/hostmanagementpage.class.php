@@ -273,7 +273,7 @@ class HostManagementPage extends FOGPage
          *
          * @return void
          */
-        self::$returnData = function (&$Host) {
+        self::$returnData = function ($Host) {
             $this->data[] = array(
                 'id' => $Host->id,
                 'deployed' => self::formatTime(

@@ -63,7 +63,7 @@ class RegisterClient extends FOGClient implements FOGClientSend
             false,
             ''
         );
-        $hostname = trim($_REQUEST['hostname']);
+        $hostname = trim(isset($_REQUEST['hostname']) ? $_REQUEST['hostname'] : '');
         $pendingMACcount = count(self::$Host->get('pendingMACs'));
         if (!self::$Host->isValid()) {
             self::$Host = self::getClass(
