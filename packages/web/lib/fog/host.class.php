@@ -506,8 +506,6 @@ class Host extends FOGController
                 array(
                     'hostID' => $this->get('id'),
                     'pending' => 0,
-                    'mac',
-                    true
                 ),
                 'mac',
                 true

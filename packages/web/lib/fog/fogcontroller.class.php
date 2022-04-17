@@ -1072,6 +1072,9 @@ abstract class FOGController extends FOGBase
 
         // Get the current items.
         $items = $this->get($plural);
+        if (!$items) {
+            $items = array();
+        }
         Route::ids(
             $classCall,
             [$objstr => $this->get('id')],
