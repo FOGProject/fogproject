@@ -45,7 +45,7 @@ case $linuxReleaseName in
             [[ -z $packageinstaller ]] && packageinstaller="dnf -y install"
             [[ -z $packagelist ]] && packagelist="dnf list"
             [[ -z $packageupdater ]] && packageupdater="dnf -y update"
-            [[ -z $packageUpdate ]] && packmanUpdate="dnf check-update"
+            [[ -z $packageUpdate ]] && packmanUpdate="dnf -y check-update"
             [[ -z $repoenable ]] && repoenable="dnf config-manager --set-enabled"
         else
             [[ -z $packageinstaller ]] && packageinstaller="yum -y install"
