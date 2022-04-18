@@ -348,7 +348,7 @@ if [[ ! $exitcode -eq 0 ]]; then
         *bian*|*ubuntu*|*mint*)
             apt-get -yq install lsb-release >>$error_log 2>&1
             ;;
-        *centos*|*red*hat*|*fedora*)
+        *centos*|*red*hat*|*fedora*|*alma*|*rocky*)
             command -v dnf >>$error_log 2>&1
             exitcode=$?
             case $exitcode in

@@ -15,7 +15,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 if [[ $guessdefaults == 1 ]]; then
     case $linuxReleaseName_lower in
-        *fedora*|*red*hat*|*centos*|*mageia*)
+        *fedora*|*red*hat*|*centos*|*mageia*|*alma*|*rocky*)
             strSuggestedOS=1
             ;;
         *ubuntu*|*bian*|*mint*)
