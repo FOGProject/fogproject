@@ -167,10 +167,21 @@ class FOGConfigurationPage extends FOGPage
      */
     public function license()
     {
+        $validLangs = [
+            'de' => 'DE',
+            'en' => 'US',
+            'es' => 'ES',
+            'eu' => 'ES',
+            'fr' => 'FR',
+            'it' => 'IT',
+            'pt' => 'BR',
+            'zh' => 'CN'
+        ];
+        $lang = isset($_SESSION['FOG_LANG']) ? $_SESSION['FOG_LANG'] : self::getSetting('FOG_DEFAULT_LOCALE');
+        if (!in_array($lang, array_keys($validLangs))) $lang = 'en';
+        $lang = "{$lang}_{$validLangs[$lang]}.UTF-8";
         $this->title = _('FOG License Information');
-        $file = './languages/'
-            . self::$locale
-            . '.UTF-8/gpl-3.0.txt';
+        $file = './languages/' . $lang . '/gpl-3.0.txt';
         $contents = file_get_contents($file);
         $contents = preg_replace('!\r?\n!', '<br/>', $contents);
         echo '<div class="col-xs-9">';
