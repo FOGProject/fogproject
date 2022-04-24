@@ -34,7 +34,6 @@ header(
     . "style-src 'self' 'unsafe-inline';"
     . "font-src 'self' data:;"
 );
-header('Access-Control-Allow-Origin: *');
 /**
  * Our required files, text for language and init to initialize system.
  */
