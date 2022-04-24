@@ -104,11 +104,7 @@ class FOGURLRequests extends FOGBase
     public function __construct($callback = null)
     {
         parent::__construct();
-        list(
-            $aconntimeout,
-            $conntimeout,
-            $timeout
-        ) = self::getSubObjectIDs(
+        $timeouts = self::getSubObjectIDs(
             'Service',
             array(
                 'name' => array(
@@ -124,24 +120,24 @@ class FOGURLRequests extends FOGBase
             false,
             ''
         );
-        if ($aconntimeout
-            && is_numeric($aconntimeout)
-            && $aconntimeout > 0
-            && $aconntimeout > $this->_aconntimeout
+        if (isset($timeouts[0])
+            && is_numeric($timeouts[0])
+            && $timeouts[0] > 0
+            && $timeouts[0] > $this->_aconntimeout
         ) {
-            $this->_aconntimeout = (int)$aconntimeout;
+            $this->_aconntimeout = (int)$timeouts[0];
         }
-        if ($conntimeout
-            && is_numeric($conntimeout)
-            && $conntimeout > 0
+        if (isset($timeouts[1])
+            && is_numeric($timeouts[1])
+            && $timeouts[1] > 0
         ) {
-            $this->_conntimeout = (int)$conntimeout;
+            $this->_conntimeout = (int)$timeouts[1];
         }
-        if ($timeout
-            && is_numeric($timeout)
-            && $timeout > 0
+        if (isset($timeouts[2])
+            && is_numeric($timeouts[2])
+            && $timeouts[2] > 0
         ) {
-            $this->_timeout = (int)$timeout;
+            $this->_timeout = (int)$timeouts[2];
         }
         $this->options[CURLOPT_CONNECTTIMEOUT] = $this->_conntimeout;
         $this->options[CURLOPT_TIMEOUT] = $this->_timeout;

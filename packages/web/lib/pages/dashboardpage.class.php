@@ -494,8 +494,8 @@ class DashboardPage extends FOGPage
                 _('Free'),
                 _('Used')
             ],
-            'free' => $data->free,
-            'used' => $data->used
+            'free' => isset($data->free) ? $data->free : 0,
+            'used' => isset($data->used) ? $data->used : 0
         ];
         if (isset($data->error) && $data->error) {
             $datatmp['error'] = $data->error;

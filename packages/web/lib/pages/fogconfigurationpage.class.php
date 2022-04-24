@@ -2419,7 +2419,7 @@ class FOGConfigurationPage extends FOGPage
                     . '</p>';
                 break;
             case 'FOG_TZ_INFO':
-                $dt = self::niceDate('now', $utc);
+                $dt = self::niceDate('now', true);
                 $tzIDs = DateTimeZone::listIdentifiers();
                 ob_start();
                 echo '<div class="input-group">';
