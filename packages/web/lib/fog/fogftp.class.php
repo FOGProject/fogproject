@@ -952,7 +952,6 @@ class FOGFTP extends FOGGetSet
      */
     public function exists($path)
     {
-        $path = rtrim(preg_replace('#'.DS.'+#', DS, $path), DS);
         $tmppath = dirname($path);
         $rawlisting = $this->rawlist("-a $tmppath");
         $dirlisting = array();
@@ -961,12 +960,10 @@ class FOGFTP extends FOGGetSet
             if (in_array($chunk[8], array('.', '..'))) {
                 continue;
             }
-            $dirlisting[] = realpath(
-                sprintf(
-                    '/%s/%s',
-                    trim(trim($tmppath, '/'), '\\'),
-                    $chunk[8]
-                )
+            $dirlisting[] = sprintf(
+                '/%s/%s',
+                trim(trim($tmppath, '/'), '\\'),
+                $chunk[8]
             );
         }
         return in_array($path, $dirlisting);
