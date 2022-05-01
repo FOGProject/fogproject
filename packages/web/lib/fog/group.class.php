@@ -896,9 +896,28 @@ class Group extends FOGController
     ) {
         $pass = trim($pass);
         $adpasspat = "/^\*{32}$/";
-        $tempHost = new Host(@max($this->get('hosts')));
-        $pass = (preg_match($adpasspat, $pass) ? $tempHost->get('ADPass') : $pass);
-        unset($tempHost);
+        $adpassglobalpat = "/^#{32}$/";
+        if (preg_match($adpasspat, $pass)) {
+            $tempHost = new Host(@max($this->get('hosts')));
+            $pass = $tempHost->get('ADPass');
+            unset($tempHost);
+        }
+        elseif (preg_match($adpassglobalpat, $pass)) {
+            $pass = self::getSubObjectIDs(
+                'Service',
+                array(
+                    'name' => array(
+                        'FOG_AD_DEFAULT_PASSWORD',
+                    ),
+                ),
+                'value',
+                false,
+                'AND',
+                'name',
+                false,
+                ''
+            );
+        }
         self::getClass('HostManager')
             ->update(
                 array(

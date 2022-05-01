@@ -2496,7 +2496,6 @@ abstract class FOGPage extends FOGBase
         $items = array(
             'DOMAINNAME',
             'OU',
-            'PASSWORD',
             'PASSWORD_LEGACY',
             'USER',
         );
@@ -2511,7 +2510,6 @@ abstract class FOGPage extends FOGBase
         list(
             $domainname,
             $ou,
-            $password,
             $password_legacy,
             $user
         ) = self::getSubObjectIDs(
@@ -2549,7 +2547,7 @@ abstract class FOGPage extends FOGBase
             array(
                 'domainname' => $domainname,
                 'ou' => $ou,
-                'domainpass' => $password,
+                'domainpass' => '################################',
                 'domainpasslegacy' => $password_legacy,
                 'domainuser' => $user,
             )
