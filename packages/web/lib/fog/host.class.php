@@ -2078,7 +2078,26 @@ class Host extends FOGController
         $enforce = ''
     ) {
         $adpasspat = "/^\*{32}$/";
-        $pass = (preg_match($adpasspat, $pass) ? $this->get('ADPass') : $pass);
+        $adpassglobalpat = "/^#{32}$/";
+        if (preg_match($adpasspat, $pass)) {
+            $pass = $this->get('ADPass');
+        }
+        elseif (preg_match($adpassglobalpat, $pass)) {
+            $pass = self::getSubObjectIDs(
+                'Service',
+                array(
+                    'name' => array(
+                        'FOG_AD_DEFAULT_PASSWORD',
+                    ),
+                ),
+                'value',
+                false,
+                'AND',
+                'name',
+                false,
+                ''
+            );
+        }
         if ($this->get('id')) {
             if (!$override) {
                 if (empty($useAD)) {
