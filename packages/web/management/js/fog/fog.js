@@ -727,13 +727,13 @@ function setADFields() {
                 if (!$('#adOU').val()) {
                     $('#adOU').val(jdata.ou);
                 }
-                if (!$('adUsername[type="text"]').val()) {
+                if (!$('#adUsername[type="text"]').val()) {
                     $('#adUsername').val(jdata.domainuser)
                 }
-                if (!$('adPassword[type="text"]').val()) {
+                if (!$('#adPassword[type="text"]').val()) {
                     $('#adPassword').val(jdata.domainpass)
                 }
-                if (!$('adPasswordLegacy[type="text"]').val()) {
+                if (!$('#adPasswordLegacy[type="text"]').val()) {
                     $('#adPasswordLegacy').val(jdata.domainpasslegacy)
                 }
             }
