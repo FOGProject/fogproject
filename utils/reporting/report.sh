@@ -126,4 +126,4 @@ payload='{"fog_version":"'${fog_version}'","os_name":"'${os_name}'","os_version"
 #echo "payload=${payload}"
 
 # Send to reporting endpoint.
-curl -s -X POST -H "Content-Type: application/json" -d "${payload}" https://fog-external-reporting-entries.theworkmans.us:/api/records
+curl -s -X POST -H "Content-Type: application/json" -d "${payload}" https://fog-external-reporting-entries.fogproject.us:/api/records
