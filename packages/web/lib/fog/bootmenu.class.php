@@ -133,6 +133,10 @@ class BootMenu extends FOGBase
             . 'chain -ar ${boot-url}/service/ipxe/refind_x64.efi',
             "\n"
         );
+        $reboot = sprintf(
+            'reboot',
+            "\n"
+        );
 
         if (stripos($_REQUEST['arch'], 'i386') !== false) {
             //user i386 boot loaders instead
@@ -170,6 +174,7 @@ class BootMenu extends FOGBase
             'grub_first_found_windows' => $grub['1fw'],
             'refind_efi' => $refind,
             'exit' => 'exit',
+            'reboot' => $reboot,
         );
         list(
             $webserver,
