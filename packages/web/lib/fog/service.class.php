@@ -212,6 +212,7 @@ class Service extends FOGController
             'grub_first_found_windows',
             'refind_efi',
             'exit',
+            'reboot',
         );
         if ($nullField) {
             array_unshift(
