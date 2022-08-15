@@ -27,6 +27,8 @@ isset ${next-server} && goto netboot || goto setserv
 :setserv
 echo -n Please enter tftp server: && read next-server && goto netboot || goto setserv
 
-:netboot
-chain tftp://${next-server}/default.ipxe ||
+:chainloadfailed
 prompt --key s --timeout 10000 Chainloading failed, hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot
+
+:netboot
+chain tftp://${next-server}/default.ipxe || goto chainloadfailed
