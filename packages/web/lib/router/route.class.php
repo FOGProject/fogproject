@@ -348,7 +348,7 @@ class Route extends FOGBase
         ) {
             call_user_func_array(
                 self::$matches['target'],
-                self::$matches['params']
+                array_values(self::$matches['params'])
             );
             return;
         }
