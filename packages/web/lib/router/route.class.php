@@ -1622,7 +1622,8 @@ class Route extends FOGBase
         }
         $sql .= ' ORDER BY `'
             . (
-                (isset($classVars['databaseFields']['name']) && $classVars['databaseFields']['name']) ?:
+                (isset($classVars['databaseFields']['name']) && $classVars['databaseFields']['name']) ?
+                $classVars['databaseFields']['name'] :
                 $classVars['databaseFields']['id']
             )
             . '` ASC';
