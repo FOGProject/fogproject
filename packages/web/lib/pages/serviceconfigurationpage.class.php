@@ -631,10 +631,10 @@ class ServiceConfigurationPage extends FOGPage
                     true
                 );
                 Route::listem('greenfog');
-                $GreenFogs = json_encode(
+                $GreenFogs = json_decode(
                     Route::getData()
                 );
-                $GreenFogs = isset($GreenFogs->greenfogs) ?: array();
+                $GreenFogs = isset($GreenFogs->greenfogs) ? $GreenFogs->greenfogs : array();
                 foreach ($GreenFogs as &$GreenFog) {
                     $gftime = self::niceDate(
                         $GreenFog->hour

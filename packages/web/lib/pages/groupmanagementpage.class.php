@@ -441,17 +441,17 @@ class GroupManagementPage extends FOGPage
         }
         $kern = (
             filter_input(INPUT_POST, 'kern') ?: (
-                isset($kern) ?: $this->obj->get('kernel')
+                isset($kern) ? $kern : $this->obj->get('kernel')
             )
         );
         $args = (
             filter_input(INPUT_POST, 'args') ?: (
-                isset($args) ?: $this->obj->get('kernelArgs')
+                isset($args) ? $args : $this->obj->get('kernelArgs')
             )
         );
         $dev = (
             filter_input(INPUT_POST, 'dev') ?: (
-                isset($dev) ?: $this->obj->get('kernelDevice')
+                isset($dev) ? $dev : $this->obj->get('kernelDevice')
             )
         );
         $this->attributes = array(
