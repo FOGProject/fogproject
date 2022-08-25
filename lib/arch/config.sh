@@ -13,7 +13,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-[[ -z $packages ]] && packages="apache bc cdrtools curl dhcp gcc git gzip lftp m4 make mariadb mod_fastcgi net-tools nfs-utils openssh openssl perl perl-crypt-passwdmd5 php php-apache php-fpm php-gd syslinux tar tftp-hpa vsftpd wget xinetd xz"
+
+[[ -z $packages ]] && packages="apache bc cdrtools curl dhcp gcc git gzip lftp m4 make mariadb fcgi net-tools nfs-utils openssh openssl perl perl-crypt-passwdmd5 php7 php7-apache php7-fpm php7-gd syslinux tar tftp-hpa vsftpd wget xinetd xz"
 [[ -z $packageinstaller ]] && packageinstaller="pacman -Sy --noconfirm"
 [[ -z $packagelist ]] && packagelist="pacman -Si"
 [[ -z $packageupdater ]] && packageupdater="pacman -Syu --noconfirm"
@@ -38,7 +39,7 @@ fi
 [[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/access_log"
 [[ -z $httpdconf ]] && httpdconf="/etc/httpd/conf/httpd.conf"
 [[ -z $etcconf ]] && etcconf="/etc/httpd/conf/extra/fog.conf"
-[[ -z $phpini ]] && phpini="/etc/php/php.ini"
+[[ -z $phpini ]] && phpini="/etc/php7/php.ini"
 [[ -z $storageLocation ]] && storageLocation="/images"
 [[ -z $storageLocationCapture ]] && storageLocationCapture="${storageLocation}/dev"
 [[ -z $dhcpconfig ]] && dhcpconfig="/etc/dhcpd.conf"
