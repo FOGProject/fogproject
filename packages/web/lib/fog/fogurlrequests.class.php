@@ -367,8 +367,7 @@ class FOGURLRequests extends FOGBase
             curl_multi_add_handle($master, $ch);
             if (isset($ch) && gettype($ch) === 'object') {
                 $key = spl_object_id($ch);
-            }
-            else {
+            } else {
                 $key = (string)$ch;
             }
             $this->_requestMap[$key] = $i;
@@ -388,8 +387,7 @@ class FOGURLRequests extends FOGBase
                 $info = curl_getinfo($done['handle'], CURLINFO_HTTP_CODE);
                 if (isset($done['handle']) && gettype($done['handle']) === 'object') {
                     $key = spl_object_id($done['handle']);
-                }
-                else {
+                } else {
                     $key = (string)$done['handle'];
                 }
                 $output = curl_multi_getcontent($done['handle']);
