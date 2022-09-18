@@ -449,8 +449,7 @@ class FOGFTP extends FOGGetSet
         try {
             if (isset($this->_link) && gettype($this->_link) === 'object') {
                 $link_id = spl_object_id($this->_link);
-            }
-            else {
+            } else {
                 $link_id = serialize($this->_link);
             }
             $this->_currentLoginHash = password_hash(

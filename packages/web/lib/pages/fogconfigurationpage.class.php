@@ -178,7 +178,9 @@ class FOGConfigurationPage extends FOGPage
             'zh' => 'CN'
         ];
         $lang = isset($_SESSION['FOG_LANG']) ? $_SESSION['FOG_LANG'] : self::getSetting('FOG_DEFAULT_LOCALE');
-        if (!in_array($lang, array_keys($validLangs))) $lang = 'en';
+        if (!in_array($lang, array_keys($validLangs))) {
+            $lang = 'en';
+        }
         $lang = "{$lang}_{$validLangs[$lang]}.UTF-8";
         $this->title = _('FOG License Information');
         $file = './languages/' . $lang . '/gpl-3.0.txt';

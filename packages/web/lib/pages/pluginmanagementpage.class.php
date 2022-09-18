@@ -127,19 +127,19 @@ class PluginManagementPage extends FOGPage
             case 'install':
                 if (!(isset($Plugin->state) && $Plugin->state) ||
                     (isset($Plugin->installed) && $Plugin->installed)) {
-                        return;
+                    return;
                 }
                 break;
             case 'installed':
                 if (!(isset($Plugin->state) && $Plugin->state) ||
                     !(isset($Plugin->installed) && $Plugin->installed)) {
-                        return;
+                    return;
                 }
                 break;
             case 'activate':
                 if ((isset($Plugin->state) && $Plugin->state) ||
                     (isset($Plugin->installed) && $Plugin->installed)) {
-                        return;
+                    return;
                 }
                 break;
             }
