@@ -278,7 +278,7 @@ class EventManager extends FOGBase
         // startClass simply iterates the passed data and starts the needed
         // hooks or events.
         // Plugins don't need to know if the active flag is set either
-        $startClass = function (&$element) use ($strlen) {
+        $startClass = function ($element) use ($strlen) {
             $className = str_replace(
                 array("\t", "\n", ' '),
                 '_',

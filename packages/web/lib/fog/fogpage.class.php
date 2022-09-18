@@ -1970,7 +1970,7 @@ abstract class FOGPage extends FOGBase
         $items = $items->$getme;
         foreach ((array)$items as &$object) {
             if ($getme == 'plugins') {
-                if (!in_array($object->id, $reqID)) {
+                if (!in_array((isset($object->id) ? $object->id : false), $reqID)) {
                     continue;
                 }
             }
