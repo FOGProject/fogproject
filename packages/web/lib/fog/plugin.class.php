@@ -194,7 +194,7 @@ class Plugin extends FOGController
                 'Plugin',
                 array('name' => basename($file))
             );
-            $pluginID = @min($pluginID);
+            $pluginID = (is_array($pluginID) && count($pluginID) >= 1) ? @min($pluginID) : false;
             $configFile = sprintf(
                 '%s/config/plugin.config.php',
                 rtrim($file, '/')
