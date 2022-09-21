@@ -1,4 +1,3 @@
-#!/bin/bash
 #
 #  FOG is a computer imaging solution.
 #  Copyright (C) 2007  Chuck Syperski & Jian Zhang
@@ -13,6 +12,8 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU General Public License for more details.
 #
+
+
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
@@ -20,23 +21,23 @@
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
 if [[ $linuxReleaseName_lower == +(*bian*) ]]; then
     sysvrcconf="sysv-rc-conf"
-    phpgettext="php-gettext"
+    phpgettext="php-php-gettext"
     case $OSVersion in
         8)
             php_ver="5"
             ;;
         9)
             php_ver="7.0"
-            x="*php5*"
+            x="*php7*"
             ;;
         10)
             php_ver="7.3"
-            x="*php5* *php7.0*"
+            x="*php7* *php7.0*"
             ;;
         11)
             php_ver="7.4"
-            x="*php5* *php7.0* *php7.3*"
-            phpgettext="php${php_ver}-gettext"
+            x="*php7* *php7.0* *php7.3*"
+            phpgettext="php-php${php_ver}-gettext"
             ;;
     esac
     old_php=$(eval $packageQuery 2>/dev/null | awk '{print $2}' | tr '\n' ' ')
@@ -48,11 +49,11 @@ if [[ $linuxReleaseName_lower == +(*bian*) ]]; then
     fi
 elif [[ $linuxReleaseName_lower == +(*ubuntu*|*mint*) ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get purge -yq sysv-rc-conf >/dev/null 2>&1
-    phpgettext="php-gettext"
+    phpgettext="php-php-gettext"
     case $OSVersion in
         22)
             php_ver="8.1"
-            phpgettext="php${php_ver}-gettext"
+            phpgettext="php-php${php_ver}-gettext"
             ;;
         21)
             case $OSMinorVersion in
@@ -63,7 +64,7 @@ elif [[ $linuxReleaseName_lower == +(*ubuntu*|*mint*) ]]; then
                     php_ver="7.4"
                     ;;
             esac
-            phpgettext="php${php_ver}-gettext"
+            phpgettext="php-php${php_ver}-gettext"
             ;;
         20)
             php_ver="7.4"
@@ -76,12 +77,12 @@ elif [[ $linuxReleaseName_lower == +(*ubuntu*|*mint*) ]]; then
             ;;
         16)
             sysvrcconf="sysv-rc-conf"
-            php_ver="7.0"
+            php_ver="7.4"
             ;;
         *)
             sysvrcconf="sysv-rc-conf"
-            php_ver="7.1"
-            x="*php5* *php-5*"
+            php_ver="7.4"
+            x="*php7.4* *php-7.4*"
             eval $packageQuery >>$error_log 2>&1
             if [[ $? -ne 0 ]]; then
                 if [[ $autoaccept != yes ]]; then
@@ -115,21 +116,21 @@ elif [[ $linuxReleaseName_lower == +(*ubuntu*|*mint*) ]]; then
             fi
     esac
 else
-    [[ -z $php_ver ]] && php_ver=5
+    [[ -z $php_ver ]] && php_ver=7.4
 fi
 [[ -z $php_verAdds ]] && php_verAdds="-${php_ver}"
-[[ $php_ver == 5 ]] && php_verAdds="-5.6"
-[[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
+[[ $php_ver == 5 ]] && php_verAdds="-7.4"
+[[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php7.4"
 [[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm"
 [[ -z $phpldap ]] && phpldap="php${php_ver}-ldap"
 [[ -z $phpcmd ]] && phpcmd="php"
-case $linuxReleaseName_lower in
-    *ubuntu*|*bian*|*mint*)
+case $linuxReleaseName in
+    *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Bb][Ii][Aa][Nn]*|*[Mm][Ii][Nn][Tt]*)
         if [[ -z $packages ]]; then
             x="mysql-server"
-            eval $packageQuery >>$error_log 2>&1
+            eval $packageQuery >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             [[ $? -eq 0 ]] && db_packages="mysql-client mysql-server" || db_packages="mariadb-client mariadb-server"
-            packages="apache2 build-essential cpp curl g++ gawk gcc genisoimage git gzip htmldoc isc-dhcp-server isolinux lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 libcurl3 liblzma-dev m4 ${db_packages} net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mysql php${php_ver}-mysqlnd ${sysvrcconf} tar tftpd-hpa tftp-hpa vsftpd wget zlib1g"
+            packages="apache2 build-essential cpp curl g++ gawk gcc genisoimage git gzip htmldoc isc-dhcp-server isolinux lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 libcurl3 liblzma-dev m4 ${db_packages} net-tools nfs-kernel-server openssh-server $phpfpm php-php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mysql php${php_ver}-mysqlnd ${sysvrcconf} tar tftpd-hpa tftp-hpa vsftpd wget xinetd zlib1g"
         else
             # make sure we update all the php version numbers with those specified above
             packages=${packages//php[0-9]\.[0-9]/php${php_ver}}
@@ -170,6 +171,8 @@ fi
 [[ -z $dhcpconfig ]] && dhcpconfig="/etc/dhcp3/dhcpd.conf"
 [[ -z $dhcpconfigother ]] && dhcpconfigother="/etc/dhcp/dhcpd.conf"
 [[ -z $tftpdirdst ]] && tftpdirdst="/tftpboot"
+[[ -z $tftpconfig ]] && tftpconfig="/etc/xinetd.d/tftp"
+[[ -z $tftpconfigupstartconf ]] && tftpconfigupstartconf="/etc/init/tftpd-hpa.conf"
 [[ -z $tftpconfigupstartdefaults ]] && tftpconfigupstartdefaults="/etc/default/tftpd-hpa"
 [[ -z $ftpconfig ]] && ftpconfig="/etc/vsftpd.conf"
 [[ -z $snapindir ]] && snapindir="/opt/fog/snapins"
