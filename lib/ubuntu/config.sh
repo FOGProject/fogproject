@@ -20,7 +20,7 @@
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
 if [[ $linuxReleaseName_lower == +(*bian*) ]]; then
     sysvrcconf="sysv-rc-conf"
-    phpgettext="php-gettext"
+    phpgettext="php-php-gettext"
     case $OSVersion in
         8)
             php_ver="5"
@@ -36,7 +36,7 @@ if [[ $linuxReleaseName_lower == +(*bian*) ]]; then
         11)
             php_ver="7.4"
             x="*php5* *php7.0* *php7.3*"
-            phpgettext="php${php_ver}-gettext"
+            phpgettext="php-php${php_ver}-gettext"
             ;;
     esac
     old_php=$(eval $packageQuery 2>/dev/null | awk '{print $2}' | tr '\n' ' ')
@@ -80,7 +80,7 @@ elif [[ $linuxReleaseName_lower == +(*ubuntu*|*mint*) ]]; then
             ;;
         *)
             sysvrcconf="sysv-rc-conf"
-            php_ver="7.1"
+            php_ver="7.4"
             x="*php5* *php-5*"
             eval $packageQuery >>$error_log 2>&1
             if [[ $? -ne 0 ]]; then
@@ -115,7 +115,7 @@ elif [[ $linuxReleaseName_lower == +(*ubuntu*|*mint*) ]]; then
             fi
     esac
 else
-    [[ -z $php_ver ]] && php_ver=5
+    [[ -z $php_ver ]] && php_ver=7.4
 fi
 [[ -z $php_verAdds ]] && php_verAdds="-${php_ver}"
 [[ $php_ver == 5 ]] && php_verAdds="-5.6"
