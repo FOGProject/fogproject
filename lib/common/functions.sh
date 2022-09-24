@@ -652,7 +652,7 @@ addOndrejRepo() {
     DEBIAN_FRONTEND=noninteractive $packageinstaller ntpdate >>$error_log 2>&1
     ntpdate pool.ntp.org >>$error_log 2>&1
     locale-gen 'en_US.UTF-8' >>$error_log 2>&1
-    LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/${repo} >>$error_log 2>&1
+    LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/php >>$error_log 2>&1
     LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y ppa:ondrej/apache2 >>$error_log 2>&1
 }
 installPackages() {
@@ -709,18 +709,19 @@ installPackages() {
             packages="${packages// libapache2-mod-fastcgi/}"
             packages="${packages// libapache2-mod-evasive/}"
             packages="${packages// xinetd/}"
-            packages="${packages// php${php_ver}-mcrypt/}"
             packages="${packages// php-gettext/}"
             packages="${packages// php-php-gettext/}"
-            packages="${packages} php${php_ver}-bcmath bc"
+            packages="${packages} php-bcmath bc"
             if [[ $installlang -eq 1 ]]; then
-                packages="$packages php${php_ver}-intl"
-                for i in fr de eu es pt zh-hans en; do
-                    packages="$packages language-pack-${i}";
-                done
+                packages="$packages php-intl"
             fi
             case $linuxReleaseName_lower in
                 *ubuntu*|*mint*)
+                    if [[ $installlang -eq 1 ]]; then
+                        for i in fr de eu es pt zh-hans en; do
+                            packages="$packages language-pack-${i}";
+                        done
+                    fi
                     if [[ $OSVersion -gt 17 ]]; then
                         packages="${packages// libcurl3 / libcurl4 }">>$error_log 2>&1
                     fi
@@ -816,8 +817,8 @@ installPackages() {
                 done
                 [[ -z $installed_sqlserver ]] && x=$available_sqlserver || x=$installed_sqlserver
                 ;;
-            php${php_ver}-json)
-                for json in $jsontest; do
+            php-json)
+                for json in php-json php-common; do
                     eval $packagelist "$json" >>$error_log 2>&1
                     if [[ $? -eq 0 ]]; then
                         x=$json
@@ -825,8 +826,8 @@ installPackages() {
                     fi
                 done
                 ;;
-            php${php_ver}-mysql*)
-                for phpmysql in $(echo php${php_ver}-mysqlnd php${php_ver}-mysql); do
+            php-mysql*)
+                for phpmysql in $(echo php-mysqlnd php-mysql); do
                     eval $packagelist "$phpmysql" >>$error_log 2>&1
                     if [[ $? -eq 0 ]]; then
                         x=$phpmysql
@@ -870,6 +871,9 @@ installPackages() {
         DEBIAN_FRONTEND=noninteractive $packageinstaller $toInstall >>$error_log 2>&1
         errorStat $?
     fi
+    [[ -z ${php_ver} ]] && export php_ver=$(php -i | grep "PHP Version" | head -1 | cut -d' ' -f 4 | cut -d'.' -f1-2)
+    [[ -z ${phpfpm} ]] && export phpfpm="php${php_ver}-fpm"
+    [[ -z ${phpini} ]] && export phpini="/etc/php/$php_ver/fpm/php.ini"
 }
 confirmPackageInstallation() {
     for x in $packages; do
@@ -1614,7 +1618,6 @@ writeUpdateFile() {
     escbackupPath=$(echo $backupPath | sed -e $replace)
     escarmsupport=$(echo $sarmsupport | sed -e $replace)
     escphp_ver=$(echo $php_ver | sed -e $replace)
-    escphp_verAdds=$(echo $php_verAdds | sed -e $replace)
     escsslprivkey=$(echo $sslprivkey | sed -e $replace)
     [[ -z $copybackold || $copybackold -lt 1 ]] && copybackold=0
     if [[ -f $fogprogramdir/.fogsettings ]]; then
@@ -1743,8 +1746,7 @@ writeUpdateFile() {
                 sed -i "s/php_ver=.*/php_ver='$php_ver'/g" $fogprogramdir/.fogsettings || \
                 echo "php_ver='$php_ver'" >> $fogprogramdir/.fogsettings
             grep -q "php_verAdds=" $fogprogramdir/.fogsettings && \
-                sed -i "s/php_verAdds=.*/php_verAdds='$php_verAdds'/g" $fogprogramdir/.fogsettings || \
-                echo "php_verAdds='$php_verAdds'" >> $fogprogramdir/.fogsettings
+                sed -i "/php_verAdds=/d" $fogprogramdir/.fogsettings
             grep -q "sslprivkey=" $fogprogramdir/.fogsettings && \
                 sed -i "s/sslprivkey=.*/sslprivkey='$escsslprivkey'/g" $fogprogramdir/.fogsettings || \
                 echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
@@ -1795,7 +1797,6 @@ writeUpdateFile() {
             echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
             echo "armsupport='$armsupport'" >> "$fogprogramdir/.fogsettings"
             echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
-            echo "php_verAdds='$php_verAdds'" >> "$fogprogramdir/.fogsettings"
             echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
             echo "sendreports='$sendreports'" >> $fogprogramdir/.fogsettings
             echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
@@ -1844,7 +1845,6 @@ writeUpdateFile() {
         echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
         echo "armsupport='$armsupport'" >> "$fogprogramdir/.fogsettings"
         echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
-        echo "php_verAdds='$php_verAdds'" >> "$fogprogramdir/.fogsettings"
         echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
         echo "sendreports='$sendreports'" >> $fogprogramdir/.fogsettings
         echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
@@ -2027,11 +2027,7 @@ EOF
                     phpfpmconf='/etc/php-fpm.d/www.conf';
                     ;;
                 2)
-                    if [[ $php_ver == 5 ]]; then
-                        phpfpmconf="/etc/php$php_ver/fpm/pool.d/www.conf"
-                    else
-                        phpfpmconf="/etc/php/$php_ver/fpm/pool.d/www.conf"
-                    fi
+                    phpfpmconf="/etc/php/$php_ver/fpm/pool.d/www.conf"
                     ;;
                 3)
                     phpfpmconf='/etc/php/php-fpm.d/www.conf'
@@ -2047,7 +2043,7 @@ EOF
                 sed -i 's/pm\.start_servers = .*/pm.start_servers = 5/g' $phpfpmconf >>$error_log 2>&1
             fi
             if [[ $osid -eq 2 ]]; then
-                a2enmod $phpcmd >>$error_log 2>&1
+                a2enmod php >>$error_log 2>&1
                 a2enmod proxy_fcgi setenvif >>$error_log 2>&1
                 a2enmod rewrite >>$error_log 2>&1
                 a2enmod ssl >>$error_log 2>&1
@@ -2365,11 +2361,11 @@ die();
     if [[ $osid -eq 2 ]]; then
         php -m | grep mysqlnd >>$error_log 2>&1
         if [[ ! $? -eq 0 ]]; then
-            ${phpcmd}enmod mysqlnd >>$error_log 2>&1
+            phpenmod mysqlnd >>$error_log 2>&1
             if [[ ! $? -eq 0 ]]; then
                 if [[ -e /etc/php${php_ver}/conf.d/mysqlnd.ini ]]; then
                     cp -f "/etc/php${php_ver}/conf.d/mysqlnd.ini" "/etc/php${php_ver}/mods-available/php${php_ver}-mysqlnd.ini" >>$error_log 2>&1
-                    ${phpcmd}enmod mysqlnd >>$error_log 2>&1
+                    phpenmod mysqlnd >>$error_log 2>&1
                 fi
             fi
         fi
