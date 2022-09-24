@@ -20,7 +20,6 @@
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
 if [[ $linuxReleaseName_lower == +(*bian*) ]]; then
     sysvrcconf="sysv-rc-conf"
-    phpgettext="php-gettext"
     case $OSVersion in
         8)
             php_ver="5"
@@ -36,7 +35,6 @@ if [[ $linuxReleaseName_lower == +(*bian*) ]]; then
         11)
             php_ver="7.4"
             x="*php5* *php7.0* *php7.3*"
-            phpgettext="php${php_ver}-gettext"
             ;;
     esac
     old_php=$(eval $packageQuery 2>/dev/null | awk '{print $2}' | tr '\n' ' ')
@@ -48,11 +46,9 @@ if [[ $linuxReleaseName_lower == +(*bian*) ]]; then
     fi
 elif [[ $linuxReleaseName_lower == +(*ubuntu*|*mint*) ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get purge -yq sysv-rc-conf >/dev/null 2>&1
-    phpgettext="php-gettext"
     case $OSVersion in
         22)
             php_ver="8.1"
-            phpgettext="php${php_ver}-gettext"
             ;;
         21)
             case $OSMinorVersion in
@@ -63,7 +59,6 @@ elif [[ $linuxReleaseName_lower == +(*ubuntu*|*mint*) ]]; then
                     php_ver="7.4"
                     ;;
             esac
-            phpgettext="php${php_ver}-gettext"
             ;;
         20)
             php_ver="7.4"
@@ -129,7 +124,7 @@ case $linuxReleaseName_lower in
             x="mysql-server"
             eval $packageQuery >>$error_log 2>&1
             [[ $? -eq 0 ]] && db_packages="mysql-client mysql-server" || db_packages="mariadb-client mariadb-server"
-            packages="apache2 build-essential cpp curl g++ gawk gcc genisoimage git gzip htmldoc isc-dhcp-server isolinux lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 libcurl3 liblzma-dev m4 ${db_packages} net-tools nfs-kernel-server openssh-server $phpfpm php-gettext php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mysql php${php_ver}-mysqlnd ${sysvrcconf} tar tftpd-hpa tftp-hpa vsftpd wget zlib1g"
+            packages="apache2 build-essential cpp curl g++ gawk gcc genisoimage git gzip htmldoc isc-dhcp-server isolinux lftp libapache2-mod-fastcgi libapache2-mod-php${php_ver} libc6 libcurl3 liblzma-dev m4 ${db_packages} net-tools nfs-kernel-server openssh-server $phpfpm php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mysql php${php_ver}-mysqlnd ${sysvrcconf} tar tftpd-hpa tftp-hpa vsftpd wget zlib1g"
         else
             # make sure we update all the php version numbers with those specified above
             packages=${packages//php[0-9]\.[0-9]/php${php_ver}}
