@@ -434,10 +434,8 @@ class FOGURLRequests extends FOGBase
     private function _getOptions($request)
     {
         $options = $this->__get('options');
-        if (ini_get('safe_mode') == 'Off' || !ini_get('safe_mode')) {
-            $options[CURLOPT_FOLLOWLOCATION] = 1;
-            $options[CURLOPT_MAXREDIRS] = 5;
-        }
+        $options[CURLOPT_FOLLOWLOCATION] = 1;
+        $options[CURLOPT_MAXREDIRS] = 5;
         $url = $this->_validUrl($request->url);
         $headers = $this->__get('headers');
         if ($request->options) {
