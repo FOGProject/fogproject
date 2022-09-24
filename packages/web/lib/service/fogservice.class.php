@@ -900,7 +900,7 @@ abstract class FOGService extends FOGBase
         if ($ret) {
             return false;
         }
-        while (list(, $t) = each($output)) {
+        foreach($output as $t)) {
             if ($t != $pid) {
                 $this->killAll($t, $sig);
             }
