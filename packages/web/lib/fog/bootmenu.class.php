@@ -387,7 +387,6 @@ class BootMenu extends FOGBase
             $Send['storage-ip'] = array(
                 sprintf('set storage-ip %s', trim($StorageNode->get('ip')))
             );
-            $this->_parseMe($Send);
             $this->_storage = sprintf(
                 'storage=%s:/%s/ storageip=%s',
                 trim($StorageNode->get('ip')),
@@ -395,6 +394,25 @@ class BootMenu extends FOGBase
                 trim($StorageNode->get('ip'))
             );
         }
+        if (strlen($keymap)) {
+            // According to https://ipxe.org/cfg/keymap Norwegian
+            // and Serbian keyboard layouts need special handling
+            $ipxe_keymap = substr($keymap, 0, 2);
+            if ($keymap === 'no-latin1') {
+                $ipxe_keymap = 'no-latin1';
+            }
+            if ($ipxe_keymap === 'sr') {
+                $ipxe_keymap = 'sr-latin';
+            }
+            $Send['ipxe-keymap'] = array(
+                'set keymap '. $ipxe_keymap
+            );
+        } else {
+            $Send['ipxe-keymap'] = array(
+                'set keymap us'
+            );
+        }
+        $this->_parseMe($Send);
         $this->_kernel = sprintf(
             'kernel %s %s initrd=%s root=/dev/ram0 rw '
             . 'ramdisk_size=%s%sweb=%s consoleblank=0%s rootfstype=ext4%s%s '
