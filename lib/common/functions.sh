@@ -871,9 +871,9 @@ installPackages() {
         DEBIAN_FRONTEND=noninteractive $packageinstaller $toInstall >>$error_log 2>&1
         errorStat $?
     fi
-    [[ -z ${php_ver} ]] && export php_ver=$(php -i | grep "PHP Version" | head -1 | cut -d' ' -f 4 | cut -d'.' -f1-2)
-    [[ -z ${phpfpm} ]] && export phpfpm="php${php_ver}-fpm"
-    [[ -z ${phpini} ]] && export phpini="/etc/php/$php_ver/fpm/php.ini"
+    export php_ver=$(php -i | grep "PHP Version" | head -1 | cut -d' ' -f 4 | cut -d'.' -f1-2)
+    export phpfpm="php${php_ver}-fpm"
+    export phpini="/etc/php/$php_ver/fpm/php.ini"
 }
 confirmPackageInstallation() {
     for x in $packages; do
