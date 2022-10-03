@@ -900,7 +900,7 @@ abstract class FOGService extends FOGBase
         if ($ret) {
             return false;
         }
-        foreach($output as $t) {
+        foreach ($output as $t) {
             if ($t != $pid) {
                 $this->killAll($t, $sig);
             }
@@ -922,12 +922,14 @@ abstract class FOGService extends FOGBase
         $filename = false
     ) {
         if ($itemType === false) {
-            foreach ((array)$this->procPipes[$index] as $i => &$close) {
-                fclose($close);
-                unset($close);
+            if (count((array)$this->procPipes) > 0) {
+                foreach ((array)$this->procPipes[$index] as $i => &$close) {
+                    fclose($close);
+                    unset($close);
+                }
+                unset($this->procPipes[$index]);
             }
-            unset($this->procPipes[$index]);
-            if ($this->isRunning($this->procRef[$index])) {
+            if (is_array($this->procRef) && $this->isRunning($this->procRef[$index])) {
                 $pid = $this->getPID($this->procRef[$index]);
                 if ($pid) {
                     $this->killAll($pid, SIGTERM);
