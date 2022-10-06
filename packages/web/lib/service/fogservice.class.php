@@ -866,9 +866,10 @@ abstract class FOGService extends FOGBase
         } else {
             $log = static::$log;
         }
-        self::wlog(_('Task started'), $logname);
+        self::wlog(_('Task started')."\n", $logname);
         $descriptor = array(
             0 => array('pipe', 'r'),
+            1 => array('file', $logname, 'a'),
             2 => array('file', $log, 'a')
         );
         if ($itemType === false) {
