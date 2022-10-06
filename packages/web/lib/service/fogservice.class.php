@@ -1057,9 +1057,12 @@ abstract class FOGService extends FOGBase
                 foreach ($images as $i => &$ref) {
                     if (!$this->isRunning($images[$i])) {
                         self::outall(" | Sync finished - " . print_r($images[$i], true));
-                        fclose($this->procPipes[$item][$image][$i]);
+                        foreach ($this->procPipes[$item][$image][$i] as $j => &$pipe_ref) {
+                            fclose($this->procPipes[$item][$image][$i][$j]);
+                            unset($this->procPipes[$item][$image][$i][$j]);
+                        }
                         unset($this->procPipes[$item][$image][$i]);
-                        fclose($images[$i]);
+                        proc_close($images[$i]);
                         unset($images[$i]);
                     }
                 }
