@@ -630,8 +630,6 @@ abstract class FOGService extends FOGBase
                     $filesequal = false;
                     $lindex = array_search($filename, $localfilescheck);
                     $rindex = array_search($filename, $remotefilescheck);
-                    $localfilename = sprintf('%s%s%s', $path, "/", $localfilescheck[$lindex]);
-                    $remotefilename = sprintf('%s%s%s', $remItem, "/", $remotefilescheck[$rindex]);
                     if (!is_int($rindex)) {
                         $allsynced = false;
                         self::outall(sprintf(
@@ -651,8 +649,11 @@ abstract class FOGService extends FOGBase
                             'on',
                             $nodename
                         ));
+                        $remotefilename = sprintf('%s%s%s', $remItem, "/", $remotefilescheck[$rindex]);
                         self::$FOGFTP->delete($remotefilename);
                     } else {
+                        $localfilename = sprintf('%s%s%s', $path, "/", $localfilescheck[$lindex]);
+                        $remotefilename = sprintf('%s%s%s', $remItem, "/", $remotefilescheck[$rindex]);
                         $localsize = self::getFilesize($localfilename);
                         $remotesize = null;
                         if ($avail) {
