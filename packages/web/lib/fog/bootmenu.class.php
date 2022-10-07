@@ -885,14 +885,16 @@ class BootMenu extends FOGBase
             'FOG_KERNEL_ARGS',
             'FOG_KERNEL_DEBUG',
             'FOG_MULTICAST_RENDEZVOUS',
-            'FOG_NONREG_DEVICE'
+            'FOG_NONREG_DEVICE',
+            'FOG_UDPCAST_MAXWAIT'
         );
         list(
             $chkdsk,
             $kargs,
             $kdebug,
             $mcastrdv,
-            $nondev
+            $nondev,
+            $mcastmaxwait
         ) = self::getSubObjectIDs(
             'Service',
             array(
@@ -914,6 +916,9 @@ class BootMenu extends FOGBase
                 'shutdown=1',
                 $_REQUEST['extraargs']
             );
+        }
+        if (!is_numeric($mcastmaxwait)) {
+            $mcastmaxwait = 10;
         }
         $StorageGroup = $Image->getStorageGroup();
         $StorageNode = $StorageGroup->getOptimalStorageNode();
@@ -961,7 +966,7 @@ class BootMenu extends FOGBase
                 'active' => !self::$Host || !self::$Host->isValid(),
             ),
             array(
-                'value' => "port=$port mc=yes",
+                'value' => "port=$port mcastMaxWait=$mcastmaxwait mc=yes",
                 'active' => $mc,
             ),
             array(
@@ -1471,6 +1476,7 @@ class BootMenu extends FOGBase
                     'FOG_MULTICAST_RENDEZVOUS',
                     'FOG_PIGZ_COMP',
                     'FOG_TFTP_HOST',
+                    'FOG_UDPCAST_MAXWAIT',
                     'FOG_WIPE_TIMEOUT'
                 );
                 list(
@@ -1483,6 +1489,7 @@ class BootMenu extends FOGBase
                     $mcastrdv,
                     $pigz,
                     $tftp,
+                    $mcastmaxwait,
                     $timeout
                 ) = self::getSubObjectIDs(
                     'Service',
@@ -1505,6 +1512,9 @@ class BootMenu extends FOGBase
                         'shutdown=1',
                         $_REQUEST['extraargs']
                     );
+                }
+                if (!is_numeric($mcastmaxwait)) {
+                    $mcastmaxwait = 10;
                 }
                 $globalPIGZ = $pigz;
                 $PIGZ_COMP = $globalPIGZ;
@@ -1725,12 +1735,13 @@ class BootMenu extends FOGBase
                 ),
                 array(
                     'value' => sprintf(
-                        'port=%s',
+                        'port=%s mcastMaxWait=%s',
                         (
                             $TaskType->isMulticast() ?
                             $MulticastSession->get('port') :
                             null
-                        )
+                        ),
+                        $mcastmaxwait
                     ),
                     'active' => $TaskType->isMulticast(),
                 ),
