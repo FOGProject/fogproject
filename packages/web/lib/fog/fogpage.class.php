@@ -3245,8 +3245,8 @@ abstract class FOGPage extends FOGBase
         if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
             $validate = self::getClass('User')
                 ->passwordValidate(
-                    $_POST['fogguiuser'],
-                    $_POST['fogguipass'],
+                    isset($_POST['fogguiuser']) ? $_POST['fogguiuser'] : '',
+                    isset($_POST['fogguipass']) ? $_POST['fogguipass'] : '',
                     true
                 );
             if (!$validate) {
