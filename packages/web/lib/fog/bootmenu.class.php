@@ -138,7 +138,7 @@ class BootMenu extends FOGBase
             "\n"
         );
 
-        if (stripos($_REQUEST['arch'], 'i386') !== false) {
+        if (isset($_REQUEST['arch']) && stripos($_REQUEST['arch'], 'i386') !== false) {
             //user i386 boot loaders instead
             $refind = sprintf(
                 'imgfetch ${boot-url}/service/ipxe/refind.conf%s'
@@ -147,7 +147,7 @@ class BootMenu extends FOGBase
             );
         }
 
-        if (stripos($_REQUEST['arch'], 'arm') !== false) {
+        if (isset($_REQUEST['arch']) && stripos($_REQUEST['arch'], 'arm') !== false) {
             //use arm boot loaders instead
             $refind = 'chain -ar ${boot-url}/service/ipxe/refind_aa64.efi';
         }
@@ -209,7 +209,7 @@ class BootMenu extends FOGBase
             if (!self::$Host->get('inventory')->get('sysuuid')) {
                 self::$Host
                     ->get('inventory')
-                    ->set('sysuuid', $_REQUEST['sysuuid'])
+                    ->set('sysuuid', isset($_REQUEST['sysuuid']) ? $_REQUEST['sysuuid'] : '')
                     ->set('hostID', self::$Host->get('id'))
                     ->save();
             }
@@ -503,13 +503,10 @@ class BootMenu extends FOGBase
      */
     private function _ipxeLog()
     {
-        $filename = trim(basename($_REQUEST['filename']));
-        $product = trim($_REQUEST['product']);
-        $manufacturer = trim($_REQUEST['manufacturer']);
         $findWhere = array(
-            'file' => sprintf('%s', $filename ? $filename : ''),
-            'product' => sprintf('%s', $product ? $product : ''),
-            'manufacturer' => sprintf('%s', $manufacturer ? $manufacturer : ''),
+            'file' => sprintf('%s', isset($_REQUEST['filename']) ? trim(basename($_REQUEST['filename'])) : ''),
+            'product' => sprintf('%s', isset($_REQUEST['product']) ? trim($_REQUEST['product']) : ''),
+            'manufacturer' => sprintf('%s', isset($_REQUEST['manufacturer']) ? trim($_REQUEST['manufacturer']) : ''),
             'mac' => (
                 self::$Host->isValid() ?
                 self::$Host->get('mac')->__toString() :
@@ -525,7 +522,7 @@ class BootMenu extends FOGBase
             ->set('success', 1)
             ->set('failure', 0)
             ->set('file', $findWhere['file'])
-            ->set('version', trim($_REQUEST['ipxever']))
+            ->set('version', trim(isset($_REQUEST['ipxever']) ? $_REQUEST['ipxever'] : ''))
             ->save();
     }
     /**
@@ -794,7 +791,7 @@ class BootMenu extends FOGBase
     public function sesscheck()
     {
         $findWhere = array(
-            'name' => trim($_REQUEST['sessname']),
+            'name' => isset($_REQUEST['sessname']) ? trim($_REQUEST['sessname']) : '',
             'stateID' => self::fastmerge(
                 self::getQueuedStates(),
                 (array)self::getProgressState()
