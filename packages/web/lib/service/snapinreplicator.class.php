@@ -104,7 +104,8 @@ class SnapinReplicator extends FOGService
             foreach ((array)$this->checkIfNodeMaster() as &$StorageNode) {
                 self::wlog(
                     sprintf(
-                        ' * %s',
+                        " * %s - %s.\n",
+                        get_class($this),
                         _('I am the group manager')
                     ),
                     '/opt/fog/log/groupmanager.log'
@@ -288,7 +289,8 @@ class SnapinReplicator extends FOGService
     {
         self::wlog(
             sprintf(
-                ' * %s.',
+                " * %s - %s.\n",
+                get_class($this),
                 _('Checking if I am the group manager')
             ),
             '/opt/fog/log/groupmanager.log'
