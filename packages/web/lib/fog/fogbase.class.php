@@ -2317,7 +2317,7 @@ abstract class FOGBase
         $size = 0;
         if (is_dir($path)) {
             foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path)) as $file) {
-                if ($file->getFilename() != ".") {
+                if ($file->getFilename() != "." && $file->getFilename() != "..") {
                     $size += filesize($file);
                 }
             }
