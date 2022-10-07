@@ -565,6 +565,7 @@ abstract class FOGService extends FOGBase
                 unset($remItem);
                 unset($includeFile);
                 $ftpstart = "ftp://$username:$encpassword@$ip";
+                $remotefilescheck = array();
                 if (is_file($myAdd)) {
                     $remItem = dirname("$removeDir$removeFile");
                     $path = $remItem;
