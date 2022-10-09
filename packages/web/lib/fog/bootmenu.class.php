@@ -279,12 +279,12 @@ class BootMenu extends FOGBase
         $loglevel = $kernelLogLevel;
         $ramsize = $kernelRamDisk;
         $timeout = (
-            $hiddenmenu > 0 && !$_REQUEST['menuAccess'] ?
+            $hiddenmenu > 0 && !(isset($_REQUEST['menuAccess']) && $_REQUEST['menuAccess']) ?
             $hiddenTimeout :
             $menuTimeout
         ) * 1000;
         $keySequence = (
-            $hiddenmenu > 0 && !$_REQUEST['menuAccess'] ?
+            $hiddenmenu > 0 && !(isset($_REQUEST['menuAccess']) && $_REQUEST['menuAccess']) ?
             $keySequence :
             ''
         );
@@ -339,7 +339,7 @@ class BootMenu extends FOGBase
         $kernel = $bzImage;
         $initrd = $imagefile;
         $this->_timeout = $timeout;
-        $this->_hiddenmenu = ($hiddenmenu && !$_REQUEST['menuAccess']);
+        $this->_hiddenmenu = ($hiddenmenu && !(isset($_REQUEST['menuAccess']) && $_REQUEST['menuAccess']));
         $this->_bootexittype = self::$_exitTypes[$exit];
         $this->_loglevel = "loglevel=$loglevel";
         $this->_KS = self::getClass('KeySequence', $keySequence);
@@ -536,7 +536,7 @@ class BootMenu extends FOGBase
     private function _chainBoot($debug = false, $shortCircuit = false)
     {
         $debug = $debug;
-        if (!$this->_hiddenmenu || $shortCircuit) {
+        if (!(isset($this->_hiddenmenu) && $this->_hiddenmenu) || $shortCircuit) {
             $Send['chainnohide'] = array(
                 'cpuid --ext 29 && set arch x86_64 || set arch i386',
                 'params',
@@ -721,12 +721,14 @@ class BootMenu extends FOGBase
     {
         $Send['delconfirm'] = array(
             'cpuid --ext 29 && set arch x86_64 || set arch i386',
-            'prompt --key y Would you like to delete this host? (y/N): &&',
             'params',
+            'prompt --key y Would you like to delete this host? (y/N): && goto deleteyes || goto deleteno',
+            ':deleteyes',
+            'param delconf 1',
+            ':deleteno',
             'param mac0 ${net0/mac}',
             'param arch ${arch}',
             'param platform ${platform}',
-            'param delconf 1',
             'param sysuuid ${uuid}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
@@ -744,12 +746,14 @@ class BootMenu extends FOGBase
     {
         $Send['aprvconfirm'] = array(
             'cpuid --ext 29 && set arch x86_64 || set arch i386',
-            'prompt --key y Would you like to approve this host? (y/N): &&',
             'params',
+            'prompt --key y Would you like to approve this host? (y/N): && goto answeryes || goto answerno',
+            ':answeryes',
+            'param aprvconf 1',
+            ':answerno',
             'param mac0 ${net0/mac}',
             'param arch ${arch}',
             'param platform ${platform}',
-            'param aprvconf 1',
             'param sysuuid ${uuid}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
@@ -1174,7 +1178,7 @@ class BootMenu extends FOGBase
         if (!self::$Host->isValid()) {
             return;
         }
-        self::$Host->set('productKey', $_REQUEST['key']);
+        self::$Host->set('productKey', isset($_REQUEST['key']) ? $_REQUEST['key'] : '');
         if (!self::$Host->save()) {
             return;
         }
@@ -1582,6 +1586,7 @@ class BootMenu extends FOGBase
                         )
                     );
                     $storageip = $ip;
+                    $imgid = 0;
                 }
             }
             if (self::$Host->isValid()) {
