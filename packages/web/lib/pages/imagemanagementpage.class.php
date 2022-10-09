@@ -1620,7 +1620,6 @@ class ImageManagementPage extends FOGPage
                 'mc_name' => $MulticastSession->name,
                 'mc_count' => $MulticastSession->sessclients,
                 'image_name' => $Image->name,
-                'os' => $Image->os->name,
                 'mc_start' => self::formatTime(
                     $MulticastSession->starttime,
                     'Y-m-d H:i:s'
@@ -1673,7 +1672,7 @@ class ImageManagementPage extends FOGPage
             if (!$name) {
                 throw new Exception(_('Please input a session name'));
             }
-            if (count($count) < 1) {
+            if ($count < 1) {
                 $count = self::getClass('HostManager')->count();
             }
             if (!$image) {
@@ -1774,7 +1773,7 @@ class ImageManagementPage extends FOGPage
                 '%s%s',
                 _('Cancelled task'),
                 (
-                    count($mcid) !== 1 ?
+                    $mcid !== 1 ?
                     's' :
                     ''
                 )
