@@ -1424,7 +1424,7 @@ class Host extends FOGController
                 }
             }
             if ($TaskType->isMulticast()) {
-                $multicastTaskReturn = function (&$MulticastSession) {
+                $multicastTaskReturn = function ($MulticastSession) {
                     if (!$MulticastSession->isValid()) {
                         return;
                     }
