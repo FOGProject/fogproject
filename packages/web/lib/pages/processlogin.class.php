@@ -107,7 +107,7 @@ class ProcessLogin extends FOGPage
             $http_query[$key] = $value;
             unset($value);
         }
-        if (count($http_query) < 1) {
+        if (!isset($http_query) || count($http_query) < 1) {
             unset($redirect['login']);
             self::redirect('index.php');
         }
