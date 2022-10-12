@@ -1424,7 +1424,7 @@ class Host extends FOGController
                 }
             }
             if ($TaskType->isMulticast()) {
-                $multicastTaskReturn = function (&$MulticastSession) {
+                $multicastTaskReturn = function ($MulticastSession) {
                     if (!$MulticastSession->isValid()) {
                         return;
                     }
@@ -2081,8 +2081,7 @@ class Host extends FOGController
         $adpassglobalpat = "/^#{32}$/";
         if (preg_match($adpasspat, $pass)) {
             $pass = $this->get('ADPass');
-        }
-        elseif (preg_match($adpassglobalpat, $pass)) {
+        } elseif (preg_match($adpassglobalpat, $pass)) {
             $pass = self::getSubObjectIDs(
                 'Service',
                 array(

@@ -74,7 +74,7 @@ class CaponeManager extends FOGManagerController
         if (!self::$DB->query($sql)) {
             return false;
         }
-        $category = sprintf('Plugin: %s', $name);
+        $category = sprintf('Plugin: %s', $this->tablename);
         $insert_fields = array(
             'name',
             'description',

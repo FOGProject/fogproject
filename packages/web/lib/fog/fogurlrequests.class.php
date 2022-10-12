@@ -367,8 +367,7 @@ class FOGURLRequests extends FOGBase
             curl_multi_add_handle($master, $ch);
             if (isset($ch) && gettype($ch) === 'object') {
                 $key = spl_object_id($ch);
-            }
-            else {
+            } else {
                 $key = (string)$ch;
             }
             $this->_requestMap[$key] = $i;
@@ -388,8 +387,7 @@ class FOGURLRequests extends FOGBase
                 $info = curl_getinfo($done['handle'], CURLINFO_HTTP_CODE);
                 if (isset($done['handle']) && gettype($done['handle']) === 'object') {
                     $key = spl_object_id($done['handle']);
-                }
-                else {
+                } else {
                     $key = (string)$done['handle'];
                 }
                 $output = curl_multi_getcontent($done['handle']);
@@ -436,10 +434,8 @@ class FOGURLRequests extends FOGBase
     private function _getOptions($request)
     {
         $options = $this->__get('options');
-        if (ini_get('safe_mode') == 'Off' || !ini_get('safe_mode')) {
-            $options[CURLOPT_FOLLOWLOCATION] = 1;
-            $options[CURLOPT_MAXREDIRS] = 5;
-        }
+        $options[CURLOPT_FOLLOWLOCATION] = 1;
+        $options[CURLOPT_MAXREDIRS] = 5;
         $url = $this->_validUrl($request->url);
         $headers = $this->__get('headers');
         if ($request->options) {

@@ -75,6 +75,7 @@ fi
 [[ -z $apachelogdir ]] && apachelogdir="/var/log/httpd"
 [[ -z $apacheerrlog ]] && apacheerrlog="$apachelogdir/error_log"
 [[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/access_log"
+[[ -z $phpfpm ]] && phpfpm="php-fpm"
 [[ -z $phpini ]] && phpini="/etc/php.ini"
 [[ -z $storageLocation ]] && storageLocation="/images"
 [[ -z $storageLocationCapture ]] && storageLocationCapture="${storageLocation}/dev"

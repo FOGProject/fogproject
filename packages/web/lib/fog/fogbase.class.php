@@ -438,13 +438,13 @@ abstract class FOGBase
      */
     public static function getClass($class, $data = '', $props = false)
     {
-        if (!is_string($class)) {
-            throw new Exception(_('Class name must be a string'));
-        }
         // Get all args, even unnamed args.
         $args = func_get_args();
         array_shift($args);
 
+        if (!is_string($class)) {
+            throw new Exception(_('Class name must be a string'));
+        }
         // Trim the class var
         $class = trim($class);
 
@@ -705,7 +705,7 @@ abstract class FOGBase
         $data = self::_setString($txt, $data);
         $string = sprintf(
             'FOG FATAL ERROR: %s: %s',
-            get_class($this),
+            get_called_class(),
             $data
         );
         printf('<div class="debug debug-error">%s</div>', $string);
@@ -726,7 +726,7 @@ abstract class FOGBase
         $data = self::_setString($txt, $data);
         $string = sprintf(
             'FOG ERROR: %s: %s',
-            get_class($this),
+            get_called_class(),
             $data
         );
         printf('<div class="debug debug-error">%s</div>', $string);
@@ -747,7 +747,7 @@ abstract class FOGBase
         $data = self::_setString($txt, $data);
         $string = sprintf(
             'FOG DEBUG: %s: %s',
-            get_class($this),
+            get_called_class(),
             $data
         );
         printf('<div class="debug debug-error">%s</div>', $string);
@@ -768,7 +768,7 @@ abstract class FOGBase
         $data = self::_setString($txt, $data);
         $string = sprintf(
             'FOG INFO: %s: %s',
-            get_class($this),
+            get_called_class(),
             $data
         );
         printf('<div class="debug debug-info">%s</div>', $string);
@@ -2317,7 +2317,7 @@ abstract class FOGBase
         $size = 0;
         if (is_dir($path)) {
             foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path)) as $file) {
-                if ($file->getFilename() != ".") {
+                if ($file->getFilename() != "." && $file->getFilename() != "..") {
                     $size += filesize($file);
                 }
             }
