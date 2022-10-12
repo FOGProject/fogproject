@@ -1472,7 +1472,7 @@ class SnapinManagementPage extends FOGPage
             filter_input(INPUT_POST, 'snapinfileexist')
         );
         $uploadfile = basename(
-            isset($_FILES['snapin']['name']) ?: ''
+            isset($_FILES['snapin']['name']) ? $_FILES['snapin']['name'] : ''
         );
         if ($uploadfile) {
             $snapinfile = $uploadfile;

@@ -710,12 +710,14 @@ class MulticastTask extends FOGService
     {
         Route::listem(
             'multicastsessionassociation',
+            'msID',
+            false,
             ['msID' => $this->_intID]
         );
         $MSAssocs = json_decode(
             Route::getData()
-        );
-        $TaskPercent = [];
+        )->multicastsessionassociations;
+        $TaskPercent = [0];
         foreach ($MSAssocs as &$Task) {
             $TaskPercent[] = self::getClass('Task', $Task->taskID)->get('percent');
             unset($Task);
