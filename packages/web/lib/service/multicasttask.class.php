@@ -30,7 +30,7 @@ class MulticastTask extends FOGService
      *
      * @return array
      */
-    public static function getAllMulticastTasks(
+    public function getAllMulticastTasks(
         $root,
         $myStorageNodeID,
         $queuedStates
