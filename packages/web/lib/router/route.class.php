@@ -863,25 +863,26 @@ class Route extends FOGBase
         try {
             $class->createImagePackage(
                 $task->taskTypeID,
-                $task->taskName,
-                $task->shutdown,
-                $task->debug,
+                isset($task->taskName) ? $task->taskName : '',
+                isset($task->shutdown) ? $task->shutdown : false,
+                isset($task->debug) ? $task->debug : false,
                 (
-                    $task->deploySnapins === true ?
+                    (isset($task->deploySnapins) && $task->deploySnapins === true) ?
                     -1 :
                     (
-                        (is_numeric($task->deploySnapins)
+                        (isset($task->deploySnapins)
+                        && is_numeric($task->deploySnapins)
                         && $task->deploySnapins > 0)
-                        || $task->deploySnapins == -1 ?
+                        || isset($task->deploySnapins) && $task->deploySnapins == -1 ?
                         $task->deploySnapins :
                         false
                     )
                 ),
                 $class instanceof Group,
-                $_SERVER['PHP_AUTH_USER'],
-                $task->passreset,
-                $task->sessionjoin,
-                $task->wol
+                isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : '',
+                isset($task->passreset) ? $task->passreset : '',
+                isset($task->sessionjoin) ? $task->sessionjoin : false,
+                isset($task->wol) ? $task->wol : false
             );
         } catch (\Exception $e) {
             self::setErrorMessage(
@@ -923,6 +924,9 @@ class Route extends FOGBase
         }
         foreach ($classVars['databaseFields'] as &$key) {
             $key = $class->key($key);
+            if (!isset($vars->$key)) {
+                continue;
+            }
             $val = $vars->$key;
             if ($key == 'id'
                 || null === $val

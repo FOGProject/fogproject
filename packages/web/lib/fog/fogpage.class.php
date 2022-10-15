@@ -1706,7 +1706,6 @@ abstract class FOGPage extends FOGBase
                         array('id' => $this->obj->get('hosts')),
                         'imageID'
                     );
-                    $orig_hosts = $this->get('hosts');
                     $hostIDs = self::getSubObjectIDs(
                         'Host',
                         array(
