@@ -223,7 +223,8 @@ class MulticastManager extends FOGService
 
                 foreach ($this->checkIfNodeMaster() as &$StorageNode) {
                     // Now that tasks are removed, lets check new/current tasks
-                    $allTasks = MulticastTask::getAllMulticastTasks(
+                    $MulticastTask = new MulticastTask();
+                    $allTasks = $MulticastTask->getAllMulticastTasks(
                         $StorageNode->get('path'),
                         $StorageNode->get('id'),
                         $queuedStates
