@@ -1620,6 +1620,7 @@ class ImageManagementPage extends FOGPage
                 'mc_name' => $MulticastSession->name,
                 'mc_count' => $MulticastSession->sessclients,
                 'image_name' => $Image->name,
+                'os' => (new OS($Image->osID))->get('name'),
                 'mc_start' => self::formatTime(
                     $MulticastSession->starttime,
                     'Y-m-d H:i:s'
