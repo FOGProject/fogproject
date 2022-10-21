@@ -843,7 +843,7 @@ abstract class FOGManagerController extends FOGBase
             $waszero = false;
             if ($matchID === 0) {
                 $waszero = true;
-                $matchID = 9;  //default to Windows 10 (9)
+                $matchID = 11;  //default to Windows 11 (11)
             }
         }
         $elementName = trim($elementName);
