@@ -2738,6 +2738,13 @@ $this->schema[] = array(
     . "VALUES "
     . "('9', 'Windows 10', '')",
 );
+// 181bis
+$this->schema[] = array(
+    "INSERT IGNORE INTO `os` "
+    . "(`osID`, `osName`, `osDescription`) "
+    . "VALUES "
+    . "('11', 'Windows 11', '')",
+);
 // 182
 $this->schema[] = array(
     "UPDATE `pxeMenu` SET `pxeParams`='login\n"
