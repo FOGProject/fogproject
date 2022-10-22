@@ -2,7 +2,7 @@
 
 ## Introduction
 
- FOG is a free open-source cloning/imaging/rescue suite/inventory management system. FOG can be used to image Windows XP, Vista, Windows 7, Window 8/8.1, and Windows 10 PCs using PXE, PartClone, and a Web GUI to tie it together. Includes features like memory and disk test, disk wipe, av scan, task scheduling, inventory management, remote deployment of OS's, and remote installation of software packages. Features can be triggered through the web GUI, once the client machine has been registered with FOG.
+ FOG is a free open-source cloning/imaging/rescue suite/inventory management system. FOG can be used to image Windows XP, Vista, Windows 7, Window 8/8.1, and Windows 10, Windows 11 PCs using PXE, PartClone, and a Web GUI to tie it together. Includes features like memory and disk test, disk wipe, av scan, task scheduling, inventory management, remote deployment of OS's, and remote installation of software packages. Features can be triggered through the web GUI, once the client machine has been registered with FOG.
 
 ## Install stable version
 
