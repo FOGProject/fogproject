@@ -436,7 +436,7 @@ abstract class FOGService extends FOGBase
                 trim($myStorageNode->{$getPathOfItemField}, '/')
             );
             if (false === $fileOverride) {
-                $myFile = basename($Obj->get($getFileOfItemField));
+                $myFile = $Obj->get($getFileOfItemField);
             } else {
                 $myFile = $fileOverride;
             }
@@ -510,8 +510,9 @@ abstract class FOGService extends FOGBase
                     );
                     self::outall(
                         sprintf(
-                            ' | %s.',
-                            _('File or path cannot be reached')
+                            ' | %s: %s',
+                            _('File or path cannot be reached'),
+                            $myAdd
                         )
                     );
                     continue;
