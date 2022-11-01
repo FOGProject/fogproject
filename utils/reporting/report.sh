@@ -45,7 +45,7 @@ if [[ -f ${FOG_TFTP_PXE_KERNEL_DIR}${FOG_TFTP_PXE_KERNEL_32} ]]; then
     # Check if this is a linux kernel or not.
     if [[ "${file_information}" == *"Linux kernel"* ]]; then
         # Here, we are pretty sure the current file we're looking at is a Linux kernel. Parse the version information.
-        version=$(echo ${file_information} | cut -d, -f2 | sed 's/version*//' | xargs)
+        version=$(echo ${file_information} | cut -d, -f2 | sed 's/version*//' | cut -d "#" -f 1 | xargs)
         # If there are any double quotes in this version information, add a backslash in front of them for JSON escaping.
         version=$(echo $version | sed 's/"/\\"/g')
 	# Prepend the filename to the version.
@@ -69,7 +69,7 @@ if [[ -f ${FOG_TFTP_PXE_KERNEL_DIR}${FOG_TFTP_PXE_KERNEL} ]]; then
     # Check if this is a linux kernel or not.
     if [[ "${file_information}" == *"Linux kernel"* ]]; then
         # Here, we are pretty sure the current file we're looking at is a Linux kernel. Parse the version information.
-        version=$(echo ${file_information} | cut -d, -f2 | sed 's/version*//' | xargs)
+        version=$(echo ${file_information} | cut -d, -f2 | sed 's/version*//' | cut -d "#" -f 1 | xargs)
         # If there are any double quotes in this version information, add a backslash in front of them for JSON escaping.
         version=$(echo $version | sed 's/"/\\"/g')
         # Prepend the filename to the version.
@@ -95,7 +95,7 @@ for host_kernel in $FOG_HOST_KERNELS; do
             # Check if this is a linux kernel or not.
             if [[ "${file_information}" == *"Linux kernel"* ]]; then
                 # Here, we are pretty sure the current file we're looking at is a Linux kernel. Parse the version information.
-                version=$(echo ${file_information} | cut -d, -f2 | sed 's/version*//' | xargs)
+                version=$(echo ${file_information} | cut -d, -f2 | sed 's/version*//' | cut -d "#" -f 1 | xargs)
                 # If there are any double quotes in this version information, add a backslash in front of them for JSON escaping.
                 version=$(echo $version | sed 's/"/\\"/g')
                 # Prepend the filename to the version.
