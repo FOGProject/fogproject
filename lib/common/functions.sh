@@ -1141,7 +1141,7 @@ enableInitScript() {
 }
 installInitScript() {
     dots "Installing FOG System Scripts"
-    cp -f $initdsrc/* $initdpath/ >>$error_log 2>&1
+    cp -f $initdsrc/* $initdpath/ && systemctl daemon-reload >>$error_log 2>&1
     errorStat $?
     echo
     echo
