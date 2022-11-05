@@ -2408,7 +2408,7 @@ downloadfiles() {
     [[ ! -d ../tmp/  ]] && mkdir -p ../tmp/ >/dev/null 2>&1
     cwd=$(pwd)
     cd ../tmp/
-    if [[ $version =~ ^[0-9]\.[0-9]\.[0-9]$ ]]; then
+    if [[ $version =~ ^[0-9]\.[0-9]\.[0-9]+$ ]]; then
         urls=( "${fosURL}/${version}/init.xz" "${fosURL}/${version}/init_32.xz" "${fosURL}/${version}/bzImage" "${fosURL}/${version}/bzImage32" "${fogclientURL}/${clientVer}/FOGService.msi" "${fogclientURL}/${clientVer}/SmartInstaller.exe" )
         if [[ $armsupport == 1 ]]; then
             urls+=( "${fosURL}/${version}/arm_init.cpio.gz" "${fosURL}/${version}/arm_Image" )
@@ -2427,7 +2427,7 @@ downloadfiles() {
         baseurl=$(dirname -- "$url")
         hashurl="${baseurl}/${hashfile}"
         # make sure we download the most recent hash file to start with
-        if [[ -f $hashfile ]]; then
+        if [[ -f $hashfile && ! $version =~ ^[0-9]\.[0-9]\.[0-9]+$ ]]; then
             rm -f $hashfile
             curl --silent -kOL $hashurl >>$error_log 2>&1
         fi
