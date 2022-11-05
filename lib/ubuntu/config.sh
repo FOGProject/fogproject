@@ -16,105 +16,18 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-[[ -z $repo ]] && repo="php"
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
 [[ -z $webserver ]] && webserver="apache2"
 if [[ $linuxReleaseName_lower == +(*bian*) ]]; then
     sysvrcconf="sysv-rc-conf"
-    case $OSVersion in
-        8)
-            php_ver="5"
-            ;;
-        9)
-            php_ver="7.0"
-            x="*php5*"
-            ;;
-        10)
-            php_ver="7.3"
-            x="*php5* *php7.0*"
-            ;;
-        11)
-            php_ver="7.4"
-            x="*php5* *php7.0* *php7.3*"
-            ;;
-    esac
-    old_php=$(eval $packageQuery 2>/dev/null | awk '{print $2}' | tr '\n' ' ')
-    if [[ -n "$old_php" ]]; then
-        dots "Removing old PHP version before installing the new one"
-        DEBIAN_FRONTEND=noninteractive apt-get purge -yq ${old_php} >/dev/null 2>&1
-        [[ $? -ne 0 ]] && echo "Failed" || echo "Done"
-        apt-get clean -yq >/dev/null 2>&1
-    fi
 elif [[ $linuxReleaseName_lower == +(*ubuntu*|*mint*) ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get purge -yq sysv-rc-conf >/dev/null 2>&1
     case $OSVersion in
-        22)
-            php_ver="8.1"
-            ;;
-        21)
-            case $OSMinorVersion in
-                10)
-                    php_ver="8.0"
-                    ;;
-                04)
-                    php_ver="7.4"
-                    ;;
-            esac
-            ;;
-        20)
-            php_ver="7.4"
-            ;;
-        19)
-            php_ver="7.3"
-            ;;
-        18)
-            php_ver="7.2"
-            ;;
-        *)
+        16)
             sysvrcconf="sysv-rc-conf"
-            php_ver="7.1"
-            x="*php5* *php-5*"
-            eval $packageQuery >>$error_log 2>&1
-            if [[ $webserver == "apache2" && $? -ne 0 ]]; then
-                if [[ $autoaccept != yes ]]; then
-                    echo " *** Detected a potential need to reinstall apache and php files."
-                    echo " *** This will remove the /etc/php* and /etc/apache2* directories"
-                    echo " ***  and remove/purge the apache and php files from this system."
-                    echo " *** If you're okay with this please type Y, anything else will"
-                    echo " ***  continue the installation, but may mean you will need to"
-                    echo " ***  remove the files later and make proper changes as "
-                    echo " ***  necessary. (Y/N): "
-                    read dummy
-                else
-                    dummy="y"
-                fi
-                case $dummy in
-                    [Yy])
-                        dots "Removing apache and php files"
-                        rm -rf /etc/php* /etc/apache2*
-                        echo "Done"
-                        dots "Stopping web services"
-                        if [[ $systemctl == yes ]]; then
-                            systemctl is-active --quiet $webserver && systemctl stop $webserver >/dev/null 2>&1 || true
-                        fi
-                        [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
-                        dots "Removing the apache and php packages"
-                        DEBIAN_FRONTEND=noninteractive apt-get purge -yq 'apache2*' 'php5*' 'php7*' 'libapache*' >/dev/null 2>&1
-                        [[ ! $? -eq 0 ]] && echo "Failed" || echo "Done"
-                        apt-get clean -yq >/dev/null 2>&1
-                        ;;
-                esac
-            fi
+            ;;
     esac
-else
-    [[ -z $php_ver ]] && php_ver=5
 fi
-[[ -z $php_verAdds ]] && php_verAdds="-${php_ver}"
-[[ $php_ver == 5 ]] && php_verAdds="-5.6"
-[[ $php_ver != 5 ]] && phpcmd="php" || phpcmd="php5"
-[[ -z $phpfpm ]] && phpfpm="php${php_ver}-fpm"
-[[ -z $phpldap ]] && phpldap="php${php_ver}-ldap"
-[[ -z $phpcmd ]] && phpcmd="php"
 case $linuxReleaseName_lower in
     *ubuntu*|*bian*|*mint*)
         if [[ -z $packages ]]; then
@@ -122,23 +35,20 @@ case $linuxReleaseName_lower in
             eval $packageQuery >>$error_log 2>&1
             [[ $? -eq 0 ]] && db_packages="mysql-client mysql-server" || db_packages="mariadb-client mariadb-server"
             if [[ $webserver == "apache2" ]]; then
-                libapache="libapache2-mod-fastcgi libapache2-mod-php${php_ver}"
+                libapache="libapache2-mod-fastcgi libapache2-mod-php"
             fi
-            packages="build-essential cpp curl g++ gawk gcc genisoimage git gzip htmldoc isc-dhcp-server isolinux lftp ${libapache} libc6 libcurl3 liblzma-dev m4 ${db_packages} net-tools nfs-kernel-server openssh-server $phpfpm php${php_ver} php${php_ver}-cli php${php_ver}-curl php${php_ver}-gd php${php_ver}-json $phpldap php${php_ver}-mysql php${php_ver}-mysqlnd ${sysvrcconf} tar tftpd-hpa tftp-hpa vsftpd wget  zlib1g"
+            packages="build-essential cpp curl g++ gawk gcc genisoimage git gzip htmldoc isc-dhcp-server isolinux lftp ${libapache} libc6 libcurl3 liblzma-dev m4 ${db_packages} net-tools nfs-kernel-server openssh-server php-fpm php php-cli php-curl php-gd php-json php-ldap php-mbstring php-mysql php-mysqlnd ${sysvrcconf} tar tftpd-hpa tftp-hpa vsftpd wget zlib1g"
         else
-            # make sure we update all the php version numbers with those specified above
-            packages=${packages//php[0-9]\.[0-9]/php${php_ver}}
+            # make sure we update the package list to not use specific version numbers anymore
+            packages=${packages//php[0-9]\.[0-9]/php}
         fi
         [[ -z $packageinstaller ]] && packageinstaller="apt-get -yq install -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
         [[ -z $packagelist ]] && packagelist="apt-cache pkgnames | grep"
         [[ -z $packageupdater ]] && packageupdater="apt-get -yq upgrade -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
         [[ -z $packmanUpdate ]] && packmanUpdate="apt-get update"
-        [[ -z $dhcpname ]] && dhcpname="isc-dhcp-server"
-        [[ -z $olddhcpname ]] && olddhcpname="dhcp3-server"
         ;;
 esac
 [[ -z $langPackages ]] && langPackages="language-pack-it language-pack-en language-pack-es language-pack-zh-hans"
-[[ $php_ver != 5 ]] && packages="$packages php${php_ver}-mbstring"
 if [[ -z $webdirdest ]]; then
     if [[ -z $docroot ]]; then
         docroot="/var/www/html/"
@@ -164,7 +74,6 @@ fi
 [[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/access.log"
 # This will likely need adjustment as apache2 is only known one for now
 [[ -z $etcconf ]] && etcconf="/etc/$webserver/sites-available/001-fog.conf"
-[[ $php_ver != 5 ]] && phpini="/etc/$phpcmd/$php_ver/fpm/php.ini" || phpini="/etc/$phpcmd/fpm/php.ini"
 [[ -z $storageLocation ]] && storageLocation="/images"
 [[ -z $storageLocationCapture ]] && storageLocationCapture="${storageLocation}/dev"
 [[ -z $dhcpconfig ]] && dhcpconfig="/etc/dhcp3/dhcpd.conf"
@@ -174,11 +83,4 @@ fi
 [[ -z $tftpconfigupstartdefaults ]] && tftpconfigupstartdefaults="/etc/default/tftpd-hpa"
 [[ -z $ftpconfig ]] && ftpconfig="/etc/vsftpd.conf"
 [[ -z $snapindir ]] && snapindir="/opt/fog/snapins"
-[[ -z $jsontest ]] && jsontest="php${php_ver}-json php${php_ver}-common"
-if [[ -z $dhcpd ]]; then
-    if [[ -e /etc/init.d/$dhcpname ]]; then
-        dhcpd=$dhcpname
-    elif [[ -e /etc/init.d/$olddhcpname ]]; then
-        dhcpd=$olddhcpname
-    fi
-fi
+[[ -z $dhcpd ]] && dhcpd="isc-dhcp-server"
