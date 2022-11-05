@@ -34,7 +34,7 @@ case $linuxReleaseName_lower in
         [[ -z $packages ]] && {
             if [[ $OSVersion -gt 7 ]]; then
                 packages="curl dhcp-server gcc gcc-c++ genisoimage git gzip httpd lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils openssl php php-cli php-common php-fpm php-gd php-json php-ldap php-mbstring php-mysqlnd php-process syslinux tar tftp-server util-linux-user vsftpd wget xz-devel"
-		[[ -z $dhcpname ]] && dhcpname="dhcp-server"
+                [[ -z $dhcpname ]] && dhcpname="dhcp-server"
             else
                 packages="curl dhcp gcc gcc-c++ genisoimage git gzip httpd lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils openssl php php-cli php-common php-fpm php-gd php-ldap php-mbstring php-mysqlnd php-process syslinux tar tftp-server util-linux vsftpd wget xz-devel"
             fi
