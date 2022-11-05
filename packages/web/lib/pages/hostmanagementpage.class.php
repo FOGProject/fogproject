@@ -2929,10 +2929,10 @@ class HostManagementPage extends FOGPage
                     'hostID' => $this->obj->get('id')
                 )
             );
-            $taskID = @max($TaskIDs);
-            if (!$taskID) {
+            if (!is_array($TaskIDs) || count($TaskIDs) == 0) {
                 continue;
             }
+            $taskID = @max($TaskIDs);
             Route::indiv('task', $taskID);
             $Task = json_decode(
                 Route::getData()
