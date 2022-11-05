@@ -79,7 +79,6 @@ fi
 [[ -z $dhcpconfig ]] && dhcpconfig="/etc/dhcp3/dhcpd.conf"
 [[ -z $dhcpconfigother ]] && dhcpconfigother="/etc/dhcp/dhcpd.conf"
 [[ -z $tftpdirdst ]] && tftpdirdst="/tftpboot"
-[[ -z $tftpconfigupstartconf ]] && tftpconfigupstartconf="/etc/init/tftpd-hpa.conf"
 [[ -z $tftpconfigupstartdefaults ]] && tftpconfigupstartdefaults="/etc/default/tftpd-hpa"
 [[ -z $ftpconfig ]] && ftpconfig="/etc/vsftpd.conf"
 [[ -z $snapindir ]] && snapindir="/opt/fog/snapins"
