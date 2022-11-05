@@ -85,6 +85,7 @@ elif [[ $websever == nginx ]]; then
 fi
 [[ -z $apacheerrlog ]] && apacheerrlog="$apachelogdir/$httperrlog"
 [[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/$httpacclog"
+[[ -z $phpfpm ]] && phpfpm="php-fpm"
 [[ -z $phpini ]] && phpini="/etc/php.ini"
 [[ -z $storageLocation ]] && storageLocation="/images"
 [[ -z $storageLocationCapture ]] && storageLocationCapture="${storageLocation}/dev"
