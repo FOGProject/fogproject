@@ -718,8 +718,9 @@ installPackages() {
             fi
             packages="${packages// xinetd/}"
             packages="${packages// php${php_ver}-mcrypt/}"
+            packages="${packages// php-gettext/}"
+            packages="${packages// php-php-gettext/}"
             packages="${packages} php${php_ver}-bcmath bc"
-            packages="${packages/php-gettext/$phpgettext}"
             if [[ $installlang -eq 1 ]]; then
                 packages="$packages php${php_ver}-intl"
                 for i in fr de eu es pt zh-hans en; do
