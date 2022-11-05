@@ -48,8 +48,6 @@ if [[ -f ${FOG_TFTP_PXE_KERNEL_DIR}${FOG_TFTP_PXE_KERNEL_32} ]]; then
         version=$(echo ${file_information} | cut -d, -f2 | sed 's/version*//' | cut -d "#" -f 1 | xargs)
         # If there are any double quotes in this version information, add a backslash in front of them for JSON escaping.
         version=$(echo $version | sed 's/"/\\"/g')
-	# Prepend the filename to the version.
-	version="${FOG_TFTP_PXE_KERNEL_32} ${version}"
 	# Wrap the version in double quotes for JSON syntax.
         version="\"${version}\""
         # Check if the last character in the kernel_versions_info variable is a double quote. If so, add a leading comma.
@@ -72,8 +70,6 @@ if [[ -f ${FOG_TFTP_PXE_KERNEL_DIR}${FOG_TFTP_PXE_KERNEL} ]]; then
         version=$(echo ${file_information} | cut -d, -f2 | sed 's/version*//' | cut -d "#" -f 1 | xargs)
         # If there are any double quotes in this version information, add a backslash in front of them for JSON escaping.
         version=$(echo $version | sed 's/"/\\"/g')
-        # Prepend the filename to the version.
-        version="${FOG_TFTP_PXE_KERNEL} ${version}"
         # Wrap the version in double quotes for JSON syntax.
         version="\"${version}\""
         # Check if the last character in the kernel_versions_info variable is a double quote. If so, add a leading comma.
@@ -98,8 +94,6 @@ for host_kernel in $FOG_HOST_KERNELS; do
                 version=$(echo ${file_information} | cut -d, -f2 | sed 's/version*//' | cut -d "#" -f 1 | xargs)
                 # If there are any double quotes in this version information, add a backslash in front of them for JSON escaping.
                 version=$(echo $version | sed 's/"/\\"/g')
-                # Prepend the filename to the version.
-                version="${host_kernel} ${version}"
                 # Wrap the version in double quotes for JSON syntax.
                 version="\"${version}\""
                 # Check if the last character in the kernel_versions_info variable is a double quote. If so, add a leading comma.
