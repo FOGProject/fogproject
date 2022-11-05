@@ -2204,7 +2204,7 @@ class Host extends FOGController
                                 ),
                             'id'
                         );
-                        if (is_null($taskID)) {
+                        if (is_null($taskID) || (is_array($taskID) && count($taskID) === 0)) {
                             printf($strtoupdate, 'linux', 'linux', 'blue', 'Linux');
                         } else {
                             printf($strtoupdate, 'fos', 'cogs', 'green', 'FOS');
