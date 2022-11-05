@@ -3,6 +3,10 @@
 # Get the OS Information.
 read -r os_name os_version <<< $(lsb_release -ir | cut -d':' -f2 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | tr '\n' ' ')
 
+# Try another method if lsb_release is not installed or returned empty values
+[[ -z $os_name ]] && os_name=$(sed -n 's/^NAME=\(.*\)/\1/p' /etc/os-release | tr -d '"')
+[[ -z $os_version ]] && os_version=$(sed -n 's/^VERSION_ID=\([^.]*\).*/\1/p' /etc/os-release | tr -d '"')
+
 # Get the FOG Version.
 source /opt/fog/.fogsettings
 system_class_php=${docroot}/${webroot}/lib/fog/system.class.php
