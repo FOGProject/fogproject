@@ -166,7 +166,7 @@ class Host extends FOGController
         case 'additionalMACs':
         case 'pendingMACs':
             $newValue = array_map(
-                function (&$mac) {
+                function ($mac) {
                     return new MACAddress($mac);
                 },
                 (array)$value
