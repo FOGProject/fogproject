@@ -318,7 +318,11 @@ class SnapinClient extends FOGClient implements FOGClientSend
                         )
                     )
                 );
-                $snapinTaskID = @max($snapinTaskID);
+                if (!is_array($snapinTaskID) || count($snapinTaskID) == 0) {
+                    $snapinTaskID = null;
+                } else {
+                    $snapinTaskID = @max($snapinTaskID);
+                }
                 $SnapinTask = new SnapinTask($snapinTaskID);
                 if (!$SnapinTask->isValid()) {
                     throw new Exception(
