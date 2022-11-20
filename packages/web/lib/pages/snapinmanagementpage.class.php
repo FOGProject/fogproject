@@ -1670,6 +1670,19 @@ class SnapinManagementPage extends FOGPage
                     $storagegrouprm
                 );
         }
+        $primary = self::getSubObjectIDs(
+            'SnapinGroupAssociation',
+            array(
+                'snapinID' => $this->get('id'),
+                'primary' => 1
+            ),
+            'storagegroupID'
+        );
+        $this->obj->assocSetter('SnapinGroup', 'storagegroup');
+        if (count($primary) > 0) {
+            $primary = array_shift($primary);
+            $this->setPrimaryGroup($primary);
+	}
     }
     /**
      * Submit for update.
@@ -1689,12 +1702,14 @@ class SnapinManagementPage extends FOGPage
             switch ($tab) {
             case 'snap-gen':
                 $this->snapinGeneralPost();
+                $updateSuccess = $this->obj->save();
                 break;
             case 'snap-storage':
                 $this->snapinStoragegroupsPost();
+                $updateSuccess = true;
                 break;
             }
-            if (!$this->obj->save()) {
+            if (!$updateSuccess) {
                 throw new Exception(_('Snapin update failed!'));
             }
             $hook = 'SNAPIN_UPDATE_SUCCESS';
@@ -1721,5 +1736,39 @@ class SnapinManagementPage extends FOGPage
             );
         echo $msg;
         exit;
+    }
+    /**
+     * Customize membership actions
+     *
+     * @return void
+     */
+    public function membershipPost()
+    {
+        if (self::$ajax) {
+            return;
+        }
+        $reqitems = filter_input_array(
+            INPUT_POST,
+            array(
+                'host' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                ),
+                'hostdel' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                )
+            )
+        );
+        $host = $reqitems['host'];
+        $hostdel = $reqitems['hostdel'];
+        if (isset($_POST['addHosts'])) {
+            $this->obj->addHost($host);
+        }
+        if (isset($_POST['remhosts'])) {
+            $this->obj->removeHost($hostdel);
+        }
+        if ($this->obj->assocSetter('Snapin', 'host')) {
+            $this->obj->load();
+            self::redirect($this->formAction);
+        }
     }
 }
