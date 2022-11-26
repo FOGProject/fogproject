@@ -897,7 +897,7 @@ class FOGFTP extends FOGGetSet
             $fileinfo = preg_split(
                 '#\s+#',
                 $file,
-                null,
+                -1,
                 PREG_SPLIT_NO_EMPTY
             );
             $size += (float)$fileinfo[4];
