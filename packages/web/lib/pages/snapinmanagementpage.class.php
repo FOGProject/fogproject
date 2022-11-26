@@ -1682,7 +1682,7 @@ class SnapinManagementPage extends FOGPage
         if (count($primary) > 0) {
             $primary = array_shift($primary);
             $this->setPrimaryGroup($primary);
-	}
+        }
     }
     /**
      * Submit for update.

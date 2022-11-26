@@ -524,10 +524,12 @@ abstract class FOGService extends FOGBase
                     ->set('username', $StorageNode->user)
                     ->set('password', $StorageNode->pass)
                     ->set('host', $StorageNode->ip);
-                if (!self::$FOGFTP->connect()) {
+                try {
+                    self::$FOGFTP->connect();
+                } catch (Exception $e) {
                     self::outall(
                         sprintf(
-                            ' * %s %s',
+                            ' * Error: %s %s',
                             _('Cannot connect to'),
                             $StorageNode->name
                         )
