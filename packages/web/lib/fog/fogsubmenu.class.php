@@ -564,7 +564,7 @@ class FOGSubMenu extends FOGBase
             throw new Exception(_('Title must be a string'));
         }
         $dash = strpos('-', $title) ? '-' : ' ';
-        $e = preg_split('#[\s|-]#', $title, null, PREG_SPLIT_NO_EMPTY);
+        $e = preg_split('#[\s|-]#', $title, -1, PREG_SPLIT_NO_EMPTY);
         return implode($dash, $e);
     }
     /**
