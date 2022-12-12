@@ -542,16 +542,12 @@ while [[ -z $blGo ]]; do
             checkInternetConnection
             if [[ $ignorehtmldoc -eq 1 ]]; then
                 [[ -z $newpackagelist ]] && newpackagelist=""
-                for z in $packages; do
-                    [[ $z != htmldoc ]] && newpackagelist="$newpackagelist $z"
-                done
+                newpackagelist=( "${packages[@]/$htmldoc}" )
                 packages="$(echo $newpackagelist)"
             fi
             if [[ $bldhcp == 0 ]]; then
                 [[ -z $newpackagelist ]] && newpackagelist=""
-                for z in $packages; do
-                    [[ $z != $dhcpname ]] && newpackagelist="$newpackagelist $z"
-                done
+                newpackagelist=( "${packages[@]/$dhcpname}" )
                 packages="$(echo $newpackagelist)"
             fi
             case $installtype in
