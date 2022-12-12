@@ -10,7 +10,7 @@ Find some detailed information on how the FOG project is structured and how to c
 
 [Just allow me one question](#just-allow-ne-one-question)
 
-[Before you get started](#before you get started)
+[Before you get started](#before-you-get-started)
   * [Repos, languages and foo](#repos-languages-and-foo)
   * [Versions and branches](#versions-and-branches)
 
@@ -29,7 +29,7 @@ Find some detailed information on how the FOG project is structured and how to c
 
 [Additional Notes](#additional-notes)
   * [Issue and Pull Request Labels](#issue-and-pull-request-labels)
-  * [Attribution](#attribution)
+  * [Final Attribution](#final-attribution)
 
 
 
@@ -48,6 +48,8 @@ identity and orientation.
 
 We pledge to act and interact in ways that contribute to an open, welcoming,
 diverse, inclusive, and healthy community.
+
+<details><summary>Click here for further details</summary>
 
 ### Our Standards
 
@@ -149,7 +151,7 @@ individual, or aggression toward or disparagement of classes of individuals.
 **Consequence**: A permanent ban from any sort of public interaction within the
 community.
 
-### Attribution
+### CoC Attribution
 
 This Code of Conduct is adapted from the [Contributor Covenant][homepage],
 version 2.1, available at
@@ -160,7 +162,7 @@ For answers to common questions about this code of conduct, see the FAQ at
 [https://www.contributor-covenant.org/translations][translations].
 
 [homepage]: https://www.contributor-covenant.org
-
+</details>
 
 
 ### Reporting Bugs
