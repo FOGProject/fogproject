@@ -29,7 +29,7 @@ Find some detailed information on how the FOG project is structured and how to c
 
 [Additional Notes](#additional-notes)
   * [Issue and Pull Request Labels](#issue-and-pull-request-labels)
-  * [Final Attribution](#final-attribution)
+  * [Attribution](#attribution)
 
 
 
