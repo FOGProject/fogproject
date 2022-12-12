@@ -62,9 +62,4 @@ There are many resources for assistance.
 
  Download the source with git and checkout the branch `dev-branch` for the latest code or a more specific feature branch you would like to help work on.
 
- As you are running a development branch, please post bugs to either:
-
- - https://github.com/FOGProject/fogproject/issues
- - https://forums.fogproject.org/category/17/bug-reports
-
- If you would like to create a pull request, please make the pull request into the `dev-branch` branch.
+ For further details please check out the [information on contributing to the project](CONTRIBUTING.md).
