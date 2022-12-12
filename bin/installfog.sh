@@ -548,7 +548,6 @@ while [[ -z $blGo ]]; do
             if [[ $bldhcp == 0 ]]; then
                 [[ -z $newpackagelist ]] && newpackagelist=""
                 newpackagelist=( "${packages[@]/$dhcpname}" )
-                # Additional check for Debian/Ubuntu variants
                 packages="$(echo $newpackagelist)"
             fi
             case $installtype in
