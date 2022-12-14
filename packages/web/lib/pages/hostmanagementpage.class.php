@@ -3808,10 +3808,10 @@ class HostManagementPage extends FOGPage
             );
             if (array_key_exists('login', $Data[$Login->username])) {
                 if ($Login->action > 0) {
-                    $Data[$Login->username]['logout'] = (int)$time - 1;
+                    $Data[$Login->username]['logout'] = ($time->getTimestamp()) - 1;
                     $data[] = $Data[$Login->username];
                 } elseif ($Login->action < 1) {
-                    $Data[$Login->username]['logout'] = (int)$time;
+                    $Data[$Login->username]['logout'] = $time->getTimestamp();
                     $data[] = $Data[$Login->username];
                 }
                 $Data[$Login->username] = array(
@@ -3821,7 +3821,7 @@ class HostManagementPage extends FOGPage
                 );
             }
             if ($Login->action > 0) {
-                $Data[$Login->username]['login'] = (int)$time;
+                $Data[$Login->username]['login'] = $time->getTimestamp();
             }
             unset($Login);
         }

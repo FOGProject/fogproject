@@ -137,7 +137,7 @@ class TaskManagementPage extends FOGPage
                 $Task->id
             );
             $SnapinTrue = $tmpTask->isSnapinTasking();
-            if ($SnapinTrue) {
+            if ($SnapinTrue && isset($Task->host->snapinjob)) {
                 $SnapinJob = self::getClass(
                     'SnapinJob',
                     $Task->host->snapinjob->id
