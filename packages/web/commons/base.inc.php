@@ -34,11 +34,9 @@ header(
     . "style-src 'self' 'unsafe-inline';"
     . "font-src 'self';"
 );
-header('Access-Control-Allow-Origin: *');
 /**
  * Our required files, text for language and init to initialize system.
  */
-require 'text.php';
 require 'init.php';
 /**
  * All output should be sanitized for faster browser experience.
@@ -46,4 +44,5 @@ require 'init.php';
 ob_start(array('Initiator', 'sanitizeOutput'));
 Initiator::sanitizeItems();
 Initiator::startInit();
+require BASEPATH . "commons/text.php";
 new LoadGlobals();

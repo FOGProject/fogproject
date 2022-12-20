@@ -48,7 +48,7 @@ class PluginManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Plugin Management';
+        $this->name = self::$foglang['Plugin Management'];
         parent::__construct($this->name);
         Route::listem('plugin');
         self::$_plugins = json_decode(
@@ -110,7 +110,7 @@ class PluginManagementPage extends FOGPage
             array_unshift(
                 $this->attributes,
                 array(
-                    'class' => 'filter-false form-group',
+                    'class' => 'parser-false filter-false form-group',
                     'width' => 16
                 )
             );
@@ -125,17 +125,20 @@ class PluginManagementPage extends FOGPage
         self::$returnData = function (&$Plugin) {
             switch (self::$_plugintype) {
             case 'install':
-                if (!$Plugin->state || $Plugin->installed) {
+                if (!(isset($Plugin->state) && $Plugin->state) ||
+                    (isset($Plugin->installed) && $Plugin->installed)) {
                     return;
                 }
                 break;
             case 'installed':
-                if (!$Plugin->state || !$Plugin->installed) {
+                if (!(isset($Plugin->state) && $Plugin->state) ||
+                    !(isset($Plugin->installed) && $Plugin->installed)) {
                     return;
                 }
                 break;
             case 'activate':
-                if ($Plugin->state || $Plugin->installed) {
+                if ((isset($Plugin->state) && $Plugin->state) ||
+                    (isset($Plugin->installed) && $Plugin->installed)) {
                     return;
                 }
                 break;
@@ -143,7 +146,7 @@ class PluginManagementPage extends FOGPage
             $this->data[] = array(
                 'type' => self::$_plugintype,
                 'encname' => md5($Plugin->name),
-                'id' => $Plugin->id,
+                'id' => (isset($Plugin->id) ? $Plugin->id : ''),
                 'name' => $Plugin->name,
                 'icon' => $Plugin->icon,
                 'desc' => $Plugin->description,
@@ -399,19 +402,16 @@ class PluginManagementPage extends FOGPage
                         array('class' => 'col-xs-4'),
                         array('class' => 'col-xs-8 form-group')
                     );
-                    list(
-                        $dmifield,
-                        $shutdown
-                    ) = self::getSubObjectIDs(
+                    $dmifield = array_shift(self::getSubObjectIDs(
                         'Service',
-                        array(
-                            'name' => array(
-                                'FOG_PLUGIN_CAPONE_DMI',
-                                'FOG_PLUGIN_CAPONE_SHUTDOWN',
-                            )
-                        ),
+                        array('name' => 'FOG_PLUGIN_CAPONE_DMI'),
                         'value'
-                    );
+                    ));
+                    $shutdown = array_shift(self::getSubObjectIDs(
+                        'Service',
+                        array('name' => 'FOG_PLUGIN_CAPONE_SHUTDOWN'),
+                        'value'
+                    ));
                     $dmiSel = self::selectForm(
                         'dmifield',
                         $dmiFields,
@@ -497,7 +497,7 @@ class PluginManagementPage extends FOGPage
                     $this->attributes = array(
                         array(
                             'width' => 16,
-                            'class' => 'filter-false'
+                            'class' => 'parser-false filter-false'
                         ),
                         array(),
                         array(),

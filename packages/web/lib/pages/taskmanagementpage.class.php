@@ -36,7 +36,7 @@ class TaskManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Task Management';
+        $this->name = _('Task Management');
         parent::__construct($this->name);
         $this->menu = array(
             'active' => self::$foglang['ActiveTasks'],
@@ -100,7 +100,7 @@ class TaskManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'task-id' => '${id}'
             ),
             array(
@@ -137,7 +137,7 @@ class TaskManagementPage extends FOGPage
                 $Task->id
             );
             $SnapinTrue = $tmpTask->isSnapinTasking();
-            if ($SnapinTrue) {
+            if ($SnapinTrue && isset($Task->host->snapinjob)) {
                 $SnapinJob = self::getClass(
                     'SnapinJob',
                     $Task->host->snapinjob->id
@@ -177,7 +177,7 @@ class TaskManagementPage extends FOGPage
             }
             $this->data[] = array(
                 'startedby' => $Task->createdBy,
-                'details_taskforce' => $forcetask,
+                'details_taskforce' => isset($forcetask) ? $forcetask : '',
                 'id' => $Task->id,
                 'name' => $Task->name,
                 'time' => self::formatTime(
@@ -187,29 +187,29 @@ class TaskManagementPage extends FOGPage
                 'state' => $Task->state->name,
                 'forced' => $Task->isForced,
                 'type' => $Task->type->name,
-                'elapsed' => $Task->timeElapsed,
-                'remains' => $Task->timeRemaining,
-                'percent' => $Task->pct,
-                'copied' => $Task->dataCopied,
-                'total' => $Task->dataTotal,
-                'bpm' => $Task->bpm,
+                'elapsed' => isset($Task->timeElapsed) ? $Task->timeElapsed : '',
+                'remains' => isset($Task->timeRemaining) ? $Task->timeRemaining : '',
+                'percent' => isset($Task->pct) ? $Task->pct : '',
+                'copied' => isset($Task->dataCopied) ? $Task->dataCopied : '',
+                'total' => isset($Task->dataTotal) ? $Task->dataTotal : '',
+                'bpm' => isset($Task->bpm) ? $Task->bpm : '',
                 'details_taskname' => (
-                    $Task->name ?
+                    (isset($Task->name) && $Task->name) ?
                     sprintf(
                         '<div class="task-name">%s</div>',
                         $Task->name
                     ) :
                     ''
                 ),
-                'host_id' => $Task->host->id,
-                'host_name' => $Task->host->name,
-                'host_mac' => $Task->host->mac,
-                'icon_state' => $Task->state->icon,
-                'icon_type' => $Task->type->icon,
-                'state_id' => $Task->state->id,
-                'image_name' => $Task->image->name,
-                'image_id' => $Task->image->id,
-                'node_name' => $Task->storagenode->name
+                'host_id' => isset($Task->host->id) ? $Task->host->id : '',
+                'host_name' => isset($Task->host->name) ? $Task->host->name : '',
+                'host_mac' => isset($Task->host->mac) ? $Task->host->mac : '',
+                'icon_state' => isset($Task->state->icon) ? $Task->state->icon : '',
+                'icon_type' => isset($Task->type->icon) ? $Task->type->icon : '',
+                'state_id' => isset($Task->state->id) ? $Task->state->id : '',
+                'image_name' => isset($Task->image->name) ? $Task->image->name : '',
+                'image_id' => isset($Task->image->id) ? $Task->image->id : '',
+                'node_name' => isset($Task->storagenode->name) ? $Task->storagenode->name : ''
             );
             unset($tmpTask, $Task);
         };
@@ -367,7 +367,7 @@ class TaskManagementPage extends FOGPage
             ),
             array(
                 'width' => 60,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
         );
         Route::listem(
@@ -465,7 +465,7 @@ class TaskManagementPage extends FOGPage
             ),
             array(
                 'width' => 60,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
         );
         Route::listem('group');
@@ -822,7 +822,7 @@ class TaskManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'task-id' => '${id}'
             ),
             array(
@@ -952,7 +952,7 @@ class TaskManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'width' => 16,
                 'task-id'=>'${id}'
             ),
@@ -1153,7 +1153,7 @@ class TaskManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'task-id' => '${id}'
             ),
             array(

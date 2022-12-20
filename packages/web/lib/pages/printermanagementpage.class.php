@@ -43,7 +43,7 @@ class PrinterManagementPage extends FOGPage
     public function __construct($name = '')
     {
         global $id;
-        $this->name = 'Printer Management';
+        $this->name = self::$foglang['Printer Management'];
         parent::__construct($this->name);
         if ($id) {
             $this->_config = _('TCP/IP');
@@ -112,7 +112,7 @@ class PrinterManagementPage extends FOGPage
                 'data-placement' => 'right'
             ),
             array(
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(),
             array(),
@@ -419,7 +419,7 @@ class PrinterManagementPage extends FOGPage
             . '/>'
             . '</div>',
             '<label for="iplocal">'
-            . _('Printer IP')
+            . _('Printer IP/Hostname')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="ip" value="'
             . $ip
@@ -762,7 +762,7 @@ class PrinterManagementPage extends FOGPage
             . '/>'
             . '</div>',
             '<label for="ipcups">'
-            . _('Printer IP')
+            . _('Printer IP/Hostname')
             . '</label>' => '<div class="input-group">'
             . '<input type="text" name="ip" value="'
             . $ip

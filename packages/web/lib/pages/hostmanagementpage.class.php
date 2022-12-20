@@ -40,7 +40,7 @@ class HostManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Host Management';
+        $this->name = self::$foglang['Host Management'];
         parent::__construct($this->name);
         if (self::$pendingHosts > 0) {
             $this->menu['pending'] = self::$foglang['PendingHosts'];
@@ -122,7 +122,12 @@ class HostManagementPage extends FOGPage
                 self::$foglang['Image'] => $this->obj->getImageName(),
                 self::$foglang['LastDeployed'] => $this->obj->get('deployed'),
             );
-            $primaryGroup = @min($this->obj->get('groups'));
+            $primaryGroup = $this->obj->get('groups');
+            if (is_array($primaryGroup) && count($primaryGroup) > 0) {
+                $primaryGroup = min($primaryGroup);
+            } else {
+                $primaryGroup = 0;
+            }
             $Group = new Group($primaryGroup);
             if ($Group->isValid()) {
                 $this->notes[self::$foglang['PrimaryGroup']] = $Group->get('name');
@@ -230,13 +235,13 @@ class HostManagementPage extends FOGPage
             array(
                 'width' => 16,
                 'id' => 'host-${host_name}',
-                'class' => 'filter-false',
+                'class' => 'l filter-false',
                 'title' => '${host_desc}',
                 'data-toggle' => 'tooltip',
                 'data-placement' => 'right'
             ),
             array(
-                'class' => 'l filter-false form-group',
+                'class' => 'l parser-false filter-false form-group',
                 'width' => 16
             ),
         );
@@ -255,7 +260,7 @@ class HostManagementPage extends FOGPage
             array('width' => 145),
             array(
                 'width' => 60,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(
                 'width' => 20
@@ -268,7 +273,7 @@ class HostManagementPage extends FOGPage
          *
          * @return void
          */
-        self::$returnData = function (&$Host) {
+        self::$returnData = function ($Host) {
             $this->data[] = array(
                 'id' => $Host->id,
                 'deployed' => self::formatTime(
@@ -691,7 +696,7 @@ class HostManagementPage extends FOGPage
         self::$HookManager
             ->processEvent(
                 $hook,
-                array('Host' => &$Host)
+                array('Host' => &self::$Host)
             );
         echo $msg;
         exit;
@@ -782,13 +787,13 @@ class HostManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             )
         );
         Route::listem('powermanagement');
@@ -823,7 +828,7 @@ class HostManagementPage extends FOGPage
             unset($PowerManagement);
         }
         // Current data.
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             echo '<div class="panel panel-info">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
@@ -1447,7 +1452,7 @@ class HostManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(),
             array()
@@ -1583,7 +1588,7 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'HOST_ADD_PRINTER',
@@ -1657,10 +1662,10 @@ class HostManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false col-xs-1'
+                'class' => 'parser-false filter-false col-xs-1'
             ),
             array(
-                'class' => 'filter-false col-xs-1'
+                'class' => 'parser-false filter-false col-xs-1'
             ),
             array(),
             array()
@@ -1685,7 +1690,7 @@ class HostManagementPage extends FOGPage
             );
             unset($Printer);
         }
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'HOST_EDIT_PRINTER',
@@ -1773,7 +1778,7 @@ class HostManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(),
             array()
@@ -1808,7 +1813,7 @@ class HostManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '&tab=host-snapins">';
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'HOST_ADD_SNAPIN',
@@ -1876,7 +1881,7 @@ class HostManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(),
             array()
@@ -1894,7 +1899,7 @@ class HostManagementPage extends FOGPage
             );
             unset($Snapin);
         }
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             self::$HookManager
                 ->processEvent(
                     'HOST_EDIT_SNAPIN',
@@ -2608,7 +2613,7 @@ class HostManagementPage extends FOGPage
                 )
             );
         $paneltype = 'info';
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             $paneltype = 'warning';
         }
         echo '<!-- Virus -->';
@@ -2872,8 +2877,8 @@ class HostManagementPage extends FOGPage
                 _('Storage Group'),
                 _('Storage Node')
             ),
-            '<small>${start_date}</small><br/><small>${start_time}</small>',
-            '<small>${end_date}</small><br/><small>${end_time}</small>',
+            '<small>${start_date} ${start_time}</small>',
+            '<small>${end_date} ${end_time}</small>',
             '${duration}',
             '${image_name}',
             '${type}',
@@ -2906,6 +2911,9 @@ class HostManagementPage extends FOGPage
         foreach ((array)$Logs as &$Log) {
             $start = $Log->start;
             $finish = $Log->finish;
+            if ($Log->finish === '0000-00-00 00:00:00') {
+                $finish = $start;
+            }
             if (!self::validDate($start)
                 || !self::validDate($finish)
             ) {
@@ -2921,10 +2929,10 @@ class HostManagementPage extends FOGPage
                     'hostID' => $this->obj->get('id')
                 )
             );
-            $taskID = @max($TaskIDs);
-            if (!$taskID) {
+            if (!is_array($TaskIDs) || count($TaskIDs) == 0) {
                 continue;
             }
+            $taskID = @max($TaskIDs);
             Route::indiv('task', $taskID);
             $Task = json_decode(
                 Route::getData()
@@ -2945,7 +2953,7 @@ class HostManagementPage extends FOGPage
                 self::$FOGUser->get('name')
             );
             $Image = $Log->image;
-            if (!$Image->id) {
+            if (!isset($Image->id) || !$Image->id) {
                 $imgName = $Image;
                 $imgPath = _('N/A');
             } else {
@@ -3015,6 +3023,7 @@ class HostManagementPage extends FOGPage
         $this->headerData = array(
             _('Snapin Name'),
             _('Start Time'),
+            _('End Time'),
             _('Complete'),
             _('Duration'),
             _('Return Code')
@@ -3023,10 +3032,12 @@ class HostManagementPage extends FOGPage
             '${snapin_name}',
             '${snapin_start}',
             '${snapin_end}',
+            '${snapin_complete}',
             '${snapin_duration}',
             '${snapin_return}'
         );
         $this->attributes = array(
+            array(),
             array(),
             array(),
             array(),
@@ -3056,7 +3067,13 @@ class HostManagementPage extends FOGPage
         foreach ((array)$SnapinTasks as &$SnapinTask) {
             $Snapin = $SnapinTask->snapin;
             $start = self::niceDate($SnapinTask->checkin);
-            $end = self::niceDate($SnapinTask->complete);
+            if ($SnapinTask->complete === '0000-00-00 00:00:00') {
+                $end = $start;
+            } else {
+                $end = self::niceDate($SnapinTask->complete);
+            }
+            $end = $end->format('Y-m-d H:i:s');
+
             if (!self::validDate($start)) {
                 continue;
             }
@@ -3070,12 +3087,8 @@ class HostManagementPage extends FOGPage
             $this->data[] = array(
                 'snapin_name' => $Snapin->name,
                 'snapin_start' => $start->format('Y-m-d H:i:s'),
-                'snapin_end' => sprintf(
-                    '<span data-toggle="tooltip" data-placement="left" '
-                    . 'class="icon" title="%s">%s</span>',
-                    $end->format('Y-m-d H:i:s'),
-                    $SnapinTask->state->name
-                ),
+                'snapin_end' => $end,
+                'snapin_complete' => $SnapinTask->state->name,
                 'snapin_duration' => $diff,
                 'snapin_return'=> $SnapinTask->return,
             );
@@ -3288,6 +3301,12 @@ class HostManagementPage extends FOGPage
                 'domainpasswordlegacy'
             )
         );
+        $productKey = trim(
+            filter_input(
+                INPUT_POST,
+                'productkey'
+            )
+        );
         $enforce = isset($_POST['enforcesel']);
         $this->obj->setAD(
             $useAD,
@@ -3333,10 +3352,6 @@ class HostManagementPage extends FOGPage
             }
             $items = array();
             foreach ((array)$pmid as $index => &$pm) {
-                $onDemandItem = array_search(
-                    $pm,
-                    $onDemand
-                );
                 $items[] = array(
                     $pm,
                     $this->obj->get('id'),
@@ -3345,9 +3360,6 @@ class HostManagementPage extends FOGPage
                     $scheduleCronDOM[$index],
                     $scheduleCronMonth[$index],
                     $scheduleCronDOW[$index],
-                    $onDemandItem !== -1
-                    && $onDemand[$onDemandItem] === $pm ?
-                    1 :
                     0,
                     $action[$index]
                 );
@@ -3642,7 +3654,7 @@ class HostManagementPage extends FOGPage
                         )
                     )
                 );
-                $delvidarr = $delvidarr['delvidarr'];
+                $delvidarr = isset($delvidarr['delvidarr']) ? $delvidarr['delvidarr'] : array();
                 if ($delvid == 'all') {
                     $this->obj->clearAVRecordsForHost();
                 } else {
@@ -3796,10 +3808,10 @@ class HostManagementPage extends FOGPage
             );
             if (array_key_exists('login', $Data[$Login->username])) {
                 if ($Login->action > 0) {
-                    $Data[$Login->username]['logout'] = (int)$time - 1;
+                    $Data[$Login->username]['logout'] = ($time->getTimestamp()) - 1;
                     $data[] = $Data[$Login->username];
                 } elseif ($Login->action < 1) {
-                    $Data[$Login->username]['logout'] = (int)$time;
+                    $Data[$Login->username]['logout'] = $time->getTimestamp();
                     $data[] = $Data[$Login->username];
                 }
                 $Data[$Login->username] = array(
@@ -3809,7 +3821,7 @@ class HostManagementPage extends FOGPage
                 );
             }
             if ($Login->action > 0) {
-                $Data[$Login->username]['login'] = (int)$time;
+                $Data[$Login->username]['login'] = $time->getTimestamp();
             }
             unset($Login);
         }

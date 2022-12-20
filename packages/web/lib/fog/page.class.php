@@ -173,7 +173,7 @@ class Page extends FOGBase
                     'fa fa-print'
                 ),
                 'service' => array(
-                    self::$foglang['ClientSettings'],
+                    self::$foglang['Service Configuration'],
                     'fa fa-cogs'
                 ),
                 'task' => array(
@@ -288,10 +288,11 @@ class Page extends FOGBase
             'js/fog/fog.main.js',
             'js/jscolor.min.js'
         );
+        $subset = $sub;
         if (!self::$FOGUser->isValid()) {
             $files[] = 'js/fog/fog.login.js';
+            $filepaths = array();
         } else {
-            $subset = $sub;
             if ($sub == 'membership') {
                 $subset = 'edit';
             }
@@ -310,28 +311,22 @@ class Page extends FOGBase
                 "js/fog/fog.{$node}.{$subset}.js",
             );
         }
-        array_map(
-            function (&$jsFilepath) use (&$files) {
-                if (file_exists($jsFilepath)) {
-                    array_push($files, $jsFilepath);
-                }
-                unset($jsFilepath);
-            },
-            (array)$filepaths
-        );
+        foreach ((array)$filepaths as $jsFilepath) {
+            if (file_exists($jsFilepath)) {
+                array_push($files, $jsFilepath);
+            }
+            unset($jsFilepath);
+        }
         $pluginfilepaths = array(
             "../lib/plugins/{$node}/js/fog.{$node}.js",
             "../lib/plugins/{$node}/js/fog.{$node}.{$subset}.js",
         );
-        array_map(
-            function (&$pluginfilepath) use (&$files) {
-                if (file_exists($pluginfilepath)) {
-                    array_push($files, $pluginfilepath);
-                }
-                unset($pluginfilepath);
-            },
-            (array)$pluginfilepaths
-        );
+        foreach ((array)$pluginfilepaths as $pluginfilepath) {
+            if (file_exists($pluginfilepath)) {
+                array_push($files, $pluginfilepath);
+            }
+            unset($pluginfilepath);
+        }
         if ($this->isHomepage
             && self::$FOGUser->isValid()
             && ($node == 'home'
@@ -353,15 +348,12 @@ class Page extends FOGBase
             array_push($files, 'js/fog/fog.schema.js');
         }
         $files = array_unique((array)$files);
-        array_map(
-            function (&$path) {
-                if (file_exists($path)) {
-                    $this->addJavascript($path);
-                }
-                unset($path);
-            },
-            (array)$files
-        );
+        foreach ((array)$files as $path) {
+            if (file_exists($path)) {
+                $this->addJavascript($path);
+            }
+            unset($path);
+        }
     }
     /**
      * Sets the title

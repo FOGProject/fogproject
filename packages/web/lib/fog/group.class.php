@@ -537,12 +537,6 @@ class Group extends FOGController
                     ->set('isDD', $Image->get('imageTypeID'))
                     ->set('storagegroupID', $StorageGroup->get('id'));
                 if ($MulticastSession->save()) {
-                    self::getClass('MulticastSessionAssociationManager')
-                        ->destroy(
-                            array(
-                                'hostID' => $hostids,
-                            )
-                        );
                     $randomnumber = mt_rand(24576, 32766) * 2;
                     while ($randomnumber == $MulticastSession->get('port')) {
                         $randomnumber = mt_rand(24576, 32766) * 2;
@@ -902,7 +896,27 @@ class Group extends FOGController
     ) {
         $pass = trim($pass);
         $adpasspat = "/^\*{32}$/";
-        $pass = (preg_match($adpasspat, $pass) ? $this->get('ADPass') : $pass);
+        $adpassglobalpat = "/^#{32}$/";
+        if (preg_match($adpasspat, $pass)) {
+            $tempHost = new Host(@max($this->get('hosts')));
+            $pass = $tempHost->get('ADPass');
+            unset($tempHost);
+        } elseif (preg_match($adpassglobalpat, $pass)) {
+            $pass = self::getSubObjectIDs(
+                'Service',
+                array(
+                    'name' => array(
+                        'FOG_AD_DEFAULT_PASSWORD',
+                    ),
+                ),
+                'value',
+                false,
+                'AND',
+                'name',
+                false,
+                ''
+            );
+        }
         self::getClass('HostManager')
             ->update(
                 array(

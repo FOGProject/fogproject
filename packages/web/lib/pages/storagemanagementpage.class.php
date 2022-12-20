@@ -36,7 +36,7 @@ class StorageManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Storage Management';
+        $this->name = self::$foglang['Storage Management'];
         parent::__construct($this->name);
         $this->menu = array(
             'list' => self::$foglang['AllSN'],
@@ -244,7 +244,7 @@ class StorageManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'width' => 22
             ),
             array(),
@@ -1183,7 +1183,7 @@ class StorageManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'width' => 22
             ),
             array(),

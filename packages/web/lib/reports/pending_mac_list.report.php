@@ -73,7 +73,7 @@ class Pending_MAC_List extends ReportManagementPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'l filter-false'
+                'class' => 'l parser-false filter-false'
             ),
             array(),
             array(),
@@ -122,7 +122,7 @@ class Pending_MAC_List extends ReportManagementPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             echo '<div class="text-center">';
             echo '<a href="'
                 . $this->formAction
@@ -147,7 +147,7 @@ class Pending_MAC_List extends ReportManagementPage
         $this->ReportMaker->outputReport(0, true);
         echo '</div>';
         echo '</div>';
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             echo '<div class="panel panel-info">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';

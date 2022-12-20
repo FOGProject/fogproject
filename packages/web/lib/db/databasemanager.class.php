@@ -44,7 +44,7 @@ class DatabaseManager extends FOGCore
             'status\/hw\.php$',
             'status\/newtoken\.php$'
         );
-        $noDBpattern = '#'.implode($noDBpattern, "|").'#';
+        $noDBpattern = '#'.implode("|", $noDBpattern).'#';
         if (preg_match($noDBpattern, self::$scriptname)) {
             return;
         }
@@ -67,7 +67,9 @@ class DatabaseManager extends FOGCore
             '#/service|status/#',
             self::$scriptname
         );
-        if (strtolower(self::$reqmethod) === 'post'
+        if (isset(self::$reqmethod)
+            && is_string(self::$reqmethod)
+            && strtolower(self::$reqmethod) === 'post'
             && !self::getLink()
         ) {
             http_response_code(406);
@@ -135,6 +137,7 @@ class DatabaseManager extends FOGCore
          * If sub is in the passthru,
          * set the test to true.
          */
+        $test = false;
         if (in_array($sub, $subs)) {
             $test = true;
         }

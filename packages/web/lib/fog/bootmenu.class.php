@@ -133,8 +133,12 @@ class BootMenu extends FOGBase
             . 'chain -ar ${boot-url}/service/ipxe/refind_x64.efi',
             "\n"
         );
+        $reboot = sprintf(
+            'reboot',
+            "\n"
+        );
 
-        if (stripos($_REQUEST['arch'], 'i386') !== false) {
+        if (isset($_REQUEST['arch']) && stripos($_REQUEST['arch'], 'i386') !== false) {
             //user i386 boot loaders instead
             $refind = sprintf(
                 'imgfetch ${boot-url}/service/ipxe/refind.conf%s'
@@ -143,7 +147,7 @@ class BootMenu extends FOGBase
             );
         }
 
-        if (stripos($_REQUEST['arch'], 'arm') !== false) {
+        if (isset($_REQUEST['arch']) && stripos($_REQUEST['arch'], 'arm') !== false) {
             //use arm boot loaders instead
             $refind = 'chain -ar ${boot-url}/service/ipxe/refind_aa64.efi';
         }
@@ -170,6 +174,7 @@ class BootMenu extends FOGBase
             'grub_first_found_windows' => $grub['1fw'],
             'refind_efi' => $refind,
             'exit' => 'exit',
+            'reboot' => $reboot,
         );
         list(
             $webserver,
@@ -200,19 +205,18 @@ class BootMenu extends FOGBase
             . self::$httpproto
             . '://${fog-ip}/${fog-webroot}',
         );
-        $this->_parseMe($Send);
         if (self::$Host->isValid()) {
             if (!self::$Host->get('inventory')->get('sysuuid')) {
                 self::$Host
                     ->get('inventory')
-                    ->set('sysuuid', $_REQUEST['sysuuid'])
+                    ->set('sysuuid', isset($_REQUEST['sysuuid']) ? $_REQUEST['sysuuid'] : '')
                     ->set('hostID', self::$Host->get('id'))
                     ->save();
             }
         }
         $host_field_test = 'biosexit';
         $global_field_test = 'FOG_BOOT_EXIT_TYPE';
-        if ($_REQUEST['platform'] == 'efi') {
+        if (isset($_REQUEST['platform']) && $_REQUEST['platform'] == 'efi') {
             $host_field_test = 'efiexit';
             $global_field_test = 'FOG_EFI_BOOT_EXIT_TYPE';
         }
@@ -275,12 +279,12 @@ class BootMenu extends FOGBase
         $loglevel = $kernelLogLevel;
         $ramsize = $kernelRamDisk;
         $timeout = (
-            $hiddenmenu > 0 && !$_REQUEST['menuAccess'] ?
+            $hiddenmenu > 0 && !(isset($_REQUEST['menuAccess']) && $_REQUEST['menuAccess']) ?
             $hiddenTimeout :
             $menuTimeout
         ) * 1000;
         $keySequence = (
-            $hiddenmenu > 0 && !$_REQUEST['menuAccess'] ?
+            $hiddenmenu > 0 && !(isset($_REQUEST['menuAccess']) && $_REQUEST['menuAccess']) ?
             $keySequence :
             ''
         );
@@ -335,7 +339,7 @@ class BootMenu extends FOGBase
         $kernel = $bzImage;
         $initrd = $imagefile;
         $this->_timeout = $timeout;
-        $this->_hiddenmenu = ($hiddenmenu && !$_REQUEST['menuAccess']);
+        $this->_hiddenmenu = ($hiddenmenu && !(isset($_REQUEST['menuAccess']) && $_REQUEST['menuAccess']));
         $this->_bootexittype = self::$_exitTypes[$exit];
         $this->_loglevel = "loglevel=$loglevel";
         $this->_KS = self::getClass('KeySequence', $keySequence);
@@ -380,6 +384,9 @@ class BootMenu extends FOGBase
             $StorageNode = current($StorageNodes);
         }
         if ($StorageNode->isValid()) {
+            $Send['storage-ip'] = array(
+                sprintf('set storage-ip %s', trim($StorageNode->get('ip')))
+            );
             $this->_storage = sprintf(
                 'storage=%s:/%s/ storageip=%s',
                 trim($StorageNode->get('ip')),
@@ -387,6 +394,25 @@ class BootMenu extends FOGBase
                 trim($StorageNode->get('ip'))
             );
         }
+        if (strlen($keymap)) {
+            // According to https://ipxe.org/cfg/keymap Norwegian
+            // and Serbian keyboard layouts need special handling
+            $ipxe_keymap = substr($keymap, 0, 2);
+            if ($keymap === 'no-latin1') {
+                $ipxe_keymap = 'no-latin1';
+            }
+            if ($ipxe_keymap === 'sr') {
+                $ipxe_keymap = 'sr-latin';
+            }
+            $Send['ipxe-keymap'] = array(
+                'set keymap '. $ipxe_keymap
+            );
+        } else {
+            $Send['ipxe-keymap'] = array(
+                'set keymap us'
+            );
+        }
+        $this->_parseMe($Send);
         $this->_kernel = sprintf(
             'kernel %s %s initrd=%s root=/dev/ram0 rw '
             . 'ramdisk_size=%s%sweb=%s consoleblank=0%s rootfstype=ext4%s%s '
@@ -439,13 +465,13 @@ class BootMenu extends FOGBase
         );
         if (isset($_REQUEST['username'])) {
             $this->verifyCreds();
-        } elseif ($_REQUEST['delconf']) {
+        } elseif (isset($_REQUEST['delconf'])) {
             $this->_delHost();
-        } elseif ($_REQUEST['key']) {
+        } elseif (isset($_REQUEST['key'])) {
             $this->keyset();
-        } elseif ($_REQUEST['sessname']) {
+        } elseif (isset($_REQUEST['sessname'])) {
             $this->sesscheck();
-        } elseif ($_REQUEST['aprvconf']) {
+        } elseif (isset($_REQUEST['aprvconf'])) {
             $this->_approveHost();
         } elseif (!self::$Host->isValid()) {
             $this->printDefault();
@@ -477,20 +503,18 @@ class BootMenu extends FOGBase
      */
     private function _ipxeLog()
     {
-        $filename = trim(basename($_REQUEST['filename']));
-        $product = trim($_REQUEST['product']);
-        $manufacturer = trim($_REQUEST['manufacturer']);
         $findWhere = array(
-            'file' => sprintf('%s', $filename ? $filename : ''),
-            'product' => sprintf('%s', $product ? $product : ''),
-            'manufacturer' => sprintf('%s', $manufacturer ? $manufacturer : ''),
+            'file' => sprintf('%s', isset($_REQUEST['filename']) ? trim(basename($_REQUEST['filename'])) : ''),
+            'product' => sprintf('%s', isset($_REQUEST['product']) ? trim($_REQUEST['product']) : ''),
+            'manufacturer' => sprintf('%s', isset($_REQUEST['manufacturer']) ? trim($_REQUEST['manufacturer']) : ''),
             'mac' => (
                 self::$Host->isValid() ?
                 self::$Host->get('mac')->__toString() :
                 ''
             ),
         );
-        $id = @max(self::getSubObjectIDs('iPXE', $findWhere));
+        $id = self::getSubObjectIDs('iPXE', $findWhere);
+        $id = (isset($id) && is_array($id) && count($id) > 0) ? max($id) : 0;
         self::getClass('iPXE', $id)
             ->set('product', $findWhere['product'])
             ->set('manufacturer', $findWhere['manufacturer'])
@@ -498,7 +522,7 @@ class BootMenu extends FOGBase
             ->set('success', 1)
             ->set('failure', 0)
             ->set('file', $findWhere['file'])
-            ->set('version', trim($_REQUEST['ipxever']))
+            ->set('version', isset($_REQUEST['ipxever']) ? trim($_REQUEST['ipxever']) : '')
             ->save();
     }
     /**
@@ -512,7 +536,7 @@ class BootMenu extends FOGBase
     private function _chainBoot($debug = false, $shortCircuit = false)
     {
         $debug = $debug;
-        if (!$this->_hiddenmenu || $shortCircuit) {
+        if (!(isset($this->_hiddenmenu) && $this->_hiddenmenu) || $shortCircuit) {
             $Send['chainnohide'] = array(
                 'cpuid --ext 29 && set arch x86_64 || set arch i386',
                 'params',
@@ -614,11 +638,11 @@ class BootMenu extends FOGBase
             );
             $shutdown = stripos(
                 'shutdown=1',
-                $_REQUEST['extraargs']
+                isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
             );
             $isdebug = preg_match(
                 '#isdebug=yes|mode=debug|mode=onlydebug#i',
-                $_REQUEST['extraargs']
+                isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
             );
             self::$Host->createImagePackage(
                 10,
@@ -627,7 +651,7 @@ class BootMenu extends FOGBase
                 $isdebug,
                 false,
                 false,
-                $_REQUEST['username']
+                isset($_REQUEST['username']) ? $_REQUEST['username'] : ''
             );
         } else {
             $Send['approvefail'] = array(
@@ -697,12 +721,14 @@ class BootMenu extends FOGBase
     {
         $Send['delconfirm'] = array(
             'cpuid --ext 29 && set arch x86_64 || set arch i386',
-            'prompt --key y Would you like to delete this host? (y/N): &&',
             'params',
+            'prompt --key y Would you like to delete this host? (y/N): && goto deleteyes || goto deleteno',
+            ':deleteyes',
+            'param delconf 1',
+            ':deleteno',
             'param mac0 ${net0/mac}',
             'param arch ${arch}',
             'param platform ${platform}',
-            'param delconf 1',
             'param sysuuid ${uuid}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
@@ -720,12 +746,14 @@ class BootMenu extends FOGBase
     {
         $Send['aprvconfirm'] = array(
             'cpuid --ext 29 && set arch x86_64 || set arch i386',
-            'prompt --key y Would you like to approve this host? (y/N): &&',
             'params',
+            'prompt --key y Would you like to approve this host? (y/N): && goto answeryes || goto answerno',
+            ':answeryes',
+            'param aprvconf 1',
+            ':answerno',
             'param mac0 ${net0/mac}',
             'param arch ${arch}',
             'param platform ${platform}',
-            'param aprvconf 1',
             'param sysuuid ${uuid}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
@@ -767,12 +795,13 @@ class BootMenu extends FOGBase
     public function sesscheck()
     {
         $findWhere = array(
-            'name' => trim($_REQUEST['sessname']),
+            'name' => isset($_REQUEST['sessname']) ? trim($_REQUEST['sessname']) : '',
             'stateID' => self::fastmerge(
                 self::getQueuedStates(),
                 (array)self::getProgressState()
             ),
         );
+        $MulticastSessionID = 0;
         foreach ((array)self::getClass('MulticastSessionManager')
             ->find($findWhere) as &$MulticastSession
         ) {
@@ -861,14 +890,16 @@ class BootMenu extends FOGBase
             'FOG_KERNEL_ARGS',
             'FOG_KERNEL_DEBUG',
             'FOG_MULTICAST_RENDEZVOUS',
-            'FOG_NONREG_DEVICE'
+            'FOG_NONREG_DEVICE',
+            'FOG_UDPCAST_MAXWAIT'
         );
         list(
             $chkdsk,
             $kargs,
             $kdebug,
             $mcastrdv,
-            $nondev
+            $nondev,
+            $mcastmaxwait
         ) = self::getSubObjectIDs(
             'Service',
             array(
@@ -890,6 +921,9 @@ class BootMenu extends FOGBase
                 'shutdown=1',
                 $_REQUEST['extraargs']
             );
+        }
+        if (!is_numeric($mcastmaxwait)) {
+            $mcastmaxwait = 10;
         }
         $StorageGroup = $Image->getStorageGroup();
         $StorageNode = $StorageGroup->getOptimalStorageNode();
@@ -937,7 +971,7 @@ class BootMenu extends FOGBase
                 'active' => !self::$Host || !self::$Host->isValid(),
             ),
             array(
-                'value' => "port=$port mc=yes",
+                'value' => "port=$port mcastMaxWait=$mcastmaxwait mc=yes",
                 'active' => $mc,
             ),
             array(
@@ -994,7 +1028,7 @@ class BootMenu extends FOGBase
             $this->_chainBoot();
         } else {
             array_map(
-                function (&$Image) use (&$Send, &$defItem) {
+                function ($Image) use (&$Send, &$defItem) {
                     if (!$Image->isValid()) {
                         return;
                     }
@@ -1034,7 +1068,7 @@ class BootMenu extends FOGBase
                 $defItem
             );
             array_map(
-                function (&$Image) use (&$Send) {
+                function ($Image) use (&$Send) {
                     if (!$Image->isValid()) {
                         return;
                     }
@@ -1110,11 +1144,11 @@ class BootMenu extends FOGBase
         }
         $shutdown = stripos(
             'shutdown=1',
-            $_REQUEST['extraargs']
+            isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
         );
         $isdebug = preg_match(
             '#isdebug=yes|mode=debug|mode=onlydebug#i',
-            $_REQUEST['extraargs']
+            isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
         );
         if (self::$Host->isValid() && !self::$Host->get('pending')) {
             self::$Host->createImagePackage(
@@ -1124,7 +1158,7 @@ class BootMenu extends FOGBase
                 $isdebug,
                 -1,
                 false,
-                $_REQUEST['username'],
+                isset($_REQUEST['username']) ? $_REQUEST['username'] : '',
                 '',
                 true,
                 true
@@ -1144,7 +1178,7 @@ class BootMenu extends FOGBase
         if (!self::$Host->isValid()) {
             return;
         }
-        self::$Host->set('productKey', $_REQUEST['key']);
+        self::$Host->set('productKey', isset($_REQUEST['key']) ? $_REQUEST['key'] : '');
         if (!self::$Host->save()) {
             return;
         }
@@ -1181,13 +1215,13 @@ class BootMenu extends FOGBase
                 'shutdown' => &$this->_shutdown,
                 'path' => &$this->_path,
                 'timeout' => &$this->_timeout,
-                'KS' => $this->ks
+                'KS' => $this->_KS
             )
         );
         if (count($Send) > 0) {
             array_walk_recursive(
                 $Send,
-                function (&$val, &$key) {
+                function (&$val, $key) {
                     printf('%s%s', implode("\n", (array)$val), "\n");
                     unset($val, $key);
                 }
@@ -1252,23 +1286,23 @@ class BootMenu extends FOGBase
         if ($tmpUser->isValid()) {
             self::$HookManager
                 ->processEvent('ALTERNATE_LOGIN_BOOT_MENU_PARAMS');
-            if ($advLogin && $_REQUEST['advLog']) {
+            if ($advLogin && isset($_REQUEST['advLog']) && $_REQUEST['advLog']) {
                 $this->advLogin();
             }
-            if ($_REQUEST['delhost']) {
+            if (isset($_REQUEST['delhost']) && $_REQUEST['delhost']) {
                 $this->delConf();
-            } elseif ($_REQUEST['keyreg']) {
+            } elseif (isset($_REQUEST['keyreg']) && $_REQUEST['keyreg']) {
                 $this->keyreg();
-            } elseif ($_REQUEST['qihost']) {
-                $this->setTasking($_REQUEST['imageID']);
-            } elseif ($_REQUEST['sessionJoin']) {
+            } elseif (isset($_REQUEST['qihost']) && $_REQUEST['qihost']) {
+                $this->setTasking(isset($_REQUEST['imageID']) ? $_REQUEST['imageID'] : '');
+            } elseif (isset($_REQUEST['sessionJoin']) && $_REQUEST['sessionJoin']) {
                 $this->sessjoin();
-            } elseif ($_REQUEST['approveHost']) {
+            } elseif (isset($_REQUEST['approveHost']) && $_REQUEST['approveHost']) {
                 $this->aprvConf();
-            } elseif ($_REQUEST['menuaccess']) {
+            } elseif (isset($_REQUEST['menuaccess']) && $_REQUEST['menuaccess']) {
                 unset($this->_hiddenmenu);
                 $this->_chainBoot(true);
-            } elseif ($_REQUEST['debugAccess']) {
+            } elseif (isset($_REQUEST['debugAccess']) && $_REQUEST['debugAccess']) {
                 $this->_debugAccess();
             } else {
                 $this->printDefault();
@@ -1295,11 +1329,11 @@ class BootMenu extends FOGBase
     {
         $shutdown = stripos(
             'shutdown=1',
-            $_REQUEST['extraargs']
+            isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
         );
         $isdebug = preg_match(
             '#isdebug=yes|mode=debug|mode=onlydebug#i',
-            $_REQUEST['extraargs']
+            isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
         );
         if (!$imgID) {
             $this->printImageList();
@@ -1325,7 +1359,7 @@ class BootMenu extends FOGBase
                 $isdebug,
                 -1,
                 false,
-                $_REQUEST['username']
+                isset($_REQUEST['username']) ? $_REQUEST['username'] : ''
             );
             $this->_chainBoot(false, true);
         } catch (Exception $e) {
@@ -1447,6 +1481,7 @@ class BootMenu extends FOGBase
                     'FOG_MULTICAST_RENDEZVOUS',
                     'FOG_PIGZ_COMP',
                     'FOG_TFTP_HOST',
+                    'FOG_UDPCAST_MAXWAIT',
                     'FOG_WIPE_TIMEOUT'
                 );
                 list(
@@ -1459,6 +1494,7 @@ class BootMenu extends FOGBase
                     $mcastrdv,
                     $pigz,
                     $tftp,
+                    $mcastmaxwait,
                     $timeout
                 ) = self::getSubObjectIDs(
                     'Service',
@@ -1481,6 +1517,9 @@ class BootMenu extends FOGBase
                         'shutdown=1',
                         $_REQUEST['extraargs']
                     );
+                }
+                if (!is_numeric($mcastmaxwait)) {
+                    $mcastmaxwait = 10;
                 }
                 $globalPIGZ = $pigz;
                 $PIGZ_COMP = $globalPIGZ;
@@ -1547,12 +1586,13 @@ class BootMenu extends FOGBase
                         )
                     );
                     $storageip = $ip;
+                    $imgid = 0;
                 }
             }
             if (self::$Host->isValid()) {
                 $mac = self::$Host->get('mac');
             } else {
-                $mac = $_REQUEST['mac'];
+                $mac = isset($_REQUEST['mac']) ? $_REQUEST['mac'] : '';
             }
             $clamav = '';
             if (in_array($TaskType->get('id'), array(21, 22))) {
@@ -1574,6 +1614,10 @@ class BootMenu extends FOGBase
                     true
                 )
             );
+            $addomain = '';
+            $adou = '';
+            $aduser = '';
+            $adpass = '';
             if (self::$Host->get('useAD')) {
                 $addomain = preg_replace(
                     '#\s#',
@@ -1622,31 +1666,31 @@ class BootMenu extends FOGBase
                 ),
                 array(
                     'value' => "chkdsk=$chkdsk",
-                    'active' => $imagingTasks,
+                    'active' => (isset($imagingTasks) && $imagingTasks),
                 ),
                 array(
                     'value' => "img=$img",
-                    'active' => $imagingTasks,
+                    'active' => (isset($imagingTasks) && $imagingTasks),
                 ),
                 array(
                     'value' => "imgType=$imgType",
-                    'active' => $imagingTasks,
+                    'active' => (isset($imagingTasks) && $imagingTasks),
                 ),
                 array(
                     'value' => "imgPartitionType=$imgPartitionType",
-                    'active' => $imagingTasks,
+                    'active' => (isset($imagingTasks) && $imagingTasks),
                 ),
                 array(
                     'value' => "imgid=$imgid",
-                    'active' => $imagingTasks,
+                    'active' => (isset($imagingTasks) && $imagingTasks),
                 ),
                 array(
                     'value' => "imgFormat=$imgFormat",
-                    'active' => $imagingTasks,
+                    'active' => (isset($imagingTasks) && $imagingTasks),
                 ),
                 array(
                     'value' => "PIGZ_COMP=-$PIGZ_COMP",
-                    'active' => $imagingTasks,
+                    'active' => (isset($imagingTasks) && $imagingTasks),
                 ),
                 array(
                     'value' => 'shutdown=1',
@@ -1697,12 +1741,13 @@ class BootMenu extends FOGBase
                 ),
                 array(
                     'value' => sprintf(
-                        'port=%s',
+                        'port=%s mcastMaxWait=%s',
                         (
                             $TaskType->isMulticast() ?
                             $MulticastSession->get('port') :
                             null
-                        )
+                        ),
+                        $mcastmaxwait
                     ),
                     'active' => $TaskType->isMulticast(),
                 ),
@@ -1966,7 +2011,7 @@ class BootMenu extends FOGBase
             'id'
         );
         array_map(
-            function (&$Menu) use (&$Send) {
+            function ($Menu) use (&$Send) {
                 $Send["item-". $Menu->get('name')] = $this->_menuItem(
                     $Menu,
                     trim($Menu->get('description'))
@@ -1977,7 +2022,7 @@ class BootMenu extends FOGBase
         );
         $Send['default'] = array($this->_defaultChoice);
         array_map(
-            function (&$Menu) use (&$Send) {
+            function ($Menu) use (&$Send) {
                 $Send["choice-".$Menu->get('name')] = $this->_menuOpt(
                     $Menu,
                     trim($Menu->get('args'))

@@ -30,7 +30,7 @@ class MulticastTask extends FOGService
      *
      * @return array
      */
-    public static function getAllMulticastTasks(
+    public function getAllMulticastTasks(
         $root,
         $myStorageNodeID,
         $queuedStates
@@ -509,6 +509,7 @@ class MulticastTask extends FOGService
             ' --nopointopoint',
         );
         $buildcmd = array_values(array_filter($buildcmd));
+        $filelist = array();
         switch ($this->getImageType()) {
         case 1:
             switch ($this->getOSID()) {
@@ -710,12 +711,14 @@ class MulticastTask extends FOGService
     {
         Route::listem(
             'multicastsessionassociation',
+            'msID',
+            false,
             ['msID' => $this->_intID]
         );
         $MSAssocs = json_decode(
             Route::getData()
-        );
-        $TaskPercent = [];
+        )->multicastsessionassociations;
+        $TaskPercent = [0];
         foreach ($MSAssocs as &$Task) {
             $TaskPercent[] = self::getClass('Task', $Task->taskID)->get('percent');
             unset($Task);

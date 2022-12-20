@@ -65,7 +65,7 @@ class Virus_History extends ReportManagementPage
             array(),
             array(),
             array(),
-            array('class' => 'filter-false')
+            array('class' => 'parser-false filter-false')
         );
         foreach ((array)$csvHead as $csvHeader => &$classGet) {
             $this->ReportMaker->addCSVCell($csvHeader);
@@ -130,7 +130,7 @@ class Virus_History extends ReportManagementPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        if (is_array($this->data) && count($this->data) > 0) {
+        if (isset($this->data) && is_array($this->data) && count($this->data) > 0) {
             echo '<div class="text-center">';
             printf(
                 $this->reportString,

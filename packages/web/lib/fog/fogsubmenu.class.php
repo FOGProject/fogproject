@@ -168,7 +168,8 @@ class FOGSubMenu extends FOGBase
                 unset($link, $title);
             }
         }
-        if (is_array($this->mainitems[$node][$variableSetter])) {
+        if (isset($this->mainitems[$node][$variableSetter])
+            && is_array($this->mainitems[$node][$variableSetter])) {
             $this->mainitems[$node][$variableSetter] = self::fastmerge(
                 $this->mainitems[$node][$variableSetter],
                 $items
@@ -232,7 +233,7 @@ class FOGSubMenu extends FOGBase
                 unset($link, $title);
             }
         }
-        if (is_array($this->items[$node][$variableSetter])) {
+        if (isset($this->items[$node][$variableSetter]) && is_array($this->items[$node][$variableSetter])) {
             $this->items[$node][$variableSetter] = self::fastmerge(
                 $this->items[$node][$variableSetter],
                 $items
@@ -301,13 +302,13 @@ class FOGSubMenu extends FOGBase
     public function get($node)
     {
         ob_start();
-        if (count((array)$this->notes[$node]) < 1
-            && count((array)$this->items[$node]) < 1
+        if (isset($this->notes[$node]) && count((array)$this->notes[$node]) < 1
+            && isset($this->items[$node]) && count((array)$this->items[$node]) < 1
         ) {
             return;
         }
         echo '<ul class="nav nav-tabs">';
-        if ($this->notes[$node]) {
+        if (isset($this->notes[$node]) && $this->notes[$node]) {
             echo '<li class="dropdown">';
             echo '<a href="#" class="dropdown-toggle" data-toggle="dropdown">';
             echo _('Info');
@@ -318,7 +319,7 @@ class FOGSubMenu extends FOGBase
             echo '</ul>';
             echo '</li>';
         }
-        if ($this->items[$node]) {
+        if (isset($this->items[$node]) && $this->items[$node]) {
             foreach ((array) $this->items[$node] as $title => &$data) {
                 self::$_title = $this->fixTitle($title);
                 foreach ((array) $data as $label => &$link) {
@@ -468,7 +469,7 @@ class FOGSubMenu extends FOGBase
                     }
                     $string = sprintf(
                         '<li><a class="%s" href="${link}${hash}"%s>%s</a></li>',
-                        $hash ?: $node.'-'.$sub,
+                        $hash ?: $node.'-'. (isset($sub) ? $sub : ''),
                         $target,
                         $label
                     );
@@ -563,7 +564,7 @@ class FOGSubMenu extends FOGBase
             throw new Exception(_('Title must be a string'));
         }
         $dash = strpos('-', $title) ? '-' : ' ';
-        $e = preg_split('#[\s|-]#', $title, null, PREG_SPLIT_NO_EMPTY);
+        $e = preg_split('#[\s|-]#', $title, -1, PREG_SPLIT_NO_EMPTY);
         return implode($dash, $e);
     }
     /**

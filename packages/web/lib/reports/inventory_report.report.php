@@ -195,13 +195,10 @@ class Inventory_Report extends ReportManagementPage
         } else {
             $hostpattern = '%' . $hostpattern . '%';
         }
-        array_walk(
-            self::$inventoryCsvHead,
-            function (&$classGet, &$csvHeader) {
-                $this->ReportMaker->addCSVCell($csvHeader);
-                unset($classGet, $csvHeader);
-            }
-        );
+        foreach ((array)self::$inventoryCsvHead as $csvHeader) {
+            $this->ReportMaker->addCSVCell($csvHeader);
+            unset($csvHeader);
+        }
         $this->ReportMaker->endCSVLine();
         $this->headerData = array(
             _('Host name'),
@@ -266,26 +263,21 @@ class Inventory_Report extends ReportManagementPage
             array('sysproduct' => $sysproductsearch),
             'hostID'
         );
-        $groupHostIDs = array_intersect($sysproductIDs, $groupHostIDs);
-
-        if ($groupsearch) {
-            Route::listem(
-                'host',
-                'name',
-                'false',
-                array(
-                    'id' => $groupHostIDs,
-                    'name' => $hostpattern
-                )
-            );
+        if (count($groupHostIDs) > 0) {
+            $groupHostIDs = array_intersect($sysproductIDs, $groupHostIDs);
         } else {
-            Route::listem(
-                'host',
-                'name',
-                'false',
-                array('name' => $hostpattern)
-            );
+            $groupHostIDs = $sysproductIDs;
         }
+
+        Route::listem(
+            'host',
+            'name',
+            'false',
+            array(
+                'id' => $groupHostIDs,
+                'name' => $hostpattern
+            )
+        );
 
         $Hosts = json_decode(
             Route::getData()
@@ -319,7 +311,9 @@ class Inventory_Report extends ReportManagementPage
                     $this->ReportMaker->addCSVCell($Inventory->memory);
                     break;
                 default:
-                    $this->ReportMaker->addCSVCell($Inventory->$classGet);
+                    if (property_exists($Inventory, $classGet)) {
+                        $this->ReportMaker->addCSVCell($Inventory->$classGet);
+                    }
                     break;
                 }
                 unset($classGet, $head);

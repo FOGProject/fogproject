@@ -23,14 +23,11 @@ var $_GET = getQueryParams(document.location.search),
     sub = $_GET['sub'],
     id = $_GET['id'],
     tab = $_GET['tab'],
+    f = (typeof $_GET['f'] !== 'undefined') ? atob($_GET['f']) : '',
     AJAXTaskForceRequest,
     Container = $('.table-holder .table-responsive'),
     savedFilters,
-    headParser = {
-        0: {
-            sorter: 'checkboxParser'
-        }
-    },
+    headParser = {}, // most columns are properly detected and parsed by the sorter
     ActionBox = $('.action-boxes.host'),
     ActionBoxDel = $('.action-boxes.del'),
     callme = '',
@@ -727,16 +724,16 @@ function setADFields() {
                 if (!$('#adDomain[type="text"]').val()) {
                     $('#adDomain').val(jdata.domainname);
                 }
-                if (!$('#adOU[type="text"]').val()) {
+                if (!$('#adOU').val()) {
                     $('#adOU').val(jdata.ou);
                 }
-                if (!$('adUsername[type="text"]').val()) {
+                if (!$('#adUsername[type="text"]').val()) {
                     $('#adUsername').val(jdata.domainuser)
                 }
-                if (!$('adPassword[type="text"]').val()) {
+                if (!$('#adPassword[type="text"]').val()) {
                     $('#adPassword').val(jdata.domainpass)
                 }
-                if (!$('adPasswordLegacy[type="text"]').val()) {
+                if (!$('#adPasswordLegacy[type="text"]').val()) {
                     $('#adPasswordLegacy').val(jdata.domainpasslegacy)
                 }
             }
@@ -1256,6 +1253,17 @@ function setupParserInfo() {
         return;
     }
     $.tablesorter.addParser({
+        id: 'hostnameParser',
+        is: function(s) {
+            return false;
+        },
+        format: function (s, table, cell, cellIndex) {
+            var name = $(cell).find('a').text();
+            return name;
+        },
+        type: 'text'
+    });
+    $.tablesorter.addParser({
         id: 'statusParser',
         is: function(s) {
             return false;
@@ -1269,18 +1277,6 @@ function setupParserInfo() {
             if (val == 1) return 2;
         },
         type: 'numeric'
-    });
-    $.tablesorter.addParser({
-        id: 'checkboxParser',
-        is: function(s) {
-            return false;
-        },
-        format: function (s, table, cell, cellIndex) {
-            if (s.length < 1) return;
-            checkbox = $(cell).find('input:checkbox');
-            if (checkbox.length > -1) return checkbox.prop('value');
-        },
-        type: 'text'
     });
     $.tablesorter.addParser({
         id: 'dateParser',
@@ -1301,9 +1297,9 @@ function setupParserInfo() {
             return false;
         },
         format: function(s, table, cell, cellIndex) {
-            if (s.length < 1) return;
-            span = $(cell).find('span');
-            if (span.length > -1) return span.prop('original-title');
+            if (typeof cell.getAttribute('title') !== 'undefined') {
+                return cell.getAttribute('title');
+            }
         },
         type: 'text'
     });
@@ -1314,8 +1310,18 @@ function setupParserInfo() {
         },
         format: function(s, table, cell, cellIndex) {
             i = $(cell).find('i');
-            title = i.prop('original-title');
+            title = i.prop('title');
             return title;
+        },
+        type: 'text'
+    });
+    $.tablesorter.addParser({
+        id: 'ipParser',
+        is: function(s) {
+            return false;
+        },
+        format: function(s, table, cell, cellIndex) {
+            return s;
         },
         type: 'text'
     });
@@ -1350,49 +1356,57 @@ function setupParserInfo() {
         },
         type: 'numeric'
     });
+    $.tablesorter.addParser({
+        id: 'durationParser',
+        is: function(s) {
+            return false;
+        },
+        format: function(s, table, cell, cellIndex) {
+            if (s.length < 1) return;
+            s = s.split(' ');
+            multiplier = 1;
+            result = 0;
+            for (var i = s.length-2; i >= 0; i=i-2) {
+                result = result + ( s[i] * multiplier);
+                // Multiplier of 60 is only used to keep this parser simple as it
+                // would need way more to parse duration in different languages
+                multiplier *= 60;
+            }
+            result = isNaN(result) ? 0 : result;
+            return result;
+        },
+        type: 'numeric'
+    });
     switch (node) {
         case 'task':
-            if (typeof sub == 'undefined' || sub.indexOf('list') > -1) {
+            if (typeof sub == 'undefined' || sub.indexOf('active') > -1) {
                 headParser = {
-                    5: {
-                        sorter: 'statusParser'
-                    }
-                };
-            } else {
-                headParser = {
-                    5: {
+                    6: {
                         sorter: 'statusParser'
                     }
                 };
             }
             break;
         case 'report':
-            if (typeof sub != 'undefined') {
-                switch (sub) {
-                    case 'inventory':
+            if (typeof f != 'undefined') {
+                switch (f) {
+                    case 'inventory report':
                         headParser = {
-                            0: {
-                                sorter: 'checkboxParser'
-                            },
                             1: {
                                 sorter: 'sizeParser'
                             }
                         }
                         break;
-                    case 'imaging-log':
+                    case 'imaging log':
                         headParser = {
                             2: {
                                 sorter: 'dateParser'
                             },
                             3: {
                                 sorter: 'dateParser'
-                            }
-                        };
-                        break;
-                    default:
-                        headParser = {
-                            0: {
-                                sorter: 'checkboxParser'
+                            },
+                            4: {
+                                sorter: 'durationParser'
                             }
                         };
                         break;
@@ -1400,25 +1414,35 @@ function setupParserInfo() {
             }
             break;
         case 'host':
-            headParser = {
-                0: {
-                    sorter: 'questionParser'
-                },
-                1: {
-                    sorter: 'checkboxParser'
-                },
-                2: {
-                    sorter: 'iParser'
-                }
-            };
+            if (typeof sub === 'undefined' || sub.indexOf('list') > -1) {
+                headParser = {
+                    0: {
+                        sorter: 'questionParser'
+                    },
+                    2: {
+                        sorter: 'iParser'
+                    },
+                    3: {
+                        sorter: 'hostnameParser'
+                    }
+                };
+            }
+            else if (sub.indexOf('edit') > -1) {
+               // #host-image-history and #host-snapin-history
+                headParser = {
+                    4: {
+                        sorter: 'durationParser'
+                    }
+                };
+            }
             break;
         case 'printer':
             headParser = {
                 0: {
                     sorter: 'questionParser'
                 },
-                1: {
-                    sorter: 'checkboxParser'
+                7: {
+                    sorter: 'ipParser'
                 }
             };
             break;
@@ -1428,9 +1452,9 @@ function setupParserInfo() {
                     sorter: 'iParser'
                 },
                 1: {
-                    sorter: 'checkboxParser'
+                    sorter: 'iParser'
                 },
-                6: {
+                5: {
                     sorter: 'sizeParser'
                 }
             };
@@ -1441,7 +1465,7 @@ function setupParserInfo() {
                     sorter: 'iParser'
                 },
                 1: {
-                    sorter: 'checkboxParser'
+                    sorter: 'iParser'
                 }
             };
             break;
@@ -1449,11 +1473,7 @@ function setupParserInfo() {
         case 'user':
         case 'group':
         default:
-            headParser = {
-                0: {
-                    sorter: 'checkboxParser'
-                }
-            };
+            headParser = {}; // most columns are properly detected and parsed by the sorter
             break;
     }
     if (lastsub == sub) {

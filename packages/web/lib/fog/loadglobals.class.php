@@ -47,7 +47,7 @@ class LoadGlobals extends FOGBase
         }
         FOGCore::setEnv();
         if (session_status() != PHP_SESSION_NONE) {
-            $GLOBALS['currentUser'] = new User((int)$_SESSION['FOG_USER']);
+            $GLOBALS['currentUser'] = new User(isset($_SESSION['FOG_USER']) ? (int)$_SESSION['FOG_USER'] : 0);
         } else {
             $GLOBALS['currentUser'] = new User(0);
         }

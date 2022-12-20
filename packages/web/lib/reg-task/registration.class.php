@@ -140,26 +140,26 @@ class Registration extends FOGBase
                 return;
             }
             self::stripAndDecode($_REQUEST);
-            $productKey = $_REQUEST['productKey'];
-            $username = $_REQUEST['username'];
-            $host = $_REQUEST['host'];
+            $productKey = isset($_REQUEST['productKey']) ? $_REQUEST['productKey'] : '';
+            $username = isset($_REQUEST['username']) ? $_REQUEST['username'] : '';
+            $host = isset($_REQUEST['host']) ? $_REQUEST['host'] : '';
             $host = (
                 self::getClass('Host')->isHostnameSafe($host) ?
                 $host :
                 $this->macsimple
             );
-            $ip = $_REQUEST['ip'];
-            $imageid = $_REQUEST['imageid'];
+            $ip = isset($_REQUEST['ip']) ? $_REQUEST['ip'] : '';
+            $imageid = isset($_REQUEST['imageid']) ? $_REQUEST['imageid'] : 0;
             $imageid = (
                 self::getClass('Image', $imageid)->isValid() ?
                 $imageid :
                 0
             );
-            $primaryuser = $_REQUEST['primaryuser'];
-            $other1 = $_REQUEST['other1'];
-            $other2 = $_REQUEST['other2'];
-            $doimage = trim($_REQUEST['doimage']);
-            if ($_REQUEST['doad']) {
+            $primaryuser = isset($_REQUEST['primaryuser']) ? $_REQUEST['primaryuser'] : '';
+            $other1 = isset($_REQUEST['other1']) ? $_REQUEST['other1'] : '';
+            $other2 = isset($_REQUEST['other2']) ? $_REQUEST['other2'] : '';
+            $doimage = isset($_REQUEST['doimage']) ? trim($_REQUEST['doimage']) : 0;
+            if (isset($_REQUEST['doad']) && $_REQUEST['doad']) {
                 $serviceNames = array(
                     'FOG_AD_DEFAULT_DOMAINNAME',
                     'FOG_AD_DEFAULT_OU',
@@ -195,11 +195,12 @@ class Registration extends FOGBase
                 }
                 $OUOptions = array_unique((array)$OUOptions);
                 $OUOptions = array_values((array)$OUOptions);
-                if (count($OUOptions) > 1) {
+                $opt = '';
+                if (isset($OUOptions) && count($OUOptions) > 1) {
                     $OUs = $OUOptions;
                     foreach ($OUs as &$OU) {
                         $opt = preg_replace('#;#', '', $OU);
-                        if ($opt) {
+                        if (isset($opt) && $opt) {
                             break;
                         }
                         unset($OU);
@@ -229,16 +230,16 @@ class Registration extends FOGBase
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs)
                 ->setAD(
-                    $useAD,
-                    $ADDomain,
-                    $ADOU,
-                    $ADUser,
-                    $ADPass,
+                    isset($useAD) ? $useAD : 0,
+                    isset($ADDomain) ? $ADDomain : '',
+                    isset($ADOU) ? $ADOU : '',
+                    isset($ADUser) ? $ADUser : '',
+                    isset($ADPass) ? $ADPass : '',
                     false,
                     true,
-                    $ADPassLegacy,
-                    $productKey,
-                    $enforce
+                    isset($ADPassLegacy) ? $ADPassLegacy : '',
+                    isset($productKey) ? $productKey : '',
+                    isset($enforce) ? $enforce : 0
                 );
             if (!self::$Host->save()) {
                 throw new Exception(

@@ -138,6 +138,7 @@ class MACAddress extends FOGBase
             /**
              * This creates a portion of the message string for WOL requests.
              */
+            $hwAddr = '';
             foreach ((array) $splitter as &$split) {
                 $hwAddr .= chr(hexdec($split));
                 unset($split);
@@ -195,7 +196,7 @@ class MACAddress extends FOGBase
                     '.'
                 ),
                 '',
-                $mac[0]
+                isset($mac[0]) ? $mac[0] : ''
             )
         );
     }

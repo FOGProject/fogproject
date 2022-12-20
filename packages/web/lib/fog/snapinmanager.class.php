@@ -130,7 +130,7 @@ class SnapinManager extends FOGManagerController
                 'sID',
                 'sName'
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'sID',
             'sID'

@@ -143,7 +143,7 @@ class PingHosts extends FOGService
                     _('Attempting to ping'),
                     $hostCount,
                     (
-                        $hostcount != 1 ?
+                        $hostCount != 1 ?
                         _('hosts') :
                         _('host')
                     )
@@ -190,7 +190,7 @@ class PingHosts extends FOGService
                         '',
                         array('pingstatus' => $ping)
                     );
-                unset($hostid, $index, $hostids[$index]);
+                unset($hostid, $hostids[$index]);
             }
             self::outall(' * All hosts updated');
         } catch (Exception $e) {

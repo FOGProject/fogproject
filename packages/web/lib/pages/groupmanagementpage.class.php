@@ -42,7 +42,7 @@ class GroupManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Group Management';
+        $this->name = self::$foglang['Group Management'];
         parent::__construct($this->name);
         global $id;
         if ($id) {
@@ -137,10 +137,10 @@ class GroupManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false'),
+                'class' => 'parser-false filter-false'),
             array(),
             array('class' => 'text-center'),
-            array()
+            array('class' => 'parser-false filter-false')
         );
         $this->_getHostCommon();
         /**
@@ -423,13 +423,13 @@ class GroupManagementPage extends FOGPage
             'efiBootTypeExit'
         );
         $name = (
-            filter_input(INPUT_POST, 'name') ?: $this->obj->get('name')
+            filter_input(INPUT_POST, 'name') ?: ($this->obj->get('name') ?: '')
         );
         $desc = (
-            filter_input(INPUT_POST, 'description') ?: $this->obj->get('description')
+            filter_input(INPUT_POST, 'description') ?: ($this->obj->get('description') ?: '')
         );
         $productKey = (
-            filter_input(INPUT_POST, 'key') ?: $productKey
+            filter_input(INPUT_POST, 'key') ?: ($this->obj->get('productkey') ?: '')
         );
         $productKeytest = self::aesdecrypt($productKey);
         if ($test_base64 = base64_decode($productKeytest)) {
@@ -441,20 +441,17 @@ class GroupManagementPage extends FOGPage
         }
         $kern = (
             filter_input(INPUT_POST, 'kern') ?: (
-                $kern ?: $this->obj->get('kernel')
+                isset($kern) ? $kern : $this->obj->get('kernel')
             )
         );
         $args = (
             filter_input(INPUT_POST, 'args') ?: (
-                $args ?: $this->obj->get('kernelArgs')
+                isset($args) ? $args : $this->obj->get('kernelArgs')
             )
-        );
-        $init = (
-            filter_input(INPUT_POST, 'init') ?: $init
         );
         $dev = (
             filter_input(INPUT_POST, 'dev') ?: (
-                $dev ?: $this->obj->get('kernelDevice')
+                isset($dev) ? $dev : $this->obj->get('kernelDevice')
             )
         );
         $this->attributes = array(
@@ -775,10 +772,10 @@ class GroupManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false col-xs-1'
+                'class' => 'parser-false filter-false col-xs-1'
             ),
             array(
-                'class' => 'filter-false col-xs-1'
+                'class' => 'parser-false filter-false col-xs-1'
             ),
             array(),
             array()
@@ -1008,7 +1005,7 @@ class GroupManagementPage extends FOGPage
             '${snapin_created}'
         );
         $this->attributes = array(
-            array('class' => 'filter-false col-xs-1'),
+            array('class' => 'parser-false filter-false col-xs-1'),
             array(),
             array()
         );
@@ -1580,7 +1577,7 @@ class GroupManagementPage extends FOGPage
             $efiExit
         ) = self::$_common;
         $hostids = $this->obj->get('hosts');
-        self::$Host = new Host(@max($hostids));
+        self::$Host = new Host((isset($hostids) && is_array($hostids) && count($hostids)>0) ? max($hostids) : 0);
         // Set Field Information
         $printerLevel = (
             $printerLevel ?

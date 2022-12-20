@@ -36,7 +36,7 @@ class TasktypeeditManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Task Type Management';
+        $this->name = _('Task Type Management');
         self::$foglang['ExportTasktypeedit'] = _('Export Task Types');
         self::$foglang['ImportTasktypeedit'] = _('Import Task Types');
         parent::__construct($this->name);
@@ -79,7 +79,7 @@ class TasktypeeditManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(),
             array(),
@@ -311,7 +311,7 @@ class TasktypeeditManagementPage extends FOGPage
             INPUT_POST,
             'access'
         );
-        $advanced = isset($_POST['advanced']);
+        $advanced = isset($_POST['advanced']) ? '1' : '0';
         try {
             if (self::getClass('TaskTypeManager')->exists($name)) {
                 throw new Exception(
@@ -398,7 +398,7 @@ class TasktypeeditManagementPage extends FOGPage
             filter_input(
                 INPUT_POST,
                 'kernelargs'
-            ) ?: $this->obj->get('kernelargs')
+            ) ?: $this->obj->get('kernelArgs')
         );
         $initrd = (
             filter_input(
@@ -419,7 +419,7 @@ class TasktypeeditManagementPage extends FOGPage
             ) ?: $this->obj->get('access')
         );
         $advanced = (
-            isset($_POST['advanced']) ?: $this->obj->get('advanced')
+            isset($_POST['advanced']) ?: $this->obj->get('isAdvanced')
         );
         $isAd = (
             $advanced ?
@@ -611,7 +611,7 @@ class TasktypeeditManagementPage extends FOGPage
             INPUT_POST,
             'access'
         );
-        $advanced = isset($_POST['advanced']);
+        $advanced = isset($_POST['advanced']) ? '1' : '0';
         try {
             if ($this->obj->get('name') != $name
                 && self::getClass('TaskTypeManager')->exists($name)

@@ -34,7 +34,7 @@ $this->schema[] = array(
     . 'UNIQUE KEY `gmGroupID` (`gmHostID`,`gmGroupID`),'
     . 'KEY `new_index` (`gmHostID`),'
     . 'KEY `new_index1` (`gmGroupID`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `groups` ('
     . '`groupID` INT(11) NOT NULL auto_increment,'
     . '`groupName` VARCHAR(50) NOT NULL,'
@@ -44,7 +44,7 @@ $this->schema[] = array(
     . '`groupBuilding` INT(11) NOT NULL,'
     . 'PRIMARY KEY (`groupID`),'
     . 'KEY `new_index` (`groupName`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `history` ('
     . '`hID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`hText` LONGTEXT NOT NULL,'
@@ -52,7 +52,7 @@ $this->schema[] = array(
     . '`hTime` DATETIME NOT NULL,'
     . '`hIP` VARCHAR(50) NOT NULL,'
     . 'PRIMARY KEY (`hID`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `hosts` ('
     . '`hostID` int(11) NOT NULL auto_increment,'
     . '`hostName` varchar(16) NOT NULL,'
@@ -69,7 +69,7 @@ $this->schema[] = array(
     . 'KEY `new_index1` (`hostIP`),'
     . 'KEY `new_index2` (`hostMAC`),'
     . 'KEY `new_index3` (`hostOS`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `images` ('
     . '`imageID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`imageName` VARCHAR(40) NOT NULL,'
@@ -82,19 +82,19 @@ $this->schema[] = array(
     . 'PRIMARY KEY  (`imageID`),'
     . 'KEY `new_index` (`imageName`),'
     . 'KEY `new_index1` (`imageBuilding`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `schemaVersion` ('
     . '`vID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`vValue` INT(11) NOT NULL,'
     . 'PRIMARY KEY  (`vID`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `supportedOS` ('
     . '`osID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,'
     . '`osName` VARCHAR(150) NOT NULL,'
     . '`osValue` int(10) unsigned NOT NULL,'
     . 'PRIMARY KEY  (`osID`),'
     . 'KEY `new_index` (`osValue`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE  `tasks` ('
     . '`taskID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`taskName` VARCHAR(250) NOT NULL,'
@@ -113,7 +113,7 @@ $this->schema[] = array(
     . 'KEY `new_index2` (`taskState`),'
     . 'KEY `new_index3` (`taskForce`),'
     . 'KEY `new_index4` (`taskType`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `users` ('
     . '`uId` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`uName` VARCHAR(40) NOT NULL,'
@@ -123,7 +123,7 @@ $this->schema[] = array(
     . 'PRIMARY KEY (`uId`),'
     . 'KEY `new_index` (`uName`),'
     . 'KEY `new_index1` (`uPass`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `users` VALUES ('','fog', MD5('password'), NOW(), '')",
     "INSERT IGNORE INTO `supportedOS` VALUES ('', 'Windows XP', '1')",
     "INSERT IGNORE INTO `schemaVersion` VALUES ('', '1')"
@@ -153,14 +153,14 @@ $this->schema[] = array(
     . 'PRIMARY KEY  (`saID`),'
     . 'KEY `new_index` (`saHostID`),'
     . 'KEY `new_index1` (`saSnapinID`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `snapinJobs` ('
     . '`sjID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`sjHostID` INT(11) NOT NULL,'
     . '`sjCreateTime` DATETIME NOT NULL,'
     . 'PRIMARY KEY (`sjID`),'
     . 'KEY `new_index` (`sjHostID`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `snapinTasks` ('
     . '`stID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`stJobID` INT(11) NOT NULL,'
@@ -172,7 +172,7 @@ $this->schema[] = array(
     . 'KEY `new_index` (`stJobID`),'
     . 'KEY `new_index1` (`stState`),'
     . 'KEY `new_index2` (`stSnapinID`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `snapins` ('
     . '`sID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`sName` VARCHAR(200) NOT NULL,'
@@ -187,7 +187,7 @@ $this->schema[] = array(
     . '`sAnon3` VARCHAR(45) NOT NULL,'
     . 'PRIMARY KEY (`sID`),'
     . 'KEY `new_index` (`sName`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "UPDATE `schemaVersion` SET vValue='3'",
 );
 // 4
@@ -210,7 +210,7 @@ $this->schema[] = array(
     . '`msAnon4` VARCHAR(250) NOT NULL,'
     . '`msAnon5` VARCHAR(250) NOT NULL,'
     . 'PRIMARY KEY (`msID`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `multicastSessionsAssoc` ('
     . '`msaID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`msID` INT(11) NOT NULL,'
@@ -218,7 +218,7 @@ $this->schema[] = array(
     . 'PRIMARY KEY  (`msaID`),'
     . 'KEY `new_index` (`msID`),'
     . 'KEY `new_index1` (`tID`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "UPDATE `schemaVersion` set vValue='4'",
 );
 // 5
@@ -245,7 +245,7 @@ $this->schema[] = array(
     . 'PRIMARY KEY (`vID`),'
     . 'INDEX `new_index` (`vHostMAC`),'
     . 'INDEX `new_index2`(`vDateTime`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "UPDATE `schemaVersion` SET `vValue`='6'",
 );
 // 8
@@ -264,7 +264,7 @@ $this->schema[] = array(
     . 'INDEX `new_index1` (`utUserName`),'
     . 'INDEX `new_index2` (`utAction`),'
     . 'INDEX `new_index3` (`utDateTime`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'ALTER TABLE `hosts`'
     . 'CHANGE `hostAnon1` `hostPrinterLevel` VARCHAR(2)'
     . 'CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL',
@@ -283,7 +283,7 @@ $this->schema[] = array(
     . 'PRIMARY KEY (`pID`),'
     . 'INDEX `new_index1`(`pModel`),'
     . 'INDEX `new_index2`(`pAlias`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `printerAssoc` ('
     . '`paID` INTEGER NOT NULL AUTO_INCREMENT,'
     . '`paHostID` INTEGER NOT NULL,'
@@ -297,7 +297,7 @@ $this->schema[] = array(
     . 'PRIMARY KEY (`paID`),'
     . 'INDEX `new_index1` (`paHostID`),'
     . 'INDEX `new_index2` (`paPrinterID`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `inventory` ('
     . '`iID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`iHostID` INT(11) NOT NULL,'
@@ -331,7 +331,7 @@ $this->schema[] = array(
     . '`iCaseserial` VARCHAR(250) NOT NULL,'
     . '`iCaseasset` VARCHAR(250) NOT NULL,'
     . 'PRIMARY KEY (`iID`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `clientUpdates` ('
     . '`cuID` INTEGER NOT NULL AUTO_INCREMENT,'
     . '`cuName` VARCHAR(200) NOT NULL,'
@@ -341,7 +341,7 @@ $this->schema[] = array(
     . 'PRIMARY KEY (`cuID`),'
     . 'INDEX `new_index` (`cuName`),'
     . 'INDEX `new_index1`(`cuType`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "UPDATE `schemaVersion` SET vValue='7'",
 );
 // 8
@@ -363,7 +363,7 @@ $this->schema[] = array(
     . '`settingCategory` VARCHAR(254) NOT NULL,'
     . 'PRIMARY KEY (`settingID`),'
     . 'INDEX `new_index` (`settingKey`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'INSERT IGNORE INTO `globalSettings`'
     . '(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`)'
     . 'VALUES'
@@ -513,12 +513,12 @@ $this->schema[] = array(
     . 'PRIMARY KEY (`msID`),'
     . 'INDEX `new_index`(`msHostID`),'
     . 'INDEX `new_index2`(`msModuleID`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `dirCleaner` ('
     . '`dcID` INTEGER  NOT NULL AUTO_INCREMENT,'
     . '`dcPath` longtext  NOT NULL,'
     . 'PRIMARY KEY (`dcID`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'INSERT IGNORE INTO `globalSettings`'
     . '(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`)'
     . 'VALUES'
@@ -534,7 +534,7 @@ $this->schema[] = array(
     . '`ucID` INTEGER NOT NULL AUTO_INCREMENT,'
     . '`ucName` VARCHAR(254) NOT NULL,'
     . 'PRIMARY KEY (`ucID`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `userCleanup` (`ucName`)"
     . 'VALUES'
     . "('admin'),"
@@ -591,14 +591,14 @@ $this->schema[] = array(
     . '`hssOther2` INTEGER NOT NULL,'
     . 'PRIMARY KEY (`hssID`),'
     . 'INDEX `new_index`(`hssHostID`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `hostAutoLogOut` ('
     . '`haloID` INTEGER  NOT NULL AUTO_INCREMENT,'
     . '`haloHostID` INTEGER  NOT NULL,'
     . '`haloTime` VARCHAR(10) NOT NULL,'
     . 'PRIMARY KEY (`haloID`),'
     . 'INDEX `new_index`(`haloHostID`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `greenFog` ('
     . '`gfID` INTEGER NOT NULL AUTO_INCREMENT,'
     . '`gfHostID` INTEGER NOT NULL,'
@@ -608,7 +608,7 @@ $this->schema[] = array(
     . '`gfDays` varchar(25) NOT NULL,'
     . 'PRIMARY KEY (`gfID`),'
     . 'INDEX `new_index`(`gfHostID`)'
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `globalSettings` "
     . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
     . "VALUES "
@@ -627,7 +627,7 @@ $this->schema[] = array(
     . "INDEX `new_index`(`alUserName`),"
     . "INDEX `new_index2`(`alHostID`),"
     . "INDEX `new_index3`(`alDateTime`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "UPDATE `schemaVersion` set vValue = '9'",
 );
 // 10
@@ -640,7 +640,7 @@ $this->schema[] = array(
     . "`ilImageName` VARCHAR(64) NOT NULL,"
     . "PRIMARY KEY (`ilID`),"
     . "INDEX `new_index`(`ilHostID`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `globalSettings` "
     . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
     . "VALUES "
@@ -743,7 +743,7 @@ $this->schema[] = array(
     . "INDEX `new_index1`(`pState`),"
     . "INDEX `new_index2`(`pInstalled`),"
     . "INDEX `new_index3`(`pVersion`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "ALTER TABLE `hosts` CHANGE `hostAnon3` `hostKernel` VARCHAR(250) "
     . "CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,"
     . "CHANGE `hostAnon4` `hostDevice` VARCHAR(250) CHARACTER "
@@ -764,7 +764,7 @@ $this->schema[] = array(
     . "`ngName` varchar(250) NOT NULL,"
     . "`ngDesc` longtext NOT NULL,"
     . "PRIMARY KEY (`ngID`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "CREATE TABLE `nfsGroupMembers` ("
     . "`ngmID` integer NOT NULL AUTO_INCREMENT,"
     . "`ngmMemberName` varchar(250) NOT NULL,"
@@ -783,7 +783,7 @@ $this->schema[] = array(
     . "INDEX `new_index2`(`ngmIsMasterNode`),"
     . "INDEX `new_index3`(`ngmGroupID`),"
     . "INDEX `new_index4`(`ngmIsEnabled`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "ALTER TABLE `images` ADD COLUMN `imageNFSGroupID` integer "
     . "NOT NULL AFTER `imageDD`,"
     . "ADD INDEX `new_index3`(`imageNFSGroupID`)",
@@ -808,7 +808,7 @@ $this->schema[] = array(
     . "INDEX `new_index1`(`nfTaskID`),"
     . "INDEX `new_index2`(`nfHostID`),"
     . "INDEX `new_index3`(`nfGroupID`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "ALTER TABLE `nfsFailures` MODIFY COLUMN `nfDateTime` datetime NOT NULL,"
     . "ADD INDEX `new_index4`(`nfDateTime`)",
     "ALTER TABLE `multicastSessions` CHANGE `msAnon2` `msNFSGroupID` integer "
@@ -898,7 +898,7 @@ $this->schema[] = array(
     . "`stDateTime` BIGINT UNSIGNED NOT NULL DEFAULT 0,"
     . "`stActive` varchar(2) NOT NULL DEFAULT 1,"
     . "PRIMARY KEY (`stID`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `globalSettings` "
     . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
     . "VALUES "
@@ -933,14 +933,14 @@ $this->schema[] = array(
     . "PRIMARY KEY (`hmID`),"
     . "INDEX `idxHostID`(`hmHostID`),"
     . "INDEX `idxMac`(`hmMAC`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "CREATE TABLE `oui` ("
     . "`ouiID` int(11) NOT NULL AUTO_INCREMENT,"
     . "`ouiMACPrefix` varchar(8) NOT NULL,"
     . "`ouiMan` varchar(254) NOT NULL,"
     . "PRIMARY KEY (`ouiID`),"
     . "KEY `idxMac` (`ouiMACPrefix`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `globalSettings` "
     . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
     . "VALUES "
@@ -973,7 +973,7 @@ $this->schema[] = array(
     . "PRIMARY KEY (`pmID`),"
     . "INDEX `idx_mc`(`pmAddress`),"
     . "INDEX `idx_host`(`pmHostID`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `globalSettings` "
     . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
     . "VALUES "
@@ -1032,7 +1032,7 @@ $this->schema[] = array(
     . "`osName` varchar(30) NOT NULL,"
     . "`osDescription` text NOT NULL,"
     . "PRIMARY KEY (`osID`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `os` "
     . "(`osID`, `osName`, `osDescription`) "
     . "VALUES "
@@ -1055,8 +1055,8 @@ $this->schema[] = array(
     . "'",
     "ALTER TABLE `nfsGroupMembers` ADD `ngmGraphEnabled` "
     . "ENUM('0','1') NOT NULL DEFAULT '1'",
-        "UPDATE `schemaVersion` set `vValue`='26'",
-    );
+    "UPDATE `schemaVersion` set `vValue`='26'",
+);
 // 27
 $this->schema[] = array(
     "ALTER TABLE `tasks` CHANGE `taskCreateTime` `taskCreateTime` "
@@ -1095,7 +1095,7 @@ $this->schema[] = array(
     . "`imageTypeID` mediumint(9) NOT NULL auto_increment,"
     . "`imageTypeName` varchar(100) NOT NULL,"
     . "PRIMARY KEY  (`imageTypeID`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `imageTypes` "
     . "(`imageTypeID`, `imageTypeName`) "
     . "VALUES "
@@ -1167,7 +1167,7 @@ $this->schema[] = array(
     . "`tsDescription` text NOT NULL,"
     . "`tsOrder` tinyint(4) NOT NULL DEFAULT '0',"
     . "PRIMARY KEY (`tsID`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `taskStates` "
     . "(`tsID`, `tsName`, `tsDescription`, `tsOrder`) VALUES "
     . "(1,'Queued','Task has been created and FOG is "
@@ -1200,7 +1200,7 @@ $this->schema[] = array(
     . "`ttIsAdvanced` enum('0','1') NOT NULL DEFAULT '0',"
     . "`ttIsAccess` enum('both','host','group') NOT NULL DEFAULT 'both',"
     . "PRIMARY KEY (`ttID`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `taskTypes` "
     . "(`ttID`,`ttName`,`ttDescription`,`ttIcon`,"
     . "`ttKernelTemplate`,`ttType`,`ttIsAdvanced`,`ttIsAccess`) "
@@ -1422,7 +1422,7 @@ $this->schema[] = array(
     . "`name` varchar(50) NOT NULL, `short_name` "
     . "varchar(30) NOT NULL, `description` text "
     . "NOT NULL, PRIMARY KEY (`id`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `modules` "
     . "(`id`, `name`, `short_name`, `description`) "
     . "VALUES "
@@ -1523,7 +1523,7 @@ $this->schema[] = array(
     . "`createTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,"
     . "`createdBy` VARCHAR(30) NOT NULL,"
     . "PRIMARY KEY (`id`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
 );
 // 38
 $this->schema[] = array(
@@ -1567,7 +1567,7 @@ $this->schema[] = array(
     . "`ksValue` varchar(25) NOT NULL,"
     . "`ksAscii` varchar(25) NOT NULL,"
     . "PRIMARY KEY (`ksID`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
 );
 $keySequences = array(
     'CTRL + A' => '0x01',
@@ -1681,7 +1681,7 @@ $this->schema[] = array(
     . "('FOG_PXE_BOOT_IMAGE_32','The settings defines where the 32 bit "
     . "fog boot file system image is located.','init_32.xz','TFTP Server')",
 );
-// 87 - used to be FOG_MINING_ENABLE but was entirely removed
+// 87 - used to be FOG_MINING_ENABLE but was entirely removed.
 $this->schema[] = array();
 // 88
 $this->schema[] = array(
@@ -1707,7 +1707,7 @@ $this->schema[] = array();
 $this->schema[] = array(
     "ALTER TABLE `snapinJobs` "
     . "ADD COLUMN `sjStateID` INT(11) NOT NULL AFTER `sjHostID`",
-    );
+);
 // 93
 $this->schema[] = array(
     "ALTER TABLE `snapinJobs` CHANGE `sjStateID` `sjStateID` INT(11) NOT NULL",
@@ -1722,13 +1722,13 @@ $this->schema[] = array(
     . "cryptocurrency that will be donated to the FOG Project.',"
     . "'donate.png','','mode=donate.full','fog','1','both')",
 );
-// 95 - used to be two FOG_MINING_* settings but were entirely removed
+// 95 - used to be two FOG_MINING_* settings but were entirely removed.
 $this->schema[] = array();
 // 96
 $this->schema[] = array(
     "ALTER TABLE `tasks` ADD COLUMN `taskPassreset` "
     . "varchar(250)  NOT NULL AFTER `taskLastMemberID`",
-    );
+);
 // 97
 $this->schema[] = array(
     "truncate table `tasks`",
@@ -1757,7 +1757,7 @@ $this->schema[] = array(
     "UPDATE `imageTypes` SET `imageTypeName`="
     . "'Single Disk (NTFS Only, Resizable)' "
     . "WHERE `imageTypes`.`imageTypeName`='Single Partition (NTFS Only, Resizable)'",
-    );
+);
 // 101
 $this->schema[] = array(
     "INSERT IGNORE INTO `globalSettings` "
@@ -1841,7 +1841,7 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `hosts` "
     . "ADD COLUMN `hostProductKey` varchar(50) NOT NULL AFTER `hostADPass`",
-    );
+);
 // 113
 $this->schema[] = array(
     "INSERT IGNORE INTO `globalSettings` "
@@ -1928,7 +1928,7 @@ $this->schema[] = array(
     . "`imagePartitionTypeName` varchar(100) NOT NULL,"
     . "`imagePartitionTypeValue` varchar(10) NOT NULL,"
     . "PRIMARY KEY  (`imagePartitionTypeID`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `imagePartitionTypes` "
     . "(`imagePartitionTypeID`, `imagePartitionTypeName`,"
     . "`imagePartitionTypeValue`)"
@@ -1950,8 +1950,8 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `images` ADD COLUMN `imagePartitionTypeID` "
     . "mediumint(9) NOT NULL AFTER `imageTypeID`",
-        "UPDATE images SET imagePartitionTypeID='1'",
-    );
+    "UPDATE images SET imagePartitionTypeID='1'",
+);
 // 122
 $this->schema[] = array(
     "CREATE TABLE IF NOT EXISTS `pxeMenu` ("
@@ -1963,7 +1963,7 @@ $this->schema[] = array(
     . "`pxeArgs` varchar(250) NULL,"
     . "`pxeDefault` INT DEFAULT 0 NOT NULL,"
     . "PRIMARY KEY (`pxeID`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `pxeMenu` "
     . "(`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) "
     . "VALUES "
@@ -2123,7 +2123,7 @@ $this->schema[] = array(
     . "`ipxeSuccess` VARCHAR(2) NOT NULL,"
     . "`ipxeFailure` VARCHAR(2) NOT NULL,"
     . "PRIMARY KEY (`ipxeID`)"
-    . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `globalSettings` "
     . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
     . "VALUES "
@@ -2175,7 +2175,7 @@ $this->schema[] = self::fastmerge(
         . "`igaStorageGroupID` mediumint(9) NOT NULL,"
         . "`igaPrimary` ENUM('0','1') NOT NULL,"
         . "PRIMARY KEY (`igaID`)"
-        . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+        . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
         "INSERT IGNORE INTO `imageGroupAssoc` "
         . "(`igaImageID`,`igaStorageGroupID`) "
         . "SELECT `imageID`,`imageNFSGroupID` FROM "
@@ -2235,7 +2235,7 @@ $this->schema[] = self::fastmerge(
         . "`sgaStorageGroupID` mediumint(9) NOT NULL,"
         . "`sgaPrimary` ENUM('0','1') NOT NULL,"
         . "PRIMARY KEY (`sgaID`)"
-        . ') ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+        . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
         "INSERT IGNORE INTO `snapinGroupAssoc` "
         . "(`sgaSnapinID`,`sgaStorageGroupID`) "
         . "SELECT `sID`,`snapinNFSGroupID` FROM `snapins` "
@@ -2318,11 +2318,11 @@ $this->schema[] = array(
 );
 // 151
 $this->schema[] = array(
-    "ALTER TABLE `taskTypes` ENGINE=MyISAM",
-    "ALTER TABLE `taskStates` ENGINE=MyISAM",
-    "ALTER TABLE `taskLog` ENGINE=MyISAM",
-    "ALTER TABLE `os` ENGINE=MyISAM",
-    "ALTER TABLE `modules` ENGINE=MyISAM",
+    "ALTER TABLE `taskTypes` ENGINE=InnoDB",
+    "ALTER TABLE `taskStates` ENGINE=InnoDB",
+    "ALTER TABLE `taskLog` ENGINE=InnoDB",
+    "ALTER TABLE `os` ENGINE=InnoDB",
+    "ALTER TABLE `modules` ENGINE=InnoDB",
 );
 // 152
 $this->schema[] = array(
@@ -2365,7 +2365,7 @@ $this->schema[] = array(
     "UPDATE `globalSettings` SET `settingValue`='default/fog.css' "
     . "WHERE `settingKey`='FOG_THEME'",
 );
-// 157, doesn't do anything but ensure all currently create tables are MyISAM
+// 157, doesn't do anything but ensure all currently create tables are InnoDB
 $this->schema[] = array();
 // 158
 $this->schema[] = array();
@@ -2695,7 +2695,7 @@ $this->schema[] = array(
 $this->schema[] = array(
     "ALTER TABLE `snapins`
     ADD COLUMN `snapinProtect` mediumint(9) NOT NULL",
-    );
+);
 // 176
 $this->schema[] = array(
     "INSERT IGNORE INTO `globalSettings` "
@@ -3152,7 +3152,7 @@ $this->schema[] = array(
     . "UNIQUE KEY `gmGroupID` (`gmHostID`,`gmGroupID`),"
     . "KEY `new_index` (`gmHostID`),"
     . "KEY `new_index1` (`gmGroupID`)"
-    . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `groupMembers_new` SELECT * FROM `groupMembers`",
     "DROP TABLE `groupMembers`",
     "RENAME TABLE `groupMembers_new` TO `groupMembers`",
@@ -3179,7 +3179,7 @@ $this->schema[] = array(
     . "UNIQUE INDEX `cron` "
     . "(`pmHostID`,`pmMin`,`pmHour`,`pmDom`,"
     . "`pmMonth`,`pmDow`,`pmAction`)"
-    . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `modules` "
     . "(`id`, `name`, `short_name`, `description`) "
     . "VALUES "
@@ -3255,7 +3255,7 @@ $this->schema[] = array(
         `settingCategory` LONGTEXT NOT NULL,
         PRIMARY KEY(`settingID`),
 UNIQUE INDEX `settingKey` (`settingKey`)
-    ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `globalSettings_new` SELECT * FROM `globalSettings`",
     "DROP TABLE `globalSettings`",
     "RENAME TABLE `globalSettings_new` TO `globalSettings`",
@@ -3373,7 +3373,7 @@ $this->schema[] = array(
     . "`uType` INT NOT NULL,"
     . "PRIMARY KEY(`uId`),"
     . "UNIQUE INDEX `name` (`uName`)"
-    . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `users_new` SELECT * FROM `users`",
     "DROP TABLE `users`",
     "RENAME TABLE `users_new` TO `users`",
@@ -3635,13 +3635,13 @@ $this->schema[] = array(
     . "`heName` VARCHAR(255) NOT NULL,"
     . "PRIMARY KEY(`heID`),"
     . "UNIQUE INDEX `name` (`heName`)"
-    . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "CREATE TABLE `notifyEvents` ("
     . "`neID` INT NOT NULL AUTO_INCREMENT,"
     . "`neName` VARCHAR(255) NOT NULL,"
     . "PRIMARY KEY(`neID`),"
     . "UNIQUE INDEX `name` (`neName`)"
-    . ") ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
 );
 // 255
 $this->schema[] = array(

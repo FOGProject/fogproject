@@ -53,7 +53,7 @@ class HostStatusManager extends FOGManagerController
                 array(
                 )
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'hsID',
             'hsID'

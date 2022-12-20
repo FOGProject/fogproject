@@ -38,7 +38,7 @@ class WindowsKeyManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Windows Key Management';
+        $this->name = _('Windows Key Management');
         /**
          * Add this page to the PAGES_WITH_OBJECTS hook event.
          */
@@ -75,7 +75,7 @@ class WindowsKeyManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'width' => 16
             ),
             array(
@@ -498,7 +498,7 @@ class WindowsKeyManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(
                 'data-toggle' => 'tooltip',

@@ -14,11 +14,11 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 if [[ $guessdefaults == 1 ]]; then
-    case $linuxReleaseName in
-        *[Ff][Ee][Dd][Oo][Rr][Aa]*|*[Rr][Ee][Dd][Hh][Aa][Tt]*|*[Cc][Ee][Nn][Tt][Oo][Ss]*|*[Mm][Aa][Gg][Ee][Ii][Aa]*)
+    case $linuxReleaseName_lower in
+        *fedora*|*red*hat*|*centos*|*mageia*|*alma*|*rocky*)
             strSuggestedOS=1
             ;;
-        *[Uu][Bb][Uu][Nn][Tt][Uu]*|*[Bb][Ii][Aa][Nn]*|*[Mm][Ii][Nn][Tt]*)
+        *ubuntu*|*bian*|*mint*)
             strSuggestedOS=2
             ;;
         *[Aa][Rr][Cc][Hh]*)

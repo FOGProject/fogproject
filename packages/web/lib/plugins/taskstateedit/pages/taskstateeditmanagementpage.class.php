@@ -36,7 +36,7 @@ class TaskstateeditManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Task State Management';
+        $this->name = _('Task State Management');
         self::$foglang['ExportTaskstateedit'] = _('Export Task States');
         self::$foglang['ImportTaskstateedit'] = _('Import Task States');
         parent::__construct($this->name);
@@ -77,7 +77,7 @@ class TaskstateeditManagementPage extends FOGPage
         $this->attributes = array(
             array(
                 'width' => 16,
-                'class' => 'filter-false'
+                'class' => 'parser-false filter-false'
             ),
             array(
                 'width' => 22,

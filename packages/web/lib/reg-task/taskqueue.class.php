@@ -293,6 +293,9 @@ class TaskQueue extends TaskingElement
         $Inventory = self::$Host->get('inventory');
         $mac = self::$Host->get('mac')->__toString();
         $ImageName = $this->Task->getImage()->get('name');
+        $ImageStartTime = self::niceDate($this->Task->get('checkInTime'))->format('Y-m-d H:i:s');
+        $ImageEndTime = self::niceDate()->format('Y-m-d H:i:s');
+        $duration = self::diff($ImageStartTime, $ImageEndTime);
         $Snapins = implode(',', (array)$SnapinNames);
         $email = array(
             sprintf("%s:-\n", _('Machine Details')) => '',
@@ -305,7 +308,10 @@ class TaskQueue extends TaskingElement
             sprintf("\n%s: ", _('Snapin Used')) => $Snapins,
             "\n" => '',
             sprintf("\n%s: ", _('Imaged By')) => $engineer,
-            sprintf("\n%s: ", _('Imaged For')) => $primaryUser
+            sprintf("\n%s: ", _('Imaged For')) => $primaryUser,
+            sprintf("\n%s: ", _('Imaging Started')) => $ImageStartTime,
+            sprintf("\n%s: ", _('Imaging Completed')) => $ImageEndTime,
+            sprintf("\n%s: ", _('Imaging Duration')) => $duration
         );
         self::$HookManager->processEvent(
             'EMAIL_ITEMS',

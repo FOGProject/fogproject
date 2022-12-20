@@ -65,7 +65,7 @@ class GroupManager extends FOGManagerController
                     'gmGroupID'
                 )
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'gmID',
             'gmID'

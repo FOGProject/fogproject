@@ -70,7 +70,7 @@ class TaskStateManager extends FOGManagerController
                 'tsID',
                 'tsName'
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'tsID',
             'tsID'

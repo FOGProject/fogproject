@@ -28,19 +28,20 @@ class SnapinManagementPage extends FOGPage
      */
     private static $_argTypes = array(
         'MSI' => array('msiexec.exe','/i','/quiet'),
-        'Batch Script' => array('cmd.exe','/c'),
-        'Bash Script' => array('/bin/bash'),
-        'VB Script' => array('cscript.exe'),
+        'Batch Script' => array('cmd.exe','/c',''),
+        'Bash Script' => array('/bin/bash','',''),
+        'VB Script' => array('cscript.exe','',''),
         'Powershell (default)' => array(
             'powershell.exe',
-            '-ExecutionPolicy Bypass -NoProfile -File'
+            '-ExecutionPolicy Bypass -NoProfile -File',
+            ''
         ),
         'Powershell x64' => array(
-            '&quot;%SYSTEMROOT%\\sysnative\\windowspowershell'
-            . '\\v1.0\\powershell.exe',
-            '-ExecutionPolicy Bypass -NoProfile -File'
+            '&quot;%SYSTEMROOT%\\sysnative\\windowspowershell\\v1.0\\powershell.exe&quot;',
+            '-ExecutionPolicy Bypass -NoProfile -File',
+            ''
         ),
-        'Mono' => array('mono'),
+        'Mono' => array('mono','',''),
     );
     /**
      * Template for non-pack.
@@ -72,7 +73,7 @@ class SnapinManagementPage extends FOGPage
         /**
          * The real name not using our name passer.
          */
-        $this->name = 'Snapin Management';
+        $this->name = self::$foglang['Snapin Management'];
         /**
          * Pull in the FOG Page class items.
          */
@@ -200,7 +201,7 @@ class SnapinManagementPage extends FOGPage
                 'width' => 5
             ),
             array(
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'width' => 16
             ),
             array(),
@@ -716,7 +717,7 @@ class SnapinManagementPage extends FOGPage
             filter_input(INPUT_POST, 'snapinfileexist')
         );
         $uploadfile = basename(
-            $_FILES['snapin']['name']
+            isset($_FILES['snapin']['name']) ? $_FILES['snapin']['name'] : ''
         );
         if ($uploadfile) {
             $snapinfile = $uploadfile;
@@ -786,11 +787,9 @@ class SnapinManagementPage extends FOGPage
             if (!$snapinfile && $_FILES['snapin']['error'] > 0) {
                 throw new UploadException($_FILES['snapin']['error']);
             }
-            $src = sprintf(
-                '%s/%s',
-                dirname($_FILES['snapin']['tmp_name']),
-                basename($_FILES['snapin']['tmp_name'])
-            );
+            $tmp_name = isset($_FILES['snapin']['tmp_name']) ? $_FILES['snapin']['tmp_name'] : '';
+            $src = sprintf('%s/%s', dirname($tmp_name), basename($tmp_name));
+            unset($tmp_name);
             $dest = sprintf(
                 '/%s/%s',
                 trim(
@@ -1250,7 +1249,7 @@ class SnapinManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'width' => 16
             ),
             array(),
@@ -1362,11 +1361,11 @@ class SnapinManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'width' => 16
             ),
             array(
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'width' => 16
             ),
             array(),
@@ -1473,7 +1472,7 @@ class SnapinManagementPage extends FOGPage
             filter_input(INPUT_POST, 'snapinfileexist')
         );
         $uploadfile = basename(
-            $_FILES['snapin']['name']
+            isset($_FILES['snapin']['name']) ? $_FILES['snapin']['name'] : ''
         );
         if ($uploadfile) {
             $snapinfile = $uploadfile;
@@ -1550,11 +1549,9 @@ class SnapinManagementPage extends FOGPage
         if (!$snapinfile && $_FILES['snapin']['error'] > 0) {
             throw new UploadException($_FILES['snapin']['error']);
         }
-        $src = sprintf(
-            '%s/%s',
-            dirname($_FILES['snapin']['tmp_name']),
-            basename($_FILES['snapin']['tmp_name'])
-        );
+        $tmp_name = isset($_FILES['snapin']['tmp_name']) ? $_FILES['snapin']['tmp_name'] : '';
+        $src = sprintf('%s/%s', dirname($tmp_name), basename($tmp_name));
+        unset($tmp_name);
         set_time_limit(0);
         if ($uploadfile && file_exists($src)) {
             $hash = hash_file('sha512', $src);
@@ -1673,6 +1670,19 @@ class SnapinManagementPage extends FOGPage
                     $storagegrouprm
                 );
         }
+        $primary = self::getSubObjectIDs(
+            'SnapinGroupAssociation',
+            array(
+                'snapinID' => $this->get('id'),
+                'primary' => 1
+            ),
+            'storagegroupID'
+        );
+        $this->obj->assocSetter('SnapinGroup', 'storagegroup');
+        if (count($primary) > 0) {
+            $primary = array_shift($primary);
+            $this->setPrimaryGroup($primary);
+        }
     }
     /**
      * Submit for update.
@@ -1692,12 +1702,14 @@ class SnapinManagementPage extends FOGPage
             switch ($tab) {
             case 'snap-gen':
                 $this->snapinGeneralPost();
+                $updateSuccess = $this->obj->save();
                 break;
             case 'snap-storage':
                 $this->snapinStoragegroupsPost();
+                $updateSuccess = true;
                 break;
             }
-            if (!$this->obj->save()) {
+            if (!$updateSuccess) {
                 throw new Exception(_('Snapin update failed!'));
             }
             $hook = 'SNAPIN_UPDATE_SUCCESS';
@@ -1724,5 +1736,39 @@ class SnapinManagementPage extends FOGPage
             );
         echo $msg;
         exit;
+    }
+    /**
+     * Customize membership actions
+     *
+     * @return void
+     */
+    public function membershipPost()
+    {
+        if (self::$ajax) {
+            return;
+        }
+        $reqitems = filter_input_array(
+            INPUT_POST,
+            array(
+                'host' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                ),
+                'hostdel' => array(
+                    'flags' => FILTER_REQUIRE_ARRAY
+                )
+            )
+        );
+        $host = $reqitems['host'];
+        $hostdel = $reqitems['hostdel'];
+        if (isset($_POST['addHosts'])) {
+            $this->obj->addHost($host);
+        }
+        if (isset($_POST['remhosts'])) {
+            $this->obj->removeHost($hostdel);
+        }
+        if ($this->obj->assocSetter('Snapin', 'host')) {
+            $this->obj->load();
+            self::redirect($this->formAction);
+        }
     }
 }

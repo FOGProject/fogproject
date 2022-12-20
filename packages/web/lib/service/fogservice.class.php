@@ -235,7 +235,7 @@ abstract class FOGService extends FOGBase
      *
      * @return string
      */
-    protected static function getDateTime()
+    public static function getDateTime()
     {
         return self::niceDate()->format('m-d-y g:i:s a');
     }
@@ -436,7 +436,7 @@ abstract class FOGService extends FOGBase
                 trim($myStorageNode->{$getPathOfItemField}, '/')
             );
             if (false === $fileOverride) {
-                $myFile = basename($Obj->get($getFileOfItemField));
+                $myFile = $Obj->get($getFileOfItemField);
             } else {
                 $myFile = $fileOverride;
             }
@@ -510,8 +510,9 @@ abstract class FOGService extends FOGBase
                     );
                     self::outall(
                         sprintf(
-                            ' | %s.',
-                            _('File or path cannot be reached')
+                            ' | %s: %s',
+                            _('File or path cannot be reached'),
+                            $myAdd
                         )
                     );
                     continue;
@@ -523,10 +524,12 @@ abstract class FOGService extends FOGBase
                     ->set('username', $StorageNode->user)
                     ->set('password', $StorageNode->pass)
                     ->set('host', $StorageNode->ip);
-                if (!self::$FOGFTP->connect()) {
+                try {
+                    self::$FOGFTP->connect();
+                } catch (Exception $e) {
                     self::outall(
                         sprintf(
-                            ' * %s %s',
+                            ' * Error: %s %s',
                             _('Cannot connect to'),
                             $StorageNode->name
                         )
@@ -565,6 +568,7 @@ abstract class FOGService extends FOGBase
                 unset($remItem);
                 unset($includeFile);
                 $ftpstart = "ftp://$username:$encpassword@$ip";
+                $remotefilescheck = array();
                 if (is_file($myAdd)) {
                     $remItem = dirname("$removeDir$removeFile");
                     $path = $remItem;
@@ -630,8 +634,6 @@ abstract class FOGService extends FOGBase
                     $filesequal = false;
                     $lindex = array_search($filename, $localfilescheck);
                     $rindex = array_search($filename, $remotefilescheck);
-                    $localfilename = sprintf('%s%s%s', $path, "/", $localfilescheck[$lindex]);
-                    $remotefilename = sprintf('%s%s%s', $remItem, "/", $remotefilescheck[$rindex]);
                     if (!is_int($rindex)) {
                         $allsynced = false;
                         self::outall(sprintf(
@@ -651,8 +653,11 @@ abstract class FOGService extends FOGBase
                             'on',
                             $nodename
                         ));
+                        $remotefilename = sprintf('%s%s%s', $remItem, "/", $remotefilescheck[$rindex]);
                         self::$FOGFTP->delete($remotefilename);
                     } else {
+                        $localfilename = sprintf('%s%s%s', $path, "/", $localfilescheck[$lindex]);
+                        $remotefilename = sprintf('%s%s%s', $remItem, "/", $remotefilescheck[$rindex]);
                         $localsize = self::getFilesize($localfilename);
                         $remotesize = null;
                         if ($avail) {
@@ -865,9 +870,10 @@ abstract class FOGService extends FOGBase
         } else {
             $log = static::$log;
         }
-        self::wlog(_('Task started'), $logname);
+        self::wlog(_('Task started')."\n", $logname);
         $descriptor = array(
             0 => array('pipe', 'r'),
+            1 => array('file', $logname, 'a'),
             2 => array('file', $log, 'a')
         );
         if ($itemType === false) {
@@ -900,7 +906,7 @@ abstract class FOGService extends FOGBase
         if ($ret) {
             return false;
         }
-        while (list(, $t) = each($output)) {
+        foreach ($output as $t) {
             if ($t != $pid) {
                 $this->killAll($t, $sig);
             }
@@ -922,12 +928,14 @@ abstract class FOGService extends FOGBase
         $filename = false
     ) {
         if ($itemType === false) {
-            foreach ((array)$this->procPipes[$index] as $i => &$close) {
-                fclose($close);
-                unset($close);
+            if (count((array)$this->procPipes) > 0) {
+                foreach ((array)$this->procPipes[$index] as $i => &$close) {
+                    fclose($close);
+                    unset($close);
+                }
+                unset($this->procPipes[$index]);
             }
-            unset($this->procPipes[$index]);
-            if ($this->isRunning($this->procRef[$index])) {
+            if (is_array($this->procRef) && $this->isRunning($this->procRef[$index])) {
                 $pid = $this->getPID($this->procRef[$index]);
                 if ($pid) {
                     $this->killAll($pid, SIGTERM);
@@ -1053,9 +1061,12 @@ abstract class FOGService extends FOGBase
                 foreach ($images as $i => &$ref) {
                     if (!$this->isRunning($images[$i])) {
                         self::outall(" | Sync finished - " . print_r($images[$i], true));
-                        fclose($this->procPipes[$item][$image][$i]);
+                        foreach ($this->procPipes[$item][$image][$i] as $j => &$pipe_ref) {
+                            fclose($this->procPipes[$item][$image][$i][$j]);
+                            unset($this->procPipes[$item][$image][$i][$j]);
+                        }
                         unset($this->procPipes[$item][$image][$i]);
-                        fclose($images[$i]);
+                        proc_close($images[$i]);
                         unset($images[$i]);
                     }
                 }

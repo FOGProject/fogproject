@@ -73,7 +73,7 @@ class HistoryManager extends FOGManagerController
                     'hTime'
                 )
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'hID',
             'hID'

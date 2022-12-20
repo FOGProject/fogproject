@@ -166,7 +166,7 @@ class Host extends FOGController
         case 'additionalMACs':
         case 'pendingMACs':
             $newValue = array_map(
-                function (&$mac) {
+                function ($mac) {
                     return new MACAddress($mac);
                 },
                 (array)$value
@@ -506,8 +506,6 @@ class Host extends FOGController
                 array(
                     'hostID' => $this->get('id'),
                     'pending' => 0,
-                    'mac',
-                    true
                 ),
                 'mac',
                 true
@@ -1003,7 +1001,7 @@ class Host extends FOGController
                 'hostID' => $this->get('id')
             )
         );
-        $SnapinJob = new SnapinJob(@min($sjID));
+        $SnapinJob = new SnapinJob((isset($sjID) && is_array($sjID) && count($sjID)>0) ? min($sjID) : false);
         $this->set('snapinjob', $SnapinJob);
     }
     /**
@@ -1426,7 +1424,7 @@ class Host extends FOGController
                 }
             }
             if ($TaskType->isMulticast()) {
-                $multicastTaskReturn = function (&$MulticastSession) {
+                $multicastTaskReturn = function ($MulticastSession) {
                     if (!$MulticastSession->isValid()) {
                         return;
                     }
@@ -1892,7 +1890,7 @@ class Host extends FOGController
     {
         $MyMACs = $this->getMyMacs();
         $myMACs = $igMACs = $cgMACs = array();
-        $macaddress = function (&$mac) {
+        $macaddress = function ($mac) {
             if (!$mac instanceof MACAddress) {
                 $mac = new MACAddress($mac);
             }
@@ -2080,7 +2078,25 @@ class Host extends FOGController
         $enforce = ''
     ) {
         $adpasspat = "/^\*{32}$/";
-        $pass = (preg_match($adpasspat, $pass) ? $this->get('ADPass') : $pass);
+        $adpassglobalpat = "/^#{32}$/";
+        if (preg_match($adpasspat, $pass)) {
+            $pass = $this->get('ADPass');
+        } elseif (preg_match($adpassglobalpat, $pass)) {
+            $pass = self::getSubObjectIDs(
+                'Service',
+                array(
+                    'name' => array(
+                        'FOG_AD_DEFAULT_PASSWORD',
+                    ),
+                ),
+                'value',
+                false,
+                'AND',
+                'name',
+                false,
+                ''
+            );
+        }
         if ($this->get('id')) {
             if (!$override) {
                 if (empty($useAD)) {
@@ -2188,7 +2204,7 @@ class Host extends FOGController
                                 ),
                             'id'
                         );
-                        if (is_null($taskID)) {
+                        if (is_null($taskID) || (is_array($taskID) && count($taskID) === 0)) {
                             printf($strtoupdate, 'linux', 'linux', 'blue', 'Linux');
                         } else {
                             printf($strtoupdate, 'fos', 'cogs', 'green', 'FOS');

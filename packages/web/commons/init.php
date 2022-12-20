@@ -54,7 +54,7 @@ class Initiator
          *
          * @return void
          */
-        self::$_sanitizeItems = function (&$val, &$key) use (&$value) {
+        self::$_sanitizeItems = function (&$val, $key) use (&$value) {
             if (is_string($val)) {
                 $value[$key] = htmlspecialchars(
                     $val,
@@ -167,6 +167,47 @@ class Initiator
         ) {
             session_start();
         }
+    }
+    /**
+     * Initiates language configuration
+     *
+     * @param string $lang
+     *
+     * @return void
+     */
+    public static function language($lang = 'en')
+    {
+        $validLangs = [
+            'de' => 'DE',
+            'en' => 'US',
+            'es' => 'ES',
+            'eu' => 'ES',
+            'fr' => 'FR',
+            'it' => 'IT',
+            'pt' => 'BR',
+            'zh' => 'CN'
+        ];
+        if (!in_array($lang, array_keys($validLangs))) {
+            $lang = 'en';
+        }
+
+        if (PHP_SESSION_NONE != session_status()) {
+            $_SESSION['FOG_LANG'] = $lang;
+        }
+
+        $lang = "{$lang}_{$validLangs[$lang]}";
+        $domain = 'messages';
+        $apppath = realpath(__DIR__ . '/../management/languages');
+
+        if (defined('LC_MESSAGES')) {
+            setlocale(LC_MESSAGES, $lang.'.UTF-8');
+        } else {
+            putenv("LC_ALL=$lang");
+        }
+
+        bind_textdomain_codeset($domain, 'UTF-8');
+        bindtextdomain($domain, $apppath);
+        textdomain($domain);
     }
     /**
      * Stores session csrf token.
@@ -300,6 +341,10 @@ class Initiator
          * Initialize the configuration.
          */
         new Config();
+        /**
+         * Language Starting
+         */
+        self::language(isset($_SESSION['FOG_LANG']) ? $_SESSION['FOG_LANG'] : 'en');
     }
     /**
      * Sanitizes output

@@ -66,7 +66,7 @@ class WindowsKeyAssociationManager extends FOGManagerController
                     'wkaKeyID',
                 )
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'wkaID',
             'wkaID'

@@ -36,7 +36,7 @@ class WOLBroadcastManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'WOL Broadcast Management';
+        $this->name = _('WOL Broadcast Management');
         self::$foglang['ExportWolbroadcast'] = _('Export WOLBroadcasts');
         self::$foglang['ImportWolbroadcast'] = _('Import WOLBroadcasts');
         parent::__construct($this->name);
@@ -69,7 +69,7 @@ class WOLBroadcastManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'width' => '16'
             ),
             array(),

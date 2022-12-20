@@ -1,14 +1,14 @@
 #!/bin/bash
 usage() {
-    echo -e "Usage: $0 [-h?] [-B </backup/path/>]"
+    echo -e "Usage: $0 [-h?] [-R] [-S] [-I] [-B </backup/path/>]"
     echo -e "\t-h -? --help\t\t\tDisplay this info"
     echo -e "\t-B -b --backuppath\t\tSpecify the backup path.\n\t\tIf not set will use backupPath from fog settings plus fog_backup_DATE."
-    echo -e "\t --no-reports\t\tOmit backup of reports"
-    echo -e "\t --no-snapins\t\tOmit backup of snapins"
-    echo -e "\t --no-images\t\tOmit backup of images"
+    echo -e "\t-R -r --no-reports\t\tOmit backup of reports."
+    echo -e "\t-S -s --no-snapins\t\tOmit backup of snapins."
+    echo -e "\t-I -i --no-images\t\tOmit backup of images."
 }
 . ../../lib/common/utils.sh
-optspec="h?B:b:-:"
+optspec="Hh?IiRrSsB:b:-:"
 while getopts "$optspec" o; do
     case $o in
         -)
@@ -52,6 +52,15 @@ while getopts "$optspec" o; do
             fi
             backupPath=$OPTARG
             ;;
+        [Rr])
+            noBackupReports=1
+            ;;
+        [Ss])
+            noBackupSnapins=1
+            ;;
+        [Ii])
+            noBackupImages=1
+            ;;
         :)
             usage
             handleError "Option -$OPTARG requires a value" 10
@@ -79,7 +88,6 @@ countBackup=`ls | grep $backupDate | wc -l`
 backupDir="${backupDir}_$countBackup"
 [[ ! -d $backupDir ]] && mkdir -p $backupDir/{images,mysql,snapins,reports,logs} >/dev/null 2>&1
 [[ ! -d $backupDir/images || $backupDir/mysql || $backupDir/snapins || $backupDir/reports || $backupDir/logs ]] && mkdir -p $backupDir/{images,mysql,snapins,reports,logs} >/dev/null 2>&1
-echo " * Backup location: $backupDir"
 backupDB() {
     dots "Backing up database"
     wget --no-check-certificate --post-data="nojson=1" -O $backupDir/mysql/fog.sql "http://$ipaddress/$webroot/management/export.php?type=sql" 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1
@@ -127,8 +135,8 @@ backupReports() {
 starttime=$(date +%D%t%r)
 echo " * Started backup at: $starttime"
 backupDB
-[[ "$noBackupReports" -ne 1 ]] && backupReports
-[[ "$noBackupSnapins" -ne 1 ]] && backupSnapins
-[[ "$noBackupImages" -ne 1 ]] && backupImages
+[[ $noBackupReports -eq 1 ]] || backupReports
+[[ $noBackupSnapins -eq 1 ]] || backupSnapins
+[[ $noBackupImages -eq 1 ]] || backupImages
 endtime=$(date +%D%t%r)
 echo " * Completed backup at: $endtime"

@@ -869,7 +869,7 @@ abstract class FOGController extends FOGBase
                 $key = $this->key($key);
                 $val = $this->get($key);
                 if (!is_numeric($val) && !$val) {
-                    throw new Exception(self::$foglang['RequiredDB']);
+                    throw new Exception(self::$foglang['RequiredDB'] . ": " . $key);
                 }
                 unset($key);
             }
@@ -919,7 +919,7 @@ abstract class FOGController extends FOGBase
          */
         $whereInfo = function (
             &$value,
-            &$field
+            $field
         ) use (
             &$whereArrayAnd,
             &$c,
@@ -955,7 +955,7 @@ abstract class FOGController extends FOGBase
          */
         $joinInfo = function (
             &$fields,
-            &$class
+            $class
         ) use (
             &$join,
             &$whereArrayAnd,
@@ -1072,6 +1072,9 @@ abstract class FOGController extends FOGBase
 
         // Get the current items.
         $items = $this->get($plural);
+        if (!$items) {
+            $items = array();
+        }
         Route::ids(
             $classCall,
             [$objstr => $this->get('id')],

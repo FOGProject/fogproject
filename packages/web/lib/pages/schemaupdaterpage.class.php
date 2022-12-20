@@ -41,7 +41,7 @@ class SchemaUpdaterPage extends FOGPage
         if ($schema->get('version') >= FOG_SCHEMA) {
             self::redirect('index.php');
         }
-        $this->name = 'Database Schema Installer / Updater';
+        $this->name = _('Database Schema Installer / Updater');
         $this->menu = array();
         $this->subMenu = array();
     }

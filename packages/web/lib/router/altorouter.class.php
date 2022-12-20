@@ -142,7 +142,7 @@ class AltoRouter
         // Pass to the map method.
         call_user_func_array(
             array($this, 'map'),
-            $arguments
+            array_values($arguments)
         );
         return $this;
     }
@@ -221,7 +221,7 @@ class AltoRouter
             throw new \Exception($msg);
         }
         foreach ($routes as $route) {
-            call_user_func_array(array($this, 'map'), $route);
+            call_user_func_array(array($this, 'map'), array_values($route));
         }
         return $this;
     }

@@ -36,7 +36,7 @@ class UserManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = _('User Management');
+        $this->name = self::$foglang['User Management'];
         parent::__construct($this->name);
         global $id;
         if ($id) {
@@ -103,7 +103,7 @@ class UserManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false form-group',
+                'class' => 'parser-false filter-false form-group',
                 'width' => 16
             ),
             array(

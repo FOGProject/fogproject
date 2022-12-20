@@ -36,7 +36,7 @@ class PushbulletManagementPage extends FOGPage
      */
     public function __construct($name = '')
     {
-        $this->name = 'Pushbullet Management';
+        $this->name = _('Pushbullet Management');
         parent::__construct($this->name);
         $this->menu = array(
             'list' => sprintf(
@@ -63,7 +63,7 @@ class PushbulletManagementPage extends FOGPage
         );
         $this->attributes = array(
             array(
-                'class' => 'filter-false',
+                'class' => 'parser-false filter-false',
                 'width' => 16
             ),
             array(),

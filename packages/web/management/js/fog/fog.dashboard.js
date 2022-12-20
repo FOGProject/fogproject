@@ -56,7 +56,7 @@ var Graph30Day,
                     radius: 2/3,
                     formatter: function(label, series) {
                         return '<div style="color: #f3f3f3">'
-                            + series.percent
+                            + Math.round(series.percent)
                             + '%</div>';
                     },
                     threshold: 0.1

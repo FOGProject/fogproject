@@ -70,7 +70,7 @@ class ModuleManager extends FOGManagerController
                 'id',
                 'short_name'
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'id',
             'id'

@@ -310,7 +310,9 @@ class Hosts_And_Users extends ReportManagementPage
                     );
                     break;
                 default:
-                    $this->ReportMaker->addCSVCell($Host->$classGet);
+                    if (property_exists($Host, $classGet)) {
+                        $this->ReportMaker->addCSVCell($Host->$classGet);
+                    }
                     break;
                 }
                 unset($classGet);

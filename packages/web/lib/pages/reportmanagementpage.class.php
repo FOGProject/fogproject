@@ -57,7 +57,7 @@ class ReportManagementPage extends FOGPage
                 $match
             );
 
-            return $match[0];
+            return isset($match[0]) ? $match[0] : null;
         };
         $RecursiveDirectoryIterator = new RecursiveDirectoryIterator(
             BASEPATH,
@@ -128,7 +128,7 @@ class ReportManagementPage extends FOGPage
     public function __construct($name = '')
     {
         set_time_limit(0);
-        $this->name = 'Report Management';
+        $this->name = self::$foglang['Report Management'];
         parent::__construct($this->name);
         $this->menu = array(
             'home' => self::$foglang['Home']

@@ -64,7 +64,7 @@ class SlackManager extends FOGManagerController
                     'sToken'
                 )
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'sID',
             'sID'

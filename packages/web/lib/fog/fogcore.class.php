@@ -192,7 +192,6 @@ class FOGCore extends FOGBase
     {
         self::$pluginsinstalled = (array)self::getActivePlugins();
         $getSettings = array(
-            'FOG_DEFAULT_LOCALE',
             'FOG_HOST_LOOKUP',
             'FOG_MEMORY_LIMIT',
             'FOG_REAUTH_ON_DELETE',
@@ -200,15 +199,7 @@ class FOGCore extends FOGBase
             'FOG_TZ_INFO',
             'FOG_VIEW_DEFAULT_SCREEN',
         );
-        list(
-            $locale,
-            $hostLookup,
-            $memoryLimit,
-            $authdelete,
-            $authexport,
-            $tzInfo,
-            $view
-        ) = self::getSubObjectIDs(
+        $fog_settings = self::getSubObjectIDs(
             'Service',
             array('name' => $getSettings),
             'value',
@@ -218,34 +209,41 @@ class FOGCore extends FOGBase
             false,
             ''
         );
-        self::$defaultscreen = $view;
         self::$pendingHosts = self::getClass('HostManager')
             ->count(array('pending' => 1));
         if (DatabaseManager::getColumns('hostMAC', 'hmMAC')) {
             self::$pendingMACs = self::getClass('MACAddressAssociationManager')
                 ->count(array('pending' => 1));
         }
-        self::$fogpingactive = $hostLookup;
-        self::$fogdeleteactive = $authdelete;
-        self::$fogexportactive = $authexport;
+        if (isset($fog_settings[0])) {
+            self::$fogpingactive = $fog_settings[0];
+        }
+        if (isset($fog_settings[2])) {
+            self::$fogdeleteactive = $fog_settings[2];
+        }
+        if (isset($fog_settings[3])) {
+            self::$fogexportactive = $fog_settings[3];
+        }
+        if (isset($fog_settings[5])) {
+            self::$defaultscreen = $fog_settings[5];
+        }
         $defTz = ini_get('date.timezone');
         if (empty($defTz)) {
-            if (empty($tzInfo)) {
+            if (empty($fog_settings[4])) {
                 $GLOBALS['TimeZone'] = 'UTC';
             } else {
-                $GLOBALS['TimeZone'] = $tzInfo;
+                $GLOBALS['TimeZone'] = $fog_settings[4];
             }
         } else {
             $GLOBALS['TimeZone'] = $defTz;
         }
         ini_set('max_input_vars', 10000);
         $memorySet = preg_replace('#M#', '', ini_get('memory_limit'));
-        if ($memorySet < $memoryLimit) {
-            if (is_numeric($memoryLimit)) {
-                ini_set('memory_limit', sprintf('%dM', $memoryLimit));
+        if (isset($fog_settings[4]) && $memorySet < $fog_settings[4]) {
+            if (is_numeric($fog_settings[4])) {
+                ini_set('memory_limit', sprintf('%dM', $fog_settings[4]));
             }
         }
-        self::$locale = $locale;
         return self::getClass(__CLASS__);
     }
 }

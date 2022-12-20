@@ -201,9 +201,6 @@ class Service extends FOGController
         $nullField = false,
         $id = ''
     ) {
-        if (empty($name)) {
-            $name = $this->get('name');
-        }
         $types = array(
             'sanboot',
             'grub',
@@ -212,6 +209,7 @@ class Service extends FOGController
             'grub_first_found_windows',
             'refind_efi',
             'exit',
+            'reboot',
         );
         if ($nullField) {
             array_unshift(

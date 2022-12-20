@@ -113,7 +113,9 @@ class Product_Keys extends ReportManagementPage
                     $this->ReportMaker->addCSVCell($productKey);
                     break;
                 default:
-                    $this->ReportMaker->addCSVCell($Host->$classGet);
+                    if (property_exists($Host, $classGet)) {
+                        $this->ReportMaker->addCSVCell($Host->$classGet);
+                    }
                     break;
                 }
                 unset($classGet);

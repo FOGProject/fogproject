@@ -166,7 +166,7 @@ class HostManager extends FOGManagerController
                 'hostID',
                 'hostName'
             ),
-            'MyISAM',
+            'InnoDB',
             'utf8',
             'hostID',
             'hostID'
@@ -205,8 +205,13 @@ class HostManager extends FOGManagerController
                 ),
                 'hostID'
             );
-            if (count($MACHost) > 1) {
-                throw new Exception(self::$foglang['ErrorMultipleHosts']);
+            $macs = (array)$macs;
+            if (count($MACHost ?: array()) > 1 && count($macs ?: array()) > 0) {
+                $maclist = implode(', ', $macs);
+                throw new Exception(
+                    self::$foglang['ErrorMultipleHosts']
+                    . ", MACs: $maclist"
+                );
             }
         }
         self::$Host = new Host(@max($MACHost));
