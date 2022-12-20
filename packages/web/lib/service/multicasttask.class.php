@@ -654,7 +654,9 @@ class MulticastTask extends FOGService
                 sprintf(
                     implode($buildcmd),
                     (
-                        $maxwait * 60    
+                        $i == 0 ?
+                        $maxwait * 60 :
+                        $maxwait * 6
                     )
                 ),
                 rtrim(
