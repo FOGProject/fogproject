@@ -657,7 +657,7 @@ class MulticastTask extends FOGService
                     (
                         $i == 0 ?
                         $maxwait * 60 :
-                        10
+                        $maxwait * 6
                     )
                 ),
                 rtrim(
