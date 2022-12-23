@@ -463,16 +463,25 @@ class BootMenu extends FOGBase
         self::$HookManager->processEvent(
             'ALTERNATE_BOOT_CHECKS'
         );
+        if (isset($_REQUEST['username']) && isset($_REQUEST['password'])) {
+            $tmpUser = self::attemptLogin(
+                $_REQUEST['username'],
+                $_REQUEST['password']
+            );
+            if ($tmpUser->isValid()) {
+                if (isset($_REQUEST['delconf'])) {
+                    $this->_delHost();
+                } elseif (isset($_REQUEST['key'])) {
+                    $this->keyset();
+                } elseif (isset($_REQUEST['sessname'])) {
+                    $this->sesscheck();
+                } elseif (isset($_REQUEST['aprvconf'])) {
+                    $this->_approveHost();
+                }
+            }
+        }
         if (isset($_REQUEST['username'])) {
             $this->verifyCreds();
-        } elseif (isset($_REQUEST['delconf'])) {
-            $this->_delHost();
-        } elseif (isset($_REQUEST['key'])) {
-            $this->keyset();
-        } elseif (isset($_REQUEST['sessname'])) {
-            $this->sesscheck();
-        } elseif (isset($_REQUEST['aprvconf'])) {
-            $this->_approveHost();
         } elseif (!self::$Host->isValid()) {
             $this->printDefault();
         } else {
@@ -730,6 +739,8 @@ class BootMenu extends FOGBase
             'param arch ${arch}',
             'param platform ${platform}',
             'param sysuuid ${uuid}',
+            'param username ${username}',
+            'param password ${password}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
             ':bootme',
@@ -755,6 +766,8 @@ class BootMenu extends FOGBase
             'param arch ${arch}',
             'param platform ${platform}',
             'param sysuuid ${uuid}',
+            'param username ${username}',
+            'param password ${password}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
             ':bootme',
@@ -779,6 +792,8 @@ class BootMenu extends FOGBase
             'param platform ${platform}',
             'param key ${key}',
             'param sysuuid ${uuid}',
+            'param username ${username}',
+            'param password ${password}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
             ':bootme',
@@ -856,6 +871,8 @@ class BootMenu extends FOGBase
             'param platform ${platform}',
             'param sessname ${sessname}',
             'param sysuuid ${uuid}',
+            'param username ${username}',
+            'param password ${password}',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
             ':bootme',
