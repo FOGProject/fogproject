@@ -437,8 +437,8 @@ case $? in
         if [[ -n $webroot ]]; then
             webroot=${webroot#'/'}
             webroot=${webroot%'/'}
-            [[ -z $webroot ]] && webroot="/" || webroot="/${webroot}/"
         fi
+        [[ -z $webroot ]] && webroot="/" || webroot="/${webroot}/"
         ;;
     *)
         [[ -z $webroot ]] && webroot="/fog/"
