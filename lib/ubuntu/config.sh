@@ -17,7 +17,9 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
-if [[ $linuxReleaseName_lower == +(*bian*) ]]; then
+if [[ $linuxReleaseName_lower == +(*debian*) ]]; then
+    : # Debian hosts use systemd, so sysv-rc-conf is not needed
+elif [[ $linuxReleaseName_lower == +(*bian*) ]]; then
     sysvrcconf="sysv-rc-conf"
 elif [[ $linuxReleaseName_lower == +(*ubuntu*|*mint*) ]]; then
     DEBIAN_FRONTEND=noninteractive apt-get purge -yq sysv-rc-conf >/dev/null 2>&1
