@@ -17,23 +17,13 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 [[ -z $packageQuery ]] && packageQuery="dpkg -l \$x | grep '^ii'"
-if [[ $linuxReleaseName_lower == +(*bian*) ]]; then
-    sysvrcconf="sysv-rc-conf"
-elif [[ $linuxReleaseName_lower == +(*ubuntu*|*mint*) ]]; then
-    DEBIAN_FRONTEND=noninteractive apt-get purge -yq sysv-rc-conf >/dev/null 2>&1
-    case $OSVersion in
-        16)
-            sysvrcconf="sysv-rc-conf"
-            ;;
-    esac
-fi
 case $linuxReleaseName_lower in
     *ubuntu*|*bian*|*mint*)
         if [[ -z $packages ]]; then
             x="mysql-server"
             eval $packageQuery >>$error_log 2>&1
             [[ $? -eq 0 ]] && db_packages="mysql-client mysql-server" || db_packages="mariadb-client mariadb-server"
-            packages="apache2 build-essential cpp curl g++ gawk gcc genisoimage git gzip htmldoc isc-dhcp-server isolinux lftp libapache2-mod-fastcgi libapache2-mod-php libc6 libcurl3 liblzma-dev m4 ${db_packages} net-tools nfs-kernel-server openssh-server php-fpm php php-cli php-curl php-gd php-json php-ldap php-mbstring php-mysql php-mysqlnd ${sysvrcconf} tar tftpd-hpa tftp-hpa vsftpd wget zlib1g"
+            packages="apache2 build-essential cpp curl g++ gawk gcc genisoimage git gzip htmldoc isc-dhcp-server isolinux lftp libapache2-mod-fastcgi libapache2-mod-php libc6 libcurl3 liblzma-dev m4 ${db_packages} net-tools nfs-kernel-server openssh-server php-fpm php php-cli php-curl php-gd php-json php-ldap php-mbstring php-mysql php-mysqlnd tar tftpd-hpa tftp-hpa vsftpd wget zlib1g"
         else
             # make sure we update the package list to not use specific version numbers anymore
             packages=${packages//php[0-9]\.[0-9]/php}
