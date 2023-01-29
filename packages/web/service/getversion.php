@@ -43,11 +43,15 @@ if (isset($_REQUEST['client'])) {
     );
 } elseif (isset($_REQUEST['url'])) {
 
+    if (is_null($currentUser))
+        goto unauthorized;
+
     // Prevent an unauthenticated user from making arbitrary requests.
     $unauthorized = !$currentUser->isValid() || empty($_SERVER['HTTP_X_REQUESTED_WITH'])
         || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest';
 
     if ($unauthorized) {
+        unauthorized:
         echo _('Unauthorized');
         exit;
     }

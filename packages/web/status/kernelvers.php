@@ -27,11 +27,15 @@ header('Content-Type: text/event-stream');
 
 if (isset($_POST['url'])) {
 
+    if (is_null($currentUser))
+        goto unauthorized;
+
     // Prevent an unauthenticated user from making arbitrary requests.
     $unauthorized = !$currentUser->isValid() || empty($_SERVER['HTTP_X_REQUESTED_WITH'])
         || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest';
 
     if ($unauthorized) {
+        unauthorized:
         echo _('Unauthorized');
         exit;
     }
@@ -42,7 +46,7 @@ if (isset($_POST['url'])) {
         echo $response;
         unset($response);
     }
-    
+
     exit;
 }
 
