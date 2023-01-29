@@ -25,20 +25,6 @@ ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
 header('Connection: close');
-if (!(isset($_POST['ip'])
-    && is_string($_POST['ip']))
-) {
-    echo json_encode(_('Invalid IP'));
-    exit;
-}
-if (!(isset($_POST['file'])
-    && is_string($_POST['file']))
-) {
-    echo json_encode(_('Invalid File'));
-    exit;
-}
-$file = '';
-$lines = '';
 /**
  * Returns vals.
  *
@@ -122,39 +108,42 @@ function vals($reverse, $HookManager, $lines, $file)
             )
         );
     }
-    return trim($output);
+    return trim(htmlspecialchars($output));
 }
+
 if (!(isset($_POST['ip'])
     && is_string($_POST['ip']))
 ) {
     echo _('Invalid IP');
     exit;
-}
+} else $ip = $_POST['ip'];
+
 if (!(isset($_POST['file'])
     && is_string($_POST['file']))
 ) {
     echo _('Invalid File');
     exit;
-}
+} else $file = '';
+
 if (!(isset($_POST['lines'])
     && is_numeric($_POST['lines']))
 ) {
     $_POST['lines'] = 20;
-}
+} else $lines = $_POST['lines'];
+
 if (!(isset($_POST['reverse'])
     && is_numeric($_POST['reverse']))
 ) {
     $_POST['reverse'] = 0;
-}
-$ip = $_POST['ip'];
+} $reverse = $_POST['reverse'];
+
 $file = sprintf(
     '%s%s%s',
     dirname($_POST['file']),
     DS,
     basename($_POST['file'])
 );
-$lines = $_POST['lines'];
-$reverse = $_POST['reverse'];
+
 $ip = base64_decode($ip);
 $ip = FOGCore::resolveHostname($ip);
 $ip = trim($ip);
