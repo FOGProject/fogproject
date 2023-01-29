@@ -129,7 +129,7 @@ if (!(isset($_POST['lines'])
     && is_numeric($_POST['lines']))
 ) {
     $_POST['lines'] = 20;
-} else $lines = $_POST['lines'];
+} $lines = $_POST['lines'];
 
 if (!(isset($_POST['reverse'])
     && is_numeric($_POST['reverse']))
