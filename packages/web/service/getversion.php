@@ -41,21 +41,6 @@ if (isset($_REQUEST['client'])) {
         FOG_CLIENT_VERSION :
         '0.0.0'
     );
-} elseif (isset($_REQUEST['url'])) {
-
-    // Prevent an unauthenticated user from making arbitrary requests.
-    $unauthorized = !$currentUser->isValid() || empty($_SERVER['HTTP_X_REQUESTED_WITH'])
-        || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest';
-
-    if ($unauthorized) {
-        echo _('Unauthorized');
-        exit;
-    }
-
-    $url = $_REQUEST['url'];
-    $res = $FOGURLRequests
-        ->process($_REQUEST['url']);
-    $ver = array_shift($res);
 } else {
     $ver = FOG_VERSION;
 }
