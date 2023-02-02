@@ -554,7 +554,7 @@ configureTFTPandPXE() {
                 sleep 2
                 systemctl status xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             fi
-            ;;
+			;;
         *)
             if [[ $osid -eq 2 && -f $tftpconfigupstartdefaults ]]; then
                 echo -e "# /etc/default/tftpd-hpa\n# FOG Modified version\nTFTP_USERNAME=\"root\"\nTFTP_DIRECTORY=\"/tftpboot\"\nTFTP_ADDRESS=\":69\"\nTFTP_OPTIONS=\"-s\"" > "$tftpconfigupstartdefaults"
@@ -571,6 +571,9 @@ configureTFTPandPXE() {
                 sleep 2
                 $initdpath/xinetd start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 sleep 2
+			elif [[ $osid -eq 3 ]]; then
+			    systemctl stop xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+				systemctl disable xinetd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             else
                 chkconfig xinetd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 service xinetd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1970,7 +1973,7 @@ EOF
                         fi
                         ;;
                     3)
-                        phpfpmconf='/etc/php/php-fpm.d/www.conf'
+                        phpfpmconf='/etc/php7/php-fpm.d/www.conf'
                         ;;
                 esac
                 if [[ -n $phpfpmconf ]]; then
@@ -2004,11 +2007,11 @@ EOF
                     systemctl status apache2 $phpfpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 *)
-                    systemctl stop httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    systemctl stop httpd php-fpm7 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     sleep 2
-                    systemctl start httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    systemctl start httpd php-fpm7 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     sleep 2
-                    systemctl status httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    systemctl status httpd php-fpm7 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
             esac
             ;;
@@ -2031,12 +2034,12 @@ EOF
                     sleep 2
                     service httpd start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     sleep 2
-                    service php-fpm stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    service php-fpm7 stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     sleep 2
-                    service php-fpm start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    service php-fpm7 start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     sleep 2
                     service httpd status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    service php-fpm status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    service php-fpm7 status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
             esac
             ;;
@@ -2050,7 +2053,7 @@ configureHttpd() {
         yes)
             case $osid in
                 1|3)
-                    systemctl stop httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+                    systemctl stop httpd php-fpm7 >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
                     ;;
                 2)
                     systemctl stop apache2 php${php_ver}-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
@@ -2062,7 +2065,7 @@ configureHttpd() {
             case $osid in
                 1)
                     service httpd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
-                    service php-fpm stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+                    service php-fpm7 stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
                     errorStat $?
                     ;;
                 2)
@@ -2336,9 +2339,9 @@ die();
             sysv-rc-conf $phpfpm on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
     elif [[ $systemctl == yes ]]; then
-        systemctl enable httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        systemctl enable httpd php-fpm7 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     else
-        chkconfig php-fpm on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        chkconfig php-fpm7 on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         chkconfig httpd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
     errorStat $?

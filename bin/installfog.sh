@@ -24,12 +24,12 @@ if [[ ! $EUID -eq 0 ]]; then
     exit 1
 fi
 which useradd >/dev/null 2>&1
-if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
-    echo "Please switch to a proper root environment to run the installer!"
-    echo "Use 'sudo -i' or 'su -' (skip the ' and note the hyphen at the end"
-    echo "of the su command as it is important to load root's environment)."
-    exit 1
-fi
+#if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
+#    echo "Please switch to a proper root environment to run the installer!"
+#    echo "Use 'sudo -i' or 'su -' (skip the ' and note the hyphen at the end"
+#    echo "of the su command as it is important to load root's environment)."
+#    exit 1
+#fi
 timestamp=$(date +%s)
 backupconfig=""
 . ../lib/common/functions.sh
