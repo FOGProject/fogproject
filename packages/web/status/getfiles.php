@@ -51,6 +51,7 @@ $validPaths = array_merge(
     $validPaths
 );
 $paths = explode(':', $decodePath);
+$realpaths = [];
 foreach ((array)$paths as &$decodedPath) {
     $pathTest = preg_grep('#' . $decodedPath . '#', $validPaths);
     if (count($pathTest ?: []) < 1) {
@@ -65,6 +66,7 @@ foreach ((array)$paths as &$decodedPath) {
     }
     unset($decodedPath);
 }
+$files = [];
 foreach ($realpaths as &$path) {
     if (!(is_dir($path)
         && file_exists($path)

@@ -1439,7 +1439,11 @@ class FOGConfigurationPage extends FOGPage
                 '<option value="%s"%s>%s</option>',
                 $value,
                 (
-                    $value == $_POST['n'] ?
+                    $value == filter_input(
+                        INPUT_POST,
+                        'n',
+                        FILTER_SANITIZE_NUMBER_INT
+                    ) ?
                     ' selected' :
                     ''
                 ),

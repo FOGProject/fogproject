@@ -2005,6 +2005,8 @@ EOF
                     echo "    fastcgi_index index.php;" >> "$phploc"
                     echo "    include fastcgi.conf;" >> "$phploc"
                     echo "    fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;" >> "$phploc"
+                    echo "    fastcgi_buffers 16 16k;" >> "$phploc"
+                    echo "    fastcgi_buffer_size 32k;" >> "$phploc"
                     echo "}" >> "$phploc"
                     echo "server {" > "$etcconf"
                     echo "    listen 80;" >> "$etcconf"

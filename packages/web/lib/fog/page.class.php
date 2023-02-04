@@ -149,7 +149,7 @@ class Page extends FOGBase
             ->addCSS('css/pace.min.css')
             ->addCSS('css/AdminLTE.min.css')
             ->addCSS('css/adminlte-skins.min.css')
-            ->addCss('css/fog-default-ui.min.css?v=' . microtime());
+            ->addCSS('css/fog-default-ui.min.css?v=' . microtime());
         if (!$this->theme) {
             $this->theme = self::getSetting('FOG_THEME');
             if (!$this->theme) {
@@ -214,6 +214,7 @@ class Page extends FOGBase
                     'edit'
                 ]
             ];
+            $jscolorneeded = false;
             switch ($node) {
             case 'about':
                 if ('settings' == $sub) {
@@ -361,10 +362,9 @@ class Page extends FOGBase
                 echo _('The current user is invalid.');
                 echo '</p>';
                 echo '</noscript>';
-                echo '<script>window.location.href = '/';</script>';
+                echo '<script>window.location.href = "/";</script>';
                 break;
             case 1:
-                $stylesheets = $javascripts = [];
                 header(
                     'X-FOG-PageTitle: '
                     . $this->pageTitle
