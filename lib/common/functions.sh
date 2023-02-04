@@ -426,29 +426,31 @@ installFOGServices() {
     errorStat $?
 }
 configureUDPCast() {
-    dots "Setting up UDPCast"
-    cp -Rf "$udpcastsrc" "$udpcasttmp"
-    cur=$(pwd)
-    cd /tmp
-    tar xvzf "$udpcasttmp" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    cd $udpcastout
-    grep -q 'BCM[0-9][0-9][0-9][0-9]' /proc/cpuinfo >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    if [[ $? -eq 0 ]]; then
-        wget -qO config.guess "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        wget -qO config.sub "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-        chmod +x config.guess config.sub >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ $osid -ne 4 ]]; then
+        dots "Setting up UDPCast"
+        cp -Rf "$udpcastsrc" "$udpcasttmp"
+        cur=$(pwd)
+        cd /tmp
+        tar xvzf "$udpcasttmp" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        cd $udpcastout
+        grep -q 'BCM[0-9][0-9][0-9][0-9]' /proc/cpuinfo >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        if [[ $? -eq 0 ]]; then
+            wget -qO config.guess "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            wget -qO config.sub "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            chmod +x config.guess config.sub >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        fi
+        errorStat $?
+        dots "Configuring UDPCast"
+        ./configure >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        errorStat $?
+        dots "Building UDPCast"
+        make >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        errorStat $?
+        dots "Installing UDPCast"
+        make install >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        errorStat $?
+        cd $cur
     fi
-    errorStat $?
-    dots "Configuring UDPCast"
-    ./configure >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    errorStat $?
-    dots "Building UDPCast"
-    make >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    errorStat $?
-    dots "Installing UDPCast"
-    make install >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-    errorStat $?
-    cd $cur
 }
 configureFTP() {
     dots "Setting up and starting VSFTP Server..."
@@ -530,7 +532,7 @@ configureTFTPandPXE() {
     if [[ -f $tftpconfig ]]; then
         cp -Rf $tftpconfig ${tftpconfig}.fogbackup >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     fi
-    if [[ $noTftpBuild != "true" ]]; then
+    if [[ $noTftpBuild != "true" ]] && [[ $osid -ne 4 ]]; then
         echo -e "# default: off\n# description: The tftp server serves files using the trivial file transfer \n#    protocol.  The tftp protocol is often used to boot diskless \n# workstations, download configuration files to network-aware printers, \n#   and to start the installation process for some operating systems.\nservice tftp\n{\n    socket_type     = dgram\n   protocol        = udp\n wait            = yes\n user            = root\n    server          = /usr/sbin/in.tftpd\n  server_args     = -s ${tftpdirdst}\n    disable         = no\n  per_source      = 11\n  cps         = 100 2\n   flags           = IPv4\n}" > "$tftpconfig"
     fi
     case $systemctl in
@@ -571,6 +573,10 @@ configureTFTPandPXE() {
                 sleep 2
                 $initdpath/xinetd start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 sleep 2
+            elif [[ $osid -eq 4 ]]; then
+                $initdpath/in.tftpd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                sleep 2
+                $initdpath/in.tftpd start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
             else
                 chkconfig xinetd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                 service xinetd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -762,7 +768,7 @@ installPackages() {
                 done
                 ;;
             php${php_ver}-mysql*)
-                for phpmysql in $(echo php${php_ver}-mysqlnd php${php_ver}-mysql); do
+                for phpmysql in $(echo php${php_ver}-mysqli php${php_ver}-mysqlnd php${php_ver}-mysql); do
                     eval $packagelist "$phpmysql" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     if [[ $? -eq 0 ]]; then
                         x=$phpmysql
@@ -969,6 +975,12 @@ doOSSpecificIncludes() {
             . ../lib/arch/config.sh
             systemctl="yes"
             ;;
+        4)
+            echo -e "\n\n  Starting Alpine Installation\n\n"
+            osname="Alpine"
+            . ../lib/alpine/config.sh
+            systemctl="no"
+            ;;
         *)
             echo -e "  Sorry, answer not recognized\n\n"
             sleep 2
@@ -1092,7 +1104,11 @@ installInitScript() {
 configureMySql() {
     stopInitScript
     dots "Setting up and starting MySQL"
-    dbservice=$(systemctl list-units | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
+    if [[ $osid -eq 4 ]]; then
+        dbservice=$(rc-service -l | grep mariadb)
+    else
+        dbservice=$(systemctl list-units | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
+    fi
     [[ -z $dbservice ]] && dbservice=$(systemctl list-unit-files | grep -v bad | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
     for mysqlconf in $(grep -rl '.*skip-networking' /etc | grep -v init.d); do
         sed -i '/.*skip-networking/ s/^#*/#/' -i $mysqlconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -1387,7 +1403,14 @@ configureUsers() {
             echo "Skipped"
         fi
     else
-        useradd -s "/bin/bash" -d "/home/${username}" -m ${username} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        if [[ $osid -eq 4 ]]; then
+            addgroup -S ${username} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            adduser -s "/bin/bash" -h "/home/${username}" -S ${username} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            touch "/home/${username}/.bashrc"
+            chown $username:$username "/home/${username}/.bashrc"
+        else
+            useradd -s "/bin/bash" -d "/home/${username}" -m ${username} >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        fi
         errorStat $?
     fi
     if [[ ! -d /home/$username ]]; then
@@ -1402,7 +1425,9 @@ configureUsers() {
         #errorStat $?
     fi
     dots "Locking $username as a system account"
-    chsh -s /bin/bash $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    if [[ $osid -ne 4 ]]; then
+        chsh -s /bin/bash $username >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    fi
     textmessage="You seem to be using the '$username' system account to logon and work \non your FOG server system.\n\nIt's NOT recommended to use this account! Please create a new \naccount for administrative tasks.\n\nIf you re-run the installer it would reset the 'fog' account \npassword and therefore lock you out of the system!\n\nTake care, \nyour FOGproject team"
     grep -q "exit 1" /home/$username/.bashrc || cat >>/home/$username/.bashrc <<EOF
 
@@ -1883,38 +1908,45 @@ EOF
     chown -R $apacheuser:$apacheuser $webdirdest/management/other >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     errorStat $?
     [[ $httpproto == https ]] && sslenabled=" (SSL)" || sslenabled=" (no SSL)"
-    dots "Setting up Apache virtual host${sslenabled}"
-    case $novhost in
-        [Yy]|[Yy][Ee][Ss])
-            echo "Skipped"
-            ;;
-        *)
-                if [[ $osid -eq 2 ]]; then
-                    a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2ensite 000-default >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                fi
-                mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                echo "<VirtualHost *:80>" > "$etcconf"
-                echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
-                if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
-                    echo "        SetHandler application/x-httpd-php" >> "$etcconf"
-                else
-                    echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
-                fi
-                echo "    </FilesMatch>" >> "$etcconf"
-                echo "    ServerName $ipaddress" >> "$etcconf"
-                echo "    ServerAlias $hostname" >> "$etcconf"
-                echo "    DocumentRoot $docroot" >> "$etcconf"
-                if [[ $httpproto == https ]]; then
-                    echo "    RewriteEngine On" >> "$etcconf"
-                    echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
-                    echo "    RewriteRule .* - [F]" >> "$etcconf"
-                    echo "    RewriteRule /management/other/ca.cert.der$ - [L]" >> "$etcconf"
-                    echo "    RewriteCond %{HTTPS} off" >> "$etcconf"
-                    echo "    RewriteRule (.*) https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
-                    echo "</VirtualHost>" >> "$etcconf"
-                    echo "<VirtualHost *:443>" >> "$etcconf"
-                    echo "    KeepAlive Off" >> "$etcconf"
+    if [[ $osid -eq 4 ]]; then
+        dots "Setting up Nginx host${sslenabled}"
+        echo "server {" > "$etcconf"
+        echo "listen                  80;" >> "$etcconf"
+        echo "root                    ${docroot};" >> "$etcconf"
+        echo "index                   index.html index.htm index.php;" >> "$etcconf"
+        echo "server_name             localhost;" >> "$etcconf"
+        echo "client_max_body_size    32m;" >> "$etcconf"
+        echo "error_page              500 502 503 504  /50x.html;" >> "$etcconf"
+        echo "location = /50x.html {" >> "$etcconf"
+        echo "      root              /var/lib/nginx/html;" >> "$etcconf"
+        echo "}" >> "$etcconf"
+        echo "location ~ \.php$ {" >> "$etcconf"
+        echo "      set \$phproot      /var/www;" >> "$etcconf"
+        echo "      root     /var/www;" >> "$etcconf"
+        echo "      fastcgi_pass      127.0.0.1:9000;" >> "$etcconf"
+        echo "      fastcgi_index     index.php;" >> "$etcconf"
+        echo "      include           fastcgi.conf;" >> "$etcconf"
+        echo "      fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;" >> "$etcconf"
+        
+        echo "}" >> "$etcconf"
+        echo "}" >> "$etcconf"
+        cat $etcconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        if [[ ${DEBUGMODE} == true ]]; then
+            sed -i "s/display_errors = Off/display_errors = On/g" /etc/php7/php.ini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        fi
+    else
+        dots "Setting up Apache virtual host${sslenabled}"
+        case $novhost in
+            [Yy]|[Yy][Ee][Ss])
+                echo "Skipped"
+                ;;
+            *)
+                    if [[ $osid -eq 2 ]]; then
+                        a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        a2ensite 000-default >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    fi
+                    mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    echo "<VirtualHost *:80>" > "$etcconf"
                     echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
                     if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
                         echo "        SetHandler application/x-httpd-php" >> "$etcconf"
@@ -1925,73 +1957,94 @@ EOF
                     echo "    ServerName $ipaddress" >> "$etcconf"
                     echo "    ServerAlias $hostname" >> "$etcconf"
                     echo "    DocumentRoot $docroot" >> "$etcconf"
-                    echo "    SSLEngine On" >> "$etcconf"
-                    echo "    SSLProtocol all -SSLv3 -SSLv2" >> "$etcconf"
-                    echo "    SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA" >> "$etcconf"
-                    echo "    SSLHonorCipherOrder On" >> "$etcconf"
-                    echo "    SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt" >> "$etcconf"
-                    echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
-                    echo "    SSLCACertificateFile $webdirdest/management/other/ca.cert.pem" >> "$etcconf"
-                    echo "    <Directory $webdirdest>" >> "$etcconf"
-                    echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
-                    echo "    </Directory>" >> "$etcconf"
-                    echo "    RewriteEngine On" >> "$etcconf"
-                    echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
-                    echo "    RewriteRule .* - [F]" >> "$etcconf"
-                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
-                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
-                    echo "    RewriteRule ^/fog/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
-                    echo "</VirtualHost>" >> "$etcconf"
-                else
-                    echo "    KeepAlive Off" >> "$etcconf"
-                    echo "    <Directory $webdirdest>" >> "$etcconf"
-                    echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
-                    echo "    </Directory>" >> "$etcconf"
-                    echo "    RewriteEngine On" >> "$etcconf"
-                    echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
-                    echo "    RewriteRule .* - [F]" >> "$etcconf"
-                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
-                    echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
-                    echo "    RewriteRule ^/fog/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
-                    echo "</VirtualHost>" >> "$etcconf"
-                fi
-                diffconfig "${etcconf}"
-                errorStat $?
-                ln -s $webdirdest $webdirdest/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                case $osid in
-                    1)
-                        phpfpmconf='/etc/php-fpm.d/www.conf';
-                        ;;
-                    2)
-                        if [[ $php_ver == 5 ]]; then
-                            phpfpmconf="/etc/php$php_ver/fpm/pool.d/www.conf"
+                    if [[ $httpproto == https ]]; then
+                        echo "    RewriteEngine On" >> "$etcconf"
+                        echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
+                        echo "    RewriteRule .* - [F]" >> "$etcconf"
+                        echo "    RewriteRule /management/other/ca.cert.der$ - [L]" >> "$etcconf"
+                        echo "    RewriteCond %{HTTPS} off" >> "$etcconf"
+                        echo "    RewriteRule (.*) https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
+                        echo "</VirtualHost>" >> "$etcconf"
+                        echo "<VirtualHost *:443>" >> "$etcconf"
+                        echo "    KeepAlive Off" >> "$etcconf"
+                        echo "    <FilesMatch \"\.php\$\">" >> "$etcconf"
+                        if [[ $osid -eq 1 && $OSVersion -lt 7 ]]; then
+                            echo "        SetHandler application/x-httpd-php" >> "$etcconf"
                         else
-                            phpfpmconf="/etc/php/$php_ver/fpm/pool.d/www.conf"
+                            echo "        SetHandler \"proxy:fcgi://127.0.0.1:9000/\"" >> "$etcconf"
                         fi
-                        ;;
-                    3)
-                        phpfpmconf='/etc/php/php-fpm.d/www.conf'
-                        ;;
-                esac
-                if [[ -n $phpfpmconf ]]; then
-                    sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sed -i 's/^[;]pm\.max_requests = .*/pm.max_requests = 2000/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sed -i 's/^[;]php_admin_value\[memory_limit\] = .*/php_admin_value[memory_limit] = 256M/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sed -i 's/pm\.max_children = .*/pm.max_children = 50/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sed -i 's/pm\.min_spare_servers = .*/pm.min_spare_servers = 5/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sed -i 's/pm\.max_spare_servers = .*/pm.max_spare_servers = 10/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    sed -i 's/pm\.start_servers = .*/pm.start_servers = 5/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                fi
-                if [[ $osid -eq 2 ]]; then
-                    a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2enmod proxy_fcgi setenvif >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                    a2dissite "000-default" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
-                fi
-            ;;
-    esac
+                        echo "    </FilesMatch>" >> "$etcconf"
+                        echo "    ServerName $ipaddress" >> "$etcconf"
+                        echo "    ServerAlias $hostname" >> "$etcconf"
+                        echo "    DocumentRoot $docroot" >> "$etcconf"
+                        echo "    SSLEngine On" >> "$etcconf"
+                        echo "    SSLProtocol all -SSLv3 -SSLv2" >> "$etcconf"
+                        echo "    SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA" >> "$etcconf"
+                        echo "    SSLHonorCipherOrder On" >> "$etcconf"
+                        echo "    SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt" >> "$etcconf"
+                        echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
+                        echo "    SSLCACertificateFile $webdirdest/management/other/ca.cert.pem" >> "$etcconf"
+                        echo "    <Directory $webdirdest>" >> "$etcconf"
+                        echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+                        echo "    </Directory>" >> "$etcconf"
+                        echo "    RewriteEngine On" >> "$etcconf"
+                        echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
+                        echo "    RewriteRule .* - [F]" >> "$etcconf"
+                        echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
+                        echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
+                        echo "    RewriteRule ^/fog/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
+                        echo "</VirtualHost>" >> "$etcconf"
+                    else
+                        echo "    KeepAlive Off" >> "$etcconf"
+                        echo "    <Directory $webdirdest>" >> "$etcconf"
+                        echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
+                        echo "    </Directory>" >> "$etcconf"
+                        echo "    RewriteEngine On" >> "$etcconf"
+                        echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
+                        echo "    RewriteRule .* - [F]" >> "$etcconf"
+                        echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f" >> "$etcconf"
+                        echo "    RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d" >> "$etcconf"
+                        echo "    RewriteRule ^/fog/(.*)$ /fog/api/index.php [QSA,L]" >> "$etcconf"
+                        echo "</VirtualHost>" >> "$etcconf"
+                    fi
+                    diffconfig "${etcconf}"
+                    errorStat $?
+                    ln -s $webdirdest $webdirdest/ >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    case $osid in
+                        1)
+                            phpfpmconf='/etc/php-fpm.d/www.conf';
+                            ;;
+                        2)
+                            if [[ $php_ver == 5 ]]; then
+                                phpfpmconf="/etc/php$php_ver/fpm/pool.d/www.conf"
+                            else
+                                phpfpmconf="/etc/php/$php_ver/fpm/pool.d/www.conf"
+                            fi
+                            ;;
+                        3)
+                            phpfpmconf='/etc/php/php-fpm.d/www.conf'
+                            ;;
+                    esac
+                    if [[ -n $phpfpmconf ]]; then
+                        sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        sed -i 's/^[;]pm\.max_requests = .*/pm.max_requests = 2000/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        sed -i 's/^[;]php_admin_value\[memory_limit\] = .*/php_admin_value[memory_limit] = 256M/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        sed -i 's/pm\.max_children = .*/pm.max_children = 50/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        sed -i 's/pm\.min_spare_servers = .*/pm.min_spare_servers = 5/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        sed -i 's/pm\.max_spare_servers = .*/pm.max_spare_servers = 10/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        sed -i 's/pm\.start_servers = .*/pm.start_servers = 5/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    fi
+                    if [[ $osid -eq 2 ]]; then
+                        a2enmod $phpcmd >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        a2enmod proxy_fcgi setenvif >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        a2enmod rewrite >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        a2enmod ssl >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        a2dissite "000-default" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    fi
+                ;;
+        esac
+    fi
     dots "Starting and checking status of web services"
     case $systemctl in
         yes)
@@ -2025,6 +2078,18 @@ EOF
                     sleep 2
                     service apache2 status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     service $phpfpm status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    ;;
+                4)
+                    rc-service nginx stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    sleep 2
+                    rc-service nginx start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    sleep 2
+                    rc-service $phpfpm stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    sleep 2
+                    rc-service $phpfpm start >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    sleep 2
+                    rc-service nginx status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    rc-service $phpfpm status >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
                 *)
                     service httpd stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -2070,6 +2135,11 @@ configureHttpd() {
                     errorStat $?
                     service php${php_ver}-fpm stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
+                4)
+                    rc-service nginx stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1 && sleep 2
+                    errorStat $?
+                    service php-fpm${php_ver} stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    ;;
             esac
             ;;
     esac
@@ -2085,7 +2155,21 @@ configureHttpd() {
         echo "   Could not find $phpini!"
         exit 1
     fi
-    if [[ $osid -eq 3 ]]; then
+    if [[ $osid -eq 4 ]]; then
+        sed -i 's/;extension=bcmath/extension=bcmath/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=curl/extension=curl/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=ftp/extension=ftp/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=gd/extension=gd/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=gettext/extension=gettext/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=ldap/extension=ldap/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=mysqli/extension=mysqli/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=openssl/extension=openssl/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=pdo_mysql/extension=pdo_mysql/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=posix/extension=posix/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=sockets/extension=sockets/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/;extension=zip/extension=zip/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        sed -i 's/$open_basedir\ =/;open_basedir\ =/g' $phpini >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    elif [[ $osid -eq 3 ]]; then
         if [[ ! -f $httpdconf ]]; then
             echo "   Apache configs not found!"
             exit 1
@@ -2337,6 +2421,9 @@ die();
         fi
     elif [[ $systemctl == yes ]]; then
         systemctl enable httpd php-fpm >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+    elif [[ $osid -eq 4 ]]; then
+        rc-update add php-fpm$php_ver >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+        rc-update add nginx >>$workingdir/error_logs/fog_error_${version}.log 2>&1
     else
         chkconfig php-fpm on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         chkconfig httpd on >>$workingdir/error_logs/fog_error_${version}.log 2>&1
@@ -2389,7 +2476,11 @@ downloadfiles() {
         fi
         while [[ $checksum -ne 0 && $cnt -lt 10 ]]
         do
-            [[ -f $hashfile ]] && sha256sum --check $hashfile >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            if [[ $osid -eq 4 ]]; then
+                [[ -f $hashfile ]] && sha256sum -c $hashfile >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            else
+                [[ -f $hashfile ]] && sha256sum --check $hashfile >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            fi
             checksum=$?
             if [[ $checksum -ne 0 ]]
             then

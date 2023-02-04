@@ -23,7 +23,30 @@ if [[ ! $EUID -eq 0 ]]; then
     echo "FOG Installation must be run as root user"
     exit 1
 fi
-which useradd >/dev/null 2>&1
+
+[[ -z $OS ]] && OS=$(uname -s)
+if [[ $OS =~ ^[^Ll][^Ii][^Nn][^Uu][^Xx] ]]; then
+    echo "We do not currently support Installation on non-Linux Operating Systems"
+    exit 2 # Fail OS Check
+else
+    if [[ -f /etc/os-release ]]; then
+        [[ -z $linuxReleaseName ]] && linuxReleaseName=$(sed -n 's/^NAME=\(.*\)/\1/p' /etc/os-release | tr -d '"')
+        [[ -z $OSVersion ]] && OSVersion=$(sed -n 's/^VERSION_ID=\([^.]*\).*/\1/p' /etc/os-release | tr -d '"')
+    elif [[ -f /etc/redhat-release ]]; then
+        [[ -z $linuxReleaseName ]] && linuxReleaseName=$(cat /etc/redhat-release | awk '{print $1}')
+        [[ -z $OSVersion ]] && OSVersion=$(cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*// | awk -F. '{print $1}')
+    elif [[ -f /etc/debian_version ]]; then
+        [[ -z $linuxReleaseName ]] && linuxReleaseName='Debian'
+        [[ -z $OSVersion ]] && OSVersion=$(cat /etc/debian_version)
+    fi
+fi
+
+if [[ $linuxReleaseName == "Alpine Linux" ]]; then
+	echo "Linuxname = ${linuxReleaseName}"
+	which adduser >/dev/null 2>&1
+else
+	which useradd >/dev/null 2>&1
+fi
 if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
     echo "Please switch to a proper root environment to run the installer!"
     echo "Use 'sudo -i' or 'su -' (skip the ' and note the hyphen at the end"
@@ -359,6 +382,8 @@ if [[ ! $exitcode -eq 0 ]]; then
             ;;
         *[Aa][Rr][Cc][Hh]*)
             pacman -Sy --noconfirm lsb-release >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            ;;
+        *[Aa][Ll][Pp][Ii][Nn][Ee]*)
             ;;
     esac
 fi
