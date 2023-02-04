@@ -121,39 +121,43 @@ function vals($reverse, $HookManager, $lines, $file)
             )
         );
     }
-    return trim($output);
+    return trim(htmlspecialchars($output));
 }
+
 if (!(isset($_POST['ip'])
     && is_string($_POST['ip']))
 ) {
     echo _('Invalid IP');
     exit;
 }
+$ip = filter_input(INPUT_POST, 'ip');
 if (!(isset($_POST['file'])
     && is_string($_POST['file']))
 ) {
     echo _('Invalid File');
     exit;
 }
+$file = filter_input(INPUT_POST, 'file');
 if (!(isset($_POST['lines'])
     && is_numeric($_POST['lines']))
 ) {
-    $_POST['lines'] = 20;
+    $lines = 20;
+} else {
+    $lines = filter_input(INPUT_POST, 'lines');
 }
 if (!(isset($_POST['reverse'])
     && is_numeric($_POST['reverse']))
 ) {
-    $_POST['reverse'] = 0;
+    $reverse = 0;
+} else {
+    $reverse = filter_input(INPUT_POST, 'reverse');
 }
-$ip = $_POST['ip'];
 $file = sprintf(
     '%s%s%s',
-    dirname($_POST['file']),
+    dirname($file),
     DS,
-    basename($_POST['file'])
+    basename($file)
 );
-$lines = $_POST['lines'];
-$reverse = $_POST['reverse'];
 $ip = base64_decode($ip);
 $ip = FOGCore::resolveHostname($ip);
 $ip = trim($ip);
