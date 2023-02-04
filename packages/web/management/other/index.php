@@ -288,7 +288,7 @@ if ($isLoggedIn) {
     echo '</div>';
     echo '<strong>';
     echo _('Copyright');
-    echo ' &copy; 2012-2019 ';
+    echo ' &copy; 2012-2023 ';
     echo ' <a href="https://fogproject.org">';
     echo 'FOG Project';
     echo '</a>';
