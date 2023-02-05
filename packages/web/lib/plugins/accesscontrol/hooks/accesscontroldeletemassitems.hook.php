@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category AccessControlDeleteItems
+ * @category AccessControlDeleteMassItems
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,20 +13,20 @@
 /**
  * Deletes the accesscontrol the elements en-mass.
  *
- * @category AccessControlDeleteItems
+ * @category AccessControlDeleteMassItems
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class AccessControlDeleteItems extends Hook
+class AccessControlDeleteMassItems extends Hook
 {
     /**
      * The name of this hook.
      *
      * @var string
      */
-    public $name = 'AccessControlDeleteItems';
+    public $name = 'AccessControlDeleteMassItems';
     /**
      * The description of this hook.
      *

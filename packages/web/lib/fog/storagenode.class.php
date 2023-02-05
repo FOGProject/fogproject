@@ -163,7 +163,7 @@ class StorageNode extends FOGController
                 $this->_getData('logfiles')
             )
         );
-        natcasesort($paths);
+        @natcasesort($paths);
         $this->set('logfiles', (array)$paths);
     }
     /**

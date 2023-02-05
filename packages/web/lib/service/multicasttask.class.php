@@ -632,7 +632,7 @@ class MulticastTask extends FOGService
             }
             unset($iterator);
         }
-        natcasesort($filelist);
+        @natcasesort($filelist);
         $partid = self::getPartitions();
         if ($partid < 1) {
             $filelist = array_values((array)$filelist);

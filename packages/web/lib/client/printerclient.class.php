@@ -63,7 +63,7 @@ class PrinterClient extends FOGClient
             Route::getData(),
             true
         );
-        natcasesort($allPrinters);
+        @natcasesort($allPrinters);
         $printerIDs = self::$Host->get('printers');
         $printerCount = count($printerIDs ?: []);
         if ($printerCount < 1) {

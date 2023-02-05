@@ -983,7 +983,7 @@ class FOGConfigurationPage extends FOGPage
                 } elseif (isset($needstobenumeric[$name])) {
                     switch ($needstobenumeric[$name]) {
                     case ($needstobenumeric[$name] === true):
-                        if (in_array(0, $needstobenumeric[$name]) && !$set) {
+                        if (in_array(0, (array)$needstobenumeric[$name]) && !$set) {
                             $set = 0;
                         }
                         if (!is_numeric($set)) {
@@ -993,7 +993,7 @@ class FOGConfigurationPage extends FOGPage
                         }
                         break;
                     default:
-                        if (in_array(0, $needstobenumeric[$name]) && !$set) {
+                        if (in_array(0, (array)$needstobenumeric[$name]) && !$set) {
                             $set = 0;
                         }
                         if (!is_numeric($set)) {
@@ -1001,7 +1001,7 @@ class FOGConfigurationPage extends FOGPage
                                 $name . ' ' . _('value must be numeric')
                             );
                         }
-                        if (!in_array($set, $needstobenumeric[$name])) {
+                        if (!in_array($set, (array)$needstobenumeric[$name])) {
                             throw new Exception(
                                 $name . ' ' . _('value is not in the required range')
                             );

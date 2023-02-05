@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category WindowsKeyDeleteItems
+ * @category WindowsKeyDeleteMassItems
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,20 +13,20 @@
 /**
  * Deletes the WindowsKey the elements en-mass.
  *
- * @category WindowsKeyDeleteItems
+ * @category WindowsKeyDeleteMassItems
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class WindowsKeyDeleteItems extends Hook
+class WindowsKeyDeleteMassItems extends Hook
 {
     /**
      * The name of this hook.
      *
      * @var string
      */
-    public $name = 'WindowsKeyDeleteItems';
+    public $name = 'WindowsKeyDeleteMassItems';
     /**
      * The description of this hook.
      *

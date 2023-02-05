@@ -21,6 +21,7 @@
  */
 class PluginManagement extends FOGPage
 {
+    public $atts = [];
     /**
      * The node that uses this item
      *

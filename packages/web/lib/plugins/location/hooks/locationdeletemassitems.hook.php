@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category LocationDeleteItems
+ * @category LocationDeleteMassItems
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,7 +13,7 @@
 /**
  * Deletes the Location the elements en-mass.
  *
- * @category LocationDeleteItems
+ * @category LocationDeleteMassItems
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -26,7 +26,7 @@ class LocationDeleteMassItems extends Hook
      *
      * @var string
      */
-    public $name = 'LocationDeleteItems';
+    public $name = 'LocationDeleteMassItems';
     /**
      * The description of this hook.
      *

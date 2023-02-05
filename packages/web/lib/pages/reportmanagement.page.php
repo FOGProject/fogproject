@@ -48,7 +48,7 @@ class ReportManagement extends FOGPage
             );
             unset($file);
         }
-        natcasesort($files);
+        @natcasesort($files);
         return $files;
     }
     /**
