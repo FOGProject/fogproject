@@ -1467,7 +1467,7 @@ class Host extends FOGController
     {
         $MyMACs = $this->getMyMacs();
         $myMACs = $igMACs = $cgMACs = [];
-        $macaddress = function (&$mac) {
+        $macaddress = function ($mac) {
             if (!$mac instanceof MACAddress) {
                 $mac = new MACAddress($mac);
             }

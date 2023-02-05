@@ -21,7 +21,7 @@
  */
 
 $isLoggedIn = self::$FOGUser->isLoggedIn() && self::$FOGUser->isvalid();
-$ulang = $_SESSION['FOG_LANG'];
+$ulang = $_SESSION['FOG_LANG'] ?: '';
 echo '<!DOCTYPE html>';
 echo '<html lang="' . $ulang . '">';
 echo '<head>';
@@ -57,7 +57,7 @@ echo '<![endif]-->';
 echo '</head>';
 echo '<body class="';
 echo 'hold-transition ';
-echo($isLoggedIn ? 'skin-blue sidebar-mini' : 'login-page');
+echo ($isLoggedIn ? 'skin-blue sidebar-mini' : 'login-page');
 echo '">';
 echo '<!-- FOG Management only works when JavaScript is enabled. -->';
 echo '<noscript>';

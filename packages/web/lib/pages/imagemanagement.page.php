@@ -777,64 +777,54 @@ class ImageManagement extends FOGPage
     {
         $image = (
             filter_input(INPUT_POST, 'image') ?:
-            $this->obj->get('name')
+            ($this->obj->get('name') ?: '')
         );
         $description = (
             filter_input(INPUT_POST, 'description') ?:
-            $this->obj->get('description')
+            ($this->obj->get('description') ?: '')
         );
         $StorageNode = $this->obj->getStorageGroup()->getMasterStorageNode();
         $osID = (int)(
             filter_input(INPUT_POST, 'os') ?:
-            $this->obj->get('osID')
+            ($this->obj->get('osID') ?: '')
         );
         $OSs = self::getClass('OSManager')
             ->buildSelectBox($osID, '', 'id');
         $path = (
             filter_input(INPUT_POST, 'path') ?:
-            $this->obj->get('path')
+            ($this->obj->get('path') ?: '')
         );
         $itID = (int)(
             filter_input(INPUT_POST, 'imagetype') ?:
-            $this->obj->get('imageTypeID')
+            ($this->obj->get('imageTypeID') ?: '')
         );
         $ImageTypes = self::getClass('ImageTypeManager')
             ->buildSelectBox($itID, '', 'id');
         $iptID = (int)(
             filter_input(INPUT_POST, 'imagepartitiontype') ?:
-            $this->obj->get('imagePartitionTypeID')
+            ($this->obj->get('imagePartitionTypeID') ?: '')
         );
         $ImagePartitionTypes = self::getClass('ImagePartitionTypeManager')
             ->buildSelectBox($iptID, '', 'id');
-        $isprot = (int)isset($_POST['isProtected']) ?:
-            $this->obj->get('protected');
-        if ($isprot) {
-            $isprot = 'checked';
-        } else {
-            $isprot = '';
-        }
-        $isen = (int)isset($_POST['isEnabled']) ?:
-            $this->obj->get('isEnabled');
-        if ($isen) {
-            $isen = 'checked';
-        } else {
-            $isen = '';
-        }
-        $torep = (int)isset($_POST['toReplicate']) ?:
-            $this->obj->get('toReplicate');
-        ;
-        if ($torep) {
-            $torep = 'checked';
-        } else {
-            $torep = '';
-        }
+        $isprot = (
+            isset($_POST['isProtected']) ? 'checked' :
+            ($this->obj->get('protected') ? 'checked' : '')
+        );
+        $isen = (
+            isset($_POST['isEnabled']) ? 'checked' :
+            ($this->obj->get('isEnabled') ? 'checked' : '')
+        );
+        $torep = (
+            isset($_POST['toReplicate']) ? 'checked' :
+            ($this->obj->get('toReplicate') ? 'checked' : '')
+        );
         $compression = (int)(
             filter_input(INPUT_POST, 'compress') ?:
-            $this->obj->get('compress')
+            ($this->obj->get('compress') ?: '')
         );
         $imagemanage = (int)(
             filter_input(INPUT_POST, 'imagemanage') ?:
-            $this->obj->get('format')
+            ($this->obj->get('format') ?: '')
         );
         $format = sprintf(
             '<select name="imagemanage" id="imagemanage" class="form-control">'

@@ -48,11 +48,11 @@ class LoadGlobals extends FOGBase
         $GLOBALS['EventManager'] = FOGCore::getClass('EventManager');
         $GLOBALS['FOGURLRequests'] = FOGCore::getClass('FOGURLRequests');
         FOGCore::setEnv();
+        $userID = 0;
         if (session_status() != PHP_SESSION_NONE) {
-            $GLOBALS['currentUser'] = new User((int)isset($_SESSION['FOG_USER']) ? $_SESSION['FOG_USER'] : 0);
-        } else {
-            $GLOBALS['currentUser'] = new User(0);
+            $userID = isset($_SESSION['FOG_USER']) ? (int)$_SESSION['FOG_USER'] : 0;
         }
+        $GLOBALS['currentUser'] = new User($userID);
         $GLOBALS['HookManager']->load();
         $GLOBALS['EventManager']->load();
         $subs = [

@@ -54,7 +54,7 @@ class Initiator
          *
          * @return void
          */
-        self::$_sanitizeItems = function (&$val, &$key) use (&$value) {
+        self::$_sanitizeItems = function (&$val, $key) use (&$value) {
             if (is_string($val)) {
                 $value[$key] = filter_var($val);
             }

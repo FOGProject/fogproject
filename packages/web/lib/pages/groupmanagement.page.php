@@ -412,28 +412,28 @@ class GroupManagement extends FOGPage
         );
         $group = (
             filter_input(INPUT_POST, 'group') ?:
-            $this->obj->get('name')
+            ($this->obj->get('name') ?: '')
         );
         $description = (
             filter_input(INPUT_POST, 'description') ?:
-            $this->obj->get('description')
+            ($this->obj->get('description') ?: '')
         );
         $productKey = filter_input(INPUT_POST, 'key');
         $kernel = (
             filter_input(INPUT_POST, 'kernel') ?:
-            $this->obj->get('kernel')
+            ($this->obj->get('kernel') ?: '')
         );
         $args = (
             filter_input(INPUT_POST, 'args') ?:
-            $this->obj->get('kernelArgs')
+            ($this->obj->get('kernelArgs') ?: '')
         );
         $init = (
             filter_input(INPUT_POST, 'init') ?:
-            $this->obj->get('init')
+            ($this->obj->get('init') ?: '')
         );
         $dev = (
             filter_input(INPUT_POST, 'dev') ?:
-            $this->obj->get('kernelDevice')
+            ($this->obj->get('kernelDevice') ?: '')
         );
 
         $labelClass = 'col-sm-3 control-label';

@@ -67,7 +67,7 @@ class SubMenuData extends Hook
      */
     public function subMenu($arguments)
     {
-        if (!$arguments['node']) {
+        if (!isset($arguments['node']) || !$arguments['node']) {
             return;
         }
         switch (strtolower($arguments['node'])) {

@@ -48,11 +48,11 @@ class HostManagement extends FOGPage
         } else {
             $this->exitNorm = (
                 filter_input(INPUT_POST, 'bootTypeExit') ?:
-                $this->obj->get('biosexit')
+                ($this->obj->get('biosexit') ?: '')
             );
             $this->exitEfi = (
                 filter_input(INPUT_POST, 'efiBootTypeExit') ?:
-                $this->obj->get('efiexit')
+                ($this->obj->get('efiexit') ?: '')
             );
         }
         $this->exitNorm = Setting::buildExitSelector(
@@ -1097,22 +1097,22 @@ class HostManagement extends FOGPage
     {
         $image = (
             filter_input(INPUT_POST, 'image') ?:
-            $this->obj->get('imageID')
+            ($this->obj->get('imageID') ?: '')
         );
         $imageSelector = self::getClass('ImageManager')
             ->buildSelectBox($image);
         // Either use the passed in or get the objects info.
         $host = (
             filter_input(INPUT_POST, 'host') ?:
-            $this->obj->get('name')
+            ($this->obj->get('name') ?: '')
         );
         $description = (
             filter_input(INPUT_POST, 'description') ?:
-            $this->obj->get('description')
+            ($this->obj->get('description') ?: '')
         );
         $productKey = (
             filter_input(INPUT_POST, 'key') ?:
-            $this->obj->get('productKey')
+            ($this->obj->get('productKey') ?: '')
         );
         $productKeytest = self::aesdecrypt($productKey);
         $test_base64 = base64_decode($productKeytest);
@@ -1126,19 +1126,19 @@ class HostManagement extends FOGPage
         $key = $productKey;
         $kernel = (
             filter_input(INPUT_POST, 'kernel') ?:
-            $this->obj->get('kernel')
+            ($this->obj->get('kernel') ?: '')
         );
         $args = (
             filter_input(INPUT_POST, 'args') ?:
-            $this->obj->get('kernelArgs')
+            ($this->obj->get('kernelArgs') ?: '')
         );
         $init = (
             filter_input(INPUT_POST, 'init') ?:
-            $this->obj->get('init')
+            ($this->obj->get('init') ?: '')
         );
         $dev = (
             filter_input(INPUT_POST, 'dev') ?:
-            $this->obj->get('kernelDevice')
+            ($this->obj->get('kernelDevice') ?: '')
         );
 
         $labelClass = 'col-sm-3 control-label';
