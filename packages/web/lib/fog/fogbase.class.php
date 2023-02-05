@@ -2243,7 +2243,7 @@ abstract class FOGBase
             $res = self::$FOGURLRequests->process('http://ipinfo.io/ip');
             $IPs[] = $res[0];
         }*/
-        natcasesort($IPs);
+        @natcasesort($IPs);
         $retIPs = function (&$IP) {
             $IP = trim($IP);
             if (!filter_var($IP, FILTER_VALIDATE_IP)) {
@@ -2269,7 +2269,7 @@ abstract class FOGBase
             ['127.0.0.1', '127.0.1.1']
         );
         unset($IPs, $Names);
-        natcasesort($output);
+        @natcasesort($output);
         self::$ips = array_values(array_filter(array_unique((array) $output)));
 
         return self::$ips;
@@ -2642,7 +2642,7 @@ abstract class FOGBase
         );
         $files = iterator_to_array($RegexIterator, false);
         if (!$needplug) {
-            natcasesort($files);
+            @natcasesort($files);
             return $files;
         }
         unset(
@@ -2685,8 +2685,8 @@ abstract class FOGBase
             $pluginfiles
         );
         if ($split) {
-            natcasesort($normalfiles);
-            natcasesort($pluginfiles);
+            @natcasesort($normalfiles);
+            @natcasesort($pluginfiles);
             $normalfiles = array_values(
                 array_filter(
                     array_unique(
@@ -2706,7 +2706,7 @@ abstract class FOGBase
         }
         unset($normalfiles, $pluginfiles);
 
-        natcasesort($files);
+        @natcasesort($files);
         $files = array_values(
             array_filter(
                 array_unique(

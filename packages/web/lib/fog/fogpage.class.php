@@ -455,7 +455,7 @@ abstract class FOGPage extends FOGBase
             ]
         );
 
-        natcasesort($hookMenu);
+        @natcasesort($hookMenu);
 
         self::$HookManager->processEvent(
             'DELETE_MENU_DATA',
@@ -981,7 +981,7 @@ abstract class FOGPage extends FOGBase
         echo '</button>';
         echo '<ul class="dropdown-menu" role="menu">';
         foreach ($dropdownArray as &$dropdown) {
-            $divider = $dropdown['divider'];
+            $divider = $dropdown['divider'] ?: '';
             if ($divider) {
                 echo '<li class="divider"></li>';
             }

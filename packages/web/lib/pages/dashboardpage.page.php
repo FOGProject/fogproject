@@ -372,7 +372,7 @@ class DashboardPage extends FOGPage
             '',
             'hidden',
             'nodeColors',
-            implode(',', self::$_nodeColors)
+            implode(',', (array)self::$_nodeColors)
         );
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';

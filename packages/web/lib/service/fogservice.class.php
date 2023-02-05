@@ -518,12 +518,12 @@ abstract class FOGService extends FOGBase
                 $localfilescheck[$lin] = str_replace("$path/", "", $lfn);
                 unset($lfn, $lin);
             }
-            natcasesort($localfilescheck);
+            @natcasesort($localfilescheck);
             foreach ($remotefilescheck as $rin => &$rfn) {
                 $removefilescheck[$rin] = str_replace("$remItem/", "", $rfn);
                 unset($rfn, $rin);
             }
-            natcasesort($remotefilescheck);
+            @natcasesort($remotefilescheck);
             $filescheck = $unique(self::fastmerge($localfilescheck, $remotefilescheck));
             $testavail = -1;
             $testavail = array_filter(

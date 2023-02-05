@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * @category OUDeleteItems
+ * @category OUDeleteMassItems
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,20 +13,20 @@
 /**
  * Deletes the OU the elements en-mass.
  *
- * @category OUDeleteItems
+ * @category OUDeleteMassItems
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class OUDeleteItems extends Hook
+class OUDeleteMassItems extends Hook
 {
     /**
      * The name of this hook.
      *
      * @var string
      */
-    public $name = 'OUDeleteItems';
+    public $name = 'OUDeleteMassItems';
     /**
      * The description of this hook.
      *

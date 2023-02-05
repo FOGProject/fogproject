@@ -65,7 +65,7 @@ class Slack extends FOGController
             unset($channelname);
         }
         unset($channelnames);
-        natcasesort($channels);
+        @natcasesort($channels);
         $channels = array_values((array)$channels);
         return (array)$channels;
     }
@@ -91,7 +91,7 @@ class Slack extends FOGController
             unset($names);
         }
         unset($usernames);
-        natcasesort($users);
+        @natcasesort($users);
         $users = array_values((array)$users);
         return (array)$users;
     }
