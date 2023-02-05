@@ -707,6 +707,7 @@ abstract class FOGManagerController extends FOGBase
             );
             unset($key);
         }
+        $affectedRows = 0;
         $vals = [];
         $insertVals = [];
         $values = array_chunk($values, 500);
@@ -966,7 +967,7 @@ abstract class FOGManagerController extends FOGBase
         if (empty($objOpts)) {
             return _('No items found');
         }
-        $tmpStr .= '<select class="form-control input-group fog-select2" name="'
+        $tmpStr = '<select class="form-control input-group fog-select2" name="'
             . (
                 $template ?
                 '${select_name}' :
@@ -1056,7 +1057,7 @@ abstract class FOGManagerController extends FOGBase
                 $findWhere,
                 function (
                     &$value,
-                    &$field
+                    $field
                 ) use (
                     &$whereArray,
                     $compare,
@@ -1105,7 +1106,7 @@ abstract class FOGManagerController extends FOGBase
             $this->databaseFields[$field],
             $this->databaseTable,
             (
-                count($whereArray ?: []) ?
+                (isset($whereArray) && count($whereArray)) ?
                 sprintf(
                     ' WHERE %s%s',
                     implode(
@@ -1116,7 +1117,7 @@ abstract class FOGManagerController extends FOGBase
                         (array) $whereArray
                     ),
                     (
-                        $isEnabled ?
+                        (isset($isEnabled) && $isEnabled) ?
                         sprintf(
                             ' AND %s',
                             $isEnabled

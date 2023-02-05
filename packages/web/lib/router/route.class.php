@@ -2670,7 +2670,7 @@ class Route extends FOGBase
      *
      * @return mixed
      */
-    public function names(
+    public static function names(
         $class,
         $whereItems = [],
         $operator = 'AND',

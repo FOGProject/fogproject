@@ -77,7 +77,7 @@ class ProcessLogin extends FOGPage
             $upass = filter_input(INPUT_POST, 'upass');
             $rememberme = isset($_POST['remember-me']);
             $type = self::$FOGUser->get('type');
-            if ($_SESSION['FOG_LANG'] != $ulang) {
+            if (isset($_SESSION['FOG_LANG']) && $_SESSION['FOG_LANG'] != $ulang) {
                 $_SESSION['FOG_LANG'] = $ulang;
                 Initiator::language($_SESSION['FOG_LANG']);
             }

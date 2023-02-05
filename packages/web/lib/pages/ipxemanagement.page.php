@@ -473,29 +473,35 @@ class IpxeManagement extends FOGPage
     {
         $ipxe = (
             filter_input(INPUT_POST, 'ipxe') ?:
-            $this->obj->get('name')
+            ($this->obj->get('name') ?: '')
         );
         $description = (
             filter_input(INPUT_POST, 'description') ?:
-            $this->obj->get('description')
+            ($this->obj->get('description') ?: '')
         );
         $params = (
             filter_input(INPUT_POST, 'params') ?:
-            $this->obj->get('params')
+            ($this->obj->get('params') ?: '')
         );
         $options = (
             filter_input(INPUT_POST, 'options') ?:
-            $this->obj->get('args')
+            ($this->obj->get('args') ?: '')
         );
         $regmenu = (
             filter_input(INPUT_POST, 'regmenu') ?:
-            $this->obj->get('regMenu')
+            ($this->obj->get('regMenu') ?: '')
         );
-        $default = isset($_POST['default']) ?: $this->obj->get('default');
-        $hotkey = isset($_POST['hotkey']) ?: $this->obj->get('hotkey');
+        $default = (
+            isset($_POST['default']) ?: 
+            ($this->obj->get('default') ?: '')
+        );
+        $hotkey = (
+            isset($_POST['hotkey']) ?:
+            ($this->obj->get('hotkey') ?: '')
+        );
         $keysequence = (
             filter_input(INPUT_POST, 'keysequence') ?:
-            $this->obj->get('keysequence')
+            ($this->obj->get('keysequence') ?: '')
         );
 
         $labelClass = 'col-sm-3 control-label';

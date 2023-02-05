@@ -119,7 +119,7 @@ class PowerManagementManager extends FOGManagerController
                 '<option value="%s"%s>%s</option>',
                 trim($val),
                 (
-                    $template !== false
+                    (isset($template) && $template !== false)
                     && trim($template) === trim($val) ?
                     ' selected' :
                     (
