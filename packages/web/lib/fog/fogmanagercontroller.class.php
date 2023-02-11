@@ -1007,6 +1007,11 @@ abstract class FOGManagerController extends FOGBase
             $idField => $val,
             'id' => $id,
         ];
+
+        if (!in_array('name', array_keys($this->databaseFields))) {
+            $idField = 'id';
+        }
+
         $query = sprintf(
             $this->existsQueryTemplate,
             $this->databaseTable,
