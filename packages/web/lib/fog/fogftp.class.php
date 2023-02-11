@@ -258,7 +258,7 @@ class FOGFTP
     ) {
         try {
             $this->_currentLoginHash = password_hash(
-                spl_object_id($this->_link),
+                is_object($this->_link) ? spl_object_id($this->_link) : spl_object_id($this),
                 PASSWORD_BCRYPT,
                 ['cost'=>11]
             );

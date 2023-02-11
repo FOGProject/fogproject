@@ -1686,11 +1686,14 @@ class Route extends FOGBase
                 true
             );
             $class = new $class;
+
             $vars = json_decode(
                 file_get_contents(
                     'php://input'
                 )
             );
+
+            $exists = false;
             $exists = self::getClass($classname)
                 ->getManager()
                 ->exists($vars->name);
