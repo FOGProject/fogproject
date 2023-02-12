@@ -1234,10 +1234,12 @@ class Route extends FOGBase
                     $j = "LEFT OUTER JOIN `hostMAC`
                         ON `hosts`.`hostID` = `hostMAC`.`hmHostID`";
                     $w = " OR `hostMAC`.`hmMAC` LIKE :item";
+                    $g = "GROUP BY `hosts`.`hostName`";
                     break;
                 default:
                     $j = '';
                     $w = '';
+                    $g = '';
                 }
                 $sql = "SELECT `{$classVars['databaseFields']['id']}`,"
                     . "`{$classVars['databaseFields']['name']}`
@@ -1245,7 +1247,8 @@ class Route extends FOGBase
                 {$j}
                 WHERE `{$classVars['databaseFields']['id']}` LIKE :item
                 OR `{$classVars['databaseFields']['name']}` LIKE :item
-                ${w}";
+                ${w}
+                ${g}";
                 if ($limit > 0) {
                     $sql .= " LIMIT $limit";
                 }
