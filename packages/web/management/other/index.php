@@ -196,10 +196,10 @@ if ($isLoggedIn) {
     echo '</a>';
     echo '</li>';
     echo '<li>';
-    echo '<a href="https://wiki.fogproject.org" target="_blank">';
+    echo '<a href="https://docs.fogproject.org" target="_blank">';
     echo '<i class="fa fa-book"></i> ';
     echo '<span>';
-    echo _('Wiki');
+    echo _('Documentation');
     echo '</span>';
     echo '</a>';
     echo '</li>';
