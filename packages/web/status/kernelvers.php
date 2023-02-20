@@ -69,9 +69,9 @@ printf(
 );
 printf(
     "bzImage Version: %s\n",
-        $kernelvers('bzImage')
+    $kernelvers('bzImage')
 );
 printf(
     "bzImage32 Version: %s",
-        $kernelvers('bzImage32')
+    $kernelvers('bzImage32')
 );
