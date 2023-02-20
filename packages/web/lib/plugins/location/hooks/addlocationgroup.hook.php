@@ -94,13 +94,15 @@ class AddLocationGroup extends Hook
         if ($node != 'group') {
             return;
         }
-        $link = $arguments['linkformat'];
-        self::arrayInsertAfter(
-            "$link#group-image",
-            $arguments['submenu'],
-            "$link#group-location",
-            _('Location Association')
-        );
+        if (isset($arguments['linkformat'])) {
+            $link = $arguments['linkformat'];
+            self::arrayInsertAfter(
+                "$link#group-image",
+                $arguments['submenu'],
+                "$link#group-location",
+                _('Location Association')
+            );
+        }
     }
     /**
      * The group fields.

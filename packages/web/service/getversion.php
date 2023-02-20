@@ -31,13 +31,13 @@ require '../commons/base.inc.php';
 $clientUpdate = (bool) FOGCore::getSetting('FOG_CLIENT_AUTOUPDATE');
 if (isset($_REQUEST['client'])) {
     $ver = (
-        $clientUpdate ? 
+        $clientUpdate ?
         '9.9.99' :
         '0.0.0'
     );
 } elseif (isset($_REQUEST['clientver'])) {
     $ver = (
-        $clientUpdate ? 
+        $clientUpdate ?
         FOG_CLIENT_VERSION :
         '0.0.0'
     );
