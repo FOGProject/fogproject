@@ -61,7 +61,7 @@ Fog 1.5.10 officially released
 * Fix display of name for capone plugin within FOG configuration page
 * Fix issue where filename got corrupted when uploading a new snapin file
 * Fix bug in iPXE embedded scripts which prevents drive boot method EXIT 
-* Prevent AD fields to be overwritten with default settings even if fie… 
+* Prevent AD fields from being overwritten with default settings even if fields are not empty 
 * Fix typo in snapinjob call that was preventing snapins to run
 * Remove bootfilename from installer and .fogsettings as it's not in use 
 * Silence the output in case xinetd is not installed at all 
