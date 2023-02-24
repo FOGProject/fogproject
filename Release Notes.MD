@@ -3,8 +3,21 @@
 Fog 1.5.10 officially released.
 
 Below is a summary of the many fixes and improvements introduced over the last 2.5 years since the last official release.
-We have squashed many bugs, increased security in all areas and added improvements to general usage scenarios as well as support for more recent software and operating systems.
+We have squashed bugs, further hardened the security of the system, and introduced new features, improvements, and support for new operating systems.
 
+Some highlights include
+
+* PHP 8 support (partial)
+* Windows 11 support
+* More customizable printer configurations
+* More security checks to prevent users from accessing administrative functions accidentally or maliciously
+* Added and improved pxe boot menu options
+* Support for recent Linux OS's and an improved installer experience
+* Improved internationalization support
+* And so much more!
+
+Thank you to all that have reported issues and feature requests in the forums and github requests and to all our developers, contributors, and users. 
+We couldn't do this without you!
 
 ## Updates to Fog WebUI and FOS
 
@@ -97,6 +110,8 @@ To view the full list of commits with the code changes introducing these fixes a
 * Fix host edit page load issue when snapin history has entries set to 0000-00-00 00:00:00 timestamp
 
 ## Fog Client Changes
+
+Fog Client 0.13.0 is included with Fog 1.5.10
 
 To view the full list of commits with the code changes introducing these fixes and features, see 
 
