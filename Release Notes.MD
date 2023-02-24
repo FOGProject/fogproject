@@ -33,7 +33,7 @@ To view the full list of commits with the code changes introducing these fixes a
 * Prevent leak of AD password when applying default AD infos in host
 * Remove header not posing much of security as mentioned in #473, thanks @djohle
 * Add query for >=MariaDB 10.4 mysql.global_privs table
-* Check download URL and destination filename to prevent from maliciou use, thanks to sml for reporting
+* Check download URL and destination filename to prevent from malicious use, thanks to sml for reporting
 * Added web login logging
 * Add changes to firewall and SELinux checks
 * Added a defined [security policy](https://github.com/FOGProject/fogproject/blob/8ce090ba82ce22208daa0a20bc5018364e20949a/SECURITY.md)
@@ -65,16 +65,16 @@ To view the full list of commits with the code changes introducing these fixes a
 * Switch default database engine from MyISAM to InnoDB
 * Point FOG web UI kernel update page to the kernel repo on github.
 * Switch to snponly.efi for UEFI systems as default
-* Save resouces by only enabling systemd tftp.socket
+* Save resources by only enabling systemd tftp.socket
 * Move from xinetd to systemd for TFTP connection handling on redhat
 * Change internet connection check to better suit corporate networks
 * Add hint on image data files not being deleted through multi delete
-* Updated Internationlization support (multiple languages)
+* Updated Internationalization support (multiple languages)
 * Installer support for more operating systems
 * Attempt https and http for wakeOnLAN
 * Separate the scheduled tasks from the pm tasks
 * More verbose Logging in various locations
-* Installer pre-rew check improvements
+* Installer pre-req check improvements and other general installer improvements
 * Improved db table sorting
 * Improved backup functions in installer
 * Added image start, end, and duration to email notifications for imaging 
@@ -125,7 +125,7 @@ To view the full list of commits with the code changes introducing these fixes a
 * Update external library Newtonsoft.Json to v13.0.1
 * Allow using certificate files from local filesystem
 * Update timestamp server list and use new signing cert
-* Run authentity check in mac and linux os clients
+* Run authenticity check in mac and linux os clients
 * Add check for TLS versions, enable secure TLS versions and disable deprecated versions
 
 ### Improvements
