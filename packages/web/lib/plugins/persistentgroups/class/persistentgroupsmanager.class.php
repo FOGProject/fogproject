@@ -31,12 +31,12 @@ class PersistentGroupsManager extends FOGManagerController
     public function install()
     {
         $this->uninstall();
-        $sql = "CREATE TRIGGER `persistentGroups` 
+        $sql = "CREATE OR REPLACE TRIGGER `persistentGroups` 
             AFTER INSERT ON `groupMembers` 
             FOR EACH ROW
                 BEGIN
 
-                SET @myHostID = `NEW`.`gmHostID`;
+        SET @myHostID = `NEW`.`gmHostID`;
         SET @myGroupID = `NEW`.`gmGroupID`;
 
         SET @myTemplateID = (SELECT `hostID` FROM `groups` INNER JOIN `hosts` ON (`groupName` = `hostName`) WHERE `groupID`=@myGroupID);
@@ -55,20 +55,24 @@ class PersistentGroupsManager extends FOGManagerController
         if (@myDBTest > 0) THEN
             INSERT INTO `locationAssoc` (`laHostID`,`laLocationID`)
             SELECT @myHostID as `laHostID`,`laLocationID`
-            FROM `locationAssoc` WHERE `laHostID`=@myTemplateID;
+            FROM `locationAssoc` WHERE `laHostID`=@myTemplateID
+            ON DUPLICATE KEY UPDATE `laHostID`=VALUES(`laHostID`),`laLocationID`=VALUES(`laLocationID`);
         END IF;
 
-        INSERT INTO `printerAssoc` (`paHostID`,`paPrinterID`,`paIsDefault`,`paAnon1`,`paAnon2`,`paAnon3`,`paAnon4`)
-            SELECT @myHostID as `paHostID`,`paPrinterID`,`paIsDefault`,`paAnon1`,`paAnon2`,`paAnon3`,`paAnon4`
-            FROM `printerAssoc` WHERE `paHostID`=@myTemplateID;
+        INSERT INTO `printerAssoc` (`paHostID`,`paPrinterID`,`paIsDefault`,`paAnon1`,`paAnon2`,`paAnon3`,`paAnon4`,`paAnon5`)
+            SELECT @myHostID as `paHostID`,`paPrinterID`,`paIsDefault`,`paAnon1`,`paAnon2`,`paAnon3`,`paAnon4`,`paAnon5`
+            FROM `printerAssoc` WHERE `paHostID`=@myTemplateID
+            ON DUPLICATE KEY UPDATE `paHostID`=VALUES(`paHostID`),`paPrinterID`=VALUES(`paPrinterID`),`paIsDefault`=VALUES(`paIsDefault`),`paAnon1`=VALUES(`paAnon1`),`paAnon2`=VALUES(`paAnon2`),`paAnon3`=VALUES(`paAnon3`),`paAnon4`=VALUES(`paAnon4`),`paAnon5`=VALUES(`paAnon5`);
 
         INSERT INTO `snapinAssoc` (`saHostID`,`saSnapinID`)
             SELECT @myHostID as `saHostID`,`saSnapinID` 
-            FROM `snapinAssoc` WHERE `saHostID`=@myTemplateID;
+            FROM `snapinAssoc` WHERE `saHostID`=@myTemplateID
+            ON DUPLICATE KEY UPDATE `saHostID`=VALUES(`saHostID`),`saSnapinID`=VALUES(`saSnapinID`);
 
         INSERT INTO `moduleStatusByHost` (`msHostID`,`msModuleID`,`msState`)
             SELECT @myHostID as `msHostID`,`msModuleID`,`msState`
-            FROM `moduleStatusByHost` WHERE `msHostID`=@myTemplateID;
+            FROM `moduleStatusByHost` WHERE `msHostID`=@myTemplateID
+            ON DUPLICATE KEY UPDATE `msHostID`=VALUES(`msHostID`),`msModuleID`=VALUES(`msModuleID`),`msState`=VALUES(`msState`);
 
         END IF;
 
