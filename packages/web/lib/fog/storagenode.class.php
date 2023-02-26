@@ -227,11 +227,16 @@ class StorageNode extends FOGController
             $items[$item]
         );
         $response = self::$FOGURLRequests->process($url);
-        return preg_grep(
-            '#dev|postdownloadscripts|ssl#',
-            json_decode($response[0], true),
-            PREG_GREP_INVERT
-        );
+        $filelist = json_decode($response[0], true);
+        if (isset($filelist) && is_array($filelist)) {
+            return preg_grep(
+                '#dev|postdownloadscripts|ssl#',
+                json_decode($response[0], true),
+                PREG_GREP_INVERT
+            );
+        } else {
+            return array();
+        }
     }
     /**
      * Loads the snapins available on this node.
