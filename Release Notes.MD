@@ -1,11 +1,11 @@
-# Fog 1.5.10 Stable release
+# FOG 1.5.10
 
-Fog 1.5.10 officially released.
+FOG 1.5.10 officially released: https://news.fogproject.org/fog-1-5-10-officially-released/
 
 Below is a summary of the many fixes and improvements introduced over the last 2.5 years since the last official release.
 We have squashed bugs, further hardened the security of the system, and introduced new features, improvements, and support for new operating systems.
 
-Some highlights include
+Some highlights include:
 
 * PHP 8 support
 * Windows 11 support
@@ -19,7 +19,7 @@ Some highlights include
 Thank you to all that have reported issues and feature requests in the forums and github requests and to all our developers, contributors, and users. 
 We couldn't do this without you!
 
-## Updates to Fog WebUI and FOS
+## FOG Web UI and Services
 
 To view the full list of commits with the code changes introducing these fixes and features, see the [dev branch commit history](https://github.com/FOGProject/fogproject/commits/dev-branch)
 
@@ -79,7 +79,7 @@ To view the full list of commits with the code changes introducing these fixes a
 * Added image start, end, and duration to email notifications for imaging 
 
 
-### Bug fixes
+### Bug Fixes
 
 * Fix incorrect array index name in location plugin code.
 * Do not install sysv-rc-conf on Debian or Ubuntu, thanks @stevemoca
@@ -140,7 +140,7 @@ To view the full list of commits with the code changes introducing these fixes a
 * Removed unused dlls
 * Print CA cert subject name instead of friendly name
 
-## FOS (FOG Operating System) Changes
+## FOS (FOG Operating System)
 
 FOS is the linux based OS that is booted into from pxe and is used to perform imaging and other tasks.
 
@@ -189,3 +189,104 @@ We have upgraded the versions of its main dependencies, added many improvements 
 * Add checksum check to release script just to be sure the binaries are ok
 * Repair disk enumeration for image type MPA (all disks)
 * Remove support for module loading from the kernel as we don't use modules 
+
+# FOG 1.5.9
+
+The FOG Team is proud to announce the immediate availability FOG 1.5.9.
+
+This release is available for download at:
+[Download from GitHub](https://github.com/FOGProject/fogproject/archive/1.5.9.tar.gz)
+
+For installation instructions please see https://wiki.fogproject.org/wiki/index.php?title=Installation#Installation_manuals and select your relevant server OS.
+
+Comparison of 1.5.8 to 1.5.9:
+https://github.com/FOGProject/fogproject/compare/1.5.8...1.5.9
+
+# FOG 1.5.8
+
+FOG 1.5.8 officially released: https://news.fogproject.org/fog-1-5-8-officially-released/
+
+https://github.com/FOGProject/fogproject/compare/1.5.7...1.5.8
+
+## FOG Web UI and Services
+
+### Bug Fixes
+
+* Use URL encoded parameter for password in CURL calls (587a25f, 79f94bd)
+* Handle VLAN network interface names like eth0@if56 properly when enumerating interfaces (a2fc95e2)
+* Fix LDAP port in plugin code (97b57ac, 403d1d1)
+* Repair installer to work on all current Ubuntu versions (28debc9, 9233067, 4d61492, 79388ae)
+* Rearange compile parameters as iPXE fails on SSL with CERT/TRUST not being last (e424b04)
+* Change type of alternative subject name information as modern browsers check those strictly (7fdb3f6)
+* Use SSLCACertificateFile instead as SSLCertificateChainFile which is obsolete since Apache 2.4.8 (6f7d462)
+* Make sure we wait until an interface with our known IP is up #268 (69b4c44)
+* Only ask for PHP/apache reinstall if PHP 5 was found installed (70078be)
+* Repair building of iPXE binaries for HTTPS setups (296877d, 831d8ea)
+* Fix typo in snapin class (6314aa4 thanks to Quazz)
+* Repair version query in FOG configuration web view (8c69efc, fcfe759)
+* Fix storage group failure on task finish updating (3c28f7b)
+* Prevent from setting a MAC address that is in use by another host (88e10d8)
+* Fix issue with double pipes in ad password field (9e70bc2)
+* Fix download of snapins from wrong FOG server in location setups (d0162c8)
+* Prevent from adding group associations with zero host or group ID (cf01c7e, c0d8509)
+* Fix interface selection on systems where more than one NICs are up (ca3c2fa)
+* Fix API call to editing host object, #329 (54beb9b)
+* Prevent from migrating to MariaDB on Ubuntu installs to not cause trouble (29af4df)
+* Do not reset the image size on client value on client checkin (9ff8776)
+* Fix reports to work without groups and add search field (dde4d9d, b1f21c3, 7a6dc13)
+* Correct package list update for Debian 10 buster upgrades (3f3b237)
+
+
+### Improvements
+
+* Update README with current information on downloading and installing FOG (0922112)
+* Add username substitution to email field for deployment notification (7f80368)
+* Re-try querying size and hash information via HTTPS (0fd7913, 2e55ba9)
+* Make sure we don't ask for HTTPS again if parameter is given (ac08798)
+* Improve check on fogproject account existing (8af5b3e)
+* Add separate download for ARM platform binary archive and compilation of iPXE (d67a620, 30c4200, 6b1b260, 91fc00a)
+* Remove old pxelinux stuff and ltsp config so people don't use it anymore (50e2995)
+* Change default image definitions to Windows 10 and Zstd compression (45ec9fa)
+* Add Ubuntu 20.xx support - tested on daily build currently PHP 7.3 (91f7cb0)
+* Add installer question on enabling HTTPS (755cbc4)
+* Switch to auto colors for bandwith graph (0ffd39f)
+* Present storage node settings to the user more clearly (4226527)
+* Improve database security by using less privileged account and force users to set a DB root password #355 (490cb3b, cc71a32)
+* Add check for proper root environemnt within the installer (3c2d492)
+* Add kernel parameter to disable problematic power saving for NVMe drives (e67ce75)
+* Remove feature to add a changed primary MAC as additional MAC (8c820e2)
+* Update installer to work on Ubuntu 19.xx (ab61ce0)
+* Hide/mask AD password from users eyes, #337 (72b0de0)
+* Improve firewall check to make it work for CentOS 8 as well (a039fd4)
+* Update installer to work on CentOS 8 (3e125db, 5ff4c8b)
+* Add sanity checking in the remote file hash and size response (933d7c3, bee5419 thanks to @mjrider)
+* Only test the availability of the remote nodes once (b511e16 thanks to @mjrider)
+* Add hints on image type setting including a link to the wiki article (2c17837)
+* Add check for snapin file upload size to print appropriate warning to the user (1f4ad45)
+* Re-add code for ARM based bootloaders (PR #327, thanks to parkerberb-nfv)
+* Add iPXE AXGE native binary for ASIX AX88179 USB 3.0 (156001f)
+* Ensure we download the latest hashsum to check the binaries against (9235729)
+* Added possibilty to queue multicast task when the is not any slot free on the storage node (PR #310, bdbaf33 thanks to @Fernando Gietz)
+
+
+## FOS (FOG Operating System)
+
+### Bug Fixes
+
+* Repair issues with partclone.imager that were introduced with version 0.3.12 (7faf4b6, 8b60ec0)
+* Update awk cmd lines to no longer escape unncessarily (6f2f46a, 80e959a, 5f0e7b5 thanks to @Quazz)
+* Get NVMe device names right (e0202be, 276b22d)
+* Fix swap fs creation if capture and deploy use different disk technologies - SATA/SSD vs. NVMe vs. mmcblk (07fee1a)
+* Make reize way more unreliable by adding flock to sfdisk calls (fd3daf2 also backported to 1.5.7)
+
+### Improvements
+
+* Update Linux Kernel (4.19.90) and Buildroot (2019.04.8)
+* Update various packages: Partclone (0.3.13), Zstd (1.4.4), Testdisk & Photorec (7.1) - many thanks to @Quazz
+* Add NVME cli utility (a6b7d24 thanks to @Quazz)
+* Add error output when an error happens on partition layout restore (0e893c1)
+* Improve algorithm to match destinations in multi disk setups (4439247)
+* Allow for higher CPU core numbers and add Intel idle driver to fix #31 (fe58b6a)
+* Prevent from adding partitions to fixed list twice and sort the list
+* Add support for APFS filesystem (e151e67, 6c01ce6)
+* Add rsyncable options when calling partclone (3cc47ca)
