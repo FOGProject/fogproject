@@ -38,7 +38,7 @@ To view the full list of commits with the code changes introducing these fixes a
 * Add changes to firewall and SELinux checks
 * Added a defined [security policy](https://github.com/FOGProject/fogproject/blob/8ce090ba82ce22208daa0a20bc5018364e20949a/SECURITY.md)
 
-### improvements
+### Improvements
 
 * PHP 8 Partial Support
 * Add FOG version information to the dashboard storage node dropdown
@@ -71,8 +71,8 @@ To view the full list of commits with the code changes introducing these fixes a
 * Add hint on image data files not being deleted through multi delete
 * Updated Internationalization support (multiple languages)
 * Installer support for more operating systems
-* Attempt https and http for wakeOnLAN
-* Separate the scheduled tasks from the pm tasks
+* Attempt https and http for WakeOnLAN
+* Separate the scheduled tasks from the Power Management tasks
 * More verbose Logging in various locations
 * Installer pre-req check improvements and other general installer improvements
 * Improved db table sorting
@@ -133,12 +133,12 @@ To view the full list of commits with the code changes introducing these fixes a
 * Added ability to use custom PrintUI parameters, thanks to @Iri5s
 * Update Zazzles library to the latest version build
 * Updated internationalization support
-* Update copyright information in all source files and assembly to 2022
+* Update copyright information in all source files and assembly to 2023
 * Change logging of the installer for a more clear output on the console 
 * Add XML schema that came with Quartz.NET last version update
 
 ### Bug Fixes
 
-* Fix applying of printer settings through PrintUI, thanks tatanas.
+* Fix applying of printer settings through PrintUI, thanks @tatanas.
 * Removed unused dlls
 * Print CA cert subject name instead of friendly name
