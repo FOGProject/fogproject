@@ -148,6 +148,7 @@ We have upgraded the versions of its main dependencies, added many improvements 
 
 ### Improvements
 
+* Add support for wiping NVMe drives using nvme format, thanks @rluzuriaga
 * Add server disk space check for mounted share when capturing an image
 * Github Actions workflow for creating new releases, thanks @rluzuriaga
 * Update Buildroot to v2022.02.9
