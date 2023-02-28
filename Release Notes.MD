@@ -7,7 +7,7 @@ We have squashed bugs, further hardened the security of the system, and introduc
 
 Some highlights include
 
-* PHP 8 support (partial)
+* PHP 8 support
 * Windows 11 support
 * More customizable printer configurations
 * More security checks to prevent users from accessing administrative functions accidentally or maliciously
@@ -25,23 +25,22 @@ To view the full list of commits with the code changes introducing these fixes a
 
 ### Security Fixes
 
-* Add authentication check in getfiles to prevent file enumeration
-* Add security checks to default pxe boot options like delete, change windows key, and join multicast domain
+* Add authentication check in getfiles to prevent file enumeration, thanks @cla
+* Add security checks to default pxe boot options like delete, change windows key, and join multicast domain, thanks @skyrider223
 * Do not prepend filename to kernel information, thanks @wayneworkman
 * Remove replication of ssl files and directories
 * Update select JS and CSS library to latest version 4.0.13
 * Prevent leak of AD password when applying default AD infos in host
 * Remove header not posing much of security as mentioned in #473, thanks @djohle
 * Add query for >=MariaDB 10.4 mysql.global_privs table
-* Check download URL and destination filename to prevent from malicious use, thanks to sml for reporting
+* Check download URL and destination filename to prevent from malicious use, thanks @sml
 * Added web login logging
 * Add changes to firewall and SELinux checks
 * Added a defined [security policy](https://github.com/FOGProject/fogproject/blob/8ce090ba82ce22208daa0a20bc5018364e20949a/SECURITY.md)
 
 ### Improvements
 
-* PHP 8 Partial Support
-* Add FOG version information to the dashboard storage node dropdown
+* PHP 8 Support
 * Allow adjustment of timeout between all partitions to be set, thanks @Magelfik
 * Windows 11 compatibility added to notes and docs
 * Updated Readme for various things
@@ -58,7 +57,7 @@ To view the full list of commits with the code changes introducing these fixes a
 * Add keymap (keyboard layout) setting to our iPXE binaries
 * Update iPXE to the latest pull
 * Add REBOOT menu to Host Bios Exit Type and Host EFI Exit Type
-* Add kernel information to reporting script (#471) 
+* Add kernel information to reporting script
 * Leave 7 percent space when shrinking partitions with resizable image
 * Allow hostname regex for printers as well as IP addresses
 * Add ability to specify additional TFTP server command line options
@@ -82,7 +81,6 @@ To view the full list of commits with the code changes introducing these fixes a
 
 ### Bug fixes
 
-* Various php 8 related fixes
 * Fix incorrect array index name in location plugin code.
 * Do not install sysv-rc-conf on Debian or Ubuntu, thanks @stevemoca
 * Allow -U parameter to work as expected in installer, thanks to @lukebarone 
@@ -102,16 +100,15 @@ To view the full list of commits with the code changes introducing these fixes a
 * Fix typo in snapinjob call that was preventing snapins to run
 * Remove bootfilename from installer and .fogsettings as it's not in use 
 * Silence the output in case xinetd is not installed at all 
-* Update installer scripts to fix Ubuntu 21.10 install
 * Set image size on server to zero when directory is not found
 * Added missing openssl package dependency
 * Fix installer password character check
 * Correct option domain-name-servers on dhcpd.conf generation when empty
 * Fix host edit page load issue when snapin history has entries set to 0000-00-00 00:00:00 timestamp
 
-## Fog Client Changes
+## fog-client
 
-Fog Client 0.13.0 is included with Fog 1.5.10
+fog-client 0.13.0 is included with FOG 1.5.10
 
 To view the full list of commits with the code changes introducing these fixes and features, see 
 
@@ -143,17 +140,11 @@ To view the full list of commits with the code changes introducing these fixes a
 * Removed unused dlls
 * Print CA cert subject name instead of friendly name
 
-## FOS (Fog Operating System) Changes
+## FOS (FOG Operating System) Changes
 
 FOS is the linux based OS that is booted into from pxe and is used to perform imaging and other tasks.
 
 We have upgraded the versions of its main dependencies, added many improvements and features and squashed some common and not so common bugs.
-
-### Security Fixes
-
-* Add kernel modules for LUKS encryption as suggested in the forums in topic 15815
-* Disable networking stuff like IPSec protocols: AH, ESP, PF_KEY, IPComp, XFRM and socket monitoring
-* Enable access to /proc/config.gz, disable SWAP, VM event counters, SLUB debugging, SLUB per cpu partial cache, slab cache merge and unneeded initrd compression algos
 
 ### Improvements
 
@@ -179,16 +170,19 @@ We have upgraded the versions of its main dependencies, added many improvements 
 * Add firmware blob for Realtek 8125 based NICs
 * Add feature to specify host primary disk via size instead of device name
 * Enable USB type C support
+* Add kernel modules for LUKS encryption
+* Disable networking stuff like IPSec protocols: AH, ESP, PF_KEY, IPComp, XFRM and socket monitoring
+* Enable access to /proc/config.gz, disable SWAP
 
 ### Bug Fixes
 
 * Make the init boot up so it doesn't wait indefinitly on network error
 * Removed deprecated methods from readme
-* Modify build.sh to check needed packages on Ubuntu, thanks to @rluzuriaga
+* Modify build.sh to check needed packages on Ubuntu, thanks @rluzuriaga
 * Fixed typo in tmpEBRFileName function, thanks to @Piotr86PL  
 * Repair package dependency check on Debian where checks fail on dual installed libraries (32 and 64 bit)
 * Add libelf depency to the build script, thanks @JlnWntr
-* Change mount commands to fix exFAT-FS errors on BTRFS mounts, thanks to @Piotr86PL
+* Change mount commands to fix exFAT-FS errors on BTRFS mounts, thanks @Piotr86PL
 * Fixing a typo in the calculate_float function and adding a couple of messages to the resizing functions, thanks to @Piotr86PL
 * Change mount commands to fix exFAT-FS errors
 * Enclose artifact search query as bash globbing on * causes problems when files exist in the dist path.
