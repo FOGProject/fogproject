@@ -142,3 +142,56 @@ To view the full list of commits with the code changes introducing these fixes a
 * Fix applying of printer settings through PrintUI, thanks @tatanas.
 * Removed unused dlls
 * Print CA cert subject name instead of friendly name
+
+## FOS (Fog Operating System) Changes
+
+FOS is the linux based OS that is booted into from pxe and is used to perform imaging and other tasks.
+
+We have upgraded the versions of its main dependencies, added many improvements and features and squashed some common and not so common bugs.
+
+### Security Fixes
+
+* Add kernel modules for LUKS encryption as suggested in the forums in topic 15815
+* Disable networking stuff like IPSec protocols: AH, ESP, PF_KEY, IPComp, XFRM and socket monitoring
+* Enable access to /proc/config.gz, disable SWAP, VM event counters, SLUB debugging, SLUB per cpu partial cache, slab cache merge and unneeded initrd compression algos
+
+### Improvements
+
+* Add server disk space check for mounted share when capturing an image
+* Github Actions workflow for creating new releases, thanks @rluzuriaga
+* Update Buildroot to v2022.02.9
+* Update Linux kernel to v5.15.93
+* Update partclone to v0.3.20
+* Update gptfdisk to 1.0.8
+* Add support for F2FS imaging and expanding F2FS on deployments, thanks @JlnWntr
+* Add patch capability when building filesystem, thanks to @rluzuriaga
+* Add feature to specify disk serial as host primary disk setting to make setups with identical sized NVMe drives work as well
+* Change AWK script to handle awkward name and attrs fields in partition layouts we created ourselves
+* Add tag name and ID to log output
+* Add upload success check and silence curl calls
+* Allow raw/dd image type capture without any partition on disk
+* Add firmware file bnx2x-e2-7.13.15.0.fw for HP Blade
+* Add feature to move partitions in GPT layouts forward when shrinking a partition would leave a gap if there is another partition after it. The subsequent partition often prevents from being able to deploy the image to a smaller size disk and so we try to get rid of that gap which is only possible in UEFI setups (GPT layout) where boot loaders don't reference to a sector on disk.
+* Add potential capability for BTRFS resizing
+* Add sysserial to the autoreg item to allow dynamic name setting
+* Add some network drivers to the ARM64 kernel that were missed
+* Remove kernel features power management, ACPI battery & AC, CPU idle driver
+* Add firmware blob for Realtek 8125 based NICs
+* Add feature to specify host primary disk via size instead of device name
+* Enable USB type C support
+
+### Bug Fixes
+
+* Make the init boot up so it doesn't wait indefinitly on network error
+* Removed deprecated methods from readme
+* Modify build.sh to check needed packages on Ubuntu, thanks to @rluzuriaga
+* Fixed typo in tmpEBRFileName function, thanks to @Piotr86PL  
+* Repair package dependency check on Debian where checks fail on dual installed libraries (32 and 64 bit)
+* Add libelf depency to the build script, thanks @JlnWntr
+* Change mount commands to fix exFAT-FS errors on BTRFS mounts, thanks to @Piotr86PL
+* Fixing a typo in the calculate_float function and adding a couple of messages to the resizing functions, thanks to @Piotr86PL
+* Change mount commands to fix exFAT-FS errors
+* Enclose artifact search query as bash globbing on * causes problems when files exist in the dist path.
+* Add checksum check to release script just to be sure the binaries are ok
+* Repair disk enumeration for image type MPA (all disks)
+* Remove support for module loading from the kernel as we don't use modules 
