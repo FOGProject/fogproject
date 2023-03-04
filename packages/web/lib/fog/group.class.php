@@ -571,7 +571,8 @@ class Group extends FOGController
                     }
                     self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
                 }
-                $hostIDs = $hostids;
+                $hostIDs = array_values($hostids);
+                $hostCount = count($hostIDs);
                 $batchFields = [
                     'name',
                     'createdBy',
@@ -642,7 +643,8 @@ class Group extends FOGController
                 );
                 $this->_createSnapinTasking($now, -1);
             } elseif ($TaskType->isDeploy) {
-                $hostIDs = $hostids;
+                $hostIDs = array_values($hostids);
+                $hostCount = count($hostIDs);
                 $find = ['id' => $hostIDs];
                 Route::ids(
                     'host',
