@@ -25,6 +25,7 @@ To view the full list of commits with the code changes introducing these fixes a
 
 ### Security Fixes
 
+* Hide function parameters for ldap connection call to not print out username and password information to log files (#445).
 * Add authentication check in getfiles to prevent file enumeration, thanks @cla
 * Add security checks to default pxe boot options like delete, change windows key, and join multicast domain, thanks @skyrider223
 * Do not prepend filename to kernel information, thanks @wayneworkman
