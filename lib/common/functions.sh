@@ -2427,7 +2427,7 @@ downloadfiles() {
         baseurl=$(dirname -- "$url")
         hashurl="${baseurl}/${hashfile}"
         # make sure we download the most recent hash file to start with
-        if [[ -f $hashfile && ! $version =~ ^[0-9]\.[0-9]\.[0-9]+$ ]]; then
+        if [[ -f $hashfile ]]; then
             rm -f $hashfile
             curl --silent -kOL $hashurl >>$error_log 2>&1
         fi
