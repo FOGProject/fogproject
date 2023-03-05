@@ -81,6 +81,7 @@ To view the full list of commits with the code changes introducing these fixes a
 
 ### Bug Fixes
 
+* Fix location based snapin download (#371)
 * Fix group cron style task scheduling (#544)
 * Fix incorrect array index name in location plugin code.
 * Do not install sysv-rc-conf on Debian or Ubuntu, thanks @stevemoca
