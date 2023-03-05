@@ -152,7 +152,7 @@ class ChangeItems extends Hook
             Route::getData()
         );
         $Task = $arguments['Host']->get('task');
-        $TaskType = $arguments['TaskType'];
+        $TaskType = isset($arguments['TaskType']) ? $arguments['TaskType'] : null;
         $method = false;
         foreach ($LocationAssocs->locationassociations as &$LocationAssoc) {
             $Location = self::getClass('Location', $LocationAssoc->locationID);
@@ -176,6 +176,12 @@ class ChangeItems extends Hook
                     && self::getSetting('FOG_SNAPIN_LOCATION_SEND_ENABLED') > 0)
                 ) {
                     $arguments['StorageNode'] = $Location->getStorageNode();
+                    $arguments['StorageNode']->{"location_url"} = sprintf(
+                        '%s://%s/%s',
+                        $Location->get('protocol'),
+                        $arguments['StorageNode']->get('ip'),
+                        $arguments['StorageNode']->get('webroot')
+                    );
                 }
                 if (!$method) {
                     continue;
