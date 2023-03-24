@@ -166,7 +166,7 @@ class LocationManagementPage extends FOGPage
             $storagenode
         );
         $snprotocol = self::getClass('LocationManager')->buildProtocolSelectBox(
-            $protocol,
+            $protocol
         );
         $tftp = isset($_POST['tftp']) ? ' checked' : '';
         $fields = array(
