@@ -2463,7 +2463,7 @@ configureDHCP() {
     case $linuxReleaseName_lower in
         *debian*)
             if [[ $bldhcp -eq 1 ]]; then
-                dots "Setting up and starting DHCP Server (incl. debian 9 fix)"
+                dots "Setting up and starting DHCP Server (incl. fix for Debian)"
                 sed -i.fog "s/INTERFACESv4=\"\"/INTERFACESv4=\"$interface\"/g" /etc/default/isc-dhcp-server
             else
                 dots "Setting up and starting DHCP Server"
