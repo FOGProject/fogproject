@@ -2704,7 +2704,7 @@ abstract class FOGPage extends FOGBase
         $tags = json_decode(array_shift($resp));
         $systemclass = array_shift($resp);
         foreach ($tags as $tag) {
-            if (preg_match('/^[0-9]\.[0-9]\.[0-9]$/', $tag->name)) {
+            if (preg_match('/^[0-9]\.[0-9]\.[0-9][0-9]*$/', $tag->name)) {
                 $stable = $tag->name;
                 break;
             }
