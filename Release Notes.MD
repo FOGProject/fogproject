@@ -1,3 +1,10 @@
+Table of Contents
+=================
+
+* [FOG 1.5.10](#fog-1510)
+* [FOG 1.5.9](#fog-159)
+* [FOG 1.5.8](#fog-158)
+
 # FOG 1.5.10
 
 FOG 1.5.10 officially released: https://news.fogproject.org/fog-1-5-10-officially-released/
