@@ -82,6 +82,8 @@ To view the full list of commits with the code changes introducing these fixes a
 
 ### Bug Fixes
 
+* Fix problem when updating to 1.5.10 with location plugin enabled (#561)
+* Add missing protocol in the URL on snapin download with location plugin (#562)
 * Fix location based snapin download (#371)
 * Fix group cron style task scheduling (#544)
 * Fix incorrect array index name in location plugin code.
