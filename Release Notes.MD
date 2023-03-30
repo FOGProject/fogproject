@@ -361,3 +361,72 @@ https://github.com/FOGProject/fogproject/compare/1.5.7...1.5.8
 * Prevent from adding partitions to fixed list twice and sort the list
 * Add support for APFS filesystem (e151e67, 6c01ce6)
 * Add rsyncable options when calling partclone (3cc47ca)
+
+# FOG 1.x.y
+
+FOG 1.x.y officially released: https://news.fogproject.org/...
+
+Below is a summary of the many fixes and improvements introduced. 
+We have squashed bugs, further hardened the security of the system, and introduced new features, improvements, and support for new operating systems.
+
+Some highlights include:
+
+* tbd
+
+Thank you to all that have reported issues and feature requests in the forums and github requests and to all our developers, contributors, and users. 
+We couldn't do this without you!
+
+## FOG Web UI and Services
+
+To view the full list of commits with the code changes introducing these fixes and features, see the [dev branch commit history](https://github.com/FOGProject/fogproject/commits/dev-branch)
+
+### Security Fixes
+
+* tbd
+
+### Improvements
+
+* tbd
+
+### Bug Fixes
+
+* tbd
+
+## fog-client
+
+fog-client 0.a.b is included with FOG 1.x.y
+
+To view the full list of commits with the code changes introducing these fixes and features, see 
+
+* [fog client commit history](https://github.com/FOGProject/fog-client/commits/master)
+* [fog zazzles commit history](https://github.com/FOGProject/zazzles/commits/master)
+
+### Security Fixes
+
+* tbd
+
+### Improvements
+
+* tbd
+
+### Bug Fixes
+
+* tbd
+
+## FOS (FOG Operating System)
+
+FOS is the linux based OS that is booted into from pxe and is used to perform imaging and other tasks.
+
+We have upgraded the versions of its main dependencies, added many improvements and features and squashed some common and not so common bugs.
+
+### Security Fixes
+
+* tbd
+
+### Improvements
+
+* tbd
+
+### Bug Fixes
+
+* tbd
