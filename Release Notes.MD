@@ -1,5 +1,5 @@
-Table of Contents
-=================
+FOG Project Release Notes
+=========================
 
 * [FOG 1.5.10](#fog-1510)
 * [FOG 1.5.9](#fog-159)
