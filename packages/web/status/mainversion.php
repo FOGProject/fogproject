@@ -34,7 +34,7 @@ $resp = $FOGURLRequests->process($urls);
 
 $tags = json_decode(array_shift($resp));
 foreach ($tags as $tag) {
-    if (preg_match('/^[0-9]\.[0-9]\.[0-9]$/', $tag->name)) {
+    if (preg_match('/^[0-9]\.[0-9]\.[0-9][0-9]*$/', $tag->name)) {
         $stableversion = $tag->name;
         break;
     }
