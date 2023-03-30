@@ -200,15 +200,71 @@ We have upgraded the versions of its main dependencies, added many improvements 
 
 # FOG 1.5.9
 
-The FOG Team is proud to announce the immediate availability FOG 1.5.9.
+This release mainly focuses on bug fixes for FOG.
 
-This release is available for download at:
-[Download from GitHub](https://github.com/FOGProject/fogproject/archive/1.5.9.tar.gz)
+https://news.fogproject.org/fog-1-5-9-officially-released/
 
-For installation instructions please see https://wiki.fogproject.org/wiki/index.php?title=Installation#Installation_manuals and select your relevant server OS.
+Comparison of 1.5.8 to 1.5.9: https://github.com/FOGProject/fogproject/compare/1.5.8...1.5.9
 
-Comparison of 1.5.8 to 1.5.9:
-https://github.com/FOGProject/fogproject/compare/1.5.8...1.5.9
+## FOG Web UI and Services
+
+### Improvements
+
+* Enhance error message when root environment is not properly loaded
+* Get rid of trim on array warning when canceling a multicast task
+* Add back reset of image size on client and update numbers only on capture
+* Update description of Normal wipe (thanks to @abulhol)
+* Change default global setting on compression format
+* Fix two typos in ipxescripts (thanks to @bchr)
+
+### Bug Fixes
+
+* Add installer check to see if compiling iPXE binaries is needed
+* Fix exec command line in systemd FOGSnapinReplicator file
+* Force re-compile of rootcert.c in iPXE to prevent from issues when CA changes
+* Update compile check scripts to latest versions on Raspberry Pi
+* Fix IP/interface check on service startup
+* Properly query multicast session id to be able to retrieve image info
+* Repair product key decoding on call to hostinfo.php
+* Improve input check on aesdecrypt in case of unencrypted passwords with pipe characters
+* Handle DB root password more conservative to not lock out people with newer MariaDB versions
+* Re-work the checks and setting up of DB security
+* Prevent FOGMulticastManager from completing a task too early
+* Fix some bugs in Sites plugin (thanks to Fernando Gietz)
+* Switch to libcurl4 for Raspbian 10 as well
+* Fix Image Manager to consider global setting on image creation
+* Fix installer prompting for DB root password
+* Force correct PHP version on Debian and remove old PHP when found to be still installed
+* Improve check on fogstorage account access granted
+* Prevent FOG services from filling up memory on hook events array
+* Fix interface enumeration on systems with DHCP enabled
+* Using PHP 7.4 on Ubuntu 20.04 as they moved just before the official release
+* Fix installer issue with PPP that is not using a via gateway route
+* Correct snapin list view column showing if it's a pack or not
+
+## fog-client
+
+fog-client 0.12.0 is included with FOG 1.5.9
+
+### Improvements
+
+* Move to .Net Framework 4.5.2
+* Update Quartz to 3.0.7 and ZipLib to 1.2.0
+* Add Romanian and Polish language support
+
+### Bug Fixes
+
+* Repair hang on Linux systems when shutting down FOGService (issue #93)
+* Fix unzipping subdirectories on Linux/Unix systems (issue #122)
+
+## FOS (FOG Operating System)
+
+FOS is the linux based OS that is booted into from pxe and is used to perform imaging and other tasks.
+
+### Improvements
+
+* Switch to using shred instead of dd for normal wipe to make it faster
+* Update Kernel (4.19.118) and Buildroot (2020.02.1)
 
 # FOG 1.5.8
 
