@@ -19,6 +19,8 @@ Some highlights include:
 Thank you to all that have reported issues and feature requests in the forums and github requests and to all our developers, contributors, and users. 
 We couldn't do this without you!
 
+This version was re-released (re-tagged) not long after the initial release to patch issues with the location plugin that would cause trouble when updating from an earlier version.
+
 ## FOG Web UI and Services
 
 To view the full list of commits with the code changes introducing these fixes and features, see the [dev branch commit history](https://github.com/FOGProject/fogproject/commits/dev-branch)
