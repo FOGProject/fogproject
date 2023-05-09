@@ -43,6 +43,7 @@ class Location extends FOGController
         'storagegroupID' => 'lStorageGroupID',
         'storagenodeID' => 'lStorageNodeID',
         'tftp' => 'lTftpEnabled',
+        'protocol' => 'lStorageNodeProto',
     );
     /**
      * The required fields

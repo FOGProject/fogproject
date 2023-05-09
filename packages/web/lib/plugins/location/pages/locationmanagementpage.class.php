@@ -73,6 +73,7 @@ class LocationManagementPage extends FOGPage
             _('Location Name'),
             _('Storage Group'),
             _('Storage Node'),
+            _('Storage Node Protocol'),
             _('Kernels/Inits from location'),
         );
         $this->templates = array(
@@ -85,6 +86,7 @@ class LocationManagementPage extends FOGPage
             . '${name}">${name}</a>',
             '${storageGroup}',
             '${storageNode}',
+            '${storageNodeProtocol}',
             '${tftp}',
         );
         $this->attributes = array(
@@ -92,6 +94,7 @@ class LocationManagementPage extends FOGPage
                 'class' => 'parser-false filter-false',
                 'width' => 16
             ),
+            array(),
             array(),
             array(),
             array(),
@@ -111,6 +114,7 @@ class LocationManagementPage extends FOGPage
                 'name' => $Location->name,
                 'storageGroup' => $Location->storagegroup->name,
                 'storageNode' => $sn,
+                'storageNodeProtocol' => $Location->protocol,
                 'tftp' => $Location->tftp ? _('Yes') : _('No'),
             );
             unset($Location);
@@ -147,6 +151,10 @@ class LocationManagementPage extends FOGPage
             INPUT_POST,
             'storagenode'
         );
+        $protocol = filter_input(
+            INPUT_POST,
+            'storagenodeprotocol'
+        );
         $name = filter_input(
             INPUT_POST,
             'name'
@@ -156,6 +164,9 @@ class LocationManagementPage extends FOGPage
         );
         $snbuild = self::getClass('StorageNodeManager')->buildSelectBox(
             $storagenode
+        );
+        $snprotocol = self::getClass('LocationManager')->buildProtocolSelectBox(
+            $protocol
         );
         $tftp = isset($_POST['tftp']) ? ' checked' : '';
         $fields = array(
@@ -174,6 +185,9 @@ class LocationManagementPage extends FOGPage
             '<label for="storagenode">'
             . _('Storage Node')
             . '</label>' => $snbuild,
+            '<label for="storagenodeprotocol">'
+            . _('Storage Node Protocol')
+            . '</label>' => $snprotocol,
             '<label for="isen">'
             . _('Use inits and kernels from this node')
             . '</label>' => '<input type="checkbox" name="tftp" '
@@ -225,6 +239,7 @@ class LocationManagementPage extends FOGPage
         $name = filter_input(INPUT_POST, 'name');
         $storagegroup = filter_input(INPUT_POST, 'storagegroup');
         $storagenode = filter_input(INPUT_POST, 'storagenode');
+        $protocol = filter_input(INPUT_POST, 'storagenodeprotocol');
         $tftp = isset($_POST['tftp']);
         try {
             if (self::getClass('LocationManager')->exists($name)) {
@@ -251,6 +266,7 @@ class LocationManagementPage extends FOGPage
                 ->set('name', $name)
                 ->set('storagegroupID', $sgID)
                 ->set('storagenodeID', $storagenode)
+                ->set('protocol', $protocol)
                 ->set('tftp', (int)$tftp);
             if (!$Location->save()) {
                 throw new Exception(
@@ -317,11 +333,18 @@ class LocationManagementPage extends FOGPage
             INPUT_POST,
             'storagenode'
         ) ?: $this->obj->get('storagenodeID');
+        $protocol = filter_input(
+            INPUT_POST,
+            'storagenodeprotocol'
+        ) ?: $this->obj->get('protocol');
         $sgbuild = self::getClass('StorageGroupManager')->buildSelectBox(
             $storagegroup
         );
         $snbuild = self::getClass('StorageNodeManager')->buildSelectBox(
             $storagenode
+        );
+        $snprotocol = self::getClass('LocationManager')->buildProtocolSelectBox(
+            $protocol
         );
         $tftp = isset($_POST['tftp']) ? ' checked' : '';
         if (!$tftp) {
@@ -343,6 +366,9 @@ class LocationManagementPage extends FOGPage
             '<label for="storagenode">'
             . _('Storage Node')
             . '</label>' => $snbuild,
+            '<label for="storagenodeprotocol">'
+            . _('Storage Node Protocol')
+            . '</label>' => $snprotocol,
             '<label for="isen">'
             . _('Use inits and kernels from this node')
             . '</label>' => '<input type="checkbox" name="tftp" '
@@ -412,6 +438,7 @@ class LocationManagementPage extends FOGPage
         $name = filter_input(INPUT_POST, 'name');
         $storagegroup = filter_input(INPUT_POST, 'storagegroup');
         $storagenode = filter_input(INPUT_POST, 'storagenode');
+        $protocol = filter_input(INPUT_POST, 'storagenodeprotocol');
         $tftp = isset($_POST['tftp']);
         try {
             if ($name != $this->obj->get('name')
@@ -436,6 +463,7 @@ class LocationManagementPage extends FOGPage
                     ->set('name', $name)
                     ->set('storagegroupID', $sgID)
                     ->set('storagenodeID', $storagenode)
+                    ->set('protocol', $protocol)
                     ->set('tftp', (int)$tftp);
                 if (!$this->obj->save()) {
                     throw new Exception(

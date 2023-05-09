@@ -152,7 +152,7 @@ class ChangeItems extends Hook
             Route::getData()
         );
         $Task = $arguments['Host']->get('task');
-        $TaskType = $arguments['TaskType'];
+        $TaskType = isset($arguments['TaskType']) ? $arguments['TaskType'] : null;
         $method = false;
         foreach ($LocationAssocs->locationassociations as &$LocationAssoc) {
             $Location = self::getClass('Location', $LocationAssoc->locationID);
@@ -175,7 +175,26 @@ class ChangeItems extends Hook
                     || ($arguments['snapin'] === true
                     && self::getSetting('FOG_SNAPIN_LOCATION_SEND_ENABLED') > 0)
                 ) {
+                    if (empty($Location->get('protocol'))) {
+                        if (isset($_SERVER['HTTPS']) &&
+                            ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) ||
+                            isset($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
+                            $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'
+                        ) {
+                            $protocol = 'https';
+                        } else {
+                            $protocol = 'http';
+                        }
+                    } else {
+                        $protocol = $Location->get('protocol');
+                    }
                     $arguments['StorageNode'] = $Location->getStorageNode();
+                    $arguments['StorageNode']->{"location_url"} = sprintf(
+                        '%s://%s/%s',
+                        $protocol,
+                        $arguments['StorageNode']->get('ip'),
+                        $arguments['StorageNode']->get('webroot')
+                    );
                 }
                 if (!$method) {
                     continue;
