@@ -1111,6 +1111,7 @@ class BootMenu extends FOGBase
                         'param sysuuid ${uuid}',
                         'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                         'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+                        'goto bootme',
                     );
                     unset($Image);
                 },
@@ -1124,6 +1125,7 @@ class BootMenu extends FOGBase
                 'param sysuuid ${uuid}',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+                'goto bootme',
             );
             $Send['bootmefunc'] = array(
                 ':bootme',
@@ -1860,9 +1862,9 @@ class BootMenu extends FOGBase
                     );
                 }
             }
+            $params[] = 'param sysuuid ${uuid}';
+            $params[] = 'goto bootme';
             $params = trim(implode("\n", (array)$params));
-            $params .= "\n"
-                . 'param sysuuid ${uuid}';
             $Send = self::fastmerge($Send, array($params));
         }
         switch ($option->get('id')) {
