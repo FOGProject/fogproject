@@ -518,6 +518,7 @@ class BootMenu extends FOGBase
                 'param sysuuid ${uuid}',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+                'goto bootme',
                 ':bootme',
                 "chain -ar $this->_booturl/ipxe/boot.php##params",
             ];
@@ -553,6 +554,7 @@ class BootMenu extends FOGBase
                 'param sysuuid ${uuid}',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+                'goto bootme',
                 ':bootme',
                 "chain -ar $this->_booturl/ipxe/boot.php##params",
             ];
@@ -1775,7 +1777,8 @@ class BootMenu extends FOGBase
             }
             $params = trim(implode("\n", (array)$params));
             $params .= "\n"
-                . 'param sysuuid ${uuid}';
+                . 'param sysuuid ${uuid}\n'
+                . 'goto bootme';
             $Send = self::fastmerge($Send, [$params]);
         }
         switch ($option->id) {
