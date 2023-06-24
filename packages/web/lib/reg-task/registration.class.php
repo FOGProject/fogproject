@@ -148,9 +148,9 @@ class Registration extends FOGBase
     private function _fullReg()
     {
         try {
-            self::stripAndDecode($_POST);
-            $productKey = filter_input(INPUT_POST, 'productKey');
-            $host = filter_input(INPUT_POST, 'host');
+            $stripped = self::stripAndDecode($_POST);
+            $productKey = filter_var($stripped['productKey']);
+            $host = filter_var($stripped['host']);
             $hostnameSafe = self::getClass('Host')->isHostnameSafe($host);
             if (!$hostnameSafe) {
                 throw new Exception(
@@ -168,17 +168,17 @@ class Registration extends FOGBase
                     )
                 );
             }
-            $ip = filter_input(INPUT_POST, 'ip');
-            $imageid = filter_input(INPUT_POST, 'imageid');
+            $ip = filter_var($stripped['ip']);
+            $imageid = filter_var($stripped['imageid']);
             $imageid = (
                 self::getClass('Image', $imageid)->isValid() ?
                 $imageid :
                 0
             );
-            $primaryuser = filter_input(INPUT_POST, 'primaryuser');
-            $other1 = filter_input(INPUT_POST, 'other1');
-            $other2 = filter_input(INPUT_POST, 'other2');
-            $doimage = isset($_POST['doimage']);
+            $primaryuser = filter_var($stripped['primaryuser']);
+            $other1 = filter_var($stripped['other1']);
+            $other2 = filter_var($stripped['other2']);
+            $doimage = filter_var($stripped['doimage']) == '1';
             if ($_POST['doad']) {
                 $serviceNames = [
                     'FOG_AD_DEFAULT_DOMAINNAME',
@@ -220,9 +220,9 @@ class Registration extends FOGBase
                 $useAD = 1;
                 $ADOU = $opt;
             }
-            $gID = filter_input(INPUT_POST, 'groupid');
+            $gID = filter_var($stripped['groupid']);
             $groupsToJoin = explode(',', $gID);
-            $sID = filter_input(INPUT_POST, 'snapinid');
+            $sID = filter_var($stripped['groupid']);
             $snapinsToJoin = explode(',', $sID);
             self::$Host = self::getClass('Host')
                 ->set('name', $host)
@@ -283,8 +283,8 @@ class Registration extends FOGBase
      */
     private static function _deployHost()
     {
-        self::stripAndDecode($_POST);
-        $username = filter_input(INPUT_POST, 'username');
+        $stripped = self::stripAndDecode($_POST);
+        $username = filter_var($stripped['username']);
         $username = ($username ?: 'fog');
         $Image = self::$Host->getImage();
         if (!$Image->isValid()) {
@@ -331,7 +331,7 @@ class Registration extends FOGBase
             $this->_quickReg();
         }
         try {
-            self::stripAndDecode($_POST);
+            $stripped = self::stripAndDecode($_POST);
             $serviceNames = [
                 'FOG_QUICKREG_GROUP_ASSOC',
                 'FOG_QUICKREG_IMG_ID',
@@ -353,7 +353,7 @@ class Registration extends FOGBase
                 $hostname = $this->macsimple;
             } else {
                 $hostname = $autoRegSysName;
-                $sysserial = filter_input(INPUT_POST, 'sysserial');
+                $sysserial = filter_var($stripped['sysserial']);
                 $sysserial = strtoupper($sysserial);
                 $hostname = str_replace('{SYSSERIAL}', $sysserial, $hostname);
             }
@@ -416,7 +416,7 @@ class Registration extends FOGBase
                 ->addGroup($groupsToJoin)
                 ->addPriMAC($this->PriMAC);
             if ($prodkeyget > 0) {
-                $productKey = filter_input(INPUT_POST, 'productKey');
+                $productKey = filter_var($stripped['productKey']);
                 self::$Host->set('productKey', $productKey);
             }
             if (!self::$Host->save()) {
@@ -451,7 +451,7 @@ class Registration extends FOGBase
     private function _quickReg()
     {
         try {
-            self::stripAndDecode($_POST);
+            $stripped = self::stripAndDecode($_POST);
             $prodkeyget = self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS');
             self::$Host = self::getClass('Host')
                 ->set('name', $this->macsimple)
@@ -460,7 +460,7 @@ class Registration extends FOGBase
                 ->addPriMAC($this->PriMAC)
                 ->addMAC($this->MACs);
             if ($prodkeyget > 0) {
-                $productKey = filter_input(INPUT_POST, 'productKey');
+                $productKey = filter_var($stripped['productKey']);
                 self::$Host->set('productKey', $productKey);
             }
             if (!self::$Host->save()) {

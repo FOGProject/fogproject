@@ -346,10 +346,10 @@ class FOGURLRequests extends FOGBase
         return (array)$output;
     }
     /**
-     * Perform multiple url requests.
+     * Perform multiple URL requests.
      *
      * @param mixed $window_size The customized window size to use
-     * @param mixed $available   To simply test if url is available enmass
+     * @param mixed $available   To simply test if the URL is available en masse
      *
      * @return mixed
      */
@@ -358,9 +358,7 @@ class FOGURLRequests extends FOGBase
         if ($window_size) {
             $this->_windowSize = $window_size;
         }
-        if (sizeof($this->_requests) < $this->_windowSize) {
-            $this->_windowSize = sizeof($this->_requests);
-        }
+        $this->_windowSize = min(count($this->_requests), $this->_windowSize);
         if ($this->_windowSize < 2) {
             throw new Exception(_('Window size must be greater than 1'));
         }
@@ -369,59 +367,29 @@ class FOGURLRequests extends FOGBase
             $timeout = $this->_aconntimeout / 1000;
         }
         $master = curl_multi_init();
-        for ($i = 0; $i < $this->_windowSize; ++$i) {
+        $requestMap = [];
+        foreach ($this->_requests as $i => $request) {
             $ch = curl_init();
-            $options = $this->_getOptions($this->_requests[$i], $available);
+            $options = $this->_getOptions($request, $available);
             curl_setopt_array($ch, $options);
             curl_multi_add_handle($master, $ch);
             $key = spl_object_id($ch);
-            $this->_requestMap[$key] = $i;
+            $requestMap[$key] = $i;
         }
         do {
-            while ((
-                $execrun = curl_multi_exec(
-                    $master,
-                    $running
-                )
-            ) == CURLM_CALL_MULTI_PERFORM) {
-            }
-            if ($execrun != CURLM_OK) {
-                break;
-            }
+            curl_multi_exec($master, $running);
             while ($done = curl_multi_info_read($master)) {
                 $info = curl_getinfo($done['handle'], CURLINFO_HTTP_CODE);
-                $key = (string) $done['handle'];
+                $key = spl_object_id($done['handle']);
                 if ($available) {
-                    $this->_response[$this->_requestMap[$key]] = true;
-                    if ($info < 200
-                        || $info >= 400
-                    ) {
-                        $this->_response[$this->_requestMap[$key]] = false;
-                    }
+                    $this->_response[$requestMap[$key]] = ($info >= 200 && $info < 400);
                 } else {
                     $output = curl_multi_getcontent($done['handle']);
-                    $this->_response[$this->_requestMap[$key]] = $output;
+                    $this->_response[$requestMap[$key]] = $output;
                 }
                 if ($this->_callback && is_callable($this->_callback)) {
-                    $request = $this->_requests[$this->_requestMap[$key]];
+                    $request = $this->_requests[$requestMap[$key]];
                     $this->_callback($output, $info, $request);
-                }
-                $sizeof = sizeof($this->_requests);
-                if ($i < $sizeof
-                    && isset($this->_requests[$i])
-                ) {
-                    $ch = curl_init();
-                    $options = $this->_getOptions($this->_requests[$i], $available);
-                    curl_setopt_array($ch, $options);
-                    curl_multi_add_handle($master, $ch);
-                    $key = spl_object_id($ch);
-                    $this->_requestMap[$key] = $i;
-                    ++$i;
-                } else {
-                    unset(
-                        $this->_requests[$this->_requestMap[$key]],
-                        $this->_requestMap[$key]
-                    );
                 }
                 curl_multi_remove_handle($master, $done['handle']);
             }
@@ -429,9 +397,8 @@ class FOGURLRequests extends FOGBase
                 curl_multi_select($master, $timeout);
             }
         } while ($running);
-        ksort($this->_response);
         curl_multi_close($master);
-
+        ksort($this->_response);
         return $this->_response;
     }
     /**
