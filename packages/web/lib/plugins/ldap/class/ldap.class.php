@@ -232,7 +232,10 @@ class LDAP extends FOGController
         /**
          * Ensure any trailing bindings are removed
          */
-        @$this->unbind();
+        try {
+            $this->unbind();
+        } catch (TypeError $e) {
+        }
         /**
          * Trim the values just incase somebody is trying
          * to break in by using spaces -- prevent dos attack I imagine.
