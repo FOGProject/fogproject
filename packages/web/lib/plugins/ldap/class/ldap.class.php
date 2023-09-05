@@ -235,6 +235,7 @@ class LDAP extends FOGController
         try {
             $this->unbind();
         } catch (TypeError $e) {
+        } catch (Throwable $e) {
         }
         /**
          * Trim the values just incase somebody is trying
