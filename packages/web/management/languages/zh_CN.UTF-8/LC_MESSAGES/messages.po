@@ -6113,7 +6113,7 @@ msgstr "这个插件是当前未安装，你想现在安装？"
 
 #: lib/pages/pluginmanagementpage.class.php:328
 #, fuzzy
-msgid "would you ilke to install it now"
+msgid "would you like to install it now"
 msgstr "这个插件是当前未安装，你想现在安装？"
 
 #: lib/pages/pluginmanagementpage.class.php:333

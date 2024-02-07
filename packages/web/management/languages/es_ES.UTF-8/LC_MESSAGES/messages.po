@@ -6100,7 +6100,7 @@ msgid "This plugin is not installed"
 msgstr "Plugins instalados"
 
 #: lib/pages/pluginmanagementpage.class.php:328
-msgid "would you ilke to install it now"
+msgid "would you like to install it now"
 msgstr ""
 
 #: lib/pages/pluginmanagementpage.class.php:333

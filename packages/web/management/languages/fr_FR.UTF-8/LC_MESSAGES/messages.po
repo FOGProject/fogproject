@@ -5735,7 +5735,7 @@ msgid "This plugin is not installed"
 msgstr "Ce greffon n'est pas installé"
 
 #: lib/pages/pluginmanagementpage.class.php:328
-msgid "would you ilke to install it now"
+msgid "would you like to install it now"
 msgstr "souhaitez-vous l'installer maintenant"
 
 #: lib/pages/pluginmanagementpage.class.php:333

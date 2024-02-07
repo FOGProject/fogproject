@@ -328,7 +328,7 @@ class PluginManagementPage extends FOGPage
                     array(
                         _('Plugin Installation') => _('This plugin is not installed')
                         . ', '
-                        . _('would you ilke to install it now')
+                        . _('would you like to install it now')
                         . '?'
                     ),
                     array(
