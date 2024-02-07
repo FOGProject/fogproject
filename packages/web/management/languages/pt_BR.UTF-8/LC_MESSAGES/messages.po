@@ -6136,7 +6136,7 @@ msgstr "Este plugin não está instalado, você gostaria de instalá-lo agora?"
 
 #: lib/pages/pluginmanagementpage.class.php:328
 #, fuzzy
-msgid "would you ilke to install it now"
+msgid "would you like to install it now"
 msgstr "Este plugin não está instalado, você gostaria de instalá-lo agora?"
 
 #: lib/pages/pluginmanagementpage.class.php:333
