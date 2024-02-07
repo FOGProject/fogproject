@@ -24,16 +24,28 @@ session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
-$url = filter_input(INPUT_POST, 'url');
-if ($url) {
+
+if (isset($_POST['url'])) {
+
+    // Prevent an unauthenticated user from making arbitrary requests.
+    $unauthorized = !$currentUser->isValid() || empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+        || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest';
+
+    if ($unauthorized) {
+        echo _('Unauthorized');
+        exit;
+    }
+
     $res = $FOGURLRequests
-        ->process($url);
-    foreach ((array)$res as &$response) {
+        ->process(filter_input(INPUT_POST, 'url'));
+    foreach ((array) $res as &$response) {
         echo $response;
         unset($response);
     }
+    
     exit;
 }
+
 $kernelvers = function ($kernel) {
     $currpath = sprintf(
         '%s%sservice%sipxe%s%s',

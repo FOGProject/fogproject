@@ -359,7 +359,6 @@ abstract class FOGPage extends FOGBase
             _('Host MAC') => 'mac',
             _('Host Desc') => 'description',
             _('Inventory ID') => 'id',
-            _('Inventory Desc') => 'description',
             _('Primary User') => 'primaryUser',
             _('Other Tag 1') => 'other1',
             _('Other Tag 2') => 'other2',
@@ -386,7 +385,7 @@ abstract class FOGPage extends FOGBase
             _('HD Serial') => 'hdserial',
             _('Chassis Manufacturer') => 'caseman',
             _('Chassis Version') => 'casever',
-            _('Chassis Serial') => 'caseser',
+            _('Chassis Serial') => 'caseserial',
             _('Chassis Asset') => 'caseasset',
         );
         $exportMenu = sprintf('Export%s', $this->childClass);
@@ -2705,7 +2704,7 @@ abstract class FOGPage extends FOGBase
         $tags = json_decode(array_shift($resp));
         $systemclass = array_shift($resp);
         foreach ($tags as $tag) {
-            if (preg_match('/^[0-9]\.[0-9]\.[0-9]$/', $tag->name)) {
+            if (preg_match('/^[0-9]\.[0-9]\.[0-9][0-9]*$/', $tag->name)) {
                 $stable = $tag->name;
                 break;
             }

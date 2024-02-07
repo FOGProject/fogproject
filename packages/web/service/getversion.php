@@ -28,7 +28,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-$clientUpdate = (bool)FOGCore::getSetting('FOG_CLIENT_AUTOUPDATE');
+$clientUpdate = (bool) FOGCore::getSetting('FOG_CLIENT_AUTOUPDATE');
 if (isset($_REQUEST['client'])) {
     $ver = (
         $clientUpdate ?
@@ -42,6 +42,16 @@ if (isset($_REQUEST['client'])) {
         '0.0.0'
     );
 } elseif (isset($_REQUEST['url'])) {
+
+    // Prevent an unauthenticated user from making arbitrary requests.
+    $unauthorized = !$currentUser->isValid() || empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+        || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest';
+
+    if ($unauthorized) {
+        echo _('Unauthorized');
+        exit;
+    }
+
     $url = $_REQUEST['url'];
     $res = $FOGURLRequests
         ->process($_REQUEST['url']);

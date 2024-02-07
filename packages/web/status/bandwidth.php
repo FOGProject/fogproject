@@ -67,12 +67,14 @@ $interfaces = [];
 // Loop the captured data and set up interfaces
 foreach ($dir_interfaces as &$iface) {
     $operstateFile = "/sys/class/net/$iface/operstate";
-    $content = file_get_contents($operstateFile);
-    $content = trim($content);
-    if ($content !== 'up') {
-        continue;
+    if (file_exists($operstateFile)){
+        $content = file_get_contents($operstateFile);
+        $content = trim($content);
+        if ($content !== 'up') {
+            continue;
+        }
+        $interfaces[] = $iface;
     }
-    $interfaces[] = $iface;
     unset($iface);
 };
 // Check up interfaces to see if our specified device is present

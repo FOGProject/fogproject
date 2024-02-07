@@ -123,7 +123,7 @@ class DashboardPage extends FOGPage
             $url = self::$httpproto.'://' . $url;
             unset($ip);
             self::$_nodeOpts[] = sprintf(
-                '<option value="%s" urlcall="%s">%s%s ()</option>',
+                '<option value="%s" class="fogversion" urlcall="%s">%s%s ()</option>',
                 $StorageNode->id,
                 sprintf(
                     '%sservice/getversion.php',

@@ -111,7 +111,7 @@ class AddLocationTasks extends Hook
             $Locations = self::getSubObjectIDs(
                 'LocationAssociation',
                 array(
-                    'hostID' => $data['host_id']
+                    'hostID' => $data['id']
                 ),
                 'locationID'
             );

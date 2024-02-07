@@ -122,7 +122,7 @@ function vals($reverse, $HookManager, $lines, $file)
             )
         );
     }
-    return trim($output);
+    return trim(htmlspecialchars($output));
 }
 if (!(isset($_POST['ip'])
     && is_string($_POST['ip']))

@@ -2427,7 +2427,7 @@ downloadfiles() {
         baseurl=$(dirname -- "$url")
         hashurl="${baseurl}/${hashfile}"
         # make sure we download the most recent hash file to start with
-        if [[ -f $hashfile && ! $version =~ ^[0-9]\.[0-9]\.[0-9]+$ ]]; then
+        if [[ -f $hashfile ]]; then
             rm -f $hashfile
             curl --silent -kOL $hashurl >>$error_log 2>&1
         fi
@@ -2463,7 +2463,7 @@ configureDHCP() {
     case $linuxReleaseName_lower in
         *debian*)
             if [[ $bldhcp -eq 1 ]]; then
-                dots "Setting up and starting DHCP Server (incl. debian 9 fix)"
+                dots "Setting up and starting DHCP Server (incl. fix for Debian)"
                 sed -i.fog "s/INTERFACESv4=\"\"/INTERFACESv4=\"$interface\"/g" /etc/default/isc-dhcp-server
             else
                 dots "Setting up and starting DHCP Server"

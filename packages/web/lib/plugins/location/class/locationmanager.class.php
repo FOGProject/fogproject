@@ -46,7 +46,8 @@ class LocationManager extends FOGManagerController
                 'lStorageNodeID',
                 'lCreatedBy',
                 'lCreatedTime',
-                'lTftpEnabled'
+                'lTftpEnabled',
+                'lStorageNodeProto'
             ),
             array(
                 'INTEGER',
@@ -56,9 +57,11 @@ class LocationManager extends FOGManagerController
                 'INTEGER',
                 'VARCHAR(40)',
                 'TIMESTAMP',
-                "ENUM('0', '1')"
+                "ENUM('0', '1')",
+                "ENUM('https', 'http')"
             ),
             array(
+                false,
                 false,
                 false,
                 false,
@@ -76,6 +79,7 @@ class LocationManager extends FOGManagerController
                 false,
                 false,
                 'CURRENT_TIMESTAMP',
+                false,
                 false
             ),
             array(
@@ -150,5 +154,40 @@ class LocationManager extends FOGManagerController
         }
         self::getClass('LocationAssociationManager')->destroy($findWhere);
         return true;
+    }
+
+    /**
+     * Builds the protocol selection box
+     *
+     * @return string
+     */
+    public static function buildProtocolSelectBox($preselection)
+    {
+        $protocols = array(
+            'https' => 'HTTPS',
+            'http' => 'HTTP'
+        );
+        ob_start();
+        foreach ((array)$protocols as $short => &$long) {
+            printf(
+                '<option value="%s"%s>%s</option>',
+                $short,
+                (
+                    $preselection === $short ?
+                    ' selected' :
+                    ''
+                ),
+                $long
+            );
+            unset($short, $long);
+        }
+        $optionProtocol = '<select class="form-control" name="storagenodeprotocol" '
+            . 'id="storagenodeprotocol">'
+            . '<option value="">- '
+            . self::$foglang['PleaseSelect']
+            . ' -</option>'
+            . ob_get_clean()
+            . '</select>';
+        return $optionProtocol;
     }
 }
