@@ -181,7 +181,7 @@ while getopts "$optspec" o; do
                     bldhcp=1
                     ;;
                 no-exportbuild)
-                    sblexports=0
+                    blexports=0
                     ;;
                 exitFail)
                     sexitFail=1
@@ -292,7 +292,7 @@ while getopts "$optspec" o; do
             bldhcp=1
             ;;
         E)
-            sblexports=0
+            blexports=0
             ;;
         X)
             exitFail=1
@@ -409,7 +409,7 @@ case $doupdate in
             echo -n " * Performing upgrade using these settings"
             . "$fogpriorconfig"
             doOSSpecificIncludes
-            [[ -n $sblexports ]] && blexports=$sblexports
+            [[ -n $blexports ]] && blexports=$blexports
             [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
             [[ -n $sbackupPath ]] && backupPath=$sbackupPath
             [[ -n $swebroot ]] && webroot=$swebroot
