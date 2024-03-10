@@ -219,9 +219,6 @@ class FOGConfigurationPage extends FOGPage
     {
         $html = '<div class="col-xs-12"><a href="#" class="btn btn-info btn-block trigger_expand"><h4 class="title">Expand All</h4></a></div>';
         foreach ($kernelData as $release) {
-            if ($release->prerelease) {
-                continue;
-            }
             $kab_version = array();
             $found_kab = preg_match('/(.*)([4-9]\.[0-9][0-9]*\.[0-9][0-9]*)([^0-9]*)(20[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]*)(.*)/', $release->body, $kernel_version, PREG_OFFSET_CAPTURE);
             foreach ($release->assets as $asset) {
@@ -251,6 +248,9 @@ class FOGConfigurationPage extends FOGPage
                         case "Lat":
                             $k_hint = ' (devel)';
                             break;
+                        case "Exp":
+                            $k_hint = ' (experimental)';
+                            break;
                         default:
                             $k_hint = '';
                             break;
@@ -259,6 +259,9 @@ class FOGConfigurationPage extends FOGPage
                     $label = 'Kernel '.$k_ver.' '.$arch.$k_hint;
                     $k_date = date('F j, Y', strtotime($asset->created_at));
                     $html .= '<div class="col-xs-12"><a class="expand_trigger btn btn-info btn-block" id="'.$id.'" href="#'.$id.'"><h4 class="title">'.$label.'</h4></a></div><div class="hidefirst" id="'.$id.'">';
+                    if ($k_hint == ' (experimental)') {
+                        $html .= '<div class="col-xs-12"><div class="alert alert-warning"><strong>Warning!</strong> This kernel is experimental and may not work as expected.</div></div>';
+                    }
                     $html .= '<div class="col-xs-4">Date:<br/>Version:<br/>Architecture:<br/>Download:</div>';
                     $html .= '<div class="col-xs-8 text-right">'.$k_date.'<br/>'.$k_ver.'<br/>'.$arch.'<br/><a href="?node=about&sub=kernel&file='.$k_url.'=&arch='.$arch_short.'">Download <i class="fa fa-download fa-2x fa-fw"></i></a></div></div>';
                 }
