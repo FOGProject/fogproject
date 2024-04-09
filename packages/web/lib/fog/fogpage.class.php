@@ -2685,6 +2685,140 @@ abstract class FOGPage extends FOGBase
         self::$FOGFTP->close();
     }
     /**
+     * Fetches the inits
+     *
+     * @return mixed
+     */
+    public function initrdfetch()
+    {
+        try {
+            $msg = filter_input(INPUT_POST, 'msg');
+            if (isset($_SESSION['allow_ajax_idl']) && $_SESSION['allow_ajax_idl']
+                && isset($_SESSION['dest-initrd-file']) && $_SESSION['dest-initrd-file']
+                && isset($_SESSION['tmp-initrd-file']) && $_SESSION['tmp-initrd-file']
+                && isset($_SESSION['dl-initrd-file']) && $_SESSION['dl-initrd-file']
+            ) {
+                if ($msg == 'dl') {
+                    $destFilename = $_SESSION['dest-initrd-file'];
+                    if (!preg_match('/arm_init\.cpio\.gz/', $destFilename) &&
+                        !preg_match('/init\.xz/', $destFilename) &&
+                        !preg_match('/init_32\.xz/', $destFilename)) {
+                        throw new Exception(_('Wrong file name!'));
+                    }
+                    $dlUrl = $_SESSION['dl-initrd-file'];
+                    if (!(0 === stripos($dlUrl, 'https://fogproject.org/') ||
+                        0 === stripos($dlUrl, 'https://github.com/FOGProject/'))
+                    ) {
+                        throw new Exception(_('Specified download URL not allowed!'));
+                    }
+                    $fh = fopen(
+                        $_SESSION['tmp-initrd-file'],
+                        'wb'
+                    );
+                    if ($fh === false) {
+                        throw new Exception(
+                            _('Error: Failed to open temp file')
+                        );
+                    }
+                    self::$FOGURLRequests->process(
+                        $_SESSION['dl-initrd-file'],
+                        'GET',
+                        false,
+                        false,
+                        false,
+                        false,
+                        $fh
+                    );
+                    if (!file_exists($_SESSION['tmp-initrd-file'])) {
+                        throw new Exception(
+                            _('Error: Failed to download initrd')
+                        );
+                    }
+                    $filesize = self::getFilesize(
+                        $_SESSION['tmp-initrd-file']
+                    );
+                    if ($filesize <  1048576) {
+                        throw new Exception(
+                            sprintf(
+                                '%s: %s: %s - %s',
+                                _('Error'),
+                                _('Download Failed'),
+                                _('Failed'),
+                                _('filesize'),
+                                $filesize
+                            )
+                        );
+                    }
+                    die('##OK##');
+                } elseif ($msg == 'tftp') {
+                    $destfile = $_SESSION['dest-initrd-file'];
+                    $tmpfile = $_SESSION['tmp-initrd-file'];
+                    unset(
+                        $_SESSION['dest-initrd-file'],
+                        $_SESSION['tmp-initrd-file'],
+                        $_SESSION['dl-initrd-file']
+                    );
+                    $orig = sprintf(
+                        '/%s/%s',
+                        trim(self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'), '/'),
+                        $destfile
+                    );
+                    $backuppath = sprintf(
+                        '/%s/backup/',
+                        dirname($orig)
+                    );
+                    $backupfile = sprintf(
+                        '%s%s_%s',
+                        $backuppath,
+                        $destfile,
+                        self::formatTime('', 'Ymd_His')
+                    );
+                    list(
+                        $tftpPass,
+                        $tftpUser,
+                        $tftpHost
+                    ) = self::getSubObjectIDs(
+                        'Service',
+                        array(
+                            'name' => array(
+                                'FOG_TFTP_FTP_PASSWORD',
+                                'FOG_TFTP_FTP_USERNAME',
+                                'FOG_TFTP_HOST'
+                            )
+                        ),
+                        'value',
+                        false,
+                        'AND',
+                        'name',
+                        false,
+                        ''
+                    );
+                    self::$FOGFTP
+                        ->set('host', $tftpHost)
+                        ->set('username', $tftpUser)
+                        ->set('password', $tftpPass)
+                        ->connect();
+                    if (!self::$FOGFTP->exists($backuppath)) {
+                        self::$FOGFTP->mkdir($backuppath);
+                    }
+                    if (self::$FOGFTP->exists($orig)) {
+                        self::$FOGFTP->rename($orig, $backupfile);
+                    }
+                    self::$FOGFTP
+                        ->delete($orig)
+                        ->rename($tmpfile, $orig)
+                        ->chmod(0755, $orig)
+                        ->close();
+                    unlink($tmpfile);
+                    die('##OK##');
+                }
+            }
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
+        self::$FOGFTP->close();
+    }
+    /**
      * Hands out the login information
      * such as version and number of users
      *

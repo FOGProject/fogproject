@@ -133,6 +133,7 @@ $foglang['Locations'] = _('Locations');
 $foglang['Location'] = _('Location');
 $foglang['License'] = _('License');
 $foglang['KernelUpdate'] = _('Kernel Update');
+$foglang['InitrdUpdate'] = _('Initrd Update');
 $foglang['PXEBootMenu'] = _('iPXE General Configuration');
 $foglang['ClientUpdater'] = _('Client Updater');
 $foglang['HostnameChanger'] = _('Hostname Changer');
