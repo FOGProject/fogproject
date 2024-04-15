@@ -42,6 +42,7 @@ class FOGConfigurationPage extends FOGPage
             'home' => self::$foglang['Home'],
             'license' => self::$foglang['License'],
             'kernelUpdate' => self::$foglang['KernelUpdate'],
+            'initrdUpdate' => self::$foglang['InitrdUpdate'],
             'pxemenu' => self::$foglang['PXEBootMenu'],
             'customizepxe' => self::$foglang['PXEConfiguration'],
             'newMenu' => self::$foglang['NewMenu'],
@@ -200,50 +201,56 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
     }
     /**
-     * Post our kernel download.
+     * Returns HTML formated output from kernel/initrd list array.
      *
-     * @return void
-     */
-    public function kernel()
-    {
-        $this->kernelUpdatePost();
-    }
-    /**
-     * Returns HTML formated output from kernel list array.
-     *
-     * @param array $jsonData kernel list array
+     * @param array $kernelOrInitData kernel/initrd list array
+     * @param string $type 'kernel' or 'initrd'
      *
      * @return string
      */
-    public function generateHtmlKernelList($kernelData)
+    public function generateHtmlList($kernelOrInitData, $type)
     {
+        if ($type != 'kernel' && $type != 'initrd') {
+            throw new InvalidArgumentException('Type must be either "kernel" or "initrd"');
+        }
+
         $html = '<div class="col-xs-12"><a href="#" class="btn btn-info btn-block trigger_expand"><h4 class="title">Expand All</h4></a></div>';
-        foreach ($kernelData as $release) {
-            if ($release->prerelease) {
-                continue;
-            }
-            $kab_version = array();
-            $found_kab = preg_match('/(.*)([4-9]\.[0-9][0-9]*\.[0-9][0-9]*)([^0-9]*)(20[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]*)(.*)/', $release->body, $kernel_version, PREG_OFFSET_CAPTURE);
+        foreach ($kernelOrInitData as $release) {
+            $found_match = preg_match('/(.*)([4-9]\.[0-9][0-9]*\.[0-9][0-9]*)([^0-9]*)(20[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]*)(.*)/', $release->body, $release_version, PREG_OFFSET_CAPTURE);
             foreach ($release->assets as $asset) {
+                if ($type == 'kernel' && !in_array($asset->name, ['arm_Image', 'bzImage', 'bzImage32'])) {
+                    continue;
+                }
+                if ($type == 'initrd' && !in_array($asset->name, ['arm_init.cpio.gz', 'init.xz', 'init_32.xz'])) {
+                    continue;
+                }
+
                 $arch_short = "";
                 $arch = "";
                 switch ($asset->name) {
                     case "arm_Image":
+                    case "arm_init.cpio.gz":
                         $arch_short = "arm64";
                         $arch = "ARM 64 Bit";
                         break;
                     case "bzImage":
+                    case "init.xz":
                         $arch_short = "64";
                         $arch = "AMD/Intel 64 Bit";
                         break;
                     case "bzImage32":
+                    case "init_32.xz":
                         $arch_short = "32";
                         $arch = "AMD/Intel 32 Bit";
                         break;
                 }
-                if (isset($found_kab) && $found_kab && $arch_short) {
-                    $k_ver = $kernel_version[2][0];
-                    $k_url = base64_encode($asset->browser_download_url);
+                if (isset($found_match) && $found_match && $arch_short) {
+                    if ($type == 'kernel') {
+                        $k_i_ver = $release_version[2][0];
+                    } elseif ($type == 'initrd') {
+                        $k_i_ver = $release_version[4][0];
+                    }
+                    $download_url = base64_encode($asset->browser_download_url);
                     switch (substr($release->name, 0, 3)) {
                         case "FOG":
                             $k_hint = ' (FOG '.explode(' ', $release->name)[1].')';
@@ -251,20 +258,35 @@ class FOGConfigurationPage extends FOGPage
                         case "Lat":
                             $k_hint = ' (devel)';
                             break;
+                        case "Exp":
+                            $k_hint = ' (experimental)';
+                            break;
                         default:
                             $k_hint = '';
                             break;
                     }
-                    $id = 'Kernel_'.str_replace(".", "_", $k_ver).'_'.$arch_short;
-                    $label = 'Kernel '.$k_ver.' '.$arch.$k_hint;
-                    $k_date = date('F j, Y', strtotime($asset->created_at));
+                    $id = ucfirst($type).'_'.str_replace(".", "_", $k_i_ver).'_'.$arch_short;
+                    $label = ucfirst($type).' '.$k_i_ver.' '.$arch.$k_hint;
+                    $release_date = date('F j, Y', strtotime($asset->created_at));
                     $html .= '<div class="col-xs-12"><a class="expand_trigger btn btn-info btn-block" id="'.$id.'" href="#'.$id.'"><h4 class="title">'.$label.'</h4></a></div><div class="hidefirst" id="'.$id.'">';
+                    if ($k_hint == ' (experimental)') {
+                        $html .= '<div class="col-xs-12"><div class="alert alert-warning"><strong>Warning!</strong> This '.$type.' is experimental and may not work as expected.</div></div>';
+                    }
                     $html .= '<div class="col-xs-4">Date:<br/>Version:<br/>Architecture:<br/>Download:</div>';
-                    $html .= '<div class="col-xs-8 text-right">'.$k_date.'<br/>'.$k_ver.'<br/>'.$arch.'<br/><a href="?node=about&sub=kernel&file='.$k_url.'=&arch='.$arch_short.'">Download <i class="fa fa-download fa-2x fa-fw"></i></a></div></div>';
+                    $html .= '<div class="col-xs-8 text-right">'.$release_date.'<br/>'.$k_i_ver.'<br/>'.$arch.'<br/><a href="?node=about&sub='.$type.'&file='.$download_url.'=&arch='.$arch_short.'">Download <i class="fa fa-download fa-2x fa-fw"></i></a></div></div>';
                 }
             }
         }
         return $html;
+    }
+    /**
+     * Post our kernel download.
+     *
+     * @return void
+     */
+    public function kernel()
+    {
+        $this->kernelUpdatePost();
     }
     /**
      * Show the kernel update page.
@@ -299,7 +321,7 @@ class FOGConfigurationPage extends FOGPage
         );
         echo '</div>';
         echo '<div class="panel-body">';
-        echo $this->generateHtmlKernelList($jsonData);
+        echo $this->generateHtmlList($jsonData, 'kernel');
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -316,7 +338,7 @@ class FOGConfigurationPage extends FOGPage
         if (!isset($_POST['install']) && $sub == 'kernelUpdate') {
             $url = 'https://api.github.com/repos/FOGProject/fos/releases';
             $jsonData = json_decode(self::$FOGURLRequests->process($url)[0]);
-            echo $this->generateHtmlKernelList($jsonData);
+            echo $this->generateHtmlList($jsonData, 'kernel');
         } elseif (isset($_POST['install'])) {
             $_SESSION['allow_ajax_kdl'] = true;
             $dstName = filter_input(INPUT_POST, 'dstName');
@@ -397,6 +419,156 @@ class FOGConfigurationPage extends FOGPage
             echo '<div class="col-xs-4">';
             echo '<label class="control-label" for="install">';
             echo _('Install Kernel');
+            echo '</label>';
+            echo '</div>';
+            echo '<div class="col-xs-8">';
+            echo '<button type="submit" class="btn btn-info btn-block" id='
+                . '"install" name="install">';
+            echo _('Install');
+            echo '</button>';
+            echo '</div>';
+            echo '</form>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+        }
+    }
+    /**
+     * Post our initrd download.
+     *
+     * @return void
+     */
+    public function initrd()
+    {
+        $this->initrdUpdatePost();
+    }
+    /**
+     * Show the initrd update page.
+     *
+     * @return void
+     */
+    public function initrdUpdate()
+    {
+        $url = 'https://api.github.com/repos/FOGProject/fos/releases';
+        $jsonData = json_decode(self::$FOGURLRequests->process($url)[0]);
+        echo '<div class="col-xs-9">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo _('Initrd Update');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        printf(
+            '%s %s %s. %s, %s %s, %s.',
+            _('This section allows you to update'),
+            _('the Initrd (initial ramdisk) which is used alongside the'),
+            _('kernel to boot the client computers'),
+            _('This installation process may take a few minutes'),
+            _('as FOG will attempt to go out to the internet'),
+            _('to get the requested Initrd'),
+            _('so if it seems like the process is hanging please be patient')
+        );
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo $this->generateHtmlList($jsonData, 'initrd');
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Download the initrd form.
+     *
+     * @return void
+     */
+    public function initrdUpdatePost()
+    {
+        global $node;
+        global $sub;
+        if (!isset($_POST['install']) && $sub == 'initrdUpdate') {
+            $url = 'https://api.github.com/repos/FOGProject/fos/releases';
+            $jsonData = json_decode(self::$FOGURLRequests->process($url)[0]);
+            echo $this->generateHtmlList($jsonData, 'initrd');
+        } elseif (isset($_POST['install'])) {
+            $_SESSION['allow_ajax_idl'] = true;
+            $dstName = filter_input(INPUT_POST, 'dstName');
+            $_SESSION['dest-initrd-file'] = trim(
+                basename(
+                    $dstName
+                )
+            );
+            $_SESSION['tmp-initrd-file'] = sprintf(
+                '%s%s%s%s',
+                DS,
+                trim(
+                    sys_get_temp_dir(),
+                    DS
+                ),
+                DS,
+                basename($_SESSION['dest-initrd-file'])
+            );
+            $file = filter_input(INPUT_GET, 'file');
+            $_SESSION['dl-initrd-file'] = base64_decode(
+                $file
+            );
+            if (file_exists($_SESSION['tmp-initrd-file'])) {
+                unlink($_SESSION['tmp-initrd-file']);
+            }
+            echo '<div class="col-xs-9">';
+            echo '<div class="initrdinfo">';
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Downloading Initrd');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            echo '<i class="fa fa-cog fa-2x fa-spin"></i>';
+            echo ' ';
+            echo _('Starting process');
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+        } else {
+            $file = filter_input(INPUT_GET, 'file');
+            $arch = filter_input(INPUT_GET, 'arch');
+            $tmpFile = basename(
+                $file
+            );
+            $tmpArch = basename(base64_decode($file));
+            $formstr = "?node={$node}&sub=initrdUpdate";
+            echo '<div class="col-xs-9">';
+            echo '<div class="panel panel-info">';
+            echo '<div class="panel-heading text-center">';
+            echo '<h4 class="title">';
+            echo _('Save Initrd');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="panel-body">';
+            echo '<form class="form-horizontal" method="post" action="';
+            $formstr;
+            echo '">';
+            echo '<input type="hidden" name="file" value="';
+            echo $tmpFile;
+            echo '"/>';
+            echo '<div class="col-xs-4">';
+            echo '<label class="control-label" for="dstName">';
+            echo _('Initrd Name');
+            echo '</label>';
+            echo '</div>';
+            echo '<div class="col-xs-8">';
+            echo '<div class="input-group">';
+            echo '<input class="form-control" type="text" name="dstName" id='
+                . '"dstName" value="'
+                . $tmpArch
+                . '"/>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="col-xs-4">';
+            echo '<label class="control-label" for="install">';
+            echo _('Install Initrd');
             echo '</label>';
             echo '</div>';
             echo '<div class="col-xs-8">';

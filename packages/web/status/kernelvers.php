@@ -57,9 +57,8 @@ $kernelvers = function ($kernel) {
     );
     $basepath = escapeshellarg($currpath);
     $findstr = sprintf(
-        'strings %s | grep -A1 "%s:" | tail -1 | awk \'{print $1}\'',
-        $basepath,
-        'Undefined video mode number'
+        'strings %s | grep -m 1 -oP "\d+\.\d+\.\d+(?=.*\([0-9a-zA-Z]*@)"',
+        $basepath
     );
     return shell_exec($findstr);
 };
@@ -75,3 +74,13 @@ printf(
     "bzImage32 Version: %s",
     $kernelvers('bzImage32')
 );
+if ($kernelvers('arm_Image') == null) {
+    printf(
+        "arm_Image Version: Not installed"
+    );
+} else {
+    printf(
+        "arm_Image Version: %s",
+        $kernelvers('arm_Image')
+    );
+}
