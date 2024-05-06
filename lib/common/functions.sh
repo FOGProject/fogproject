@@ -59,7 +59,8 @@ backupDB() {
     dots "Backing up database"
     if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
         [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$error_log 2>&1
-        curl -skf "${httpproto}://$ipaddress$webroot/maintenance/backup_db.php" | jq -r '. | ._content' > $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql
+        url="${httpproto}://$ipaddress$webroot/maintenance/backup_db.php"
+        curl -skf "$url" | jq -r '. | ._content' > $backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql
     fi
     if [[ $? -ne 0 ]]; then
         echo "Failed"
