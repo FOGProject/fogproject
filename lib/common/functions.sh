@@ -725,6 +725,9 @@ installPackages() {
                     if [[ $OSVersion -gt 17 ]]; then
                         packages="${packages// libcurl3 / libcurl4 }">>$error_log 2>&1
                     fi
+                    if [[ $OSVersion -ge 22 ]]; then
+                        packages="${packages// libcurl4 / libcurl4t64 }">>$error_log 2>&1
+                    fi
                     if [[ $linuxReleaseName_lower == +(*ubuntu*) && $OSVersion -ge 18 ]]; then
                         # Fix missing universe section for Ubuntu 18.04 LIVE
                         LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y universe >>$error_log 2>&1
