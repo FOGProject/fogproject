@@ -1377,7 +1377,9 @@ configureNFS() {
         echo "Skipped"
     else
         mv -fv "${nfsconfig}" "${nfsconfig}.${timestamp}" >>$error_log 2>&1
-        echo -e "$storageLocation *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,all_squash,fsid=0)\n$storageLocation/dev *(rw,async,no_wdelay,no_subtree_check,all_squash,fsid=1)" > "$nfsconfig"
+        userId=$(id -u $username)
+        groupId=$(id -g $username)
+        echo -e "$storageLocation *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,all_squash,anonuid=${userId},anongid=${groupId},fsid=0)\n$storageLocation/dev *(rw,async,no_wdelay,no_subtree_check,all_squash,anonuid=${userId},anongid=${groupId},fsid=1)" > "$nfsconfig"
         diffconfig "${nfsconfig}"
         errorStat $?
         dots "Setting up and starting RPCBind"
@@ -1592,8 +1594,8 @@ configureStorage() {
     else
         (head -1 "$storageLocationCapture/postinitscripts/fog.postinit" | grep -q '^#!/bin/bash') || sed -i '1i#!/bin/bash' "$storageLocationCapture/postinitscripts/fog.postinit" >/dev/null 2>&1
     fi
-    chmod -R 777 $storageLocation $storageLocationCapture >>$error_log 2>&1
-    chown -R 65534:65534 $storageLocation $storageLocationCapture >>$error_log 2>&1
+    chmod -R 775 $storageLocation $storageLocationCapture >>$error_log 2>&1
+    chown -R $(id -u $username):$(id -g $username) $storageLocation $storageLocationCapture >>$error_log 2>&1
     errorStat $?
 }
 clearScreen() {
