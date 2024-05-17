@@ -1377,7 +1377,7 @@ configureNFS() {
         echo "Skipped"
     else
         mv -fv "${nfsconfig}" "${nfsconfig}.${timestamp}" >>$error_log 2>&1
-        echo -e "$storageLocation *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,no_root_squash,insecure,fsid=0)\n$storageLocation/dev *(rw,async,no_wdelay,no_subtree_check,no_root_squash,insecure,fsid=1)" > "$nfsconfig"
+        echo -e "$storageLocation *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,fsid=0)\n$storageLocation/dev *(rw,async,no_wdelay,no_subtree_check,fsid=1)" > "$nfsconfig"
         diffconfig "${nfsconfig}"
         errorStat $?
         dots "Setting up and starting RPCBind"
