@@ -276,13 +276,13 @@ class Host extends FOGController
                 (array)$this->get('powermanagementtasks')
             );
             if (count($RemovePowerManagementIDs)) {
-                self::getClass('PowerManagementManager')
-                    ->destroy(
-                        [
-                            'hostID' => $this->get('id'),
-                            'id' => $RemovePowerManagementIDs
-                        ]
-                    );
+                Route::deletemass(
+                    'powermanagement',
+                    [
+                        'hostID' => $this->get('id'),
+                        'id'=> $RemovePowerManagementIDs
+                    ]
+                );
                 Route::ids(
                     'powermanagement',
                     $find
@@ -1221,13 +1221,13 @@ class Host extends FOGController
      */
     public function removeMAC($removeArray)
     {
-        self::getClass('MACAddressAssociationManager')
-            ->destroy(
-                [
-                    'hostID' => $this->get('id'),
-                    'mac' => (array)$removeArray
-                ]
-            );
+        Route::deletemass(
+            'macaddressassociation',
+            [
+                'hostID' => $this->get('id'),
+                'mac' => (array)$removeArray
+            ]
+        );
         return $this;
     }
     /**
