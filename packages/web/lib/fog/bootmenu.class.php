@@ -191,8 +191,7 @@ class BootMenu extends FOGBase
             'set boot-url '
             . self::$httpproto
             . '://${fog-ip}/${fog-webroot}',
-            'set macaddress ${net0/mac}',
-            'set setmacto ${macaddress//:/%3A}',
+            'set setmacto ${net0/mac}',
         ];
 
         $sysuuid = $_REQUEST['sysuuid'];
