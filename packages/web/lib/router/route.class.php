@@ -3004,7 +3004,7 @@ class Route extends FOGBase
                     $date = date('F j, Y', strtotime($asset->created_at));
                     $version = $k_i_version;
                     $k_i_type = $k_hint;
-                    $download = "../management/index.php?node=about&sub=$type&file=$download_url&arch=$arch_short"
+                    $download = "../management/index.php?node=about&sub=$type&file=$download_url&arch=$arch_short";
                         $jsonData[] = [
                             'id' => $id,
                             'date' => $date,
@@ -3016,6 +3016,7 @@ class Route extends FOGBase
                 }
             }
         }
+        return $jsonData;
     }
     /**
      * Presents the kernel listing from fogproject.org
@@ -3031,7 +3032,7 @@ class Route extends FOGBase
             );
             self::$assetInfo = json_decode(array_shift($jsonData));
         }
-        //self::$data = json_decode(array_shift($jsonData));
+        self::$data = self::kernelOrInitJson(self::$assetInfo, 'kernel');
     }
     /**
      * Presents the Initrd listing from github
@@ -3047,7 +3048,7 @@ class Route extends FOGBase
             );
             self::$assetInfo = json_decode(array_shift($jsonData));
         }
-        //self::$data = json_decode(array_shift($jsonData));
+        self::$data = self::kernelOrInitJson(self::$assetInfo, 'initrd');
     }
     /**
      * Return node's log files.
