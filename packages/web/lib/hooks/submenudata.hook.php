@@ -84,6 +84,7 @@ class SubMenuData extends Hook
                 'home' => self::$foglang['Home'],
                 'license' => self::$foglang['License'],
                 'kernel' => self::$foglang['KernelUpdate'],
+                'initrd' => self::$foglang['InitRdUpdate'],
                 'pxemenu' => self::$foglang['PXEBootMenu'],
                 'customizepxe' => self::$foglang['PXEConfiguration'],
                 'newMenu' => self::$foglang['NewMenu'],

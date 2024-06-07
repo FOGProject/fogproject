@@ -52,6 +52,12 @@ class Route extends FOGBase
      */
     public static $data;
     /**
+     * Stores the releases information from github.
+     *
+     * @var mixed
+     */
+    public static $assetsInfo;
+    /**
      * Stores the valid classes.
      *
      * @var array
@@ -263,6 +269,10 @@ class Route extends FOGBase
             '/availablekernels',
             [__CLASS__, 'availablekernels'],
             'kernelUpdate'
+        )->get(
+            '/availableinitrds',
+            [__CLASS__, 'availableinitrds'],
+            'initrdUpdate'
         )->get(
             "${expandeda}/[current|active]",
             [__CLASS__, 'active'],
@@ -2927,6 +2937,86 @@ class Route extends FOGBase
             ['pending' => [1]]
         );
     }
+    public static function kernelOrInitJson($data, $type)
+    {
+        if ($type != 'kernel' && $type != 'initrd') {
+            return;
+        }
+        foreach ($data as &$release) {
+            $found_match = preg_match(
+                '/(.*)([4-9]\.[0-9][0-9]*\.[0-9][0-9]*)([^0-9]*)(20[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]*)(.*)/',
+                $release->body,
+                $release_version,
+                PREG_OFFSET_CAPTURE
+            );
+            foreach ($release->assets as &$asset) {
+                if ($type == 'kernel' && !in_array($asset->name, ['arm_Image', 'bzImage', 'bzImage32'])) {
+                    continue;
+                }
+                if ($type == 'initrd' && !in_array($asset->name, ['arm_init.cpio.gz', 'init.xz', 'init_32.xz'])) {
+                    continue;
+                }
+                $arch_short = '';
+                $arch = '';
+                switch ($asset->name) {
+                    case 'arm_Image':
+                    case 'arm_init.cpio.gz':
+                        $arch_short = 'arm64';
+                        $arch = 'ARM 64 Bit';
+                        break;
+                    case 'bzImage':
+                    case 'init.xz':
+                        $arch_short = '64';
+                        $arch = 'AMD/Intel 64 Bit';
+                        break;
+                    case 'bzImage32':
+                    case 'init_32.xz':
+                        $arch_short = '32';
+                        $arch = 'AMD/Intel 32 Bit';
+                        break;
+                }
+                if (isset($found_match) && $found_match && $arch_short) {
+                    switch ($type) {
+                        case 'kernel':
+                            $k_i_ver = $release_version[2][0];
+                            break;
+                        case 'initrd':
+                            $k_i_ver = $release_version[4][0];
+                            break;
+                    }
+                    $download_url = base64_encode($asset->browser_download_url);
+                    switch (substr($release->name, 0, 3)) {
+                        case 'FOG':
+                            $k_hint = ' (FOG '. explode(' ', $release->name) [1].')';
+                            break;
+                        case 'Lat':
+                            $k_hint = ' (devel)';
+                            break;
+                        case 'Exp':
+                            $k_hint = ' (experimental)';
+                            break;
+                        default:
+                            $k_hint = '';
+                            break;
+
+                    }
+                    $id = ucfirst($type).'_'.str_replace('.', '_', $k_i_ver).'_'.$arch_short;
+                    $date = date('F j, Y', strtotime($asset->created_at));
+                    $version = $k_i_version;
+                    $k_i_type = $k_hint;
+                    $download = "../management/index.php?node=about&sub=$type&file=$download_url&arch=$arch_short"
+                        $jsonData[] = [
+                            'id' => $id,
+                            'date' => $date,
+                            'version' => $k_i_version,
+                            'type' => $k_i_type,
+                            'arch' => $arch,
+                            'download' => $download
+                        ];
+                }
+            }
+        }
+    }
     /**
      * Presents the kernel listing from fogproject.org
      *
@@ -2934,10 +3024,30 @@ class Route extends FOGBase
      */
     public static function availablekernels()
     {
-        $jsonData = self::$FOGURLRequests->process(
-            'https://fogproject.org/kernels/kernelupdate_datatables_fog2.php'
-        );
-        self::$data = json_decode(array_shift($jsonData));
+        if (!self::$assetsInfo) {
+            $jsonData = self::$FOGURLRequests->process(
+                //'https://fogproject.org/kernels/kernelupdate_datatables_fog2.php'
+                'https://api.github.com/repos/FOGProject/fos/releases'
+            );
+            self::$assetInfo = json_decode(array_shift($jsonData));
+        }
+        //self::$data = json_decode(array_shift($jsonData));
+    }
+    /**
+     * Presents the Initrd listing from github
+     *
+     * @return void
+     */
+    public static function availableinitrds()
+    {
+        if (!self::$assetsInfo) {
+            $jsonData = self::$FOGURLRequests->process(
+                //'https://fogproject.org/kernels/kernelupdate_datatables_fog2.php'
+                'https://api.github.com/repos/FOGProject/fos/releases'
+            );
+            self::$assetInfo = json_decode(array_shift($jsonData));
+        }
+        //self::$data = json_decode(array_shift($jsonData));
     }
     /**
      * Return node's log files.

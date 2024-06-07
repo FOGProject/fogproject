@@ -645,6 +645,7 @@ abstract class FOGPage extends FOGBase
                 'home' => self::$foglang['Home'],
                 'license' => self::$foglang['License'],
                 'kernel' => self::$foglang['KernelUpdate'],
+                'initrd' => self::$foglang['InitrdUpdate'],
                 'pxemenu' => self::$foglang['PXEBootMenu'],
                 'maclist' => self::$foglang['MACAddrList'],
                 'settings' => self::$foglang['FOGSettings'],
@@ -1851,6 +1852,153 @@ abstract class FOGPage extends FOGBase
                 [
                     'error' => $e->getMessage(),
                     'title' => _('Kernel Update Fail')
+                ]
+            );
+            exit;
+        }
+    }
+    /**
+     * Fetches the initrds
+     *
+     * @return mixed
+     */
+    public function initrdfetch()
+    {
+        header('Content-type: application/json');
+        try {
+            $msg = filter_input(INPUT_POST, 'msg');
+            if ($_SESSION['allow_ajax_idl']
+                && $_SESSION['dest-initrd-file']
+                && $_SESSION['tmp-initrd-file']
+                && $_SESSION['dl-initrd-file']
+            ) {
+                if ($msg == 'dl') {
+                    $destFilename = $_SESSION['dest-initrd-file'];
+                    if (preg_match('/\./', $destFilename)) {
+                        throw new Exception(_('Dot in Filename not allowed!'));
+                    }
+                    $dlUrl = $_SESSION['dl-initrd-file'];
+                    if (!(0 === stripos($dlUrl, 'https://fogproject.org/') ||
+                        0 === stripos($dlUrl, 'https://github.com/FOGProject/'))
+                    ) {
+                        throw new Exception(_('Specified download URL not allowed!'));
+                    }
+                    $fh = fopen(
+                        $_SESSION['tmp-initrd-file'],
+                        'wb'
+                    );
+                    if ($fh === false) {
+                        throw new Exception(
+                            _('Error: Failed to open temp file')
+                        );
+                    }
+                    self::$FOGURLRequests->process(
+                        $_SESSION['dl-initrd-file'],
+                        'GET',
+                        false,
+                        false,
+                        false,
+                        false,
+                        $fh
+                    );
+                    if (!file_exists($_SESSION['tmp-initrd-file'])) {
+                        throw new Exception(
+                            _('Error: Failed to download kernel')
+                        );
+                    }
+                    $filesize = self::getFilesize(
+                        $_SESSION['tmp-initrd-file']
+                    );
+                    if (!$filesize >  1048576) {
+                        throw new Exception(
+                            sprintf(
+                                '%s: %s: %s - %s',
+                                _('Error'),
+                                _('Download Failed'),
+                                _('Failed'),
+                                _('filesize'),
+                                $filesize
+                            )
+                        );
+                    }
+                    $code = HTTPResponseCodes::HTTP_SUCCESS;
+                    http_response_code($code);
+                    echo json_encode(
+                        [
+                            'msg' => _('File downloaded!'),
+                            'title' => _('Download Complete')
+                        ]
+                    );
+                    exit;
+                } elseif ($msg == 'tftp') {
+                    $destfile = $_SESSION['dest-initrd-file'];
+                    $tmpfile = $_SESSION['tmp-initrd-file'];
+                    unset(
+                        $_SESSION['dest-initrd-file'],
+                        $_SESSION['tmp-initrd-file'],
+                        $_SESSION['dl-initrd-file']
+                    );
+                    $orig = sprintf(
+                        '/%s/%s',
+                        trim(self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'), '/'),
+                        $destfile
+                    );
+                    $backuppath = sprintf(
+                        '/%s/backup/',
+                        dirname($orig)
+                    );
+                    $backupfile = sprintf(
+                        '%s%s_%s',
+                        $backuppath,
+                        $destfile,
+                        self::formatTime('', 'Ymd_His')
+                    );
+                    $keys = [
+                        'FOG_TFTP_FTP_PASSWORD',
+                        'FOG_TFTP_FTP_USERNAME',
+                        'FOG_TFTP_HOST'
+                    ];
+                    list(
+                        $tftpPass,
+                        $tftpUser,
+                        $tftpHost
+                    ) = self::getSetting($keys);
+                    self::$FOGFTP->username = $tftpUser;
+                    self::$FOGFTP->password = $tftpPass;
+                    self::$FOGFTP->host = $tftpHost;
+                    if (!self::$FOGFTP->connect()) {
+                        throw new Exception(_('Unable to connect to ftp'));
+                    }
+                    if (!self::$FOGFTP->exists($backuppath)) {
+                        self::$FOGFTP->mkdir($backuppath);
+                    }
+                    if (self::$FOGFTP->exists($orig)) {
+                        self::$FOGFTP->rename($orig, $backupfile);
+                    }
+                    self::$FOGFTP
+                        ->delete($orig)
+                        ->rename($tmpfile, $orig)
+                        ->close();
+                    if (file_exists($tmpfile)) {
+                        unlink($tmpfile);
+                    }
+                    $code = HTTPResponseCodes::HTTP_SUCCESS;
+                    http_response_code($code);
+                    echo json_encode(
+                        [
+                            'msg' => _('File uploaded to storage node!'),
+                            'title' => _('Update Initrd Success')
+                        ]
+                    );
+                    exit;
+                }
+            }
+        } catch (Exception $e) {
+            http_response_code(HTTPResponseCodes::HTTP_BAD_REQUEST);
+            echo json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Initrd Update Fail')
                 ]
             );
             exit;
@@ -3396,6 +3544,18 @@ abstract class FOGPage extends FOGBase
     {
         header('Content-type: application/json');
         Route::availablekernels();
+        echo Route::getData();
+        exit;
+    }
+    /**
+     * Returns the initrds.
+     *
+     * @return void
+     */
+    public function getInitrds()
+    {
+        header('Content-type: application/json');
+        Route::availableinitrds();
         echo Route::getData();
         exit;
     }
