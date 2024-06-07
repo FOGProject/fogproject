@@ -3000,19 +3000,28 @@ class Route extends FOGBase
                             break;
 
                     }
-                    $id = ucfirst($type).'_'.str_replace('.', '_', $k_i_ver).'_'.$arch_short;
+                    $id = ucfirst($type)
+                        . '_'
+                        . str_replace(
+                            '.',
+                            '_',
+                            $k_i_ver
+                        )
+                        . '_'
+                        . $arch_short;
                     $date = date('F j, Y', strtotime($asset->created_at));
                     $version = $k_i_version;
                     $k_i_type = $k_hint;
-                    $download = "../management/index.php?node=about&sub=$type&file=$download_url&arch=$arch_short";
-                        $jsonData[] = [
-                            'id' => $id,
-                            'date' => $date,
-                            'version' => $k_i_version,
-                            'type' => $k_i_type,
-                            'arch' => $arch,
-                            'download' => $download
-                        ];
+                    $download = "../management/index.php?node=about&sub=$type"
+                        . "&file=$download_url&arch=$arch_short";
+                    $jsonData[] = [
+                        'id' => $id,
+                        'date' => $date,
+                        'version' => $k_i_version,
+                        'type' => $k_i_type,
+                        'arch' => $arch,
+                        'download' => $download
+                    ];
                 }
             }
         }
@@ -3030,9 +3039,9 @@ class Route extends FOGBase
                 //'https://fogproject.org/kernels/kernelupdate_datatables_fog2.php'
                 'https://api.github.com/repos/FOGProject/fos/releases'
             );
-            self::$assetInfo = json_decode(array_shift($jsonData));
+            self::$assetsInfo = json_decode(array_shift($jsonData));
         }
-        self::$data = self::kernelOrInitJson(self::$assetInfo, 'kernel');
+        self::$data = self::kernelOrInitJson(self::$assetsInfo, 'kernel');
     }
     /**
      * Presents the Initrd listing from github
@@ -3046,9 +3055,9 @@ class Route extends FOGBase
                 //'https://fogproject.org/kernels/kernelupdate_datatables_fog2.php'
                 'https://api.github.com/repos/FOGProject/fos/releases'
             );
-            self::$assetInfo = json_decode(array_shift($jsonData));
+            self::$assetsInfo = json_decode(array_shift($jsonData));
         }
-        self::$data = self::kernelOrInitJson(self::$assetInfo, 'initrd');
+        self::$data = self::kernelOrInitJson(self::$assetsInfo, 'initrd');
     }
     /**
      * Return node's log files.
