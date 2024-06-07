@@ -372,6 +372,159 @@ class FOGConfigurationPage extends FOGPage
         exit;
     }
     /**
+     * Show the initrd update page.
+     *
+     * @return void
+     */
+    public function initrd()
+    {
+        $this->title = _('initrd (Initial Ramdisk) Update');
+
+        $this->headerData = [
+            _('Version'),
+            _('Architecture'),
+            _('Type'),
+            _('Date')
+        ];
+
+        $this->attributes = [
+            [],
+            [],
+            [],
+            []
+        ];
+
+        $buttons = self::makeButton(
+            'download-send',
+            _('Download'),
+            'btn btn-primary pull-right'
+        );
+
+        $confirmDownloadBtn = self::makeButton(
+            'confirmDownload',
+            _('Download'),
+            'btn btn-primary pull-right'
+        );
+        $cancelDownloadBtn = self::makeButton(
+            'cancelDownload',
+            _('Cancel'),
+            'btn btn-outline pull-left',
+            'data-dismiss="modal"'
+        );
+
+        $downloadModal = self::makeModal(
+            'downloadModal',
+            _('Confirm Download'),
+            '<p class="help-block">'
+            . _('Confirm you would like to download a new initrd')
+            . ' '
+            . _('to your fog storage node.')
+            . ' '
+            . _('Use the input below to set the name for your new initrd.')
+            . '</p>'
+            . '<div class="initrd-input">'
+            . self::makeInput(
+                'form-control',
+                'initrd-name',
+                '',
+                'text',
+                'initrd-name',
+                '',
+                true
+            )
+            . '</div>',
+            $confirmDownloadBtn . $cancelDownloadBtn,
+            '',
+            'info'
+        );
+
+        echo '<div class="box-group" id="initrd-update">';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<div class="box-tools pull-right">';
+        echo self::$FOGCollapseBox;
+        echo '</div>';
+        echo '<h4 class="box-title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '<div>';
+        echo '<p class="help-block">';
+        printf(
+            '%s %s %s. %s, %s, %s %s. %s, %s %s, %s.',
+            _('This section allows you to update'),
+            _('the initrd (initial ramdisk) which is alongside the'),
+            _('kernel to boot the client computers'),
+            _('This installation process may take a few minutes'),
+            _('as FOG will attempt to go out to the internet'),
+            _('to get the requested initrd'),
+            _('so if it seems like the process is hanging please be patient')
+        );
+        echo '</p>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        echo $this->render(12, 'dataTable', $buttons);
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo $downloadModal;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Download the form.
+     *
+     * @return void
+     */
+    public function initrdPost()
+    {
+        header('Content-type: application/json');
+        $dstName = filter_input(INPUT_POST, 'dstName');
+        $file = trim(base64_decode(filter_input(INPUT_POST, 'file')));
+        $tmpFile = sprintf(
+            '%s%s%s%s',
+            DS,
+            str_replace(["\\",'/'], '', sys_get_temp_dir()),
+            DS,
+            basename(trim($dstName))
+        );
+        if (file_exists($tmpFile)) {
+            unlink($tmpFile);
+        }
+        $_SESSION['allow_ajax_kdl'] = true;
+        $_SESSION['dest-kernel-file'] = basename(trim($dstName));
+        $_SESSION['tmp-kernel-file'] = $tmpFile;
+        $_SESSION['dl-kernel-file'] = $file;
+        try {
+            if (empty($dstName)) {
+                throw new Exception(_('A filename is required!'));
+            }
+            if (empty($file)) {
+                throw new Exception(
+                    _('No external data to download the file from')
+                );
+            }
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
+            $msg = json_encode(
+                [
+                    'msg' => _('Starting download'),
+                    'title' => _('Download Starting')
+                ]
+            );
+        } catch (Exception $e) {
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Start Download Fail')
+                ]
+            );
+        }
+        http_response_code($code);
+        echo $msg;
+        exit;
+    }
+    /**
      * Display the ipxe menu configurations.
      *
      * @return void
