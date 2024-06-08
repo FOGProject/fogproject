@@ -827,7 +827,7 @@ function setupUniversalSearch() {
             text: "--> " + lang.AllResults,
             url: '../management/index.php?node='
             + (
-              key != 'service' ?
+              key != 'setting' ?
               key + '&sub=list&search=' :
               'about&sub=settings&search='
             )

@@ -1298,12 +1298,13 @@ abstract class FOGPage extends FOGBase
     {
         foreach ((array)$this->attributes as $index => &$attribute) {
             foreach ((array)$attribute as $name => &$val) {
-                $this->atts[$index] .= sprintf(
-                    ' %s="%s" ',
+                $this->atts[$index] = sprintf(
+                    '%s %s="%s" ',
+                    isset($this->atts[$index]) ? $this->atts[$index] : '',
                     $name,
                     $val
                 );
-                unset($name);
+                unset($val);
             }
             unset($attribute);
         }
@@ -3166,28 +3167,32 @@ abstract class FOGPage extends FOGBase
         if ($obj === -1) {
             $obj = self::getClass($node, $id);
         }
-        self::$HookManager->processEvent(
-            'TABDATA_HOOK',
-            [
-                'tabData' => &$tabData,
-                'obj' => &$obj
-            ]
-        );
-        self::$HookManager->processEvent(
-            'PLUGINS_INJECT_TABDATA',
-            [
-                'pluginsTabData' => &$obj->pluginsTabData,
-                'obj' => &$obj
-            ]
-        );
-
-        if (count($obj->pluginsTabData ?: [])) {
-            $tabData[] = [
-                'tabs' => [
-                    'name' => _('Plugins'),
-                    'tabData' => $obj->pluginsTabData
+        if ($obj) {
+            self::$HookManager->processEvent(
+                'TABDATA_HOOK',
+                [
+                    'tabData' => &$tabData,
+                    'obj' => &$obj
                 ]
-            ];
+            );
+            if ($obj->pluginsTabData) {
+                self::$HookManager->processEvent(
+                    'PLUGINS_INJECT_TABDATA',
+                    [
+                        'pluginsTabData' => &$obj->pluginsTabData,
+                        'obj' => &$obj
+                    ]
+                );
+            }
+
+            if (count($obj->pluginsTabData ?: [])) {
+                $tabData[] = [
+                    'tabs' => [
+                        'name' => _('Plugins'),
+                        'tabData' => $obj->pluginsTabData
+                    ]
+                ];
+            }
         }
 
         ob_start();

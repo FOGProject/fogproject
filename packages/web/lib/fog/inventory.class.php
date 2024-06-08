@@ -116,7 +116,7 @@ class Inventory extends FOGController
      *
      * @return float
      */
-    public static function getMem($val = '')
+    public function getMem($val = '')
     {
         if (!$val) {
             $val = $this->get('mem');
@@ -134,6 +134,13 @@ class Inventory extends FOGController
      */
     public static function getMemory($val)
     {
-        return self::getMem($val);
+        if (!$val) {
+            return 0.00;
+        }
+        $memar = explode(' ', $val);
+
+        $memar = isset($memar[1]) ? $memar[1] : 0;
+
+        return self::formatByteSize(((int)$memar * 1024));
     }
 }
