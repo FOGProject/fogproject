@@ -491,10 +491,10 @@ class FOGConfigurationPage extends FOGPage
         if (file_exists($tmpFile)) {
             unlink($tmpFile);
         }
-        $_SESSION['allow_ajax_kdl'] = true;
-        $_SESSION['dest-kernel-file'] = basename(trim($dstName));
-        $_SESSION['tmp-kernel-file'] = $tmpFile;
-        $_SESSION['dl-kernel-file'] = $file;
+        $_SESSION['allow_ajax_idl'] = true;
+        $_SESSION['dest-initrd-file'] = basename(trim($dstName));
+        $_SESSION['tmp-initrd-file'] = $tmpFile;
+        $_SESSION['dl-initrd-file'] = $file;
         try {
             if (empty($dstName)) {
                 throw new Exception(_('A filename is required!'));
