@@ -1874,9 +1874,6 @@ abstract class FOGPage extends FOGBase
             ) {
                 if ($msg == 'dl') {
                     $destFilename = $_SESSION['dest-initrd-file'];
-                    if (preg_match('/\./', $destFilename)) {
-                        throw new Exception(_('Dot in Filename not allowed!'));
-                    }
                     $dlUrl = $_SESSION['dl-initrd-file'];
                     if (!(0 === stripos($dlUrl, 'https://fogproject.org/') ||
                         0 === stripos($dlUrl, 'https://github.com/FOGProject/'))
