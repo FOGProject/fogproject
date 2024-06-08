@@ -116,7 +116,7 @@ class Inventory extends FOGController
      *
      * @return float
      */
-    public function getMem($val = '')
+    public static function getMem($val = '')
     {
         if (!$val) {
             $val = $this->get('mem');
