@@ -52,7 +52,7 @@
             url: downloadparts['file'],
             arch: downloadparts['arch']
           };
-          val = parts.arch == 32 ? 'bzImage32' : 'bzImage';
+          val = parts.arch == 32 ? 'bzImage32' : parts.arch == 'arm64' ? 'arm_Image' : 'bzImage';
           $('#kernel-name').prop('placeholder', val).prop('value', val);
         });
         confirmDownloadBtn.on('click', function(e) {
