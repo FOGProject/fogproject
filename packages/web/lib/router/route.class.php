@@ -145,6 +145,7 @@ class Route extends FOGBase
      */
     public function __construct()
     {
+        parent::__construct();
         list(
             self::$_enabled,
             self::$_token
@@ -1280,7 +1281,9 @@ class Route extends FOGBase
                     ];
                     unset($val);
                 }
-                $data['_results'][$search] = count($data[$search] ?: []);
+                if (array_search($search, $data)) {
+                    $data['_results'][$search] = count($data[$search] ?: []);
+                }
                 unset($items);
                 unset($search);
             }
@@ -1493,7 +1496,7 @@ class Route extends FOGBase
                     );
                     $class
                         ->removeGroup($groupsToRem)
-                        ->addGroup($groupsTOAdd);
+                        ->addGroup($groupsToAdd);
                 }
                 break;
             case 'group':
@@ -2473,7 +2476,7 @@ class Route extends FOGBase
             case 'image':
                 $findWhere = ['imageID' => $itemIDs];
                 self::getClass('HostManager')->update(
-                    $find,
+                    $findWhere,
                     '',
                     ['imageID' => 0]
                 );
@@ -3016,9 +3019,7 @@ class Route extends FOGBase
                         'arch' => $arch,
                         'download' => $download
                     ];
-                    unset($asset);
                 }
-                unset($release);
             }
         }
         return $jsonData;

@@ -61,6 +61,7 @@ class UserManagement extends FOGPage
                 ->set('token', self::createSecToken())
                 ->save();
         }
+        return $this;
     }
     /**
      * Page to enable creating a new user.

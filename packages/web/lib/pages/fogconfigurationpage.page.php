@@ -1943,6 +1943,8 @@ class FOGConfigurationPage extends FOGPage
             Route::getData(),
             true
         );
+        $viewvals = [-1, 10, 25, 50, 100, 250, 500];
+        $regenrange = range(0, 24, .25);
         $needstobenumeric = [
             // FOG Boot Settings
             'FOG_PXE_MENU_TIMEOUT' => true,
@@ -2513,8 +2515,7 @@ class FOGConfigurationPage extends FOGPage
                 $columns,
                 $sqlStr,
                 $filterStr,
-                $totalStr,
-                $where
+                $totalStr
             )
         );
         exit;

@@ -444,9 +444,9 @@ abstract class FOGBase
      * @param mixed  $data  the data to load into the class
      * @param bool   $props return just properties or full object
      *
+     * @return object|mixed
      * @throws Exception
      *
-     * @return class Returns the instantiated class
      */
     public static function getClass($class, $data = '', $props = false)
     {
@@ -486,7 +486,7 @@ abstract class FOGBase
         // Return the main object
         if ($obj->getConstructor()) {
             // If there's only one argument return the instance using it.
-            // Otherwise return with full call.
+            // Otherwise, return with full call.
             if (count($args ?: []) === 1) {
                 $class = $obj->newInstance($args[0]);
             } else {
