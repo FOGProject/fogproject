@@ -86,3 +86,6 @@ packages/web/status/injectHosts.php
 # Non-fog Plugins #
 ###################
 packages/web/lib/plugins/hostext
+# pycharm folders #
+###################
+**.idea
