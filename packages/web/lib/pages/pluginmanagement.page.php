@@ -59,7 +59,7 @@ class PluginManagement extends FOGPage
      *
      * @return void
      */
-    public function index()
+    public function index(...$args)
     {
         if (self::$ajax) {
             header('Content-type: application/json');

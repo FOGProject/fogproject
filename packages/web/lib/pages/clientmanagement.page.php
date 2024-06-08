@@ -51,7 +51,7 @@ class ClientManagement extends FOGPage
      *
      * @return void
      */
-    public function index()
+    public function index(...$args)
     {
         $webArr = [
             'name' => [

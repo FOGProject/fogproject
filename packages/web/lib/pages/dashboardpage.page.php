@@ -146,7 +146,7 @@ class DashboardPage extends FOGPage
      *
      * @return void
      */
-    public function index()
+    public function index(...$args)
     {
         Route::count(
             'host',

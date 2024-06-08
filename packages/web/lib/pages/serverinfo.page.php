@@ -46,7 +46,7 @@ class ServerInfo extends FOGPage
      *
      * @return void
      */
-    public function index()
+    public function index(...$args)
     {
         $this->title = _('Server Information');
         if (!$this->obj->isValid()) {

@@ -32,7 +32,7 @@ class ProcessLogin extends FOGPage
      *
      * @return void
      */
-    public function index()
+    public function index(...$args)
     {
         if (self::$FOGUser->isValid()) {
             self::redirect('../management/index.php?node=home');

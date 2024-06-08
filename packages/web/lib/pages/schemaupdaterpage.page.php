@@ -48,7 +48,7 @@ class SchemaUpdaterPage extends FOGPage
      *
      * @return void
      */
-    public function index()
+    public function index(...$args)
     {
         $this->title = _('Database Schema Installer / Updater');
         $vals = [
