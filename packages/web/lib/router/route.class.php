@@ -52,12 +52,6 @@ class Route extends FOGBase
      */
     public static $data;
     /**
-     * Stores the releases information from github.
-     *
-     * @var mixed
-     */
-    public static $assetsInfo;
-    /**
      * Stores the valid classes.
      *
      * @var array
@@ -2940,7 +2934,7 @@ class Route extends FOGBase
     public static function kernelOrInitJson($data, $type)
     {
         if ($type != 'kernel' && $type != 'initrd') {
-            return;
+            return [];
         }
         foreach ($data as &$release) {
             $found_match = preg_match(
@@ -3010,19 +3004,21 @@ class Route extends FOGBase
                         . '_'
                         . $arch_short;
                     $date = date('F j, Y', strtotime($asset->created_at));
-                    $version = $k_i_version;
+                    $version = $k_i_ver;
                     $k_i_type = $k_hint;
                     $download = "../management/index.php?node=about&sub=$type"
                         . "&file=$download_url&arch=$arch_short";
                     $jsonData[] = [
                         'id' => $id,
                         'date' => $date,
-                        'version' => $k_i_version,
+                        'version' => $version,
                         'type' => $k_i_type,
                         'arch' => $arch,
                         'download' => $download
                     ];
+                    unset($asset);
                 }
+                unset($release);
             }
         }
         return $jsonData;
@@ -3034,14 +3030,12 @@ class Route extends FOGBase
      */
     public static function availablekernels()
     {
-        if (!self::$assetsInfo) {
-            $jsonData = self::$FOGURLRequests->process(
-                //'https://fogproject.org/kernels/kernelupdate_datatables_fog2.php'
-                'https://api.github.com/repos/FOGProject/fos/releases'
-            );
-            self::$assetsInfo = json_decode(array_shift($jsonData));
-        }
-        self::$data = self::kernelOrInitJson(self::$assetsInfo, 'kernel');
+        $assetsInfo = self::$FOGURLRequests->process(
+            //'https://fogproject.org/kernels/kernelupdate_datatables_fog2.php'
+            'https://api.github.com/repos/FOGProject/fos/releases'
+        );
+
+        self::$data = self::kernelOrInitJson(json_decode($assetsInfo[0]), 'kernel');
     }
     /**
      * Presents the Initrd listing from github
@@ -3050,14 +3044,12 @@ class Route extends FOGBase
      */
     public static function availableinitrds()
     {
-        if (!self::$assetsInfo) {
-            $jsonData = self::$FOGURLRequests->process(
-                //'https://fogproject.org/kernels/kernelupdate_datatables_fog2.php'
-                'https://api.github.com/repos/FOGProject/fos/releases'
-            );
-            self::$assetsInfo = json_decode(array_shift($jsonData));
-        }
-        self::$data = self::kernelOrInitJson(self::$assetsInfo, 'initrd');
+        $assetsInfo = self::$FOGURLRequests->process(
+            //'https://fogproject.org/kernels/kernelupdate_datatables_fog2.php'
+            'https://api.github.com/repos/FOGProject/fos/releases'
+        );
+
+        self::$data = self::kernelOrInitJson(json_decode($assetsInfo[0]), 'initrd');
     }
     /**
      * Return node's log files.

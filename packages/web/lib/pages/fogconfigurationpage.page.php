@@ -450,7 +450,7 @@ class FOGConfigurationPage extends FOGPage
         echo '<div>';
         echo '<p class="help-block">';
         printf(
-            '%s %s %s. %s, %s, %s %s. %s, %s %s, %s.',
+            '%s %s %s. %s, %s %s, %s.',
             _('This section allows you to update'),
             _('the initrd (initial ramdisk) which is alongside the'),
             _('kernel to boot the client computers'),
