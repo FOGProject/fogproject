@@ -45,7 +45,7 @@ class FOGConfigurationPage extends FOGPage
      *
      * @return void
      */
-    public function index()
+    public function index(...$args)
     {
         $this->version();
     }

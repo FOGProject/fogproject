@@ -73,7 +73,7 @@ packages/web/client/FOGService.msi
 packages/web/management/bower_components
 packages/web/management/dist
 packages/web/management/plugins
-packages/web/service/ipxe/bzImage*
+packages/web/service/ipxe/*Image*
 packages/web/service/ipxe/init*.xz
 packages/web/service/ipxe/*.sha256
 rpttmp

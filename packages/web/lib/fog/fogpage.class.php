@@ -194,8 +194,6 @@ abstract class FOGPage extends FOGBase
     protected static $inventoryCsvHead = '';
     /**
      * Holder for lambda function
-     *
-     * @var function
      */
     protected static $returnData;
     /**
@@ -216,6 +214,8 @@ abstract class FOGPage extends FOGBase
      * @var string
      */
     protected static $FOGCloseBox;
+    protected $templates;
+
     /**
      * Initializes the page class
      *
@@ -361,7 +361,7 @@ abstract class FOGPage extends FOGBase
         global $node;
         global $sub;
         if (!self::$FOGUser->isValid() || strtolower($node) == 'schema') {
-            return;
+            return '';
         }
         $menu = [
             'home' => [
@@ -517,7 +517,7 @@ abstract class FOGPage extends FOGBase
     private static function _buildMenuStructure($menu)
     {
         if (count($menu ?: []) < 1) {
-            return;
+            return '';
         }
         global $node;
         global $sub;
@@ -727,12 +727,13 @@ abstract class FOGPage extends FOGBase
         );
         return $menu;
     }
+
     /**
      * Page default index
      *
      * @return void
      */
-    public function index()
+    public function index(...$args)
     {
         global $node;
         global $sub;
@@ -1317,7 +1318,7 @@ abstract class FOGPage extends FOGBase
         unset($this->atts);
         $this->_setAtts();
         if (count($this->headerData ?: []) < 1) {
-            return;
+            return '';
         }
         ob_start();
         echo '<tr class="header">';
@@ -1345,7 +1346,7 @@ abstract class FOGPage extends FOGBase
      *
      * @param mixed $data the data to replace
      *
-     * @return string
+     * @return void
      */
     private function _replaceNeeds($data)
     {
@@ -1466,7 +1467,7 @@ abstract class FOGPage extends FOGBase
      * @param mixed  $ownElement do we need to be our own container
      * @param mixed  $retFields  return just the fields?
      *
-     * @return void
+     * @return void|array
      */
     public function adFieldsToDisplay(
         $useAD = '',
@@ -1900,7 +1901,7 @@ abstract class FOGPage extends FOGBase
                     );
                     if (!file_exists($_SESSION['tmp-initrd-file'])) {
                         throw new Exception(
-                            _('Error: Failed to download kernel')
+                            _('Error: Failed to download initrd')
                         );
                     }
                     $filesize = self::getFilesize(

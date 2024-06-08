@@ -329,8 +329,8 @@ class FOGFTP
         $oldname,
         $newname
     ) {
-        if (!(ftp_rename($this->_link, $oldname, $newname)
-            || ftp_put($this->_link, $newname, $oldname, $this->data['mode']))
+        if (!($this->__call('rename', [$oldname, $newname])
+            || $this->put($newname, $oldname, $this->mode))
         ) {
             $this->ftperror($this->data);
         }
@@ -351,7 +351,7 @@ class FOGFTP
         if ($rawsize) {
             return $this->rawsize($remote_file);
         }
-        return ftp_size($this->_link, $remote_file);
+        return $this->__call('size', [$remote_file]);
     }
     /**
      * Size of file raw (string)
@@ -366,9 +366,9 @@ class FOGFTP
             return 0;
         }
         $size = 0;
-        $filelist = ftp_rawlist($this->_link, $remote_file);
+        $filelist = $this->__call('rawlist', [$remote_file]);
         if (!$filelist) {
-            $filelist = ftp_rawlist($this->_link, dirname($remote_file));
+            $filelist = $this->__call('rawlist', [dirname($remote_file)]);
             $filename = basename($remote_file);
             $filelist = preg_grep("#$filename#", $filelist);
         }

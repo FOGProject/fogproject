@@ -21,7 +21,7 @@
               style: 'single'
             },
             order: [
-              [0, 'desc']
+              [3, 'asc']
             ],
             columns: [
               {data: 'version'},

@@ -1462,7 +1462,7 @@ class ServiceConfigurationPage extends FOGPage
      *
      * @return void
      */
-    public function index()
+    public function index(...$args)
     {
         $this->edit();
     }
