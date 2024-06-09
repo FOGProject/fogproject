@@ -1,6 +1,6 @@
 <?php
 /**
- * Downloads fog client and utilitie files.
+ * Downloads fog client and utilities files.
  *
  * PHP version 5
  *
@@ -11,7 +11,7 @@
  * @link     https://fogproject.org
  */
 /**
- * Downloads fog client and utilitie files.
+ * Downloads fog client and utilities files.
  *
  * @category Download
  * @package  FOGProject
@@ -46,51 +46,53 @@ if (isset($_REQUEST['smartinstaller'])) {
 /**
  * If the file doesn't exist exit the script.
  */
-if (!file_exists($filename)) {
+if (isset($filename) && !file_exists($filename)) {
     exit;
 }
 /**
  * Only use the base name in the case something else set the filename.
  */
-$file = basename($filename);
-/**
- * Prep file download information headers.
- */
-header("X-Sendfile: $filename");
-header('Content-Description: File Transfer');
-header('Content-Type: application/octet-stream');
-header("Content-Disposition: attachment; filename=$file");
-header('Expires: 0');
-header('Cache-Control: must-revalidate');
-header('Pragma: public');
-/**
- * If we cannot open the file exit the script.
- */
-if (($fh = fopen($file, 'rb')) === false) {
-    exit;
-}
-/**
- * Read in the file so we can distribute it.
- * This method is also, essentially, size proof.
- */
-while (feof($fh) === false) {
+if (isset($filename)) {
+    $file = basename($filename);
     /**
-     * If we cannot read the line break the loop.
+     * Prep file download information headers.
      */
-    if (($line = fread($fh, 4092)) === false) {
-        break;
+    header("X-Sendfile: $filename");
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/octet-stream');
+    header("Content-Disposition: attachment; filename=$file");
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: public');
+    /**
+     * If we cannot open the file exit the script.
+     */
+    if (($fh = fopen($file, 'rb')) === false) {
+        exit;
     }
     /**
-     * Output the line in 4092 bit chunks.
+     * Read in the file so we can distribute it.
+     * This method is also, essentially, size proof.
      */
-    echo $line;
+    while (feof($fh) === false) {
+        /**
+         * If we cannot read the line break the loop.
+         */
+        if (($line = fread($fh, 4092)) === false) {
+            break;
+        }
+        /**
+         * Output the line in 4092 bit chunks.
+         */
+        echo $line;
+        /**
+         * Ensure it's pushed to the user.
+         */
+        flush();
+    }
     /**
-     * Ensure it's pushed to the user.
+     * Close the opened file.
      */
-    flush();
+    fclose($fh);
 }
-/**
- * Close the opened file.
- */
-fclose($fh);
 exit;
