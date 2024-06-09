@@ -37,12 +37,14 @@ class UserTrack extends FOGClient
         'start' => 99,
         'logout' => 0
     ];
+
     /**
      * Function returns data that will be translated to json
      *
      * @return array
+     * @throws Exception
      */
-    public function json()
+    public function json(): array
     {
         if (!isset($_REQUEST['action'])
             && !isset($_REQUEST['user'])
@@ -80,7 +82,6 @@ class UserTrack extends FOGClient
         if ($user == null) {
             return ['error' => 'us'];
         }
-        $date = self::niceDate();
         self::getClass('UserTracking')
             ->set('hostID', self::$Host->get('id'))
             ->set('username', $user)

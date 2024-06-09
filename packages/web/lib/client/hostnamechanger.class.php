@@ -34,7 +34,7 @@ class HostnameChanger extends FOGClient
      *
      * @return array
      */
-    public function json()
+    public function json(): array
     {
         $password = self::$Host->get('ADPass');
         $passwordtest = self::aesdecrypt($password);
@@ -88,7 +88,7 @@ class HostnameChanger extends FOGClient
             $ADPass = $password;
         }
         $val = [
-            'enforce' => (bool)$enforce,
+            'enforce' => $enforce,
             'hostname' => $hostname,
             'AD' => (bool)$AD,
             'ADDom' => $ADDom,

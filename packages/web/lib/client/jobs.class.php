@@ -32,7 +32,7 @@ class Jobs extends FOGClient
      *
      * @return array
      */
-    public function json()
+    public function json(): array
     {
         $Task = self::$Host->get('task');
         $script = strtolower(self::$scriptname);

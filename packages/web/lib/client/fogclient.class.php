@@ -33,28 +33,29 @@ abstract class FOGClient extends FOGBase
      * @var string
      */
     protected $send;
+
     /**
      * Initialize the client items
      *
-     * @param bool $service         if the check is from service directory
-     * @param bool $encoded         if the data is base64 encoded
+     * @param bool $service if the check is from service directory
+     * @param bool $encoded if the data is base64 encoded
      * @param bool $hostnotrequired if the host object is required
-     * @param bool $returnmacs      if we should only return macs
-     * @param bool $override        if we are being overriden
+     * @param bool $returnmacs if we should only return macs
+     * @param bool $override if we are being overriden
      *
-     * @return void
+     * @return void|false|string
+     * @throws Exception
      */
     public function __construct(
-        $service = true,
-        $encoded = false,
-        $hostnotrequired = false,
-        $returnmacs = false,
-        $override = false
+        bool $service = true,
+        bool $encoded = false,
+        bool $hostnotrequired = false,
+        bool $returnmacs = false,
+        bool $override = false
     ) {
         try {
             parent::__construct();
             global $sub;
-            global $json;
             $method = 'json';
             self::getHostItem(
                 $service,
@@ -107,11 +108,6 @@ abstract class FOGClient extends FOGBase
                     && false === $hostnotrequired
                 ) {
                     throw new Exception('#!nh');
-                }
-            }
-            if (self::$json) {
-                if (method_exists($this, 'json')) {
-                    $method = 'json';
                 }
             }
             $validClientBrowserFiles = [
@@ -176,7 +172,7 @@ abstract class FOGClient extends FOGBase
                 return print $e->getMessage();
             }
             $message = $e->getMessage();
-            $msg = preg_replace('/^[#][!]?/', '', $message);
+            $msg = preg_replace('/^#!?/', '', $message);
             $message = json_encode(
                 ['error' => $msg]
             );

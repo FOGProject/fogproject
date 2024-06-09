@@ -26,7 +26,7 @@ class DisplayManager extends FOGClient
      *
      * @return array
      */
-    public function json()
+    public function json(): array
     {
         return [
             'x' => self::$Host->getDispVals('width'),

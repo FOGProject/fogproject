@@ -19,12 +19,13 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class ServiceModule extends FOGClient implements FOGClientSend
+class ServiceModule extends FOGClient
 {
     /**
      * Creates the send string and stores to send variable
      *
      * @return void
+     * @throws Exception
      */
     public function send()
     {
@@ -73,7 +74,7 @@ class ServiceModule extends FOGClient implements FOGClientSend
         );
         $globalInfo = self::getGlobalModuleStatus();
         $globalDisabled = array();
-        foreach ((array)$globalInfo as $key => &$en) {
+        foreach ($globalInfo as $key => $en) {
             if (self::$newService && in_array($key, $remArr)) {
                 continue;
             }
@@ -82,11 +83,12 @@ class ServiceModule extends FOGClient implements FOGClientSend
             }
             unset($en);
         }
-        $hostModules = self::getSubObjectIDs(
-            'Module',
+        Route::ids(
+            'moduleassociation',
             ['id' => self::$Host->get('modules')],
             'shortName'
         );
+        $hostModules = json_decode(Route::getData(), true);
         $hostEnabled = (
             self::$newService ?
             array_diff(
@@ -96,14 +98,14 @@ class ServiceModule extends FOGClient implements FOGClientSend
             $hostModules
         );
         $hostDisabled = array_diff(
-            (array)$globalModules,
+            $globalModules,
             $hostEnabled
         );
         if (in_array(
             $mod,
             self::fastmerge(
-                (array)$globalDisabled,
-                (array)$hostDisabled
+                $globalDisabled,
+                $hostDisabled
             )
         )
         ) {
