@@ -1262,7 +1262,7 @@ class Host extends FOGController
     /**
      * Adds pending mac
      *
-     * @param string $mac the mac to add
+     * @param string|array[] $mac the mac to add
      *
      * @return obect
      */

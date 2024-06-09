@@ -20,7 +20,7 @@
  * @link     https://fogproject.org
  */
 /**
- * Setup our more secure friendly header information.
+ * Set up our more secure friendly header information.
  */
 header('X-Frame-Options: sameorigin');
 header('X-XSS-Protection: 1; mode=block');

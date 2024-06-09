@@ -4,8 +4,8 @@
  *
  * PHP version 5
  *
- * This file simply is the initator.  It establishes the FOG GUI and system
- * auto loader functionality.
+ * This file simply is the initiator.  It establishes the FOG GUI and system
+ * autoloader functionality.
  *
  * This initiator also creates the sanitization and cleansing needed
  * within the GUI and main system for speed and performance.
@@ -19,8 +19,8 @@
 /**
  * Initiator and FOG Autoloader
  *
- * This file simply is the initator.  It establishes the FOG GUI and system
- * auto loader functionality.
+ * This file simply is the initiator.  It establishes the FOG GUI and system
+ * autoloader functionality.
  *
  * This initiator also creates the sanitization and cleansing needed
  * within the GUI and main system for speed and performance.
@@ -65,10 +65,6 @@ class Initiator
             return $value;
         };
         /**
-         * Set useragent to false.
-         */
-        $useragent = false;
-        /**
          * If user agent is passed, define the useragent
          */
         $useragent = filter_input(INPUT_SERVER, 'HTTP_USER_AGENT');
@@ -105,7 +101,7 @@ class Initiator
         /**
          * Set our iterator items into an array format.
          */
-        $paths = iterator_to_array($RegexIterator, true);
+        $paths = iterator_to_array($RegexIterator);
         unset(
             $RecursiveDirectoryIterator,
             $RecursiveIteratorIterator,
@@ -118,9 +114,8 @@ class Initiator
         /**
          * Loop our paths from earlier storing the dirname of the element.
          */
-        foreach ((array)$paths as &$element) {
+        foreach ($paths as $element) {
             $allpaths[] = dirname($element[0]);
-            unset($element);
         }
         /**
          * Set our include paths as all paths.
@@ -140,16 +135,15 @@ class Initiator
             '.class.php,.page.php,.event.php,.hook.php,.report.php'
         );
         /**
-         * Pass our autoloaded items through our custom loader method.
+         * Pass our autoload items through our custom loader method.
          */
         spl_autoload_register();
         /**
-         * If we are not a service file
+         * If we are not a service file,
          * and we have a user agent string
          * and the Session hasn't been started,
          * Start the session.
          */
-        $script = filter_input(INPUT_SERVER, 'SCRIPT_NAME');
         if ($useragent
             && session_status() == PHP_SESSION_NONE
         ) {
@@ -163,7 +157,7 @@ class Initiator
      *
      * @return void
      */
-    public static function language($lang = 'en')
+    public static function language(string $lang = 'en')
     {
         $validLangs = [
             'de' => 'DE',
@@ -181,7 +175,7 @@ class Initiator
             $_SESSION['FOG_LANG'] = $lang;
         }
         
-        $lang = "{$lang}_{$validLangs[$lang]}";
+        $lang = "{$lang}_$validLangs[$lang]";
         $domain = 'messages';
         $apppath = realpath(__DIR__ . '/../management/languages');
 
@@ -196,70 +190,11 @@ class Initiator
         textdomain($domain);
     }
     /**
-     * Stores session csrf token.
-     *
-     * @param string $key   The session key to store.
-     * @param string $value The value to store.
-     *
-     * @return void
-     */
-    public static function storeInSession($key, $value)
-    {
-        /**
-         * If session isn't set return immediately.
-         */
-        if (session_status() == PHP_SESSION_NONE) {
-            return;
-        }
-        $_SESSION[$key] = $value;
-    }
-    /**
-     * Unset the session token.
-     *
-     * @param string $key The key to unset.
-     *
-     * @return void
-     */
-    public static function unsetSession($key)
-    {
-        if (session_status() != PHP_SESSION_NONE) {
-            return;
-        }
-        $_SESSION[$key] = ' ';
-        unset($_SESSION[$key]);
-    }
-    /**
-     * Get from session.
-     *
-     * @param string $key The key to get.
-     *
-     * @return string|bool
-     */
-    public static function getFromSession($key)
-    {
-        if (session_status() != PHP_SESSION_NONE) {
-            return;
-        }
-        return $_SESSION[$key];
-    }
-    /**
-     * Generates token for csrf prevention.
-     *
-     * @param string $formname The form name to generate token for.
-     *
-     * @return string
-     */
-    public static function csrfGenToken($formname)
-    {
-        $token = FOGCore::createSecToken();
-        self::storeInSession($formname, $token);
-    }
-    /**
      * Gets the base path and sets WEB_ROOT constant
      *
      * @return string the base path as determined.
      */
-    private static function _determineBasePath()
+    private static function _determineBasePath(): string
     {
         return sprintf(
             '%s%s',
@@ -267,10 +202,12 @@ class Initiator
             DS
         );
     }
+
     /**
      * Initiates the environment
      *
      * @return void
+     * @throws Exception
      */
     public static function startInit()
     {
@@ -312,7 +249,7 @@ class Initiator
         /**
          * Sets our variables to always be trimmed.
          */
-        foreach ($globalVars as &$x) {
+        foreach ($globalVars as $x) {
             global $$x;
             $$x = filter_input(INPUT_GET, $x);
             if (!$$x) {
@@ -331,7 +268,7 @@ class Initiator
         /**
          * Language Starting
          */
-        self::language(isset($_SESSION['FOG_LANG']) ? $_SESSION['FOG_LANG'] : 'en');
+        self::language($_SESSION['FOG_LANG'] ?? 'en');
     }
     /**
      * Sanitizes output
@@ -345,7 +282,7 @@ class Initiator
         /**
          * If the value isn't specified, it will sanitize
          * all REQUEST, COOKIE, POST, and GET data.
-         * Otherwise it will clean the passed value.
+         * Otherwise, it will clean the passed value.
          */
         if (is_array($value) && !count($value ?: [])) {
             $process = [
@@ -408,7 +345,7 @@ class Initiator
          */
         $loadedExtensions = get_loaded_extensions();
         /**
-         * Cross reference our required with what's loaded.
+         * Cross-reference our required with what's loaded.
          */
         $has = array_intersect(
             $requiredExtensions,
@@ -428,15 +365,15 @@ class Initiator
      *
      * @return string the cleaned up buffer
      */
-    public static function sanitizeOutput($buffer)
+    public static function sanitizeOutput(string $buffer): string
     {
         /**
          * Line commented for clarity
          */
         $search = [
-            '/\>[^\S ]+/s', //strip whitespaces after tags, except space
-            '/[^\S ]+\</s', //strip whitespaces before tags, except space
-            '/(\s)+/s',  // shorten multiple whitespace sequences
+            '/>[^\S ]+/', //strip whitespaces after tags, except space
+            '/[^\S ]+</', //strip whitespaces before tags, except space
+            '/(\s)+/',  // shorten multiple whitespace sequences
         ];
         /**
          * Replaces what's found with same element here.
@@ -447,9 +384,9 @@ class Initiator
             '\\1',
         ];
         /**
-         * Perform our replace.
+         * Perform our replacement.
          */
-        $buffer = preg_replace(
+        preg_replace(
             $search,
             $replace,
             $buffer
