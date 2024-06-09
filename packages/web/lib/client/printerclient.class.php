@@ -45,10 +45,10 @@ class PrinterClient extends FOGClient
      *
      * @return array
      */
-    public function json()
+    public function json(): array
     {
         $level = self::$Host->get('printerLevel');
-        if ($level === 0 || empty($level)) {
+        if (empty($level)) {
             $level = 0;
         }
         if (!in_array($level, array_keys(self::$_modes))) {
@@ -67,14 +67,13 @@ class PrinterClient extends FOGClient
         $printerIDs = self::$Host->get('printers');
         $printerCount = count($printerIDs ?: []);
         if ($printerCount < 1) {
-            $data = [
+            return [
                 'error' => 'np',
                 'mode' => self::$_modes[$level],
                 'allPrinters' => $allPrinters,
                 'default' => '',
                 'printers' => [],
             ];
-            return $data;
         }
         $find = [
             'hostID' => self::$Host->get('id'),
@@ -102,7 +101,8 @@ class PrinterClient extends FOGClient
         $Printers = json_decode(
             Route::getData()
         );
-        foreach ((array)$Printers->data as &$Printer) {
+        $printers[] = [];
+        foreach ((array)$Printers->data as $Printer) {
             if (!in_array($Printer->id, $printerIDs)) {
                 continue;
             }
@@ -118,33 +118,11 @@ class PrinterClient extends FOGClient
             unset($Printer);
         }
         unset($Printers);
-        $data = [
+        return [
             'mode' => self::$_modes[$level],
             'allPrinters' => $allPrinters,
             'default' => $default,
             'printers' => $printers,
         ];
-        return $data;
-    }
-    /**
-     * Sets the string for us
-     *
-     * @param string $stringsend the string to return
-     * @param object $Printer    the printer information
-     *
-     * @return string
-     */
-    private function _getString($stringsend, &$Printer)
-    {
-        return sprintf(
-            $stringsend,
-            $Printer->port,
-            $Printer->file,
-            $Printer->model,
-            $Printer->name,
-            $Printer->ip,
-            self::$Host->getDefault($Printer->id),
-            $Printer->configFile
-        );
     }
 }

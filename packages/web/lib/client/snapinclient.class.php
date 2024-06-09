@@ -27,10 +27,12 @@ class SnapinClient extends FOGClient
      * @var string
      */
     public $shortName = 'snapinclient';
+
     /**
      * Function returns data that will be translated to json
      *
-     * @return array
+     * @return array|string[]|void
+     * @throws Exception
      */
     public function json()
     {
@@ -73,10 +75,11 @@ class SnapinClient extends FOGClient
             );
             return ['error' => 'ns'];
         }
+        $date = self::niceDate()->format('Y-m-d H:i:s');
         if ($Task->isValid()) {
             $Task
                 ->set('stateID', self::getCheckedInState())
-                ->set('checkInTime', self::niceDate()->format('Y-m-d H:i:s'))
+                ->set('checkInTime', $date)
                 ->save();
         }
         $SnapinJob->set('stateID', self::getCheckedInState())->save();
@@ -193,7 +196,7 @@ class SnapinClient extends FOGClient
                     );
                     $hash = $Snapin->get('hash');
                     $SnapinTask
-                        ->set('checkin', self::niceDate()->format('Y-m-d H:i:s'))
+                        ->set('checkin', $date)
                         ->set('stateID', self::getCheckedInState())
                         ->save();
                     $action = '';
@@ -202,6 +205,7 @@ class SnapinClient extends FOGClient
                     } elseif ($Snapin->get('reboot')) {
                         $action = 'reboot';
                     }
+                    $size = self::getFilesize($filepath);
                     $info['snapins'][] = [
                         'pack' =>( bool)$Snapin->get('packtype'),
                         'hide' => (bool)$Snapin->get('hide'),
@@ -211,7 +215,7 @@ class SnapinClient extends FOGClient
                         'name' => $Snapin->get('name'),
                         'args' => $Snapin->get('args'),
                         'action' => $action,
-                        'filename' =>$Snapin->get('file'),
+                        'filename' => $Snapin->get('file'),
                         'runwith' => $Snapin->get('runWith'),
                         'runwithargs' => $Snapin->get('runWithArgs'),
                         'hash' => strtoupper($hash),
@@ -228,17 +232,19 @@ class SnapinClient extends FOGClient
             $this->_downloadfile($Task, $SnapinJob, $date, $HostName);
         }
     }
+
     /**
      * Closes out the snapin tasks
      *
-     * @param object $Task      the task object
+     * @param object $Task the task object
      * @param object $SnapinJob the snapin job object
-     * @param string $date      the current date
-     * @param string $HostName  the hostname
+     * @param string $date the current date
+     * @param string $HostName the hostname
      *
      * @return void
+     * @throws Exception
      */
-    private function _closeout($Task, $SnapinJob, $date, $HostName)
+    private function _closeout(object $Task, object $SnapinJob, string $date, string $HostName)
     {
         $tID = filter_input(INPUT_POST, 'taskid');
         if (!is_numeric($tID)) {
@@ -285,7 +291,7 @@ class SnapinClient extends FOGClient
             ->set('stateID', self::getCompleteState())
             ->set('return', $_REQUEST['exitcode'])
             ->set('details', $_REQUEST['exitdesc'])
-            ->set('complete', self::niceDate()->format('Y-m-d H:i:s'))
+            ->set('complete', $date)
             ->save();
         self::$EventManager->notify(
             'HOST_SNAPINTASK_COMPLETE',
@@ -322,17 +328,19 @@ class SnapinClient extends FOGClient
             );
         }
     }
+
     /**
      * Downloads the client file
      *
-     * @param object $Task      the task object
+     * @param object $Task the task object
      * @param object $SnapinJob the snapin job object
-     * @param string $date      the current date
-     * @param string $HostName  the hostname
+     * @param string $date the current date
+     * @param string $HostName the hostname
      *
      * @return void
+     * @throws Exception
      */
-    private function _downloadfile($Task, $SnapinJob, $date, $HostName)
+    private function _downloadfile(object $Task, object $SnapinJob, string $date, string $HostName)
     {
         $tID = filter_input(INPUT_POST, 'taskid');
         if (!is_numeric($tID)) {
@@ -367,7 +375,8 @@ class SnapinClient extends FOGClient
             [
                 'Host' => &self::$Host,
                 'Snapin' => &$Snapin,
-                'StorageGroup' => &$StorageGroup
+                'StorageGroup' => &$StorageGroup,
+                'HostName' => &$HostName
             ]
         );
         self::$HookManager->processEvent(
@@ -443,7 +452,7 @@ class SnapinClient extends FOGClient
         if ($Task->isValid()) {
             $Task
                 ->set('stateID', self::getProgressState())
-                ->set('checkInTime', self::niceDate()->format('Y-m-d H:i:s'))
+                ->set('checkInTime', $date)
                 ->save();
         }
         $SnapinJob

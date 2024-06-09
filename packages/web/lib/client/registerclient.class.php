@@ -31,14 +31,15 @@ class RegisterClient extends FOGClient
      * @var string
      */
     public $shortName = 'hostregister';
+
     /**
      * Function returns data that will be translated to json
      *
      * @return array
+     * @throws Exception
      */
-    public function json()
+    public function json(): array
     {
-        $maxPending = 0;
         $MACs = self::getHostItem(
             true,
             false,
@@ -54,9 +55,6 @@ class RegisterClient extends FOGClient
             $maxPending
         ) = self::getSetting($keys);
         $hostname = filter_input(INPUT_POST, 'hostname');
-        if (!$moduleid) {
-            $hostname = filter_input(INPUT_GET, 'hostname');
-        }
         $find = [
             'hostID' => self::$Host->get('id'),
             'pending' => [1]
@@ -96,7 +94,7 @@ class RegisterClient extends FOGClient
                         'description',
                         _('Pending Registration created by FOG_CLIENT')
                     )
-                    ->set('pending', (string)1)
+                    ->set('pending', "1")
                     ->set('enforce', (string)$enforce)
                     ->set('modules', $modules)
                     ->addPriMAC($PriMAC)
@@ -126,7 +124,7 @@ class RegisterClient extends FOGClient
         $KnownMACs = self::$Host->getMyMacs(false);
         $MACs = array_unique(
             array_diff(
-                (array)$MACs,
+                $MACs,
                 (array)$KnownMACs
             )
         );

@@ -32,7 +32,7 @@ class PM extends FOGClient
      *
      * @return array
      */
-    public function json()
+    public function json(): array
     {
         $find = [
             'id' => self::$Host->get('powermanagementtasks'),
@@ -77,16 +77,14 @@ class PM extends FOGClient
             'onDemand' => $action,
             'tasks' => [],
         ];
-        foreach ($PMTasks->data as &$PMTask) {
+        foreach ($PMTasks->data as $PMTask) {
             $min = trim($PMTask->min);
             $hour = trim($PMTask->hour);
             $dom = trim($PMTask->dom);
             $month = trim($PMTask->month);
             $dow = trim($PMTask->dow);
-            if (is_int($dow)) {
-                if ($dow < 0) {
-                    $dow = 7;
-                }
+            if ($dow < 0) {
+                $dow = 7;
             }
             $cron = sprintf(
                 '%s %s %s %s %s',
@@ -101,7 +99,6 @@ class PM extends FOGClient
                 'cron' => $cron,
                 'action' => $action
             ];
-            unset($PMTask);
         }
         return $data;
     }

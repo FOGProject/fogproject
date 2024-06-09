@@ -180,7 +180,7 @@ class DatabaseManager extends FOGCore
      */
     public static function getDB(): object
     {
-        return self::$DB;
+        return self::$DB ?: new PDODB();
     }
     /**
      * Gets the schema version as stored in the DB.
