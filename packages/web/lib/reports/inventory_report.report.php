@@ -34,14 +34,18 @@ class Inventory_Report extends ReportManagement
             _('Host Name'),
             _('System Serial'),
             _('System Product'),
-            _('System UUID')
+            _('System UUID'),
+            _('Hostname'),
+            _('System Memory Available')
         ];
 
         $this->attributes = [
             [],
             [],
             [],
-            []
+            [],
+            [],
+            ['width' => 40]
         ];
 
         echo '<div class="box box-solid">';

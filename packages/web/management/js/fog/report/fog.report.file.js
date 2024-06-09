@@ -15,21 +15,6 @@
                 text: '<i class="fa fa-file-excel-o"></i> Excel'
             },
             {
-                extend: 'pdfHtml5',
-                download: 'open',
-                text: '<i class="fa fa-file-pdf-o"></i> PDF',
-                customize: function (doc) {
-                    var colspan = doc.content[1].table.body[0].length,
-                        widths = [];
-                    $('table th').each(function() {
-                        var width = $(this).outerWidth(),
-                            percent = Math.round(width / $(this).parent().outerWidth() * 100);
-                        widths.push(percent+'%');
-                    });
-                    doc.content[1].table.widths = widths;
-                }
-            },
-            {
                 extend: 'print',
                 text: '<i class="fa fa-print"></i> Print'
             },
@@ -212,7 +197,8 @@
                         {data: 'sysserial'},
                         {data: 'sysproduct'},
                         {data: 'sysuuid'},
-                        {data: 'hostname'}
+                        {data: 'hostname'},
+                        {data: 'mem'}
                     ],
                     columnDefs: [
                         {

@@ -84,10 +84,10 @@ class PDODB extends DatabaseManager
      *
      * @param array $options any custom options
      *
-     * @throws PDOException
-     * @return void
+     * @return void|PDODB
+     *@throws PDOException
      */
-    public function __construct($options = [])
+    public function __construct(array $options = [])
     {
         ignore_user_abort(true);
         set_time_limit(0);
@@ -137,10 +137,10 @@ class PDODB extends DatabaseManager
      *
      * @param bool $dbexists does db exist
      *
-     * @throws PDOException
      * @return object
+     *@throws PDOException
      */
-    private function _connect($dbexists = true)
+    private function _connect(bool $dbexists = true): object
     {
         try {
             if (self::$_link) {
@@ -200,10 +200,10 @@ class PDODB extends DatabaseManager
      *
      * @param object $main Static method so we need the main element.
      *
-     * @throws PDOException
-     * @return bool|object
+     * @return object
+     *@throws PDOException
      */
-    public static function currentDb(&$main)
+    public static function currentDb(object $main): object
     {
         try {
             if (!self::$_link) {
@@ -242,17 +242,18 @@ class PDODB extends DatabaseManager
      * The query method.
      *
      * @param string $sql       the sql statement to query
-     * @param array  $data      the data as needed
-     * @param array  $paramvals the bound param variables
+     * @param array $data      the data as needed
+     * @param array $paramvals the bound param variables
      *
+     * @return PDODB
      * @throws PDOException
-     * @return object|bool
      */
     public function query(
-        $sql,
-        $data = [],
-        $paramvals = []
-    ) {
+        string $sql,
+        array  $data = [],
+        array $paramvals = []
+    ): PDODB
+    {
         try {
             if (!self::$_link) {
                 throw new PDOException($this->sqlerror());
@@ -307,18 +308,19 @@ class PDODB extends DatabaseManager
     /**
      * Fetches the information into a statement object to paarse.
      *
-     * @param int    $type      the type of fetching PDO int.
+     * @param int $type      the type of fetching PDO int.
      * @param string $fetchType the type in function calling
-     * @param mixed  $params    any additional parameteres needed.
+     * @param mixed  $params    any additional parameters needed.
      *
-     * @throws PDOException
      * @return object
+     *@throws PDOException
      */
     public function fetch(
-        $type = PDO::FETCH_ASSOC,
-        $fetchType = 'fetch_assoc',
-        $params = false
-    ) {
+        int    $type = PDO::FETCH_ASSOC,
+        string $fetchType = 'fetch_assoc',
+               $params = false
+    ): object
+    {
         try {
             self::$_result = [];
             if (empty($type)) {
@@ -595,6 +597,7 @@ class PDODB extends DatabaseManager
             self::$_queryResult->debugDumpParams();
             return ob_get_clean();
         }
+        return '';
     }
     /**
      * Executes the query.

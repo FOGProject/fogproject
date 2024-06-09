@@ -444,9 +444,9 @@ $.fn.fogVariable = function(opts) {
         exportDialog(url);
     });
     /**
-     * CSV and PDF export authorization.
+     * CSV export authorization.
      */
-    $('#csvsub, #pdfsub').on('click', function(e) {
+    $('#csvsub').on('click', function(e) {
         e.preventDefault();
         exportDialog($(this).prop('href'));
     });

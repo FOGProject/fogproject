@@ -28,10 +28,10 @@ class DatabaseManager extends FOGCore
      *
      * @return object
      */
-    public static function establish()
+    public static function establish(): object
     {
         /**
-         * Certain scripts don't use the database at all
+         * Certain scripts don't use the database at all,
          * so we skip connecting to the DB entirely for those.
          */
         $noDBpattern = [
@@ -46,7 +46,7 @@ class DatabaseManager extends FOGCore
         ];
         $noDBpattern = '#' . implode('|', $noDBpattern) . '#';
         if (preg_match($noDBpattern, self::$scriptname)) {
-            return;
+            return new self;
         }
         /**
          * If the db is already connected,
@@ -132,6 +132,7 @@ class DatabaseManager extends FOGCore
             'authorize',
             'requestClientInfo'
         ];
+        $test = false;
         /**
          * If sub is in the passthru,
          * set the test to true.
@@ -149,7 +150,7 @@ class DatabaseManager extends FOGCore
              * If the caller is requiring json send
              * the data in json format.
              *
-             * Otherwise just print the #!db flag.
+             * Otherwise, just print the #!db flag.
              */
             if (self::$json) {
                 die(
@@ -168,7 +169,7 @@ class DatabaseManager extends FOGCore
      *
      * @return object
      */
-    public static function getLink()
+    public static function getLink(): object
     {
         return self::$DB->link();
     }
@@ -177,16 +178,16 @@ class DatabaseManager extends FOGCore
      *
      * @return object
      */
-    public static function getDB()
+    public static function getDB(): object
     {
         return self::$DB;
     }
     /**
-     * Get's the schema version as stored in the DB.
+     * Gets the schema version as stored in the DB.
      *
-     * @return int
+     * @return void
      */
-    private static function _getVersion()
+    private static function _getVersion(): void
     {
         self::_convertEngine();
         $query = sprintf(
@@ -197,7 +198,6 @@ class DatabaseManager extends FOGCore
             ->query($query)
             ->fetch()
             ->get('vValue');
-        return self::$mySchema;
     }
     /**
      * Get columns from table testing for a specific column name
@@ -208,9 +208,10 @@ class DatabaseManager extends FOGCore
      * @return int
      */
     public static function getColumns(
-        $table_name,
-        $column_name
-    ) {
+        string $table_name,
+        string $column_name
+    ): int
+    {
         $sql = sprintf(
             "SELECT COUNT(`%s`)AS`%s`FROM`%s`.`%s`WHERE`%s`='%s'%s",
             'COLUMN_NAME',
@@ -254,7 +255,7 @@ class DatabaseManager extends FOGCore
             . "'";
         $convert = self::$DB
             ->query($sql)
-            ->fetch('', 'fetch_all')
+            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')
             ->get('Q');
         if (false !== $sql_modes) {
             $sql_modes = "SET GLOBAL sql_mode = '$sql_modeo'";

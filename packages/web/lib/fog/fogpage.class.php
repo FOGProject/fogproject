@@ -175,12 +175,6 @@ abstract class FOGPage extends FOGBase
      */
     protected $request = [];
     /**
-     * PDF Place holder
-     *
-     * @var string
-     */
-    protected static $pdffile = '';
-    /**
      * CSV Place holder
      *
      * @var string
