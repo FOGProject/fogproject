@@ -101,7 +101,6 @@ class Page extends FOGBase
         'js/bootstrap-slider.min.js',
         'js/moment.min.js',
         'js/bootstrap-datetimepicker.min.js',
-        'js/pdfmake.min.js',
         'js/vfs_fonts.js',
         'js/fastclick.js',
         'js/Flot/jquery.flot.js',

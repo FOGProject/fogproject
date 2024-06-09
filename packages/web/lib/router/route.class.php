@@ -1262,7 +1262,7 @@ class Route extends FOGBase
                     [],
                     ['item' => '%'.$item.'%']
                 )->fetch(
-                    '',
+                    PDO::FETCH_ASSOC,
                     'fetch_all'
                 )->get();
                 foreach ($vals as &$val) {
@@ -2393,7 +2393,7 @@ class Route extends FOGBase
                 $orderby
             );
 
-            $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
+            $vals = self::$DB->query($sql)->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
             foreach ($vals as &$val) {
                 $data[] = $val[$classVars['databaseFields'][$getField]];
                 unset($val);
@@ -2728,7 +2728,7 @@ class Route extends FOGBase
                 $operator,
                 $orderby
             );
-            $vals = self::$DB->query($sql)->fetch('', 'fetch_all')->get();
+            $vals = self::$DB->query($sql)->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
             foreach ($vals as &$val) {
                 $data[] = [
                     'id' => $val[$classVars['databaseFields']['id']],

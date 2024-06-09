@@ -2038,7 +2038,7 @@ abstract class FOGBase
         $sqlStr = sprintf($sql, $where);
 
         $vals = self::$DB->query(sprintf($sql, $where))
-            ->fetch('', 'fetch_all')->get('settingValue');
+            ->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get('settingValue');
 
         foreach ((array)$vals as $ind => &$val) {
             $vals[$ind] = trim(
