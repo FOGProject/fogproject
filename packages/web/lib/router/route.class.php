@@ -1403,12 +1403,15 @@ class Route extends FOGBase
             $vars = json_decode(
                 file_get_contents('php://input')
             );
-            $exists = self::getClass($classname)
-                ->getManager()
-                ->exists($vars->name);
+            $exists = false;
+            if (property_exists($vars, 'name')) {
+                $exists = self::getClass($classname)
+                    ->getManager()
+                    ->exists($vars->name);
+            }
             $uniqueNames = !in_array($classname, self::$nonUniqueNameClasses);
             if ($uniqueNames
-                && strtolower($class->get('name')) != $vars->name
+                && strtolower($class->get('name')) == strtolower($vars->name)
                 && $exists
             ) {
                 self::setErrorMessage(
