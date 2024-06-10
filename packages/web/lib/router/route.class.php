@@ -1410,6 +1410,12 @@ class Route extends FOGBase
                     ->getManager()
                     ->exists($vars->name);
                 $var_name = strtolower($vars->name);
+                if (!$var_name) {
+                    self::setErrorMessage(
+                        _('A name must be defined if using the "name" property'),
+                        HTTPResponseCodes::HTTP_FORBIDDEN
+                    );
+                }
             }
             $uniqueNames = !in_array($classname, self::$nonUniqueNameClasses);
             if ($uniqueNames
