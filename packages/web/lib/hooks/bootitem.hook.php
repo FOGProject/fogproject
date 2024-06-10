@@ -78,7 +78,7 @@ class BootItem extends Hook
     public function tweakmenu($arguments)
     {
         /**
-         * This is How the menu get's displayed:
+         * This is How the menu gets displayed:
          * 'ipxe' 'head' key's followed by the item.
          */
         if ($arguments['ipxe']['head']) {
@@ -137,10 +137,10 @@ class BootItem extends Hook
                 = 'item --gap -- -------------------------------------';
         }
         /**
-         * The next subset of informations is about the item labels.
+         * The next subset of information is about the item labels.
          * This is pulled from the db so some common values may be like:
          * item-<label-name>  so fog.local has item value of: item-fog.local
-         * inside of the item label is an arrayed item of value [0] containing
+         * inside the item label is an arrayed item of value [0] containing
          * the label so to tweak:
          */
         Route::listem('pxemenuoptions');

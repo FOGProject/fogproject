@@ -52,12 +52,14 @@ class BootTask extends Hook
             [$this, 'changeTask']
         );
     }
+
     /**
      * Change the task.
      *
      * @param mixed $arguments The items to alter.
      *
      * @return void
+     * @throws Exception
      */
     public function changeTask($arguments)
     {
