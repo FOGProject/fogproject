@@ -1404,15 +1404,18 @@ class Route extends FOGBase
                 file_get_contents('php://input')
             );
             $exists = false;
+            $var_name = false;
             if (property_exists($vars, 'name')) {
                 $exists = self::getClass($classname)
                     ->getManager()
                     ->exists($vars->name);
+                $var_name = strtolower($vars->name);
             }
             $uniqueNames = !in_array($classname, self::$nonUniqueNameClasses);
             if ($uniqueNames
-                && strtolower($class->get('name')) == strtolower($vars->name)
                 && $exists
+                && $var_name
+                && strtolower($class->get('name')) != $var_name
             ) {
                 self::setErrorMessage(
                     _('Already created'),
