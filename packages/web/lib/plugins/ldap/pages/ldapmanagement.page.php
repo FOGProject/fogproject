@@ -94,7 +94,8 @@ class LDAPManagement extends FOGPage
         $templates = [
             _('Microsoft AD'),
             _('OpenLDAP'),
-            _('Generic LDAP')
+            _('Generic LDAP'),
+            _('FreeIPA')
         ];
         $initialSel = self::selectForm(
             'template',
@@ -284,6 +285,19 @@ class LDAPManagement extends FOGPage
                 'text',
                 'userNameAttr',
                 $userNameAttr,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'groupNameAttr',
+                _('Group Name Attribute')
+            ) => self::makeInput(
+                'form-control ldapgroupnameattr-input',
+                'groupNameAttr',
+                'name',
+                'text',
+                'groupNameAttr',
+                $groupNameAttr,
                 true
             ),
             self::makeLabel(
@@ -424,6 +438,7 @@ class LDAPManagement extends FOGPage
         $adminGroup = filter_input(INPUT_POST, 'adminGroup');
         $userGroup = filter_input(INPUT_POST, 'userGroup');
         $userNameAttr = filter_input(INPUT_POST, 'userNameAttr');
+        $groupNameAttr = filter_input(INPUT_POST, 'groupNameAttr');
         $grpMemberAttr = filter_input(INPUT_POST, 'grpMemberAttr');
         $searchScope = filter_input(INPUT_POST, 'searchScope');
         $bindDN = filter_input(INPUT_POST, 'bindDN');
@@ -443,7 +458,8 @@ class LDAPManagement extends FOGPage
         $templates = [
             _('Microsoft AD'),
             _('OpenLDAP'),
-            _('Generic LDAP')
+            _('Generic LDAP'),
+            _('FreeIPA')
         ];
         $initialSel = self::selectForm(
             'template',
@@ -637,6 +653,24 @@ class LDAPManagement extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
+                'template',
+                _('Initial Template')
+            ) => $initialSel,
+            self::makeLabel(
+                $labelClass,
+                'groupNameAttr',
+                _('Group Name Attribute')
+            ) => self::makeInput(
+                'form-control ldapgroupnameattr-input',
+                'groupNameAttr',
+                'name',
+                'text',
+                'groupNameAttr',
+                $groupNameAttr,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
                 'grpMemberAttr',
                 _('Group Member Attribute')
             ) => self::makeInput(
@@ -770,6 +804,9 @@ class LDAPManagement extends FOGPage
         $userNameAttr = trim(
             filter_input(INPUT_POST, 'userNameAttr')
         );
+        $groupNameAttr = trim(
+            filter_input(INPUT_POST, 'groupNameAttr')
+        );
         $grpMemberAttr = trim(
             filter_input(INPUT_POST, 'grpMemberAttr')
         );
@@ -825,6 +862,7 @@ class LDAPManagement extends FOGPage
                 ->set('isLdaps', $isLDAPs)
                 ->set('port', $port)
                 ->set('userNamAttr', $userNameAttr)
+                ->set('grpNamAttr', $groupNameAttr)
                 ->set('grpMemberAttr', $grpMemberAttr)
                 ->set('adminGroup', $adminGroup)
                 ->set('userGroup', $userGroup)
@@ -923,6 +961,10 @@ class LDAPManagement extends FOGPage
             filter_input(INPUT_POST, 'userNameAttr') ?:
             $this->obj->get('userNamAttr')
         );
+        $groupNameAttr = (
+            filter_input(INPUT_POST, 'groupNameAttr') ?:
+            $this->obj->get('grpNamAttr')
+        );
         $grpMemberAttr = (
             filter_input(INPUT_POST, 'grpMemberAttr') ?:
             $this->obj->get('grpMemberAttr')
@@ -953,7 +995,8 @@ class LDAPManagement extends FOGPage
         $templates = [
             _('Microsoft AD'),
             _('OpenLDAP'),
-            _('Generic LDAP')
+            _('Generic LDAP'),
+            _('FreeIPA')
         ];
         $initialSel = self::selectForm(
             'template',
@@ -1149,6 +1192,19 @@ class LDAPManagement extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
+                'groupNameAttr',
+                _('Group Name Attribute')
+            ) => self::makeInput(
+                'form-control ldapusernameattr-input',
+                'groupNameAttr',
+                'name',
+                'text',
+                'groupNameAttr',
+                $groupNameAttr,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
                 'grpMemberAttr',
                 _('Group Member Attribute')
             ) => self::makeInput(
@@ -1305,6 +1361,9 @@ class LDAPManagement extends FOGPage
         $userNameAttr = trim(
             filter_input(INPUT_POST, 'userNameAttr')
         );
+        $groupNameAttr = trim(
+            filter_input(INPUT_POST, 'groupNameAttr')
+        );
         $grpMemberAttr = trim(
             filter_input(INPUT_POST, 'grpMemberAttr')
         );
@@ -1360,6 +1419,7 @@ class LDAPManagement extends FOGPage
             ->set('isLdaps', $isLDAPs)
             ->set('port', $port)
             ->set('userNamAttr', $userNameAttr)
+            ->set('grpNamAttr', $groupNameAttr)
             ->set('grpMemberAttr', $grpMemberAttr)
             ->set('adminGroup', $adminGroup)
             ->set('userGroup', $userGroup)

@@ -13,16 +13,17 @@
             {data: 'port'}, // 5
             {data: 'searchDN'}, // 6
             {data: 'userNamAttr'}, // 7
-            {data: 'grpMemberAttr'}, // 8
-            {data: 'adminGroup'}, // 9
-            {data: 'userGroup'}, // 10
-            {data: 'searchScope'}, // 11
-            {data: 'bindDN'}, // 12
-            {data: 'bindPwd'}, // 13
-            {data: 'grpSearchDN'}, // 14
-            {data: 'useGroupMatch'}, // 15
-            {data: 'displayNameOn'}, // 16
-            {data: 'displayNameAttr'} // 17
+            {data: 'grpNamAttr'}, // 8
+            {data: 'grpMemberAttr'}, // 9
+            {data: 'adminGroup'}, // 10
+            {data: 'userGroup'}, // 11
+            {data: 'searchScope'}, // 12
+            {data: 'bindDN'}, // 13
+            {data: 'bindPwd'}, // 14
+            {data: 'grpSearchDN'}, // 15
+            {data: 'useGroupMatch'}, // 16
+            {data: 'displayNameOn'}, // 17
+            {data: 'displayNameAttr'} // 18
         ],
         columnDefs: [
             {
@@ -50,11 +51,7 @@
                 visible: false
             },
             {
-                targets: 8,
-                visible: false
-            },
-            {
-                targets: 10,
+                targets: 9,
                 visible: false
             },
             {
@@ -83,6 +80,10 @@
             },
             {
                 targets: 17,
+                visible: false
+            },
+            {
+                targets: 18,
                 visible: false
             }
         ],
