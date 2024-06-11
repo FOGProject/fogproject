@@ -52,6 +52,7 @@ class LDAPManager extends FOGManagerController
                 'lsUserSearchDN',
                 'lsPort',
                 'lsUserNamAttr',
+                'lsGroupNamAttr',
                 'lsGrpMemberAttr',
                 'lsAdminGroup',
                 'lsUserGroup',
@@ -74,6 +75,7 @@ class LDAPManager extends FOGManagerController
                 'TIMESTAMP',
                 'LONGTEXT',
                 'INTEGER',
+                'VARCHAR(255)',
                 'VARCHAR(255)',
                 'VARCHAR(255)',
                 'LONGTEXT',
@@ -109,6 +111,7 @@ class LDAPManager extends FOGManagerController
                 false,
                 false,
                 false,
+                false,
                 false
             ],
             [
@@ -118,6 +121,7 @@ class LDAPManager extends FOGManagerController
                 false,
                 false,
                 'CURRENT_TIMESTAMP',
+                false,
                 false,
                 false,
                 false,
