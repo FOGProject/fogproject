@@ -16,6 +16,7 @@
         generalDeleteModalConfirm = $('#confirmDeleteModal'),
         generalDeleteModalCancel = $('#closeDeleteModal'),
         packval = $('#snapinpack').val(),
+        opts = {},
         ACTION_VAL = -1,
         // Setup the changer as a function so I'm not typing
         // the same information twice in the same file.
@@ -96,7 +97,6 @@
         e.preventDefault();
         $(this).iCheck('update');
         if (!this.checked) {
-            opts = {};
             return;
         }
         opts = {andFile: 1};
