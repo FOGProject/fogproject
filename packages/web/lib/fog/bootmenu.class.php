@@ -430,14 +430,10 @@ class BootMenu extends FOGBase
         );
         if (isset($_REQUEST['username'])) {
             $this->verifyCreds();
-        } elseif (isset($_REQUEST['delconf'])) {
-            $this->_delHost();
         } elseif (isset($_REQUEST['key'])) {
             $this->keyset();
         } elseif (isset($_REQUEST['sessname'])) {
             $this->sesscheck();
-        } elseif (isset($_REQUEST['aprvconf'])) {
-            $this->_approveHost();
         } elseif (!self::$Host->isValid()) {
             $this->printDefault();
         } else {
@@ -564,27 +560,6 @@ class BootMenu extends FOGBase
         $this->_parseMe($Send);
     }
     /**
-     * Deletes the current host
-     *
-     * @return void
-     */
-    private function _delHost()
-    {
-        if (self::$Host->destroy()) {
-            $Send['delsuccess'] = [
-                'echo Host deleted successfully',
-                'sleep 3'
-            ];
-        } else {
-            $Send['delfail'] = [
-                'echo Failed to destroy Host!',
-                'sleep 3',
-            ];
-        }
-        $this->_parseMe($Send);
-        $this->_chainBoot();
-    }
-    /**
      * Print if this host is image ignored
      *
      * @return void
@@ -597,48 +572,6 @@ class BootMenu extends FOGBase
         ];
         $this->_parseMe($Send);
         $this->printDefault();
-    }
-    /**
-     * Approves a pending host
-     *
-     * @return void
-     */
-    private function _approveHost()
-    {
-        if (!self::$Host->isValid()) return;
-        self::$Host->set('pending', null);
-        if (self::$Host->save()) {
-            $Send['approvesuccess'] = [
-                'echo Host approved successfully',
-                'sleep 3'
-            ];
-            $shutdown = stripos(
-                'shutdown=1',
-                $_REQUEST['extraargs']
-            );
-            $isdebug = preg_match(
-                '#isdebug=yes|mode=debug|mode=onlydebug#i',
-                $_REQUEST['extraargs']
-            );
-            Route::indiv('tasktype', TaskType::INVENTORY);
-            $tasktype = json_decode(Route::getData());
-            self::$Host->createImagePackage(
-                $tasktype,
-                'Inventory',
-                $shutdown,
-                $isdebug,
-                false,
-                false,
-                $_REQUEST['username']
-            );
-        } else {
-            $Send['approvefail'] = [
-                'echo Host approval failed',
-                'sleep 3'
-            ];
-        }
-        $this->_parseMe($Send);
-        $this->_chainBoot();
     }
     /**
      * Prints the current tasking for the host
@@ -687,52 +620,6 @@ class BootMenu extends FOGBase
             "$this->_kernel $kernelArgs",
             $this->_initrd,
             'boot',
-        ];
-        $this->_parseMe($Send);
-    }
-    /**
-     * Presents the deletion confirmation screen
-     *
-     * @return void
-     */
-    public function delConf()
-    {
-        $Send['delconfirm'] = [
-            'cpuid --ext 29 && set arch x86_64 || set arch i386',
-            'prompt --key y Would you like to delete this host? (y/N): &&',
-            'params',
-            'param mac0 ${net0/mac}',
-            'param arch ${arch}',
-            'param platform ${platform}',
-            'param delconf 1',
-            'param sysuuid ${uuid}',
-            'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
-            'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-            ':bootme',
-            "chain -ar $this->_booturl/ipxe/boot.php##params",
-        ];
-        $this->_parseMe($Send);
-    }
-    /**
-     * Presents the approval confirmation screen
-     *
-     * @return void
-     */
-    public function aprvConf()
-    {
-        $Send['aprvconfirm'] = [
-            'cpuid --ext 29 && set arch x86_64 || set arch i386',
-            'prompt --key y Would you like to approve this host? (y/N): &&',
-            'params',
-            'param mac0 ${net0/mac}',
-            'param arch ${arch}',
-            'param platform ${platform}',
-            'param aprvconf 1',
-            'param sysuuid ${uuid}',
-            'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
-            'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-            ':bootme',
-            "chain -ar $this->_booturl/ipxe/boot.php##params",
         ];
         $this->_parseMe($Send);
     }
@@ -1237,16 +1124,12 @@ class BootMenu extends FOGBase
             if ($advLogin && $_REQUEST['advLog']) {
                 $this->advLogin();
             }
-            if ($_REQUEST['delhost']) {
-                $this->delConf();
-            } elseif ($_REQUEST['keyreg']) {
+            if ($_REQUEST['keyreg']) {
                 $this->keyreg();
             } elseif ($_REQUEST['qihost']) {
                 $this->setTasking($_REQUEST['imageID']);
             } elseif ($_REQUEST['sessionJoin']) {
                 $this->sessjoin();
-            } elseif ($_REQUEST['approveHost']) {
-                $this->aprvConf();
             } elseif ($_REQUEST['menuaccess']) {
                 unset($this->_hiddenmenu);
                 $this->_chainBoot(true);

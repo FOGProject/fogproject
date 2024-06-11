@@ -4104,3 +4104,7 @@ $this->schema[] = [
     . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `dmidecodeKeys` (`dkName`) VALUES ('$dmiStrings')"
 ];
+$this->schema[] = [
+    "DELETE FROM `pxeMenu` WHERE `pxeName`='fog.approvehost'",
+    "DELETE FROM `pxeMenu` WHERE `pxeName`='fog.quickdel'",
+];
