@@ -1237,7 +1237,7 @@ class FOGConfigurationPage extends FOGPage
             '${field}',
             '${input}',
         );
-        Route::listem('pxemenuoptions');
+        Route::listem('pxemenuoptions', 'id');
         $Menus = json_decode(
             Route::getData()
         );
