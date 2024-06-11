@@ -447,6 +447,11 @@ $.fn.registerModal = function(onOpen, onClose, opts) {
   if (onClose && typeof(onClose) === 'function')
     e.on('hidden.bs.modal', onClose);
 }
+$.fn.dataTable.ext.order['dom-checkbox'] = function(settings, col) {
+    return this.api().column(col, {order:'index'}).nodes().map(function(td, i) {
+      return $('input', td).prop('checked') ? '1' : '0';
+  });
+};
 $.fn.registerTable = function(onSelect, opts) {
   opts = opts || {};
   opts = _.defaults(opts, {
