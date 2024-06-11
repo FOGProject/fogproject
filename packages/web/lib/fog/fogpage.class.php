@@ -977,14 +977,14 @@ abstract class FOGPage extends FOGBase
         echo '</button>';
         echo '<ul class="dropdown-menu" role="menu">';
         foreach ($dropdownArray as &$dropdown) {
-            $divider = $dropdown['divider'] ?: '';
+            $divider = isset($dropdown['divider']) ? $dropdown['divider']: '';
             if ($divider) {
                 echo '<li class="divider"></li>';
             }
-            $href = $dropdown['href'] ?: '#';
-            $did = $dropdown['id'] ? ' id="' . $dropdown['id'] . '"' : '';
-            $dprops = $dropdown['props'] ? ' ' . $dropdown['props'] . ' ' : '';
-            $dtext = $dropdown['text'];
+            $href = isset($dropdown['href']) ? $dropdown['href'] : '#';
+            $did = isset($dropdown['id']) ? ' id="' . $dropdown['id'] . '"' : '';
+            $dprops = isset($dropdown['props']) ? ' ' . $dropdown['props'] . ' ' : '';
+            $dtext = isset($dropdown['text']) ? $dropdown['text'] : '';
             echo '<li>';
             echo '<a href="'
                 . $href
