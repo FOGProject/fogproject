@@ -176,7 +176,7 @@ class BootMenu extends FOGBase
             'grub_first_cdrom' => $grub['1cd'],
             'grub_first_found_windows' => $grub['1fw'],
             'refind_efi' => $refind,
-            'exit' => 'exit',
+            'exit' => 'exit 0',
         ];
         list(
             $webserver,
@@ -423,7 +423,7 @@ class BootMenu extends FOGBase
         $this->_ipxeLog();
         if (self::$Host->isValid() && self::$Host->get('task')->isValid()) {
             $this->getTasking();
-            exit;
+            exit();
         }
         self::$HookManager->processEvent(
             'ALTERNATE_BOOT_CHECKS'
@@ -1332,7 +1332,7 @@ class BootMenu extends FOGBase
             "$this->_bootexittype"
         ];
         $this->_parseMe($Send);
-        exit;
+        exit();
     }
     /**
      * Get's a current tasking if any
