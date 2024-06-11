@@ -67,6 +67,7 @@ abstract class FOGClient extends FOGBase
             if (!self::$Host instanceof Host) {
                 self::$Host = new Host(0);
             }
+            self::$Host->set('pingstatus', 0);
             $moduleid = filter_input(INPUT_POST, 'moduleid');
             if (!$moduleid) {
                 $moduleid = filter_input(INPUT_GET, 'moduleid');
