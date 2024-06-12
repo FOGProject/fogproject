@@ -342,7 +342,7 @@ abstract class FOGManagerController extends FOGBase
                 $str = $requestColumn['search']['value'];
                 if ($requestColumn['searchable'] != 'true'
                     || $str == ''
-                    || !isset($column['db'])
+                    || (!isset($column['db']) && !isset($column['do']))
                     || $column['removeFromQuery']
                 ) {
                     continue;
@@ -352,7 +352,12 @@ abstract class FOGManagerController extends FOGBase
                     '%' . $str . '%',
                     PDO::PARAM_STR
                 );
-                $columnSearch[] = "`".$column['db']."` LIKE ".$binding;
+                if (!isset($column['db']) && isset($column['do'])) {
+                    $columnSearch = $column['do'];
+                } else {
+                    $columnSearch = $column['db'];
+                }
+                $columnSearch[] = "`".$columnSearch."` LIKE ".$binding;
             }
         }
         // Combine the filters into a single string
