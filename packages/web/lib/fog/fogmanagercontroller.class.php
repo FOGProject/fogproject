@@ -181,7 +181,15 @@ abstract class FOGManagerController extends FOGBase
                 if (isset($column['formatter'])) {
                     if (!isset($column['extra'])) {
                         $row[$column['dt']] = $column['formatter'](
-                            isset($column['db']) ? $data[$i][$column['db']] : '',
+                            (
+                                isset($column['db']) ?
+                                $data[$i][$column['db']] :
+                                (
+                                    isset($column['do']) ?
+                                    $data[$i][$column['do']] :
+                                    ''
+                                )
+                            ),
                             $data[$i]
                         );
                     } else {
@@ -191,9 +199,25 @@ abstract class FOGManagerController extends FOGBase
                         );
                     }
                 } else {
-                    $row[$column['dt']] = $data[$i][$columns[$j]['db']];
+                    $row[$column['dt']] = (
+                        isset($data[$i][$columns[$j]['db']]) ?
+                        $data[$i][$columns[$j]['db']] :
+                        (
+                            isset($data[$i][$columns[$j]['do']]) ?
+                            $data[$i][$columns[$j]['do']] :
+                            ''
+                        )
+                    );
                     if (!isset($column['extra'])) {
-                        $row[$column['dt']] = $data[$i][$columns[$j]['db']];
+                        $row[$column['dt']] = (
+                            isset($data[$i][$columns[$j]['db']]) ?
+                            $data[$i][$columns[$j]['db']] :
+                            (
+                                isset($data[$i][$columns[$j]['do']]) ?
+                                $data[$i][$columns[$j]['do']] :
+                                ''
+                            )
+                        );
                     } else {
                         $row[$column['dt']] = $data[$i][$columns[$j]['extra']];
                     }
@@ -319,13 +343,17 @@ abstract class FOGManagerController extends FOGBase
                 $columnOdx = array_search($requestColumn['data'], $doColumns);
                 $column = $columns[$columnIdx];
                 if ($requestColumn['searchable'] != 'true'
-                    || !isset($column['db'])
+                    || (!isset($column['db']) && !isset($column['do']))
                     || (isset($column ['removeFromQuery']) && $column['removeFromQuery'])
                 ) {
                     continue;
                 }
+                if (!isset($column['db'])) {
+                    continue;
+                } else {
+                    $columnSrch = $column['db'];
+                }
                 $binding = self::bind($bindings, '%'.$str.'%', PDO::PARAM_STR);
-                $columnSrch = $column['db'];
                 $globalSearch[] = "`".$columnSrch."` LIKE ".$binding;
             }
         }
@@ -338,17 +366,21 @@ abstract class FOGManagerController extends FOGBase
                 $str = $requestColumn['search']['value'];
                 if ($requestColumn['searchable'] != 'true'
                     || $str == ''
-                    || !isset($column['db'])
+                    || (!isset($column['db']) && !isset($column['do']))
                     || $column['removeFromQuery']
                 ) {
                     continue;
+                }
+                if (!isset($column['db'])) {
+                    continue;
+                } else {
+                    $columnSrch = $column['db'];
                 }
                 $binding = self::bind(
                     $bindings,
                     '%' . $str . '%',
                     PDO::PARAM_STR
                 );
-                $columnSrch = $column['db'];
                 $columnSearch[] = "`".$columnSrch."` LIKE ".$binding;
             }
         }

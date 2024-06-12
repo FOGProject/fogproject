@@ -1255,7 +1255,8 @@ abstract class FOGController extends FOGBase
             $sqlFilterStr = $qFilterStr;
         }
         if (empty($qTotalStr)) {
-            $sqlTotalStr = "SELECT COUNT(`%s`) FROM `%s`";
+            $sqlTotalStr = "SELECT COUNT(`%s`) "
+                . "FROM `%s`";
         } else {
             $sqlTotalStr = $qTotalStr;
         }
