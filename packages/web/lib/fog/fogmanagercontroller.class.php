@@ -319,18 +319,14 @@ abstract class FOGManagerController extends FOGBase
                 $columnOdx = array_search($requestColumn['data'], $doColumns);
                 $column = $columns[$columnIdx];
                 if ($requestColumn['searchable'] != 'true'
-                    || (!isset($column['db']) && !isset($column['do']))
+                    || !isset($column['db'])
                     || (isset($column ['removeFromQuery']) && $column['removeFromQuery'])
                 ) {
                     continue;
                 }
                 $binding = self::bind($bindings, '%'.$str.'%', PDO::PARAM_STR);
-                if (!isset($column['db']) && isset($column['do'])) {
-                    $columnSearch = $column['do'];
-                } else {
-                    $columnSearch = $column['db'];
-                }
-                $globalSearch[] = "`".$columnSearch."` LIKE ".$binding;
+                $columnSrch = $column['db'];
+                $globalSearch[] = "`".$columnSrch."` LIKE ".$binding;
             }
         }
         // Individual column filtering
@@ -342,7 +338,7 @@ abstract class FOGManagerController extends FOGBase
                 $str = $requestColumn['search']['value'];
                 if ($requestColumn['searchable'] != 'true'
                     || $str == ''
-                    || (!isset($column['db']) && !isset($column['do']))
+                    || !isset($column['db'])
                     || $column['removeFromQuery']
                 ) {
                     continue;
@@ -352,12 +348,8 @@ abstract class FOGManagerController extends FOGBase
                     '%' . $str . '%',
                     PDO::PARAM_STR
                 );
-                if (!isset($column['db']) && isset($column['do'])) {
-                    $columnSearch = $column['do'];
-                } else {
-                    $columnSearch = $column['db'];
-                }
-                $columnSearch[] = "`".$columnSearch."` LIKE ".$binding;
+                $columnSrch = $column['db'];
+                $columnSearch[] = "`".$columnSrch."` LIKE ".$binding;
             }
         }
         // Combine the filters into a single string
