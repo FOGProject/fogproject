@@ -1240,6 +1240,9 @@ abstract class FOGController extends FOGBase
                 unset($j);
             }
             $sqlStr .= ' %s %s %s';
+            if ($secondary) {
+                $sqlStr .= "ORDER BY `". $secondID . "` ASC";
+            }
         } else {
             $sqlStr = $qStr;
         }
