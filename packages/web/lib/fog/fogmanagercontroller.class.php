@@ -310,20 +310,27 @@ abstract class FOGManagerController extends FOGBase
         $globalSearch = [];
         $columnSearch = [];
         $dtColumns = self::pluck($columns, 'dt');
+        $doColumns = self::pluck($columns, 'do');
         if (isset($request['search']) && $request['search']['value'] != '') {
             $str = $request['search']['value'];
             for ($i=0, $ien = count($request['columns'] ?: []); $i < $ien; $i++) {
                 $requestColumn = $request['columns'][$i];
                 $columnIdx = array_search($requestColumn['data'], $dtColumns);
+                $columnOdx = array_search($requestColumn['data'], $doColumns);
                 $column = $columns[$columnIdx];
                 if ($requestColumn['searchable'] != 'true'
-                    || !isset($column['db'])
-                    || (isset($column ['removeFromQuery']) &&$column['removeFromQuery'])
+                    || (!isset($column['db']) && !isset($column['do']))
+                    || (isset($column ['removeFromQuery']) && $column['removeFromQuery'])
                 ) {
                     continue;
                 }
                 $binding = self::bind($bindings, '%'.$str.'%', PDO::PARAM_STR);
-                $globalSearch[] = "`".$column['db']."` LIKE ".$binding;
+                if (!isset($column['db']) && isset($column['do'])) {
+                    $columnSearch = $column['do'];
+                } else {
+                    $columnSearch = $column['db'];
+                }
+                $globalSearch[] = "`".$columnSearch."` LIKE ".$binding;
             }
         }
         // Individual column filtering
