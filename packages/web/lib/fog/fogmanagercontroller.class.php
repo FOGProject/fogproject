@@ -243,14 +243,20 @@ abstract class FOGManagerController extends FOGBase
         $order = '';
         $dtColumns = self::pluck($columns, 'dt');
         $dbColumns = self::pluck($columns, 'db');
+        $doColumns = self::pluck($columns, 'do');
         if (!isset($request['order']) || count($request['order'] ?: []) <= 0) {
             $columnIdx = array_search($orderby, $dtColumns);
-            if (false === $columnIdx) {
+            $columnOdx = array_search($orderby, $doColumns);
+            if (false === $columnIdx && false === $columnOdx) {
                 $columnIdx = array_search('id', $dtColumns);
+                $order = 'ORDER BY `'
+                    . $dbColumns[$columnIdx]
+                    . '` ASC';
+            } else if (false === $columnIdx) {
+                $order = 'ORDER BY `'
+                    . $doColumns[$columnOdx]
+                    . '` ASC';
             }
-            $order = 'ORDER BY `'
-                . $dbColumns[$columnIdx]
-                . '` ASC';
             return $order;
         }
         $orderBy = [];
@@ -271,8 +277,12 @@ abstract class FOGManagerController extends FOGBase
             $dir = $request['order'][$i]['dir'] === 'asc' ?
                 'ASC' :
                 'DESC';
-
-            $orderBy[] = '`'.$column['db'].'` '.$dir;
+            if (!isset($column['db']) && isset($column['do'])) {
+                $orderCol = $column['do'];
+            } else {
+                $orderCol = $column['db'];
+            }
+            $orderBy[] = '`'.$orderCol.'` '.$dir;
         }
         if (count($orderBy ?: []) > 0) {
             $order = 'ORDER BY '.implode(', ', $orderBy);

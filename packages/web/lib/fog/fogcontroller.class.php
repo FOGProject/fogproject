@@ -1240,9 +1240,6 @@ abstract class FOGController extends FOGBase
                 unset($j);
             }
             $sqlStr .= ' %s %s %s';
-            if ($secondary) {
-                $sqlStr .= "ORDER BY `". $secondID . "` ASC";
-            }
         } else {
             $sqlStr = $qStr;
         }
@@ -1288,8 +1285,15 @@ abstract class FOGController extends FOGBase
                             . '</a>';
                     }
                 ];
+                break;
             }
             unset($real);
+        }
+        if ($secondary) {
+            $columns[] = [
+                'do' => $secondID,
+                'dt' => 'association'
+            ];
         }
         foreach ((array)$addColumns as &$column) {
             $columns[] = $column;
