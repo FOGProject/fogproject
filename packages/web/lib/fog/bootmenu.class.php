@@ -173,7 +173,7 @@ class BootMenu extends FOGBase
             'grub_first_cdrom' => $grub['1cd'],
             'grub_first_found_windows' => $grub['1fw'],
             'refind_efi' => $refind,
-            'exit' => 'exit',
+            'exit' => 'exit 0',
             'reboot' => $reboot,
         );
         list(
