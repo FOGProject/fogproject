@@ -204,6 +204,7 @@ class BootMenu extends FOGBase
             'set boot-url '
             . self::$httpproto
             . '://${fog-ip}/${fog-webroot}',
+            'set setmacto ${net0/mac}',
         );
         if (self::$Host->isValid()) {
             if (!self::$Host->get('inventory')->get('sysuuid')) {
@@ -416,7 +417,8 @@ class BootMenu extends FOGBase
         $this->_kernel = sprintf(
             'kernel %s %s initrd=%s root=/dev/ram0 rw '
             . 'ramdisk_size=%s%sweb=%s consoleblank=0%s rootfstype=ext4%s%s '
-            . '%s nvme_core.default_ps_max_latency_us=0',
+            . '%s nvme_core.default_ps_max_latency_us=0 '
+            . 'setmacto=${setmacto}',
             $bzImage,
             $this->_loglevel,
             basename($initrd),
