@@ -62,10 +62,29 @@ $kernelvers = function ($kernel) {
     );
     return shell_exec($findstr);
 };
+
+$initrdvers = function ($initrd) {
+    $currpath = sprintf(
+        '%s%sservice%sipxe%s%s',
+        BASEPATH,
+        DS,
+        DS,
+        DS,
+        $initrd
+    );
+    $basepath = escapeshellarg($currpath);
+    $findstr = sprintf(
+        'getfattr -n user.version %s | grep -oP "\d+\.\d+\.\d+"',
+        $basepath
+    );
+    return shell_exec($findstr);
+};
+
 printf(
     "%s\n",
     FOG_VERSION
 );
+
 printf(
     "bzImage Version: %s\n",
     $kernelvers('bzImage')
@@ -76,11 +95,30 @@ printf(
 );
 if ($kernelvers('arm_Image') == null) {
     printf(
-        "arm_Image Version: Not installed"
+        "arm_Image Version: Not installed\n"
     );
 } else {
     printf(
-        "arm_Image Version: %s",
+        "arm_Image Version: %s\n",
         $kernelvers('arm_Image')
+    );
+}
+
+printf(
+    "init.xz Version: %s\n",
+    $initrdvers('init.xz')
+);
+printf(
+    "init_32.xz Version: %s\n",
+    $initrdvers('init_32.xz')
+);
+if ($initrdvers('arm_init.cpio.gz') == null) {
+    printf(
+        "arm_init.cpio.gz Version: Not installed\n"
+    );
+} else {
+    printf(
+        "arm_init.cpio.gz Version: %s\n",
+        $initrdvers('arm_init.xz')
     );
 }
