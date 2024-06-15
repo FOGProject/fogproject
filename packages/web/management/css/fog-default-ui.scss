@@ -155,3 +155,17 @@ header.main-header .mobile-logo {
 td div.input-group {
     width: auto !important;
 }
+
+dl {
+  display: grid;
+  grid-template-columns: max-content auto;
+  font-family: monospace, fixed;
+}
+
+dt {
+  grid-column-start: 1;
+}
+
+dd {
+  grid-column-start: 3;
+}

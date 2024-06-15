@@ -31,14 +31,33 @@
           $(this).text('No data returned');
           return;
         }
-        data = data.split('\n');
-        if (data.length < 2) {
-          $(this).text('No data returned');
-          return;
-        }
-        var nodevers = 'Node Version: ' + data.shift();
-        data.unshift(nodevers);
-        $(this).text(data.join('\n'));
+        data = JSON.parse(data);
+        $(this).html(
+            '<div class="box box-solid">'
+            + '<div class="box-header with-border">'
+            + '<h4 class="box-title">' + data.node_version_lang + '</h4>'
+            + '</div>'
+            + '<div class="box-body">'
+            + data.node_vers
+            + '</div>'
+            + '</div>'
+            + '<div class="box box-solid">'
+            + '<div class="box-header with-border">'
+            + '<h4 class="box-title">' + data.kern_version_lang + '</h4>'
+            + '</div>'
+            + '<div class="box-body">'
+            + '<dl>'
+            + '<dt>Intel - 64 Bit</dt>'
+            + '<dd>' + data.int64bit + '</dd>'
+            + '<dt>Intel - 32 Bit</dt>'
+            + '<dd>' + data.int32bit + '</dd>'
+            + '<dt>ARM - 64 Bit</dt>'
+            + '<dd>' + data.arm64bit + '</dd>'
+            + '</dl>'
+            + '</div>'
+            + '</div>'
+        );
+        console.log(data);
       },
       error: function(jqXHR, textStatus, errorThrown) {
         $(this).text(textStatus);

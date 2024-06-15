@@ -1282,7 +1282,7 @@ abstract class FOGController extends FOGBase
                             . 'sub=edit&id='
                             . $row[$idField]
                             . '">'
-                            . $d . " - (" . $row[$idField] . ")"
+                            . $d
                             . '</a>';
                     }
                 ];

@@ -100,10 +100,10 @@ class FOGConfigurationPage extends FOGPage
                 echo '</div>';
                 continue;
             }
-            echo '<pre class="kernvers" urlcall="'
+            echo '<div class="kernvers" urlcall="'
                 . $url
                 . '">';
-            echo '</pre>';
+            echo '</dl>';
             echo '</div>';
             echo '</div>';
             echo '</div>';
@@ -140,7 +140,7 @@ class FOGConfigurationPage extends FOGPage
         echo self::$FOGCollapseBox;
         echo '</div>';
         echo '<h4 class="box-title">';
-        echo _('Kernel Versions');
+        echo _('Versions');
         echo '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
