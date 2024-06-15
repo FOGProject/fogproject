@@ -1327,7 +1327,7 @@ class FOGConfigurationPage extends FOGPage
 
         // Log selector.
         $logtype = 'error';
-        $logparse = function (&$log) use (
+        $logparse = function ($log) use (
             &$files,
             &$StorageNode,
             &$logtype
@@ -1561,7 +1561,7 @@ class FOGConfigurationPage extends FOGPage
                     base64_encode($ip[$nodename]),
                     $file,
                     (
-                        $value == $_POST['logtype'] ?
+                        isset($_POST['logtype']) && $value == $_POST['logtype'] ?
                         ' selected' :
                         ''
                     ),
