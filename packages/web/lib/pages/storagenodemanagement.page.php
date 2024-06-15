@@ -453,6 +453,7 @@ class StorageNodeManagement extends FOGPage
         $interface = filter_input(INPUT_POST, 'interface');
         $user = filter_input(INPUT_POST, 'user');
         $pass = filter_input(INPUT_POST, 'pass');
+        $graphcolor = filter_input(INPUT_POST, 'graphcolor');
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -1528,11 +1529,11 @@ class StorageNodeManagement extends FOGPage
         return $warning;
     }
     /**
-     * Viewing the Storage Node's Kernel information.
+     * Viewing the Storage Node's Version information.
      *
      * @return void
      */
-    public function storagenodeKernel()
+    public function storagenodeVersion()
     {
         echo '<div class="box box-solid">';
         echo '<div class="box-body">';
@@ -1594,12 +1595,12 @@ class StorageNodeManagement extends FOGPage
             }
         ];
 
-        // Kernel
+        // Versions
         $tabData[] = [
-            'name' => _('Kernel'),
-            'id' => 'storagenode-kernel',
+            'name' => _('Versions'),
+            'id' => 'storagenode-version',
             'generator' => function () {
-                $this->storagenodeKernel();
+                $this->storagenodeVersion();
             }
         ];
 
