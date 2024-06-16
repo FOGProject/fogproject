@@ -75,28 +75,26 @@ $initrdvers = function ($initrd) {
     }
     $basepath = escapeshellarg($currpath);
     $findstr = sprintf(
-        'getfattr -n user.tag_name %s | grep -oP \'tag_name=.*\'',
+        'attr -g tag_name %s | tail -n1',
         $basepath
     );
     $tag_name = shell_exec($findstr);
     $findstr = sprintf(
-        'getfattr -n user.version %s | grep -oP \'version=.*\'',
+        'attr -g version %s | tail -n1',
         $basepath
     );
     $buildroot = shell_exec($findstr);
     $stat = stat($currpath);
     $c_time = $stat['ctime'];
 
-    list($key, $tag) = explode('=', $tag_name);
-    list($key, $build) = explode('=', $buildroot);
-    $tag = trim(trim(trim($tag), '"'));
+    $tag = trim(trim(trim($tag_name), '"'));
     if (!$tag) {
         $tag = _('Unknown');
     }
+    $build = trim(trim(trim($buildroot), '"'));
     if (!$build) {
         $build = _('Unknown');
     }
-    $build = trim(trim(trim($build), '"'));
     $create = date('Y-m-d H:i:s', $c_time);
 
     return "$tag|$build|$create";

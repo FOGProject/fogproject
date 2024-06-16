@@ -1496,9 +1496,9 @@ configureUsers() {
         sed -i -e "s|^\(${username}.*:\)[^:]*$|\1/bin/bash|g" /etc/passwd >>$error_log 2>&1
     fi
     textmessage="You seem to be using the '$username' system account to logon and work \non your FOG Server system.\n\nIt's NOT recommended to use this account! Please create a new\naccount for administrative tasks.\n\nIf you re-run the installer it would reset the '$username' account\npassword and therefore lock you out of the system!\n\nTake care,\nyour FOGProject team"
-    grep -q "exit 1" /home/$username/.bashrc >/dev/null 2>&1 || cat >>/home/$username/.bashrc <<EOF
+    grep -q "#exit 1" /home/$username/.bashrc >/dev/null 2>&1 || cat >>/home/$username/.bashrc <<EOF
 echo -e "$textmessage"
-exit 1
+#exit 1
 EOF
     mkdir -p /home/$username/.config/autostart/
     cat >/home/$username/.config/autostart/warnfogaccount.desktop <<EOF

@@ -4104,7 +4104,17 @@ $this->schema[] = [
     . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `dmidecodeKeys` (`dkName`) VALUES ('$dmiStrings')"
 ];
+// 284
 $this->schema[] = [
     "DELETE FROM `pxeMenu` WHERE `pxeName`='fog.approvehost'",
     "DELETE FROM `pxeMenu` WHERE `pxeName`='fog.quickdel'",
+];
+// 285
+$this->schema[] = [
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_SSH_PORT',"
+    . "'What port for SSH into the FOG Server. (Defaults to 22)',"
+    . "'22','General Settings')"
 ];

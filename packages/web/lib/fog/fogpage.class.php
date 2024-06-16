@@ -1863,6 +1863,8 @@ abstract class FOGPage extends FOGBase
         header('Content-type: application/json');
         try {
             $msg = filter_input(INPUT_POST, 'msg');
+            $br_ver = filter_input(INPUT_POST, 'buildroot');
+            $tg_ver = filter_input(INPUT_POST, 'tag_name');
             if ($_SESSION['allow_ajax_idl']
                 && $_SESSION['dest-initrd-file']
                 && $_SESSION['tmp-initrd-file']
@@ -1971,6 +1973,20 @@ abstract class FOGPage extends FOGBase
                     self::$FOGFTP
                         ->delete($orig)
                         ->rename($tmpfile, $orig)
+                        ->chmod(0664, $orig);
+                    self::$FOGSSH->username = $tftpUser;
+                    self::$FOGSSH->password = $tftpPass;
+                    self::$FOGSSH->host = $tftpHost;
+                    if (!self::$FOGSSH->connect()) {
+                        throw new Exception(_('Unable to connect to ssh'));
+                    }
+                    $br_cmd = "attr -s version -V $br_ver $orig";
+                    $tg_cmd = "attr -s version -V $tg_ver $orig";
+                    self::$FOGSSH->exec($br_cmd);
+                    self::$FOGSSH->exec($tg_cmd);
+                    self::$FOGSSH->disconnect();
+                    self::$FOGFTP
+                        ->chmod(0655, $orig)
                         ->close();
                     if (file_exists($tmpfile)) {
                         unlink($tmpfile);

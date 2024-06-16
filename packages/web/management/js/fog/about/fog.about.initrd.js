@@ -46,12 +46,17 @@
           e.preventDefault();
           downloadModal.modal('show');
           downloadurl = table.rows({selected: true}).ids();
+          rowData = table.rows({selected: true}).data();
           downloadparts = getQueryParams(downloadurl[0]);
+          let buildroot = $(this).find('td:eq(2)').text();
+          let tag_name = $(this).find('td:eq(1)').text();
           parts = {
             node: downloadparts['node'],
             sub: downloadparts['sub'],
             url: downloadparts['file'],
-            arch: downloadparts['arch']
+            arch: downloadparts['arch'],
+            buildroot: rowData[0].version,
+            tag_name: rowData[0].tag_name
           };
           val = parts.arch == 32 ? 'init_32.xz' : (parts.arch == 'arm64' ? 'arm_init.cpio.gz' : 'init.xz');
           $('#initrd-name').prop('placeholder', val).prop('value', val);
@@ -62,7 +67,9 @@
             opts = {
               install: 1,
               file: parts.url,
-              dstName: dstName
+              dstName: dstName,
+              buildroot: parts.buildroot,
+              tag_name: parts.tag_name
             },
             fetchurl = '../management/index.php?node='
             + Common.node
@@ -73,11 +80,11 @@
             if (err) {
               return;
             }
-            $.apiCall('post', dlurl, {msg: 'dl'}, function(err) {
+            $.apiCall('post', dlurl, {msg: 'dl', buildroot: opts.buildroot, tag_name: opts.tag_name}, function(err) {
               if (err) {
                 return;
               }
-              $.apiCall('post', dlurl, {msg: 'tftp'}, function(err) {
+              $.apiCall('post', dlurl, {msg: 'tftp', buildroot: opts.buildroot, tag_name: opts.tag_name}, function(err) {
                 if (err) {
                   return;
                 }

@@ -162,7 +162,7 @@ class FOGFTP
             }
             if ($autologin) {
                 $this->login();
-                ftp_pasv($this->_link, $this->passive);
+                $this->pasv($this->passive);
             }
             $this->_lastConnectionHash = $this->_currentConnectionHash;
         } catch (Exception $e) {
@@ -188,7 +188,7 @@ class FOGFTP
             return $this;
         }
         if (!$this->rmdir($path)
-            && !@ftp_delete($this->_link, $path)
+            && $this->__call('delete', [$path])
         ) {
             $filelist = $this->nlist($path);
             foreach ((array)$filelist as &$file) {
@@ -271,7 +271,7 @@ class FOGFTP
             if (!$password) {
                 $password = $this->password;
             }
-            if (ftp_login($this->_link, $username, $password) === false) {
+            if ($this->__call('login', [$username, $password]) === false) {
                 $this->ftperror($this->data);
             }
         } catch (Exception $e) {
@@ -289,7 +289,7 @@ class FOGFTP
      */
     public function listrecursive($path)
     {
-        $lines = ftp_rawlist($this->_link, $path);
+        $lines = $this->rawlist($path);
         $rawlist = join("\n", $lines);
         preg_match_all(
             '/^([drwx+\-]{10})\s+(\d+)\s+(\w+)\s+(\w+)\s+(\d+)\s+(.{12}) (.*)$/m',
@@ -332,6 +332,23 @@ class FOGFTP
         if (!($this->__call('rename', [$oldname, $newname])
             || $this->put($newname, $oldname, $this->mode))
         ) {
+            $this->ftperror($this->data);
+        }
+        return $this;
+    }
+    /**
+     * CHMOD function
+     *
+     * @param string $modrw the permissions to define
+     * @param string $file  the file to set modifications
+     *
+     * @return $this;
+     */
+    public function chmod(
+        $modrw,
+        $file
+    ) {
+        if ($this->__call('chmod', [$modrw, $file]) === false) {
             $this->ftperror($this->data);
         }
         return $this;
@@ -422,7 +439,7 @@ class FOGFTP
     public function exists($path)
     {
         $tmppath = dirname($path);
-        $rawlisting = ftp_rawlist($this->_link, "-a $tmppath");
+        $rawlisting = $this->rawlist("-a $tmppath");
         $dirlisting = [];
         foreach ((array)$rawlisting as &$file) {
             $chunk = preg_split('/\s+/', $file);
