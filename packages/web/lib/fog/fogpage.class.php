@@ -1981,7 +1981,7 @@ abstract class FOGPage extends FOGBase
                         throw new Exception(_('Unable to connect to ssh'));
                     }
                     $br_cmd = "attr -s version -V $br_ver $orig";
-                    $tg_cmd = "attr -s version -V $tg_ver $orig";
+                    $tg_cmd = "attr -s tag_name -V $tg_ver $orig";
                     self::$FOGSSH->exec($br_cmd);
                     self::$FOGSSH->exec($tg_cmd);
                     self::$FOGSSH->disconnect();
