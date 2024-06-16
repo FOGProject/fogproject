@@ -1453,26 +1453,6 @@ configureUsers() {
             echo "the installer again. Run: userdel $username"
             echo
             exit 1
-        else
-            [[ ! -f /var/log/lastlog ]] && touch /var/log/lastlog
-            lastlog -u $username | tail -n1 | grep "\*\*.*\*\*" >/dev/null 2>&1
-            if [[ $? -eq 1 ]]; then
-                echo "Already exists"
-                echo
-                echo "The account \"$username\" already exists and has been used to"
-                echo "log in to this server. We highly recommend you NOT use this"
-                echo "account as it is supposed to be a system account!"
-                echo
-                echo "Please remove the account \"$username\" manually before running"
-                echo "the installer again, or set the system username yourself."
-                echo
-                echo "To remove the account run: userdel $username"
-                echo
-                echo "To set a new service username run installer with:"
-                echo "username=<usernameForSystem> ./installfog.sh -y"
-                echo
-                exit 1
-            fi
         fi
         echo "Skipped"
     else
