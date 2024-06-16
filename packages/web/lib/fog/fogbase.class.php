@@ -168,6 +168,12 @@ abstract class FOGBase
      */
     protected static $FOGFTP;
     /**
+     * SSH Handler.
+     *
+     * @var object
+     */
+    protected static $FOGSSH;
+    /**
      * Core usage elements as FOGBase is abstract.
      *
      * @var object
@@ -333,6 +339,7 @@ abstract class FOGBase
         }
         global $foglang;
         global $FOGFTP;
+        global $FOGSSH;
         global $FOGCore;
         global $DB;
         global $currentUser;
@@ -343,6 +350,7 @@ abstract class FOGBase
         global $TimeZone;
         self::$foglang = &$foglang;
         self::$FOGFTP = &$FOGFTP;
+        self::$FOGSSH = &$FOGSSH;
         self::$FOGCore = &$FOGCore;
         self::$DB = &$DB;
         self::$EventManager = &$EventManager;

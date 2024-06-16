@@ -38,6 +38,7 @@ class LoadGlobals extends FOGBase
             return;
         }
         $GLOBALS['FOGFTP'] = new FOGFTP();
+        $GLOBALS['FOGSSH'] = new FOGSSH();
         $GLOBALS['FOGCore'] = new FOGCore();
         DatabaseManager::establish();
         $GLOBALS['DB'] = DatabaseManager::getDB();
