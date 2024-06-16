@@ -224,7 +224,6 @@ class FOGConfigurationPage extends FOGPage
         $this->title = _('Kernel Update');
 
         $this->headerData = [
-            _('Tag Name'),
             _('Version'),
             _('Architecture'),
             _('Type'),
@@ -232,7 +231,6 @@ class FOGConfigurationPage extends FOGPage
         ];
 
         $this->attributes = [
-            [],
             [],
             [],
             [],
@@ -383,7 +381,6 @@ class FOGConfigurationPage extends FOGPage
         $this->title = _('initrd (Initial Ramdisk) Update');
 
         $this->headerData = [
-            _('Tag Name'),
             _('Version'),
             _('Architecture'),
             _('Type'),
@@ -391,7 +388,6 @@ class FOGConfigurationPage extends FOGPage
         ];
 
         $this->attributes = [
-            [],
             [],
             [],
             [],

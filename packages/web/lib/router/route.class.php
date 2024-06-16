@@ -2958,7 +2958,6 @@ class Route extends FOGBase
                 $release_version,
                 PREG_OFFSET_CAPTURE
             );
-            $rel_ver = $release->tag_name;
             foreach ($release->assets as &$asset) {
                 if ($type == 'kernel' && !in_array($asset->name, ['arm_Image', 'bzImage', 'bzImage32'])) {
                     continue;
@@ -3030,8 +3029,7 @@ class Route extends FOGBase
                         'version' => $version,
                         'type' => $k_i_type,
                         'arch' => $arch,
-                        'download' => $download,
-                        'tag_name' => $rel_ver
+                        'download' => $download
                     ];
                 }
             }

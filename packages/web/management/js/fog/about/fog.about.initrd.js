@@ -24,7 +24,6 @@
               [3, 'asc']
             ],
             columns: [
-              {data: 'tag_name'},
               {data: 'version'},
               {data: 'arch'},
               {data: 'type'},
@@ -53,7 +52,7 @@
             url: downloadparts['file'],
             arch: downloadparts['arch']
           };
-          val = parts.arch == 32 ? 'init_32.xz' : (parts.arch == 'arm64' ? 'arm_init.cpio.gz' : 'init.xz');
+          val = parts.arch == 32 ? 'init_32.xz' : parts.arch == 'arm64' ? 'arm_init.cpio.gz' : 'init.xz';
           $('#initrd-name').prop('placeholder', val).prop('value', val);
         });
         confirmDownloadBtn.on('click', function(e) {
