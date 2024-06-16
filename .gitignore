@@ -89,4 +89,3 @@ packages/web/lib/plugins/hostext
 # pycharm folders #
 ###################
 **.idea
-**.sass-cache
