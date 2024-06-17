@@ -203,7 +203,7 @@ abstract class FOGManagerController extends FOGBase
                         isset($data[$i][$columns[$j]['db']]) ?
                         $data[$i][$columns[$j]['db']] :
                         (
-                            isset($data[$i][$columns[$j]['do']]) ?
+                            isset($columns[$j]['do']) && isset($data[$i][$columns[$j]['do']]) ?
                             $data[$i][$columns[$j]['do']] :
                             ''
                         )
@@ -213,7 +213,7 @@ abstract class FOGManagerController extends FOGBase
                             isset($data[$i][$columns[$j]['db']]) ?
                             $data[$i][$columns[$j]['db']] :
                             (
-                                isset($data[$i][$columns[$j]['do']]) ?
+                                isset($columns[$j]['do']) && isset($data[$i][$columns[$j]['do']]) ?
                                 $data[$i][$columns[$j]['do']] :
                                 ''
                             )
