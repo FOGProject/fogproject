@@ -1124,7 +1124,7 @@ class FOGConfigurationPage extends FOGPage
             $combined = $vars + $_POST + $_FILES;
             foreach ($combined as $key => &$val) {
                 Route::indiv('setting', $key);
-                if (!$_FILES[$key]) {
+                if (!isset($_FILES[$key]) || !$_FILES[$key]) {
                     $set = trim(filter_var($val));
                 }
                 $Setting = json_decode(
@@ -2189,7 +2189,7 @@ class FOGConfigurationPage extends FOGPage
                         );
                         break;
                     case 'FOG_TZ_INFO':
-                        $dt = self::niceDate('now', $utc);
+                        $dt = self::niceDate('now');
                         $tzIDs = DateTimeZone::listIdentifiers();
                         ob_start();
                         echo '<select class="form-control" name="'
