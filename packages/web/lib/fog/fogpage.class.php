@@ -1982,8 +1982,28 @@ abstract class FOGPage extends FOGBase
                     }
                     $br_cmd = "attr -s version -V $br_ver $orig";
                     $tg_cmd = "attr -s tag_name -V $tg_ver $orig";
-                    self::$FOGSSH->exec($br_cmd);
-                    self::$FOGSSH->exec($tg_cmd);
+                    $output_br = self::$FOGSSH->exec($br_cmd);
+                    $output_tg = self::$FOGSSH->exec($tg_cmd);
+                    $error_br = self::$FOGSSH->fetch_stream($output_br, SSH2_STREAM_STDERR);
+                    $error_tg = self::$FOGSSH->fetch_stream($output_tg, SSH2_STREAM_STDERR);
+                    stream_set_blocking($output_br, true);
+                    stream_set_blocking($output_tg, true);
+                    stream_set_blocking($error_br, true);
+                    stream_set_blocking($error_tg, true);
+                    $error_br_t = stream_get_contents($error_br);
+                    $error_tg_t = stream_get_contents($error_tg);
+                    if ($error_br_t) {
+                        error_log(_('Error on ssh command setting version'). ' ' . $br_cmd);
+                        error_log(_('Error'). ': ' . stream_get_contents($error_br_t));
+                    }
+                    if ($error_tg_t) {
+                        error_log(_('Error on ssh command setting tag_name'). ' ' . $tg_cmd);
+                        error_log(_('Error'). ': ' . $error_tg_t);
+                    }
+                    fclose($output_br);
+                    fclose($output_tg);
+                    fclose($error_br);
+                    fclose($error_tg);
                     self::$FOGSSH->disconnect();
                     self::$FOGFTP
                         ->chmod(0655, $orig)
