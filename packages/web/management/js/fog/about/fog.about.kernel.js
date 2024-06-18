@@ -21,7 +21,7 @@
               style: 'single'
             },
             order: [
-              [3, 'asc']
+              [4, 'asc']
             ],
             columns: [
               {data: 'tag_name'},
