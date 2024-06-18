@@ -82,19 +82,40 @@ class LogViewerHook extends Hook
      */
     public function logViewerAdd($arguments)
     {
-        self::$FOGFTP->username = $arguments['StorageNode']->get('user');
-        self::$FOGFTP->password = $arguments['StorageNode']->get('pass');
-        self::$FOGFTP->host = $arguments['StorageNode']->get('ip');
-        if (!self::$FOGFTP->connect()) {
+        self::$FOGSSH->username = $arguments['StorageNode']->user;
+        self::$FOGSSH->password = $arguments['StorageNode']->pass;
+        self::$FOGSSH->host = $arguments['StorageNode']->ip;
+        if (!self::$FOGSSH->connect()) {
             return;
         }
-        $fogfiles = [];
-        $fogfiles = self::$FOGFTP->nlist('/var/log/');
+        $sftp = self::$FOGSSH->sftp();
+        error_log(print_r($sftp, 1));
+        $dir = "ssh2.sftp://" . $sftp . "/var/log/";
+        if (!is_dir($dir)) {
+            self::$FOGSSH->disconnect();
+            return;
+        }
+        $handle = opendir($dir);
+        while (false !== ($entry = readdir($handle))) {
+            $filetype = filetype($dir.$entry);
+            if ($filetype == "dir") {
+                continue;
+            }
+            $fogfiles[] = "/var/log/" . $entry;
+        }
+        closedir($handle);
+        self::$FOGSSH->disconnect();
         $systemlog = preg_grep('#(syslog$|messages$)#', $fogfiles);
         $systemlog = array_shift($systemlog);
         if ($systemlog) {
-            $arguments['files'][$arguments['StorageNode']->get('name')]['System Log']
+            $arguments['files'][$arguments['StorageNode']->name]['System Log']
                 = $systemlog;
+        }
+        $dnflog = preg_grep('#(dnf.log$)#', $fogfiles);
+        $dnflog = array_shift($dnflog);
+        if ($dnflog) {
+            $arguments['files'][$arguments['StorageNode']->name]['DNF Log']
+                = $dnflog;
         }
     }
     /**
