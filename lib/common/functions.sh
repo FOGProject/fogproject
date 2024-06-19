@@ -1932,6 +1932,7 @@ EOF
         errorStat $?
     fi
     [[ -z $sslprivkey ]] && sslprivkey="$sslpath/.srvprivate.key"
+    [[ -z $sslcsr ]] && sslcsr="$sslpath/fog.csr"
     if [[ $recreateKeys == yes || $recreateCA == yes || $caCreated != yes || ! -e $sslpath || ! -e $sslprivkey ]]; then
         dots "Creating SSL Private Key"
         if [[ $(validip $ipaddress) -ne 0 ]]; then
@@ -1958,7 +1959,6 @@ subjectAltName = @alt_names
 IP.1 = $ipaddress
 DNS.1 = $hostname
 EOF
-        [[ -z $sslcsr ]] && sslcsr="$sslpath/fog.csr"
         openssl req -new -sha512 -key $sslprivkey -out $sslcsr -config $sslpath/req.cnf >>$error_log 2>&1 << EOF
 $ipaddress
 EOF
@@ -1977,12 +1977,12 @@ IP.1 = $ipaddress
 DNS.1 = $hostname
 EOF
     [[ -z $sslpubcert ]] && sslpubcert="$webdirdest/management/other/ssl/srvpublic.crt"
-    if [[ -z $sslpubcert ]]; then
+    if [[ ! -x $sslpubcert ]]; then
         dots "Creating SSL Certificate"
         openssl x509 -req -in $sslcsr -CA $sslcapem -CAkey $sslcakey -CAcreateserial -out $sslpubcert -days 3650 -extensions v3_ca -extfile $sslpath/ca.cnf >>$error_log 2>&1
         errorStat $?
     fi
-    [[ !-e $webdirdest/management/other/ssl/srvpublic.crt ]] && cp $sslpubcert $webdirdest/management/other/ssl/srvpublic.crt >>$error_log 2>&1
+    [[ ! -e $webdirdest/management/other/ssl/srvpublic.crt ]] && ln -sf $sslpubcert $webdirdest/management/other/ssl/srvpublic.crt >>$error_log 2>&1
     dots "Creating auth pub key and cert"
     cp $sslcapem $webdirdest/management/other/ca.cert.pem >>$error_log 2>&1
     openssl x509 -outform der -in $webdirdest/management/other/ca.cert.pem -out $webdirdest/management/other/ca.cert.der >>$error_log 2>&1
