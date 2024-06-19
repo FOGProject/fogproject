@@ -329,10 +329,10 @@ class FOGFTP
         $oldname,
         $newname
     ) {
-        if (!($this->__call('rename', [$oldname, $newname])
-            || $this->put($newname, $oldname, $this->mode))
-        ) {
-            $this->ftperror($this->data);
+        if (!($this->__call('rename', [$oldname, $newname]))) {
+            if (!$this->put($newname, $oldname, $this->mode)) {
+                $this->ftperror($this->data);
+            }
         }
         return $this;
     }
