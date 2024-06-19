@@ -2952,8 +2952,14 @@ class Route extends FOGBase
             return [];
         }
         foreach ($data as &$release) {
+            if ($type == 'kernel') {
+                $patt = '/Linux kernel (.*)?/';
+            }
+            if ($type == 'initrd') {
+                $patt = '/Buildroot (.*)?/';
+            }
             $found_match = preg_match(
-                '(?:Linux kernel\s+([\d.]+))(?:\s+)?(?:Buildroot\s+([\d.]+))?',
+                $patt,
                 $release->body,
                 $release_version,
                 PREG_OFFSET_CAPTURE
@@ -2969,14 +2975,7 @@ class Route extends FOGBase
                 if ($type == 'initrd' && !in_array($asset->name, ['arm_init.cpio.gz', 'init.xz', 'init_32.xz'])) {
                     continue;
                 }
-                switch ($type) {
-                    case 'kernel':
-                        $k_i_ver = $release_version[1][0];
-                        break;
-                    case 'initrd':
-                        $k_i_ver = $release_version[2][0];
-                        break;
-                }
+                $k_i_ver = $release_version[1][0];
                 $arch_short = '';
                 $arch = '';
                 switch ($asset->name) {
