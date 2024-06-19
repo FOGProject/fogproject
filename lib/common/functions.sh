@@ -1625,6 +1625,10 @@ writeUpdateFile() {
     escarmsupport=$(echo $sarmsupport | sed -e $replace)
     escphp_ver=$(echo $php_ver | sed -e $replace)
     escsslprivkey=$(echo $sslprivkey | sed -e $replace)
+    escsslpubcert=$(echo $sslpubcert | sed -e $replace)
+    escsslcsr=$(echo $sslcsr | sed -e $replace)
+    escsslcakey=$(echo $sslcakey | sed -e $replace)
+    escsslcapem=$(echo $sslcapem | sed -e $replace)
     escwebserver=$(echo $webserver | sed -e $replace)
     [[ -z $copybackold || $copybackold -lt 1 ]] && copybackold=0
     if [[ -f $fogprogramdir/.fogsettings ]]; then
@@ -1757,6 +1761,18 @@ writeUpdateFile() {
             grep -q "sslprivkey=" $fogprogramdir/.fogsettings && \
                 sed -i "s/sslprivkey=.*/sslprivkey='$escsslprivkey'/g" $fogprogramdir/.fogsettings || \
                 echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
+            grep -q "sslcakey=" $fogprogramdir/.fogsettings && \
+                sed -i "s/sslcakey=.*/sslcakey='$escsslcakey'/g" $fogprogramdir/.fogsettings || \
+                echo "sslcakey='$sslcakey'" >> $fogprogramdir/.fogsettings
+            grep -q "sslcapem=" $fogprogramdir/.fogsettings && \
+                sed -i "s/sslcapem=.*/sslcapem='$escsslcapem'/g" $fogprogramdir/.fogsettings || \
+                echo "sslcapem='$sslcapem'" >> $fogprogramdir/.fogsettings
+            grep -q "sslcsr=" $fogprogramdir/.fogsettings && \
+                sed -i "s/sslcsr=.*/sslcsr='$escsslcsr'/g" $fogprogramdir/.fogsettings || \
+                echo "sslcsr='$sslcsr'" >> $fogprogramdir/.fogsettings
+            grep -q "sslpubcert=" $fogprogramdir/.fogsettings && \
+                sed -i "s/sslpubcert=.*/sslpubcert='$escsslpubcert'/g" $fogprogramdir/.fogsettings || \
+                echo "sslpubcert='$sslpubcert'" >> $fogprogramdir/.fogsettings
             grep -q "sendreports=" $fogprogramdir/.fogsettings && \
                 sed -i "s/sendreports=.*/sendreports='$sendreports'/g" $fogprogramdir/.fogsettings || \
                 echo "sendreports='$sendreports'" >> $fogprogramdir/.fogsettings
@@ -1808,6 +1824,10 @@ writeUpdateFile() {
             echo "armsupport='$armsupport'" >> "$fogprogramdir/.fogsettings"
             echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
             echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
+            echo "sslcakey='$sslcakey'" >> $fogprogramdir/.fogsettings
+            echo "sslcapem='$sslcapem'" >> $fogprogramdir/.fogsettings
+            echo "sslcsr='$sslcsr'" >> $fogprogramdir/.fogsettings
+            echo "sslpubcert='$sslpubcert'" >> $fogprogramdir/.fogsettings
             echo "sendreports='$sendreports'" >> $fogprogramdir/.fogsettings
             echo "webserver='$webserver'" >> $fogprogramdir/.fogsettings
             echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
@@ -1857,6 +1877,10 @@ writeUpdateFile() {
         echo "armsupport='$armsupport'" >> "$fogprogramdir/.fogsettings"
         echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
         echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
+        echo "sslcakey='$sslcakey'" >> $fogprogramdir/.fogsettings
+        echo "sslcapem='$sslcapem'" >> $fogprogramdir/.fogsettings
+        echo "sslcsr='$sslcsr'" >> $fogprogramdir/.fogsettings
+        echo "sslpubcert='$sslpubcert'" >> $fogprogramdir/.fogsettings
         echo "sendreports='$sendreports'" >> $fogprogramdir/.fogsettings
         echo "webserver='$webserver'" >> $fogprogramdir/.fogsettings
         echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
@@ -1891,25 +1915,12 @@ createSSLCA() {
     sslpath=${sslpath//\/$}
     [[ ! -d $sslpath ]] && mkdir -p $sslpath >>$error_log 2>&1
     [[ ! -d $sslpath/CA ]] && mkdir -p $sslpath/CA >>$error_log 2>&1
-    #shopt -s dotglob
-    #if [[ "x$sslpath" != "x/opt/fog/snapins/ssl" ]]; then
-    #    if [[ -d /opt/fog/snapins/CA ]]; then
-    #        mv /opt/fog/snapins/CA/* $sslpath/CA/
-            #rm -rf /opt/fog/snapins/CA
-    #    elif [[ -d /opt/fog/snapins/ssl && -d /opt/fog/snapins/ssl/CA ]]; then
-    #        mv /opt/fog/snapins/ssl/CA/* $sslpath/CA/
-            #rm -rf /opt/fog/snapins/ssl/CA
-    #    fi
-    #    if [[ -d /opt/fog/snapins/ssl ]]; then
-    #        mv /opt/fog/snapins/ssl/* $sslpath/
-            #rm -rf /opt/fog/snapins/ssl
-    #    fi
-    #fi
-    #shopt -u dotglob
-    if [[ $recreateCA == yes || $caCreated != yes || ! -e $sslpath/CA/.fogCA.key ]]; then
+    [[ -z $sslcakey ]] && sslcakey="$sslpath/CA/.fogCA.key"
+    [[ -z $sslcapem ]] && sslcapem="$sslpath/CA/.fogCA.pem"
+    if [[ $recreateCA == yes || $caCreated != yes || ! -e $sslcakey ]]; then
         dots "Creating SSL CA"
-        openssl genrsa -out $sslpath/CA/.fogCA.key 4096 >>$error_log 2>&1
-        openssl req -x509 -new -sha512 -nodes -key $sslpath/CA/.fogCA.key -days 3650 -out $sslpath/CA/.fogCA.pem >>$error_log 2>&1 << EOF
+        openssl genrsa -out $sslcakey 4096 >>$error_log 2>&1
+        openssl req -x509 -new -sha512 -nodes -key $sslcakey -days 3650 -out $sslcapem >>$error_log 2>&1 << EOF
 .
 .
 .
@@ -1947,13 +1958,16 @@ subjectAltName = @alt_names
 IP.1 = $ipaddress
 DNS.1 = $hostname
 EOF
-        openssl req -new -sha512 -key $sslprivkey -out $sslpath/fog.csr -config $sslpath/req.cnf >>$error_log 2>&1 << EOF
+        [[ -z $sslcsr ]] && sslcsr="$sslpath/fog.csr"
+        openssl req -new -sha512 -key $sslprivkey -out $sslcsr -config $sslpath/req.cnf >>$error_log 2>&1 << EOF
 $ipaddress
 EOF
         errorStat $?
     fi
+    [[ ! -e $sslpath/.fogCA.key ]] && ln -sf $sslcakey $sslpath/CA/.fogCA.key >>$error_log 2>&1
+    [[ ! -e $sslpath/.fogCA.pem ]] && ln -sf $sslcapem $sslpath/CA/.fogCA.pem >>$error_log 2>&1
+    [[ ! -e $sslpath/fog.csr ]] && ln -sf $sslcsr $sslpath/fog.csr >>$error_log 2>&1
     [[ ! -e $sslpath/.srvprivate.key ]] && ln -sf $sslprivkey $sslpath/.srvprivate.key >>$error_log 2>&1
-    dots "Creating SSL Certificate"
     mkdir -p $webdirdest/management/other/ssl >>$error_log 2>&1
     cat > $sslpath/ca.cnf << EOF
 [v3_ca]
@@ -1962,16 +1976,21 @@ subjectAltName = @alt_names
 IP.1 = $ipaddress
 DNS.1 = $hostname
 EOF
-    openssl x509 -req -in $sslpath/fog.csr -CA $sslpath/CA/.fogCA.pem -CAkey $sslpath/CA/.fogCA.key -CAcreateserial -out $webdirdest/management/other/ssl/srvpublic.crt -days 3650 -extensions v3_ca -extfile $sslpath/ca.cnf >>$error_log 2>&1
-    errorStat $?
+    [[ -z $sslpubcert ]] && sslpubcert="$webdirdest/management/other/ssl/srvpublic.crt"
+    if [[ -z $sslpubcert ]]; then
+        dots "Creating SSL Certificate"
+        openssl x509 -req -in $sslcsr -CA $sslcapem -CAkey $sslcakey -CAcreateserial -out $sslpubcert -days 3650 -extensions v3_ca -extfile $sslpath/ca.cnf >>$error_log 2>&1
+        errorStat $?
+    fi
+    [[ !-e $webdirdest/management/other/ssl/srvpublic.crt ]] && cp $sslpubcert $webdirdest/management/other/ssl/srvpublic.crt >>$error_log 2>&1
     dots "Creating auth pub key and cert"
-    cp $sslpath/CA/.fogCA.pem $webdirdest/management/other/ca.cert.pem >>$error_log 2>&1
+    cp $sslcapem $webdirdest/management/other/ca.cert.pem >>$error_log 2>&1
     openssl x509 -outform der -in $webdirdest/management/other/ca.cert.pem -out $webdirdest/management/other/ca.cert.der >>$error_log 2>&1
     errorStat $?
     dots "Resetting SSL Permissions"
     chown -R $apacheuser:$apacheuser $webdirdest/management/other >>$error_log 2>&1
     errorStat $?
-    [[ $httpproto == https ]] && sslenabled=" (SSL)" || sslenabled=" (no SSL)"
+    [[ $httpproto == https ]] && sslenabled=" (Forced SSL)" || sslenabled=" (normal)"
     case $webserver in
         nginx)
             case $novhost in
@@ -2021,7 +2040,7 @@ EOF
                         echo "    ssl_prefer_server_ciphers on;" >> "$etcconf"
                         echo "    ssl_dhparam ${sslpath}/dhparam.pem;" >> "$etcconf"
                         echo "    ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA';" >> "$etcconf"
-                        echo "    ssl_certificate $webdirdest/management/other/ssl/srvpublic.crt;" >> "$etcconf"
+                        echo "    ssl_certificate $sslpubcert;" >> "$etcconf"
                         echo "    ssl_certificate_key $sslprivkey;" >> "$etcconf"
                         echo "    ssl_session_timeout 1d;" >> "$etcconf"
                         echo "    ssl_session_cache shared:SSL:50m;" >> "$etcconf"
@@ -2067,7 +2086,7 @@ EOF
                         echo "    ssl_prefer_server_ciphers on;" >> "$etcconf"
                         echo "    ssl_dhparam ${sslpath}/dhparam.pem;" >> "$etcconf"
                         echo "    ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA';" >> "$etcconf"
-                        echo "    ssl_certificate $webdirdest/management/other/ssl/srvpublic.crt;" >> "$etcconf"
+                        echo "    ssl_certificate $sslpubcert;" >> "$etcconf"
                         echo "    ssl_certificate_key $sslprivkey;" >> "$etcconf"
                         echo "    ssl_session_timeout 1d;" >> "$etcconf"
                         echo "    ssl_session_cache shared:SSL:50m;" >> "$etcconf"
@@ -2148,9 +2167,9 @@ EOF
                         echo "    SSLProtocol all -SSLv3 -SSLv2" >> "$etcconf"
                         echo "    SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA" >> "$etcconf"
                         echo "    SSLHonorCipherOrder On" >> "$etcconf"
-                        echo "    SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt" >> "$etcconf"
+                        echo "    SSLCertificateFile $sslpubcert" >> "$etcconf"
                         echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
-                        echo "    SSLCACertificateFile $webdirdest/management/other/ca.cert.pem" >> "$etcconf"
+                        echo "    SSLCACertificateFile $sslcapem" >> "$etcconf"
                         echo "    <Directory $webdirdest>" >> "$etcconf"
                         echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                         echo "    </Directory>" >> "$etcconf"
@@ -2188,9 +2207,9 @@ EOF
                         echo "    SSLProtocol all -SSLv3 -SSLv2" >> "$etcconf"
                         echo "    SSLCipherSuite ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA" >> "$etcconf"
                         echo "    SSLHonorCipherOrder On" >> "$etcconf"
-                        echo "    SSLCertificateFile $webdirdest/management/other/ssl/srvpublic.crt" >> "$etcconf"
+                        echo "    SSLCertificateFile $sslpubcert" >> "$etcconf"
                         echo "    SSLCertificateKeyFile $sslprivkey" >> "$etcconf"
-                        echo "    SSLCACertificateFile $webdirdest/management/other/ca.cert.pem" >> "$etcconf"
+                        echo "    SSLCACertificateFile $sslcapem" >> "$etcconf"
                         echo "    <Directory $webdirdest>" >> "$etcconf"
                         echo "        DirectoryIndex index.php index.html index.htm" >> "$etcconf"
                         echo "    </Directory>" >> "$etcconf"
