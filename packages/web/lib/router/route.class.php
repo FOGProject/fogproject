@@ -2953,7 +2953,7 @@ class Route extends FOGBase
         }
         foreach ($data as &$release) {
             $found_match = preg_match(
-                '/(?:Linux kernel\s+([\d.]+))?\s*Buildroot\s+([\d.]+)/',
+                '/(?:Linux kernel\s+([\d.]+))?\s*(?:Buildroot\s+([\d.]+))?/',
                 $release->body,
                 $release_version,
                 PREG_OFFSET_CAPTURE
