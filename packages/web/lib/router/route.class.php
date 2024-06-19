@@ -2953,11 +2953,14 @@ class Route extends FOGBase
         }
         foreach ($data as &$release) {
             $found_match = preg_match(
-                '/(.*)([4-9]\.[0-9][0-9]*\.[0-9][0-9]*)([^0-9]*)(20[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]*)(.*)/',
+                '/(?:Linux kernel\s+([\d.]+))?\s*Buildroot\s+([\d.]+)/',
                 $release->body,
                 $release_version,
                 PREG_OFFSET_CAPTURE
             );
+            if (!$found_match) {
+                continue;
+            }
             $rel_ver = $release->tag_name;
             foreach ($release->assets as &$asset) {
                 if ($type == 'kernel' && !in_array($asset->name, ['arm_Image', 'bzImage', 'bzImage32'])) {
@@ -2966,34 +2969,34 @@ class Route extends FOGBase
                 if ($type == 'initrd' && !in_array($asset->name, ['arm_init.cpio.gz', 'init.xz', 'init_32.xz'])) {
                     continue;
                 }
+                switch ($type) {
+                    case 'kernel':
+                        $k_i_ver = $release_version[1][0];
+                        break;
+                    case 'initrd':
+                        $k_i_ver = $release_version[2][0];
+                        break;
+                }
                 $arch_short = '';
                 $arch = '';
                 switch ($asset->name) {
                     case 'arm_Image':
                     case 'arm_init.cpio.gz':
                         $arch_short = 'arm64';
-                        $arch = 'ARM 64 Bit';
+                        $arch = _('ARM 64 Bit');
                         break;
                     case 'bzImage':
                     case 'init.xz':
                         $arch_short = '64';
-                        $arch = 'AMD/Intel 64 Bit';
+                        $arch = _('Intel 64 Bit');
                         break;
                     case 'bzImage32':
                     case 'init_32.xz':
                         $arch_short = '32';
-                        $arch = 'AMD/Intel 32 Bit';
+                        $arch = _('Intel 32 Bit');
                         break;
                 }
-                if (isset($found_match) && $found_match && $arch_short) {
-                    switch ($type) {
-                        case 'kernel':
-                            $k_i_ver = $release_version[2][0];
-                            break;
-                        case 'initrd':
-                            $k_i_ver = $release_version[4][0];
-                            break;
-                    }
+                if ($arch_short) {
                     $download_url = base64_encode($asset->browser_download_url);
                     switch (substr($release->name, 0, 3)) {
                         case 'FOG':
@@ -3036,6 +3039,7 @@ class Route extends FOGBase
                 }
             }
         }
+
         return $jsonData;
     }
     /**
