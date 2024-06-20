@@ -188,7 +188,7 @@ class FOGFTP
             return $this;
         }
         if (!$this->rmdir($path)
-            && $this->__call('delete', [$path])
+            && @ftp_delete($this->_link, $path)
         ) {
             $filelist = $this->nlist($path);
             foreach ((array)$filelist as &$file) {
@@ -271,7 +271,7 @@ class FOGFTP
             if (!$password) {
                 $password = $this->password;
             }
-            if ($this->__call('login', [$username, $password]) === false) {
+            if (ftp_login($username, $password) === false) {
                 $this->ftperror($this->data);
             }
         } catch (Exception $e) {
@@ -348,7 +348,7 @@ class FOGFTP
         $modrw,
         $file
     ) {
-        if ($this->__call('chmod', [$modrw, $file]) === false) {
+        if (@ftp_chmod($this->_link, $modrw, $file) === false) {
             $this->ftperror($this->data);
         }
         return $this;
@@ -368,7 +368,7 @@ class FOGFTP
         if ($rawsize) {
             return $this->rawsize($remote_file);
         }
-        return $this->__call('size', [$remote_file]);
+        return @ftp_size($this->_link, $remote_file);
     }
     /**
      * Size of file raw (string)
@@ -383,9 +383,9 @@ class FOGFTP
             return 0;
         }
         $size = 0;
-        $filelist = $this->__call('rawlist', [$remote_file]);
+        $filelist = @ftp_rawlist($this->_link, $remote_file);
         if (!$filelist) {
-            $filelist = $this->__call('rawlist', [dirname($remote_file)]);
+            $filelist = @ftp_rawlist($this->_link, dirname($remote_file));
             $filename = basename($remote_file);
             $filelist = preg_grep("#$filename#", $filelist);
         }
