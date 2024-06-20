@@ -966,6 +966,9 @@ class SnapinManagement extends FOGPage
         $args = trim(
             filter_input(INPUT_POST, 'args')
         );
+        $timeout = trim(
+            filter_input(INPUT_POST, 'timeout')
+        );
 
         $serverFault = false;
         try {

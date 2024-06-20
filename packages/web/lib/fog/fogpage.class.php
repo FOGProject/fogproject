@@ -2522,7 +2522,7 @@ abstract class FOGPage extends FOGBase
             }
             if ($this->obj instanceof Image || $this->obj instanceof Snapin) {
                 if (isset($_POST['andFile'])) {
-                    if (!$this->obj->deletefile()) {
+                    if (!$this->obj->deleteFile()) {
                         throw new Exception(_('Unable to delete file data'));
                     }
                 }

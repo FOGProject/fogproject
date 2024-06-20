@@ -180,7 +180,7 @@ class Snapin extends FOGController
         $StorageNodes = json_decode(
             Route::getData()
         );
-        foreach ($StorageNodes->data as &$StorageNode) {
+        foreach ($StorageNodes->data as $StorageNode) {
             $ftppath = trim(
                 $StorageNode->snapinpath,
                 '/'
@@ -197,12 +197,14 @@ class Snapin extends FOGController
             self::$FOGSSH->password = $pass;
             self::$FOGSSH->host = $ip;
             if (!self::$FOGSSH->connect()) {
+                error_log(_('Unable to login via SSH'));
                 continue;
             }
+            self::$FOGSSH->sftp();
             if (!self::$FOGSSH->delete($deleteFile)) {
+                error_log(_('Unable to delete remote file').': '.$deleteFile);
                 continue;
             }
-            unset($StorageNode);
         }
         return true;
     }
