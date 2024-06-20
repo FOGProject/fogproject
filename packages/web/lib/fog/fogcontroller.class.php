@@ -1219,7 +1219,7 @@ abstract class FOGController extends FOGBase
         $itemID = $privars['id'];
         $itemassocID = strtolower(get_class($this)). 'ID';
         $secondID = strtolower(get_class($this)). 'Assoc';
-        $secondRID = ($secvars[$itemassocID] ?: $secvars['id']);
+        $secondRID = (isset($secvars[$itemassocID]) ? $secvars[$itemassocID] : $secvars['id']);
 
         $qStr = trim($qStr);
         $qFilterStr = trim($qFilterStr);
