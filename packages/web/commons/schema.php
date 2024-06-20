@@ -4118,3 +4118,11 @@ $this->schema[] = [
     . "'What port for SSH into the FOG Server. (Defaults to 22)',"
     . "'22','General Settings')"
 ];
+// 286
+$this->schema[] = [
+    "INSERT IGNORE INTO `os` "
+    . "(`osID`, `osName`, `osDescription`) "
+    . "VALUES "
+    . "('10', 'Windows 11', ''),"
+    . "('11', 'Windows Server', '')"
+];
