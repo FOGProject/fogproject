@@ -40,6 +40,12 @@ class FOGSSH
      */
     private $_link;
     /**
+     * The link to the sftp instance
+     *
+     * @var resource
+     */
+    private $_sftp;
+    /**
      * The connection hash
      *
      * @var string
@@ -96,10 +102,23 @@ class FOGSSH
      */
     public function __call($func, $args)
     {
+        if (str_contains($func, 'scp')) {
+            $linker = $this->_link;
+        } else if (str_contains($func, 'sftp_') && $func !== 'sftp') {
+            if (!$this->_sftp) {
+                $this->_sftp = ssh2_sftp($this->_link);
+            }
+            $linker = $this->_sftp;
+        } else if ($func === 'sftp') {
+            $this->_sftp = ssh2_sftp($this->_link);
+            return $this->_sftp;
+        } else {
+            $linker = $this->_link;
+        }
         if ($func != 'fetch_stream') {
             array_unshift(
                 $args,
-                $this->_link
+                $linker
             );
         }
         $func = 'ssh2_' . $func;
@@ -223,5 +242,55 @@ class FOGSSH
         }
         $this->_lastLoginHash = $this->_currentLoginHash;
         return $this;
+    }
+    /**
+     * Checks if a file exists
+     *
+     * @params string $path The path/file to check if it exists
+     *
+     * @return bool
+     */
+    public function exists($path): bool
+    {
+        $sftp_wrap = "ssh2.sftp://{$this->_sftp}{$path}";
+        return @is_dir($sftp_wrap) || @file_exists($sftp_wrap);
+    }
+    /**
+     * Sets the chmod permissions of the fil
+     *
+     * @params string $path The path/file to set mode
+     * @params int    $mode The mode to set
+     *
+     * @return bool
+     */
+    public function sftp_chmod($path, $mode): bool
+    {
+        return @ssh2_sftp_chmod($this->_sftp, $path, intval($mode));
+    }
+    /**
+     * Puts the files from one place to another remotely/Uploads the file
+     *
+     * @param string $localfile  The local file to put on the remote
+     * @param string $remotefile The place/name the file is being placed.
+     *
+     * @throws Exception
+     * @return void
+     */
+    public function put($localfile, $remotefile): void
+    {
+        $sftp = $this->_sftp;
+        $stream = @fopen("ssh2.sftp://$sftp$remotefile", 'w');
+        if (!$stream) {
+            throw new Exception(_("Could not open file"). ": $remotefile");
+        }
+        $data_to_send = @file_get_contents($localfile);
+        if (false === $data_to_send) {
+            throw new Exception(_("Could not open local file"). ": $localfile");
+        }
+        if (false === @fwrite($stream, $data_to_send)) {
+            throw new Exception(_("Could not send data from file"). ": $localfile");
+        }
+
+        @fclose($stream);
     }
 }
