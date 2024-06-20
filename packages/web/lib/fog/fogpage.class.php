@@ -1812,22 +1812,20 @@ abstract class FOGPage extends FOGBase
                         $tftpUser,
                         $tftpHost
                     ) = self::getSetting($keys);
-                    self::$FOGFTP->username = $tftpUser;
-                    self::$FOGFTP->password = $tftpPass;
-                    self::$FOGFTP->host = $tftpHost;
-                    if (!self::$FOGFTP->connect()) {
-                        throw new Exception(_('Unable to connect to ftp'));
+                    self::$FOGSSH->username = $tftpUser;
+                    self::$FOGSSH->password = $tftpPass;
+                    self::$FOGSSH->host = $tftpHost;
+                    if (!self::$FOGSSH->connect()) {
+                        throw new Exception(_('Unable to connect to ssh'));
                     }
-                    if (!self::$FOGFTP->exists($backuppath)) {
-                        self::$FOGFTP->mkdir($backuppath);
+                    if (!self::$FOGSSH->exists($backuppath)) {
+                        self::$FOGSSH->sftp_mkdir($backuppath);
                     }
-                    if (self::$FOGFTP->exists($orig)) {
-                        self::$FOGFTP->rename($orig, $backupfile);
+                    if (self::$FOGSSH->exists($orig)) {
+                        self::$FOGSSH->sftp_rename($orig, $backupfile);
                     }
-                    self::$FOGFTP
-                        ->delete($orig)
-                        ->rename($tmpfile, $orig)
-                        ->close();
+                    self::$FOGSSH->put($tmpfile, $orig);
+                    self::$FOGSSH->disconnect();
                     if (file_exists($tmpfile)) {
                         unlink($tmpfile);
                     }
@@ -1958,28 +1956,20 @@ abstract class FOGPage extends FOGBase
                         $tftpUser,
                         $tftpHost
                     ) = self::getSetting($keys);
-                    self::$FOGFTP->username = $tftpUser;
-                    self::$FOGFTP->password = $tftpPass;
-                    self::$FOGFTP->host = $tftpHost;
-                    if (!self::$FOGFTP->connect()) {
-                        throw new Exception(_('Unable to connect to ftp'));
-                    }
-                    if (!self::$FOGFTP->exists($backuppath)) {
-                        self::$FOGFTP->mkdir($backuppath);
-                    }
-                    if (self::$FOGFTP->exists($orig)) {
-                        self::$FOGFTP->rename($orig, $backupfile);
-                    }
-                    self::$FOGFTP
-                        ->delete($orig)
-                        ->rename($tmpfile, $orig)
-                        ->chmod(0664, $orig);
                     self::$FOGSSH->username = $tftpUser;
                     self::$FOGSSH->password = $tftpPass;
                     self::$FOGSSH->host = $tftpHost;
                     if (!self::$FOGSSH->connect()) {
-                        throw new Exception(_('Unable to connect to ssh'));
+                        throw new Exception(_('Unable to connect to SSH'));
                     }
+                    if (!self::$FOGSSH->exists($backuppath)) {
+                        self::$FOGSSH->sftp_mkdir($backuppath);
+                    }
+                    if (self::$FOGSSH->exists($orig)) {
+                        self::$FOGSSH->sftp_rename($orig, $backupfile);
+                    }
+                    self::$FOGSSH->put($tmpfile, $orig);
+                    self::$FOGSSH->sftp_chmod($orig, 0644);
                     $br_cmd = "attr -s version -V $br_ver $orig";
                     $tg_cmd = "attr -s tag_name -V $tg_ver $orig";
                     $output_br = self::$FOGSSH->exec($br_cmd);
@@ -1994,7 +1984,7 @@ abstract class FOGPage extends FOGBase
                     $error_tg_t = stream_get_contents($error_tg);
                     if ($error_br_t) {
                         error_log(_('Error on ssh command setting version'). ' ' . $br_cmd);
-                        error_log(_('Error'). ': ' . stream_get_contents($error_br_t));
+                        error_log(_('Error'). ': ' . $error_br_t);
                     }
                     if ($error_tg_t) {
                         error_log(_('Error on ssh command setting tag_name'). ' ' . $tg_cmd);
@@ -2004,10 +1994,8 @@ abstract class FOGPage extends FOGBase
                     fclose($output_tg);
                     fclose($error_br);
                     fclose($error_tg);
+                    self::$FOGSSH->sftp_chmod($orig, 0655);
                     self::$FOGSSH->disconnect();
-                    self::$FOGFTP
-                        ->chmod(0655, $orig)
-                        ->close();
                     if (file_exists($tmpfile)) {
                         unlink($tmpfile);
                     }

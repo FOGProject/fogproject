@@ -830,10 +830,10 @@ class StorageNodeManagement extends FOGPage
             $testavail = self::$FOGURLRequests->isAvailable($ip);
             $warning = !array_shift($testavail);
             if (!$warning) {
-                self::$FOGFTP->username = $user;
-                self::$FOGFTP->password = $pass;
-                self::$FOGFTP->host = $ip;
-                $warning = !self::$FOGFTP->connect();
+                self::$FOGSSH->username = $user;
+                self::$FOGSSH->password = $pass;
+                self::$FOGSSH->host = $ip;
+                $warning = !self::$FOGSSH->connect();
             }
             $exists = self::getClass('StorageNodeManager')
                 ->exists($storagenode);
@@ -922,6 +922,8 @@ class StorageNodeManagement extends FOGPage
                         'title' => $title
                     ]
                 );
+            } else {
+                self::$FOGSSH->disconnect();
             }
         } catch (Exception $e) {
             $code = (
@@ -1413,15 +1415,17 @@ class StorageNodeManagement extends FOGPage
         $testavail = self::$FOGURLRequests->isAvailable($ip);
         $warning = !array_shift($testavail);
         if (!$warning) {
-            self::$FOGFTP->username = $user;
-            self::$FOGFTP->password = $pass;
-            self::$FOGFTP->host = $ip;
-            $warning = !self::$FOGFTP->connect();
+            self::$FOGSSH->username = $user;
+            self::$FOGSSH->password = $pass;
+            self::$FOGSSH->host = $ip;
+            $warning = !self::$FOGSSH->connect();
         }
         if ($warning) {
             $warning = _(
                 'Unable to connect using ip, user, and/or password provided!'
             );
+        } else {
+            self::$FOGSSH->disconnect();
         }
         $bandwidth = trim(
             filter_input(INPUT_POST, 'bandwidth')
