@@ -271,7 +271,7 @@ class FOGFTP
             if (!$password) {
                 $password = $this->password;
             }
-            if (ftp_login($username, $password) === false) {
+            if (ftp_login($this->_link, $username, $password) === false) {
                 $this->ftperror($this->data);
             }
         } catch (Exception $e) {
