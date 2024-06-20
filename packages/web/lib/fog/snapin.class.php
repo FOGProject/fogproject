@@ -198,7 +198,7 @@ class Snapin extends FOGController
             if (!self::$FOGSSH->connect()) {
                 continue;
             }
-            if (!self::$FOGSSH->sftp_unlink($deleteFile)) {
+            if (!self::$FOGSSH->delete($deleteFile)) {
                 continue;
             }
             unset($StorageNode);

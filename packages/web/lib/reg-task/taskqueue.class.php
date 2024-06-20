@@ -373,14 +373,13 @@ class TaskQueue extends TaskingElement
             $this->StorageNode->get('ftppath'),
             $this->Image->get('path')
         );
-        self::$FOGFTP->username = $this->StorageNode->get('user');
-        self::$FOGFTP->password = $this->StorageNode->get('pass');
-        self::$FOGFTP->host = $this->StorageNode->get('ip');
-        self::$FOGFTP
-            ->connect()
-            ->delete($dest)
-            ->rename($src, $dest)
-            ->close();
+        self::$FOGSSH->username = $this->StorageNode->get('user');
+        self::$FOGSSH->password = $this->StorageNode->get('pass');
+        self::$FOGSSH->host = $this->StorageNode->get('ip');
+        self::$FOGSSH->connect();
+        self::$FOGSSH->exec("rm -rf $dest");
+        self::$FOGSSH->sftp_rename($src, $dest);
+        self::$FOGSSH->disconnect();
         if ($this->Image->get('format') == 1) {
             $this->Image
                 ->set('format', 0)
