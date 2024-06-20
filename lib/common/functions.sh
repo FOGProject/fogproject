@@ -665,6 +665,14 @@ installPackages() {
     packages="$packages jq"
     packages="$packages unzip"
     packages="${packages} ${webserver}"
+    grep -qP "Subsystem\s+sftp\s+\/usr\/libexec\/openssh\/sftp-server" /etc/ssh/sshd_config >>$error_log 2>&1
+    if [[ $? -eq 0 ]]; then
+        dots "Adjusting sftp for ssh"
+        sed -i -e "s|Subsystem\s\+sftp\s\+/usr/libexec/openssh/sftp-server|Subsystem\tsftp\tinternal-sftp|g" /etc/ssh/sshd_config >>$error_log 2>&1
+        systemctl enable sshd >/dev/null 2>&1
+        systemctl restart sshd >/dev/null 2>&1
+        echo "Done"
+    fi
     dots "Adjusting repository (can take a long time for cleanup)"
     case $osid in
         1)
