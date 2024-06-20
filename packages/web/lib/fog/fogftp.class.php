@@ -329,7 +329,7 @@ class FOGFTP
         $oldname,
         $newname
     ) {
-        if (!($this->__call('rename', [$oldname, $newname]))) {
+        if (!@ftp_rename($this->_link, $oldname, $newname)) {
             if (!$this->put($newname, $oldname, $this->mode)) {
                 $this->ftperror($this->data);
             }
