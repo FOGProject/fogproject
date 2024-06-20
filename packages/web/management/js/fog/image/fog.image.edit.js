@@ -14,7 +14,8 @@
         generalDeleteBtn = $('#general-delete'),
         generalDeleteModal = $('#deleteModal'),
         generalDeleteModalConfirm = $('#confirmDeleteModal'),
-        generalDeleteModalCancel = $('#closeDeleteModal');
+        generalDeleteModalCancel = $('#closeDeleteModal'),
+        opts = {};
 
     generalForm.on('submit',function(e) {
         e.preventDefault();
@@ -39,7 +40,6 @@
         e.preventDefault();
         $(this).iCheck('update');
         if (!this.checked) {
-            opts = {};
             return;
         }
         opts = {andFile: 1};
@@ -49,8 +49,7 @@
             action = '../management/index.php?node='
                 + Common.node
                 + '&sub=delete&id='
-                + Common.id,
-            opts = {};
+                + Common.id;
         $('#andFile').trigger('change');
         $.apiCall(method, action, opts, function(err) {
             if (err) {

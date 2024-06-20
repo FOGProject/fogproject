@@ -301,9 +301,12 @@ class FOGSSH
         if (is_dir($dir)) {
             if ($dh = opendir($dir)) {
                 while (($file = readdir($dh)) !== false) {
-                    $filetype = filetype($dir . $file);
+                    if ($file == '.' || $file == '..') {
+                        continue;
+                    }
+                    $filetype = filetype($dir . DS . $file);
                     if ($filetype == 'dir') {
-                        $tmp = $this->scanFilesystem($remote_file.$file.'/');
+                        $tmp = $this->scanFilesystem($remote_file.DS.$file.DS);
                         foreach ($tmp as $t) {
                             $tempArray[] = $file.'/'.$t;
                         }
@@ -311,7 +314,7 @@ class FOGSSH
                         $tempArray[] = $file;
                     }
                 }
-                closedir($dir);
+                closedir($dh);
             }
         }
 
@@ -335,8 +338,9 @@ class FOGSSH
         ) {
             $filelist = $this->scanFilesystem($path);
             foreach ((array)$filelist as $file) {
-                $this->delete($file);
+                $this->delete($path.'/'.$file);
             }
+            $this->delete($path);
         }
 
         return $this;

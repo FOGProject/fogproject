@@ -93,6 +93,7 @@
     generalDeleteBtn.on('click', function() {
         generalDeleteModal.modal('show');
     });
+    // Shall we delete the snapin file as well?
     $('#andFile').on('ifChanged', function(e) {
         e.preventDefault();
         $(this).iCheck('update');
