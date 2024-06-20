@@ -205,6 +205,7 @@ class Snapin extends FOGController
                 error_log(_('Unable to delete remote file').': '.$deleteFile);
                 continue;
             }
+            self::$FOGSSH->disconnect();
         }
         return true;
     }

@@ -1158,7 +1158,7 @@ class ImageManagement extends FOGPage
             )
             . '" ';
 
-        $buttons .= self::makeButton(
+        $buttons = self::makeButton(
             'image-storagegroup-send',
             _('Add selected'),
             'btn btn-success pull-right',
