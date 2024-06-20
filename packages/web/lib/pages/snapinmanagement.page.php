@@ -1702,7 +1702,7 @@ class SnapinManagement extends FOGPage
                     );
                 }
             }
-            if (self::$FOGSSH->exists($destfile)) {
+            if (self::$FOGSSH->exists($dest)) {
                 if (false == self::$FOGSSH->sftp_unlink($dest)) {
                     throw new Exception(
                         _('Failed to delete existing snapin file')
@@ -1753,7 +1753,7 @@ class SnapinManagement extends FOGPage
             )
             . '" ';
 
-        $buttons .= self::makeButton(
+        $buttons = self::makeButton(
             'snapin-storagegroup-send',
             _('Add selected'),
             'btn btn-success pull-right',

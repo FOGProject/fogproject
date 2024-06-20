@@ -200,7 +200,7 @@ abstract class FOGManagerController extends FOGBase
                     }
                 } else {
                     $row[$column['dt']] = (
-                        isset($data[$i][$columns[$j]['db']]) ?
+                        isset($columns[$j]['db']) && isset($data[$i][$columns[$j]['db']]) ?
                         $data[$i][$columns[$j]['db']] :
                         (
                             isset($columns[$j]['do']) && isset($data[$i][$columns[$j]['do']]) ?
@@ -210,7 +210,7 @@ abstract class FOGManagerController extends FOGBase
                     );
                     if (!isset($column['extra'])) {
                         $row[$column['dt']] = (
-                            isset($data[$i][$columns[$j]['db']]) ?
+                            isset($columns[$j]['db']) && isset($data[$i][$columns[$j]['db']]) ?
                             $data[$i][$columns[$j]['db']] :
                             (
                                 isset($columns[$j]['do']) && isset($data[$i][$columns[$j]['do']]) ?

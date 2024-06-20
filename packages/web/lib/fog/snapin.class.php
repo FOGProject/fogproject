@@ -106,6 +106,7 @@ class Snapin extends FOGController
             ]
         );
         $snapinJobIDs = json_decode(Route::getData(), true);
+        $sjIDs = [];
         foreach ((array)$snapinJobIDs as &$sjID) {
             Route::count(
                 'snapintask',
