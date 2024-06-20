@@ -1020,33 +1020,39 @@ class SnapinManagement extends FOGPage
             if ($uploadfile) {
                 $hash = hash_file('sha512', $src);
                 $size = self::getFilesize($src);
-                self::$FOGFTP->host = $StorageNode->get('ip');
-                self::$FOGFTP->username = $StorageNode->get('user');
-                self::$FOGFTP->password = $StorageNode->get('pass');
-                if (!self::$FOGFTP->connect()) {
+                self::$FOGSSH->username = $StorageNode->get('user');
+                self::$FOGSSH->password = $StorageNode->get('pass');
+                self::$FOGSSH->host = $StorageNode->get('ip');
+                if (!self::$FOGSSH->connect()) {
                     throw new Exception(
-                        _('Storage Node')
-                        . ': '
-                        . $StorageNode->get('ip')
-                        . ': '
-                        . _('FTP Connection has failed')
+                        sprintf(
+                            '%s: %s: %s.',
+                            _('Storage Node'),
+                            $StorageNode->get('ip'),
+                            _('SSH Connection has failed')
+                        )
                     );
                 }
-                if (!self::$FOGFTP->chdir($StorageNode->get('snapinpath'))) {
-                    if (!self::$FOGFTP->mkdir($StorageNode->get('snapinpath'))) {
-                        throw new Exception(_('Failed to add snapin'));
+                self::$FOGSSH->sftp();
+                $rdir = $StorageNode->get('snapinpath');
+                if (!self::$FOGSSH->exists($rdir)) {
+                    if (false === self::$FOGSSH->sftp_mkdir($rdir)) {
+                        throw new Exception(
+                            _('Failed to add snapin')
+                            . ' ' . $rdir . ' '
+                            . _('does not exist and cannot be created')
+                        );
                     }
                 }
-                if (file_exists($dest)) {
-                    self::$FOGFTP->delete($dest);
+                if (self::$FOGSSH->exists($dest)) {
+                    if (false == self::$FOGSSH->sftp_unlink($dest)) {
+                        throw new Exception(
+                            _('Failed to delete existing snapin file')
+                        );
+                    }
                 }
-                if (!self::$FOGFTP->put($dest, $src, FTP_BINARY)) {
-                    throw new Exception(
-                        _('Could not put file: ' . $dest . '. ') .
-                        _('Failed to add/update snapin file')
-                    );
-                }
-                self::$FOGFTP->close();
+                self::$FOGSSH->put($src, $dest);
+                self::$FOGSSH->disconnect();
             }
             $Snapin = self::getClass('Snapin')
                 ->set('name', $snapin)
@@ -1672,33 +1678,39 @@ class SnapinManagement extends FOGPage
             $snapinfile
         );
         if ($uploadfile) {
-            self::$FOGFTP->username = $StorageNode->get('user');
-            self::$FOGFTP->password = $StorageNode->get('pass');
-            self::$FOGFTP->host = $StorageNode->get('ip');
-            if (!self::$FOGFTP->connect()) {
+            self::$FOGSSH->username = $StorageNode->get('user');
+            self::$FOGSSH->password = $StorageNode->get('pass');
+            self::$FOGSSH->host = $StorageNode->get('ip');
+            if (!self::$FOGSSH->connect()) {
                 throw new Exception(
                     sprintf(
                         '%s: %s: %s.',
                         _('Storage Node'),
                         $StorageNode->get('ip'),
-                        _('FTP Connection has failed')
+                        _('SSH Connection has failed')
                     )
                 );
             }
-            if (!self::$FOGFTP->chdir($StorageNode->get('snapinpath'))) {
-                if (!self::$FOGFTP->mkdir($StorageNode->get('snapinpath'))) {
+            self::$FOGSSH->sftp();
+            $rdir = $StorageNode->get('snapinpath');
+            if (!self::$FOGSSH->exists($rdir)) {
+                if (false === self::$FOGSSH->sftp_mkdir($rdir)) {
                     throw new Exception(
                         _('Failed to add snapin')
+                        . ' ' . $rdir . ' '
+                        . _('does not exist and cannot be created')
                     );
                 }
             }
-            self::$FOGFTP->delete($dest);
-            if (!self::$FOGFTP->put($dest, $src, FTP_BINARY)) {
-                throw new Exception(
-                    _('Failed to add/update snapin file')
-                );
+            if (self::$FOGSSH->exists($destfile)) {
+                if (false == self::$FOGSSH->sftp_unlink($dest)) {
+                    throw new Exception(
+                        _('Failed to delete existing snapin file')
+                    );
+                }
             }
-            self::$FOGFTP->close();
+            self::$FOGSSH->put($src, $dest);
+            self::$FOGSSH->disconnect();
         }
         $this->obj
             ->set('name', $snapin)

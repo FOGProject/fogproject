@@ -228,13 +228,13 @@ class Image extends FOGController
             $ip = $StorageNode->ip;
             $user = $StorageNode->user;
             $pass = $StorageNode->pass;
-            self::$FOGFTP->username = $user;
-            self::$FOGFTP->password = $pass;
-            self::$FOGFTP->host = $ip;
-            if (!self::$FOGFTP->connect()) {
+            self::$FOGSSH->username = $user;
+            self::$FOGSSH->password = $pass;
+            self::$FOGSSH->host = $ip;
+            if (!self::$FOGSSH->connect()) {
                 continue;
             }
-            if (!self::$FOGFTP->delete($deleteFile)) {
+            if (!self::$FOGSSH->delete($deleteFile)) {
                 continue;
             }
             unset($StorageNode);

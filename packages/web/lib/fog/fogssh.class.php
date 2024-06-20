@@ -293,4 +293,52 @@ class FOGSSH
 
         @fclose($stream);
     }
+    public function scanFilesystem($remote_file) {
+        $sftp = $this->_sftp;
+        $dir = "ssh2.sftp://$sftp$remote_file";
+        $tmpArray = [];
+
+        if (is_dir($dir)) {
+            if ($dh = opendir($dir)) {
+                while (($file = readdir($dh)) !== false) {
+                    $filetype = filetype($dir . $file);
+                    if ($filetype == 'dir') {
+                        $tmp = $this->scanFilesystem($remote_file.$file.'/');
+                        foreach ($tmp as $t) {
+                            $tempArray[] = $file.'/'.$t;
+                        }
+                    } else {
+                        $tempArray[] = $file;
+                    }
+                }
+                closedir($dir);
+            }
+        }
+
+        return $tempArray;
+    }
+    /**
+     * Deletes the item passed
+     * This is the method called for the delete.
+     *
+     * @param string $path the item to delete
+     *
+     * @return object
+     */
+    public function delete($path)
+    {
+        if (!$this->exists($path)) {
+            return $this;
+        }
+        if (!$this->sftp_rmdir($path)
+            && !$this->sftp_unlink($path)
+        ) {
+            $filelist = $this->scanFilesystem($path);
+            foreach ((array)$filelist as $file) {
+                $this->delete($file);
+            }
+        }
+
+        return $this;
+    }
 }
