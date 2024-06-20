@@ -269,7 +269,7 @@ class Snapin extends FOGController
             'storagegroupID'
         );
         $groups = json_decode(Route::getData(), true);
-        if (count($groups) < 1) {
+        if (count($groups ?: []) < 1) {
             Route::ids('storagegroup');
             $groups = json_decode(Route::getData(), true);
             $groups = [@min($groups)];
