@@ -356,7 +356,7 @@ class BootMenu extends FOGBase
                 );
                 $storageNodeIDs = json_decode(Route::getData(), true);
                 if (count($storageNodeIDs ?: []) < 1) {
-                    Route::ids('storagenode');
+                    Route::ids('storagenode', false);
                     $storageNodeIDs = json_decode(Route::getData(), true);
                 }
                 $StorageNode = new StorageNode(@min($storageNodeIDs));

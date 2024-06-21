@@ -73,7 +73,7 @@ class StorageNodeManagement extends FOGPage
         $bandwidth = filter_input(INPUT_POST, 'bandwidth');
         $storagegroupID = (int)filter_input(INPUT_POST, 'storagegroupID');
         if (!$storagegroupID) {
-            Route::ids('storagegroup');
+            Route::ids('storagegroup', false);
             $storagegroupID = @min(json_decode(Route::getData(), true));
         }
         $path = filter_input(INPUT_POST, 'path') ?:
@@ -437,7 +437,7 @@ class StorageNodeManagement extends FOGPage
         $bandwidth = filter_input(INPUT_POST, 'bandwidth');
         $storagegroupID = (int)filter_input(INPUT_POST, 'storagegroupID');
         if (!$storagegroupID) {
-            Route::ids('storagegroup');
+            Route::ids('storagegroup', false);
             $storagegroupID = @min(json_decode(Route::getData(), true));
         }
         $path = filter_input(INPUT_POST, 'path') ?:

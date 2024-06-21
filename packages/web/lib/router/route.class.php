@@ -1515,7 +1515,7 @@ class Route extends FOGBase
                 break;
             case 'group':
                 if (isset($vars->snapins)) {
-                    Route::ids('snapin');
+                    Route::ids('snapin', false);
                     $snapins = json_decode(
                         Route::getData(),
                         true
@@ -1529,7 +1529,7 @@ class Route extends FOGBase
                         ->addSnapin($vars->snapins);
                 }
                 if (isset($vars->printers)) {
-                    Route::ids('printer');
+                    Route::ids('printer', false);
                     $printers = json_decode(
                         Route::getData(),
                         true
@@ -1543,7 +1543,7 @@ class Route extends FOGBase
                         ->addPrinter($vars->printers);
                 }
                 if (isset($vars->modules)) {
-                    Route::ids('module');
+                    Route::ids('module', false);
                     $modules = json_decode(
                         Route::getData(),
                         true
@@ -1653,7 +1653,7 @@ class Route extends FOGBase
                 HTTPResponseCodes::HTTP_NOT_FOUND
             );
         }
-        Route::ids('tasktype');
+        Route::ids('tasktype', false);
         $tids = json_decode(
             Route::getData(),
             true
@@ -2385,7 +2385,7 @@ class Route extends FOGBase
                 $orderby = 'name';
             }
 
-            if (count($whereItems ?: []) < 1) {
+            if (false !== $whereItems && count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($classname);
             }
             if (isset($vars->getField) && $vars->getField) {

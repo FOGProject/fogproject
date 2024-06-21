@@ -304,7 +304,7 @@ class Image extends FOGController
         );
         $groups = json_decode(Route::getData(), true);
         if (count($groups) < 1) {
-            Route::ids('storagegroup');
+            Route::ids('storagegroup', false);
             $groups = json_decode(Route::getData(), true);
             $groups = [@min($groups)];
         }
@@ -351,7 +351,7 @@ class Image extends FOGController
         $groupids = $this->get('storagegroups');
         $count = count($groupids);
         if ($count < 1) {
-            Route::ids('storagegroup');
+            Route::ids('storagegroup', false);
             $groupids = json_decode(Route::getData(), true);
             $groupids = [@min($groupids)];
             if (count($groupids) < 1) {
