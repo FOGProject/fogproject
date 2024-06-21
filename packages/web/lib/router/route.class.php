@@ -724,7 +724,8 @@ class Route extends FOGBase
                                 . 'sub=edit&id='
                                 . $d
                                 . '">'
-                                . self::getClass('snapin', $d)->get('name')
+                                . self::getClass('Snapin', $d)->get('name')
+                                . ' - ('. $d .')'
                                 . '</a>';
                         }
                     ];
@@ -1011,6 +1012,7 @@ class Route extends FOGBase
                             . $d
                             . '">'
                             . self::getClass('Snapin', $d)->get('name')
+                            . ' - ('. $d .')'
                             . '</a>';
                     }
                 ];

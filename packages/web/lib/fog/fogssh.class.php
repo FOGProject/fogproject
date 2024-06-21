@@ -252,6 +252,7 @@ class FOGSSH
      */
     public function exists($path): bool
     {
+        $this->sftp();
         $sftp_wrap = "ssh2.sftp://{$this->_sftp}{$path}";
         return @is_dir($sftp_wrap) || @file_exists($sftp_wrap);
     }
