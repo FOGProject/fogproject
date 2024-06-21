@@ -48,8 +48,6 @@
           downloadurl = table.rows({selected: true}).ids();
           rowData = table.rows({selected: true}).data();
           downloadparts = getQueryParams(downloadurl[0]);
-          let buildroot = $(this).find('td:eq(2)').text();
-          let tag_name = $(this).find('td:eq(1)').text();
           parts = {
             node: downloadparts['node'],
             sub: downloadparts['sub'],

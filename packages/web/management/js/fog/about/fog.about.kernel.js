@@ -46,12 +46,15 @@
           e.preventDefault();
           downloadModal.modal('show');
           downloadurl = table.rows({selected: true}).ids();
+          rowData = table.rows({selected: true}).data();
           downloadparts = getQueryParams(downloadurl[0]);
           parts = {
             node: downloadparts['node'],
             sub: downloadparts['sub'],
             url: downloadparts['file'],
-            arch: downloadparts['arch']
+            arch: downloadparts['arch'],
+            buildroot: rowData[0].version,
+            tag_name: rowData[0].tag_name
           };
           val = parts.arch == 32 ? 'bzImage32' : (parts.arch == 'arm64' ? 'arm_Image' : 'bzImage');
           $('#kernel-name').prop('placeholder', val).prop('value', val);
@@ -62,7 +65,9 @@
             opts = {
               install: 1,
               file: parts.url,
-              dstName: dstName
+              dstName: dstName,
+              buildroot: parts.buildroot,
+              tag_name: parts.tag_name
             },
             fetchurl = '../management/index.php?node='
             + Common.node
@@ -73,11 +78,11 @@
             if (err) {
               return;
             }
-            $.apiCall('post', dlurl, {msg: 'dl'}, function(err) {
+            $.apiCall('post', dlurl, {msg: 'dl', buildroot: opts.buildroot, tag_name: opts.tag_name}, function(err) {
               if (err) {
                 return;
               }
-              $.apiCall('post', dlurl, {msg: 'tftp'}, function(err) {
+              $.apiCall('post', dlurl, {msg: 'tftp', buildroot: opts.buildroot, tag_name: opts.tag_name}, function(err) {
                 if (err) {
                   return;
                 }

@@ -2610,6 +2610,11 @@ downloadfiles() {
     dots "Downloading kernel, init and fog-client binaries"
     clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
     fosURL="https://github.com/FOGProject/fos/releases/download"
+    fileversions=$(curl -sL -H "Accept: application/vnd.github+json" 'https://api.github.com/repos/FOGProject/fos/releases/latest' | jq '.tag_name, .body' | paste -sd '|')
+    tag_name="$(echo $fileversions | awk -F'|' '{print $1}')"
+    fileversion="$(echo $fileversions | awk -F'|' '{print $2}')"
+    kern_version=$(echo -e $fileversion | sed -n 's/.*Linux kernel \([0-9.]*\).*/\1/p')
+    build_version=$(echo -e $fileversion | sed -n 's/.*Buildroot \([0-9.]*\).*/\1/p')
     fosLatestURL="https://github.com/FOGProject/fos/releases/latest/download"
     fogclientURL="https://github.com/FOGProject/fog-client/releases/download"
     [[ ! -d ../tmp/  ]] && mkdir -p ../tmp/ >/dev/null 2>&1
@@ -2655,12 +2660,24 @@ downloadfiles() {
     echo "Done"
     dots "Copying binaries to destination paths"
     cp -vf ${copypath}bzImage ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
+    attr -s version -V $kern_version ${webdirdest}/service/ipxe/bzImage 2>&1 || errorStat $?
+    attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/bzImage >>$error_log 2>&1 || errorStat $?
     cp -vf ${copypath}bzImage32 ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
+    attr -s version -V $kern_version ${webdirdest}/service/ipxe/bzImage32 >>$error_log 2>&1 || errorStat $?
+    attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/bzImage32 >>$error_log 2>&1 || errorStat $?
     cp -vf ${copypath}init.xz ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
+    attr -s version -V $build_version ${webdirdest}/service/ipxe/init.xz >>$error_log 2>&1 || errorStat $?
+    attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/init.xz >>$error_log 2>&1 || errorStat $?
     cp -vf ${copypath}init_32.xz ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
+    attr -s version -V $build_version ${webdirdest}/service/ipxe/init_32.xz >>$error_log 2>&1 || errorStat $?
+    attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/init_32.xz >>$error_log 2>&1 || errorStat $?
     if [[ $armsupport == 1 ]]; then
         cp -vf ${copypath_arm}arm_Image ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
+        attr -s version -V $kern_version ${webdirdest}/service/ipxe/arm_Image >>$error_log 2>&1 || errorStat $?
+        attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/arm_Image >>$error_log 2>&1 || errorStat $?
         cp -vf ${copypath_arm}arm_init.cpio.gz ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
+        attr -s version -V $build_version ${webdirdest}/service/ipxe/arm_init.cpio.gz >>$error_log 2>&1 || errorStat $?
+        attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/arm_init.cpio.gz >>$error_log 2>&1 || errorStat $?
     fi
     cp -vf ${copypath}FOGService.msi ${copypath}SmartInstaller.exe ${webdirdest}/client/ >>$error_log 2>&1
     errorStat $?
