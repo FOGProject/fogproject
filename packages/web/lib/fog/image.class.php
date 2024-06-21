@@ -236,7 +236,6 @@ class Image extends FOGController
                 error_log(_('Unable to login via SSH'));
                 continue;
             }
-            self::$FOGSSH->sftp();
             if (!self::$FOGSSH->delete($deleteFile)) {
                 error_log(_('Unable to delete remote file').': '.$deleteFile);
                 continue;

@@ -88,34 +88,23 @@ class LogViewerHook extends Hook
         if (!self::$FOGSSH->connect()) {
             return;
         }
-        $sftp = self::$FOGSSH->sftp();
-        error_log(print_r($sftp, 1));
-        $dir = "ssh2.sftp://" . $sftp . "/var/log/";
-        if (!is_dir($dir)) {
+        if (!self::$FOGSSH->exists("/var/log")) {
             self::$FOGSSH->disconnect();
             return;
         }
-        $handle = opendir($dir);
-        while (false !== ($entry = readdir($handle))) {
-            $filetype = filetype($dir.$entry);
-            if ($filetype == "dir") {
-                continue;
-            }
-            $fogfiles[] = "/var/log/" . $entry;
-        }
-        closedir($handle);
+        $fogfiles = self::$FOGSSH->scanFilesystem("/var/log");
         self::$FOGSSH->disconnect();
         $systemlog = preg_grep('#(syslog$|messages$)#', $fogfiles);
         $systemlog = array_shift($systemlog);
         if ($systemlog) {
             $arguments['files'][$arguments['StorageNode']->name]['System Log']
-                = $systemlog;
+                = "/var/log/" . $systemlog;
         }
         $dnflog = preg_grep('#(dnf.log$)#', $fogfiles);
         $dnflog = array_shift($dnflog);
         if ($dnflog) {
             $arguments['files'][$arguments['StorageNode']->name]['DNF Log']
-                = $dnflog;
+                = "/var/log/" . $dnflog;
         }
     }
     /**

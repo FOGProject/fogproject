@@ -1552,6 +1552,16 @@
             {data: 'diff'},
             {data: 'return'}
         ],
+        columnDefs: [
+            {
+                responsivePriority: -1,
+                render: function(data, type, row) {
+                    console.log(row);
+                    return data;
+                },
+                targets: 0
+            },
+        ],
         rowId: 'id',
         processing: true,
         serverSide: true,
