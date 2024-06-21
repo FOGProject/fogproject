@@ -635,10 +635,10 @@ class DashboardPage extends FOGPage
         foreach ((array)$datas as $i => &$data) {
             $d = json_decode($data);
             $data = [
-                'dev' => $d->dev,
+                'dev' => property_exists($d, 'dev') ? $d->dev : '',
                 'name' => $names[$i],
-                'rx' => $d->rx,
-                'tx' => $d->tx
+                'rx' => property_exists($d, 'rx') ? $d->rx : 0,
+                'tx' => property_exists($d, 'tx') ? $d->tx : 0
             ];
             $dataSet[] = $data;
             unset($data, $d);
