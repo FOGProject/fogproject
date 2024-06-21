@@ -38,7 +38,7 @@ class Autologout extends FOGClient
      *
      * @return array
      */
-    public function json(): array
+    public function json()
     {
         $time = self::$Host->getAlo();
         if ($time < 5) {

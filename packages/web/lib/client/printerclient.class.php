@@ -45,7 +45,7 @@ class PrinterClient extends FOGClient
      *
      * @return array
      */
-    public function json(): array
+    public function json()
     {
         $level = self::$Host->get('printerLevel');
         if (empty($level)) {

@@ -250,7 +250,7 @@ class FOGSSH
      *
      * @return bool
      */
-    public function exists($path): bool
+    public function exists($path)
     {
         $this->sftp();
         $sftp_wrap = "ssh2.sftp://{$this->_sftp}{$path}";
@@ -264,7 +264,7 @@ class FOGSSH
      *
      * @return bool
      */
-    public function sftp_chmod($path, $mode): bool
+    public function sftp_chmod($path, $mode)
     {
         return @ssh2_sftp_chmod($this->_sftp, $path, intval($mode));
     }
@@ -277,7 +277,7 @@ class FOGSSH
      * @throws Exception
      * @return void
      */
-    public function put($localfile, $remotefile): void
+    public function put($localfile, $remotefile)
     {
         $sftp = $this->_sftp;
         $stream = @fopen("ssh2.sftp://$sftp$remotefile", 'w');

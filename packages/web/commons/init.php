@@ -194,7 +194,7 @@ class Initiator
      *
      * @return string the base path as determined.
      */
-    private static function _determineBasePath(): string
+    private static function _determineBasePath()
     {
         return sprintf(
             '%s%s',
@@ -365,7 +365,7 @@ class Initiator
      *
      * @return string the cleaned up buffer
      */
-    public static function sanitizeOutput(string $buffer): string
+    public static function sanitizeOutput(string $buffer)
     {
         /**
          * Line commented for clarity
