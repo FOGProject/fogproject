@@ -38,7 +38,7 @@ class RegisterClient extends FOGClient
      * @return array
      * @throws Exception
      */
-    public function json(): array
+    public function json()
     {
         $MACs = self::getHostItem(
             true,

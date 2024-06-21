@@ -140,7 +140,7 @@ class PDODB extends DatabaseManager
      * @return object
      *@throws PDOException
      */
-    private function _connect(bool $dbexists = true): object
+    private function _connect(bool $dbexists = true)
     {
         try {
             if (self::$_link) {
@@ -203,7 +203,7 @@ class PDODB extends DatabaseManager
      * @return object
      *@throws PDOException
      */
-    public static function currentDb(object $main): object
+    public static function currentDb(object $main)
     {
         try {
             if (!self::$_link) {
@@ -252,7 +252,7 @@ class PDODB extends DatabaseManager
         string $sql,
         array  $data = [],
         array $paramvals = []
-    ): PDODB
+    )
     {
         try {
             if (!self::$_link) {
@@ -319,7 +319,7 @@ class PDODB extends DatabaseManager
         int    $type = PDO::FETCH_ASSOC,
         string $fetchType = 'fetch_assoc',
                $params = false
-    ): object
+    )
     {
         try {
             self::$_result = [];

@@ -44,7 +44,7 @@ class UserTrack extends FOGClient
      * @return array
      * @throws Exception
      */
-    public function json(): array
+    public function json()
     {
         if (!isset($_REQUEST['action'])
             && !isset($_REQUEST['user'])

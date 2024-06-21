@@ -32,7 +32,7 @@ class PM extends FOGClient
      *
      * @return array
      */
-    public function json(): array
+    public function json()
     {
         $find = [
             'id' => self::$Host->get('powermanagementtasks'),
