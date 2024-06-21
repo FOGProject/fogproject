@@ -283,7 +283,7 @@ class HostManager extends FOGManagerController
             $find,
             'hostID'
         );
-        $MACHost = json_decode(Route::getData(), true);
+        $MACHost = array_unique(json_decode(Route::getData(), true));
         if (count($MACHost) < 1) {
             return;
         }
@@ -294,8 +294,11 @@ class HostManager extends FOGManagerController
                 $find,
                 'hostID'
             );
-            $MACHost = json_decode(Route::getData(), true);
+            $MACHost = array_unique(json_decode(Route::getData(), true));
             $macs = (array)$macs;
+            if (count($MACHost ?: []) < 1) {
+                return;
+            }
             if (count($MACHost ?: []) > 1 && count($macs ?: []) > 0) {
                 $maclist = implode(', ', $macs);
                 throw new Exception(
