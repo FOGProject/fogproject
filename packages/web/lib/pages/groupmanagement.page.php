@@ -2940,7 +2940,7 @@ class GroupManagement extends FOGPage
         );
         $printerID = trim(filter_input(INPUT_GET, 'printerID'));
 
-        Route::ids('printer');
+        Route::ids('printer', false);
         $printersAvail = json_decode(Route::getData(), true);
         if (!count($printersAvail ?: [])) {
             echo json_encode(

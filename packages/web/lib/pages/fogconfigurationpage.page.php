@@ -1026,12 +1026,12 @@ class FOGConfigurationPage extends FOGPage
             'FOG_LOG_ERROR' => true,
             'FOG_LOG_DEBUG' => true
         ];
-        Route::ids('image');
+        Route::ids('image', false);
         $imageids = json_decode(
             Route::getData(),
             true
         );
-        Route::ids('group');
+        Route::ids('group', false);
         $groupids = json_decode(
             Route::getData(),
             true
@@ -1937,12 +1937,12 @@ class FOGConfigurationPage extends FOGPage
             'NEEDSTOBECHECKBOX',
             ['needstobecheckbox' => &$needstobecheckbox]
         );
-        Route::ids('image');
+        Route::ids('image', false);
         $imageids = json_decode(
             Route::getData(),
             true
         );
-        Route::ids('group');
+        Route::ids('group', false);
         $groupids = json_decode(
             Route::getData(),
             true

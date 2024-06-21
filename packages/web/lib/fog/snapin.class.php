@@ -269,7 +269,7 @@ class Snapin extends FOGController
         );
         $groups = json_decode(Route::getData(), true);
         if (count($groups ?: []) < 1) {
-            Route::ids('storagegroup');
+            Route::ids('storagegroup', false);
             $groups = json_decode(Route::getData(), true);
             $groups = [@min($groups)];
         }
@@ -316,7 +316,7 @@ class Snapin extends FOGController
         $groupids = $this->get('storagegroups');
         $count = count($groupids);
         if ($count < 1) {
-            Route::ids('storagegroup');
+            Route::ids('storagegroup', false);
             $groupids = json_decode(Route::getData(), true);
             $groupids = [@min($groupids)];
             if (count($groupids) < 1) {
@@ -369,7 +369,7 @@ class Snapin extends FOGController
             $primaryCount = $primaryCount->total;
         }
         if ($primaryCount < 1) {
-            Route::ids('storagegroup');
+            Route::ids('storagegroup', false);
             $groupid = json_decode(Route::getData(), true);
             $groupid = @min($groupid);
             self::setPrimaryGroup($groupid, $snapinID);
