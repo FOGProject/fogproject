@@ -32,9 +32,9 @@
           return;
         }
         data = JSON.parse(data);
-        let [int64_ver, int64k_ins] = data.int64bit.split('|');
-        let [int32_ver, int32k_ins] = data.int32bit.split('|');
-        let [arm64_ver, arm64k_ins] = data.arm64bit.split('|');
+        let [int64_relk, int64_ver, int64k_ins] = data.int64bit.split('|');
+        let [int32_relk, int32_ver, int32k_ins] = data.int32bit.split('|');
+        let [arm64_relk, arm64_ver, arm64k_ins] = data.arm64bit.split('|');
         let [int64_rel, int64_brt, int64i_ins] = data.initI64.split('|');
         let [int32_rel, int32_brt, int32i_ins] = data.initI32.split('|');
         let [arm64_rel, arm64_brt, arm64i_ins] = data.initA64.split('|');
@@ -56,21 +56,25 @@
             + '<tbody>'
             + '<tr>'
             + '<th>' + data.arch_lang + '</th>'
+            + '<th>' + data.rel_lang + '</th>'
             + '<th>' + data.kern_lang + '</th>'
             + '<th>' + data.ins_lang + '</th>'
             + '</tr>'
             + '<tr>'
             + '<td>' + data.intel64_lang + '</td>'
+            + '<td>' + int64_relk + '</td>'
             + '<td>' + int64_ver + '</td>'
             + '<td>' + int64k_ins + '</td>'
             + '</tr>'
             + '<tr>'
             + '<td>' + data.intel32_lang + '</td>'
+            + '<td>' + int32_relk + '</td>'
             + '<td>' + int32_ver + '</td>'
             + '<td>' + int32k_ins + '</td>'
             + '</tr>'
             + '<tr>'
             + '<td>' + data.arm64_lang + '</td>'
+            + '<td>' + arm64_relk + '</td>'
             + '<td>' + arm64_ver + '</td>'
             + '<td>' + arm64k_ins + '</td>'
             + '</tr>'
