@@ -28,7 +28,7 @@ class DatabaseManager extends FOGCore
      *
      * @return object
      */
-    public static function establish(): object
+    public static function establish()
     {
         /**
          * Certain scripts don't use the database at all,
@@ -169,7 +169,7 @@ class DatabaseManager extends FOGCore
      *
      * @return object
      */
-    public static function getLink(): object
+    public static function getLink()
     {
         return self::$DB->link();
     }
@@ -178,7 +178,7 @@ class DatabaseManager extends FOGCore
      *
      * @return object
      */
-    public static function getDB(): object
+    public static function getDB()
     {
         return self::$DB ?: new PDODB();
     }
@@ -187,7 +187,7 @@ class DatabaseManager extends FOGCore
      *
      * @return void
      */
-    private static function _getVersion(): void
+    private static function _getVersion()
     {
         self::_convertEngine();
         $query = sprintf(
@@ -210,7 +210,7 @@ class DatabaseManager extends FOGCore
     public static function getColumns(
         string $table_name,
         string $column_name
-    ): int
+    )
     {
         $sql = sprintf(
             "SELECT COUNT(`%s`)AS`%s`FROM`%s`.`%s`WHERE`%s`='%s'%s",
