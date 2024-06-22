@@ -1415,7 +1415,7 @@ class BootMenu extends FOGBase
                     '/opt/fog/clamav'
                 );
             }
-            $chkdsk = $chkdsk == 1 ? 0 : 1;
+            $chkdsk = !isset($chkdsk) || $chkdsk == 1 ? 0 : 1;
             $MACs = self::$Host->getMyMacs();
             $clientMacs = array_filter(
                 (array)self::parseMacList(
@@ -1461,54 +1461,54 @@ class BootMenu extends FOGBase
             $imagingTaskActive = (isset($imagingTasks) && $imagingTasks);
             $kernelArgsArray = [
                 "mac=$mac",
-                "ftp=$ftp",
-                "storage=$storage",
-                "storageip=$storageip",
-                "osid=$osid",
+                "ftp=" . (isset($ftp) ? $ftp : ''),
+                "storage=" . (isset($storage) ? $storage : ''),
+                "storageip=" . (isset($storageip) ? $storageip : ''),
+                "osid=" . (isset($osid) ? $osid : ''),
                 "irqpoll",
                 [
-                    'value' => "mcastrdv=$mcastrdv",
-                    'active' => !empty($mcastrdv)
+                    'value' => "mcastrdv=". (isset($mcastrdv) ? $mcastrdv : ''),
+                    'active' => isset($mcastrdv) && !empty($mcastrdv)
                 ],
                 [
                     'value' => "hostname=" . self::$Host->get('name'),
                     'active' => count($clientMacs ?: []) > 0,
                 ],
                 [
-                    'value' => "clamav=$clamav",
+                    'value' => "clamav=" . (isset($clamav) ? $clamav : ''),
                     'active' => in_array($TaskType->get('id'), [21, 22]),
                 ],
                 [
-                    'value' => "chkdsk=$chkdsk",
+                    'value' => "chkdsk=" . (isset($chkdsk) ? $chkdsk : ''),
                     'active' => $imagingTaskActive,
                 ],
                 [
-                    'value' => "img=$img",
+                    'value' => "img=" . (isset($img) ? $img : ''),
                     'active' => $imagingTaskActive,
                 ],
                 [
-                    'value' => "imgType=$imgType",
+                    'value' => "imgType=" . (isset($imgType) ? $imgType : ''),
                     'active' => $imagingTaskActive,
                 ],
                 [
-                    'value' => "imgPartitionType=$imgPartitionType",
+                    'value' => "imgPartitionType=" . (isset($imgPartitionType) ? $imgPartitionType : ''),
                     'active' => $imagingTaskActive,
                 ],
                 [
-                    'value' => "imgid=$imgid",
+                    'value' => "imgid=". (isset($imgid) ? $imgid : ''),
                     'active' => $imagingTaskActive,
                 ],
                 [
-                    'value' => "imgFormat=$imgFormat",
+                    'value' => "imgFormat=". (isset($imgFormat) ? $imgFormat : ''),
                     'active' => $imagingTaskActive,
                 ],
                 [
-                    'value' => "PIGZ_COMP=-$PIGZ_COMP",
+                    'value' => "PIGZ_COMP=-". (isset($PIGZ_COMP) ? $PIGZ_COMP : '0'),
                     'active' => $imagingTaskActive,
                 ],
                 [
                     'value' => 'shutdown=1',
-                    'active' => $Task->get('shutdown') || $shutdown,
+                    'active' => $Task->get('shutdown') || (isset($shutdown) ? $shutdown : false),
                 ],
                 [
                     'value' => "adon=1 addomain=\"$addomain\" "
@@ -1523,7 +1523,8 @@ class BootMenu extends FOGBase
                 [
                     'value' => 'hostearly=1',
                     'active' => (
-                        $hosterl
+                        isset($hosterl)
+                        && $hosterl
                         && $imagingTaskActive ?
                         true :
                         false
@@ -1533,7 +1534,8 @@ class BootMenu extends FOGBase
                     'value' => sprintf(
                         'pct=%d',
                         (
-                            is_numeric($capresz)
+                            isset($capresz)
+                            && is_numeric($capresz)
                             && $capresz >= 5
                             && $capresz < 100 ?
                             $capresz :
@@ -1546,7 +1548,7 @@ class BootMenu extends FOGBase
                     'value' => sprintf(
                         'ignorepg=%d',
                         (
-                            $cappage ?
+                            isset($cappage) && $cappage ?
                             1 :
                             0
                         )
@@ -1577,10 +1579,10 @@ class BootMenu extends FOGBase
                 ],
                 [
                     'value' => 'debug',
-                    'active' => $kdebug,
+                    'active' => isset($kdebug) && $kdebug,
                 ],
                 [
-                    'value' => 'seconds='.$timeout,
+                    'value' => 'seconds='. (isset($timeout) ? $timeout : 300),
                     'active' => in_array($TaskType->get('id'), range(18, 20)),
                 ],
                 [
@@ -1588,7 +1590,7 @@ class BootMenu extends FOGBase
                     'active' => $Task->get('bypassbitlocker') > 0
                 ],
                 $TaskType->get('kernelArgs'),
-                $kargs,
+                isset($kargs) ? $kargs : '',
                 self::$Host->get('kernelArgs'),
             ];
             if ($Task->get('typeID') == 4) {
