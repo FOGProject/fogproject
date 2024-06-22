@@ -1167,7 +1167,7 @@ class Host extends FOGController
             );
             exit;
         }
-        if ($taskTypeID == 14) {
+        if ($TaskType->id == 14) {
             $Task->destroy();
         }
         return true;

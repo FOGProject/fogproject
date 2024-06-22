@@ -489,11 +489,11 @@ class FOGURLRequests extends FOGBase
     private function _validUrl(&$url)
     {
         if (!isset($url) || empty($url)) {
-            return false;
+            return '';
         }
         $url = filter_var($url, FILTER_SANITIZE_URL);
         if (false === filter_var($url, FILTER_VALIDATE_URL)) {
-            unset($url);
+            return '';
         }
 
         return $url;

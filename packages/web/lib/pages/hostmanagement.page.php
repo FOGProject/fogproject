@@ -4657,6 +4657,7 @@ class HostManagement extends FOGPage
 
             // Shutdown setup
             $shutdown = isset($_POST['shutdown']);
+            $enableShutdown = false;
             if ($shutdown) {
                 $enableShutdown = true;
             }
