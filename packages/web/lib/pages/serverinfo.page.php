@@ -112,92 +112,39 @@ class ServerInfo extends FOGPage
             echo '</div>';
             return;
         }
-        $ret = trim($ret[0]);
+        $ret = json_decode($ret[0]);
         $section = 0;
-        $arGeneral = [];
-        $arFS = [];
-        $arNIC = [];
-        $lines = explode("\n", $ret);
-        foreach ((array)$lines as &$line) {
-            $line = trim($line);
-            switch ($line) {
-            case '@@start':
-            case '@@end':
-                break;
-            case '@@general':
-                $section = 0;
-                break;
-            case '@@fs':
-                $section = 1;
-                break;
-            case '@@nic':
-                $section = 2;
-                break;
-            default:
-                switch ($section) {
-                case 0:
-                    $arGeneral[] = $line;
-                    break;
-                case 1:
-                    $arFS[] = $line;
-                    break;
-                case 2:
-                    $arNIC[] = $line;
-                }
-            }
-            unset($line);
-        }
-        if (count($arGeneral) < 1) {
-            echo '<div class="col-md-12">';
-            echo '<div class="box box-warning">';
-            echo '<div class="box-header with-border">';
-            echo '<h4 class="box-title">';
-            echo _('General Information');
-            echo '</h4>';
-            echo '<div class="box-tools pull-right">';
-            echo self::$FOGCollapseBox;
-            echo self::$FOGCloseBox;
-            echo '</div>';
-            echo '</div>';
-            echo '<div class="box-body">';
-            echo _('Unable to find basic information!');
-            echo '</div>';
-            echo '</div>';
-            echo '</div>';
-            return;
-        }
-        foreach ((array)$arNIC as &$nic) {
-            $nicparts = explode("$$", $nic);
+        foreach ((array)$ret->nic as $nicname => $values) {
+            $nicparts = explode("$$", $values);
             if (count($nicparts) == 5) {
-                $NICTransSized[] = self::formatByteSize($nicparts[2]);
-                $NICRecSized[] = self::formatByteSize($nicparts[1]);
-                $NICErrInfo[] = $nicparts[3];
-                $NICDropInfo[] = $nicparts[4];
-                $NICTrans[] = sprintf('%s %s', $nicparts[0], _('TX'));
-                $NICRec[] = sprintf('%s %s', $nicparts[0], _('RX'));
-                $NICErr[] =    sprintf('%s %s', $nicparts[0], _('Errors'));
-                $NICDro[] = sprintf('%s %s', $nicparts[0], _('Dropped'));
+                $NICTransSized[$nicname] = self::formatByteSize($nicparts[2]);
+                $NICRecSized[$nicname] = self::formatByteSize($nicparts[1]);
+                $NICErrInfo[$nicname] = $nicparts[3];
+                $NICDropInfo[$nicname] = $nicparts[4];
+                $NICTrans[$nicname] = sprintf('%s %s', $nicparts[0], _('TX'));
+                $NICRec[$nicname] = sprintf('%s %s', $nicparts[0], _('RX'));
+                $NICErr[$nicname] =    sprintf('%s %s', $nicparts[0], _('Errors'));
+                $NICDro[$nicname] = sprintf('%s %s', $nicparts[0], _('Dropped'));
             }
-            unset($nic);
         }
         $fields = [
             _('Storage Node') => $this->obj->get('name'),
             _('IP') => self::resolveHostname(
                 $this->obj->get('ip')
             ),
-            _('Kernel') => $arGeneral[0],
-            _('Hostname') => $arGeneral[1],
-            _('Uptime') => $arGeneral[2],
-            _('CPU Type') => $arGeneral[3],
-            _('CPU Count') => $arGeneral[4],
-            _('CPU Model') => $arGeneral[5],
-            _('CPU Speed') => $arGeneral[6],
-            _('CPU Cache') => $arGeneral[7],
-            _('Total Memory') => $arGeneral[8],
-            _('Used Memory') => $arGeneral[9],
-            _('Free Memory') => $arGeneral[10]
+            _('Kernel') => $ret->general->kernel,
+            _('Hostname') => $ret->general->hostname,
+            _('Uptime') => $ret->general->uptimeload,
+            _('CPU Type') => $ret->general->cputype,
+            _('CPU Count') => $ret->general->cpucount,
+            _('CPU Model') => $ret->general->cpumodel,
+            _('CPU Speed') => $ret->general->cpuspeed,
+            _('CPU Cache') => $ret->general->cpucache,
+            _('Total Memory') => $ret->general->totmem,
+            _('Used Memory') => $ret->general->usedmem,
+            _('Free Memory') => $ret->general->freemem
         ];
-        $fogversion = $arGeneral[11];
+        $fogversion = $ret->general->fogversion;
         // Running FOG Version
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
@@ -246,9 +193,9 @@ class ServerInfo extends FOGPage
         );
         // File System Info
         $fields = [
-            _('Total Disk Space') => $arFS[0],
-            _('Used Disk Space') => $arFS[1],
-            _('Free Disk Space') => $arFS[2]
+            _('Total Disk Space') => $ret->filesys->totalspace,
+            _('Used Disk Space') => $ret->filesys->usedspace,
+            _('Free Disk Space') => $ret->filesys->freespace
         ];
         ob_start();
         foreach ($fields as $field => &$input) {
@@ -293,17 +240,17 @@ class ServerInfo extends FOGPage
         echo '</div>';
         echo '<div class="box-body">';
         echo '<div class="box-group" id="accordion">';
-        foreach ((array)$NICTrans as $index => &$txtran) {
+        foreach ((array)$NICTrans as $nicname => $txtran) {
             unset(
                 $fields,
                 $this->data
             );
-            $ethName = explode(' ', $txtran);
+            $ethName = $nicname;
             $fields = [
-                $NICTrans[$index] => $NICTransSized[$index],
-                $NICRec[$index] => $NICRecSized[$index],
-                $NICErr[$index] => $NICErrInfo[$index],
-                $NICDro[$index] => $NICDropInfo[$index]
+                $NICTrans[$nicname] => $NICTransSized[$nicname],
+                $NICRec[$nicname] => $NICRecSized[$nicname],
+                $NICErr[$nicname] => $NICErrInfo[$nicname],
+                $NICDro[$nicname] => $NICDropInfo[$nicname]
             ];
             ob_start();
             foreach ($fields as $field => &$input) {
@@ -320,40 +267,26 @@ class ServerInfo extends FOGPage
             echo '<div class="box-header with-border">';
             echo '<h4 class="box-title">';
             echo '<a data-toggle="collapse" data-parent="#accordion" href="#'
-                . $ethName[0]
+                . $ethName
                 . '">';
-            echo $ethName[0];
+            echo $ethName;
             echo ' ';
             echo _('Information');
             echo '</a>';
             echo '</h4>';
             echo '</div>';
             echo '<div id="'
-                . $ethName[0]
+                . $ethName
                 . '" class="panel-collapse collapse">';
             echo '<div class="box-body">';
             echo $rendered;
             echo '</div>';
             echo '</div>';
             echo '</div>';
-            unset($txtran, $rendered);
+            unset($rendered);
         }
         echo '</div>';
         echo '</div>';
-        unset(
-            $arGeneral,
-            $arNIC,
-            $arFS,
-            $NICTransSized,
-            $NICRecSized,
-            $NICErrInfo,
-            $NICDropInfo,
-            $NICTrans,
-            $NICRec,
-            $NICErr,
-            $NICDro,
-            $fields
-        );
         echo '</div>';
     }
 }
