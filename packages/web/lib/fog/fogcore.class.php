@@ -100,10 +100,6 @@ class FOGCore extends FOGBase
      */
     public static function getHWInfo()
     {
-        $data['general'] = '@@general';
-        $data['kernel'] = php_uname('r');
-        $data['hostname'] = php_uname('n');
-        $data['uptimeload'] = implode(' Load: ', self::systemUptime());
         $cpucmd = sprintf(
             '%s | %s | %s | %s | %s',
             'cat /proc/cpuinfo',
@@ -112,11 +108,6 @@ class FOGCore extends FOGBase
             'cut -f2 -d:',
             "sed 's| ||'"
         );
-        $data['cputype'] = shell_exec(sprintf($cpucmd, 2));
-        $data['cpucount'] = shell_exec('nproc');
-        $data['cpumodel'] = shell_exec(sprintf($cpucmd, 5));
-        $data['cpuspeed'] = shell_exec(sprintf($cpucmd, 8));
-        $data['cpucache'] = shell_exec(sprintf($cpucmd, 9));
         $memcmd = sprintf(
             '%s | %s | %s | %s',
             'free -b',
@@ -127,11 +118,20 @@ class FOGCore extends FOGBase
         $totmem = shell_exec(sprintf($memcmd, 2));
         $usedmem = shell_exec(sprintf($memcmd, 3));
         $freemem = shell_exec(sprintf($memcmd, 4));
-        $data['totmem'] = self::formatByteSize($totmem);
-        $data['usedmem'] = self::formatByteSize($usedmem);
-        $data['freemem'] = self::formatByteSize($freemem);
-        $data['fogversion'] = FOG_VERSION;
-        $data['filesys'] = '@@fs';
+        $data['general'] = [
+            'kernel' => php_uname('r'),
+            'hostname' => php_uname('n'),
+            'uptimeload' => implode(' Load: ', self::systemUptime()),
+            'cputype' => shell_exec(sprintf($cpucmd, 2)),
+            'cpucount' => shell_exec('nproc'),
+            'cpumodel' => shell_exec(sprintf($cpucmd, 5)),
+            'cpuspeed' => shell_exec(sprintf($cpucmd, 8)),
+            'cpucache' => shell_exec(sprintf($cpucmd, 9)),
+            'totmem' => self::formatByteSize($totmem),
+            'usedmem' => self::formatByteSize($usedmem),
+            'freemem' => self::formatByteSize($freemem),
+            'fogversion' => FOG_VERSION,
+        ];
         $hdtotal = 0;
         $hdused = 0;
         $freespace = explode(
@@ -149,14 +149,16 @@ class FOGCore extends FOGBase
             unset($free);
         }
         $hdfree = (float)$hdtotal - $hdused;
-        $data['totalspace'] = self::formatByteSize($hdtotal);
-        $data['usedspace'] = self::formatByteSize($hdused);
-        $data['freespace'] = self::formatByteSize($hdfree);
-        $data['nic'] = '@@nic';
+        $data['filesys'] = [
+            'totalspace' => self::formatByteSize($hdtotal),
+            'usedspace' => self::formatByteSize($hdused),
+            'freespace' => self::formatByteSize($hdfree)
+        ];
         $netfaces = explode(
             "\n",
             shell_exec("cat '/proc/net/dev'")
         );
+        $data['nic'] = [];
         foreach ((array)$netfaces as $netface) {
             if (!preg_match('#:#', $netface)) {
                 continue;
@@ -171,7 +173,7 @@ class FOGCore extends FOGBase
                 $stats_list
             );
             $dev_name = trim($dev_name);
-            $data[$dev_name] = sprintf(
+            $data['nic'][$dev_name] = sprintf(
                 '%s$$%s$$%s$$%s$$%s',
                 $dev_name,
                 $stats[0],
@@ -181,8 +183,8 @@ class FOGCore extends FOGBase
             );
             unset($netface);
         }
-        $data['end'] = '@@end';
-        return $data;
+        print json_encode($data);
+        exit;
     }
     /**
      * Sets the environment for us
