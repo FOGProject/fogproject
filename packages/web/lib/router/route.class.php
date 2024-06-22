@@ -1730,7 +1730,11 @@ class Route extends FOGBase
             }
             foreach ($classVars['databaseFields'] as &$key) {
                 $key = $class->key($key);
-                $val = $vars->$key;
+                if (property_exists($vars, $key)) {
+                    $val = $vars->$key;
+                } else {
+                    $val = NULL;
+                }
                 if ('id' == $key
                     || NULL === $val
                 ) {
