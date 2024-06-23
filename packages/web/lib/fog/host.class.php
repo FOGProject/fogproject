@@ -922,7 +922,7 @@ class Host extends FOGController
             }
             $Task = $this->get('task');
             // Basic task check for imaging type tasks.
-            if ($Task->isValid() && $TaskType->isImagingType) {
+            if ($Task->isValid() && (property_exists($TaskType, 'isImagingType') && $TaskType->isImagingType)) {
                 throw new Exception(self::$foglang['InTask']);
             }
 
