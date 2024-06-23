@@ -1137,8 +1137,19 @@ class Host extends FOGController
                     }
                 }
             }
-            if ($wol) {
+            if ($TaskType->id == 14) {
+                $Task
+                    ->set('stateID', self::getProgressState())
+                    ->set('checkInTime', self::formatTime('now', 'Y-m-d H:i:s'))
+                    ->save();
+            }
+            if ($wol || $TaskType->id == 14) {
                 $this->wakeOnLAN();
+            }
+            if ($TaskType->id == 14) {
+                $Task
+                    ->set('stateID', self::getCompleteState())
+                    ->save();
             }
         } catch (Exception $e) {
             $errcode = HTTPResponseCodes::HTTP_BAD_REQUEST;
@@ -1166,9 +1177,6 @@ class Host extends FOGController
                 ]
             );
             exit;
-        }
-        if ($TaskType->id == 14) {
-            $Task->destroy();
         }
         return true;
     }
