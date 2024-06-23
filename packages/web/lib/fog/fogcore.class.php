@@ -136,7 +136,7 @@ class FOGCore extends FOGBase
         $hdused = 0;
         $freespace = explode(
             "\n",
-            shell_exec('df -PB1 | grep -vE "^Filesystem|shm"')
+            shell_exec('df -PB1 | grep -vE "^Filesystem|shm" | awk \'!filesystem[$1]++\'')
         );
         $patmatch = '/(\d+) +(\d+) +(\d+) +\d+%/';
         $hdtotal = $hdused = $hdfree = 0;
