@@ -377,7 +377,9 @@ class TaskQueue extends TaskingElement
         self::$FOGSSH->password = $this->StorageNode->get('pass');
         self::$FOGSSH->host = $this->StorageNode->get('ip');
         self::$FOGSSH->connect();
-        self::$FOGSSH->delete($dest);
+        if (self::$FOGSSH->exists($dest)) {
+            self::$FOGSSH->delete($dest);
+        }
         self::$FOGSSH->sftp_rename($src, $dest);
         self::$FOGSSH->disconnect();
         if ($this->Image->get('format') == 1) {
