@@ -1387,7 +1387,7 @@ configureNFS() {
         mv -fv "${nfsconfig}" "${nfsconfig}.${timestamp}" >>$error_log 2>&1
         userId=$(id -u $username)
         groupId=$(id -g $username)
-        echo -e "$storageLocation *(ro,sync,no_wdelay,no_subtree_check,insecure_locks,all_squash,anonuid=${userId},anongid=${groupId},fsid=0)\n$storageLocation/dev *(rw,async,no_wdelay,no_subtree_check,all_squash,anonuid=${userId},anongid=${groupId},fsid=1)" > "$nfsconfig"
+        echo -e "$storageLocation *(ro,sync,no_wdelay,subtree_check,insecure_locks,all_squash,anonuid=${userId},anongid=${groupId},fsid=0)\n$storageLocation/dev *(rw,async,no_wdelay,subtree_check,all_squash,anonuid=${userId},anongid=${groupId},fsid=1)" > "$nfsconfig"
         diffconfig "${nfsconfig}"
         errorStat $?
         dots "Setting up and starting RPCBind"

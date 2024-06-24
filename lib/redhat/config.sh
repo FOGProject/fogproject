@@ -27,7 +27,7 @@ case $linuxReleaseName_lower in
         [[ -z $packmanUpdate ]] && packmanUpdate="urpmi.update -a"
         [[ -z $dhcpname ]] && dhcpname="dhcp-server"
         [[ -z $tftpdirdst ]] && tftpdirdst="/var/lib/tftpboot"
-        [[ -z $nfsexportsopts ]] && nfsexportsopts="no_subtree_check"
+        [[ -z $nfsexportsopts ]] && nfsexportsopts="subtree_check"
         [[ -z $etcconf ]] && etcconf="/etc/httpd/conf/conf.d/fog.conf"
         ;;
     *)
