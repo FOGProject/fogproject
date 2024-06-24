@@ -109,7 +109,7 @@ class StorageGroupManagement extends FOGPage
         echo self::makeFormTag(
             'form-horizontal',
             'storagegroup-create-form',
-            $this->formAcion,
+            $this->formAction,
             'post',
             'application/x-www-form-urlencoded',
             true
