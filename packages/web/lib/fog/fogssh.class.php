@@ -106,11 +106,17 @@ class FOGSSH
             $linker = $this->_link;
         } else if (str_contains($func, 'sftp_') && $func !== 'sftp') {
             if (!$this->_sftp) {
-                $this->_sftp = ssh2_sftp($this->_link);
+                if (!($this->_sftp = @ssh2_sftp($this->_link))) {
+                    sleep(2);
+                    $this->_sftp = @ssh2_sftp($this->_link);
+                }
             }
             $linker = $this->_sftp;
         } else if ($func === 'sftp') {
-            $this->_sftp = ssh2_sftp($this->_link);
+            if (!($this->_sftp = @ssh2_sftp($this->_link))) {
+                sleep(2);
+                $this->_sftp = @ssh2_sftp($this->_link);
+            }
             return $this->_sftp;
         } else {
             $linker = $this->_link;
@@ -252,7 +258,7 @@ class FOGSSH
      */
     public function exists($path)
     {
-        $this->_sftp = ssh2_sftp($this->_link);
+        $this->sftp();
         $sftp_wrap = "ssh2.sftp://{$this->_sftp}{$path}";
         return @is_dir($sftp_wrap) || @file_exists($sftp_wrap);
     }
