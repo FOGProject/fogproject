@@ -1561,25 +1561,17 @@ abstract class FOGBase
             return $encdata;
         }
         $data = explode('|', $encdata);
-        if (strlen($data[0]) != $iv_size || strlen($data[1]) != $iv_size) {
-            return $encdata;
+        if (!($iv = pack('H*', $data[0]))) {
+            return '';
         }
-        // add error handler to catch warnings we might get from pack() with non-hex strings
-        set_error_handler(
-            function($severity, $message, $file, $line) {
-                throw new ErrorException($message, $severity, $severity, $file, $line);
-            }
-        );
-        try {
-            $iv = pack('H*', $data[0]);
-            $encoded = pack('H*', $data[1]);
-            if (!$key && isset($data[2]) && strlen($data[2]) == $iv_size) {
-                $key = pack('H*', $data[2]);
-            }
-        } catch (Exception $e) {
-            return $encdata;
+        if (!($encoded = pack('H*', $data[1]))) {
+            return '';
         }
-        restore_error_handler();
+        if (!$key && $data[2]) {
+            if (!($key = pack('H*', $data[2]))) {
+                return '';
+            }
+        }
         if (empty($key)) {
             return '';
         }
