@@ -377,7 +377,7 @@ class TaskQueue extends TaskingElement
         self::$FOGSSH->password = $this->StorageNode->get('pass');
         self::$FOGSSH->host = $this->StorageNode->get('ip');
         if (!self::$FOGSSH->connect()) {
-            throw new Exception(_('Unable to connect to ssh'));
+            throw new Exception(_('Unable to connect to ssh during move upload'));
         }
         self::$FOGSSH->delete($dest);
         self::$FOGSSH->sftp_rename($src, $dest);
