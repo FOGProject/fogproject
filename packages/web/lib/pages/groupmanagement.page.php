@@ -540,7 +540,7 @@ class GroupManagement extends FOGPage
             ) => $exitEfi
         ];
 
-        $buttons .= self::makeButton(
+        $buttons = self::makeButton(
             'general-send',
             _('Update'),
             'btn btn-primary pull-right'
@@ -1864,7 +1864,7 @@ class GroupManagement extends FOGPage
             $hdfirm = $inventory->hdfirmware;
             $hdser = $inventory->hdserial;
             $caseman = $inventory->caseman;
-            $casever = $inventory->caseversion;
+            $casever = $inventory->casever;
             $caseser = $inventory->caseserial;
             $caseast = $inventory->caseasset;
             $fields = [
