@@ -379,7 +379,9 @@ class TaskQueue extends TaskingElement
         if (!self::$FOGSSH->connect()) {
             throw new Exception(_('Unable to connect to ssh during move upload'));
         }
-        self::$FOGSSH->delete($dest);
+        if (self::$FOGSSH->exists($dest)) {
+            self::$FOGSSH->delete($dest);
+        }
         self::$FOGSSH->sftp_rename($src, $dest);
         self::$FOGSSH->disconnect();
         if ($this->Image->get('format') == 1) {
