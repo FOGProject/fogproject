@@ -1718,9 +1718,11 @@ class Route extends FOGBase
             );
 
             $exists = false;
-            $exists = self::getClass($classname)
-                ->getManager()
-                ->exists($vars->name);
+            if (property_exists($vars, 'name')) {
+                $exists = self::getClass($classname)
+                    ->getManager()
+                    ->exists($vars->name);
+            }
             $uniqueNames = !in_array($classname, self::$nonUniqueNameClasses);
             if ($exists && $uniqueNames) {
                 self::setErrorMessage(
