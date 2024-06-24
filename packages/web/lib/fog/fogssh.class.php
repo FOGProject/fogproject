@@ -92,6 +92,12 @@ class FOGSSH
     {
         return $this->data[$key];
     }
+    public function sftp()
+    {
+        if (!isset($this->_sftp) && !($this->_sftp = @ssh2_sftp($this->_link))) {
+            $this->ssherror($this->data);
+        }
+    }
     /**
      * Magic class to do ssh2 functions.
      *
@@ -104,20 +110,11 @@ class FOGSSH
     {
         if (str_contains($func, 'scp')) {
             $linker = $this->_link;
-        } else if (str_contains($func, 'sftp_') && $func !== 'sftp') {
+        } else if (str_contains($func, 'sftp_')) {
             if (!$this->_sftp) {
-                if (!($this->_sftp = @ssh2_sftp($this->_link))) {
-                    sleep(2);
-                    $this->_sftp = @ssh2_sftp($this->_link);
-                }
+                $this->sftp();
             }
             $linker = $this->_sftp;
-        } else if ($func === 'sftp') {
-            if (!($this->_sftp = @ssh2_sftp($this->_link))) {
-                sleep(2);
-                $this->_sftp = @ssh2_sftp($this->_link);
-            }
-            return $this->_sftp;
         } else {
             $linker = $this->_link;
         }
