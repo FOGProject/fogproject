@@ -1869,8 +1869,7 @@ class HostManagement extends FOGPage
             $user,
             $pass,
             true,
-            true,
-            $productKey
+            true
         );
     }
     /**
