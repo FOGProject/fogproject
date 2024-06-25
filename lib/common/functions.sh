@@ -81,7 +81,7 @@ updateDB() {
             local replace='s/[]"\/$&*.^|[]/\\&/g'
             local escstorageLocation=$(echo $storageLocation | sed -e $replace)
             sed -i -e "s/'\/images\/'/'$escstorageLocation'/g" $webdirdest/commons/schema.php
-            wget --no-check-certificate -qO - --post-data="confirm&fogverified" --no-proxy ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema >>$error_log 2>&1
+            curl -X POST -d "confirm&fogverified" --noproxy '*' -fksL ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema -o - >>$error_log 2>&1
             errorStat $?
             ;;
         *)
@@ -664,6 +664,7 @@ installPackages() {
     [[ $installlang -eq 1 ]] && packages="$packages gettext"
     packages="$packages jq"
     packages="$packages unzip"
+    packages="$packages attr"
     packages="${packages} ${webserver}"
     grep -qP "Subsystem\s+sftp\s+\/usr\/libexec\/openssh\/sftp-server" /etc/ssh/sshd_config >>$error_log 2>&1
     if [[ $? -eq 0 ]]; then
