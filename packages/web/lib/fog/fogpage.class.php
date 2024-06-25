@@ -1718,7 +1718,6 @@ abstract class FOGPage extends FOGBase
             $msg = filter_input(INPUT_POST, 'msg');
             $br_ver = filter_input(INPUT_POST, 'buildroot');
             $tg_ver = filter_input(INPUT_POST, 'tag_name');
-            error_log(print_r($_POST, 1));
             if ($_SESSION['allow_ajax_kdl']
                 && $_SESSION['dest-kernel-file']
                 && $_SESSION['tmp-kernel-file']
@@ -2550,7 +2549,6 @@ abstract class FOGPage extends FOGBase
                 }
             }
             if ($this->obj instanceof Image || $this->obj instanceof Snapin) {
-                error_log(print_r($_POST, 1));
                 if (isset($_POST['andFile'])) {
                     if (!$this->obj->deleteFile()) {
                         throw new Exception(_('Unable to delete file data'));
