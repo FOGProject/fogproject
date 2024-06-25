@@ -826,7 +826,16 @@ class Route extends FOGBase
             switch ($classname) {
             case 'host':
                 $columns[] = ['db' => 'imageName', 'dt' => 'imagename'];
-                $columns[] = ['db' => 'hmMAC', 'dt' => 'primac'];
+                $columns[] = [
+                    'db' => 'hmMAC',
+                    'dt' => 'primac',
+                    'formatter' => function($d, $row) {
+                        if (!$row['hmPrimary']) {
+                            return;
+                        }
+                        return $d;
+                    }
+                ];
                 break;
             case 'group':
                 $columns[] = [
@@ -1450,7 +1459,6 @@ class Route extends FOGBase
                         (array)$vars->macs,
                         $class->getMyMacs()
                     );
-                    $primac = array_shift($macsToAdd);
                     $macsToRem = array_diff(
                         $class->getMyMacs(),
                         (array)$vars->macs
