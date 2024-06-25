@@ -1457,8 +1457,17 @@ class Route extends FOGBase
                     );
                     $class
                         ->removeMAC($macsToRem)
-                        ->addPriMAC($primac)
                         ->addMAC($macsToAdd);
+                }
+                if (isset($vars->primac)) {
+                    $oldMac = $this->get('mac');
+                    if ($vars->primac != $oldMAC) {
+                        $class
+                            ->addPriMAC($vars->primac)
+                            ->removeMAC([$oldMac])
+                            ->addMAC([$oldMac]);
+
+                    }
                 }
                 if (isset($vars->snapins)) {
                     $snapinsToAdd = array_diff(
