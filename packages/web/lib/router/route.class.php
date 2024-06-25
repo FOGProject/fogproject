@@ -826,16 +826,7 @@ class Route extends FOGBase
             switch ($classname) {
             case 'host':
                 $columns[] = ['db' => 'imageName', 'dt' => 'imagename'];
-                $columns[] = [
-                    'db' => 'hmMAC',
-                    'dt' => 'primac',
-                    'formatter' => function($d, $row) {
-                        if (!$row['hmPrimary']) {
-                            return;
-                        }
-                        return $d;
-                    }
-                ];
+                $columns[] = ['db' => 'hmMAC', 'dt' => 'primac'];
                 break;
             case 'group':
                 $columns[] = [
@@ -1468,7 +1459,7 @@ class Route extends FOGBase
                         ->removeMAC($macsToRem);
                 }
                 if (isset($vars->primac)) {
-                    $oldMac = $this->get('mac');
+                    $oldMac = $class->get('mac');
                     if ($vars->primac != $oldMAC) {
                         $class
                             ->removeMAC([$oldMac])
