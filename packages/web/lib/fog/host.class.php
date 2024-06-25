@@ -209,7 +209,7 @@ class Host extends FOGController
         $findWhere = ['hostID' => $this->get('id')];
         Route::ids(
             'snapinjob',
-            $find
+            $findWhere
         );
         $SnapinJobIDs = ['jobID' => json_decode(Route::getData(), true)];
         $removeItems = [
