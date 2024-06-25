@@ -2581,7 +2581,7 @@ class Route extends FOGBase
                 ]
             );
 
-            $new_removeItems = array_diff($orig_removeItems, $removeItems);
+            $new_removeItems = array_diff((array)$orig_removeItems, (array)$removeItems);
 
             foreach ((array)$new_removeItems as $item => &$vals) {
                 Route::deletemass(
