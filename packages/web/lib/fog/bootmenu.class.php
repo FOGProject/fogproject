@@ -193,8 +193,7 @@ class BootMenu extends FOGBase
             . '://${fog-ip}/${fog-webroot}',
             'set setmacto ${net0/mac}',
         ];
-
-        $sysuuid = $_REQUEST['sysuuid'];
+        $sysuuid = isset($_REQUEST['sysuuid']) ? $_REQUEST['sysuuid'] : '';
         if (self::$Host->isValid()
             && $sysuuid
             && self::$Host->get('inventory')->get('sysuuid') != $sysuuid
@@ -208,7 +207,7 @@ class BootMenu extends FOGBase
         }
         $host_field_test = 'biosexit';
         $global_field_test = 'FOG_BOOT_EXIT_TYPE';
-        if ($_REQUEST['platform'] == 'efi') {
+        if (isset($_REQUEST['platform']) && $_REQUEST['platform'] == 'efi') {
             $host_field_test = 'efiexit';
             $global_field_test = 'FOG_EFI_BOOT_EXIT_TYPE';
         }
@@ -464,9 +463,9 @@ class BootMenu extends FOGBase
      */
     private function _ipxeLog()
     {
-        $filename = trim(basename($_REQUEST['filename']));
-        $product = trim($_REQUEST['product']);
-        $manufacturer = trim($_REQUEST['manufacturer']);
+        $filename = isset($_REQUEST['filename']) ? trim(basename($_REQUEST['filename'])) : '';
+        $product = isset($_REQUEST['product']) ? trim($_REQUEST['product']) : '';
+        $manufacturer = isset($_REQUEST['manufacturer']) ? trim($_REQUEST['manufacturer']) : '';
         $findWhere = [
             'file' => sprintf('%s', $filename ? $filename : ''),
             'product' => sprintf('%s', $product ? $product : ''),
@@ -490,7 +489,7 @@ class BootMenu extends FOGBase
             ->set('success', 1)
             ->set('failure', 0)
             ->set('file', $findWhere['file'])
-            ->set('version', trim($_REQUEST['ipxever']))
+            ->set('version', isset($_REQUEST['ipxever']) ? trim($_REQUEST['ipxever']) : '')
             ->save();
     }
     /**
@@ -885,7 +884,7 @@ class BootMenu extends FOGBase
             $this->_chainBoot();
         } else {
             array_map(
-                function (&$Image) use (&$Send, &$defItem) {
+                function ($Image) use (&$Send, &$defItem) {
                     $Send['ImageListing'][] = sprintf(
                         'item %s %s (%s)',
                         $Image->path,
@@ -913,7 +912,7 @@ class BootMenu extends FOGBase
             $Send['ImageListing'][] = 'item return Return to menu';
             $Send['ImageListing'][] = $defItem;
             array_map(
-                function (&$Image) use (&$Send) {
+                function ($Image) use (&$Send) {
                     $Send[sprintf(
                         'pathofimage%s',
                         $Image->name
@@ -1121,19 +1120,19 @@ class BootMenu extends FOGBase
         if ($tmpUser->isValid()) {
             self::$HookManager
                 ->processEvent('ALTERNATE_LOGIN_BOOT_MENU_PARAMS');
-            if ($advLogin && $_REQUEST['advLog']) {
+            if ($advLogin && isset($_REQUEST['advLog']) && $_REQUEST['advLog']) {
                 $this->advLogin();
             }
-            if ($_REQUEST['keyreg']) {
+            if (isset($_REQUEST['keyreg']) && $_REQUEST['keyreg']) {
                 $this->keyreg();
-            } elseif ($_REQUEST['qihost']) {
+            } elseif (isset($_REQUEST['qihost']) && $_REQUEST['qihost']) {
                 $this->setTasking($_REQUEST['imageID']);
-            } elseif ($_REQUEST['sessionJoin']) {
+            } elseif (isset($_REQUEST['sessionJoin']) && $_REQUEST['sessionJoin']) {
                 $this->sessjoin();
-            } elseif ($_REQUEST['menuaccess']) {
+            } elseif (isset($_REQUEST['menuaccess']) && $_REQUEST['menuaccess']) {
                 unset($this->_hiddenmenu);
                 $this->_chainBoot(true);
-            } elseif ($_REQUEST['debugAccess']) {
+            } elseif (isset($_REQUEST['debugAccess']) && $_REQUEST['debugAccess']) {
                 $this->_debugAccess();
             } else {
                 $this->printDefault();
