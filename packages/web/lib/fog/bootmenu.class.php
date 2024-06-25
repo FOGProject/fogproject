@@ -1126,7 +1126,9 @@ class BootMenu extends FOGBase
             if (isset($_REQUEST['keyreg']) && $_REQUEST['keyreg']) {
                 $this->keyreg();
             } elseif (isset($_REQUEST['qihost']) && $_REQUEST['qihost']) {
-                $this->setTasking($_REQUEST['imageID']);
+                if (isset($_REQUEST['imageID'])) {
+                    $this->setTasking($_REQUEST['imageID']);
+                }
             } elseif (isset($_REQUEST['sessionJoin']) && $_REQUEST['sessionJoin']) {
                 $this->sessjoin();
             } elseif (isset($_REQUEST['menuaccess']) && $_REQUEST['menuaccess']) {
@@ -1157,14 +1159,18 @@ class BootMenu extends FOGBase
      */
     public function setTasking($imgID = '')
     {
-        $shutdown = stripos(
-            'shutdown=1',
-            $_REQUEST['extraargs']
-        );
-        $isdebug = preg_match(
-            '#isdebug=yes|mode=debug|mode=onlydebug#i',
-            $_REQUEST['extraargs']
-        );
+        $shutdown = false;
+        $isdebug = false;
+        if (isset($_REQUEST['extraargs'])) {
+            $shutdown = stripos(
+                'shutdown=1',
+                $_REQUEST['extraargs']
+            );
+            $isdebug = preg_match(
+                '#isdebug=yes|mode=debug|mode=onlydebug#i',
+                $_REQUEST['extraargs']
+            );
+        }
         if (!$imgID) {
             $this->printImageList();
             return;
