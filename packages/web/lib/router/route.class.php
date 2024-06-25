@@ -1284,7 +1284,7 @@ class Route extends FOGBase
                     unset($val);
                 }
                 if (array_search($search, $data)) {
-                    $data['_results'][$search] = count($data[$search] ?: []);
+                    $data['_results'][$search] = count(isset($data[$search]) ? $data[$search] : []);
                 }
                 unset($items);
                 unset($search);
