@@ -184,6 +184,9 @@ class MACAddress extends FOGBase
                 (array) $mac
             )
         );
+        if (count($mac ?: []) < 1) {
+            return '';
+        }
         /**
          * Remove the :, -, and/or . and lowercase the
          * characters. Return the string.
