@@ -1825,6 +1825,9 @@ class GroupManagement extends FOGPage
         }
         // Loop and print the inventory data broken out by host names.
         foreach ($inventories->data as $i => &$inventory) {
+            if (!isset($hostnames[$i])) {
+                continue;
+            }
             echo '<div class="panel box box-primary">';
             echo '<div class="box-header with-border">';
             echo '<h4 class="box-title">';
