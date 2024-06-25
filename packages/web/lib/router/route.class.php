@@ -1460,7 +1460,7 @@ class Route extends FOGBase
                 }
                 if (isset($vars->primac)) {
                     $oldMac = $class->get('mac');
-                    if ($vars->primac != $oldMAC) {
+                    if ($vars->primac != $oldMac) {
                         $class
                             ->removeMAC([$oldMac])
                             ->addMAC([$oldMac])
