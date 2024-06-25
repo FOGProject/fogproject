@@ -168,7 +168,6 @@ class Registration extends FOGBase
                     )
                 );
             }
-            $ip = filter_var($stripped['ip']);
             $imageid = filter_var($stripped['imageid']);
             $imageid = (
                 self::getClass('Image', $imageid)->isValid() ?
@@ -204,6 +203,7 @@ class Registration extends FOGBase
                 }
                 $OUOptions = array_unique((array)$OUOptions);
                 $OUOptions = array_values((array)$OUOptions);
+                $opt = false;
                 if (count($OUOptions) > 1) {
                     $OUs = $OUOptions;
                     foreach ($OUs as &$OU) {
