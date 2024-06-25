@@ -222,7 +222,7 @@ class Registration extends FOGBase
             }
             $gID = filter_var($stripped['groupid']);
             $groupsToJoin = explode(',', $gID);
-            $sID = filter_var($stripped['groupid']);
+            $sID = filter_var($stripped['snapinid']);
             $snapinsToJoin = explode(',', $sID);
             self::$Host = self::getClass('Host')
                 ->set('name', $host)
