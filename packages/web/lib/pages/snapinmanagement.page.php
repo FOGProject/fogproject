@@ -1715,6 +1715,7 @@ class SnapinManagement extends FOGPage
             self::$FOGSSH->put($src, $dest);
             self::$FOGSSH->disconnect();
         }
+        $this->obj->deleteFile();
         $this->obj
             ->set('name', $snapin)
             ->set('description', $description)
