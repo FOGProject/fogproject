@@ -24,6 +24,7 @@ if [[ ! $EUID -eq 0 ]]; then
     echo "FOG Installation must be run as root user"
     exit 1 # Fail Sudo
 fi
+
 which adduser >/dev/null 2>&1
 if [[ $? -eq 1 || $(echo $PATH | grep -o "sbin" | wc -l) -lt 2 ]]; then
     echo "Please switch to a proper root environment to run the installer!"
@@ -36,7 +37,7 @@ fi
 if [[ ! $(echo "$OS" | tr [:upper:] [:lower:]) =~ "linux" ]]; then
     echo "We do not currently support Installation on non-Linux Operating Systems"
     exit 2 # Fail OS Check
-fi 
+fi
 
 [[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
 [[ ! -d ./error_logs/ ]] && mkdir -p ./error_logs >/dev/null 2>&1
@@ -80,250 +81,160 @@ usage() {
     exit 0
 }
 
-optspec="h?odEUHSCKYyXxTPFAf:c:-:W:D:B:s:e:b:N:"
-while getopts "$optspec" o; do
-    case $o in
-        -)
-            case $OPTARG in
-                help)
-                    usage
-                    exit 0
-                    ;;
-                uninstall)
-                    exit 0
-                    ;;
-                ssl-path)
-                    ssslpath="${OPTARG}"
-                    ssslpath="${ssslpath#'/'}"
-                    ssslpath="${ssslpath%'/'}"
-                    ssslpath="/${ssslpath}/"
-                    ;;
-                no-vhost)
-                    novhost="y"
-                    ;;
-                no-defaults)
-                    guessdefaults=0
-                    ;;
-                no-upgrade)
-                    doupdate=0
-                    ;;
-                no-htmldoc)
-                    signorehtmldoc=1
-                    ;;
-                force-https)
-                    shttpproto="https"
-                    ;;
-                recreate-keys)
-                    srecreateKeys="yes"
-                    ;;
-                recreate-[Cc][Aa])
-                    srecreateCA="yes"
-                    ;;
-                autoaccept)
-                    autoaccept="yes"
-                    dbupdate="yes"
-                    ;;
-                docroot)
-                    sdocroot="${OPTARG}"
-                    sdocroot="${docroot#'/'}"
-                    sdocroot="${docroot%'/'}"
-                    sdocroot="/${docroot}/"
-                    ;;
-                oldcopy)
-                    scopybackold=1
-                    ;;
-                webroot)
-                    if [[ $OPTARG != *('/')* ]]; then
-                        echo -e "-$OPTARG needs a url path for access either / or /fog for example.\n\n\t\tfor example if you access fog using http://127.0.0.1/ without any trail\n\t\tset the path to /"
-                        usage
-                        exit 2
-                    fi
-                    swebroot="${OPTARG}"
-                    swebroot="${webroot#'/'}"
-                    swebroot="${webroot%'/'}"
-                    ;;
-                file)
-                    if [[ -f $OPTARG ]]; then
-                        fogpriorconfig=$OPTARG
-                    else
-                        echo "--$OPTARG requires file after"
-                        usage
-                        exit 3
-                    fi
-                    ;;
-                backuppath)
-                    if [[ ! -d $OPTARG ]]; then
-                        echo "Path must be an existing directory"
-                        usage
-                        exit 4
-                    fi
-                    sbackupPath=$OPTARG
-                    ;;
-                startrange)
-                    if [[ $(validip $OPTARG) != 0 ]]; then
-                        echo "Invalid ip passed"
-                        usage
-                        exit 5
-                    fi
-                    sstartrange=$OPTARG
-                    dodhcp="Y"
-                    bldhcp=1
-                    ;;
-                endrange)
-                    if [[ $(validip $OPTARG) != 0 ]]; then
-                        echo "Invalid ip passed"
-                        usage
-                        exit 6
-                    fi
-                    sendrange=$OPTARG
-                    dodhcp="Y"
-                    bldhcp=1
-                    ;;
-                no-exportbuild)
-                    sblexports=0
-                    ;;
-                exitFail)
-                    sexitFail=1
-                    ;;
-                no-tftpbuild)
-                    snoTftpBuild="true"
-                    ;;
-                arm-support)
-                    sarmsupport=1
-                    ;;
-                *)
-                    if [[ $OPTERR == 1 && ${optspec:0:1} != : ]]; then
-                        echo "Unknown option: --${OPTARG}"
-                        usage
-                        exit 7
-                    fi
-                    ;;
-            esac
+shortopts="h?odEUHSCKYyXxTPFAf:c:W:D:B:s:e:b:N:"
+longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,arm-support"
+
+optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
+[[ $? -ne 0 ]] && usage
+eval set -- "$optargs"
+
+while :; do
+    case $1 in
+		-h | -\? | --help)
+			usage
+			exit 0
+			;;
+		--uninstall)
+			exit 0
+			;;
+        -c | --ssl-path)
+            if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
+                ssslpath="${2}"
+                ssslpath="${ssslpath#'/'}"
+                ssslpath="${ssslpath%'/'}"
+                ssslpath="/${ssslpath}/"
+            else
+                echo "Error: Missing argument for --$1"
+                usage
+                exit 9
+            fi
+            shift 2
             ;;
-        h|'?')
-            usage
-            exit 0
-            ;;
-        o)
+        -o | --oldcopy)
             scopybackold=1
-            ;;
-        c)
-            ssslpath="${OPTARG}"
-            ssslpath="${ssslpath#'/'}"
-            ssslpath="${ssslpath%'/'}"
-            ssslpath="/${ssslpath}/"
-            ;;
-        d)
+            shift
+			;;
+        -d | --no-defaults)
             guessdefaults=0
+            shift
             ;;
-        U)
+        -U | --no-upgrade)
             doupdate=0
+            shift
             ;;
-        H)
+        -H | --no-htmldoc)
             signorehtmldoc=1
+            shift
             ;;
-        S)
+        -S | --force-https)
             shttpproto="https"
+            shift
             ;;
-        K)
+        -K | --recreate-keys)
             srecreateKeys="yes"
+            shift
             ;;
-        C)
+        -C | --recreate-[Cc][Aa])
             srecreateCA="yes"
+            shift
             ;;
-        [yY])
+        -y | -Y | --autoaccept)
             autoaccept="yes"
             dbupdate="yes"
+            shift
             ;;
-        F)
-            novhost="y"
-            ;;
-        D)
-            sdocroot=$OPTARG
-            sdocroot=${docroot#'/'}
-            sdocroot=${docroot%'/'}
-            sdocroot=/${docroot}/
-            ;;
-        W)
-            if [[ $OPTARG != *('/')* ]]; then
-                echo -e "-$OPTARG needs a url path for access either / or /fog for example.\n\n\t\tfor example if you access fog using http://127.0.0.1/ without any trail\n\t\tset the path to /"
-                usage
-                exit 2
-            fi
-            swebroot=$OPTARG
-            swebroot=${webroot#'/'}
-            swebroot=${webroot%'/'}
-            ;;
-        f)
-            if [[ ! -f $OPTARG ]]; then
-                echo "-$OPTARG requires a file to follow"
+        -f | --file)
+            if [[ -f $2 ]]; then
+                fogpriorconfig=$2
+            else
+                echo "$1 requires file after"
                 usage
                 exit 3
             fi
-            fogpriorconfig=$OPTARG
+            shift 2
             ;;
-        B)
-            if [[ ! -d $OPTARG ]]; then
+        -D | --docroot)
+            if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
+                sdocroot="${2}"
+                sdocroot="${sdocroot#'/'}"
+                sdocroot="${sdocroot%'/'}"
+                sdocroot="/${sdocroot}/"
+            else
+                echo "Error: Missing argument for $1"
+                usage
+                exit 9
+			fi
+            shift 2
+            ;;
+        -W | --webroot)
+            if [[ $2 != */* ]]; then
+                echo -e "$1 needs a url path for access either / or /fog.\n\t\tFor example if you access fog using http://127.0.0.1/ without\n\t\tany trail, set the path to /"
+                usage
+                exit 2
+            fi
+            swebroot="${2}"
+            swebroot="${swebroot#'/'}"
+            swebroot="${swebroot%'/'}"
+            shift 2
+            ;;
+        -B | --backuppath)
+            if [[ ! -d $2 ]]; then
                 echo "Path must be an existing directory"
                 usage
                 exit 4
             fi
-            sbackupPath=$OPTARG
+            sbackupPath=$2
+            shift 2
             ;;
-        s)
-            if [[ $(validip $OPTARG) != 0 ]]; then
+        -s | --startrange)
+            if [[ $(validip $2) != 0 ]]; then
                 echo "Invalid ip passed"
                 usage
                 exit 5
             fi
-            sstartrange=$OPTARG
+            sstartrange=$2
             dodhcp="Y"
             bldhcp=1
+            shift 2
             ;;
-        e)
-            if [[ $(validip $OPTARG) != 0 ]]; then
+        -e | --endrange)
+            if [[ $(validip $2) != 0 ]]; then
                 echo "Invalid ip passed"
                 usage
                 exit 6
             fi
-            sendrange=$OPTARG
+            sendrange=$2
             dodhcp="Y"
             bldhcp=1
+            shift 2
             ;;
-        E)
-            sblexports=0
+        -E | --no-exportbuild)
+            blexports=0
+            shift
             ;;
-        X)
-            exitFail=1
+        -X | --exitFail)
+            sexitFail=1
+            shift
             ;;
-        T)
+        -T | --no-tftpbuild)
             snoTftpBuild="true"
+            shift
             ;;
-        A)
+        -F | --no-vhost)
+            novhost="y"
+            shift
+            ;;
+        -A | --arm-support)
             sarmsupport=1
+            shift
             ;;
-        N)
-            if [[ -z $OPTARG ]]; then
-                echo "Please specify a database name"
-                usage
-                exit 4
-            fi
-            smysqldbname=$OPTARG
-            ;;
-        :)
-            echo "Option -$OPTARG requires a value"
-            usage
-            exit 8
-            ;;
-        *)
-            if [[ $OPTERR == 1 && ${optspec:0:1} != : ]]; then
-                echo "Unknown option: -$OPTARG"
-                usage
-                exit 7
-            fi
+        --)
+            shift
+            break
             ;;
     esac
 done
+
 
 if [[ -f /etc/os-release ]]; then
     [[ -z $linuxReleaseName ]] && linuxReleaseName=$(sed -n 's/^NAME=\(.*\)/\1/p' /etc/os-release | tr -d '"')
@@ -407,7 +318,7 @@ case $doupdate in
             echo -n " * Performing upgrade using these settings"
             . "$fogpriorconfig"
             doOSSpecificIncludes
-            [[ -n $sblexports ]] && blexports=$sblexports
+            [[ -n $blexports ]] && blexports=$blexports
             [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
             [[ -n $sbackupPath ]] && backupPath=$sbackupPath
             [[ -n $swebroot ]] && webroot=$swebroot
@@ -427,6 +338,11 @@ esac
 [[ -n $ssslpath ]] && sslpath=$ssslpath
 [[ -n $srecreateCA ]] && recreateCA=$srecreateCA
 [[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
+[[ -n $sdocroot ]] && docroot=$sdocroot
+[[ -n $swebroot ]] && webroot=$swebroot
+[[ -n $sbackupPath ]] && backupPath=$sbackupPath
+[[ -n $sexitFail ]] && exitFail=$sexitFail
+[[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
 [[ -n $sarmsupport ]] && armsupport=$sarmsupport
 
 [[ -f $fogpriorconfig ]] && grep -l webroot $fogpriorconfig >>$error_log 2>&1
