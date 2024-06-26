@@ -443,7 +443,7 @@ class Route extends FOGBase
     {
         self::sendResponse(
             HTTPResponseCodes::HTTP_SUCCESS,
-            "success\n"
+            FOG_VERSION . ' ' . _('success') . "\n"
         );
     }
     /**
@@ -2159,7 +2159,7 @@ class Route extends FOGBase
                     [
                         'online' => $class->get('online'),
                         //'logfiles' => $class->get('logfiles'),
-                        //'snapinfiles' => $class->get('snapinfiles'),
+                        'snapinfiles' => $class->get('snapinfiles'),
                         //'images' => $class->get('images'),
                         'storagegroup' => $class->get('storagegroup')->get()
                     ]

@@ -206,7 +206,7 @@ class Snapin extends FOGController
             }
             self::$FOGSSH->disconnect();
         }
-        return true;
+        return $this;
     }
     /**
      * Loads hosts.

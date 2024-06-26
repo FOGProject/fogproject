@@ -1672,14 +1672,14 @@ class SnapinManagement extends FOGPage
                 $size = 0;
             }
         }
-        $dest = sprintf(
-            '/%s/%s',
+        $destpath = sprintf(
+            '/%s',
             trim(
                 $StorageNode->get('snapinpath'),
                 '/'
-            ),
-            $snapinfile
+            )
         );
+        $dest = $destpath . '/' . $snapinfile;
         if ($uploadfile) {
             self::$FOGSSH->username = $StorageNode->get('user');
             self::$FOGSSH->password = $StorageNode->get('pass');
@@ -1706,18 +1706,20 @@ class SnapinManagement extends FOGPage
                 }
             }
             if (self::$FOGSSH->exists($dest)) {
-                if (false == self::$FOGSSH->sftp_unlink($dest)) {
+                if (!self::$FOGSSH->delete($dest)) {
                     throw new Exception(
                         _('Failed to delete existing snapin file')
                     );
                 }
             }
             self::$FOGSSH->put($src, $dest);
-            self::$FOGSSH->disconnect();
         }
         if ($snapinfile != $this->obj->get('file')) {
-            $this->obj->deleteFile();
+            if (self::$FOGSSH->exists($destpath . '/' . $this->obj->get('file'))) {
+                self::$FOGSSH->delete($destpath . '/' . $this->obj->get('file'));
+            }
         }
+        self::$FOGSSH->disconnect();
         $this->obj
             ->set('name', $snapin)
             ->set('description', $description)
