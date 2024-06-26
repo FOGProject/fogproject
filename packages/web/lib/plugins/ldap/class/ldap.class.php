@@ -231,7 +231,9 @@ class LDAP extends FOGController
         /**
          * Ensure any trailing bindings are removed
          */
-        @$this->unbind();
+        if (self::$_ldapconn) {
+            @$this->unbind();
+        }
 
         /**
          * Trim the values just in case somebody is trying
@@ -542,7 +544,9 @@ class LDAP extends FOGController
         /**
          * Ensure any trailing bindings are removed
          */
-        @$this->unbind();
+        if (self::$_ldapconn) {
+            @$this->unbind();
+        }
         /**
          * Trim the values just incase somebody is trying
          * to break in by using spaces -- prevent dos attack I imagine.
@@ -868,6 +872,7 @@ class LDAP extends FOGController
          * Close our connection
          */
         @$this->unbind();
+
         /**
          * If access level is not changed
          *
