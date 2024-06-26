@@ -29,6 +29,7 @@ fi
 
 # Get current header and script from fogproject repo
 echo "Copy (overwrite) iPXE headers and scripts..."
+cp ${FOGDIR}/src/ipxe/src/Makefile.housekeeping .
 cp ${FOGDIR}/src/ipxe/src/ipxescript .
 cp ${FOGDIR}/src/ipxe/src/ipxescript10sec .
 cp ${FOGDIR}/src/ipxe/src/config/general.h config/
@@ -69,6 +70,7 @@ fi
 
 # Get current header and script from fogproject repo
 echo "Copy (overwrite) iPXE headers and scripts..."
+cp ${FOGDIR}/src/ipxe/src-efi/Makefile.housekeeping .
 cp ${FOGDIR}/src/ipxe/src-efi/ipxescript .
 cp ${FOGDIR}/src/ipxe/src-efi/ipxescript10sec .
 cp ${FOGDIR}/src/ipxe/src-efi/config/general.h config/
