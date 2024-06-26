@@ -312,7 +312,7 @@ class FOGSSH
                     if ($filetype == 'dir') {
                         $tmp = $this->scanFilesystem($remote_file.DS.$file.DS);
                         foreach ($tmp as $t) {
-                            $tempArray[] = $file.'/'.$t;
+                            $tempArray[] = $file . DS . $t;
                         }
                     } else {
                         $tempArray[] = $file;
@@ -335,18 +335,18 @@ class FOGSSH
     public function delete($path)
     {
         if (!$this->exists($path)) {
-            return $this;
+            return true;
         }
         if (!$this->sftp_rmdir($path)
             && !$this->sftp_unlink($path)
         ) {
             $filelist = $this->scanFilesystem($path);
             foreach ((array)$filelist as $file) {
-                $this->delete($path.'/'.$file);
+                $this->delete($path . DS . $file);
             }
-            $this->delete($path);
+            return $this->delete($path);
         }
 
-        return $this;
+        return false;
     }
 }
