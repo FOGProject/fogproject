@@ -335,7 +335,7 @@ class FOGSSH
     public function delete($path)
     {
         if (!$this->exists($path)) {
-            return true;
+            return $this;
         }
         if (!$this->sftp_rmdir($path)
             && !$this->sftp_unlink($path)
@@ -344,9 +344,9 @@ class FOGSSH
             foreach ((array)$filelist as $file) {
                 $this->delete($path . DS . $file);
             }
-            return $this->delete($path);
+            $this->delete($path);
         }
 
-        return false;
+        return $this;
     }
 }

@@ -1048,7 +1048,7 @@ class SnapinManagement extends FOGPage
                     }
                 }
                 if (self::$FOGSSH->exists($dest)) {
-                    if (false == self::$FOGSSH->sftp_unlink($dest)) {
+                    if (!self::$FOGSSH->delete($dest)) {
                         throw new Exception(
                             _('Failed to delete existing snapin file')
                         );
@@ -1207,19 +1207,13 @@ class SnapinManagement extends FOGPage
         );
 
         self::$selected = $snapinfileexists;
-        Route::ids(
-            'snapin',
-            [],
-            'file'
-        );
-        $snapinfiles = json_decode(
-            Route::getData(),
-            true
-        );
+        $StorageGroup = $this->obj->getStorageGroup();
+        $StorageNode = $StorageGroup->getMasterStorageNode();
+        $filelist = $StorageNode->get('snapinfiles');
         $filelist = array_values(
             array_unique(
                 array_filter(
-                    $snapinfiles
+                    $filelist
                 )
             )
         );
@@ -1713,13 +1707,31 @@ class SnapinManagement extends FOGPage
                 }
             }
             self::$FOGSSH->put($src, $dest);
-        }
-        if ($snapinfile != $this->obj->get('file')) {
-            if (self::$FOGSSH->exists($destpath . '/' . $this->obj->get('file'))) {
-                self::$FOGSSH->delete($destpath . '/' . $this->obj->get('file'));
+            if ($snapinfile != $this->obj->get('file')) {
+                Route::listem(
+                    'snapin',
+                    ['file' => $this->obj->get('file')]
+                );
+                $othersnapins = json_decode(
+                    Route::getData()
+                );
+                error_log(print_r($othersnapins, 1));
+                $otherfiles = [];
+                foreach ($othersnapins->data as $osnapin) {
+                    if ($osnapin->id == $this->obj->get('id')) {
+                        continue;
+                    }
+                    $otherfiles[] = $osnapin->file;
+                }
+                error_log(print_r($otherfiles, 1));
+                if (count($otherfiles ?: []) <= 0) {
+                    if (self::$FOGSSH->exists($destpath . '/' . $this->obj->get('file'))) {
+                        self::$FOGSSH->delete($destpath . '/' . $this->obj->get('file'));
+                    }
+                }
             }
+            self::$FOGSSH->disconnect();
         }
-        self::$FOGSSH->disconnect();
         $this->obj
             ->set('name', $snapin)
             ->set('description', $description)
