@@ -68,6 +68,7 @@ abstract class FOGClient extends FOGBase
                 self::$Host = new Host(0);
             }
             self::$Host->set('pingstatus', 0);
+            self::$Host->save();
             $moduleid = filter_input(INPUT_POST, 'moduleid');
             if (!$moduleid) {
                 $moduleid = filter_input(INPUT_GET, 'moduleid');
