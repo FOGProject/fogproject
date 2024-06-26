@@ -441,10 +441,8 @@ class Route extends FOGBase
      */
     public static function status()
     {
-        self::sendResponse(
-            HTTPResponseCodes::HTTP_SUCCESS,
-            FOG_VERSION . ' ' . _('success') . "\n"
-        );
+        self::$data['version'] = FOG_VERSION;
+        self::$data['msg'] = _('success');
     }
     /**
      * Presents the equivalent of a page's list all.
