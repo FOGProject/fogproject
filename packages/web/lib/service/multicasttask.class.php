@@ -63,7 +63,7 @@ class MulticastTask extends FOGService
             Route::getData()
         );
         $NewTasks = [];
-        foreach ($Tasks->data as &$Task) {
+        foreach ($Tasks->data as $Task) {
             $find = ['msID' => $Task->id];
             Route::ids(
                 'multicastsessionassociation',
@@ -116,7 +116,6 @@ class MulticastTask extends FOGService
                 ($Task->clients == -2 ? 1 : 0),
                 $taskIDs
             );
-            unset($Task);
         }
         return array_filter($NewTasks);
     }
@@ -642,7 +641,7 @@ class MulticastTask extends FOGService
             );
         }
         ob_start();
-        foreach ($filelist as $i => &$file) {
+        foreach ($filelist as $i => $file) {
             printf(
                 '%s --file %s%s%s;',
                 sprintf(
@@ -660,7 +659,6 @@ class MulticastTask extends FOGService
                 DS,
                 $file
             );
-            unset($file);
         }
         unset($filelist, $buildcmd);
         return ob_get_clean();
@@ -710,9 +708,8 @@ class MulticastTask extends FOGService
             Route::getData()
         );
         $TaskPercent = [];
-        foreach ($MSAssocs as &$Task) {
+        foreach ($MSAssocs as $Task) {
             $TaskPercent[] = self::getClass('Task', $Task->taskID)->get('percent');
-            unset($Task);
         }
         $TaskPercent = array_unique((array)$TaskPercent);
         $this->_MultiSess

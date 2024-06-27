@@ -91,7 +91,7 @@ class SnapinHash extends FOGService
             if (self::$_hashOn < 1) {
                 throw new Exception(_(' * Snapin hash is globally disabled'));
             }
-            foreach ($this->checkIfNodeMaster() as &$StorageNode) {
+            foreach ($this->checkIfNodeMaster() as $StorageNode) {
                 $myStorageGroupID = $StorageNode->storagegroupID;
                 $myStorageNodeID = $StorageNode->id;
                 Route::indiv(
@@ -182,7 +182,7 @@ class SnapinHash extends FOGService
                 $Snapins = json_decode(
                     Route::getData()
                 );
-                foreach ($Snapins->data as &$Snapin) {
+                foreach ($Snapins->data as $Snapin) {
                     self::outall(
                         sprintf(
                             ' * %s: %s, %s: %d',
@@ -224,9 +224,7 @@ class SnapinHash extends FOGService
                         ->set('size', $size)
                         ->save();
                     unset($url, $response, $hash, $size);
-                    unset($Snapin);
                 }
-                unset($StorageNode);
             }
             self::outall(
                 sprintf(

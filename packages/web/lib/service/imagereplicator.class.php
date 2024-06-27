@@ -92,7 +92,7 @@ class ImageReplicator extends FOGService
             if (self::$_repOn < 1) {
                 throw new Exception(_(' * Image replication is globally disabled'));
             }
-            foreach ($this->checkIfNodeMaster() as &$StorageNode) {
+            foreach ($this->checkIfNodeMaster() as $StorageNode) {
                 $skip = false;
                 self::wlog(
                     sprintf(
@@ -245,7 +245,7 @@ class ImageReplicator extends FOGService
                         $scripts
                     );
                 }
-                foreach ($Images->data as &$Image) {
+                foreach ($Images->data as $Image) {
                     if (!Image::getPrimaryGroup($myStorageGroupID, $Image->id)) {
                         self::outall(
                             sprintf(
@@ -269,7 +269,6 @@ class ImageReplicator extends FOGService
                         $I,
                         true
                     );
-                    unset($Image);
                 }
                 /**
                  * More implicit defining of type of sync
@@ -284,7 +283,7 @@ class ImageReplicator extends FOGService
                         _('image replication')
                     )
                 );
-                foreach ($Images->data as &$Image) {
+                foreach ($Images->data as $Image) {
                     $I = new Image($Image->id);
                     $this->replicateItems(
                         $myStorageGroupID,
@@ -292,10 +291,8 @@ class ImageReplicator extends FOGService
                         $I,
                         false
                     );
-                    unset($Image);
                 }
                 unset($Images);
-                unset($StorageNode);
             }
         } catch (Exception $e) {
             self::outall(

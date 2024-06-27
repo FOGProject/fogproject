@@ -91,7 +91,7 @@ class SnapinReplicator extends FOGService
             if (self::$_repOn < 1) {
                 throw new Exception(_(' * Snapin replication is globally disabled'));
             }
-            foreach ($this->checkIfNodeMaster() as &$StorageNode) {
+            foreach ($this->checkIfNodeMaster() as $StorageNode) {
                 $skip = false;
                 self::wlog(
                     sprintf(
@@ -235,7 +235,7 @@ class SnapinReplicator extends FOGService
                         $ssl
                     );
                 }
-                foreach ($Snapins->data as &$Snapin) {
+                foreach ($Snapins->data as $Snapin) {
                     if (!Snapin::getPrimaryGroup($myStorageGroupID, $Snapin->id)) {
                         self::outall(
                             sprintf(
@@ -259,7 +259,6 @@ class SnapinReplicator extends FOGService
                         $S,
                         true
                     );
-                    unset($Snapin);
                 }
                 /**
                  * More implicit defining of type of sync
@@ -274,7 +273,7 @@ class SnapinReplicator extends FOGService
                         _('snapin replication')
                     )
                 );
-                foreach ($Snapins->data as &$Snapin) {
+                foreach ($Snapins->data as $Snapin) {
                     $S = new Snapin($Snapin->id);
                     $this->replicateItems(
                         $myStorageGroupID,
@@ -282,10 +281,8 @@ class SnapinReplicator extends FOGService
                         $S,
                         false
                     );
-                    unset($Snapin);
                 }
                 unset($Snapins);
-                unset($StorageNode);
             }
         } catch (Exception $e) {
             self::outall(

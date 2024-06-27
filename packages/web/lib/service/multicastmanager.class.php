@@ -96,11 +96,10 @@ class MulticastManager extends FOGService
         $KnownTasks,
         $id
     ) {
-        foreach ($KnownTasks as &$Known) {
+        foreach ($KnownTasks as $Known) {
             if ($Known->getID() == $id) {
                 return false;
             }
-            unset($Known);
         }
         return true;
     }
@@ -116,7 +115,7 @@ class MulticastManager extends FOGService
         $KnownTasks,
         $curTask
     ) {
-        foreach ($KnownTasks as &$Known) {
+        foreach ($KnownTasks as $Known) {
             if ($Known->getID() == $curTask->getID()) {
                 // This is very important for MC session joins via PXE menu
                 $curTaskTaskIDs = $curTask->getTaskIDs();
@@ -125,7 +124,6 @@ class MulticastManager extends FOGService
                 }
                 return $Known;
             }
-            unset($Known);
         }
         return false;
     }
@@ -142,13 +140,11 @@ class MulticastManager extends FOGService
         $id
     ) {
         $new = [];
-        foreach ($KnownTasks as &$Known) {
+        foreach ($KnownTasks as $Known) {
             if ($Known->getID() != $id) {
                 $new[] = $Known;
             }
-            unset($Known);
         }
-        unset($Known);
         return array_filter($new);
     }
     /**
@@ -207,7 +203,7 @@ class MulticastManager extends FOGService
                 // Common string used for logging.
                 $startStr = ' | ' . _('Task ID') . ': %s '. _('Name') . ': %s %s';
 
-                foreach ($this->checkIfNodeMaster() as &$StorageNode) {
+                foreach ($this->checkIfNodeMaster() as $StorageNode) {
                     // Now that tasks are removed, lets check new/current tasks
                     $allTasks = MulticastTask::getAllMulticastTasks(
                         $StorageNode->path,
@@ -221,7 +217,7 @@ class MulticastManager extends FOGService
                         );
                         continue;
                     }
-                    foreach ($allTasks as &$curTask) {
+                    foreach ($allTasks as $curTask) {
                         $new = self::_isMCTaskNew(
                             $KnownTasks,
                             $curTask->getID()
@@ -507,12 +503,10 @@ class MulticastManager extends FOGService
                                 );
                             }
                         }
-                        unset($curTask);
                     }
-                    unset($StorageNode);
                 }
                 // We need to iterate the completeTasks and cancelTasks
-                foreach ($cancelTasks as &$Task) {
+                foreach ($cancelTasks as $Task) {
                     $Session = $Task->getSess();
                     self::outall(
                         sprintf(
@@ -526,9 +520,8 @@ class MulticastManager extends FOGService
                             )
                         )
                     );
-                    unset($Task);
                 }
-                foreach ($completeTasks as &$Task) {
+                foreach ($completeTasks as $Task) {
                     $Session = $Task->getSess();
                     self::outall(
                         sprintf(
@@ -542,7 +535,6 @@ class MulticastManager extends FOGService
                             )
                         )
                     );
-                    unset($Task);
                 }
             } catch (Exception $e) {
                 self::outall($e->getMessage());

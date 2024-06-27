@@ -92,7 +92,7 @@ class ImageSize extends FOGService
             if (self::$_sizeOn < 1) {
                 throw new Exception(_(' * Image size is globally disabled'));
             }
-            foreach ($this->checkIfNodeMaster() as &$StorageNode) {
+            foreach ($this->checkIfNodeMaster() as $StorageNode) {
                 $myStorageGroupID = $StorageNode->storagegroupID;
                 $myStorageNodeID = $StorageNode->id;
                 Route::indiv(
@@ -183,7 +183,7 @@ class ImageSize extends FOGService
                 $Images = json_decode(
                     Route::getData()
                 );
-                foreach ($Images->data as &$Image) {
+                foreach ($Images->data as $Image) {
                     self::outall(
                         sprintf(
                             ' * %s: %s, %s: %d',
@@ -236,9 +236,7 @@ class ImageSize extends FOGService
                         ->set('srvsize', $size)
                         ->save();
                     unset($url, $response, $size);
-                    unset($Image);
                 }
-                unset($StorageNode);
             }
             self::outall(
                 sprintf(
