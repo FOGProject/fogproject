@@ -75,7 +75,10 @@ function vals($reverse, $HookManager, $lines, $file)
         '/var/log/php5-fpm/',
         '/var/log/php7.0-fpm/'
     ];
-    $HookManager->processEvent('LOG_FOLDERS', ['folders'=>&$folders]);
+    $HookManager->processEvent(
+        'LOG_FOLDERS',
+        ['folders' => &$folders]
+    );
     if (!preg_grep($pattern, $folders)) {
         return _('Invalid Folder');
     }

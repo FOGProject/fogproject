@@ -37,7 +37,7 @@ try {
         $Inventory = FOGCore::getClass('Inventory')
             ->set('hostID', FOGCore::$Host->get('id'));
     }
-    foreach ($_REQUEST as $var => &$val) {
+    foreach ($_REQUEST as $var => $val) {
         if ($var == 'hdinfo') {
             preg_match(
                 '#model=(.*?),#i',
@@ -79,11 +79,9 @@ try {
                 ->set('hdmodel', $hdmodel)
                 ->set('hdfirmware', $hdfirmware)
                 ->set('hdserial', $hdserial);
-            unset($var, $val);
             continue;
         }
         $Inventory->set($var, $val);
-        unset($var, $val);
     }
     if (!$Inventory->save()) {
         throw new Exception(

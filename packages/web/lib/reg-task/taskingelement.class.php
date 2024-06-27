@@ -177,6 +177,34 @@ abstract class TaskingElement extends FOGBase
         }
     }
     /**
+     * Returns item listings more dynamically
+     *
+     * @return void
+     * @throws Exception
+     */
+    public static function getlisting($classname)
+    {
+        try {
+            Route::names($classname);
+            $names = json_decode(Route::getData());
+            if (count($names ?: []) <= 0) {
+                throw new Exception(
+                    _('There are no ' . $classname . 's on this server')
+                );
+            }
+            foreach ($names as $item) {
+                printf(
+                    '\tID# %s\t-\t%s\n',
+                    $item->id,
+                    $item->name
+                );
+            }
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
+        exit;
+    }
+    /**
      * Checks the storage group.
      *
      * @param object $StorageGroup the storage group object.

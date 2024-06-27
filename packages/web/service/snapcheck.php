@@ -42,9 +42,8 @@ try {
         Route::getData()
     );
     $snapinIDs = [];
-    foreach ($snapins as &$snapin) {
+    foreach ($snapins as $snapin) {
         $snapinIDs[] = $snapin->snapinID;
-        unset($snapin);
     }
     if (isset($_REQUEST['getSnapnames'])) {
         Route::ids(
@@ -56,9 +55,8 @@ try {
             Route::getData()
         );
         $snapinnames = [];
-        foreach ($snapins as &$snapin) {
+        foreach ($snapins as $snapin) {
             $snapinnames[] = $snapin->name;
-            unset($snapin);
         }
     } elseif (isset($_REQUEST['getSnapargs'])) {
         Route::ids(
@@ -70,9 +68,8 @@ try {
             Route::getData()
         );
         $snapinnames = [];
-        foreach ($snapins as &$snapin) {
+        foreach ($snapins as $snapin) {
             $snapinnames[] = $snapin->args;
-            unset($snapin);
         }
     } else {
         $snapinnames = [count($snapins ?: []) ? 1 : 0];

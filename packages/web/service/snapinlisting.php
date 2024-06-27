@@ -20,25 +20,4 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-try {
-    Route::names('snapin');
-    $snapinnames = json_decode(
-        Route::getData()
-    );
-    if (count($snapinnames ?: []) < 1) {
-        throw new Exception(
-            _('There are no snapins on this server')
-        );
-    }
-    foreach ($snapinnames as &$snapin) {
-        printf(
-            '\tID# %d\t-\t%s\n',
-            $snapin->id,
-            $snapin->name
-        );
-        unset($snapin);
-    }
-} catch (Exception $e) {
-    echo $e->getMessage();
-}
-exit;
+TaskingElement::getlisting('snapin');

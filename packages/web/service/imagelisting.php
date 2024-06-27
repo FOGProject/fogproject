@@ -20,25 +20,4 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-try {
-    Route::names('image');
-    $imagenames = json_decode(
-        Route::getData()
-    );
-    if (count($imagenames ?: []) < 1) {
-        throw new Exception(
-            _('There are no images on this server')
-        );
-    }
-    foreach ($imagenames as &$image) {
-        printf(
-            '\tID# %d\t-\t%s\n',
-            $image->id,
-            $image->name
-        );
-        unset($image);
-    }
-} catch (Exception $e) {
-    echo $e->getMessage();
-}
-exit;
+TaskingElement::getlisting('image');

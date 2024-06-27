@@ -52,22 +52,20 @@ $validPaths = array_merge(
 );
 $paths = explode(':', $decodePath);
 $realpaths = [];
-foreach ((array)$paths as &$decodedPath) {
+foreach ((array)$paths as $decodedPath) {
     $pathTest = preg_grep('#' . $decodedPath . '#', $validPaths);
     if (count($pathTest ?: []) < 1) {
         continue;
     }
-    foreach ($pathTest as &$path) {
+    foreach ($pathTest as $path) {
         $realpaths = FOGCore::fastmerge(
             (array)$realpaths,
             glob($path)
         );
-        unset($path);
     }
-    unset($decodedPath);
 }
 $files = [];
-foreach ($realpaths as &$path) {
+foreach ($realpaths as $path) {
     if (!(is_dir($path)
         && file_exists($path)
         && is_readable($path))
@@ -88,7 +86,6 @@ foreach ($realpaths as &$path) {
         (array)$files,
         (array)glob($glob_str)
     );
-    unset($path);
 }
 echo json_encode(
     Initiator::sanitizeItems(

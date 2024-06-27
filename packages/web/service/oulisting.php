@@ -20,25 +20,4 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-try {
-    Route::names('ou');
-    $ounames = json_decode(
-        Route::getData()
-    );
-    if (count($ounames ?: []) < 1) {
-        throw new Exception(
-            _('There are no ous on this server')
-        );
-    }
-    foreach ($ounames as &$ou) {
-        printf(
-            '\tID# %d\t-\t%s\n',
-            $ou->id,
-            $ou->name
-        );
-        unset($ou);
-    }
-} catch (Exception $e) {
-    echo $e->getMessage();
-}
-exit;
+TaskingElement::getlisting('ou');

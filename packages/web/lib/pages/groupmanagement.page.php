@@ -2757,7 +2757,7 @@ class GroupManagement extends FOGPage
         global $id;
         $data = [];
         // The closure we want to use.
-        $taskTypeIterator = function (&$TaskType, $advanced) use (
+        $taskTypeIterator = function ($TaskType, $advanced) use (
             &$data,
             $id
         ) {
@@ -2774,7 +2774,6 @@ class GroupManagement extends FOGPage
                 . $TaskType->name
                 . '</a>'
             ] = $TaskType->description;
-            unset($TaskTYpe);
         };
         // The keys we need to search for.
         $key = [
