@@ -39,13 +39,12 @@ self::$HookManager
         'CSS',
         ['stylesheets' => &$this->stylesheets]
     );
-foreach ((array)$this->stylesheets as &$stylesheet) {
+foreach ((array)$this->stylesheets as $stylesheet) {
     echo '<link href="'
         . $stylesheet
         . '?ver='
         . FOG_BCACHE_VER
         . '" rel="stylesheet" type="text/css"/>';
-    unset($stylesheet);
 }
 unset($this->stylesheets);
 echo '<!-- HTML5 Shim and Respond.js IE8 support of HTML5 '
@@ -298,13 +297,17 @@ if ($isLoggedIn) {
 }
 echo '</div>';
 echo '<div id="scripts">';
-foreach ((array)$this->javascripts as &$javascript) {
+self::$HookManager
+    ->processEvent(
+        'JS',
+        ['javascripts' => &$this->stylesheets]
+    );
+foreach ((array)$this->javascripts as $javascript) {
     echo '<script src="'
         . $javascript
         . '?ver='
         . FOG_BCACHE_VER
         . '" type="text/javascript"></script>';
-    unset($javascript);
 }
 unset($this->javascripts);
 echo '</div>';

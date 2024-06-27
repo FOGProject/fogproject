@@ -29,9 +29,8 @@ header('Content-type: text/plain');
  * @return void
  */
 $parseMe = function ($Send) {
-    foreach ($Send as $ipxe => &$val) {
+    foreach ($Send as $ipxe => $val) {
         printf("%s\n", implode("\n", (array)$val));
-        unset($val);
     }
 };
 $login = isset($_REQUEST['login']);

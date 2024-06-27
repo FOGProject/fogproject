@@ -114,7 +114,7 @@ class PingHosts extends FOGService
                     _('I am not the fog web server')
                 );
             }
-            foreach ((array)self::$ips as $index => &$ip) {
+            foreach ((array)self::$ips as $index => $ip) {
                 if ($index === 0) {
                     self::outall(
                         sprintf(
@@ -124,7 +124,6 @@ class PingHosts extends FOGService
                     );
                 }
                 self::outall(" |\t$ip");
-                unset($ip, $index);
             }
             Route::names('host');
             $hosts = json_decode(Route::getData());
@@ -143,7 +142,7 @@ class PingHosts extends FOGService
             );
             $insert_fields = ['pingstatus', 'id'];
             $insert_values = [];
-            foreach ($hosts as &$host) {
+            foreach ($hosts as $host) {
                 self::outall(
                     ' | '
                     . _('Attempting to ping host')
@@ -176,7 +175,6 @@ class PingHosts extends FOGService
                         '',
                         ['pingstatus' => $ping]
                     );
-                unset($host);
             }
             self::outall(
                 ' | '

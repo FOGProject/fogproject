@@ -160,7 +160,7 @@ class TaskScheduler extends FOGService
             );
             unset($taskCount);
             // Scheduled Tasks
-            foreach ($ScheduledTasks->data as &$Task) {
+            foreach ($ScheduledTasks->data as $Task) {
                 $Task = self::getClass('ScheduledTask', $Task->id);
                 $Timer = $Task->getTimer();
                 self::outall(
@@ -243,10 +243,9 @@ class TaskScheduler extends FOGService
                 if ($Timer->isSingleRun()) {
                     $Task->set('isActive', 0)->save();
                 }
-                unset($Task);
             }
             // Power Management Tasks.
-            foreach ($PMTasks->data as &$Task) {
+            foreach ($PMTasks->data as $Task) {
                 $Task = self::getClass('PowerManagement', $Task->id);
                 $Timer = $Task->getTimer();
                 self::outall(
@@ -276,7 +275,6 @@ class TaskScheduler extends FOGService
                         $Task->getHost()->get('name')
                     )
                 );
-                unset($Task);
             }
         } catch (Exception $e) {
             self::outall($e->getMessage());
