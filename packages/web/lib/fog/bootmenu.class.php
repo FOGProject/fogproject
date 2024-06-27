@@ -905,7 +905,6 @@ class BootMenu extends FOGBase
                             $this->_timeout
                         );
                     }
-                    unset($Image);
                 },
                 (array)$Images
             );
@@ -936,7 +935,6 @@ class BootMenu extends FOGBase
                         'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                         'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
                     ];
-                    unset($Image);
                 },
                 (array)$Images
             );
@@ -1066,9 +1064,8 @@ class BootMenu extends FOGBase
         if (count($Send ?: []) > 0) {
             array_walk_recursive(
                 $Send,
-                function (&$val, $key) {
+                function ($val, $key) {
                     printf('%s%s', implode("\n", (array)$val), "\n");
-                    unset($val, $key);
                 }
             );
         }
@@ -1851,7 +1848,6 @@ class BootMenu extends FOGBase
                     $Menu,
                     $desc
                 );
-                unset($Menu);
             },
             $Menus->data
         );
@@ -1862,7 +1858,6 @@ class BootMenu extends FOGBase
                     $Menu,
                     trim($Menu->args)
                 );
-                unset($Menu);
             },
             $Menus->data
         );

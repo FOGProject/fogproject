@@ -749,7 +749,7 @@ abstract class FOGPage extends FOGBase
             }
             $this->indexDivDisplay();
         } else {
-            $vals = function (&$value, $key) {
+            $vals = function ($value, $key) {
                 return sprintf(
                     '%s : %s',
                     $key,

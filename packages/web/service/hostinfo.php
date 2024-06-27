@@ -42,9 +42,8 @@ try {
                 Route::getData()
             );
             $msIDs = [];
-            foreach ($ids->data as &$id) {
+            foreach ($ids->data as $id) {
                 $msIDs[] = $id->msID;
-                unset($id);
             }
 
             $MulticastSession = FOGCore::getClass(
@@ -128,9 +127,8 @@ try {
             Route::getData()
         );
         $values = [];
-        foreach ($items as &$item) {
+        foreach ($items as $item) {
             $values[] = $item->value;
-            unset($item);
         }
         list(
             $ignorepg,
@@ -244,7 +242,7 @@ try {
         '#[\s]+#',
         trim($TaskType->get('kernelArgs'))
     );
-    foreach ((array)$TaskArgs as $key => &$val) {
+    foreach ((array)$TaskArgs as $key => $val) {
         $val = trim($val);
         if (strpos($val, '=') === false) {
             continue;
@@ -253,7 +251,6 @@ try {
         if (count($nums) > 0) {
             $repFields[$nums[0]] = $nums[1];
         }
-        unset($val);
     }
     $HookManager->processEvent(
         'HOST_INFO_EXPOSE',
@@ -262,14 +259,13 @@ try {
             'Host'=>&FOGCore::$Host
         ]
     );
-    foreach ((array)$repFields as $key => &$val) {
+    foreach ((array)$repFields as $key => $val) {
         printf(
             "[[ -z $%s ]] && export %s=%s\n",
             $key,
             $key,
             escapeshellarg($val)
         );
-        unset($val);
     }
 } catch (Exception $e) {
     echo $e->getMessage();

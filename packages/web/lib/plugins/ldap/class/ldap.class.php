@@ -189,7 +189,7 @@ class LDAP extends FOGController
          * Loop the parsed information so we get
          * the values in a mroe usable and joinable form.
          */
-        foreach ((array)$parser as $key => &$value) {
+        foreach ((array)$parser as $key => $value) {
             if (false !== strstr($value, '=')) {
                 list(
                     $prefix,
@@ -199,7 +199,7 @@ class LDAP extends FOGController
                 preg_replace_callback(
                     "/\\\([0-9A-Fa-f]{2})/",
                     function ($matches) {
-                        foreach ((array)$matches as &$match) {
+                        foreach ((array)$matches as $match) {
                             return chr(hexdec($match));
                         }
                     },
@@ -214,7 +214,6 @@ class LDAP extends FOGController
                     $out[$prefix][] = $data;
                 }
             }
-            unset($value);
         }
         return $out;
     }
@@ -1026,7 +1025,7 @@ class LDAP extends FOGController
         /**
          * Check groups for membership
          */
-        foreach ((array)$entries as &$entry) {
+        foreach ((array)$entries as $entry) {
             /**
              * If this cycle doesn't have the dn, skip it
              */

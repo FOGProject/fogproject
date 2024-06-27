@@ -40,30 +40,39 @@ class Initiator
      */
     private static $_sanitizeItems;
     /**
+     * Set sanitize items
+     *
+     * @return void
+     */
+    private static function setSanitize() {
+        if (!self::$_sanitizeItems) {
+            /**
+             * Lambda to sanitize our user input data.
+             *
+             * @param mixed $key the key of the array.
+             * @param mixed $val the value of the array.
+             *
+             * @return void
+             */
+            self::$_sanitizeItems = function (&$val, $key) use (&$value) {
+                if (is_string($val)) {
+                    $value[$key] = filter_var($val);
+                }
+                if (is_array($val)) {
+                    array_walk($val, self::$_sanitizeItems);
+                }
+                return $value;
+            };
+        }
+    }
+    /**
      * Constructs the initiator class
      *
      * @return void
      */
     public function __construct()
     {
-        /**
-         * Lambda to sanitize our user input data.
-         *
-         * @param mixed $key the key of the array.
-         * @param mixed $val the value of the array.
-         *
-         * @return void
-         */
-        self::$_sanitizeItems = function (&$val, $key) use (&$value) {
-            if (is_string($val)) {
-                $value[$key] = filter_var($val);
-            }
-            if (is_array($val)) {
-                array_walk($val, self::$_sanitizeItems);
-            }
-            unset($val, $key);
-            return $value;
-        };
+        self::setSanitize();
         /**
          * If user agent is passed, define the useragent
          */
@@ -279,12 +288,13 @@ class Initiator
      */
     public static function sanitizeItems(&$value = '')
     {
+        self::setSanitize();
         /**
          * If the value isn't specified, it will sanitize
          * all REQUEST, COOKIE, POST, and GET data.
          * Otherwise, it will clean the passed value.
          */
-        if (is_array($value) && !count($value ?: [])) {
+        if ((is_array($value) && !count($value ?: [])) || (is_string($value) && !$value)) {
             $process = [
                 &$_GET,
                 &$_POST,

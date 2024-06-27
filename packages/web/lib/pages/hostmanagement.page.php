@@ -4115,7 +4115,7 @@ class HostManagement extends FOGPage
          *
          * @return void
          */
-        $taskTypeIterator = function (&$TaskType, $advanced) use (
+        $taskTypeIterator = function ($TaskType, $advanced) use (
             &$data,
             $id
         ) {
@@ -4132,7 +4132,6 @@ class HostManagement extends FOGPage
                 . $TaskType->name
                 . '</a>'
             ] = $TaskType->description;
-            unset($TaskTYpe);
         };
         // The keys we need to search for.
         $key = [
