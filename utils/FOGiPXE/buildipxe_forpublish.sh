@@ -1,11 +1,4 @@
 #!/bin/bash
-if [[ -r $1 ]]; then
-  cert=$1
-elif [[ -r /opt/fog/snapins/ssl/CA/.fogCA.pem ]]; then
-  cert="/opt/fog/snapins/ssl/CA/.fogCA.pem"
-fi
-
-BUILDOPTS="CERT=${cert} TRUST=${cert}"
 IPXEGIT="https://github.com/ipxe/ipxe"
 
 # Change directory to base ipxe files
@@ -19,8 +12,6 @@ if [[ -d ${BASE}/ipxe ]]; then
   git reset --hard
   git pull
   cd src/
-  # make sure this is being re-compiled in case the CA has changed!
-  touch crypto/rootcert.c
 else
   git clone ${IPXEGIT} ${BASE}/ipxe
   cd ${BASE}/ipxe/src/
@@ -37,7 +28,7 @@ cp ${FOGDIR}/src/ipxe/src/config/settings.h config/
 cp ${FOGDIR}/src/ipxe/src/config/console.h config/
 
 # Build the files
-make EMBED=ipxescript bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb ${BUILDOPTS}
+make EMBED=ipxescript bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb
 [[ $? -eq 0 ]] || exit 40
 
 # Copy files to repo location as required
@@ -45,7 +36,7 @@ cp bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/i
 cp bin/ipxe.lkrn ${FOGDIR}/packages/tftp/ipxe.krn
 
 # Build with 10 second delay
-make EMBED=ipxescript10sec bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb ${BUILDOPTS}
+make EMBED=ipxescript10sec bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb
 [[ $? -eq 0 ]] || exit 48
 
 # Copy files to repo location as required
@@ -61,8 +52,6 @@ if [[ -d ${BASE}/ipxe-efi ]]; then
   git reset --hard
   git pull
   cd src/
-  # make sure this is being re-compiled in case the CA has changed!
-  touch crypto/rootcert.c
 else
   git clone ${IPXEGIT} ${BASE}/ipxe-efi
   cd ${BASE}/ipxe-efi/src/
@@ -78,9 +67,9 @@ cp ${FOGDIR}/src/ipxe/src-efi/config/settings.h config/
 cp ${FOGDIR}/src/ipxe/src-efi/config/console.h config/
 
 # Build the files
-make EMBED=ipxescript bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${BUILDOPTS}
+make EMBED=ipxescript bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi
 [[ $? -eq 0 ]] || exit 80
-[[ "x$armsupport" == "x1" ]] && make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 EMBED=ipxescript bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${BUILDOPTS} || true
+[[ "x$armsupport" == "x1" ]] && make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 EMBED=ipxescript bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi || true
 [[ $? -eq 0 ]] || exit 82
 
 # Copy the files to upload
@@ -89,9 +78,9 @@ cp bin-i386-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/pac
 cp bin-x86_64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/
 
 # Build with 10 second delay
-make EMBED=ipxescript10sec bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${BUILDOPTS}
+make EMBED=ipxescript10sec bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi
 [[ $? -eq 0 ]] || exit 91
-[[ "x$armsupport" == "x1" ]] && make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 EMBED=ipxescript10sec bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${BUILDOPTS} || true
+[[ "x$armsupport" == "x1" ]] && make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 EMBED=ipxescript10sec bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi || true
 [[ $? -eq 0 ]] || exit 93
 
 # Copy the files to upload
