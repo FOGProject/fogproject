@@ -41,6 +41,7 @@ if [[ $systemctl == yes ]]; then
     initdSHfullname="FOGSnapinHash.service"
     initdPHfullname="FOGPingHosts.service"
     initdISfullname="FOGImageSize.service"
+    initdFDfullname="FOGFileDeleter.service"
     case $linuxReleaseName_lower in
         *ubuntu*|*bian*|*mint*)
             initdpath="/lib/systemd/system"
@@ -67,6 +68,7 @@ else
     initdSHfullname="FOGSnapinHash"
     initdPHfullname="FOGPingHosts"
     initdISfullname="FOGImageSize"
+    initdFDfullname="FOGFileDeleter"
     case $linuxReleaseName_lower in
         *ubuntu*|*bian*|*mint*)
             initdsrc="../packages/init.d/ubuntu"
@@ -79,4 +81,4 @@ else
             ;;
     esac
 fi
-serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname $initdSHfullname $initdISfullname"
+serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname $initdPHfullname $initdSHfullname $initdISfullname $initdFDfullname"
