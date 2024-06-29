@@ -4140,12 +4140,29 @@ $this->schema[] = [
 ];
 // 288
 $this->schema[] = [
-    "ALTER TABLE `fileDeleteQueue` ADD `fqdState` "
+    "ALTER TABLE `fileDeleteQueue` ADD `fdqState` "
     . 'INT(11) NOT NULL',
     'ALTER TABLE `fileDeleteQueue` RENAME COLUMN `fqdCreateDate` TO `fdqCreateDate`',
     'ALTER TABLE `fileDeleteQueue` RENAME COLUMN `fqdCompletedDate` TO  `fdqCompletedDate`',
     'ALTER TABLE `fileDeleteQueue` RENAME COLUMN `fqdCreateBy` TO `fdqCreateBy`',
-    'ALTER TABLE `fileDeleteQueue` RENAME COLUMN `fqdState` TO `fdqState`',
     "ALTER TABLE `fileDeleteQueue` ALTER `fdqCompletedDate` SET DEFAULT '0000-00-00 00:00:00'",
     "ALTER TABLE `fileDeleteQueue` ALTER `fdqCreateDate` SET DEFAULT CURRENT_TIMESTAMP",
+];
+// 289
+$this->schema[] = [
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FILEDELETEQUEUEGLOBALENABLED','This setting defines if file delete queue should be "
+    . "enabled or not. (Default is enabled)',"
+    . "'1', 'FOG Linux Service Enabled'),"
+    . "('FILEDELETEQUEUESLEEPTIME','The amount of time between file "
+    . "delete queue service runs. Value is in seconds. (Default 14400)',"
+    . "'14400','FOG Linux Service Sleep Times'),"
+    . "('FILEDELETEQUEUELOGFILENAME','Filename to store the file delete queue log "
+    . "file to (Default fogfiledeletequeue.log)','fogfiledeletequeue.log',"
+    . "'FOG Linux Service Logs'),"
+    . "('FILEDELETEQUEUEDEVICEOUTPUT','The tty to output to for image "
+    . "size service. (Default /dev/tty3)','/dev/tty3',"
+    . "'FOG Linux Service TTY Output')"
 ];
