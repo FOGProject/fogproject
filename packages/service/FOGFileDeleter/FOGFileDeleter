@@ -1,0 +1,63 @@
+#!/usr/bin/php -q
+<?php
+/**
+ * FOGFileDeleter service to delete files from FOG on schedule
+ *
+ * PHP version 5
+ *
+ * @category FOGFileDeleter
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * FOGFileDeleter service to delete files from FOG on schedule
+ *
+ * @category FOGScheduler
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+@error_reporting(0);
+require dirname(realpath(__FILE__)).'/../etc/config.php';
+require dirname(realpath(__FILE__)).'/../lib/service_lib.php';
+$service_name = 'FOGFileDeleter';
+service_persist($service_name);
+$ServiceClass = $FOGCore::getClass('FileDeleter');
+$ServiceClass->getBanner();
+$ServiceClass->waitInterfaceReady();
+$ServiceClass->waitDbReady();
+$ServiceClass->serviceStart();
+while (true) {
+    if (!$ServiceClass::$zzz) {
+        $ServiceClass::$zzz = 60;
+    }
+    if (!isset($nextrun)) {
+        $ServiceClass->serviceRun();
+        $nextrun = FOGCore::niceDate()
+            ->modify(
+                sprintf(
+                    '+%s second%s',
+                    $ServiceClass::$zzz,
+                    $ServiceClass::$zzz != 1 ? '' : 's'
+                )
+            );
+    }
+    if (FOGCore::niceDate() < $nextrun) {
+        usleep(100000);
+        continue;
+    }
+    $nextrun = FOGCore::niceDate()
+        ->modify(
+            sprintf(
+                '+%s second%s',
+                $ServiceClass::$zzz,
+                $ServiceClass::$zzz != 1 ? '' : 's'
+            )
+        );
+    $ServiceClass->serviceRun();
+}
+$ServiceClass::outall(sprintf(" * Service has ended."));
+exit(0);

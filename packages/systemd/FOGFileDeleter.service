@@ -1,0 +1,26 @@
+### BEGIN INIT INFO
+# Provides: FOGFileDeleter
+# Required-Start: $local_fs $remote_fs $network $syslog $network $inetd
+# Required-Stop: $local_fs $remote_fs $network $syslog $network $inetd
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# X-Interactive: true
+# Short-Description: Start/Stop FOGScheduler
+# Long-Description: Created by Chuck Syperski
+# Used to stop and start the FOGScheduler Service.
+# FOGFileDeleter is used to queue file deletion without impacting performance.
+### END INIT INFO
+
+[Unit]
+Description=FOGFileDeleter
+After=syslog.target network.target network-online.target mysql.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/bin/env php /opt/fog/service/FOGFileDeleter/FOGFileDeleter
+
+[Install]
+WantedBy=multi-user.target
