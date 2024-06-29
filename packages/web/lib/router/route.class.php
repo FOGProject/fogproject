@@ -57,6 +57,7 @@ class Route extends FOGBase
      * @var array
      */
     public static $validClasses = [
+        'filedeletequeue',
         'group',
         'groupassociation',
         'history',
@@ -108,6 +109,7 @@ class Route extends FOGBase
      * @var array
      */
     public static $validTaskingClasses = [
+        'filedeletequeue',
         'group',
         'host',
         'multicastsession',
@@ -122,6 +124,7 @@ class Route extends FOGBase
      * @var array
      */
     public static $nonUniqueNameClasses = [
+        'filedeletequeue',
         'scheduledtask',
         'task'
     ];
@@ -131,6 +134,7 @@ class Route extends FOGBase
      * @var array
      */
     public static $validActiveTasks = [
+        'filedeletequeue',
         'multicastsession',
         'powermanagement',
         'scheduledtask',
@@ -583,6 +587,7 @@ class Route extends FOGBase
                 case 'deployed':
                 case 'datetime':
                 case 'createdTime':
+                case 'completedTime':
                     $columns[] = [
                         'db' => $real,
                         'dt' => $common,
@@ -935,6 +940,22 @@ class Route extends FOGBase
                     'dt' => 'isActive',
                     'formatter' => function ($d, $row) {
                         return $d <= 0 ? _('No') : _('Yes');
+                    }
+                ];
+                break;
+            case 'filedeletequeue':
+                $columns[] = [
+                    'db' => 'fdqState',
+                    'dt' => 'taskstateicon',
+                    'formatter' => function ($d, $row) {
+                        return self::getClass('taskstate', $d)->get('icon');
+                    }
+                ];
+                $columns[] = [
+                    'db' => 'fdqState',
+                    'dt' => 'taskstatename',
+                    'formatter' => function ($d, $row) {
+                        return self::getClass('taskstate', $d)->get('name');
                     }
                 ];
                 break;
@@ -1949,17 +1970,20 @@ class Route extends FOGBase
             $states = self::getQueuedStates();
             $states[] = self::getProgressState();
             switch ($classname) {
-            case 'scheduledtask':
-                $find = ['isActive' => 1];
-                break;
-            case 'powermanagement':
-                $find = [
-                    'action' => 'wol',
-                    'onDemand' => [0, '']
-                ];
-                break;
-            default:
-                $find = ['stateID' => $states];
+                case 'scheduledtask':
+                    $find = ['isActive' => 1];
+                    break;
+                case 'powermanagement':
+                    $find = [
+                        'action' => 'wol',
+                        'onDemand' => [0, '']
+                    ];
+                    break;
+                case 'filedeletequeue':
+                    $find = ['stateID' => $states];
+                    break;
+                default:
+                    $find = ['stateID' => $states];
             }
             self::listem($class, $find);
         } catch (Exception $e) {

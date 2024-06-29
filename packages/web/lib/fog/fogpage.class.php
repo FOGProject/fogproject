@@ -658,7 +658,8 @@ abstract class FOGPage extends FOGBase
                 'active' => self::$foglang['ActiveTasks'],
                 'activemulticast' => self::$foglang['ActiveMCTasks'],
                 'activesnapins' => self::$foglang['ActiveSnapins'],
-                'activescheduled' => self::$foglang['ScheduledTasks']
+                'activescheduled' => self::$foglang['ScheduledTasks'],
+                'activescheduleddels' => _('Queued Path Deletions')
             ];
             break;
         case 'image':

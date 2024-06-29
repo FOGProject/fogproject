@@ -33,12 +33,13 @@ class FileDeleteQueue extends FOGController
      * @var array
      */
     protected $databaseFields = [
-        'id' => 'fqdID',
-        'path' => 'fqdPathName',
-        'storagegroupID' => 'fqdStorageGroupID',
-        'createdTime' => 'fqdCreateDate',
-        'createdBy' => 'fqdCreateBy',
-        'completedTime' => 'fqdCompletedDate'
+        'id' => 'fdqID',
+        'path' => 'fdqPathName',
+        'storagegroupID' => 'fdqStorageGroupID',
+        'createdTime' => 'fdqCreateDate',
+        'createdBy' => 'fdqCreateBy',
+        'completedTime' => 'fdqCompletedDate',
+        'stateID' => 'fdqState'
     ];
     /**
      * The required fields.
