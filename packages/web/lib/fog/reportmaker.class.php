@@ -198,7 +198,7 @@ class ReportMaker extends FOGBase
                 $filename = $this->_filename;
                 $htmlfile = sprintf(
                     '%s.html',
-                    $filename
+                    escapeshellarg($filename)
                 );
                 $html = sprintf(
                     '<html><body>%s</body></html>',
