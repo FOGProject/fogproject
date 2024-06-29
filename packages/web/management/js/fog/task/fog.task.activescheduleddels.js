@@ -22,12 +22,13 @@
     disableButtons(true);
     var table = $('#scheduled-deletion-table').registerTable(onSelect, {
         columns: [
-            {data: 'path'},
             {data: 'storagegroupLink'},
+            {data: 'path'},
+            {data: 'pathtype'},
             {data: 'createdTime'},
             {data: 'completedTime'},
             {data: 'createdBy'},
-            {data: 'taskstatename'}
+            {data: 'taskstatename'},
         ],
         rowId: 'id',
         serverSide: true,

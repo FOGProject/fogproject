@@ -39,7 +39,8 @@ class FileDeleteQueue extends FOGController
         'createdTime' => 'fdqCreateDate',
         'createdBy' => 'fdqCreateBy',
         'completedTime' => 'fdqCompletedDate',
-        'stateID' => 'fdqState'
+        'stateID' => 'fdqState',
+        'pathtype' => 'fdqPathType'
     ];
     /**
      * The required fields.
@@ -48,6 +49,7 @@ class FileDeleteQueue extends FOGController
      */
     protected $databaseFieldsRequired = [
         'path',
+        'pathType',
         'storagegroupID'
     ];
 }

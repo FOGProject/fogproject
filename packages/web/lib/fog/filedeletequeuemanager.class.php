@@ -45,7 +45,8 @@ class FileDeleteQueueManager extends FOGManagerController
                 'fdqCreateDate',
                 'fdqCompletedDate',
                 'fdqCreateBy',
-                'fdqState'
+                'fdqState',
+                'fdqPathType'
             ],
             [
                 'INTEGER',
@@ -54,7 +55,8 @@ class FileDeleteQueueManager extends FOGManagerController
                 'DATETIME',
                 'DATETIME',
                 'VARCHAR(40)',
-                'INT(11)'
+                'INT(11)',
+                'VARCHAR(255)'
             ],
             [
                 false,
@@ -62,6 +64,7 @@ class FileDeleteQueueManager extends FOGManagerController
                 false,
                 'CURRENT_TIMESTAMP',
                 '0000-00-00 00:00:00',
+                false,
                 false,
                 false
             ],

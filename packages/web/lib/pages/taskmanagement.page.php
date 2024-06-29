@@ -764,14 +764,16 @@ class TaskManagement extends FOGPage
     {
         $this->title = _('Queued Path Deletions');
         $this->headerData = [
-            _('Path Name'),
             _('Storage Group Name'),
+            _('Path Name'),
+            _('Path Type'),
             _('Created Time'),
             _('Completed Time'),
             _('Created By'),
-            _('State')
+            _('State'),
         ];
         $this->attributes = [
+            [],
             [],
             [],
             [],
