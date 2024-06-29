@@ -4138,3 +4138,14 @@ $this->schema[] = [
     . "PRIMARY KEY(`fdqID`)"
     . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC"
 ];
+// 288
+$this->schema[] = [
+    "ALTER TABLE `fileDeleteQueue` ADD `fqdState` "
+    . 'INT(11) NOT NULL',
+    'ALTER TABLE `fileDeleteQueue` RENAME COLUMN `fqdCreateDate` TO `fdqCreateDate`',
+    'ALTER TABLE `fileDeleteQueue` RENAME COLUMN `fqdCompletedDate` TO  `fdqCompletedDate`',
+    'ALTER TABLE `fileDeleteQueue` RENAME COLUMN `fqdCreateBy` TO `fdqCreateBy`',
+    'ALTER TABLE `fileDeleteQueue` RENAME COLUMN `fqdState` TO `fdqState`',
+    "ALTER TABLE `fileDeleteQueue` ALTER `fdqCompletedDate` SET DEFAULT '0000-00-00 00:00:00'",
+    "ALTER TABLE `fileDeleteQueue` ALTER `fdqCreateDate` SET DEFAULT CURRENT_TIMESTAMP",
+];

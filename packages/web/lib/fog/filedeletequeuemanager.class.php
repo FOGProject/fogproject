@@ -40,11 +40,12 @@ class FileDeleteQueueManager extends FOGManagerController
             true,
             [
                 'fdqID',
-                'fqdPathName',
-                'fqdStorageGroupID',
-                'fqdCreateDate',
-                'fqdCompletedDate',
-                'fqdCreateBy'
+                'fdqPathName',
+                'fdqStorageGroupID',
+                'fdqCreateDate',
+                'fdqCompletedDate',
+                'fdqCreateBy',
+                'fdqState'
             ],
             [
                 'INTEGER',
@@ -52,7 +53,8 @@ class FileDeleteQueueManager extends FOGManagerController
                 'INTEGER',
                 'DATETIME',
                 'DATETIME',
-                'VARCHAR(40)'
+                'VARCHAR(40)',
+                'INT(11)'
             ],
             [
                 false,
@@ -60,6 +62,7 @@ class FileDeleteQueueManager extends FOGManagerController
                 false,
                 'CURRENT_TIMESTAMP',
                 '0000-00-00 00:00:00',
+                false,
                 false
             ],
             [],
@@ -67,6 +70,30 @@ class FileDeleteQueueManager extends FOGManagerController
             'utf8',
             'fqdID',
             'fqdID'
+        );
+    }
+    /**
+     * Cancels the passed tasks
+     *
+     * @param mixed $filedeletequeueids the ids to cancel
+     *
+     * @return bool
+     */
+    public function cancel($filedeletequeueids)
+    {
+        $cancelled = self::getCancelledState();
+        $notComplete = self::fastmerge(
+            (array)self::getQueuedStates(),
+            (array)self::getProgressState()
+        );
+        $findWhere = [
+            'id' => (array)$filedeletequeueids,
+            'stateID' => $notComplete
+        ];
+        $this->update(
+            $findWhere,
+            '',
+            ['stateID' => $cancelled]
         );
     }
 }

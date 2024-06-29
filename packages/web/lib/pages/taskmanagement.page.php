@@ -348,6 +348,22 @@ class TaskManagement extends FOGPage
         echo Route::getData();
     }
     /**
+     * Get the scheduled deletions list.
+     *
+     * @return void
+     */
+    public function getScheduledDeleteQueues()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        Route::active('filedeletequeue');
+        echo Route::getData();
+    }
+    /**
      * Display the active tasks.
      *
      * @return void
@@ -722,6 +738,107 @@ class TaskManagement extends FOGPage
                 [
                     'error' => $e->getMessage(),
                     'title' => _('Task Cancel Fail')
+                ]
+            );
+        }
+        http_response_code($code);
+        self::$HookManager
+            ->processEvent(
+                $hook,
+                [
+                    'hook' => &$hook,
+                    'code' => &$code,
+                    'msg' => &$msg,
+                    'serverFault' => &$serverFault
+                ]
+            );
+        echo $msg;
+        exit;
+    }
+    /**
+     * Active scheduled path deletions 
+     *
+     * @return void
+     */
+    public function activescheduleddels()
+    {
+        $this->title = _('Queued Path Deletions');
+        $this->headerData = [
+            _('Path Name'),
+            _('Storage Group Name'),
+            _('Created Time'),
+            _('Completed Time'),
+            _('Created By'),
+            _('State')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+        echo '<!-- Scheduled Deletions -->';
+        echo '<div class="box box-solid">';
+        echo '<div class="box-header with-border">';
+        echo '<h4 class="box-title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="box-body">';
+        $this->render(12, 'scheduled-deletion-table');
+        echo '</div>';
+        echo '<div class="box-footer with-border">';
+        echo '<div class="btn-group">';
+        echo $this->_buttons;
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Canceled scheduled path deletions.
+     *
+     * @return void
+     */
+    public function activescheduleddelsPost()
+    {
+        header('Content-type: application/json');
+        self::$HookManager->processEvent(
+            'QUEUED_DELETION_CANCEL'
+        );
+        try {
+            if (isset($_POST['cancelconfirm'])) {
+                $tasks = filter_input_array(
+                    INPUT_POST,
+                    [
+                        'tasks' => [
+                            'flags' => FILTER_REQUIRE_ARRAY
+                        ]
+                    ]
+                );
+                $tasks = $tasks['tasks'];
+                self::getClass('FileDeleteQueueManager')->cancel($tasks);
+            }
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            $hook = 'QUEUED_DELETION_CANCEL_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => _('Selected tasks cancelled!'),
+                    'title' => _('Queue Deletion Cancel Success')
+                ]
+            );
+        } catch (Exception $e) {
+            $code = (
+                $serverFault ?
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+            $hook = 'QUEUED_DELETION_CANCEL_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Queue Deletion Cancel Fail')
                 ]
             );
         }
