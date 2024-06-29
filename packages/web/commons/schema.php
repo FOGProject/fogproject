@@ -4126,3 +4126,15 @@ $this->schema[] = [
     . "('10', 'Windows 11', ''),"
     . "('11', 'Windows Server', '')"
 ];
+// 287
+$this->schema[] = [
+    "CREATE TABLE IF NOT EXISTS `fileDeleteQueue` ("
+    . "`fdqID` INT NOT NULL AUTO_INCREMENT,"
+    . "`fdqPathName` VARCHAR(255) NOT NULL,"
+    . "`fdqStorageGroupID` INT NOT NULL,"
+    . '`fqdCreateDate` DATETIME NOT NULL,'
+    . '`fqdCompletedDate` DATETIME NOT NULL,'
+    . '`fqdCreateBy` VARCHAR(40) NOT NULL,'
+    . "PRIMARY KEY(`fdqID`)"
+    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC"
+];
