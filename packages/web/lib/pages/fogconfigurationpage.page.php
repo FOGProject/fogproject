@@ -1051,6 +1051,7 @@ class FOGConfigurationPage extends FOGPage
             'SERVICESLEEPTIME' => true,
             'SNAPINREPSLEEPTIME' => true,
             'SCHEDULERSLEEPTIME' => true,
+            'FILEDELETEQUEUESLEEPTIME' => true,
             'IMAGEREPSLEEPTIME' => true,
             'MULTICASESLEEPTIME' => true,
             // FOG Quick Registration
@@ -1914,6 +1915,7 @@ class FOGConfigurationPage extends FOGPage
             'FOG_LOGIN_INFO_DISPLAY' => true,
             'MULTICASTGLOBALENABLED' => true,
             'SCHEDULERGLOBALENABLED' => true,
+            'FILEDELETEQUEUEGLOBALENABLED' => true,
             'PINGHOSTGLOBALENABLED' => true,
             'IMAGESIZEGLOBALENABLED' => true,
             'IMAGEREPLICATORGLOBALENABLED' => true,
@@ -1964,6 +1966,7 @@ class FOGConfigurationPage extends FOGPage
             'SERVICESLEEPTIME' => true,
             'SNAPINREPSLEEPTIME' => true,
             'SCHEDULERSLEEPTIME' => true,
+            'FILEDELETEQUEUESLEEPTIME' => true,
             'IMAGEREPSLEEPTIME' => true,
             'MULTICASESLEEPTIME' => true,
             // FOG Quick Registration
