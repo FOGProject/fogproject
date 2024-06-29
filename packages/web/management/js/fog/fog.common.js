@@ -177,11 +177,33 @@ $.deleteSelected = function(table, cb, opts) {
     ids: opts.rows.ids().toArray(),
     url: '../management/index.php?node=' + opts.node + '&sub=deletemulti',
   });
+  $('#andFile').on('ifChanged', function(e) {
+    e.preventDefault();
+    $(this).iCheck('update');
+    if (!this.checked) {
+      delete opts.andFile;
+    } else {
+      opts.andFile = 1;
+    }
+  });
+  $('#andFile').trigger('change');
+  $('#andHosts').on('ifChanged', function(e) {
+    e.preventDefault();
+    $(this).iCheck('update');
+    if (!this.checked) {
+      delete opts.andHosts;
+    } else {
+      opts.andHosts = 1;
+    }
+  });
+  $('#andHosts').trigger('change');
 
   var ajaxOpts = {
     fogguipass: opts.password,
     confirmdel: 1,
-    remitems: opts.ids
+    remitems: opts.ids,
+    andHosts: 'andHosts' in opts ? 1 : 0,
+    andFile: 'andFile' in opts ? 1 : 0
   };
 
   var numItems = ajaxOpts.remitems.length;

@@ -1420,13 +1420,21 @@ abstract class FOGPage extends FOGBase
             ]
         );
         $remitems = $remitems['remitems'];
+        $andfiles = isset($_POST['andFile']) && $_POST['andFile'] == 1;
+        $andhosts = isset($_POST['andHosts']) && $_POST['andHosts'] == 1;
         self::$HookManager->processEvent(
             'MULTI_REMOVE',
             ['removing' => &$remitems]
         );
         $serverFault = false;
         try {
-            Route::deletemass($this->childClass, ['id' => $remitems]);
+            if ($andfiles && in_array($this->childClass, ['Snapin', 'Image', 'snapin', 'image'])) {
+                // TODO: Push into a new table
+                // Create service
+                // Delete all files in this table at a later point in time.
+            }
+            $where = ['id' => $remitems];
+            Route::deletemass($this->childClass, $where);
             $msg = json_encode(
                 [
                     'msg' => _('Successfully deleted'),
