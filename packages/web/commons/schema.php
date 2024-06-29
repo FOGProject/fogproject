@@ -4166,3 +4166,8 @@ $this->schema[] = [
     . "size service. (Default /dev/tty3)','/dev/tty3',"
     . "'FOG Linux Service TTY Output')"
 ];
+// 290
+$this->schema[] = [
+    "ALTER TABLE `fileDeleteQueue` ADD `fdqPathType` "
+    . "VARCHAR(255) NOT NULL"
+];
