@@ -216,7 +216,6 @@ class Image extends FOGController
             Route::getData()
         );
         foreach ($StorageNodes->data as $StorageNode) {
-            error_log(print_r($StorageNode, 1));
             $ftppath = trim(
                 $StorageNode->ftppath,
                 '/'

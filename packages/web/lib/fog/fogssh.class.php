@@ -334,12 +334,13 @@ class FOGSSH
      */
     public function delete($path)
     {
+
         if (!$this->exists($path)) {
             return $this;
         }
-        if (!$this->sftp_rmdir($path)
-            && !$this->sftp_unlink($path)
-        ) {
+        $rmdir = $this->sftp_rmdir($path);
+        $unlink = $this->sftp_unlink($path);
+        if (!$rmdir && !$unlink) {
             $filelist = $this->scanFilesystem($path);
             foreach ((array)$filelist as $file) {
                 $this->delete($path . DS . $file);
