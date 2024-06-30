@@ -34,6 +34,38 @@
     // This will call our respective calls
     // to report the requested data.
     switch (reportString) {
+        // Files Deleted List
+        case 'file deleter':
+            var fileTable = $('#filedeleterlist-table'),
+              table = fileTable.registerTable(null, {
+                order: [
+                  [3, 'desc']
+                ],
+                  rowGroup: {
+                      dataSrc: function(row) {
+                          return moment(row.createdTime, moment.ISO_8601).format('MMM DD YYYY');
+                      }
+                  },
+                  buttons: reportButtons,
+                  columns: [
+                      {data: 'path'},
+                      {data: 'pathtype'},
+                      {data: 'taskstatename'},
+                      {data: 'createdTime'},
+                      {data: 'completedTime'},
+                      {data: 'createdBy'}
+                  ],
+                  rowId: 'id',
+                  processing: true,
+                  serverSide: true,
+                  select: false,
+                  ajax: {
+                      url: '../management/index.php?node=report&sub=getList&f='
+                          + Common.f,
+                      type: 'post'
+                  }
+              });
+            break;
         // History Report
         case 'history report':
             var historyTable = $('#history-table'),
