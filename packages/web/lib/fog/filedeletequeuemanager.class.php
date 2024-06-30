@@ -80,7 +80,7 @@ class FileDeleteQueueManager extends FOGManagerController
      *
      * @param mixed $filedeletequeueids the ids to cancel
      *
-     * @return bool
+     * @return void
      */
     public function cancel($filedeletequeueids)
     {
@@ -96,7 +96,37 @@ class FileDeleteQueueManager extends FOGManagerController
         $this->update(
             $findWhere,
             '',
-            ['stateID' => $cancelled]
+            [
+                'completedTime' => self::formatTime('now', 'Y-m-d H:i:s'),
+                'stateID' => $cancelled
+            ]
+        );
+    }
+    /**
+     * Completes the passed tasks
+     *
+     * @param mixed $filedeletequeueids the ids to complete
+     *
+     * @return void
+     */
+    public function complete($filedeletequeueids)
+    {
+        $completed = self::getCompleteState();
+        $notComplete = self::fastmerge(
+            (array)self::getQueuedStates(),
+            (array)self::getProgressState()
+        );
+        $findWhere = [
+            'id' => (array)$filedeletequeueids,
+            'stateID' => $notComplete,
+        ];
+        $this->update(
+            $findWhere,
+            '',
+            [
+                'completedTime' => self::formatTime('now', 'Y-m-d H:i:s'),
+                'stateID' => $completed
+            ]
         );
     }
 }
