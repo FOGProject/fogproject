@@ -92,11 +92,31 @@ class FOGSSH
     {
         return $this->data[$key];
     }
+    /**
+     * Open the sftp connection automatedly.
+     *
+     * @return void
+     */
     public function sftp()
     {
         if (!isset($this->_sftp) && !($this->_sftp = @ssh2_sftp($this->_link))) {
             $this->ssherror($this->data);
         }
+    }
+    /**
+     * We have to sever all open connections.
+     *
+     * This will perform that task in a semi-automated fasion.
+     *
+     * @return bool (From the main connection only)
+     */
+    public function disconnect()
+    {
+        if ($this->_sftp) {
+            @ssh2_disconnect($this->_sftp);
+            unset($this->_sftp);
+        }
+        return @ssh2_disconnect($this->_link);
     }
     /**
      * Magic class to do ssh2 functions.
