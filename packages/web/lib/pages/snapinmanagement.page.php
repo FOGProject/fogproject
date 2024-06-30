@@ -1675,6 +1675,9 @@ class SnapinManagement extends FOGPage
         );
         $dest = $destpath . '/' . $snapinfile;
         if ($uploadfile) {
+            // * We must remove the prexisting file to overwrite
+            // * So the only way is to phsyically delete it
+            // * unforutnately.
             self::$FOGSSH->username = $StorageNode->get('user');
             self::$FOGSSH->password = $StorageNode->get('pass');
             self::$FOGSSH->host = $StorageNode->get('ip');
@@ -1707,7 +1710,11 @@ class SnapinManagement extends FOGPage
                 }
             }
             self::$FOGSSH->put($src, $dest);
+            self::$FOGSSH->disconnect();
             if ($snapinfile != $this->obj->get('file')) {
+                // * At least here we can queue it
+                // * So it could be stopped before
+                // * Its actually deleted.
                 Route::listem(
                     'snapin',
                     ['file' => $this->obj->get('file')]
@@ -1715,7 +1722,6 @@ class SnapinManagement extends FOGPage
                 $othersnapins = json_decode(
                     Route::getData()
                 );
-                error_log(print_r($othersnapins, 1));
                 $otherfiles = [];
                 foreach ($othersnapins->data as $osnapin) {
                     if ($osnapin->id == $this->obj->get('id')) {
@@ -1723,14 +1729,32 @@ class SnapinManagement extends FOGPage
                     }
                     $otherfiles[] = $osnapin->file;
                 }
-                error_log(print_r($otherfiles, 1));
                 if (count($otherfiles ?: []) <= 0) {
-                    if (self::$FOGSSH->exists($destpath . '/' . $this->obj->get('file'))) {
-                        self::$FOGSSH->delete($destpath . '/' . $this->obj->get('file'));
+                    $insert_fields = [
+                        'path',
+                        'pathtype',
+                        'createdTime',
+                        'stateID',
+                        'createdBy',
+                        'storagegroupID'
+                    ];
+                    $insert_values = [];
+                    foreach ($this->obj->get('storagegroups') as $storagegroupID) {
+                        $insert_values[] = [
+                            $this->obj->get('file'),
+                            'Snapin',
+                            self::formatTime('now', 'Y-m-d H:i:s'),
+                            self::getQueuedState(),
+                            self::$FOGUser->get('name'),
+                            $storagegroupID
+                        ];
                     }
+                    self::getClass('filedeletequeuemanager')->insertBatch(
+                        $insert_fields,
+                        $insert_values
+                    );
                 }
             }
-            self::$FOGSSH->disconnect();
         }
         $this->obj
             ->set('name', $snapin)
