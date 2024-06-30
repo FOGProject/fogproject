@@ -1376,52 +1376,78 @@ class FOGConfigurationPage extends FOGPage
                     '#(access[\_|\.]log$)#i',
                     $fogfiles
                 );
+                list(
+                    $filedeletelogname,
+                    $imagereplicatorlogname,
+                    $imagesizelogname,
+                    $multicastlogname,
+                    $pinghostlogname,
+                    $schedulerlogname,
+                    $servicelogname,
+                    $snapinhashlogname,
+                    $snapinreplicatorlogname,
+                ) = self::getSetting([
+                    'FILEDELETEQUEUELOGFILENAME',
+                    'IMAGEREPLICATORLOGFILENAME',
+                    'IMAGESIZELOGFILENAME',
+                    'MULTICASTLOGFILENAME',
+                    'PINGHOSTLOGFILENAME',
+                    'SCHEDULERLOGFILENAME',
+                    'SERVICEMASTERLOGFILENAME',
+                    'SNAPINHASHLOGFILENAME',
+                    'SNAPINREPLICATORLOGFILENAME',
+                ]);
                 $multicastlog = preg_grep(
-                    '#(multicast.log$)#i',
+                    '#('.$multicastlogname.'$)#i',
                     $fogfiles
                 );
                 $multicastlog = array_shift($multicastlog);
                 $schedulerlog = preg_grep(
-                    '#(fogscheduler.log$)#i',
+                    '#('.$schedulerlogname.'$)#i',
                     $fogfiles
                 );
                 $schedulerlog = array_shift($schedulerlog);
                 $imgrepliclog = preg_grep(
-                    '#(fogreplicator.log$)#i',
+                    '#('.$imagereplicatorlogname.'$)#i',
                     $fogfiles
                 );
                 $imgrepliclog = array_shift($imgrepliclog);
                 $imagesizelog = preg_grep(
-                    '#(fogimagesize.log$)#i',
+                    '#('.$imagesizelogname.'$)#i',
                     $fogfiles
                 );
                 $imagesizelog = array_shift($imagesizelog);
                 $snapinreplog = preg_grep(
-                    '#(fogsnapinrep.log$)#i',
+                    '#('.$snapinreplicatorlogname.'$)#i',
                     $fogfiles
                 );
                 $snapinreplog = array_shift($snapinreplog);
                 $snapinhashlog = preg_grep(
-                    '#(fogsnapinhash.log$)#i',
+                    '#('.$snapinhashlogname.'$)#i',
                     $fogfiles
                 );
                 $snapinhashlog = array_shift($snapinhashlog);
                 $pinghostlog = preg_grep(
-                    '#(pinghosts.log$)#i',
+                    '#('.$pinghostlogname.'$)#i',
                     $fogfiles
                 );
                 $pinghostlog = array_shift($pinghostlog);
+                $filedeletequeuelog = preg_grep(
+                    '#('.$filedeletelogname.'$)#i',
+                    $fogfiles
+                );
+                $filedeletequeuelog = array_shift($filedeletequeuelog);
                 $svcmasterlog = preg_grep(
-                    '#(servicemaster.log$)#i',
+                    '#('.$servicelogname.'$)#i',
                     $fogfiles
                 );
                 $svcmasterlog = array_shift($svcmasterlog);
                 $imgtransferlogs = preg_grep(
-                    '#(fogreplicator.log.transfer)#i',
+                    '#('.$imagereplicatorlogname.'.transfer)#i',
                     $fogfiles
                 );
                 $snptransferlogs = preg_grep(
-                    '#(fogsnapinrep.log.transfer)#i',
+                    '#('.$snapinreplicatorlogname.'.transfer)#i',
                     $fogfiles
                 );
                 $files[$StorageNode->name] = [
@@ -1495,6 +1521,15 @@ class FOGConfigurationPage extends FOGPage
                     ) => (
                         $pinghostlog ?
                         $pinghostlog :
+                        null
+                    ),
+                    (
+                        $filedeletequeuelog ?
+                        _('File Delete Queue') :
+                        null
+                    ) => (
+                        $filedeletequeuelog ?
+                        $filedeletequeuelog :
                         null
                     ),
                 ];
