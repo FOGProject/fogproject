@@ -170,41 +170,15 @@ class Snapin extends FOGController
         if ($this->get('protected')) {
             throw new Exception(self::$foglang['ProtectedSnapin']);
         }
-        Route::listem(
-            'storagenode',
-            [
-                'storagegroupID' => $this->get('storagegroups'),
-                'isEnabled' => 1
-            ]
-        );
-        $StorageNodes = json_decode(
-            Route::getData()
-        );
-        foreach ($StorageNodes->data as $StorageNode) {
-            $ftppath = trim(
-                $StorageNode->snapinpath,
-                '/'
-            );
-            $deleteFile = sprintf(
-                '/%s/%s',
-                $ftppath,
-                $this->get('file')
-            );
-            $ip = $StorageNode->ip;
-            $user = $StorageNode->user;
-            $pass = $StorageNode->pass;
-            self::$FOGSSH->username = $user;
-            self::$FOGSSH->password = $pass;
-            self::$FOGSSH->host = $ip;
-            if (!self::$FOGSSH->connect()) {
-                error_log(_('Unable to login via SSH'));
-                continue;
-            }
-            if (!self::$FOGSSH->delete($deleteFile)) {
-                error_log(_('Unable to delete remote file').': '.$deleteFile);
-                continue;
-            }
-            self::$FOGSSH->disconnect();
+        foreach ($this->get('storagegroups') as $storagegroupID) {
+            self::getClass('filedeletequeue')
+                ->set('path', $this->get('file'))
+                ->set('pathtype', 'Snapin')
+                ->set('createdTime', self::formatTime('now', 'Y-m-d H:i:s'))
+                ->set('stateID', self::getQueuedState())
+                ->set('createdBy', self::$FOGUser->get('name'))
+                ->set('storagegroupID', $storagegroupID)
+                ->save();
         }
         return true;
     }

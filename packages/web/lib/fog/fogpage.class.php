@@ -1429,12 +1429,60 @@ abstract class FOGPage extends FOGBase
         );
         $serverFault = false;
         try {
-            if ($andfiles && in_array($this->childClass, ['Snapin', 'Image', 'snapin', 'image'])) {
-                // TODO: Push into a new table
-                // Create service
-                // Delete all files in this table at a later point in time.
-            }
             $where = ['id' => $remitems];
+            if ($andfiles && in_array($this->childClass, ['Snapin', 'Image', 'snapin', 'image'])) {
+                switch ($this->childClass) {
+                    case 'Snapin':
+                    case 'snapin':
+                        $groupassoc = 'snapingroupassociation';
+                        $pathKey = 'file';
+                        break;
+                    case 'Image':
+                    case 'image':
+                        $groupassoc = 'imageassociation';
+                        $pathKey = 'path';
+                        break;
+                }
+                $insert_fields = [
+                    'path',
+                    'pathtype',
+                    'createdTime',
+                    'stateID',
+                    'createdBy',
+                    'storagegroupID'
+                ];
+                $insert_values = [];
+                Route::listem(
+                    $this->childClass,
+                    $where
+                );
+                $items = json_decode(Route::getData());
+                foreach ($items->data as $item) {
+                    Route::ids(
+                        $groupassoc,
+                        [strtolower($this->childClass).'ID' => $item->id],
+                        'storagegroupID'
+                    );
+                    $storagegroups[$item->$pathKey] = json_decode(Route::getData());
+                }
+                foreach ($storagegroups as $pathItem => $storagegroupIDs) {
+                    foreach ($storagegroupIDs as $storagegroupID) {
+                        $insert_values[] = [
+                            $pathItem,
+                            $this->childClass,
+                            self::formatTime('now', 'Y-m-d H:i:s'),
+                            self::getQueuedState(),
+                            self::$FOGUser->get('name'),
+                            $storagegroupID
+                        ];
+                    }
+                }
+                self::getClass('filedeletequeuemanager')
+                    ->insertBatch(
+                        $insert_fields,
+                        $insert_values
+                    );
+            }
             Route::deletemass($this->childClass, $where);
             $msg = json_encode(
                 [
