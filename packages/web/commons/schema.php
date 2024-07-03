@@ -4142,9 +4142,9 @@ $this->schema[] = [
 $this->schema[] = [
     "ALTER TABLE `fileDeleteQueue` ADD `fdqState` "
     . 'INT(11) NOT NULL',
-    'ALTER TABLE `fileDeleteQueue` RENAME COLUMN `fqdCreateDate` TO `fdqCreateDate`',
-    'ALTER TABLE `fileDeleteQueue` RENAME COLUMN `fqdCompletedDate` TO  `fdqCompletedDate`',
-    'ALTER TABLE `fileDeleteQueue` RENAME COLUMN `fqdCreateBy` TO `fdqCreateBy`',
+    'ALTER TABLE `fileDeleteQueue` CHANGE COLUMN `fqdCreateDate` `fdqCreateDate` DATETIME',
+    'ALTER TABLE `fileDeleteQueue` CHANGE COLUMN `fqdCompletedDate` `fdqCompletedDate` DATETIME',
+    'ALTER TABLE `fileDeleteQueue` CHANGE COLUMN `fqdCreateBy` `fdqCreateBy` VARCHAR(40)',
     "ALTER TABLE `fileDeleteQueue` ALTER `fdqCompletedDate` SET DEFAULT '0000-00-00 00:00:00'",
     "ALTER TABLE `fileDeleteQueue` ALTER `fdqCreateDate` SET DEFAULT CURRENT_TIMESTAMP",
 ];
