@@ -1698,11 +1698,11 @@ abstract class FOGBase
         return (array) $output;
     }
     /**
-     * Cycle the macs and return valid.
+     * Cycle the MACs and return valid.
      *
-     * @param string|array $stringlist the macs to parse
-     * @param bool         $image      check if image type ignored
-     * @param bool         $client     check if client type ignored
+     * @param string|array $stringlist The MACs to parse.
+     * @param bool         $image      Check if image type ignored.
+     * @param bool         $client     Check if client type ignored.
      *
      * @return array
      */
@@ -1711,42 +1711,63 @@ abstract class FOGBase
         $image = false,
         $client = false
     ) {
-        $MAClist = [];
-        $MACs = $stringlist;
         $lowerAndTrim = function ($element) {
             return strtolower(trim($element));
         };
-        if (!is_array($stringlist)) {
-            $MACs = array_map($lowerAndTrim, explode('|', $stringlist));
-        } else {
-            $MACs = array_map($lowerAndTrim, $stringlist);
-        }
-        $MACs = array_filter($MACs);
-        $MACs = array_unique($MACs);
-        $MACs = array_values($MACs);
-        if (count($MACs ?: []) < 1) {
+
+        // Convert stringlist to array and normalize MACs
+        $MACs = is_array($stringlist) ? $stringlist : explode('|', $stringlist);
+        $MACs = array_values(
+            array_unique(
+                array_filter(
+                    array_map(
+                        $lowerAndTrim,
+                        $MACs
+                    )
+                )
+            )
+        );
+
+        if (empty($MACs)) {
             return [];
         }
-        $pending_filter = explode(
-            ',',
-            self::getSetting('FOG_QUICKREG_PENDING_MAC_FILTER')
+
+        // Apply pending MAC filter
+        $ignoreList = array_values(
+            array_unique(
+                array_filter(
+                    array_map(
+                        $lowerAndTrim,
+                        explode(
+                            ',',
+                            self::getSetting('FOG_QUICKREG_PENDING_MAC_FILTER')
+                        )
+                    )
+                )
+            )
         );
-        $Ignore = array_map($lowerAndTrim, $pending_filter);
-        $Ignore = array_filter($Ignore);
-        if (count($Ignore ?: []) > 0) {
+        if (!empty($ignoreList)) {
             $pattern = sprintf(
                 '#%s#i',
-                implode('|', (array) $Ignore)
+                implode('|', $ignoreList)
             );
-            $found_macs = preg_grep($pattern, $MACs);
-            $MACs = array_diff($MACs, $found_macs);
-            $MACs = array_filter($MACs);
-            $MACs = array_unique($MACs);
-            $MACs = array_values($MACs);
+            $MACs = array_values(
+                array_unique(
+                    array_filter(
+                        array_diff(
+                            $MACs,
+                            preg_grep($pattern, $MACs)
+                        )
+                    )
+                )
+            );
         }
-        if (count($MACs ?: []) < 1) {
+
+        if (empty($MACs)) {
             return [];
         }
+
+        // Check for existing MACs
         Route::count(
             'macaddressassociation',
             [
@@ -1754,81 +1775,89 @@ abstract class FOGBase
                 'pending' => [0, '']
             ]
         );
-        $count = json_decode(Route::getData());
-        $count = $count->total;
+        $count = json_decode(Route::getData())->total;
         if ($count > 0) {
-            $find = [
-                'mac' => $MACs,
-                'pending' => [0, '']
-            ];
             Route::ids(
                 'macaddressassociation',
-                $find,
+                [
+                    'mac' => $MACs,
+                    'pending' => [0, '']
+                ],
                 'mac'
             );
-            $existingMACs = json_decode(
-                Route::getData(),
-                true
+            $existingMACs = array_values(
+                array_unique(
+                    array_filter(
+                        array_map(
+                            $lowerAndTrim,
+                            json_decode(Route::getData(), true)
+                        )
+                    )
+                )
             );
-            $existingMACs = array_map($lowerAndTrim, $existingMACs);
-            $existingMACs = array_filter($existingMACs);
-            $existingMACs = array_unique($existingMACs);
-            $existingMACs = array_values($existingMACs);
-            $MACs = self::fastmerge((array) $MACs, (array) $existingMACs);
-            $MACs = array_unique($MACs);
+            $MACs = array_values(
+                array_unique(
+                    array_merge(
+                        $MACs,
+                        $existingMACs
+                    )
+                )
+            );
         }
+
+        // Apply client ignore filter
         if ($client) {
-            $find = [
-                'mac' => $MACs,
-                'clientIgnore' => 1
-            ];
             Route::ids(
                 'macaddressassociation',
-                $find,
+                [
+                    'mac' => $MACs,
+                    'clientIgnore' => 1
+                ],
                 'mac'
             );
-            $clientIgnored = json_decode(
-                Route::getData(),
-                true
+            $clientIgnored = array_map(
+                $lowerAndTrim,
+                json_decode(Route::getData(), true)
             );
-            $clientIgnored = array_map($lowerAndTrim, $clientIgnored);
-            $MACs = array_diff((array) $MACs, (array) $clientIgnored);
-            unset($clientIgnored);
+            $MACs = array_values(
+                array_diff(
+                    $MACs,
+                    $clientIgnored
+                )
+            );
         }
+
+        // Apply image ignore filter
         if ($image) {
-            $find = [
-                'mac' => $MACs,
-                'imageIgnore' => 1
-            ];
             Route::ids(
                 'macaddressassociation',
-                $find,
+                [
+                    'mac' => $MACs,
+                    'imageIgnore' => 1
+                ],
                 'mac'
             );
-            $imageIgnored = json_decode(
-                Route::getData(),
-                true
+            $imageIgnored = array_map(
+                $lowerAndTrim,
+                json_decode(Route::getData(), true)
             );
-            $imageIgnored = array_map($lowerAndTrim, (array) $imageIgnored);
-            $MACs = array_diff((array) $MACs, (array) $imageIgnored);
-            unset($imageIgnored);
+            $MACs = array_values(
+                array_diff($MACs, $imageIgnored)
+            );
         }
-        $MACs = array_filter($MACs);
-        $MACs = array_unique($MACs);
-        $MACs = array_values($MACs);
-        if (count($MACs ?: []) < 1) {
+
+        if (empty($MACs)) {
             return [];
         }
+
+        // Validate remaining MACs
         $validMACs = [];
-        foreach ($MACs as &$MAC) {
-            $MAC = self::getClass('MACAddress', $MAC);
-            if (!$MAC->isValid()) {
-                continue;
+        foreach ($MACs as $MAC) {
+            $MACObject = self::getClass('MACAddress', $MAC);
+            if ($MACObject->isValid()) {
+                $validMACs[] = $MACObject;
             }
-            $validMACs[] = $MAC;
-            unset($MAC);
         }
-        $validMACs = array_filter($validMACs);
 
         return $validMACs;
     }
