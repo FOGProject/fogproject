@@ -296,16 +296,59 @@ class HostManager extends FOGManagerController
             );
             $MACHost = array_unique(json_decode(Route::getData(), true));
             $macs = (array)$macs;
-            if (count($MACHost ?: []) < 1) {
+
+            if (count($MACHost ?? []) < 1) {
                 return;
             }
-            if (count($MACHost ?: []) > 1 && count($macs ?: []) > 0) {
-                $maclist = implode(', ', $macs);
-                $hostIDs = implode(', ', $MACHost);
-                throw new Exception(
-                    self::$foglang['ErrorMultipleHosts']
-                    . ", MACs: $maclist, Host IDs: $hostIDs"
+            if (count($MACHost ?? []) > 1 && count($macs ?? []) > 0) {
+                $badMacs = [];
+                $goodMacs = [];
+
+                foreach ($macs as $mac) {
+                    Route::ids(
+                        'macaddressassociation',
+                        [
+                            'pending' => [0, ''],
+                            'mac' => [$mac]
+                        ],
+                        'hostID'
+                    );
+
+                    $hostIDs = json_decode(Route::getData(), true);
+                    $err = sprintf(
+                        '%s, %s: %s, %s: %s',
+                        self::$foglang['ErrorMultipleHosts'],
+                        _('MAC'),
+                        $mac,
+                        _('Host IDs'),
+                        implode(', ', $hostIDs)
+                    );
+
+                    if (count($hostIDs ?? []) > 1) {
+                        $badMacs[] = $hostIDs;
+                        error_log($err);
+                    } else {
+                        $goodMacs[] = $hostIDs;
+                    }
+                }
+
+                // Flatten the goodMacs and badMacs arrays
+                $goodMacs = !empty($goodMacs) ? array_merge(...$goodMacs) : [];
+                $badMacs = !empty($badMacs) ? array_merge(...$badMacs) : [];
+
+                $MACHost = array_intersect(
+                    array_unique($goodMacs),
+                    array_unique(array_merge($goodMacs, $badMacs))
                 );
+
+                if (count($MACHost ?? []) > 1 && count($macs ?? []) > 0) {
+                    $maclist = implode(', ', $macs);
+                    $hostIDs = implode(', ', $MACHost);
+                    throw new Exception(
+                        self::$foglang['ErrorMultipleHosts']
+                        . ", MACs: $maclist, Host IDs: $hostIDs"
+                    );
+                }
             }
         }
         self::$Host = new Host(@max($MACHost));
