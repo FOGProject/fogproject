@@ -303,7 +303,7 @@ class HostManager extends FOGManagerController
                 $maclist = implode(', ', $macs);
                 throw new Exception(
                     self::$foglang['ErrorMultipleHosts']
-                    . ", MACs: $maclist"
+                    . ", MACs: $maclist, Host IDs: $MACHost"
                 );
             }
         }
