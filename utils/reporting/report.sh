@@ -29,7 +29,7 @@ options="$options -D $mysqldbname -e"
 FOG_TFTP_PXE_KERNEL_32_select='select settingValue from globalSettings WHERE settingKey = "FOG_TFTP_PXE_KERNEL_32";'
 FOG_TFTP_PXE_KERNEL_select='select settingValue from globalSettings WHERE settingKey = "FOG_TFTP_PXE_KERNEL";'
 FOG_TFTP_PXE_KERNEL_DIR_select='select settingValue from globalSettings WHERE settingKey = "FOG_TFTP_PXE_KERNEL_DIR";'
-FOG_HOSTS_KERNELS_select='SELECT UNIQUE hostKernel FROM hosts;'
+FOG_HOSTS_KERNELS_select='SELECT DISTINCT hostKernel FROM hosts;'
 
 # Execute sql statements, get values.
 FOG_TFTP_PXE_KERNEL_32=$(mysql $options "$FOG_TFTP_PXE_KERNEL_32_select")
@@ -108,7 +108,7 @@ for host_kernel in $FOG_HOST_KERNELS; do
                 kernel_versions_info="${kernel_versions_info}${version}"
             fi
         fi
-    fi    
+    fi
 done
 
 # Finish JSON list formatting.
