@@ -341,6 +341,12 @@ class HostManager extends FOGManagerController
                     array_unique(array_merge($goodMacs, $badMacs))
                 );
 
+                if (count($MACHost ?? []) < 1) {
+                    throw new Exception(
+                        _('No unique macs available to any device')
+                    );
+                }
+
                 if (count($MACHost ?? []) > 1 && count($macs ?? []) > 0) {
                     $maclist = implode(', ', $macs);
                     $hostIDs = implode(', ', $MACHost);
