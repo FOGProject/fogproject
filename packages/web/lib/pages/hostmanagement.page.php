@@ -1507,27 +1507,27 @@ class HostManagement extends FOGPage
                 [
                     'id' => 'macaddress-table-update-unimage',
                     'text' => _('Unmark selected image ignore'),
-                    'prop' => $props
+                    'props' => $props
                 ],
                 [
                     'id' => 'macaddress-table-update-client',
                     'text' => _('Mark selected client ignore'),
-                    'prop' => $props
+                    'props' => $props
                 ],
                 [
                     'id' => 'macaddress-table-update-unclient',
                     'text' => _('Unmark selected client ignore'),
-                    'prop' => $props
+                    'props' => $props
                 ],
                 [
                     'id' => 'macaddress-table-update-pending',
                     'text' => _('Mark selected pending'),
-                    'prop' => $props
+                    'props' => $props
                 ],
                 [
                     'id' => 'macaddress-table-update-unpending',
                     'text' => _('Unmark selected pending'),
-                    'prop' => $props
+                    'props' => $props
                 ]
             ],
             'right',
