@@ -301,9 +301,10 @@ class HostManager extends FOGManagerController
             }
             if (count($MACHost ?: []) > 1 && count($macs ?: []) > 0) {
                 $maclist = implode(', ', $macs);
+                $hostIDs = implode(', ', $MACHost);
                 throw new Exception(
                     self::$foglang['ErrorMultipleHosts']
-                    . ", MACs: $maclist, Host IDs: $MACHost"
+                    . ", MACs: $maclist, Host IDs: $hostIDs"
                 );
             }
         }
