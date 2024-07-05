@@ -2251,7 +2251,7 @@ abstract class FOGBase
             $IPs[] = $res[0];
         }*/
         @natcasesort($IPs);
-        $retIPs = function (&$IP) {
+        $retIPs = function ($IP) {
             $IP = trim($IP);
             if (!filter_var($IP, FILTER_VALIDATE_IP)) {
                 $IP = gethostbyname($IP);
@@ -2260,7 +2260,7 @@ abstract class FOGBase
                 return $IP;
             }
         };
-        $retNames = function (&$IP) {
+        $retNames = function ($IP) {
             $IP = trim($IP);
             if (filter_var($IP, FILTER_VALIDATE_IP)) {
                 return gethostbyaddr($IP);

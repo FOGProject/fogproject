@@ -1138,7 +1138,7 @@ abstract class FOGController extends FOGBase
         // Check to ensure our items aren't already present.
         //
         // If nothing changes, simply return.
-        $diff = array_diff($items, $cur);
+        $diff = array_diff((array)$items, (array)$cur);
         if (!count($diff ?: [])) {
             return $this;
         }
