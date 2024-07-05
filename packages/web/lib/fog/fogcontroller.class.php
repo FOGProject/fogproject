@@ -1124,7 +1124,7 @@ abstract class FOGController extends FOGBase
 
         // Get the items differing between current and what we have associated.
         // Remove the items if there's anything to remove.
-        $rem = array_diff($cur, $items);
+        $rem = array_diff((array)$cur, (array)$items);
         if (count($rem ?: [])) {
             Route::deletemass(
                 $classCall,
