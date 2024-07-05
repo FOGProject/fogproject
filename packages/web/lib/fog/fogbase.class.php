@@ -2273,7 +2273,7 @@ abstract class FOGBase
         $output = self::fastmerge(
             $IPs,
             $Names,
-            ['127.0.0.1', '127.0.1.1']
+            ['127.0.0.1', '127.0.1.1', self::getSetting('FOG_WEB_HOST')]
         );
         unset($IPs, $Names);
         @natcasesort($output);
