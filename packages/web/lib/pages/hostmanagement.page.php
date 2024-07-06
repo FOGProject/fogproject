@@ -5004,9 +5004,8 @@ class HostManagement extends FOGPage
             ['id' => $printersAssigned]
         );
         $printerNames = json_decode(Route::getData());
-        foreach ($printerNames as &$printer) {
+        foreach ($printerNames as $printer) {
             $printers[$printer->id] = $printer->name;
-            unset($printer);
         }
         unset($printerNames);
         Route::ids(
@@ -5021,7 +5020,7 @@ class HostManagement extends FOGPage
         $defaultprinter = array_shift($defaultprinter);
         $printerSelector = self::selectForm(
             'printer',
-            $printers,
+            $printers ?? [],
             $defaultprinter,
             true,
             '',
