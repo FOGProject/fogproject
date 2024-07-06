@@ -72,7 +72,9 @@ class Registration extends FOGBase
                 true
             );
             $this->PriMAC = array_shift($this->MACs);
-            $this->regExists($check);
+            if ($this->regExists($check)) {
+                throw new Exception();
+            }
             $this->macsimple = strtolower(
                 str_replace(
                     [':', '-'],
@@ -149,8 +151,8 @@ class Registration extends FOGBase
     {
         try {
             $stripped = self::stripAndDecode($_POST);
-            $productKey = filter_var($stripped['productKey']);
-            $host = filter_var($stripped['host']);
+            $productKey = filter_var($stripped['productKey'] ?? '');
+            $host = filter_var($stripped['host'] ?? '');
             $hostnameSafe = self::getClass('Host')->isHostnameSafe($host);
             if (!$hostnameSafe) {
                 throw new Exception(
@@ -168,16 +170,16 @@ class Registration extends FOGBase
                     )
                 );
             }
-            $imageid = filter_var($stripped['imageid']);
+            $imageid = filter_var($stripped['imageid'] ?? '');
             $imageid = (
                 self::getClass('Image', $imageid)->isValid() ?
                 $imageid :
                 0
             );
-            $primaryuser = filter_var($stripped['primaryuser']);
-            $other1 = filter_var($stripped['other1']);
-            $other2 = filter_var($stripped['other2']);
-            $doimage = filter_var($stripped['doimage']) == '1';
+            $primaryuser = filter_var($stripped['primaryuser'] ?? '');
+            $other1 = filter_var($stripped['other1'] ?? '');
+            $other2 = filter_var($stripped['other2'] ?? '');
+            $doimage = filter_var($stripped['doimage'] ?? '') == '1';
             if ($_POST['doad']) {
                 $serviceNames = [
                     'FOG_AD_DEFAULT_DOMAINNAME',
@@ -220,9 +222,9 @@ class Registration extends FOGBase
                 $useAD = 1;
                 $ADOU = $opt;
             }
-            $gID = filter_var($stripped['groupid']);
+            $gID = filter_var($stripped['groupid'] ?? '');
             $groupsToJoin = explode(',', $gID);
-            $sID = filter_var($stripped['snapinid']);
+            $sID = filter_var($stripped['snapinid'] ?? '');
             $snapinsToJoin = explode(',', $sID);
             self::$Host = self::getClass('Host')
                 ->set('name', $host)
@@ -284,7 +286,7 @@ class Registration extends FOGBase
     private static function _deployHost()
     {
         $stripped = self::stripAndDecode($_POST);
-        $username = filter_var($stripped['username']);
+        $username = filter_var($stripped['username'] ?? '');
         $username = ($username ?: 'fog');
         $Image = self::$Host->getImage();
         if (!$Image->isValid()) {
@@ -353,7 +355,7 @@ class Registration extends FOGBase
                 $hostname = $this->macsimple;
             } else {
                 $hostname = $autoRegSysName;
-                $sysserial = filter_var($stripped['sysserial']);
+                $sysserial = filter_var($stripped['sysserial'] ?? '');
                 $sysserial = strtoupper($sysserial);
                 $hostname = str_replace('{SYSSERIAL}', $sysserial, $hostname);
             }
@@ -416,7 +418,7 @@ class Registration extends FOGBase
                 ->addGroup($groupsToJoin)
                 ->addPriMAC($this->PriMAC);
             if ($prodkeyget > 0) {
-                $productKey = filter_var($stripped['productKey']);
+                $productKey = filter_var($stripped['productKey'] ?? '');
                 self::$Host->set('productKey', $productKey);
             }
             if (!self::$Host->save()) {
@@ -460,7 +462,7 @@ class Registration extends FOGBase
                 ->addPriMAC($this->PriMAC)
                 ->addMAC($this->MACs);
             if ($prodkeyget > 0) {
-                $productKey = filter_var($stripped['productKey']);
+                $productKey = filter_var($stripped['productKey'] ?? '');
                 self::$Host->set('productKey', $productKey);
             }
             if (!self::$Host->save()) {

@@ -342,12 +342,17 @@ class HostManager extends FOGManagerController
 
                 // Check if there is a tie for the most frequent host ID
                 if (count($mostFrequentHostIDs) > 1) {
-                    throw new Exception(_('Unable to determine the suspected true host.'));
+                    throw new Exception(
+                        _('Unable to determine the suspected true host'). '.'
+                        . ' ' . _('Most Frequent Host IDs') . ': '
+                        . '[' . _('Host ID') . '] => ' . _('Count'). ': '
+                        . print_r($hostIDCounts, 1)
+                    );
                 }
 
-                $mostFrequentHostID = $mostFrequentHostIDS[0];
+                $MACHost = $mostFrequentHostIDs;
             }
         }
-        self::$Host = new Host($mostFrequentHostID ?: @max($MACHost));
+        self::$Host = new Host(@max($MACHost));
     }
 }

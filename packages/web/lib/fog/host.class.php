@@ -1259,8 +1259,9 @@ class Host extends FOGController
         if ($host instanceof Host && $host->isValid()) {
             throw new Exception(
                 sprintf(
-                    "%s: %s",
+                    "%s: %s => %s",
                     _('MAC address is already in use by another host'),
+                    $mac,
                     $host->get('name')
                 )
             );
