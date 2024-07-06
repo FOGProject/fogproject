@@ -1114,8 +1114,6 @@ abstract class FOGController extends FOGBase
         }
 
         // Get the current items.
-        $loadMe = "load$plural";
-        $this->$loadMe();
         $items = $this->get($plural);
 
         // Fetch current associations from the database.
