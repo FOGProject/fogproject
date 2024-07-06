@@ -1086,11 +1086,11 @@ abstract class FOGController extends FOGBase
         return new $man;
     }
     /**
-     * Set's values for associative fields.
+     * Sets values for associative fields.
      *
      * @param string $assocItem    the assoc item to work from/with
      * @param string $alterItem    the alternate item to work with
-     * @param bool   $implicitCall call class implicitely instead of appending
+     * @param bool   $implicitCall call class implicitly instead of appending
      *                             with association
      *
      * @return object
@@ -1114,7 +1114,11 @@ abstract class FOGController extends FOGBase
         }
 
         // Get the current items.
+        $loadMe = "load$plural";
+        $this->$loadMe();
         $items = $this->get($plural);
+
+        // Fetch current associations from the database.
         Route::ids(
             $classCall,
             [$objstr => $this->get('id')],
@@ -1122,8 +1126,7 @@ abstract class FOGController extends FOGBase
         );
         $cur = json_decode(Route::getData(), true);
 
-        // Get the items differing between current and what we have associated.
-        // Remove the items if there's anything to remove.
+        // Determine items to remove (in $cur but not in $items).
         $rem = array_diff((array)$cur, (array)$items);
         if (count($rem ?: [])) {
             Route::deletemass(
@@ -1135,15 +1138,13 @@ abstract class FOGController extends FOGBase
             );
         }
 
-        // Check to ensure our items aren't already present.
-        //
-        // If nothing changes, simply return.
+        // Determine items to add (in $items but not in $cur).
         $diff = array_diff((array)$items, (array)$cur);
         if (!count($diff ?: [])) {
             return $this;
         }
 
-        // Setup our insert.
+        // Prepare for insertion.
         $insert_fields = [
             $objstr,
             $assocstr
@@ -1154,7 +1155,8 @@ abstract class FOGController extends FOGBase
         ) {
             $insert_fields[] = 'state';
         }
-        foreach ($diff as &$id) {
+
+        foreach ($diff as $id) {
             $insert_val = [
                 $this->get('id'),
                 $id
@@ -1165,8 +1167,9 @@ abstract class FOGController extends FOGBase
                 $insert_val[] = 1;
             }
             $insert_values[] = $insert_val;
-            unset($insert_val, $id);
         }
+
+        // Perform batch insertion if there are values to insert.
         if (count($insert_values ?: []) > 0) {
             self::getClass("{$classCall}manager")->insertBatch(
                 $insert_fields,

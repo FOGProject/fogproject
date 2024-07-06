@@ -2404,14 +2404,13 @@ abstract class FOGPage extends FOGBase
             );
             $globalInfo = self::getGlobalModuleStatus();
             $globalDisabled = [];
-            foreach ((array)$globalInfo as $key => &$en) {
+            foreach ((array)$globalInfo as $key => $en) {
                 if (in_array($key, $igMods)) {
                     continue;
                 }
                 if (!$en) {
                     $globalDisabled[] = $key;
                 }
-                unset($key, $en);
             }
             self::getHostItem(
                 true,
@@ -2435,25 +2434,25 @@ abstract class FOGPage extends FOGBase
                 (array)$hostEnabled
             );
             $array = [];
-            foreach ($globalModules as $index => &$key) {
+            foreach ($globalModules as $index => $key) {
                 switch ($key) {
-                case 'greenfog':
-                    $class='GF';
-                    continue 2;
-                case 'powermanagement':
-                    $class='PM';
-                    break;
-                case 'printermanager':
-                    $class='PrinterClient';
-                    break;
-                case 'taskreboot':
-                    $class='Jobs';
-                    break;
-                case 'usertracker':
-                    $class='UserTrack';
-                    break;
-                default:
-                    $class=$key;
+                    case 'greenfog':
+                        $class='GF';
+                        continue 2;
+                    case 'powermanagement':
+                        $class='PM';
+                        break;
+                    case 'printermanager':
+                        $class='PrinterClient';
+                        break;
+                    case 'taskreboot':
+                        $class='Jobs';
+                        break;
+                    case 'usertracker':
+                        $class='UserTrack';
+                        break;
+                    default:
+                        $class=$key;
                 }
                 $disabled = in_array(
                     $key,

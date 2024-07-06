@@ -1906,6 +1906,7 @@ abstract class FOGBase
             }
         } catch (Exception $e) {
             if (self::$json) {
+                //die($datatosend);
                 if ($e->getMessage() === '#!ihc') {
                     echo $e->getMessage();
                     exit;
