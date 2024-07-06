@@ -265,9 +265,9 @@ class HostManager extends FOGManagerController
     /**
      * Returns a single host object based on the passed MACs.
      *
-     * @param array $macs The MAC addresses to search for the host
+     * @param array $macs the macs to search for the host
      *
-     * @throws Exception If no unique host is found for any MAC address
+     * @throws Exception
      *
      * @return void
      */
@@ -284,52 +284,70 @@ class HostManager extends FOGManagerController
             'hostID'
         );
         $MACHost = array_unique(json_decode(Route::getData(), true));
-
-        if (count($MACHost ?? []) == 1) {
-            self::$Host = new Host(@max($MACHost));
+        if (count($MACHost) < 1) {
             return;
         }
-
-        // Track MAC addresses with multiple host associations
-        $multipleHosts = [];
-        foreach ($macs as $mac) {
+        if (count($MACHost) > 1) {
+            $find['primary'] = 1;
             Route::ids(
                 'macaddressassociation',
-                [
-                    'pending' => [0, ''],
-                    'mac' => [$mac]
-                ],
+                $find,
                 'hostID'
             );
-            $hostIDs = json_decode(Route::getData(), true);
-            if (count($hostIDs) > 1) {
-                $multipleHosts[$mac] = $hostIDs;
-            }
-        }
+            $MACHost = array_unique(json_decode(Route::getData(), true));
+            $macs = (array)$macs;
 
-        // Determine the most frequent hostID among all checks
-        $hostIDCounts = [];
-        foreach ($macs as $mac) {
-            if (isset($multipleHosts[$mac])) {
-                foreach ($multipleHosts[$mac] as $hostID) {
-                    if (!isset($hostIDCounts[$hostID])) {
-                        $hostIDCounts[$hostID] = 0;
+            if (count($MACHost ?? []) < 1) {
+                return;
+            }
+            if (count($MACHost ?? []) > 1 && count($macs ?? []) > 0) {
+                $hostIDCounts = [];
+                foreach ($macs as $mac) {
+                    Route::ids(
+                        'macaddressassociation',
+                        [
+                            'pending' => [0, ''],
+                            'mac' => [$mac]
+                        ],
+                        'hostID'
+                    );
+
+                    // So we can loop and print the individual host IDs
+                    // as they're associated to devices.
+                    $hostIDs = json_decode(Route::getData(), true);
+                    $err = sprintf(
+                        '%s, %s: %s, %s: %s',
+                        self::$foglang['ErrorMultipleHosts'],
+                        _('MAC'),
+                        $mac,
+                        _('Host IDs'),
+                        implode(', ', $hostIDs)
+                    );
+                    // Print it in the error log.
+                    error_log($err);
+                    // Loop through the hostIDs
+                    // and whichever host id occurs the most
+                    // can be suspected "true" host and we can
+                    // return that one.
+                    foreach ($hostIDs as $hostID) {
+                        if (!isset($hostIDCounts[$hostID])) {
+                            $hostIDCounts[$hostID] = 0;
+                        }
+                        $hostIDCounts[$hostID]++;
                     }
-                    $hostIDCounts[$hostID]++;
                 }
+                // Sort host ID by frequency (descending order) and get the most frequent one
+                arsort($hostIDCounts);
+                $mostFrequentHostIDs = array_keys($hostIDCounts, max($hostIDCounts));
+
+                // Check if there is a tie for the most frequent host ID
+                if (count($mostFrequentHostIDs) > 1) {
+                    throw new Exception(_('Unable to determine the suspected true host.'));
+                }
+
+                $mostFrequentHostID = $mostFrequentHostIDS[0];
             }
         }
-
-        // Sort hostIDs by frequency (descending order) and get the most frequent one
-        arsort($hostIDCounts);
-        $mostFrequentHostID = key($hostIDCounts);
-
-        // Handle error if no unique host is found
-        if (count($MACHost) < 1) {
-            throw new Exception(_('No unique MACs available for any device'));
-        }
-
-        // Set the host object with the most frequent hostID or maximum hostID found
         self::$Host = new Host($mostFrequentHostID ?: @max($MACHost));
     }
 }
