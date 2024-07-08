@@ -362,7 +362,7 @@ class HostManager extends FOGManagerController
                         self::getClass('Host', $mostFrequentHostIDs[0])->get('name'),
                         _('Assuming this is the intended host to resolve the MAC conflict'),
                         _('List of MACs'),
-                        print_r($macs, 1)
+                        implode(', ', $macs)
                     )
                 );
                 $MACHost = $mostFrequentHostIDs;
