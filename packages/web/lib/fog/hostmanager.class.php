@@ -302,6 +302,7 @@ class HostManager extends FOGManagerController
             }
             if (count($MACHost ?? []) > 1 && count($macs ?? []) > 0) {
                 $hostIDCounts = [];
+                error_log(self::$foglang['ErrorMultipleHosts'].'.')
                 foreach ($macs as $mac) {
                     Route::ids(
                         'macaddressassociation',
@@ -321,8 +322,7 @@ class HostManager extends FOGManagerController
                     // return that one.
                     foreach ($hostIDs as $hostID) {
                         $err = sprintf(
-                            '%s, %s: %s, %s: %s, %s: %s',
-                            self::$foglang['ErrorMultipleHosts'],
+                            '%s: %s, %s: %s, %s: %s',
                             _('MAC'),
                             $mac,
                             _('Host ID'),
