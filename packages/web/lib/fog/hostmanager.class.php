@@ -302,7 +302,7 @@ class HostManager extends FOGManagerController
             }
             if (count($MACHost ?? []) > 1 && count($macs ?? []) > 0) {
                 $hostIDCounts = [];
-                error_log(self::$foglang['ErrorMultipleHosts'].'.')
+                error_log(self::$foglang['ErrorMultipleHosts'].'.');
                 foreach ($macs as $mac) {
                     Route::ids(
                         'macaddressassociation',
@@ -355,12 +355,14 @@ class HostManager extends FOGManagerController
                 // Logging for notice somewhere
                 error_log(
                     sprintf(
-                        '%s: %s. %s: %s. %s.',
+                        '%s: %s. %s: %s. %s. %s: %s',
                         _('Found the most used ID'),
                         $mostFrequentHostIDs[0],
                         _('Hostname'),
                         self::getClass('Host', $mostFrequentHostIDs[0])->get('name'),
-                        _('Assuming this is the intended host to resolve the MAC conflict')
+                        _('Assuming this is the intended host to resolve the MAC conflict'),
+                        _('List of MACs'),
+                        print_r($macs, 1)
                     )
                 );
                 $MACHost = $mostFrequentHostIDs;
