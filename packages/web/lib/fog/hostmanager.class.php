@@ -315,21 +315,23 @@ class HostManager extends FOGManagerController
                     // So we can loop and print the individual host IDs
                     // as they're associated to devices.
                     $hostIDs = json_decode(Route::getData(), true);
-                    $err = sprintf(
-                        '%s, %s: %s, %s: %s',
-                        self::$foglang['ErrorMultipleHosts'],
-                        _('MAC'),
-                        $mac,
-                        _('Host IDs'),
-                        implode(', ', $hostIDs)
-                    );
-                    // Print it in the error log.
-                    error_log($err);
                     // Loop through the hostIDs
                     // and whichever host id occurs the most
                     // can be suspected "true" host and we can
                     // return that one.
                     foreach ($hostIDs as $hostID) {
+                        $err = sprintf(
+                            '%s, %s: %s, %s: %s, %s: %s',
+                            self::$foglang['ErrorMultipleHosts'],
+                            _('MAC'),
+                            $mac,
+                            _('Host ID'),
+                            $hostID,
+                            _('Hostname'),
+                            self::getClass('Host', $hostID)->get('name')
+                        );
+                        // Print it in the error log.
+                        error_log($err);
                         if (!isset($hostIDCounts[$hostID])) {
                             $hostIDCounts[$hostID] = 0;
                         }
@@ -350,6 +352,17 @@ class HostManager extends FOGManagerController
                     );
                 }
 
+                // Logging for notice somewhere
+                error_log(
+                    sprintf(
+                        '%s: %s. %s: %s. %s.',
+                        _('Found the most used ID'),
+                        $mostFrequentHostIDs[0],
+                        _('Hostname'),
+                        self::getClass('Host', $mostFrequentHostIDs[0])->get('name'),
+                        _('Assuming this is the intended host')
+                    )
+                );
                 $MACHost = $mostFrequentHostIDs;
             }
         }
