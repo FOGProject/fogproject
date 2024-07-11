@@ -127,7 +127,8 @@ class BootMenu extends FOGBase
         parent::__construct();
         $grubChain = 'chain -ar ${boot-url}/service/ipxe/grub.exe '
             . '--config-file="%s"';
-        $sanboot = 'sanboot --no-describe --drive 0x80';
+        //try first 3 disks, now works in both bios and uefi
+        $sanboot = 'sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82';
         $grub = [
             'basic' => sprintf(
                 $grubChain,
