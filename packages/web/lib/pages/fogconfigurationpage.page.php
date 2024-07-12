@@ -1219,6 +1219,17 @@ class FOGConfigurationPage extends FOGPage
                         $type,
                         $attr
                     ) = getimagesize($src);
+                    $validExtensions = [
+                        'jpg',
+                        'jpeg',
+                        'png',
+                    ];
+                    $extensionCheck = strtolower(pathinfo($src, PATHINFO_EXTENSION));
+                    if (!in_array($extensionCheck, $validExtension)) {
+                        throw new Exception(
+                            _('File extension must be, jpg, jpeg, or png')
+                        );
+                    }
                     if ($width != 650) {
                         throw new Exception(
                             _('Width must be 650 pixels.')
