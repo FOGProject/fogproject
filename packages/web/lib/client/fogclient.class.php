@@ -32,7 +32,7 @@ abstract class FOGClient extends FOGBase
      *
      * @var string
      */
-    protected $send;
+    protected $sendMe;
     /**
      * Initialize the client items
      *
@@ -108,6 +108,11 @@ abstract class FOGClient extends FOGBase
                     $method = 'json';
                 }
             }
+            if ($method != 'json') {
+                throw new Exception(
+                    _('Please update your FOG Client, this is old and insecure')
+                );
+            }
             $validClientBrowserFiles = array(
                 'jobs.php',
                 'servicemodule-active.php',
@@ -154,16 +159,16 @@ abstract class FOGClient extends FOGBase
             $lowclass = strtolower(
                 get_class($this)
             );
-            $this->send = trim($this->send);
+            $this->sendMe = trim($this->sendMe);
             if (in_array($lowclass, $nonJsonEncode)) {
-                throw new Exception($this->send);
+                throw new Exception($this->sendMe);
             }
-            $this->sendData($this->send);
+            $this->sendData($this->sendMe);
         } catch (Exception $e) {
             global $json;
             global $newService;
             if (!$json && $newService) {
-                echo $this->send;
+                echo $this->sendMe;
                 exit;
             }
             if (!self::$json) {
