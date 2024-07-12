@@ -127,8 +127,16 @@ class BootMenu extends FOGBase
         parent::__construct();
         $grubChain = 'chain -ar ${boot-url}/service/ipxe/grub.exe '
             . '--config-file="%s"';
-        //try first 3 disks, now works in both bios and uefi
-        $sanboot = 'sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82';
+
+        /** Booting to hard disk via sanboot
+         * reset console to detected display resolution first to avoid graphical anamolies 
+         * --drive 0 will boot the first drive found with an efi boot file at the default file path of \EFI\Boot\bootx64.efi (side note, removable install media is found before local disks)
+         * could add additional linux detections per distro like `sanboot --drive 0 --no-describe --extra \EFI\rocky` and EFI\centos and EFI\debian etc. but need an || entry for every distro.
+         * If the --drive 0 option fails to find a boot option it then just tries the first 3 found local drives sequentially, after that it will fail if it hasn't booted. 
+         * See also https://ipxe.org/cmd/console and https://ipxe.org/cmd/sanboot
+        */
+        
+        $sanboot = 'console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82';
         $grub = [
             'basic' => sprintf(
                 $grubChain,
