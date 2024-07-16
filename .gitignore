@@ -65,6 +65,8 @@ packages/web/service/ipxe/backup
 *.well-known
 packages/web/fog
 packages/web/.vscode
+.vscode/settings.json
+
 
 # Erroneous Packages #
 ######################
