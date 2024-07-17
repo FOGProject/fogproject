@@ -165,24 +165,24 @@ try {
             true
         )
     );
-    $pass = FOGCore::$Host->get('ADPass');
-    $passtest = FOGCore::aesdecrypt($pass);
-    if ($test_base64 = base64_decode($passtest)) {
-        if (mb_detect_encoding($test_base64, 'utf-8', true)) {
-            $pass = $test_base64;
-        }
-    } elseif (mb_detect_encoding($passtest, 'utf-8', true)) {
-        $pass = $passtest;
-    }
-    $productKey = FOGCore::$Host->get('productKey');
-    $productKeytest = FOGCore::aesdecrypt($productKey);
-    if ($test_base64 = base64_decode($productKeytest)) {
-        if (mb_detect_encoding($test_base64, 'utf-8', true)) {
-            $productKey = $test_base64;
-        }
-    } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
-        $productKey = $productKeytest;
-    }
+    #$pass = FOGCore::$Host->get('ADPass');
+    #$passtest = FOGCore::aesdecrypt($pass);
+    #if ($test_base64 = base64_decode($passtest)) {
+    #    if (mb_detect_encoding($test_base64, 'utf-8', true)) {
+    #        $pass = $test_base64;
+    #    }
+    #} elseif (mb_detect_encoding($passtest, 'utf-8', true)) {
+    #    $pass = $passtest;
+    #}
+    #$productKey = FOGCore::$Host->get('productKey');
+    #$productKeytest = FOGCore::aesdecrypt($productKey);
+    #if ($test_base64 = base64_decode($productKeytest)) {
+    #    if (mb_detect_encoding($test_base64, 'utf-8', true)) {
+    #        $productKey = $test_base64;
+    #    }
+    #} elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
+    #    $productKey = $productKeytest;
+    #}
     $repFields = [
         // Imaging items to set
         'mac' => $mac,
@@ -215,11 +215,11 @@ try {
         'hostimageid' => FOGCore::$Host->get('imageID'),
         'hostbuilding' => FOGCore::$Host->get('building'),
         'hostusead' => FOGCore::$Host->get('useAD'),
-        'hostaddomain' => FOGCore::$Host->get('ADDomain'),
-        'hostaduser' => FOGCore::$Host->get('ADUser'),
-        'hostadou' => str_replace(';', '', FOGCore::$Host->get('ADOU')),
-        'hostadpass' => trim($pass),
-        'hostproductkey' => trim($productKey),
+        #'hostaddomain' => FOGCore::$Host->get('ADDomain'),
+        #'hostaduser' => FOGCore::$Host->get('ADUser'),
+        #'hostadou' => str_replace(';', '', FOGCore::$Host->get('ADOU')),
+        #'hostadpass' => trim($pass),
+        #'hostproductkey' => trim($productKey),
         'imagename' => $Image->get('name'),
         'imagedesc' => $Image->get('description'),
         'imageosid' => $osid,
