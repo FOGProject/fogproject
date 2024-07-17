@@ -24,6 +24,14 @@ ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
 header('Connection: close');
+if (
+    !$currentUser->isValid() &&
+    (empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+    || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'XMLHttpRequest')
+) {
+    echo _('Unauthorized');
+    exit;
+}
 if (!(isset($_POST['ip'])
     && is_string($_POST['ip']))
 ) {
