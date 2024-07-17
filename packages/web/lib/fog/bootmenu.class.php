@@ -1483,7 +1483,13 @@ class BootMenu extends FOGBase
                 ],
                 [
                     'value' => "hostname=" . self::$Host->get('name'),
-                    'active' => count($clientMacs ?: []) > 0,
+                    'active' => (
+                        count($clientMacs ?: []) > 0
+                        || (
+                            self::$Host->isValid()
+                            && self::$Host->get('id') > 0
+                        )
+                    ),
                 ],
                 [
                     'value' => "clamav=" . (isset($clamav) ? $clamav : ''),
@@ -1525,7 +1531,11 @@ class BootMenu extends FOGBase
                     'value' => "adon=1 addomain=\"$addomain\" "
                     . "adou=\"$adou\" aduser=\"$aduser\" "
                     . "adpass=\"$adpass\"",
-                    'active' => self::$Host->get('useAD'),
+                    'active' => (
+                        self::$Host->get('useAD')
+                        && self::$Host->isValid()
+                        && self::$Host->get('id') > 0
+                    )
                 ],
                 [
                     'value' => "fdrive=$fdrive",
