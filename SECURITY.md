@@ -11,10 +11,10 @@ ensure responsibe handle of critical issues.
 Use this section to tell people about which versions of your project are 
 currently being supported with security updates.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.5.9   | :white_check_mark: |
-| <1.5.9  | :x:                |
+| Version  | Supported  |
+| -------- | ---------- |
+| 1.5.10   | yes        |
+| <1.5.10  | no         |
 
 ## Reporting a Vulnerability - Private Disclosure Process
 Security is of high importance and all security vulnerabilities or suspected 
@@ -24,22 +24,21 @@ Vulnerabilities will be investigated and patched on the next patch (or minor)
 release as soon as possible.
 
 If you know of a publicly disclosed security vulnerability for FOG Project, 
-please **IMMEDIATELY** contact noreply@fogproject.org to inform the FOG 
-Project Security Team.
+please open a **private security advisory** to inform the FOG Project Security
+Team: https://github.com/FOGProject/fogproject/security/advisories/new
  
 **IMPORTANT: Do not file public issues on GitHub for security 
 vulnerabilities**
 
-To report a vulnerability or a security-related issue, please email the 
-private address noreply@fogproject.org with the details of the vulnerability. 
-The email will be handled by the FOG Project Security Team. Emails will be 
-addressed within 3 business days, including a detailed plan to investigate 
-the issue and any potential workarounds to perform in the meantime. Do not 
-report non-security-impacting bugs through this channel. Use 
+The request will be handled by the FOG Project Security Team. Requests will be 
+addressed within 7 business days, including a detailed plan to investigate 
+the issue and any potential workarounds to perform in the meantime.
+
+Do not report non-security-impacting bugs through this channel. Use 
 [GitHub issues](https://github.com/FOGProject/fogproject/issues/new/choose) 
 instead.
 
-### Proposed Email Content
+### Proposed Content
 Provide a descriptive subject line and in the body of the email include the 
 following information:
 * Basic identity information, such as your name and your affiliation or 
@@ -71,7 +70,7 @@ its effects and criticality.
 2.  If the issue is not deemed to be a vulnerability, the Security Team 
 will follow up with a detailed reason for rejection.
 3.  The Security Team will initiate a conversation with the reporter 
-within 3 business days.
+within 7 business days.
 4.  If a vulnerability is acknowledged and the timeline for a fix is 
 determined, the Security Team will work on a plan to communicate with the 
 appropriate community, including identifying mitigating steps that 
@@ -138,7 +137,7 @@ and to whom. If you continue to leak information and break the policy
 outlined here, you will be permanently removed from the list.
  
 ### Requesting to Join
-Send new membership requests to noreply@fogproject.org.
+Send new membership requests to security@fogproject.org.
 In the body of your request please specify how you qualify for membership 
 and fulfill each criterion listed in the Membership Criteria section above.
 

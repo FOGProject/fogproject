@@ -1854,6 +1854,9 @@ writeUpdateFile() {
         echo "sendreports='$sendreports'" >> $fogprogramdir/.fogsettings
         echo "## End of FOG Settings" >> "$fogprogramdir/.fogsettings"
     fi
+    # Remove world-readable permissions
+    chmod 0600 "${fogprogramdir}/.fogsettings" >>$error_log 2>&1
+    chown "${username}" "${fogprogramdir}/.fogsettings" >>$error_log 2>&1
 }
 displayBanner() {
     echo
