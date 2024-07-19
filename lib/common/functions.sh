@@ -384,6 +384,129 @@ getAllNetworkInterfaces() {
     fi
     echo -n $interfaces
 }
+listPackages() {
+    if [[ $listPackages != 1 ]]; then
+        return
+    fi
+    . ../lib/common/config.sh
+    [[ -z $fogpriorconfig ]] && fogpriorconfig="$fogprogramdir/.fogsettings"
+    if [[ -f $fogpriorconfig ]]; then
+        . "$fogpriorconfig"
+        case $osid in
+            1)
+                osname="Redhat"
+                . ../lib/redhat/config.sh
+                ;;
+            2)
+                osname="Debian"
+                . ../lib/ubuntu/config.sh
+                ;;
+            3)
+                osname="Alpine"
+                . ../lib/alpine/config.sh
+                ;;
+        esac
+    else
+        case $linuxReleaseName_lower in
+            *fedora*|*red*hat*|*centos*|*mageia*|*alma*|*rocky*)
+                osid=1
+                osname="Redhat"
+                . ../lib/redhat/config.sh
+                ;;
+            *ubuntu*|*bian*|*mint*)
+                osid=2
+                osname="Debian"
+                . ../lib/ubuntu/config.sh
+                ;;
+            *alpine*)
+                osid=3
+                osname="Alpine"
+                . ../lib/alpine/config.sh
+                ;;
+            *)
+                echo "Could not define OS"
+                exit 1
+                ;;
+        esac
+    fi
+    if [[ $ignorehtmldoc -eq 1 ]]; then
+        [[ -z $newpackagelist ]] && newpackagelist=""
+        for z in $packages; do
+            [[ -$z != htmldoc ]] && newpackagelist="$newpackagelist $z"
+        done
+        packages=$(echo $newpackagelist)
+    fi
+    if [[ $bldhcp == 0 ]]; then
+        [[ -z $newpackagelist ]] && newpackagelist=""
+        for z in $packages; do
+            [[ -$z != $dhcpname ]] && newpackagelist="$newpackagelist $z"
+        done
+        packages=$(echo $newpackagelist)
+    fi
+    case $installtype in
+        [Ss])
+            packages=$(echo $packages | sed -e 's/[-a-zA-Z]*dhcp[-a-zA-Z]*//g')
+            ;;
+    esac
+    packages="$packages jq unzip attr ${webserver}"
+    case $osid in
+        1)
+            packages="$packages php-bcmath bc"
+            if [[ $installlang -eq 1 ]]; then
+                packages="$packages php-intl"
+                for i in fr de eu es pt zh en; do
+                    packages="$packages glibc-langpack-${i}"
+                done
+            fi
+            packages="${packages// mod_fastcgi/}"
+            packages="${packages// mod_evasive/}"
+            packages="${packages// php-mcrypt/}"
+            case $linuxReleaseName_lower in
+                *fedora*)
+                    packages="$packages php-json"
+                    packages="${packages// mysql / mariadb }"
+                    packages="${packages// mysql-server / mariadb-server }"
+                    packages="${packages// dhcp / dhcp-server }"
+            esac
+            ;;
+        2)
+            if [[ $webserver == "apache2" ]]; then
+                packages="${packages// libapache2-mod-fastcgi/}"
+                packages="${packages// libapache2-mod-evasive/}"
+            fi
+            packages="${packages// xinetd/}"
+            packages="${packages// php-gettext/}"
+            packages="${packages// php-php-gettext/}"
+            if [[ $installlang -eq 1 ]]; then
+                packages="$packages php-intl"
+                if [[ $installlang -eq 1 ]]; then
+                    for i in fr de eu es pt zh-hans en; do
+                        packages="$packages language-pack-${i}"
+                    done
+                fi
+            fi
+            case $linuxReleaseName_lower in
+                *ubuntu*|*mint*)
+                    if [[ $OSVersion -gt 17 ]]; then
+                        packages="${packages// libcurl3 / libcurl4}"
+                    fi
+                    if [[ $OSVersion -gt 22 ]]; then
+                        packages="${packages// libcurl4 / libcurl4t64}"
+                    fi
+            esac
+            ;;
+        *bian*)
+            if [[ $OSVersion -ge 10 ]]; then
+                packages="${packages// libcurl3 / libcurl4}"
+                packages="${packages// mysql-client / mariadb-client}"
+                packages="${packages// mysql-server / mariadb-server}"
+            fi
+            ;;
+    esac
+    packages=$(echo ${packages[@]} | tr ' ' '\n' | sort -u | tr '\n' ' ')
+    echo $packages;
+    exit 0;
+}
 checkInternetConnection() {
     dots "Testing internet connection"
     DEBIAN_FRONTEND=noninteractive $packageinstaller curl >>$error_log 2>&1
@@ -742,6 +865,9 @@ installPackages() {
                     fi
                     if [[ $OSVersion -gt 17 ]]; then
                         packages="${packages// libcurl3 / libcurl4 }">>$error_log 2>&1
+                    fi
+                    if [[ $OSVersion -gt 22 ]]; then
+                        packages="${packages// libcurl4 / libcurl4t64 }">>$error_log 2>&1
                     fi
                     if [[ $linuxReleaseName_lower == +(*ubuntu*) && $OSVersion -ge 18 ]]; then
                         # Fix missing universe section for Ubuntu 18.04 LIVE

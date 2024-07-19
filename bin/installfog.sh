@@ -78,11 +78,12 @@ usage() {
     echo -e "\t-T    --no-tftpbuild\t\tDo not rebuild the tftpd config file"
     echo -e "\t-F    --no-vhost\t\tDo not overwrite vhost file"
     echo -e "\t-A    --arm-support\t\tInstall kernel and initrd for ARM platforms"
+    echo -e "\t-l    --list-packages\t\tList of the basic packages FOG needs for install or is currently installed for FOG"
     exit 0
 }
 
-shortopts="h?odEUHSCKYyXxTPFAf:c:W:D:B:s:e:b:N:"
-longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,arm-support"
+shortopts="h?odEUHSCKYyXxTPFAf:c:W:D:B:s:e:b:N:l"
+longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,arm-support,list-packages"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -228,6 +229,10 @@ while :; do
             sarmsupport=1
             shift
             ;;
+        -l | --list-packages)
+            listPackages=1
+            shift
+            ;;
         --)
             shift
             break
@@ -248,6 +253,7 @@ elif [[ -f /etc/debian_version ]]; then
 fi
 
 linuxReleaseName_lower=$(echo "$linuxReleaseName" | tr [:upper:] [:lower:])
+listPackages
 
 echo "Installing LSB_Release as needed"
 dots "Attempting to get release information"
@@ -392,6 +398,7 @@ echo " * Interface: $interface"
 echo " * Server IP Address: $ipaddress"
 echo " * Server Subnet Mask: $submask"
 echo " * Hostname: $hostname"
+echo
 case $installtype in
     N)
         echo " * Installation Type: Normal Server"
