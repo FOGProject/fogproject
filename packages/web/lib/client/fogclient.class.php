@@ -108,7 +108,7 @@ abstract class FOGClient extends FOGBase
                     $method = 'json';
                 }
             }
-            if ($method != 'json') {
+            if (!in_array($this->shortName,['snapin','snapinclient']) && $method != 'json') {
                 throw new Exception(
                     _('Please update your FOG Client, this is old and insecure')
                 );
