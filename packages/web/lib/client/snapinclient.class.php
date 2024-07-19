@@ -91,6 +91,10 @@ class SnapinClient extends FOGClient
             if (!$exitcode) {
                 $exitcode = filter_input(INPUT_GET, 'exitcode');
             }
+            $exitdesc = filter_input(INPUT_POST, 'exitdesc');
+            if (!$exitdesc) {
+                $exitdesc = filter_input(INPUT_GET, 'exitdesc');
+            }
             if (!is_numeric($exitcode)) {
                 $find = [
                     'stateID' => self::fastmerge(
@@ -287,10 +291,18 @@ class SnapinClient extends FOGClient
                 )
             );
         }
+        $exitcode = filter_input(INPUT_POST, 'exitcode');
+        if (!$exitcode) {
+            $exitcode = filter_input(INPUT_GET, 'exitcode');
+        }
+        $exitdesc = filter_input(INPUT_POST, 'exitdesc');
+        if (!$exitdesc) {
+            $exitdesc = filter_input(INPUT_GET, 'exitdesc');
+        }
         $SnapinTask
             ->set('stateID', self::getCompleteState())
-            ->set('return', $_REQUEST['exitcode'])
-            ->set('details', $_REQUEST['exitdesc'])
+            ->set('return', $exitcode)
+            ->set('details', $exitdesc)
             ->set('complete', $date)
             ->save();
         self::$EventManager->notify(
