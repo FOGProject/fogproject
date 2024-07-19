@@ -259,9 +259,15 @@ class SubnetGroupManagement extends FOGPage
         $subnets = trim(
             filter_input(INPUT_POST, 'subnets')
         );
-        $subnetsMatch = "/^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))"
-            . "(( )*,( )*([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))+)"
-            . "*$/";
+
+        $subnetsMatch = '/\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
+            . "(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\/(?:3[0-2]|[12]?"
+            . "[0-9]))\b/';
+        preg_match_all(
+            $subnetsMatch,
+            $subnets,
+            $subnetsFound
+        );
 
         $serverFault = false;
         try {
@@ -284,15 +290,14 @@ class SubnetGroupManagement extends FOGPage
                     _('A subnet group is already using this group.')
                 );
             }
-            if (!preg_match($subnetsMatch, $subnets)) {
+            if (!count($subnetsFound[0] ?: []) > 0) {
                 throw new Exception(
                     _('Please enter a valid CIDR subnet.')
                     . ' '
                     . _('Can be a comma seperated list.')
                 );
             }
-            $subnets = preg_replace('/\s+/', '', $subnets);
-            $subnets = str_replace(',', ', ', $subnets);
+            $subnets = implode(', ', $subnetsFound[0]);
             $SubnetGroup = self::getClass('SubnetGroup')
                 ->set('name', $subnetgroup)
                 ->set('description', $description)
