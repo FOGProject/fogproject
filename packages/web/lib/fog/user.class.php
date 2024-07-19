@@ -446,6 +446,9 @@ class User extends FOGController
         }
         if (!$ali) {
             $timeout = $ist * 60 * 60;
+            if (!isset($lastactivity)) {
+                $lastactivity = 0;
+            }
             if (isset($_SESSION['lastactivity'])) {
                 $lastactivity = time() - $_SESSION['lastactivity'];
             }

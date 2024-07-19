@@ -981,6 +981,7 @@ class LDAPManagement extends FOGPage
             filter_input(INPUT_POST, 'bindPwd') ?:
             $this->obj->get('bindPwd')
         );
+        $template = filter_input(INPUT_POST, 'template');
         $searchScopes = [
             _('Base Only'),
             _('Subtree Only'),
