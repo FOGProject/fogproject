@@ -526,11 +526,13 @@ class Route extends FOGBase
                         'sec_tok',
                         'sec_time',
                         'pub_key',
+                        'ADUser',
                         'ADPass',
                         'ADPassLegacy',
                         'ADOU',
                         'ADDomain',
-                        'useAD'
+                        'useAD',
+                        'token'
                     ],
                     $tmpcolumns
                 );

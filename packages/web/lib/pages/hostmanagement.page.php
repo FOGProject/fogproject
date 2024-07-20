@@ -46,6 +46,26 @@ class HostManagement extends FOGPage
             $this->exitNorm = filter_input(INPUT_POST, 'bootTypeExit');
             $this->exitEfi = filter_input(INPUT_POST, 'efiBootTypeExit');
         } else {
+            // If the host doesn't have a token
+            // or the tasking has completed and the token
+            // was already checked out but not used and cleared
+            // clear it.
+            if (
+                !$this->obj->get('token')
+                || (
+                    $this->obj->get('tokenlock')
+                    && !$this->obj->get('task')->isValid()
+                )
+            ) {
+                self::getClass('HostManager')->update(
+                    ['id' => $this->obj->get('id')],
+                    '',
+                    [
+                        'token' => self::createSecToken(),
+                        'tokenlock' => false
+                    ]
+                );
+            }
             $this->exitNorm = (
                 filter_input(INPUT_POST, 'bootTypeExit') ?:
                 ($this->obj->get('biosexit') ?: '')

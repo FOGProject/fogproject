@@ -4171,3 +4171,8 @@ $this->schema[] = [
     "ALTER TABLE `fileDeleteQueue` ADD `fdqPathType` "
     . "VARCHAR(255) NOT NULL"
 ];
+// 291
+$this->schema[] = [
+    "ALTER TABLE `hosts` ADD COLUMN `hostInfoKey` VARCHAR(255)",
+    "ALTER TABLE `hosts` ADD COLUMN `hostInfoLock` BOOLEAN DEFAULT 0"
+];

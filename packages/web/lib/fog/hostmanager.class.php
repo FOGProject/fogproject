@@ -67,7 +67,9 @@ class HostManager extends FOGManagerController
                 'hostPingCode',
                 'hostExitBios',
                 'hostExitEfi',
-                'hostEnforce'
+                'hostEnforce',
+                'hostInfoKey',
+                'hostInfoLock'
             ],
             [
                 'INTEGER',
@@ -98,9 +100,13 @@ class HostManager extends FOGManagerController
                 'VARCHAR(20)',
                 'LONGTEXT',
                 'LONGTEXT',
-                "ENUM('0', '1')"
+                "ENUM('0', '1')",
+                'VARCHAR(255)',
+                "BOOLEAN"
             ],
             [
+                false,
+                false,
                 false,
                 false,
                 false,
@@ -160,7 +166,9 @@ class HostManager extends FOGManagerController
                 false,
                 false,
                 false,
-                '1'
+                '1',
+                false,
+                '0'
             ],
             [
                 'hostID',

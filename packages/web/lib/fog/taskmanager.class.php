@@ -45,6 +45,19 @@ class TaskManager extends FOGManagerController
             'hostID'
         );
         $hostIDs = json_decode(Route::getData(), true);
+        $updateFields = [];
+        foreach ($hostIDs as $hostID) {
+            $updateFields[] = [
+                'token' => self::createSecToken(),
+                'tokenlock' => false
+            ];
+        }
+        // Reset token and lock on hosts from task cancel
+        self::getClass('HostManager')->update(
+            ['id' => $hostIDs],
+            '',
+            $updateFields
+        );
         $this->update(
             $findWhere,
             '',

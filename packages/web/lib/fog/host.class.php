@@ -61,7 +61,9 @@ class Host extends FOGController
         'pingstatus' => 'hostPingCode',
         'biosexit' => 'hostExitBios',
         'efiexit' => 'hostExitEfi',
-        'enforce' => 'hostEnforce'
+        'enforce' => 'hostEnforce',
+        'token' => 'hostInfoKey',
+        'tokenlock' => 'hostInfoLock'
     ];
     /**
      * The required fields
