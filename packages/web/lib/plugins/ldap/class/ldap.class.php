@@ -129,6 +129,24 @@ class LDAP extends FOGController
         return $function(...$args);
     }
     /**
+     * Perform unbind and return boolean
+     *
+     * Assuming true in all error cases.
+     */
+    public function unbind()
+    {
+        if (self::$_ldapconn) {
+            try {
+                return @ldap_unbind(self::$_ldapconn);
+            } catch (TypeError $e) {
+                error_log(print_r($e, 1));
+            } catch (Throwable $e) {
+                error_log(print_r($e, 1));
+            }
+        }
+        return true;
+    }
+    /**
      * Tests if the server is up and available
      *
      * @param int $timeout how long before timeout
@@ -230,9 +248,7 @@ class LDAP extends FOGController
         /**
          * Ensure any trailing bindings are removed
          */
-        if (self::$_ldapconn) {
-            @$this->unbind();
-        }
+        @$this->unbind();
 
         /**
          * Trim the values just in case somebody is trying
@@ -543,9 +559,7 @@ class LDAP extends FOGController
         /**
          * Ensure any trailing bindings are removed
          */
-        if (self::$_ldapconn) {
-            @$this->unbind();
-        }
+        @$this->unbind();
         /**
          * Trim the values just incase somebody is trying
          * to break in by using spaces -- prevent dos attack I imagine.
