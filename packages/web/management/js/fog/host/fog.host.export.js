@@ -33,7 +33,9 @@
             {data: 'pingstatus'}, // 25
             {data: 'biosexit'}, // 26
             {data: 'efiexit'}, // 27
-            {data: 'enforce'} // 28
+            {data: 'enforce'}, // 28
+            {data: 'token'}, // 29
+            {data: 'tokenlock'} // 30
         ],
         columnDefs: [
             {
@@ -142,6 +144,14 @@
             },
             {
                 targets: 28,
+                visible: false
+            },
+            {
+                targets: 29,
+                visible: false
+            },
+            {
+                targets: 30,
                 visible: false
             }
         ],
