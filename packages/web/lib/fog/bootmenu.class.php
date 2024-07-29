@@ -203,15 +203,17 @@ class BootMenu extends FOGBase
             'set setmacto ${net0/mac}',
         ];
         $sysuuid = isset($_REQUEST['sysuuid']) ? $_REQUEST['sysuuid'] : '';
-        if (self::$Host->isValid()
-            && $sysuuid
-            && self::$Host->get('inventory')->get('sysuuid') != $sysuuid
-        ) {
-            if (!self::$Host->get('inventory')->get('sysuuid')) {
-                self::$Host
-                    ->get('inventory')
-                    ->set('sysuuid', $sysuuid)
-                    ->save();
+        if (self::$Host->isValid()) {
+            $Send['hostinfo'][] = 'set hostname ' . self::$Host->get('name');
+            if ($sysuuid) {
+                $Send['hostinfo'][] = 'set sysuuid ' . $sysuuid;
+            }
+            if (self::$Host->get('inventory')->get('sysuuid') != $sysuuid ) {
+                self::$Host->get('inventory')->getManager()->update(
+                    ['hostID' => self::$Host->get('id')],
+                    '',
+                    ['sysuuid' => $sysuuid]
+                );
             }
         }
         $host_field_test = 'biosexit';
@@ -1026,8 +1028,12 @@ class BootMenu extends FOGBase
     public function keyset()
     {
         if (!self::$Host->isValid()) return;
-        self::$Host->set('productKey', $_REQUEST['key']);
-        if (!self::$Host->save()) {
+        $update = self::$Host->getManager()->update(
+            ['id' => self::$Host->get('id')],
+            '',
+            ['productKey' => $_REQUEST['key']]
+        );
+        if (!$update) {
             $Send['keychangefail'] = [
                 'echo Failed to change key',
                 'sleep 3'
