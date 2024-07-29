@@ -278,7 +278,7 @@ class BootMenu extends FOGBase
             $keySequence :
             ''
         );
-        if ($_REQUEST['arch'] ?? '' != 'x86_64') {
+        if (isset($_REQUEST['arch']) && $_REQUEST['arch'] != 'x86_64') {
             $bzImage = $bzImage32;
             $imagefile = $init_32;
         }
