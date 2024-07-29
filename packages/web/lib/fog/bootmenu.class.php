@@ -1144,7 +1144,8 @@ class BootMenu extends FOGBase
             } elseif (isset($_REQUEST['sessionJoin']) && $_REQUEST['sessionJoin']) {
                 $this->sessjoin();
             } elseif (isset($_REQUEST['menuaccess']) && $_REQUEST['menuaccess']) {
-                unset($this->_hiddenmenu);
+                //unset($this->_hiddenmenu);
+                $this->_hiddenmenu = false;
                 $this->_chainBoot(true);
             } elseif (isset($_REQUEST['debugAccess']) && $_REQUEST['debugAccess']) {
                 $this->_debugAccess();

@@ -810,6 +810,7 @@ installPackages() {
             packages="${packages// mod_fastcgi/}"
             packages="${packages// mod_evasive/}"
             packages="${packages// php-mcrypt/}"
+            packages="${packages// php-pecl-ssh2/}"
             case $linuxReleaseName_lower in
                 *fedora*)
                     packages="$packages php-json"
@@ -853,6 +854,7 @@ installPackages() {
             packages="${packages// php-gettext/}"
             packages="${packages// php-php-gettext/}"
             packages="${packages} php-bcmath bc"
+            packages="${packages// php-ssh2/}"
             if [[ $installlang -eq 1 ]]; then
                 packages="$packages php-intl"
             fi
@@ -899,6 +901,7 @@ installPackages() {
             esac
             ;;
         3)
+            packages="${packages// php-ssh2/}"
             sed -i '/\/v3\.15\/community$/s/^#[[:space:]]*//' /etc/apk/repositories
             ;;
     esac
