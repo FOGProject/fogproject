@@ -4145,8 +4145,8 @@ $this->schema[] = [
     'ALTER TABLE `fileDeleteQueue` CHANGE COLUMN `fqdCreateDate` `fdqCreateDate` DATETIME',
     'ALTER TABLE `fileDeleteQueue` CHANGE COLUMN `fqdCompletedDate` `fdqCompletedDate` DATETIME',
     'ALTER TABLE `fileDeleteQueue` CHANGE COLUMN `fqdCreateBy` `fdqCreateBy` VARCHAR(40)',
-    "ALTER TABLE `fileDeleteQueue` ALTER COLUMN `fdqCompletedDate` SET DEFAULT '0000-00-00 00:00:00'",
-    "ALTER TABLE `fileDeleteQueue` ALTER COLUMN `fdqCreateDate` SET DEFAULT CURRENT_TIMESTAMP",
+    "ALTER TABLE `fileDeleteQueue` MODIFY COLUMN `fdqCompletedDate` DATETIME DEFAULT '0000-00-00 00:00:00'",
+    "ALTER TABLE `fileDeleteQueue` MODIFY COLUMN `fdqCreateDate` DATETIME DEFAULT CURRENT_TIMESTAMP",
 ];
 // 289
 $this->schema[] = [
