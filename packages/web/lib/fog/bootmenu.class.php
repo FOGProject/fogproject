@@ -161,12 +161,12 @@ class BootMenu extends FOGBase
             "\n",
             $refindfile
         );
-        if (false !== stripos($_REQUEST['arch'], 'arm')) {
+        if (false !== stripos($_REQUEST['arch'] ?? '', 'arm')) {
             $grubChain = 'chain -ar ${boot-url}/service/ipxe/grub_aa64.exe '
                 . '--configfile="%s"';
             $refind = 'chain -ar ${boot-url}/service/ipxe/refind_aa64.efi';
         }
-        if (false !== stripos($_REQUEST['arch'], 'i386')) {
+        if (false !== stripos($_REQUEST['arch'] ?? '', 'i386')) {
             // use i386 boot loaders instead.
             if ('refind_x64.efi' === $refindfile) {
                 $refindfile = 'refind_ia32.efi';
@@ -278,7 +278,7 @@ class BootMenu extends FOGBase
             $keySequence :
             ''
         );
-        if ($_REQUEST['arch'] != 'x86_64') {
+        if ($_REQUEST['arch'] ?? '' != 'x86_64') {
             $bzImage = $bzImage32;
             $imagefile = $init_32;
         }
@@ -1138,9 +1138,7 @@ class BootMenu extends FOGBase
             if (isset($_REQUEST['keyreg']) && $_REQUEST['keyreg']) {
                 $this->keyreg();
             } elseif (isset($_REQUEST['qihost']) && $_REQUEST['qihost']) {
-                if (isset($_REQUEST['imageID'])) {
-                    $this->setTasking($_REQUEST['imageID']);
-                }
+                $this->setTasking($_REQUEST['imageID'] ?? '');
             } elseif (isset($_REQUEST['sessionJoin']) && $_REQUEST['sessionJoin']) {
                 $this->sessjoin();
             } elseif (isset($_REQUEST['menuaccess']) && $_REQUEST['menuaccess']) {
