@@ -118,6 +118,52 @@ class BootMenu extends FOGBase
      */
     private static $_exitTypes = [];
     /**
+     * Builds the std class property and value items as appropriate
+     *
+     * @param object $object
+     * @return array
+     */
+    public static function generateIpxeItems($object)
+    {
+        $ignore_keys = [
+            'id',
+            'hostID',
+            'DT_RowId',
+            'createdTime',
+            'deleteDate',
+            'sec_time',
+            'deployed',
+            'hostLink',
+            'token',
+            'tokenlock',
+            'ADUser',
+            'ADPass',
+            'ADOU',
+            'ADDomain',
+            'createdBy',
+        ];
+        $output = [];
+        foreach ($object as $property => $value) {
+            if (in_array($property, $ignore_keys) or is_object($value) or !$value) {
+                continue;
+            }
+            if (is_array($value)) {
+                $count = 0;
+                foreach ($value as $item) {
+                    $output[] = "set {$property}{$count} {$item}";
+                    $count++;
+                }
+            } else {
+                if ($property == 'name') {
+                    $property = 'host' . $property;
+                }
+                $output[] = "set {$property} {$value}";
+            }
+        }
+
+        return $output;
+    }
+    /**
      * Initializes the boot menu class
      *
      * @return void
@@ -204,16 +250,29 @@ class BootMenu extends FOGBase
         ];
         $sysuuid = isset($_REQUEST['sysuuid']) ? $_REQUEST['sysuuid'] : '';
         if (self::$Host->isValid()) {
-            $Send['hostinfo'][] = 'set hostname ' . self::$Host->get('name');
             if ($sysuuid) {
-                $Send['hostinfo'][] = 'set sysuuid ' . $sysuuid;
+                if (self::$Host->get('inventory')->get('sysuuid') != $sysuuid ) {
+                    self::$Host->get('inventory')->getManager()->update(
+                        ['hostID' => self::$Host->get('id')],
+                        '',
+                        ['sysuuid' => $sysuuid]
+                    );
+                    
+                }
             }
-            if (self::$Host->get('inventory')->get('sysuuid') != $sysuuid ) {
-                self::$Host->get('inventory')->getManager()->update(
-                    ['hostID' => self::$Host->get('id')],
-                    '',
-                    ['sysuuid' => $sysuuid]
-                );
+            Route::indiv('host', self::$Host->get('id'));
+            $host = json_decode(Route::getData());
+            $host_items = self::generateIpxeItems($host);
+            foreach ($host_items as $item) {
+                $Send['hostinfo'][] = $item;
+            }
+            Route::listem('inventory', ['hostID' => self::$Host->get('id')]);
+            $inventory = json_decode(Route::getData());
+            if ($inventory) {
+                $inventory_items = self::generateIpxeItems($inventory->data[0]);
+                foreach ($inventory_items as $item) {
+                    $Send['inventoryinfo'][] = $item;
+                }
             }
         }
         $host_field_test = 'biosexit';
@@ -1812,7 +1871,7 @@ class BootMenu extends FOGBase
             $reg_string = (
                 self::$Host->get('pending') ?
                 'pending approval!' :
-                'registered as ' . self::$Host->get('name') . '!'
+                'registered as ${hostname}!'
             );
         }
         $Send['menustart'] = self::fastmerge(
