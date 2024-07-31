@@ -1,0 +1,18 @@
+on:
+  schedule:
+  - cron: "0 10 8-14 * tue"
+jobs:
+  release-stable:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge staging
+        run: |
+          git merge dev-branch
+          git push
+      - name: Release tag
+        run: | 
+          # get version from file
+          # create release with version as tag
+          # auto generate release notes
+          # send notices/announcements
+ 
