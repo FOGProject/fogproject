@@ -271,7 +271,7 @@ class StorageNode extends FOGController
             '%s://%s/fog/status/getfiles.php?path=%s',
             self::$httpproto,
             $this->get('ip'),
-            $items[$item]
+            rtrim($items[$item], DS)
         );
         $response = self::$FOGURLRequests->process($url);
         return preg_grep(
