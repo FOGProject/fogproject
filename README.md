@@ -9,9 +9,9 @@
 FOG uses a versioning schema that follows the general principles of semantic versioning with some adjustments to fit the development lifecycle.
 
 * The default branch of `stable` will always have the latest patch release, for most users this is where you want to install from.
-* The master branch has the baseline of the latest Minor release. You should not typically install from here as it won't include security patches released since the baseline was set.
-* Dev-branch is where the latest patch release changes are staged and tested. You can install from dev-branch to help test bug-fixes, security-fixes, and minor feature enhancements on a more frequent cadence.
-* Working-* and feature-named branches are where work on the next Major or Minor release take place. They can be used to install and test the current beta version or specific working features.
+* The `master` branch has the baseline of the latest Minor release. You should not typically install from here as it won't include security patches released since the baseline was set.
+* `dev-branch` is where the latest patch release changes are staged and tested. You can install from dev-branch to help test bug-fixes, security-fixes, and minor feature enhancements on a more frequent cadence.
+* `working-*` and `feature-named` branches are where work on the next Major or Minor release take place. They can be used to install and test the current beta version or specific working features.
 
 This gives us a Production, Staging, and Dev branches to follow standard devops practices.
 
