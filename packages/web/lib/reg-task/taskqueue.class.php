@@ -445,10 +445,20 @@ class TaskQueue extends TaskingElement
             }
             self::$Host
                 ->set('pub_key', '')
-                ->set('sec_tok', '');
+                ->set('sec_tok', '')
+                // On completion reset token and lock
+                ->set('token', self::createSecToken())
+                ->set('tokenlock', false);
+            $updateFields = [
+                'pub_key' => self::$Host->get('pub_key'),
+                'sec_tok' => self::$Host->get('sec_tok'),
+                'token' => self::$Host->get('token'),
+                'tokenlock' => self::$Host->get('tokenlock')
+            ];
             if ($this->Task->isDeploy()) {
                 self::$Host
                     ->set('deployed', self::niceDate()->format('Y-m-d H:i:s'));
+                $updateFields['deployed'] = self::$Host->get('deployed');
                 $this->_email();
             } elseif ($this->Task->isCapture()) {
                 $this->_moveUpload();
@@ -457,7 +467,12 @@ class TaskQueue extends TaskingElement
                 ->set('pct', 100)
                 ->set('percent', 100)
                 ->set('stateID', self::getCompleteState());
-            if (!self::$Host->save()) {
+            $updatedHost = self::getClass('HostManager')->update(
+                ['id' => self::$Host->get('id')],
+                '',
+                $updateFields
+            );
+            if (!$updatedHost) {
                 throw new Exception(_('Failed to update Host'));
             }
             if (!$this->Task->save()) {

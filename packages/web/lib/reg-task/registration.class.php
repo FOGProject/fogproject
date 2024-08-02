@@ -142,6 +142,7 @@ class Registration extends FOGBase
             self::stripAndDecode($_REQUEST);
             $productKey = isset($_REQUEST['productKey']) ? $_REQUEST['productKey'] : '';
             $username = isset($_REQUEST['username']) ? $_REQUEST['username'] : '';
+            $password = isset($_REQUEST['password']) ? $_REQUEST['password'] : '';
             $host = isset($_REQUEST['host']) ? $_REQUEST['host'] : '';
             $host = (
                 self::getClass('Host')->isHostnameSafe($host) ?
@@ -257,9 +258,21 @@ class Registration extends FOGBase
                         _('Done, without imaging!')
                     );
                 }
+                if (!self::getClass('User')->passwordValidate($username, $password)) {
+                    throw new Exception(
+                        _('Done, without imaging! Invalid Login!')
+                    );
+                }
+                if (!self::$Host->get('token')) {
+                    self::$Host->getManager()->update(
+                        ['id' => self::$Host->get('id')],
+                        '',
+                        ['token' => self::createSecToken()]
+                    );
+                }
                 if (!self::$Host->getImageMemberFromHostID()) {
                     throw new Exception(
-                        _('Done, No image assigned!')
+                        _('Done, without imaging! No image assigned!')
                     );
                 }
                 $task = self::$Host->createImagePackage(

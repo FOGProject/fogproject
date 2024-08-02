@@ -3758,3 +3758,8 @@ $this->schema[] = array(
     . "`settingDesc`='Compression Format Setting (Default to Partclone Zstd)', `settingValue`=5 "
     . "WHERE `settingKey`='FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT' AND `settingValue`=0"
 );
+// 271
+$this->schema[] = array(
+    "ALTER TABLE `hosts` ADD COLUMN `hostInfoKey` VARCHAR(255)",
+    "ALTER TABLE `hosts` ADD COLUMN `hostInfoLock` BOOLEAN DEFAULT 0"
+);
