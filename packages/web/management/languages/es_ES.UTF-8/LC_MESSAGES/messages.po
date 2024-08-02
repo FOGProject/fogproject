@@ -2052,15 +2052,6 @@ msgstr "No se dispone de hash"
 msgid "No nodes available"
 msgstr "No se dispone de hash"
 
-msgid "You are currently running PHP Version"
-msgstr ""
-
-msgid "FOG Needs at least"
-msgstr ""
-
-msgid "and below"
-msgstr ""
-
 msgid "Icon File not found"
 msgstr "Icono de archivo no encontrado"
 
@@ -2124,6 +2115,15 @@ msgstr "el usuario ha iniciado sesión con éxito en"
 
 msgid "user failed to login"
 msgstr "el usuario no pudo iniciar sesión"
+
+msgid "You are currently running PHP Version"
+msgstr ""
+
+msgid "FOG Needs at least"
+msgstr ""
+
+msgid "and below"
+msgstr ""
 
 msgid "Open VNC Connection To"
 msgstr ""
@@ -6580,49 +6580,6 @@ msgstr "Actualizar impresora"
 msgid "OU Update Fail"
 msgstr "actualización Valoración falló"
 
-msgid "Created by FOG Reg on"
-msgstr ""
-
-#, fuzzy
-msgid "This machine already registered as "
-msgstr "Impresora ya existe"
-
-msgid "Unsafe hostname entered, please try again: "
-msgstr ""
-
-msgid "Hostname already used, please try again"
-msgstr ""
-
-#, fuzzy
-msgid "Failed to create Host!"
-msgstr "No se pudo crear la tarea"
-
-msgid "Done, without imaging!"
-msgstr ""
-
-#, fuzzy
-msgid "Done, without imaging: Invalid Login."
-msgstr "La imagen no está habilitada"
-
-#, fuzzy
-msgid "Done, without imaging! No image assigned."
-msgstr "No hay imagen especificada"
-
-#, fuzzy
-msgid "Done, without imaging! Image is not enabled."
-msgstr "La imagen no está habilitada"
-
-msgid "Done, without imaging! Image not in storage group."
-msgstr ""
-
-#, fuzzy
-msgid "Done, without imaging! Failed to create tasking."
-msgstr "No se pudo crear la tarea"
-
-#, fuzzy
-msgid "Done, with imaging"
-msgstr "No hay imagen especificada"
-
 msgid "No Active Task found for Host"
 msgstr ""
 
@@ -6762,6 +6719,49 @@ msgstr "No se pudo crear la tarea"
 #, fuzzy
 msgid "Failed to update imaging log"
 msgstr "No se pudo crear Complemento de empleo"
+
+msgid "Created by FOG Reg on"
+msgstr ""
+
+#, fuzzy
+msgid "This machine already registered as "
+msgstr "Impresora ya existe"
+
+msgid "Unsafe hostname entered, please try again: "
+msgstr ""
+
+msgid "Hostname already used, please try again"
+msgstr ""
+
+#, fuzzy
+msgid "Failed to create Host!"
+msgstr "No se pudo crear la tarea"
+
+msgid "Done, without imaging!"
+msgstr ""
+
+#, fuzzy
+msgid "Done, without imaging: Invalid Login."
+msgstr "La imagen no está habilitada"
+
+#, fuzzy
+msgid "Done, without imaging! No image assigned."
+msgstr "No hay imagen especificada"
+
+#, fuzzy
+msgid "Done, without imaging! Image is not enabled."
+msgstr "La imagen no está habilitada"
+
+msgid "Done, without imaging! Image not in storage group."
+msgstr ""
+
+#, fuzzy
+msgid "Done, without imaging! Failed to create tasking."
+msgstr "No se pudo crear la tarea"
+
+#, fuzzy
+msgid "Done, with imaging"
+msgstr "No hay imagen especificada"
 
 #, fuzzy
 msgid "Files Deleted List"

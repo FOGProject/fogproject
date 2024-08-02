@@ -1894,16 +1894,6 @@ msgstr "Pfad ist nicht verfügbar"
 msgid "No nodes available"
 msgstr "Pfad ist nicht verfügbar"
 
-msgid "You are currently running PHP Version"
-msgstr ""
-
-msgid "FOG Needs at least"
-msgstr ""
-
-#, fuzzy
-msgid "and below"
-msgstr "Nur Teilstruktur"
-
 msgid "Icon File not found"
 msgstr "Icon-Datei nicht gefunden"
 
@@ -1967,6 +1957,16 @@ msgstr "Benutzer erfolgreich angemeldet"
 
 msgid "user failed to login"
 msgstr "Benutzer konnte sich nicht anmelden"
+
+msgid "You are currently running PHP Version"
+msgstr ""
+
+msgid "FOG Needs at least"
+msgstr ""
+
+#, fuzzy
+msgid "and below"
+msgstr "Nur Teilstruktur"
 
 msgid "Open VNC Connection To"
 msgstr ""
@@ -6427,50 +6427,6 @@ msgstr "Benutzeraktualisierung erfolgreich!"
 msgid "OU Update Fail"
 msgstr "Benutzer-Update fehlgeschlagen"
 
-msgid "Created by FOG Reg on"
-msgstr "Erstellt von FOG Reg am"
-
-#, fuzzy
-msgid "This machine already registered as "
-msgstr "Bereits registriert als"
-
-msgid "Unsafe hostname entered, please try again: "
-msgstr ""
-
-msgid "Hostname already used, please try again"
-msgstr ""
-
-#, fuzzy
-msgid "Failed to create Host!"
-msgstr "Host erstellen fehlgeschlagen"
-
-msgid "Done, without imaging!"
-msgstr "Erledigt, ohne Image"
-
-#, fuzzy
-msgid "Done, without imaging: Invalid Login."
-msgstr "Erledigt, ohne Image"
-
-#, fuzzy
-msgid "Done, without imaging! No image assigned."
-msgstr "Erledigt, kein Image zugeordnet!"
-
-#, fuzzy
-msgid "Done, without imaging! Image is not enabled."
-msgstr "Erledigt, ohne Image"
-
-#, fuzzy
-msgid "Done, without imaging! Image not in storage group."
-msgstr "Erledigt, ohne Image"
-
-#, fuzzy
-msgid "Done, without imaging! Failed to create tasking."
-msgstr "Fertig, Tasking konnte nicht erstellt werden"
-
-#, fuzzy
-msgid "Done, with imaging"
-msgstr "Erledigt, mit Image!"
-
 msgid "No Active Task found for Host"
 msgstr "Keinen aktiven Task gefunden für Host"
 
@@ -6605,6 +6561,50 @@ msgstr "Aktualisierung des Task-Logs fehlgeschlagen"
 #, fuzzy
 msgid "Failed to update imaging log"
 msgstr "Update des Image-Logs fehlgeschlagen"
+
+msgid "Created by FOG Reg on"
+msgstr "Erstellt von FOG Reg am"
+
+#, fuzzy
+msgid "This machine already registered as "
+msgstr "Bereits registriert als"
+
+msgid "Unsafe hostname entered, please try again: "
+msgstr ""
+
+msgid "Hostname already used, please try again"
+msgstr ""
+
+#, fuzzy
+msgid "Failed to create Host!"
+msgstr "Host erstellen fehlgeschlagen"
+
+msgid "Done, without imaging!"
+msgstr "Erledigt, ohne Image"
+
+#, fuzzy
+msgid "Done, without imaging: Invalid Login."
+msgstr "Erledigt, ohne Image"
+
+#, fuzzy
+msgid "Done, without imaging! No image assigned."
+msgstr "Erledigt, kein Image zugeordnet!"
+
+#, fuzzy
+msgid "Done, without imaging! Image is not enabled."
+msgstr "Erledigt, ohne Image"
+
+#, fuzzy
+msgid "Done, without imaging! Image not in storage group."
+msgstr "Erledigt, ohne Image"
+
+#, fuzzy
+msgid "Done, without imaging! Failed to create tasking."
+msgstr "Fertig, Tasking konnte nicht erstellt werden"
+
+#, fuzzy
+msgid "Done, with imaging"
+msgstr "Erledigt, mit Image!"
 
 #, fuzzy
 msgid "Files Deleted List"

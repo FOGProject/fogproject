@@ -1805,16 +1805,6 @@ msgstr "Percorso non disponibile"
 msgid "No nodes available"
 msgstr "Percorso non disponibile"
 
-msgid "You are currently running PHP Version"
-msgstr ""
-
-msgid "FOG Needs at least"
-msgstr ""
-
-#, fuzzy
-msgid "and below"
-msgstr "Sottoalbero e inferiore"
-
 msgid "Icon File not found"
 msgstr "File Icona non trovato"
 
@@ -1871,6 +1861,16 @@ msgstr "utente connesso con successo"
 
 msgid "user failed to login"
 msgstr "utente non connesso"
+
+msgid "You are currently running PHP Version"
+msgstr ""
+
+msgid "FOG Needs at least"
+msgstr ""
+
+#, fuzzy
+msgid "and below"
+msgstr "Sottoalbero e inferiore"
 
 msgid "Open VNC Connection To"
 msgstr ""
@@ -6110,50 +6110,6 @@ msgstr "Utente aggiornato con successo"
 msgid "OU Update Fail"
 msgstr "Aggiornamento utente non riuscita"
 
-msgid "Created by FOG Reg on"
-msgstr "Creato da FOG Reg su"
-
-#, fuzzy
-msgid "This machine already registered as "
-msgstr "Già registrato come"
-
-msgid "Unsafe hostname entered, please try again: "
-msgstr ""
-
-msgid "Hostname already used, please try again"
-msgstr ""
-
-#, fuzzy
-msgid "Failed to create Host!"
-msgstr "Impossibile creare Host"
-
-msgid "Done, without imaging!"
-msgstr "Fatto, senza imaging!"
-
-#, fuzzy
-msgid "Done, without imaging: Invalid Login."
-msgstr "Fatto, senza imaging!"
-
-#, fuzzy
-msgid "Done, without imaging! No image assigned."
-msgstr "Fatto, nessuna immagine assegnato!"
-
-#, fuzzy
-msgid "Done, without imaging! Image is not enabled."
-msgstr "Fatto, senza imaging!"
-
-#, fuzzy
-msgid "Done, without imaging! Image not in storage group."
-msgstr "Fatto, senza imaging!"
-
-#, fuzzy
-msgid "Done, without imaging! Failed to create tasking."
-msgstr "Fatto, Impossibile creare tasking"
-
-#, fuzzy
-msgid "Done, with imaging"
-msgstr "Fatto, con l'imaging!"
-
 msgid "No Active Task found for Host"
 msgstr "Nessun compito attivo trovato per Host"
 
@@ -6273,6 +6229,50 @@ msgstr "Impossibile aggiornare il registro attività"
 
 msgid "Failed to update imaging log"
 msgstr "Impossibile aggiornare il registro di imaging"
+
+msgid "Created by FOG Reg on"
+msgstr "Creato da FOG Reg su"
+
+#, fuzzy
+msgid "This machine already registered as "
+msgstr "Già registrato come"
+
+msgid "Unsafe hostname entered, please try again: "
+msgstr ""
+
+msgid "Hostname already used, please try again"
+msgstr ""
+
+#, fuzzy
+msgid "Failed to create Host!"
+msgstr "Impossibile creare Host"
+
+msgid "Done, without imaging!"
+msgstr "Fatto, senza imaging!"
+
+#, fuzzy
+msgid "Done, without imaging: Invalid Login."
+msgstr "Fatto, senza imaging!"
+
+#, fuzzy
+msgid "Done, without imaging! No image assigned."
+msgstr "Fatto, nessuna immagine assegnato!"
+
+#, fuzzy
+msgid "Done, without imaging! Image is not enabled."
+msgstr "Fatto, senza imaging!"
+
+#, fuzzy
+msgid "Done, without imaging! Image not in storage group."
+msgstr "Fatto, senza imaging!"
+
+#, fuzzy
+msgid "Done, without imaging! Failed to create tasking."
+msgstr "Fatto, Impossibile creare tasking"
+
+#, fuzzy
+msgid "Done, with imaging"
+msgstr "Fatto, con l'imaging!"
 
 #, fuzzy
 msgid "Files Deleted List"

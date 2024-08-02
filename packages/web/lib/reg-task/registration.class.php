@@ -294,6 +294,13 @@ class Registration extends FOGBase
                 _('Done, without imaging: Invalid Login.')
             );
         }
+        if (!self::$Host->get('token')) {
+            self::$Host->getManager()->update(
+                ['id' => self::$Host->get('id')],
+                '',
+                ['token' => self::createSecToken()]
+            );
+        }
         $username = ($username ?: 'fog');
         $Image = self::$Host->getImage();
         if (!$Image->isValid()) {

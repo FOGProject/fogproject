@@ -1896,15 +1896,6 @@ msgstr "Nenhum de hash disponíveis"
 msgid "No nodes available"
 msgstr "Nenhum de hash disponíveis"
 
-msgid "You are currently running PHP Version"
-msgstr ""
-
-msgid "FOG Needs at least"
-msgstr ""
-
-msgid "and below"
-msgstr ""
-
 msgid "Icon File not found"
 msgstr "Ícone do Arquivo não encontrado"
 
@@ -1968,6 +1959,15 @@ msgstr "usuário conectado com sucesso em"
 
 msgid "user failed to login"
 msgstr "utilizador não conseguiu iniciar sessão"
+
+msgid "You are currently running PHP Version"
+msgstr ""
+
+msgid "FOG Needs at least"
+msgstr ""
+
+msgid "and below"
+msgstr ""
 
 msgid "Open VNC Connection To"
 msgstr ""
@@ -6417,50 +6417,6 @@ msgstr "Instalar / Atualizar sucesso!"
 msgid "OU Update Fail"
 msgstr "atualização do utilizador falhou"
 
-msgid "Created by FOG Reg on"
-msgstr "Criado por FOG Reg em"
-
-#, fuzzy
-msgid "This machine already registered as "
-msgstr "Já está registado como"
-
-msgid "Unsafe hostname entered, please try again: "
-msgstr ""
-
-msgid "Hostname already used, please try again"
-msgstr ""
-
-#, fuzzy
-msgid "Failed to create Host!"
-msgstr "Falha ao criar o Host"
-
-msgid "Done, without imaging!"
-msgstr "Feito, sem imagem!"
-
-#, fuzzy
-msgid "Done, without imaging: Invalid Login."
-msgstr "Feito, sem imagem!"
-
-#, fuzzy
-msgid "Done, without imaging! No image assigned."
-msgstr "Feito, nenhuma imagem atribuída!"
-
-#, fuzzy
-msgid "Done, without imaging! Image is not enabled."
-msgstr "Feito, sem imagem!"
-
-#, fuzzy
-msgid "Done, without imaging! Image not in storage group."
-msgstr "Feito, sem imagem!"
-
-#, fuzzy
-msgid "Done, without imaging! Failed to create tasking."
-msgstr "Feito, Falha ao criar tasking"
-
-#, fuzzy
-msgid "Done, with imaging"
-msgstr "Feito, com a imagem!"
-
 msgid "No Active Task found for Host"
 msgstr "Nenhuma tarefa ativa encontrada para o Host"
 
@@ -6597,6 +6553,50 @@ msgstr "Falha ao atualizar tarefa"
 #, fuzzy
 msgid "Failed to update imaging log"
 msgstr "Falha ao atualizar / criar o registo de imagem"
+
+msgid "Created by FOG Reg on"
+msgstr "Criado por FOG Reg em"
+
+#, fuzzy
+msgid "This machine already registered as "
+msgstr "Já está registado como"
+
+msgid "Unsafe hostname entered, please try again: "
+msgstr ""
+
+msgid "Hostname already used, please try again"
+msgstr ""
+
+#, fuzzy
+msgid "Failed to create Host!"
+msgstr "Falha ao criar o Host"
+
+msgid "Done, without imaging!"
+msgstr "Feito, sem imagem!"
+
+#, fuzzy
+msgid "Done, without imaging: Invalid Login."
+msgstr "Feito, sem imagem!"
+
+#, fuzzy
+msgid "Done, without imaging! No image assigned."
+msgstr "Feito, nenhuma imagem atribuída!"
+
+#, fuzzy
+msgid "Done, without imaging! Image is not enabled."
+msgstr "Feito, sem imagem!"
+
+#, fuzzy
+msgid "Done, without imaging! Image not in storage group."
+msgstr "Feito, sem imagem!"
+
+#, fuzzy
+msgid "Done, without imaging! Failed to create tasking."
+msgstr "Feito, Falha ao criar tasking"
+
+#, fuzzy
+msgid "Done, with imaging"
+msgstr "Feito, com a imagem!"
 
 #, fuzzy
 msgid "Files Deleted List"

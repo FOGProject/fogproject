@@ -1896,15 +1896,6 @@ msgstr "No hash available"
 msgid "No nodes available"
 msgstr "No hash available"
 
-msgid "You are currently running PHP Version"
-msgstr ""
-
-msgid "FOG Needs at least"
-msgstr ""
-
-msgid "and below"
-msgstr ""
-
 msgid "Icon File not found"
 msgstr "Icon File not found"
 
@@ -1968,6 +1959,15 @@ msgstr "user successfully logged in"
 
 msgid "user failed to login"
 msgstr "user failed to login"
+
+msgid "You are currently running PHP Version"
+msgstr ""
+
+msgid "FOG Needs at least"
+msgstr ""
+
+msgid "and below"
+msgstr ""
 
 msgid "Open VNC Connection To"
 msgstr ""
@@ -6415,50 +6415,6 @@ msgstr "Install / Update Successful!"
 msgid "OU Update Fail"
 msgstr "User update failed"
 
-msgid "Created by FOG Reg on"
-msgstr "Created by FOG Reg on"
-
-#, fuzzy
-msgid "This machine already registered as "
-msgstr "Already registered as"
-
-msgid "Unsafe hostname entered, please try again: "
-msgstr ""
-
-msgid "Hostname already used, please try again"
-msgstr ""
-
-#, fuzzy
-msgid "Failed to create Host!"
-msgstr "Failed to create Host"
-
-msgid "Done, without imaging!"
-msgstr "Done, without imaging!"
-
-#, fuzzy
-msgid "Done, without imaging: Invalid Login."
-msgstr "Done, without imaging!"
-
-#, fuzzy
-msgid "Done, without imaging! No image assigned."
-msgstr "Done, No image assigned!"
-
-#, fuzzy
-msgid "Done, without imaging! Image is not enabled."
-msgstr "Done, without imaging!"
-
-#, fuzzy
-msgid "Done, without imaging! Image not in storage group."
-msgstr "Done, without imaging!"
-
-#, fuzzy
-msgid "Done, without imaging! Failed to create tasking."
-msgstr "Done, Failed to create tasking"
-
-#, fuzzy
-msgid "Done, with imaging"
-msgstr "Done, with imaging!"
-
 msgid "No Active Task found for Host"
 msgstr "No Active Task found for Host"
 
@@ -6593,6 +6549,50 @@ msgstr "Failed to update task"
 #, fuzzy
 msgid "Failed to update imaging log"
 msgstr "Failed to update/create image log"
+
+msgid "Created by FOG Reg on"
+msgstr "Created by FOG Reg on"
+
+#, fuzzy
+msgid "This machine already registered as "
+msgstr "Already registered as"
+
+msgid "Unsafe hostname entered, please try again: "
+msgstr ""
+
+msgid "Hostname already used, please try again"
+msgstr ""
+
+#, fuzzy
+msgid "Failed to create Host!"
+msgstr "Failed to create Host"
+
+msgid "Done, without imaging!"
+msgstr "Done, without imaging!"
+
+#, fuzzy
+msgid "Done, without imaging: Invalid Login."
+msgstr "Done, without imaging!"
+
+#, fuzzy
+msgid "Done, without imaging! No image assigned."
+msgstr "Done, No image assigned!"
+
+#, fuzzy
+msgid "Done, without imaging! Image is not enabled."
+msgstr "Done, without imaging!"
+
+#, fuzzy
+msgid "Done, without imaging! Image not in storage group."
+msgstr "Done, without imaging!"
+
+#, fuzzy
+msgid "Done, without imaging! Failed to create tasking."
+msgstr "Done, Failed to create tasking"
+
+#, fuzzy
+msgid "Done, with imaging"
+msgstr "Done, with imaging!"
 
 #, fuzzy
 msgid "Files Deleted List"

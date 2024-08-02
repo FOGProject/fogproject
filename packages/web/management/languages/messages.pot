@@ -1710,15 +1710,6 @@ msgstr ""
 msgid "No nodes available"
 msgstr ""
 
-msgid "You are currently running PHP Version"
-msgstr ""
-
-msgid "FOG Needs at least"
-msgstr ""
-
-msgid "and below"
-msgstr ""
-
 msgid "Icon File not found"
 msgstr ""
 
@@ -1774,6 +1765,15 @@ msgid "user successfully logged in"
 msgstr ""
 
 msgid "user failed to login"
+msgstr ""
+
+msgid "You are currently running PHP Version"
+msgstr ""
+
+msgid "FOG Needs at least"
+msgstr ""
+
+msgid "and below"
 msgstr ""
 
 msgid "Open VNC Connection To"
@@ -5417,42 +5417,6 @@ msgstr ""
 msgid "OU Update Fail"
 msgstr ""
 
-msgid "Created by FOG Reg on"
-msgstr ""
-
-msgid "This machine already registered as "
-msgstr ""
-
-msgid "Unsafe hostname entered, please try again: "
-msgstr ""
-
-msgid "Hostname already used, please try again"
-msgstr ""
-
-msgid "Failed to create Host!"
-msgstr ""
-
-msgid "Done, without imaging!"
-msgstr ""
-
-msgid "Done, without imaging: Invalid Login."
-msgstr ""
-
-msgid "Done, without imaging! No image assigned."
-msgstr ""
-
-msgid "Done, without imaging! Image is not enabled."
-msgstr ""
-
-msgid "Done, without imaging! Image not in storage group."
-msgstr ""
-
-msgid "Done, without imaging! Failed to create tasking."
-msgstr ""
-
-msgid "Done, with imaging"
-msgstr ""
-
 msgid "No Active Task found for Host"
 msgstr ""
 
@@ -5565,6 +5529,42 @@ msgid "Failed to update task log"
 msgstr ""
 
 msgid "Failed to update imaging log"
+msgstr ""
+
+msgid "Created by FOG Reg on"
+msgstr ""
+
+msgid "This machine already registered as "
+msgstr ""
+
+msgid "Unsafe hostname entered, please try again: "
+msgstr ""
+
+msgid "Hostname already used, please try again"
+msgstr ""
+
+msgid "Failed to create Host!"
+msgstr ""
+
+msgid "Done, without imaging!"
+msgstr ""
+
+msgid "Done, without imaging: Invalid Login."
+msgstr ""
+
+msgid "Done, without imaging! No image assigned."
+msgstr ""
+
+msgid "Done, without imaging! Image is not enabled."
+msgstr ""
+
+msgid "Done, without imaging! Image not in storage group."
+msgstr ""
+
+msgid "Done, without imaging! Failed to create tasking."
+msgstr ""
+
+msgid "Done, with imaging"
 msgstr ""
 
 msgid "Files Deleted List"

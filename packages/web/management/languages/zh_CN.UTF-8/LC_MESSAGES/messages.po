@@ -1894,15 +1894,6 @@ msgstr "没有可用的散列"
 msgid "No nodes available"
 msgstr "没有可用的散列"
 
-msgid "You are currently running PHP Version"
-msgstr ""
-
-msgid "FOG Needs at least"
-msgstr ""
-
-msgid "and below"
-msgstr ""
-
 msgid "Icon File not found"
 msgstr "图标文件未找到"
 
@@ -1964,6 +1955,15 @@ msgstr "用户成功登录"
 
 msgid "user failed to login"
 msgstr "用户登录失败"
+
+msgid "You are currently running PHP Version"
+msgstr ""
+
+msgid "FOG Needs at least"
+msgstr ""
+
+msgid "and below"
+msgstr ""
 
 msgid "Open VNC Connection To"
 msgstr ""
@@ -6406,50 +6406,6 @@ msgstr "安装/升级成功！"
 msgid "OU Update Fail"
 msgstr "用户更新失败"
 
-msgid "Created by FOG Reg on"
-msgstr "创建者FOG上注册"
-
-#, fuzzy
-msgid "This machine already registered as "
-msgstr "已注册为"
-
-msgid "Unsafe hostname entered, please try again: "
-msgstr ""
-
-msgid "Hostname already used, please try again"
-msgstr ""
-
-#, fuzzy
-msgid "Failed to create Host!"
-msgstr "无法创建主机"
-
-msgid "Done, without imaging!"
-msgstr "完成后，没有影像！"
-
-#, fuzzy
-msgid "Done, without imaging: Invalid Login."
-msgstr "完成后，没有影像！"
-
-#, fuzzy
-msgid "Done, without imaging! No image assigned."
-msgstr "完成后，没有图像分配！"
-
-#, fuzzy
-msgid "Done, without imaging! Image is not enabled."
-msgstr "完成后，没有影像！"
-
-#, fuzzy
-msgid "Done, without imaging! Image not in storage group."
-msgstr "完成后，没有影像！"
-
-#, fuzzy
-msgid "Done, without imaging! Failed to create tasking."
-msgstr "完成后，无法创建任务"
-
-#, fuzzy
-msgid "Done, with imaging"
-msgstr "完成后，随着影像！"
-
 msgid "No Active Task found for Host"
 msgstr "发现主机没有活动任务"
 
@@ -6584,6 +6540,50 @@ msgstr "无法更新任务"
 #, fuzzy
 msgid "Failed to update imaging log"
 msgstr "无法更新/创建图像日志"
+
+msgid "Created by FOG Reg on"
+msgstr "创建者FOG上注册"
+
+#, fuzzy
+msgid "This machine already registered as "
+msgstr "已注册为"
+
+msgid "Unsafe hostname entered, please try again: "
+msgstr ""
+
+msgid "Hostname already used, please try again"
+msgstr ""
+
+#, fuzzy
+msgid "Failed to create Host!"
+msgstr "无法创建主机"
+
+msgid "Done, without imaging!"
+msgstr "完成后，没有影像！"
+
+#, fuzzy
+msgid "Done, without imaging: Invalid Login."
+msgstr "完成后，没有影像！"
+
+#, fuzzy
+msgid "Done, without imaging! No image assigned."
+msgstr "完成后，没有图像分配！"
+
+#, fuzzy
+msgid "Done, without imaging! Image is not enabled."
+msgstr "完成后，没有影像！"
+
+#, fuzzy
+msgid "Done, without imaging! Image not in storage group."
+msgstr "完成后，没有影像！"
+
+#, fuzzy
+msgid "Done, without imaging! Failed to create tasking."
+msgstr "完成后，无法创建任务"
+
+#, fuzzy
+msgid "Done, with imaging"
+msgstr "完成后，随着影像！"
 
 #, fuzzy
 msgid "Files Deleted List"
