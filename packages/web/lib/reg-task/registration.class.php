@@ -287,6 +287,13 @@ class Registration extends FOGBase
     {
         $stripped = self::stripAndDecode($_POST);
         $username = filter_var($stripped['username'] ?? '');
+        $password = filter_var($stripped['password'] ?? '');
+        $userTest = self::getClass('User')->passwordValidate($username, $password);
+        if (!$userTest) {
+            throw new Exception(
+                _('Done, without imaging: Invalid Login.')
+            );
+        }
         $username = ($username ?: 'fog');
         $Image = self::$Host->getImage();
         if (!$Image->isValid()) {
