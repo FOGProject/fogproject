@@ -434,7 +434,7 @@ class TaskQueue extends TaskingElement
                 'pub_key' => self::$Host->get('pub_key'),
                 'sec_tok' => self::$Host->get('sec_tok'),
                 'token' => self::$Host->get('token'),
-                'token_lock' => self::$Host->get('tokenlock')
+                'tokenlock' => self::$Host->get('tokenlock')
             ];
             if ($this->Task->isDeploy()) {
                 self::$Host->set('deployed', self::niceDate()->format('Y-m-d H:i:s'));

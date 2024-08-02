@@ -1894,6 +1894,15 @@ msgstr "没有可用的散列"
 msgid "No nodes available"
 msgstr "没有可用的散列"
 
+msgid "You are currently running PHP Version"
+msgstr ""
+
+msgid "FOG Needs at least"
+msgstr ""
+
+msgid "and below"
+msgstr ""
+
 msgid "Icon File not found"
 msgstr "图标文件未找到"
 
@@ -1955,15 +1964,6 @@ msgstr "用户成功登录"
 
 msgid "user failed to login"
 msgstr "用户登录失败"
-
-msgid "You are currently running PHP Version"
-msgstr ""
-
-msgid "FOG Needs at least"
-msgstr ""
-
-msgid "and below"
-msgstr ""
 
 msgid "Open VNC Connection To"
 msgstr ""
@@ -6424,6 +6424,10 @@ msgid "Failed to create Host!"
 msgstr "无法创建主机"
 
 msgid "Done, without imaging!"
+msgstr "完成后，没有影像！"
+
+#, fuzzy
+msgid "Done, without imaging: Invalid Login."
 msgstr "完成后，没有影像！"
 
 #, fuzzy

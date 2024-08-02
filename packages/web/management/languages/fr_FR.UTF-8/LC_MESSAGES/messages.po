@@ -1899,6 +1899,15 @@ msgstr "Pas de hachage disponible"
 msgid "No nodes available"
 msgstr "Pas de hachage disponible"
 
+msgid "You are currently running PHP Version"
+msgstr ""
+
+msgid "FOG Needs at least"
+msgstr ""
+
+msgid "and below"
+msgstr ""
+
 msgid "Icon File not found"
 msgstr "Icône Fichier introuvable"
 
@@ -1964,15 +1973,6 @@ msgstr "utilisateur connecté avec succès dans"
 
 msgid "user failed to login"
 msgstr "l'utilisateur n'a pas réussi à se connecter"
-
-msgid "You are currently running PHP Version"
-msgstr ""
-
-msgid "FOG Needs at least"
-msgstr ""
-
-msgid "and below"
-msgstr ""
 
 msgid "Open VNC Connection To"
 msgstr ""
@@ -6440,6 +6440,10 @@ msgid "Failed to create Host!"
 msgstr "Impossible de créer Host"
 
 msgid "Done, without imaging!"
+msgstr "Fait sans imagerie!"
+
+#, fuzzy
+msgid "Done, without imaging: Invalid Login."
 msgstr "Fait sans imagerie!"
 
 #, fuzzy

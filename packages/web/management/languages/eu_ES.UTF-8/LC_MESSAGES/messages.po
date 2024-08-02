@@ -1894,6 +1894,16 @@ msgstr "Pfad ist nicht verfügbar"
 msgid "No nodes available"
 msgstr "Pfad ist nicht verfügbar"
 
+msgid "You are currently running PHP Version"
+msgstr ""
+
+msgid "FOG Needs at least"
+msgstr ""
+
+#, fuzzy
+msgid "and below"
+msgstr "Nur Teilstruktur"
+
 msgid "Icon File not found"
 msgstr "Icon-Datei nicht gefunden"
 
@@ -1957,16 +1967,6 @@ msgstr "Benutzer erfolgreich angemeldet"
 
 msgid "user failed to login"
 msgstr "Benutzer konnte sich nicht anmelden"
-
-msgid "You are currently running PHP Version"
-msgstr ""
-
-msgid "FOG Needs at least"
-msgstr ""
-
-#, fuzzy
-msgid "and below"
-msgstr "Nur Teilstruktur"
 
 msgid "Open VNC Connection To"
 msgstr ""
@@ -6445,6 +6445,10 @@ msgid "Failed to create Host!"
 msgstr "Host erstellen fehlgeschlagen"
 
 msgid "Done, without imaging!"
+msgstr "Erledigt, ohne Image"
+
+#, fuzzy
+msgid "Done, without imaging: Invalid Login."
 msgstr "Erledigt, ohne Image"
 
 #, fuzzy

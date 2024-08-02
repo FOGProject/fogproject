@@ -2052,6 +2052,15 @@ msgstr "No se dispone de hash"
 msgid "No nodes available"
 msgstr "No se dispone de hash"
 
+msgid "You are currently running PHP Version"
+msgstr ""
+
+msgid "FOG Needs at least"
+msgstr ""
+
+msgid "and below"
+msgstr ""
+
 msgid "Icon File not found"
 msgstr "Icono de archivo no encontrado"
 
@@ -2115,15 +2124,6 @@ msgstr "el usuario ha iniciado sesión con éxito en"
 
 msgid "user failed to login"
 msgstr "el usuario no pudo iniciar sesión"
-
-msgid "You are currently running PHP Version"
-msgstr ""
-
-msgid "FOG Needs at least"
-msgstr ""
-
-msgid "and below"
-msgstr ""
 
 msgid "Open VNC Connection To"
 msgstr ""
@@ -6599,6 +6599,10 @@ msgstr "No se pudo crear la tarea"
 
 msgid "Done, without imaging!"
 msgstr ""
+
+#, fuzzy
+msgid "Done, without imaging: Invalid Login."
+msgstr "La imagen no está habilitada"
 
 #, fuzzy
 msgid "Done, without imaging! No image assigned."

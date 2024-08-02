@@ -1805,6 +1805,16 @@ msgstr "Percorso non disponibile"
 msgid "No nodes available"
 msgstr "Percorso non disponibile"
 
+msgid "You are currently running PHP Version"
+msgstr ""
+
+msgid "FOG Needs at least"
+msgstr ""
+
+#, fuzzy
+msgid "and below"
+msgstr "Sottoalbero e inferiore"
+
 msgid "Icon File not found"
 msgstr "File Icona non trovato"
 
@@ -1861,16 +1871,6 @@ msgstr "utente connesso con successo"
 
 msgid "user failed to login"
 msgstr "utente non connesso"
-
-msgid "You are currently running PHP Version"
-msgstr ""
-
-msgid "FOG Needs at least"
-msgstr ""
-
-#, fuzzy
-msgid "and below"
-msgstr "Sottoalbero e inferiore"
 
 msgid "Open VNC Connection To"
 msgstr ""
@@ -6128,6 +6128,10 @@ msgid "Failed to create Host!"
 msgstr "Impossibile creare Host"
 
 msgid "Done, without imaging!"
+msgstr "Fatto, senza imaging!"
+
+#, fuzzy
+msgid "Done, without imaging: Invalid Login."
 msgstr "Fatto, senza imaging!"
 
 #, fuzzy

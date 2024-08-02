@@ -1896,6 +1896,15 @@ msgstr "Nenhum de hash disponíveis"
 msgid "No nodes available"
 msgstr "Nenhum de hash disponíveis"
 
+msgid "You are currently running PHP Version"
+msgstr ""
+
+msgid "FOG Needs at least"
+msgstr ""
+
+msgid "and below"
+msgstr ""
+
 msgid "Icon File not found"
 msgstr "Ícone do Arquivo não encontrado"
 
@@ -1959,15 +1968,6 @@ msgstr "usuário conectado com sucesso em"
 
 msgid "user failed to login"
 msgstr "utilizador não conseguiu iniciar sessão"
-
-msgid "You are currently running PHP Version"
-msgstr ""
-
-msgid "FOG Needs at least"
-msgstr ""
-
-msgid "and below"
-msgstr ""
 
 msgid "Open VNC Connection To"
 msgstr ""
@@ -6435,6 +6435,10 @@ msgid "Failed to create Host!"
 msgstr "Falha ao criar o Host"
 
 msgid "Done, without imaging!"
+msgstr "Feito, sem imagem!"
+
+#, fuzzy
+msgid "Done, without imaging: Invalid Login."
 msgstr "Feito, sem imagem!"
 
 #, fuzzy
