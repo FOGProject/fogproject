@@ -122,6 +122,7 @@ class ProcessLogin extends FOGPage
                 3,
                 BASEPATH . 'fog_login_accepted.log'
             );
+            chmod(BASEPATH . 'fog_login_accepted.log', 0200);
         } catch (Exception $e) {
             $code = HTTPResponseCodes::HTTP_FORBIDDEN;
             $msg = json_encode(
@@ -144,6 +145,7 @@ class ProcessLogin extends FOGPage
                 3,
                 BASEPATH . 'fog_login_failed.log'
             );
+            chmod(BASEPATH . 'fog_login_failed.log', 0200);
         }
         http_response_code($code);
         echo $msg;
