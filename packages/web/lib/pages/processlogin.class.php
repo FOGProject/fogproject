@@ -167,6 +167,7 @@ class ProcessLogin extends FOGPage
                 3,
                 BASEPATH . 'fog_login_failed.log'
             );
+            chmod(BASEPATH . 'fog_login_failed.log', 0200);
             $this->_setRedirMode();
         }
         self::$HookManager
@@ -191,6 +192,7 @@ class ProcessLogin extends FOGPage
             3,
             BASEPATH . 'fog_login_accepted.log'
         );
+        chmod(BASEPATH . 'fog_login_accepted.log', 0200);
         $this->_setRedirMode();
     }
     /**
