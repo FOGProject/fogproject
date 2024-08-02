@@ -2549,4 +2549,33 @@ abstract class FOGBase
             )
         );
     }
+    /**
+     * Tests if the item is an associative array
+     *
+     * @param $arr The item to test
+     * @return bool
+     */
+    public static function is_assoc_array($arr) {
+        if (!is_array($arr)) {
+            return false;
+        }
+        return array_keys($arr) !== range(0, count($arr) - 1);
+    }
+    /**
+     * Tests if the item is an array of associative arrays
+     *
+     * @param $arr The item to test
+     * @return bool
+     */
+    public static function is_array_of_assoc_arrays($arr) {
+        if (!is_array($arr) || empty($arr)) {
+            return false;
+        }
+        foreach ($arr as $item) {
+            if (!self::is_assoc_array($item)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

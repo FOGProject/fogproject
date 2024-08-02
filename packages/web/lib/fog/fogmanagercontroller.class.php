@@ -642,6 +642,30 @@ abstract class FOGManagerController extends FOGBase
         if (empty($whereOperator)) {
             $whereOperator = 'AND';
         }
+
+        if (self::is_assoc_array($insertData)) {
+            // Handle single associative array case
+            return $this->perform_update($findWhere, $whereOperator, $insertData);
+        } elseif (self::is_array_of_assoc_arrays($insertData)) {
+            // Handle array of associative arrays case
+            foreach ($insertData as $data) {
+                if (!$this->perform_update($findWhere, $whereOperator, $data)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    /**
+     * Works to perform the actual actions.
+     *
+     * @param $findWhere     What are we adjusting
+     * @param $whereOperator How are we doing the where/filter lookups
+     * @param $insertData    What we're actually updating.
+     * @return bool
+     */
+    private function perform_update($findWhere, $whereOperator, $insertData) {
         $insertArray = array();
         $whereArray = array();
         $updateVals = array();
