@@ -30,6 +30,19 @@ try {
     if (!$Task->isValid()) {
         throw new Exception(_('Invalid tasking!'));
     }
+    $hosttoken = filter_input(INPUT_POST, 'hosttoken');
+    if (!$hosttoken) {
+        $hosttoken = filter_input(INPUT_GET, 'hosttoken');
+    }
+    if (!$hosttoken) {
+        throw new Exception(_('No token passed to authenticate this host'));
+    }
+    if (!FOGCore::$Host->get('tokenlock')) {
+        throw new Exception(_('Have not locked the host for access'));
+    }
+    if ($hosttoken != FOGCore::$Host->get('token')) {
+        throw new Exception(_('Invalid token passed for host'));
+    }
     $TaskType = FOGCore::getClass(
         'TaskType',
         $Task->get('typeID')
@@ -262,6 +275,16 @@ try {
         );
         unset($val);
     }
+    // Unset lock and update token
+    $new_tok = FOGCore::createSecToken();
+    FOGCore::$Host->getManager()->update(
+        ['id' => FOGCore::$Host->get('id')],
+        '',
+        [
+            'token' => $new_tok,
+            'tokenlock' => false
+        ]
+    );
 } catch (Exception $e) {
     echo $e->getMessage();
     exit(1);
