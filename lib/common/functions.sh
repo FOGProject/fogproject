@@ -2733,6 +2733,9 @@ die();
     chmod +rx $apacheerrlog
     chmod +rx $apacheacclog
     chown -R ${apacheuser}:${apacheuser} $webdirdest
+    touch $webdirdest/fog_login_accepted.log
+    touch $webdirdest/fog_login_failed.log
+    chown ${apacheuser}:${apacheuser} $webdirdest/fog_login_*.log
     chmod 0200 $webdirdest/fog_login_*.log
     errorStat $?
     [[ -d /var/www/html/ && ! -e /var/www/html/fog/ ]] && ln -s "$webdirdest" /var/www/html/
