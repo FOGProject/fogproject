@@ -370,6 +370,9 @@ class SchemaUpdaterPage extends FOGPage
                 );
             };
         }
+        if (file_exists(BASEPATH . 'fog_schema_update_error.log', 0200)) {
+            chmod(BASEPATH . 'fog_schema_update_error.log', 0200);
+        }
         http_response_code($code);
         echo $msg;
         exit;
