@@ -35,17 +35,17 @@ if (!isset($_POST['fogverified'])) {
     return;
 }
 $name = $ip = $stripped['ip'];
-$path = $stripped['path'];
-$ftppath = $stripped['ftppath'];
-$sslpath = $stripped['sslpath'];
-$snapinpath = $stripped['snapinpath'];
-$maxClients = $stripped['maxClients'];
 $user = $stripped['user'];
 $pass = $stripped['pass'];
-$interface = $stripped['interface'];
-$bandwidth = $stripped['bandwidth'];
-$webroot = $stripped['webroot'];
 if (isset($_POST['newNode'])) {
+    $path = $stripped['path'];
+    $ftppath = $stripped['ftppath'];
+    $sslpath = $stripped['sslpath'];
+    $snapinpath = $stripped['snapinpath'];
+    $maxClients = $stripped['maxClients'];
+    $interface = $stripped['interface'];
+    $bandwidth = $stripped['bandwidth'];
+    $webroot = $stripped['webroot'];
     $exists = FOGCore::getClass('StorageNodeManager')
         ->exists($ip, '', 'ip');
     if ($exists) {
