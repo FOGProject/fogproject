@@ -6,6 +6,8 @@ jobs:
   create-release-pull-request:
     runs-on: ubuntu-latest
     steps:
+    - name: clone repo, cd into it, and fetch all
+      run: gh repo clone FOGProject/fogproject && cd fogproject && git fetch --all
     - name: create pull request
       run: gh pr create -B stable -H dev-branch --title 'Monthly Release PR' --body 'Created by Github action'
       env:
