@@ -8,20 +8,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: create pull request
-      run: gh pr create -B stable -H dev-branch --title 'Monthly Release PR' --body 'Monthly pull request for creating the latest stable release from staged security fixes, bug fixes, and minor enhancements.'
+      run: gh pr create -B stable -H dev-branch --title "Monthly Release PR - $(date '+%Y-%m-%d')" --body "Monthly pull request for creating the latest stable release from staged security fixes, bug fixes, and minor enhancements."
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  # release-stable:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Merge staging
-  #       run: |
-  #         git merge dev-branch
-  #         git push
-  #     - name: Release tag
-  #       run: | 
-  #         # get version from file
-  #         # create release with version as tag
-  #         # auto generate release notes
-  #         # send notices/announcements
- 
