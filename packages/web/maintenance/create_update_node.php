@@ -26,25 +26,25 @@ foreach ((array)$_POST as $key => &$val) {
     if (!isset($val)) {
         continue;
     }
-    $_POST[$key] = trim(
-        base64_decode($val)
+    $stripped[$key] = trim(
+        base64_decode(filter_input(INPUT_POST, $key))
     );
     unset($val);
 }
 if (!isset($_POST['fogverified'])) {
     return;
 }
-$name = $ip = trim(filter_input(INPUT_POST, 'ip'));
-$path = trim(filter_input(INPUT_POST, 'path'));
-$ftppath = trim(filter_input(INPUT_POST, 'ftppath'));
-$sslpath = trim(filter_input(INPUT_POST, 'sslpath'));
-$snapinpath = trim(filter_input(INPUT_POST, 'snapinpath'));
-$maxClients = trim(filter_input(INPUT_POST, 'maxClients'));
-$user = trim(filter_input(INPUT_POST, 'user'));
-$pass = trim(filter_input(INPUT_POST, 'pass'));
-$interface = trim(filter_input(INPUT_POST, 'interface'));
-$bandwidth = trim(filter_input(INPUT_POST, 'bandwidth'));
-$webroot = trim(filter_input(INPUT_POST, 'webroot'));
+$name = $ip = $stripped['ip'];
+$path = $stripped['path'];
+$ftppath = $stripped['ftppath'];
+$sslpath = $stripped['sslpath'];
+$snapinpath = $stripped['snapinpath'];
+$maxClients = $stripped['maxClients'];
+$user = $stripped['user'];
+$pass = $stripped['pass'];
+$interface = $stripped['interface'];
+$bandwidth = $stripped['bandwidth'];
+$webroot = $stripped['webroot'];
 if (isset($_POST['newNode'])) {
     $exists = FOGCore::getClass('StorageNodeManager')
         ->exists($ip, '', 'ip');
