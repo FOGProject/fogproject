@@ -83,7 +83,8 @@ cd /path/to/fogproject-dev-branch/bin
 All should now be installed and you can start configuring and registering systems. Please see: http://fogproject.org/wiki/index.php/Managing_FOG to assist you in setting up further.
 
 There are many resources for assistance.
- - **Wiki:** http://fogproject.org/wiki for any information.
+ - **docs:** https://docs.fogproject.org for documentation. (New docs, under construction)
+ - **Wiki:** http://fogproject.org/wiki for any information. (Legacy docs)
  - **Forum:** http://fogproject.org/forum.
  - **Email:** A Developer directly. If a dev permits a change, they can have themselves added on the wiki/Credits page.
 
