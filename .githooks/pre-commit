@@ -7,24 +7,44 @@
 #
 # To enable this hook, rename this file to "pre-commit".
 
+# Get the current branch name
 gitbranch=$(git branch | awk '/*/ {print $2}')
+
+# Get the latest tag commit
 gitcom=$(git rev-list --tags --no-walk --max-count=1)
+
+# Count commits from the last tag to HEAD
 gitcount=$(git rev-list ${gitcom}..HEAD --count)
+
+# Extract the first part of the branch name
 branchon=$(echo ${gitbranch} | awk -F'-' '{print $1}')
-branchend=$(echo ${gitbranch} | awk -F'-' '{print $2}')
+
 verbegin=""
+channel=""
+
 case $branchon in
     dev)
-        verbegin="$(git describe --tags ${gitcom})."
+        # Describe the tag and append the commit count correctly
+        tagversion=$(git describe --tags ${gitcom})
+        baseversion=${tagversion%.*}   # Retain everything before the last segment
+        lastrevision=${tagversion##*.} # Extracts the last segment
+        trunkversion="${baseversion}.$(($lastrevision + gitcount))"
         channel="Patches"
         ;;
     working)
-        verbegin="${branchend}.0-beta."
+        # Generate a version number based on the branchend and commit count for the working branch
+        verbegin="${branchend}.0-beta"
+        trunkversion="${verbegin}.${gitcount}"
         channel="Beta"
         ;;
 esac
+
+# Define the path to the system file
 system_file="$(git rev-parse --show-toplevel)/packages/web/lib/fog/system.class.php"
-[[ -z $trunkver ]] && trunkversion="${verbegin}${gitcount}" || trunkversion=${trunkver}
-sed -i "s/define('FOG_VERSION'.*);/define('FOG_VERSION', '$trunkversion');/g" $system_file
-sed -i "s/define('FOG_CHANNEL'.*);/define('FOG_CHANNEL', '$channel');/g" $system_file
+
+# Update the version and channel in the system file
+sed -i "s/define('FOG_VERSION',.*);/define('FOG_VERSION', '$trunkversion');/g" $system_file
+sed -i "s/define('FOG_CHANNEL',.*);/define('FOG_CHANNEL', '$channel');/g" $system_file
+
+# Add the modified system file to the staging area
 git add $system_file
