@@ -26,7 +26,7 @@ verbegin=""
 channel=""
 
 case $branchon in
-    dev)
+    dev|stable)
         # Describe the tag and append the commit count correctly
         tagversion=$(git describe --tags ${gitcom})
         baseversion=${tagversion%.*}   # Retain everything before the last segment
