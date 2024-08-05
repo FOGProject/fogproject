@@ -2,11 +2,23 @@ FOG Project Release Notes
 =========================
 
 * [FOG 1.5.10](#fog-1510)
-* [FOG 1.5.10 revisions](#fog-1510-revisions)
+* [FOG 1.5.10 revisions](##fog-1510-revisions)
 * [FOG 1.5.9](#fog-159)
 * [FOG 1.5.8](#fog-158)
 
 # FOG 1.5.10
+
+## FOG 1.5.10 revisions
+
+### FOG 1.5.10.48
+
+https://github.com/FOGProject/fogproject/releases/tag/1.5.10.48
+
+### FOG 1.5.10.41
+
+https://github.com/FOGProject/fogproject/releases/tag/1.5.10.41
+
+## FOG 1.5.10 overview
 
 FOG 1.5.10 officially released: https://news.fogproject.org/fog-1-5-10-officially-released/
 
@@ -205,12 +217,6 @@ We have upgraded the versions of its main dependencies, added many improvements 
 * Add checksum check to release script just to be sure the binaries are ok
 * Repair disk enumeration for image type MPA (all disks)
 * Remove support for module loading from the kernel as we don't use modules 
-
-# FOG 1.5.10 Revisions
-
-## FOG 1.5.10.41
-
-https://github.com/FOGProject/fogproject/releases/tag/1.5.10.41
 
 # FOG 1.5.9
 
