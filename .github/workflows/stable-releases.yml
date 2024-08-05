@@ -1,0 +1,27 @@
+on:
+  workflow_dispatch:
+  schedule:
+  - cron: "0 10 8-14 * tue"
+jobs:
+  create-release-pull-request:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: create pull request
+      run: gh pr create -B stable -H dev-branch --title 'Monthly Release PR' --body 'Created by Github action'
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  # release-stable:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Merge staging
+  #       run: |
+  #         git merge dev-branch
+  #         git push
+  #     - name: Release tag
+  #       run: | 
+  #         # get version from file
+  #         # create release with version as tag
+  #         # auto generate release notes
+  #         # send notices/announcements
+ 
