@@ -1,0 +1,30 @@
+#!/usr/bin/sh
+#
+# An example hook script to verify what is about to be committed.
+# Called by "git commit" with no arguments.  The hook should
+# exit with non-zero status after issuing an appropriate message if
+# it wants to stop the commit.
+#
+# To enable this hook, rename this file to "pre-commit".
+
+gitbranch=$(git branch | awk '/*/ {print $2}')
+gitcom=$(git rev-list --tags --no-walk --max-count=1)
+gitcount=$(git rev-list ${gitcom}..HEAD --count)
+branchon=$(echo ${gitbranch} | awk -F'-' '{print $1}')
+branchend=$(echo ${gitbranch} | awk -F'-' '{print $2}')
+verbegin=""
+case $branchon in
+    dev)
+        verbegin="$(git describe --tags ${gitcom})."
+        channel="Patches"
+        ;;
+    working)
+        verbegin="${branchend}.0-beta."
+        channel="Beta"
+        ;;
+esac
+system_file="$(git rev-parse --show-toplevel)/packages/web/lib/fog/system.class.php"
+[[ -z $trunkver ]] && trunkversion="${verbegin}${gitcount}" || trunkversion=${trunkver}
+sed -i "s/define('FOG_VERSION'.*);/define('FOG_VERSION', '$trunkversion');/g" $system_file
+sed -i "s/define('FOG_CHANNEL'.*);/define('FOG_CHANNEL', '$channel');/g" $system_file
+git add $system_file
