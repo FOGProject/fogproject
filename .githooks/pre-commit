@@ -19,6 +19,9 @@ gitcount=$(git rev-list ${gitcom}..HEAD --count)
 # Extract the first part of the branch name
 branchon=$(echo ${gitbranch} | awk -F'-' '{print $1}')
 
+# Extract the second part of the branch name
+branchend=$(echo ${gitbranch} | awk -F'-' '{print $2}')
+
 verbegin=""
 channel=""
 
