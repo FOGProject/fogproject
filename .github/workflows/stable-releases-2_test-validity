@@ -2,4 +2,5 @@
 # test validity of install
 # down the road-test various functions (deploy, capture, API)
 # Fix version if needed
-# merge pull request
+# merge pull request with generic commit
+# maybe update version if not handled in hook
