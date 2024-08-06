@@ -24,7 +24,9 @@ This gives us a Production, Staging, and Dev branches to follow standard devops 
 
 ### Version Format
 
-{CodeBaseMajor}.{Major}.{Minor}.{Patch} 
+Our versions are formatted in a x.x.x.x format like so:
+
+`{CodeBaseMajor}.{Major}.{Minor}.{Patch}`
 
 | Version Property | Description                                                                                                           | Example |
 |------------------|-----------------------------------------------------------------------------------------------------------------------|-----------|
@@ -32,6 +34,7 @@ This gives us a Production, Staging, and Dev branches to follow standard devops 
 | Major            | Major feature additions and UI changes, potential breaking changes within the same code base, requires formal release | 1.5.x.x   |
 | Minor            | Non-breaking major feature enhancements, requires formal release                                                      | 1.5.10.x  |
 | Patch            | On-going Bug and security fixes and feature enhancements, automated releases                                          | 1.5.10.41 |
+
 
 ## Install stable version
 

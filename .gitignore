@@ -37,6 +37,7 @@ ehthumbs.db
 Thumbs.db
 *~
 *#
+.vscode/settings.json
 
 # Video #
 #########
