@@ -1,7 +1,7 @@
 on:
   workflow_dispatch:
   schedule:
-  - cron: "0 10 1 * *"
+  - cron: "0 10 15 * *"
 jobs:
   create-release-pull-request:
     runs-on: ubuntu-latest
