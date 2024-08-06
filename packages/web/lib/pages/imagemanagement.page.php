@@ -1489,14 +1489,14 @@ class ImageManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'image-general':
-                $this->imageGeneralPost();
-                break;
-            case 'image-storagegroup':
-                $this->imageStoragegroupPost();
-                break;
-            case 'image-host':
-                $this->imageHostPost();
+                case 'image-general':
+                    $this->imageGeneralPost();
+                    break;
+                case 'image-storagegroup':
+                    $this->imageStoragegroupPost();
+                    break;
+                case 'image-host':
+                    $this->imageHostPost();
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
@@ -1892,29 +1892,29 @@ class ImageManagement extends FOGPage
         $serverFault = false;
         try {
             switch ($tab) {
-            case 'session-create':
-                $msgSuccess = _('Session created!');
-                $titleSuccess = _('Session Create Success');
-                $titleFail = _('Session Create Fail');
+                case 'session-create':
+                    $msgSuccess = _('Session created!');
+                    $titleSuccess = _('Session Create Success');
+                    $titleFail = _('Session Create Fail');
 
-                $MulticastSession = $this->sessionCreate();
-                if (!$MulticastSession->save()) {
-                    $serverFault = true;
-                    throw new Exception(_('Failed to create Session'));
-                }
+                    $MulticastSession = $this->sessionCreate();
+                    if (!$MulticastSession->save()) {
+                        $serverFault = true;
+                        throw new Exception(_('Failed to create Session'));
+                    }
 
-                // Reset our port to a random number within the proper range.
-                $randomnumber = mt_rand(24576, 32766)*2;
-                while ($randomnumber == $MulticastSession->get('port')) {
+                    // Reset our port to a random number within the proper range.
                     $randomnumber = mt_rand(24576, 32766)*2;
-                }
-                self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
-                break;
-            case 'session-cancel':
-                $this->sessionCancel();
-                $msgSuccess = _('Sessions cancelled!');
-                $titleSuccess = _('Session Cancel Success');
-                $titleFail = _('Session Cancel Fail');
+                    while ($randomnumber == $MulticastSession->get('port')) {
+                        $randomnumber = mt_rand(24576, 32766)*2;
+                    }
+                    self::setSetting('FOG_UDPCAST_STARTINGPORT', $randomnumber);
+                    break;
+                case 'session-cancel':
+                    $this->sessionCancel();
+                    $msgSuccess = _('Sessions cancelled!');
+                    $titleSuccess = _('Session Cancel Success');
+                    $titleFail = _('Session Cancel Fail');
             }
             $msg = json_encode(
                 [

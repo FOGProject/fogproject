@@ -579,11 +579,11 @@ class OUManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'ou-general':
-                $this->ouGeneralPost();
-                break;
-            case 'ou-host':
-                $this->ouHostPost();
+                case 'ou-general':
+                    $this->ouGeneralPost();
+                    break;
+                case 'ou-host':
+                    $this->ouHostPost();
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

@@ -207,11 +207,11 @@ class AddLocationGroup extends Hook
         $obj = $arguments['Group'];
         try {
             switch ($tab) {
-            case 'group-location':
-                $this->groupLocationPost($obj);
-                break;
-            default:
-                return;
+                case 'group-location':
+                    $this->groupLocationPost($obj);
+                    break;
+                default:
+                    return;
             }
             $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
             $arguments['hook'] = 'GROUP_EDIT_LOCATION_SUCCESS';

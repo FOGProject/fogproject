@@ -87,20 +87,20 @@ class AddLDAPJS extends Hook
             $subset
         );
         switch ($node) {
-        case 'ldap':
-            if (empty($subset)) {
-                $filepaths = "../lib/plugins/{$this->node}/js/fog.{$node}.js";
-            } else {
-                $filepaths
-                    = "../lib/plugins/{$this->node}/js/fog.{$node}.{$subset}.js";
-            }
-            if ($subset && !file_exists($filepaths)) {
-                $arguments['files'][]
-                    = "../lib/plugins/{$this->node}/js/fog.{$node}.list.js";
-            }
-            break;
-        default:
-            return;
+            case 'ldap':
+                if (empty($subset)) {
+                    $filepaths = "../lib/plugins/{$this->node}/js/fog.{$node}.js";
+                } else {
+                    $filepaths
+                        = "../lib/plugins/{$this->node}/js/fog.{$node}.{$subset}.js";
+                }
+                if ($subset && !file_exists($filepaths)) {
+                    $arguments['files'][]
+                        = "../lib/plugins/{$this->node}/js/fog.{$node}.list.js";
+                }
+                break;
+            default:
+                return;
         }
         $arguments['files'][] = $filepaths;
     }

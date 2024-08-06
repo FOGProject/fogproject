@@ -2822,7 +2822,8 @@ abstract class FOGBase
      * @param $arr The item to test
      * @return bool
      */
-    public static function is_assoc_array($arr) {
+    public static function is_assoc_array($arr)
+    {
         if (!is_array($arr)) {
             return false;
         }
@@ -2834,7 +2835,8 @@ abstract class FOGBase
      * @param $arr The item to test
      * @return bool
      */
-    public static function is_array_of_assoc_arrays($arr) {
+    public static function is_array_of_assoc_arrays($arr)
+    {
         if (!is_array($arr) || empty($arr)) {
             return false;
         }

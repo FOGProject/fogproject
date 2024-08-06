@@ -87,27 +87,27 @@ class AddAccessControlJS extends Hook
             $subset
         );
         switch ($node) {
-        case 'accesscontrol':
-        case 'accesscontrolrule':
-            if (empty($subset)) {
-                $filepaths = "../lib/plugins/{$this->node}/js/fog.{$node}.js";
-            } else {
-                $filepaths
-                    = "../lib/plugins/{$this->node}/js/fog.{$node}.{$subset}.js";
-            }
-            break;
-        case 'user':
-            if (empty($subset)) {
-                $filepaths
-                    = "../lib/plugins/{$this->node}/js/fog.{$this->node}.{$node}.js";
-            } else {
-                $filepaths
-                    = "../lib/plugins/{$this->node}/js/"
-                    . "fog.{$this->node}.{$node}.{$subset}.js";
-            }
-            break;
-        default:
-            return;
+            case 'accesscontrol':
+            case 'accesscontrolrule':
+                if (empty($subset)) {
+                    $filepaths = "../lib/plugins/{$this->node}/js/fog.{$node}.js";
+                } else {
+                    $filepaths
+                        = "../lib/plugins/{$this->node}/js/fog.{$node}.{$subset}.js";
+                }
+                break;
+            case 'user':
+                if (empty($subset)) {
+                    $filepaths
+                        = "../lib/plugins/{$this->node}/js/fog.{$this->node}.{$node}.js";
+                } else {
+                    $filepaths
+                        = "../lib/plugins/{$this->node}/js/"
+                        . "fog.{$this->node}.{$node}.{$subset}.js";
+                }
+                break;
+            default:
+                return;
         }
         if ($subset && !file_exists($filepaths)) {
             $arguments['files'][]

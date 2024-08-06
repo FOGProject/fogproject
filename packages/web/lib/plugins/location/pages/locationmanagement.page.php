@@ -681,11 +681,11 @@ class LocationManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'location-general':
-                $this->locationGeneralPost();
-                break;
-            case 'location-host':
-                $this->locationHostPost();
+                case 'location-general':
+                    $this->locationGeneralPost();
+                    break;
+                case 'location-host':
+                    $this->locationHostPost();
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

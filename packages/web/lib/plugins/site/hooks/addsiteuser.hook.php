@@ -221,11 +221,11 @@ class AddSiteUser extends Hook
         $obj = $arguments['User'];
         try {
             switch ($tab) {
-            case 'user-site':
-                $this->userSitePost($obj);
-                break;
-            default:
-                return;
+                case 'user-site':
+                    $this->userSitePost($obj);
+                    break;
+                default:
+                    return;
             }
             $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
             $arguments['hook'] = 'USER_EDIT_SITE_SUCCESS';

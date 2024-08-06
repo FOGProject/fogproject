@@ -114,33 +114,33 @@ class AddLocationAPI extends Hook
     public function adjustGetter($arguments)
     {
         switch ($arguments['classname']) {
-        case 'location':
-            $arguments['data'] = FOGCore::fastmerge(
-                $arguments['class']->get(),
-                [
-                    'storagenode' => Route::getter(
-                        'storagenode',
-                        $arguments['class']->get('storagenode')
-                    ),
-                    'storagegroup' => Route::getter(
-                        $arguments['class']->get('storagegroup')
-                    )
-                ]
-            );
-            break;
-        case 'locationassociation':
-            $arguments['data'] = FOGCore::fastmerge(
-                $arguments['class']->get(),
-                [
-                    'host' => Route::getter(
-                        'host',
-                        $arguments['class']->get('host')
-                    ),
-                    'location' => $arguments['class']
-                    ->get('location')
-                    ->get()
-                ]
-            );
+            case 'location':
+                $arguments['data'] = FOGCore::fastmerge(
+                    $arguments['class']->get(),
+                    [
+                        'storagenode' => Route::getter(
+                            'storagenode',
+                            $arguments['class']->get('storagenode')
+                        ),
+                        'storagegroup' => Route::getter(
+                            $arguments['class']->get('storagegroup')
+                        )
+                    ]
+                );
+                break;
+            case 'locationassociation':
+                $arguments['data'] = FOGCore::fastmerge(
+                    $arguments['class']->get(),
+                    [
+                        'host' => Route::getter(
+                            'host',
+                            $arguments['class']->get('host')
+                        ),
+                        'location' => $arguments['class']
+                        ->get('location')
+                        ->get()
+                    ]
+                );
         }
     }
 }

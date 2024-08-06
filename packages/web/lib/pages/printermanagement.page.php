@@ -923,17 +923,17 @@ class PrinterManagement extends FOGPage
                 );
             }
             switch (strtolower($config)) {
-            case 'local':
-                $printertype = 'Local';
-                break;
-            case 'cups':
-                $printertype = 'Cups';
-                break;
-            case 'iprint':
-                $printertype = 'iPrint';
-                break;
-            case 'network':
-                $printertype = 'Network';
+                case 'local':
+                    $printertype = 'Local';
+                    break;
+                case 'cups':
+                    $printertype = 'Cups';
+                    break;
+                case 'iprint':
+                    $printertype = 'iPrint';
+                    break;
+                case 'network':
+                    $printertype = 'Network';
             }
             $Printer = self::getClass('Printer')
                 ->set('name', $printer)
@@ -1506,17 +1506,17 @@ class PrinterManagement extends FOGPage
             );
         }
         switch (strtolower($config)) {
-        case 'local':
-            $printertype = 'Local';
-            break;
-        case 'cups':
-            $printertype = 'Cups';
-            break;
-        case 'iprint':
-            $printertype = 'iPrint';
-            break;
-        case 'network':
-            $printertype = 'Network';
+            case 'local':
+                $printertype = 'Local';
+                break;
+            case 'cups':
+                $printertype = 'Cups';
+                break;
+            case 'iprint':
+                $printertype = 'iPrint';
+                break;
+            case 'network':
+                $printertype = 'Network';
         }
         $this->obj
             ->set('name', $printer)
@@ -1766,12 +1766,12 @@ class PrinterManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'printer-general':
-                $this->printerGeneralPost();
-                break;
-            case 'printer-host':
-                $this->printerHostPost();
-                break;
+                case 'printer-general':
+                    $this->printerGeneralPost();
+                    break;
+                case 'printer-host':
+                    $this->printerHostPost();
+                    break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

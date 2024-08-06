@@ -642,12 +642,12 @@ class ModuleManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'module-general':
-                $this->moduleGeneralPost();
-                break;
-            case 'module-host':
-                $this->moduleHostPost();
-                break;
+                case 'module-general':
+                    $this->moduleGeneralPost();
+                    break;
+                case 'module-host':
+                    $this->moduleHostPost();
+                    break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

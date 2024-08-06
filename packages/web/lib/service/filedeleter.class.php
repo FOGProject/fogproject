@@ -245,7 +245,7 @@ class FileDeleter extends FOGService
                             )
                         );
                         continue;
-                    } else if (!self::$FOGSSH->exists($deleteFile)) {
+                    } elseif (!self::$FOGSSH->exists($deleteFile)) {
                         self::outall(
                             sprintf(
                                 "%s: %s.\n\t - %s: %s.\n\t - %s.",
@@ -256,7 +256,7 @@ class FileDeleter extends FOGService
                                 _('Skipping as there is nothing to do')
                             )
                         );
-                    } else if (!self::$FOGSSH->delete($deleteFile)) {
+                    } elseif (!self::$FOGSSH->delete($deleteFile)) {
                         self::outall(
                             sprintf(
                                 "%s: %s.\n\t -  %s: %s.\n\t - %s.",

@@ -146,73 +146,73 @@ if (!in_array($_REQUEST['unit'], $units)) {
     exit;
 }
 switch ($unit) {
-case 'AESDecryption':
-case 'AESDecryptionResponse1':
-case 'AESDecryptionResponse2':
-    $iv_size = mcrypt_get_iv_size(
-        MCRYPT_RIJNDAEL_128,
-        MCRYPT_MODE_CBC
-    );
-    $iv = mcrypt_create_iv(
-        $iv_size,
-        MCRYPT_DEV_URANDOM
-    );
-    $key = $_REQUEST['key'];
-    $n = strlen($key);
-    $i = 0;
-    while ($i < $n) {
-        $a = substr(
-            $key,
-            $i,
-            2
-        );
-        $c = pack(
-            'H*',
-            $a
-        );
-        if ($i == 0) {
-            $key = $c;
-        } else {
-            $key .= $c;
-        }
-        $i += 2;
-    }
-    switch ($unit) {
     case 'AESDecryption':
-        $AESDecryption(
-            $key,
-            $iv,
-            'Foobar22!'
-        );
-        break;
     case 'AESDecryptionResponse1':
-        $AESDecryptionResponse1(
-            $key,
-            $iv,
-            'Foobar22!'
-        );
-        break;
     case 'AESDecryptionResponse2':
-        $AESDecryptionResponse2(
-            $key,
-            $iv,
-            'Foobar22!'
+        $iv_size = mcrypt_get_iv_size(
+            MCRYPT_RIJNDAEL_128,
+            MCRYPT_MODE_CBC
         );
+        $iv = mcrypt_create_iv(
+            $iv_size,
+            MCRYPT_DEV_URANDOM
+        );
+        $key = $_REQUEST['key'];
+        $n = strlen($key);
+        $i = 0;
+        while ($i < $n) {
+            $a = substr(
+                $key,
+                $i,
+                2
+            );
+            $c = pack(
+                'H*',
+                $a
+            );
+            if ($i == 0) {
+                $key = $c;
+            } else {
+                $key .= $c;
+            }
+            $i += 2;
+        }
+        switch ($unit) {
+            case 'AESDecryption':
+                $AESDecryption(
+                    $key,
+                    $iv,
+                    'Foobar22!'
+                );
+                break;
+            case 'AESDecryptionResponse1':
+                $AESDecryptionResponse1(
+                    $key,
+                    $iv,
+                    'Foobar22!'
+                );
+                break;
+            case 'AESDecryptionResponse2':
+                $AESDecryptionResponse2(
+                    $key,
+                    $iv,
+                    'Foobar22!'
+                );
+                break;
+        }
         break;
-    }
-    break;
-case 'Response':
-    $Response();
-    break;
-case 'ResponseArray':
-    $ResponseArray();
-    break;
-case 'BadResponse':
-    $BadResponse();
-    break;
-case 'Download':
-    $Download();
-    break;
-default:
-    die(_('Invalid Unit'));
+    case 'Response':
+        $Response();
+        break;
+    case 'ResponseArray':
+        $ResponseArray();
+        break;
+    case 'BadResponse':
+        $BadResponse();
+        break;
+    case 'Download':
+        $Download();
+        break;
+    default:
+        die(_('Invalid Unit'));
 }

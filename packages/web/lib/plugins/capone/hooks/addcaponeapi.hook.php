@@ -81,52 +81,52 @@ class AddCaponeAPI extends Hook
             ->getColumns() as $common => &$real
         ) {
             switch ($common) {
-            case 'id':
-                $arguments['columns'][] = [
-                    'db' => $real,
-                    'dt' => $common
-                ];
-                $arguments['columns'][] = [
-                    'db' => $real,
-                    'dt' => 'mainlink',
-                    'formatter' => function ($d, $row) {
-                        return '<a href="../management/index.php?node='
-                            . 'capone&sub=edit&id='
-                            . $row['cID']
-                            . '">'
-                            . _('Edit Capone ID')
-                            . ': '
-                            . $row['cID']
-                            . '</a>';
-                    }
-                ];
-                break;
-            case 'imageID':
-                $argument['columns'][] = [
-                    'db' => $real,
-                    'dt' => $common
-                ];
-                $arguments['columns'][] = [
-                    'db' => $real,
-                    'dt' => 'imageLink',
-                    'formatter' => function ($d, $row) {
-                        if (!$d) {
-                            return;
+                case 'id':
+                    $arguments['columns'][] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $arguments['columns'][] = [
+                        'db' => $real,
+                        'dt' => 'mainlink',
+                        'formatter' => function ($d, $row) {
+                            return '<a href="../management/index.php?node='
+                                . 'capone&sub=edit&id='
+                                . $row['cID']
+                                . '">'
+                                . _('Edit Capone ID')
+                                . ': '
+                                . $row['cID']
+                                . '</a>';
                         }
-                        return '<a href="../management/index.php?node=image&'
-                            . 'sub=edit&id='
-                            . $d
-                            . '">'
-                            . self::getClass('Image', $d)->get('name')
-                            . '</a>';
-                    }
-                ];
-                break;
-            default:
-                $arguments['columns'][] = [
-                    'db' => $real,
-                    'dt' =>$common
-                ];
+                    ];
+                    break;
+                case 'imageID':
+                    $argument['columns'][] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $arguments['columns'][] = [
+                        'db' => $real,
+                        'dt' => 'imageLink',
+                        'formatter' => function ($d, $row) {
+                            if (!$d) {
+                                return;
+                            }
+                            return '<a href="../management/index.php?node=image&'
+                                . 'sub=edit&id='
+                                . $d
+                                . '">'
+                                . self::getClass('Image', $d)->get('name')
+                                . '</a>';
+                        }
+                    ];
+                    break;
+                default:
+                    $arguments['columns'][] = [
+                        'db' => $real,
+                        'dt' =>$common
+                    ];
             }
             unset($real);
         }

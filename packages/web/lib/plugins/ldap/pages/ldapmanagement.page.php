@@ -1674,8 +1674,8 @@ class LDAPManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'ldap-general':
-                $this->ldapGeneralPost();
+                case 'ldap-general':
+                    $this->ldapGeneralPost();
             }
             if (!$this->obj->save()) {
                 $serverFault = false;

@@ -1532,32 +1532,32 @@ class ServiceConfigurationPage extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'service-autologout':
-                $this->serviceAutologoutPost();
-                break;
-            case 'service-displaymanager':
-                $this->serviceDisplaymanagerPost();
-                break;
-            case 'service-hostnamechanger':
-                $this->serviceHostnamechangerPost();
-                break;
-            case 'service-hostregister':
-                $this->serviceHostregisterPost();
-                break;
-            case 'service-powermanagement':
-                $this->servicePowermanagementPost();
-                break;
-            case 'service-printermanager':
-                $this->servicePrintermanagerPost();
-                break;
-            case 'service-snapinclient':
-                $this->serviceSnapinclientPost();
-                break;
-            case 'service-taskreboot':
-                $this->serviceTaskrebootPost();
-                break;
-            case 'service-usertracker':
-                $this->serviceUsertrackerPost();
+                case 'service-autologout':
+                    $this->serviceAutologoutPost();
+                    break;
+                case 'service-displaymanager':
+                    $this->serviceDisplaymanagerPost();
+                    break;
+                case 'service-hostnamechanger':
+                    $this->serviceHostnamechangerPost();
+                    break;
+                case 'service-hostregister':
+                    $this->serviceHostregisterPost();
+                    break;
+                case 'service-powermanagement':
+                    $this->servicePowermanagementPost();
+                    break;
+                case 'service-printermanager':
+                    $this->servicePrintermanagerPost();
+                    break;
+                case 'service-snapinclient':
+                    $this->serviceSnapinclientPost();
+                    break;
+                case 'service-taskreboot':
+                    $this->serviceTaskrebootPost();
+                    break;
+                case 'service-usertracker':
+                    $this->serviceUsertrackerPost();
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'SERVICE_EDIT_SUCCESS';

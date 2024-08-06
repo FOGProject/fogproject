@@ -897,14 +897,14 @@ class UserManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'user-general':
-                $this->userGeneralPost();
-                break;
-            case 'user-changepw':
-                $this->userChangePWPost();
-                break;
-            case 'user-api':
-                $this->userAPIPost();
+                case 'user-general':
+                    $this->userGeneralPost();
+                    break;
+                case 'user-changepw':
+                    $this->userChangePWPost();
+                    break;
+                case 'user-api':
+                    $this->userAPIPost();
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

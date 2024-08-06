@@ -195,11 +195,11 @@ class AddAccessControlUser extends Hook
         $obj = $arguments['User'];
         try {
             switch ($tab) {
-            case 'user-accesscontrol':
-                $this->userAccesscontrolPost($obj);
-                break;
-            default:
-                return;
+                case 'user-accesscontrol':
+                    $this->userAccesscontrolPost($obj);
+                    break;
+                default:
+                    return;
             }
             $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
             $arguments['hook'] = 'USER_EDIT_ACCESSCONTROL_SUCCESS';

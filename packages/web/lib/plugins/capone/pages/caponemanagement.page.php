@@ -605,8 +605,8 @@ class CaponeManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'capone-general':
-                $this->caponeGeneralPost();
+                case 'capone-general':
+                    $this->caponeGeneralPost();
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

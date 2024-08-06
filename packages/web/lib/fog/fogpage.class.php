@@ -627,78 +627,78 @@ abstract class FOGPage extends FOGBase
             $menu['import'] = self::$foglang['Import'] . ' ' . self::$foglang[$refNode];
         }
         switch ($node) {
-        case 'home':
-        case 'client':
-        case 'schema':
-        case 'service':
-        case 'hwinfo':
-            $menu = [];
-            break;
-        case 'about':
-            $menu = [
-                'home' => self::$foglang['Home'],
-                'license' => self::$foglang['License'],
-                'kernel' => self::$foglang['KernelUpdate'],
-                'initrd' => self::$foglang['InitrdUpdate'],
-                'pxemenu' => self::$foglang['PXEBootMenu'],
-                'maclist' => self::$foglang['MACAddrList'],
-                'settings' => self::$foglang['FOGSettings'],
-                'logviewer' => self::$foglang['LogViewer'],
-                'config' => self::$foglang['ConfigSave']
-            ];
-            break;
-        case 'plugin':
-            $menu = [
-                'list' => _('List Available Plugins'),
-                'import' => _('Import a new Plugin')
-            ];
-            break;
-        case 'task':
-            $menu = [
-                'active' => self::$foglang['ActiveTasks'],
-                'activemulticast' => self::$foglang['ActiveMCTasks'],
-                'activesnapins' => self::$foglang['ActiveSnapins'],
-                'activescheduled' => self::$foglang['ScheduledTasks'],
-                'activescheduleddels' => _('Queued Path Deletions')
-            ];
-            break;
-        case 'image':
-            self::arrayInsertBefore(
-                'export',
-                $menu,
-                'multicast',
-                _('Multicast Image')
-            );
-            break;
-        case 'host':
-            self::arrayInsertBefore(
-                'export',
-                $menu,
-                'pending',
-                _('Pending Hosts')
-            );
-            self::arrayInsertBefore(
-                'export',
-                $menu,
-                'pendingMacs',
-                _('Pending MACs')
-            );
-            break;
-        case 'report':
-            $reportlink = "file&f=";
-            $menu = [];
-            foreach (ReportManagement::loadCustomReports() as &$report) {
-                $item = ucwords(strtolower($report));
-                $menu[
-                    sprintf(
-                        '%s%s',
-                        $reportlink,
-                        base64_encode($report)
-                    )
-                ] = $item;
-                unset($report, $item);
-            }
-            $menu['upload'] = _('Import Reports');
+            case 'home':
+            case 'client':
+            case 'schema':
+            case 'service':
+            case 'hwinfo':
+                $menu = [];
+                break;
+            case 'about':
+                $menu = [
+                    'home' => self::$foglang['Home'],
+                    'license' => self::$foglang['License'],
+                    'kernel' => self::$foglang['KernelUpdate'],
+                    'initrd' => self::$foglang['InitrdUpdate'],
+                    'pxemenu' => self::$foglang['PXEBootMenu'],
+                    'maclist' => self::$foglang['MACAddrList'],
+                    'settings' => self::$foglang['FOGSettings'],
+                    'logviewer' => self::$foglang['LogViewer'],
+                    'config' => self::$foglang['ConfigSave']
+                ];
+                break;
+            case 'plugin':
+                $menu = [
+                    'list' => _('List Available Plugins'),
+                    'import' => _('Import a new Plugin')
+                ];
+                break;
+            case 'task':
+                $menu = [
+                    'active' => self::$foglang['ActiveTasks'],
+                    'activemulticast' => self::$foglang['ActiveMCTasks'],
+                    'activesnapins' => self::$foglang['ActiveSnapins'],
+                    'activescheduled' => self::$foglang['ScheduledTasks'],
+                    'activescheduleddels' => _('Queued Path Deletions')
+                ];
+                break;
+            case 'image':
+                self::arrayInsertBefore(
+                    'export',
+                    $menu,
+                    'multicast',
+                    _('Multicast Image')
+                );
+                break;
+            case 'host':
+                self::arrayInsertBefore(
+                    'export',
+                    $menu,
+                    'pending',
+                    _('Pending Hosts')
+                );
+                self::arrayInsertBefore(
+                    'export',
+                    $menu,
+                    'pendingMacs',
+                    _('Pending MACs')
+                );
+                break;
+            case 'report':
+                $reportlink = "file&f=";
+                $menu = [];
+                foreach (ReportManagement::loadCustomReports() as &$report) {
+                    $item = ucwords(strtolower($report));
+                    $menu[
+                        sprintf(
+                            '%s%s',
+                            $reportlink,
+                            base64_encode($report)
+                        )
+                    ] = $item;
+                    unset($report, $item);
+                }
+                $menu['upload'] = _('Import Reports');
         }
 
         $menu = array_filter($menu);

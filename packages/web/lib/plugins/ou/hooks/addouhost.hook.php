@@ -222,11 +222,11 @@ class AddOUHost extends Hook
         $obj = $arguments['Host'];
         try {
             switch ($tab) {
-            case 'host-ou':
-                $this->hostOUPost($obj);
-                break;
-            default:
-                return;
+                case 'host-ou':
+                    $this->hostOUPost($obj);
+                    break;
+                default:
+                    return;
             }
             $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
             $arguments['hook'] = 'HOST_EDIT_OU_SUCCESS';

@@ -252,8 +252,7 @@ class PDODB extends DatabaseManager
         string $sql,
         array  $data = [],
         array $paramvals = []
-    )
-    {
+    ) {
         try {
             if (!self::$_link) {
                 throw new PDOException($this->sqlerror());
@@ -318,9 +317,8 @@ class PDODB extends DatabaseManager
     public function fetch(
         int    $type = PDO::FETCH_ASSOC,
         string $fetchType = 'fetch_assoc',
-               $params = false
-    )
-    {
+        $params = false
+    ) {
         try {
             self::$_result = [];
             if (empty($type)) {

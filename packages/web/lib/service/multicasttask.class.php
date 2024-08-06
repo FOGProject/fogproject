@@ -516,56 +516,84 @@ class MulticastTask extends FOGService
         ];
         $buildcmd = array_values(array_filter($buildcmd));
         switch ($this->getImageType()) {
-        case 1:
-            switch ($this->getOSID()) {
             case 1:
-            case 2:
-                if (is_file($this->getImagePath())) {
-                    $filelist[] = $this->getImagePath();
-                    break;
-                }
-            case 5:
-            case 6:
-            case 7:
-                $files = scandir($this->getImagePath());
-                $sys = preg_grep('#(sys\.img\..*$)#i', $files);
-                $rec = preg_grep('#(rec\.img\..*$)#i', $files);
-                if (count($sys) || count($rec)) {
-                    if (count($sys)) {
-                        $filelist[] = 'sys.img.*';
-                    }
-                    if (count($rec)) {
-                        $filelist[] = 'rec.img.*';
-                    }
-                } else {
-                    $filename = 'd1p%d.%s';
-                    $iterator = new DirectoryIterator(
-                        $this->getImagePath()
-                    );
-                    foreach ($iterator as $fileInfo) {
-                        if ($fileInfo->isDot()) continue;
-                        sscanf(
-                            $fileInfo->getFilename(),
-                            $filename,
-                            $part,
-                            $ext
-                        );
-                        if ($ext == 'img') {
-                            $filelist[] = $fileInfo->getFilename();
+                switch ($this->getOSID()) {
+                    case 1:
+                    case 2:
+                        if (is_file($this->getImagePath())) {
+                            $filelist[] = $this->getImagePath();
+                            break;
                         }
-                        unset($part, $ext);
-                    }
-                    unset($iterator);
+                        // no break
+                    case 5:
+                    case 6:
+                    case 7:
+                        $files = scandir($this->getImagePath());
+                        $sys = preg_grep('#(sys\.img\..*$)#i', $files);
+                        $rec = preg_grep('#(rec\.img\..*$)#i', $files);
+                        if (count($sys) || count($rec)) {
+                            if (count($sys)) {
+                                $filelist[] = 'sys.img.*';
+                            }
+                            if (count($rec)) {
+                                $filelist[] = 'rec.img.*';
+                            }
+                        } else {
+                            $filename = 'd1p%d.%s';
+                            $iterator = new DirectoryIterator(
+                                $this->getImagePath()
+                            );
+                            foreach ($iterator as $fileInfo) {
+                                if ($fileInfo->isDot()) {
+                                    continue;
+                                }
+                                sscanf(
+                                    $fileInfo->getFilename(),
+                                    $filename,
+                                    $part,
+                                    $ext
+                                );
+                                if ($ext == 'img') {
+                                    $filelist[] = $fileInfo->getFilename();
+                                }
+                                unset($part, $ext);
+                            }
+                            unset($iterator);
+                        }
+                        unset($files, $sys, $rec);
+                        break;
+                    default:
+                        $filename = 'd1p%d.%s';
+                        $iterator = new DirectoryIterator(
+                            $this->getImagePath()
+                        );
+                        foreach ($iterator as $fileInfo) {
+                            if ($fileInfo->isDot()) {
+                                continue;
+                            }
+                            sscanf(
+                                $fileInfo->getFilename(),
+                                $filename,
+                                $part,
+                                $ext
+                            );
+                            if ($ext == 'img') {
+                                $filelist[] = $fileInfo->getFilename();
+                            }
+                            unset($part, $ext);
+                        }
+                        unset($iterator);
                 }
-                unset($files, $sys, $rec);
                 break;
-            default:
+            case 2:
                 $filename = 'd1p%d.%s';
                 $iterator = new DirectoryIterator(
                     $this->getImagePath()
                 );
                 foreach ($iterator as $fileInfo) {
-                    if ($fileInfo->isDot()) continue;
+                    if ($fileInfo->isDot()) {
+                        continue;
+                    }
                     sscanf(
                         $fileInfo->getFilename(),
                         $filename,
@@ -578,58 +606,41 @@ class MulticastTask extends FOGService
                     unset($part, $ext);
                 }
                 unset($iterator);
-            }
-            break;
-        case 2:
-            $filename = 'd1p%d.%s';
-            $iterator = new DirectoryIterator(
-                $this->getImagePath()
-            );
-            foreach ($iterator as $fileInfo) {
-                if ($fileInfo->isDot()) continue;
-                sscanf(
-                    $fileInfo->getFilename(),
-                    $filename,
-                    $part,
-                    $ext
+                break;
+            case 3:
+                $filename = 'd%dp%d.%s';
+                $iterator = new DirectoryIterator(
+                    $this->getImagePath()
                 );
-                if ($ext == 'img') {
+                foreach ($iterator as $fileInfo) {
+                    if ($fileInfo->isDot()) {
+                        continue;
+                    }
+                    sscanf(
+                        $fileInfo->getFilename(),
+                        $filename,
+                        $device,
+                        $part,
+                        $ext
+                    );
+                    if ($ext == 'img') {
+                        $filelist[] = $fileInfo->getFilename();
+                    }
+                    unset($device, $part, $ext);
+                }
+                unset($iterator);
+                break;
+            case 4:
+                $iterator = new DirectoryIterator(
+                    $this->getImagePath()
+                );
+                foreach ($iterator as $fileInfo) {
+                    if ($fileInfo->isDot()) {
+                        continue;
+                    }
                     $filelist[] = $fileInfo->getFilename();
                 }
-                unset($part, $ext);
-            }
-            unset($iterator);
-            break;
-        case 3:
-            $filename = 'd%dp%d.%s';
-            $iterator = new DirectoryIterator(
-                $this->getImagePath()
-            );
-            foreach ($iterator as $fileInfo) {
-                if ($fileInfo->isDot()) continue;
-                sscanf(
-                    $fileInfo->getFilename(),
-                    $filename,
-                    $device,
-                    $part,
-                    $ext
-                );
-                if ($ext == 'img') {
-                    $filelist[] = $fileInfo->getFilename();
-                }
-                unset($device, $part, $ext);
-            }
-            unset($iterator);
-            break;
-        case 4:
-            $iterator = new DirectoryIterator(
-                $this->getImagePath()
-            );
-            foreach ($iterator as $fileInfo) {
-                if ($fileInfo->isDot()) continue;
-                $filelist[] = $fileInfo->getFilename();
-            }
-            unset($iterator);
+                unset($iterator);
         }
         @natcasesort($filelist);
         $partid = self::getPartitions();

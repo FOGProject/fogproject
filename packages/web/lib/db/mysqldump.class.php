@@ -289,22 +289,22 @@ class Mysqldump
      */
     public function restore($path)
     {
-        if(!$path || !is_file($path)){
+        if(!$path || !is_file($path)) {
             throw new Exception("File {$path} does not exist.");
         }
 
-        $handle = fopen($path , 'rb');
+        $handle = fopen($path, 'rb');
 
-        if(!$handle){
+        if(!$handle) {
             throw new Exception("Failed reading file {$path}. Check access permissions.");
         }
 
-        if(!$this->dbHandler){
+        if(!$this->dbHandler) {
             $this->connect();
         }
 
         $buffer = '';
-        while ( !feof($handle) ) {
+        while (!feof($handle)) {
             $line = trim(fgets($handle));
 
             if (substr($line, 0, 2) == '--' || !$line) {
@@ -1934,7 +1934,7 @@ class TypeAdapterMysql extends TypeAdapterFactory
             $createTable = preg_replace($match, $replace, $createTable);
         }
 
-        if ($this->dumpSettings['if-not-exists'] ) {
+        if ($this->dumpSettings['if-not-exists']) {
             $createTable = preg_replace('/^CREATE TABLE/', 'CREATE TABLE IF NOT EXISTS', $createTable);
         }
 
@@ -2037,7 +2037,7 @@ class TypeAdapterMysql extends TypeAdapterFactory
         $characterSetClient = $row['character_set_client'];
         $collationConnection = $row['collation_connection'];
         $sqlMode = $row['sql_mode'];
-        if ( $this->dumpSettings['skip-definer'] ) {
+        if ($this->dumpSettings['skip-definer']) {
             if ($functionStmtReplaced = preg_replace(
                 '/^(CREATE)\s+('.self::DEFINER_RE.')?\s+(FUNCTION\s.*)$/s',
                 '\1 \3',

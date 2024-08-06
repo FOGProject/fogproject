@@ -83,12 +83,12 @@ abstract class FOGClient extends FOGBase
                     $moduleid
                 );
                 switch ($this->shortName) {
-                case 'dircleaner':
-                    $this->shortName = 'dircleanup';
-                    break;
-                case 'snapin':
-                    $this->shortName = 'snapinclient';
-                    break;
+                    case 'dircleaner':
+                        $this->shortName = 'dircleanup';
+                        break;
+                    case 'snapin':
+                        $this->shortName = 'snapinclient';
+                        break;
                 }
             }
             $globalInfo = array_intersect_key(

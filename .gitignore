@@ -92,3 +92,6 @@ packages/web/lib/plugins/hostext
 ###################
 **.idea
 **.sass-cache
+# php-cs-fixer.cache #
+######################
+.php-cs-fixer.cache

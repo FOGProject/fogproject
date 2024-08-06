@@ -595,11 +595,11 @@ class WindowsKeyManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'windowskey-general':
-                $this->windowsKeyGeneralPost();
-                break;
-            case 'windowskey-images':
-                $this->windowsKeyImagePost();
+                case 'windowskey-general':
+                    $this->windowsKeyGeneralPost();
+                    break;
+                case 'windowskey-images':
+                    $this->windowsKeyImagePost();
             }
 
             if (!$this->obj->save()) {

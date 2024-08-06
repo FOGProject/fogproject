@@ -130,7 +130,7 @@ class FOGSSH
     {
         if (str_contains($func, 'scp')) {
             $linker = $this->_link;
-        } else if (str_contains($func, 'sftp_')) {
+        } elseif (str_contains($func, 'sftp_')) {
             if (!$this->_sftp) {
                 $this->sftp();
             }
@@ -317,7 +317,8 @@ class FOGSSH
 
         @fclose($stream);
     }
-    public function scanFilesystem($remote_file) {
+    public function scanFilesystem($remote_file)
+    {
         $sftp = $this->_sftp;
         $dir = "ssh2.sftp://$sftp$remote_file";
         $tmpArray = [];

@@ -4,7 +4,7 @@
  *
  * PHP Version 5
  *
- * @category File_Deleter 
+ * @category File_Deleter
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -13,7 +13,7 @@
 /**
  * File Deleter report
  *
- * @category File_Deleter 
+ * @category File_Deleter
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3

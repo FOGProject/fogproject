@@ -71,23 +71,23 @@ class AccessControlDeleteMassItems extends Hook
     public function deletemassitems($arguments)
     {
         switch ($arguments['classname']) {
-        case 'user':
-            $arguments['removeItems']['accesscontrolassociation'] = [
-                'userID' => $arguments['itemIDs']
-            ];
-            break;
-        case 'accesscontrolrule':
-            $arguments['removeItems']['accesscontrolruleassociation'] = [
-                'accesscontrolruleID' => $arguments['itemIDs']
-            ];
-            // no break
-        default:
-            $arguments['removeItems']['accesscontrolassociation'] = [
-                'accesscontrolID' => $arguments['itemIDs']
-            ];
-            $arguments['removeItems']['accesscontrolruleassociation'] = [
-                'accesscontrolID' => $arguments['itemIDs']
-            ];
+            case 'user':
+                $arguments['removeItems']['accesscontrolassociation'] = [
+                    'userID' => $arguments['itemIDs']
+                ];
+                break;
+            case 'accesscontrolrule':
+                $arguments['removeItems']['accesscontrolruleassociation'] = [
+                    'accesscontrolruleID' => $arguments['itemIDs']
+                ];
+                // no break
+            default:
+                $arguments['removeItems']['accesscontrolassociation'] = [
+                    'accesscontrolID' => $arguments['itemIDs']
+                ];
+                $arguments['removeItems']['accesscontrolruleassociation'] = [
+                    'accesscontrolID' => $arguments['itemIDs']
+                ];
         }
     }
 }

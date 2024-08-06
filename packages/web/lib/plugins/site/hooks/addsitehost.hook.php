@@ -221,11 +221,11 @@ class AddSiteHost extends Hook
         $obj = $arguments['Host'];
         try {
             switch ($tab) {
-            case 'host-site':
-                $this->hostSitePost($obj);
-                break;
-            default:
-                return;
+                case 'host-site':
+                    $this->hostSitePost($obj);
+                    break;
+                default:
+                    return;
             }
             $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
             $arguments['hook'] = 'HOST_EDIT_SITE_SUCCESS';

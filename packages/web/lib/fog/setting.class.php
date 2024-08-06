@@ -13,7 +13,7 @@
 /**
  * The global settings class.
  *
- * @category Setting 
+ * @category Setting
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3

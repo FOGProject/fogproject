@@ -2401,14 +2401,14 @@ class HostManagement extends FOGPage
             ];
             foreach ($names as $name => &$get) {
                 switch ($name) {
-                case 'r':
-                    $val = $r;
-                    break;
-                case 'x':
-                    $val = $x;
-                    break;
-                case 'y':
-                    $val = $y;
+                    case 'r':
+                        $val = $r;
+                        break;
+                    case 'x':
+                        $val = $x;
+                        break;
+                    case 'y':
+                        $val = $y;
                 }
                 $fields[
                     self::makeLabel(
@@ -3794,33 +3794,33 @@ class HostManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'host-general':
-                $this->hostGeneralPost();
-                break;
-            case 'host-macaddress':
-                $this->hostMacaddressPost();
-                break;
-            case 'host-active-directory':
-                $this->hostADPost();
-                break;
-            case 'host-powermanagement':
-                $this->hostPowermanagementPost();
-                break;
-            case 'host-group':
-                $this->hostGroupPost();
-                break;
-            case 'host-printer':
-                $this->hostPrinterPost();
-                break;
-            case 'host-snapin':
-                $this->hostSnapinPost();
-                break;
-            case 'host-module':
-                $this->hostModulePost();
-                break;
-            case 'host-inventory':
-                $this->hostInventoryPost();
-                break;
+                case 'host-general':
+                    $this->hostGeneralPost();
+                    break;
+                case 'host-macaddress':
+                    $this->hostMacaddressPost();
+                    break;
+                case 'host-active-directory':
+                    $this->hostADPost();
+                    break;
+                case 'host-powermanagement':
+                    $this->hostPowermanagementPost();
+                    break;
+                case 'host-group':
+                    $this->hostGroupPost();
+                    break;
+                case 'host-printer':
+                    $this->hostPrinterPost();
+                    break;
+                case 'host-snapin':
+                    $this->hostSnapinPost();
+                    break;
+                case 'host-module':
+                    $this->hostModulePost();
+                    break;
+                case 'host-inventory':
+                    $this->hostInventoryPost();
+                    break;
             }
             if (!$this->obj->isValid()) {
                 throw new Exception(_('Host is not valid!'));
@@ -4724,50 +4724,50 @@ class HostManagement extends FOGPage
             }
             // Schedule Delayed/Cron checks.
             switch ($scheduleType) {
-            case 'single':
-                $scheduleDeployTime = self::niceDate(
-                    filter_input(INPUT_POST, 'scheduleSingleTime')
-                );
-                if ($scheduleDeployTime < self::niceDate()) {
-                    throw new Exception(_('Scheduled time is in the past'));
-                }
-                break;
-            case 'cron':
-                $min = strval(
-                    filter_input(INPUT_POST, 'scheduleCronMin')
-                );
-                $hour = strval(
-                    filter_input(INPUT_POST, 'scheduleCronHour')
-                );
-                $dom = strval(
-                    filter_input(INPUT_POST, 'scheduleCronDOM')
-                );
-                $month = strval(
-                    filter_input(INPUT_POST, 'scheduleCronMonth')
-                );
-                $dow = strval(
-                    filter_input(INPUT_POST, 'scheduleCronDOW')
-                );
-                $tmin = FOGCron::checkMinutesField($min);
-                $thour = FOGCron::checkHoursField($hour);
-                $tdom = FOGCron::checkDOMField($dom);
-                $tmonth = FOGCron::checkMonthField($month);
-                $tdow = FOGCron::checkDOWField($dow);
-                if (!$tmin) {
-                    throw new Exception(_('Minutes field is invalid'));
-                }
-                if (!$thour) {
-                    throw new Exception(_('Hours field is invalid'));
-                }
-                if (!$tdom) {
-                    throw new Exception(_('Day of Month field is invalid'));
-                }
-                if (!$tmonth) {
-                    throw new Exception(_('Month field is invalid'));
-                }
-                if (!$tdow) {
-                    throw new Exception(_('Day of Week field is invalid'));
-                }
+                case 'single':
+                    $scheduleDeployTime = self::niceDate(
+                        filter_input(INPUT_POST, 'scheduleSingleTime')
+                    );
+                    if ($scheduleDeployTime < self::niceDate()) {
+                        throw new Exception(_('Scheduled time is in the past'));
+                    }
+                    break;
+                case 'cron':
+                    $min = strval(
+                        filter_input(INPUT_POST, 'scheduleCronMin')
+                    );
+                    $hour = strval(
+                        filter_input(INPUT_POST, 'scheduleCronHour')
+                    );
+                    $dom = strval(
+                        filter_input(INPUT_POST, 'scheduleCronDOM')
+                    );
+                    $month = strval(
+                        filter_input(INPUT_POST, 'scheduleCronMonth')
+                    );
+                    $dow = strval(
+                        filter_input(INPUT_POST, 'scheduleCronDOW')
+                    );
+                    $tmin = FOGCron::checkMinutesField($min);
+                    $thour = FOGCron::checkHoursField($hour);
+                    $tdom = FOGCron::checkDOMField($dom);
+                    $tmonth = FOGCron::checkMonthField($month);
+                    $tdow = FOGCron::checkDOWField($dow);
+                    if (!$tmin) {
+                        throw new Exception(_('Minutes field is invalid'));
+                    }
+                    if (!$thour) {
+                        throw new Exception(_('Hours field is invalid'));
+                    }
+                    if (!$tdom) {
+                        throw new Exception(_('Day of Month field is invalid'));
+                    }
+                    if (!$tmonth) {
+                        throw new Exception(_('Month field is invalid'));
+                    }
+                    if (!$tdow) {
+                        throw new Exception(_('Day of Week field is invalid'));
+                    }
             }
 
             // Task Type Imaging Checks.

@@ -175,10 +175,10 @@ class BootMenu extends FOGBase
             . '--config-file="%s"';
 
         /** Booting to hard disk via sanboot
-         * reset console to detected display resolution first to avoid graphical anamolies 
+         * reset console to detected display resolution first to avoid graphical anamolies
          * --drive 0 will boot the first drive found with an efi boot file at the default file path of \EFI\Boot\bootx64.efi (side note, removable install media is found before local disks)
          * could add additional linux detections per distro like `sanboot --drive 0 --no-describe --extra \EFI\rocky` and EFI\centos and EFI\debian etc. but need an || entry for every distro.
-         * If the --drive 0 option fails to find a boot option it then just tries the first 3 found local drives sequentially, after that it will fail if it hasn't booted. 
+         * If the --drive 0 option fails to find a boot option it then just tries the first 3 found local drives sequentially, after that it will fail if it hasn't booted.
          * See also https://ipxe.org/cmd/console and https://ipxe.org/cmd/sanboot
         */
         
@@ -251,7 +251,7 @@ class BootMenu extends FOGBase
         $sysuuid = isset($_REQUEST['sysuuid']) ? $_REQUEST['sysuuid'] : '';
         if (self::$Host->isValid()) {
             if ($sysuuid) {
-                if (self::$Host->get('inventory')->get('sysuuid') != $sysuuid ) {
+                if (self::$Host->get('inventory')->get('sysuuid') != $sysuuid) {
                     self::$Host->get('inventory')->getManager()->update(
                         ['hostID' => self::$Host->get('id')],
                         '',
@@ -1086,7 +1086,9 @@ class BootMenu extends FOGBase
      */
     public function keyset()
     {
-        if (!self::$Host->isValid()) return;
+        if (!self::$Host->isValid()) {
+            return;
+        }
         $update = self::$Host->getManager()->update(
             ['id' => self::$Host->get('id')],
             '',
@@ -1754,42 +1756,42 @@ class BootMenu extends FOGBase
             $Send = self::fastmerge($Send, [$params]);
         }
         switch ($option->id) {
-        case 1:
-            $Send = self::fastmerge(
-                $Send,
-                ["$this->_bootexittype || goto MENU"]
-            );
-            break;
-        case 2:
-            $Send = self::fastmerge(
-                $Send,
-                [
-                    "$this->_memdisk iso raw",
-                    $this->_memtest,
-                    'boot || goto MENU'
-                ]
-            );
-            break;
-        case 11:
-            $Send = self::fastmerge(
-                $Send,
-                [
-                    "chain -ar $this->_booturl/ipxe/advanced.php || "
-                    . "goto MENU"
-                ]
-            );
-            break;
-        default:
-            if (!$params) {
+            case 1:
+                $Send = self::fastmerge(
+                    $Send,
+                    ["$this->_bootexittype || goto MENU"]
+                );
+                break;
+            case 2:
                 $Send = self::fastmerge(
                     $Send,
                     [
-                        "$this->_kernel $this->_loglevel $type",
-                        $this->_initrd,
+                        "$this->_memdisk iso raw",
+                        $this->_memtest,
                         'boot || goto MENU'
                     ]
                 );
-            }
+                break;
+            case 11:
+                $Send = self::fastmerge(
+                    $Send,
+                    [
+                        "chain -ar $this->_booturl/ipxe/advanced.php || "
+                        . "goto MENU"
+                    ]
+                );
+                break;
+            default:
+                if (!$params) {
+                    $Send = self::fastmerge(
+                        $Send,
+                        [
+                            "$this->_kernel $this->_loglevel $type",
+                            $this->_initrd,
+                            'boot || goto MENU'
+                        ]
+                    );
+                }
         }
         return $Send;
     }

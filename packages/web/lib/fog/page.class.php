@@ -215,18 +215,18 @@ class Page extends FOGBase
             ];
             $jscolorneeded = false;
             switch ($node) {
-            case 'about':
-                if ('settings' == $sub) {
-                    $jscolorneeded = true;
-                }
-                break;
-            case 'storagenode':
-                if (in_array($sub, $jscolorNodeSubArray[$node])) {
-                    $jscolorneeded = true;
-                }
-                break;
-            default:
-                $jscolorneeded = false;
+                case 'about':
+                    if ('settings' == $sub) {
+                        $jscolorneeded = true;
+                    }
+                    break;
+                case 'storagenode':
+                    if (in_array($sub, $jscolorNodeSubArray[$node])) {
+                        $jscolorneeded = true;
+                    }
+                    break;
+                default:
+                    $jscolorneeded = false;
             }
             if ($jscolorneeded) {
                 $files[] = 'js/jscolor.js';
@@ -349,74 +349,74 @@ class Page extends FOGBase
         }
         $contentOnly = (int)self::_isContentOnly();
         switch ($contentOnly) {
-        case 0:
-            include '../management/other/index.php';
-            break;
-        case 1:
-            $userValid = (int)self::$FOGUser->isValid();
-            switch ($userValid) {
             case 0:
-                echo '<noscript>';
-                echo '<p>';
-                echo _('The current user is invalid.');
-                echo '</p>';
-                echo '</noscript>';
-                echo '<script>window.location.href = "/";</script>';
+                include '../management/other/index.php';
                 break;
             case 1:
-                header(
-                    'X-FOG-PageTitle: '
-                    . $this->pageTitle
-                    . ' | '
-                    . _('FOG Project')
-                );
-                header(
-                    'X-FOG-Memory-Usage: '
-                    . self::formatByteSize(
-                        memory_get_usage(true)
-                    )
-                );
-                header(
-                    'X-FOG-Memory-Peak: '
-                    . self::formatByteSize(
-                        memory_get_peak_usage()
-                    )
-                );
-                header(
-                    'X-FOG-Stylesheets: '
-                    . json_encode(
-                        $this->stylesheets
-                    )
-                );
-                header(
-                    'X-FOG-JavaScripts: '
-                    . json_encode(
-                        $this->javascripts
-                    )
-                );
-                header(
-                    'X-FOG-Common-JavaScripts: '
-                    . json_encode(
-                        self::$commonJavascripts
-                    )
-                );
-                header(
-                    'X-FOG-BCacheVer: ' . FOG_BCACHE_VER
-                );
-                echo '<section class="content-header">';
-                echo '<h1 id="sectionTitle">';
-                echo $this->sectionTitle;
-                echo '<small id="pageTitle">';
-                echo $this->pageTitle;
-                echo '</small>';
-                echo '</h1>';
-                echo '</section>';
-                echo '<section class="content">';
-                echo $this->body;
-                echo '</section>';
+                $userValid = (int)self::$FOGUser->isValid();
+                switch ($userValid) {
+                    case 0:
+                        echo '<noscript>';
+                        echo '<p>';
+                        echo _('The current user is invalid.');
+                        echo '</p>';
+                        echo '</noscript>';
+                        echo '<script>window.location.href = "/";</script>';
+                        break;
+                    case 1:
+                        header(
+                            'X-FOG-PageTitle: '
+                            . $this->pageTitle
+                            . ' | '
+                            . _('FOG Project')
+                        );
+                        header(
+                            'X-FOG-Memory-Usage: '
+                            . self::formatByteSize(
+                                memory_get_usage(true)
+                            )
+                        );
+                        header(
+                            'X-FOG-Memory-Peak: '
+                            . self::formatByteSize(
+                                memory_get_peak_usage()
+                            )
+                        );
+                        header(
+                            'X-FOG-Stylesheets: '
+                            . json_encode(
+                                $this->stylesheets
+                            )
+                        );
+                        header(
+                            'X-FOG-JavaScripts: '
+                            . json_encode(
+                                $this->javascripts
+                            )
+                        );
+                        header(
+                            'X-FOG-Common-JavaScripts: '
+                            . json_encode(
+                                self::$commonJavascripts
+                            )
+                        );
+                        header(
+                            'X-FOG-BCacheVer: ' . FOG_BCACHE_VER
+                        );
+                        echo '<section class="content-header">';
+                        echo '<h1 id="sectionTitle">';
+                        echo $this->sectionTitle;
+                        echo '<small id="pageTitle">';
+                        echo $this->pageTitle;
+                        echo '</small>';
+                        echo '</h1>';
+                        echo '</section>';
+                        echo '<section class="content">';
+                        echo $this->body;
+                        echo '</section>';
+                        break;
+                }
                 break;
-            }
-            break;
         }
         foreach (array_keys(get_defined_vars()) as $var) {
             unset($$var);

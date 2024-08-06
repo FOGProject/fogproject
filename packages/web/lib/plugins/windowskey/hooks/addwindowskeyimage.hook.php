@@ -206,11 +206,11 @@ class AddWindowsKeyImage extends Hook
         $obj = $arguments['Image'];
         try {
             switch ($tag) {
-            case 'image-windowskey':
-                $this->imageWindowskeyPost($obj);
-                break;
-            default:
-                return;
+                case 'image-windowskey':
+                    $this->imageWindowskeyPost($obj);
+                    break;
+                default:
+                    return;
             }
             $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
             $arguments['hook'] = 'IMAGE_EDIT_WINDOWSKEY_SUCCESS';

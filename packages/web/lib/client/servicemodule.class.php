@@ -43,12 +43,12 @@ class ServiceModule extends FOGClient
             )
         );
         switch ($mod) {
-        case 'dircleaner':
-            $mod = 'dircleanup';
-            break;
-        case 'snapin':
-            $mod = 'snapinclient';
-            break;
+            case 'dircleaner':
+                $mod = 'dircleanup';
+                break;
+            case 'snapin':
+                $mod = 'snapinclient';
+                break;
         }
         if (!in_array($mod, $mods)) {
             throw new Exception('#!um');

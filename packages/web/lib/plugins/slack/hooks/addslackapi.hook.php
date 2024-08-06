@@ -81,45 +81,45 @@ class AddSlackAPI extends Hook
             ->getColumns() as $common => &$real
         ) {
             switch ($common) {
-            case 'id':
-                $arguments['columns'][] = [
-                    'db' => $real,
-                    'dt' => 'DT_RowId',
-                    'formatter' => function ($d, $row) {
-                        return $d;
-                    }
-                ];
-                $arguments['columns'][] = [
-                    'db' => $real,
-                    'dt' => $common,
-                    'formatter' => function ($d, $row) {
-                        $team = self::getClass(
-                            'Slack',
-                            $d
-                        )->call('auth.test');
-                        return $team['team'];
-                    }
-                ];
-                break;
-            case 'token':
-                $arguments['columns'][] = [
-                    'db' => $real,
-                    'dt' => $common,
-                    'formatter' => function ($d, $row) {
-                        $team = self::getClass(
-                            'Slack',
-                            $row['sID']
-                        )->call('auth.test');
-                        return $team['user'];
-                        ;
-                    }
-                ];
-                break;
-            default:
-                $arguments['columns'][] = [
-                    'db' => $real,
-                    'dt' => $common,
-                ];
+                case 'id':
+                    $arguments['columns'][] = [
+                        'db' => $real,
+                        'dt' => 'DT_RowId',
+                        'formatter' => function ($d, $row) {
+                            return $d;
+                        }
+                    ];
+                    $arguments['columns'][] = [
+                        'db' => $real,
+                        'dt' => $common,
+                        'formatter' => function ($d, $row) {
+                            $team = self::getClass(
+                                'Slack',
+                                $d
+                            )->call('auth.test');
+                            return $team['team'];
+                        }
+                    ];
+                    break;
+                case 'token':
+                    $arguments['columns'][] = [
+                        'db' => $real,
+                        'dt' => $common,
+                        'formatter' => function ($d, $row) {
+                            $team = self::getClass(
+                                'Slack',
+                                $row['sID']
+                            )->call('auth.test');
+                            return $team['user'];
+                            ;
+                        }
+                    ];
+                    break;
+                default:
+                    $arguments['columns'][] = [
+                        'db' => $real,
+                        'dt' => $common,
+                    ];
             }
         }
     }

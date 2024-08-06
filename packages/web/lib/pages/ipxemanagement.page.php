@@ -492,7 +492,7 @@ class IpxeManagement extends FOGPage
             ($this->obj->get('regMenu') ?: '')
         );
         $default = (
-            isset($_POST['default']) ?: 
+            isset($_POST['default']) ?:
             ($this->obj->get('default') ?: '')
         );
         $hotkey = (
@@ -747,8 +747,8 @@ class IpxeManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'ipxe-general':
-                $this->ipxeGeneralPost();
+                case 'ipxe-general':
+                    $this->ipxeGeneralPost();
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

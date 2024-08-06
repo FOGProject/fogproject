@@ -222,11 +222,11 @@ class AddLocationHost extends Hook
         $obj = $arguments['Host'];
         try {
             switch ($tab) {
-            case 'host-location':
-                $this->hostLocationPost($obj);
-                break;
-            default:
-                return;
+                case 'host-location':
+                    $this->hostLocationPost($obj);
+                    break;
+                default:
+                    return;
             }
             $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
             $arguments['hook'] = 'HOST_EDIT_LOCATION_SUCCESS';

@@ -618,14 +618,14 @@ class AccessControlManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'accesscontrol-general':
-                $this->accesscontrolGeneralPost();
-                break;
-            case 'accesscontrol-rule':
-                $this->accesscontrolRulePost();
-                break;
-            case 'accesscontrol-user':
-                $this->accesscontrolUserPost();
+                case 'accesscontrol-general':
+                    $this->accesscontrolGeneralPost();
+                    break;
+                case 'accesscontrol-rule':
+                    $this->accesscontrolRulePost();
+                    break;
+                case 'accesscontrol-user':
+                    $this->accesscontrolUserPost();
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

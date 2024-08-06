@@ -210,8 +210,7 @@ class DatabaseManager extends FOGCore
     public static function getColumns(
         string $table_name,
         string $column_name
-    )
-    {
+    ) {
         $sql = sprintf(
             "SELECT COUNT(`%s`)AS`%s`FROM`%s`.`%s`WHERE`%s`='%s'%s",
             'COLUMN_NAME',

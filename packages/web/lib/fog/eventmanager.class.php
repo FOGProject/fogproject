@@ -61,39 +61,39 @@ class EventManager extends FOGBase
                 throw new Exception(_('Listener must be an array or an object'));
             }
             switch (get_class($this)) {
-            case 'EventManager':
-                if (!($listener instanceof Event)) {
-                    throw new Exception(_('Class must extend event'));
-                }
-                if (!isset($this->data[$event])) {
-                    $this->data[$event] = [];
-                }
-                array_push($this->data[$event], $listener);
-                break;
-            case 'HookManager':
-                if (!is_array($listener) || count($listener ?: []) !== 2) {
+                case 'EventManager':
+                    if (!($listener instanceof Event)) {
+                        throw new Exception(_('Class must extend event'));
+                    }
+                    if (!isset($this->data[$event])) {
+                        $this->data[$event] = [];
+                    }
+                    array_push($this->data[$event], $listener);
+                    break;
+                case 'HookManager':
+                    if (!is_array($listener) || count($listener ?: []) !== 2) {
+                        throw new Exception(
+                            _('Second paramater must be in [class,function]')
+                        );
+                    }
+                    if (!($listener[0] instanceof Hook)) {
+                        throw new Exception(_('Class must extend hook'));
+                    }
+                    if (!method_exists($listener[0], $listener[1])) {
+                        $msg = sprintf(
+                            '%s: %s->%s',
+                            _('Method does not exist'),
+                            get_class($listener[0]),
+                            $listener[1]
+                        );
+                        throw new Exception($msg);
+                    }
+                    $this->data[$event][] = $listener;
+                    break;
+                default:
                     throw new Exception(
-                        _('Second paramater must be in [class,function]')
+                        _('Register must be managed from hooks or events')
                     );
-                }
-                if (!($listener[0] instanceof Hook)) {
-                    throw new Exception(_('Class must extend hook'));
-                }
-                if (!method_exists($listener[0], $listener[1])) {
-                    $msg = sprintf(
-                        '%s: %s->%s',
-                        _('Method does not exist'),
-                        get_class($listener[0]),
-                        $listener[1]
-                    );
-                    throw new Exception($msg);
-                }
-                $this->data[$event][] = $listener;
-                break;
-            default:
-                throw new Exception(
-                    _('Register must be managed from hooks or events')
-                );
             }
         } catch (Exception $e) {
             $string = sprintf(

@@ -665,11 +665,11 @@ class AccessControlRuleManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'accesscontrolrule-general':
-                $this->accesscontrolruleGeneralPost();
-                break;
-            case 'accesscontrolrule-role':
-                $this->accesscontrolruleRolePost();
+                case 'accesscontrolrule-general':
+                    $this->accesscontrolruleGeneralPost();
+                    break;
+                case 'accesscontrolrule-role':
+                    $this->accesscontrolruleRolePost();
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

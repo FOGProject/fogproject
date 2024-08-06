@@ -568,8 +568,8 @@ class SubnetGroupManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'subnetgroup-general':
-                $this->subnetgroupGeneralPost();
+                case 'subnetgroup-general':
+                    $this->subnetgroupGeneralPost();
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

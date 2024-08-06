@@ -87,31 +87,31 @@ class AddWindowsKeyJS extends Hook
             $subset
         );
         switch ($node) {
-        case 'windowskey':
-            if (empty($subset)) {
-                $filepaths
-                    = "../lib/plugins/{$this->node}/js/fog.{$node}.js";
-            } else {
-                $filepaths
-                    = "../lib/plugins/{$this->node}/js/fog.{$node}.{$subset}.js";
-            }
-            if ($subset && !file_exists($filepaths)) {
-                $arguments['files'][]
-                    = "../lib/plugins/{$this->node}/js/fog.{$node}.list.js";
-            }
-            break;
-        case 'image':
-            if (empty($subset)) {
-                $filepaths
-                    = "../lib/plugins/{$this->node}/js/fog.{$this->node}.{$node}.js";
-            } else {
-                $filepaths
-                    = "../lib/plugins/{$this->node}/js"
-                    . "/fog.{$this->node}.{$node}.{$subset}.js";
-            }
-            break;
-        default:
-            return;
+            case 'windowskey':
+                if (empty($subset)) {
+                    $filepaths
+                        = "../lib/plugins/{$this->node}/js/fog.{$node}.js";
+                } else {
+                    $filepaths
+                        = "../lib/plugins/{$this->node}/js/fog.{$node}.{$subset}.js";
+                }
+                if ($subset && !file_exists($filepaths)) {
+                    $arguments['files'][]
+                        = "../lib/plugins/{$this->node}/js/fog.{$node}.list.js";
+                }
+                break;
+            case 'image':
+                if (empty($subset)) {
+                    $filepaths
+                        = "../lib/plugins/{$this->node}/js/fog.{$this->node}.{$node}.js";
+                } else {
+                    $filepaths
+                        = "../lib/plugins/{$this->node}/js"
+                        . "/fog.{$this->node}.{$node}.{$subset}.js";
+                }
+                break;
+            default:
+                return;
         }
         $arguments['files'][] = $filepaths;
     }

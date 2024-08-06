@@ -205,11 +205,11 @@ class AddOUGroup extends Hook
         $obj = $arguments['Group'];
         try {
             switch ($tab) {
-            case 'group-ou':
-                $this->groupOUPost($obj);
-                break;
-            default:
-                return;
+                case 'group-ou':
+                    $this->groupOUPost($obj);
+                    break;
+                default:
+                    return;
             }
             $arguments['code'] = HTTPResponseCodes::HTTP_ACCEPTED;
             $arguments['hook'] = 'GROUP_EDIT_OU_SUCCESS';

@@ -973,18 +973,18 @@ class StorageGroupManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'storagegroup-general':
-                $this->storagegroupGeneralPost();
-                break;
-            case 'storagegroup-image':
-                $this->storagegroupImagePost();
-                break;
-            case 'storagegroup-snapin':
-                $this->storagegroupSnapinPost();
-                break;
-            case 'storagegroup-storagenode':
-                $this->storagegroupStoragenodePost();
-                break;
+                case 'storagegroup-general':
+                    $this->storagegroupGeneralPost();
+                    break;
+                case 'storagegroup-image':
+                    $this->storagegroupImagePost();
+                    break;
+                case 'storagegroup-snapin':
+                    $this->storagegroupSnapinPost();
+                    break;
+                case 'storagegroup-storagenode':
+                    $this->storagegroupStoragenodePost();
+                    break;
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

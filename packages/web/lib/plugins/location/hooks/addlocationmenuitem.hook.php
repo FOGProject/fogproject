@@ -103,7 +103,9 @@ class AddLocationMenuItem extends Hook
                 'name',
                 'FOG_SNAPIN_LOCATION_SEND_ENABLED'
             )->load('name');
-        if ($Setting->isValid()) return;
+        if ($Setting->isValid()) {
+            return;
+        }
         $Setting->set(
             'description',
             sprintf(

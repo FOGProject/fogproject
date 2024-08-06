@@ -180,21 +180,21 @@ class Host extends FOGController
     {
         $key = $this->key($key);
         switch ($key) {
-        case 'mac':
-            if (!($value instanceof MACAddress)) {
-                $value = new MACAddress($value);
-                $value = $value->__toString();
-            }
-            break;
-        case 'snapinjob':
-            if (!($value instanceof SnapinJob)) {
-                $value = new SnapinJob($value);
-            }
-            break;
-        case 'task':
-            if (!($value instanceof Task)) {
-                $value = new Task($value);
-            }
+            case 'mac':
+                if (!($value instanceof MACAddress)) {
+                    $value = new MACAddress($value);
+                    $value = $value->__toString();
+                }
+                break;
+            case 'snapinjob':
+                if (!($value instanceof SnapinJob)) {
+                    $value = new SnapinJob($value);
+                }
+                break;
+            case 'task':
+                if (!($value instanceof Task)) {
+                    $value = new Task($value);
+                }
         }
         return parent::set($key, $value);
     }
@@ -233,11 +233,11 @@ class Host extends FOGController
         ];
         foreach ($removeItems as &$item) {
             switch ($item) {
-            case 'snapintask':
-                $find = $SnapinJobIDs;
-                break;
-            default:
-                $find = $findWhere;
+                case 'snapintask':
+                    $find = $SnapinJobIDs;
+                    break;
+                default:
+                    $find = $findWhere;
             }
             Route::deletemass(
                 $item,
@@ -931,33 +931,33 @@ class Host extends FOGController
             // Snapin Tasking
             if ($TaskType->isSnapinTasking) {
                 switch ($TaskType->id) {
-                case TaskType::SINGLE_SNAPIN:
-                    $find = [
-                        'jobID' => $this->get('snapinjob')->get('id'),
-                        'stateID' => self::fastmerge(
-                            $this->getQueuedStates(),
-                            (array)$this->getProgressState()
-                        )
-                    ];
-                    Route::ids(
-                        'snapintask',
-                        $find,
-                        'snapinID'
-                    );
-                    $curSnapins = json_decode(Route::getData(), true);
-                    if (!in_array($deploySnapins, $curSnapins)) {
-                        $Task
-                            ->set('name', _('Multiple Snapin -- orig Single'))
-                            ->set('typeID', TaskType::ALL_SNAPINS);
-                        if (!$Task->save()) {
-                            $serverFault = true;
-                            throw new Exception(_('Unable to update task'));
+                    case TaskType::SINGLE_SNAPIN:
+                        $find = [
+                            'jobID' => $this->get('snapinjob')->get('id'),
+                            'stateID' => self::fastmerge(
+                                $this->getQueuedStates(),
+                                (array)$this->getProgressState()
+                            )
+                        ];
+                        Route::ids(
+                            'snapintask',
+                            $find,
+                            'snapinID'
+                        );
+                        $curSnapins = json_decode(Route::getData(), true);
+                        if (!in_array($deploySnapins, $curSnapins)) {
+                            $Task
+                                ->set('name', _('Multiple Snapin -- orig Single'))
+                                ->set('typeID', TaskType::ALL_SNAPINS);
+                            if (!$Task->save()) {
+                                $serverFault = true;
+                                throw new Exception(_('Unable to update task'));
+                            }
                         }
-                    }
-                    break;
-                case TaskType::ALL_SNAPINS:
-                    $this->_cancelJobsSnapinsForHost();
-                    break;
+                        break;
+                    case TaskType::ALL_SNAPINS:
+                        $this->_cancelJobsSnapinsForHost();
+                        break;
                 }
             }
             $Image = $this->getImage();
@@ -1169,8 +1169,9 @@ class Host extends FOGController
                 _('Message'),
                 $message
             ));
-            if (preg_match('#/service/ipxe/boot.php', self::$scriptname))
+            if (preg_match('#/service/ipxe/boot.php', self::$scriptname)) {
                 throw new Exception($message);
+            }
             http_response_code($errcode);
             echo json_encode(
                 [

@@ -276,7 +276,7 @@ abstract class FOGManagerController extends FOGBase
                 $order = 'ORDER BY `'
                     . $dbColumns[$columnIdx]
                     . '` ASC';
-            } else if (false === $columnIdx) {
+            } elseif (false === $columnIdx) {
                 $order = 'ORDER BY `'
                     . $doColumns[$columnOdx]
                     . '` ASC';
@@ -842,7 +842,8 @@ abstract class FOGManagerController extends FOGBase
      * @param $insertData    What we're actually updating.
      * @return bool
      */
-    private function perform_update($findWhere, $whereOperator, $insertData) {
+    private function perform_update($findWhere, $whereOperator, $insertData)
+    {
         $insertArray = [];
         $whereArray = [];
         $updateVals = [];

@@ -44,7 +44,8 @@ class Initiator
      *
      * @return void
      */
-    private static function setSanitize() {
+    private static function setSanitize()
+    {
         if (!self::$_sanitizeItems) {
             /**
              * Lambda to sanitize our user input data.
@@ -178,7 +179,9 @@ class Initiator
             'pt' => 'BR',
             'zh' => 'CN'
         ];
-        if (!in_array($lang, array_keys($validLangs))) $lang = 'en';
+        if (!in_array($lang, array_keys($validLangs))) {
+            $lang = 'en';
+        }
 
         if (PHP_SESSION_NONE != session_status()) {
             $_SESSION['FOG_LANG'] = $lang;

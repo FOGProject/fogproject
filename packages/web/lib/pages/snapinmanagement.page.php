@@ -1188,14 +1188,14 @@ class SnapinManagement extends FOGPage
         }
         $reboot = $shutdown = '';
         switch ($action) {
-        case 'reboot':
-            $reboot = 'checked';
-            break;
-        case 'shutdown':
-            $shutdown = 'checked';
-            break;
-        default:
-            $noaction = 'checked';
+            case 'reboot':
+                $reboot = 'checked';
+                break;
+            case 'shutdown':
+                $shutdown = 'checked';
+                break;
+            default:
+                $noaction = 'checked';
         }
         $args = (
             filter_input(INPUT_POST, 'args') ?:
@@ -2061,14 +2061,14 @@ class SnapinManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'snapin-general':
-                $this->snapinGeneralPost();
-                break;
-            case 'snapin-storagegroup':
-                $this->snapinStoragegroupPost();
-                break;
-            case 'snapin-host':
-                $this->snapinHostPost();
+                case 'snapin-general':
+                    $this->snapinGeneralPost();
+                    break;
+                case 'snapin-storagegroup':
+                    $this->snapinStoragegroupPost();
+                    break;
+                case 'snapin-host':
+                    $this->snapinHostPost();
             }
             if (!$this->obj->save()) {
                 $serverFault = true;

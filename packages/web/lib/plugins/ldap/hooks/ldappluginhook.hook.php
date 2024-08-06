@@ -138,26 +138,26 @@ class LDAPPluginHook extends Hook
             }
             unset($ldap);
             switch ($access) {
-            case 2:
-                // This is an admin account, break the loop
-                $tmpUser
-                    ->set('name', $user)
-                    ->set('password', $pass)
-                    ->set('display', $displayName)
-                    ->set('type', self::LDAP_ADMIN)
-                    ->save();
-                break 2;
-            case 1:
-                // This is an unprivileged user account.
-                $tmpUser
-                    ->set('name', $user)
-                    ->set('password', $pass)
-                    ->set('display', $displayName)
-                    ->set('type', self::LDAP_MOBILE)
-                    ->save();
-                break;
-            default:
-                $tmpUser = new User(-1);
+                case 2:
+                    // This is an admin account, break the loop
+                    $tmpUser
+                        ->set('name', $user)
+                        ->set('password', $pass)
+                        ->set('display', $displayName)
+                        ->set('type', self::LDAP_ADMIN)
+                        ->save();
+                    break 2;
+                case 1:
+                    // This is an unprivileged user account.
+                    $tmpUser
+                        ->set('name', $user)
+                        ->set('password', $pass)
+                        ->set('display', $displayName)
+                        ->set('type', self::LDAP_MOBILE)
+                        ->save();
+                    break;
+                default:
+                    $tmpUser = new User(-1);
             }
             unset($ldap);
         }

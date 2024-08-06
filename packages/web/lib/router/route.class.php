@@ -511,31 +511,31 @@ class Route extends FOGBase
              * Any custom fields that we need removed
              */
             switch ($classname) {
-            case 'user':
-                self::arrayRemove(
-                    [
-                        'password',
-                        'token'
-                    ],
-                    $tmpcolumns
-                );
-                break;
-            case 'host':
-                self::arrayRemove(
-                    [
-                        'sec_tok',
-                        'sec_time',
-                        'pub_key',
-                        'ADUser',
-                        'ADPass',
-                        'ADPassLegacy',
-                        'ADOU',
-                        'ADDomain',
-                        'useAD',
-                        'token'
-                    ],
-                    $tmpcolumns
-                );
+                case 'user':
+                    self::arrayRemove(
+                        [
+                            'password',
+                            'token'
+                        ],
+                        $tmpcolumns
+                    );
+                    break;
+                case 'host':
+                    self::arrayRemove(
+                        [
+                            'sec_tok',
+                            'sec_time',
+                            'pub_key',
+                            'ADUser',
+                            'ADPass',
+                            'ADPassLegacy',
+                            'ADOU',
+                            'ADDomain',
+                            'useAD',
+                            'token'
+                        ],
+                        $tmpcolumns
+                    );
             }
             self::$HookManager->processEvent(
                 'API_REMOVE_COLUMNS',
@@ -545,124 +545,305 @@ class Route extends FOGBase
             // Setup our columns to return
             foreach ((array)$tmpcolumns as $common => &$real) {
                 switch ($common) {
-                case 'id':
-                    $tableID = $real;
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => 'DT_RowId',
-                        'formatter' => function ($d, $row) {
-                            return 'row_'.$d;
-                        }
-                    ];
-                    break;
-                case 'name':
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => 'mainlink',
-                        'formatter' => function ($d, $row) use ($classname, $tmpcolumns) {
-                            return '<a href="../management/index.php?node='
-                                . ($classname == 'pxemenuoptions' ? 'ipxe' : $classname)
-                                . '&sub=edit&id='
-                                . $row[$tmpcolumns['id']]
-                                . '">'
-                                . $d
-                                . '</a>';
-                        }
-                    ];
-                    break;
-                case 'start':
-                case 'finish':
-                case 'failureTime':
-                case 'completetime':
-                case 'starttime':
-                case 'sec_time':
-                case 'checkInTime':
-                case 'scheduledStartTime':
-                case 'deployed':
-                case 'datetime':
-                case 'createdTime':
-                case 'completedTime':
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common,
-                        'formatter' => function ($d, $row) {
-                            if (self::validDate($d)) {
-                                return self::niceDate($d)->format('Y-m-d H:i:s');
+                    case 'id':
+                        $tableID = $real;
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => $common
+                        ];
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => 'DT_RowId',
+                            'formatter' => function ($d, $row) {
+                                return 'row_'.$d;
                             }
-                            return _('No Data');
-                        }
-                    ];
-                    break;
-                case 'pingstatus':
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => 'pingstatuscode',
-                        'formatter' => function ($d, $row) {
-                            return (int)$d;
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => 'pingstatustext',
-                        'formatter' => function ($d, $row) {
-                            return socket_strerror((int)$d);
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common,
-                        'formatter' => function ($d, $row) {
-                            $socketstr = socket_strerror((int)$d);
-                            $labelType = 'danger';
-                            if ($d == 0) {
-                                $labelType = 'success';
-                            } elseif ($d == 6) {
-                                $labelType = 'warning';
+                        ];
+                        break;
+                    case 'name':
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => $common
+                        ];
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => 'mainlink',
+                            'formatter' => function ($d, $row) use ($classname, $tmpcolumns) {
+                                return '<a href="../management/index.php?node='
+                                    . ($classname == 'pxemenuoptions' ? 'ipxe' : $classname)
+                                    . '&sub=edit&id='
+                                    . $row[$tmpcolumns['id']]
+                                    . '">'
+                                    . $d
+                                    . '</a>';
                             }
-                            return '<span class="label label-'
-                                . $labelType
-                                . '">'
-                                . _($socketstr)
-                                . '</span>';
-                        }
-                    ];
-                    break;
-                case 'groupID':
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => 'groupLink',
-                        'formatter' => function ($d, $row) use ($tmpcolumns) {
-                            if (!$d) {
-                                return;
+                        ];
+                        break;
+                    case 'start':
+                    case 'finish':
+                    case 'failureTime':
+                    case 'completetime':
+                    case 'starttime':
+                    case 'sec_time':
+                    case 'checkInTime':
+                    case 'scheduledStartTime':
+                    case 'deployed':
+                    case 'datetime':
+                    case 'createdTime':
+                    case 'completedTime':
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => $common,
+                            'formatter' => function ($d, $row) {
+                                if (self::validDate($d)) {
+                                    return self::niceDate($d)->format('Y-m-d H:i:s');
+                                }
+                                return _('No Data');
                             }
-                            return '<a href="../management/index.php?node=group&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . self::getClass('group', $d)->get('name')
-                                . '</a>';
-                        }
+                        ];
+                        break;
+                    case 'pingstatus':
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => 'pingstatuscode',
+                            'formatter' => function ($d, $row) {
+                                return (int)$d;
+                            }
+                        ];
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => 'pingstatustext',
+                            'formatter' => function ($d, $row) {
+                                return socket_strerror((int)$d);
+                            }
+                        ];
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => $common,
+                            'formatter' => function ($d, $row) {
+                                $socketstr = socket_strerror((int)$d);
+                                $labelType = 'danger';
+                                if ($d == 0) {
+                                    $labelType = 'success';
+                                } elseif ($d == 6) {
+                                    $labelType = 'warning';
+                                }
+                                return '<span class="label label-'
+                                    . $labelType
+                                    . '">'
+                                    . _($socketstr)
+                                    . '</span>';
+                            }
+                        ];
+                        break;
+                    case 'groupID':
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => $common
+                        ];
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => 'groupLink',
+                            'formatter' => function ($d, $row) use ($tmpcolumns) {
+                                if (!$d) {
+                                    return;
+                                }
+                                return '<a href="../management/index.php?node=group&'
+                                    . 'sub=edit&id='
+                                    . $d
+                                    . '">'
+                                    . self::getClass('group', $d)->get('name')
+                                    . '</a>';
+                            }
+                        ];
+                        break;
+                    case 'hostID':
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => $common
+                        ];
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => 'hostLink',
+                            'formatter' => function ($d, $row) {
+                                if (!$d) {
+                                    return;
+                                }
+                                return '<a href="../management/index.php?node=host&'
+                                    . 'sub=edit&id='
+                                    . $d
+                                    . '">'
+                                    . self::getClass('host', $d)->get('name')
+                                    . '</a>';
+                            }
+                        ];
+                        break;
+                    case 'image':
+                    case 'imageID':
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => $common
+                        ];
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => 'imageLink',
+                            'formatter' => function ($d, $row) use ($classname) {
+                                if (!$d) {
+                                    return;
+                                }
+                                switch ($classname) {
+                                    case 'imaginglog':
+                                        $image = self::getClass('Image')
+                                            ->set('name', $d)
+                                            ->load('name');
+                                        $imageName = $d;
+                                        break;
+                                    default:
+                                        $image = self::getClass('Image', $d);
+                                        $imageName = $image->get('name');
+                                }
+                                if ($image->isValid()) {
+                                    return '<a href="../management/index.php?node=image&'
+                                        . 'sub=edit&id='
+                                        . $d
+                                        . '">'
+                                        . $imageName
+                                        . '</a>';
+                                }
+                                return $imageName;
+                            }
+                        ];
+                        break;
+                    case 'snapinID':
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => $common
+                        ];
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => 'snapinLink',
+                            'formatter' => function ($d, $row) use ($tmpcolumns) {
+                                if (!$d) {
+                                    return;
+                                }
+                                return '<a href="../management/index.php?node=snapin&'
+                                    . 'sub=edit&id='
+                                    . $d
+                                    . '">'
+                                    . self::getClass('Snapin', $d)->get('name')
+                                    . ' - ('. $d .')'
+                                    . '</a>';
+                            }
+                        ];
+                        break;
+                    case 'mem':
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => $common,
+                            'formatter' => function ($d, $row) {
+                                if (!$d) {
+                                    return;
+                                }
+                                return Inventory::getMemory($d);
+                            }
+                        ];
+                        break;
+                    case 'storagegroupID':
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => $common
+                        ];
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => 'storagegroupLink',
+                            'formatter' => function ($d, $row) use ($tmpcolumns) {
+                                if (!$d) {
+                                    return;
+                                }
+                                return '<a href="../management/index.php?node=storagegroup&'
+                                    . 'sub=edit&id='
+                                    . $d
+                                    . '">'
+                                    . self::getClass('storagegroup', $d)->get('name')
+                                    . '</a>';
+                            }
+                        ];
+                        break;
+                    case 'storagenodeID':
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => $common
+                        ];
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => 'storagenodeLink',
+                            'formatter' => function ($d, $row) use ($tmpcolumns) {
+                                if (!$d) {
+                                    return;
+                                }
+                                return '<a href="../management/index.php?node=storagenode&'
+                                    . 'sub=edit&id='
+                                    . $d
+                                    . '">'
+                                    . self::getClass('storagenode', $d)->get('name')
+                                    . '</a>';
+                            }
+                        ];
+                        break;
+                    case 'userID':
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => $common
+                        ];
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => 'userLink',
+                            'formatter' => function ($d, $row) use ($tmpcolumns) {
+                                if (!$d) {
+                                    return;
+                                }
+                                return '<a href="../management/index.php?node=user&'
+                                    . 'sub=edit&id='
+                                    . $d
+                                    . '">'
+                                    . self::getClass('user', $d)->get('name')
+                                    . '</a>';
+                            }
+                        ];
+                        break;
+                    case 'regMenu':
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => $common,
+                            'formatter' => function ($d, $row) {
+                                return PXEMenuOptionsManager::regText($d);
+                            }
+                        ];
+                        break;
+                    default:
+                        $columns[] = [
+                            'db' => $real,
+                            'dt' => $common
+                        ];
+                }
+                unset($real);
+            }
+            // Any extra columns not in the db fields.
+            switch ($classname) {
+                case 'host':
+                    $columns[] = ['db' => 'imageName', 'dt' => 'imagename'];
+                    $columns[] = ['db' => 'hmMAC', 'dt' => 'primac'];
+                    break;
+                case 'group':
+                    $columns[] = [
+                        'db' => 'gmMembers',
+                        'dt' => 'members',
+                        'removeFromQuery' => true
                     ];
                     break;
-                case 'hostID':
+                case 'inventory':
+                    $columns[] = ['db' => 'hostName', 'dt' => 'hostname'];
                     $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                    $columns[] = [
-                        'db' => $real,
+                        'db' => 'hostID',
                         'dt' => 'hostLink',
                         'formatter' => function ($d, $row) {
                             if (!$d) {
@@ -672,56 +853,178 @@ class Route extends FOGBase
                                 . 'sub=edit&id='
                                 . $d
                                 . '">'
-                                . self::getClass('host', $d)->get('name')
+                                . $row['hostName']
                                 . '</a>';
                         }
                     ];
                     break;
-                case 'image':
-                case 'imageID':
+                case 'scheduledtask':
                     $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => 'imageLink',
-                        'formatter' => function ($d, $row) use ($classname) {
-                            if (!$d) {
-                                return;
-                            }
-                            switch ($classname) {
-                            case 'imaginglog':
-                                $image = self::getClass('Image')
-                                    ->set('name', $d)
-                                    ->load('name');
-                                $imageName = $d;
-                                break;
-                            default:
-                                $image = self::getClass('Image', $d);
-                                $imageName = $image->get('name');
-                            }
-                            if ($image->isValid()) {
-                                return '<a href="../management/index.php?node=image&'
-                                    . 'sub=edit&id='
+                        'db' => 'stGroupHostID',
+                        'dt' => 'hostLink',
+                        'formatter' => function ($d, $row) {
+                            if ($row['stIsGroup']) {
+                                $groupName = self::getClass('Group', $d)->get('name');
+                                return '<a href="'
+                                    . '../management/index.php?node=group&sub=edit&id='
                                     . $d
                                     . '">'
-                                    . $imageName
+                                    . _('Group')
+                                    . ': '
+                                    . $groupName
+                                    . '</a>';
+                            } else {
+                                $hostName = self::getClass('Host', $d)->get('name');
+                                return '<a href="'
+                                    . '../management/index.php?node=host&sub=edit&id='
+                                    . $d
+                                    . '">'
+                                    . _('Host')
+                                    . ': '
+                                    . $hostName
                                     . '</a>';
                             }
-                            return $imageName;
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => 'stType',
+                        'dt' => 'type',
+                        'formatter' => function ($d, $row) {
+                            $type = strtolower($d);
+                            switch ($type) {
+                                case 'c':
+                                    return _('Cron');
+                                default:
+                                    $columns[] = [
+                                        'dt' => 'starttime',
+                                        'formatter' => function (&$d, &$row) {
+                                            return self::niceDate($row['stDateTime']);
+                                        }
+                                    ];
+                                    return _('Delayed');
+                            }
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => 'stID',
+                        'dt' => 'starttime',
+                        'formatter' => function ($d, $row) {
+                            $type = strtolower($row['stType']);
+                            switch ($type) {
+                                case 'c':
+                                    $cronstr = sprintf(
+                                        '%s %s %s %s %s',
+                                        $row['stMinute'],
+                                        $row['stHour'],
+                                        $row['stDOM'],
+                                        $row['stMonth'],
+                                        $row['stDOW']
+                                    );
+                                    $date = FOGCron::parse($cronstr);
+                                    break;
+                                default:
+                                    $date = $row['stDateTime'];
+                            }
+                            return self::niceDate()
+                                ->setTimestamp($date)
+                                ->format('Y-m-d H:i:s');
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => 'stTaskTypeID',
+                        'dt' => 'taskTypeName',
+                        'formatter' => function ($d, $row) {
+                            return self::getClass('TaskType', $d)->get('name');
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => 'stActive',
+                        'dt' => 'isActive',
+                        'formatter' => function ($d, $row) {
+                            return $d <= 0 ? _('No') : _('Yes');
                         }
                     ];
                     break;
-                case 'snapinID':
+                case 'filedeletequeue':
                     $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
+                        'db' => 'fdqState',
+                        'dt' => 'taskstateicon',
+                        'formatter' => function ($d, $row) {
+                            return self::getClass('taskstate', $d)->get('icon');
+                        }
                     ];
                     $columns[] = [
-                        'db' => $real,
+                        'db' => 'fdqState',
+                        'dt' => 'taskstatename',
+                        'formatter' => function ($d, $row) {
+                            return self::getClass('taskstate', $d)->get('name');
+                        }
+                    ];
+                    break;
+                case 'snapintask':
+                    $columns[] = [
+                        'db' => 'stJobID',
+                        'dt' => 'hostID',
+                        'formatter' => function ($d, $row) {
+                            return self::getClass('snapinjob', $d)
+                                ->get('host')
+                                ->get('id');
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => 'stJobID',
+                        'dt' => 'hostname',
+                        'formatter' => function ($d, $row) {
+                            return self::getClass('snapinjob', $d)
+                                ->get('host')
+                                ->get('name');
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => 'stJobID',
+                        'dt' => 'hostLink',
+                        'formatter' => function ($d, $row) {
+                            $tmphost = self::getClass('snapinjob', $d)->get('host');
+                            return '<a href="../management/index.php?node=host&'
+                                . 'sub=edit&id='
+                                . $tmphost->get('id')
+                                . '">'
+                                . $tmphost->get('name')
+                                . '</a>';
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => 'stState',
+                        'dt' => 'taskstateicon',
+                        'formatter' => function ($d, $row) {
+                            return self::getClass('taskstate', $d)->get('icon');
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => 'stState',
+                        'dt' => 'taskstatename',
+                        'formatter' => function ($d, $row) {
+                            return self::getClass('taskstate', $d)->get('name');
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => 'stSnapinID',
+                        'dt' => 'snapinID',
+                        'formatter' => function ($d, $row) {
+                            return self::getClass('Snapin', $d)->get('id');
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => 'stSnapinID',
+                        'dt' => 'snapinname',
+                        'formatter' => function ($d, $row) {
+                            return self::getClass('Snapin', $d)->get('name');
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => 'stSnapinID',
                         'dt' => 'snapinLink',
-                        'formatter' => function ($d, $row) use ($tmpcolumns) {
+                        'formatter' => function ($d, $row) {
                             if (!$d) {
                                 return;
                             }
@@ -734,416 +1037,113 @@ class Route extends FOGBase
                                 . '</a>';
                         }
                     ];
-                    break;
-                case 'mem':
                     $columns[] = [
-                        'db' => $real,
-                        'dt' => $common,
+                        'db' => 'stCheckinDate',
+                        'dt' => 'diff',
                         'formatter' => function ($d, $row) {
-                            if (!$d) {
-                                return;
-                            }
-                            return Inventory::getMemory($d);
+                            $start = $d;
+                            $end = $row['stCompleteDate'];
+                            return self::diff($start, $end);
                         }
                     ];
                     break;
-                case 'storagegroupID':
+                case 'imaginglog':
                     $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => 'storagegroupLink',
-                        'formatter' => function ($d, $row) use ($tmpcolumns) {
-                            if (!$d) {
-                                return;
-                            }
-                            return '<a href="../management/index.php?node=storagegroup&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . self::getClass('storagegroup', $d)->get('name')
-                                . '</a>';
-                        }
-                    ];
-                    break;
-                case 'storagenodeID':
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => 'storagenodeLink',
-                        'formatter' => function ($d, $row) use ($tmpcolumns) {
-                            if (!$d) {
-                                return;
-                            }
-                            return '<a href="../management/index.php?node=storagenode&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . self::getClass('storagenode', $d)->get('name')
-                                . '</a>';
-                        }
-                    ];
-                    break;
-                case 'userID':
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => 'userLink',
-                        'formatter' => function ($d, $row) use ($tmpcolumns) {
-                            if (!$d) {
-                                return;
-                            }
-                            return '<a href="../management/index.php?node=user&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . self::getClass('user', $d)->get('name')
-                                . '</a>';
-                        }
-                    ];
-                    break;
-                case 'regMenu':
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common,
+                        'db' => 'ilStartTime',
+                        'dt' => 'diff',
                         'formatter' => function ($d, $row) {
-                            return PXEMenuOptionsManager::regText($d);
+                            $start = $d;
+                            $end = $row['ilFinishTime'];
+                            return self::diff($start, $end);
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => 'hostName',
+                        'dt' => 'hostname',
+                    ];
+                    break;
+                case 'storagegroup':
+                    $StorageGroup = new StorageGroup();
+                    $columns[] = [
+                        'dt' => 'enablednodes',
+                        'formatter' => function ($d, $row) use (&$StorageGroup) {
+                            return $StorageGroup->set('id', $row['ngID'])
+                                ->load()
+                                ->get('enablednodes');
+                        }
+                    ];
+                    $columns[] = [
+                        'dt' => 'masternode',
+                        'formatter' => function ($d, $row) use (&$StorageGroup) {
+                            try {
+                                $sn = $StorageGroup->getMasterStorageNode();
+                            } catch (Exception $e) {
+                                $sn = new StorageNode();
+                            }
+                            return self::getter('storagenode', $sn);
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => 'totalclients',
+                        'dt' => 'totalclients',
+                        'removeFromQuery' => true
+                    ];
+                    break;
+                case 'storagenode':
+                    $columns[] = ['db' => 'ngID', 'dt' => 'storagegroupID'];
+                    $columns[] = ['db' => 'ngName', 'dt' => 'storagegroupName'];
+                    $columns[] = [
+                        'db' => 'ngmID',
+                        'dt' => 'clientload',
+                        'formatter' => function ($d, $row) {
+                            return self::getClass('StorageNode', $d)->getClientLoad();
+                        }
+                    ];
+                    /*$columns[] = [
+                        'db' => 'ngmID',
+                        'dt' => 'online',
+                        'formatter' => function ($d, $row) {
+                            return self::getClass('StorageNode', $d)->get('online');
+                        }
+                    ];*/
+                    /*$columns[] = [
+                        'db' => 'ngmID',
+                        'dt' => 'logfiles',
+                        'formatter' => function ($d, $row) {
+                            return self::getClass('StorageNode', $d)->get('logfiles');
+                        }
+                    ];*/
+                    break;
+                case 'usertracking':
+                    $columns[] = [
+                        'db' => 'utHostID',
+                        'dt' => 'hostname',
+                        'formatter' => function ($d, $row) {
+                            return self::getClass('Host', $d)->get('name');
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => 'utAction',
+                        'dt' => 'action',
+                        'formatter' => function ($d, $row) {
+                            switch ($d) {
+                                case '0':
+                                    return _('Logout');
+                                case '1':
+                                    return _('Login');
+                                case '99':
+                                    return _('Service Start');
+                            }
                         }
                     ];
                     break;
-                default:
+                case 'plugin':
                     $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
+                        'dt' => 'hash',
+                        'formatter' => function ($d, $row) {
+                            return md5($row['pName']);
+                        }
                     ];
-                }
-                unset($real);
-            }
-            // Any extra columns not in the db fields.
-            switch ($classname) {
-            case 'host':
-                $columns[] = ['db' => 'imageName', 'dt' => 'imagename'];
-                $columns[] = ['db' => 'hmMAC', 'dt' => 'primac'];
-                break;
-            case 'group':
-                $columns[] = [
-                    'db' => 'gmMembers',
-                    'dt' => 'members',
-                    'removeFromQuery' => true
-                ];
-                break;
-            case 'inventory':
-                $columns[] = ['db' => 'hostName', 'dt' => 'hostname'];
-                $columns[] = [
-                    'db' => 'hostID',
-                    'dt' => 'hostLink',
-                    'formatter' => function ($d, $row) {
-                        if (!$d) {
-                            return;
-                        }
-                        return '<a href="../management/index.php?node=host&'
-                            . 'sub=edit&id='
-                            . $d
-                            . '">'
-                            . $row['hostName']
-                            . '</a>';
-                    }
-                ];
-                break;
-            case 'scheduledtask':
-                $columns[] = [
-                    'db' => 'stGroupHostID',
-                    'dt' => 'hostLink',
-                    'formatter' => function ($d, $row) {
-                        if ($row['stIsGroup']) {
-                            $groupName = self::getClass('Group', $d)->get('name');
-                            return '<a href="'
-                                . '../management/index.php?node=group&sub=edit&id='
-                                . $d
-                                . '">'
-                                . _('Group')
-                                . ': '
-                                . $groupName
-                                . '</a>';
-                        } else {
-                            $hostName = self::getClass('Host', $d)->get('name');
-                            return '<a href="'
-                                . '../management/index.php?node=host&sub=edit&id='
-                                . $d
-                                . '">'
-                                . _('Host')
-                                . ': '
-                                . $hostName
-                                . '</a>';
-                        }
-                    }
-                ];
-                $columns[] = [
-                    'db' => 'stType',
-                    'dt' => 'type',
-                    'formatter' => function ($d, $row) {
-                        $type = strtolower($d);
-                        switch ($type) {
-                        case 'c':
-                            return _('Cron');
-                        default:
-                            $columns[] = [
-                                'dt' => 'starttime',
-                                'formatter' => function (&$d, &$row) {
-                                    return self::niceDate($row['stDateTime']);
-                                }
-                            ];
-                            return _('Delayed');
-                        }
-                    }
-                ];
-                $columns[] = [
-                    'db' => 'stID',
-                    'dt' => 'starttime',
-                    'formatter' => function ($d, $row) {
-                        $type = strtolower($row['stType']);
-                        switch ($type) {
-                        case 'c':
-                            $cronstr = sprintf(
-                                '%s %s %s %s %s',
-                                $row['stMinute'],
-                                $row['stHour'],
-                                $row['stDOM'],
-                                $row['stMonth'],
-                                $row['stDOW']
-                            );
-                            $date = FOGCron::parse($cronstr);
-                            break;
-                        default:
-                            $date = $row['stDateTime'];
-                        }
-                        return self::niceDate()
-                            ->setTimestamp($date)
-                            ->format('Y-m-d H:i:s');
-                    }
-                ];
-                $columns[] = [
-                    'db' => 'stTaskTypeID',
-                    'dt' => 'taskTypeName',
-                    'formatter' => function ($d, $row) {
-                        return self::getClass('TaskType', $d)->get('name');
-                    }
-                ];
-                $columns[] = [
-                    'db' => 'stActive',
-                    'dt' => 'isActive',
-                    'formatter' => function ($d, $row) {
-                        return $d <= 0 ? _('No') : _('Yes');
-                    }
-                ];
-                break;
-            case 'filedeletequeue':
-                $columns[] = [
-                    'db' => 'fdqState',
-                    'dt' => 'taskstateicon',
-                    'formatter' => function ($d, $row) {
-                        return self::getClass('taskstate', $d)->get('icon');
-                    }
-                ];
-                $columns[] = [
-                    'db' => 'fdqState',
-                    'dt' => 'taskstatename',
-                    'formatter' => function ($d, $row) {
-                        return self::getClass('taskstate', $d)->get('name');
-                    }
-                ];
-                break;
-            case 'snapintask':
-                $columns[] = [
-                    'db' => 'stJobID',
-                    'dt' => 'hostID',
-                    'formatter' => function ($d, $row) {
-                        return self::getClass('snapinjob', $d)
-                            ->get('host')
-                            ->get('id');
-                    }
-                ];
-                $columns[] = [
-                    'db' => 'stJobID',
-                    'dt' => 'hostname',
-                    'formatter' => function ($d, $row) {
-                        return self::getClass('snapinjob', $d)
-                            ->get('host')
-                            ->get('name');
-                    }
-                ];
-                $columns[] = [
-                    'db' => 'stJobID',
-                    'dt' => 'hostLink',
-                    'formatter' => function ($d, $row) {
-                        $tmphost = self::getClass('snapinjob', $d)->get('host');
-                        return '<a href="../management/index.php?node=host&'
-                            . 'sub=edit&id='
-                            . $tmphost->get('id')
-                            . '">'
-                            . $tmphost->get('name')
-                            . '</a>';
-                    }
-                ];
-                $columns[] = [
-                    'db' => 'stState',
-                    'dt' => 'taskstateicon',
-                    'formatter' => function ($d, $row) {
-                        return self::getClass('taskstate', $d)->get('icon');
-                    }
-                ];
-                $columns[] = [
-                    'db' => 'stState',
-                    'dt' => 'taskstatename',
-                    'formatter' => function ($d, $row) {
-                        return self::getClass('taskstate', $d)->get('name');
-                    }
-                ];
-                $columns[] = [
-                    'db' => 'stSnapinID',
-                    'dt' => 'snapinID',
-                    'formatter' => function ($d, $row) {
-                        return self::getClass('Snapin', $d)->get('id');
-                    }
-                ];
-                $columns[] = [
-                    'db' => 'stSnapinID',
-                    'dt' => 'snapinname',
-                    'formatter' => function ($d, $row) {
-                        return self::getClass('Snapin', $d)->get('name');
-                    }
-                ];
-                $columns[] = [
-                    'db' => 'stSnapinID',
-                    'dt' => 'snapinLink',
-                    'formatter' => function ($d, $row) {
-                        if (!$d) {
-                            return;
-                        }
-                        return '<a href="../management/index.php?node=snapin&'
-                            . 'sub=edit&id='
-                            . $d
-                            . '">'
-                            . self::getClass('Snapin', $d)->get('name')
-                            . ' - ('. $d .')'
-                            . '</a>';
-                    }
-                ];
-                $columns[] = [
-                    'db' => 'stCheckinDate',
-                    'dt' => 'diff',
-                    'formatter' => function ($d, $row) {
-                        $start = $d;
-                        $end = $row['stCompleteDate'];
-                        return self::diff($start, $end);
-                    }
-                ];
-                break;
-            case 'imaginglog':
-                $columns[] = [
-                    'db' => 'ilStartTime',
-                    'dt' => 'diff',
-                    'formatter' => function ($d, $row) {
-                        $start = $d;
-                        $end = $row['ilFinishTime'];
-                        return self::diff($start, $end);
-                    }
-                ];
-                $columns[] = [
-                    'db' => 'hostName',
-                    'dt' => 'hostname',
-                ];
-                break;
-            case 'storagegroup':
-                $StorageGroup = new StorageGroup();
-                $columns[] = [
-                    'dt' => 'enablednodes',
-                    'formatter' => function ($d, $row) use (&$StorageGroup) {
-                        return $StorageGroup->set('id', $row['ngID'])
-                            ->load()
-                            ->get('enablednodes');
-                    }
-                ];
-                $columns[] = [
-                    'dt' => 'masternode',
-                    'formatter' => function ($d, $row) use (&$StorageGroup) {
-                        try {
-                            $sn = $StorageGroup->getMasterStorageNode();
-                        } catch (Exception $e) {
-                            $sn = new StorageNode();
-                        }
-                        return self::getter('storagenode', $sn);
-                    }
-                ];
-                $columns[] = [
-                    'db' => 'totalclients',
-                    'dt' => 'totalclients',
-                    'removeFromQuery' => true
-                ];
-                break;
-            case 'storagenode':
-                $columns[] = ['db' => 'ngID', 'dt' => 'storagegroupID'];
-                $columns[] = ['db' => 'ngName', 'dt' => 'storagegroupName'];
-                $columns[] = [
-                    'db' => 'ngmID',
-                    'dt' => 'clientload',
-                    'formatter' => function ($d, $row) {
-                        return self::getClass('StorageNode', $d)->getClientLoad();
-                    }
-                ];
-            /*$columns[] = [
-                'db' => 'ngmID',
-                'dt' => 'online',
-                'formatter' => function ($d, $row) {
-                    return self::getClass('StorageNode', $d)->get('online');
-                }
-            ];*/
-            /*$columns[] = [
-                'db' => 'ngmID',
-                'dt' => 'logfiles',
-                'formatter' => function ($d, $row) {
-                    return self::getClass('StorageNode', $d)->get('logfiles');
-                }
-            ];*/
-                break;
-            case 'usertracking':
-                $columns[] = [
-                    'db' => 'utHostID',
-                    'dt' => 'hostname',
-                    'formatter' => function ($d, $row) {
-                        return self::getClass('Host', $d)->get('name');
-                    }
-                ];
-                $columns[] = [
-                    'db' => 'utAction',
-                    'dt' => 'action',
-                    'formatter' => function ($d, $row) {
-                        switch ($d) {
-                        case '0':
-                            return _('Logout');
-                        case '1':
-                            return _('Login');
-                        case '99':
-                            return _('Service Start');
-                        }
-                    }
-                ];
-                break;
-            case 'plugin':
-                $columns[] = [
-                    'dt' => 'hash',
-                    'formatter' => function ($d, $row) {
-                        return md5($row['pName']);
-                    }
-                ];
             }
             self::$HookManager->processEvent(
                 'CUSTOMIZE_DT_COLUMNS',
@@ -1258,16 +1258,16 @@ class Route extends FOGBase
                     true
                 );
                 switch ($search) {
-                case 'host':
-                    $j = "LEFT OUTER JOIN `hostMAC`
+                    case 'host':
+                        $j = "LEFT OUTER JOIN `hostMAC`
                         ON `hosts`.`hostID` = `hostMAC`.`hmHostID`";
-                    $w = " OR `hostMAC`.`hmMAC` LIKE :item";
-                    $g = "GROUP BY `hosts`.`hostName`";
-                    break;
-                default:
-                    $j = '';
-                    $w = '';
-                    $g = '';
+                        $w = " OR `hostMAC`.`hmMAC` LIKE :item";
+                        $g = "GROUP BY `hosts`.`hostName`";
+                        break;
+                    default:
+                        $j = '';
+                        $w = '';
+                        $g = '';
                 }
                 $sql = "SELECT `{$classVars['databaseFields']['id']}`,"
                     . "`{$classVars['databaseFields']['name']}`
@@ -1465,188 +1465,188 @@ class Route extends FOGBase
                 unset($key);
             }
             switch ($classname) {
-            case 'host':
-                if (isset($vars->macs)) {
-                    $macsToAdd = array_diff(
-                        (array)$vars->macs,
-                        $class->getMyMacs()
-                    );
-                    $macsToRem = array_diff(
-                        $class->getMyMacs(),
-                        (array)$vars->macs
-                    );
-                    $class
-                        ->addMAC($macsToAdd)
-                        ->removeMAC($macsToRem);
-                }
-                if (isset($vars->primac)) {
-                    $oldMac = $class->get('mac');
-                    if ($vars->primac != $oldMac) {
+                case 'host':
+                    if (isset($vars->macs)) {
+                        $macsToAdd = array_diff(
+                            (array)$vars->macs,
+                            $class->getMyMacs()
+                        );
+                        $macsToRem = array_diff(
+                            $class->getMyMacs(),
+                            (array)$vars->macs
+                        );
                         $class
-                            ->removeMAC([$oldMac])
-                            ->addMAC([$oldMac])
-                            ->addPriMAC($vars->primac);
-
+                            ->addMAC($macsToAdd)
+                            ->removeMAC($macsToRem);
                     }
-                }
-                if (isset($vars->snapins)) {
-                    $snapinsToAdd = array_diff(
-                        (array)$vars->snapins,
-                        $class->get('snapins')
-                    );
-                    $snapinsToRem = array_diff(
-                        $class->get('snapins'),
-                        (array)$vars->snapins
-                    );
-                    $class
-                        ->removeSnapin($snapinsToRem)
-                        ->addSnapin($snapinsToAdd);
-                }
-                if (isset($vars->printers)) {
-                    $printersToAdd = array_diff(
-                        (array)$vars->printers,
-                        $class->get('printers')
-                    );
-                    $printersToRem = array_diff(
-                        $class->get('printers'),
-                        (array)$vars->printers
-                    );
-                    $class
-                        ->removePrinter($printersToRem)
-                        ->addPrinter($printersToAdd);
-                }
-                if (isset($vars->modules)) {
-                    $modulesToAdd = array_diff(
-                        (array)$vars->modules,
-                        $class->get('modules')
-                    );
-                    $modulesToRem = array_diff(
-                        $class->get('modules'),
-                        (array)$vars->modules
-                    );
-                    $class
-                        ->removeModule($modulesToRem)
-                        ->addModule($modulesToAdd);
-                }
-                if (isset($vars->groups)) {
-                    $groupsToAdd = array_diff(
-                        (array)$vars->groups,
-                        $class->get('groups')
-                    );
-                    $groupsToRem = array_diff(
-                        $class->get('groups'),
-                        (array)$vars->groups
-                    );
-                    $class
-                        ->removeGroup($groupsToRem)
-                        ->addGroup($groupsToAdd);
-                }
-                break;
-            case 'group':
-                if (isset($vars->snapins)) {
-                    Route::ids('snapin', false);
-                    $snapins = json_decode(
-                        Route::getData(),
-                        true
-                    );
-                    $snapinsToRem = array_diff(
-                        $snapins,
-                        (array)$vars->snapins
-                    );
-                    $class
-                        ->removeSnapin($snapinsToRem)
-                        ->addSnapin($vars->snapins);
-                }
-                if (isset($vars->printers)) {
-                    Route::ids('printer', false);
-                    $printers = json_decode(
-                        Route::getData(),
-                        true
-                    );
-                    $printersToRem = array_diff(
-                        $printers,
-                        (array)$vars->printers
-                    );
-                    $class
-                        ->removePrinter($printersToRem)
-                        ->addPrinter($vars->printers);
-                }
-                if (isset($vars->modules)) {
-                    Route::ids('module', false);
-                    $modules = json_decode(
-                        Route::getData(),
-                        true
-                    );
-                    $modulesToRem = array_diff(
-                        $modules,
-                        (array)$vars->modules
-                    );
-                    $class
-                        ->removeModule($modulesToRem)
-                        ->addModule($vars->modules);
-                }
-                if (isset($vars->hosts)) {
-                    $hostsToAdd = array_diff(
-                        (array)$vars->hosts,
-                        $class->get('hosts')
-                    );
-                    $hostsToRem = array_diff(
-                        $class->get('hosts'),
-                        (array)$vars->hosts
-                    );
-                    $class
-                        ->removeHost($hostsToRem)
-                        ->addHost($hostsToAdd);
-                }
-                if ($vars->imageID) {
-                    $class
-                        ->addImage($vars->imageID);
-                }
-                break;
-            case 'image':
-            case 'snapin':
-                if (isset($vars->hosts)) {
-                    $hostsToAdd = array_diff(
-                        (array)$vars->hosts,
-                        $class->get('hosts')
-                    );
-                    $hostsToRem = array_diff(
-                        $class->get('hosts'),
-                        (array)$vars->hosts
-                    );
-                    $class
-                        ->removeHost($hostsToRem)
-                        ->addHost($hostsToAdd);
-                }
-                if (isset($vars->storagegroups)) {
-                    $storageGroupsToAdd = array_diff(
-                        (array)$vars->storagegroups,
-                        $class->get('storagegroups')
-                    );
-                    $storageGroupsToRem = array_diff(
-                        $class->get('storagegroups'),
-                        (array)$vars->storagegroups
-                    );
-                    $class
-                        ->removeGroup($storageGroupsToRem)
-                        ->addGroup($storageGroupsToAdd);
-                }
-                break;
-            case 'printer':
-                if (isset($vars->hosts)) {
-                    $hostsToAdd = array_diff(
-                        (array)$vars->hosts,
-                        $class->get('hosts')
-                    );
-                    $hostsToRem = array_diff(
-                        $class->get('hosts'),
-                        (array)$vars->hosts
-                    );
-                    $class
-                        ->removeHost($hostsToRem)
-                        ->addHost($hostsToAdd);
-                }
-                break;
+                    if (isset($vars->primac)) {
+                        $oldMac = $class->get('mac');
+                        if ($vars->primac != $oldMac) {
+                            $class
+                                ->removeMAC([$oldMac])
+                                ->addMAC([$oldMac])
+                                ->addPriMAC($vars->primac);
+
+                        }
+                    }
+                    if (isset($vars->snapins)) {
+                        $snapinsToAdd = array_diff(
+                            (array)$vars->snapins,
+                            $class->get('snapins')
+                        );
+                        $snapinsToRem = array_diff(
+                            $class->get('snapins'),
+                            (array)$vars->snapins
+                        );
+                        $class
+                            ->removeSnapin($snapinsToRem)
+                            ->addSnapin($snapinsToAdd);
+                    }
+                    if (isset($vars->printers)) {
+                        $printersToAdd = array_diff(
+                            (array)$vars->printers,
+                            $class->get('printers')
+                        );
+                        $printersToRem = array_diff(
+                            $class->get('printers'),
+                            (array)$vars->printers
+                        );
+                        $class
+                            ->removePrinter($printersToRem)
+                            ->addPrinter($printersToAdd);
+                    }
+                    if (isset($vars->modules)) {
+                        $modulesToAdd = array_diff(
+                            (array)$vars->modules,
+                            $class->get('modules')
+                        );
+                        $modulesToRem = array_diff(
+                            $class->get('modules'),
+                            (array)$vars->modules
+                        );
+                        $class
+                            ->removeModule($modulesToRem)
+                            ->addModule($modulesToAdd);
+                    }
+                    if (isset($vars->groups)) {
+                        $groupsToAdd = array_diff(
+                            (array)$vars->groups,
+                            $class->get('groups')
+                        );
+                        $groupsToRem = array_diff(
+                            $class->get('groups'),
+                            (array)$vars->groups
+                        );
+                        $class
+                            ->removeGroup($groupsToRem)
+                            ->addGroup($groupsToAdd);
+                    }
+                    break;
+                case 'group':
+                    if (isset($vars->snapins)) {
+                        Route::ids('snapin', false);
+                        $snapins = json_decode(
+                            Route::getData(),
+                            true
+                        );
+                        $snapinsToRem = array_diff(
+                            $snapins,
+                            (array)$vars->snapins
+                        );
+                        $class
+                            ->removeSnapin($snapinsToRem)
+                            ->addSnapin($vars->snapins);
+                    }
+                    if (isset($vars->printers)) {
+                        Route::ids('printer', false);
+                        $printers = json_decode(
+                            Route::getData(),
+                            true
+                        );
+                        $printersToRem = array_diff(
+                            $printers,
+                            (array)$vars->printers
+                        );
+                        $class
+                            ->removePrinter($printersToRem)
+                            ->addPrinter($vars->printers);
+                    }
+                    if (isset($vars->modules)) {
+                        Route::ids('module', false);
+                        $modules = json_decode(
+                            Route::getData(),
+                            true
+                        );
+                        $modulesToRem = array_diff(
+                            $modules,
+                            (array)$vars->modules
+                        );
+                        $class
+                            ->removeModule($modulesToRem)
+                            ->addModule($vars->modules);
+                    }
+                    if (isset($vars->hosts)) {
+                        $hostsToAdd = array_diff(
+                            (array)$vars->hosts,
+                            $class->get('hosts')
+                        );
+                        $hostsToRem = array_diff(
+                            $class->get('hosts'),
+                            (array)$vars->hosts
+                        );
+                        $class
+                            ->removeHost($hostsToRem)
+                            ->addHost($hostsToAdd);
+                    }
+                    if ($vars->imageID) {
+                        $class
+                            ->addImage($vars->imageID);
+                    }
+                    break;
+                case 'image':
+                case 'snapin':
+                    if (isset($vars->hosts)) {
+                        $hostsToAdd = array_diff(
+                            (array)$vars->hosts,
+                            $class->get('hosts')
+                        );
+                        $hostsToRem = array_diff(
+                            $class->get('hosts'),
+                            (array)$vars->hosts
+                        );
+                        $class
+                            ->removeHost($hostsToRem)
+                            ->addHost($hostsToAdd);
+                    }
+                    if (isset($vars->storagegroups)) {
+                        $storageGroupsToAdd = array_diff(
+                            (array)$vars->storagegroups,
+                            $class->get('storagegroups')
+                        );
+                        $storageGroupsToRem = array_diff(
+                            $class->get('storagegroups'),
+                            (array)$vars->storagegroups
+                        );
+                        $class
+                            ->removeGroup($storageGroupsToRem)
+                            ->addGroup($storageGroupsToAdd);
+                    }
+                    break;
+                case 'printer':
+                    if (isset($vars->hosts)) {
+                        $hostsToAdd = array_diff(
+                            (array)$vars->hosts,
+                            $class->get('hosts')
+                        );
+                        $hostsToRem = array_diff(
+                            $class->get('hosts'),
+                            (array)$vars->hosts
+                        );
+                        $class
+                            ->removeHost($hostsToRem)
+                            ->addHost($hostsToAdd);
+                    }
+                    break;
             }
             // Store the data and recreate.
             // If failed present so.
@@ -1764,10 +1764,10 @@ class Route extends FOGBase
                 if (property_exists($vars, $key)) {
                     $val = $vars->$key;
                 } else {
-                    $val = NULL;
+                    $val = null;
                 }
                 if ('id' == $key
-                    || NULL === $val
+                    || null === $val
                 ) {
                     continue;
                 }
@@ -1775,63 +1775,63 @@ class Route extends FOGBase
                 unset($key);
             }
             switch ($classname) {
-            case 'host':
-                if (isset($vars->macs)) {
-                    $class
-                        ->removeMAC($vars->macs)
-                        ->addPriMAC(array_shift($vars->macs))
-                        ->addMAC($vars->macs);
-                }
-                if (isset($vars->snapins)) {
-                    $class->addSnapin($vars->snapins);
-                }
-                if (isset($vars->printers)) {
-                    $class->addPrinter($vars->printers);
-                }
-                if (isset($vars->modules)) {
-                    $class->set('modules', $vars->modules);
-                }
-                if (isset($vars->groups)) {
-                    $class->addGroup($vars->groups);
-                }
-                break;
-            case 'group':
-                if (isset($vars->snapins)) {
-                    $class->addSnapin($vars->snapins);
-                }
-                if (isset($vars->printers)) {
-                    $class
-                        ->addPrinter($vars->printers);
-                }
-                if (isset($vars->modules)) {
-                    $class->addModule($vars->modules);
-                }
-                if (isset($vars->hosts)) {
-                    $class->addHost($vars->hosts);
-                    if (isset($vars->imageID)) {
-                        $class->addImage($vars->imageID);
+                case 'host':
+                    if (isset($vars->macs)) {
+                        $class
+                            ->removeMAC($vars->macs)
+                            ->addPriMAC(array_shift($vars->macs))
+                            ->addMAC($vars->macs);
                     }
-                }
-                break;
-            case 'image':
-            case 'snapin':
-                if (isset($vars->hosts)) {
-                    $class->addHost($vars->hosts);
-                }
-                if (isset($vars->storagegroups)) {
-                    $class->addGroup($vars->storagegroups);
-                }
-                break;
-            case 'printer':
-                if (isset($vars->hosts)) {
-                    $class->addHost($vars->hosts);
-                }
-                break;
+                    if (isset($vars->snapins)) {
+                        $class->addSnapin($vars->snapins);
+                    }
+                    if (isset($vars->printers)) {
+                        $class->addPrinter($vars->printers);
+                    }
+                    if (isset($vars->modules)) {
+                        $class->set('modules', $vars->modules);
+                    }
+                    if (isset($vars->groups)) {
+                        $class->addGroup($vars->groups);
+                    }
+                    break;
+                case 'group':
+                    if (isset($vars->snapins)) {
+                        $class->addSnapin($vars->snapins);
+                    }
+                    if (isset($vars->printers)) {
+                        $class
+                            ->addPrinter($vars->printers);
+                    }
+                    if (isset($vars->modules)) {
+                        $class->addModule($vars->modules);
+                    }
+                    if (isset($vars->hosts)) {
+                        $class->addHost($vars->hosts);
+                        if (isset($vars->imageID)) {
+                            $class->addImage($vars->imageID);
+                        }
+                    }
+                    break;
+                case 'image':
+                case 'snapin':
+                    if (isset($vars->hosts)) {
+                        $class->addHost($vars->hosts);
+                    }
+                    if (isset($vars->storagegroups)) {
+                        $class->addGroup($vars->storagegroups);
+                    }
+                    break;
+                case 'printer':
+                    if (isset($vars->hosts)) {
+                        $class->addHost($vars->hosts);
+                    }
+                    break;
             }
             foreach ($classVars['databaseFieldsRequired'] as &$key) {
                 $key = $class->key($key);
                 $val = $class->get($key);
-                if (NULL === $val) {
+                if (null === $val) {
                     self::setErrorMessage(
                         self::$foglang['RequiredDB'] . ": " . $key,
                         HTTPResponseCodes::HTTP_EXPECTATION_FAILED
@@ -1870,50 +1870,50 @@ class Route extends FOGBase
             $classname = strtolower($class);
             $class = new $class($id);
             switch ($classname) {
-            case 'group':
-                if (!$class->isValid()) {
-                    self::sendResponse(
-                        HTTPResponseCodes::HTTP_NOT_FOUND
-                    );
-                }
-                Route::listem(
-                    'task',
-                    ['hostID' => $class->get('hosts')]
-                );
-                $Tasks = json_decode(
-                    Route::getData()
-                );
-                foreach ($Tasks as &$Task) {
-                    self::getClass('Task', $Task->id)->cancel();
-                    unset($Task);
-                }
-                break;
-            case 'host':
-                if (!$class->isValid()) {
-                    self::sendResponse(
-                        HTTPResponseCodes::HTTP_NOT_FOUND
-                    );
-                }
-                if ($class->get('task') instanceof Task) {
-                    $class->get('task')->cancel();
-                }
-                break;
-            default:
-                $states = self::fastmerge(
-                    (array)self::getQueuedStates(),
-                    (array)self::getProgressState()
-                );
-                if (!$class->isValid()) {
-                    $classman = $class->getManager();
-                    $find = self::getsearchbody($classname);
-                    $find['stateID'] = $states;
-                    $ids = self::ids($classname, $find);
-                    $classman->cancel($ids);
-                } else {
-                    if (in_array($class->get('stateID'), $states)) {
-                        $class->cancel();
+                case 'group':
+                    if (!$class->isValid()) {
+                        self::sendResponse(
+                            HTTPResponseCodes::HTTP_NOT_FOUND
+                        );
                     }
-                }
+                    Route::listem(
+                        'task',
+                        ['hostID' => $class->get('hosts')]
+                    );
+                    $Tasks = json_decode(
+                        Route::getData()
+                    );
+                    foreach ($Tasks as &$Task) {
+                        self::getClass('Task', $Task->id)->cancel();
+                        unset($Task);
+                    }
+                    break;
+                case 'host':
+                    if (!$class->isValid()) {
+                        self::sendResponse(
+                            HTTPResponseCodes::HTTP_NOT_FOUND
+                        );
+                    }
+                    if ($class->get('task') instanceof Task) {
+                        $class->get('task')->cancel();
+                    }
+                    break;
+                default:
+                    $states = self::fastmerge(
+                        (array)self::getQueuedStates(),
+                        (array)self::getProgressState()
+                    );
+                    if (!$class->isValid()) {
+                        $classman = $class->getManager();
+                        $find = self::getsearchbody($classname);
+                        $find['stateID'] = $states;
+                        $ids = self::ids($classname, $find);
+                        $classman->cancel($ids);
+                    } else {
+                        if (in_array($class->get('stateID'), $states)) {
+                            $class->cancel();
+                        }
+                    }
             }
         } catch (Exception $e) {
             self::sendResponse(
@@ -2106,234 +2106,234 @@ class Route extends FOGBase
                 return;
             }
             switch ($classname) {
-            case 'host':
-                $pass = $class->get('ADPass');
-                $passtest = FOGCore::aesdecrypt($pass);
-                if ($test_base64 = base64_decode($passtest)) {
-                    if (mb_detect_encoding($test_base64, 'utf-8', true)) {
-                        $pass = $test_base64;
+                case 'host':
+                    $pass = $class->get('ADPass');
+                    $passtest = FOGCore::aesdecrypt($pass);
+                    if ($test_base64 = base64_decode($passtest)) {
+                        if (mb_detect_encoding($test_base64, 'utf-8', true)) {
+                            $pass = $test_base64;
+                        }
+                    } elseif (mb_detect_encoding($passtest, 'utf-8', true)) {
+                        $pass = $passtest;
                     }
-                } elseif (mb_detect_encoding($passtest, 'utf-8', true)) {
-                    $pass = $passtest;
-                }
-                $productKey = $class->get('productKey');
-                $productKeytest = FOGCore::aesdecrypt($productKey);
-                if ($test_base64 = base64_decode($productKeytest)) {
-                    if (mb_detect_encoding($test_base64, 'utf-8', true)) {
-                        $productKey = $test_base64;
+                    $productKey = $class->get('productKey');
+                    $productKeytest = FOGCore::aesdecrypt($productKey);
+                    if ($test_base64 = base64_decode($productKeytest)) {
+                        if (mb_detect_encoding($test_base64, 'utf-8', true)) {
+                            $productKey = $test_base64;
+                        }
+                    } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
+                        $productKey = $productKeytest;
                     }
-                } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
-                    $productKey = $productKeytest;
-                }
-                $data = FOGCore::fastmerge(
-                    $class->get(),
-                    [
-                        'ADPass' => $pass,
-                        'productKey' => $productKey,
-                        'hostscreen' => $class->get('hostscreen')->get(),
-                        'hostalo' => $class->get('hostalo')->get(),
-                        'inventory' => self::getter(
-                            'inventory',
-                            $class->get('inventory')
-                        ),
-                        'image' => $class->get('imagename')->get(),
-                        'imagename' => $class->getImageName(),
-                        'primac' => $class->get('mac')->__toString(),
-                        'macs' => $class->getMyMacs(),
-                    ]
-                );
-                break;
-            case 'inventory':
-                $data = FOGCore::fastmerge(
-                    $class->get(),
-                    ['memory' => $class->getMem()]
-                );
-                break;
-            case 'group':
-                $data = FOGCore::fastmerge(
-                    $class->get(),
-                    ['hostcount' => $class->getHostCount()]
-                );
-                break;
-            case 'image':
-                $data = FOGCore::fastmerge(
-                    $class->get(),
-                    [
-                        'os' => $class->get('os')->get(),
-                        'imagepartitiontype' => $class->get('imagepartitiontype')->get(),
-                        'imagetype' => $class->get('imagetype')->get(),
-                        'imagetypename' => $class->getImageType()->get('name'),
-                        'imageparttypename' => $class->getImagePartitionType()->get(
-                            'name'
-                        ),
-                        'osname' => $class->getOS()->get('name'),
-                        'storagegroupname' => $class->getStorageGroup()->get('name')
-                    ]
-                );
-                break;
-            case 'snapin':
-                $data = FOGCore::fastmerge(
-                    $class->get(),
-                    ['storagegroupname' => $class->getStorageGroup()->get('name')]
-                );
-                break;
-            case 'storagenode':
-                $data = FOGCore::fastmerge(
-                    $class->get(),
-                    [
-                        'online' => $class->get('online'),
-                        //'logfiles' => $class->get('logfiles'),
-                        'snapinfiles' => $class->get('snapinfiles'),
-                        //'images' => $class->get('images'),
-                        'storagegroup' => $class->get('storagegroup')->get()
-                    ]
-                );
-                break;
-            case 'storagegroup':
-                $data = FOGCore::fastmerge(
-                    $class->get(),
-                    [
-                        'totalsupportedclients' => $class->getTotalSupportedClients(),
-                        'enablednodes' => $class->get('enablednodes'),
-                        'allnodes' => $class->get('allnodes')
-                    ]
-                );
-                break;
-            case 'task':
-                $data = FOGCore::fastmerge(
-                    $class->get(),
-                    [
-                        'image' => $class->get('image')->get(),
-                        'host' => self::getter(
-                            'host',
-                            $class->get('host')
-                        ),
-                        'type' => $class->get('type')->get(),
-                        'state' => $class->get('state')->get(),
-                        'storagenode' => $class->get('storagenode')->get(),
-                        'storagegroup' => $class->get('storagegroup')->get()
-                    ]
-                );
-                break;
-            case 'plugin':
-                $data = FOGCore::fastmerge(
-                    $class->get(),
-                    ['hash' => md5($class->get('name'))]
-                );
-                break;
-            case 'imaginglog':
-                $data = FOGCore::fastmerge(
-                    $class->get(),
-                    [
-                        'host' => self::getter(
-                            'host',
-                            $class->get('host')
-                        ),
-                        'image' => (
-                            $class->get('images')->isValid() ?
-                            $class->get('images')->get() :
-                            $class->get('image')
-                        )
-                    ]
-                );
-                unset($data['images']);
-                break;
-            case 'snapintask':
-                $sj = new Snapinjob($class->get('snapinjob')->get('id'));
-                $host = new Host($class->get('snapinjob')->get('hostID'));
-                $data = FOGCore::fastmerge(
-                    $class->get(),
-                    [
-                        'snapin' => $class->get('snapin')->get(),
-                        'snapinjob' => self::getter(
-                            'snapinjob',
-                            $sj
-                        ),
-                        'host' => self::getter(
-                            'host',
-                            $host
-                        ),
-                        'state' => $class->get('state')->get()
-                    ]
-                );
-                break;
-            case 'snapinjob':
-                $data = FOGCore::fastmerge(
-                    $class->get(),
-                    [
-                        'host' => self::getter(
-                            'host',
-                            $class->get('host')
-                        ),
-                        'state' => $class->get('state')->get()
-                    ]
-                );
-                break;
-            case 'usertracking':
-                $data = FOGCore::fastmerge(
-                    $class->get(),
-                    [
-                        'host' => self::getter(
-                            'host',
-                            $class->get('host')
-                        ),
-                        'hostname' => $class->get('host')->get('name')
-                    ]
-                );
-                break;
-            case 'multicastsession':
-                $data = FOGCore::fastmerge(
-                    $class->get(),
-                    [
-                        'imageID' => $class->get('image'),
-                        'image' => $class->get('imagename')->get(),
-                        'state' => $class->get('state')->get()
-                    ]
-                );
-                unset($data['imagename']);
-                break;
-            case 'scheduledtask':
-                $data = FOGCore::fastmerge(
-                    $class->get(),
-                    [
-                        (
-                            $class->isGroupBased() ?
-                            'group' :
-                            'host'
-                        ) => (
-                            $class->isGroupBased() ?
-                            self::getter(
-                                'group',
-                                $class->getGroup()
-                            ) :
-                            self::getter(
+                    $data = FOGCore::fastmerge(
+                        $class->get(),
+                        [
+                            'ADPass' => $pass,
+                            'productKey' => $productKey,
+                            'hostscreen' => $class->get('hostscreen')->get(),
+                            'hostalo' => $class->get('hostalo')->get(),
+                            'inventory' => self::getter(
+                                'inventory',
+                                $class->get('inventory')
+                            ),
+                            'image' => $class->get('imagename')->get(),
+                            'imagename' => $class->getImageName(),
+                            'primac' => $class->get('mac')->__toString(),
+                            'macs' => $class->getMyMacs(),
+                        ]
+                    );
+                    break;
+                case 'inventory':
+                    $data = FOGCore::fastmerge(
+                        $class->get(),
+                        ['memory' => $class->getMem()]
+                    );
+                    break;
+                case 'group':
+                    $data = FOGCore::fastmerge(
+                        $class->get(),
+                        ['hostcount' => $class->getHostCount()]
+                    );
+                    break;
+                case 'image':
+                    $data = FOGCore::fastmerge(
+                        $class->get(),
+                        [
+                            'os' => $class->get('os')->get(),
+                            'imagepartitiontype' => $class->get('imagepartitiontype')->get(),
+                            'imagetype' => $class->get('imagetype')->get(),
+                            'imagetypename' => $class->getImageType()->get('name'),
+                            'imageparttypename' => $class->getImagePartitionType()->get(
+                                'name'
+                            ),
+                            'osname' => $class->getOS()->get('name'),
+                            'storagegroupname' => $class->getStorageGroup()->get('name')
+                        ]
+                    );
+                    break;
+                case 'snapin':
+                    $data = FOGCore::fastmerge(
+                        $class->get(),
+                        ['storagegroupname' => $class->getStorageGroup()->get('name')]
+                    );
+                    break;
+                case 'storagenode':
+                    $data = FOGCore::fastmerge(
+                        $class->get(),
+                        [
+                            'online' => $class->get('online'),
+                            //'logfiles' => $class->get('logfiles'),
+                            'snapinfiles' => $class->get('snapinfiles'),
+                            //'images' => $class->get('images'),
+                            'storagegroup' => $class->get('storagegroup')->get()
+                        ]
+                    );
+                    break;
+                case 'storagegroup':
+                    $data = FOGCore::fastmerge(
+                        $class->get(),
+                        [
+                            'totalsupportedclients' => $class->getTotalSupportedClients(),
+                            'enablednodes' => $class->get('enablednodes'),
+                            'allnodes' => $class->get('allnodes')
+                        ]
+                    );
+                    break;
+                case 'task':
+                    $data = FOGCore::fastmerge(
+                        $class->get(),
+                        [
+                            'image' => $class->get('image')->get(),
+                            'host' => self::getter(
                                 'host',
-                                $class->getHost()
+                                $class->get('host')
+                            ),
+                            'type' => $class->get('type')->get(),
+                            'state' => $class->get('state')->get(),
+                            'storagenode' => $class->get('storagenode')->get(),
+                            'storagegroup' => $class->get('storagegroup')->get()
+                        ]
+                    );
+                    break;
+                case 'plugin':
+                    $data = FOGCore::fastmerge(
+                        $class->get(),
+                        ['hash' => md5($class->get('name'))]
+                    );
+                    break;
+                case 'imaginglog':
+                    $data = FOGCore::fastmerge(
+                        $class->get(),
+                        [
+                            'host' => self::getter(
+                                'host',
+                                $class->get('host')
+                            ),
+                            'image' => (
+                                $class->get('images')->isValid() ?
+                                $class->get('images')->get() :
+                                $class->get('image')
                             )
-                        ),
-                        'tasktype' => $class->getTaskType()->get(),
-                        'runtime' => $class->getTime()
-                    ]
-                );
-                break;
-            case 'tasktype':
-                $data = FOGCore::fastmerge(
-                    $class->get(),
-                    [
-                        'isSnapinTasking' => $class->isSnapinTasking(),
-                        'isSnapinTask' => $class->isSnapinTask(),
-                        'isImagingTask' => $class->isImagingTask(),
-                        'isCapture' => $class->isCapture(),
-                        'isDeploy' => $class->isDeploy(),
-                        'isInitNeeded' => $class->isInitNeededTasking(),
-                        'initIDs' => $class->isInitNeededTasking(true),
-                        'isMulticast' => $class->isMulticast(),
-                        'isDebug' => $class->isDebug()
-                    ]
-                );
-                break;
-            default:
-                $data = $class->get();
+                        ]
+                    );
+                    unset($data['images']);
+                    break;
+                case 'snapintask':
+                    $sj = new Snapinjob($class->get('snapinjob')->get('id'));
+                    $host = new Host($class->get('snapinjob')->get('hostID'));
+                    $data = FOGCore::fastmerge(
+                        $class->get(),
+                        [
+                            'snapin' => $class->get('snapin')->get(),
+                            'snapinjob' => self::getter(
+                                'snapinjob',
+                                $sj
+                            ),
+                            'host' => self::getter(
+                                'host',
+                                $host
+                            ),
+                            'state' => $class->get('state')->get()
+                        ]
+                    );
+                    break;
+                case 'snapinjob':
+                    $data = FOGCore::fastmerge(
+                        $class->get(),
+                        [
+                            'host' => self::getter(
+                                'host',
+                                $class->get('host')
+                            ),
+                            'state' => $class->get('state')->get()
+                        ]
+                    );
+                    break;
+                case 'usertracking':
+                    $data = FOGCore::fastmerge(
+                        $class->get(),
+                        [
+                            'host' => self::getter(
+                                'host',
+                                $class->get('host')
+                            ),
+                            'hostname' => $class->get('host')->get('name')
+                        ]
+                    );
+                    break;
+                case 'multicastsession':
+                    $data = FOGCore::fastmerge(
+                        $class->get(),
+                        [
+                            'imageID' => $class->get('image'),
+                            'image' => $class->get('imagename')->get(),
+                            'state' => $class->get('state')->get()
+                        ]
+                    );
+                    unset($data['imagename']);
+                    break;
+                case 'scheduledtask':
+                    $data = FOGCore::fastmerge(
+                        $class->get(),
+                        [
+                            (
+                                $class->isGroupBased() ?
+                                'group' :
+                                'host'
+                            ) => (
+                                $class->isGroupBased() ?
+                                self::getter(
+                                    'group',
+                                    $class->getGroup()
+                                ) :
+                                self::getter(
+                                    'host',
+                                    $class->getHost()
+                                )
+                            ),
+                            'tasktype' => $class->getTaskType()->get(),
+                            'runtime' => $class->getTime()
+                        ]
+                    );
+                    break;
+                case 'tasktype':
+                    $data = FOGCore::fastmerge(
+                        $class->get(),
+                        [
+                            'isSnapinTasking' => $class->isSnapinTasking(),
+                            'isSnapinTask' => $class->isSnapinTask(),
+                            'isImagingTask' => $class->isImagingTask(),
+                            'isCapture' => $class->isCapture(),
+                            'isDeploy' => $class->isDeploy(),
+                            'isInitNeeded' => $class->isInitNeededTasking(),
+                            'initIDs' => $class->isInitNeededTasking(true),
+                            'isMulticast' => $class->isMulticast(),
+                            'isDebug' => $class->isDebug()
+                        ]
+                    );
+                    break;
+                default:
+                    $data = $class->get();
             }
             self::$HookManager->processEvent(
                 'API_GETTER',
@@ -2494,101 +2494,101 @@ class Route extends FOGBase
             self::ids($classname, $whereItems);
             $itemIDs = json_decode(Route::getData(), true);
             switch ($classname) {
-            case 'host':
-                Route::ids(
-                    'snapinjob',
-                    ['hostID' => $itemIDs]
-                );
-                $snapinjobIDs = ['jobID' => json_decode(Route::getData(), true)];
-                $findWhere = ['hostID' => $itemIDs];
-                $removeItems = [
-                    'nodefailure' => $findWhere,
-                    'imaginglog' => $findWhere,
-                    'snapintask' => $snapinjobIDs,
-                    'snapinjob' => $findWhere,
-                    'task' => $findWhere,
-                    'scheduledtask' => $findWhere,
-                    'hostautologout' => $findWhere,
-                    'hostscreensetting' => $findWhere,
-                    'groupassociation' => $findWhere,
-                    'snapinassociation' => $findWhere,
-                    'printerassociation' => $findWhere,
-                    'moduleassociation' => $findWhere,
-                    'inventory' => $findWhere,
-                    'macaddressassociation' => $findWhere,
-                    'powermanagement' => $findWhere
-                ];
-                break;
-            case 'group':
-                $findWhere = ['groupID' => $itemIDs];
-                $removeItems = [
-                    'groupassociation' => $findWhere
-                ];
-                break;
-            case 'image':
-                $findWhere = ['imageID' => $itemIDs];
-                self::getClass('HostManager')->update(
-                    $findWhere,
-                    '',
-                    ['imageID' => 0]
-                );
-                $removeItems = [
-                    'imageassociation' => $findWhere
-                ];
-                break;
-            case 'module':
-                $findWhere = ['moduleID' => $itemIDs];
-                $removeItems = [
-                    'moduleassociation' => $findWhere
-                ];
-                break;
-            case 'printer':
-                $findWhere = ['printerID' => $itemIDs];
-                $removeItems = [
-                    'printerassociation' => $findWhere
-                ];
-                break;
-            case 'snapin':
-                $findWhere = ['snapinID' => $itemIDs];
-                Route::ids(
-                    'snapintask',
-                    $findWhere,
-                    'jobID'
-                );
-                $snapinjobIDs = json_decode(Route::getData(), true);
-                $removeItems = [
-                    'snapinassociation' => $findWhere,
-                    'snapingroupassociation' => $findWhere
-                ];
-                $queuedStates = self::getQueuedStates();
-                $queuedStates[] = self::getProgressState();
-                Route::ids(
-                    'snapinjob',
-                    [
-                        'id' => $snapinjobIDs,
-                        'stateID' => $queuedStates
-                    ]
-                );
-                $snapinjobIDs = json_decode(Route::getData(), true);
-                foreach ((array)$snapinjobIDs as &$sjID) {
-                    Route::count(
-                        'snapintask',
-                        ['jobID' => $sjID]
+                case 'host':
+                    Route::ids(
+                        'snapinjob',
+                        ['hostID' => $itemIDs]
                     );
-                    $jobCount = json_decode(Route::getData());
-                    if ($jobCount->total) {
-                        continue;
+                    $snapinjobIDs = ['jobID' => json_decode(Route::getData(), true)];
+                    $findWhere = ['hostID' => $itemIDs];
+                    $removeItems = [
+                        'nodefailure' => $findWhere,
+                        'imaginglog' => $findWhere,
+                        'snapintask' => $snapinjobIDs,
+                        'snapinjob' => $findWhere,
+                        'task' => $findWhere,
+                        'scheduledtask' => $findWhere,
+                        'hostautologout' => $findWhere,
+                        'hostscreensetting' => $findWhere,
+                        'groupassociation' => $findWhere,
+                        'snapinassociation' => $findWhere,
+                        'printerassociation' => $findWhere,
+                        'moduleassociation' => $findWhere,
+                        'inventory' => $findWhere,
+                        'macaddressassociation' => $findWhere,
+                        'powermanagement' => $findWhere
+                    ];
+                    break;
+                case 'group':
+                    $findWhere = ['groupID' => $itemIDs];
+                    $removeItems = [
+                        'groupassociation' => $findWhere
+                    ];
+                    break;
+                case 'image':
+                    $findWhere = ['imageID' => $itemIDs];
+                    self::getClass('HostManager')->update(
+                        $findWhere,
+                        '',
+                        ['imageID' => 0]
+                    );
+                    $removeItems = [
+                        'imageassociation' => $findWhere
+                    ];
+                    break;
+                case 'module':
+                    $findWhere = ['moduleID' => $itemIDs];
+                    $removeItems = [
+                        'moduleassociation' => $findWhere
+                    ];
+                    break;
+                case 'printer':
+                    $findWhere = ['printerID' => $itemIDs];
+                    $removeItems = [
+                        'printerassociation' => $findWhere
+                    ];
+                    break;
+                case 'snapin':
+                    $findWhere = ['snapinID' => $itemIDs];
+                    Route::ids(
+                        'snapintask',
+                        $findWhere,
+                        'jobID'
+                    );
+                    $snapinjobIDs = json_decode(Route::getData(), true);
+                    $removeItems = [
+                        'snapinassociation' => $findWhere,
+                        'snapingroupassociation' => $findWhere
+                    ];
+                    $queuedStates = self::getQueuedStates();
+                    $queuedStates[] = self::getProgressState();
+                    Route::ids(
+                        'snapinjob',
+                        [
+                            'id' => $snapinjobIDs,
+                            'stateID' => $queuedStates
+                        ]
+                    );
+                    $snapinjobIDs = json_decode(Route::getData(), true);
+                    foreach ((array)$snapinjobIDs as &$sjID) {
+                        Route::count(
+                            'snapintask',
+                            ['jobID' => $sjID]
+                        );
+                        $jobCount = json_decode(Route::getData());
+                        if ($jobCount->total) {
+                            continue;
+                        }
+                        $sjIDs[] = $sjID;
+                        unset($sjID);
                     }
-                    $sjIDs[] = $sjID;
-                    unset($sjID);
-                }
-                if (count($sjIDs ?: [])) {
-                    self::getClass('SnapinJobManager')->cancel($sjIDs);
-                }
-                break;
-            default:
-                $findWhere = [];
-                $removeItems = [];
+                    if (count($sjIDs ?: [])) {
+                        self::getClass('SnapinJobManager')->cancel($sjIDs);
+                    }
+                    break;
+                default:
+                    $findWhere = [];
+                    $removeItems = [];
             }
 
             if (count($whereItems ?: []) < 1) {
@@ -2824,146 +2824,146 @@ class Route extends FOGBase
             }
             $classman = self::getClass($class.'Manager');
             switch (self::$reqmethod) {
-            case 'PUT':
-                Route::listem(
-                    $classname,
-                    ['id' => $vars->ids]
-                );
-                $classes = json_decode(
-                    Route::getData()
-                );
-                foreach ($classes->data as &$c) {
-                    $c = self::getClass($classname, $c->id);
-                    foreach ($classVars['databaseFields'] as &$key) {
-                        $key = $c->key($key);
-                        if (!isset($vars->$key)) {
-                            $val = $c->get($key);
-                        } else {
-                            $val = $vars->$key;
+                case 'PUT':
+                    Route::listem(
+                        $classname,
+                        ['id' => $vars->ids]
+                    );
+                    $classes = json_decode(
+                        Route::getData()
+                    );
+                    foreach ($classes->data as &$c) {
+                        $c = self::getClass($classname, $c->id);
+                        foreach ($classVars['databaseFields'] as &$key) {
+                            $key = $c->key($key);
+                            if (!isset($vars->$key)) {
+                                $val = $c->get($key);
+                            } else {
+                                $val = $vars->$key;
+                            }
+                            if ($key == 'id') {
+                                continue;
+                            }
+                            $c->set($key, $val);
+                            unset($key);
                         }
-                        if ($key == 'id') {
+                        switch ($classname) {
+                            case 'host':
+                                if (isset($vars->macs)) {
+                                    $c->addMAC($vars->macs);
+                                }
+                                if (isset($vars->snapins)) {
+                                    $c->addSnapin($vars->snapins);
+                                }
+                                if (isset($vars->printers)) {
+                                    $c->addPrinter($vars->printers);
+                                }
+                                if (isset($vars->modules)) {
+                                    $c->addModules($vars->modules);
+                                }
+                                if (isset($vars->groups)) {
+                                    $c->addGroup($vars->groups);
+                                }
+                                break;
+                            case 'group':
+                                if (isset($vars->hosts)) {
+                                    $c->addHost($vars->hosts);
+                                }
+                                if (isset($vars->snapins)) {
+                                    $c->addSnapin($vars->snapins);
+                                }
+                                if (isset($vars->printers)) {
+                                    $c->addPrinter($vars->printers);
+                                }
+                                if (isset($vars->modules)) {
+                                    $c->addModule($vars->modules);
+                                }
+                                if (isset($vars->hosts)) {
+                                    $c->addHost($vars->hosts);
+                                }
+                                if ($vars->imageID) {
+                                    $c->addImage($vars->imageID);
+                                }
+                                break;
+                            case 'image':
+                            case 'snapin':
+                                if (isset($vars->hosts)) {
+                                    $c->addHost($vars->hosts);
+                                }
+                                if (isset($vars->storagegroups)) {
+                                    $c->addGroup($vars->storagegroups);
+                                }
+                                break;
+                            case 'printer':
+                                if (isset($vars->hosts)) {
+                                    $c->addHost($vars->hosts);
+                                }
+                        }
+                        // Store the data and recreate.
+                        // If failed present so.
+                        if (!$c->save()) {
+                            self::sendResponse(
+                                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                            );
+                        }
+                        unset($c);
+                    }
+                    $code = HTTPResponseCodes::HTTP_ACCEPTED;
+                    break;
+                case 'POST':
+                    $ids = [];
+                    foreach ($vars->names as &$name) {
+                        $exists = $classman->exists($name);
+                        Route::ids(
+                            $classname,
+                            ['name' => $name]
+                        );
+                        $id = json_decode(
+                            Route::getData(),
+                            true
+                        );
+                        if ($exists) {
+                            foreach ($id as &$i) {
+                                $ids[] = $i;
+                                unset($i);
+                            }
                             continue;
                         }
-                        $c->set($key, $val);
-                        unset($key);
+                        $c = self::getClass($classname)
+                            ->set('name', $name);
+                        if (!$c->save()) {
+                            self::sendResponse(
+                                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                            );
+                        }
+                        $ids[] = $c->get('id');
+                        unset($name);
                     }
-                    switch ($classname) {
-                    case 'host':
-                        if (isset($vars->macs)) {
-                            $c->addMAC($vars->macs);
-                        }
-                        if (isset($vars->snapins)) {
-                            $c->addSnapin($vars->snapins);
-                        }
-                        if (isset($vars->printers)) {
-                            $c->addPrinter($vars->printers);
-                        }
-                        if (isset($vars->modules)) {
-                            $c->addModules($vars->modules);
-                        }
-                        if (isset($vars->groups)) {
-                            $c->addGroup($vars->groups);
-                        }
-                        break;
-                    case 'group':
-                        if (isset($vars->hosts)) {
-                            $c->addHost($vars->hosts);
-                        }
-                        if (isset($vars->snapins)) {
-                            $c->addSnapin($vars->snapins);
-                        }
-                        if (isset($vars->printers)) {
-                            $c->addPrinter($vars->printers);
-                        }
-                        if (isset($vars->modules)) {
-                            $c->addModule($vars->modules);
-                        }
-                        if (isset($vars->hosts)) {
-                            $c->addHost($vars->hosts);
-                        }
-                        if ($vars->imageID) {
-                            $c->addImage($vars->imageID);
-                        }
-                        break;
-                    case 'image':
-                    case 'snapin':
-                        if (isset($vars->hosts)) {
-                            $c->addHost($vars->hosts);
-                        }
-                        if (isset($vars->storagegroups)) {
-                            $c->addGroup($vars->storagegroups);
-                        }
-                        break;
-                    case 'printer':
-                        if (isset($vars->hosts)) {
-                            $c->addHost($vars->hosts);
-                        }
-                    }
-                    // Store the data and recreate.
-                    // If failed present so.
-                    if (!$c->save()) {
-                        self::sendResponse(
-                            HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
-                        );
-                    }
-                    unset($c);
-                }
-                $code = HTTPResponseCodes::HTTP_ACCEPTED;
-                break;
-            case 'POST':
-                $ids = [];
-                foreach ($vars->names as &$name) {
-                    $exists = $classman->exists($name);
-                    Route::ids(
+                    Route::listem(
                         $classname,
-                        ['name' => $name]
+                        ['id' => $ids]
                     );
-                    $id = json_decode(
-                        Route::getData(),
-                        true
+                    $classes = json_decode(
+                        Route::getData()
                     );
-                    if ($exists) {
-                        foreach ($id as &$i) {
-                            $ids[] = $i;
-                            unset($i);
+                    foreach ($classes->data as &$c) {
+                        $c = self::getClass($classname, $c->id);
+                        if (count($vars->hosts ?: [])) {
+                            $c->addHost($vars->hosts);
                         }
-                        continue;
+                        // Store the data and recreate.
+                        // If failed present so.
+                        if (!$c->save()) {
+                            self::sendResponse(
+                                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                            );
+                        }
+                        unset($c);
                     }
-                    $c = self::getClass($classname)
-                        ->set('name', $name);
-                    if (!$c->save()) {
-                        self::sendResponse(
-                            HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
-                        );
-                    }
-                    $ids[] = $c->get('id');
-                    unset($name);
-                }
-                Route::listem(
-                    $classname,
-                    ['id' => $ids]
-                );
-                $classes = json_decode(
-                    Route::getData()
-                );
-                foreach ($classes->data as &$c) {
-                    $c = self::getClass($classname, $c->id);
-                    if (count($vars->hosts ?: [])) {
-                        $c->addHost($vars->hosts);
-                    }
-                    // Store the data and recreate.
-                    // If failed present so.
-                    if (!$c->save()) {
-                        self::sendResponse(
-                            HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
-                        );
-                    }
-                    unset($c);
-                }
-                $code = HTTPResponseCodes::HTTP_CREATED;
-                break;
-            default:
-                $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+                    $code = HTTPResponseCodes::HTTP_CREATED;
+                    break;
+                default:
+                    $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
             }
             self::sendResponse($code);
         } catch (Exception $e) {

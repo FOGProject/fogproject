@@ -756,7 +756,7 @@ class TaskManagement extends FOGPage
         exit;
     }
     /**
-     * Active scheduled path deletions 
+     * Active scheduled path deletions
      *
      * @return void
      */

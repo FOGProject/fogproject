@@ -165,29 +165,29 @@ class FOGConfigurationPage extends FOGPage
 
         $lang = '';
         switch (self::$locale) {
-        case 'de':
-            $lang = 'de_DE';
-            break;
-        case 'en':
-            $lang = 'en_US';
-            break;
-        case 'es':
-            $lang = 'es_ES';
-            break;
-        case 'fr':
-            $lang = 'fr_FR';
-            break;
-        case 'it':
-            $lang = 'it_IT';
-            break;
-        case 'pt':
-            $lang = 'pt_BR';
-            break;
-        case 'zh':
-            $lang = 'zh_CN';
-            break;
-        default:
-            $lang = 'en_US';
+            case 'de':
+                $lang = 'de_DE';
+                break;
+            case 'en':
+                $lang = 'en_US';
+                break;
+            case 'es':
+                $lang = 'es_ES';
+                break;
+            case 'fr':
+                $lang = 'fr_FR';
+                break;
+            case 'it':
+                $lang = 'it_IT';
+                break;
+            case 'pt':
+                $lang = 'pt_BR';
+                break;
+            case 'zh':
+                $lang = 'zh_CN';
+                break;
+            default:
+                $lang = 'en_US';
         }
         $file = BASEPATH . 'management/languages/'
             . $lang
@@ -626,55 +626,55 @@ class FOGConfigurationPage extends FOGPage
                     $needstobecheckbox
                 ) {
                     switch ($row['settingKey']) {
-                    case 'FOG_KEY_SEQUENCE':
-                        $input = self::getClass('KeySequenceManager')
-                            ->buildSelectBox(
+                        case 'FOG_KEY_SEQUENCE':
+                            $input = self::getClass('KeySequenceManager')
+                                ->buildSelectBox(
+                                    $row['settingValue'],
+                                    $row['settingID']
+                                );
+                            break;
+                        case 'FOG_BOOT_EXIT_TYPE':
+                        case 'FOG_EFI_BOOT_EXIT_TYPE':
+                            $input = Setting::buildExitSelector(
+                                $row['settingID'],
                                 $row['settingValue'],
-                                $row['settingID']
+                                false,
+                                $row['settingKey']
                             );
-                        break;
-                    case 'FOG_BOOT_EXIT_TYPE':
-                    case 'FOG_EFI_BOOT_EXIT_TYPE':
-                        $input = Setting::buildExitSelector(
-                            $row['settingID'],
-                            $row['settingValue'],
-                            false,
-                            $row['settingKey']
-                        );
-                        break;
-                    case (isset($needstobecheckbox[$row['settingKey']])):
-                        $input = self::makeInput(
-                            '',
-                            $row['settingID'],
-                            '',
-                            'checkbox',
-                            $row['settingKey'],
-                            '',
-                            false,
-                            false,
-                            -1,
-                            -1,
-                            ($row['settingValue'] > 0 ? 'checked' : '')
-                        );
-                        break;
-                    case (isset($needstobenumeric[$row['settingKey']])):
-                        $input = self::makeInput(
-                            'form-control',
-                            $row['settingID'],
-                            '',
-                            'number',
-                            $row['settingKey'],
-                            $row['settingValue']
-                        );
-                        break;
-                    default:
-                        $input = self::makeTextarea(
-                            'form-control',
-                            $row['settingID'],
-                            '',
-                            $row['settingKey'],
-                            $row['settingValue']
-                        );
+                            break;
+                        case (isset($needstobecheckbox[$row['settingKey']])):
+                            $input = self::makeInput(
+                                '',
+                                $row['settingID'],
+                                '',
+                                'checkbox',
+                                $row['settingKey'],
+                                '',
+                                false,
+                                false,
+                                -1,
+                                -1,
+                                ($row['settingValue'] > 0 ? 'checked' : '')
+                            );
+                            break;
+                        case (isset($needstobenumeric[$row['settingKey']])):
+                            $input = self::makeInput(
+                                'form-control',
+                                $row['settingID'],
+                                '',
+                                'number',
+                                $row['settingKey'],
+                                $row['settingValue']
+                            );
+                            break;
+                        default:
+                            $input = self::makeTextarea(
+                                'form-control',
+                                $row['settingID'],
+                                '',
+                                $row['settingKey'],
+                                $row['settingValue']
+                            );
                     }
                     return $input;
                 }
@@ -1140,30 +1140,30 @@ class FOGConfigurationPage extends FOGPage
                     $set = intval($set) < 1 ? 0 : 1;
                 } elseif (isset($needstobenumeric[$name])) {
                     switch ($needstobenumeric[$name]) {
-                    case ($needstobenumeric[$name] === true):
-                        if (in_array(0, (array)$needstobenumeric[$name]) && !$set) {
-                            $set = 0;
-                        }
-                        if (!is_numeric($set)) {
-                            throw new Exception(
-                                $name . ' ' . _('value must be numeric')
-                            );
-                        }
-                        break;
-                    default:
-                        if (in_array(0, (array)$needstobenumeric[$name]) && !$set) {
-                            $set = 0;
-                        }
-                        if (!is_numeric($set)) {
-                            throw new Exception(
-                                $name . ' ' . _('value must be numeric')
-                            );
-                        }
-                        if (!in_array($set, (array)$needstobenumeric[$name])) {
-                            throw new Exception(
-                                $name . ' ' . _('value is not in the required range')
-                            );
-                        }
+                        case ($needstobenumeric[$name] === true):
+                            if (in_array(0, (array)$needstobenumeric[$name]) && !$set) {
+                                $set = 0;
+                            }
+                            if (!is_numeric($set)) {
+                                throw new Exception(
+                                    $name . ' ' . _('value must be numeric')
+                                );
+                            }
+                            break;
+                        default:
+                            if (in_array(0, (array)$needstobenumeric[$name]) && !$set) {
+                                $set = 0;
+                            }
+                            if (!is_numeric($set)) {
+                                throw new Exception(
+                                    $name . ' ' . _('value must be numeric')
+                                );
+                            }
+                            if (!in_array($set, (array)$needstobenumeric[$name])) {
+                                throw new Exception(
+                                    $name . ' ' . _('value is not in the required range')
+                                );
+                            }
                     }
                 } elseif (isset($needstobeip[$name])) {
                     if (!filter_var($set, FILTER_VALIDATE_IP)) {
@@ -1173,98 +1173,98 @@ class FOGConfigurationPage extends FOGPage
                     }
                 }
                 switch ($name) {
-                case 'FOG_AD_DEFAULT_PASSWORD':
-                    $set = (
-                        preg_match('/^\*{32}$/', $set) ?
-                        self::getSetting($name) :
-                        $set
-                    );
-                    break;
-                case 'FOG_API_TOKEN':
-                    $set = base64_decode($set);
-                    break;
-                case 'FOG_MEMORY_LIMIT':
-                    if ($set < 128) {
-                        throw new Exception(
-                            _('Memory limit cannot be less than 128')
+                    case 'FOG_AD_DEFAULT_PASSWORD':
+                        $set = (
+                            preg_match('/^\*{32}$/', $set) ?
+                            self::getSetting($name) :
+                            $set
                         );
-                    }
-                    break;
-                case 'FOG_CLIENT_BANNER_SHA':
-                    continue 2;
-                case 'FOG_CLIENT_BANNER_IMAGE':
-                    $banner = filter_input(INPUT_POST, 'banner');
-                    $set = $banner;
-                    if (!$banner) {
-                        self::setSetting('FOG_CLIENT_BANNER_SHA', '');
-                    }
-                    if (!($_FILES[$key]['name']
-                        && file_exists($_FILES[$key]['tmp_name']))
-                    ) {
+                        break;
+                    case 'FOG_API_TOKEN':
+                        $set = base64_decode($set);
+                        break;
+                    case 'FOG_MEMORY_LIMIT':
+                        if ($set < 128) {
+                            throw new Exception(
+                                _('Memory limit cannot be less than 128')
+                            );
+                        }
+                        break;
+                    case 'FOG_CLIENT_BANNER_SHA':
                         continue 2;
-                    }
-                    $set = preg_replace(
-                        '/[^\-\w\.]+/',
-                        '_',
-                        trim(basename($_FILES[$key]['name']))
-                    );
-                    $src = sprintf(
-                        '%s/%s',
-                        dirname($_FILES[$key]['tmp_name']),
-                        basename($_FILES[$key]['tmp_name'])
-                    );
-                    list(
-                        $width,
-                        $height,
-                        $type,
-                        $attr
-                    ) = getimagesize($src);
-                    $validExtensions = [
-                        'jpg',
-                        'jpeg',
-                        'png',
-                    ];
-                    $extensionCheck = strtolower(pathinfo($src, PATHINFO_EXTENSION));
-                    if (!in_array($extensionCheck, $validExtensions)) {
-                        throw new Exception(
-                            _('Upload file extension must be, jpg, jpeg, or png')
+                    case 'FOG_CLIENT_BANNER_IMAGE':
+                        $banner = filter_input(INPUT_POST, 'banner');
+                        $set = $banner;
+                        if (!$banner) {
+                            self::setSetting('FOG_CLIENT_BANNER_SHA', '');
+                        }
+                        if (!($_FILES[$key]['name']
+                            && file_exists($_FILES[$key]['tmp_name']))
+                        ) {
+                            continue 2;
+                        }
+                        $set = preg_replace(
+                            '/[^\-\w\.]+/',
+                            '_',
+                            trim(basename($_FILES[$key]['name']))
                         );
-                    }
-                    $extensionCheck = strtolower(pathinfo($set, PATHINFO_EXTENSION));
-                    if (!in_array($extensionCheck, $validExtensions)) {
-                        throw new Exception(
-                            _('Created file extension must be, jpg, jpeg, or png')
+                        $src = sprintf(
+                            '%s/%s',
+                            dirname($_FILES[$key]['tmp_name']),
+                            basename($_FILES[$key]['tmp_name'])
                         );
-                    }
-                    if ($width != 650) {
-                        throw new Exception(
-                            _('Width must be 650 pixels.')
+                        list(
+                            $width,
+                            $height,
+                            $type,
+                            $attr
+                        ) = getimagesize($src);
+                        $validExtensions = [
+                            'jpg',
+                            'jpeg',
+                            'png',
+                        ];
+                        $extensionCheck = strtolower(pathinfo($src, PATHINFO_EXTENSION));
+                        if (!in_array($extensionCheck, $validExtensions)) {
+                            throw new Exception(
+                                _('Upload file extension must be, jpg, jpeg, or png')
+                            );
+                        }
+                        $extensionCheck = strtolower(pathinfo($set, PATHINFO_EXTENSION));
+                        if (!in_array($extensionCheck, $validExtensions)) {
+                            throw new Exception(
+                                _('Created file extension must be, jpg, jpeg, or png')
+                            );
+                        }
+                        if ($width != 650) {
+                            throw new Exception(
+                                _('Width must be 650 pixels.')
+                            );
+                        }
+                        if ($height != 120) {
+                            throw new Exception(
+                                _('Height must be 120 pixels.')
+                            );
+                        }
+                        $dest = sprintf(
+                            '%s%smanagement%sother%s%s',
+                            BASEPATH,
+                            DS,
+                            DS,
+                            DS,
+                            $set
                         );
-                    }
-                    if ($height != 120) {
-                        throw new Exception(
-                            _('Height must be 120 pixels.')
+                        $hash = hash_file(
+                            'sha512',
+                            $src
                         );
-                    }
-                    $dest = sprintf(
-                        '%s%smanagement%sother%s%s',
-                        BASEPATH,
-                        DS,
-                        DS,
-                        DS,
-                        $set
-                    );
-                    $hash = hash_file(
-                        'sha512',
-                        $src
-                    );
-                    if (!move_uploaded_file($src, $dest)) {
-                        self::setSetting('FOG_CLIENT_BANNER_SHA', '');
-                        $set = '';
-                        throw new Exception(_('Failed to install logo file'));
-                    } else {
-                        self::setSetting('FOG_CLIENT_BANNER_SHA', $hash);
-                    }
+                        if (!move_uploaded_file($src, $dest)) {
+                            self::setSetting('FOG_CLIENT_BANNER_SHA', '');
+                            $set = '';
+                            throw new Exception(_('Failed to install logo file'));
+                        } else {
+                            self::setSetting('FOG_CLIENT_BANNER_SHA', $hash);
+                        }
                 }
                 $items[] = [$key, $name, $set];
                 unset($Setting);
@@ -1854,7 +1854,9 @@ class FOGConfigurationPage extends FOGPage
                     $data .= fread($fh, 4096);
                 }
                 fclose($fh);
-                if (file_exists($tmpfile)) unlink($tmpfile);
+                if (file_exists($tmpfile)) {
+                    unlink($tmpfile);
+                }
                 echo json_encode(
                     [
                         'title' => _('Export Success'),
@@ -2094,268 +2096,222 @@ class FOGConfigurationPage extends FOGPage
                     $needstobecheckbox
                 ) {
                     switch ($row['settingKey']) {
-                    case 'FOG_VIEW_DEFAULT_SCREEN':
-                        $vals = [
-                            _('10') => 10,
-                            _('25') => 25,
-                            _('50') => 50,
-                            _('100') => 100,
-                            _('All') => -1
-                        ];
-                        ob_start();
-                        echo '<select '
-                            . 'class="form-control" name="'
-                            . $row['settingID']
-                            . '" autocomplete="off" id="'
-                            . $row['settingKey']
-                            . '">';
-                        foreach ($vals as $text => &$val) {
-                            echo '<option value="'
-                                . $val
-                                . '"'
-                                . (
-                                    $val == $row['settingValue'] ?
-                                    ' selected' :
-                                    ''
-                                )
-                                . '>';
-                            echo $text;
-                            echo '</option>';
-                            unset($val);
-                        }
-                        echo '</select>';
-                        $input = ob_get_clean();
-                        break;
-                    case 'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT':
-                        $vals = [
-                            _('Partclone Gzip') => 0,
-                            _('Partclone Gzip Split 200MiB') => 2,
-                            _('Partclone Uncompressed') => 3,
-                            _('Partclone Uncompressed 200MiB') => 4,
-                            _('Partclone Zstd') => 5,
-                            _('Partclone Zstd Split 200MiB') => 6
-                        ];
-                        ob_start();
-                        echo '<select '
-                            . 'class="form-control" name="'
-                            . $row['settingID']
-                            . '" autocomplete="off" id="'
-                            . $row['settingKey']
-                            . '">';
-                        foreach ($vals as $text => &$val) {
-                            echo '<option value="'
-                                . $val
-                                . '"'
-                                . (
-                                    $val == $row['settingValue'] ?
-                                    ' selected' :
-                                    ''
-                                )
-                                . '>';
-                            echo $text;
-                            echo '</option>';
-                            unset($val);
-                        }
-                        echo '</select>';
-                        $input = ob_get_clean();
-                        break;
-                    case 'FOG_MULTICAST_DUPLEX':
-                        $vals = [
-                            'HALF_DUPLEX' => '--half-duplex',
-                            'FULL_DUPLEX' => '--full-duplex'
-                        ];
-                        ob_start();
-                        echo '<select '
-                            . 'class="form-control" name="'
-                            . $row['settingID']
-                            . '" autocomplete="off" id="'
-                            . $row['settingKey']
-                            . '">';
-                        foreach ($vals as $text => &$val) {
-                            echo '<option value="'
-                                . $val
-                                . '"'
-                                . (
-                                    $val == $row['settingValue'] ?
-                                    ' selected' :
-                                    ''
-                                )
-                                . '>';
-                            echo $text;
-                            echo '</option>';
-                            unset($val);
-                        }
-                        echo '</select>';
-                        $input = ob_get_clean();
-                        break;
-                    case 'FOG_DEFAULT_LOCALE':
-                        $langs =& self::$foglang['Language'];
-                        $vals = array_flip($langs);
-                        ob_start();
-                        echo '<select '
-                            . 'class="form-control" name="'
-                            . $row['settingID']
-                            . '" autocomplete="off" id="'
-                            . $row['settingKey']
-                            . '">';
-                        foreach ($vals as $text => &$val) {
-                            echo '<option value="'
-                                . $val
-                                . '"'
-                                . (
-                                    $val == $row['settingValue'] ?
-                                    ' selected' :
-                                    ''
-                                )
-                                . '>';
-                            echo $text;
-                            echo '</option>';
-                            unset($val);
-                        }
-                        echo '</select>';
-                        $input = ob_get_clean();
-                        break;
-                    case 'FOG_QUICKREG_IMG_ID':
-                    case 'FOG_QUICKREG_GROUP_ASSOC':
-                    case 'FOG_KEY_SEQUENCE':
-                        switch ($row['settingKey']) {
+                        case 'FOG_VIEW_DEFAULT_SCREEN':
+                            $vals = [
+                                _('10') => 10,
+                                _('25') => 25,
+                                _('50') => 50,
+                                _('100') => 100,
+                                _('All') => -1
+                            ];
+                            ob_start();
+                            echo '<select '
+                                . 'class="form-control" name="'
+                                . $row['settingID']
+                                . '" autocomplete="off" id="'
+                                . $row['settingKey']
+                                . '">';
+                            foreach ($vals as $text => &$val) {
+                                echo '<option value="'
+                                    . $val
+                                    . '"'
+                                    . (
+                                        $val == $row['settingValue'] ?
+                                        ' selected' :
+                                        ''
+                                    )
+                                    . '>';
+                                echo $text;
+                                echo '</option>';
+                                unset($val);
+                            }
+                            echo '</select>';
+                            $input = ob_get_clean();
+                            break;
+                        case 'FOG_IMAGE_COMPRESSION_FORMAT_DEFAULT':
+                            $vals = [
+                                _('Partclone Gzip') => 0,
+                                _('Partclone Gzip Split 200MiB') => 2,
+                                _('Partclone Uncompressed') => 3,
+                                _('Partclone Uncompressed 200MiB') => 4,
+                                _('Partclone Zstd') => 5,
+                                _('Partclone Zstd Split 200MiB') => 6
+                            ];
+                            ob_start();
+                            echo '<select '
+                                . 'class="form-control" name="'
+                                . $row['settingID']
+                                . '" autocomplete="off" id="'
+                                . $row['settingKey']
+                                . '">';
+                            foreach ($vals as $text => &$val) {
+                                echo '<option value="'
+                                    . $val
+                                    . '"'
+                                    . (
+                                        $val == $row['settingValue'] ?
+                                        ' selected' :
+                                        ''
+                                    )
+                                    . '>';
+                                echo $text;
+                                echo '</option>';
+                                unset($val);
+                            }
+                            echo '</select>';
+                            $input = ob_get_clean();
+                            break;
+                        case 'FOG_MULTICAST_DUPLEX':
+                            $vals = [
+                                'HALF_DUPLEX' => '--half-duplex',
+                                'FULL_DUPLEX' => '--full-duplex'
+                            ];
+                            ob_start();
+                            echo '<select '
+                                . 'class="form-control" name="'
+                                . $row['settingID']
+                                . '" autocomplete="off" id="'
+                                . $row['settingKey']
+                                . '">';
+                            foreach ($vals as $text => &$val) {
+                                echo '<option value="'
+                                    . $val
+                                    . '"'
+                                    . (
+                                        $val == $row['settingValue'] ?
+                                        ' selected' :
+                                        ''
+                                    )
+                                    . '>';
+                                echo $text;
+                                echo '</option>';
+                                unset($val);
+                            }
+                            echo '</select>';
+                            $input = ob_get_clean();
+                            break;
+                        case 'FOG_DEFAULT_LOCALE':
+                            $langs =& self::$foglang['Language'];
+                            $vals = array_flip($langs);
+                            ob_start();
+                            echo '<select '
+                                . 'class="form-control" name="'
+                                . $row['settingID']
+                                . '" autocomplete="off" id="'
+                                . $row['settingKey']
+                                . '">';
+                            foreach ($vals as $text => &$val) {
+                                echo '<option value="'
+                                    . $val
+                                    . '"'
+                                    . (
+                                        $val == $row['settingValue'] ?
+                                        ' selected' :
+                                        ''
+                                    )
+                                    . '>';
+                                echo $text;
+                                echo '</option>';
+                                unset($val);
+                            }
+                            echo '</select>';
+                            $input = ob_get_clean();
+                            break;
                         case 'FOG_QUICKREG_IMG_ID':
-                            $objGetter = 'image';
-                            break;
                         case 'FOG_QUICKREG_GROUP_ASSOC':
-                            $objGetter = 'group';
-                            break;
                         case 'FOG_KEY_SEQUENCE':
-                            $objGetter = 'keysequence';
+                            switch ($row['settingKey']) {
+                                case 'FOG_QUICKREG_IMG_ID':
+                                    $objGetter = 'image';
+                                    break;
+                                case 'FOG_QUICKREG_GROUP_ASSOC':
+                                    $objGetter = 'group';
+                                    break;
+                                case 'FOG_KEY_SEQUENCE':
+                                    $objGetter = 'keysequence';
+                                    break;
+                            }
+                            $input = self::getClass($objGetter.'manager')->buildSelectBox(
+                                $row['settingValue'],
+                                $row['settingID']
+                            );
                             break;
-                        }
-                        $input = self::getClass($objGetter.'manager')->buildSelectBox(
-                            $row['settingValue'],
-                            $row['settingID']
-                        );
-                        break;
-                    case 'FOG_BOOT_EXIT_TYPE':
-                    case 'FOG_EFI_BOOT_EXIT_TYPE':
-                        $input = Setting::buildExitSelector(
-                            $row['settingID'],
-                            $row['settingValue'],
-                            false,
-                            $row['settingKey']
-                        );
-                        break;
-                    case 'FOG_TZ_INFO':
-                        $dt = self::niceDate('now');
-                        $tzIDs = DateTimeZone::listIdentifiers();
-                        ob_start();
-                        echo '<select class="form-control" name="'
-                            . $row['settingID']
-                            . '" id="'
-                            . $row['settingKey']
-                            . '">';
-                        foreach ((array)$tzIDs as $i => &$tz) {
-                            $current_tz = self::getClass('DateTimeZone', $tz);
-                            $offset = $current_tz->getOffset($dt);
-                            $transition = $current_tz->getTransitions(
-                                $dt->getTimestamp(),
-                                $dt->getTimestamp()
+                        case 'FOG_BOOT_EXIT_TYPE':
+                        case 'FOG_EFI_BOOT_EXIT_TYPE':
+                            $input = Setting::buildExitSelector(
+                                $row['settingID'],
+                                $row['settingValue'],
+                                false,
+                                $row['settingKey']
                             );
-                            $abbr = $transition[0]['abbr'];
-                            $offset = sprintf(
-                                '%+03d:%02u',
-                                floor($offset / 3600),
-                                floor(abs($offset) % 3600 / 60)
-                            );
-                            printf(
-                                '<option value="%s"%s>%s [%s %s]</option>',
-                                $tz,
-                                (
-                                    $row['settingValue'] == $tz ?
-                                    ' selected' :
-                                    ''
-                                ),
-                                $tz,
-                                $abbr,
-                                $offset
-                            );
-                            unset(
-                                $current_tz,
-                                $offset,
-                                $transition,
-                                $abbr,
-                                $offset,
-                                $tz
-                            );
-                        }
-                        echo '</select>';
-                        $input = ob_get_clean();
-                        break;
-                    case 'FOG_COMPANY_COLOR':
-                        $input = self::makeInput(
-                            'jscolor {required:false} {refine: false} form-control',
-                            $row['settingID'],
-                            '',
-                            'text',
-                            $row['settingKey'],
-                            $row['settingValue'],
-                            false,
-                            false,
-                            -1,
-                            6
-                        );
-                        break;
-                    case 'FOG_CLIENT_BANNER_SHA':
-                        $input = self::makeInput(
-                            'form-control',
-                            $row['settingID'],
-                            '',
-                            'text',
-                            $row['settingKey'],
-                            $row['settingValue'],
-                            false,
-                            false,
-                            -1,
-                            -1,
-                            '',
-                            true
-                        );
-                        break;
-                    case 'FOG_QUICKREG_OS_ID':
-                        $image = new Image(self::getSetting('FOG_QUICKREG_IMG_ID'));
-                        if (!$image->isValid()) {
-                            $osname = _('No image specified');
-                        } else {
-                            $osname = $image->get('os')->get('name');
-                        }
-                        $input = '<p id="'
-                            . $row['settingKey']
-                            . '">'
-                            . $osname
-                            . '</p>';
-                        break;
-                    case 'FOG_CLIENT_BANNER_IMAGE':
-                        $input = '<div class="input-group">'
-                            . self::makeLabel(
-                                'input-group-btn',
-                                $row['settingKey'],
-                                '<span class="btn btn-info">'
-                                . _('Browse')
-                                . self::makeInput(
-                                    'hidden',
-                                    $row['settingID'],
-                                    '',
-                                    'file',
-                                    $row['settingKey'],
-                                    '',
-                                    true
-                                )
-                                . '</span>'
-                            )
-                            . self::makeInput(
-                                'form-control filedisp',
-                                'banner',
+                            break;
+                        case 'FOG_TZ_INFO':
+                            $dt = self::niceDate('now');
+                            $tzIDs = DateTimeZone::listIdentifiers();
+                            ob_start();
+                            echo '<select class="form-control" name="'
+                                . $row['settingID']
+                                . '" id="'
+                                . $row['settingKey']
+                                . '">';
+                            foreach ((array)$tzIDs as $i => &$tz) {
+                                $current_tz = self::getClass('DateTimeZone', $tz);
+                                $offset = $current_tz->getOffset($dt);
+                                $transition = $current_tz->getTransitions(
+                                    $dt->getTimestamp(),
+                                    $dt->getTimestamp()
+                                );
+                                $abbr = $transition[0]['abbr'];
+                                $offset = sprintf(
+                                    '%+03d:%02u',
+                                    floor($offset / 3600),
+                                    floor(abs($offset) % 3600 / 60)
+                                );
+                                printf(
+                                    '<option value="%s"%s>%s [%s %s]</option>',
+                                    $tz,
+                                    (
+                                        $row['settingValue'] == $tz ?
+                                        ' selected' :
+                                        ''
+                                    ),
+                                    $tz,
+                                    $abbr,
+                                    $offset
+                                );
+                                unset(
+                                    $current_tz,
+                                    $offset,
+                                    $transition,
+                                    $abbr,
+                                    $offset,
+                                    $tz
+                                );
+                            }
+                            echo '</select>';
+                            $input = ob_get_clean();
+                            break;
+                        case 'FOG_COMPANY_COLOR':
+                            $input = self::makeInput(
+                                'jscolor {required:false} {refine: false} form-control',
+                                $row['settingID'],
                                 '',
                                 'text',
+                                $row['settingKey'],
+                                $row['settingValue'],
+                                false,
+                                false,
+                                -1,
+                                6
+                            );
+                            break;
+                        case 'FOG_CLIENT_BANNER_SHA':
+                            $input = self::makeInput(
+                                'form-control',
+                                $row['settingID'],
                                 '',
+                                'text',
+                                $row['settingKey'],
                                 $row['settingValue'],
                                 false,
                                 false,
@@ -2363,203 +2319,249 @@ class FOGConfigurationPage extends FOGPage
                                 -1,
                                 '',
                                 true
-                            )
-                            . '</div>';
-                        break;
-                    case 'FOG_COMPANY_TOS':
-                    case 'FOG_AD_DEFAULT_OU':
-                        $input = self::makeTextarea(
-                            'form-control',
-                            $row['settingID'],
-                            '',
-                            $row['settingKey'],
-                            $row['settingValue']
-                        );
-                        break;
-                    case (isset($needstobecheckbox[$row['settingKey']])):
-                        $input = self::makeInput(
-                            '',
-                            $row['settingID'],
-                            '',
-                            'checkbox',
-                            $row['settingKey'],
-                            '',
-                            false,
-                            false,
-                            -1,
-                            -1,
-                            ($row['settingValue'] > 0 ? 'checked' : '')
-                        );
-                        break;
-                    case 'FOG_API_TOKEN':
-                        $input = '<div class="input-group">';
-                        $input .= self::makeInput(
-                            'form-control token',
-                            $row['settingID'],
-                            '',
-                            'text',
-                            $row['settingKey'],
-                            base64_encode($row['settingValue']),
-                            false,
-                            false,
-                            -1,
-                            -1,
-                            '',
-                            true
-                        );
-                        $input .= '<div class="input-group-btn">';
-                        $input .= self::makeButton(
-                            'resettoken',
-                            _('Reset Token'),
-                            'btn btn-warning resettoken'
-                        );
-                        $input .= '</div>';
-                        $input .= '</div>';
-                        break;
-                    case (preg_match('#pass#i', $row['settingKey'])
-                        && !preg_match('#(valid|min)#i', $row['settingKey'])):
-                        switch ($row['settingKey']) {
-                        case 'FOG_STORAGENODE_MYSQLPASS':
-                            $input = self::makeInput(
+                            );
+                            break;
+                        case 'FOG_QUICKREG_OS_ID':
+                            $image = new Image(self::getSetting('FOG_QUICKREG_IMG_ID'));
+                            if (!$image->isValid()) {
+                                $osname = _('No image specified');
+                            } else {
+                                $osname = $image->get('os')->get('name');
+                            }
+                            $input = '<p id="'
+                                . $row['settingKey']
+                                . '">'
+                                . $osname
+                                . '</p>';
+                            break;
+                        case 'FOG_CLIENT_BANNER_IMAGE':
+                            $input = '<div class="input-group">'
+                                . self::makeLabel(
+                                    'input-group-btn',
+                                    $row['settingKey'],
+                                    '<span class="btn btn-info">'
+                                    . _('Browse')
+                                    . self::makeInput(
+                                        'hidden',
+                                        $row['settingID'],
+                                        '',
+                                        'file',
+                                        $row['settingKey'],
+                                        '',
+                                        true
+                                    )
+                                    . '</span>'
+                                )
+                                . self::makeInput(
+                                    'form-control filedisp',
+                                    'banner',
+                                    '',
+                                    'text',
+                                    '',
+                                    $row['settingValue'],
+                                    false,
+                                    false,
+                                    -1,
+                                    -1,
+                                    '',
+                                    true
+                                )
+                                . '</div>';
+                            break;
+                        case 'FOG_COMPANY_TOS':
+                        case 'FOG_AD_DEFAULT_OU':
+                            $input = self::makeTextarea(
                                 'form-control',
                                 $row['settingID'],
                                 '',
-                                'text',
                                 $row['settingKey'],
                                 $row['settingValue']
                             );
                             break;
-                        case 'FOG_AD_DEFAULT_PASSWORD':
-                            $input = '<div class="input-group">'
-                                . self::makeInput(
-                                    'form-control',
-                                    $row['settingID'],
-                                    '',
-                                    'password',
-                                    $row['settingKey'],
-                                    (
-                                        $row['settingValue'] ?
-                                        '********************************' :
-                                        ''
-                                    )
-                                )
-                                . '</div>';
+                        case (isset($needstobecheckbox[$row['settingKey']])):
+                            $input = self::makeInput(
+                                '',
+                                $row['settingID'],
+                                '',
+                                'checkbox',
+                                $row['settingKey'],
+                                '',
+                                false,
+                                false,
+                                -1,
+                                -1,
+                                ($row['settingValue'] > 0 ? 'checked' : '')
+                            );
+                            break;
+                        case 'FOG_API_TOKEN':
+                            $input = '<div class="input-group">';
+                            $input .= self::makeInput(
+                                'form-control token',
+                                $row['settingID'],
+                                '',
+                                'text',
+                                $row['settingKey'],
+                                base64_encode($row['settingValue']),
+                                false,
+                                false,
+                                -1,
+                                -1,
+                                '',
+                                true
+                            );
+                            $input .= '<div class="input-group-btn">';
+                            $input .= self::makeButton(
+                                'resettoken',
+                                _('Reset Token'),
+                                'btn btn-warning resettoken'
+                            );
+                            $input .= '</div>';
+                            $input .= '</div>';
+                            break;
+                        case (preg_match('#pass#i', $row['settingKey'])
+                            && !preg_match('#(valid|min)#i', $row['settingKey'])):
+                            switch ($row['settingKey']) {
+                                case 'FOG_STORAGENODE_MYSQLPASS':
+                                    $input = self::makeInput(
+                                        'form-control',
+                                        $row['settingID'],
+                                        '',
+                                        'text',
+                                        $row['settingKey'],
+                                        $row['settingValue']
+                                    );
+                                    break;
+                                case 'FOG_AD_DEFAULT_PASSWORD':
+                                    $input = '<div class="input-group">'
+                                        . self::makeInput(
+                                            'form-control',
+                                            $row['settingID'],
+                                            '',
+                                            'password',
+                                            $row['settingKey'],
+                                            (
+                                                $row['settingValue'] ?
+                                                '********************************' :
+                                                ''
+                                            )
+                                        )
+                                        . '</div>';
+                                    break;
+                                default:
+                                    $input = '<div class="input-group">'
+                                        . self::makeInput(
+                                            'form-control',
+                                            $row['settingID'],
+                                            '',
+                                            'password',
+                                            $row['settingKey'],
+                                            $row['settingValue']
+                                        )
+                                        . '</div>';
+                                    break;
+                            }
+                            break;
+                        case 'FOG_PIGZ_COMP':
+                            $input = self::makeInput(
+                                'form-control slider',
+                                $row['settingID'],
+                                '6',
+                                'text',
+                                $row['settingKey'],
+                                $row['settingValue'],
+                                false,
+                                false,
+                                -1,
+                                -1,
+                                'data-slider-min="0" '
+                                . 'data-slider-max="22" '
+                                . 'data-slider-step="1" '
+                                . 'data-slider-value="' . $row['settingValue'] . '" '
+                                . 'data-slider-orientation="horizontal" '
+                                . 'data-slider-selection="before" '
+                                . 'data-slider-tooltip="show" '
+                                . 'data-slider-id="blue"'
+                            );
+                            break;
+                        case 'FOG_KERNEL_LOGLEVEL':
+                            $input = self::makeInput(
+                                'form-control slider',
+                                $row['settingID'],
+                                '4',
+                                'text',
+                                $row['settingKey'],
+                                $row['settingValue'],
+                                false,
+                                false,
+                                -1,
+                                -1,
+                                'data-slider-min="0" '
+                                . 'data-slider-max="7" '
+                                . 'data-slider-step="1" '
+                                . 'data-slider-value="' . $row['settingValue'] . '" '
+                                . 'data-slider-orientation="horizontal" '
+                                . 'data-slider-selection="before" '
+                                . 'data-slider-tooltip="show" '
+                                . 'data-slider-id="blue"'
+                            );
+                            break;
+                        case 'FOG_INACTIVITY_TIMEOUT':
+                            $input = self::makeInput(
+                                'form-control slider',
+                                $row['settingID'],
+                                '1',
+                                'text',
+                                $row['settingKey'],
+                                $row['settingValue'],
+                                false,
+                                false,
+                                -1,
+                                -1,
+                                'data-slider-min="1" '
+                                . 'data-slider-max="24" '
+                                . 'data-slider-step="1" '
+                                . 'data-slider-value="' . $row['settingValue'] . '" '
+                                . 'data-slider-orientation="horizontal" '
+                                . 'data-slider-selection="before" '
+                                . 'data-slider-tooltip="show" '
+                                . 'data-slider-id="blue"'
+                            );
+                            break;
+                        case 'FOG_REGENERATE_TIMEOUT':
+                            $input = self::makeInput(
+                                'form-control slider',
+                                $row['settingID'],
+                                '0.50',
+                                'text',
+                                $row['settingKey'],
+                                $row['settingValue'],
+                                false,
+                                false,
+                                -1,
+                                -1,
+                                'data-slider-min="0.25" '
+                                . 'data-slider-max="24" '
+                                . 'data-slider-step="0.25" '
+                                . 'data-slider-value="' . $row['settingValue'] . '" '
+                                . 'data-slider-orientation="horizontal" '
+                                . 'data-slider-selection="before" '
+                                . 'data-slider-tooltip="show" '
+                                . 'data-slider-id="blue"'
+                            );
                             break;
                         default:
-                            $input = '<div class="input-group">'
-                                . self::makeInput(
-                                    'form-control',
-                                    $row['settingID'],
-                                    '',
-                                    'password',
-                                    $row['settingKey'],
-                                    $row['settingValue']
-                                )
-                                . '</div>';
-                            break;
-                        }
-                        break;
-                    case 'FOG_PIGZ_COMP':
-                        $input = self::makeInput(
-                            'form-control slider',
-                            $row['settingID'],
-                            '6',
-                            'text',
-                            $row['settingKey'],
-                            $row['settingValue'],
-                            false,
-                            false,
-                            -1,
-                            -1,
-                            'data-slider-min="0" '
-                            . 'data-slider-max="22" '
-                            . 'data-slider-step="1" '
-                            . 'data-slider-value="' . $row['settingValue'] . '" '
-                            . 'data-slider-orientation="horizontal" '
-                            . 'data-slider-selection="before" '
-                            . 'data-slider-tooltip="show" '
-                            . 'data-slider-id="blue"'
-                        );
-                        break;
-                    case 'FOG_KERNEL_LOGLEVEL':
-                        $input = self::makeInput(
-                            'form-control slider',
-                            $row['settingID'],
-                            '4',
-                            'text',
-                            $row['settingKey'],
-                            $row['settingValue'],
-                            false,
-                            false,
-                            -1,
-                            -1,
-                            'data-slider-min="0" '
-                            . 'data-slider-max="7" '
-                            . 'data-slider-step="1" '
-                            . 'data-slider-value="' . $row['settingValue'] . '" '
-                            . 'data-slider-orientation="horizontal" '
-                            . 'data-slider-selection="before" '
-                            . 'data-slider-tooltip="show" '
-                            . 'data-slider-id="blue"'
-                        );
-                        break;
-                    case 'FOG_INACTIVITY_TIMEOUT':
-                        $input = self::makeInput(
-                            'form-control slider',
-                            $row['settingID'],
-                            '1',
-                            'text',
-                            $row['settingKey'],
-                            $row['settingValue'],
-                            false,
-                            false,
-                            -1,
-                            -1,
-                            'data-slider-min="1" '
-                            . 'data-slider-max="24" '
-                            . 'data-slider-step="1" '
-                            . 'data-slider-value="' . $row['settingValue'] . '" '
-                            . 'data-slider-orientation="horizontal" '
-                            . 'data-slider-selection="before" '
-                            . 'data-slider-tooltip="show" '
-                            . 'data-slider-id="blue"'
-                        );
-                        break;
-                    case 'FOG_REGENERATE_TIMEOUT':
-                        $input = self::makeInput(
-                            'form-control slider',
-                            $row['settingID'],
-                            '0.50',
-                            'text',
-                            $row['settingKey'],
-                            $row['settingValue'],
-                            false,
-                            false,
-                            -1,
-                            -1,
-                            'data-slider-min="0.25" '
-                            . 'data-slider-max="24" '
-                            . 'data-slider-step="0.25" '
-                            . 'data-slider-value="' . $row['settingValue'] . '" '
-                            . 'data-slider-orientation="horizontal" '
-                            . 'data-slider-selection="before" '
-                            . 'data-slider-tooltip="show" '
-                            . 'data-slider-id="blue"'
-                        );
-                        break;
-                    default:
-                        $type = 'text';
-                        if (isset($needstobenumeric[$row['settingKey']])) {
-                            $type = 'number';
-                        }
-                        $input = self::makeInput(
-                            'form-control',
-                            $row['settingID'],
-                            '',
-                            $type,
-                            $row['settingKey'],
-                            $row['settingValue']
-                        );
+                            $type = 'text';
+                            if (isset($needstobenumeric[$row['settingKey']])) {
+                                $type = 'number';
+                            }
+                            $input = self::makeInput(
+                                'form-control',
+                                $row['settingID'],
+                                '',
+                                $type,
+                                $row['settingKey'],
+                                $row['settingValue']
+                            );
                     }
                     return $input;
                 }

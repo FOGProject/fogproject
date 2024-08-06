@@ -584,17 +584,17 @@ class FOGURLRequests extends FOGBase
             if ($port == -1 || empty($port) || !$port) {
                 if (!isset($url['port']) && isset($url['scheme'])) {
                     switch ($url['scheme']) {
-                    case 'http':
-                        $port = 80;
-                        break;
-                    case 'https':
-                        $port = 443;
-                        break;
-                    case 'ftp':
-                        $port = 21;
-                        break;
-                    default:
-                        $port = self::$FOGFTP->port;
+                        case 'http':
+                            $port = 80;
+                            break;
+                        case 'https':
+                            $port = 443;
+                            break;
+                        case 'ftp':
+                            $port = 21;
+                            break;
+                        default:
+                            $port = self::$FOGFTP->port;
                     }
                 } else {
                     $port = self::$FOGFTP->port;

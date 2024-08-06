@@ -616,14 +616,14 @@ class SiteManagement extends FOGPage
         try {
             global $tab;
             switch ($tab) {
-            case 'site-general':
-                $this->siteGeneralPost();
-                break;
-            case 'site-host':
-                $this->siteHostPost();
-                break;
-            case 'site-user':
-                $this->siteUserPost();
+                case 'site-general':
+                    $this->siteGeneralPost();
+                    break;
+                case 'site-host':
+                    $this->siteHostPost();
+                    break;
+                case 'site-user':
+                    $this->siteUserPost();
             }
             if (!$this->obj->save()) {
                 $serverFault = true;
