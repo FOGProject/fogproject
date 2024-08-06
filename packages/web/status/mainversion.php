@@ -34,10 +34,8 @@ $resp = $FOGURLRequests->process($urls);
 
 $tags = json_decode(array_shift($resp));
 foreach ($tags as $tag) {
-    if (preg_match('/^[0-9]\.[0-9]\.[0-9][0-9]*$/', $tag->name)) {
-        $stableversion = $tag->name;
-        break;
-    }
+    $stableversion = $tag->name;
+    break;
 }
 $systemclass = array_shift($resp);
 if (preg_match("/FOG_VERSION', '([0-9.RCalphbet-]*)'/", $systemclass, $fogver)) {
