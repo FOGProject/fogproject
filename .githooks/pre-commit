@@ -13,9 +13,9 @@ set -e
 project_dir=$(git rev-parse --show-toplevel)
 
 updateLanguage() {
-    command -v xgettext || return
-    command -v msgcat || return
-    command -v msgmerge || return
+    command -v xgettext >/dev/null || return
+    command -v msgcat >/dev/null || return
+    command -v msgmerge >/dev/null || return
     xgettext --language=PHP --from-code=UTF-8 --output="$project_dir/packages/web/management/languages/messages.pot" --omit-header --no-location $(find $project_dir/packages/web/ -name "*.php")
     msgcat --sort-output -o "$project_dir/packages/web/management/languages/messages.pot" "$project_dir/packages/web/management/languages/messages.pot"
     for PO_FILE in $(find $project_dir/packages/web/management/languages/ -type f -name *.po); do
