@@ -12,6 +12,12 @@ set -e
 
 project_dir=$(git rev-parse --show-toplevel)
 
+psrfix() {
+    command -v php-cs-fixer >/dev/null || return
+    $(command -v php-cs-fixer) fix $project_dir/packages/web --rules=@PSR2
+    git add $project_dir/packages/web
+}
+
 updateLanguage() {
     command -v xgettext >/dev/null || return
     command -v msgcat >/dev/null || return
@@ -42,7 +48,7 @@ branchon=$(echo ${gitbranch} | awk -F'-' '{print $1}')
 branchend=$(echo ${gitbranch} | awk -F'-' '{print $2}')
 
 # Define the path to the system file
-system_file="$(git rev-parse --show-toplevel)/packages/web/lib/fog/system.class.php"
+system_file="$project_dir/packages/web/lib/fog/system.class.php"
 
 current_version=$(grep "define('FOG_VERSION'" $system_file | sed "s/.*FOG_VERSION', '\([^']*\)');/\1/")
 
