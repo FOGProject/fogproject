@@ -8,19 +8,24 @@
 # To enable this hook, rename this file to "pre-commit".
 
 # Get the current branch name
-gitbranch=$(git branch | awk '/*/ {print $2}')
+gitbranch=$(git branch --show-current)
 
 # Get the latest tag commit
 gitcom=$(git rev-list --tags --no-walk --max-count=1)
 
 # Count commits from the last tag to HEAD
-gitcount=$(git rev-list ${gitcom}..HEAD --count)
+gitcount=$(git rev-list master..HEAD --count)
 
 # Extract the first part of the branch name
 branchon=$(echo ${gitbranch} | awk -F'-' '{print $1}')
 
 # Extract the second part of the branch name
 branchend=$(echo ${gitbranch} | awk -F'-' '{print $2}')
+
+# Define the path to the system file
+system_file="$(git rev-parse --show-toplevel)/packages/web/lib/fog/system.class.php"
+
+current_version=$(grep "define('FOG_VERSION'" $system_file | sed "s/.*FOG_VERSION', '\([^']*\)');/\1/")
 
 verbegin=""
 channel=""
@@ -31,7 +36,7 @@ case $branchon in
         tagversion=$(git describe --tags ${gitcom})
         baseversion=${tagversion%.*}   # Retain everything before the last segment
         lastrevision=${tagversion##*.} # Extracts the last segment
-        trunkversion="${baseversion}.$(($lastrevision + gitcount))"
+        trunkversion="${baseversion}.${gitcount}"
         channel="Patches"
         ;;
     working)
@@ -40,10 +45,23 @@ case $branchon in
         trunkversion="${verbegin}.${gitcount}"
         channel="Beta"
         ;;
+    rc)
+        channel="Release Candidate"
+        version_prefix="${branchend}.0-RC"
+        if [[ $current_version =~ $version_prefix-([0-9]+) ]]; then
+            last_rc_version=${BASH_REMATCH[1]}
+            next_rc_version=$((last_rc_version + 1))
+        else
+            trunkversion="${version_prefix}-1"
+        fi
+        ;;
+    feature)
+        verbegin="${branchend}.0-feature"
+        trunkversion="${verbegin}.${gitcount}"
+        channel="Feature"
+        ;;
 esac
 
-# Define the path to the system file
-system_file="$(git rev-parse --show-toplevel)/packages/web/lib/fog/system.class.php"
 
 # Update the version and channel in the system file
 sed -i "s/define('FOG_VERSION',.*);/define('FOG_VERSION', '$trunkversion');/g" $system_file
