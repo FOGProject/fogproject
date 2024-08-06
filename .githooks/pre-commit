@@ -6,6 +6,25 @@
 # it wants to stop the commit.
 #
 # To enable this hook, rename this file to "pre-commit".
+#
+# Exit on error
+set -e
+
+project_dir=$(git rev-parse --show-toplevel)
+
+updateLanguage() {
+    command -v xgettext || return
+    command -v msgcat || return
+    command -v msgmerge || return
+    xgettext --language=PHP --from-code=UTF-8 --output="$project_dir/packages/web/management/languages/messages.pot" --omit-header --no-location $(find $project_dir/packages/web/ -name "*.php")
+    msgcat --sort-output -o "$project_dir/packages/web/management/languages/messages.pot" "$project_dir/packages/web/management/languages/messages.pot"
+    for PO_FILE in $(find $project_dir/packages/web/management/languages/ -type f -name *.po); do
+        msgmerge --update --backup=none $PO_FILE $project_dir/packages/web/management/languages/messages.pot 2>/dev/null >/dev/null
+        msgcat --sort-output -o $PO_FILE $PO_FILE
+    done
+}
+
+updateLanguage
 
 # Get the current branch name
 gitbranch=$(git branch --show-current)
