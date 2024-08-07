@@ -2673,7 +2673,7 @@ abstract class FOGPage extends FOGBase
                     self::$FOGFTP
                         ->delete($orig)
                         ->rename($tmpfile, $orig)
-                        ->chmod(0755, $orig)
+                        ->chmod(0644, $orig)
                         ->close();
                     unlink($tmpfile);
                     die('##OK##');
@@ -2807,7 +2807,7 @@ abstract class FOGPage extends FOGBase
                     self::$FOGFTP
                         ->delete($orig)
                         ->rename($tmpfile, $orig)
-                        ->chmod(0755, $orig)
+                        ->chmod(0644, $orig)
                         ->close();
                     unlink($tmpfile);
                     die('##OK##');

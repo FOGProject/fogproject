@@ -1413,7 +1413,7 @@ configureSnapins() {
     dots "Setting up FOG Snapins"
     mkdir -p $snapindir >>$error_log 2>&1
     if [[ -d $snapindir ]]; then
-        chmod -R 777 $snapindir
+        chmod -R 775 $snapindir
         chown -R $username:$apacheuser $snapindir
     fi
     errorStat $?
