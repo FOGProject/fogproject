@@ -383,6 +383,7 @@ class TaskQueue extends TaskingElement
             self::$FOGSSH->delete($dest);
         }
         self::$FOGSSH->sftp_rename($src, $dest);
+        self::$FOGSSH->sftp_chmod($dest, 0775);
         self::$FOGSSH->disconnect();
         if ($this->Image->get('format') == 1) {
             $this->Image

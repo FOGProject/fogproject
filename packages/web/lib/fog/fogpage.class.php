@@ -1909,7 +1909,7 @@ abstract class FOGPage extends FOGBase
                     fclose($output_tg);
                     fclose($error_br);
                     fclose($error_tg);
-                    self::$FOGSSH->sftp_chmod($orig, 0655);
+                    self::$FOGSSH->sftp_chmod($orig, 0644);
                     self::$FOGSSH->disconnect();
                     if (file_exists($tmpfile)) {
                         unlink($tmpfile);
@@ -2079,7 +2079,7 @@ abstract class FOGPage extends FOGBase
                     fclose($output_tg);
                     fclose($error_br);
                     fclose($error_tg);
-                    self::$FOGSSH->sftp_chmod($orig, 0655);
+                    self::$FOGSSH->sftp_chmod($orig, 0644);
                     self::$FOGSSH->disconnect();
                     if (file_exists($tmpfile)) {
                         unlink($tmpfile);
