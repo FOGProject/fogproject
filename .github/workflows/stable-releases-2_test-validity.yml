@@ -1,0 +1,21 @@
+name: Stable Release Step 2 - Validate PR
+
+on:
+    workflow_dispatch:
+
+jobs:
+  Confirm-All-Tests-Passed:
+    runs-on: ubuntu-latest
+    steps:
+    # - uses: actions/checkout@v4
+    - name: 'placeholder for confirming tests passed'
+      run: return true;
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+# on a monthly pr created from other workflow
+# test validity of install
+# down the road-test various functions (deploy, capture, API)
+# Fix version if needed
+# merge pull request with generic commit
+# maybe update version if not handled in hook

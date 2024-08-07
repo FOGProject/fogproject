@@ -1,0 +1,24 @@
+name: Stable Release Step 3 - Tag and Release
+
+on:
+    workflow_dispatch:
+
+jobs:
+  Tag-and-release:
+    runs-on: ubuntu-latest
+    steps:
+    # - uses: actions/checkout@v4
+    - name: 'placeholder for tag and release'
+      run: |
+        echo 'find the version to create as a tag'
+        echo 'create the tag and release probably like...'
+        echo 'gh release create <tag> --notes-from-tag --latest --generate-notes --target stable'
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+# on merge of monthly release pr
+# get/calculate current version
+# create tag of current version
+# create release of new tag
+# generate release notes
+# send announcements?

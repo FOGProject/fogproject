@@ -1,3 +1,5 @@
+name: Stable Release Step 1 - Create PR
+
 on:
   workflow_dispatch:
   schedule:
