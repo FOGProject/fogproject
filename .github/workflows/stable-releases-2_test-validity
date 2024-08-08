@@ -1,6 +1,0 @@
-# on a monthly pr created from other workflow
-# test validity of install
-# down the road-test various functions (deploy, capture, API)
-# Fix version if needed
-# merge pull request with generic commit
-# maybe update version if not handled in hook

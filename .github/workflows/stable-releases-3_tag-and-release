@@ -1,6 +1,0 @@
-#on merge of monthly release pr
-# create tag of current version
-# create release of new tag
-# generate release notes
-# update website?
-# send announcements?
