@@ -8,7 +8,7 @@
 # To enable this hook, rename this file to "pre-commit".
 #
 # Exit on error
-set -e
+#set -e
 
 project_dir=$(git rev-parse --show-toplevel)
 
@@ -50,11 +50,20 @@ verbegin=""
 channel=""
 
 case $branchon in
-    dev|stable)
+    dev)
         # Describe the tag and append the commit count correctly
         tagversion=$(git describe --tags ${gitcom})
         baseversion=${tagversion%.*}   # Retain everything before the last segment
         lastrevision=${tagversion##*.} # Extracts the last segment
+        trunkversion="${baseversion}.${gitcount}"
+        channel="Patches"
+        ;;
+    stable)
+        # For stable, don't increment version, use what is being pulled from dev-branch
+        tagversion=$(git describe --tags ${gitcom})
+        baseversion=${tagversion%.*}   # Retain everything before the last segment
+        lastrevision=${tagversion##*.} # Extracts the last segment
+        gitcount=$(git rev-list master..dev-branch --count) #get the gitcount from dev-branch instead
         trunkversion="${baseversion}.${gitcount}"
         channel="Patches"
         ;;
