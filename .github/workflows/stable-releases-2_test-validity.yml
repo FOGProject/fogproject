@@ -2,14 +2,30 @@ name: Stable Release Step 2 - Validate PR
 
 on:
     workflow_dispatch:
+    # pull_request:
+    #     types:
+    #       - open
+    #     branches:
+    #       - dev-branch
+    #       - stable
 
 jobs:
-  Confirm-All-Tests-Passed:
+  Merge-After-All-Tests-Passed:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/stable'
     steps:
-    # - uses: actions/checkout@v4
-    - name: 'placeholder for confirming tests passed'
-      run: return true;
+    - name: Check out code
+      uses: actions/checkout@v4
+    - name: Merge The PR
+      run: |
+          echo 'Get the tag'
+          git fetch origin dev-branch
+          git checkout dev-branch
+          system_file="$(git rev-parse --show-toplevel)/packages/web/lib/fog/system.class.php"
+          tag=$(grep "define('FOG_VERSION'" $system_file | sed "s/.*FOG_VERSION', '\([^']*\)');/\1/")
+          git checkout stable
+          echo "merge the pull request bringing dev-branch into stable";
+          gh pr merge dev-branch --squash --subject "Stable Release - ${tag}";
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

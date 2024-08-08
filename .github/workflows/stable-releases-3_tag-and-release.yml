@@ -2,19 +2,32 @@ name: Stable Release Step 3 - Tag and Release
 
 on:
     workflow_dispatch:
-
+    # pull_request:
+    #     types:
+    #       - closed
+          
 jobs:
   Tag-and-release:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/stable' 
     steps:
-    # - uses: actions/checkout@v4
-    - name: 'placeholder for tag and release'
+    - name: Check-out code to release
+      uses: actions/checkout@v4
+    - name: Tag and release
       run: |
+        echo 'Find the version to use for the tag, create the release, and sync the dev and stable branches'
         echo 'find the version to create as a tag'
-        echo 'create the tag and release probably like...'
-        echo 'gh release create <tag> --notes-from-tag --latest --generate-notes --target stable'
+        system_file="$(git rev-parse --show-toplevel)/packages/web/lib/fog/system.class.php"
+        tag=$(grep "define('FOG_VERSION'" $system_file | sed "s/.*FOG_VERSION', '\([^']*\)');/\1/")
+        echo 'create the tag and release...'
+        gh release create $tag --latest --generate-notes --target stable
+        echo 'sync dev-branch with stable branch (merge stable into dev-branch)...'
+        # git config core.hooksPath .githooks #custom githooks not working in github runner
+        gh pr create -B dev-branch -H stable --title "merge stable - ${tag} into dev" --body "Pull Request for syncing stable release commit back to dev after a release"
+        gh pr merge stable --merge --subject "merge stable - ${tag} into dev";
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
 
 # on merge of monthly release pr
 # get/calculate current version

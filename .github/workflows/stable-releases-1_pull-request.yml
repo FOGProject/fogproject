@@ -7,9 +7,16 @@ on:
 jobs:
   create-release-pull-request:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/stable'
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: dev-branch
     - name: create pull request
-      run: gh pr create -B stable -H dev-branch --title "Monthly Release PR - $(date '+%Y-%m-%d')" --body "Monthly pull request for creating the latest stable release from staged security fixes, bug fixes, and minor enhancements."
+      run: | 
+        echo 'Get version to be released and create PR with that in the name'
+        system_file="$(git rev-parse --show-toplevel)/packages/web/lib/fog/system.class.php"
+        tag=$(grep "define('FOG_VERSION'" $system_file | sed "s/.*FOG_VERSION', '\([^']*\)');/\1/")
+        gh pr create -B stable -H dev-branch --title "Stable Release PR For ${tag} - $(date '+%Y-%m-%d')" --body "Pull Request for creating the latest stable release from staged security fixes, bug fixes, and minor enhancements in dev-branch. Created as needed or monthly on 15th of every month, released once tests are passing"
       env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
