@@ -32,8 +32,7 @@ parse_str(
 if (
     !$currentUser->isValid() &&
     !isset($_POST['ko']) &&
-    (empty($_SERVER['HTTP_X_REQUESTED_WITH'])
-    || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest')
+    strtolower($_SERVER['HTTP_X_REQUEST_WITH'] ?? '') != 'xmlhttprequest'
 ) {
     echo _('Unauthorized');
     exit;
