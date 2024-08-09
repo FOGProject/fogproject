@@ -20,10 +20,11 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-$unauthorized = !(isset($currentUser) && $currentUser->isValid()) || empty($_SERVER['HTTP_X_REQUESTED_WITH'])
-    || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest';
-
-if ($unauthorized) {
+if (
+    !$currentUser->isValid() &&
+    (empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+    || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest')
+) {
     echo _('Unauthorized');
     exit;
 }
