@@ -27,7 +27,7 @@ header('Connection: close');
 if (
     !$currentUser->isValid() &&
     (empty($_SERVER['HTTP_X_REQUESTED_WITH'])
-    || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'XMLHttpRequest')
+    || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest')
 ) {
     echo _('Unauthorized');
     exit;

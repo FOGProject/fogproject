@@ -33,7 +33,7 @@ if (
     !$currentUser->isValid() &&
     !isset($_POST['ko']) &&
     (empty($_SERVER['HTTP_X_REQUESTED_WITH'])
-    || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'XMLHttpRequest')
+    || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest')
 ) {
     echo _('Unauthorized');
     exit;
