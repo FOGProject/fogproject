@@ -22,6 +22,14 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
+if (
+    !$currentUser->isValid() &&
+    (empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+    || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'XMLHttpRequest')
+) {
+    echo _('Unauthorized');
+    exit;
+}
 $path = filter_input(INPUT_GET, 'path');
 if (!is_string($path)) {
     echo json_encode(
