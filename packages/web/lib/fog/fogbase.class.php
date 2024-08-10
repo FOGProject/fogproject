@@ -2847,4 +2847,22 @@ abstract class FOGBase
         }
         return true;
     }
+    /**
+     * Is Authorized to perform action simplified
+     *
+     * @param $return_bool Defaults to false, but can return bool
+     *
+     * @return void|bool
+     */
+    public static function is_authorized($return_bool = false)
+    {   $authorized = self::$FOGUser->isValid() || 
+            strtolower(($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) == 'xmlhttprequest';
+        if ($return_bool) {
+            return $authorized;
+        }
+        if (!$authorized) {
+            echo _('Unauthorized');
+            exit;
+        }
+    }
 }

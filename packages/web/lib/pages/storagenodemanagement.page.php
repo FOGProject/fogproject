@@ -1558,7 +1558,13 @@ class StorageNodeManagement extends FOGPage
             $res = self::$FOGURLRequests->process(
                 $url,
                 'POST',
-                $data
+                $data,
+                false,
+                false,
+                false,
+                false,
+                false,
+                ['X-Requested-With: XMLHttpRequest']
             );
             $res = array_shift($res);
             echo $res;

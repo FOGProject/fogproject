@@ -22,6 +22,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
+FOGCore::is_authorized();
 $path = filter_input(INPUT_GET, 'path');
 if (!is_string($path)) {
     echo json_encode(

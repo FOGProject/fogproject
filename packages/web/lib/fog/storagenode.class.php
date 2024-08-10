@@ -273,7 +273,17 @@ class StorageNode extends FOGController
             $this->get('ip'),
             rtrim($items[$item], DS)
         );
-        $response = self::$FOGURLRequests->process($url);
+        $response = self::$FOGURLRequests->process(
+            $url,
+            'GET',
+            null,
+            false,
+            false,
+            false,
+            false,
+            false,
+            ['X-Requested-With: XMLHttpRequest']
+        );
         return preg_grep(
             '#dev|postdownloadscripts|ssl#',
             json_decode($response[0], true),

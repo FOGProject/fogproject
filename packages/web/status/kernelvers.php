@@ -29,14 +29,7 @@ parse_str(
     $userID,
     $items
 );
-if (
-    !$currentUser->isValid() &&
-    !isset($_POST['ko']) &&
-    strtolower($_SERVER['HTTP_X_REQUEST_WITH'] ?? '') != 'xmlhttprequest'
-) {
-    echo _('Unauthorized');
-    exit;
-}
+FOGCore::is_authorized();
 $initrdvers = function ($initrd) {
     $currpath = sprintf(
         '%s%sservice%sipxe%s%s',

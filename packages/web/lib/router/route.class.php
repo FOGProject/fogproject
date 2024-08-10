@@ -2184,7 +2184,7 @@ class Route extends FOGBase
                             'online' => $class->get('online'),
                             //'logfiles' => $class->get('logfiles'),
                             'snapinfiles' => $class->get('snapinfiles'),
-                            //'images' => $class->get('images'),
+                            'images' => $class->get('images'),
                             'storagegroup' => $class->get('storagegroup')->get()
                         ]
                     );

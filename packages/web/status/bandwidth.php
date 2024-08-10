@@ -81,10 +81,7 @@ if (count($interface) < 1) {
     include '../commons/base.inc.php';
     ignore_user_abort(true);
     set_time_limit(0);
-    if (!$currentUser->isValid()) {
-        echo json_encode(_('Unauthorized'));
-        exit;
-    }
+    FOGCore::is_authorized();
     // Find our server address
     $srvAddr = $_SERVER['SERVER_ADDR'];
     // If accessed by hostname resolve to ip

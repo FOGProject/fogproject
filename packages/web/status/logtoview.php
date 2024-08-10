@@ -24,13 +24,7 @@ ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
 header('Connection: close');
-if (
-    !$currentUser->isValid() &&
-    strtolower($_SERVER['HTTP_X_REQUEST_WITH'] ?? '') != 'xmlhttprequest'
-) {
-    echo _('Unauthorized');
-    exit;
-}
+FOGCore::is_authorized();
 if (!(isset($_POST['ip'])
     && is_string($_POST['ip']))
 ) {
