@@ -44,14 +44,7 @@ if (isset($_REQUEST['client'])) {
 } elseif (isset($_REQUEST['url'])) {
 
     // Prevent an unauthenticated user from making arbitrary requests.
-    if (
-        !$currentUser->isValid() &&
-        (empty($_SERVER['HTTP_X_REQUESTED_WITH'])
-        || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest')
-    ) {
-        echo _('Unauthorized');
-        exit;
-    }
+    FOGCore::is_authorized();
 
     $url = $_REQUEST['url'];
     $res = $FOGURLRequests
