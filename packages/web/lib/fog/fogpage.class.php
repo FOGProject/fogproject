@@ -3852,4 +3852,18 @@ abstract class FOGPage extends FOGBase
     {
         return trim(filter_input(INPUT_POST, $key, FILTER_SANITIZE_STRING));
     }
+
+    /**
+     * Sanitizes the post input or gets the object key
+     *
+     * @param string $postKey The POST items key.
+     * @param ?string $objKey The object key to return.
+     */
+    protected function getInputData(string $postkey, ?string $objKey): string
+    {
+        return (
+            $this->sanitizeInput($postKey) ?:
+            ($this->obj->get($objKey) ?: '')
+        );
+    }
 }

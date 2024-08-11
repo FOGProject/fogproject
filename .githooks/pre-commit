@@ -31,6 +31,7 @@ updateLanguage() {
 }
 
 updateLanguage
+psrfix
 
 # Get the current branch name
 gitbranch=$(git branch --show-current)
