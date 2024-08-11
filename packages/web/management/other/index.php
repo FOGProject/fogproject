@@ -189,7 +189,7 @@ unset($this->stylesheets);
                     <a href="../management/index.php?node=about&sub=home" style="text-decoration: none"><b><?= _('Version'); ?></b>&nbsp;<?= FOG_VERSION; ?></a>
                 </div>
                 <strong>
-                    <?= _('Copyright'); ?> &copy; 2012-2023 <a href="https://fogproject.org">FOG Project</a>.
+                    <?= _('Copyright'); ?> &copy; 2012-<?php echo self::formatTime('now', 'Y'); ?> <a href="https://fogproject.org">FOG Project</a>.
                 </strong> <?= _('All rights reserved.'); ?>
             </footer>
         <?php endif; ?>

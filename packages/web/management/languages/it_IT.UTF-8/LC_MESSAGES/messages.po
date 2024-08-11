@@ -640,6 +640,10 @@ msgstr "Esiste già un ruolo con questo nome!"
 msgid "An accesscontrol with this name already exists!"
 msgstr "Un nome host con questo nome esiste già"
 
+#, fuzzy
+msgid "An error occurred"
+msgstr "Si è verificato errore di caricamento sconosciuto"
+
 msgid "An image already exists with this name!"
 msgstr "Un'immagine esiste già con questo nome!"
 
@@ -658,10 +662,6 @@ msgid "Applications"
 msgstr "Applicazioni"
 
 msgid "Approve"
-msgstr "Approva"
-
-#, fuzzy
-msgid "Approve MAC Fail"
 msgstr "Approva"
 
 #, fuzzy
@@ -1399,10 +1399,6 @@ msgstr ""
 
 #, fuzzy
 msgid "Delete Fail"
-msgstr "Cancellare i file"
-
-#, fuzzy
-msgid "Delete MAC Fail"
 msgstr "Cancellare i file"
 
 #, fuzzy
@@ -7016,6 +7012,10 @@ msgstr ""
 #~ msgstr "Aggiunta utente fallita!"
 
 #, fuzzy
+#~ msgid "Approve MAC Fail"
+#~ msgstr "Approva"
+
+#, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "Applicare cambiamenti?"
 
@@ -7033,6 +7033,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "Percorso non disponibile"
+
+#, fuzzy
+#~ msgid "Delete MAC Fail"
+#~ msgstr "Cancellare i file"
 
 #, fuzzy
 #~ msgid "Disable All"

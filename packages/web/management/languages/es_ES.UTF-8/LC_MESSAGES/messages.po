@@ -683,6 +683,10 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "An accesscontrol with this name already exists!"
 msgstr "Sesión con ese nombre ya existe"
 
+#, fuzzy
+msgid "An error occurred"
+msgstr "Se produjo un error de carga desconocida. Código de retorno: "
+
 msgid "An image already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
@@ -703,10 +707,6 @@ msgstr "Comportamiento"
 
 #, fuzzy
 msgid "Approve"
-msgstr "Creado"
-
-#, fuzzy
-msgid "Approve MAC Fail"
 msgstr "Creado"
 
 #, fuzzy
@@ -1486,10 +1486,6 @@ msgstr ""
 
 #, fuzzy
 msgid "Delete Fail"
-msgstr "Eliminar los datos del archivo"
-
-#, fuzzy
-msgid "Delete MAC Fail"
 msgstr "Eliminar los datos del archivo"
 
 #, fuzzy
@@ -7554,6 +7550,10 @@ msgstr ""
 #~ msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
+#~ msgid "Approve MAC Fail"
+#~ msgstr "Creado"
+
+#, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "Guardar cambios"
 
@@ -7572,6 +7572,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "No se dispone de hash"
+
+#, fuzzy
+#~ msgid "Delete MAC Fail"
+#~ msgstr "Eliminar los datos del archivo"
 
 #, fuzzy
 #~ msgid "Disable All"

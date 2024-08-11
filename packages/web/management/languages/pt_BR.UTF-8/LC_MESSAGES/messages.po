@@ -672,6 +672,10 @@ msgstr "Uma imagem já existe com este nome!"
 msgid "An accesscontrol with this name already exists!"
 msgstr "Um nome de host com esse nome já existe."
 
+#, fuzzy
+msgid "An error occurred"
+msgstr "Ocorreu um erro de upload desconhecido. Código de retorno: "
+
 msgid "An image already exists with this name!"
 msgstr "Uma imagem já existe com este nome!"
 
@@ -692,10 +696,6 @@ msgstr "Ações"
 
 #, fuzzy
 msgid "Approve"
-msgstr "hospedar aprovado"
-
-#, fuzzy
-msgid "Approve MAC Fail"
 msgstr "hospedar aprovado"
 
 #, fuzzy
@@ -1468,10 +1468,6 @@ msgstr ""
 
 #, fuzzy
 msgid "Delete Fail"
-msgstr "Apagar dados de arquivo"
-
-#, fuzzy
-msgid "Delete MAC Fail"
 msgstr "Apagar dados de arquivo"
 
 #, fuzzy
@@ -7405,6 +7401,10 @@ msgstr ""
 #~ msgstr "Adicionar snap-in falhou!"
 
 #, fuzzy
+#~ msgid "Approve MAC Fail"
+#~ msgstr "hospedar aprovado"
+
+#, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "Salvar alterações"
 
@@ -7422,6 +7422,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "Nenhum de hash disponíveis"
+
+#, fuzzy
+#~ msgid "Delete MAC Fail"
+#~ msgstr "Apagar dados de arquivo"
 
 #, fuzzy
 #~ msgid "Disable All"

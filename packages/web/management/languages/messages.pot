@@ -539,6 +539,9 @@ msgstr ""
 msgid "An accesscontrol with this name already exists!"
 msgstr ""
 
+msgid "An error occurred"
+msgstr ""
+
 msgid "An image already exists with this name!"
 msgstr ""
 
@@ -555,9 +558,6 @@ msgid "Applications"
 msgstr ""
 
 msgid "Approve"
-msgstr ""
-
-msgid "Approve MAC Fail"
 msgstr ""
 
 msgid "Approve Pending Hosts"
@@ -1203,9 +1203,6 @@ msgid "Delete All Powermanagement Items"
 msgstr ""
 
 msgid "Delete Fail"
-msgstr ""
-
-msgid "Delete MAC Fail"
 msgstr ""
 
 msgid "Delete MAC List"

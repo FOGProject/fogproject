@@ -672,6 +672,10 @@ msgstr "An image already exists with this name!"
 msgid "An accesscontrol with this name already exists!"
 msgstr "A hostname with that name already exists."
 
+#, fuzzy
+msgid "An error occurred"
+msgstr "Unknown upload error occurred.  Return code: "
+
 msgid "An image already exists with this name!"
 msgstr "An image already exists with this name!"
 
@@ -692,10 +696,6 @@ msgstr "Actions"
 
 #, fuzzy
 msgid "Approve"
-msgstr "Host approved"
-
-#, fuzzy
-msgid "Approve MAC Fail"
 msgstr "Host approved"
 
 #, fuzzy
@@ -1465,10 +1465,6 @@ msgstr ""
 
 #, fuzzy
 msgid "Delete Fail"
-msgstr "Delete file data"
-
-#, fuzzy
-msgid "Delete MAC Fail"
 msgstr "Delete file data"
 
 #, fuzzy
@@ -7401,6 +7397,10 @@ msgstr ""
 #~ msgstr "Add snapin failed!"
 
 #, fuzzy
+#~ msgid "Approve MAC Fail"
+#~ msgstr "Host approved"
+
+#, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "Save Changes"
 
@@ -7418,6 +7418,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "No hash available"
+
+#, fuzzy
+#~ msgid "Delete MAC Fail"
+#~ msgstr "Delete file data"
 
 #, fuzzy
 #~ msgid "Disable All"

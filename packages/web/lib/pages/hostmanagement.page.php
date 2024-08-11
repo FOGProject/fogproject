@@ -1,25 +1,16 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Host management page
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * The host represented to the GUI
  *
  * @category HostManagement
  * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- * @link     https://fogproject.org
- */
-/**
- * Host management page
- *
- * The host represented to the GUI
- *
- * @category HostManagement
- * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @version  1.1
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -31,62 +22,82 @@ class HostManagement extends FOGPage
      * @var string
      */
     public $node = 'host';
+
     /**
-     * Initializes the host page
+     * The normal boot type exit strategy.
      *
-     * @param string $name the name to construct with
-     *
-     * @return void
+     * @var string|null
      */
-    public function __construct($name = '')
+    private ?string $exitNorm = null;
+
+    /**
+     * The EFI boot type exit strategy.
+     *
+     * @var string|null
+     */
+    private ?string $exitEfi = null;
+
+    /**
+     * Initializes the host page.
+     *
+     * @param string $name The name to construct with.
+     */
+    public function __construct(string $name = '')
     {
         $this->name = 'Host Management';
         parent::__construct($this->name);
-        if (!($this->obj instanceof Host && $this->obj->isValid())) {
-            $this->exitNorm = filter_input(INPUT_POST, 'bootTypeExit');
-            $this->exitEfi = filter_input(INPUT_POST, 'efiBootTypeExit');
+
+        if (!$this->isValidHost()) {
+            $this->exitNorm = filter_input(INPUT_POST, 'bootTypeExit', FILTER_SANITIZE_STRING);
+            $this->exitEfi = filter_input(INPUT_POST, 'efiBootTypeExit', FILTER_SANITIZE_STRING);
         } else {
-            // If the host doesn't have a token
-            // or the tasking has completed and the token
-            // was already checked out but not used and cleared
-            // clear it.
-            if (
-                !$this->obj->get('token')
-                || (
-                    $this->obj->get('tokenlock')
-                    && !$this->obj->get('task')->isValid()
-                )
-            ) {
-                self::getClass('HostManager')->update(
-                    ['id' => $this->obj->get('id')],
-                    '',
-                    [
-                        'token' => self::createSecToken(),
-                        'tokenlock' => false
-                    ]
-                );
-            }
-            $this->exitNorm = (
-                filter_input(INPUT_POST, 'bootTypeExit') ?:
-                ($this->obj->get('biosexit') ?: '')
-            );
-            $this->exitEfi = (
-                filter_input(INPUT_POST, 'efiBootTypeExit') ?:
-                ($this->obj->get('efiexit') ?: '')
+            $this->handleTokenManagement();
+            $this->exitNorm = filter_input(INPUT_POST, 'bootTypeExit', FILTER_SANITIZE_STRING) ?: $this->obj->get('biosexit') ?: '';
+            $this->exitEfi = filter_input(INPUT_POST, 'efiBootTypeExit', FILTER_SANITIZE_STRING) ?: $this->obj->get('efiexit') ?: '';
+        }
+
+        $this->exitNorm = Setting::buildExitSelector('bootTypeExit', $this->exitNorm, true, 'bootTypeExit');
+        $this->exitEfi = Setting::buildExitSelector('efiBootTypeExit', $this->exitEfi, true, 'efiBootTypeExit');
+
+        $this->initializeHeadersAndAttributes();
+    }
+
+    /**
+     * Checks if the host object is valid.
+     *
+     * @return bool
+     */
+    private function isValidHost(): bool
+    {
+        return $this->obj instanceof Host && $this->obj->isValid();
+    }
+
+    /**
+     * Handles token management for the host.
+     *
+     * @return void
+     */
+    private function handleTokenManagement(): void
+    {
+        if (!$this->obj->get('token') || ($this->obj->get('tokenlock') && !$this->obj->get('task')->isValid())) {
+            self::getClass('HostManager')->update(
+                ['id' => $this->obj->get('id')],
+                '',
+                [
+                    'token' => self::createSecToken(),
+                    'tokenlock' => false
+                ]
             );
         }
-        $this->exitNorm = Setting::buildExitSelector(
-            'bootTypeExit',
-            $this->exitNorm,
-            true,
-            'bootTypeExit'
-        );
-        $this->exitEfi = Setting::buildExitSelector(
-            'efiBootTypeExit',
-            $this->exitEfi,
-            true,
-            'efiBootTypeExit'
-        );
+    }
+
+    /**
+     * Initializes the headers and attributes for the host.
+     *
+     * @return void
+     */
+    private function initializeHeadersAndAttributes(): void
+    {
         $this->headerData = [
             _('Host'),
             _('Primary MAC')
@@ -95,16 +106,19 @@ class HostManagement extends FOGPage
             [],
             []
         ];
+
         if (self::$fogpingactive) {
             $this->headerData[] = _('Ping Status');
             $this->attributes[] = [];
         }
+
         array_push(
             $this->headerData,
             _('Imaged'),
             _('Assigned Image'),
             _('Description')
         );
+
         array_push(
             $this->attributes,
             [],
@@ -112,59 +126,66 @@ class HostManagement extends FOGPage
             []
         );
     }
+
     /**
-     * Lists the pending hosts
+     * Lists the pending hosts.
      *
-     * @return false
+     * @return void
      */
-    public function pending()
+    public function pending(): void
     {
-        if (false === self::$showhtml) {
+        if (!self::$showhtml) {
             return;
         }
+
         $this->title = _('All Pending Hosts');
+        $this->cleanHeaderDataAndAttributes();
 
-        // Remove unnecessary elements.
-        unset(
-            $this->headerData[2],
-            $this->headerData[3],
-            $this->headerData[4],
-            $this->attributes[2],
-            $this->attributes[3],
-            $this->attributes[4]
-        );
+        $buttons = $this->createActionButtons();
+        $approvalModal = $this->createApprovalModal();
+        $deleteModal = $this->createDeleteModal();
 
-        // Reorder the arrays
-        $this->headerData = array_values(
-            $this->headerData
-        );
-        $this->attributes = array_values(
-            $this->attributes
-        );
+        echo $this->renderPendingForm($buttons, $approvalModal, $deleteModal);
+    }
 
-        $buttons = self::makeButton(
-            'approve',
-            _('Approve selected'),
-            'btn btn-primary pull-right'
-        );
-        $buttons .= self::makeButton(
-            'delete',
-            _('Delete selected'),
-            'btn btn-danger pull-left'
-        );
+    /**
+     * Cleans up the header data and attributes arrays.
+     *
+     * @return void
+     */
+    private function cleanHeaderDataAndAttributes(): void
+    {
+        unset($this->headerData[2], $this->headerData[3], $this->headerData[4]);
+        unset($this->attributes[2], $this->attributes[3], $this->attributes[4]);
 
-        $modalApprovalBtns = self::makeButton(
-            'confirmApproveModal',
-            _('Approve'),
-            'btn btn-outline pull-right'
-        );
-        $modalApprovalBtns .= self::makeButton(
-            'cancelApprovalModal',
-            _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
-        );
-        $approvalModal = self::makeModal(
+        $this->headerData = array_values($this->headerData);
+        $this->attributes = array_values($this->attributes);
+    }
+
+    /**
+     * Creates the action buttons for the pending hosts management.
+     *
+     * @return string
+     */
+    private function createActionButtons(): string
+    {
+        $approveButton = self::makeButton('approve', _('Approve selected'), 'btn btn-primary pull-right');
+        $deleteButton = self::makeButton('delete', _('Delete selected'), 'btn btn-danger pull-left');
+
+        return $approveButton . $deleteButton;
+    }
+
+    /**
+     * Creates the approval modal for pending hosts.
+     *
+     * @return string
+     */
+    private function createApprovalModal(): string
+    {
+        $modalApprovalBtns = self::makeButton('confirmApproveModal', _('Approve'), 'btn btn-outline pull-right');
+        $modalApprovalBtns .= self::makeButton('cancelApprovalModal', _('Cancel'), 'btn btn-outline pull-left', 'data-dismiss="modal"');
+
+        return self::makeModal(
             'approveModal',
             _('Approve Pending Hosts'),
             _('Approving the selected pending hosts.'),
@@ -172,19 +193,19 @@ class HostManagement extends FOGPage
             '',
             'info'
         );
+    }
 
-        $modalDeleteBtns = self::makeButton(
-            'confirmDeleteModal',
-            _('Delete'),
-            'btn btn-outline pull-right'
-        );
-        $modalDeleteBtns .= self::makeButton(
-            'closeDeleteModal',
-            _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
-        );
-        $deleteModal = self::makeModal(
+    /**
+     * Creates the delete modal for pending hosts.
+     *
+     * @return string
+     */
+    private function createDeleteModal(): string
+    {
+        $modalDeleteBtns = self::makeButton('confirmDeleteModal', _('Delete'), 'btn btn-outline pull-right');
+        $modalDeleteBtns .= self::makeButton('closeDeleteModal', _('Cancel'), 'btn btn-outline pull-left', 'data-dismiss="modal"');
+
+        return self::makeModal(
             'deleteModal',
             _('Confirm password'),
             '<div class="input-group">'
@@ -202,7 +223,19 @@ class HostManagement extends FOGPage
             '',
             'danger'
         );
+    }
 
+    /**
+     * Renders the pending hosts form.
+     *
+     * @param string $buttons The action buttons.
+     * @param string $approvalModal The approval modal.
+     * @param string $deleteModal The delete modal.
+     * @return string The rendered form HTML.
+     */
+    private function renderPendingForm(string $buttons, string $approvalModal, string $deleteModal): string
+    {
+        ob_start();
         echo self::makeFormTag(
             'form-horizontal',
             'host-pending-form',
@@ -213,9 +246,7 @@ class HostManagement extends FOGPage
         );
         echo '<div class="box box-solid">';
         echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo $this->title;
-        echo '</h4>';
+        echo '<h4 class="box-title">' . $this->title . '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
         $this->render(12, 'dataTable', $buttons);
@@ -226,67 +257,72 @@ class HostManagement extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</form>';
+        return ob_get_clean();
     }
+
     /**
-     * Actually performs the update/delete actions
+     * Processes AJAX requests for pending hosts.
      *
      * @return void
      */
-    public function pendingAjax()
+    public function pendingAjax(): void
     {
         header('Content-type: application/json');
 
-        $flags = ['flags' => FILTER_REQUIRE_ARRAY];
-        $items = filter_input_array(
-            INPUT_POST,
-            [
-                'remitems' => $flags,
-                'pending' => $flags
-            ]
-        );
-        $remitems = $items['remitems'];
-        $pending = $items['pending'];
+        $items = filter_input_array(INPUT_POST, [
+            'remitems' => ['flags' => FILTER_REQUIRE_ARRAY],
+            'pending' => ['flags' => FILTER_REQUIRE_ARRAY]
+        ]);
+        $remitems = $items['remitems'] ?? [];
+        $pending = $items['pending'] ?? [];
+
         if (isset($_POST['confirmdel'])) {
-            self::checkauth();
-            Route::deletemass(
-                'host',
-                [
-                    'id' => $remitems,
-                    'pending' => 1
-                ]
-            );
-        }
-        if (isset($_POST['approvepending'])) {
-            self::getClass('HostManager')->update(
-                [
-                    'id' => $pending,
-                    'pending' => 1
-                ],
-                '',
-                ['pending' => 0]
-            );
-            http_response_code(HTTPResponseCodes::HTTP_ACCEPTED);
-            echo json_encode(
-                [
-                    'msg' => _('Approved selected hosts!'),
-                    'title' => _('Host Approval Success')
-                ]
-            );
-            exit;
+            $this->processDeleteHosts($remitems);
+        } elseif (isset($_POST['approvepending'])) {
+            $this->processApproveHosts($pending);
         }
     }
+
     /**
-     * Lists the pending macs
+     * Processes the deletion of pending hosts.
      *
-     * @return false
+     * @param array $remitems The items to remove.
+     * @return void
      */
-    public function pendingMacs()
+    private function processDeleteHosts(array $remitems): void
     {
-        if (false === self::$showhtml) {
+        self::checkauth();
+        Route::deletemass('host', ['id' => $remitems, 'pending' => 1]);
+    }
+
+    /**
+     * Processes the approval of pending hosts.
+     *
+     * @param array $pending The pending hosts to approve.
+     * @return void
+     */
+    private function processApproveHosts(array $pending): void
+    {
+        self::getClass('HostManager')->update(
+            ['id' => $pending, 'pending' => 1],
+            '',
+            ['pending' => 0]
+        );
+        $this->sendAjaxResponse(_('Approved selected hosts!'), _('Host Approval Success'), HTTPResponseCodes::HTTP_ACCEPTED);
+    }
+
+    /**
+     * Lists the pending MAC addresses.
+     *
+     * @return void
+     */
+    public function pendingMacs(): void
+    {
+        if (!self::$showhtml) {
             return;
         }
-        $this->title = _('All Pending MACs');
 
+        $this->title = _('All Pending MACs');
         $this->headerData = [
             _('Host Name'),
             _('MAC Address')
@@ -296,394 +332,270 @@ class HostManagement extends FOGPage
             []
         ];
 
-        self::$HookManager->processEvent(
-            'HOST_PENDING_MAC_DATA',
-            [
-                'attributes' => &$this->attributes,
-                'headerData' => &$this->headerData
-            ]
-        );
-        self::$HookManager->processEvent(
-            'HOST_PENDING_MAC_HEADER_DATA',
-            ['headerData' => &$this->headerData]
-        );
+        self::$HookManager->processEvent('HOST_PENDING_MAC_DATA', [
+            'attributes' => &$this->attributes,
+            'headerData' => &$this->headerData
+        ]);
+        self::$HookManager->processEvent('HOST_PENDING_MAC_HEADER_DATA', [
+            'headerData' => &$this->headerData
+        ]);
 
-        $buttons = self::makeButton(
-            'approve',
-            _('Approve selected'),
-            'btn btn-primary pull-right'
-        );
-        $buttons .= self::makeButton(
-            'delete',
-            _('Delete selected'),
-            'btn btn-danger pull-left'
-        );
+        $buttons = $this->createActionButtons();
+        $approvalModal = $this->createApprovalModal('Approve Pending MACs', 'Approving the selected pending MACs.');
+        $deleteModal = $this->createDeleteModal();
 
-        $modalApprovalBtns = self::makeButton(
-            'confirmApproveModal',
-            _('Approve'),
-            'btn btn-outline pull-right'
-        );
-        $modalApprovalBtns .= self::makeButton(
-            'cancelApprovalModal',
-            _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
-        );
-        $approvalModal = self::makeModal(
-            'approveModal',
-            _('Approve Pending Hosts'),
-            _('Approving the selected pending hosts.'),
-            $modalApprovalBtns,
-            '',
-            'success'
-        );
-
-        $modalDeleteBtns = self::makeButton(
-            'confirmDeleteModal',
-            _('Delete'),
-            'btn btn-outline pull-right'
-        );
-        $modalDeleteBtns .= self::makeButton(
-            'closeDeleteModal',
-            _('Cancel'),
-            'btn btn-outline pull-left',
-            'data-dismiss="modal"'
-        );
-        $deleteModal = self::makeModal(
-            'deleteModal',
-            _('Confirm password'),
-            '<div class="input-group">'
-            . self::makeInput(
-                'form-control',
-                'deletePassword',
-                _('Password'),
-                'password',
-                'deletePassword',
-                '',
-                true
-            )
-            . '</div>',
-            $modalDeleteBtns,
-            '',
-            'danger'
-        );
-
-        echo self::makeFormTag(
-            'form-horizontal',
-            'mac-pending-form',
-            $this->formAction,
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo '<div class="box box-solid">';
-        echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="box-body">';
-        $this->render(12, 'dataTable', $buttons);
-        echo '</div>';
-        echo '<div class="box-footer with-border">';
-        //echo $buttons;
-        echo $approvalModal;
-        echo $deleteModal;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
+        echo $this->renderPendingForm($buttons, $approvalModal, $deleteModal);
     }
+
     /**
-     * Actually performs the update/delete actions
+     * Processes AJAX requests for pending MAC addresses.
      *
      * @return void
      */
-    public function pendingMacsAjax()
+    public function pendingMacsAjax(): void
     {
         header('Content-type: application/json');
 
-        $flags = ['flags' => FILTER_REQUIRE_ARRAY];
-        $items = filter_input_array(
-            INPUT_POST,
-            [
-                'remitems' => $flags,
-                'pending' => $flags
-            ]
-        );
-        $remitems = $items['remitems'];
-        $pending = $items['pending'];
-        $serverFault = false;
+        $items = filter_input_array(INPUT_POST, [
+            'remitems' => ['flags' => FILTER_REQUIRE_ARRAY],
+            'pending' => ['flags' => FILTER_REQUIRE_ARRAY]
+        ]);
+        $remitems = $items['remitems'] ?? [];
+        $pending = $items['pending'] ?? [];
+
         try {
             if (isset($_POST['confirmdel'])) {
-                $errt = _('Delete MAC Fail');
-                self::checkauth();
-                self::$HookManager->processEvent(
-                    'MULTI_REMOVE',
-                    ['removing' => &$remitems]
-                );
-                Route::deletemass(
-                    'macaddressassociation',
-                    [
-                        'id' => $remitems,
-                        'pending' => 1
-                    ]
-                );
-                $msg = json_encode(
-                    [
-                        'msg' => _('Successfully deleted'),
-                        'title' => _('Delete Success')
-                    ]
-                );
-                $code = HTTPResponseCodes::HTTP_SUCCESS;
-            }
-            if (isset($_POST['approvepending'])) {
-                $errt = _('Approve MAC Fail');
-                self::getClass('MACAddressAssociationManager')->update(
-                    [
-                        'id' => $pending,
-                        'pending' => 1
-                    ],
-                    '',
-                    ['pending' => 0]
-                );
-                $msg = json_encode(
-                    [
-                        'msg' => _('Approved selected macs!'),
-                        'title' => _('MAC Approval Success')
-                    ]
-                );
-                $code = HTTPResponseCodes::HTTP_ACCEPTED;
+                $this->processDeleteMacs($remitems);
+            } elseif (isset($_POST['approvepending'])) {
+                $this->processApproveMacs($pending);
             }
         } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => $errt
-                ]
-            );
+            $this->handleAjaxError($e);
         }
-        http_response_code($code);
-        echo $msg;
-        exit;
     }
+
+    /**
+     * Processes the deletion of pending MAC addresses.
+     *
+     * @param array $remitems The MAC addresses to remove.
+     * @return void
+     */
+    private function processDeleteMacs(array $remitems): void
+    {
+        self::checkauth();
+        self::$HookManager->processEvent('MULTI_REMOVE', ['removing' => &$remitems]);
+        Route::deletemass('macaddressassociation', ['id' => $remitems, 'pending' => 1]);
+        $this->sendAjaxResponse(_('Successfully deleted'), _('Delete Success'), HTTPResponseCodes::HTTP_SUCCESS);
+    }
+
+    /**
+     * Processes the approval of pending MAC addresses.
+     *
+     * @param array $pending The pending MAC addresses to approve.
+     * @return void
+     */
+    private function processApproveMacs(array $pending): void
+    {
+        self::getClass('MACAddressAssociationManager')->update(
+            ['id' => $pending, 'pending' => 1],
+            '',
+            ['pending' => 0]
+        );
+        $this->sendAjaxResponse(_('Approved selected macs!'), _('MAC Approval Success'), HTTPResponseCodes::HTTP_ACCEPTED);
+    }
+
     /**
      * Creates a new host.
      *
      * @return void
      */
-    public function add()
+    public function add(): void
     {
         $this->title = _('Create New Host');
-        // Check all the post fields if they've already been set.
-        $host = filter_input(INPUT_POST, 'host');
-        $mac = filter_input(INPUT_POST, 'mac');
-        $description = filter_input(INPUT_POST, 'description');
-        $key = filter_input(INPUT_POST, 'key');
-        $image = filter_input(INPUT_POST, 'image');
-        $kernel = filter_input(INPUT_POST, 'kernel');
-        $args = filter_input(INPUT_POST, 'args');
-        $init = filter_input(INPUT_POST, 'init');
-        $dev = filter_input(INPUT_POST, 'dev');
-        $domain = filter_input(INPUT_POST, 'domain');
-        $domainname = filter_input(INPUT_POST, 'domainname');
-        $ou = filter_input(INPUT_POST, 'ou');
-        $domainuser = filter_input(INPUT_POST, 'domainuser');
-        $domainpassword = filter_input(INPUT_POST, 'domainpassword');
-        $enforce = isset($_POST['enforce']) ?: self::getSetting(
-            'FOG_ENFORCE_HOST_CHANGES'
-        );
-        $imageSelector = self::getClass('ImageManager')
-            ->buildSelectBox($image, '', 'id');
 
-        $labelClass = 'col-sm-3 control-label';
+        $host = $this->getInputValue('host');
+        $mac = $this->getInputValue('mac');
+        $description = $this->getInputValue('description');
+        $key = $this->getInputValue('key');
+        $image = $this->getInputValue('image');
+        $kernel = $this->getInputValue('kernel');
+        $args = $this->getInputValue('args');
+        $init = $this->getInputValue('init');
+        $dev = $this->getInputValue('dev');
+        $domain = $this->getInputValue('domain');
+        $domainname = $this->getInputValue('domainname');
+        $ou = $this->getInputValue('ou');
+        $domainuser = $this->getInputValue('domainuser');
+        $domainpassword = $this->getInputValue('domainpassword');
+        $enforce = $this->getEnforceSetting();
 
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'host',
-                _('Host Name')
-            ) => self::makeInput(
-                'form-control hostname-input',
-                'host',
-                _('Host Name'),
-                'text',
-                'host',
-                $host,
-                true,
-                false,
-                -1,
-                15
-            ),
-            self::makeLabel(
-                $labelClass,
-                'mac',
-                _('MAC Address')
-            ) => self::makeInput(
-                'form-control hostmac-input',
-                'mac',
-                '00:00:00:00:00:00',
-                'text',
-                'mac',
-                $mac,
-                true,
-                false,
-                -1,
-                17,
-                'exactlength="12"'
-            ),
-            self::makeLabel(
-                $labelClass,
-                'description',
-                _('Host Description')
-            ) => self::makeTextarea(
-                'form-control hostdescription-input',
-                'description',
-                _('Host Description'),
-                'description',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'key',
-                _('Host Product Key')
-            ) => self::makeInput(
-                'form-control hostkey-input',
-                'key',
-                'ABCDE-FGHIJ-KLMNO-PQRST-UVWXY',
-                'text',
-                'key',
-                $key,
-                false,
-                false,
-                -1,
-                29,
-                'exactlength="25"'
-            ),
-            self::makeLabel(
-                $labelClass,
-                'image',
-                _('Host Image')
-            ) => $imageSelector,
-            self::makeLabel(
-                $labelClass,
-                'kernel',
-                _('Host Kernel')
-            ) => self::makeInput(
-                'form-control hostkernel-input',
-                'kernel',
-                'bzImage_Custom',
-                'text',
-                'kernel',
-                $kernel
-            ),
-            self::makeLabel(
-                $labelClass,
-                'args',
-                _('Host Kernel Arguments')
-            ) => self::makeInput(
-                'form-control hostargs-input',
-                'args',
-                'debug acpi=off',
-                'text',
-                'args',
-                $args
-            ),
-            self::makeLabel(
-                $labelClass,
-                'init',
-                _('Host Init')
-            ) => self::makeInput(
-                'form-control hostinit-input',
-                'init',
-                'customInit.xz',
-                'text',
-                'init',
-                $init
-            ),
-            self::makeLabel(
-                $labelClass,
-                'dev',
-                _('Host Primary Disk')
-            ) => self::makeInput(
-                'form-control hostdev-input',
-                'dev',
-                '/dev/md0',
-                'text',
-                'dev',
-                $dev
-            ),
-            self::makeLabel(
-                $labelClass,
-                'enforce',
-                _('Enforce Hostname | AD Join Reboots')
-            ) => self::makeInput(
-                '',
-                'enforce',
-                '',
-                'checkbox',
-                'enforce',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                ($enforce ? 'checked' : '')
-            ),
-            self::makeLabel(
-                $labelClass,
-                'bootTypeExit',
-                _('Host BIOS Exit Type')
-            ) => $this->exitNorm,
-            self::makeLabel(
-                $labelClass,
-                'efiBootTypeExit',
-                _('Host EFI Exit Type')
-            ) => $this->exitEfi
-        ];
+        $fields = $this->buildHostFields($host, $mac, $description, $key, $image, $kernel, $args, $init, $dev, $enforce);
+        $buttons = $this->createFormButtons();
 
-        $buttons = self::makeButton(
-            'send',
-            _('Create'),
-            'btn btn-primary pull-right'
-        );
+        self::$HookManager->processEvent('HOST_ADD_FIELDS', [
+            'fields' => &$fields,
+            'buttons' => &$buttons,
+            'Host' => self::getClass('Host')
+        ]);
 
-        self::$HookManager->processEvent(
-            'HOST_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Host' => self::getClass('Host')
-            ]
-        );
         $rendered = self::formFields($fields);
         unset($fields);
 
-        $fieldads = $this->adFieldsToDisplay(
-            $domain,
-            $domainname,
-            $ou,
-            $domainuser,
-            $domainpassword,
-            false,
-            true
-        );
+        $fieldads = $this->buildAdFields($domain, $domainname, $ou, $domainuser, $domainpassword);
 
-        self::$HookManager->processEvent(
-            'HOST_ADD_AD_FIELDS',
-            [
-                'fields' => &$fieldads,
-                'Host' => self::getClass('Host')
-            ]
-        );
+        self::$HookManager->processEvent('HOST_ADD_AD_FIELDS', [
+            'fields' => &$fieldads,
+            'Host' => self::getClass('Host')
+        ]);
+
         $renderedad = self::formFields($fieldads);
         unset($fieldads);
 
+        $this->renderHostForm($rendered, $renderedad, $buttons);
+    }
+
+    /**
+     * Creates a new host (modal version).
+     *
+     * @return void
+     */
+    public function addModal(): void
+    {
+        $host = $this->getInputValue('host');
+        $mac = $this->getInputValue('mac');
+        $description = $this->getInputValue('description');
+        $key = $this->getInputValue('key');
+        $image = $this->getInputValue('image');
+        $kernel = $this->getInputValue('kernel');
+        $args = $this->getInputValue('args');
+        $init = $this->getInputValue('init');
+        $dev = $this->getInputValue('dev');
+        $domain = $this->getInputValue('domain');
+        $domainname = $this->getInputValue('domainname');
+        $ou = $this->getInputValue('ou');
+        $domainuser = $this->getInputValue('domainuser');
+        $domainpassword = $this->getInputValue('domainpassword');
+        $enforce = $this->getEnforceSetting();
+
+        $fields = $this->buildHostFields($host, $mac, $description, $key, $image, $kernel, $args, $init, $dev, $enforce);
+
+        self::$HookManager->processEvent('HOST_ADD_FIELDS', [
+            'fields' => &$fields,
+            'Host' => self::getClass('Host')
+        ]);
+
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        $fieldads = $this->buildAdFields($domain, $domainname, $ou, $domainuser, $domainpassword);
+
+        self::$HookManager->processEvent('HOST_ADD_AD_FIELDS', [
+            'fields' => &$fieldads,
+            'Host' => self::getClass('Host')
+        ]);
+
+        $renderedad = self::formFields($fieldads);
+        unset($fieldads);
+
+        $this->renderHostModalForm($rendered, $renderedad);
+    }
+
+    /**
+     * Retrieves and sanitizes input values.
+     *
+     * @param string $key The input key.
+     * @return string|null The sanitized input value.
+     */
+    private function getInputValue(string $key): ?string
+    {
+        return filter_input(INPUT_POST, $key, FILTER_SANITIZE_STRING);
+    }
+
+    /**
+     * Retrieves the enforce setting.
+     *
+     * @return bool The enforce setting value.
+     */
+    private function getEnforceSetting(): bool
+    {
+        $enforce_global = self::getSetting('FOG_ENFORCE_HOST_CHANGES');
+        if (isset($_POST['enforce']) || $enforce_global) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Builds the host fields for the form.
+     *
+     * @param string|null $host The host name.
+     * @param string|null $mac The MAC address.
+     * @param string|null $description The host description.
+     * @param string|null $key The host product key.
+     * @param string|null $image The host image.
+     * @param string|null $kernel The host kernel.
+     * @param string|null $args The host kernel arguments.
+     * @param string|null $init The host init.
+     * @param string|null $dev The host primary disk.
+     * @param bool $enforce Whether to enforce host settings.
+     * @return array The array of form fields.
+     */
+    private function buildHostFields(?string $host, ?string $mac, ?string $description, ?string $key, ?string $image, ?string $kernel, ?string $args, ?string $init, ?string $dev, bool $enforce): array
+    {
+        $labelClass = 'col-sm-3 control-label';
+        $imageSelector = self::getClass('ImageManager')->buildSelectBox($image, '', 'id');
+
+        return [
+            self::makeLabel($labelClass, 'host', _('Host Name')) => self::makeInput('form-control hostname-input', 'host', _('Host Name'), 'text', 'host', $host, true, false, -1, 15),
+            self::makeLabel($labelClass, 'mac', _('MAC Address')) => self::makeInput('form-control hostmac-input', 'mac', '00:00:00:00:00:00', 'text', 'mac', $mac, true, false, -1, 17, 'exactlength="12"'),
+            self::makeLabel($labelClass, 'description', _('Host Description')) => self::makeTextarea('form-control hostdescription-input', 'description', _('Host Description'), 'description', $description),
+            self::makeLabel($labelClass, 'key', _('Host Product Key')) => self::makeInput('form-control hostkey-input', 'key', 'ABCDE-FGHIJ-KLMNO-PQRST-UVWXY', 'text', 'key', $key, false, false, -1, 29, 'exactlength="25"'),
+            self::makeLabel($labelClass, 'image', _('Host Image')) => $imageSelector,
+            self::makeLabel($labelClass, 'kernel', _('Host Kernel')) => self::makeInput('form-control hostkernel-input', 'kernel', 'bzImage_Custom', 'text', 'kernel', $kernel),
+            self::makeLabel($labelClass, 'args', _('Host Kernel Arguments')) => self::makeInput('form-control hostargs-input', 'args', 'debug acpi=off', 'text', 'args', $args),
+            self::makeLabel($labelClass, 'init', _('Host Init')) => self::makeInput('form-control hostinit-input', 'init', 'customInit.xz', 'text', 'init', $init),
+            self::makeLabel($labelClass, 'dev', _('Host Primary Disk')) => self::makeInput('form-control hostdev-input', 'dev', '/dev/md0', 'text', 'dev', $dev),
+            self::makeLabel($labelClass, 'enforce', _('Enforce Hostname | AD Join Reboots')) => self::makeInput('', 'enforce', '', 'checkbox', 'enforce', '', false, false, -1, -1, ($enforce ? 'checked' : '')),
+            self::makeLabel($labelClass, 'bootTypeExit', _('Host BIOS Exit Type')) => $this->exitNorm,
+            self::makeLabel($labelClass, 'efiBootTypeExit', _('Host EFI Exit Type')) => $this->exitEfi
+        ];
+    }
+
+    /**
+     * Builds the AD fields for the form.
+     *
+     * @param string|null $domain The domain.
+     * @param string|null $domainname The domain name.
+     * @param string|null $ou The organizational unit.
+     * @param string|null $domainuser The domain user.
+     * @param string|null $domainpassword The domain password.
+     * @return array The array of AD form fields.
+     */
+    private function buildAdFields(?string $domain, ?string $domainname, ?string $ou, ?string $domainuser, ?string $domainpassword): array
+    {
+        return $this->adFieldsToDisplay($domain, $domainname, $ou, $domainuser, $domainpassword, false, true);
+    }
+
+    /**
+     * Creates the form buttons.
+     *
+     * @return string The form buttons HTML.
+     */
+    private function createFormButtons(): string
+    {
+        return self::makeButton('send', _('Create'), 'btn btn-primary pull-right');
+    }
+
+    /**
+     * Renders the host creation form.
+     *
+     * @param string $rendered The rendered host fields.
+     * @param string $renderedad The rendered AD fields.
+     * @param string $buttons The form buttons.
+     * @return void
+     */
+    private function renderHostForm(string $rendered, string $renderedad, string $buttons): void
+    {
         echo self::makeFormTag(
             'form-horizontal',
             'host-create-form',
@@ -696,9 +608,7 @@ class HostManagement extends FOGPage
         echo '<div class="box-body">';
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Create New Host');
-        echo '</h4>';
+        echo '<h4 class="box-title">' . _('Create New Host') . '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
         echo $rendered;
@@ -707,9 +617,7 @@ class HostManagement extends FOGPage
 
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
-        echo '<h4 class="box-title">';
-        echo _('Active Directory');
-        echo '</h4>';
+        echo '<h4 class="box-title">' . _('Active Directory') . '</h4>';
         echo '</div>';
         echo '<div class="box-body">';
         echo $renderedad;
@@ -721,210 +629,16 @@ class HostManagement extends FOGPage
         echo '</div>';
         echo '</form>';
     }
+
     /**
-     * Creates a new host.
+     * Renders the host creation modal form.
      *
+     * @param string $rendered The rendered host fields.
+     * @param string $renderedad The rendered AD fields.
      * @return void
      */
-    public function addModal()
+    private function renderHostModalForm(string $rendered, string $renderedad): void
     {
-        // Check all the post fields if they've already been set.
-        $host = filter_input(INPUT_POST, 'host');
-        $mac = filter_input(INPUT_POST, 'mac');
-        $description = filter_input(INPUT_POST, 'description');
-        $key = filter_input(INPUT_POST, 'key');
-        $image = filter_input(INPUT_POST, 'image');
-        $kernel = filter_input(INPUT_POST, 'kernel');
-        $args = filter_input(INPUT_POST, 'args');
-        $init = filter_input(INPUT_POST, 'init');
-        $dev = filter_input(INPUT_POST, 'dev');
-        $domain = filter_input(INPUT_POST, 'domain');
-        $domainname = filter_input(INPUT_POST, 'domainname');
-        $ou = filter_input(INPUT_POST, 'ou');
-        $domainuser = filter_input(INPUT_POST, 'domainuser');
-        $domainpassword = filter_input(INPUT_POST, 'domainpassword');
-        $enforce = isset($_POST['enforce']) ?: self::getSetting(
-            'FOG_ENFORCE_HOST_CHANGES'
-        );
-        $imageSelector = self::getClass('ImageManager')
-            ->buildSelectBox($image, '', 'id');
-
-        $labelClass = 'col-sm-3 control-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'host',
-                _('Host Name')
-            ) => self::makeInput(
-                'form-control hostname-input',
-                'host',
-                _('Host Name'),
-                'text',
-                'host',
-                $host,
-                true,
-                false,
-                -1,
-                15
-            ),
-            self::makeLabel(
-                $labelClass,
-                'mac',
-                _('MAC Address')
-            ) => self::makeInput(
-                'form-control hostmac-input',
-                'mac',
-                '00:00:00:00:00:00',
-                'text',
-                'mac',
-                $mac,
-                true,
-                false,
-                -1,
-                17,
-                'exactlength="12"'
-            ),
-            self::makeLabel(
-                $labelClass,
-                'description',
-                _('Host Description')
-            ) => self::makeTextarea(
-                'form-control hostdescription-input',
-                'description',
-                _('Host Description'),
-                'description',
-                $description
-            ),
-            self::makeLabel(
-                $labelClass,
-                'key',
-                _('Host Product Key')
-            ) => self::makeInput(
-                'form-control hostkey-input',
-                'key',
-                'ABCDE-FGHIJ-KLMNO-PQRST-UVWXY',
-                'text',
-                'key',
-                $key,
-                false,
-                false,
-                -1,
-                29,
-                'exactlength="25"'
-            ),
-            self::makeLabel(
-                $labelClass,
-                'image',
-                _('Host Image')
-            ) => $imageSelector,
-            self::makeLabel(
-                $labelClass,
-                'kernel',
-                _('Host Kernel')
-            ) => self::makeInput(
-                'form-control hostkernel-input',
-                'kernel',
-                'bzImage_Custom',
-                'text',
-                'kernel',
-                $kernel
-            ),
-            self::makeLabel(
-                $labelClass,
-                'args',
-                _('Host Kernel Arguments')
-            ) => self::makeInput(
-                'form-control hostargs-input',
-                'args',
-                'debug acpi=off',
-                'text',
-                'args',
-                $args
-            ),
-            self::makeLabel(
-                $labelClass,
-                'init',
-                _('Host Init')
-            ) => self::makeInput(
-                'form-control hostinit-input',
-                'init',
-                'customInit.xz',
-                'text',
-                'init',
-                $init
-            ),
-            self::makeLabel(
-                $labelClass,
-                'dev',
-                _('Host Primary Disk')
-            ) => self::makeInput(
-                'form-control hostdev-input',
-                'dev',
-                '/dev/md0',
-                'text',
-                'dev',
-                $dev
-            ),
-            self::makeLabel(
-                $labelClass,
-                'enforce',
-                _('Enforce Hostname | AD Join Reboots')
-            ) => self::makeInput(
-                '',
-                'enforce',
-                '',
-                'checkbox',
-                'enforce',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                ($enforce ? 'checked' : '')
-            ),
-            self::makeLabel(
-                $labelClass,
-                'bootTypeExit',
-                _('Host BIOS Exit Type')
-            ) => $this->exitNorm,
-            self::makeLabel(
-                $labelClass,
-                'efiBootTypeExit',
-                _('Host EFI Exit Type')
-            ) => $this->exitEfi
-        ];
-
-        self::$HookManager->processEvent(
-            'HOST_ADD_FIELDS',
-            [
-                'fields' => &$fields,
-                'Host' => self::getClass('Host')
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        $fieldads = $this->adFieldsToDisplay(
-            $domain,
-            $domainname,
-            $ou,
-            $domainuser,
-            $domainpassword,
-            false,
-            true
-        );
-
-        self::$HookManager->processEvent(
-            'HOST_ADD_AD_FIELDS',
-            [
-                'fields' => &$fieldads,
-                'Host' => self::getClass('Host')
-            ]
-        );
-        $renderedad = self::formFields($fieldads);
-        unset($fieldads);
-
         echo self::makeFormTag(
             'form-horizontal',
             'create-form',
@@ -935,174 +649,236 @@ class HostManagement extends FOGPage
         );
         echo $rendered;
         echo '<hr/>';
-        echo '<h4 class="box-title">';
-        echo _('Active Directory');
-        echo '</h4>';
+        echo '<h4 class="box-title">' . _('Active Directory') . '</h4>';
         echo $renderedad;
         echo '</form>';
     }
+
     /**
-     * Handles the forum submission process.
+     * Handles the form submission process for adding a new host.
      *
      * @return void
      */
-    public function addPost()
+    public function addPost(): void
     {
         header('Content-type: application/json');
         self::$HookManager->processEvent('HOST_ADD_POST');
-        $host = trim(
-            filter_input(INPUT_POST, 'host')
-        );
-        $mac = trim(
-            filter_input(INPUT_POST, 'mac')
-        );
-        $description = trim(
-            filter_input(INPUT_POST, 'description')
-        );
-        $password = trim(
-            filter_input(INPUT_POST, 'domainpassword')
-        );
+
+        // Gather and sanitize inputs
+        $host = $this->sanitizeInput('host');
+        $mac = $this->sanitizeInput('mac');
+        $description = $this->sanitizeInput('description');
+        $password = $this->sanitizeInput('domainpassword');
         $useAD = (int)isset($_POST['domain']);
-        $domain = trim(
-            filter_input(INPUT_POST, 'domainname')
-        );
-        $ou = trim(
-            filter_input(INPUT_POST, 'ou')
-        );
-        $user = trim(
-            filter_input(INPUT_POST, 'domainuser')
-        );
+        $domain = $this->sanitizeInput('domainname');
+        $ou = $this->sanitizeInput('ou');
+        $user = $this->sanitizeInput('domainuser');
         $pass = $password;
-        $key = trim(
-            filter_input(INPUT_POST, 'key')
-        );
-        $productKey = preg_replace(
-            '/([\w+]{5})/',
-            '$1-',
-            str_replace(
-                '-',
-                '',
-                strtoupper($key)
-            )
-        );
-        $productKey = substr($productKey, 0, 29);
+        $key = $this->sanitizeInput('key');
+        $productKey = $this->formatProductKey($key);
         $enforce = (int)isset($_POST['enforce']);
         $image = (int)filter_input(INPUT_POST, 'image');
-        $kernel = trim(
-            filter_input(INPUT_POST, 'kernel')
-        );
-        $kernelArgs = trim(
-            filter_input(INPUT_POST, 'args')
-        );
-        $kernelDevice = trim(
-            filter_input(INPUT_POST, 'dev')
-        );
-        $init = trim(
-            filter_input(INPUT_POST, 'init')
-        );
-        $bootTypeExit = trim(
-            filter_input(INPUT_POST, 'bootTypeExit')
-        );
-        $efiBootTypeExit = trim(
-            filter_input(INPUT_POST, 'efiBootTypeExit')
-        );
+        $kernel = $this->sanitizeInput('kernel');
+        $kernelArgs = $this->sanitizeInput('args');
+        $kernelDevice = $this->sanitizeInput('dev');
+        $init = $this->sanitizeInput('init');
+        $bootTypeExit = $this->sanitizeInput('bootTypeExit');
+        $efiBootTypeExit = $this->sanitizeInput('efiBootTypeExit');
 
         $serverFault = false;
         try {
-            $exists = self::getClass('HostManager')
-                ->exists($host);
-            if ($exists) {
-                throw new Exception(
-                    _('A host already exists with this name!')
-                );
-            }
+            $this->validateHost($host, $mac);
+            
             $MAC = new MACAddress($mac);
-            if (!$MAC->isValid()) {
-                throw new Exception(_('MAC Format is invalid'));
-            }
-            self::getClass('HostManager')->getHostByMacAddresses($MAC);
-            if (self::$Host->isValid()) {
-                throw new Exception(
-                    sprintf(
-                        '%s: %s',
-                        _('A host with this mac already exists with name'),
-                        self::$Host->get('name')
-                    )
-                );
-            }
-            Route::ids(
-                'module',
-                ['isDefault' => 1]
+            $this->validateMAC($MAC);
+
+            Route::ids('module', ['isDefault' => 1]);
+            $ModuleIDs = json_decode(Route::getData(), true);
+
+            $this->populateHostData(
+                $host,
+                $description,
+                $image,
+                $kernel,
+                $kernelArgs,
+                $kernelDevice,
+                $init,
+                $bootTypeExit,
+                $efiBootTypeExit,
+                $productKey,
+                $enforce,
+                $ModuleIDs,
+                $MAC,
+                $useAD,
+                $domain,
+                $ou,
+                $user,
+                $pass
             );
-            $ModuleIDs = json_decode(
-                Route::getData(),
-                true
-            );
-            self::$Host
-                ->set('name', $host)
-                ->set('description', $description)
-                ->set('imageID', $image)
-                ->set('kernel', $kernel)
-                ->set('kernelArgs', $kernelArgs)
-                ->set('kernelDevice', $kernelDevice)
-                ->set('init', $init)
-                ->set('biosexit', $bootTypeExit)
-                ->set('efiexit', $efiBootTypeExit)
-                ->set('productKey', $productKey)
-                ->set('enforce', $enforce)
-                ->set('modules', $ModuleIDs)
-                ->addPriMAC($MAC)
-                ->setAD(
-                    $useAD,
-                    $domain,
-                    $ou,
-                    $user,
-                    $pass,
-                    true,
-                    true,
-                    $productKey
-                );
+
             if (!self::$Host->save()) {
-                $serverFault = true;
                 throw new Exception(_('Add host failed!'));
             }
+
             $code = HTTPResponseCodes::HTTP_CREATED;
             $hook = 'HOST_ADD_SUCCESS';
-            $msg = json_encode(
-                [
-                    'msg' => _('Host added!'),
-                    'title' => _('Host Create Success')
-                ]
-            );
+            $msg = $this->createSuccessMessage(_('Host added!'), _('Host Create Success'));
         } catch (Exception $e) {
-            $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
-            );
+            $code = $serverFault ? HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR : HTTPResponseCodes::HTTP_BAD_REQUEST;
             $hook = 'HOST_ADD_FAIL';
-            $msg = json_encode(
-                [
-                    'error' => $e->getMessage(),
-                    'title' => _('Host Create Fail')
-                ]
+            $msg = $this->createErrorMessage($e->getMessage(), _('Host Create Fail'));
+        }
+
+        $this->finalizeHostAddition($hook, $code, $msg, $serverFault);
+    }
+
+    /**
+     * Validates and formats the Windows Product Key if it is valid.
+     *
+     * @param string|null $key The raw product key.
+     * @return string|null The formatted product key or null if the key is invalid.
+     */
+    private function formatProductKey(?string $key): ?string
+    {
+        // Remove any non-alphanumeric characters and convert to uppercase
+        $cleanedKey = strtoupper(preg_replace('/[^A-Z0-9]/', '', $key));
+
+        // Regex to match a valid Windows Product Key pattern
+        $regex = '/^[A-HJ-NP-Z0-9]{25}$/';
+
+        // Validate the key
+        if (!preg_match($regex, $cleanedKey)) {
+            return null; // Return null if the key is not valid
+        }
+
+        // Format the key by inserting hyphens every 5 characters
+        return implode('-', str_split($cleanedKey, 5));
+    }
+
+    /**
+     * Validates the host name and MAC address.
+     *
+     * @param string $host The host name.
+     * @param string $mac The MAC address.
+     * @return void
+     * @throws Exception If the host name or MAC address is invalid.
+     */
+    private function validateHost(string $host, string $mac): void
+    {
+        if (self::getClass('HostManager')->exists($host)) {
+            throw new Exception(_('A host already exists with this name!'));
+        }
+
+        self::getClass('HostManager')->getHostByMacAddresses(new MACAddress($mac));
+        if (self::$Host->isValid()) {
+            throw new Exception(
+                sprintf('%s: %s', _('A host with this mac already exists with name'), self::$Host->get('name'))
             );
         }
-        //header(
-        //    'Location: ../management/index.php?node=host&sub=edit&id='
-        //    . $Host->get('id')
-        //);
-        self::$HookManager
-            ->processEvent(
-                $hook,
-                [
-                    'Host' => &self::$Host,
-                    'hook' => &$hook,
-                    'code' => &$code,
-                    'msg' => &$msg,
-                    'serverFault' => &$serverFault
-                ]
+    }
+
+    /**
+     * Validates the MAC address.
+     *
+     * @param MACAddress $MAC The MAC address object.
+     * @return void
+     * @throws Exception If the MAC address is invalid.
+     */
+    private function validateMAC(MACAddress $MAC): void
+    {
+        if (!$MAC->isValid()) {
+            throw new Exception(_('MAC Format is invalid'));
+        }
+    }
+
+    /**
+     * Populates the host data with the given parameters.
+     *
+     * @param string $host The host name.
+     * @param string $description The host description.
+     * @param int $image The image ID.
+     * @param string $kernel The kernel.
+     * @param string $kernelArgs The kernel arguments.
+     * @param string $kernelDevice The kernel device.
+     * @param string $init The init file.
+     * @param string $bootTypeExit The BIOS exit type.
+     * @param string $efiBootTypeExit The EFI exit type.
+     * @param string $productKey The product key.
+     * @param int $enforce The enforce flag.
+     * @param array $ModuleIDs The module IDs.
+     * @param MACAddress $MAC The MAC address.
+     * @param int $useAD The Active Directory flag.
+     * @param string|null $domain The domain name.
+     * @param string|null $ou The organizational unit.
+     * @param string|null $user The domain user.
+     * @param string|null $pass The domain password.
+     * @return void
+     */
+    private function populateHostData(
+        string $host,
+        string $description,
+        int $image,
+        string $kernel,
+        string $kernelArgs,
+        string $kernelDevice,
+        string $init,
+        string $bootTypeExit,
+        string $efiBootTypeExit,
+        string $productKey,
+        int $enforce,
+        array $ModuleIDs,
+        MACAddress $MAC,
+        int $useAD,
+        ?string $domain,
+        ?string $ou,
+        ?string $user,
+        ?string $pass
+    ): void {
+        self::$Host
+            ->set('name', $host)
+            ->set('description', $description)
+            ->set('imageID', $image)
+            ->set('kernel', $kernel)
+            ->set('kernelArgs', $kernelArgs)
+            ->set('kernelDevice', $kernelDevice)
+            ->set('init', $init)
+            ->set('biosexit', $bootTypeExit)
+            ->set('efiexit', $efiBootTypeExit)
+            ->set('productKey', $productKey)
+            ->set('enforce', $enforce)
+            ->set('modules', $ModuleIDs)
+            ->addPriMAC($MAC)
+            ->setAD(
+                $useAD,
+                $domain,
+                $ou,
+                $user,
+                $pass,
+                true,
+                true,
+                $productKey
             );
+    }
+
+    /**
+     * Finalizes the host addition process.
+     *
+     * @param string $hook The event hook.
+     * @param int $code The HTTP response code.
+     * @param string $msg The response message.
+     * @param bool $serverFault Whether a server fault occurred.
+     * @return void
+     */
+    private function finalizeHostAddition(string $hook, int $code, string $msg, bool $serverFault): void
+    {
+        self::$HookManager->processEvent($hook, [
+            'Host' => &self::$Host,
+            'hook' => &$hook,
+            'code' => &$code,
+            'msg' => &$msg,
+            'serverFault' => &$serverFault
+        ]);
+
         http_response_code($code);
         unset($Host);
         echo $msg;

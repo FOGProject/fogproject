@@ -670,6 +670,10 @@ msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 msgid "An accesscontrol with this name already exists!"
 msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
 
+#, fuzzy
+msgid "An error occurred"
+msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
+
 msgid "An image already exists with this name!"
 msgstr "Ein Image mit diesem Namen ist bereits vorhanden!"
 
@@ -690,10 +694,6 @@ msgstr "Anwendungen"
 
 #, fuzzy
 msgid "Approve"
-msgstr "freigeben"
-
-#, fuzzy
-msgid "Approve MAC Fail"
 msgstr "freigeben"
 
 #, fuzzy
@@ -1464,10 +1464,6 @@ msgstr ""
 
 #, fuzzy
 msgid "Delete Fail"
-msgstr "Löschen fehlgeschlagen"
-
-#, fuzzy
-msgid "Delete MAC Fail"
 msgstr "Löschen fehlgeschlagen"
 
 #, fuzzy
@@ -7414,6 +7410,10 @@ msgstr ""
 #~ msgstr "Benutzer hinzufügen fehlgeschlagen!"
 
 #, fuzzy
+#~ msgid "Approve MAC Fail"
+#~ msgstr "freigeben"
+
+#, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "Änderungen speichern?"
 
@@ -7431,6 +7431,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "Pfad ist nicht verfügbar"
+
+#, fuzzy
+#~ msgid "Delete MAC Fail"
+#~ msgstr "Löschen fehlgeschlagen"
 
 #, fuzzy
 #~ msgid "Disable All"
