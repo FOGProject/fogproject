@@ -2436,7 +2436,7 @@ msgstr ""
 msgid "Imaging Log"
 msgstr ""
 
-msgid "Imaging Over the last"
+msgid "Imaging Over the Last"
 msgstr ""
 
 msgid "Imaging Started"
@@ -6185,9 +6185,6 @@ msgid "unavailable"
 msgstr ""
 
 msgid "update to a newer kernel which may have more drivers built in"
-msgstr ""
-
-msgid "used"
 msgstr ""
 
 msgid "user failed to login"

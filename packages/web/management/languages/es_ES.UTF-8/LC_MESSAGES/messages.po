@@ -2995,7 +2995,7 @@ msgid "Imaging Log"
 msgstr "Transferencia de imágenes Entrar"
 
 #, fuzzy
-msgid "Imaging Over the last"
+msgid "Imaging Over the Last"
 msgstr "Imaging lo largo de los últimos 30 días"
 
 #, fuzzy
@@ -7489,9 +7489,6 @@ msgid "unavailable"
 msgstr "No se dispone de hash"
 
 msgid "update to a newer kernel which may have more drivers built in"
-msgstr ""
-
-msgid "used"
 msgstr ""
 
 msgid "user failed to login"

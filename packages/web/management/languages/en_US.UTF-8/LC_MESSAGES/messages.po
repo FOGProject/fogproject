@@ -2920,7 +2920,7 @@ msgid "Imaging Log"
 msgstr "Imaging Log"
 
 #, fuzzy
-msgid "Imaging Over the last"
+msgid "Imaging Over the Last"
 msgstr "Imaging Over the last 30 days"
 
 #, fuzzy
@@ -7335,9 +7335,6 @@ msgid "unavailable"
 msgstr "Not Available"
 
 msgid "update to a newer kernel which may have more drivers built in"
-msgstr ""
-
-msgid "used"
 msgstr ""
 
 msgid "user failed to login"

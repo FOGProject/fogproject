@@ -2921,7 +2921,7 @@ msgid "Imaging Log"
 msgstr "成像测井"
 
 #, fuzzy
-msgid "Imaging Over the last"
+msgid "Imaging Over the Last"
 msgstr "成像在过去30天"
 
 #, fuzzy
@@ -7326,9 +7326,6 @@ msgid "unavailable"
 msgstr "不可用"
 
 msgid "update to a newer kernel which may have more drivers built in"
-msgstr ""
-
-msgid "used"
 msgstr ""
 
 msgid "user failed to login"
