@@ -2725,8 +2725,9 @@ msgstr ""
 msgid "Ignore Client"
 msgstr "Cliente"
 
+#, fuzzy
 msgid "Ignore Imaging"
-msgstr ""
+msgstr "Cliente"
 
 msgid "Image"
 msgstr "Imagem"
@@ -3640,11 +3641,13 @@ msgstr "Gerenciamento de senha"
 msgid "Management Username"
 msgstr "Gestão usuário"
 
+#, fuzzy
 msgid "Mark selected client ignore"
-msgstr ""
+msgstr "Aprovar Hosts selecionados"
 
+#, fuzzy
 msgid "Mark selected image ignore"
-msgstr ""
+msgstr "Aprovar Hosts selecionados"
 
 #, fuzzy
 msgid "Mark selected pending"
@@ -6341,11 +6344,13 @@ msgstr "Desconhecido"
 msgid "Unknown upload error occurred"
 msgstr "Ocorreu um erro de upload desconhecido. Código de retorno: "
 
+#, fuzzy
 msgid "Unmark selected client ignore"
-msgstr ""
+msgstr "Aprovar Hosts selecionados"
 
+#, fuzzy
 msgid "Unmark selected image ignore"
-msgstr ""
+msgstr "Aprovar Hosts selecionados"
 
 #, fuzzy
 msgid "Unmark selected pending"

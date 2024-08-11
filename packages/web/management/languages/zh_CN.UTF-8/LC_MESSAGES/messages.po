@@ -2723,8 +2723,9 @@ msgstr ""
 msgid "Ignore Client"
 msgstr "客户"
 
+#, fuzzy
 msgid "Ignore Imaging"
-msgstr ""
+msgstr "客户"
 
 msgid "Image"
 msgstr "图片"
@@ -3638,11 +3639,13 @@ msgstr "管理密码"
 msgid "Management Username"
 msgstr "管理用户名"
 
+#, fuzzy
 msgid "Mark selected client ignore"
-msgstr ""
+msgstr "批准选定主机"
 
+#, fuzzy
 msgid "Mark selected image ignore"
-msgstr ""
+msgstr "批准选定主机"
 
 #, fuzzy
 msgid "Mark selected pending"
@@ -6332,11 +6335,13 @@ msgstr "未知"
 msgid "Unknown upload error occurred"
 msgstr "发生未知上传错误。返回代码："
 
+#, fuzzy
 msgid "Unmark selected client ignore"
-msgstr ""
+msgstr "批准选定主机"
 
+#, fuzzy
 msgid "Unmark selected image ignore"
-msgstr ""
+msgstr "批准选定主机"
 
 #, fuzzy
 msgid "Unmark selected pending"

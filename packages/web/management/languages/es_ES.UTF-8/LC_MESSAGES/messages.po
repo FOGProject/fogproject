@@ -2574,8 +2574,9 @@ msgstr "actualización de servicio no pudo"
 msgid "Host Location Updated!"
 msgstr "información de LDAP actualizado!"
 
+#, fuzzy
 msgid "Host Login History"
-msgstr ""
+msgstr "Camino snapin"
 
 #, fuzzy
 msgid "Host Management"
@@ -2789,8 +2790,9 @@ msgstr ""
 msgid "Ignore Client"
 msgstr "Clientela"
 
+#, fuzzy
 msgid "Ignore Imaging"
-msgstr ""
+msgstr "Clientela"
 
 msgid "Image"
 msgstr "Imagen"
@@ -3690,8 +3692,9 @@ msgstr "Dirección MAC de lista de origen: "
 msgid "MAC Approval Success"
 msgstr "Creado"
 
+#, fuzzy
 msgid "MAC Format is invalid"
-msgstr ""
+msgstr "Dirección MAC de lista de origen: "
 
 #, fuzzy
 msgid "MAC address is already in use by another host"
@@ -3735,11 +3738,13 @@ msgstr "La gestión de contraseñas"
 msgid "Management Username"
 msgstr "Nombre de dominio usuario"
 
+#, fuzzy
 msgid "Mark selected client ignore"
-msgstr ""
+msgstr "retirar"
 
+#, fuzzy
 msgid "Mark selected image ignore"
-msgstr ""
+msgstr "retirar"
 
 #, fuzzy
 msgid "Mark selected pending"
@@ -6489,11 +6494,13 @@ msgstr "Desconocido"
 msgid "Unknown upload error occurred"
 msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
+#, fuzzy
 msgid "Unmark selected client ignore"
-msgstr ""
+msgstr "retirar"
 
+#, fuzzy
 msgid "Unmark selected image ignore"
-msgstr ""
+msgstr "retirar"
 
 #, fuzzy
 msgid "Unmark selected pending"

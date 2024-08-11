@@ -2723,8 +2723,9 @@ msgstr "Wenn Sie die FOG Datenbank"
 msgid "Ignore Client"
 msgstr "Client"
 
+#, fuzzy
 msgid "Ignore Imaging"
-msgstr ""
+msgstr "Client"
 
 msgid "Image"
 msgstr "Image"
@@ -3641,11 +3642,13 @@ msgstr "Management-Passwort"
 msgid "Management Username"
 msgstr "Management-Benutzernamen"
 
+#, fuzzy
 msgid "Mark selected client ignore"
-msgstr ""
+msgstr "Ausgewählten MAcs freigeben"
 
+#, fuzzy
 msgid "Mark selected image ignore"
-msgstr ""
+msgstr "Ausgewählten MAcs freigeben"
 
 #, fuzzy
 msgid "Mark selected pending"
@@ -6345,11 +6348,13 @@ msgstr "Unbekannt"
 msgid "Unknown upload error occurred"
 msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 
+#, fuzzy
 msgid "Unmark selected client ignore"
-msgstr ""
+msgstr "Ausgewählten MAcs freigeben"
 
+#, fuzzy
 msgid "Unmark selected image ignore"
-msgstr ""
+msgstr "Ausgewählten MAcs freigeben"
 
 #, fuzzy
 msgid "Unmark selected pending"

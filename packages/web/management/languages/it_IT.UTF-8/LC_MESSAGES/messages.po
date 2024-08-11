@@ -2611,8 +2611,9 @@ msgstr "Se vuoi eseguire il backup del tuo"
 msgid "Ignore Client"
 msgstr "Cliente"
 
+#, fuzzy
 msgid "Ignore Imaging"
-msgstr ""
+msgstr "Cliente"
 
 msgid "Image"
 msgstr "Immagine"
@@ -3463,11 +3464,13 @@ msgstr "Gestione delle password"
 msgid "Management Username"
 msgstr "Gestione utente"
 
+#, fuzzy
 msgid "Mark selected client ignore"
-msgstr ""
+msgstr "Approvare MAC selezionati"
 
+#, fuzzy
 msgid "Mark selected image ignore"
-msgstr ""
+msgstr "Approvare MAC selezionati"
 
 #, fuzzy
 msgid "Mark selected pending"
@@ -6025,11 +6028,13 @@ msgstr "Sconosciuto"
 msgid "Unknown upload error occurred"
 msgstr "Si è verificato errore di caricamento sconosciuto"
 
+#, fuzzy
 msgid "Unmark selected client ignore"
-msgstr ""
+msgstr "Approvare MAC selezionati"
 
+#, fuzzy
 msgid "Unmark selected image ignore"
-msgstr ""
+msgstr "Approvare MAC selezionati"
 
 #, fuzzy
 msgid "Unmark selected pending"

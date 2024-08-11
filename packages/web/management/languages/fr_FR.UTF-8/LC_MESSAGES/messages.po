@@ -2726,8 +2726,9 @@ msgstr ""
 msgid "Ignore Client"
 msgstr "Client"
 
+#, fuzzy
 msgid "Ignore Imaging"
-msgstr ""
+msgstr "Client"
 
 msgid "Image"
 msgstr "image"
@@ -3641,11 +3642,13 @@ msgstr "gestion Mot de passe"
 msgid "Management Username"
 msgstr "gestion Nom d'utilisateur"
 
+#, fuzzy
 msgid "Mark selected client ignore"
-msgstr ""
+msgstr "Approuver hôtes sélectionnés"
 
+#, fuzzy
 msgid "Mark selected image ignore"
-msgstr ""
+msgstr "Approuver hôtes sélectionnés"
 
 #, fuzzy
 msgid "Mark selected pending"
@@ -6345,11 +6348,13 @@ msgstr "Inconnu"
 msgid "Unknown upload error occurred"
 msgstr "Erreur inconnue de téléchargement a eu lieu. Code de retour: "
 
+#, fuzzy
 msgid "Unmark selected client ignore"
-msgstr ""
+msgstr "Approuver hôtes sélectionnés"
 
+#, fuzzy
 msgid "Unmark selected image ignore"
-msgstr ""
+msgstr "Approuver hôtes sélectionnés"
 
 #, fuzzy
 msgid "Unmark selected pending"
