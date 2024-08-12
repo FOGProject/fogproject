@@ -670,10 +670,6 @@ msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 msgid "An accesscontrol with this name already exists!"
 msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
 
-#, fuzzy
-msgid "An error occurred"
-msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
-
 msgid "An image already exists with this name!"
 msgstr "Ein Image mit diesem Namen ist bereits vorhanden!"
 
@@ -694,6 +690,10 @@ msgstr "Anwendungen"
 
 #, fuzzy
 msgid "Approve"
+msgstr "freigeben"
+
+#, fuzzy
+msgid "Approve MAC Fail"
 msgstr "freigeben"
 
 #, fuzzy
@@ -1464,6 +1464,10 @@ msgstr ""
 
 #, fuzzy
 msgid "Delete Fail"
+msgstr "Löschen fehlgeschlagen"
+
+#, fuzzy
+msgid "Delete MAC Fail"
 msgstr "Löschen fehlgeschlagen"
 
 #, fuzzy
@@ -2918,7 +2922,7 @@ msgid "Imaging Log"
 msgstr "Imaging Log"
 
 #, fuzzy
-msgid "Imaging Over the Last"
+msgid "Imaging Over the last"
 msgstr "Imaging in den letzten 30 Tagen"
 
 #, fuzzy
@@ -7350,6 +7354,9 @@ msgstr "nicht verfügbar"
 msgid "update to a newer kernel which may have more drivers built in"
 msgstr "auf einen neueren Kernel updaten, der mehr Treiber beinhaltet. "
 
+msgid "used"
+msgstr ""
+
 msgid "user failed to login"
 msgstr "Benutzer konnte sich nicht anmelden"
 
@@ -7414,8 +7421,8 @@ msgstr ""
 #~ msgstr "Benutzer hinzufügen fehlgeschlagen!"
 
 #, fuzzy
-#~ msgid "Approve MAC Fail"
-#~ msgstr "freigeben"
+#~ msgid "An error occurred"
+#~ msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 
 #, fuzzy
 #~ msgid "Bulk Changes"
@@ -7435,10 +7442,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "Pfad ist nicht verfügbar"
-
-#, fuzzy
-#~ msgid "Delete MAC Fail"
-#~ msgstr "Löschen fehlgeschlagen"
 
 #, fuzzy
 #~ msgid "Disable All"

@@ -640,10 +640,6 @@ msgstr "Esiste già un ruolo con questo nome!"
 msgid "An accesscontrol with this name already exists!"
 msgstr "Un nome host con questo nome esiste già"
 
-#, fuzzy
-msgid "An error occurred"
-msgstr "Si è verificato errore di caricamento sconosciuto"
-
 msgid "An image already exists with this name!"
 msgstr "Un'immagine esiste già con questo nome!"
 
@@ -662,6 +658,10 @@ msgid "Applications"
 msgstr "Applicazioni"
 
 msgid "Approve"
+msgstr "Approva"
+
+#, fuzzy
+msgid "Approve MAC Fail"
 msgstr "Approva"
 
 #, fuzzy
@@ -1399,6 +1399,10 @@ msgstr ""
 
 #, fuzzy
 msgid "Delete Fail"
+msgstr "Cancellare i file"
+
+#, fuzzy
+msgid "Delete MAC Fail"
 msgstr "Cancellare i file"
 
 #, fuzzy
@@ -2795,7 +2799,7 @@ msgid "Imaging Log"
 msgstr "Imaging Log"
 
 #, fuzzy
-msgid "Imaging Over the Last"
+msgid "Imaging Over the last"
 msgstr "Imaging Negli ultimi 30 giorni"
 
 #, fuzzy
@@ -6956,6 +6960,9 @@ msgstr "non disponibile"
 msgid "update to a newer kernel which may have more drivers built in"
 msgstr "aggiornare ad un nuovo kernel che abbia maggiori driver built in"
 
+msgid "used"
+msgstr ""
+
 msgid "user failed to login"
 msgstr "utente non connesso"
 
@@ -7017,8 +7024,8 @@ msgstr ""
 #~ msgstr "Aggiunta utente fallita!"
 
 #, fuzzy
-#~ msgid "Approve MAC Fail"
-#~ msgstr "Approva"
+#~ msgid "An error occurred"
+#~ msgstr "Si è verificato errore di caricamento sconosciuto"
 
 #, fuzzy
 #~ msgid "Bulk Changes"
@@ -7038,10 +7045,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "Percorso non disponibile"
-
-#, fuzzy
-#~ msgid "Delete MAC Fail"
-#~ msgstr "Cancellare i file"
 
 #, fuzzy
 #~ msgid "Disable All"

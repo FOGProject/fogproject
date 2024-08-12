@@ -673,10 +673,6 @@ msgstr "Une image existe déjà avec ce nom!"
 msgid "An accesscontrol with this name already exists!"
 msgstr "Un nom d'hôte avec ce nom existe déjà."
 
-#, fuzzy
-msgid "An error occurred"
-msgstr "Erreur inconnue de téléchargement a eu lieu. Code de retour: "
-
 msgid "An image already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
 
@@ -697,6 +693,10 @@ msgstr "actes"
 
 #, fuzzy
 msgid "Approve"
+msgstr "hôte approuvé"
+
+#, fuzzy
+msgid "Approve MAC Fail"
 msgstr "hôte approuvé"
 
 #, fuzzy
@@ -1469,6 +1469,10 @@ msgstr ""
 
 #, fuzzy
 msgid "Delete Fail"
+msgstr "Supprimer les données de fichiers"
+
+#, fuzzy
+msgid "Delete MAC Fail"
 msgstr "Supprimer les données de fichiers"
 
 #, fuzzy
@@ -2921,7 +2925,7 @@ msgid "Imaging Log"
 msgstr "Imaging Log"
 
 #, fuzzy
-msgid "Imaging Over the Last"
+msgid "Imaging Over the last"
 msgstr "Imaging Au cours des 30 derniers jours"
 
 #, fuzzy
@@ -7346,6 +7350,9 @@ msgstr "Indisponible"
 msgid "update to a newer kernel which may have more drivers built in"
 msgstr ""
 
+msgid "used"
+msgstr ""
+
 msgid "user failed to login"
 msgstr "l'utilisateur n'a pas réussi à se connecter"
 
@@ -7410,8 +7417,8 @@ msgstr ""
 #~ msgstr "Ajouter SnapIn a échoué!"
 
 #, fuzzy
-#~ msgid "Approve MAC Fail"
-#~ msgstr "hôte approuvé"
+#~ msgid "An error occurred"
+#~ msgstr "Erreur inconnue de téléchargement a eu lieu. Code de retour: "
 
 #, fuzzy
 #~ msgid "Bulk Changes"
@@ -7431,10 +7438,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "Pas de hachage disponible"
-
-#, fuzzy
-#~ msgid "Delete MAC Fail"
-#~ msgstr "Supprimer les données de fichiers"
 
 #, fuzzy
 #~ msgid "Disable All"

@@ -539,9 +539,6 @@ msgstr ""
 msgid "An accesscontrol with this name already exists!"
 msgstr ""
 
-msgid "An error occurred"
-msgstr ""
-
 msgid "An image already exists with this name!"
 msgstr ""
 
@@ -558,6 +555,9 @@ msgid "Applications"
 msgstr ""
 
 msgid "Approve"
+msgstr ""
+
+msgid "Approve MAC Fail"
 msgstr ""
 
 msgid "Approve Pending Hosts"
@@ -1203,6 +1203,9 @@ msgid "Delete All Powermanagement Items"
 msgstr ""
 
 msgid "Delete Fail"
+msgstr ""
+
+msgid "Delete MAC Fail"
 msgstr ""
 
 msgid "Delete MAC List"
@@ -2433,7 +2436,7 @@ msgstr ""
 msgid "Imaging Log"
 msgstr ""
 
-msgid "Imaging Over the Last"
+msgid "Imaging Over the last"
 msgstr ""
 
 msgid "Imaging Started"
@@ -6182,6 +6185,9 @@ msgid "unavailable"
 msgstr ""
 
 msgid "update to a newer kernel which may have more drivers built in"
+msgstr ""
+
+msgid "used"
 msgstr ""
 
 msgid "user failed to login"

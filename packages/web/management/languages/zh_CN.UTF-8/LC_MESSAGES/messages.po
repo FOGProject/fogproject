@@ -672,10 +672,6 @@ msgstr "图像已经存在具有此名称！"
 msgid "An accesscontrol with this name already exists!"
 msgstr "使用此名称的主机名已经存在。"
 
-#, fuzzy
-msgid "An error occurred"
-msgstr "发生未知上传错误。返回代码："
-
 msgid "An image already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
@@ -696,6 +692,10 @@ msgstr "操作"
 
 #, fuzzy
 msgid "Approve"
+msgstr "主机批准"
+
+#, fuzzy
+msgid "Approve MAC Fail"
 msgstr "主机批准"
 
 #, fuzzy
@@ -1466,6 +1466,10 @@ msgstr ""
 
 #, fuzzy
 msgid "Delete Fail"
+msgstr "删除的文件数据"
+
+#, fuzzy
+msgid "Delete MAC Fail"
 msgstr "删除的文件数据"
 
 #, fuzzy
@@ -2918,7 +2922,7 @@ msgid "Imaging Log"
 msgstr "成像测井"
 
 #, fuzzy
-msgid "Imaging Over the Last"
+msgid "Imaging Over the last"
 msgstr "成像在过去30天"
 
 #, fuzzy
@@ -7329,6 +7333,9 @@ msgstr "不可用"
 msgid "update to a newer kernel which may have more drivers built in"
 msgstr ""
 
+msgid "used"
+msgstr ""
+
 msgid "user failed to login"
 msgstr "用户登录失败"
 
@@ -7393,8 +7400,8 @@ msgstr ""
 #~ msgstr "添加管理单元失败！"
 
 #, fuzzy
-#~ msgid "Approve MAC Fail"
-#~ msgstr "主机批准"
+#~ msgid "An error occurred"
+#~ msgstr "发生未知上传错误。返回代码："
 
 #, fuzzy
 #~ msgid "Bulk Changes"
@@ -7414,10 +7421,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "没有可用的散列"
-
-#, fuzzy
-#~ msgid "Delete MAC Fail"
-#~ msgstr "删除的文件数据"
 
 #, fuzzy
 #~ msgid "Disable All"
