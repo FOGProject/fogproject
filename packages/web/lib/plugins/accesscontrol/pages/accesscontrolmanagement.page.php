@@ -200,7 +200,7 @@ class AccessControlManagement extends FOGPage
     public function addPost()
     {
         header('Content-type: application/json');
-        self::$HookManger->processEvent('ACCESSCONTROL_ADD_POST');
+        self::$HookManager->processEvent('ACCESSCONTROL_ADD_POST');
         $accesscontrol = trim(
             filter_input(INPUT_POST, 'accesscontrol')
         );
