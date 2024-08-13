@@ -1263,7 +1263,7 @@ class FOGConfigurationPage extends FOGPage
                 $items[] = [$key, $name, $set];
                 unset($Setting);
             }
-            if (count($items) > 0) {
+            if (count($items ?: []) > 0) {
                 $SettingMan = self::getClass('SettingManager');
                 $insert_fields = [
                     'id',
