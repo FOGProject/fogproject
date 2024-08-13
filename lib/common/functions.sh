@@ -1510,6 +1510,9 @@ configureFOGService() {
     startInitScript
 }
 configureNFS() {
+    dots "Setting up NFS configuration file"
+    sed -i '/^\[mountd\]/,/^# port=0/ {s/^# port=0/port=20048/}' nfs.conf >>$error_log 2>&1
+    errorStat $?
     dots "Setting up exports file"
     if [[ $blexports != 1 ]]; then
         echo "Skipped"
