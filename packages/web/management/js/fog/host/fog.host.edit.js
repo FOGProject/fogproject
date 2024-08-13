@@ -1505,6 +1505,9 @@
             {data: 'username'},
             {data: 'description'}
         ],
+        order: [
+            [0, 'desc']
+        ],
         rowId: 'id',
         processing: true,
         serverSide: true,
@@ -1528,6 +1531,9 @@
             {data: 'diff'},
             {data: 'imageLink'},
             {data: 'type'}
+        ],
+        order: [
+            [1, 'desc']
         ],
         rowId: 'id',
         processing: true,
@@ -1561,6 +1567,9 @@
                 },
                 targets: 0
             },
+        ],
+        order: [
+            [1, 'desc']
         ],
         rowId: 'id',
         processing: true,
