@@ -1341,9 +1341,6 @@ msgstr "Created By"
 msgid "Created by FOG Reg on"
 msgstr "Created by FOG Reg on"
 
-msgid "Created file extension must be, jpg, jpeg, or png"
-msgstr ""
-
 msgid "Cron"
 msgstr "Cron"
 

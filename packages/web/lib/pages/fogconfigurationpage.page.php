@@ -1224,16 +1224,10 @@ class FOGConfigurationPage extends FOGPage
                             'jpeg',
                             'png',
                         ];
-                        $extensionCheck = strtolower(pathinfo($src, PATHINFO_EXTENSION));
-                        if (!in_array($extensionCheck, $validExtensions)) {
-                            throw new Exception(
-                                _('Upload file extension must be, jpg, jpeg, or png')
-                            );
-                        }
                         $extensionCheck = strtolower(pathinfo($set, PATHINFO_EXTENSION));
                         if (!in_array($extensionCheck, $validExtensions)) {
                             throw new Exception(
-                                _('Created file extension must be, jpg, jpeg, or png')
+                                _('Upload file extension must be, jpg, jpeg, or png')
                             );
                         }
                         if ($width != 650) {
