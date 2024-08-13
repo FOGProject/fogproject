@@ -969,9 +969,8 @@ abstract class FOGBase
     protected function isLoaded($key)
     {
         $key = $this->key($key);
-        $result = isset($this->isLoaded[$key]) ? $this->isLoaded[$key] : 0;
+        $result = isset($this->isLoaded[$key]) ? true : false;
         $this->isLoaded[$key] = true;
-        ++$this->isLoaded[$key];
 
         return $result ? $result : false;
     }
