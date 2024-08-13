@@ -3277,6 +3277,9 @@ abstract class FOGPage extends FOGBase
                     'obj' => &$obj
                 ]
             );
+            if (!$obj->pluginsTabData) {
+                $obj->pluginsTabData = [];
+            }
             self::$HookManager->processEvent(
                 'PLUGINS_INJECT_TABDATA',
                 [
@@ -3284,6 +3287,7 @@ abstract class FOGPage extends FOGBase
                     'obj' => &$obj
                 ]
             );
+
             if (count($obj->pluginsTabData ?: [])) {
                 $tabData[] = [
                     'tabs' => [
