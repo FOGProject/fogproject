@@ -53,7 +53,8 @@ class TaskType extends FOGController
     const DEPLOYTASKS = [
         self::DEPLOY,
         self::DEPLOY_DEBUG,
-        self::DEPLOY_NO_SNAPINS
+        self::DEPLOY_NO_SNAPINS,
+        self::MULTICAST
     ];
     const WIPETASKS = [
         self::FAST_WIPE,
