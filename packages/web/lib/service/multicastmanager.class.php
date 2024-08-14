@@ -405,7 +405,7 @@ class MulticastManager extends FOGService
                         if ($SessCompleted
                             || (count($inTaskCompletedIDs) > 0
                             && count($inTaskCompletedIDs) >= count($taskIDs))
-                            || $runningTask->isNamedSessioniFinished()
+                            || $runningTask->isNamedSessionFinished()
                         ) {
                             $jobcompleted = true;
                         }

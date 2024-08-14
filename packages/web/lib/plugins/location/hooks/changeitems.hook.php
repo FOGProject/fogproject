@@ -259,18 +259,20 @@ class ChangeItems extends Hook
             'storagenode',
             ['id' => $storagenodeIDs]
         );
-        $arguments['StorageNodes'] = json_decode(
+        $StorageNodes = json_decode(
             Route::getData()
         );
-        foreach ($arguments['StorageNodes']->data as $ind => &$StorageNode) {
+        $arguments['StorageNodes'] = [];
+        foreach ($StorageNodes->data as $ind => $StorageNode) {
             Route::indiv('storagenode', $StorageNode->id);
             $StorageNode = json_decode(Route::getData());
             if (!$StorageNode->online) {
                 continue;
             }
             if (!$StorageNode->isMaster) {
-                $arguments['StorageNodes']->data[$ind]->isMaster = 1;
+                $StorageNode->isMaster = 1;
             }
+            $arguments['StorageNodes'][] = $StorageNode;
             unset($StorageNode);
         }
     }
