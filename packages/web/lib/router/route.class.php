@@ -231,6 +231,26 @@ class Route extends FOGBase
         self::printer(self::$data);
     }
     /**
+     * Just ensures the where items are consistent for later use
+     *
+     * @param string|array $whereItems The test item.
+     * @return array $whereItems The normalized structure
+     */
+    public static function handleWhereItems($whereItems)
+    {
+        if (is_string($whereItems)) {
+            parse_str(urldecode($whereItems), $whereItems);
+
+            // Process comma-separated values
+            foreach ($whereItems as $key => $val) {
+                if (!empty($val) && strpos($val, ',') !== false) {
+                    $whereItems[$key] = explode(',', $val);
+                }
+            }
+        }
+        return $whereItems;
+    }
+    /**
      * Defines our standard routes.
      *
      * @return void
@@ -479,23 +499,7 @@ class Route extends FOGBase
             if (empty($orderby)) {
                 $orderby = 'name';
             }
-            if (is_string($whereItems)) {
-                $whereurl = urldecode($whereItems);
-            }
-            parse_str(isset($whereurl) ? $whereurl : '', $test);
-            if ($test) {
-                $whereItems = [];
-                foreach ($test as $key => &$val) {
-                    if (empty($val)) {
-                        continue;
-                    }
-                    if (false !== strpos(',', $val)) {
-                        $val = explode(',', $val);
-                    }
-                    $whereItems[$key] = $val;
-                    unset($val);
-                }
-            }
+            $whereItems = self::handleWhereItems($whereItems);
             if (count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($class);
             }
@@ -2440,24 +2444,7 @@ class Route extends FOGBase
                 $orderby = 'name';
             }
 
-            if (is_string($whereItems)) {
-                $whereurl = urldecode($whereItems);
-            }
-            parse_str(isset($whereurl) ? $whereurl : '', $test);
-            if ($test) {
-                $whereItems = [];
-                foreach ($test as $key => &$val) {
-                    if (empty($val)) {
-                        continue;
-                    }
-                    if (false !== strpos(',', $val)) {
-                        $val = explode(',', $val);
-                    }
-                    $whereItems[$key] = $val;
-                    unset($val);
-                }
-            }
-
+            $whereItems = self::handleWhereItems($whereItems);
             if (false !== $whereItems && count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($classname);
             }
@@ -2696,23 +2683,8 @@ class Route extends FOGBase
             if (empty($orderby)) {
                 $orderby = 'name';
             }
-            if (is_string($whereItems)) {
-                $whereurl = urldecode($whereItems);
-            }
-            parse_str(isset($whereurl) ? $whereurl : '', $test);
-            if ($test) {
-                $whereItems = [];
-                foreach ($test as $key => &$val) {
-                    if (empty($val)) {
-                        continue;
-                    }
-                    if (false !== strpos(',', $val)) {
-                        $val = explode(',', $val);
-                    }
-                    $whereItems[$key] = $val;
-                    unset($val);
-                }
-            }
+            
+            $whereItems = self::handleWhereItems($whereItems);
             if (count($whereItems ?: []) > 0) {
                 $where = '';
                 foreach ($whereItems as $key => &$field) {
@@ -2801,25 +2773,8 @@ class Route extends FOGBase
                 . '` FROM `'
                 . $classVars['databaseTable']
                 . '`';
-
-            if (is_string($whereItems)) {
-                $whereurl = urldecode($whereItems);
-            }
-            parse_str(isset($whereurl) ? $whereurl : '', $test);
-            if ($test) {
-                $whereItems = [];
-                foreach ($test as $key => &$val) {
-                    if (empty($val)) {
-                        continue;
-                    }
-                    if (false !== strpos(',', $val)) {
-                        $val = explode(',', $val);
-                    }
-                    $whereItems[$key] = $val;
-                    unset($val);
-                }
-            }
-
+            
+            $whereItems = self::handleWhereItems($whereItems);
             if (count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($classname);
             }
