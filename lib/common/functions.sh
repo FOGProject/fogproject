@@ -1511,7 +1511,24 @@ configureFOGService() {
 }
 configureNFS() {
     dots "Setting up NFS configuration file"
-    sed -i '/^\[mountd\]/,/^# port=0/ {s/^# port=0/port=20048/}' /etc/nfs.conf >>$error_log 2>&1
+    if [[ -f "/etc/nfs.conf" ]]; then
+        # Fix all set port=20048 back to default values
+        sed -i '/^port=20048/ {s/^port=20048/# port=0/}' /etc/nfs.conf >>$error_log 2>&1
+    fi
+    # set port in nfs.conf.d directory
+    if [[ -f "/etc/nfs.conf" && ! -d "/etc/nfs.conf.d/" ]]; then
+        mkdir /etc/nfs.conf.d/
+        cat > /etc/nfs.conf.d/fog-nfs.conf <<EOF
+[mountd]
+port=20048
+EOF
+    elif [[ -f "/usr/etc/nfs.conf" && ! -d "/usr/etc/nfs.conf.d/" ]]; then
+        mkdir /usr/etc/nfs.conf.d/
+        cat > /usr/etc/nfs.conf.d/fog-nfs.conf <<EOF
+[mountd]
+port=20048
+EOF
+    fi
     errorStat $?
     dots "Setting up exports file"
     if [[ $blexports != 1 ]]; then

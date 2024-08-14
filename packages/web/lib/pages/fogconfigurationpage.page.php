@@ -1133,7 +1133,7 @@ class FOGConfigurationPage extends FOGPage
                 );
                 $name = trim($Setting->name);
                 $val = trim($Setting->value);
-                if ($val && $val == $set) {
+                if ($val && $val == ($set ?? '')) {
                     continue;
                 }
                 if (isset($checkbox[$name])) {
