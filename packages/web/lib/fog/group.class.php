@@ -807,17 +807,11 @@ class Group extends FOGController
             return;
         }
         $find = ['hostID' => $this->get('hosts')];
-        /*Route::ids(
-            'snapinassociation',
-            $find,
-            'hostID'
-        );
-        $hostIDs = json_decode(Route::getData(), true);*/
         $hostIDs = $find['hostID'];
         $hostCount = count($hostIDs ?: []);
+        $snapins = [];
         $snapinJobs = [];
-        for ($i = 0; $i < $hostCount; ++$i) {
-            $hostID = $hostIDs[$i];
+        foreach ($hostIDs as $hostID) {
             if ($snapin == -1) {
                 $find = ['hostID' => $hostID];
                 Route::ids(
@@ -825,7 +819,11 @@ class Group extends FOGController
                     $find,
                     'snapinID'
                 );
-                $snapins[$hostID] = json_decode(Route::getData(), true);
+                $assoc_snapins = json_decode(Route::getData(), true);
+                if (count($assoc_snapins ?: []) < 1) {
+                    continue;
+                }
+                $snapins[$hostID] = $assoc_snapins;
             } else {
                 $snapins[$hostID] = [$snapin];
             }
@@ -835,7 +833,7 @@ class Group extends FOGController
             $snapinJobs[] = [
                 $hostID,
                 self::getQueuedState(),
-                $now->format('Y-m-d H:i:s'),
+                $now->format('Y-m-d H:i:s')
             ];
         }
         if (count($snapinJobs ?: []) > 0) {
@@ -851,7 +849,7 @@ class Group extends FOGController
                 ],
                 $snapinJobs
             );
-            $ids = range($first_id, ($first_id + $affected_rows - 1));
+            $ids = range($first_id, ($first_id + $affected_rows));
             for ($i = 0; $i < $hostCount; ++$i) {
                 $hostID = $hostIDs[$i];
                 $jobID = $ids[$i];
