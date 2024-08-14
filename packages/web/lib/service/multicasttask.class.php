@@ -711,16 +711,17 @@ class MulticastTask extends FOGService
      */
     public function updateStats()
     {
-        Route::listem(
+        Route::ids(
             'multicastsessionassociation',
-            ['msID' => $this->_intID]
+            ['msID' => $this->_intID],
+            'taskID'
         );
         $MSAssocs = json_decode(
-            Route::getData()
+            Route::getData(),
+            true
         );
-        $TaskPercent = [];
-        foreach ($MSAssocs as $Task) {
-            $TaskPercent[] = self::getClass('Task', $Task->taskID)->get('percent');
+        foreach ($MSAssocs as $TaskID) {
+            $TaskPercent[] = self::getClass('Task', $TaskID)->get('percent');
         }
         $TaskPercent = array_unique((array)$TaskPercent);
         $this->_MultiSess
