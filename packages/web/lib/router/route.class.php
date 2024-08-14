@@ -2617,7 +2617,6 @@ class Route extends FOGBase
                 $whereItems = self::getsearchbody($classname);
             }
 
-            $orig_removeItems = $removeItems;
             self::$HookManager->processEvent(
                 'DELETEMASS_API',
                 [
@@ -2626,9 +2625,7 @@ class Route extends FOGBase
                     'removeItems' => &$removeItems
                 ]
             );
-
-            $new_removeItems = array_diff($orig_removeItems, $removeItems);
-            foreach ((array)$new_removeItems as $item => &$vals) {
+            foreach ((array)$removeItems as $item => &$vals) {
                 Route::deletemass(
                     $item,
                     $vals

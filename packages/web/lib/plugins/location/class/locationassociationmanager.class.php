@@ -43,7 +43,7 @@ class LocationAssociationManager extends FOGManagerController
             [
                 'laID',
                 'laLocationID',
-                'laHostID'
+                'laHostID',
             ],
             [
                 'INTEGER',

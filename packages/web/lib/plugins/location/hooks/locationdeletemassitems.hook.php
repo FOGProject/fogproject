@@ -77,14 +77,16 @@ class LocationDeleteMassItems extends Hook
                 ];
                 break;
             case 'storagegroup':
-                $arguments['removeItems']['locationassociation'] = [
-                    'storagegroupID' => $arguments['itemIDs']
-                ];
+                self::getClass('LocationManager')->update(['storagegroupID' => $arguments['itemIDs']], '', 0);
                 break;
-            default:
+            case 'storagenode':
+                self::getClass('LocationManager')->update(['storagenodeID' => $arguments['itemIDs']], '', 0);
+                break;
+            case 'location':
                 $arguments['removeItems']['locationassociation'] = [
                     'locationID' => $arguments['itemIDs']
                 ];
+                break;
         }
     }
 }
