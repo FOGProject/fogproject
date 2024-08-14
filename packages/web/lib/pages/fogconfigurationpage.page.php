@@ -1166,7 +1166,7 @@ class FOGConfigurationPage extends FOGPage
                             }
                     }
                 } elseif (isset($needstobeip[$name])) {
-                    if (!filter_var($set, FILTER_VALIDATE_IP)) {
+                    if (!filter_var($set, FILTER_VALIDATE_IP) and $set != 0 and $set) {
                         throw new Exception(
                             $name . ' ' . _('value must be a valid IP Address')
                         );
