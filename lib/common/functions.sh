@@ -1362,13 +1362,16 @@ configureNFS() {
     fi
     # set port in nfs.conf.d directory
     if [[ -f "/etc/nfs.conf" && ! -d "/etc/nfs.conf.d/" ]]; then
-        mkdir /etc/nfs.conf.d/
+        mkdir /etc/nfs.conf.d
+    elif [[ -f "/usr/etc/nfs.conf" && ! -d "/usr/etc/nfs.conf.d/" ]]; then
+        mkdir /usr/etc/nfs.conf.d
+    fi
+    if [[ -f "/etc/nfs.conf" && ! -f "/etc/nfs.conf.d/fog-nfs.conf" ]]; then
         cat > /etc/nfs.conf.d/fog-nfs.conf <<EOF
 [mountd]
 port=20048
 EOF
-    elif [[ -f "/usr/etc/nfs.conf" && ! -d "/usr/etc/nfs.conf.d/" ]]; then
-        mkdir /usr/etc/nfs.conf.d/
+    elif [[ -f "/usr/etc/nfs.conf" && ! -f "/usr/etc/nfs.conf.d/fog-nfs.conf" ]]; then
         cat > /usr/etc/nfs.conf.d/fog-nfs.conf <<EOF
 [mountd]
 port=20048
