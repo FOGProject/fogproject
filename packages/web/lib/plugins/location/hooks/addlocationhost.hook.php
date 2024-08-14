@@ -192,9 +192,11 @@ class AddLocationHost extends Hook
                 'locationassociation',
                 ['hostID' => $hosts]
             );
-            foreach ((array)$hosts as $ind => &$hostID) {
-                $insert_values[] = [$hostID, $locationID];
-                unset($hostID);
+            if (self::getClass('Location', $locationID)->isValid()) {
+                foreach ((array)$hosts as $ind => &$hostID) {
+                    $insert_values[] = [$hostID, $locationID];
+                    unset($hostID);
+                }
             }
         }
         if (count($insert_values) > 0) {
