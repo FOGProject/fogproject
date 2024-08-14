@@ -479,6 +479,23 @@ class Route extends FOGBase
             if (empty($orderby)) {
                 $orderby = 'name';
             }
+            if (is_string($whereItems)) {
+                $whereurl = urldecode($whereItems);
+            }
+            parse_str(isset($whereurl) ? $whereurl : '', $test);
+            if ($test) {
+                $whereItems = [];
+                foreach ($test as $key => &$val) {
+                    if (empty($val)) {
+                        continue;
+                    }
+                    if (false !== strpos(',', $val)) {
+                        $val = explode(',', $val);
+                    }
+                    $whereItems[$key] = $val;
+                    unset($val);
+                }
+            }
             if (count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($class);
             }
@@ -2423,6 +2440,24 @@ class Route extends FOGBase
                 $orderby = 'name';
             }
 
+            if (is_string($whereItems)) {
+                $whereurl = urldecode($whereItems);
+            }
+            parse_str(isset($whereurl) ? $whereurl : '', $test);
+            if ($test) {
+                $whereItems = [];
+                foreach ($test as $key => &$val) {
+                    if (empty($val)) {
+                        continue;
+                    }
+                    if (false !== strpos(',', $val)) {
+                        $val = explode(',', $val);
+                    }
+                    $whereItems[$key] = $val;
+                    unset($val);
+                }
+            }
+
             if (false !== $whereItems && count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($classname);
             }
@@ -2766,6 +2801,24 @@ class Route extends FOGBase
                 . '` FROM `'
                 . $classVars['databaseTable']
                 . '`';
+
+            if (is_string($whereItems)) {
+                $whereurl = urldecode($whereItems);
+            }
+            parse_str(isset($whereurl) ? $whereurl : '', $test);
+            if ($test) {
+                $whereItems = [];
+                foreach ($test as $key => &$val) {
+                    if (empty($val)) {
+                        continue;
+                    }
+                    if (false !== strpos(',', $val)) {
+                        $val = explode(',', $val);
+                    }
+                    $whereItems[$key] = $val;
+                    unset($val);
+                }
+            }
 
             if (count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($classname);
