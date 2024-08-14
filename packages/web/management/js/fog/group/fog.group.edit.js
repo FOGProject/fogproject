@@ -18,7 +18,8 @@
         resetEncryptionBtn = $('#reset-encryption-data'),
         resetEncryptionModal = $('#resetencryptionmodal'),
         resetEncryptionCancelBtn = $('#resetencryptionCancel'),
-        resetEncryptionConfirmBtn = $('#resetencryptionConfirm');
+        resetEncryptionConfirmBtn = $('#resetencryptionConfirm'),
+        opts = {};
 
     // Mask for product key.
     $('#key').inputmask({mask: Common.masks.productKey});
