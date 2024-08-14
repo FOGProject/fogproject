@@ -559,6 +559,7 @@ class Group extends FOGController
                     ->set('starttime', $now->format('Y-m-d H:i:s'))
                     ->set('percent', 0)
                     ->set('isDD', $Image->get('imageTypeID'))
+                    ->set('maxwait', self::getSetting('FOG_UDPCAST_MAXWAIT') * 60)
                     ->set('storagegroupID', $StorageGroup->get('id'));
                 if ($MulticastSession->save()) {
                     Route::deletemass(

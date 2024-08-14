@@ -1810,7 +1810,7 @@ class ImageManagement extends FOGPage
             $sessioncount = $hosts->total;
         }
         if (!$sessiontimeout) {
-            $sessiontimeout = self::getSetting('FOG_UDPCAST_MAXWAIT');
+            $sessiontimeout = self::getSetting('FOG_UDPCAST_MAXWAIT') * 60;
         }
         Route::count(
             'multicastsession',

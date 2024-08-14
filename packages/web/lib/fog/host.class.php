@@ -1108,7 +1108,7 @@ class Host extends FOGController
                         ->set('isDD', $this->getImage()->get('imageTypeID'))
                         ->set('storagegroupID', $StorageNode->get('storagegroupID'))
                         ->set('clients', -1)
-                        ->set('maxwait', self::getSetting('FOG_UDPCAST_MAXWAIT'))
+                        ->set('maxwait', self::getSetting('FOG_UDPCAST_MAXWAIT') * 60)
                         ->set('shutdown', (int)$shutdown);
                     if (!$MulticastSession->save()) {
                         $serverFault = true;
