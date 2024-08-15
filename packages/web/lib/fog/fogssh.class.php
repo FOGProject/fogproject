@@ -128,6 +128,12 @@ class FOGSSH
      */
     public function __call($func, $args)
     {
+        if (!function_exists('str_contains')) {
+            function str_contains($haystack, $needle)
+            {
+                return $needle !== '' && strpos($haystack, $needle) !== false;
+            }
+        }
         if (str_contains($func, 'scp')) {
             $linker = $this->_link;
         } elseif (str_contains($func, 'sftp_')) {
