@@ -327,7 +327,7 @@ class FOGSSH
     {
         $sftp = $this->_sftp;
         $dir = "ssh2.sftp://$sftp$remote_file";
-        $tmpArray = [];
+        $tempArray = [];
 
         if (is_dir($dir)) {
             if ($dh = opendir($dir)) {
