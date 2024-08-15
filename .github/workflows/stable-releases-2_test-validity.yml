@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Call main workflow that calls all the distros
-        run: gh workflow run --repo rluzuriaga/testing-distros execute_test_install_fog.yml
+        run: gh workflow run --repo FOGProject/fogproject-install-validation run_all_distros.yml
         env:
           GITHUB_TOKEN: ${{ secrets.INSTALL_VALIDATION_REPO_TOKEN }}
   
@@ -27,7 +27,7 @@ jobs:
 
       - name: Get run IDs
         run: |
-          run_id=$(gh run list --repo rluzuriaga/testing-distros --workflow execute_test_install_fog.yml --json databaseId --limit 1 | jq -r '.[0].databaseId')
+          run_id=$(gh run list --repo FOGProject/fogproject-install-validation --workflow run_all_distros.yml --json databaseId --limit 1 | jq -r '.[0].databaseId')
           echo "RUN_ID=$run_id" >> $GITHUB_ENV
         
       - name: Check if distro workflow passed or failed
@@ -35,7 +35,7 @@ jobs:
           run_status=""
           while [[ $run_status != "success" && $run_status != "failure" ]]; do
             sleep 15
-            run_status=$(gh run view --repo rluzuriaga/testing-distros ${{ env.RUN_ID }} --exit-status --json conclusion | jq -r '.conclusion')
+            run_status=$(gh run view --repo FOGProject/fogproject-install-validation ${{ env.RUN_ID }} --exit-status --json conclusion | jq -r '.conclusion')
           done
           
           if [[ $run_status == "failure" ]]; then
