@@ -88,23 +88,19 @@ class LogViewerHook extends Hook
         if (!self::$FOGSSH->connect()) {
             return;
         }
-        if (!self::$FOGSSH->exists("/var/log")) {
-            self::$FOGSSH->disconnect();
-            return;
-        }
         $fogfiles = self::$FOGSSH->scanFilesystem("/var/log");
         self::$FOGSSH->disconnect();
         $systemlog = preg_grep('#(syslog$|messages$)#', $fogfiles);
         $systemlog = array_shift($systemlog);
         if ($systemlog) {
             $arguments['files'][$arguments['StorageNode']->name]['System Log']
-                = "/var/log/" . $systemlog;
+                = $systemlog;
         }
         $dnflog = preg_grep('#(dnf.log$)#', $fogfiles);
         $dnflog = array_shift($dnflog);
         if ($dnflog) {
             $arguments['files'][$arguments['StorageNode']->name]['DNF Log']
-                = "/var/log/" . $dnflog;
+                = $dnflog;
         }
     }
     /**

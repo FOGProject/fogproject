@@ -308,7 +308,7 @@ class FOGSSH
      */
     public function put($localfile, $remotefile)
     {
-        $sftp = $this->_sftp;
+        $sftp = intval($this->_sftp);
         $stream = @fopen("ssh2.sftp://$sftp$remotefile", 'w');
         if (!$stream) {
             throw new Exception(_("Could not open file"). ": $remotefile");
@@ -325,31 +325,10 @@ class FOGSSH
     }
     public function scanFilesystem($remote_file)
     {
-        $sftp = $this->_sftp;
-        $dir = "ssh2.sftp://$sftp$remote_file";
-        $tempArray = [];
-
-        if (is_dir($dir)) {
-            if ($dh = opendir($dir)) {
-                while (($file = readdir($dh)) !== false) {
-                    if ($file == '.' || $file == '..') {
-                        continue;
-                    }
-                    $filetype = filetype($dir . DS . $file);
-                    if ($filetype == 'dir') {
-                        $tmp = $this->scanFilesystem($remote_file.DS.$file.DS);
-                        foreach ($tmp as $t) {
-                            $tempArray[] = $file . DS . $t;
-                        }
-                    } else {
-                        $tempArray[] = $file;
-                    }
-                }
-                closedir($dh);
-            }
-        }
-
-        return $tempArray;
+        $stream = $this->exec("find $remote_file -type f");
+        stream_set_blocking($stream, true);
+        $out = $this->fetch_stream($stream, SSH2_STREAM_STDIO);
+        return explode("\n", stream_get_contents($out));
     }
     /**
      * Deletes the item passed
@@ -370,7 +349,7 @@ class FOGSSH
         if (!$rmdir && !$unlink) {
             $filelist = $this->scanFilesystem($path);
             foreach ((array)$filelist as $file) {
-                $this->delete($path . DS . $file);
+                $this->delete($file);
             }
             $this->delete($path);
         }

@@ -2866,4 +2866,19 @@ abstract class FOGBase
             exit;
         }
     }
+    /**
+     * Output var_dump for logging
+     *
+     * @param object $object The item to var_dump
+     *
+     * @return string|null
+     */
+    public static function var_dump_log($object = null)
+    {
+        ob_start();
+        var_dump($object);
+        $contents = ob_get_contents();
+        ob_end_clean();
+        error_log($contents);
+    }
 }
