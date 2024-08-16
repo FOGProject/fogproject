@@ -323,6 +323,13 @@ class FOGSSH
 
         @fclose($stream);
     }
+    /**
+     * Scan all files as it's likely a directory.
+     *
+     * @param string $remote_file The path to look up.
+     *
+     * @return array
+     */
     public function scanFilesystem($remote_file)
     {
         $stream = $this->exec("find $remote_file -type f");
