@@ -1466,7 +1466,7 @@ class ImageManagement extends FOGPage
         echo '<div class="box-body">';
         echo self::formatByteSize(
             array_sum(
-                (int)explode(':', $this->obj->get('size')) ?? [0]
+                array_map('intval', explode(':', $this->obj->get('size')) ?? [0])
             )
         );
         echo '</div>';
