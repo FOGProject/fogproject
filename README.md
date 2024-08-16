@@ -6,7 +6,7 @@
 
 ## Versioning and branches
 
-FOG uses a versioning schema that follows the general principles of semantic versioning with some adjustments to fit the development lifecycle.
+FOG uses a versioning schema that follows the general principles of semantic versioning with some adjustments to fit the development lifecycle. You can find the automatic release workflows in the [fog-workflows repo](https://github.com/FOGProject/fog-workflows) [![Stable Release](https://github.com/FOGProject/fog-workflows/actions/workflows/stable-releases.yml/badge.svg)](https://github.com/FOGProject/fog-workflows/actions/workflows/stable-releases.yml)
 
 * The default branch of `stable` will always have the latest patch release, for most users this is where you want to install from.
 * The `master` branch has the baseline of the latest Minor release. You should not typically install from here as it won't include security patches released since the baseline was set.
