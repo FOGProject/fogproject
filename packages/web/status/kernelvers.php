@@ -28,13 +28,7 @@ header('Content-Type: text/event-stream');
 if (isset($_POST['url'])) {
 
     // Prevent an unauthenticated user from making arbitrary requests.
-    $unauthorized = !$currentUser->isValid() || empty($_SERVER['HTTP_X_REQUESTED_WITH'])
-        || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest';
-
-    if ($unauthorized) {
-        echo _('Unauthorized');
-        exit;
-    }
+    FOGCore::is_authorized();
 
     $res = $FOGURLRequests
         ->process(filter_input(INPUT_POST, 'url'));

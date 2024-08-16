@@ -1355,6 +1355,29 @@ configureFOGService() {
     startInitScript
 }
 configureNFS() {
+    dots "Setting up NFS configuration file"
+    if [[ -f "/etc/nfs.conf" ]]; then
+        # Fix all set port=20048 back to default values
+        sed -i '/^port=20048/ {s/^port=20048/# port=0/}' /etc/nfs.conf >>$error_log 2>&1
+    fi
+    # set port in nfs.conf.d directory
+    if [[ -f "/etc/nfs.conf" && ! -d "/etc/nfs.conf.d/" ]]; then
+        mkdir /etc/nfs.conf.d
+    elif [[ -f "/usr/etc/nfs.conf" && ! -d "/usr/etc/nfs.conf.d/" ]]; then
+        mkdir /usr/etc/nfs.conf.d
+    fi
+    if [[ -f "/etc/nfs.conf" && ! -f "/etc/nfs.conf.d/fog-nfs.conf" ]]; then
+        cat > /etc/nfs.conf.d/fog-nfs.conf <<EOF
+[mountd]
+port=20048
+EOF
+    elif [[ -f "/usr/etc/nfs.conf" && ! -f "/usr/etc/nfs.conf.d/fog-nfs.conf" ]]; then
+        cat > /usr/etc/nfs.conf.d/fog-nfs.conf <<EOF
+[mountd]
+port=20048
+EOF
+    fi
+    errorStat $?
     dots "Setting up exports file"
     if [[ $blexports != 1 ]]; then
         echo "Skipped"

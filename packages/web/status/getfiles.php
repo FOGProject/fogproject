@@ -24,13 +24,7 @@
 require '../commons/base.inc.php';
 
 // Prevent file enumeration by an unauthenticated user
-$unauthorized = !(isset($currentUser) && $currentUser->isValid()) || empty($_SERVER['HTTP_X_REQUESTED_WITH'])
-    || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest';
-
-if ($unauthorized) {
-    echo _('Unauthorized');
-    exit;
-}
+FOGCore::is_authorized();
 
 if (!is_string($_GET['path'])) {
     echo json_encode(

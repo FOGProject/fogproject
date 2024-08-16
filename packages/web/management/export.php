@@ -20,13 +20,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-$unauthorized = !(isset($currentUser) && $currentUser->isValid()) || empty($_SERVER['HTTP_X_REQUESTED_WITH'])
-    || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest';
-
-if ($unauthorized) {
-    echo _('Unauthorized');
-    exit;
-}
+FOGCore::is_authorized();
 
 $report = unserialize($_SESSION['foglastreport']);
 if (!($report instanceof ReportMaker)) {
