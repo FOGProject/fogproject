@@ -408,7 +408,7 @@ class StorageGroupManagement extends FOGPage
             )
             . '" ';
 
-        $buttons .= self::makeButton(
+        $buttons = self::makeButton(
             'storagegroup-image-send',
             _('Add selected'),
             'btn btn-success pull-right',
@@ -600,7 +600,7 @@ class StorageGroupManagement extends FOGPage
             )
             . '" ';
 
-        $buttons .= self::makeButton(
+        $buttons = self::makeButton(
             'storagegroup-snapin-send',
             _('Add selected'),
             'btn btn-success pull-right',
@@ -792,7 +792,7 @@ class StorageGroupManagement extends FOGPage
             )
             . '" ';
 
-        $buttons .= self::makeButton(
+        $buttons = self::makeButton(
             'storagegroup-storagenode-send',
             _('Add selected'),
             'btn btn-success pull-right',
