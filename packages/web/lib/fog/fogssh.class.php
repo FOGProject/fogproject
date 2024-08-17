@@ -332,7 +332,8 @@ class FOGSSH
      */
     public function scanFilesystem($remote_file)
     {
-        $stream = $this->exec("find $remote_file -type f");
+        $esc_remote_file = escapeshellarg($remote_file);
+        $stream = $this->exec("find $esc_remote_file -type f");
         stream_set_blocking($stream, true);
         $out = $this->fetch_stream($stream, SSH2_STREAM_STDIO);
         return explode("\n", stream_get_contents($out));
