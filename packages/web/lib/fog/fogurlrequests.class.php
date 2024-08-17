@@ -595,11 +595,14 @@ class FOGURLRequests extends FOGBase
                         case 'ftp':
                             $port = 21;
                             break;
+                        case 'ssh':
+                            $port = 22;
+                            break;
                         default:
-                            $port = self::$FOGFTP->port;
+                            $port = self::$FOGSSH->port;
                     }
                 } else {
-                    $port = self::$FOGFTP->port;
+                    $port = self::$FOGSSH->port;
                 }
             }
             $socket = @fsockopen(

@@ -182,7 +182,7 @@ class StorageNode extends FOGController
      */
     public function loadOnline()
     {
-        $test = self::$FOGURLRequests->isAvailable($this->get('ip'), '0.1', 21, 'tcp');
+        $test = self::$FOGURLRequests->isAvailable($this->get('ip'), '0.1', 22, 'tcp');
         $this->set('online', array_shift($test));
     }
     /**
