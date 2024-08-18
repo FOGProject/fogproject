@@ -50,7 +50,7 @@ class Route extends FOGBase
      *
      * @var mixed
      */
-    public static $data;
+    public static $data = [];
     /**
      * Stores the valid classes.
      *
@@ -465,8 +465,10 @@ class Route extends FOGBase
      */
     public static function status()
     {
-        self::$data['version'] = FOG_VERSION;
-        self::$data['msg'] = _('success');
+        self::$data = [
+            'version' => FOG_VERSION,
+            'msg' => _('success')
+        ];
     }
     /**
      * Presents the equivalent of a page's list all.
