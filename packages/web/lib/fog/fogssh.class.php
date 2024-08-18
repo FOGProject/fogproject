@@ -106,7 +106,7 @@ class FOGSSH
     /**
      * We have to sever all open connections.
      *
-     * This will perform that task in a semi-automated fasion.
+     * This will perform that task in a semi-automated fashion.
      *
      * @return bool (From the main connection only)
      */
@@ -114,9 +114,13 @@ class FOGSSH
     {
         if ($this->_sftp) {
             @ssh2_disconnect($this->_sftp);
+            $this->_sftp = null;
             unset($this->_sftp);
         }
-        return @ssh2_disconnect($this->_link);
+        $test = @ssh2_disconnect($this->_link);
+        $this->_link = null;
+        unset($this->_link);
+        return $test;
     }
     /**
      * Magic class to do ssh2 functions.
@@ -128,12 +132,6 @@ class FOGSSH
      */
     public function __call($func, $args)
     {
-        if (!function_exists('str_contains')) {
-            function str_contains($haystack, $needle)
-            {
-                return $needle !== '' && strpos($haystack, $needle) !== false;
-            }
-        }
         if (str_contains($func, 'scp')) {
             $linker = $this->_link;
         } elseif (str_contains($func, 'sftp_')) {
@@ -286,7 +284,7 @@ class FOGSSH
         return @is_dir($sftp_wrap) || @file_exists($sftp_wrap);
     }
     /**
-     * Sets the chmod permissions of the fil
+     * Sets the chmod permissions of the file
      *
      * @params string $path The path/file to set mode
      * @params int    $mode The mode to set
@@ -308,7 +306,7 @@ class FOGSSH
      */
     public function put($localfile, $remotefile)
     {
-        $sftp = intval($this->_sftp);
+        $sftp = $this->_sftp;
         $stream = @fopen("ssh2.sftp://$sftp$remotefile", 'w');
         if (!$stream) {
             throw new Exception(_("Could not open file"). ": $remotefile");
@@ -332,11 +330,48 @@ class FOGSSH
      */
     public function scanFilesystem($remote_file)
     {
-        $esc_remote_file = escapeshellarg($remote_file);
-        $stream = $this->exec("find $esc_remote_file -type f");
-        stream_set_blocking($stream, true);
-        $out = $this->fetch_stream($stream, SSH2_STREAM_STDIO);
-        return explode("\n", stream_get_contents($out));
+        if (!$this->exists($remote_file)) {
+            return [];
+        }
+        $sftp = $this->_sftp;
+        $dir = "ssh2.sftp://$sftp$remote_file";
+        $tempArray = [];
+
+        if (is_dir($dir)) {
+            if ($dh = opendir($dir)) {
+                if (($file = readdir($dh)) === false) {
+                    $esc_remote_file = escapeshellarg($remote_file);
+                    $stream = $this->exec("find $esc_remote_file -type f");
+                    stream_set_blocking($stream, true);
+                    $out = $this->fetch_stream($stream, SSH2_STREAM_STDIO);
+                    $tmp = explode("\n", stream_get_contents($out));
+                    foreach ($tmp as $t) {
+                        if (!str_starts_with($t, $remote_file)) {
+                            continue;
+                        }
+                        $tempArray[] = $t;
+                    }
+                } else {
+                    while (($file = readdir($dh)) !== false) {
+                        if ($file == '.' || $file == '..' || !str_starts_with($file, $remote_file)) {
+                            continue;
+                        }
+                        $filetype = filetype($dir . DS . $file);
+                        if ($filetype == 'dir') {
+                            $tmp = $this->scanFilesystem($remote_file.DS.$file.DS);
+                            foreach ($tmp as $t) {
+                                $tempArray[] = $remote_file.DS.$file.DS.$t;
+                            }
+                        } else {
+                            $tempArray[] = $remote_file.DS.$file;
+                        }
+                    }
+                }
+                closedir($dh);
+            }
+        }
+
+        return $tempArray;
     }
     /**
      * Deletes the item passed
@@ -348,7 +383,6 @@ class FOGSSH
      */
     public function delete($path)
     {
-
         if (!$this->exists($path)) {
             return $this;
         }

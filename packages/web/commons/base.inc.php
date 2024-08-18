@@ -11,6 +11,13 @@ declare(strict_types=1);
  * @link     https://fogproject.org
  */
 
+if (!function_exists('str_contains')) {
+    function str_contains($haystack, $needle)
+    {
+        return $needle !== '' && strpos($haystack, $needle) !== false;
+    }
+}
+
 // Set security-related headers.
 header('X-Frame-Options: sameorigin');
 header('X-XSS-Protection: 1; mode=block');
