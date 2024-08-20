@@ -121,7 +121,7 @@ class Inventory extends FOGController
         if (!$val) {
             $val = $this->get('mem');
         }
-        $memar = explode(' ', $val);
+        $memar = preg_split('/\s+/', $val);
 
         $memar = isset($memar[1]) ? $memar[1] : 0;
         
@@ -137,7 +137,7 @@ class Inventory extends FOGController
         if (!$val) {
             return 0.00;
         }
-        $memar = explode(' ', $val);
+        $memar = preg_split('/\s+/', $val);
 
         $memar = isset($memar[1]) ? $memar[1] : 0;
 

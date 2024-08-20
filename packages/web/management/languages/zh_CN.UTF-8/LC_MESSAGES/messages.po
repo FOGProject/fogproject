@@ -870,10 +870,18 @@ msgstr "CPU缓存"
 msgid "CPU Count"
 msgstr "CPU计数"
 
+#, fuzzy
+msgid "CPU Current Speed"
+msgstr "CPU速度"
+
 msgid "CPU Manufacturer"
 msgstr "CPU制造商"
 
 msgid "CPU Max Speed"
+msgstr "CPU最大速度"
+
+#, fuzzy
+msgid "CPU Maximum Speed"
 msgstr "CPU最大速度"
 
 msgid "CPU Model"
@@ -989,6 +997,22 @@ msgstr "创建"
 #, fuzzy
 msgid "Captured"
 msgstr "创建"
+
+#, fuzzy
+msgid "Case Asset"
+msgstr "主板资产标签"
+
+#, fuzzy
+msgid "Case Manufacturer"
+msgstr "机箱制造商"
+
+#, fuzzy
+msgid "Case Serial"
+msgstr "系统序列"
+
+#, fuzzy
+msgid "Case Version"
+msgstr "最新版本"
 
 msgid "Channel"
 msgstr ""
@@ -2386,6 +2410,17 @@ msgstr ""
 #, fuzzy
 msgid "HTML Error Code"
 msgstr "错误代码"
+
+msgid "Hard Disk Firmware"
+msgstr ""
+
+#, fuzzy
+msgid "Hard Disk Model"
+msgstr "打印机型号"
+
+#, fuzzy
+msgid "Hard Disk Serial"
+msgstr "序列号"
 
 msgid "Hard Drive Firmware"
 msgstr ""
@@ -3822,6 +3857,10 @@ msgstr "每月一次"
 msgid "Most Frequent Host IDs"
 msgstr ""
 
+#, fuzzy
+msgid "Motherboard Asset"
+msgstr "主板资产标签"
+
 msgid "Motherboard Asset Tag"
 msgstr "主板资产标签"
 
@@ -3830,6 +3869,10 @@ msgstr "主板制造商"
 
 msgid "Motherboard Product Name"
 msgstr "主板产品名称"
+
+#, fuzzy
+msgid "Motherboard Serial"
+msgstr "主板序列号"
 
 msgid "Motherboard Serial Number"
 msgstr "主板序列号"
@@ -4275,6 +4318,13 @@ msgstr ""
 
 msgid "Organizational Unit"
 msgstr "组织单位"
+
+#, fuzzy
+msgid "Other Primary"
+msgstr "主MAC"
+
+msgid "Other Secondary"
+msgstr ""
 
 msgid "Other Tag #1"
 msgstr "其他标签＃1"

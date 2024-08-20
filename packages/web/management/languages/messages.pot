@@ -704,10 +704,16 @@ msgstr ""
 msgid "CPU Count"
 msgstr ""
 
+msgid "CPU Current Speed"
+msgstr ""
+
 msgid "CPU Manufacturer"
 msgstr ""
 
 msgid "CPU Max Speed"
+msgstr ""
+
+msgid "CPU Maximum Speed"
 msgstr ""
 
 msgid "CPU Model"
@@ -804,6 +810,18 @@ msgid "Capture"
 msgstr ""
 
 msgid "Captured"
+msgstr ""
+
+msgid "Case Asset"
+msgstr ""
+
+msgid "Case Manufacturer"
+msgstr ""
+
+msgid "Case Serial"
+msgstr ""
+
+msgid "Case Version"
 msgstr ""
 
 msgid "Channel"
@@ -1984,6 +2002,15 @@ msgid "Groups cannot create capture tasks"
 msgstr ""
 
 msgid "HTML Error Code"
+msgstr ""
+
+msgid "Hard Disk Firmware"
+msgstr ""
+
+msgid "Hard Disk Model"
+msgstr ""
+
+msgid "Hard Disk Serial"
 msgstr ""
 
 msgid "Hard Drive Firmware"
@@ -3190,6 +3217,9 @@ msgstr ""
 msgid "Most Frequent Host IDs"
 msgstr ""
 
+msgid "Motherboard Asset"
+msgstr ""
+
 msgid "Motherboard Asset Tag"
 msgstr ""
 
@@ -3197,6 +3227,9 @@ msgid "Motherboard Manufacturer"
 msgstr ""
 
 msgid "Motherboard Product Name"
+msgstr ""
+
+msgid "Motherboard Serial"
 msgstr ""
 
 msgid "Motherboard Serial Number"
@@ -3584,6 +3617,12 @@ msgid "Or there was no number defined for joining session"
 msgstr ""
 
 msgid "Organizational Unit"
+msgstr ""
+
+msgid "Other Primary"
+msgstr ""
+
+msgid "Other Secondary"
 msgstr ""
 
 msgid "Other Tag #1"

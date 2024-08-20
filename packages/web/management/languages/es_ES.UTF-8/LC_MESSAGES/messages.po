@@ -882,10 +882,18 @@ msgstr "caché de la CPU"
 msgid "CPU Count"
 msgstr "Contador de la CPU"
 
+#, fuzzy
+msgid "CPU Current Speed"
+msgstr "Velocidad de la CPU"
+
 msgid "CPU Manufacturer"
 msgstr "Fabricante de la CPU"
 
 msgid "CPU Max Speed"
+msgstr "Velocidad máxima de la CPU"
+
+#, fuzzy
+msgid "CPU Maximum Speed"
 msgstr "Velocidad máxima de la CPU"
 
 msgid "CPU Model"
@@ -1001,6 +1009,21 @@ msgstr "Creado"
 #, fuzzy
 msgid "Captured"
 msgstr "Creado"
+
+msgid "Case Asset"
+msgstr ""
+
+#, fuzzy
+msgid "Case Manufacturer"
+msgstr "chasis Fabricante"
+
+#, fuzzy
+msgid "Case Serial"
+msgstr "sistema de serie"
+
+#, fuzzy
+msgid "Case Version"
+msgstr "Versión del sistema"
 
 msgid "Channel"
 msgstr ""
@@ -2436,6 +2459,17 @@ msgstr ""
 #, fuzzy
 msgid "HTML Error Code"
 msgstr "Error"
+
+msgid "Hard Disk Firmware"
+msgstr ""
+
+#, fuzzy
+msgid "Hard Disk Model"
+msgstr "Modelo de impresora"
+
+#, fuzzy
+msgid "Hard Disk Serial"
+msgstr "Modelo de impresora"
 
 msgid "Hard Drive Firmware"
 msgstr ""
@@ -3927,6 +3961,10 @@ msgstr "Mensual"
 msgid "Most Frequent Host IDs"
 msgstr ""
 
+#, fuzzy
+msgid "Motherboard Asset"
+msgstr "MB Versión"
+
 msgid "Motherboard Asset Tag"
 msgstr ""
 
@@ -3936,6 +3974,10 @@ msgstr "MB Fabricante"
 
 msgid "Motherboard Product Name"
 msgstr ""
+
+#, fuzzy
+msgid "Motherboard Serial"
+msgstr "MB Versión"
 
 msgid "Motherboard Serial Number"
 msgstr ""
@@ -4391,6 +4433,13 @@ msgstr ""
 
 msgid "Organizational Unit"
 msgstr "Unidad organizacional"
+
+#, fuzzy
+msgid "Other Primary"
+msgstr "usuario principal"
+
+msgid "Other Secondary"
+msgstr ""
 
 #, fuzzy
 msgid "Other Tag #1"

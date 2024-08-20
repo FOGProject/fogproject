@@ -868,10 +868,18 @@ msgstr "CPU-Cache"
 msgid "CPU Count"
 msgstr "CPU-Anzahl"
 
+#, fuzzy
+msgid "CPU Current Speed"
+msgstr "CPU-Geschwindigkeit"
+
 msgid "CPU Manufacturer"
 msgstr "CPU-Hersteller"
 
 msgid "CPU Max Speed"
+msgstr "CPU-Höchstgeschwindigkeit"
+
+#, fuzzy
+msgid "CPU Maximum Speed"
 msgstr "CPU-Höchstgeschwindigkeit"
 
 msgid "CPU Model"
@@ -987,6 +995,22 @@ msgstr "Upload"
 #, fuzzy
 msgid "Captured"
 msgstr "Erstellt"
+
+#, fuzzy
+msgid "Case Asset"
+msgstr "Mainboard Asset-Tag"
+
+#, fuzzy
+msgid "Case Manufacturer"
+msgstr "Gehäuse-Hersteller"
+
+#, fuzzy
+msgid "Case Serial"
+msgstr "Seriennummer"
+
+#, fuzzy
+msgid "Case Version"
+msgstr "Neueste Version"
 
 msgid "Channel"
 msgstr ""
@@ -2386,6 +2410,17 @@ msgstr "und kann nicht hochgeladen werden"
 #, fuzzy
 msgid "HTML Error Code"
 msgstr "Fehlercode"
+
+msgid "Hard Disk Firmware"
+msgstr ""
+
+#, fuzzy
+msgid "Hard Disk Model"
+msgstr "Druckermodell"
+
+#, fuzzy
+msgid "Hard Disk Serial"
+msgstr "Seriennummer"
 
 msgid "Hard Drive Firmware"
 msgstr ""
@@ -3825,6 +3860,10 @@ msgstr "Monatlich"
 msgid "Most Frequent Host IDs"
 msgstr ""
 
+#, fuzzy
+msgid "Motherboard Asset"
+msgstr "Mainboard Asset-Tag"
+
 msgid "Motherboard Asset Tag"
 msgstr "Mainboard Asset-Tag"
 
@@ -3833,6 +3872,10 @@ msgstr "Mainboard-Hersteller"
 
 msgid "Motherboard Product Name"
 msgstr "Mainboard-Produktname"
+
+#, fuzzy
+msgid "Motherboard Serial"
+msgstr "Mainboard-Seriennummer"
 
 msgid "Motherboard Serial Number"
 msgstr "Mainboard-Seriennummer"
@@ -4278,6 +4321,13 @@ msgstr "oder es wurde keine Nummer für die Beitrittssitzung definiert"
 
 msgid "Organizational Unit"
 msgstr "Organisationseinheit"
+
+#, fuzzy
+msgid "Other Primary"
+msgstr "Primäre MAC"
+
+msgid "Other Secondary"
+msgstr ""
 
 msgid "Other Tag #1"
 msgstr "Etikett #1"

@@ -225,23 +225,50 @@
                     ],
                     buttons: reportButtons,
                     columns: [
-                        {data: 'hostLink'},
-                        {data: 'sysserial'},
-                        {data: 'sysproduct'},
-                        {data: 'sysuuid'},
-                        {data: 'hostname'},
-                        {data: 'mem'}
+                        {data: 'hostLink'}, // 00
+                        // User set information
+                        {data: 'primaryUser'},
+                        {data: 'other1'},
+                        {data: 'other2'},
+                        // System
+                        {data: 'sysman'}, // 01
+                        {data: 'sysproduct'}, // 02 visible
+                        {data: 'sysversion'}, // 03
+                        {data: 'sysserial'}, // 04 visible
+                        {data: 'sysuuid'}, // 05 visible
+                        {data: 'systype'}, // 06
+                        // BIOS
+                        {data: 'biosversion'}, // 07
+                        {data: 'biosvendor'}, // 08
+                        {data: 'biosdate'}, // 09
+                        // Motherboard
+                        {data: 'mbman'}, // 10
+                        {data: 'mbproductname'}, // 11
+                        {data: 'mbversion'}, // 12
+                        {data: 'mbserial'}, // 13
+                        {data: 'mbasset'}, // 14
+                        // CPU
+                        {data: 'cpuman'}, // 15
+                        {data: 'cpuversion'}, // 16
+                        {data: 'cpucurrent'}, // 17
+                        {data: 'cpumax'}, // 18
+                        // Memory
+                        {data: 'mem'}, // 19 visible
+                        // Hard Disk
+                        {data: 'hdmodel'}, // 20
+                        {data: 'hdserial'}, // 21
+                        {data: 'hdfirmware'}, // 22
+                        // Case
+                        {data: 'caseman'}, // 23
+                        {data: 'casever'}, // 24
+                        {data: 'caseserial'}, // 25
+                        {data: 'caseasset'}, // 26
+                        // name of host
+                        {data: 'hostname'}, // 27 Not visible
                     ],
                     columnDefs: [
-                        {
-                            orderData: [4],
-                            targets: [0]
-                        },
-                        {
-                            targets: [4],
-                            visible: false,
-                            searchable: false
-                        }
+                        {targets: [0, 5, 7, 8, 22], visible: true },
+                        {targets: '_all', visible: false},
                     ],
                     rowId: 'id',
                     processing: true,

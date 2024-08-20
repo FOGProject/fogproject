@@ -827,10 +827,18 @@ msgstr "cache della CPU"
 msgid "CPU Count"
 msgstr "Conte CPU"
 
+#, fuzzy
+msgid "CPU Current Speed"
+msgstr "Velocità CPU"
+
 msgid "CPU Manufacturer"
 msgstr "CPU del produttore"
 
 msgid "CPU Max Speed"
+msgstr "CPU Velocità max"
+
+#, fuzzy
+msgid "CPU Maximum Speed"
 msgstr "CPU Velocità max"
 
 msgid "CPU Model"
@@ -941,6 +949,22 @@ msgstr "Catturare"
 
 msgid "Captured"
 msgstr "Catturato"
+
+#, fuzzy
+msgid "Case Asset"
+msgstr "Scheda madre Asset Tag"
+
+#, fuzzy
+msgid "Case Manufacturer"
+msgstr "Telaio Produttore"
+
+#, fuzzy
+msgid "Case Serial"
+msgstr "Sistema seriale"
+
+#, fuzzy
+msgid "Case Version"
+msgstr "Ultima versione"
 
 msgid "Channel"
 msgstr ""
@@ -2285,6 +2309,17 @@ msgstr "e non può essere catturato"
 #, fuzzy
 msgid "HTML Error Code"
 msgstr "Codice di errore"
+
+msgid "Hard Disk Firmware"
+msgstr ""
+
+#, fuzzy
+msgid "Hard Disk Model"
+msgstr "Modello stampante"
+
+#, fuzzy
+msgid "Hard Disk Serial"
+msgstr "Numero di serie"
 
 msgid "Hard Drive Firmware"
 msgstr ""
@@ -3644,6 +3679,10 @@ msgstr "Mensile"
 msgid "Most Frequent Host IDs"
 msgstr ""
 
+#, fuzzy
+msgid "Motherboard Asset"
+msgstr "Scheda madre Asset Tag"
+
 msgid "Motherboard Asset Tag"
 msgstr "Scheda madre Asset Tag"
 
@@ -3652,6 +3691,10 @@ msgstr "Scheda madre Produttore"
 
 msgid "Motherboard Product Name"
 msgstr "Scheda madre Nome del prodotto"
+
+#, fuzzy
+msgid "Motherboard Serial"
+msgstr "Numero di serie della scheda madre"
 
 msgid "Motherboard Serial Number"
 msgstr "Numero di serie della scheda madre"
@@ -4077,6 +4120,13 @@ msgstr "Oppure non è stato definito alcun numero per l'accesso alla sessione"
 
 msgid "Organizational Unit"
 msgstr "Unità organizzativa"
+
+#, fuzzy
+msgid "Other Primary"
+msgstr "MAC primaria"
+
+msgid "Other Secondary"
+msgstr ""
 
 msgid "Other Tag #1"
 msgstr "Altro Tag # 1"
