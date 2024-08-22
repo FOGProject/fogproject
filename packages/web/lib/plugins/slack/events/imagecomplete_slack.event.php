@@ -73,7 +73,7 @@ class ImageComplete_Slack extends Event
                 'text' => sprintf(
                     'Host: %s %s',
                     $data['HostName'],
-                    _('completed imaging')
+                    _('completed imaging.')
                 )
             );
             $Token->call('chat.postMessage', $args);
