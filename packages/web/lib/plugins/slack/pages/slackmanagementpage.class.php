@@ -228,6 +228,7 @@ class SlackManagementPage extends FOGPage
                     _('Invalid token passed')
                 );
             }
+            $user = preg_replace('/^[#]|^[@]/', '', $user);
             $search = array_search(
                 $user,
                 self::fastmerge(
