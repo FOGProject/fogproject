@@ -64,7 +64,8 @@ class SlackHandler extends Slack
         'auth.test',
         // bots
         'bots.info',
-        // chanels
+        // channels
+        'conversations.list',
         'channels.archive',
         'channels.create',
         'channels.history',

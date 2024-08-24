@@ -6903,6 +6903,10 @@ msgid "clients"
 msgstr "Client"
 
 #, fuzzy
+msgid "completed imaging"
+msgstr "Terminé"
+
+#, fuzzy
 msgid "confirm"
 msgstr "tâche non valide"
 
@@ -7010,6 +7014,14 @@ msgid "has been successfully updated"
 msgstr "a été mis à jour avec succès"
 
 #, fuzzy
+msgid "has completed on"
+msgstr "a été détruit"
+
+#, fuzzy
+msgid "has completed snapin tasking"
+msgstr "Invalid Snapin Tasking"
+
+#, fuzzy
 msgid "has failed to destroy"
 msgstr "n'a pas réussi à détruire"
 
@@ -7100,6 +7112,10 @@ msgstr "Images"
 #, fuzzy
 msgid "images to a storage group"
 msgstr "Groupe de stockage primaire"
+
+#, fuzzy
+msgid "imaging failed"
+msgstr "Échec du chargement: %s"
 
 #, fuzzy
 msgid "in"
@@ -7431,6 +7447,9 @@ msgid "window"
 msgstr "Windows 7"
 
 msgid "wipe out all of your images stored on"
+msgstr ""
+
+msgid "with status code"
 msgstr ""
 
 #, fuzzy

@@ -6890,6 +6890,10 @@ msgid "clients"
 msgstr "客户"
 
 #, fuzzy
+msgid "completed imaging"
+msgstr "完成"
+
+#, fuzzy
 msgid "confirm"
 msgstr "任务无效"
 
@@ -6995,6 +6999,14 @@ msgid "has been successfully updated"
 msgstr "已成功更新"
 
 #, fuzzy
+msgid "has completed on"
+msgstr "已被破坏"
+
+#, fuzzy
+msgid "has completed snapin tasking"
+msgstr "无效的管理单元任务处理"
+
+#, fuzzy
 msgid "has failed to destroy"
 msgstr "未能被销毁"
 
@@ -7085,6 +7097,10 @@ msgstr "图片"
 #, fuzzy
 msgid "images to a storage group"
 msgstr "主存储组"
+
+#, fuzzy
+msgid "imaging failed"
+msgstr "加载失败： %s"
 
 #, fuzzy
 msgid "in"
@@ -7414,6 +7430,9 @@ msgid "window"
 msgstr "Windows 7的"
 
 msgid "wipe out all of your images stored on"
+msgstr ""
+
+msgid "with status code"
 msgstr ""
 
 #, fuzzy

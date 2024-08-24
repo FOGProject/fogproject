@@ -47,27 +47,25 @@ class Slack extends FOGController
         'name'
     ];
     /**
-     * Get the channels of the slack you're logging in with.
+     * Get the conversations of the slack you're logging in with.
      *
      * @throws SlackException
      *
      * @return array
      */
-    public function getChannels()
+    public function getConversations()
     {
-        $channels = [];
-        $channelnames = $this->call('channels.list');
+        $conversations = [];
+        $channelnames = $this->call('conversations.list');
         if (!$channelnames['ok']) {
             throw new SlackException(_('Channel call is invalid'));
         }
-        foreach ((array)$channelnames['channels'] as &$channelname) {
+        foreach ((array)$channelnames['channels'] as $channelname) {
             $channels[] = $channelname['name'];
-            unset($channelname);
         }
-        unset($channelnames);
-        @natcasesort($channels);
-        $channels = array_values((array)$channels);
-        return (array)$channels;
+        natcasesort($channels);
+        $channels = array_values($channels ?? []);
+        return $channels;
     }
     /**
      * Get the users of the slack you're logging in with.
@@ -83,12 +81,11 @@ class Slack extends FOGController
         if (!$usernames['ok']) {
             throw new SlackException(_('User call is invalid'));
         }
-        foreach ((array)$usernames['members'] as &$names) {
+        foreach ((array)$usernames['members'] as $names) {
             if ($names['name'] == 'slackbot') {
                 continue;
             }
             $users[] = $names['name'];
-            unset($names);
         }
         unset($usernames);
         @natcasesort($users);

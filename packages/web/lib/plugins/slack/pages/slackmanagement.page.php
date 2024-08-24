@@ -228,8 +228,8 @@ class SlackManagement extends FOGPage
             if (!$Slack->verifyToken()) {
                 throw new Exception(_('Invalid token passed'));
             }
+            $user = preg_replace('/^[#@]/', '', $user);
             if ($usertype) {
-                $user = preg_replace('#^[@]#', '', $user);
                 array_search(
                     $user,
                     $Slack->getUsers()
@@ -239,7 +239,6 @@ class SlackManagement extends FOGPage
                 }
             }
             if ($channeltype) {
-                $user = preg_replace('/^[#]/', '', $user);
                 array_search(
                     $user,
                     $Slack->getChannels()

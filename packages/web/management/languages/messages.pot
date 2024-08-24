@@ -5800,6 +5800,9 @@ msgstr ""
 msgid "clients"
 msgstr ""
 
+msgid "completed imaging"
+msgstr ""
+
 msgid "confirm"
 msgstr ""
 
@@ -5890,6 +5893,12 @@ msgstr ""
 msgid "has been successfully updated"
 msgstr ""
 
+msgid "has completed on"
+msgstr ""
+
+msgid "has completed snapin tasking"
+msgstr ""
+
 msgid "has failed to destroy"
 msgstr ""
 
@@ -5963,6 +5972,9 @@ msgid "images"
 msgstr ""
 
 msgid "images to a storage group"
+msgstr ""
+
+msgid "imaging failed"
 msgstr ""
 
 msgid "in"
@@ -6254,6 +6266,9 @@ msgid "window"
 msgstr ""
 
 msgid "wipe out all of your images stored on"
+msgstr ""
+
+msgid "with status code"
 msgstr ""
 
 msgid "with the host"

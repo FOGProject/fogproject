@@ -3,18 +3,6 @@
  * The event to call to slack plugin on login
  * failure
  *
- * PHP version 5
- *
- * @category LoginFailure_Slack
- * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- * @link     https://fogproject.org
- */
-/**
- * The event to call to slack plugin on login
- * failure
- *
  * @category LoginFailure_Slack
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
@@ -69,12 +57,15 @@ class LoginFailure_Slack extends Event
             Route::getData()
         );
         $ip = filter_input(INPUT_SERVER, 'REMOTE_ADDR');
-        foreach ($Slacks->data as &$Slack) {
+        foreach ($Slacks->data as $Slack) {
             $args = [
                 'channel' => $Slack->name,
-                'text' => _(
-                    "{$data['Failure']} failed to login."
-                    . "Remote address attempting to login $ip"
+                'text' => sprintf(
+                    '%s %s. %s %s.',
+                    $data['Failure'],
+                    _('failed to login'),
+                    _('Remote address attempting to login'),
+                    $ip
                 )
             ];
             self::getClass('Slack', $Slack->id)->call('chat.postMessage', $args);

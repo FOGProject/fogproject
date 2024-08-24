@@ -6558,6 +6558,10 @@ msgid "clients"
 msgstr "client"
 
 #, fuzzy
+msgid "completed imaging"
+msgstr "Completato"
+
+#, fuzzy
 msgid "confirm"
 msgstr "Conferma il task"
 
@@ -6654,6 +6658,14 @@ msgstr "è stato distrutta con successo"
 msgid "has been successfully updated"
 msgstr "è stato aggiornato con successo"
 
+#, fuzzy
+msgid "has completed on"
+msgstr "è stato completato"
+
+#, fuzzy
+msgid "has completed snapin tasking"
+msgstr "Non valido Snapin Tasking"
+
 msgid "has failed to destroy"
 msgstr "è fallita la distruzione"
 
@@ -6735,6 +6747,10 @@ msgstr "immagini"
 
 msgid "images to a storage group"
 msgstr "Immagini in un gruppo di archiviazione"
+
+#, fuzzy
+msgid "imaging failed"
+msgstr "Caricamento non riuscito"
 
 #, fuzzy
 msgid "in"
@@ -7041,6 +7057,9 @@ msgstr "finestra"
 
 msgid "wipe out all of your images stored on"
 msgstr "cancellare tutte le immagini archiviate in"
+
+msgid "with status code"
+msgstr ""
 
 msgid "with the host"
 msgstr "con l'host"

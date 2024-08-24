@@ -78,7 +78,7 @@ class AddSlackAPI extends Hook
         }
         $arguments['columns'] = [];
         foreach (self::getClass('SlackManager')
-            ->getColumns() as $common => &$real
+            ->getColumns() as $common => $real
         ) {
             switch ($common) {
                 case 'id':

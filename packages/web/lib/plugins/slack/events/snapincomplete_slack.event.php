@@ -2,17 +2,6 @@
 /**
  * The event to call when snapin completes
  *
- * PHP version 5
- *
- * @category SnapinComplete_Slack
- * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- * @link     https://fogproject.org
- */
-/**
- * The event to call when snapin completes
- *
  * @category SnapinComplete_Slack
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
@@ -67,13 +56,16 @@ class SnapinComplete_Slack extends Event
             Route::getData()
         );
         $hostname = $data['Host']->get('name');
-        foreach ($Slacks->data as &$Slack) {
+        foreach ($Slacks->data as $Slack) {
             $args = [
                 'channel' => $Slack->name,
-                'text' => _("{$hostname} has completed snapin tasking.")
+                'text' => sprintf(
+                    '%s %s.',
+                    $hostname,
+                    _('has completed snapin tasking')
+                )
             ];
             self::getClass('Slack', $Slack->id)->call('chat.postMessage', $args);
-            unset($Slack);
         }
     }
 }

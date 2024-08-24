@@ -2,17 +2,6 @@
 /**
  * The event to call when Images are complete
  *
- * PHP version 5
- *
- * @category ImageComplete_Slack
- * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- * @link     https://fogproject.org
- */
-/**
- * The event to call when Images are complete
- *
  * @category ImageComplete_Slack
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
@@ -69,13 +58,17 @@ class ImageComplete_Slack extends Event
         $Slacks = json_decode(
             Route::getData()
         );
-        foreach ($Slacks->data as &$Slack) {
+        foreach ($Slacks->data as $Slack) {
             $args = [
                 'channel' => $Slack->name,
-                'text' => _("{$data['HostName']} completed imaging")
+                'text' => sprintf(
+                    '%s: %s %s.',
+                    _('Host'),
+                    $data['HostName'],
+                    _('completed imaging')
+                )
             ];
             self::getClass('Slack', $Slack->id)->call('chat.postMessage', $args);
-            unset($Slack);
         }
     }
 }

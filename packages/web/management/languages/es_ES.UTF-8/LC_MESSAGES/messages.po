@@ -7052,6 +7052,10 @@ msgid "clients"
 msgstr "Clientela"
 
 #, fuzzy
+msgid "completed imaging"
+msgstr "suprimido"
+
+#, fuzzy
 msgid "confirm"
 msgstr "tarea no válido"
 
@@ -7160,6 +7164,14 @@ msgid "has been successfully updated"
 msgstr "se ha actualizado correctamente"
 
 #, fuzzy
+msgid "has completed on"
+msgstr "Deben estar cifrados"
+
+#, fuzzy
+msgid "has completed snapin tasking"
+msgstr "tarea no válido"
+
+#, fuzzy
 msgid "has failed to destroy"
 msgstr "ha dejado de ser destruido"
 
@@ -7252,6 +7264,10 @@ msgstr "Imagen"
 #, fuzzy
 msgid "images to a storage group"
 msgstr "Grupo de almacenamiento primaria"
+
+#, fuzzy
+msgid "imaging failed"
+msgstr "Carga ha fallado: %s"
 
 #, fuzzy
 msgid "in"
@@ -7578,6 +7594,9 @@ msgid "window"
 msgstr "windows 7"
 
 msgid "wipe out all of your images stored on"
+msgstr ""
+
+msgid "with status code"
 msgstr ""
 
 msgid "with the host"
