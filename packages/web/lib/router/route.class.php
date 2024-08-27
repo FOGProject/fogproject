@@ -1716,27 +1716,28 @@ class Route extends FOGBase
         Route::indiv('tasktype', $task->taskTypeID);
         $TaskType = json_decode(Route::getData());
         try {
+            $deploySnapins = false;
+            if (isset($task->deploySnapins)) {
+                $deploySnapins = $this->deploySnapins;
+                if (
+                    !is_numeric($deploySnapins) || (
+                        $deploySnapins < 0 && $deploySnapins != -1
+                    )
+                ) {
+                    $deploySnapins = false;
+                }
+            }
             $class->createImagePackage(
                 $TaskType,
-                $task->taskName,
-                $task->shutdown,
-                $task->debug,
-                (
-                    $task->deploySnapins === true ?
-                    -1 :
-                    (
-                        (is_numeric($task->deploySnapins)
-                        && $task->deploySnapins > 0)
-                        || $task->deploySnapins == -1 ?
-                        $task->deploySnapins :
-                        false
-                    )
-                ),
+                ($task->taskName ?? ''),
+                ($task->shutdown ?? false),
+                ($task->debug ?? false),
+                (($deploySnapins) === true ? -1 : $deploySnapins),
                 $class instanceof Group,
-                $_SERVER['PHP_AUTH_USER'],
-                $task->passreset,
-                $task->sessionjoin,
-                $task->wol
+                $_SERVER['PHP_AUTH_USER'] ?? 'API',
+                $task->passreset ?? '',
+                $task->sessionjoin ?? '',
+                $task->wol ?? 0
             );
         } catch (\Exception $e) {
             self::setErrorMessage(

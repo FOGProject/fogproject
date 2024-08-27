@@ -380,7 +380,7 @@ getAllNetworkInterfaces() {
     if [[ -z ${gatewayif} ]]; then
         interfaces="$(ip -4 link | grep -v LOOPBACK | grep UP | awk -F': |@' '{print $2}' | tr '\n' ' ')"
     else
-        interfaces="$gatewayif $(ip -4 link | grep -v LOOPBACK | grep UP | awk -F': |@' '{print $2}' | tr '\n' ' ' | sed "s/${gatewayif}//g")"
+        interfaces="$gatewayif $(ip -4 link | grep -v LOOPBACK | grep UP | awk -F': |@' '{print $2}' | tr '\n' ' ' | sed 's/${gatewayif}//g')"
     fi
     echo -n $interfaces
 }
@@ -1057,6 +1057,7 @@ checkSELinux() {
                 echo -e " * SELinux set permissive -- proceeding with installation...\n"
                 ;;
             [Nn]|[Nn][Oo])
+                echo "N"
                 echo -e " * You sure know what you're doing, just keep in mind we told you! :-)\n"
                 ;;
             *)
@@ -1118,6 +1119,7 @@ checkFirewall() {
                 ;;
             [Nn]|[Nn][Oo]|"")
                 fwdisable="N"
+                echo "N"
                 echo " * You sure know what you are doing, just keep in mind we told you! :-)"
                 if [[ -z $autoaccept ]]; then
                     echo " * Hit ENTER so we know you've read this message."
