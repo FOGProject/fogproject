@@ -1737,7 +1737,7 @@ class Route extends FOGBase
                 $_SERVER['PHP_AUTH_USER'] ?? 'API',
                 $task->passreset ?? '',
                 $task->sessionjoin ?? '',
-                $task->wol ?? 0
+                $task->wol ?? 1
             );
         } catch (\Exception $e) {
             self::setErrorMessage(
