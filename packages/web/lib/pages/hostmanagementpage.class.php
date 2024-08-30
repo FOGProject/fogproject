@@ -2472,6 +2472,12 @@ class HostManagementPage extends FOGPage
             . $other2
             . '" name="other2" id="other2"/>'
             . '</div>',
+            '<label for="updateinv">'
+            . _('Make Changes?')
+            . '</label>' => '<button name="update" type="submit" class="'
+            . 'btn btn-info btn-block" id="updateinv">'
+            . _('Update')
+            . '</button>',
             _('System Manufacturer') => $sysman,
             _('System Product') => $sysprod,
             _('System Version') => $sysver,
@@ -2497,13 +2503,7 @@ class HostManagementPage extends FOGPage
             _('Chassis Manufacturer') => $caseman,
             _('Chassis Version') => $casever,
             _('Chassis Serial') => $caseser,
-            _('Chassis Asset') => $caseast,
-            '<label for="updateinv">'
-            . _('Make Changes?')
-            . '</label>' => '<button name="update" type="submit" class="'
-            . 'btn btn-info btn-block" id="updateinv">'
-            . _('Update')
-            . '</button>'
+            _('Chassis Asset') => $caseast
         );
         $this->title = _('Host Hardware Inventory');
         if ($this->obj->get('inventory')->isValid()) {
