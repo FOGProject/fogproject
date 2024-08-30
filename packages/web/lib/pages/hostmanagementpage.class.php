@@ -2478,6 +2478,39 @@ class HostManagementPage extends FOGPage
             . 'btn btn-info btn-block" id="updateinv">'
             . _('Update')
             . '</button>',
+        );
+        $this->title = _('Host Hardware Inventory');
+        array_walk($fields, $this->fieldsToData);
+        self::$HookManager
+            ->processEvent(
+                'HOST_INVENTORY_EDITABLE',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        echo '<!-- Inventory Edits-->';
+        echo '<div class="tab-pane fade" id="host-hardware-inventory">';
+        echo '<div class="panel panel-info">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title . ' ' . _('Editable');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=host-hardware-inventory">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+
+        echo '<!-- Inventory Static-->';
+        $fields = array(
             _('System Manufacturer') => $sysman,
             _('System Product') => $sysprod,
             _('System Version') => $sysver,
@@ -2505,13 +2538,12 @@ class HostManagementPage extends FOGPage
             _('Chassis Serial') => $caseser,
             _('Chassis Asset') => $caseast
         );
-        $this->title = _('Host Hardware Inventory');
         if ($this->obj->get('inventory')->isValid()) {
             array_walk($fields, $this->fieldsToData);
         }
         self::$HookManager
             ->processEvent(
-                'HOST_INVENTORY',
+                'HOST_INVENTORY_STATIC',
                 array(
                     'headerData' => &$this->headerData,
                     'data' => &$this->data,
@@ -2519,20 +2551,15 @@ class HostManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        echo '<!-- Inventory -->';
-        echo '<div class="tab-pane fade" id="host-hardware-inventory">';
+        echo '<div class="tab-pane fade" id="host-hardware-inventory-static">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
-        echo $this->title;
+        echo $this->title . ' ' . _('Static');
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=host-hardware-inventory">';
         $this->render(12);
-        echo '</form>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
