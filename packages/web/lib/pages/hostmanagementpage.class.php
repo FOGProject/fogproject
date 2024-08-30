@@ -2450,7 +2450,7 @@ class HostManagementPage extends FOGPage
         $casever = $Inv->get('caseversion');
         $caseser = $Inv->get('caseserial');
         $caseast = $Inv->get('caseasset');
-        $fields = array(
+        $editable_fields = array(
             '<label for="pu">'
             . _('Primary User')
             . '</label>' => '<div class="input-group">'
@@ -2480,7 +2480,9 @@ class HostManagementPage extends FOGPage
             . '</button>',
         );
         $this->title = _('Host Hardware Inventory');
-        array_walk($fields, $this->fieldsToData);
+        if ($this->obj->get('inventory')->isValid()) {
+            array_walk($editable_fields, $this->fieldsToData);
+        }
         self::$HookManager
             ->processEvent(
                 'HOST_INVENTORY_EDITABLE',
@@ -2491,7 +2493,7 @@ class HostManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        echo '<!-- Inventory Edits-->';
+        echo '<!-- Inventory Edits -->';
         echo '<div class="tab-pane fade" id="host-hardware-inventory">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
@@ -2507,10 +2509,14 @@ class HostManagementPage extends FOGPage
         echo '</form>';
         echo '</div>';
         echo '</div>';
-        echo '</div>';
-
-        echo '<!-- Inventory Static-->';
-        $fields = array(
+        unset(
+            $this->data,
+            $this->form,
+            $this->headerData,
+            $this->attributes,
+            $editable_fields
+        );
+        $static_fields = array(
             _('System Manufacturer') => $sysman,
             _('System Product') => $sysprod,
             _('System Version') => $sysver,
@@ -2539,7 +2545,7 @@ class HostManagementPage extends FOGPage
             _('Chassis Asset') => $caseast
         );
         if ($this->obj->get('inventory')->isValid()) {
-            array_walk($fields, $this->fieldsToData);
+            array_walk($static_fields, $this->fieldsToData);
         }
         self::$HookManager
             ->processEvent(
@@ -2551,7 +2557,7 @@ class HostManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        echo '<div class="tab-pane fade" id="host-hardware-inventory-static">';
+        echo '<!-- Inventory Static -->';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
@@ -2568,7 +2574,8 @@ class HostManagementPage extends FOGPage
             $this->form,
             $this->headerData,
             $this->templates,
-            $this->attributes
+            $this->attributes,
+            $static_fields
         );
     }
     /**
