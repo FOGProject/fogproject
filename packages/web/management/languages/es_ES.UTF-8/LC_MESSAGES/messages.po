@@ -3338,7 +3338,15 @@ msgid "Inventory Data"
 msgstr "ID de inventario"
 
 #, fuzzy
+msgid "Inventory Edits"
+msgstr "ID de inventario"
+
+#, fuzzy
 msgid "Inventory List"
+msgstr "ID de inventario"
+
+#, fuzzy
+msgid "Inventory Static"
 msgstr "ID de inventario"
 
 #, fuzzy

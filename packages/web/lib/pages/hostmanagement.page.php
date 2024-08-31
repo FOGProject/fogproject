@@ -2901,9 +2901,11 @@ class HostManagement extends FOGPage
     /**
      * Displays Host Inventory
      *
+     * @param bool $static This is if we're displaying the static items
+     *
      * @return void
      */
-    public function hostInventory()
+    public function hostInventory($static = false)
     {
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
@@ -2962,521 +2964,527 @@ class HostManagement extends FOGPage
 
         $labelClass = 'col-sm-3 control-label';
 
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'pu',
-                _('Primary User')
-            ) => self::makeInput(
-                'form-control',
-                'pu',
-                _('Primary User'),
-                'text',
-                'pu',
-                $puser
-            ),
-            self::makeLabel(
-                $labelClass,
-                'other1',
-                _('Other Tag #1')
-            ) => self::makeInput(
-                'form-control',
-                'other1',
-                '',
-                'text',
-                'other1',
-                $other1
-            ),
-            self::makeLabel(
-                $labelClass,
-                'other2',
-                _('Other Tag #2')
-            ) => self::makeInput(
-                'form-control',
-                'other2',
-                '',
-                'text',
-                'other2',
-                $other2
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-manufacturer',
-                _('System Manufacturer')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-manufacturer',
-                '',
-                'text',
-                '',
-                $sysman,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-system-product',
-                _('System Product')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-system-product',
-                '',
-                'text',
-                '',
-                $sysprod,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-system-version',
-                _('System Version')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-system-version',
-                '',
-                'text',
-                '',
-                $sysver,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-system-serial',
-                _('System Serial')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-system-serial',
-                '',
-                'text',
-                '',
-                $sysser,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-system-uuid',
-                _('System UUID')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-system-uuid',
-                '',
-                'text',
-                '',
-                $sysuuid,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-system-type',
-                _('System Type')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-system-type',
-                '',
-                'text',
-                '',
-                $systype,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-bios-vendor',
-                _('BIOS Vendor')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-bios-vendor',
-                '',
-                'text',
-                '',
-                $biosven,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-bios-version',
-                _('BIOS Version')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-bios-version',
-                '',
-                'text',
-                '',
-                $biosver,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-bios-date',
-                _('BIOS Date')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-bios-date',
-                '',
-                'text',
-                '',
-                $biosdate,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-motherboard-manufacturer',
-                _('Motherboard Manufacturer')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-motherboard-manufacturer',
-                '',
-                'text',
-                '',
-                $mbman,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-motherboard-productname',
-                _('Motherboard Product Name')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-motherboard-productname',
-                '',
-                'text',
-                '',
-                $mbprod,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-motherboard-version',
-                _('Motherboard Version')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-motherboard-version',
-                '',
-                'text',
-                '',
-                $mbver,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-motherboard-serial-number',
-                _('Motherboard Serial Number')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-motherboard-serial-number',
-                '',
-                'text',
-                '',
-                $mbser,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-motherboard-asset-tag',
-                _('Motherboard Asset Tag')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-motherboard-asset-tag',
-                '',
-                'text',
-                '',
-                $mbast,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-cpu-manufacturer',
-                _('CPU Manufacturer')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-cpu-manufacturer',
-                '',
-                'text',
-                '',
-                $cpuman,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-cpu-version',
-                _('CPU Version')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-cpu-version',
-                '',
-                'text',
-                '',
-                $cpuver,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-cpu-normal-speed',
-                _('CPU Normal Speed')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-cpu-normal-speed',
-                '',
-                'text',
-                '',
-                $cpucur,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-cpu-max-speed',
-                _('CPU Max Speed')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-cpu-max-speed',
-                '',
-                'text',
-                '',
-                $cpumax,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-memory',
-                _('Memory')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-memory',
-                '',
-                'text',
-                '',
-                $mem,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-hard-drive-model',
-                _('Hard Drive Model')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-hard-drive-model',
-                '',
-                'text',
-                '',
-                $hdmod,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-hard-drive-firmware',
-                _('Hard Drive Firmware')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-hard-drive-firmware',
-                '',
-                'text',
-                '',
-                $hdfirm,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-hard-drive-serial-number',
-                _('Hard Drive Serial Number')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-hard-drive-serial-number',
-                '',
-                'text',
-                '',
-                $hdser,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-chassis-manufacturer',
-                _('Chassis Manufacturer')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-chassis-manufacturer',
-                '',
-                'text',
-                '',
-                $caseman,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-chassis-version',
-                _('Chassis Version')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-chassis-version',
-                '',
-                'text',
-                '',
-                $casever,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-chassis-serial-number',
-                _('Chassis Serial Number')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-chassis-serial-number',
-                '',
-                'text',
-                '',
-                $caseser,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            ),
-            self::makeLabel(
-                $labelClass,
-                'inventory-chassis-asset-tag',
-                _('Chassis Asset Tag')
-            ) => self::makeInput(
-                'form-control',
-                'inventory-chassis-asset-tag',
-                '',
-                'text',
-                '',
-                $caseast,
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            )
-        ];
+        $buttons = '';
 
-        $buttons = self::makeButton(
-            'host-inventory-send',
-            _('Update'),
-            'btn btn-primary pull-right'
-        );
+        if (!$static) {
+            $fields = [
+                self::makeLabel(
+                    $labelClass,
+                    'pu',
+                    _('Primary User')
+                ) => self::makeInput(
+                    'form-control',
+                    'pu',
+                    _('Primary User'),
+                    'text',
+                    'pu',
+                    $puser
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'other1',
+                    _('Other Tag #1')
+                ) => self::makeInput(
+                    'form-control',
+                    'other1',
+                    '',
+                    'text',
+                    'other1',
+                    $other1
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'other2',
+                    _('Other Tag #2')
+                ) => self::makeInput(
+                    'form-control',
+                    'other2',
+                    '',
+                    'text',
+                    'other2',
+                    $other2
+                )
+            ];
+            $buttons = self::makeButton(
+                'host-inventory-send',
+                _('Update'),
+                'btn btn-primary pull-right'
+            );
+        } else {
+            $fields = [
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-manufacturer',
+                    _('System Manufacturer')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-manufacturer',
+                    '',
+                    'text',
+                    '',
+                    $sysman,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-system-product',
+                    _('System Product')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-system-product',
+                    '',
+                    'text',
+                    '',
+                    $sysprod,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-system-version',
+                    _('System Version')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-system-version',
+                    '',
+                    'text',
+                    '',
+                    $sysver,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-system-serial',
+                    _('System Serial')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-system-serial',
+                    '',
+                    'text',
+                    '',
+                    $sysser,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-system-uuid',
+                    _('System UUID')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-system-uuid',
+                    '',
+                    'text',
+                    '',
+                    $sysuuid,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-system-type',
+                    _('System Type')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-system-type',
+                    '',
+                    'text',
+                    '',
+                    $systype,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-bios-vendor',
+                    _('BIOS Vendor')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-bios-vendor',
+                    '',
+                    'text',
+                    '',
+                    $biosven,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-bios-version',
+                    _('BIOS Version')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-bios-version',
+                    '',
+                    'text',
+                    '',
+                    $biosver,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-bios-date',
+                    _('BIOS Date')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-bios-date',
+                    '',
+                    'text',
+                    '',
+                    $biosdate,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-motherboard-manufacturer',
+                    _('Motherboard Manufacturer')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-motherboard-manufacturer',
+                    '',
+                    'text',
+                    '',
+                    $mbman,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-motherboard-productname',
+                    _('Motherboard Product Name')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-motherboard-productname',
+                    '',
+                    'text',
+                    '',
+                    $mbprod,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-motherboard-version',
+                    _('Motherboard Version')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-motherboard-version',
+                    '',
+                    'text',
+                    '',
+                    $mbver,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-motherboard-serial-number',
+                    _('Motherboard Serial Number')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-motherboard-serial-number',
+                    '',
+                    'text',
+                    '',
+                    $mbser,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-motherboard-asset-tag',
+                    _('Motherboard Asset Tag')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-motherboard-asset-tag',
+                    '',
+                    'text',
+                    '',
+                    $mbast,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-cpu-manufacturer',
+                    _('CPU Manufacturer')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-cpu-manufacturer',
+                    '',
+                    'text',
+                    '',
+                    $cpuman,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-cpu-version',
+                    _('CPU Version')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-cpu-version',
+                    '',
+                    'text',
+                    '',
+                    $cpuver,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-cpu-normal-speed',
+                    _('CPU Normal Speed')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-cpu-normal-speed',
+                    '',
+                    'text',
+                    '',
+                    $cpucur,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-cpu-max-speed',
+                    _('CPU Max Speed')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-cpu-max-speed',
+                    '',
+                    'text',
+                    '',
+                    $cpumax,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-memory',
+                    _('Memory')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-memory',
+                    '',
+                    'text',
+                    '',
+                    $mem,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-hard-drive-model',
+                    _('Hard Drive Model')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-hard-drive-model',
+                    '',
+                    'text',
+                    '',
+                    $hdmod,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-hard-drive-firmware',
+                    _('Hard Drive Firmware')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-hard-drive-firmware',
+                    '',
+                    'text',
+                    '',
+                    $hdfirm,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-hard-drive-serial-number',
+                    _('Hard Drive Serial Number')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-hard-drive-serial-number',
+                    '',
+                    'text',
+                    '',
+                    $hdser,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-chassis-manufacturer',
+                    _('Chassis Manufacturer')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-chassis-manufacturer',
+                    '',
+                    'text',
+                    '',
+                    $caseman,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-chassis-version',
+                    _('Chassis Version')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-chassis-version',
+                    '',
+                    'text',
+                    '',
+                    $casever,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-chassis-serial-number',
+                    _('Chassis Serial Number')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-chassis-serial-number',
+                    '',
+                    'text',
+                    '',
+                    $caseser,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'inventory-chassis-asset-tag',
+                    _('Chassis Asset Tag')
+                ) => self::makeInput(
+                    'form-control',
+                    'inventory-chassis-asset-tag',
+                    '',
+                    'text',
+                    '',
+                    $caseast,
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                )
+            ];
+        }
 
         self::$HookManager->processEvent(
-            'HOST_INVENTORY_FIELDS',
+            'HOST_INVENTORY_FIELDS_' . (!$static ? 'EDITABLE' : 'STATIC'),
             [
                 'fields' => &$fields,
                 'buttons' => &$buttons,
@@ -3486,17 +3494,19 @@ class HostManagement extends FOGPage
         $rendered = self::formFields($fields);
         unset($fields);
 
-        echo self::makeFormTag(
-            'form-horizontal',
-            'host-inventory-form',
-            self::makeTabUpdateURL(
-                'host-inventory',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
+        if (!$static) {
+            echo self::makeFormTag(
+                'form-horizontal',
+                'host-inventory-form',
+                self::makeTabUpdateURL(
+                    'host-inventory',
+                    $this->obj->get('id')
+                ),
+                'post',
+                'application/x-www-form-urlencoded',
+                true
+            );
+        }
         echo '<div class="box box-primary">';
         echo '<div class="box-header with-border">';
         echo '<h4 class="box-title">';
@@ -3510,7 +3520,9 @@ class HostManagement extends FOGPage
         echo $buttons;
         echo '</div>';
         echo '</div>';
-        echo '</form>';
+        if (!$static) {
+            echo '</form>';
+        }
     }
     /**
      * Actually submit inventory data.
@@ -3739,10 +3751,17 @@ class HostManagement extends FOGPage
 
         // Inventory
         $tabData[] = [
-            'name' => _('Inventory'),
-            'id' => 'host-inventory',
+            'name' => _('Inventory Edits'),
+            'id' => 'host-inventory-edit',
             'generator' => function () {
                 $this->hostInventory();
+            }
+        ];
+        $tabData[] = [
+            'name' => _('Inventory Static'),
+            'id' => 'host-inventory-static',
+            'generator' => function () {
+                $this->hostInventory(true);
             }
         ];
 

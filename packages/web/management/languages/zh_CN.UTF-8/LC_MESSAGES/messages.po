@@ -3255,7 +3255,15 @@ msgid "Inventory Data"
 msgstr "库存"
 
 #, fuzzy
+msgid "Inventory Edits"
+msgstr "库存"
+
+#, fuzzy
 msgid "Inventory List"
+msgstr "库存"
+
+#, fuzzy
+msgid "Inventory Static"
 msgstr "库存"
 
 msgid "Is Enabled"

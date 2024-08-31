@@ -3257,7 +3257,15 @@ msgid "Inventory Data"
 msgstr "Inventário"
 
 #, fuzzy
+msgid "Inventory Edits"
+msgstr "Inventário"
+
+#, fuzzy
 msgid "Inventory List"
+msgstr "Inventário"
+
+#, fuzzy
+msgid "Inventory Static"
 msgstr "Inventário"
 
 msgid "Is Enabled"

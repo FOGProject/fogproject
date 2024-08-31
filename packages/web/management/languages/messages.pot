@@ -2709,7 +2709,13 @@ msgstr ""
 msgid "Inventory Data"
 msgstr ""
 
+msgid "Inventory Edits"
+msgstr ""
+
 msgid "Inventory List"
+msgstr ""
+
+msgid "Inventory Static"
 msgstr ""
 
 msgid "Is Enabled"
