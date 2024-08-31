@@ -2493,7 +2493,7 @@ class HostManagementPage extends FOGPage
             );
         echo '<!-- Inventory Edits-->';
         echo '<div class="tab-pane fade" id="host-hardware-inventory">';
-        echo '<div class="panel panel-info">';
+        echo '<div class="panel panel-info" id="host-hardware-editable">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo $this->title . ' ' . _('Editable');
@@ -2507,7 +2507,7 @@ class HostManagementPage extends FOGPage
         echo '</form>';
         echo '</div>';
         echo '</div>';
-        echo '</div>';
+        unset($this->data, $this->form, $fields);
 
         echo '<!-- Inventory Static-->';
         $fields = array(
@@ -2551,8 +2551,7 @@ class HostManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        echo '<div class="tab-pane fade" id="host-hardware-inventory-static">';
-        echo '<div class="panel panel-info">';
+        echo '<div class="panel panel-info" id="host-hardware-inventory-static">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
         echo $this->title . ' ' . _('Static');
@@ -2565,10 +2564,10 @@ class HostManagementPage extends FOGPage
         echo '</div>';
         unset(
             $this->data,
-            $this->form,
             $this->headerData,
             $this->templates,
-            $this->attributes
+            $this->attributes,
+            $fields
         );
     }
     /**

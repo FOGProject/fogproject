@@ -930,9 +930,6 @@ msgstr "Durée totale"
 msgid "Completed"
 msgstr "Terminé"
 
-msgid "Completed imaging"
-msgstr "Clonage terminé"
-
 msgid "Compression"
 msgstr "Compression"
 
@@ -1062,9 +1059,6 @@ msgstr "Tâches créées pour"
 
 msgid "Created by FOG Reg on"
 msgstr "Créé par FOG Reg sur"
-
-msgid "Created file extension must be, jpg, jpeg, or png"
-msgstr ""
 
 msgid "Credits"
 msgstr "Crédits"
@@ -1369,6 +1363,10 @@ msgstr "Modifier le nœud"
 
 msgid "Edit User"
 msgstr "Modifier l'utilisateur"
+
+#, fuzzy
+msgid "Editable"
+msgstr "Modifier"
 
 msgid "Either reboot or shutdown action must be used."
 msgstr "L'action de redémarrage ou d'arrêt doit être utilisée."
@@ -5056,6 +5054,10 @@ msgstr "Début de process"
 msgid "State"
 msgstr "État"
 
+#, fuzzy
+msgid "Static"
+msgstr "État"
+
 msgid "Status"
 msgstr "Statut"
 
@@ -6274,6 +6276,14 @@ msgstr "client"
 msgid "clients"
 msgstr "clients"
 
+#, fuzzy
+msgid "completed imaging."
+msgstr "Clonage terminé"
+
+#, fuzzy
+msgid "completed snapin tasking."
+msgstr "Clonage terminé"
+
 msgid "config files that run on the client computers."
 msgstr ""
 "les fichiers de configuration qui s'exécutent sur les ordinateurs clients."
@@ -6485,6 +6495,10 @@ msgstr "images"
 
 msgid "images to a storage group"
 msgstr "images vers un groupe de stockage"
+
+#, fuzzy
+msgid "imaging failed."
+msgstr "La connexion a échoué"
 
 msgid "in seconds"
 msgstr "en secondes"

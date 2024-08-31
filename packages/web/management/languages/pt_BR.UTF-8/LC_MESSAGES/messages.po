@@ -1067,10 +1067,6 @@ msgstr "Tarefa Checkin Tempo"
 msgid "Completed"
 msgstr "concluído"
 
-#, fuzzy
-msgid "Completed imaging"
-msgstr "concluído"
-
 msgid "Compression"
 msgstr "Compressão"
 
@@ -1232,9 +1228,6 @@ msgstr "Criar usuário"
 
 msgid "Created by FOG Reg on"
 msgstr "Criado por FOG Reg em"
-
-msgid "Created file extension must be, jpg, jpeg, or png"
-msgstr ""
 
 #, fuzzy
 msgid "Credits"
@@ -1576,6 +1569,10 @@ msgstr "Editar Nó"
 
 msgid "Edit User"
 msgstr "Editar usuário"
+
+#, fuzzy
+msgid "Editable"
+msgstr "Editar"
 
 msgid "Either reboot or shutdown action must be used."
 msgstr ""
@@ -5747,6 +5744,10 @@ msgstr "processo a partir ..."
 msgid "State"
 msgstr "Estado"
 
+#, fuzzy
+msgid "Static"
+msgstr "Estado"
+
 msgid "Status"
 msgstr "estado"
 
@@ -7133,6 +7134,14 @@ msgstr "Cliente"
 msgid "clients"
 msgstr "Cliente"
 
+#, fuzzy
+msgid "completed imaging."
+msgstr "concluído"
+
+#, fuzzy
+msgid "completed snapin tasking."
+msgstr "concluído"
+
 msgid "config files that run on the client computers."
 msgstr ""
 
@@ -7380,6 +7389,10 @@ msgstr "imagens"
 #, fuzzy
 msgid "images to a storage group"
 msgstr "Grupo de armazenamento primário"
+
+#, fuzzy
+msgid "imaging failed."
+msgstr "Carga falhou: %s"
 
 msgid "in seconds"
 msgstr ""

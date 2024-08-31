@@ -1065,10 +1065,6 @@ msgstr "Task Checkin Time"
 msgid "Completed"
 msgstr "Completed"
 
-#, fuzzy
-msgid "Completed imaging"
-msgstr "Completed"
-
 msgid "Compression"
 msgstr "Compression"
 
@@ -1228,9 +1224,6 @@ msgstr "Create User"
 
 msgid "Created by FOG Reg on"
 msgstr "Created by FOG Reg on"
-
-msgid "Created file extension must be, jpg, jpeg, or png"
-msgstr ""
 
 #, fuzzy
 msgid "Credits"
@@ -1572,6 +1565,10 @@ msgstr "Edit Node"
 
 msgid "Edit User"
 msgstr "Edit User"
+
+#, fuzzy
+msgid "Editable"
+msgstr "Edit"
 
 msgid "Either reboot or shutdown action must be used."
 msgstr ""
@@ -5738,6 +5735,10 @@ msgstr "Starting process..."
 msgid "State"
 msgstr "State"
 
+#, fuzzy
+msgid "Static"
+msgstr "State"
+
 msgid "Status"
 msgstr "Status"
 
@@ -7126,6 +7127,14 @@ msgstr "Client"
 msgid "clients"
 msgstr "Client"
 
+#, fuzzy
+msgid "completed imaging."
+msgstr "Completed"
+
+#, fuzzy
+msgid "completed snapin tasking."
+msgstr "Completed"
+
 msgid "config files that run on the client computers."
 msgstr ""
 
@@ -7373,6 +7382,10 @@ msgstr "Images"
 #, fuzzy
 msgid "images to a storage group"
 msgstr "Primary Storage Group"
+
+#, fuzzy
+msgid "imaging failed."
+msgstr "Load failed: %s"
 
 msgid "in seconds"
 msgstr ""

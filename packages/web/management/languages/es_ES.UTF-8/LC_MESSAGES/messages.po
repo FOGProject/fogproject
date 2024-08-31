@@ -1052,9 +1052,6 @@ msgstr "Completada"
 msgid "Completed"
 msgstr ""
 
-msgid "Completed imaging"
-msgstr ""
-
 msgid "Compression"
 msgstr ""
 
@@ -1205,9 +1202,6 @@ msgstr ""
 #, fuzzy
 msgid "Created by FOG Reg on"
 msgstr "Creado por"
-
-msgid "Created file extension must be, jpg, jpeg, or png"
-msgstr ""
 
 msgid "Credits"
 msgstr "Créditos"
@@ -1537,6 +1531,10 @@ msgstr "Editar"
 #, fuzzy
 msgid "Edit User"
 msgstr "Usuario"
+
+#, fuzzy
+msgid "Editable"
+msgstr "Editar"
 
 msgid "Either reboot or shutdown action must be used."
 msgstr ""
@@ -5722,6 +5720,10 @@ msgstr ""
 msgid "State"
 msgstr "Estado"
 
+#, fuzzy
+msgid "Static"
+msgstr "Estado"
+
 msgid "Status"
 msgstr "Estado"
 
@@ -7059,6 +7061,13 @@ msgstr "Cliente"
 msgid "clients"
 msgstr "Cliente"
 
+#, fuzzy
+msgid "completed imaging."
+msgstr "Completada"
+
+msgid "completed snapin tasking."
+msgstr ""
+
 msgid "config files that run on the client computers."
 msgstr ""
 
@@ -7303,6 +7312,10 @@ msgstr "Imágenes"
 #, fuzzy
 msgid "images to a storage group"
 msgstr "Añadir grupo de almacenamiento"
+
+#, fuzzy
+msgid "imaging failed."
+msgstr "Error al cargar"
 
 msgid "in seconds"
 msgstr ""

@@ -1066,10 +1066,6 @@ msgstr "任务登录时间"
 msgid "Completed"
 msgstr "完成"
 
-#, fuzzy
-msgid "Completed imaging"
-msgstr "完成"
-
 msgid "Compression"
 msgstr "压缩"
 
@@ -1229,9 +1225,6 @@ msgstr "创建用户"
 
 msgid "Created by FOG Reg on"
 msgstr "创建者FOG上注册"
-
-msgid "Created file extension must be, jpg, jpeg, or png"
-msgstr ""
 
 #, fuzzy
 msgid "Credits"
@@ -1573,6 +1566,10 @@ msgstr "编辑节点"
 
 msgid "Edit User"
 msgstr "编辑用户"
+
+#, fuzzy
+msgid "Editable"
+msgstr "编辑"
 
 msgid "Either reboot or shutdown action must be used."
 msgstr ""
@@ -5740,6 +5737,10 @@ msgstr "启动过程中..."
 msgid "State"
 msgstr "州"
 
+#, fuzzy
+msgid "Static"
+msgstr "州"
+
 msgid "Status"
 msgstr "状态"
 
@@ -7113,6 +7114,14 @@ msgstr "客户"
 msgid "clients"
 msgstr "客户"
 
+#, fuzzy
+msgid "completed imaging."
+msgstr "完成"
+
+#, fuzzy
+msgid "completed snapin tasking."
+msgstr "完成"
+
 msgid "config files that run on the client computers."
 msgstr ""
 
@@ -7358,6 +7367,10 @@ msgstr "图片"
 #, fuzzy
 msgid "images to a storage group"
 msgstr "主存储组"
+
+#, fuzzy
+msgid "imaging failed."
+msgstr "加载失败： %s"
 
 msgid "in seconds"
 msgstr ""
