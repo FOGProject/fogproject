@@ -519,6 +519,56 @@ class LDAP extends FOGController
                 return false;
             }
         }
+        /**
+         * Trims the bind pass.
+         */
+        $bindPass = trim($bindPass);
+        /**
+         * We need to decrypt the stored pass.
+         */
+        $bindPasstest = self::aesdecrypt($bindPass);
+        if ($test_base64 = base64_decode($bindPasstest)) {
+            if (mb_detect_encoding($test_base64, 'utf-8', true)) {
+                $bindPass = $test_base64;
+            } elseif (mb_detect_encoding($bindPasstest, 'utf-8', true)) {
+                $bindPass = $bindPasstest;
+            }
+        }
+        /**
+         * If no bind password return immediately
+         */
+        if (empty($bindPass)) {
+            error_log(
+                sprintf(
+                    '%s %s() %s %s!',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('Not using the group match function'),
+                    _('but bind password is not set')
+                )
+            );
+            return false;
+        }
+        /**
+         * Make our bindDN/pass connection
+         */
+        $bind = @$this->bind($bindDN, $bindPass);
+        /**
+         * If we cannot bind return immediately
+         */
+        if (!$bind) {
+            error_log(
+                sprintf(
+                    '%s %s() %s %s:%d',
+                    _('Plugin'),
+                    __METHOD__,
+                    _('Cannot bind to the LDAP server'),
+                    $server,
+                    $port
+                )
+            );
+            return false;
+        }
         $attr = array('dn');
         $filter = sprintf(
             '(&(|(objectcategory=person)(objectclass=person))(%s=%s))',
@@ -623,10 +673,11 @@ class LDAP extends FOGController
          */
         $adminGroups = explode(',', $adminGroup);
         $adminGroups = array_map('trim', $adminGroups);
+        $grpMemAttr_forimplode = ')(' . $grpMemAttr . '=';
         $filter = sprintf(
-            '(&(|(name=%s))(%s=%s))',
-            implode(')(name=', (array)$adminGroups),
+            '(&(|(%s=%s)))',
             $grpMemAttr,
+            implode($grpMemAttr_forimplode, (array)$adminGroups),
             $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
         );
         /**
@@ -647,10 +698,11 @@ class LDAP extends FOGController
          */
         $userGroups = explode(',', $userGroup);
         $userGroups = array_map('trim', $userGroups);
+        $grpMemAttr_forimplode = ')(' . $grpMemAttr . '=';
         $filter = sprintf(
-            '(&(|(name=%s))(%s=%s))',
-            implode(')(name=', (array)$userGroups),
+            '(&(|(%s=%s)))',
             $grpMemAttr,
+            implode(')(name=', (array)$userGroups),
             $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
         );
         /**
