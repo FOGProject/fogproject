@@ -934,7 +934,7 @@ class LDAP extends FOGController
          * are admins.
          */
         if ($useGroupMatch) {
-            $accessLevel = $this->_getAccessLevel($grpNamAttr, $grpMemAttr, $userDN);
+            $accessLevel = $this->_getAccessLevel($grpNamAttr, $grpMemAttr, $userDN, $user);
         } else {
             $accessLevel = 2;
         }
@@ -973,10 +973,11 @@ class LDAP extends FOGController
      * @param string $grpNamAttr the group name item
      * @param string $grpMemAttr the group finder item
      * @param string $userDN     the user dn information
+     * @param string $user       the actual username
      *
      * @return int
      */
-    private function _getAccessLevel($grpNamAttr, $grpMemAttr, $userDN)
+    private function _getAccessLevel($grpNamAttr, $grpMemAttr, $userDN, $user)
     {
         /**
          * Preset our access level value
@@ -1004,17 +1005,26 @@ class LDAP extends FOGController
                 . implode(',dc=', $parsedDN['DC']);
         }
         /**
+         * Group filter layout should be consistent across
+         * the board.
+         */
+        $grpNamAttr_forimplode = ')(' . $grpNamAttr . '=';
+        $grpMemAttr_forimplode = ')(' . $grpMemAttr . '=';
+        /**
          * Setup our new filter
          */
         $adminGroups = explode(',', $adminGroup);
         $adminGroups = array_map('trim', $adminGroups);
-        $grpNamAttr_forimplode = ')(' . $grpNamAttr . '=';
         $filter = sprintf(
-            '(&(|(%s=%s))(%s=%s))',
+            '(&(|(%s=%s)(%s=%s))(|(%s=%s)(%s=%s)))',
             $grpNamAttr,
             implode($grpNamAttr_forimplode, (array)$adminGroups),
             $grpMemAttr,
-            $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
+            implode($grpMemAttr_forimplode, (array)$adminGroups),
+            $usrNamAttr,
+            $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
+            $usrNamAttr,
+            $this->escape($user, null, LDAP_ESCAPE_FILTER)
         );
         /**
          * The attribute to get.
@@ -1034,12 +1044,15 @@ class LDAP extends FOGController
          */
         $userGroups = explode(',', $userGroup);
         $userGroups = array_map('trim', $userGroups);
-        $grpNamAttr_forimplode = ')(' . $grpNamAttr . '=';
         $filter = sprintf(
-            '(&(|(%s=%s))(%s=%s))',
+            '(&(|(%s=%s)(%s=%s))(|(%s=%s)(%s=%s)))',
             $grpNamAttr,
             implode($grpNamAttr_forimplode, (array)$userGroups),
             $grpMemAttr,
+            implode($grpMemAttr_forimplode, (array)$userGroups),
+            $usrNamAttr,
+            $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
+            $usrNamAttr,
             $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
         );
         /**

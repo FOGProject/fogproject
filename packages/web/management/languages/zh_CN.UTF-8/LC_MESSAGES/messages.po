@@ -5796,6 +5796,9 @@ msgstr ""
 msgid "Subtree Only"
 msgstr ""
 
+msgid "Subtree and Below"
+msgstr ""
+
 #, fuzzy
 msgid "Successfully added hosts to the provided groups!"
 msgstr "成功关联主机与本集团"

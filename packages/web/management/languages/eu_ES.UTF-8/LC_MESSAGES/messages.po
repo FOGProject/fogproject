@@ -5802,6 +5802,10 @@ msgid "Subtree Only"
 msgstr ""
 
 #, fuzzy
+msgid "Subtree and Below"
+msgstr "Nur Teilstruktur"
+
+#, fuzzy
 msgid "Successfully added hosts to the provided groups!"
 msgstr "ausgewählte Hosts erfolgreich zur Gruppe hinzugefügt "
 

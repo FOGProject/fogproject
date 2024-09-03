@@ -5516,6 +5516,10 @@ msgid "Subtree Only"
 msgstr "Solo Sottoalbero"
 
 #, fuzzy
+msgid "Subtree and Below"
+msgstr "Sottoalbero e inferiore"
+
+#, fuzzy
 msgid "Successfully added hosts to the provided groups!"
 msgstr "Aggiunti host selezionati al gruppo!"
 
