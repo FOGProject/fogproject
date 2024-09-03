@@ -606,7 +606,7 @@ class LDAP extends FOGController
          * are admins.
          */
         if ($useGroupMatch) {
-            $accessLevel = $this->_getAccessLevel($grpMemAttr, $userDN);
+            $accessLevel = $this->_getAccessLevel($grpMemAttr, $userDN, $user);
         } else {
             $accessLevel = 2;
         }
@@ -646,7 +646,7 @@ class LDAP extends FOGController
      *
      * @return int
      */
-    private function _getAccessLevel($grpMemAttr, $userDN)
+    private function _getAccessLevel($grpMemAttr, $userDN, $user)
     {
         /**
          * Preset our access level value
@@ -660,6 +660,10 @@ class LDAP extends FOGController
          * Get our user group
          */
         $userGroup = $this->get('userGroup');
+        /**
+         * The user name attribute in use (e.g. uid=)
+         */
+        $usrNamAttr = strtolower($this->get('userNamAttr'));
         /**
          * Use search base where the groups are located
          */
@@ -675,10 +679,11 @@ class LDAP extends FOGController
         $adminGroups = array_map('trim', $adminGroups);
         $grpMemAttr_forimplode = ')(' . $grpMemAttr . '=';
         $filter = sprintf(
-            '(&(|(%s=%s)))',
+            '(&(%s=%s)(%s=%s))',
             $grpMemAttr,
             implode($grpMemAttr_forimplode, (array)$adminGroups),
-            $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
+            $usrNamAttr,
+            $this->escape($user, null, LDAP_ESCAPE_FILTER)
         );
         /**
          * The attribute to get.
@@ -700,10 +705,11 @@ class LDAP extends FOGController
         $userGroups = array_map('trim', $userGroups);
         $grpMemAttr_forimplode = ')(' . $grpMemAttr . '=';
         $filter = sprintf(
-            '(&(|(%s=%s)))',
+            '(&(%s=%s)(%s=%s))',
             $grpMemAttr,
             implode(')(name=', (array)$userGroups),
-            $this->escape($userDN, null, LDAP_ESCAPE_FILTER)
+            $usrNamAttr,
+            $this->escape($user, null, LDAP_ESCAPE_FILTER)
         );
         /**
          * The attribute to get.
