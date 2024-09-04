@@ -5794,9 +5794,6 @@ msgstr "Gruppen exportieren"
 msgid "Subnets"
 msgstr ""
 
-msgid "Subree and Below"
-msgstr "Nur Teilstruktur"
-
 msgid "Subtree Only"
 msgstr ""
 
