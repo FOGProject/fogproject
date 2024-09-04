@@ -630,15 +630,25 @@ class DashboardPage extends FOGPage
         $urls = array_values(
             array_filter($urls)
         );
-        $datas = self::$FOGURLRequests->process($urls);
+        $datas = self::$FOGURLRequests->process(
+            $urls,
+            'GET',
+            null,
+            false,
+            false,
+            false,
+            false,
+            false,
+            ['X-Requested-With: XMLHttpRequest']
+        );
         $dataSet = [];
-        foreach ((array)$datas as $i => &$data) {
+        foreach ((array)$datas as $i => $data) {
             $d = json_decode($data);
             $data = [
-                'dev' => property_exists($d, 'dev') ? $d->dev : '',
+                'dev' => $d->dev ?? '',
                 'name' => $names[$i],
-                'rx' => property_exists($d, 'rx') ? $d->rx : 0,
-                'tx' => property_exists($d, 'tx') ? $d->tx : 0
+                'rx' => $d->rx ?? 0,
+                'tx' => $d->tx ?? 0
             ];
             $dataSet[] = $data;
             unset($data, $d);

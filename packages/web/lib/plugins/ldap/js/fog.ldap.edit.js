@@ -73,12 +73,13 @@ $(function() {
             case '2':
                 usrAttr = 'uid';
                 grpAttr = 'uniqueMember';
-                grpNam = 'name';
+                grpNam = 'ou';
                 break;
             case '3':
                 usrAttr = 'uid';
                 grpAttr = 'member';
                 grpNam = 'cn';
+                break;
             default:
                 usrAttr = '';
                 grpAttr = '';
@@ -86,7 +87,7 @@ $(function() {
                 break;
         }
         userNameAttr.val(usrAttr);
-        groupNameAttr.val(grpAttr);
+        groupNameAttr.val(grpNam);
         grpMemberAttr.val(grpAttr);
     });
 });
