@@ -1016,12 +1016,14 @@ class LDAP extends FOGController
         $adminGroups = explode(',', $adminGroup);
         $adminGroups = array_map('trim', $adminGroups);
         $filter = sprintf(
-            '(&(|(%s=%s))(|(%s=%s)(%s=%s=%s)))',
+            '(&(|(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
             $grpNamAttr,
             implode($grpNamAttr_forimplode, (array)$adminGroups),
             $grpMemAttr,
             $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
             $grpMemAttr,
+            $usrNamAttr,
+            $this->escape($user, null, LDAP_ESCAPE_FILTER),
             $usrNamAttr,
             $this->escape($user, null, LDAP_ESCAPE_FILTER)
         );
@@ -1044,12 +1046,14 @@ class LDAP extends FOGController
         $userGroups = explode(',', $userGroup);
         $userGroups = array_map('trim', $userGroups);
         $filter = sprintf(
-            '(&(|(%s=%s))(|(%s=%s)(%s=%s=%s)))',
+            '(&(|(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
             $grpNamAttr,
-            implode($grpNamAttr_forimplode, (array)$adminGroups),
+            implode($grpNamAttr_forimplode, (array)$userGroups),
             $grpMemAttr,
             $this->escape($userDN, null, LDAP_ESCAPE_FILTER),
             $grpMemAttr,
+            $usrNamAttr,
+            $this->escape($user, null, LDAP_ESCAPE_FILTER),
             $usrNamAttr,
             $this->escape($user, null, LDAP_ESCAPE_FILTER)
         );
