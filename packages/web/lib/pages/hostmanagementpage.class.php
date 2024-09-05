@@ -2450,6 +2450,10 @@ class HostManagementPage extends FOGPage
         $casever = $Inv->get('caseversion');
         $caseser = $Inv->get('caseserial');
         $caseast = $Inv->get('caseasset');
+        $gpuvendors = $Inv->get('gpuvendors');
+        $gpuproducts = $Inv->get('gpuproducts');
+        $gpuvendorsArray = explode(',', $gpuvendors);
+        $gpuproductsArray = explode(',', $gpuproducts);
         $fields = array(
             '<label for="pu">'
             . _('Primary User')
@@ -2538,6 +2542,10 @@ class HostManagementPage extends FOGPage
             _('Chassis Serial') => $caseser,
             _('Chassis Asset') => $caseast
         );
+        for ($i = 0; $i < count($gpuvendorsArray); $i++) {
+            $fields[_("GPU-$i Manufacturer")] = $gpuvendorsArray[$i];
+            $fields[_("GPU-$i Product")] = $gpuproductsArray[$i];
+        }
         if ($this->obj->get('inventory')->isValid()) {
             array_walk($fields, $this->fieldsToData);
         }
