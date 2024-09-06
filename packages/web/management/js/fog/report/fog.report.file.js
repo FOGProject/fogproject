@@ -263,8 +263,11 @@
                         {data: 'casever'}, // 24
                         {data: 'caseserial'}, // 25
                         {data: 'caseasset'}, // 26
+                        // GPU
+                        {data: 'gpuvendors'}, // 27
+                        {data: 'gpuproducts'}, // 28
                         // name of host
-                        {data: 'hostname'}, // 27 Not visible
+                        {data: 'hostname'}, // 29 Not visible
                     ],
                     columnDefs: [
                         {targets: [0, 5, 7, 8, 22], visible: true },
