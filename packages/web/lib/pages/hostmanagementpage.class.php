@@ -2543,7 +2543,7 @@ class HostManagementPage extends FOGPage
             _('Chassis Asset') => $caseast
         );
         for ($i = 0; $i < count($gpuvendorsArray); $i++) {
-            $fields[_("GPU-$i Manufacturer")] = $gpuvendorsArray[$i];
+            $fields[_("GPU-$i Vendor")] = $gpuvendorsArray[$i];
             $fields[_("GPU-$i Product")] = $gpuproductsArray[$i];
         }
         if ($this->obj->get('inventory')->isValid()) {
