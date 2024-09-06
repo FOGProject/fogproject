@@ -4176,3 +4176,8 @@ $this->schema[] = [
     "ALTER TABLE `hosts` ADD COLUMN `hostInfoKey` VARCHAR(255)",
     "ALTER TABLE `hosts` ADD COLUMN `hostInfoLock` BOOLEAN DEFAULT 0"
 ];
+// 292
+$this->schema[] = [
+    "ALTER TABLE `inventory` ADD COLUMN `iGpuvendors` VARCHAR(255) NOT NULL",
+    "ALTER TABLE `inventory` ADD COLUMN `iGpuproducts` VARCHAR(255) NOT NULL"
+];

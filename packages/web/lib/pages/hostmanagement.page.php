@@ -2961,6 +2961,10 @@ class HostManagement extends FOGPage
         $casever = $Inv->get('caseversion');
         $caseser = $Inv->get('caseserial');
         $caseast = $Inv->get('caseasset');
+        $gpuvendors = $Inv->get('gpuvendors');
+        $gpuproducts = $Inv->get('gpuproducts');
+        $gpuvendorsArray = explode(',', $gpuvendors);
+        $gpuproductsArray = explode(',', $gpuproducts);
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -3481,6 +3485,48 @@ class HostManagement extends FOGPage
                     true
                 )
             ];
+            for ($i = 0; $i < count($gpuvendorsArray); $i++) {
+                $fields[
+                    self::makeLabel(
+                        $labelClass,
+                        'inventory-gpu-vendor-' . $i,
+                        _("GPU-$i Vendor")
+                    )
+                ] = self::makeInput(
+                    'form-control',
+                    'inventory-gpu-vendor-' . $i,
+                    '',
+                    'text',
+                    '',
+                    $gpuvendorsArray[$i],
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                );
+                $fields[
+                    self::makeLabel(
+                        $labelClass,
+                        'inventory-gpu-product-' . $i,
+                        _("GPU-$i Product")
+                    )
+                ] = self::makeInput(
+                    'form-control',
+                    'inventory-gpu-product-' . $i,
+                    '',
+                    'text',
+                    '',
+                    $gpuproductsArray[$i],
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    '',
+                    true
+                );
+            }
         }
 
         self::$HookManager->processEvent(

@@ -69,6 +69,9 @@ class Inventory_Report extends ReportManagement
             _('Case Version'),
             _('Case Serial'),
             _('Case Asset'),
+            // GPU
+            _('GPU Vendors'),
+            _('GPU Products'),
             // Name of host
             _('Hostname'),
         ];

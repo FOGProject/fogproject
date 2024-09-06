@@ -65,7 +65,9 @@ class Inventory extends FOGController
         'caseman' => 'iCaseman',
         'casever' => 'iCasever',
         'caseserial' => 'iCaseserial',
-        'caseasset' => 'iCaseasset'
+        'caseasset' => 'iCaseasset',
+        'gpuvendors' => 'iGpuvendors',
+        'gpuproducts' => 'iGpuproducts'
     ];
     /**
      * The required fields.
