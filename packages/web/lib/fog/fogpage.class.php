@@ -387,6 +387,8 @@ abstract class FOGPage extends FOGBase
             _('Chassis Version') => 'casever',
             _('Chassis Serial') => 'caseserial',
             _('Chassis Asset') => 'caseasset',
+            _('GPU Vendors') => 'gpuvendors',
+            _('GPU Products') => 'gpuproducts',
         );
         $exportMenu = sprintf('Export%s', $this->childClass);
         $importMenu = sprintf('Import%s', $this->childClass);
