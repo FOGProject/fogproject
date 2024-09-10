@@ -630,7 +630,7 @@ class LDAP extends FOGController
         $adminGroups = array_map('trim', $adminGroups);
         $grpMemAttr_forimplode = ')(' . $grpMemAttr . '=';
         $filter = sprintf(
-            '(&(|(name=%s)(%s=%s))(!(%s=%s)(%s=%s=%s)(%s=%s)))',
+            '(&(|(name=%s)(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
             implode(')(name=', (array)$adminGroups),
             $grpMemAttr,
             implode($grpMemAttr_forimplode, (array)$adminGroups),
@@ -661,7 +661,7 @@ class LDAP extends FOGController
         $userGroups = explode(',', $userGroup);
         $userGroups = array_map('trim', $userGroups);
         $filter = sprintf(
-            '(&(|(name=%s)(%s=%s))(!(%s=%s)(%s=%s=%s)(%s=%s)))',
+            '(&(|(name=%s)(%s=%s))(|(%s=%s)(%s=%s=%s)(%s=%s)))',
             implode(')(name=', (array)$userGroups),
             $grpMemAttr,
             implode($grpMemAttr_forimplode, (array)$userGroups),
