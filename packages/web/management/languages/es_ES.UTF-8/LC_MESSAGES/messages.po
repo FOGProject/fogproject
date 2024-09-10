@@ -2162,6 +2162,14 @@ msgstr ""
 msgid "GNU Gneral Public License"
 msgstr ""
 
+#, fuzzy
+msgid "GPU Products"
+msgstr "Grupo principal"
+
+#, fuzzy
+msgid "GPU Vendors"
+msgstr "Versión"
+
 msgid "General"
 msgstr ""
 
@@ -5918,10 +5926,10 @@ msgstr "Grupo de almacenamiento actualizado"
 msgid "Subnets"
 msgstr ""
 
-msgid "Subree and Below"
+msgid "Subtree Only"
 msgstr ""
 
-msgid "Subtree Only"
+msgid "Subtree and Below"
 msgstr ""
 
 msgid "Successful"

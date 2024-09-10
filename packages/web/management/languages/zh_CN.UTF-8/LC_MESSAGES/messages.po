@@ -2181,6 +2181,14 @@ msgstr "方法不存在"
 msgid "GNU Gneral Public License"
 msgstr ""
 
+#, fuzzy
+msgid "GPU Products"
+msgstr "集团产品密钥"
+
+#, fuzzy
+msgid "GPU Vendors"
+msgstr "BIOS供应商"
+
 msgid "General"
 msgstr "一般"
 
@@ -5927,10 +5935,10 @@ msgstr "集团补充"
 msgid "Subnets"
 msgstr ""
 
-msgid "Subree and Below"
+msgid "Subtree Only"
 msgstr ""
 
-msgid "Subtree Only"
+msgid "Subtree and Below"
 msgstr ""
 
 msgid "Successful"

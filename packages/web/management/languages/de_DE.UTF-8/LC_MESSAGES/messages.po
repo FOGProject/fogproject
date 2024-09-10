@@ -2184,6 +2184,14 @@ msgstr "Methode ist nicht vorhanden"
 msgid "GNU Gneral Public License"
 msgstr "GNU General Public License"
 
+#, fuzzy
+msgid "GPU Products"
+msgstr "Produktschlüssel der Gruppe"
+
+#, fuzzy
+msgid "GPU Vendors"
+msgstr "BIOS-Anbieter"
+
 msgid "General"
 msgstr "Allgemein"
 
@@ -5937,11 +5945,12 @@ msgstr "Gruppe aktualisiert"
 msgid "Subnets"
 msgstr ""
 
-msgid "Subree and Below"
-msgstr "Nur Teilstruktur"
-
 msgid "Subtree Only"
 msgstr ""
+
+#, fuzzy
+msgid "Subtree and Below"
+msgstr "Nur Teilstruktur"
 
 msgid "Successful"
 msgstr "Erfolgreich"

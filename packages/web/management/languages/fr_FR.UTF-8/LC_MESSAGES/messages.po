@@ -1916,6 +1916,14 @@ msgstr "Fonction n'existe pas"
 msgid "GNU Gneral Public License"
 msgstr "GNU General Public License"
 
+#, fuzzy
+msgid "GPU Products"
+msgstr "Groupe clé de produit"
+
+#, fuzzy
+msgid "GPU Vendors"
+msgstr "Vendeur du BIOS"
+
 msgid "General"
 msgstr "Général"
 
@@ -5219,11 +5227,12 @@ msgstr "Groupe de sous-réseau mis à jour !"
 msgid "Subnets"
 msgstr "Sous-réseaux"
 
-msgid "Subree and Below"
-msgstr "Sous-arbre et dessous"
-
 msgid "Subtree Only"
 msgstr "Sous-arbre seulement"
+
+#, fuzzy
+msgid "Subtree and Below"
+msgstr "Sous-arbre et dessous"
 
 msgid "Successful"
 msgstr "Réussite"

@@ -1967,6 +1967,14 @@ msgstr "La funzione non esiste"
 msgid "GNU Gneral Public License"
 msgstr "GNU Gneral Public License"
 
+#, fuzzy
+msgid "GPU Products"
+msgstr "Product Key Group"
+
+#, fuzzy
+msgid "GPU Vendors"
+msgstr "Venditore BIOS"
+
 msgid "General"
 msgstr "Generale"
 
@@ -5320,11 +5328,12 @@ msgstr "Gruppo aggiornato!"
 msgid "Subnets"
 msgstr ""
 
-msgid "Subree and Below"
-msgstr "Sottoalbero e inferiore"
-
 msgid "Subtree Only"
 msgstr "Solo Sottoalbero"
+
+#, fuzzy
+msgid "Subtree and Below"
+msgstr "Sottoalbero e inferiore"
 
 msgid "Successful"
 msgstr "Riuscito"

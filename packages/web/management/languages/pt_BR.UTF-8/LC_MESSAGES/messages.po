@@ -2184,6 +2184,14 @@ msgstr "O método não existe"
 msgid "GNU Gneral Public License"
 msgstr ""
 
+#, fuzzy
+msgid "GPU Products"
+msgstr "Grupo de Chave de Produto"
+
+#, fuzzy
+msgid "GPU Vendors"
+msgstr "BIOS Vendor"
+
 msgid "General"
 msgstr "Geral"
 
@@ -5934,10 +5942,10 @@ msgstr "grupo adicionado"
 msgid "Subnets"
 msgstr ""
 
-msgid "Subree and Below"
+msgid "Subtree Only"
 msgstr ""
 
-msgid "Subtree Only"
+msgid "Subtree and Below"
 msgstr ""
 
 msgid "Successful"

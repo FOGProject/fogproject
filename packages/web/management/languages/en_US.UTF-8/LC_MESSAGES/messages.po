@@ -2180,6 +2180,14 @@ msgstr "Method does not exist"
 msgid "GNU Gneral Public License"
 msgstr ""
 
+#, fuzzy
+msgid "GPU Products"
+msgstr "Group Product Key"
+
+#, fuzzy
+msgid "GPU Vendors"
+msgstr "BIOS Vendor"
+
 msgid "General"
 msgstr "General"
 
@@ -5925,10 +5933,10 @@ msgstr "Group added"
 msgid "Subnets"
 msgstr ""
 
-msgid "Subree and Below"
+msgid "Subtree Only"
 msgstr ""
 
-msgid "Subtree Only"
+msgid "Subtree and Below"
 msgstr ""
 
 msgid "Successful"
