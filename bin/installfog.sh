@@ -263,11 +263,27 @@ if [[ ! $exitcode -eq 0 ]]; then
             case $exitcode in
                 0)
                     dnf -y install redhat-lsb-core >>$error_log 2>&1
+                    exitcode=$?
                     ;;
                 *)
                     yum -y install redhat-lsb-core >>$error_log 2>&1
+                    exitcode=$?
                     ;;
             esac
+            if [[ ! $exitcode -eq 0 ]]; then
+                command -v dnf >>$error_log 2>&1
+                exitcode=$?
+                case $exitcode in
+                    0)
+                        dnf -y install lsb-release >>$error_log 2>&1
+                        exitcode=$?
+                        ;;
+                    *)
+                        yum -y install lsb-release >>$error_log 2>&1
+                        exitcode=$?
+                        ;;
+                esac
+            fi
             ;;
         *arch*)
             pacman -Sy --noconfirm lsb-release >>$error_log 2>&1
