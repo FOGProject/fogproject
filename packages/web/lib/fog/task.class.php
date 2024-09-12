@@ -151,9 +151,16 @@ class Task extends TaskType
             Route::getData()
         );
         foreach ($Tasks->data as &$Task) {
-            $TaskCheckinTime = self::niceDate($Task->checkInTime);
-            if ($curTime >= $TaskCheckinTime) {
-                ++$count;
+            // if (!($Task->checkInTime === 'No Data')) { //could also do this or do a validdate check here
+            try {
+                $TaskCheckinTime = self::niceDate($Task->checkInTime);
+                //if no exception from nicedate, then check if curtime gt checktime and increment count
+                if ((self::validDate($TaskCheckinTime)) && ($curTime >= $TaskCheckinTime)) {
+                    ++$count;
+                }
+            } catch (Exception $e) {
+                    // FOGCORE::var_dump_log('nice date is invalid for checkInTime');
+                    //don't increment count for tasks with a 'No Data' check in time
             }
             unset($Task);
         }

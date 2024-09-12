@@ -31,10 +31,18 @@ class TaskQueue extends TaskingElement
     {
         try {
             self::randWait();
-            $this->Task
-                ->set('stateID', self::getCheckedInState())
-                ->set('checkInTime', self::formatTime('now', 'Y-m-d H:i:s'))
-                ->save();
+            //use same format as end of checkin and do the save in the if so an exception can be caught
+            $this->Task->set(
+                'stateID',
+                self::getCheckedInState()
+            )->set(
+                'checkInTime',
+                self::formatTime('now', 'Y-m-d H:i:s')
+            );
+            // $this->Task
+            //     ->set('stateID', self::getCheckedInState())
+            //     ->set('checkInTime', self::formatTime('now', 'Y-m-d H:i:s'))
+            //     ->save();
             if (!$this->Task->save()) {
                 throw new Exception(_('Failed to update task'));
             }
