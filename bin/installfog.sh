@@ -77,13 +77,12 @@ usage() {
     echo -e "\t-X    --exitFail\t\tDo not exit if item fails"
     echo -e "\t-T    --no-tftpbuild\t\tDo not rebuild the tftpd config file"
     echo -e "\t-F    --no-vhost\t\tDo not overwrite vhost file"
-    echo -e "\t-A    --arm-support\t\tInstall kernel and initrd for ARM platforms"
     echo -e "\t-l    --list-packages\t\tList of the basic packages FOG needs for install or is currently installed for FOG"
     exit 0
 }
 
 shortopts="h?odEUHSCKYyXxTPFAf:c:W:D:B:s:e:b:N:l"
-longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,arm-support,list-packages"
+longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,list-packages"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -225,10 +224,6 @@ while :; do
             novhost="y"
             shift
             ;;
-        -A | --arm-support)
-            sarmsupport=1
-            shift
-            ;;
         -l | --list-packages)
             listPackages=1
             shift
@@ -292,7 +287,7 @@ if [[ ! $exitcode -eq 0 ]]; then
                 esac
             fi
             ;;
-            
+
         *[Aa][Ll][Pp][Ii][Nn][Ee]*)
             ;;
     esac
@@ -321,7 +316,6 @@ echo "Done"
 [[ -z $doupdate ]] && doupdate=1
 [[ -z $ignorehtmldoc ]] && ignorehtmldoc=0
 [[ -z $httpproto ]] && httpproto="http"
-[[ -z $armsupport ]] && armsupport=0
 [[ -z $mysqldbname ]] && mysqldbname="fog"
 [[ -z $tftpAdvOpts ]] && tftpAdvOpts=""
 [[ -z $fogpriorconfig ]] && fogpriorconfig="$fogprogramdir/.fogsettings"
@@ -366,7 +360,6 @@ esac
 [[ -n $sbackupPath ]] && backupPath=$sbackupPath
 [[ -n $sexitFail ]] && exitFail=$sexitFail
 [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
-[[ -n $sarmsupport ]] && armsupport=$sarmsupport
 
 [[ -f $fogpriorconfig ]] && grep -l webroot $fogpriorconfig >>$error_log 2>&1
 case $? in

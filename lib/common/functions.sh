@@ -1785,7 +1785,6 @@ writeUpdateFile() {
     esctftpAdvOpts=$(echo $tftpAdvOpts | sed -e $replace)
     escsslpath=$(echo $sslpath | sed -e $replace)
     escbackupPath=$(echo $backupPath | sed -e $replace)
-    escarmsupport=$(echo $sarmsupport | sed -e $replace)
     escphp_ver=$(echo $php_ver | sed -e $replace)
     escsslprivkey=$(echo $sslprivkey | sed -e $replace)
     escsslpubcert=$(echo $sslpubcert | sed -e $replace)
@@ -1913,9 +1912,6 @@ writeUpdateFile() {
             grep -q "backupPath=" $fogprogramdir/.fogsettings && \
                 sed -i "s/backupPath=.*/backupPath='$escbackupPath'/g" $fogprogramdir/.fogsettings || \
                 echo "backupPath='$backupPath'" >> $fogprogramdir/.fogsettings
-            grep -q "armsupport=" $fogprogramdir/.fogsettings && \
-                sed -i "s/armsupport=.*/armsupport='$escarmsupport'/g" $fogprogramdir/.fogsettings || \
-                echo "armsupport='$armsupport'" >> $fogprogramdir/.fogsettings
             grep -q "php_ver=" $fogprogramdir/.fogsettings && \
                 sed -i "s/php_ver=.*/php_ver='$php_ver'/g" $fogprogramdir/.fogsettings || \
                 echo "php_ver='$php_ver'" >> $fogprogramdir/.fogsettings
@@ -1984,7 +1980,6 @@ writeUpdateFile() {
             echo "tftpAdvOpts='$tftpAdvOpts'" >> "$fogprogramdir/.fogsettings"
             echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
             echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
-            echo "armsupport='$armsupport'" >> "$fogprogramdir/.fogsettings"
             echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
             echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
             echo "sslcakey='$sslcakey'" >> $fogprogramdir/.fogsettings
@@ -2037,7 +2032,6 @@ writeUpdateFile() {
         echo "tftpAdvOpts='$tftpAdvOpts'" >> "$fogprogramdir/.fogsettings"
         echo "sslpath='$sslpath'" >> "$fogprogramdir/.fogsettings"
         echo "backupPath='$backupPath'" >> "$fogprogramdir/.fogsettings"
-        echo "armsupport='$armsupport'" >> "$fogprogramdir/.fogsettings"
         echo "php_ver='$php_ver'" >> "$fogprogramdir/.fogsettings"
         echo "sslprivkey='$sslprivkey'" >> $fogprogramdir/.fogsettings
         echo "sslcakey='$sslcakey'" >> $fogprogramdir/.fogsettings
@@ -2791,14 +2785,10 @@ downloadfiles() {
     cd ../tmp/
     if [[ $version =~ ^[0-9]\.[0-9]\.[0-9]+$ ]]; then
         urls=( "${fosURL}/${version}/init.xz" "${fosURL}/${version}/init_32.xz" "${fosURL}/${version}/bzImage" "${fosURL}/${version}/bzImage32" "${fogclientURL}/${clientVer}/FOGService.msi" "${fogclientURL}/${clientVer}/SmartInstaller.exe" )
-        if [[ $armsupport == 1 ]]; then
-            urls+=( "${fosURL}/${version}/arm_init.cpio.gz" "${fosURL}/${version}/arm_Image" )
-        fi
+        urls+=( "${fosURL}/${version}/arm_init.cpio.gz" "${fosURL}/${version}/arm_Image" )
     else
         urls=( "${fosLatestURL}/init.xz" "${fosLatestURL}/init_32.xz" "${fosLatestURL}/bzImage" "${fosLatestURL}/bzImage32" "${fogclientURL}/${clientVer}/FOGService.msi" "${fogclientURL}/${clientVer}/SmartInstaller.exe" )
-        if [[ $armsupport == 1 ]]; then
-            urls+=( "${fosLatestURL}/arm_init.cpio.gz" "${fosLatestURL}/arm_Image" )
-        fi
+        urls+=( "${fosLatestURL}/arm_init.cpio.gz" "${fosLatestURL}/arm_Image" )
     fi
     for url in "${urls[@]}"; do
         checksum=1
@@ -2834,20 +2824,18 @@ downloadfiles() {
     cp -vf ${copypath}bzImage32 ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
     attr -s version -V $kern_version ${webdirdest}/service/ipxe/bzImage32 >>$error_log 2>&1 || errorStat $?
     attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/bzImage32 >>$error_log 2>&1 || errorStat $?
+    cp -vf ${copypath}arm_Image ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
+    attr -s version -V $kern_version ${webdirdest}/service/ipxe/arm_Image >>$error_log 2>&1 || errorStat $?
+    attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/arm_Image >>$error_log 2>&1 || errorStat $?
     cp -vf ${copypath}init.xz ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
     attr -s version -V $build_version ${webdirdest}/service/ipxe/init.xz >>$error_log 2>&1 || errorStat $?
     attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/init.xz >>$error_log 2>&1 || errorStat $?
     cp -vf ${copypath}init_32.xz ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
     attr -s version -V $build_version ${webdirdest}/service/ipxe/init_32.xz >>$error_log 2>&1 || errorStat $?
     attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/init_32.xz >>$error_log 2>&1 || errorStat $?
-    if [[ $armsupport == 1 ]]; then
-        cp -vf ${copypath_arm}arm_Image ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
-        attr -s version -V $kern_version ${webdirdest}/service/ipxe/arm_Image >>$error_log 2>&1 || errorStat $?
-        attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/arm_Image >>$error_log 2>&1 || errorStat $?
-        cp -vf ${copypath_arm}arm_init.cpio.gz ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
-        attr -s version -V $build_version ${webdirdest}/service/ipxe/arm_init.cpio.gz >>$error_log 2>&1 || errorStat $?
-        attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/arm_init.cpio.gz >>$error_log 2>&1 || errorStat $?
-    fi
+    cp -vf ${copypath}arm_init.cpio.gz ${webdirdest}/service/ipxe/ >>$error_log 2>&1 || errorStat $?
+    attr -s version -V $build_version ${webdirdest}/service/ipxe/arm_init.cpio.gz >>$error_log 2>&1 || errorStat $?
+    attr -s tag_name -V $tag_name ${webdirdest}/service/ipxe/arm_init.cpio.gz >>$error_log 2>&1 || errorStat $?
     cp -vf ${copypath}FOGService.msi ${copypath}SmartInstaller.exe ${webdirdest}/client/ >>$error_log 2>&1
     errorStat $?
     cd $cwd
@@ -2939,6 +2927,10 @@ configureDHCP() {
             echo "class \"UEFI-64-3\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00009\";" >> "$dhcptouse"
             echo "    filename \"snponly.efi\";" >> "$dhcptouse"
+            echo "}" >> "$dhcptouse"
+            echo "class \"UEFI-ARM64\" {" >> "$dhcptouse"
+            echo "    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00011\";" >> "$dhcptouse"
+            echo "    filename \"arm64-efi/snponly.efi\";" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             echo "class \"SURFACE-PRO-4\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 32) = \"PXEClient:Arch:00007:UNDI:003016\";" >> "$dhcptouse"
