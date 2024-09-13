@@ -3768,3 +3768,14 @@ $this->schema[] = array(
     "ALTER TABLE `inventory` ADD COLUMN `iGpuvendors` VARCHAR(255) NOT NULL",
     "ALTER TABLE `inventory` ADD COLUMN `iGpuproducts` VARCHAR(255) NOT NULL"
 );
+// 273
+$this->schema[] = array(
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_TFTP_PXE_KERNEL_ARM','Location of the ARM kernel file on "
+    . "the PXE server, this should point to the kernel itself.',"
+    . "'arm_Image','TFTP Server'),"
+    . "('FOG_PXE_BOOT_IMAGE_ARM','The settings defines where the ARM "
+    . "fog boot file system image is located.','arm_init.cpio.gz','TFTP Server')",
+);
