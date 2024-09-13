@@ -81,7 +81,7 @@ usage() {
     exit 0
 }
 
-shortopts="h?odEUHSCKYyXxTPFAf:c:W:D:B:s:e:b:N:l"
+shortopts="h?odEUHSCKYyXxTPFf:c:W:D:B:s:e:b:N:l"
 longopts="help,uninstall,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,bootfile:,no-exportbuild,exitFail,no-tftpbuild,list-packages"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
