@@ -1803,6 +1803,12 @@ msgstr ""
 msgid "GNU General Public License"
 msgstr ""
 
+msgid "GPU Products"
+msgstr ""
+
+msgid "GPU Vendors"
+msgstr ""
+
 msgid "General"
 msgstr ""
 

@@ -301,11 +301,13 @@ class BootMenu extends FOGBase
             'FOG_MEMTEST_KERNEL',
             'FOG_PXE_BOOT_IMAGE',
             'FOG_PXE_BOOT_IMAGE_32',
+            'FOG_PXE_BOOT_IMAGE_ARM',
             'FOG_PXE_HIDDENMENU_TIMEOUT',
             'FOG_PXE_MENU_HIDDEN',
             'FOG_PXE_MENU_TIMEOUT',
             'FOG_TFTP_PXE_KERNEL',
             'FOG_TFTP_PXE_KERNEL_32',
+            'FOG_TFTP_PXE_KERNEL_ARM',
         ];
         list(
             $exit,
@@ -318,11 +320,13 @@ class BootMenu extends FOGBase
             $memtest,
             $imagefile,
             $init_32,
+            $init_arm,
             $hiddenTimeout,
             $hiddenmenu,
             $menuTimeout,
             $bzImage,
-            $bzImage32
+            $bzImage32,
+            $bzImageArm
         ) = self::getSetting($serviceNames);
         $memdisk = 'memdisk';
         $loglevel = $kernelLogLevel;
@@ -340,6 +344,9 @@ class BootMenu extends FOGBase
         if (($_REQUEST['arch'] ?? '') == 'i386') {
             $bzImage = $bzImage32;
             $imagefile = $init_32;
+        } elseif (($_REQUEST['arch'] ?? '') == 'arm') {
+            $bzImage = $bzImageArm;
+            $imagefile = $init_arm;
         }
         $kernel = $bzImage;
         if (self::$Host->get('kernel')) {

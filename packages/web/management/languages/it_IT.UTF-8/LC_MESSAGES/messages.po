@@ -2070,6 +2070,14 @@ msgstr "La funzione non esiste"
 msgid "GNU General Public License"
 msgstr ""
 
+#, fuzzy
+msgid "GPU Products"
+msgstr "Product Key Group"
+
+#, fuzzy
+msgid "GPU Vendors"
+msgstr "Venditore BIOS"
+
 msgid "General"
 msgstr "Generale"
 

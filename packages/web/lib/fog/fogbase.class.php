@@ -1124,7 +1124,7 @@ abstract class FOGBase
     {
         //we could optionally just catch 'No Data' or any !validDate dates and change them to now
         // if ($date !== 'now' && (!self::validDate($date))) {
-        //      $date = 'now';   
+        //      $date = 'now';
         // }
         if ($utc || empty(self::$TimeZone)) {
             $tz = new DateTimeZone('UTC');
@@ -1139,8 +1139,8 @@ abstract class FOGBase
         try {
             $niceDate = new DateTime($date, $tz);
         } catch (Exception $e) {
-                throw new Exception("Given date of '$date' is invalid! Can't create nicedate!");
-                $niceDate = $date;
+            throw new Exception("Given date of '$date' is invalid! Can't create nicedate!");
+            $niceDate = $date;
         }
         return $niceDate;
         // return new DateTime($date, $tz);

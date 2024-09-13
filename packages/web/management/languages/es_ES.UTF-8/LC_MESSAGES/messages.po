@@ -2209,6 +2209,14 @@ msgstr "Método no existe"
 msgid "GNU General Public License"
 msgstr ""
 
+#, fuzzy
+msgid "GPU Products"
+msgstr "Clave del producto Grupo"
+
+#, fuzzy
+msgid "GPU Vendors"
+msgstr "Vendedor del BIOS"
+
 msgid "General"
 msgstr "General"
 

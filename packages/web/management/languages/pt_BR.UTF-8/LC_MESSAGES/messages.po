@@ -2165,6 +2165,14 @@ msgstr "O método não existe"
 msgid "GNU General Public License"
 msgstr ""
 
+#, fuzzy
+msgid "GPU Products"
+msgstr "Grupo de Chave de Produto"
+
+#, fuzzy
+msgid "GPU Vendors"
+msgstr "BIOS Vendor"
+
 msgid "General"
 msgstr "Geral"
 

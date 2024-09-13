@@ -2163,6 +2163,14 @@ msgstr "方法不存在"
 msgid "GNU General Public License"
 msgstr ""
 
+#, fuzzy
+msgid "GPU Products"
+msgstr "集团产品密钥"
+
+#, fuzzy
+msgid "GPU Vendors"
+msgstr "BIOS供应商"
+
 msgid "General"
 msgstr "一般"
 

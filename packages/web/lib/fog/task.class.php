@@ -159,8 +159,8 @@ class Task extends TaskType
                     ++$count;
                 }
             } catch (Exception $e) {
-                    // FOGCORE::var_dump_log('nice date is invalid for checkInTime');
-                    //don't increment count for tasks with a 'No Data' check in time
+                // FOGCORE::var_dump_log('nice date is invalid for checkInTime');
+                //don't increment count for tasks with a 'No Data' check in time
             }
             unset($Task);
         }
