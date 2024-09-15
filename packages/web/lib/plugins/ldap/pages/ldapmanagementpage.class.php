@@ -204,7 +204,7 @@ class LDAPManagementPage extends FOGPage
         $searchScopes = array(
             _('Base Only'),
             _('Subtree Only'),
-            _('Subree and Below')
+            _('Subtree and Below')
         );
         $searchSel = self::selectForm(
             'searchScope',
@@ -651,7 +651,7 @@ class LDAPManagementPage extends FOGPage
         $searchScopes = array(
             _('Base Only'),
             _('Subtree Only'),
-            _('Subree and Below')
+            _('Subtree and Below')
         );
         $searchSel = self::selectForm(
             'searchScope',

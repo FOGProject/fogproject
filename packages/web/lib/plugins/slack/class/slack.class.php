@@ -14,7 +14,7 @@ class Slack extends FOGController
     public function getChannels()
     {
         $channels = array();
-        $channelnames = $this->call('channels.list');
+        $channelnames = $this->call('conversations.list');
         if (!$channelnames['ok']) {
             throw new SlackException(_('Channel call is invalid'));
         }

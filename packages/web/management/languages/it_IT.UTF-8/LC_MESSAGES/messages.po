@@ -957,9 +957,6 @@ msgstr "Tempo completo"
 msgid "Completed"
 msgstr "Completato"
 
-msgid "Completed imaging"
-msgstr "Imaging completato"
-
 msgid "Compression"
 msgstr "Compressione"
 
@@ -1092,9 +1089,6 @@ msgstr "Create attività per"
 
 msgid "Created by FOG Reg on"
 msgstr "Creato da FOG Reg su"
-
-msgid "Created file extension must be, jpg, jpeg, or png"
-msgstr ""
 
 msgid "Credits"
 msgstr "Credits"
@@ -1400,6 +1394,10 @@ msgstr "Modifica nodo"
 
 msgid "Edit User"
 msgstr "Modifica utente"
+
+#, fuzzy
+msgid "Editable"
+msgstr "Modifica"
 
 msgid "Either reboot or shutdown action must be used."
 msgstr "È necessario utilizzare l'azione di riavvio o di arresto."
@@ -1968,6 +1966,14 @@ msgstr "La funzione non esiste"
 
 msgid "GNU Gneral Public License"
 msgstr "GNU Gneral Public License"
+
+#, fuzzy
+msgid "GPU Products"
+msgstr "Product Key Group"
+
+#, fuzzy
+msgid "GPU Vendors"
+msgstr "Venditore BIOS"
 
 msgid "General"
 msgstr "Generale"
@@ -5148,6 +5154,10 @@ msgstr "Avvio processo"
 msgid "State"
 msgstr "Stato"
 
+#, fuzzy
+msgid "Static"
+msgstr "Stato"
+
 msgid "Status"
 msgstr "Stato"
 
@@ -5318,11 +5328,12 @@ msgstr "Gruppo aggiornato!"
 msgid "Subnets"
 msgstr ""
 
-msgid "Subree and Below"
-msgstr "Sottoalbero e inferiore"
-
 msgid "Subtree Only"
 msgstr "Solo Sottoalbero"
+
+#, fuzzy
+msgid "Subtree and Below"
+msgstr "Sottoalbero e inferiore"
 
 msgid "Successful"
 msgstr "Riuscito"
@@ -6393,6 +6404,14 @@ msgstr "client"
 msgid "clients"
 msgstr "client"
 
+#, fuzzy
+msgid "completed imaging."
+msgstr "Imaging completato"
+
+#, fuzzy
+msgid "completed snapin tasking."
+msgstr "Imaging completato"
+
 msgid "config files that run on the client computers."
 msgstr "file di configurazione eseguiti sui computer client."
 
@@ -6607,6 +6626,10 @@ msgstr "immagini"
 
 msgid "images to a storage group"
 msgstr "Immagini in un gruppo di archiviazione"
+
+#, fuzzy
+msgid "imaging failed."
+msgstr "Caricamento non riuscito"
 
 msgid "in seconds"
 msgstr "in secondi"

@@ -145,18 +145,23 @@ class Task extends TaskType
         foreach ((array)$this->getManager()
             ->find($find) as &$Task
         ) {
-            $TaskCheckinTime = self::niceDate($Task->get('checkInTime'));
-            $timeOfLastCheckin = $curTime
+            try {
+                $TaskCheckinTime = self::niceDate($Task->get('checkInTime'));
+                $timeOfLastCheckin = $curTime
                 ->getTimestamp() - $TaskCheckinTime
                 ->getTimestamp();
-            if ($timeOfLastCheckin >= $checkTime) {
-                $Task->set(
-                    'checkInTime',
-                    $curTime->format('Y-m-d H:i:s')
-                )->save();
-            }
-            if ($MyCheckinTime > $TaskCheckinTime) {
-                ++$count;
+                if ($timeOfLastCheckin >= $checkTime) {
+                    $Task->set(
+                        'checkInTime',
+                        $curTime->format('Y-m-d H:i:s')
+                    )->save();
+                }
+                if ($MyCheckinTime > $TaskCheckinTime) {
+                    ++$count;
+                }
+            } catch (Exception $e) {
+                    // FOGCORE::var_dump_log('nice date is invalid for checkInTime');
+                    //don't increment count for tasks with a 'No Data' check in time
             }
             unset($Task);
         }

@@ -1107,8 +1107,13 @@ abstract class FOGBase
         } else {
             $tz = new DateTimeZone(self::$TimeZone);
         }
-
-        return new DateTime($date, $tz);
+        try {
+            $niceDate = new DateTime($date, $tz);
+        } catch (Exception $e) {
+            throw new Exception("Given date of '$date' is invalid! Can't create nicedate!");
+            $niceDate = $date;
+        }
+        return $niceDate;
     }
     /**
      * Do formatting things.

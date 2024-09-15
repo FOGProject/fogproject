@@ -2450,6 +2450,10 @@ class HostManagementPage extends FOGPage
         $casever = $Inv->get('caseversion');
         $caseser = $Inv->get('caseserial');
         $caseast = $Inv->get('caseasset');
+        $gpuvendors = $Inv->get('gpuvendors');
+        $gpuproducts = $Inv->get('gpuproducts');
+        $gpuvendorsArray = explode(',', $gpuvendors);
+        $gpuproductsArray = explode(',', $gpuproducts);
         $fields = array(
             '<label for="pu">'
             . _('Primary User')
@@ -2472,6 +2476,45 @@ class HostManagementPage extends FOGPage
             . $other2
             . '" name="other2" id="other2"/>'
             . '</div>',
+            '<label for="updateinv">'
+            . _('Make Changes?')
+            . '</label>' => '<button name="update" type="submit" class="'
+            . 'btn btn-info btn-block" id="updateinv">'
+            . _('Update')
+            . '</button>',
+        );
+        $this->title = _('Host Hardware Inventory');
+        array_walk($fields, $this->fieldsToData);
+        self::$HookManager
+            ->processEvent(
+                'HOST_INVENTORY_EDITABLE',
+                array(
+                    'headerData' => &$this->headerData,
+                    'data' => &$this->data,
+                    'templates' => &$this->templates,
+                    'attributes' => &$this->attributes
+                )
+            );
+        echo '<!-- Inventory Edits-->';
+        echo '<div class="tab-pane fade" id="host-hardware-inventory">';
+        echo '<div class="panel panel-info" id="host-hardware-editable">';
+        echo '<div class="panel-heading text-center">';
+        echo '<h4 class="title">';
+        echo $this->title . ' ' . _('Editable');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="panel-body">';
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '&tab=host-hardware-inventory">';
+        $this->render(12);
+        echo '</form>';
+        echo '</div>';
+        echo '</div>';
+        unset($this->data, $this->form, $fields);
+
+        echo '<!-- Inventory Static-->';
+        $fields = array(
             _('System Manufacturer') => $sysman,
             _('System Product') => $sysprod,
             _('System Version') => $sysver,
@@ -2497,21 +2540,18 @@ class HostManagementPage extends FOGPage
             _('Chassis Manufacturer') => $caseman,
             _('Chassis Version') => $casever,
             _('Chassis Serial') => $caseser,
-            _('Chassis Asset') => $caseast,
-            '<label for="updateinv">'
-            . _('Make Changes?')
-            . '</label>' => '<button name="update" type="submit" class="'
-            . 'btn btn-info btn-block" id="updateinv">'
-            . _('Update')
-            . '</button>'
+            _('Chassis Asset') => $caseast
         );
-        $this->title = _('Host Hardware Inventory');
+        for ($i = 0; $i < count($gpuvendorsArray); $i++) {
+            $fields[_("GPU-$i Vendor")] = $gpuvendorsArray[$i];
+            $fields[_("GPU-$i Product")] = $gpuproductsArray[$i];
+        }
         if ($this->obj->get('inventory')->isValid()) {
             array_walk($fields, $this->fieldsToData);
         }
         self::$HookManager
             ->processEvent(
-                'HOST_INVENTORY',
+                'HOST_INVENTORY_STATIC',
                 array(
                     'headerData' => &$this->headerData,
                     'data' => &$this->data,
@@ -2519,29 +2559,23 @@ class HostManagementPage extends FOGPage
                     'attributes' => &$this->attributes
                 )
             );
-        echo '<!-- Inventory -->';
-        echo '<div class="tab-pane fade" id="host-hardware-inventory">';
-        echo '<div class="panel panel-info">';
+        echo '<div class="panel panel-info" id="host-hardware-inventory-static">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
-        echo $this->title;
+        echo $this->title . ' ' . _('Static');
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        echo '<form class="form-horizontal" method="post" action="'
-            . $this->formAction
-            . '&tab=host-hardware-inventory">';
         $this->render(12);
-        echo '</form>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
         unset(
             $this->data,
-            $this->form,
             $this->headerData,
             $this->templates,
-            $this->attributes
+            $this->attributes,
+            $fields
         );
     }
     /**

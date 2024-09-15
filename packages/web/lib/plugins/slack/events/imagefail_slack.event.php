@@ -67,7 +67,11 @@ class ImageFail_Slack extends Event
         ) {
             $args = array(
                 'channel' => $Token->get('name'),
-                'text' => "{$data[HostName]} Failed imaging",
+                'text' => sprintf(
+                    'Host: %s %s',
+                    $data['HostName'],
+                    _('imaging failed.')
+                )
             );
             $Token->call('chat.postMessage', $args);
             unset($Token);
