@@ -1718,7 +1718,7 @@ class Route extends FOGBase
         try {
             $deploySnapins = false;
             if (isset($task->deploySnapins)) {
-                $deploySnapins = $this->deploySnapins;
+                $deploySnapins = $task->deploySnapins;
                 if (
                     !is_numeric($deploySnapins) || (
                         $deploySnapins < 0 && $deploySnapins != -1
