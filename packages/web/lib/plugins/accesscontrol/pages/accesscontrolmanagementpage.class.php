@@ -790,7 +790,7 @@ class AccessControlManagementPage extends FOGPage
             );
             unset($object);
         }
-        if (count($this->data) < 1) {
+        if (count((array)$this->data) < 1) {
             self::redirect('?node=' . $node . '&sub=ruleList');
         }
         $this->data[] = array(
@@ -1400,7 +1400,7 @@ class AccessControlManagementPage extends FOGPage
             $this->attributes
         );
         $this->headerData = array(
-            '<label for="toggler2>'
+            '<label for="toggler2">'
             . '<input type="checkbox" name="toggle-checkbox'
             . $this->node
             . '" class="toggle-checkboxrule" id="toggler2"/>'
@@ -1476,7 +1476,7 @@ class AccessControlManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
-        if (count($this->data) > 0) {
+        if (count((array)$this->data) > 0) {
             $notInMe = $meShow = 'accesscontrolrule';
             $meShow .= 'MeShow';
             $notInMe .= 'NotInMe';
@@ -1564,7 +1564,7 @@ class AccessControlManagementPage extends FOGPage
         );
         $getter = 'accesscontrolrules';
         array_walk($items, $returnData);
-        if (count($this->data) > 0) {
+        if (count((array)$this->data) > 0) {
             echo '<div class="panel panel-warning">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
@@ -1771,7 +1771,7 @@ class AccessControlManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
-        if (count($this->data) > 0) {
+        if (count((array)$this->data) > 0) {
             $notInMe = $meShow = 'user';
             $meShow .= 'MeShow';
             $notInMe .= 'NotInMe';
@@ -1792,7 +1792,7 @@ class AccessControlManagementPage extends FOGPage
             echo '<br/>';
             echo '<div class="hiddeninitially panel panel-info" id="'
                 . $notInMe
-                . '"/>';
+                . '">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
             echo _('Add Users');
@@ -1839,7 +1839,7 @@ class AccessControlManagementPage extends FOGPage
         );
         $getter = 'users';
         array_walk($items, $returnData);
-        if (count($this->data) > 0) {
+        if (count((array)$this->data) > 0) {
             echo '<div class="panel panel-warning">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';

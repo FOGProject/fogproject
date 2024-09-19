@@ -509,7 +509,7 @@ class SiteManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
-        if (count($this->data) > 0) {
+        if (count((array)$this->data) > 0) {
             $notInMe = $meShow = 'host';
             $meShow .= 'MeShow';
             $notInMe .= 'NotInMe';
@@ -575,7 +575,7 @@ class SiteManagementPage extends FOGPage
         );
         $getter = 'hosts';
         array_walk($items, $returnData);
-        if (count($this->data) > 0) {
+        if (count((array)$this->data) > 0) {
             echo '<div class="panel panel-warning">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
@@ -715,7 +715,7 @@ class SiteManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
-        if (count($this->data) > 0) {
+        if (count((array)$this->data) > 0) {
             $notInMe = $meShow = 'user';
             $meShow .= 'MeShow';
             $notInMe .= 'NotInMe';
@@ -783,7 +783,7 @@ class SiteManagementPage extends FOGPage
         );
         $getter = 'users';
         array_walk($items, $returnData);
-        if (count($this->data) > 0) {
+        if (count((array)$this->data) > 0) {
             echo '<div class="panel panel-warning">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
