@@ -22,6 +22,7 @@
             {data: 'mainlink'},
             {data: 'storagegroupLink'},
             {data: 'storagenodeLink'},
+            {data: 'protocol'},
             {data: 'tftp'}
         ],
         rowId: 'id',
@@ -39,7 +40,7 @@
                     }
                     return disabled;
                 },
-                targets: 3
+                targets: 4
             }
         ],
         processing: true,

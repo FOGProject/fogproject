@@ -182,12 +182,6 @@ class SnapinClient extends FOGClient
                             continue;
                         }
                     }
-                    $location = sprintf(
-                        '%s://%s/%s',
-                        self::$httpproto,
-                        $StorageNode->get('ip'),
-                        $StorageNode->get('webroot')
-                    );
                     $path = sprintf(
                         '/%s',
                         trim($StorageNode->get('snapinpath'), '/')
@@ -211,7 +205,7 @@ class SnapinClient extends FOGClient
                     }
                     $size = self::getFilesize($filepath);
                     $info['snapins'][] = [
-                        'pack' =>( bool)$Snapin->get('packtype'),
+                        'pack' => (bool)$Snapin->get('packtype'),
                         'hide' => (bool)$Snapin->get('hide'),
                         'timeout' => $Snapin->get('timeout'),
                         'jobtaskid' => $SnapinTask->get('id'),
@@ -224,7 +218,7 @@ class SnapinClient extends FOGClient
                         'runwithargs' => $Snapin->get('runWithArgs'),
                         'hash' => strtoupper($hash),
                         'size' => $size,
-                        'url' => rtrim($location, '/'),
+                        'url' => rtrim($StorageNode->location_url ?? '', '/'),
                     ];
                     unset($Snapin, $SnapinTask);
                 }

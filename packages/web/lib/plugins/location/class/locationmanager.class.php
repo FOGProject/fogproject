@@ -46,7 +46,8 @@ class LocationManager extends FOGManagerController
                 'lStorageNodeID',
                 'lCreatedBy',
                 'lCreatedTime',
-                'lTftpEnabled'
+                'lTftpEnabled',
+                'lStorageNodeProto'
             ],
             [
                 'INTEGER',
@@ -56,9 +57,11 @@ class LocationManager extends FOGManagerController
                 'INTEGER',
                 'VARCHAR(40)',
                 'TIMESTAMP',
-                "ENUM('0', '1')"
+                "ENUM('0', '1')",
+                "ENUM('http', 'https')"
             ],
             [
+                false,
                 false,
                 false,
                 false,
@@ -76,6 +79,7 @@ class LocationManager extends FOGManagerController
                 false,
                 false,
                 'CURRENT_TIMESTAMP',
+                false,
                 false
             ],
             [
@@ -111,5 +115,30 @@ class LocationManager extends FOGManagerController
         );
         self::getClass('LocationAssociationManager')->uninstall();
         return parent::uninstall();
+    }
+    /**
+     * Build protocol select box
+     *
+     * @return string
+     */
+    public static function buildProtocolSelectBox($preselection)
+    {
+        $protocols = ['http' => 'HTTP', 'https' => 'HTTPS'];
+        ob_start();
+        foreach ($protocols as $short => $long) {
+            printf(
+                '<option value="%s"%s>%s</option>',
+                $short,
+                ($preselection === $short ? ' selected' : ''),
+                $long
+            );
+        }
+        return '<select class="form-control" name="storagenodeprotocol" '
+            . 'id="storagenodeprotocol">'
+            . '<option value="">- '
+            . self::$foglang['PleaseSelect']
+            .' -</option>'
+            . ob_get_clean()
+            . '</select>';
     }
 }

@@ -5685,6 +5685,10 @@ msgid "Storage Node Password"
 msgstr "存储节点密码"
 
 #, fuzzy
+msgid "Storage Node Protocol"
+msgstr "存储节点的IP"
+
+#, fuzzy
 msgid "Storage Node SSL Path"
 msgstr "存储节点的IP"
 

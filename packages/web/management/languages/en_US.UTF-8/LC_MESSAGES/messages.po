@@ -5685,6 +5685,10 @@ msgid "Storage Node Password"
 msgstr "Storage Node Password"
 
 #, fuzzy
+msgid "Storage Node Protocol"
+msgstr "Storage Node IP"
+
+#, fuzzy
 msgid "Storage Node SSL Path"
 msgstr "Storage Node IP"
 

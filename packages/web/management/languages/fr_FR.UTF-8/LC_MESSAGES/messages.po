@@ -5692,6 +5692,10 @@ msgid "Storage Node Password"
 msgstr "Nœud de stockage Mot de passe"
 
 #, fuzzy
+msgid "Storage Node Protocol"
+msgstr "Noeud de stockage IP"
+
+#, fuzzy
 msgid "Storage Node SSL Path"
 msgstr "Noeud de stockage IP"
 

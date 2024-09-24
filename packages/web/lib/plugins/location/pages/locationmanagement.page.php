@@ -44,9 +44,11 @@ class LocationManagement extends FOGPage
             _('Location Name'),
             _('Storage Group'),
             _('Storage Node'),
+            _('Storage Node Protocol'),
             _('Kernels/Inits from location')
         ];
         $this->attributes = [
+            [],
             [],
             [],
             [],
@@ -66,10 +68,13 @@ class LocationManagement extends FOGPage
         $description = filter_input(INPUT_POST, 'description');
         $storagegroup = filter_input(INPUT_POST, 'storagegroup');
         $storagenode = filter_input(INPUT_POST, 'storagenode');
+        $storagenodeprotocol = filter_input(INPUT_POST, 'storagenodeprotocol');
         $storagegroupSelector = self::getClass('StorageGroupManager')
             ->buildSelectBox($storagegroup);
         $storagenodeSelector = self::getClass('StorageNodeManager')
             ->buildSelectBox($storagenode);
+        $storagenodeProtocolSelector = self::getClass('LocationManager')
+            ->buildProtocolSelectBox($storagenodeprotocol);
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -108,6 +113,11 @@ class LocationManagement extends FOGPage
                 'storagenode',
                 _('Storage Node')
             ) => $storagenodeSelector,
+            self::makeLabel(
+                $labelClass,
+                'storagenodeprotocol',
+                _('Storage Node Protocol')
+            ) => $storagenodeProtocolSelector,
             self::makeLabel(
                 $labelClass,
                 'bootfrom',
@@ -182,10 +192,13 @@ class LocationManagement extends FOGPage
         $description = filter_input(INPUT_POST, 'description');
         $storagegroup = filter_input(INPUT_POST, 'storagegroup');
         $storagenode = filter_input(INPUT_POST, 'storagenode');
+        $storagenodeprotocol = filter_input(INPUT_POST, 'storagenodeprotocol');
         $storagegroupSelector = self::getClass('StorageGroupManager')
             ->buildSelectBox($storagegroup);
         $storagenodeSelector = self::getClass('StorageNodeManager')
             ->buildSelectBox($storagenode);
+        $storagenodeProtocolSelector = self::getClass('LocationManager')
+            ->buildProtocolSelectBox($storagenodeprotocol);
 
         $labelClass = 'col-sm-3 control-label';
 
@@ -224,6 +237,11 @@ class LocationManagement extends FOGPage
                 'storagenode',
                 _('Storage Node')
             ) => $storagenodeSelector,
+            self::makeLabel(
+                $labelClass,
+                'storagenodeprotocol',
+                _('Storage Node Protocol')
+            ) => $storagenodeProtocolSelector,
             self::makeLabel(
                 $labelClass,
                 'bootfrom',
@@ -285,6 +303,9 @@ class LocationManagement extends FOGPage
         $storagenode = trim(
             filter_input(INPUT_POST, 'storagenode')
         );
+        $storagenodeprotocol = trim(
+            filter_input(INPUT_POST, 'storagenodeprotocol')
+        );
         $bootfrom = (int)isset($_POST['bootfrom']);
 
         $serverFault = false;
@@ -309,7 +330,8 @@ class LocationManagement extends FOGPage
                 ->set('name', $location)
                 ->set('storagegroupID', $storagegroup)
                 ->set('storagenodeID', $storagenode)
-                ->set('tftp', $bootfrom);
+                ->set('tftp', $bootfrom)
+                ->set('protocol', $storagenodeprotocol);
             if (!$Location->save()) {
                 $serverFault = true;
                 throw new Exception(_('Add location failed!'));
@@ -378,10 +400,16 @@ class LocationManagement extends FOGPage
             filter_input(INPUT_POST, 'storagenode') ?:
             $this->obj->get('storagenodeID')
         );
+        $storagenodeprotocol = (
+            filter_input(INPUT_POST, 'storagenodeprotocol') ?:
+            $this->obj->get('protocol')
+        );
         $storagegroupSelector = self::getClass('StorageGroupManager')
             ->buildSelectBox($storagegroup);
         $storagenodeSelector = self::getClass('StorageNodeManager')
             ->buildSelectBox($storagenode);
+        $storagenodeProtocolSelector = self::getCLass('LocationManager')
+            ->buildProtocolSelectBox($storagenodeprotocol);
         $bootfrom = (
             isset($_POST['bootfrom']) ?
             'checked' :
@@ -429,6 +457,11 @@ class LocationManagement extends FOGPage
                 'storagenode',
                 _('Storage Node')
             ) => $storagenodeSelector,
+            self::makeLabel(
+                $labelClass,
+                'storagenodeprotocol',
+                _('Storage Node Protocol')
+            ) => $storagenodeProtocolSelector,
             self::makeLabel(
                 $labelClass,
                 'bootfrom',
@@ -511,6 +544,9 @@ class LocationManagement extends FOGPage
         $storagenode = trim(
             filter_input(INPUT_POST, 'storagenode')
         );
+        $storagenodeprotocol = trim(
+            filter_input(INPUT_POST, 'storagenodeprotocol')
+        );
         $bootfrom = (int)isset($_POST['bootfrom']);
 
         $exists = self::getClass('LocationManager')
@@ -536,7 +572,8 @@ class LocationManagement extends FOGPage
             ->set('description', $description)
             ->set('storagegroupID', $storagegroup)
             ->set('storagenodeID', $storagenode)
-            ->set('tftp', $bootfrom);
+            ->set('tftp', $bootfrom)
+            ->set('protocol', $storagenodeprotocol);
     }
     /**
      * Present the hosts list.
