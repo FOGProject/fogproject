@@ -197,7 +197,9 @@ class AddAccessControlUser extends Hook
             . _('User Name')
             . '</label>',
             $arguments['fields'],
-            _('User Access Control'),
+            '<label for="accesscontrol">'
+            . _('User Access Control')
+            . '</label>',
             self::getClass('AccessControlManager')->buildSelectBox(
                 $acID
             )

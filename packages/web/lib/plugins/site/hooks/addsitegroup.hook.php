@@ -93,13 +93,15 @@ class AddSiteGroup extends Hook
         if ($node != 'group') {
             return;
         }
-        $link = $arguments['linkformat'];
-        $this->arrayInsertAfter(
-            "$link#group-image",
-            $arguments['submenu'],
-            "$link#group-site",
-            _('Site Association')
-        );
+        if (isset($arguments['linkformat'])) {
+            $link = $arguments['linkformat'];
+            self::arrayInsertAfter(
+                "$link#group-image",
+                $arguments['submenu'],
+                "$link#group-site",
+                _('Site Association')
+            );
+        }
     }
     /**
      * Group fields.

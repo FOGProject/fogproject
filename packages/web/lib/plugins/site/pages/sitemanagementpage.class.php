@@ -78,14 +78,14 @@ class SiteManagementPage extends FOGPage
         }
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction" checked/>',
+            . '"toggle-checkboxAction" id="toggler"/>',
             _('Site Name'),
             _('Site Description'),
             _('Hosts')
         );
         $this->templates = array(
             '<input type="checkbox" name="location[]" value='
-            . '"${id}" class="toggle-action" checked/>',
+            . '"${id}" class="toggle-action"/>',
             '<a href="?node=site&sub=edit&id=${id}" title="Edit">${name}</a>',
             '${description}',
             '${hosts}'
