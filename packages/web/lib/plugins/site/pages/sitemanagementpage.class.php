@@ -78,14 +78,14 @@ class SiteManagementPage extends FOGPage
         }
         $this->headerData = array(
             '<input type="checkbox" name="toggle-checkbox" class='
-            . '"toggle-checkboxAction" checked/>',
+            . '"toggle-checkboxAction" id="toggler"/>',
             _('Site Name'),
             _('Site Description'),
             _('Hosts')
         );
         $this->templates = array(
             '<input type="checkbox" name="location[]" value='
-            . '"${id}" class="toggle-action" checked/>',
+            . '"${id}" class="toggle-action"/>',
             '<a href="?node=site&sub=edit&id=${id}" title="Edit">${name}</a>',
             '${description}',
             '${hosts}'
@@ -509,7 +509,7 @@ class SiteManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
-        if (count($this->data) > 0) {
+        if (count((array)$this->data) > 0) {
             $notInMe = $meShow = 'host';
             $meShow .= 'MeShow';
             $notInMe .= 'NotInMe';
@@ -575,7 +575,7 @@ class SiteManagementPage extends FOGPage
         );
         $getter = 'hosts';
         array_walk($items, $returnData);
-        if (count($this->data) > 0) {
+        if (count((array)$this->data) > 0) {
             echo '<div class="panel panel-warning">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
@@ -715,7 +715,7 @@ class SiteManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
-        if (count($this->data) > 0) {
+        if (count((array)$this->data) > 0) {
             $notInMe = $meShow = 'user';
             $meShow .= 'MeShow';
             $notInMe .= 'NotInMe';
@@ -783,7 +783,7 @@ class SiteManagementPage extends FOGPage
         );
         $getter = 'users';
         array_walk($items, $returnData);
-        if (count($this->data) > 0) {
+        if (count((array)$this->data) > 0) {
             echo '<div class="panel panel-warning">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';

@@ -144,20 +144,6 @@ class AccessControl extends FOGController
             array('accesscontrolID' => $this->get('id')),
             'userID'
         );
-        $types = array();
-        self::$HookManager->processEvent(
-            'USER_TYPES_FILTER',
-            array('types' => &$types)
-        );
-        $userid = self::getSubObjectIDs(
-            'User',
-            array('type' => $types)
-        );
-        $associds = array_diff(
-            $associds,
-            $userid
-        );
-        unset($userid);
         $userids = self::getSubObjectIDs(
             'User',
             array('id' => $associds)

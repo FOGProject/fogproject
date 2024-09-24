@@ -542,7 +542,7 @@ class WindowsKeyManagementPage extends FOGPage
         echo '<form class="form-horizontal" method="post" action="'
             . $this->formAction
             . '">';
-        if (count($this->data)  > 0) {
+        if (count((array)$this->data)  > 0) {
             $notInMe = $meShow = 'image';
             $meShow .= 'MeShow';
             $notInMe .= 'NotInMe';
@@ -610,7 +610,7 @@ class WindowsKeyManagementPage extends FOGPage
         );
         $getter = 'images';
         array_walk($items, $returnData);
-        if (count($this->data) > 0) {
+        if (count((array)$this->data) > 0) {
             echo '<div class="panel panel-warning">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
