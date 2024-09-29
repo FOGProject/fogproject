@@ -85,7 +85,7 @@ class BootItem extends Hook
             $arguments['ipxe']['head'][0]
                 = '#!ipxeishereherherherher';
             $arguments['ipxe']['head'][1]
-                = 'cpuid --ext 29 && set arch x86_64 || set arch i386';
+                = 'set arch ${buildarch}';
             $arguments['ipxe']['head'][2]
                 = 'goto get_console';
             $arguments['ipxe']['head'][3]

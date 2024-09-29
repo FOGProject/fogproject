@@ -582,7 +582,7 @@ class BootMenu extends FOGBase
         $debug = $debug;
         if (!$this->_hiddenmenu || $shortCircuit) {
             $Send['chainnohide'] = [
-                'cpuid --ext 29 && set arch x86_64 || set arch i386',
+                'set arch ${buildarch}',
                 'params',
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
@@ -608,7 +608,7 @@ class BootMenu extends FOGBase
                 'Escape'
             );
             $Send['chainhide'] = [
-                'cpuid --ext 29 && set arch x86_64 || set arch i386',
+                'set arch ${buildarch}',
                 "iseq \${platform} efi && set key 0x1b || set key $KSKey",
                 "iseq \${platform} efi && set keyName ESC || "
                 . "set keyName $KSName",
@@ -707,7 +707,7 @@ class BootMenu extends FOGBase
     public function keyreg()
     {
         $Send['keyreg'] = [
-            'cpuid --ext 29 && set arch x86_64 || set arch i386',
+            'set arch ${buildarch}',
             'echo -n Please enter the product key : ',
             'read key',
             'params',
@@ -761,7 +761,7 @@ class BootMenu extends FOGBase
                 'echo No session found with that name.',
                 'clear sessname',
                 'sleep 3',
-                'cpuid --ext 29 && set arch x86_64 || set arch i386',
+                'set arch ${buildarch}',
                 'params',
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
@@ -786,7 +786,7 @@ class BootMenu extends FOGBase
     public function sessjoin()
     {
         $Send['joinsession'] = [
-            'cpuid --ext 29 && set arch x86_64 || set arch i386',
+            'set arch ${buildarch}',
             'echo -n Please enter the session name to join > ',
             'read sessname',
             'params',
@@ -1855,7 +1855,7 @@ class BootMenu extends FOGBase
         ) = self::getSetting($ipxeGrabs);
         $Send['head'] = self::fastmerge(
             [
-                'cpuid --ext 29 && set arch x86_64 || set arch i386',
+                'set arch ${buildarch}',
                 'goto get_console',
                 ':console_set',
             ],
