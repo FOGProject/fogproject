@@ -19,7 +19,7 @@
 [[ -z $packageQuery ]] && packageQuery="rpm -q \$x"
 case $linuxReleaseName_lower in
     *mageia*)
-        [[ -z $packages ]] && packages="apache apache-mod_fcgid apache-mod_php apache-mod_ssl cdrkit-genisoimage curl dhcp-server gcc gcc-c++ git gzip htmldoc lftp m4 make mariadb mariadb-common mariadb-common-core mariadb-core net-tools nfs-utils perl perl-Crypt-PasswdMD5 php-cli php-curl php-fpm php-gd php-gettext php-ldap php-mbstring php-mysqlnd php-pcntl php-pdo php-pdo_mysql tar tftp-server util-linux vsftpd wget"
+        [[ -z $packages ]] && packages="apache apache-mod_fcgid apache-mod_php apache-mod_ssl cdrkit-genisoimage curl dhcp-server gcc gcc-aarch64-linux-gnu gcc-c++ git gzip htmldoc lftp m4 make mariadb mariadb-common mariadb-common-core mariadb-core net-tools nfs-utils perl perl-Crypt-PasswdMD5 php-cli php-curl php-fpm php-gd php-gettext php-ldap php-mbstring php-mysqlnd php-pcntl php-pdo php-pdo_mysql tar tftp-server util-linux vsftpd wget"
         [[ -z $packageinstaller ]] && packageinstaller="urpmi --auto"
         [[ -z $packagelist ]] && packagelist="urpmq"
         [[ -z $packageupdater ]] && packageupdater="$packageinstaller"
@@ -33,10 +33,10 @@ case $linuxReleaseName_lower in
         [[ -z $etcconf ]] && etcconf="/etc/httpd/conf.d/fog.conf"
         [[ -z $packages ]] && {
             if [[ $OSVersion -gt 7 ]]; then
-                packages="curl dhcp-server gcc gcc-c++ genisoimage git gzip httpd lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils openssl php php-cli php-common php-fpm php-gd php-json php-ldap php-mbstring php-mysqlnd php-process syslinux tar tftp-server util-linux-user vsftpd wget xz-devel"
+                packages="curl dhcp-server gcc gcc-aarch64-linux-gnu gcc-c++ genisoimage git gzip httpd lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils openssl php php-cli php-common php-fpm php-gd php-json php-ldap php-mbstring php-mysqlnd php-process syslinux tar tftp-server util-linux-user vsftpd wget xz-devel"
                 [[ -z $dhcpname ]] && dhcpname="dhcp-server"
             else
-                packages="curl dhcp gcc gcc-c++ genisoimage git gzip httpd lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils openssl php php-cli php-common php-fpm php-gd php-ldap php-mbstring php-mysqlnd php-process syslinux tar tftp-server util-linux vsftpd wget xz-devel"
+                packages="curl dhcp gcc gcc-aarch64-linux-gnu gcc-c++ genisoimage git gzip httpd lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils openssl php php-cli php-common php-fpm php-gd php-ldap php-mbstring php-mysqlnd php-process syslinux tar tftp-server util-linux vsftpd wget xz-devel"
             fi
         }
         pkginst=$(command -v dnf)
