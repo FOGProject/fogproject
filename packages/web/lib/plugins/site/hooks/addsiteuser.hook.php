@@ -214,6 +214,7 @@ class AddSiteUser extends Hook
                         )
                     )
                 );
+                $sitenames = '';
                 foreach ($SiteNames as $name) {
                     $sitenames .= $name.",";
                     unset($name);
@@ -268,7 +269,9 @@ class AddSiteUser extends Hook
             . _('User Name')
             . '</label>',
             $arguments['fields'],
-            _('Is Restricted User '),
+            '<label for="isRestricted">'
+            . _('Is Restricted User ')
+            . '</label>',
             sprintf(
                 '<input type="checkbox" name="isRestricted" id="isRestricted"%s/>'
                 . '<label for="isRestricted"></label>',
@@ -360,6 +363,7 @@ class AddSiteUser extends Hook
                     )
                 )
             );
+            $sitenames = '';
             foreach ($Sites as $index) {
                 $sitenames .= $index." ";
                 unset($index);

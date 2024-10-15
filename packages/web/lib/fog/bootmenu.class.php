@@ -147,7 +147,7 @@ class BootMenu extends FOGBase
             );
         }
 
-        if (isset($_REQUEST['arch']) && stripos($_REQUEST['arch'], 'arm') !== false) {
+        if (isset($_REQUEST['arch']) && stripos($_REQUEST['arch'], 'arm64') !== false) {
             //use arm boot loaders instead
             $refind = 'chain -ar ${boot-url}/service/ipxe/refind_aa64.efi';
         }
@@ -296,7 +296,7 @@ class BootMenu extends FOGBase
         if (($_REQUEST['arch'] ?? '') == 'i386') {
             $bzImage = $bzImage32;
             $imagefile = $init_32;
-        } elseif (($_REQUEST['arch'] ?? '') == 'arm') {
+        } elseif (($_REQUEST['arch'] ?? '') == 'arm64') {
             $bzImage = $bzImageArm;
             $imagefile = $init_arm;
         }
@@ -556,7 +556,7 @@ class BootMenu extends FOGBase
         $debug = $debug;
         if (!(isset($this->_hiddenmenu) && $this->_hiddenmenu) || $shortCircuit) {
             $Send['chainnohide'] = array(
-                'cpuid --ext 29 && set arch x86_64 || set arch i386',
+                'set arch ${buildarch}',
                 'params',
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
@@ -581,7 +581,7 @@ class BootMenu extends FOGBase
                 'Escape'
             );
             $Send['chainhide'] = array(
-                'cpuid --ext 29 && set arch x86_64 || set arch i386',
+                'set arch ${buildarch}',
                 "iseq \${platform} efi && set key 0x1b || set key $KSKey",
                 "iseq \${platform} efi && set keyName ESC || "
                 . "set keyName $KSName",
@@ -738,7 +738,7 @@ class BootMenu extends FOGBase
     public function delConf()
     {
         $Send['delconfirm'] = array(
-            'cpuid --ext 29 && set arch x86_64 || set arch i386',
+            'set arch ${buildarch}',
             'params',
             'prompt --key y Would you like to delete this host? (y/N): && goto deleteyes || goto deleteno',
             ':deleteyes',
@@ -765,7 +765,7 @@ class BootMenu extends FOGBase
     public function aprvConf()
     {
         $Send['aprvconfirm'] = array(
-            'cpuid --ext 29 && set arch x86_64 || set arch i386',
+            'set arch ${buildarch}',
             'params',
             'prompt --key y Would you like to approve this host? (y/N): && goto answeryes || goto answerno',
             ':answeryes',
@@ -792,7 +792,7 @@ class BootMenu extends FOGBase
     public function keyreg()
     {
         $Send['keyreg'] = array(
-            'cpuid --ext 29 && set arch x86_64 || set arch i386',
+            'set arch ${buildarch}',
             'echo -n Please enter the product key : ',
             'read key',
             'params',
@@ -846,7 +846,7 @@ class BootMenu extends FOGBase
                 'echo No session found with that name.',
                 'clear sessname',
                 'sleep 3',
-                'cpuid --ext 29 && set arch x86_64 || set arch i386',
+                'set arch ${buildarch}',
                 'params',
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
@@ -871,7 +871,7 @@ class BootMenu extends FOGBase
     public function sessjoin()
     {
         $Send['joinsession'] = array(
-            'cpuid --ext 29 && set arch x86_64 || set arch i386',
+            'set arch ${buildarch}',
             'echo -n Please enter the session name to join > ',
             'read sessname',
             'params',
@@ -1970,7 +1970,7 @@ class BootMenu extends FOGBase
         );
         $Send['head'] = self::fastmerge(
             array(
-                'cpuid --ext 29 && set arch x86_64 || set arch i386',
+                'set arch ${buildarch}',
                 'goto get_console',
                 ':console_set',
             ),
