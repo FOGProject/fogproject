@@ -55,6 +55,9 @@ class RegisterClient extends FOGClient
             $maxPending
         ) = self::getSetting($keys);
         $hostname = filter_input(INPUT_POST, 'hostname');
+        if (!$hostname) {
+            $hostname = filter_input(INPUT_GET, 'hostname');
+        }
         $find = [
             'hostID' => self::$Host->get('id'),
             'pending' => [1]
