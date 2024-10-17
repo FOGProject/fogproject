@@ -339,36 +339,22 @@ class FOGSSH
 
         if (is_dir($dir)) {
             if ($dh = opendir($dir)) {
-                if (($file = readdir($dh)) === false) {
-                    $esc_remote_file = escapeshellarg($remote_file);
-                    $stream = $this->exec("find $esc_remote_file -type f");
-                    stream_set_blocking($stream, true);
-                    $out = $this->fetch_stream($stream, SSH2_STREAM_STDIO);
-                    $tmp = explode("\n", stream_get_contents($out));
-                    foreach ($tmp as $t) {
-                        if (!str_starts_with($t, $remote_file)) {
-                            continue;
-                        }
-                        $tempArray[] = $t;
+                while (($file = readdir($dh)) !== false) {
+                    if ($file == '.' || $file == '..') {
+                        continue;
                     }
-                } else {
-                    while (($file = readdir($dh)) !== false) {
-                        if ($file == '.' || $file == '..' || !str_starts_with($file, $remote_file)) {
-                            continue;
+                    $filetype = filetype($dir . DS . $file);
+                    if ($filetype == 'dir') {
+                        $tmp = $this->scanFilesystem($remote_file.DS.$file.DS);
+                        foreach ($tmp as $t) {
+                            $tempArray[] = $remote_file.DS.$file.DS.$t;
                         }
-                        $filetype = filetype($dir . DS . $file);
-                        if ($filetype == 'dir') {
-                            $tmp = $this->scanFilesystem($remote_file.DS.$file.DS);
-                            foreach ($tmp as $t) {
-                                $tempArray[] = $remote_file.DS.$file.DS.$t;
-                            }
-                        } else {
-                            $tempArray[] = $remote_file.DS.$file;
-                        }
+                    } else {
+                        $tempArray[] = $remote_file.DS.$file;
                     }
                 }
-                closedir($dh);
             }
+            closedir($dh);
         }
 
         return $tempArray;
