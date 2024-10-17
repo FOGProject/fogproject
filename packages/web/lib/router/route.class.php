@@ -1122,6 +1122,19 @@ class Route extends FOGBase
                             return self::getClass('StorageNode', $d)->getClientLoad();
                         }
                     ];
+                    $columns[] = [
+                        'db' => 'ngmID',
+                        'dt' => 'location_url',
+                        'formatter' => function ($d, $row) {
+                            $node = new StorageNode($d);
+                            return sprintf(
+                                '%s://%s/%s',
+                                self::$httpproto,
+                                $node->get('ip'),
+                                $node->get('webroot')
+                            );
+                        }
+                    ];
                     /*$columns[] = [
                         'db' => 'ngmID',
                         'dt' => 'online',
@@ -2209,7 +2222,13 @@ class Route extends FOGBase
                             //'logfiles' => $class->get('logfiles'),
                             'snapinfiles' => $class->get('snapinfiles'),
                             'images' => $class->get('images'),
-                            'storagegroup' => $class->get('storagegroup')->get()
+                            'storagegroup' => $class->get('storagegroup')->get(),
+                            'location_url' => sprintf(
+                                '%s://%s/%s',
+                                self::$httpproto,
+                                $class->get('ip'),
+                                $class->get('webroot')
+                            )
                         ]
                     );
                     break;
