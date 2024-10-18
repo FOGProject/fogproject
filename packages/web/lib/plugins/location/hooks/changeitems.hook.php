@@ -137,7 +137,7 @@ class ChangeItems extends Hook
                         ->getStorageNode();
                     $arguments['StorageNode']->{"location_url"} = sprintf(
                         '%s://%s/%s',
-                        $Location->get('protocol') ?? 'http',
+                        $Location->get('protocol') ?: self::$httpproto,
                         $arguments['StorageNode']->get('ip'),
                         $arguments['StorageNode']->get('webroot')
                     );

@@ -22,6 +22,12 @@
 class StorageNode extends FOGController
 {
     /**
+     * stdClass property of Location URL
+     *
+     * @var string
+     */
+    public $location_url = '';
+    /**
      * The storage node table.
      *
      * @var string
@@ -79,6 +85,7 @@ class StorageNode extends FOGController
         'logfiles',
         'usedtasks',
         'storagegroup',
+        'location_url',
         'online'
     ];
     /**
@@ -184,6 +191,16 @@ class StorageNode extends FOGController
     {
         $test = self::$FOGURLRequests->isAvailable($this->get('ip'), '0.1', 22, 'tcp');
         $this->set('online', array_shift($test));
+    }
+    /**
+     * Load the location url for us.
+     *
+     * @return void
+     */
+    public function loadLocation_url()
+    {
+        $this->location_url = sprintf('%s://%s/%s', self::$httpproto, $this->get('ip'), $this->get('webroot'));
+        $this->set('location_url', $this->location_url);
     }
     /**
      * Loads the storage group for this node.

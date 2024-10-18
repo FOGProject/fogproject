@@ -182,6 +182,17 @@ class SnapinClient extends FOGClient
                             continue;
                         }
                     }
+                    if (!property_exists($StorageNode, 'location_url')) {
+                        $StorageNode->location_url = sprintf(
+                            '%s://%s/%s',
+                            self::$httpproto,
+                            $StorageNode->get('ip'),
+                            $StorageNode->get('webroot')
+                        );
+                    }
+                    if (str_starts_with($StorageNode->location_url, '://')) {
+                        $StorageNode->location_url = self::$httpproto . $StorageNode->location_url;
+                    }
                     $path = sprintf(
                         '/%s',
                         trim($StorageNode->get('snapinpath'), '/')
