@@ -557,6 +557,7 @@ class BootMenu extends FOGBase
         if (!(isset($this->_hiddenmenu) && $this->_hiddenmenu) || $shortCircuit) {
             $Send['chainnohide'] = array(
                 'set arch ${buildarch}',
+                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64',
                 'params',
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
@@ -582,6 +583,7 @@ class BootMenu extends FOGBase
             );
             $Send['chainhide'] = array(
                 'set arch ${buildarch}',
+                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64',
                 "iseq \${platform} efi && set key 0x1b || set key $KSKey",
                 "iseq \${platform} efi && set keyName ESC || "
                 . "set keyName $KSName",
@@ -739,6 +741,7 @@ class BootMenu extends FOGBase
     {
         $Send['delconfirm'] = array(
             'set arch ${buildarch}',
+            'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64',
             'params',
             'prompt --key y Would you like to delete this host? (y/N): && goto deleteyes || goto deleteno',
             ':deleteyes',
@@ -766,6 +769,7 @@ class BootMenu extends FOGBase
     {
         $Send['aprvconfirm'] = array(
             'set arch ${buildarch}',
+            'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64',
             'params',
             'prompt --key y Would you like to approve this host? (y/N): && goto answeryes || goto answerno',
             ':answeryes',
@@ -793,6 +797,7 @@ class BootMenu extends FOGBase
     {
         $Send['keyreg'] = array(
             'set arch ${buildarch}',
+            'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64',
             'echo -n Please enter the product key : ',
             'read key',
             'params',
@@ -847,6 +852,7 @@ class BootMenu extends FOGBase
                 'clear sessname',
                 'sleep 3',
                 'set arch ${buildarch}',
+                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64',
                 'params',
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
@@ -872,6 +878,7 @@ class BootMenu extends FOGBase
     {
         $Send['joinsession'] = array(
             'set arch ${buildarch}',
+            'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64',
             'echo -n Please enter the session name to join > ',
             'read sessname',
             'params',
@@ -1971,6 +1978,7 @@ class BootMenu extends FOGBase
         $Send['head'] = self::fastmerge(
             array(
                 'set arch ${buildarch}',
+                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64',
                 'goto get_console',
                 ':console_set',
             ),
