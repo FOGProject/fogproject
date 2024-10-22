@@ -583,7 +583,7 @@ class BootMenu extends FOGBase
         if (!$this->_hiddenmenu || $shortCircuit) {
             $Send['chainnohide'] = [
                 'set arch ${buildarch}',
-                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64',
+                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
                 'params',
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
@@ -610,7 +610,7 @@ class BootMenu extends FOGBase
             );
             $Send['chainhide'] = [
                 'set arch ${buildarch}',
-                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64',
+                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
                 "iseq \${platform} efi && set key 0x1b || set key $KSKey",
                 "iseq \${platform} efi && set keyName ESC || "
                 . "set keyName $KSName",
@@ -710,7 +710,7 @@ class BootMenu extends FOGBase
     {
         $Send['keyreg'] = [
             'set arch ${buildarch}',
-            'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64',
+            'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
             'echo -n Please enter the product key : ',
             'read key',
             'params',
@@ -765,7 +765,7 @@ class BootMenu extends FOGBase
                 'clear sessname',
                 'sleep 3',
                 'set arch ${buildarch}',
-                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64',
+                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
                 'params',
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
@@ -791,7 +791,7 @@ class BootMenu extends FOGBase
     {
         $Send['joinsession'] = [
             'set arch ${buildarch}',
-            'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64',
+            'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
             'echo -n Please enter the session name to join > ',
             'read sessname',
             'params',
@@ -1861,7 +1861,7 @@ class BootMenu extends FOGBase
         $Send['head'] = self::fastmerge(
             [
                 'set arch ${buildarch}',
-                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64',
+                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
                 'goto get_console',
                 ':console_set',
             ],
