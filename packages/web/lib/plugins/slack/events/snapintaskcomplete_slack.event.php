@@ -68,10 +68,10 @@ class SnapinTaskComplete_Slack extends Event
             $args = array(
                 'channel' => $Token->get('name'),
                 'text' => sprintf(
-                'The %s snapin has completed installation on %s with status code: %s',
-                $data['Snapin']->get('name'),
-                $data['Host']->get('name'),
-                $data['SnapinTask']->get('return')
+                    'The %s snapin has completed installation on %s with status code: %s',
+                    $data['Snapin']->get('name'),
+                    $data['Host']->get('name'),
+                    $data['SnapinTask']->get('return')
                 )
             );
             $Token->call('chat.postMessage', $args);
