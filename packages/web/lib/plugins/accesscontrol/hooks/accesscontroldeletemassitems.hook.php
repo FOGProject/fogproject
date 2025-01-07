@@ -80,14 +80,7 @@ class AccessControlDeleteMassItems extends Hook
                 $arguments['removeItems']['accesscontrolruleassociation'] = [
                     'accesscontrolruleID' => $arguments['itemIDs']
                 ];
-                // no break
-            default:
-                $arguments['removeItems']['accesscontrolassociation'] = [
-                    'accesscontrolID' => $arguments['itemIDs']
-                ];
-                $arguments['removeItems']['accesscontrolruleassociation'] = [
-                    'accesscontrolID' => $arguments['itemIDs']
-                ];
+                break;
         }
     }
 }
