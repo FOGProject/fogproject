@@ -219,6 +219,7 @@
         ],
         columns: [
             {data: 'mac'},
+            {data: 'description'},
             {data: 'primary'},
             {data: 'imageIgnore'},
             {data: 'clientIgnore'},
@@ -232,6 +233,13 @@
                     return data;
                 },
                 targets: 0
+            },
+            {
+                responsivePriority: -1,
+                render: function(data, type, row) {
+                    return data;
+                },
+                targets: 1
             },
             {
                 render: function(data, type, row) {
@@ -251,7 +259,7 @@
                         + '/>'
                         + '</div>';
                 },
-                targets: 1
+                targets: 2
             },
             {
                 render: function(data, type, row) {
@@ -270,7 +278,7 @@
                         + '/>'
                         + '</div>';
                 },
-                targets: 2
+                targets: 3
             },
             {
                 render: function(data, type, row) {
@@ -289,7 +297,7 @@
                         + '/>'
                         + '</div>';
                 },
-                targets: 3
+                targets: 4
             },
             {
                 render: function(data, type, row) {
@@ -308,7 +316,7 @@
                         + '/>'
                         + '</div>';
                 },
-                targets: 4
+                targets: 5
             }
         ],
         processing: true,

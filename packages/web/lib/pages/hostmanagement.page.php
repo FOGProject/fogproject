@@ -1563,12 +1563,14 @@ class HostManagement extends FOGPage
         );
         $this->headerData = [
             _('MAC Address'),
+            _('Description'),
             _('Primary'),
             _('Ignore Imaging'),
             _('Ignore Client'),
             _('Pending')
         ];
         $this->attributes = [
+            [],
             [],
             ['width' => 16],
             ['width' => 16],
