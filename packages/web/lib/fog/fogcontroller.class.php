@@ -761,7 +761,7 @@ abstract class FOGController extends FOGBase
         return $this;
     }
     /**
-     * Get's the relevant common key if available.
+     * Gets the relevant common key if available.
      *
      * @param string|array $key the key to get commonized
      *
@@ -1047,7 +1047,7 @@ abstract class FOGController extends FOGBase
      *
      * @param string $assocItem    the assoc item to work from/with
      * @param string $alterItem    the alternate item to work with
-     * @param bool   $implicitCall call class implicitely instead of appending
+     * @param bool   $implicitCall call class implicitly instead of appending
      *                             with association
      *
      * @return object

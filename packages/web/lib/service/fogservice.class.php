@@ -93,7 +93,7 @@ abstract class FOGService extends FOGBase
         }
     }
     /**
-     * Checks if the node runnning this is indeed the master
+     * Checks if the node running this is indeed the master
      *
      * @return array
      */
@@ -231,7 +231,7 @@ abstract class FOGService extends FOGBase
         return;
     }
     /**
-     * Get's the current datetime
+     * Gets the current datetime
      *
      * @return string
      */
@@ -997,7 +997,7 @@ abstract class FOGService extends FOGBase
     /**
      * Gets the pid of the running reference
      *
-     * @param resouce $procRef the reference to check
+     * @param resource $procRef the reference to check
      *
      * @return int
      */

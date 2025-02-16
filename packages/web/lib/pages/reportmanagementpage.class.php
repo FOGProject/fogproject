@@ -247,7 +247,7 @@ class ReportManagementPage extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body">';
-        echo _('This section allows you to uploade user')
+        echo _('This section allows you to upload user')
             . ' '
             . _('defined reports that may not be a part of')
             . ' '

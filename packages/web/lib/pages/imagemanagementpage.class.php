@@ -237,7 +237,7 @@ class ImageManagementPage extends FOGPage
             array('class' => 'col-xs-1')
         );
         /**
-         * Lamda function to return data either by list or search.
+         * Lambda function to return data either by list or search.
          *
          * @param object $Image the object to use.
          *
@@ -774,7 +774,7 @@ class ImageManagementPage extends FOGPage
         exit;
     }
     /**
-     * Diplay image general information.
+     * Display image general information.
      *
      * @return void
      */
@@ -1657,7 +1657,7 @@ class ImageManagementPage extends FOGPage
         echo '</div>';
     }
     /**
-     * Submit the mutlicast form.
+     * Submit the multicast form.
      *
      * @return void
      */
@@ -1756,7 +1756,7 @@ class ImageManagementPage extends FOGPage
         );
     }
     /**
-     * Stops/Cancels the mutlicast session(s).
+     * Stops/Cancels the multicast session(s).
      *
      * @return void
      */

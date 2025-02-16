@@ -188,7 +188,7 @@ class LDAP extends FOGController
         $out = array();
         /**
          * Loop the parsed information so we get
-         * the values in a mroe usable and joinable form.
+         * the values in a more usable and joinable form.
          */
         foreach ((array)$parser as $key => &$value) {
             if (false !== strstr($value, '=')) {
@@ -589,7 +589,7 @@ class LDAP extends FOGController
         return $accessLevel;
     }
     /**
-     * Get's the access level
+     * Gets the access level
      *
      * @param string $grpMemAttr the group finder item
      * @param string $userDN     the user dn information

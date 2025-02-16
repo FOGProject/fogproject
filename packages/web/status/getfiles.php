@@ -1,6 +1,6 @@
 <?php
 /**
- * Get's files stored as requested
+ * Gets files stored as requested
  *
  * PHP version 5
  *
@@ -11,7 +11,7 @@
  * @link     https://fogproject.org
  */
 /**
- * Get's files stored as requested
+ * Gets files stored as requested
  *
  * PHP version 5
  *

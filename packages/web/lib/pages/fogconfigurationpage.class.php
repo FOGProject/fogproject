@@ -191,7 +191,7 @@ class FOGConfigurationPage extends FOGPage
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
         echo '<h4 class="title">';
-        echo _('GNU Gneral Public License');
+        echo _('GNU General Public License');
         echo '</h4>';
         echo '</div>';
         echo '<div class="panel-body text-justify">';
@@ -201,7 +201,7 @@ class FOGConfigurationPage extends FOGPage
         echo '</div>';
     }
     /**
-     * Returns HTML formated output from kernel/initrd list array.
+     * Returns HTML formatted output from kernel/initrd list array.
      *
      * @param array $kernelOrInitData kernel/initrd list array
      * @param string $type 'kernel' or 'initrd'

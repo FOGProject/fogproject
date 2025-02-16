@@ -111,7 +111,7 @@ class SnapinTask extends FOGController
         return $this->getManager()->cancel($this->get('id'));
     }
     /**
-     * Get's the state object.
+     * Gets the state object.
      *
      * @return object
      */

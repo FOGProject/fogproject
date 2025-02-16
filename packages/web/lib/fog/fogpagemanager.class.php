@@ -48,7 +48,7 @@ class FOGPageManager extends FOGBase
     /**
      * Replaces the variable passed with nicer names
      *
-     * @param string $value the valu
+     * @param string $value the value
      *
      * @return string
      */

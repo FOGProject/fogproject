@@ -398,7 +398,7 @@ class SiteManagementPage extends FOGPage
                     )
                 ) {
                     throw new Exception(
-                        _('A site alread exists with this name!')
+                        _('A site already exists with this name!')
                     );
                 }
                 $this->obj

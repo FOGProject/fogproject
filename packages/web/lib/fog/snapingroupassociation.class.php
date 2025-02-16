@@ -39,7 +39,7 @@ class SnapinGroupAssociation extends FOGController
         'primary' => 'sgaPrimary',
     );
     /**
-     * The required fiedls
+     * The required fields
      *
      * @var array
      */
@@ -74,7 +74,7 @@ class SnapinGroupAssociation extends FOGController
         )
     );
     /**
-     * Get's the snapin object
+     * Gets the snapin object
      *
      * @return object
      */
@@ -83,7 +83,7 @@ class SnapinGroupAssociation extends FOGController
         return $this->get('snapin');
     }
     /**
-     * Get's the associated storage group.
+     * Gets the associated storage group.
      *
      * @return object
      */

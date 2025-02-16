@@ -211,7 +211,7 @@ class SnapinManagementPage extends FOGPage
             array()
         );
         /**
-         * Lamda function to return data either by list or search.
+         * Lambda function to return data either by list or search.
          *
          * @param object $Snapin the object to use.
          *
@@ -393,7 +393,7 @@ class SnapinManagementPage extends FOGPage
             $this->templates
         );
         /**
-         * Title of inital/general element.
+         * Title of initial/general element.
          */
         $this->title = _('New Snapin');
         /**
