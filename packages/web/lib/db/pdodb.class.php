@@ -351,7 +351,7 @@ class PDODB extends DatabaseManager
         return $this;
     }
     /**
-     * Gets the relevante items or item as needed.
+     * Gets the relevant items or item as needed.
      *
      * @param string $field the field to get
      *

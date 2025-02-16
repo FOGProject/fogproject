@@ -93,7 +93,7 @@ class ScheduledTask extends FOGController
         return new Image($this->get('imageID'));
     }
     /**
-     * Gets the timer (specific to cron really.
+     * Gets the timer (specific to cron really).
      *
      * @return object.
      */
