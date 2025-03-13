@@ -40,7 +40,7 @@ abstract class FOGClient extends FOGBase
      * @param bool $encoded         if the data is base64 encoded
      * @param bool $hostnotrequired if the host object is required
      * @param bool $returnmacs      if we should only return macs
-     * @param bool $override        if we are being overriden
+     * @param bool $override        if we are being overridden
      *
      * @return void
      */

@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * This file simply is the initator.  It establishes the FOG GUI and system
+ * This file simply is the initiator.  It establishes the FOG GUI and system
  * auto loader functionality.
  *
  * This initiator also creates the sanitization and cleansing needed
@@ -19,7 +19,7 @@
 /**
  * Initiator and FOG Autoloader
  *
- * This file simply is the initator.  It establishes the FOG GUI and system
+ * This file simply is the initiator.  It establishes the FOG GUI and system
  * auto loader functionality.
  *
  * This initiator also creates the sanitization and cleansing needed

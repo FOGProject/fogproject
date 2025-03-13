@@ -78,7 +78,7 @@ class MulticastSession extends FOGController
         )
     );
     /**
-     * Get's the session's associated image object.
+     * Gets the session's associated image object.
      *
      * @return object
      */
@@ -87,7 +87,7 @@ class MulticastSession extends FOGController
         return new Image($this->get('image'));
     }
     /**
-     * Get's the session's task state.
+     * Gets the session's task state.
      *
      * @return object
      */

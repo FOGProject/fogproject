@@ -303,7 +303,7 @@ class PDODB extends DatabaseManager
      *
      * @param int    $type      the type of fetching PDO int.
      * @param string $fetchType the type in function calling
-     * @param mixed  $params    any additional parameteres needed.
+     * @param mixed  $params    any additional parameters needed.
      *
      * @throws PDOException
      * @return object
@@ -351,7 +351,7 @@ class PDODB extends DatabaseManager
         return $this;
     }
     /**
-     * Get's the relevante items or item as needed.
+     * Gets the relevant items or item as needed.
      *
      * @param string $field the field to get
      *
@@ -506,7 +506,7 @@ class PDODB extends DatabaseManager
         return self::$_link->quote($data);
     }
     /**
-     * Santizes data passed
+     * Sanitizes data passed
      *
      * @param mixed $data the data to be sanitized
      *

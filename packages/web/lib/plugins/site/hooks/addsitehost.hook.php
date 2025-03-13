@@ -363,7 +363,7 @@ class AddSiteHost extends Hook
      *
      * @param mixed $arguments The arguments to change.
      *
-     * @retrun void
+     * @return void
      */
     public function hostImport($arguments)
     {

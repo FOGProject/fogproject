@@ -1420,7 +1420,7 @@ class BootMenu extends FOGBase
         exit;
     }
     /**
-     * Get's a current tasking if any
+     * Gets a current tasking if any
      *
      * @return void
      */

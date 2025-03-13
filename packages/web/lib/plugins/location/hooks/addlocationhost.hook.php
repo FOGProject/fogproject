@@ -438,7 +438,7 @@ class AddLocationHost extends Hook
         );
     }
     /**
-     * Adds lcoation to host register.
+     * Adds location to host register.
      *
      * @param mixed $arguments The arguments to change.
      *

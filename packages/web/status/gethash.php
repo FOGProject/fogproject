@@ -1,6 +1,6 @@
 <?php
 /**
- * Get's hash of file passed.
+ * Gets hash of file passed.
  *
  * PHP version 5
  *
@@ -11,7 +11,7 @@
  * @link     https://fogproject.org
  */
 /**
- * Get's hash of file passed.
+ * Gets hash of file passed.
  *
  * PHP version 5
  *

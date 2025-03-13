@@ -508,7 +508,7 @@ $.fn.fogVariable = function(opts) {
     });
     /**
      * If we don't have a hash such as when initially entering
-     * an edit pge, dispaly the first item.
+     * an edit page, display the first item.
      */
     if ($('.tab-content').length > 0) {
         if (location.hash == "") {

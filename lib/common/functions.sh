@@ -1262,11 +1262,11 @@ configureMySql() {
     fi
 
     # If we reach this point it's clear that this install is not setup with
-    # unpriviledged DB users yet and we need to have root DB access now.
+    # unprivileged DB users yet and we need to have root DB access now.
     if [[ $connect_as_root -ne 0 ]]; then
         echo
         echo "   To improve the overall security the installer will create an"
-        echo "   unpriviledged database user account for FOG's database access."
+        echo "   unprivileged database user account for FOG's database access."
         echo "   Please provide the database *root* user password. Be asured"
         echo "   that this password will only be used while the FOG installer"
         echo -n "   is running and won't be stored anywhere: "

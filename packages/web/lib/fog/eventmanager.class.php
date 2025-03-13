@@ -73,7 +73,7 @@ class EventManager extends FOGBase
             case 'HookManager':
                 if (!is_array($listener) || count($listener) !== 2) {
                     throw new Exception(
-                        _('Second paramater must be in array(class,function)')
+                        _('Second parameter must be in array(class,function)')
                     );
                 }
                 if (!($listener[0] instanceof Hook)) {
@@ -245,7 +245,7 @@ class EventManager extends FOGBase
             $regext,
             RegexIterator::GET_MATCH
         );
-        // Makes all the returned items into an iteratable array
+        // Makes all the returned items into an iterable array
         $files = iterator_to_array($RegexIterator, false);
         unset(
             $RecursiveDirectoryIterator,

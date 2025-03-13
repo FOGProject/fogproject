@@ -294,7 +294,7 @@ class Plugin extends FOGController
         return $this;
     }
     /**
-     * Get's the plugin manager class or plugin's manager class as needed.
+     * Gets the plugin manager class or plugin's manager class as needed.
      *
      * @return object
      */
@@ -314,7 +314,7 @@ class Plugin extends FOGController
         return new $classManager();
     }
     /**
-     * Get's the plugin path.
+     * Gets the plugin path.
      *
      * @return string
      */
@@ -323,7 +323,7 @@ class Plugin extends FOGController
         return $this->_strPath;
     }
     /**
-     * Get's the plugin run point.
+     * Gets the plugin run point.
      *
      * @return string
      */
@@ -332,7 +332,7 @@ class Plugin extends FOGController
         return $this->_strEntryPoint;
     }
     /**
-     * Get's the plugin's icon.
+     * Gets the plugin's icon.
      *
      * @return string
      */
@@ -341,7 +341,7 @@ class Plugin extends FOGController
         return $this->_strIcon;
     }
     /**
-     * Get's the installed status of the plugin.
+     * Gets the installed status of the plugin.
      *
      * @return bool
      */
@@ -352,7 +352,7 @@ class Plugin extends FOGController
         return (bool) $this->_blIsInstalled;
     }
     /**
-     * Get's the active status of the plugin.
+     * Gets the active status of the plugin.
      *
      * @return bool
      */
@@ -363,7 +363,7 @@ class Plugin extends FOGController
         return (bool) $this->_blIsActive;
     }
     /**
-     * Get's the plugin's version.
+     * Gets the plugin's version.
      *
      * @return bool
      */

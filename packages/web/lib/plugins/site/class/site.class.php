@@ -237,7 +237,7 @@ class Site extends FOGController
      *
      * @param string $assocItem    the assoc item to work from/with
      * @param string $alterItem    the alternate item to work with
-     * @param bool   $implicitCall call class implicitely instead of appending
+     * @param bool   $implicitCall call class implicitly instead of appending
      *                             with association
      *
      * @return object

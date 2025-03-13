@@ -460,7 +460,7 @@ class SubnetgroupManagementPage extends FOGPage
             throw new Exception(
                 _('Please enter a valid CIDR subnet.')
                 . ' '
-                . _('Can be a comma seperated list.')
+                . _('Can be a comma separated list.')
             );
         }
         $subnets = preg_replace('/\s+/', '', $subnets);

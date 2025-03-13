@@ -47,7 +47,7 @@ class SnapinAssociation extends FOGController
         'snapinID',
     );
     /**
-     * Get's the host object.
+     * Gets the host object.
      *
      * @return object
      */
@@ -56,7 +56,7 @@ class SnapinAssociation extends FOGController
         return new Host($this->get('hostID'));
     }
     /**
-     * Get's the snapin object.
+     * Gets the snapin object.
      *
      * @return object
      */

@@ -102,7 +102,7 @@ class TaskState extends FOGController
         return $checkedInState;
     }
     /**
-     * Gets the literal progres state.
+     * Gets the literal progress state.
      *
      * @return int
      */

@@ -144,7 +144,7 @@ class GroupManagementPage extends FOGPage
         );
         $this->_getHostCommon();
         /**
-         * Lamda function to return data either by list or search.
+         * Lambda function to return data either by list or search.
          *
          * @param object $Group the object to use.
          *

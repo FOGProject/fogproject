@@ -123,7 +123,7 @@ class PrinterManagementPage extends FOGPage
             array()
         );
         /**
-         * Lamda function to return data either by list or search.
+         * Lambda function to return data either by list or search.
          *
          * @param object $Image the object to use.
          *

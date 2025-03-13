@@ -186,7 +186,7 @@ class DatabaseManager extends FOGCore
         return self::$DB;
     }
     /**
-     * Get's the schema version as stored in the DB.
+     * Gets the schema version as stored in the DB.
      *
      * @return int
      */

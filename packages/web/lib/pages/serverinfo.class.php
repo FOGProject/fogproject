@@ -91,7 +91,7 @@ class ServerInfo extends FOGPage
         $ret = self::$FOGURLRequests->process($url);
         $ret = trim($ret[0]);
         if (!$ret) {
-            echo _('Unable to get server infromation!');
+            echo _('Unable to get server information!');
             echo '</div>';
             echo '</div>';
             echo '</div>';

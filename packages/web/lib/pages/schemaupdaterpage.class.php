@@ -22,7 +22,7 @@
 class SchemaUpdaterPage extends FOGPage
 {
     /**
-     * The relavent calling node url
+     * The relevant calling node url
      *
      * @var string
      */

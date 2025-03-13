@@ -76,7 +76,7 @@ class ClientManagementPage extends FOGPage
         );
         // Dash boxes row.
         echo '<div class="row">';
-        // New Client and utilties
+        // New Client and utilities
         echo '<div class="col-xs-4">';
         echo '<div class="panel panel-info">';
         echo '<div class="panel-heading text-center">';
