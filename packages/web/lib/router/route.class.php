@@ -767,7 +767,7 @@ class Route extends FOGBase
                 );
                 $class
                     ->removeModule($modulesToRem)
-                    ->addPrinter($vars->modules);
+                    ->addModule($vars->modules);
             }
             if (isset($vars->hosts)) {
                 $hostsToAdd = array_diff(
