@@ -277,7 +277,7 @@ class StorageManagementPage extends FOGPage
         );
     }
     /**
-     * Display createing a new storage node.
+     * Display creating a new storage node.
      *
      * @return void
      */

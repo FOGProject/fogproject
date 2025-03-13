@@ -1,6 +1,6 @@
 <?php
 /**
- * Get's size of file passed.
+ * Gets size of file passed.
  *
  * PHP version 5
  *
@@ -11,7 +11,7 @@
  * @link     https://fogproject.org
  */
 /**
- * Get's size of file passed.
+ * Gets size of file passed.
  *
  * PHP version 5
  *

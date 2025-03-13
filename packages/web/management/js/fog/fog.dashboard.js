@@ -508,7 +508,7 @@ function setupBandwidth() {
         // Fetches our data.
         function fetchData() {
 
-            // When ajax recieves data, this updates the graph.
+            // When ajax receives data, this updates the graph.
             function onDataReceived(series) {
 
                 // Setup our Time elements.
@@ -519,7 +519,7 @@ function setupBandwidth() {
                 // all of our data.
                 $.each(series, function(index, value) {
 
-                    // If the data hasn't been initilized yet, initialize it.
+                    // If the data hasn't been initialized yet, initialize it.
                     if (typeof GraphBandwidthData[index] == 'undefined') {
                         GraphBandwidthData[index] = {};
                         GraphBandwidthData[index].tx = [];
@@ -539,7 +539,7 @@ function setupBandwidth() {
                     // seconds, shift off the array.
                     //
                     // In the past it was just the length of the store, which was
-                    // rather inaccurate. As the data recieved might have taken longer
+                    // rather inaccurate. As the data received might have taken longer
                     // to store, you could end up with a 2 minute time spanning over 4-5
                     // minutes. Imagine how this would play out for 5 minutes, 10 minutes,
                     // 30 minutes, or an hour.

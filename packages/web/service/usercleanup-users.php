@@ -1,6 +1,6 @@
 <?php
 /**
- * Cleans up users ony good for Windows XP
+ * Cleans up users; only good for Windows XP
  *
  * PHP version 5
  *
@@ -11,7 +11,7 @@
  * @link     https://fogproject.org
  */
 /**
- * Cleans up users ony good for Windows XP
+ * Cleans up users; only good for Windows XP
  *
  * @category Usercleanup_Users
  * @package  FOGProject

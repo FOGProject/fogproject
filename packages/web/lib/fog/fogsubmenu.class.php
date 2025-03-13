@@ -112,7 +112,7 @@ class FOGSubMenu extends FOGBase
      */
     public $items = array();
     /**
-     * Stores main itesm.
+     * Stores main items.
      *
      * @var array
      */

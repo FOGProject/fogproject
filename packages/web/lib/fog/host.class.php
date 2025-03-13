@@ -1708,7 +1708,7 @@ class Host extends FOGController
      *
      * @param string $mac the mac to add
      *
-     * @return obect
+     * @return object
      */
     public function addPendMAC($mac)
     {
@@ -2059,7 +2059,7 @@ class Host extends FOGController
      * @param string $ou         the ou to bind to
      * @param string $user       the user to perform join with
      * @param string $pass       the pass to perform join with
-     * @param bool   $override   should the host fields override whats passed
+     * @param bool   $override   should the host fields override what's passed
      * @param bool   $nosave     should we save automatically
      * @param string $legacy     the legacy client ad pass string
      * @param string $productKey the product key for the host to activate

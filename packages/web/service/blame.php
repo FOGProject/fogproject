@@ -1,6 +1,6 @@
 <?php
 /**
- * Sets the blame of a storage node thats problematic.
+ * Sets the blame of a storage node that's problematic.
  *
  * PHP version 5
  *
@@ -11,7 +11,7 @@
  * @link     https://fogproject.org
  */
 /**
- * Sets the blame of a storage node thats problematic.
+ * Sets the blame of a storage node that's problematic.
  *
  * @category Blame
  * @package  FOGProject

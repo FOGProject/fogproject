@@ -680,7 +680,7 @@ $this->schema[] = array(
     . "fog host register should be globally active. "
     . "(Valid values are 0 or 1)','1','FOG Client - Host Register'),"
     . "('FOG_CLIENT_PRINTERMANAGER_ENABLED','This setting defines if the "
-    . "fog printer maanger should be globally active. "
+    . "fog printer manager should be globally active. "
     . "(Valid values are 0 or 1)','1','FOG Client - Printer Manager'),"
     . "('FOG_CLIENT_TASKREBOOT_ENABLED','This setting defines if the fog "
     . "task reboot should be globally active. "
@@ -984,7 +984,7 @@ $this->schema[] = array(
     . "fragments that is used to filter out pending mac address requests. "
     . "For example, if you don\'t want to see pending mac address requests "
     . "for VMWare NICs then you could filter by 00:05:69. This filter is "
-    . "comma seperated, and is used like a *starts with* filter.',"
+    . "comma separated, and is used like a *starts with* filter.',"
     . "'','FOG Client - Host Register'),"
     . "('FOG_ADVANCED_STATISTICS','Enable the collection and display of "
     . "advanced statistics. This information WILL be sent to a remote "
@@ -2305,7 +2305,7 @@ $this->schema[] = array(
     . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
     . "VALUES "
     . "('FOG_SNAPIN_LIMIT', 'This setting defines the maximum snapins "
-    . "allowed to be assigned to a host. Value of 0 means unlimted.', "
+    . "allowed to be assigned to a host. Value of 0 means unlimited.', "
     . "'0', 'General Settings')",
 );
 // 149
@@ -3688,7 +3688,7 @@ $this->schema[] = array(
     . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
     . "VALUES "
     . "('FOG_REAUTH_ON_DELETE',"
-    . "'If deleteing an item, require authentication or not. (Defaults to on)',"
+    . "'If deleting an item, require authentication or not. (Defaults to on)',"
     . "'1','General Settings'),"
     . "('FOG_REAUTH_ON_EXPORT',"
     . "'If exporting, require authentication or not. (Defaults to on)',"

@@ -196,7 +196,7 @@ class FOGCron extends FOGBase
      * @param mixed $value     The value to check
      * @param int   $min       The minimum the value can be
      * @param int   $max       The maximum the value can be
-     * @param bool  $extremity Implicitly test extremeties
+     * @param bool  $extremity Implicitly test extremities
      *
      * @return bool
      */

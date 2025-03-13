@@ -192,7 +192,7 @@ class StorageNode extends FOGController
         $this->set('logfiles', (array)$paths);
     }
     /**
-     * Get's the storage node snapins, logfiles, and images
+     * Gets the storage node snapins, logfiles, and images
      * in a single multi call rather than three individual calls.
      *
      * @return array

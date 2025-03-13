@@ -1096,7 +1096,7 @@ class Route extends FOGBase
         }
     }
     /**
-     * Get's the json body and sets our vars.
+     * Gets the json body and sets our vars.
      *
      * @param string $class The class to get vars for/from.
      *
@@ -1124,7 +1124,7 @@ class Route extends FOGBase
         return $find;
     }
     /**
-     * Get's current/active tasks.
+     * Gets current/active tasks.
      *
      * @param string $class The class to use.
      *
@@ -1235,7 +1235,7 @@ class Route extends FOGBase
     }
     /**
      * This is a commonizing element so list/search/getinfo
-     * will operate in the same fasion.
+     * will operate in the same fashion.
      *
      * @param string $classname The name of the class.
      * @param object $class     The class to work with.

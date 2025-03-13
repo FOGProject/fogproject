@@ -198,7 +198,7 @@ abstract class FOGBase
      */
     protected static $FOGPageManager;
     /**
-     * URL Manager | mainly for ajax, and externel getters.
+     * URL Manager | mainly for ajax, and external getters.
      *
      * @var object
      */
@@ -487,7 +487,7 @@ abstract class FOGBase
         return $class;
     }
     /**
-     * Get's the relevant host item.
+     * Gets the relevant host item.
      *
      * @param bool $service         Is this a service request
      * @param bool $encoded         Is this data encoded
@@ -609,7 +609,7 @@ abstract class FOGBase
         return;
     }
     /**
-     * Get's blamed nodes for failures.
+     * Gets blamed nodes for failures.
      *
      * @param Host $Host The host to work with.
      *
@@ -1808,7 +1808,7 @@ abstract class FOGBase
      * Prints the data encrypted as needed.
      *
      * @param string $datatosend the data to send
-     * @param bool   $service    if not a service simpy return
+     * @param bool   $service    if not a service simply return
      * @param array  $array      The non-encoded array data.
      *
      * @return string

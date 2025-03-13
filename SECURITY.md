@@ -4,7 +4,7 @@
 Deploy and manage any desktop operating system, anywhere. FOG Project can 
 capture, deploy, and manage Windows, Mac OSX, and various Linux distributions. 
 The community has adopted this security disclosure and response policy to 
-ensure responsibe handle of critical issues.
+ensure responsible handling of critical issues.
 
 ## Supported Versions
 

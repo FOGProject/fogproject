@@ -2013,7 +2013,7 @@ abstract class FOGPage extends FOGBase
         echo '</div>';
         echo '<div class="panel-body">';
         if ($node == 'image') {
-            echo '<div id="deleteHint"><b>Hint: Be aware that deleting image(s) this way won\'t actually remove the data files from your server to prevent from accidential data loss. If you want the image data files removed as well you need to use the "Delete" tab found in the settings of each image.</b></div><div>&nbsp;</div>';
+            echo '<div id="deleteHint"><b>Hint: Be aware that deleting image(s) this way won\'t actually remove the data files from your server to prevent from accidental data loss. If you want the image data files removed as well you need to use the "Delete" tab found in the settings of each image.</b></div><div>&nbsp;</div>';
         }
         echo '<div id="deleteDiv"></div>';
         echo '<form class="form-horizontal" action="'
@@ -2484,7 +2484,7 @@ abstract class FOGPage extends FOGBase
         unset($this->data);
     }
     /**
-     * Get's the adinformation from ajax
+     * Gets the adinformation from ajax
      *
      * @return void
      */

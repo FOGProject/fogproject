@@ -189,7 +189,7 @@ class StorageGroup extends FOGController
         );
     }
     /**
-     * Get's the groups master storage node
+     * Gets the groups master storage node
      *
      * @return object
      */
@@ -230,7 +230,7 @@ class StorageGroup extends FOGController
         return new StorageNode($masternode);
     }
     /**
-     * Get's the optimal storage node
+     * Gets the optimal storage node
      *
      * @return object
      */
