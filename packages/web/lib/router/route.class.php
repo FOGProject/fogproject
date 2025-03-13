@@ -709,8 +709,8 @@ class Route extends FOGBase
                     (array)$vars->modules
                 );
                 $class
-                    ->removeModule($modulesToAdd)
-                    ->addModule($modulesToRem);
+                    ->removeModule($modulesToRem)
+                    ->addModule($modulesToAdd);
             }
             if (isset($vars->groups)) {
                 $groupsToAdd = array_diff(
