@@ -175,6 +175,25 @@ class AddSiteAPI extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
+        
+        // add siteID to result object
+        switch ($arguments['classname'])
+        {
+            case 'host':
+                
+                for ($i = 0; $i < $arguments['data']['count']; $i++)
+                {
+                    $ids = $this->getSubObjectIDs(
+                        'SiteHostAssociation', 
+                        ['hostID' => $arguments['data']['hosts'][$i]['id']],
+                        'siteID'
+                    );
+
+                    $arguments['data']['hosts'][$i]['siteID'] = isset($ids[0]) ? $ids[0] : null;
+                }
+                
+                break;
+        }
     }
     /**
      * This function changes the getter to enact on this particular item.
