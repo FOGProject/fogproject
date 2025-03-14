@@ -44,7 +44,6 @@ class SiteHostAssociation extends FOGController
      * @var array
      */
     protected $databaseFieldsRequired = array(
-        'id',
         'hostID',
         'siteID'
     );

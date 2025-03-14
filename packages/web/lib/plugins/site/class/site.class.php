@@ -43,7 +43,6 @@ class Site extends FOGController
      * @var array
      */
     protected $databaseFieldsRequired = array(
-        'id',
         'name',
     );
     /**
