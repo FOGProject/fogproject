@@ -32,7 +32,7 @@ class AddLocationAPI extends Hook
      *
      * @var string
      */
-    public $description = 'Add Site stuff into the api system.';
+    public $description = 'Add Location stuff into the api system.';
     /**
      * For posterity.
      *
@@ -84,7 +84,7 @@ class AddLocationAPI extends Hook
             );
     }
     /**
-     * This function injects site elements for
+     * This function injects location elements for
      * api access.
      *
      * @param mixed $arguments The arguments to modify.
@@ -116,6 +116,53 @@ class AddLocationAPI extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
+        
+        // is create or edit call
+        if (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT']))
+        {
+            $vars = json_decode(
+                file_get_contents('php://input')
+            );
+            
+            if (isset($vars->locationID))
+            {
+                switch ($arguments['classname'])
+                {
+                    case 'host':
+                        $this->addHostToUniqueLocation($vars->locationID, $arguments['data']['id']);                        
+                        break;
+                    
+                    case 'group':
+                        $hostIDs = self::getSubObjectIDs(
+                            'GroupAssociation',
+                            array('groupID' => $arguments['data']['id']),
+                            'hostID'
+                        );
+                        
+                        foreach ($hostIDs as $id) {
+                            $this->addHostToUniqueLocation($vars->locationID, $id);
+                        }
+                        
+                        break;
+                }
+            }
+        }
+        
+        // add locationID to result object
+        switch ($arguments['classname'])
+        {
+            case 'host':
+                
+                $ids = $this->getSubObjectIDs(
+                    'LocationAssociation', 
+                    ['hostID' => $arguments['data']['id']],
+                    'locationID'
+                );
+
+                $arguments['data']['locationID'] = isset($ids[0]) ? $ids[0] : null;
+                
+                break;
+        }
     }
     /**
      * This function changes the api data map as needed.
@@ -128,6 +175,25 @@ class AddLocationAPI extends Hook
     {
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
+        }
+        
+        // add locationID to result objects
+        switch ($arguments['classname'])
+        {
+            case 'host':
+                
+                for ($i = 0; $i < $arguments['data']['count']; $i++)
+                {
+                    $ids = $this->getSubObjectIDs(
+                        'LocationAssociation', 
+                        ['hostID' => $arguments['data']['hosts'][$i]['id']],
+                        'locationID'
+                    );
+
+                    $arguments['data']['hosts'][$i]['locationID'] = isset($ids[0]) ? $ids[0] : null;
+                }
+                
+                break;
         }
     }
     /**
@@ -170,6 +236,46 @@ class AddLocationAPI extends Hook
                 )
             );
             break;
+        }
+    }
+    
+    /**
+     * This function add location to a host, removing any other location association to host if exists
+     * 
+     * @param int $locationID Location id to associate
+     * 
+     * @param int $hostID Host id to associate
+     * 
+     * @return void
+     */
+    public function addHostToUniqueLocation($locationID, $hostID)
+    {
+        $ids = $this->getSubObjectIDs(
+            'LocationAssociation', 
+            ['hostID' => $hostID],
+            'id'
+        );
+        
+        $count = count($ids);
+
+        if ($count === 0)
+        {
+            $this->getClass('LocationAssociation')
+                ->set('locationID', $locationID)
+                ->set('hostID', $hostID)
+                ->save();
+        }
+        else
+        {
+            for ($i = 1; $i < $count; $i++)
+            {
+                $this->getClass('LocationAssociation', $ids[$i])
+                    ->destroy();
+            }
+            
+            $this->getClass('LocationAssociation', $ids[0])
+                ->set('locationID', $locationID)
+                ->save();
         }
     }
 }
