@@ -116,6 +116,52 @@ class AddSiteAPI extends Hook
         if (!in_array($this->node, (array)self::$pluginsinstalled)) {
             return;
         }
+        
+        // is create or edit call
+        if (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT']))
+        {
+            $vars = json_decode(
+                file_get_contents('php://input')
+            );
+            
+            if (isset($vars->siteID))
+            {
+                switch ($arguments['classname'])
+                {
+                    case 'host':
+                        $this->addHostToUniqueSite($vars->siteID, $arguments['data']['id']);                        
+                        break;
+                    
+                    case 'group':
+                        $hostIDs = self::getSubObjectIDs(
+                            'GroupAssociation',
+                            array('groupID' => $arguments['data']['id']),
+                            'hostID'
+                        );
+                        
+                        foreach ($hostIDs as $id) {
+                            $this->addHostToUniqueSite($vars->siteID, $id);
+                        }
+                        
+                        break;
+                }
+            }
+        }
+        
+        // add siteID to result object
+        switch ($arguments['classname'])
+        {
+            case 'host':
+                
+                $ids = $this->getSubObjectIDs(
+                    'SiteHostAssociation', 
+                    ['hostID' => $arguments['data']['id']],
+                    'siteID'
+                );
+
+                $arguments['data']['siteID'] = isset($ids[0]) ? $ids[0] : null;
+                break;
+        }
     }
     /**
      * This function changes the api data map as needed.
@@ -152,6 +198,46 @@ class AddSiteAPI extends Hook
                 )
             );
             break;
+        }
+    }
+    
+    /**
+     * This function add site to a host, removing any other site association to host if exists
+     * 
+     * @param int $siteID Site id to associate
+     * 
+     * @param int $hostID Host id to associate
+     * 
+     * @return void
+     */
+    public function addHostToUniqueSite($siteID, $hostID)
+    {
+        $ids = $this->getSubObjectIDs(
+            'SiteHostAssociation', 
+            ['hostID' => $hostID],
+            'id'
+        );
+        
+        $count = count($ids);
+
+        if ($count === 0)
+        {
+            $this->getClass('SiteHostAssociation')
+                ->set('siteID', $siteID)
+                ->set('hostID', $hostID)
+                ->save();
+        }
+        else
+        {
+            for ($i = 1; $i < $count; $i++)
+            {
+                $this->getClass('SiteHostAssociation', $ids[$i])
+                    ->destroy();
+            }
+            
+            $this->getClass('SiteHostAssociation', $ids[0])
+                ->set('siteID', $siteID)
+                ->save();
         }
     }
 }
