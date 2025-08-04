@@ -170,7 +170,7 @@ class ImageReplicator extends FOGService
                 $ImageAssocCount = $ImageAssocCount->total;
                 $ImageCount = count($imageIDs ?: []);
                 if ($ImageCount <= 0) {
-                    $this->outall(
+                    self::outall(
                         sprintf(
                             ' | %s.',
                             _('There are no images available!')
@@ -179,13 +179,13 @@ class ImageReplicator extends FOGService
                     $skip = true;
                 }
                 if ($ImageAssocCount <= 0) {
-                    $this->outall(
+                    self::outall(
                         sprintf(
                             ' | %s.',
                             _('There is nothing to replicate')
                         )
                     );
-                    $this->outall(
+                    self::outall(
                         sprintf(
                             ' | %s %s.',
                             _('Please physically associate'),

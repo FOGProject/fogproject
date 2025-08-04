@@ -169,7 +169,7 @@ class SnapinReplicator extends FOGService
                 $SnapinAssocCount = $SnapinAssocCount->total;
                 $SnapinCount = count($snapinIDs ?: []);
                 if ($SnapinCount <= 0) {
-                    $this->outall(
+                    self::outall(
                         sprintf(
                             ' | %s',
                             _('There are no snapins available!')
@@ -177,13 +177,13 @@ class SnapinReplicator extends FOGService
                     );
                     $skip = true;
                 } elseif ($SnapinAssocCount < 1) {
-                    $this->outall(
+                    self::outall(
                         sprintf(
                             ' | %s.',
                             _('There is nothing to replicate')
                         )
                     );
-                    $this->outall(
+                    self::outall(
                         sprintf(
                             ' | %s %s.',
                             _('Please physically associate'),
