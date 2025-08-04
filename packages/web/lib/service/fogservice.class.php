@@ -223,7 +223,7 @@ abstract class FOGService extends FOGBase
      *
      * @return void
      */
-    public function outall($string)
+    public static function outall($string)
     {
         self::wlog("$string\n", static::$log);
         return;
