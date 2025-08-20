@@ -757,6 +757,9 @@ installPackages() {
                         packages="${packages// mysql-client / mariadb-client }">>$error_log 2>&1
                         packages="${packages// mysql-server / mariadb-server }">>$error_log 2>&1
                     fi
+                    if [[ $OSVersion -ge 13 ]]; then
+                        packages="${packages// libcurl4 / libcurl4t64 }"
+                    fi
                     ;;
             esac
             ;;
