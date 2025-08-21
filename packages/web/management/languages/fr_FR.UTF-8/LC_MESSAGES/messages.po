@@ -2729,6 +2729,9 @@ msgstr "Je ne suis pas le serveur web de brouillard"
 msgid "I am the group manager"
 msgstr " | Je suis le seul membre"
 
+msgid "I checked in at"
+msgstr ""
+
 msgid "ID"
 msgstr "ID"
 
@@ -6886,9 +6889,6 @@ msgstr ""
 msgid "based task."
 msgstr ""
 
-msgid "before me"
-msgstr "avant moi"
-
 msgid "before me on this node"
 msgstr ""
 
@@ -7784,6 +7784,9 @@ msgstr ""
 #~ msgstr ""
 #~ "Votre version des systèmes de PHP ne suffit pas. Vous avez la version %s "
 #~ "version %s est nécessaire."
+
+#~ msgid "before me"
+#~ msgstr "avant moi"
 
 #, fuzzy
 #~ msgid "is required"

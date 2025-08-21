@@ -2726,6 +2726,9 @@ msgstr "我不是雾Web服务器"
 msgid "I am the group manager"
 msgstr "|我唯一​​的成员"
 
+msgid "I checked in at"
+msgstr ""
+
 msgid "ID"
 msgstr "ID"
 
@@ -6873,9 +6876,6 @@ msgstr ""
 msgid "based task."
 msgstr ""
 
-msgid "before me"
-msgstr "我面前"
-
 msgid "before me on this node"
 msgstr ""
 
@@ -7765,6 +7765,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Your system PHP Version is not sufficient"
 #~ msgstr "您的系统PHP版本是不充分的。你有版本%s ，版本%s是必需的。"
+
+#~ msgid "before me"
+#~ msgstr "我面前"
 
 #, fuzzy
 #~ msgid "is required"

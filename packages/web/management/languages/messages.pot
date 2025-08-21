@@ -2265,6 +2265,9 @@ msgstr ""
 msgid "I am the group manager"
 msgstr ""
 
+msgid "I checked in at"
+msgstr ""
+
 msgid "ID"
 msgstr ""
 
@@ -5780,9 +5783,6 @@ msgid "automatically"
 msgstr ""
 
 msgid "based task."
-msgstr ""
-
-msgid "before me"
 msgstr ""
 
 msgid "before me on this node"

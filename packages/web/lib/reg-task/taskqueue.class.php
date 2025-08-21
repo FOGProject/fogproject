@@ -32,17 +32,6 @@ class TaskQueue extends TaskingElement
         try {
             self::randWait();
             //use same format as end of checkin and do the save in the if so an exception can be caught
-            /* $this->Task->set(
-                'stateID',
-                self::getCheckedInState()
-            )->set(
-                'checkInTime',
-                self::formatTime('now', 'Y-m-d H:i:s')
-            );
-            if (!$this->Task->save()) {
-                throw new Exception(_('Failed to update task'));
-            } */
-           //set the task state to checked in and update the check in time to be the current time 
             $curState = $this->Task->get('stateID');
             if ($curState != self::getCheckedInState()) {
                 $curTime = self::niceDate();
@@ -145,12 +134,6 @@ class TaskQueue extends TaskingElement
                     $usedSlots = $this->StorageNode->getUsedSlotCount();
                     $inFront = $this->Task->getInFrontOfHostCount();
                     $groupOpenSlots = $totalSlots - $usedSlots;
-                    // FOGCORE::var_dump_log('open slots, total slots, used slots, and infront are:');
-                    
-                    // FOGCORE::var_dump_log($groupOpenSlots);
-                    // FOGCORE::var_dump_log($totalSlots);
-                    // FOGCORE::var_dump_log($usedSlots);
-                    // FOGCORE::var_dump_log($inFront);
 
                     $MyCheckinTime = self::niceDate($this->Task->get('checkInTime'));
                     if ($groupOpenSlots < 1) {
@@ -166,7 +149,7 @@ class TaskQueue extends TaskingElement
                         throw new Exception($msg);
                     }
                     if ($groupOpenSlots <= $inFront) {
-                       $msg = sprintf(
+                        $msg = sprintf(
                             '%s, %s %d %s. %s %s.',
                             _('There are open slots'),
                             _('but'),

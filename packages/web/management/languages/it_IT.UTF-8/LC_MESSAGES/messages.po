@@ -2614,6 +2614,9 @@ msgstr "Io non sono il server web fog"
 msgid "I am the group manager"
 msgstr "Sono il responsabile del gruppo"
 
+msgid "I checked in at"
+msgstr ""
+
 msgid "ID"
 msgstr "ID"
 
@@ -6544,9 +6547,6 @@ msgstr "automaticamente"
 msgid "based task."
 msgstr ""
 
-msgid "before me"
-msgstr "prima di me"
-
 msgid "before me on this node"
 msgstr "prima di me su questo nodo"
 
@@ -7377,6 +7377,9 @@ msgstr ""
 
 #~ msgid "Your system PHP Version is not sufficient"
 #~ msgstr "La versione del sistema PHP non è sufficiente"
+
+#~ msgid "before me"
+#~ msgstr "prima di me"
 
 #~ msgid "is required"
 #~ msgstr "è richiesto"

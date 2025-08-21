@@ -2726,6 +2726,9 @@ msgstr "Ich bin nicht der FOG-Web-Server"
 msgid "I am the group manager"
 msgstr "Ich bin der Gruppenmanager"
 
+msgid "I checked in at"
+msgstr ""
+
 msgid "ID"
 msgstr "ID"
 
@@ -6891,9 +6894,6 @@ msgstr "einen neuen Knoten zu finden"
 msgid "based task."
 msgstr ""
 
-msgid "before me"
-msgstr "vor mir"
-
 msgid "before me on this node"
 msgstr "vor mir auf diesem Knoten"
 
@@ -7790,6 +7790,9 @@ msgstr ""
 #~ msgstr ""
 #~ "Ihre PHP-Version ist nicht ausreichend. Sie haben Version %s, Version %s "
 #~ "ist erforderlich."
+
+#~ msgid "before me"
+#~ msgstr "vor mir"
 
 #, fuzzy
 #~ msgid "is required"

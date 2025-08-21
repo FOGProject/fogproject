@@ -2725,6 +2725,9 @@ msgstr "I am not the fog web server"
 msgid "I am the group manager"
 msgstr " | I am the only member"
 
+msgid "I checked in at"
+msgstr ""
+
 msgid "ID"
 msgstr "ID"
 
@@ -6879,9 +6882,6 @@ msgstr ""
 msgid "based task."
 msgstr ""
 
-msgid "before me"
-msgstr "before me"
-
 msgid "before me on this node"
 msgstr ""
 
@@ -7772,6 +7772,9 @@ msgstr ""
 #~ msgstr ""
 #~ "Your systems PHP version is not sufficient. You have version %s, version "
 #~ "%s is required."
+
+#~ msgid "before me"
+#~ msgstr "before me"
 
 #, fuzzy
 #~ msgid "is required"

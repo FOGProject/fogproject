@@ -2728,6 +2728,9 @@ msgstr "Eu não sou o servidor web nevoeiro"
 msgid "I am the group manager"
 msgstr " | Eu sou o único membro"
 
+msgid "I checked in at"
+msgstr ""
+
 msgid "ID"
 msgstr "identidade"
 
@@ -6882,9 +6885,6 @@ msgstr ""
 msgid "based task."
 msgstr ""
 
-msgid "before me"
-msgstr "antes de mim"
-
 msgid "before me on this node"
 msgstr ""
 
@@ -7780,6 +7780,9 @@ msgstr ""
 #~ msgstr ""
 #~ "Sua versão sistemas PHP não é suficiente. Você tem a versão %s , versão "
 #~ "%s é necessária."
+
+#~ msgid "before me"
+#~ msgstr "antes de mim"
 
 #, fuzzy
 #~ msgid "is required"

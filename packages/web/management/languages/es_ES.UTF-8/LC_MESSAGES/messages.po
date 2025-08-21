@@ -2790,6 +2790,9 @@ msgstr ""
 msgid "I am the group manager"
 msgstr ""
 
+msgid "I checked in at"
+msgstr ""
+
 msgid "ID"
 msgstr "CARNÉ DE IDENTIDAD"
 
@@ -7034,10 +7037,6 @@ msgstr ""
 msgid "based task."
 msgstr ""
 
-#, fuzzy
-msgid "before me"
-msgstr "Nombre del núcleo"
-
 msgid "before me on this node"
 msgstr ""
 
@@ -7936,6 +7935,10 @@ msgstr ""
 #~ msgstr ""
 #~ "Su versión de los sistemas de PHP no es suficiente. Tiene la versión %s , "
 #~ "versión %s se requiere."
+
+#, fuzzy
+#~ msgid "before me"
+#~ msgstr "Nombre del núcleo"
 
 #, fuzzy
 #~ msgid "is required"
