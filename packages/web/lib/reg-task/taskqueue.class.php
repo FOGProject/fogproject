@@ -38,11 +38,7 @@ class TaskQueue extends TaskingElement
             )->set(
                 'checkInTime',
                 self::formatTime('now', 'Y-m-d H:i:s')
-            )->save();
-            // $this->Task
-            //     ->set('stateID', self::getCheckedInState())
-            //     ->set('checkInTime', self::formatTime('now', 'Y-m-d H:i:s'))
-            //     ->save();
+            );
             if (!$this->Task->save()) {
                 throw new Exception(_('Failed to update task'));
             }
