@@ -41,7 +41,7 @@ class TaskQueue extends TaskingElement
             )->set(
                 'checkInTime',
                 self::formatTime('now', 'Y-m-d H:i:s')
-            );
+            )->save();
             if (!$this->Task->save()) {
                 throw new Exception(_('Failed to update task'));
             }
@@ -157,7 +157,7 @@ class TaskQueue extends TaskingElement
                         );
                         throw new Exception($msg);
                     }
-                    if ($groupOpenSlots <= $inFront) {
+                    if ($groupOpenSlots < $inFront) {
                         $msg = sprintf(
                             '%s, %s %d %s.',
                             _('There are open slots'),
