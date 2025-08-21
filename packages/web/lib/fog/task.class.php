@@ -128,7 +128,7 @@ class Task extends TaskType
      */
     public function getInFrontOfHostCount()
     {
-        $count = 0;
+        $count = -1; // -1 because we don't count ourselves
         $curTime = self::niceDate();
         $MyCheckinTime = self::niceDate($this->get('checkInTime'));
         $myLastCheckin = $curTime->getTimestamp() - $MyCheckinTime->getTimestamp();
