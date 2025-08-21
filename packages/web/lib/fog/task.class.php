@@ -162,8 +162,8 @@ class Task extends TaskType
         // FOGCORE::var_dump_log($myLastCheckin);
         // FOGCORE::var_dump_log($MyTaskID);
         foreach ($Tasks->data as &$Task) {
-            FOGCORE::var_dump_log('cur task is');
-            FOGCORE::var_dump_log($Task);
+            // FOGCORE::var_dump_log('cur task is');
+            // FOGCORE::var_dump_log($Task);
             
             //don't try a check against self for in front count
             if ($Task->id != $MyTaskID) {
