@@ -128,12 +128,18 @@ class Task extends TaskType
      */
     public function getInFrontOfHostCount()
     {
-        $curTime = self::niceDate();
+        $count = 0;
+        // $curTime = self::niceDate();
         $MyCheckinTime = self::niceDate($this->get('checkInTime'));
-        $myLastCheckin = $curTime->getTimestamp() - $MyCheckinTime->getTimestamp();
-        if ($myLastCheckin >= self::getSetting('FOG_CHECKIN_TIMEOUT')) {
-            $this->set('checkInTime', $curTime->format('Y-m-d H:i:s'))->save();
-        }
+        // $MyCreatedTime = self::niceDate($this->get('createdTime'));
+
+        //get atomic identifier for this task so we don't count ourselves in the queue
+        $MyTaskID = $this->get('id');
+
+        // $myLastCheckin = $curTime->getTimestamp() - $MyCheckinTime->getTimestamp();
+        // if ($myLastCheckin >= self::getSetting('FOG_CHECKIN_TIMEOUT')) {
+        //     $this->set('checkInTime', $curTime->format('Y-m-d H:i:s'))->save();
+        // }
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
         $find = [
             'stateID' => self::getQueuedStates(),
@@ -141,7 +147,7 @@ class Task extends TaskType
             'storagegroupID' => $this->get('storagegroupID'),
             'storagenodeID' => $this->get('storagenodeID')
         ];
-        $checkTime = self::getSetting('FOG_CHECKIN_TIMEOUT');
+        // $checkTime = self::getSetting('FOG_CHECKIN_TIMEOUT');
         Route::listem(
             __CLASS__,
             $find
@@ -149,18 +155,56 @@ class Task extends TaskType
         $Tasks = json_decode(
             Route::getData()
         );
+        // FOGCORE::var_dump_log('count,curtime,mycheckintime,mylastcheckin,myID are:');
+        // FOGCORE::var_dump_log($count);
+        // FOGCORE::var_dump_log($curTime);
+        // FOGCORE::var_dump_log($MyCheckinTime);
+        // FOGCORE::var_dump_log($myLastCheckin);
+        // FOGCORE::var_dump_log($MyTaskID);
         foreach ($Tasks->data as &$Task) {
-            // if (!($Task->checkInTime === 'No Data')) { //could also do this or do a validdate check here
-            try {
-                $TaskCheckinTime = self::niceDate($Task->checkInTime);
-                //if no exception from nicedate, then check if curtime gt checktime and increment count
-                if ((self::validDate($TaskCheckinTime)) && ($curTime >= $TaskCheckinTime)) {
-                    ++$count;
+            FOGCORE::var_dump_log('cur task is');
+            FOGCORE::var_dump_log($Task);
+            
+            //don't try a check against self for in front count
+            if ($Task->id != $MyTaskID) {
+                try {
+                    //get the check in time of the task being checked against
+                    $TaskCheckinTime = self::niceDate($Task->checkInTime);
+                    
+                    /* This was for timeout checks, timeout not used now, keeping just in case reference is needed */
+                    //check if the task being checked against has a valid check in time
+                    // $TimeSinceLastCheckin = $curTime->getTimestamp() - $TaskCheckinTime->getTimestamp();
+                    // if ($TimeSinceLastCheckin >= $checkTime) {
+                    //     FOGCORE::var_dump_log('This task is timed out:');
+                    //     $TaskCheckInTimedOut = $true;
+                    // } else {
+                    //     $TaskCheckInTimedOut = $false;
+                    // }
+                    
+                    //if no exception from nicedate, then check if curtime gt checktime and increment count
+                    //also don't count self and only count if mycheckintime is greater than checkintime of the task being checked against
+                    //i.e. if I checked in at 8:30 (mycheckintime) and the task being checked against has a check in time of 8:25 (taskcheckintime), 
+                    // then my time is after/greater than the task being checked against, so it is in front of me and I should increment the count
+                    if (/* !($TaskCheckInTimedOut) && */ (self::validDate($TaskCheckinTime)) && ($MyCheckinTime >= $TaskCheckinTime)) {
+                        if ($MyCheckinTime === $TaskCheckinTime) {
+                            //the check in times are exactly the same, that's crazy!
+                            //whoever has the lower task id goes first as that task was created first
+                            //if my task id is greater than the checked task's id, then it is in front of me
+                            if ($MyTaskID > $Task->id) {
+                                ++$count;
+                            }
+                        } else {
+                            ++$count;
+                        }
+                    }
+                } catch (Exception $e) {
+                    // FOGCORE::var_dump_log("nice date is invalid for checkInTime of task with id:");
+                    // FOGCORE::var_dump_log($Task->id);
+                    //don't increment count for tasks with a 'No Data' check in time
                 }
-            } catch (Exception $e) {
-                // FOGCORE::var_dump_log('nice date is invalid for checkInTime');
-                //don't increment count for tasks with a 'No Data' check in time
             }
+            // FOGCORE::var_dump_log('count of in front is now:');
+            // FOGCORE::var_dump_log($count);
             unset($Task);
         }
 
