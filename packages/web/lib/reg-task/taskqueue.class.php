@@ -38,7 +38,7 @@ class TaskQueue extends TaskingElement
             )->set(
                 'checkInTime',
                 self::formatTime('now', 'Y-m-d H:i:s')
-            );
+            )->save();
             // $this->Task
             //     ->set('stateID', self::getCheckedInState())
             //     ->set('checkInTime', self::formatTime('now', 'Y-m-d H:i:s'))
@@ -144,7 +144,7 @@ class TaskQueue extends TaskingElement
                         );
                         throw new Exception($msg);
                     }
-                    if ($groupOpenSlots <= $inFront) {
+                    if ($groupOpenSlots < $inFront) {
                         $msg = sprintf(
                             '%s, %s %d %s.',
                             _('There are open slots'),
