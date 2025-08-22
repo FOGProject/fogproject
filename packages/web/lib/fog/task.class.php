@@ -127,13 +127,12 @@ class Task extends TaskType
      */
     public function getInFrontOfHostCount()
     {
-        $count = -1; // -1 because we don't count ourselves as in front of us in the queue
-        $curTime = self::niceDate();
+        $count = 0;
         $MyCheckinTime = self::niceDate($this->get('checkInTime'));
-        $myLastCheckin = $curTime->getTimestamp() - $MyCheckinTime->getTimestamp();
-        if ($myLastCheckin >= self::getSetting('FOG_CHECKIN_TIMEOUT')) {
-            $this->set('checkInTime', $curTime->format('Y-m-d H:i:s'))->save();
-        }
+
+        //get atomic identifier for this task so we don't count ourselves in the queue.
+        $MyTaskID = $this->get('id');
+
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
         $find = array(
             'stateID' => self::getQueuedStates(),
@@ -141,30 +140,23 @@ class Task extends TaskType
             'storagegroupID' => $this->get('storagegroupID'),
             'storagenodeID' => $this->get('storagenodeID')
         );
-        $checkTime = self::getSetting('FOG_CHECKIN_TIMEOUT');
-        foreach ((array)$this->getManager()
-            ->find($find) as &$Task
-        ) {
+        foreach ((array)$this->getManager()->find($find) as $Task) {
+            if ($Task->get('id') == $MyTaskID) {
+                continue;
+            }
             try {
                 $TaskCheckinTime = self::niceDate($Task->get('checkInTime'));
-                $timeOfLastCheckin = $curTime
-                ->getTimestamp() - $TaskCheckinTime
-                ->getTimestamp();
-                if ($timeOfLastCheckin >= $checkTime) {
-                    $Task->set(
-                        'checkInTime',
-                        $curTime->format('Y-m-d H:i:s')
-                    )->save();
+                if (!self::validDate($TaskCheckinTime)
+                    || $MyCheckinTime < $TaskCheckinTime
+                    || ($MyCheckinTime === $TaskCheckinTime && $MyTaskID <= $Task->id)
+                ) {
+                    continue;
                 }
-                if ($MyCheckinTime > $TaskCheckinTime) {
-                    ++$count;
-                }
+                ++$count;
             } catch (Exception $e) {
-                    // FOGCORE::var_dump_log('nice date is invalid for checkInTime');
-                    //don't increment count for tasks with a 'No Data' check in time
             }
-            unset($Task);
         }
+
         return $count;
     }
     /**
