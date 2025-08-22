@@ -206,10 +206,6 @@ msgid "A rule already exists with this name."
 msgstr "Uma imagem já existe com este nome!"
 
 #, fuzzy
-msgid "A site alread exists with this name!"
-msgstr "Uma imagem já existe com este nome!"
-
-#, fuzzy
 msgid "A site already exists with this name!"
 msgstr "Uma imagem já existe com este nome!"
 
@@ -848,8 +844,9 @@ msgstr "CUPS Printer"
 msgid "Call"
 msgstr ""
 
-msgid "Can be a comma seperated list."
-msgstr ""
+#, fuzzy
+msgid "Can be a comma separated list."
+msgstr "Por favor insira um endereço IP válido"
 
 msgid "Can not redeclare route"
 msgstr ""
@@ -2181,7 +2178,7 @@ msgstr "Açao"
 msgid "Function does not exist"
 msgstr "O método não existe"
 
-msgid "GNU Gneral Public License"
+msgid "GNU General Public License"
 msgstr ""
 
 #, fuzzy
@@ -2697,6 +2694,10 @@ msgstr "Eu não sou o servidor web nevoeiro"
 #, fuzzy
 msgid "I am the group manager"
 msgstr " | Eu sou o único membro"
+
+#, fuzzy
+msgid "I checked in at"
+msgstr "Tarefa Checkin Data"
 
 #, fuzzy
 msgid "I have read"
@@ -5274,7 +5275,7 @@ msgid "Search results returned false"
 msgstr ""
 
 #, fuzzy
-msgid "Second paramater must be in array(class,function)"
+msgid "Second parameter must be in array(class,function)"
 msgstr ""
 "Segundo parâmetro deve estar no formato array (classe Hook, função a ser "
 "executada)"
@@ -6411,7 +6412,7 @@ msgid "This section allows you to update the modules and"
 msgstr "Esta configuração define o nome de usuário proxy para usar."
 
 #, fuzzy
-msgid "This section allows you to uploade user"
+msgid "This section allows you to upload user"
 msgstr "Esta configuração define o nome de usuário proxy para usar."
 
 msgid "This servers ip(s)"
@@ -6536,7 +6537,7 @@ msgid "Unable to find master Storage Node"
 msgstr "Falha ao destruir Storage Node"
 
 #, fuzzy
-msgid "Unable to get server infromation!"
+msgid "Unable to get server information!"
 msgstr "Não é possível extrair informações do servidor!"
 
 msgid "Unable to open file for reading"
@@ -7853,6 +7854,10 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "A hostext already exists with this name!"
+#~ msgstr "Uma imagem já existe com este nome!"
+
+#, fuzzy
+#~ msgid "A site alread exists with this name!"
 #~ msgstr "Uma imagem já existe com este nome!"
 
 #, fuzzy

@@ -201,10 +201,6 @@ msgid "A rule already exists with this name."
 msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
-msgid "A site alread exists with this name!"
-msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
-
-#, fuzzy
 msgid "A site already exists with this name!"
 msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
@@ -845,8 +841,9 @@ msgstr "CUPS Drucker"
 msgid "Call"
 msgstr "Aufruf"
 
-msgid "Can be a comma seperated list."
-msgstr ""
+#, fuzzy
+msgid "Can be a comma separated list."
+msgstr "Bitte geben Sie eine gültige MAC-Adresse an"
 
 msgid "Can not redeclare route"
 msgstr "Route kann nicht nochmal neu definiert werden"
@@ -2181,7 +2178,8 @@ msgstr "Funktion"
 msgid "Function does not exist"
 msgstr "Methode ist nicht vorhanden"
 
-msgid "GNU Gneral Public License"
+#, fuzzy
+msgid "GNU General Public License"
 msgstr "GNU General Public License"
 
 #, fuzzy
@@ -2697,6 +2695,10 @@ msgstr "Ich bin nicht der FOG-Web-Server"
 #, fuzzy
 msgid "I am the group manager"
 msgstr "Ich bin der Gruppenmanager"
+
+#, fuzzy
+msgid "I checked in at"
+msgstr "Task Eincheckdatum"
 
 #, fuzzy
 msgid "I have read"
@@ -5279,7 +5281,7 @@ msgid "Search results returned false"
 msgstr "Die Suche lieferte kein passendes Ergebnis"
 
 #, fuzzy
-msgid "Second paramater must be in array(class,function)"
+msgid "Second parameter must be in array(class,function)"
 msgstr "Zweiter Parameter muss innerhalb des Arrays (Klasse, Funktion) sein"
 
 msgid "Select Image"
@@ -6411,7 +6413,7 @@ msgid "This section allows you to update the modules and"
 msgstr "In diesem Abschnitt können Sie die Module und "
 
 #, fuzzy
-msgid "This section allows you to uploade user"
+msgid "This section allows you to upload user"
 msgstr "In diesem Abschnitt können Sie benutzerdefinierte "
 
 msgid "This servers ip(s)"
@@ -6539,7 +6541,7 @@ msgid "Unable to find master Storage Node"
 msgstr "Fehler beim Finden des Master Storage Nodes"
 
 #, fuzzy
-msgid "Unable to get server infromation!"
+msgid "Unable to get server information!"
 msgstr "Es konnten keine Serverinformationen abgerufen werden!"
 
 msgid "Unable to open file for reading"
@@ -7859,6 +7861,10 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 
 #, fuzzy
 #~ msgid "A hostext already exists with this name!"
+#~ msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
+
+#, fuzzy
+#~ msgid "A site alread exists with this name!"
 #~ msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy

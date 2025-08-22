@@ -206,10 +206,6 @@ msgid "A rule already exists with this name."
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
-msgid "A site alread exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
 msgid "A site already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
@@ -848,8 +844,9 @@ msgstr "CUPS打印机"
 msgid "Call"
 msgstr ""
 
-msgid "Can be a comma seperated list."
-msgstr ""
+#, fuzzy
+msgid "Can be a comma separated list."
+msgstr "请输入一个有效的IP地址"
 
 msgid "Can not redeclare route"
 msgstr ""
@@ -2178,7 +2175,7 @@ msgstr "行动"
 msgid "Function does not exist"
 msgstr "方法不存在"
 
-msgid "GNU Gneral Public License"
+msgid "GNU General Public License"
 msgstr ""
 
 #, fuzzy
@@ -2694,6 +2691,10 @@ msgstr "我不是雾Web服务器"
 #, fuzzy
 msgid "I am the group manager"
 msgstr "|我唯一​​的成员"
+
+#, fuzzy
+msgid "I checked in at"
+msgstr "任务登记入住日期"
 
 #, fuzzy
 msgid "I have read"
@@ -5268,7 +5269,7 @@ msgid "Search results returned false"
 msgstr ""
 
 #, fuzzy
-msgid "Second paramater must be in array(class,function)"
+msgid "Second parameter must be in array(class,function)"
 msgstr "第二个参数的形式必须是数组（钩类，函数运行）"
 
 msgid "Select Image"
@@ -6396,7 +6397,7 @@ msgid "This section allows you to update the modules and"
 msgstr "此设置定义代理用户名使用。"
 
 #, fuzzy
-msgid "This section allows you to uploade user"
+msgid "This section allows you to upload user"
 msgstr "此设置定义代理用户名使用。"
 
 msgid "This servers ip(s)"
@@ -6518,7 +6519,7 @@ msgid "Unable to find master Storage Node"
 msgstr "未能摧毁存储节点"
 
 #, fuzzy
-msgid "Unable to get server infromation!"
+msgid "Unable to get server information!"
 msgstr "无法拉服务器的信息！"
 
 msgid "Unable to open file for reading"
@@ -7826,6 +7827,10 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "A hostext already exists with this name!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
+#~ msgid "A site alread exists with this name!"
 #~ msgstr "图像已经存在具有此名称！"
 
 #, fuzzy

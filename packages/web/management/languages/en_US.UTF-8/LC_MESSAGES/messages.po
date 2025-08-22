@@ -206,10 +206,6 @@ msgid "A rule already exists with this name."
 msgstr "An image already exists with this name!"
 
 #, fuzzy
-msgid "A site alread exists with this name!"
-msgstr "An image already exists with this name!"
-
-#, fuzzy
 msgid "A site already exists with this name!"
 msgstr "An image already exists with this name!"
 
@@ -848,8 +844,9 @@ msgstr "CUPS Printer"
 msgid "Call"
 msgstr ""
 
-msgid "Can be a comma seperated list."
-msgstr ""
+#, fuzzy
+msgid "Can be a comma separated list."
+msgstr "Please enter a valid IP address"
 
 msgid "Can not redeclare route"
 msgstr ""
@@ -2177,7 +2174,7 @@ msgstr "Action"
 msgid "Function does not exist"
 msgstr "Method does not exist"
 
-msgid "GNU Gneral Public License"
+msgid "GNU General Public License"
 msgstr ""
 
 #, fuzzy
@@ -2692,6 +2689,10 @@ msgstr "I am not the fog web server"
 #, fuzzy
 msgid "I am the group manager"
 msgstr " | I am the only member"
+
+#, fuzzy
+msgid "I checked in at"
+msgstr "Task Checkin Date"
 
 #, fuzzy
 msgid "I have read"
@@ -5267,7 +5268,7 @@ msgid "Search results returned false"
 msgstr ""
 
 #, fuzzy
-msgid "Second paramater must be in array(class,function)"
+msgid "Second parameter must be in array(class,function)"
 msgstr "Second parameter must be in the form array(Hook class,Function to run)"
 
 msgid "Select Image"
@@ -6402,7 +6403,7 @@ msgstr ""
 "Database for easier identification."
 
 #, fuzzy
-msgid "This section allows you to uploade user"
+msgid "This section allows you to upload user"
 msgstr ""
 "This section allows you to import known mac address makers into the FOG "
 "Database for easier identification."
@@ -6529,7 +6530,7 @@ msgid "Unable to find master Storage Node"
 msgstr "Failed to destroy Storage Node"
 
 #, fuzzy
-msgid "Unable to get server infromation!"
+msgid "Unable to get server information!"
 msgstr "Unable to pull server information!"
 
 msgid "Unable to open file for reading"
@@ -7845,6 +7846,10 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "A hostext already exists with this name!"
+#~ msgstr "An image already exists with this name!"
+
+#, fuzzy
+#~ msgid "A site alread exists with this name!"
 #~ msgstr "An image already exists with this name!"
 
 #, fuzzy

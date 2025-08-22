@@ -177,9 +177,6 @@ msgstr "Un rôle avec ce nom existe déjà !"
 msgid "A rule already exists with this name."
 msgstr "Une règle existe déjà avec ce nom."
 
-msgid "A site alread exists with this name!"
-msgstr "Un site existe déjà avec ce nom !"
-
 msgid "A site already exists with this name!"
 msgstr "Un site existe déjà sous ce nom !"
 
@@ -736,7 +733,8 @@ msgstr "Imprimante Serveur CUPS"
 msgid "Call"
 msgstr "Appel"
 
-msgid "Can be a comma seperated list."
+#, fuzzy
+msgid "Can be a comma separated list."
 msgstr "Peut être une liste séparée par des virgules."
 
 msgid "Can not redeclare route"
@@ -1913,7 +1911,8 @@ msgstr "Fonction"
 msgid "Function does not exist"
 msgstr "Fonction n'existe pas"
 
-msgid "GNU Gneral Public License"
+#, fuzzy
+msgid "GNU General Public License"
 msgstr "GNU General Public License"
 
 #, fuzzy
@@ -2371,6 +2370,10 @@ msgstr "Je ne suis pas le serveur web de FOG"
 
 msgid "I am the group manager"
 msgstr "Je suis le responsable du groupe"
+
+#, fuzzy
+msgid "I checked in at"
+msgstr "Date de vérification de la tâche"
 
 msgid "I have read"
 msgstr "J'ai lu"
@@ -4647,7 +4650,8 @@ msgstr "Schéma de recherche"
 msgid "Search results returned false"
 msgstr "Les résultats de la recherche sont faux"
 
-msgid "Second paramater must be in array(class,function)"
+#, fuzzy
+msgid "Second parameter must be in array(class,function)"
 msgstr "Deuxième paramètre doit être sous la forme array (class, function)"
 
 msgid "Select Image"
@@ -4981,8 +4985,8 @@ msgstr "Snapin ajouté !"
 
 msgid "Snapin file is too big, increase post_max_size in php.ini."
 msgstr ""
-"Le fichier Snapin est trop gros, augmentez post_max_size dans le fichier php."
-"ini."
+"Le fichier Snapin est trop gros, augmentez post_max_size dans le fichier "
+"php.ini."
 
 msgid "Snapin is invalid"
 msgstr "Snapin n'est pas valide"
@@ -5643,7 +5647,8 @@ msgstr "Cette section vous permet de mettre à jour"
 msgid "This section allows you to update the modules and"
 msgstr "Cette section vous permet de mettre à jour les modules et"
 
-msgid "This section allows you to uploade user"
+#, fuzzy
+msgid "This section allows you to upload user"
 msgstr "Cette section vous permet d'uploader"
 
 msgid "This servers ip(s)"
@@ -5758,7 +5763,8 @@ msgstr "Impossible de trouver les informations de base !"
 msgid "Unable to find master Storage Node"
 msgstr "Impossible de trouver le nœud de stockage principal"
 
-msgid "Unable to get server infromation!"
+#, fuzzy
+msgid "Unable to get server information!"
 msgstr "Impossible d'obtenir des informations sur le serveur !"
 
 msgid "Unable to open file for reading"
@@ -6913,6 +6919,9 @@ msgstr "vous définissez le champ de la bande passante sur ce nœud à 1000"
 
 #~ msgid "A hostext already exists with this name!"
 #~ msgstr "Une Host ext existe déjà avec ce nom !"
+
+#~ msgid "A site alread exists with this name!"
+#~ msgstr "Un site existe déjà avec ce nom !"
 
 #~ msgid "Add ou failed!"
 #~ msgstr "L'ajout OU a échoué !"

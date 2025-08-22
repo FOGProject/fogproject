@@ -156,9 +156,6 @@ msgstr ""
 msgid "A rule already exists with this name."
 msgstr ""
 
-msgid "A site alread exists with this name!"
-msgstr ""
-
 msgid "A site already exists with this name!"
 msgstr ""
 
@@ -711,7 +708,7 @@ msgstr ""
 msgid "Call"
 msgstr ""
 
-msgid "Can be a comma seperated list."
+msgid "Can be a comma separated list."
 msgstr ""
 
 msgid "Can not redeclare route"
@@ -1877,7 +1874,7 @@ msgstr ""
 msgid "Function does not exist"
 msgstr ""
 
-msgid "GNU Gneral Public License"
+msgid "GNU General Public License"
 msgstr ""
 
 msgid "GPU Products"
@@ -2328,6 +2325,9 @@ msgid "I am not the fog web server"
 msgstr ""
 
 msgid "I am the group manager"
+msgstr ""
+
+msgid "I checked in at"
 msgstr ""
 
 msgid "I have read"
@@ -4577,7 +4577,7 @@ msgstr ""
 msgid "Search results returned false"
 msgstr ""
 
-msgid "Second paramater must be in array(class,function)"
+msgid "Second parameter must be in array(class,function)"
 msgstr ""
 
 msgid "Select Image"
@@ -5554,7 +5554,7 @@ msgstr ""
 msgid "This section allows you to update the modules and"
 msgstr ""
 
-msgid "This section allows you to uploade user"
+msgid "This section allows you to upload user"
 msgstr ""
 
 msgid "This servers ip(s)"
@@ -5660,7 +5660,7 @@ msgstr ""
 msgid "Unable to find master Storage Node"
 msgstr ""
 
-msgid "Unable to get server infromation!"
+msgid "Unable to get server information!"
 msgstr ""
 
 msgid "Unable to open file for reading"

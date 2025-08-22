@@ -201,9 +201,6 @@ msgstr "¡Ya existe un rol con este nombre!"
 msgid "A rule already exists with this name."
 msgstr "Ya existe una regla con este nombre."
 
-msgid "A site alread exists with this name!"
-msgstr ""
-
 #, fuzzy
 msgid "A site already exists with this name!"
 msgstr "¡Ya existe un rol con este nombre!"
@@ -844,7 +841,7 @@ msgstr "Impresora"
 msgid "Call"
 msgstr ""
 
-msgid "Can be a comma seperated list."
+msgid "Can be a comma separated list."
 msgstr ""
 
 msgid "Can not redeclare route"
@@ -2159,7 +2156,7 @@ msgstr ""
 msgid "Function does not exist"
 msgstr ""
 
-msgid "GNU Gneral Public License"
+msgid "GNU General Public License"
 msgstr ""
 
 #, fuzzy
@@ -2708,6 +2705,10 @@ msgstr ""
 
 msgid "I am the group manager"
 msgstr ""
+
+#, fuzzy
+msgid "I checked in at"
+msgstr "Tarea"
 
 msgid "I have read"
 msgstr ""
@@ -5235,7 +5236,7 @@ msgstr "Búsqueda"
 msgid "Search results returned false"
 msgstr ""
 
-msgid "Second paramater must be in array(class,function)"
+msgid "Second parameter must be in array(class,function)"
 msgstr ""
 
 #, fuzzy
@@ -6370,7 +6371,7 @@ msgstr ""
 msgid "This section allows you to update the modules and"
 msgstr ""
 
-msgid "This section allows you to uploade user"
+msgid "This section allows you to upload user"
 msgstr ""
 
 msgid "This servers ip(s)"
@@ -6478,8 +6479,9 @@ msgstr ""
 msgid "Unable to find master Storage Node"
 msgstr "No se puede encontrar el nodo de almacenamiento:"
 
-msgid "Unable to get server infromation!"
-msgstr ""
+#, fuzzy
+msgid "Unable to get server information!"
+msgstr "Información de hardware"
 
 msgid "Unable to open file for reading"
 msgstr ""
