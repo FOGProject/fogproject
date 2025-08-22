@@ -35,9 +35,11 @@ cp ${FOGDIR}/src/ipxe/src/ipxescript10sec .
 cp ${FOGDIR}/src/ipxe/src/config/general.h config/
 cp ${FOGDIR}/src/ipxe/src/config/settings.h config/
 cp ${FOGDIR}/src/ipxe/src/config/console.h config/
+# For BIOS builds, disable USB_HCD_USBIO as it's EFI-specific
+sed -i 's+#define	USB_HCD_USBIO+//#define	USB_HCD_USBIO+g' config/usb.h
 
 # Build the files
-make EMBED=ipxescript bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb ${BUILDOPTS}
+make -j$(nproc) EMBED=ipxescript bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb ${BUILDOPTS}
 [[ $? -eq 0 ]] || exit 40
 
 # Copy files to repo location as required
@@ -45,7 +47,7 @@ cp bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/i
 cp bin/ipxe.lkrn ${FOGDIR}/packages/tftp/ipxe.krn
 
 # Build with 10 second delay
-make EMBED=ipxescript10sec bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb ${BUILDOPTS}
+make -j$(nproc) EMBED=ipxescript10sec bin/ipxe.iso bin/{undionly,ipxe,intel,realtek}.{,k,kk}pxe bin/ipxe.lkrn bin/ipxe.usb ${BUILDOPTS}
 [[ $? -eq 0 ]] || exit 48
 
 # Copy files to repo location as required
@@ -74,25 +76,32 @@ cp ${FOGDIR}/src/ipxe/src-efi/ipxescript10sec .
 cp ${FOGDIR}/src/ipxe/src-efi/config/general.h config/
 cp ${FOGDIR}/src/ipxe/src-efi/config/settings.h config/
 cp ${FOGDIR}/src/ipxe/src-efi/config/console.h config/
+# For EFI builds, enable USB_HCD_USBIO for keyboard support and disable conflicting USB_EFI
+sed -i 's+//#define	USB_HCD_USBIO+#define	USB_HCD_USBIO+g' config/usb.h
+sed -i 's+//#undef	USB_KEYBOARD+#define	USB_KEYBOARD+g' config/usb.h
+sed -i 's+//#undef	USB_EFI+#undef	USB_EFI+g' config/usb.h
 
 # Build the files
-make EMBED=ipxescript bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${BUILDOPTS}
+make -j$(nproc) EMBED=ipxescript bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek}.efi ${BUILDOPTS}
 [[ $? -eq 0 ]] || exit 80
-make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 EMBED=ipxescript bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${BUILDOPTS}
+
+# Apply USB configuration for ARM64 build
+make -j$(nproc) CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 EMBED=ipxescript bin-arm64-efi/{snp{,only},ipxe,intel,realtek}.efi ${BUILDOPTS}
 [[ $? -eq 0 ]] || exit 82
 
 # Copy the files to upload
-cp bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/arm64-efi/
-cp bin-i386-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/i386-efi/
-cp bin-x86_64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/
+cp bin-arm64-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/arm64-efi/
+cp bin-i386-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/i386-efi/
+cp bin-x86_64-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/
 
 # Build with 10 second delay
-make EMBED=ipxescript10sec bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${BUILDOPTS}
+make -j$(nproc) EMBED=ipxescript10sec bin-{i386,x86_64}-efi/{snp{,only},ipxe,intel,realtek}.efi ${BUILDOPTS}
 [[ $? -eq 0 ]] || exit 91
-make CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 EMBED=ipxescript10sec bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${BUILDOPTS}
+
+make -j$(nproc) CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 EMBED=ipxescript10sec bin-arm64-efi/{snp{,only},ipxe,intel,realtek}.efi ${BUILDOPTS}
 [[ $? -eq 0 ]] || exit 93
 
 # Copy the files to upload
-cp bin-arm64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/10secdelay/arm64-efi/
-cp bin-i386-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/10secdelay/i386-efi/
-cp bin-x86_64-efi/{snp{,only},ipxe,intel,realtek,ncm--ecm--axge}.efi ${FOGDIR}/packages/tftp/10secdelay/
+cp bin-arm64-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/10secdelay/arm64-efi/
+cp bin-i386-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/10secdelay/i386-efi/
+cp bin-x86_64-efi/{snp{,only},ipxe,intel,realtek}.efi ${FOGDIR}/packages/tftp/10secdelay/
