@@ -47,6 +47,14 @@ class TaskQueue extends TaskingElement
                 }
             }
             if ($this->imagingTask) {
+                if ($this->Task->isCapture()) {
+                    $this->Task->getImage()->set('size', '')->save();
+                }
+                $method = (
+                    $this->Task->isCapture || $this->Task->isMulticast() ?
+                    'getMasterStorageNode' :
+                    'getOptimalStorageNode'
+                );
                 if ($this->Task->isMulticast()) {
                     Route::ids(
                         'multicastsessionassociation',
@@ -95,15 +103,6 @@ class TaskQueue extends TaskingElement
                             'Host' => &self::$Host
                         ]
                     );
-                    $method = 'getOptimalStorageNode';
-                    if ($this->Task->isCapture()) {
-                        $this->Task->getImage()->set('size', '')->save();
-                    }
-                    if ($this->Task->isCapture()
-                        || $this->Task->isMulticast()
-                    ) {
-                        $method = 'getMasterStorageNode';
-                    }
                     if (!$this->StorageNode || !$this->StorageNode->isValid()) {
                         $this->StorageNode = $this->Image
                             ->getStorageGroup()
@@ -169,7 +168,6 @@ class TaskQueue extends TaskingElement
                     throw new Exception(_('Failed to update/create image log'));
                 }
             }
-            //unsure why we're resetting the checkin time again here, but leaving it be.
             $this->Task->set(
                 'stateID',
                 self::getProgressState()
