@@ -458,8 +458,15 @@ $this->schema[] = [
     . SNAPINDIR
     . "','Web Server'),"
     . "('FOG_CHECKIN_TIMEOUT','This setting defines the amount "
-    . "of time between client checks to determine if they are "
-    . "active clients.','"
+    . "of time before a client check-in when waiting to start (imaging) expires. "
+    . "AKA if they are active clients waiting to start imaging. "
+    . "If a check-in time has passed this many seconds, the check-in is expired "
+    . "and they move to the back of the line. "
+    . "Default is 600 seconds (10 minutes), it\'s best to set this to a little "
+    . "more than your average imaging task time (check your imaging log), so the "
+    . "check-in expiration is close to when new slots to start imaging open "
+    . "which avoids unnecessary queue changes. "
+    . "DO NOT set below 180 (3 minutes) to avoid breaking the queue system','"
     . CHECKIN_TIMEOUT
     . "','General Settings'),"
     . "('FOG_USER_MINPASSLENGTH','This setting defines the "
