@@ -136,17 +136,17 @@ class TaskQueue extends TaskingElement
                     }
                     
                     if ($groupOpenSlots <= $inFront) {   
-                            $msg = sprintf(
-                                '%s, %s %d %s. %s %s. %s %d.',
-                                _('There are open slots'),
-                                _('but'),
-                                $inFront,
-                                _('before me on this node'),
-                                _('Last check-in at'),
-                                $MyCheckinTime->format('Y-m-d H:i:s'),
-                                _('ID is'),
-                                $this->Task->get('id')
-                            );
+                        $msg = sprintf(
+                            '%s, %s %d %s. %s %s. %s %d.',
+                            _('There are open slots'),
+                            _('but'),
+                            $inFront,
+                            _('before me on this node'),
+                            _('Last check-in at'),
+                            $MyCheckinTime->format('Y-m-d H:i:s'),
+                            _('ID is'),
+                            $this->Task->get('id')
+                        );
                         throw new Exception($msg);
                     }
                 }
