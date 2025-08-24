@@ -137,7 +137,7 @@ class Task extends TaskType
 
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
         $find = array(
-            'stateID' => self::getQueuedStates(),
+            'stateID' => self::getCheckedInState(),
             'typeID' => $used,
             'storagegroupID' => $this->get('storagegroupID'),
             'storagenodeID' => $this->get('storagenodeID')
