@@ -461,7 +461,7 @@ $this->schema[] = [
     . "of time before a client check-in when waiting to start (imaging) expires. "
     . "AKA if they are active clients waiting to start imaging. "
     . "If a check-in time has passed this many seconds, the check-in is expired "
-    . "and they move to the back of the line. "
+    . "and they are skipped over in line, they keep their spot if they return (based on taskID). "
     . "Default is 600 seconds (10 minutes), it\'s best to set this to a little "
     . "more than your average imaging task time (check your imaging log), so the "
     . "check-in expiration is close to when new slots to start imaging open "
