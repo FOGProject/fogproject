@@ -134,9 +134,6 @@ class Task extends TaskType
     public function getInFrontOfHostCount()
     {
         $count = 0;
-        $MyCheckinTime = self::niceDate($this->get('checkInTime'));
-        $curTime = self::niceDate();
-        //get atomic identifier for this task so we don't count ourselves in the queue
         $MyTaskID = $this->get('id');
 
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
