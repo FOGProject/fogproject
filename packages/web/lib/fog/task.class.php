@@ -21,6 +21,11 @@
  */
 class Task extends TaskType
 {
+    //minimum checkin timeout in seconds, enforced if FOG_CHECKIN_TIMEOUT setting is lower
+    //prevents excessive db writes when waiting for tasks to timeout/expire
+    const FOG_TASK_CHECKIN_MIN_TIMEOUT = 180;
+    //if a task's checkin time is within this many seconds of expiring/timing out, update the checkin time
+    const FOG_TASK_CHECKIN_ALMOST_EXPIRED = 60;
     /**
      * The task table name.
      *
@@ -128,36 +133,107 @@ class Task extends TaskType
     public function getInFrontOfHostCount()
     {
         $count = 0;
-        $MyCheckinTime = self::niceDate($this->get('checkInTime'));
-
-        //get atomic identifier for this task so we don't count ourselves in the queue.
         $MyTaskID = $this->get('id');
 
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
-        $find = array(
-            'stateID' => self::getQueuedStates(),
+        $find = [
+            'stateID' => self::getCheckedInState(),
             'typeID' => $used,
             'storagegroupID' => $this->get('storagegroupID'),
             'storagenodeID' => $this->get('storagenodeID')
+        ];
+        Route::listem(
+            __CLASS__,
+            $find
         );
-        foreach ((array)$this->getManager()->find($find) as $Task) {
-            if ($Task->get('id') == $MyTaskID) {
+        $Tasks = json_decode(
+            Route::getData()
+        );
+        foreach ($Tasks->data as $Task) {
+            if ($Task->id == $MyTaskID) {
                 continue;
             }
             try {
-                $TaskCheckinTime = self::niceDate($Task->get('checkInTime'));
-                if (!self::validDate($TaskCheckinTime)
-                    || $MyCheckinTime < $TaskCheckinTime
-                    || ($MyCheckinTime === $TaskCheckinTime && $MyTaskID <= $Task->id)
+                if (!self::validDate(self::niceDate($Task->checkInTime)) //if niceDate version of tasks' checkin time is invalid don't count task as in front, also catch the exception
+                    || self::getClass('task', $Task->id)->isCheckinTimeExpired(false) //if checkin time is expired don't count task as in front
+                    || $MyTaskID < $Task->id //base the order of waiting tasks on createTime via ID, checkin time will change to show a task is active
                 ) {
                     continue;
                 }
                 ++$count;
-            } catch (Exception $e) {
-            }
+            } catch (Exception $e) { }
         }
 
         return $count;
+    }
+    /**
+     * updates the task checkin time 
+     *
+     * @return null
+     */
+    public function updateTaskCheckinTime() {
+        $curState = $this->get('stateID');
+        if ($curState != self::getCheckedInState()) {
+            $firstCheckin = true; //if not in checked in state, it's the first checkin
+        } else {
+            $firstCheckin = false; //already checked in, update the statetime if about to expire
+        }
+        if (!$firstCheckin) {
+            $almost = true;
+            if ($this->isCheckinTimeExpired($almost)) { //whether expiring in 60 seconds or already expired, update the checkin time to now, if it's expired and is checking in, it should be updated so its active/not expired, order is only based of taskID now
+                $updateCheckin = true;
+            } else { //checkin time not expired or expiring, do nothing
+                $updateCheckin = false;
+            }
+        } else { //first time checkin, set the checkin time other times should just set the state and state time
+            $updateCheckin = true;
+        }
+        if ($updateCheckin) {
+            $newTime = self::niceDate();
+            $this->set(
+                'stateID',
+                self::getCheckedInState()
+            )->set(
+                'checkInTime',
+                $newTime->format('Y-m-d H:i:s')
+            );
+            
+            if (!$this->save()) {
+                throw new Exception(_('Failed to update task'));
+            }
+        }
+    }
+    /**
+     * Gets time until checkin expires.
+     *
+     * @return float
+    */
+    public function getTimeTillCheckinExpired() {
+        $timeout = self::getSetting('FOG_CHECKIN_TIMEOUT');
+        $minTimeOut = self::FOG_TASK_CHECKIN_MIN_TIMEOUT;
+        if ($timeout < $minTimeOut) { //enforce minimum timeout, display errors in log if timeout gets reset
+            // FOGCORE::var_dump_log("Your FOG_CHECKIN_TIMEOUT setting should be greater than ${minTimeOut}. A value of ${minTimeOut} has been set instead of: ${timeout}");
+            self::setSetting('FOG_CHECKIN_TIMEOUT', $minTimeOut);
+            $timeout = self::getSetting('FOG_CHECKIN_TIMEOUT');
+        }
+        $TestCheckinTime = self::niceDate($this->get('checkInTime'));
+        $expireTime = $TestCheckinTime->add(new DateInterval("PT{$timeout}S"));
+        $curTime = self::niceDate();
+        $timeTillExpire = $expireTime->getTimestamp() - $curTime->getTimestamp();
+        return $timeTillExpire;
+    }
+    /**
+     * Checks if checkin time is expired or almost expired if almost switch present.
+     *
+     * @return bool
+     */
+    public function isCheckinTimeExpired($almost = false) {
+        $timeTillExpire = $this->getTimeTillCheckinExpired();
+        if ($almost) {
+            return ($timeTillExpire <= self::FOG_TASK_CHECKIN_ALMOST_EXPIRED);  //is almost expired, update checkin time
+        } else {
+            return $timeTillExpire <= 0;
+        }
     }
     /**
      * Cancels the task.

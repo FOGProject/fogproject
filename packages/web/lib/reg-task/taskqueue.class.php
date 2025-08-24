@@ -30,22 +30,7 @@ class TaskQueue extends TaskingElement
     public function checkIn()
     {
         try {
-            self::randWait();
-            //use same format as end of checkin and do the save in the if so an exception can be caught
-            $curState = $this->Task->get('stateID');
-            if ($curState != self::getCheckedInState()) {
-                $curTime = self::niceDate();
-                $this->Task->set(
-                    'stateID',
-                    self::getCheckedInState()
-                )->set(
-                    'checkInTime',
-                    $curTime->format('Y-m-d H:i:s')
-                );
-                if (!$this->Task->save()) {
-                    throw new Exception(_('Failed to update task'));
-                }
-            }
+            $this->Task->updateTaskCheckinTime();
             if ($this->imagingTask) {
                 if ($this->Task->isCapture()) {
                     $this->Task->getImage()->set('size', '')->save();
@@ -96,6 +81,7 @@ class TaskQueue extends TaskingElement
                         self::$Host->get('id')
                     );
                     if ($MulticastSession->get('stateID') == 1) {
+                        $inFront = $this->Task->getInFrontOfHostCount();
                         $msg = sprintf(
                             '%s, %s %d %s.',
                             _('No open slots'),
@@ -153,28 +139,32 @@ class TaskQueue extends TaskingElement
                     $groupOpenSlots = $totalSlots - $usedSlots;
 
                     $MyCheckinTime = self::niceDate($this->Task->get('checkInTime'));
-                    $myformattedtime = $MyCheckinTime->format('Y-m-d H:i:s');
                     if ($groupOpenSlots < 1) {
                         $msg = sprintf(
-                            '%s, %s %d %s. %s %s.',
+                            '%s, %s %d %s. %s %s. %s %d.',
                             _('No open slots'),
                             _('There are'),
                             $inFront,
-                            _('before me'),
-                            _('I checked in at'),
-                            $myformattedtime
+                            _('before me on this node'),
+                            _('Last check-in at '),
+                            $MyCheckinTime->format('Y-m-d H:i:s'),
+                            _('ID is '),
+                            $this->Task->get('id')
                         );
                         throw new Exception($msg);
                     }
-                    if ($groupOpenSlots <= $inFront) {
+                    
+                    if ($groupOpenSlots <= $inFront) {   
                         $msg = sprintf(
-                            '%s, %s %d %s. %s %s.',
+                            '%s, %s %d %s. %s %s. %s %d.',
                             _('There are open slots'),
                             _('but'),
                             $inFront,
                             _('before me on this node'),
-                            _('I checked in at'),
-                            $myformattedtime
+                            _('Last check-in at'),
+                            $MyCheckinTime->format('Y-m-d H:i:s'),
+                            _('ID is'),
+                            $this->Task->get('id')
                         );
                         throw new Exception($msg);
                     }
