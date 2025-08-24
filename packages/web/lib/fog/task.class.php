@@ -136,21 +136,14 @@ class Task extends TaskType
         $MyTaskID = $this->get('id');
 
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
-        $find = [
-            'stateID' => self::getCheckedInState(),
+        $find = array(
+            'stateID' => self::getQueuedStates(),
             'typeID' => $used,
             'storagegroupID' => $this->get('storagegroupID'),
             'storagenodeID' => $this->get('storagenodeID')
-        ];
-        Route::listem(
-            __CLASS__,
-            $find
         );
-        $Tasks = json_decode(
-            Route::getData()
-        );
-        foreach ($Tasks->data as $Task) {
-            if ($Task->id == $MyTaskID) {
+        foreach ((array)$this->getManager()->find($find) as $Task) {
+            if ($Task->get('id') == $MyTaskID) {
                 continue;
             }
             try {
