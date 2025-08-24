@@ -30,19 +30,8 @@ class TaskQueue extends TaskingElement
     public function checkIn()
     {
         try {
-            // self::randWait();
-            //use same format as end of checkin and do the save in the if so an exception can be caught
-            $curState = $this->Task->get('stateID');
-            if ($curState != self::getCheckedInState()) {
-               $this->Task->updateTaskCheckinTime(true);
-            } else { //check if tasks check in time is within 60 seconds of expiration.
-                $almost = true;
-                if ($this->Task->isCheckinTimeExpired($almost)) { //is almost expired
-                    $inFront = $this->Task->getInFrontOfHostCount();
-                    $this->Task->updateTaskCheckinTime();
-                }
-            }
-             if ($this->imagingTask) {
+            $this->Task->updateTaskCheckinTime();
+            if ($this->imagingTask) {
                 if ($this->Task->isCapture()) {
                     $this->Task->getImage()->set('size', '')->save();
                 }
@@ -133,26 +122,30 @@ class TaskQueue extends TaskingElement
                     $MyCheckinTime = self::niceDate($this->Task->get('checkInTime'));
                     if ($groupOpenSlots < 1) {
                         $msg = sprintf(
-                            '%s, %s %d %s. %s %s.',
+                            '%s, %s %d %s. %s %s. %s %d.',
                             _('No open slots'),
                             _('There are'),
                             $inFront,
                             _('before me on this node'),
-                            _('I last checked in at'),
-                            $MyCheckinTime->format('Y-m-d H:i:s')
+                            _('Last check-in at '),
+                            $MyCheckinTime->format('Y-m-d H:i:s'),
+                            _('ID is '),
+                            $this->Task->get('id')
                         );
                         throw new Exception($msg);
                     }
                     
                     if ($groupOpenSlots <= $inFront) {   
                             $msg = sprintf(
-                                '%s, %s %d %s. %s %s.',
+                                '%s, %s %d %s. %s %s. %s %d.',
                                 _('There are open slots'),
                                 _('but'),
                                 $inFront,
                                 _('before me on this node'),
-                                _('I checked in at'),
-                                $MyCheckinTime->format('Y-m-d H:i:s')
+                                _('Last check-in at'),
+                                $MyCheckinTime->format('Y-m-d H:i:s'),
+                                _('ID is'),
+                                $this->Task->get('id')
                             );
                         throw new Exception($msg);
                     }
@@ -165,7 +158,7 @@ class TaskQueue extends TaskingElement
                     throw new Exception(_('Failed to update/create image log'));
                 }
             }
-            $this->Task->set(
+            $this->Task->set( //set task as in progress state
                 'stateID',
                 self::getProgressState()
             )->set(
@@ -414,7 +407,7 @@ class TaskQueue extends TaskingElement
      */
     public function checkout()
     {
-        // self::randWait();
+        self::randWait();
         if ($this->Task->isSnapinTasking()) {
             die('##');
         }
