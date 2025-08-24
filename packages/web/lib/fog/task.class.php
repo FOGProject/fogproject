@@ -196,7 +196,21 @@ class Task extends TaskType
         if ($almost) {
             return ($timeTillExpire <= self::FOG_TASK_CHECKIN_ALMOST_EXPIRED);  //is almost expired, update checkin time
         } else {
-            return $timeTillExpire <= 0;
+            $isExpired = $timeTillExpire <= 0; //fully expired
+            if ($isExpired) { //reset to queued state so not checked every time we check queue position for other tasks, set checkin time to when it was found as expired
+                $newTime = self::niceDate();
+                $this->set( 
+                    'stateID',
+                    self::getQueuedState()
+                )->set(
+                    'checkInTime',
+                    $newTime->format('Y-m-d H:i:s')
+                );
+                if (!$this->save()) {
+                    throw new Exception(_('Failed to update task'));
+                }
+                return $isExpired;
+            }
         }
     }
     /**
