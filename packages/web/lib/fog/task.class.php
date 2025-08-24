@@ -349,7 +349,7 @@ class Task extends TaskType
             } else { //if just updating, keep the queue position by adding timeout to current checkin time as the current time may cause line jumps
                 $MyCheckinTime = self::niceDate($this->get('checkInTime'));
                 $timeout = self::getSetting('FOG_CHECKIN_TIMEOUT');
-                $addSeconds = $timeout;// + ($inFront * 8); //8 seconds because there's a random wait of 1/2-2 seconds at check in and fos does the checkin every 5 seconds and 60 seconds for when the timeout is updated before expired
+                $addSeconds = $timeout-60;// + ($inFront * 8); //8 seconds because there's a random wait of 1/2-2 seconds at check in and fos does the checkin every 5 seconds and 60 seconds for when the timeout is updated before expired
                 // $MyCheckinTime->add(new DateInterval("PT{$addSeconds}S"))->format('Y-m-d H:i:s');
                 $MyCheckinTime = $MyCheckinTime->add(new DateInterval("PT{$addSeconds}S"))->format('Y-m-d H:i:s');
                 $newTime = self::niceDate($MyCheckinTime); //re-nice the date to make sure it's valid
