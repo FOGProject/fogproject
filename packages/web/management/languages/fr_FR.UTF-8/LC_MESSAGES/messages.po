@@ -2212,7 +2212,7 @@ msgstr "Installation / Mise à jour réussie!"
 msgid "Global settings updated!"
 msgstr "Emplacement Mise à jour"
 
-msgid "Got in line at  "
+msgid "Got in line at"
 msgstr ""
 
 #, fuzzy
@@ -2734,12 +2734,6 @@ msgstr " | Je suis le seul membre"
 
 msgid "ID"
 msgstr "ID"
-
-msgid "ID is"
-msgstr ""
-
-msgid "ID is "
-msgstr ""
 
 msgid "IP"
 msgstr "IP"
@@ -3451,9 +3445,6 @@ msgstr "hôte Créé"
 
 msgid "Last Deployed"
 msgstr "Dernière Déployé"
-
-msgid "Last check-in at"
-msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -6913,15 +6904,16 @@ msgstr ""
 msgid "boot the client computers"
 msgstr ""
 
-msgid "but"
-msgstr ""
-
 msgid "but bind password is not set"
 msgstr ""
 
 #, fuzzy
 msgid "but has recently failed for this host"
 msgstr "est ouvert, mais a récemment échoué à cet hôte"
+
+#, fuzzy
+msgid "but there are"
+msgstr "Il y a"
 
 msgid "check to ensure your filesystem has enough space"
 msgstr ""

@@ -2209,7 +2209,7 @@ msgstr "安装/升级成功！"
 msgid "Global settings updated!"
 msgstr "更新位置"
 
-msgid "Got in line at  "
+msgid "Got in line at"
 msgstr ""
 
 #, fuzzy
@@ -2731,12 +2731,6 @@ msgstr "|我唯一​​的成员"
 
 msgid "ID"
 msgstr "ID"
-
-msgid "ID is"
-msgstr ""
-
-msgid "ID is "
-msgstr ""
 
 msgid "IP"
 msgstr "IP"
@@ -3448,9 +3442,6 @@ msgstr "主机创建"
 
 msgid "Last Deployed"
 msgstr "最后部署"
-
-msgid "Last check-in at"
-msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -6900,15 +6891,16 @@ msgstr ""
 msgid "boot the client computers"
 msgstr ""
 
-msgid "but"
-msgstr ""
-
 msgid "but bind password is not set"
 msgstr ""
 
 #, fuzzy
 msgid "but has recently failed for this host"
 msgstr "是开放的，但最近没有这个主机"
+
+#, fuzzy
+msgid "but there are"
+msgstr "有"
 
 msgid "check to ensure your filesystem has enough space"
 msgstr ""

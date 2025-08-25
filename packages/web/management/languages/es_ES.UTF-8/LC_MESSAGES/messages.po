@@ -2255,7 +2255,7 @@ msgstr "actualización de servicio no pudo"
 msgid "Global settings updated!"
 msgstr "información de LDAP actualizado!"
 
-msgid "Got in line at  "
+msgid "Got in line at"
 msgstr ""
 
 msgid "Graph Color"
@@ -2795,12 +2795,6 @@ msgstr ""
 
 msgid "ID"
 msgstr "CARNÉ DE IDENTIDAD"
-
-msgid "ID is"
-msgstr ""
-
-msgid "ID is "
-msgstr ""
 
 msgid "IP"
 msgstr "IP"
@@ -3538,9 +3532,6 @@ msgstr "Creado"
 
 msgid "Last Deployed"
 msgstr "última Desplegado"
-
-msgid "Last check-in at"
-msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -7061,15 +7052,16 @@ msgstr ""
 msgid "boot the client computers"
 msgstr ""
 
-msgid "but"
-msgstr ""
-
 msgid "but bind password is not set"
 msgstr ""
 
 #, fuzzy
 msgid "but has recently failed for this host"
 msgstr "No se ha definido de este alojamiento imagen"
+
+#, fuzzy
+msgid "but there are"
+msgstr "Existen"
 
 msgid "check to ensure your filesystem has enough space"
 msgstr ""

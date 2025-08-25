@@ -35,11 +35,9 @@ class TaskQueue extends TaskingElement
                 if ($this->Task->isCapture()) {
                     $this->Task->getImage()->set('size', '')->save();
                 }
-                $method = (
-                    $this->Task->isCapture() || $this->Task->isMulticast() ?
-                    'getMasterStorageNode' :
-                    'getOptimalStorageNode'
-                );
+                $method = ($this->Task->isCapture() || $this->Task->isMulticast())
+                    ? 'getMasterStorageNode'
+                    : 'getOptimalStorageNode';
                 if ($this->Task->isMulticast()) {
                     Route::ids(
                         'multicastsessionassociation',
@@ -101,10 +99,10 @@ class TaskQueue extends TaskingElement
                         ),
                         self::$Host->get('id')
                     );
-                    $nodeTest = $this->StorageNode instanceof StorageNode &&
+                    $nodeOk = $this->StorageNode instanceof StorageNode &&
                         $this->StorageNode->isValid();
 
-                    if (!$nodeTest) {
+                    if (!$nodeOk) {
                         $msg = sprintf(
                             '%s %s. %s %s.',
                             _('The node trying to be used is currently'),
@@ -120,51 +118,42 @@ class TaskQueue extends TaskingElement
                     $groupOpenSlots = $totalSlots - $usedSlots;
 
                     $MyLineTime = self::niceDate($this->Task->get('scheduledStartTime'));
+                    $msgFormat = '%s, %s %d %s. %s %s.';
                     if ($groupOpenSlots < 1) {
                         $msg = sprintf(
-                            '%s, %s %d %s. %s %s. %s %d.',
+                            $msgFormat,
                             _('No open slots'),
                             _('There are'),
                             $inFront,
                             _('before me on this node'),
-                            _('Got in line at  '),
-                            $MyLineTime->format('Y-m-d H:i:s'),
-                            _('ID is '),
-                            $this->Task->get('id')
+                            _('Got in line at'),
+                            $MyLineTime->format('Y-m-d H:i:s')
                         );
                         throw new Exception($msg);
                     }
                     
                     if ($groupOpenSlots <= $inFront) {
                         $msg = sprintf(
-                            '%s, %s %d %s. %s %s. %s %d.',
+                            $msgFormat,
                             _('There are open slots'),
-                            _('but'),
+                            _('but there are'),
                             $inFront,
                             _('before me on this node'),
-                            _('Last check-in at'),
-                            $MyLineTime->format('Y-m-d H:i:s'),
-                            _('ID is'),
-                            $this->Task->get('id')
+                            _('Got in line at'),
+                            $MyLineTime->format('Y-m-d H:i:s')
                         );
                         throw new Exception($msg);
                     }
                 }
-                $this->Task->set(
-                    'storagenodeID',
-                    $this->StorageNode->get('id')
-                );
+                $this->Task
+                    ->set('storagenodeID', $this->StorageNode->get('id'));
                 if (!$this->imageLog(true)) {
                     throw new Exception(_('Failed to update/create image log'));
                 }
             }
-            $this->Task->set( //set task as in progress state
-                'stateID',
-                self::getProgressState()
-            )->set(
-                'checkInTime',
-                self::formatTime('now', 'Y-m-d H:i:s')
-            );
+            $this->Task
+                ->set('stateID', self::getProgressState())
+                ->set('checkInTime', self::formatTime('now', 'Y-m-d H:i:s'));
             if (!$this->Task->save()) {
                 throw new Exception(_('Failed to update Task'));
             }

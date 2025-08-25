@@ -1842,7 +1842,7 @@ msgstr ""
 msgid "Global settings updated!"
 msgstr ""
 
-msgid "Got in line at  "
+msgid "Got in line at"
 msgstr ""
 
 msgid "Graph Color"
@@ -2269,12 +2269,6 @@ msgid "I am the group manager"
 msgstr ""
 
 msgid "ID"
-msgstr ""
-
-msgid "ID is"
-msgstr ""
-
-msgid "ID is "
 msgstr ""
 
 msgid "IP"
@@ -2875,9 +2869,6 @@ msgid "Last Captured"
 msgstr ""
 
 msgid "Last Deployed"
-msgstr ""
-
-msgid "Last check-in at"
 msgstr ""
 
 msgid "Latest Alpha Version"
@@ -5809,13 +5800,13 @@ msgstr ""
 msgid "boot the client computers"
 msgstr ""
 
-msgid "but"
-msgstr ""
-
 msgid "but bind password is not set"
 msgstr ""
 
 msgid "but has recently failed for this host"
+msgstr ""
+
+msgid "but there are"
 msgstr ""
 
 msgid "check to ensure your filesystem has enough space"

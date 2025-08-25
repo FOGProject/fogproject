@@ -2116,7 +2116,7 @@ msgstr "Modifica Impostazioni completata"
 msgid "Global settings updated!"
 msgstr "Posizione aggiornata!"
 
-msgid "Got in line at  "
+msgid "Got in line at"
 msgstr ""
 
 #, fuzzy
@@ -2619,12 +2619,6 @@ msgstr "Sono il responsabile del gruppo"
 
 msgid "ID"
 msgstr "ID"
-
-msgid "ID is"
-msgstr ""
-
-msgid "ID is "
-msgstr ""
 
 msgid "IP"
 msgstr "IP"
@@ -3292,9 +3286,6 @@ msgstr "Ultima cattura"
 
 msgid "Last Deployed"
 msgstr "Ultima Distribuita"
-
-msgid "Last check-in at"
-msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -6571,14 +6562,15 @@ msgstr ""
 msgid "boot the client computers"
 msgstr "avvia i computer client"
 
-msgid "but"
-msgstr "ma"
-
 msgid "but bind password is not set"
 msgstr "Ma la bind password non è impostata"
 
 msgid "but has recently failed for this host"
 msgstr "ma è fallito di recente per questo host"
+
+#, fuzzy
+msgid "but there are"
+msgstr "Ci sono"
 
 msgid "check to ensure your filesystem has enough space"
 msgstr "cerificare che il filesystem abbia spazio sufficiente"
@@ -7393,6 +7385,9 @@ msgstr ""
 
 #~ msgid "before me"
 #~ msgstr "prima di me"
+
+#~ msgid "but"
+#~ msgstr "ma"
 
 #~ msgid "is required"
 #~ msgstr "è richiesto"

@@ -2208,7 +2208,7 @@ msgstr "Einstellungen erfolgreich aktualisiert"
 msgid "Global settings updated!"
 msgstr "Standort aktualisiert"
 
-msgid "Got in line at  "
+msgid "Got in line at"
 msgstr ""
 
 #, fuzzy
@@ -2731,12 +2731,6 @@ msgstr "Ich bin der Gruppenmanager"
 
 msgid "ID"
 msgstr "ID"
-
-msgid "ID is"
-msgstr ""
-
-msgid "ID is "
-msgstr ""
 
 msgid "IP"
 msgstr "IP"
@@ -3451,9 +3445,6 @@ msgstr "Zuletzt hochgeladen"
 
 msgid "Last Deployed"
 msgstr "Zuletzt verteilt"
-
-msgid "Last check-in at"
-msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -6917,15 +6908,16 @@ msgstr ""
 msgid "boot the client computers"
 msgstr "die Client Computer in den FOG"
 
-msgid "but"
-msgstr "aber "
-
 msgid "but bind password is not set"
 msgstr "aber das Anmeldekennwort ist nicht festgelegt."
 
 #, fuzzy
 msgid "but has recently failed for this host"
 msgstr "ist offen, aber ist vor kurzem für diesen Host fehlgeschlagen"
+
+#, fuzzy
+msgid "but there are"
+msgstr "Es gibt"
 
 msgid "check to ensure your filesystem has enough space"
 msgstr "prüfen Sie bitte, ob sie genügend Speicherplatz haben."
@@ -7805,6 +7797,9 @@ msgstr ""
 
 #~ msgid "before me"
 #~ msgstr "vor mir"
+
+#~ msgid "but"
+#~ msgstr "aber "
 
 #, fuzzy
 #~ msgid "is required"
