@@ -211,15 +211,11 @@ class Task extends TaskType
 
             // Liveness: if expired, it's getting re-queued to the back. Don't count
             if (self::isExpired($Task->checkInTime ?? null)) {
-                self::getClass('TaskManager')->update(
-                    ['id' => $tid],
-                    '',
-                    [
-                        'stateID' => self::getQueuedState(),
-                        'checkInTime' => null,
-                        'scheduledStartTime' => null
-                    ]
-                );
+                if ($Task->stateID != self::getQueuedState()) {
+                    self::getClass('Task', $tid)
+                        ->set('stateID', self::getQueuedState())
+                        ->save();
+                }
                 continue;
             }
 
