@@ -128,8 +128,55 @@ class Task extends TaskType
      */
     private static function fogCheckinTimeout()
     {
-        $raw = (int) self::getSetting('FOG_CHECKIN_TIMEOUT');
+        $raw = (int) self::getSetting('FOG_CHECKIN_TIMEOUT') ?: 600;
         return max($raw, 180); // enforce minimum of 180 seconds
+    }
+    /**
+     * Returns cutoff timing
+     *
+     * @return DateTimeImmutable
+     */
+    private static function cutoff()
+    {
+        return (clone self::niceDate())
+            ->modify('-' . self::fogCheckinTimeout() . ' seconds');
+    }
+    /**
+     * Returns if the checkin time is expired.
+     *
+     * @param string $checkInTime The checkin time.
+     * @return bool
+     */
+    private static function isExpired(string $checkInTime)
+    {
+        if (!$checkInTime) {
+            return true;
+        }
+        $ci = self::niceDate($checkInTime);
+        if (!self::validDate($ci)) {
+            return true;
+        }
+        return ($ci < self::cutoff());
+    }
+    /**
+     * Returns if we are almost expired and should update.
+     *
+     * @param string $checkInTime  The checkin time.
+     * @param int    $graceSeconds The grace period in seconds.
+     *
+     * @return bool
+     */
+    private static function isAlmostExpired(string $checkInTime, int $graceSeconds = 30)
+    {
+        if (!$checkInTime) {
+            return true;
+        }
+        $ci = self::niceDate($checkInTime);
+        if (!self::validDate($ci)) {
+            return true;
+        }
+        $almostCutoff = (clone(self::cutoff()))->modify("+{$graceSeconds} seconds"); // timeout - grace
+        return $ci < $almostCutoff; // i.e., within grace window
     }
     /**
      * Returns the in front of number.
@@ -149,66 +196,33 @@ class Task extends TaskType
             'storagegroupID' => $this->get('storagegroupID'),
             'storagenodeID' => $this->get('storagenodeID')
         ];
-
         Route::listem(__CLASS__, $find);
         $Tasks = json_decode(Route::getData());
+
         foreach ($Tasks->data as $Task) {
             $tid = (int) $Task->id;
-            if ($tid == $myTaskID) {
+            if ($tid === $myTaskID) {
                 continue;
             }
-            try {
-                $ci = self::niceDate($Task->checkInTime);
-                $stStart = self::niceDate($Task->scheduledStartTime);
-                if (
-                    !self::validDate($ci) // Task checkin is invalid, don't count
-                    || !self::validDate($stStart) // Scheduled start is invalid, don't count
-                    || $myStStart < $stStart // My scheduled start is before theirs, they are behind me
-                    || ($myStStart == $stStart && $myTaskID < $tid) // Break ties with taskID if scheduled start times are the same
-                ) {
-                    continue;
-                }
+            // Liveness: if expired, it's getting re-queued to the back. Don't count
+            if (self::isExpired($Task->checkInTime ?? null)) {
+                continue;
+            }
+
+            $stStart = self::niceDate($Task->scheduledStartTime ?? null);
+            // Scheduled start validity, if not valid, don't count
+            if (!self::validDate($stStart)) {
+                continue;
+            }
+
+            if ($stStart < $myStStart // Their scheduled start is before mine, they are ahead of me
+                || ($stStart == $myStStart && $tid < $myTaskID) // Break ties with taskID if scheduled start times are the same
+            ) {
                 ++$count;
-            } catch (Exception $e) {
             }
         }
 
         return $count;
-    }
-    /**
-     * Gets time until checkin expires.
-     *
-     * @return float
-    */
-    public function getTimeTillCheckinExpired()
-    {
-        $timeout = self::fogCheckinTimeout();
-        $checkinTime = self::niceDate($this->get('checkInTime'));
-        $expireTime = (new DateTimeImmutable('now', $checkinTime->getTimezone()))
-            ->modify("-{$timeout} seconds");
-        $curTime = self::niceDate();
-        return $expireTime->getTimestamp() - $curTime->getTimestamp();
-    }
-    /**
-     * Checks if checkin time is expired or almost expired if almost switch present.
-     *
-     * @return bool
-     */
-    public function isCheckinTimeExpired($almost = false)
-    {
-        $timeTillExpire = $this->getTimeTillCheckinExpired();
-        if ($almost) {
-            return ($timeTillExpire <= 30); // is almost expired, update checkin time
-        }
-        if ($timeTillExpire <= 0) {
-            $curTime = self::niceDate();
-            $this->set('stateID', self::getQueuedState())
-                ->set('checkInTime', $curTime->format('Y-m-d H:i:s'));
-            if (!$this->save()) {
-                throw new Exception(_('Failed to update task'));
-            }
-            return true;
-        }
     }
     /**
      * Cancels the task.
@@ -287,16 +301,19 @@ class Task extends TaskType
     public function taskCheckIn()
     {
         $curState = $this->get('stateID');
+
+        // Timings
+        $checkInTime = $this->get('checkInTime');
         $curTime = self::niceDate();
-        $almost = $this->isCheckinTimeExpired(true); // expiring in 30 seconds or less
-        $expire = $this->isCheckinTimeExpired(false); // checkin time expired
-        if (
-            $curState != self::getCheckedInState()
-            || $almost
-            || $expire
-        ) {
+        $almost = $this->isAlmostExpired($checkInTime); // expiring in 30 seconds or less
+        $expire = $this->isExpired($checkInTime); // checkin time expired
+
+        if ($curState != self::getCheckedInState()) {
             $this
                 ->set('stateID', self::getCheckedInState())
+                ->set('checkInTime', $curTime->format('Y-m-d H:i:s'));
+        } elseif (($almost || $expire) && in_array($curState, self::getQueuedStates())) {
+            $this
                 ->set('checkInTime', $curTime->format('Y-m-d H:i:s'));
             if ($expire) {
                 $this
@@ -305,9 +322,9 @@ class Task extends TaskType
                         $curTime->format('Y-m-d H:i:s')
                     );
             }
-            if (!$this->save()) {
-                throw new Exception(_('Failed to update task'));
-            }
+        }
+        if (!$this->save()) {
+            throw new Exception(_('Failed to update task'));
         }
     }
     /**
