@@ -2209,6 +2209,9 @@ msgstr "Empfange Imagegrößé für"
 msgid "Getting snapin hash and size for"
 msgstr "Empfange Snapin-Hash und Größe für"
 
+msgid "Got in line at"
+msgstr ""
+
 msgid "Goto task list"
 msgstr "Zur Task-Liste"
 
@@ -2695,10 +2698,6 @@ msgstr "Ich bin nicht der FOG-Web-Server"
 #, fuzzy
 msgid "I am the group manager"
 msgstr "Ich bin der Gruppenmanager"
-
-#, fuzzy
-msgid "I checked in at"
-msgstr "Task Eincheckdatum"
 
 #, fuzzy
 msgid "I have read"
@@ -7126,15 +7125,16 @@ msgstr "Host- und globalen Einstellungen gibt,"
 msgid "boot the client computers"
 msgstr "die Client Computer in den FOG"
 
-msgid "but"
-msgstr "aber "
-
 msgid "but bind password is not set"
 msgstr "aber das Anmeldekennwort ist nicht festgelegt."
 
 #, fuzzy
 msgid "but has recently failed for this host"
 msgstr "ist offen, aber ist vor kurzem für diesen Host fehlgeschlagen"
+
+#, fuzzy
+msgid "but there are"
+msgstr "Es gibt"
 
 msgid "check to ensure your filesystem has enough space"
 msgstr "prüfen Sie bitte, ob sie genügend Speicherplatz haben."
@@ -7940,6 +7940,10 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 #~ msgstr "Host aktualisiert!"
 
 #, fuzzy
+#~ msgid "I checked in at"
+#~ msgstr "Task Eincheckdatum"
+
+#, fuzzy
 #~ msgid "Import Host Exts"
 #~ msgstr "Hosts importieren"
 
@@ -7986,6 +7990,9 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 
 #~ msgid "We highly recommend you make the switch for more"
 #~ msgstr "Wir empfehlen dringend, den Umstieg auf"
+
+#~ msgid "but"
+#~ msgstr "aber "
 
 #, fuzzy
 #~ msgid "file to"

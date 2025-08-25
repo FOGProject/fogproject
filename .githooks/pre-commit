@@ -23,6 +23,7 @@ updateLanguage() {
         msgmerge --update --backup=none $PO_FILE $project_dir/packages/web/management/languages/messages.pot 2>/dev/null >/dev/null
         msgcat --sort-output -o $PO_FILE $PO_FILE
     done
+    git add "$project_dir/packages/web/management/languages"
 }
 
 updateLanguage

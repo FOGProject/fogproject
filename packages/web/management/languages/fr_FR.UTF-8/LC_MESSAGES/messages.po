@@ -1941,6 +1941,9 @@ msgstr "Obtenir la taille de l'image pour"
 msgid "Getting snapin hash and size for"
 msgstr "Obtention du hachage et de la taille du Snapin pour"
 
+msgid "Got in line at"
+msgstr ""
+
 msgid "Goto task list"
 msgstr "Aller à la liste des tâches"
 
@@ -2370,10 +2373,6 @@ msgstr "Je ne suis pas le serveur web de FOG"
 
 msgid "I am the group manager"
 msgstr "Je suis le responsable du groupe"
-
-#, fuzzy
-msgid "I checked in at"
-msgstr "Date de vérification de la tâche"
 
 msgid "I have read"
 msgstr "J'ai lu"
@@ -6272,14 +6271,15 @@ msgstr "entre les paramètres de la machine et les paramètres globaux"
 msgid "boot the client computers"
 msgstr "démarrer les ordinateurs clients"
 
-msgid "but"
-msgstr "mais"
-
 msgid "but bind password is not set"
 msgstr "mais le mot de passe de liaison n'est pas défini"
 
 msgid "but has recently failed for this host"
 msgstr "mais a récemment échoué pour cette machine"
+
+#, fuzzy
+msgid "but there are"
+msgstr "Il y a"
 
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
@@ -6986,6 +6986,10 @@ msgstr "vous définissez le champ de la bande passante sur ce nœud à 1000"
 #~ msgid "Hostext updated!"
 #~ msgstr "Host ext mise à jour !"
 
+#, fuzzy
+#~ msgid "I checked in at"
+#~ msgstr "Date de vérification de la tâche"
+
 #~ msgid "Import Host Exts"
 #~ msgstr "Importation Host ext"
 
@@ -7020,6 +7024,9 @@ msgstr "vous définissez le champ de la bande passante sur ce nœud à 1000"
 #~ msgstr ""
 #~ "Utilisez le sélecteur pour choisir le nombre d'éléments que vous "
 #~ "souhaitez exporter"
+
+#~ msgid "but"
+#~ msgstr "mais"
 
 #, fuzzy
 #~ msgid "file to"

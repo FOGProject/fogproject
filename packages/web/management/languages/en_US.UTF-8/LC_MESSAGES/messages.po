@@ -2204,6 +2204,9 @@ msgstr ""
 msgid "Getting snapin hash and size for"
 msgstr ""
 
+msgid "Got in line at"
+msgstr ""
+
 msgid "Goto task list"
 msgstr ""
 
@@ -2689,10 +2692,6 @@ msgstr "I am not the fog web server"
 #, fuzzy
 msgid "I am the group manager"
 msgstr " | I am the only member"
-
-#, fuzzy
-msgid "I checked in at"
-msgstr "Task Checkin Date"
 
 #, fuzzy
 msgid "I have read"
@@ -7115,15 +7114,16 @@ msgstr ""
 msgid "boot the client computers"
 msgstr ""
 
-msgid "but"
-msgstr ""
-
 msgid "but bind password is not set"
 msgstr ""
 
 #, fuzzy
 msgid "but has recently failed for this host"
 msgstr "is open, but has recently failed for this Host"
+
+#, fuzzy
+msgid "but there are"
+msgstr "There are"
 
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
@@ -7923,6 +7923,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "User updated"
+
+#, fuzzy
+#~ msgid "I checked in at"
+#~ msgstr "Task Checkin Date"
 
 #, fuzzy
 #~ msgid "Import Host Exts"

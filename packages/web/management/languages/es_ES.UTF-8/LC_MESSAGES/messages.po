@@ -2186,6 +2186,9 @@ msgstr "Obteniendo tamaño de imagen para"
 msgid "Getting snapin hash and size for"
 msgstr ""
 
+msgid "Got in line at"
+msgstr ""
+
 #, fuzzy
 msgid "Goto task list"
 msgstr "Lista de equipos"
@@ -2705,10 +2708,6 @@ msgstr ""
 
 msgid "I am the group manager"
 msgstr ""
-
-#, fuzzy
-msgid "I checked in at"
-msgstr "Tarea"
 
 msgid "I have read"
 msgstr ""
@@ -7051,13 +7050,13 @@ msgstr ""
 msgid "boot the client computers"
 msgstr "Configuración del cliente"
 
-msgid "but"
-msgstr ""
-
 msgid "but bind password is not set"
 msgstr ""
 
 msgid "but has recently failed for this host"
+msgstr ""
+
+msgid "but there are"
 msgstr ""
 
 msgid "check to ensure your filesystem has enough space"
@@ -7824,6 +7823,10 @@ msgstr "has configurado el campo de ancho de banda en ese nodo a 1000"
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "Equipo"
+
+#, fuzzy
+#~ msgid "I checked in at"
+#~ msgstr "Tarea"
 
 #, fuzzy
 #~ msgid "Import Host Exts"

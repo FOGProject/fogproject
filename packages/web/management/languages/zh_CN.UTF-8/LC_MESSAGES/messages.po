@@ -2205,6 +2205,9 @@ msgstr ""
 msgid "Getting snapin hash and size for"
 msgstr ""
 
+msgid "Got in line at"
+msgstr ""
+
 msgid "Goto task list"
 msgstr ""
 
@@ -2691,10 +2694,6 @@ msgstr "我不是雾Web服务器"
 #, fuzzy
 msgid "I am the group manager"
 msgstr "|我唯一​​的成员"
-
-#, fuzzy
-msgid "I checked in at"
-msgstr "任务登记入住日期"
 
 #, fuzzy
 msgid "I have read"
@@ -7102,15 +7101,16 @@ msgstr ""
 msgid "boot the client computers"
 msgstr ""
 
-msgid "but"
-msgstr ""
-
 msgid "but bind password is not set"
 msgstr ""
 
 #, fuzzy
 msgid "but has recently failed for this host"
 msgstr "是开放的，但最近没有这个主机"
+
+#, fuzzy
+msgid "but there are"
+msgstr "有"
 
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
@@ -7901,6 +7901,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "用户更新"
+
+#, fuzzy
+#~ msgid "I checked in at"
+#~ msgstr "任务登记入住日期"
 
 #, fuzzy
 #~ msgid "Import Host Exts"

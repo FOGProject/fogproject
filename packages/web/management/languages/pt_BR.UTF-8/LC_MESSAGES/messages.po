@@ -2208,6 +2208,9 @@ msgstr ""
 msgid "Getting snapin hash and size for"
 msgstr ""
 
+msgid "Got in line at"
+msgstr ""
+
 msgid "Goto task list"
 msgstr ""
 
@@ -2694,10 +2697,6 @@ msgstr "Eu não sou o servidor web nevoeiro"
 #, fuzzy
 msgid "I am the group manager"
 msgstr " | Eu sou o único membro"
-
-#, fuzzy
-msgid "I checked in at"
-msgstr "Tarefa Checkin Data"
 
 #, fuzzy
 msgid "I have read"
@@ -7122,15 +7121,16 @@ msgstr ""
 msgid "boot the client computers"
 msgstr ""
 
-msgid "but"
-msgstr ""
-
 msgid "but bind password is not set"
 msgstr ""
 
 #, fuzzy
 msgid "but has recently failed for this host"
 msgstr "está aberto, mas recentemente falhou para este alojamento"
+
+#, fuzzy
+msgid "but there are"
+msgstr "tem"
 
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
@@ -7928,6 +7928,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "usuário atualizada"
+
+#, fuzzy
+#~ msgid "I checked in at"
+#~ msgstr "Tarefa Checkin Data"
 
 #, fuzzy
 #~ msgid "Import Host Exts"

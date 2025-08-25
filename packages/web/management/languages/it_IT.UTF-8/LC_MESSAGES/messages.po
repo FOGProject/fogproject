@@ -1991,6 +1991,9 @@ msgstr "Ottenere la dimensione dell'immagine per"
 msgid "Getting snapin hash and size for"
 msgstr "Ottenere hash di snapin e dimensione per"
 
+msgid "Got in line at"
+msgstr ""
+
 msgid "Goto task list"
 msgstr "Andare all'elenco delle attività"
 
@@ -2426,10 +2429,6 @@ msgstr "Io non sono il server web fog"
 
 msgid "I am the group manager"
 msgstr "Sono il responsabile del gruppo"
-
-#, fuzzy
-msgid "I checked in at"
-msgstr "Compito di arrivo Data"
 
 msgid "I have read"
 msgstr "ho letto"
@@ -6390,14 +6389,15 @@ msgstr "Tra impostazioni host e globali"
 msgid "boot the client computers"
 msgstr "avvia i computer client"
 
-msgid "but"
-msgstr "ma"
-
 msgid "but bind password is not set"
 msgstr "Ma la bind password non è impostata"
 
 msgid "but has recently failed for this host"
 msgstr "ma è fallito di recente per questo host"
+
+#, fuzzy
+msgid "but there are"
+msgstr "Ci sono"
 
 msgid "check to ensure your filesystem has enough space"
 msgstr "cerificare che il filesystem abbia spazio sufficiente"
@@ -7116,6 +7116,10 @@ msgstr "si imposti il campo di larghezza di banda su quel nodo a 1000"
 #~ msgstr "Host aggiornato!"
 
 #, fuzzy
+#~ msgid "I checked in at"
+#~ msgstr "Compito di arrivo Data"
+
+#, fuzzy
 #~ msgid "Import Host Exts"
 #~ msgstr "Importa Host"
 
@@ -7160,6 +7164,9 @@ msgstr "si imposti il campo di larghezza di banda su quel nodo a 1000"
 
 #~ msgid "We highly recommend you make the switch for more"
 #~ msgstr "Ti consigliamo di effettuare l'aggiornamento per maggiore"
+
+#~ msgid "but"
+#~ msgstr "ma"
 
 #~ msgid "file to"
 #~ msgstr "File con"

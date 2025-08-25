@@ -1901,6 +1901,9 @@ msgstr ""
 msgid "Getting snapin hash and size for"
 msgstr ""
 
+msgid "Got in line at"
+msgstr ""
+
 msgid "Goto task list"
 msgstr ""
 
@@ -2325,9 +2328,6 @@ msgid "I am not the fog web server"
 msgstr ""
 
 msgid "I am the group manager"
-msgstr ""
-
-msgid "I checked in at"
 msgstr ""
 
 msgid "I have read"
@@ -6164,13 +6164,13 @@ msgstr ""
 msgid "boot the client computers"
 msgstr ""
 
-msgid "but"
-msgstr ""
-
 msgid "but bind password is not set"
 msgstr ""
 
 msgid "but has recently failed for this host"
+msgstr ""
+
+msgid "but there are"
 msgstr ""
 
 msgid "check to ensure your filesystem has enough space"
