@@ -208,8 +208,18 @@ class Task extends TaskType
             if ($tid === $myTaskID) {
                 continue;
             }
+
             // Liveness: if expired, it's getting re-queued to the back. Don't count
             if (self::isExpired($Task->checkInTime ?? null)) {
+                self::getClass('TaskManager')->update(
+                    ['id' => $tid],
+                    '',
+                    [
+                        'stateID' => self::getQueuedState(),
+                        'checkInTime' => null,
+                        'scheduledStartTime' => null
+                    ]
+                );
                 continue;
             }
 
@@ -314,27 +324,20 @@ class Task extends TaskType
         $expire = $this->isExpired($checkInTime); // checkin time expired
 
         $store_update = false;
+        $checkInState = self::getCheckedInState();
 
-        if ($curState != self::getCheckedInState()) {
+        if ($curState != $checkInState || $expire) {
             $this
-                ->set('stateID', self::getCheckedInState())
+                ->set('stateID', $checkInState)
                 ->set('checkInTime', $curTime->format('Y-m-d H:i:s'))
                 ->set(
                     'scheduledStartTime',
                     $curTime->format('Y-m-d H:i:s')
                 );
             $store_update = true;
-        } elseif (($almost || $expire) && in_array($curState, self::getQueuedStates())) {
+        } elseif ($almost && in_array($curState, self::getQueuedStates())) {
             $this
                 ->set('checkInTime', $curTime->format('Y-m-d H:i:s'));
-            if ($expire) {
-                $this
-                    ->set('stateID', self::getQueuedState())
-                    ->set(
-                        'scheduledStartTime',
-                        $curTime->format('Y-m-d H:i:s')
-                    );
-            }
             $store_update = true;
         }
         if ($store_update && !$this->save()) {

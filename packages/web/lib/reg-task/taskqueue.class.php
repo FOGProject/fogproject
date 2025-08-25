@@ -156,7 +156,8 @@ class TaskQueue extends TaskingElement
                 }
             }
             $this->Task
-                ->set('stateID', self::getProgressState());
+                ->set('stateID', self::getProgressState())
+                ->set('checkInTime', self::niceDate()->format('Y-m-d H:i:s'));
             if (!$this->Task->save()) {
                 throw new Exception(_('Failed to update Task'));
             }
