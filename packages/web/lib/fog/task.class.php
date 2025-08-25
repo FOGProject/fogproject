@@ -288,10 +288,6 @@ class Task extends TaskType
     {
         $curState = $this->get('stateID');
         $curTime = self::niceDate();
-        if ($curState != self::getCheckedInState()) {
-            $this
-                ->set('stateID', self::getCheckedInState());
-        }
         $almost = $this->isCheckinTimeExpired(true); // expiring in 30 seconds or less
         $expire = $this->isCheckinTimeExpired(false); // checkin time expired
         if (
