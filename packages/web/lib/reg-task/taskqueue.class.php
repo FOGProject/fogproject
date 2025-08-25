@@ -30,7 +30,7 @@ class TaskQueue extends TaskingElement
     public function checkIn()
     {
         try {
-            $this->Task->updateTaskCheckinTime();
+            $this->Task->taskCheckIn();
             if ($this->imagingTask) {
                 if ($this->Task->isCapture()) {
                     $this->Task->getImage()->set('size', '')->save();
@@ -138,16 +138,16 @@ class TaskQueue extends TaskingElement
                     $inFront = $this->Task->getInFrontOfHostCount();
                     $groupOpenSlots = $totalSlots - $usedSlots;
 
-                    $MyCheckinTime = self::niceDate($this->Task->get('checkInTime'));
+                   $MyLineTime = self::niceDate($this->Task->get('scheduledStartTime'));
                     if ($groupOpenSlots < 1) {
-                        $msg = sprintf(
+                       $msg = sprintf(
                             '%s, %s %d %s. %s %s. %s %d.',
                             _('No open slots'),
                             _('There are'),
                             $inFront,
                             _('before me on this node'),
-                            _('Last check-in at '),
-                            $MyCheckinTime->format('Y-m-d H:i:s'),
+                            _('Got in line at  '),
+                            $MyLineTime->format('Y-m-d H:i:s'),
                             _('ID is '),
                             $this->Task->get('id')
                         );
@@ -162,7 +162,7 @@ class TaskQueue extends TaskingElement
                             $inFront,
                             _('before me on this node'),
                             _('Last check-in at'),
-                            $MyCheckinTime->format('Y-m-d H:i:s'),
+                            $MyLineTime->format('Y-m-d H:i:s'),
                             _('ID is'),
                             $this->Task->get('id')
                         );

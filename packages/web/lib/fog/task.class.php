@@ -134,6 +134,7 @@ class Task extends TaskType
     {
         $count = 0;
         $MyTaskID = $this->get('id');
+        $MyScheduledStart = self::niceDate($this->get('scheduledStartTime'));
 
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
         $find = array(
@@ -143,13 +144,15 @@ class Task extends TaskType
             'storagenodeID' => $this->get('storagenodeID')
         );
         foreach ((array)$this->getManager()->find($find) as $Task) {
-            if ($Task->get('id') == $MyTaskID) {
+            if ($Task->id == $MyTaskID) {
                 continue;
             }
             try {
-                if (!self::validDate(self::niceDate($Task->checkInTime)) //if niceDate version of tasks' checkin time is invalid don't count task as in front, also catch the exception
+                $TaskScheduledStart = self::niceDate($Task->scheduledStartTime);
+                if (!self::validDate(self::niceDate($Task->checkInTime)) || !self::validDate($TaskScheduledStart) //if niceDate version of tasks' checkin time is invalid don't count task as in front, also catch the exception
                     || self::getClass('task', $Task->id)->isCheckinTimeExpired(false) //if checkin time is expired don't count task as in front
-                    || $MyTaskID < $Task->id //base the order of waiting tasks on createTime via ID, checkin time will change to show a task is active
+                    || $MyScheduledStart < $TaskScheduledStart //if my scheduled start time is before theirs, they are behind me
+                    || ($MyScheduledStart == $TaskScheduledStart && $MyTaskID < $Task->id) //Break ties with taskID if scheduled start times are the same
                 ) {
                     continue;
                 }
@@ -164,22 +167,28 @@ class Task extends TaskType
      *
      * @return null
      */
-    public function updateTaskCheckinTime() {
+    public function taskCheckin() {
         $curState = $this->get('stateID');
         if ($curState != self::getCheckedInState()) {
             $firstCheckin = true; //if not in checked in state, it's the first checkin
         } else {
-            $firstCheckin = false; //already checked in, update the statetime if about to expire
+            $firstCheckin = false; //already checked in, update the checkin time if about to expire
         }
         if (!$firstCheckin) {
             $almost = true;
-            if ($this->isCheckinTimeExpired($almost)) { //whether expiring in 60 seconds or already expired, update the checkin time to now, if it's expired and is checking in, it should be updated so its active/not expired, order is only based of taskID now
+            if ($this->isCheckinTimeExpired($almost)) { //expiring in 60 seconds or less, update the checkin time to now to keep alive
                 $updateCheckin = true;
-            } else { //checkin time not expired or expiring, do nothing
+                $updateScheduledStart = false; //only set scheduled start time on first checkin or expire reset
+            } elseif($this->isCheckinTimeExpired(!$almost)) { //checkin time expired, reset like first checkin
+                $updateCheckin = true; //update checkin time when resetting expired task
+                $updateScheduledStart = true; //update scheduled start time to bring back an expired task
+            } else {
                 $updateCheckin = false;
+                $updateScheduledStart = false;
             }
-        } else { //first time checkin, set the checkin time other times should just set the state and state time
+        } else { //first time checkin, set the checkin time and the scheduled start time
             $updateCheckin = true;
+            $updateScheduledStart = true;
         }
         if ($updateCheckin) {
             $newTime = self::niceDate();
@@ -190,7 +199,12 @@ class Task extends TaskType
                 'checkInTime',
                 $newTime->format('Y-m-d H:i:s')
             );
-            
+            if ($updateScheduledStart) {
+                $this->set(
+                    'scheduledStartTime',
+                    $newTime->format('Y-m-d H:i:s')
+                );
+            }
             if (!$this->save()) {
                 throw new Exception(_('Failed to update task'));
             }
@@ -304,7 +318,7 @@ class Task extends TaskType
      */
     public function set($key, $value)
     {
-        if ($this->key($key) == 'checkInTime'
+        if (($this->key($key) == 'checkInTime' || $this->key($key) == 'scheduledStartTime')
             && is_numeric($value)
             && strlen($value) == 10
         ) {
