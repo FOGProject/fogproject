@@ -103,6 +103,12 @@ class ScheduledTask extends FOGController
             $minute = trim($this->get('minute'));
         } else {
             $minute = trim($this->get('scheduleTime'));
+            // Handle invalid scheduleTime values for delayed tasks
+            if (empty($minute) || $minute <= 0) {
+                // For invalid delayed tasks, use a future timestamp to prevent immediate execution
+                // This ensures the task won't run until the scheduleTime is properly set
+                $minute = time() + (365 * 24 * 60 * 60); // 1 year from now
+            }
         }
         $hour = trim($this->get('hour'));
         $dom = trim($this->get('dayOfMonth'));
@@ -163,23 +169,28 @@ class ScheduledTask extends FOGController
      */
     public function getTime()
     {
-        return self::niceDate()
-            ->setTimestamp(
-                (
-                    $this->get('type') == 'C' ?
-                    FOGCron::parse(
-                        sprintf(
-                            '%s %s %s %s %s',
-                            $this->get('minute'),
-                            $this->get('hour'),
-                            $this->get('dayOfMonth'),
-                            $this->get('month'),
-                            $this->get('dayOfWeek')
-                        )
-                    ) :
-                    $this->get('scheduleTime')
+        if ($this->get('type') == 'C') {
+            $timestamp = FOGCron::parse(
+                sprintf(
+                    '%s %s %s %s %s',
+                    $this->get('minute'),
+                    $this->get('hour'),
+                    $this->get('dayOfMonth'),
+                    $this->get('month'),
+                    $this->get('dayOfWeek')
                 )
-            )->format('Y-m-d H:i');
+            );
+        } else {
+            $timestamp = $this->get('scheduleTime');
+            // Handle invalid scheduleTime values (0, null, empty)
+            if (empty($timestamp) || $timestamp <= 0) {
+                return _('No Data');
+            }
+        }
+        
+        return self::niceDate()
+            ->setTimestamp($timestamp)
+            ->format('Y-m-d H:i');
     }
     /**
      * Cancels/Removes the tasking.
