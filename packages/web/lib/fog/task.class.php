@@ -131,6 +131,53 @@ class Task extends TaskType
         return max($raw, 180); // enforce minimum of 180 seconds
     }
     /**
+     * Returns cutoff timing
+     *
+     * @reutrn DateTimeImmutable
+     */
+    private static function cutoff()
+    {
+        return (clone self::niceDate())
+            ->modify('-' . self::fogCheckinTimeout() . ' seconds');
+    }
+    /**
+     * Returns if the checkin time is expired.
+     *
+     * @param string $checkInTime The checkin time.
+     * @return bool
+     */
+    private static function isExpired(string $checkInTime)
+    {
+        if (!$checkInTime) {
+            return true;
+        }
+        $ci = self::niceDate($checkInTime);
+        if (!self::validDate($ci)) {
+            return true;
+        }
+        return ($ci < self::cutoff());
+    }
+    /**
+     * Returns if we are almost expired and should update.
+     *
+     * @param string $checkInTime  The checkin time.
+     * @param int    $graceSeconds The grace period in seconds.
+     *
+     * @return bool
+     */
+    private static function isAlmostExpired(string $checkInTime, int $graceSeconds = 30)
+    {
+        if (!$checkInTime) {
+            return true;
+        }
+        $ci = self::niceDate($checkInTime);
+        if (!self::validDate($ci)) {
+            return true;
+        }
+        $almostCutoff = (clone(self::cutoff()))->modify("+{$graceSeconds} seconds"); // timeout - grace
+        return $ci < $almostCutoff; // i.e., within grace window
+    }
+    /**
      * Returns the in front of number.
      *
      * @return int
@@ -140,6 +187,10 @@ class Task extends TaskType
         $count = 0;
         $myTaskID = (int) $this->get('id');
         $myStStart = self::niceDate($this->get('scheduledStartTime'));
+        // My scheduled start validity, if not valid, set to now
+        if (!self::validDate($myStStart)) {
+            $myStStart = self::niceDate();
+        }
 
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
         $find = array(
@@ -151,64 +202,34 @@ class Task extends TaskType
 
         foreach ((array)$this->getManager()->find($find) as $Task) {
             $tid = (int) $Task->id;
-            if ($tid == $myTaskID) {
+            if ($tid === $myTaskID) {
                 continue;
             }
-            try {
-                $ci = self::niceDate($Task->checkInTime);
-                $stStart = self::niceDate($Task->scheduledStartTime);
-                if (
-                    !self::validDate($ci) // Task checkin is invalid, don't count
-                    || !self::validDate($stStart) // Scheduled start is invalid, don't count
-                    || $myStStart < $stStart // My scheduled start is before theirs, they are behind me
-                    || ($myStStart == $stStart && $myTaskID < $tid)
-                    
-                ) {
-                    continue;
+
+            // Liveness: if expired, it's getting re-queued to the back. Don't count
+            if (self::isExpired($Task->checkInTime ?? null)) {
+                if ($Task->stateID != self::getQueuedState()) {
+                    self::getClass('Task', $tid)
+                        ->set('stateID', self::getQueuedState())
+                        ->save();
                 }
+                continue;
+            }
+
+            $stStart = self::niceDate($Task->scheduledStartTime ?? null);
+            // Scheduled start validity, if not valid, don't count
+            if (!self::validDate($stStart)) {
+                continue;
+            }
+
+            if ($stStart < $myStStart // Their scheduled start is before mine, they are ahead of me
+                || ($stStart == $myStStart && $tid < $myTaskID) // Break ties with taskID if scheduled start times are the same
+            ) {
                 ++$count;
-            } catch (Exception $e) {
             }
         }
 
         return $count;
-    }
-    /**
-     * Gets time until checkin expires.
-     *
-     * @return float
-     */
-    public function getTimeTillCheckinExpired()
-    {
-        $timeout = self::fogCheckinTimeout();
-        $checkinTime = self::niceDate($this->get('checkInTime'));
-        $expireTime = (new DateTimeImmutable('now', $checkinTime->getTimezone()))
-            ->modify("-{$timeout} seconds");
-        $curTime = self::niceDate();
-        return $expireTime->getTimestamp() - $curTime->getTimestamp();
-    }
-    /**
-     * Checks if checkin time is expired or almost expired
-     *
-     * @param bool $almost Check if we're about to expire and should update.
-     *
-     * @return bool
-     */
-    public function isCheckinTimeExpired($almost = false)
-    {
-        $timeTillExpire = $this->getTimeTillCheckinExpired();
-        if ($almost) {
-            return ($timeTillExpire <= 30); // is almost expired, update checkin time
-        }
-        if ($timeTillExpire <= 0) {
-            $curTime = self::niceDate();
-            $this->set('stateID', self::getQueuedState())
-                 ->set('checkInTime', $curTime->format('Y-m-d H:i:s'));
-            if (!$this->save()) {
-                throw new Exception(_('Failed to update task'));
-            }
-            return true;
-        }
     }
     /**
      * Cancels the task.
@@ -282,35 +303,41 @@ class Task extends TaskType
         return parent::set($key, $value);
     }
     /**
-     * Updates the task checkin time, state, and scheduled start time as needed.
+     * Updates the task checkin time, state, and scheduled start time as needed
      *
      * @return void
      * @throws Exception
      */
-    public function taskCheckin()
+    public function taskCheckIn()
     {
         $curState = $this->get('stateID');
+
+        // Timings
+        $checkInTime = $this->get('checkInTime');
         $curTime = self::niceDate();
-        $almost = $this->isCheckinTimeExpired(true); // expiring in 30 seconds or less
-        $expire = $this->isCheckinTimeExpired(false); // checkin time expired
-        if (
-            $curState != self::getCheckedInState
-            || $almost
-            || $expire
-        ) {
+
+        $almost = $this->isAlmostExpired($checkInTime); // expiring in 30 seconds or less
+        $expire = $this->isExpired($checkInTime); // checkin time expired
+
+        $store_update = false;
+        $checkInState = self::getCheckedInState();
+
+        if ($curState != $checkInState || $expire) {
             $this
-                ->set('stateID', self::getCheckedInState())
+                ->set('stateID', $checkInState)
+                ->set('checkInTime', $curTime->format('Y-m-d H:i:s'))
+                ->set(
+                    'scheduledStartTime',
+                    $curTime->format('Y-m-d H:i:s')
+                );
+            $store_update = true;
+        } elseif ($almost && in_array($curState, self::getQueuedStates())) {
+            $this
                 ->set('checkInTime', $curTime->format('Y-m-d H:i:s'));
-            if ($expire) {
-                $this
-                    ->set(
-                        'scheduledStartTime',
-                        $curTime->format('Y-m-d H:i:s')
-                    );
-            }
-            if (!$this->save()) {
-                throw new Excpetion(_('Failed to update task'));
-            }
+            $store_update = true;
+        }
+        if ($store_update && !$this->save()) {
+            throw new Exception(_('Failed to update task'));
         }
     }
     /**

@@ -139,6 +139,10 @@ class TaskQueue extends TaskingElement
                     $groupOpenSlots = $totalSlots - $usedSlots;
 
                     $MyLineTime = self::niceDate($this->Task->get('scheduledStartTime'));
+                    // Fallback to now if placeholder hasn't been established yet.
+                    if (!self::validDate($MyLineTime)) {
+                        $MyLineTime = self::niceDate();
+                    }
                     $msgFormat = '%s, %s %d %s. %s %s.';
                     if ($groupOpenSlots < 1) {
                         $msg = sprintf(
