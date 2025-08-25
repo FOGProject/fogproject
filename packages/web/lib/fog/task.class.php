@@ -275,7 +275,7 @@ class Task extends TaskType
      */
     public function set($key, $value)
     {
-        if ($this->key($key) == 'checkInTime'
+        if (($this->key($key) == 'checkInTime' || $this->key($key) == 'scheduledStartTime')
             && is_numeric($value)
             && strlen($value) == 10
         ) {
