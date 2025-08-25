@@ -188,6 +188,10 @@ class Task extends TaskType
         $count = 0;
         $myTaskID = (int) $this->get('id');
         $myStStart = self::niceDate($this->get('scheduledStartTime'));
+        // My scheduled start validity, if not valid, set to now
+        if (!self::validDate($myStStart)) {
+            $myStStart = self::niceDate();
+        }
 
         $used = explode(',', self::getSetting('FOG_USED_TASKS'));
         $find = [
@@ -314,6 +318,15 @@ class Task extends TaskType
             $this
                 ->set('stateID', self::getCheckedInState())
                 ->set('checkInTime', $curTime->format('Y-m-d H:i:s'));
+            // If scheduled start time is invalid, set to now
+            $stStart = self::niceDate($this->get('scheduledStartTime'));
+            if (!self::validDate($stStart)) {
+                $this
+                    ->set(
+                        'scheduledStartTime',
+                        $curTime->format('Y-m-d H:i:s')
+                    );
+            }
             $store_update = true;
         }
         if (($almost || $expire) && in_array($curState, self::getQueuedStates())) {
