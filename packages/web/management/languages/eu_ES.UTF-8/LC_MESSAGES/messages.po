@@ -2208,6 +2208,9 @@ msgstr "Einstellungen erfolgreich aktualisiert"
 msgid "Global settings updated!"
 msgstr "Standort aktualisiert"
 
+msgid "Got in line at  "
+msgstr ""
+
 #, fuzzy
 msgid "Graph Color"
 msgstr "Grafisch"
@@ -2726,11 +2729,14 @@ msgstr "Ich bin nicht der FOG-Web-Server"
 msgid "I am the group manager"
 msgstr "Ich bin der Gruppenmanager"
 
-msgid "I checked in at"
-msgstr ""
-
 msgid "ID"
 msgstr "ID"
+
+msgid "ID is"
+msgstr ""
+
+msgid "ID is "
+msgstr ""
 
 msgid "IP"
 msgstr "IP"
@@ -3446,6 +3452,9 @@ msgstr "Zuletzt hochgeladen"
 
 msgid "Last Deployed"
 msgstr "Zuletzt verteilt"
+
+msgid "Last check-in at"
+msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -7579,6 +7588,10 @@ msgstr ""
 
 #~ msgid "Failed to create new Group"
 #~ msgstr "Erstellen der neuen Gruppe fehlgeschlagen"
+
+#, fuzzy
+#~ msgid "Failed to refresh check-in time"
+#~ msgstr "Fehler beim Erstellen der Sitzung"
 
 #, fuzzy
 #~ msgid "Files do not match on server"

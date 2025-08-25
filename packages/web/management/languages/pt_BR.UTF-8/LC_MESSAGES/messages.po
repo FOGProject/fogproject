@@ -2211,6 +2211,9 @@ msgstr "Instalar / Atualizar sucesso!"
 msgid "Global settings updated!"
 msgstr "Localização Atualizado"
 
+msgid "Got in line at  "
+msgstr ""
+
 #, fuzzy
 msgid "Graph Color"
 msgstr "Gráfico"
@@ -2728,11 +2731,14 @@ msgstr "Eu não sou o servidor web nevoeiro"
 msgid "I am the group manager"
 msgstr " | Eu sou o único membro"
 
-msgid "I checked in at"
-msgstr ""
-
 msgid "ID"
 msgstr "identidade"
+
+msgid "ID is"
+msgstr ""
+
+msgid "ID is "
+msgstr ""
 
 msgid "IP"
 msgstr "IP"
@@ -3444,6 +3450,9 @@ msgstr "host criado"
 
 msgid "Last Deployed"
 msgstr "Última Implantado"
+
+msgid "Last check-in at"
+msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -7569,6 +7578,10 @@ msgstr ""
 
 #~ msgid "Failed to create new Group"
 #~ msgstr "Falha ao criar novo grupo"
+
+#, fuzzy
+#~ msgid "Failed to refresh check-in time"
+#~ msgstr "Falha ao criar sessão"
 
 #, fuzzy
 #~ msgid "Files do not match on server"

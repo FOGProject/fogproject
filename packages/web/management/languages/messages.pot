@@ -1842,6 +1842,9 @@ msgstr ""
 msgid "Global settings updated!"
 msgstr ""
 
+msgid "Got in line at  "
+msgstr ""
+
 msgid "Graph Color"
 msgstr ""
 
@@ -2265,10 +2268,13 @@ msgstr ""
 msgid "I am the group manager"
 msgstr ""
 
-msgid "I checked in at"
+msgid "ID"
 msgstr ""
 
-msgid "ID"
+msgid "ID is"
+msgstr ""
+
+msgid "ID is "
 msgstr ""
 
 msgid "IP"
@@ -2869,6 +2875,9 @@ msgid "Last Captured"
 msgstr ""
 
 msgid "Last Deployed"
+msgstr ""
+
+msgid "Last check-in at"
 msgstr ""
 
 msgid "Latest Alpha Version"

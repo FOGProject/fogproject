@@ -2209,6 +2209,9 @@ msgstr "安装/升级成功！"
 msgid "Global settings updated!"
 msgstr "更新位置"
 
+msgid "Got in line at  "
+msgstr ""
+
 #, fuzzy
 msgid "Graph Color"
 msgstr "图形"
@@ -2726,11 +2729,14 @@ msgstr "我不是雾Web服务器"
 msgid "I am the group manager"
 msgstr "|我唯一​​的成员"
 
-msgid "I checked in at"
-msgstr ""
-
 msgid "ID"
 msgstr "ID"
+
+msgid "ID is"
+msgstr ""
+
+msgid "ID is "
+msgstr ""
 
 msgid "IP"
 msgstr "IP"
@@ -3442,6 +3448,9 @@ msgstr "主机创建"
 
 msgid "Last Deployed"
 msgstr "最后部署"
+
+msgid "Last check-in at"
+msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -7556,6 +7565,10 @@ msgstr ""
 
 #~ msgid "Failed to create new Group"
 #~ msgstr "无法创建新的组"
+
+#, fuzzy
+#~ msgid "Failed to refresh check-in time"
+#~ msgstr "无法创建会话"
 
 #, fuzzy
 #~ msgid "Files do not match on server"

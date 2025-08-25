@@ -2255,6 +2255,9 @@ msgstr "actualización de servicio no pudo"
 msgid "Global settings updated!"
 msgstr "información de LDAP actualizado!"
 
+msgid "Got in line at  "
+msgstr ""
+
 msgid "Graph Color"
 msgstr ""
 
@@ -2790,11 +2793,14 @@ msgstr ""
 msgid "I am the group manager"
 msgstr ""
 
-msgid "I checked in at"
-msgstr ""
-
 msgid "ID"
 msgstr "CARNÉ DE IDENTIDAD"
+
+msgid "ID is"
+msgstr ""
+
+msgid "ID is "
+msgstr ""
 
 msgid "IP"
 msgstr "IP"
@@ -3532,6 +3538,9 @@ msgstr "Creado"
 
 msgid "Last Deployed"
 msgstr "última Desplegado"
+
+msgid "Last check-in at"
+msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -7725,6 +7734,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Failed to create new Group"
 #~ msgstr "No se pudo crear el usuario"
+
+#, fuzzy
+#~ msgid "Failed to refresh check-in time"
+#~ msgstr "No se pudo crear Sesión"
 
 #, fuzzy
 #~ msgid "Group module settings"

@@ -2116,6 +2116,9 @@ msgstr "Modifica Impostazioni completata"
 msgid "Global settings updated!"
 msgstr "Posizione aggiornata!"
 
+msgid "Got in line at  "
+msgstr ""
+
 #, fuzzy
 msgid "Graph Color"
 msgstr "grafico"
@@ -2614,11 +2617,14 @@ msgstr "Io non sono il server web fog"
 msgid "I am the group manager"
 msgstr "Sono il responsabile del gruppo"
 
-msgid "I checked in at"
-msgstr ""
-
 msgid "ID"
 msgstr "ID"
+
+msgid "ID is"
+msgstr ""
+
+msgid "ID is "
+msgstr ""
 
 msgid "IP"
 msgstr "IP"
@@ -3286,6 +3292,9 @@ msgstr "Ultima cattura"
 
 msgid "Last Deployed"
 msgstr "Ultima Distribuita"
+
+msgid "Last check-in at"
+msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -7181,6 +7190,10 @@ msgstr ""
 
 #~ msgid "Failed to create new Group"
 #~ msgstr "Impossibile creare un nuovo gruppo"
+
+#, fuzzy
+#~ msgid "Failed to refresh check-in time"
+#~ msgstr "Impossibile creare Session"
 
 #, fuzzy
 #~ msgid "Files do not match on server"

@@ -2208,6 +2208,9 @@ msgstr "Install / Update Successful!"
 msgid "Global settings updated!"
 msgstr "Location Updated"
 
+msgid "Got in line at  "
+msgstr ""
+
 #, fuzzy
 msgid "Graph Color"
 msgstr "Graphical"
@@ -2725,11 +2728,14 @@ msgstr "I am not the fog web server"
 msgid "I am the group manager"
 msgstr " | I am the only member"
 
-msgid "I checked in at"
-msgstr ""
-
 msgid "ID"
 msgstr "ID"
+
+msgid "ID is"
+msgstr ""
+
+msgid "ID is "
+msgstr ""
 
 msgid "IP"
 msgstr "IP"
@@ -3441,6 +3447,9 @@ msgstr "Host Created"
 
 msgid "Last Deployed"
 msgstr "Last Deployed"
+
+msgid "Last check-in at"
+msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -7565,6 +7574,10 @@ msgstr ""
 
 #~ msgid "Failed to create new Group"
 #~ msgstr "Failed to create new Group"
+
+#, fuzzy
+#~ msgid "Failed to refresh check-in time"
+#~ msgstr "Failed to create Session"
 
 #, fuzzy
 #~ msgid "Files do not match on server"

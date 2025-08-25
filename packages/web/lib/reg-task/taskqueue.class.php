@@ -121,7 +121,7 @@ class TaskQueue extends TaskingElement
 
                     $MyLineTime = self::niceDate($this->Task->get('scheduledStartTime'));
                     if ($groupOpenSlots < 1) {
-                       $msg = sprintf(
+                        $msg = sprintf(
                             '%s, %s %d %s. %s %s. %s %d.',
                             _('No open slots'),
                             _('There are'),
@@ -135,7 +135,7 @@ class TaskQueue extends TaskingElement
                         throw new Exception($msg);
                     }
                     
-                    if ($groupOpenSlots <= $inFront) {   
+                    if ($groupOpenSlots <= $inFront) {
                         $msg = sprintf(
                             '%s, %s %d %s. %s %s. %s %d.',
                             _('There are open slots'),
