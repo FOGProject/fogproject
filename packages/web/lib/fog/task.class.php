@@ -328,8 +328,7 @@ class Task extends TaskType
                     );
             }
             $store_update = true;
-        }
-        if (($almost || $expire) && in_array($curState, self::getQueuedStates())) {
+        } elseif (($almost || $expire) && in_array($curState, self::getQueuedStates())) {
             $this
                 ->set('checkInTime', $curTime->format('Y-m-d H:i:s'));
             if ($expire) {
