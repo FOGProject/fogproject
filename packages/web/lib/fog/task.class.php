@@ -308,11 +308,15 @@ class Task extends TaskType
         $almost = $this->isAlmostExpired($checkInTime); // expiring in 30 seconds or less
         $expire = $this->isExpired($checkInTime); // checkin time expired
 
+        $store_update = false;
+
         if ($curState != self::getCheckedInState()) {
             $this
                 ->set('stateID', self::getCheckedInState())
                 ->set('checkInTime', $curTime->format('Y-m-d H:i:s'));
-        } elseif (($almost || $expire) && in_array($curState, self::getQueuedStates())) {
+            $store_update = true;
+        }
+        if (($almost || $expire) && in_array($curState, self::getQueuedStates())) {
             $this
                 ->set('checkInTime', $curTime->format('Y-m-d H:i:s'));
             if ($expire) {
@@ -322,8 +326,9 @@ class Task extends TaskType
                         $curTime->format('Y-m-d H:i:s')
                     );
             }
+            $store_update = true;
         }
-        if (!$this->save()) {
+        if ($store_update && !$this->save()) {
             throw new Exception(_('Failed to update task'));
         }
     }
