@@ -309,6 +309,7 @@ class Task extends TaskType
         // Timings
         $checkInTime = $this->get('checkInTime');
         $curTime = self::niceDate();
+
         $almost = $this->isAlmostExpired($checkInTime); // expiring in 30 seconds or less
         $expire = $this->isExpired($checkInTime); // checkin time expired
 
@@ -317,22 +318,18 @@ class Task extends TaskType
         if ($curState != self::getCheckedInState()) {
             $this
                 ->set('stateID', self::getCheckedInState())
-                ->set('checkInTime', $curTime->format('Y-m-d H:i:s'));
-            // If scheduled start time is invalid, set to now
-            $stStart = self::niceDate($this->get('scheduledStartTime'));
-            if (!self::validDate($stStart)) {
-                $this
-                    ->set(
-                        'scheduledStartTime',
-                        $curTime->format('Y-m-d H:i:s')
-                    );
-            }
+                ->set('checkInTime', $curTime->format('Y-m-d H:i:s'))
+                ->set(
+                    'scheduledStartTime',
+                    $curTime->format('Y-m-d H:i:s')
+                );
             $store_update = true;
         } elseif (($almost || $expire) && in_array($curState, self::getQueuedStates())) {
             $this
                 ->set('checkInTime', $curTime->format('Y-m-d H:i:s'));
             if ($expire) {
                 $this
+                    ->set('stateID', self::getQueuedState())
                     ->set(
                         'scheduledStartTime',
                         $curTime->format('Y-m-d H:i:s')
