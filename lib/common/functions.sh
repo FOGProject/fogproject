@@ -501,6 +501,9 @@ listPackages() {
                 packages="${packages// mysql-client / mariadb-client}"
                 packages="${packages// mysql-server / mariadb-server}"
             fi
+            if [[ $OSVersion -ge 13 ]]; then
+                packages="${packages// libcurl4 / libcurl4t64 }"
+            fi
             ;;
     esac
     packages=$(echo ${packages[@]} | tr ' ' '\n' | sort -u | tr '\n' ' ')
