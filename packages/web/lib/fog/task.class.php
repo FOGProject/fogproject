@@ -201,13 +201,13 @@ class Task extends TaskType
         );
 
         foreach ((array)$this->getManager()->find($find) as $Task) {
-            $tid = (int) $Task->id;
+            $tid = (int) $Task->get('id');
             if ($tid === $myTaskID) {
                 continue;
             }
 
             // Liveness: if expired, it's getting re-queued to the back. Don't count
-            if (self::isExpired($Task->checkInTime ?? null)) {
+            if (self::isExpired($Task->get('checkInTime'))) {
                 if ($Task->stateID != self::getQueuedState()) {
                     self::getClass('Task', $tid)
                         ->set('stateID', self::getQueuedState())
@@ -216,7 +216,7 @@ class Task extends TaskType
                 continue;
             }
 
-            $stStart = self::niceDate($Task->scheduledStartTime ?? null);
+            $stStart = self::niceDate($Task->get('scheduledStartTime'));
             // Scheduled start validity, if not valid, don't count
             if (!self::validDate($stStart)) {
                 continue;
