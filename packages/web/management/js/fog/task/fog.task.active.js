@@ -28,6 +28,8 @@
             {data: 'hostname'},
             {data: 'imagename'},
             {data: 'createdBy'},
+            {data: 'scheduledStartTime'},
+            {data: 'checkInTime'},
             {data: 'tasktypename'},
             {data: 'taskstatename'},
             {data: 'percent'}
@@ -56,18 +58,32 @@
                 targets: 2
             },
             {
+                responsivePriority: 2,
+                render: function(data, type, row) {
+                    return data;
+                },
+                targets: 3
+            },
+            {
+                responsivePriority: 3,
+                render: function(data, type, row) {
+                    return data;
+                },
+                targets: 4
+            },
+            {
                 render: function(data, type, row) {
                     return row.tasktypename
                         + ' <i class="fa fa-' + row.tasktypeicon + '"></i> '
                 },
-                targets: 3
+                targets: 5
             },
             {
                 render: function(data, type, row) {
                     return row.taskstatename
                         + ' <i class="fa fa-' + row.taskstateicon + '"></i> '
                 },
-                targets: 4
+                targets: 6
             },
             {
                 render: function(data, type, row) {
@@ -97,7 +113,7 @@
                         + '</div>'
                         + '</div>';
                 },
-                targets: 5
+                targets: 7
             }
         ],
         serverSide: true,

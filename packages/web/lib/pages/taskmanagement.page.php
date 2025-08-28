@@ -49,11 +49,15 @@ class TaskManagement extends FOGPage
             _('Host Name'),
             _('Image Name'),
             _('Started By'),
+            _('First Check In'),
+            _('Last Check In'),
             _('Task Type'),
             _('Status'),
             _('Progress')
         ];
         $this->attributes = [
+            [],
+            [],
             [],
             [],
             [],
