@@ -210,7 +210,7 @@ class Task extends TaskType
             }
 
             // Liveness: if expired, it's getting re-queued to the back. Don't count
-            if (self::isExpired($Task->checkInTime ?? null)) {
+            if (self::isExpired($Task->checkInTime ?? '')) {
                 if ($Task->stateID != self::getQueuedState()) {
                     self::getClass('Task', $tid)
                         ->set('stateID', self::getQueuedState())
@@ -219,7 +219,7 @@ class Task extends TaskType
                 continue;
             }
 
-            $stStart = self::niceDate($Task->scheduledStartTime ?? null);
+            $stStart = self::niceDate($Task->scheduledStartTime ?? '');
             // Scheduled start validity, if not valid, don't count
             if (!self::validDate($stStart)) {
                 continue;
