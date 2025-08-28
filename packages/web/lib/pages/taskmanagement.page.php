@@ -48,7 +48,7 @@ class TaskManagement extends FOGPage
         $this->headerData = [
             _('Host Name'),
             _('Image Name'),
-            _('Storage Node'),
+            // _('Storage Node'),
             _('Started By'),
             _('First Check In'),
             _('Last Check In'),
@@ -57,6 +57,7 @@ class TaskManagement extends FOGPage
             _('Progress')
         ];
         $this->attributes = [
+            [],
             [],
             [],
             [],
