@@ -214,7 +214,10 @@ class Task extends TaskType
                 if ($Task->stateID != self::getQueuedState()) {
                     self::getClass('Task', $tid)
                         ->set('stateID', self::getQueuedState())
-                        ->save();
+                        ->set('scheduledStartTime', '0000-00-00 00:00:00');
+                        if(!self::getClass('Task', $tid)->save()) {
+                            throw new Exception(_('Failed to update task'));
+                        }
                 }
                 continue;
             }
