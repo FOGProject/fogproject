@@ -159,11 +159,7 @@ class FOGCron extends FOGBase
         $v = explode(',', $field);
         foreach ($v as &$vv) {
             $vvv = explode('/', $vv);
-            if (count($vvv ?: []) > 2) {
-                $step = !$vvv[1] ? 1 : $vvv[1];
-            } else {
-                $step = 1;
-            }
+            $step = count($vvv ?: []) <= 1 ? 1 : $vvv[1];
             $vvvv = explode('-', $vvv[0]);
             $_min = (
                 count($vvvv ?: []) == 2 ?
