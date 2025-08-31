@@ -3435,6 +3435,8 @@ class GroupManagement extends FOGPage
             $shutdown = isset($_POST['shutdown']);
             if ($shutdown) {
                 $enableShutdown = true;
+            } else {
+                $enableShutdown = false;
             }
 
             // Debug setup
@@ -3548,23 +3550,28 @@ class GroupManagement extends FOGPage
                     $wol
                 );
             } else {
+                if ($scheduleType == 'cron') {
+                    $sType = 'C';
+                } else {
+                    $sType = 'S';
+                }
                 $ScheduledTask = self::getClass('ScheduledTask')
                     ->set('taskTypeID', $type)
                     ->set('name', $taskName)
                     ->set('hostID', $this->obj->get('id'))
                     ->set('shutdown', $enableShutdown)
                     ->set('other2', $enableSnapins)
-                    ->set('type', $scheduleType = 'single' ? 'S' : 'C')
+                    ->set('type', $sType)
                     ->set('isGroupTask', 1)
                     ->set('other3', self::$FOGUser->get('name'))
                     ->set('isActive', 1)
                     ->set('other4', $wol);
-                if ($scheduleType == 'single') {
+                if ($sType == 'S') {
                     $ScheduledTask->set(
                         'scheduleTime',
                         $scheduleDeployTime->getTimestamp()
                     );
-                } elseif ($scheduleType == 'cron') {
+                } elseif ($sType == 'C') {
                     $ScheduledTask
                         ->set('minute', $min)
                         ->set('hour', $hour)
