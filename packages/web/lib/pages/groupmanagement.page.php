@@ -3550,28 +3550,23 @@ class GroupManagement extends FOGPage
                     $wol
                 );
             } else {
-                if ($scheduleType == 'cron') {
-                    $sType = 'C';
-                } else {
-                    $sType = 'S';
-                }
                 $ScheduledTask = self::getClass('ScheduledTask')
                     ->set('taskTypeID', $type)
                     ->set('name', $taskName)
                     ->set('hostID', $this->obj->get('id'))
                     ->set('shutdown', $enableShutdown)
                     ->set('other2', $enableSnapins)
-                    ->set('type', $sType)
+                    ->set('type', $scheduleType == 'single' ? 'S' : 'C')
                     ->set('isGroupTask', 1)
                     ->set('other3', self::$FOGUser->get('name'))
                     ->set('isActive', 1)
                     ->set('other4', $wol);
-                if ($sType == 'S') {
+                if ($scheduleType == 'single') {
                     $ScheduledTask->set(
                         'scheduleTime',
                         $scheduleDeployTime->getTimestamp()
                     );
-                } elseif ($sType == 'C') {
+                } elseif ($scheduleType == 'cron') {
                     $ScheduledTask
                         ->set('minute', $min)
                         ->set('hour', $hour)
