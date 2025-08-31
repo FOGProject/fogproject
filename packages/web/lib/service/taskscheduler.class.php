@@ -161,17 +161,31 @@ class TaskScheduler extends FOGService
             unset($taskCount);
             
             //check for expired active Tasks
-          $used = explode(',', self::getSetting('FOG_USED_TASKS'));  
+            self::outall(
+                ' * '
+                . _('Checking for expired checked-in tasks...')
+            );
+            $used = explode(',', self::getSetting('FOG_USED_TASKS'));  
+            
             $find = [
-            'stateID' => self::getCheckedInState(),
-            'typeID' => $used
-        ];
-        Route::listem('task', $find);
-        $Tasks = json_decode(Route::getData());
-
-        foreach ($Tasks->data as $Task) {
-          self::getClass('Task', $Task->id)->expireTaskCheckin();
-        }
+                'stateID' => self::getCheckedInState(),
+                'typeID' => $used
+            ];
+            Route::listem('task', $find);
+            $Tasks = json_decode(Route::getData());
+            
+            foreach ($Tasks->data as $Task) {
+                // FOGCORE::var_dump_log("checking task id {$Task->id} for expiration");
+                //   self::outall(" * Checking task id {$Task->id} for expiration");
+                if(self::getClass('Task', $Task->id)->expireTaskCheckin(true)) {
+                    self::outall(
+                        ' * '
+                        . _('Found an expired task, resetting to queued for task of id')
+                        . ': '
+                        . $Task->id
+                    );
+                }
+            }
             // Scheduled Tasks
             foreach ($ScheduledTasks->data as $Task) {
                 $Task = self::getClass('ScheduledTask', $Task->id);

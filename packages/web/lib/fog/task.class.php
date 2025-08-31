@@ -182,20 +182,28 @@ class Task extends TaskType
      * expires a timed out task if checkin expired
      * clears scheduledStartTime and sets status to queued
      * updates checkin time with when it expired
-     * 
+     * If true passed in, will return true if task was expired false otherwise
+     *
      * @return null
      */
-     public function expireTaskCheckin(){
-        if (self::isExpired($this->checkInTime ?? '')) { //make sure checked for expired
-            if ($this->get('stateID') != self::getQueuedState()) { // If not already reset to queued state
+     public function expireTaskCheckin(bool $return = false){
+        $result = false;
+        if (self::isExpired($this->get('checkInTime') ?? '')) { //make sure checked for expired
+            $curState = $this->get('stateID');
+            if ($curState != self::getQueuedState()) { // If not already reset to queued state
                 $curtime = self::niceDate();
                 $this->set('stateID', self::getQueuedState())
                     ->set('checkInTime', $curtime->format('Y-m-d H:i:s'))
                     ->set('scheduledStartTime', '0000-00-00 00:00:00');
                 if(!$this->save()) {
                     throw new Exception(_('Failed to update task'));
+                } else {
+                    $result = true;
                 }
             }
+        }
+        if ($return) {
+            return $result;
         }
     }
     /**
