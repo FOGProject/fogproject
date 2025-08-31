@@ -160,7 +160,7 @@ class TaskScheduler extends FOGService
             );
             unset($taskCount);
             
-            //check for expired actove Tasks
+            //check for expired active Tasks
           $used = explode(',', self::getSetting('FOG_USED_TASKS'));  
             $find = [
             'stateID' => self::getCheckedInState(),
@@ -171,18 +171,11 @@ class TaskScheduler extends FOGService
 
         foreach ($Tasks->data as $Task) {
           $tid = (int) $Task->id;
-           if (self::isExpired($Task->checkInTime ?? '')) {
-                if ($Task->stateID != self::getQueuedState()) {
-                    self::getClass('Task', $tid)
-                        ->set('stateID', self::getQueuedState())
-                        ->set('scheduledStartTime', '0000-00-00 00:00:00');
-                        if(!self::getClass('Task', $tid)->save()) {
-                            throw new Exception(_('Failed to update task'));
-                        }
-                }
-               // continue;
-            }
+          self::getClass('Task', $tid)->expireTaskCheckin();
         }
+         
+            
+        
             // Scheduled Tasks
             foreach ($ScheduledTasks->data as $Task) {
                 $Task = self::getClass('ScheduledTask', $Task->id);
