@@ -159,24 +159,19 @@ class TaskScheduler extends FOGService
                 )
             );
             unset($taskCount);
-            
-            //check for expired active Tasks
+            //check for expired check-ins on active Tasks
             self::outall(
                 ' * '
                 . _('Checking for expired checked-in tasks...')
             );
             $used = explode(',', self::getSetting('FOG_USED_TASKS'));  
-            
             $find = [
                 'stateID' => self::getCheckedInState(),
                 'typeID' => $used
             ];
             Route::listem('task', $find);
             $Tasks = json_decode(Route::getData());
-            
             foreach ($Tasks->data as $Task) {
-                // FOGCORE::var_dump_log("checking task id {$Task->id} for expiration");
-                //   self::outall(" * Checking task id {$Task->id} for expiration");
                 if(self::getClass('Task', $Task->id)->expireTaskCheckin(true)) {
                     self::outall(
                         ' * '
