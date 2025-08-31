@@ -3432,12 +3432,7 @@ class GroupManagement extends FOGPage
             );
 
             // Shutdown setup
-            $shutdown = isset($_POST['shutdown']);
-            if ($shutdown) {
-                $enableShutdown = true;
-            } else {
-                $enableShutdown = false;
-            }
+            $enableShutdown = isset($_POST['shutdown']);
 
             // Debug setup
             $enableDebug = false;
