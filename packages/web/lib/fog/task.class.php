@@ -179,6 +179,27 @@ class Task extends TaskType
         return $ci < $almostCutoff; // i.e., within grace window
     }
     /**
+     * expires a timed out task
+     *  if checkin expired
+     * clears scheduledStartTime
+     *  and sets status to queued
+     * updates checkin time with 
+     * when it expired
+     */
+     public function expireTaskCheckin(){
+        if (self::isExpired($this->checkInTime ?? '')) { //make sure checked for expired
+          
+         
+        
+        if ($this->stateID != self::getQueuedState()) {
+                    $this->set('stateID', self::getQueuedState())->set('scheduledStartTime', '0000-00-00 00:00:00');
+                        if(!self::getClass('Task', $tid)->save()) {
+                            throw new Exception(_('Failed to update task'));
+                        }
+        }
+        }
+    }
+    /**
      * Returns the in front of number.
      *
      * @return int
@@ -211,7 +232,10 @@ class Task extends TaskType
 
             // Liveness: if expired, it's getting re-queued to the back. Don't count
             if (self::isExpired($Task->checkInTime ?? '')) {
-                if ($Task->stateID != self::getQueuedState()) {
+              self::getClass('Task', $tid)->expireTaskCheckin()
+                /*
+                 * 
+                 if ($Task->stateID != self::getQueuedState()) {
                     self::getClass('Task', $tid)
                         ->set('stateID', self::getQueuedState())
                         ->set('scheduledStartTime', '0000-00-00 00:00:00');
@@ -219,6 +243,7 @@ class Task extends TaskType
                             throw new Exception(_('Failed to update task'));
                         }
                 }
+                */
                 continue;
             }
 
