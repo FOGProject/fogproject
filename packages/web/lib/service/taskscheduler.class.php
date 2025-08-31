@@ -170,12 +170,8 @@ class TaskScheduler extends FOGService
         $Tasks = json_decode(Route::getData());
 
         foreach ($Tasks->data as $Task) {
-          $tid = (int) $Task->id;
-          self::getClass('Task', $tid)->expireTaskCheckin();
+          self::getClass('Task', $Task->id)->expireTaskCheckin();
         }
-         
-            
-        
             // Scheduled Tasks
             foreach ($ScheduledTasks->data as $Task) {
                 $Task = self::getClass('ScheduledTask', $Task->id);
