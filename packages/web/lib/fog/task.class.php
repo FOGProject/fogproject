@@ -179,24 +179,23 @@ class Task extends TaskType
         return $ci < $almostCutoff; // i.e., within grace window
     }
     /**
-     * expires a timed out task
-     *  if checkin expired
-     * clears scheduledStartTime
-     *  and sets status to queued
-     * updates checkin time with 
-     * when it expired
+     * expires a timed out task if checkin expired
+     * clears scheduledStartTime and sets status to queued
+     * updates checkin time with when it expired
+     * 
+     * @return null
      */
      public function expireTaskCheckin(){
         if (self::isExpired($this->checkInTime ?? '')) { //make sure checked for expired
-          
-         
-        
-        if ($this->stateID != self::getQueuedState()) {
-                    $this->set('stateID', self::getQueuedState())->set('scheduledStartTime', '0000-00-00 00:00:00');
-                        if(!self::getClass('Task', $tid)->save()) {
-                            throw new Exception(_('Failed to update task'));
-                        }
-        }
+            if ($this->get('stateID') != self::getQueuedState()) { // If not already reset to queued state
+                $curtime = self::niceDate();
+                $this->set('stateID', self::getQueuedState())
+                    ->set('checkInTime', $curtime->format('Y-m-d H:i:s'))
+                    ->set('scheduledStartTime', '0000-00-00 00:00:00');
+                if(!$this->save()) {
+                    throw new Exception(_('Failed to update task'));
+                }
+            }
         }
     }
     /**
@@ -232,19 +231,8 @@ class Task extends TaskType
 
             // Liveness: if expired, it's getting re-queued to the back. Don't count
             if (self::isExpired($Task->checkInTime ?? '')) {
-              self::getClass('Task', $tid)->expireTaskCheckin()
-                /*
-                 * 
-                 if ($Task->stateID != self::getQueuedState()) {
-                    self::getClass('Task', $tid)
-                        ->set('stateID', self::getQueuedState())
-                        ->set('scheduledStartTime', '0000-00-00 00:00:00');
-                        if(!self::getClass('Task', $tid)->save()) {
-                            throw new Exception(_('Failed to update task'));
-                        }
-                }
-                */
-                continue;
+              self::getClass('Task', $tid)->expireTaskCheckin();
+              continue;
             }
 
             $stStart = self::niceDate($Task->scheduledStartTime ?? '');
@@ -354,10 +342,7 @@ class Task extends TaskType
             $this
                 ->set('stateID', $checkInState)
                 ->set('checkInTime', $curTime->format('Y-m-d H:i:s'))
-                ->set(
-                    'scheduledStartTime',
-                    $curTime->format('Y-m-d H:i:s')
-                );
+                ->set('scheduledStartTime', $curTime->format('Y-m-d H:i:s'));
             $store_update = true;
         } elseif ($almost && in_array($curState, self::getQueuedStates())) {
             $this
