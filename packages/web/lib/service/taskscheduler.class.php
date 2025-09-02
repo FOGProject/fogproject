@@ -172,7 +172,7 @@ class TaskScheduler extends FOGService
             Route::listem('task', $find);
             $Tasks = json_decode(Route::getData());
             foreach ($Tasks->data as $Task) {
-                if(self::getClass('Task', $Task->id)->expireTaskCheckin(true)) {
+                if(self::getClass('Task', $Task->id)->expireTaskCheckin()) {
                     self::outall(
                         ' * '
                         . _('Found an expired task, resetting to queued for task of id')

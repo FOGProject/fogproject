@@ -179,33 +179,29 @@ class Task extends TaskType
         return $ci < $almostCutoff; // i.e., within grace window
     }
     /**
-     * expires a timed out task if checkin expired
+     * Expires a timed out task if checkin expired
      * clears scheduledStartTime and sets status to queued
-     * updates checkin time with when it expired
-     * If true passed in, will return true if task was expired false otherwise
+     * updates checkin time with when it expired.
      *
-     * @return null
+     * @throws Exception
+     * @return bool
      */
-    public function expireTaskCheckin(bool $return = false)
+    public function expireTaskCheckin()
     {
-        $result = false;
-        if (self::isExpired($this->get('checkInTime') ?? '')) { //make sure checked for expired
-            $curState = $this->get('stateID');
-            if ($curState != self::getQueuedState()) { // If not already reset to queued state
-                $curtime = self::niceDate();
-                $this->set('stateID', self::getQueuedState())
-                    ->set('checkInTime', $curtime->format('Y-m-d H:i:s'))
-                    ->set('scheduledStartTime', '0000-00-00 00:00:00');
-                if(!$this->save()) {
-                    throw new Exception(_('Failed to update task'));
-                } else {
-                    $result = true;
-                }
-            }
+        if (
+            !self::isExpired($this->get('checkInTime') ?? '')
+            || $this->get('stateID') == self::getQueuedState()
+        ) {
+            return false;
         }
-        if ($return) {
-            return $result;
+        $curtime = self::niceDate();
+        $this->set('stateID', self::getQueuedState())
+             ->set('checkInTime', $curtime->format('Y-m-d H:i:s'))
+             ->set('scheduledStartTime', '0000-00-00 00:00:00');
+        if (!$this->save()) {
+            throw new Exception(_('Failed to update task'));
         }
+        return true;
     }
     /**
      * Returns the in front of number.
