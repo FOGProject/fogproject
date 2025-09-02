@@ -27,7 +27,7 @@
         columns: [
             {data: 'hostname'},
             {data: 'imagename'},
-            // {data: 'ngmMemberName'},
+            {data: 'storagenodename'},
             {data: 'createdBy'},
             {data: 'scheduledStartTime'},
             {data: 'checkInTime'},
@@ -51,47 +51,47 @@
                 },
                 targets: 1
             },
-            // {
-            //     responsivePriority: 1,
-            //     render: function(data, type, row) {
-            //         return '<a href="../management/index.php?node=storagenode&sub=edit&id=' + row.storagenodeID + '">' + data + '</a>';
-            //     },
-            //     targets: 2
-            // },
+            {
+                responsivePriority: 1,
+                render: function(data, type, row) {
+                    return '<a href="../management/index.php?node=storagenode&sub=edit&id=' + row.storagenodeid + '">' + data + '</a>';
+                },
+                targets: 2
+            },
             {
                 responsivePriority: 2,
                 render: function(data, type, row) {
                     return '<a href="../management/index.php?node=user&sub=edit&id=' + row.userid + '">' + data + '</a>';
                 },
-                targets: 2
+                targets: 3
             },
             {
                 responsivePriority: 3,
                 render: function(data, type, row) {
                     return data;
                 },
-                targets: 3
+                targets: 4
             },
             {
                 responsivePriority: 4,
                 render: function(data, type, row) {
                     return data;
                 },
-                targets: 4
+                targets: 5
             },
             {
                 render: function(data, type, row) {
                     return row.tasktypename
                         + ' <i class="fa fa-' + row.tasktypeicon + '"></i> '
                 },
-                targets: 5
+                targets: 6
             },
             {
                 render: function(data, type, row) {
                     return row.taskstatename
                         + ' <i class="fa fa-' + row.taskstateicon + '"></i> '
                 },
-                targets: 6
+                targets: 7
             },
             {
                 render: function(data, type, row) {
@@ -121,7 +121,7 @@
                         + '</div>'
                         + '</div>';
                 },
-                targets: 7
+                targets: 8
             }
         ],
         serverSide: true,

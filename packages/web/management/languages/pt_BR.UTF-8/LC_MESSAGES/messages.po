@@ -1041,6 +1041,9 @@ msgstr "Número de série"
 msgid "Chassis Version"
 msgstr "chassis Versão"
 
+msgid "Checking for expired checked-in tasks..."
+msgstr ""
+
 msgid "Checking if I am the group manager"
 msgstr ""
 
@@ -2100,6 +2103,9 @@ msgstr "Não snapins associado"
 msgid "Finding any snapins associated"
 msgstr "Não snapins associado"
 
+msgid "First Check In"
+msgstr ""
+
 msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
 
@@ -2121,6 +2127,9 @@ msgid "Found a scheduled task that should run."
 msgstr ""
 
 msgid "Found a wake on lan task that should run."
+msgstr ""
+
+msgid "Found an expired task, resetting to queued for task of id"
 msgstr ""
 
 msgid "Found an item that we will get deleted"
@@ -3441,6 +3450,9 @@ msgstr "Língua"
 #, fuzzy
 msgid "Last Captured"
 msgstr "host criado"
+
+msgid "Last Check In"
+msgstr ""
 
 msgid "Last Deployed"
 msgstr "Última Implantado"

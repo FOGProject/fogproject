@@ -186,7 +186,8 @@ class Task extends TaskType
      *
      * @return null
      */
-     public function expireTaskCheckin(bool $return = false){
+    public function expireTaskCheckin(bool $return = false)
+    {
         $result = false;
         if (self::isExpired($this->get('checkInTime') ?? '')) { //make sure checked for expired
             $curState = $this->get('stateID');
@@ -239,8 +240,8 @@ class Task extends TaskType
 
             // Liveness: if expired, it's getting re-queued to the back. Don't count
             if (self::isExpired($Task->checkInTime ?? '')) {
-              self::getClass('Task', $tid)->expireTaskCheckin();
-              continue;
+                self::getClass('Task', $tid)->expireTaskCheckin();
+                continue;
             }
 
             $stStart = self::niceDate($Task->scheduledStartTime ?? '');

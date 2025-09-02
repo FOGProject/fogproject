@@ -993,6 +993,9 @@ msgstr "Numero di serie"
 msgid "Chassis Version"
 msgstr "Telaio Version"
 
+msgid "Checking for expired checked-in tasks..."
+msgstr ""
+
 msgid "Checking if I am the group manager"
 msgstr "Controllare se sono il responsabile del gruppo"
 
@@ -2009,6 +2012,9 @@ msgstr "Trovare tutte le immagini associate"
 msgid "Finding any snapins associated"
 msgstr "Individuazione di eventuali snaps associati"
 
+msgid "First Check In"
+msgstr ""
+
 msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
 
@@ -2030,6 +2036,9 @@ msgid "Found a scheduled task that should run."
 msgstr ""
 
 msgid "Found a wake on lan task that should run."
+msgstr ""
+
+msgid "Found an expired task, resetting to queued for task of id"
 msgstr ""
 
 msgid "Found an item that we will get deleted"
@@ -3283,6 +3292,9 @@ msgstr "Lingua"
 
 msgid "Last Captured"
 msgstr "Ultima cattura"
+
+msgid "Last Check In"
+msgstr ""
 
 msgid "Last Deployed"
 msgstr "Ultima Distribuita"
