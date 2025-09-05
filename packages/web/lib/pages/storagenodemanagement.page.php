@@ -1563,8 +1563,7 @@ class StorageNodeManagement extends FOGPage
                 false,
                 false,
                 false,
-                false,
-                ['X-Requested-With: XMLHttpRequest']
+                false
             );
             $res = array_shift($res);
             echo $res;

@@ -638,8 +638,7 @@ class DashboardPage extends FOGPage
             false,
             false,
             false,
-            false,
-            ['X-Requested-With: XMLHttpRequest']
+            false
         );
         $dataSet = [];
         foreach ((array)$datas as $i => $data) {

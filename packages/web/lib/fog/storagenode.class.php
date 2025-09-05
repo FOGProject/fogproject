@@ -298,8 +298,7 @@ class StorageNode extends FOGController
             false,
             false,
             false,
-            false,
-            ['X-Requested-With: XMLHttpRequest']
+            false
         );
         return preg_grep(
             '#dev|postdownloadscripts|ssl#',

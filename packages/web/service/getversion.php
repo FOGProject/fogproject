@@ -28,6 +28,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
+FOGCore::checkAuthAndCSRF();
 $clientUpdate = (bool)FOGCore::getSetting('FOG_CLIENT_AUTOUPDATE');
 if (isset($_REQUEST['client'])) {
     $ver = (
