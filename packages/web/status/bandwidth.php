@@ -91,7 +91,7 @@ if (count($interface) < 1) {
     include '../commons/base.inc.php';
     ignore_user_abort(true);
     set_time_limit(0);
-    FOGCore::is_authorized();
+    FOGCore::checkAuthAndCSRF();
     // Find our server address
     $srvAddr = $_SERVER['SERVER_ADDR'];
     // If accessed by hostname resolve to ip

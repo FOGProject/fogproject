@@ -94,6 +94,7 @@ class Page extends FOGBase
      * @var array
      */
     protected static $commonJavascripts = [
+        'js/fog/bootstrap-csrf.js',
         'js/jquery.min.js',
         'js/jquery.color.min.js',
         'js/lodash.min.js',

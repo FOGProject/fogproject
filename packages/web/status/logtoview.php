@@ -24,7 +24,7 @@ ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
 header('Connection: close');
-FOGCore::is_authorized();
+FOGCore::checkAuthAndCSRF();
 if (!(isset($_POST['ip'])
     && is_string($_POST['ip']))
 ) {

@@ -29,7 +29,7 @@ parse_str(
     $userID,
     $items
 );
-FOGCore::is_authorized();
+FOGCore::checkAuthAndCSRF();
 $initrdvers = function ($initrd) {
     $currpath = sprintf(
         '%s%sservice%sipxe%s%s',

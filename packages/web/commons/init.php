@@ -33,6 +33,21 @@ class Initiator
 
     public function __construct()
     {
+        // Use cookies only, no URL-based sessions
+        ini_set('session.use_only_cookies', '1');
+        ini_set('session.use_strict_mode', '1');
+
+        // Ensure secure session cookie flags (adjust SameSite as needed for your flows)
+        $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path'     => '/',
+            'domain'   => '',            // default current host
+            'secure'   => $https,        // true in production over HTTPS
+            'httponly' => true,
+            'samesite' => 'Lax',         // 'Strict' if it doesn’t break your flows
+        ]);
+
         self::setSanitize();
         $useragent = filter_input(INPUT_SERVER, 'HTTP_USER_AGENT', FILTER_SANITIZE_STRING);
         define('DS', DIRECTORY_SEPARATOR);
@@ -52,7 +67,7 @@ class Initiator
         spl_autoload_extensions('.class.php,.page.php,.event.php,.hook.php,.report.php');
         spl_autoload_register();
 
-        if ($useragent && session_status() === PHP_SESSION_NONE) {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
     }

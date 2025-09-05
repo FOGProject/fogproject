@@ -15,7 +15,7 @@ declare(strict_types=1);
  */
 
 // Ensure session is started
-if (session_status() === PHP_SESSION_NONE) {
+if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
@@ -34,6 +34,7 @@ ob_start();
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <meta name="theme-color" content="#367fa9"/>
+    <meta name="csrf-token" content="<?= htmlspecialchars(CSRF::token(), ENT_QUOTES, 'UTF-8'); ?>"/>
     <link rel="shortcut icon" href="../favicon.ico"/>
     <title><?= htmlspecialchars($this->pageTitle, ENT_QUOTES, 'UTF-8') . ' | ' . _('FOG Project'); ?></title>
     <?php

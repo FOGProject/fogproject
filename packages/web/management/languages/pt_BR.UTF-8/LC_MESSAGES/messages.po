@@ -2109,6 +2109,15 @@ msgstr ""
 msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
 
+msgid "Forbidden (disallowed Origin)"
+msgstr ""
+
+msgid "Forbidden (disallowed Referer)"
+msgstr ""
+
+msgid "Forbidden (invalid CSRF token)"
+msgstr ""
+
 msgid "Force"
 msgstr "Força"
 
