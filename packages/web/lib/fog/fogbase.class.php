@@ -2877,9 +2877,6 @@ abstract class FOGBase
      */
     public static function is_authorized($return_bool = false)
     {
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
-        }
         $authorized = (self::$FOGUser && self::$FOGUser->isValid());
         if ($return_bool) {
             return $authorized;

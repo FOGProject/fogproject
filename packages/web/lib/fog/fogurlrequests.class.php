@@ -479,6 +479,9 @@ class FOGURLRequests extends FOGBase
                 }
             }
         }
+        if (!isset($options[CURLOPT_COOKIE])) {
+            $options[CURLOPT_COOKIE] = session_name() . '=' . session_id();
+        }
 
         return $options;
     }
