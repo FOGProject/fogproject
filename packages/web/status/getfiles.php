@@ -24,7 +24,7 @@
 require '../commons/base.inc.php';
 
 // Prevent file enumeration by an unauthenticated user
-FOGCore::is_authorized();
+FOGCore::checkAuthAndCSRF();
 
 if (!is_string($_GET['path'])) {
     echo json_encode(

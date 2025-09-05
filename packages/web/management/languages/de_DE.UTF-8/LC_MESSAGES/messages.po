@@ -2119,6 +2119,15 @@ msgstr "Verbundene Snapins"
 msgid "For example, a GPO policy to push"
 msgstr "zum Beispiel, um eine Gruppenrichtlinie zu senden"
 
+msgid "Forbidden (disallowed Origin)"
+msgstr ""
+
+msgid "Forbidden (disallowed Referer)"
+msgstr ""
+
+msgid "Forbidden (invalid CSRF token)"
+msgstr ""
+
 msgid "Force"
 msgstr "zwingen"
 

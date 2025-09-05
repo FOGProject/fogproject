@@ -266,6 +266,7 @@ class Page extends FOGBase
             $this->menu = ob_get_clean();
         }
         $files = array(
+            'js/fog/bootstrap-csrf.js',
             'js/jquery-latest.min.js',
             'js/jquery.validate.min.js',
             'js/additional-methods.min.js',

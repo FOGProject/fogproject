@@ -486,6 +486,9 @@ class FOGURLRequests extends FOGBase
                 }
             }
         }
+        if (!isset($options[CURLOPT_COOKIE])) {
+            $options[CURLOPT_COOKIE] = session_name() . '=' . session_id();
+        }
 
         return $options;
     }
@@ -542,20 +545,52 @@ class FOGURLRequests extends FOGBase
         if ($callback && is_callable($callback)) {
             $this->_callback = $callback;
         }
-        $this->options[CURLOPT_HTTPHEADER] = $headers;
         if ($auth) {
             $this->options[CURLOPT_USERPWD] = $auth;
         }
-        if ($sendAsJSON) {
-            $data2 = json_encode($data);
-            $datalen = strlen($data2);
-            $this->options[CURLOPT_HEADER] = true;
-            $this->options[CURLOPT_HTTPHEADER] += array(
-                'Content-Type: application/json',
-                "Content-Length: $datalen",
-                'Expect:',
-            );
+        // ---- BEGIN CSRF + session forwarding ----
+        $csrfToken = class_exists('CSRF') ? CSRF::token() : '';
+        $cookieHdr = session_name() . '=' . session_id();
+
+        // Important: release the session lock so the called script can read it
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
         }
+
+        // Normalize & merge headers; drop any old X-Requested-With
+        $normalizedHeaders = [];
+        foreach ((array) $headers as $h) {
+            if (is_string($h) && stripos($h, 'X-Requested-With:') === 0) {
+                continue; // remove legacy bypass header
+            }
+            $normalizedHeaders[] = $h;
+        }
+        if ($csrfToken !== '') {
+            $normalizedHeaders[] = 'X-CSRF-Token: ' . $csrfToken;
+        }
+
+        // If caller asked to send JSON, ensure header + encoding now
+        if ($sendAsJSON) {
+            $hasCT = false;
+            foreach ($normalizedHeaders as $h) {
+                if (stripos($h, 'Content-Type:') === 0) {
+                    $hasCT = true;
+                    break;
+                }
+            }
+            if (!$hasCT) {
+                $normalizedHeaders[] = 'Content-Type: application/json; charset=utf-8';
+            }
+            if (is_array($data) || is_object($data)) {
+                $data = json_encode($data);
+            }
+        }
+
+        // Assign headers (class merges via __set) and forward the cookie via options
+        $this->headers = $normalizedHeaders;
+        $this->options[CURLOPT_COOKIE] = $cookieHdr;
+        // ---- END CSRF + session forwarding ----
+
         if ($file) {
             $this->options[CURLOPT_FILE] = $file;
         }

@@ -2583,6 +2583,16 @@ abstract class FOGBase
         return true;
     }
     /**
+     * Many endpoints may need both checks so helper to just do it.
+     *
+     * @return void
+     */
+    public static function checkAuthAndCSRF()
+    {
+        self::is_authorized();
+        CSRF::requireForStateChanging();
+    }
+    /**
      * Is Authorized to perform action simplified
      *
      * @param $return_bool Defaults to false, but can return bool
@@ -2591,12 +2601,12 @@ abstract class FOGBase
      */
     public static function is_authorized($return_bool = false)
     {
-        $authorized = (self::$FOGUser && self::$FOGUser->isValid()) || 
-            strtolower(($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '')) == 'xmlhttprequest';
+        $authorized = (self::$FOGUser && self::$FOGUser->isValid());
         if ($return_bool) {
             return $authorized;
         }
         if (!$authorized) {
+            http_response_code(HTTPResponseCodes::HTTP_UNAUTHORIZED);
             echo _('Unauthorized');
             exit;
         }

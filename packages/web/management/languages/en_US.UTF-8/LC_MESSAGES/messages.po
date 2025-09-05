@@ -2115,6 +2115,15 @@ msgstr "No snapins associated"
 msgid "For example, a GPO policy to push"
 msgstr ""
 
+msgid "Forbidden (disallowed Origin)"
+msgstr ""
+
+msgid "Forbidden (disallowed Referer)"
+msgstr ""
+
+msgid "Forbidden (invalid CSRF token)"
+msgstr ""
+
 msgid "Force"
 msgstr "Force"
 

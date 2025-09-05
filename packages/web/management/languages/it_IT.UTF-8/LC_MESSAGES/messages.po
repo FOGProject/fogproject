@@ -1908,6 +1908,15 @@ msgstr "Individuazione di eventuali snaps associati"
 msgid "For example, a GPO policy to push"
 msgstr "Ad esempio, una policy GPO per spingere"
 
+msgid "Forbidden (disallowed Origin)"
+msgstr ""
+
+msgid "Forbidden (disallowed Referer)"
+msgstr ""
+
+msgid "Forbidden (invalid CSRF token)"
+msgstr ""
+
 msgid "Force"
 msgstr "Forza"
 
