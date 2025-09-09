@@ -302,7 +302,7 @@ class StorageNode extends FOGController
         );
         return preg_grep(
             '#dev|postdownloadscripts|ssl#',
-            json_decode($response[0], true),
+            json_decode($response[0], true) ?? [],
             PREG_GREP_INVERT
         );
     }
