@@ -242,140 +242,210 @@ class Schema extends FOGController
             throw new Exception(_('Error Opening DB File'));
         }
 
-        // Faster + safer: do everything in a transaction with FKs off.
         $error = '';
+        $tmpline = '';
+
+        // Transaction + FK off (best-effort)
         try {
             self::$DB->query('SET FOREIGN_KEY_CHECKS=0');
             self::$DB->query('SET autocommit=0');
             self::$DB->query('START TRANSACTION');
-        } catch (Exception $e) {
-            // Continue anyway; some MySQL variants might not like autocommit change.
+        } catch (\Throwable $e) {
+            // ignore
         }
 
-        $tmpline = '';
         while (($line = fgets($fh)) !== false) {
-            // Skip comments and empty lines (same as before)
             $trim = trim($line);
+
+            // Skip plain comments/blank
             if ($trim === '' || substr($trim, 0, 2) === '--') {
                 continue;
             }
-            // Handle mysqldump "/*!40101 SET ..." style guarded statements
-            if (isset($trim[0]) && $trim[0] === '/' && isset($trim[1]) && $trim[1] === '*') {
-                // Unwrap /*! ... */ if present; otherwise skip
-                if (preg_match('#/\*![0-9]{3,}\s+(.*)\*/;?#s', $trim, $m)) {
-                    $tmpline .= $m[1] . (substr($trim, -1) === ';' ? '' : ';');
-                }
-                // If it didn't match guarded SET form, skip it entirely.
-                if (substr(rtrim($line), -1) !== ';') {
-                    continue;
-                }
+
+            // Unwrap guarded mysqldump directives: /*!40101 SET ... */;
+            if (preg_match('#^/\*![0-9]{3,}\s+(.*)\*/\s*;?$#s', $trim, $m)) {
+                $tmpline .= rtrim($m[1], ';') . ';' . PHP_EOL;
             } else {
                 $tmpline .= $line;
             }
 
-            // End of statement? Execute it (we keep the simple semicolon test the original used)
-            if (substr(trim($line), -1) === ';') {
-                $stmt = trim($tmpline);
-                $tmpline = '';
+            // End of statement?
+            if (substr(rtrim($line), -1) !== ';') {
+                continue;
+            }
 
-                // Safety: if CREATE TABLE ... exists, DROP first so imports over live schema work.
-                if (preg_match('/^CREATE\s+TABLE\s+`?([A-Za-z0-9_]+)`?/i', $stmt, $m)) {
-                    $table = $m[1];
-                    $drop = sprintf('DROP TABLE IF EXISTS `%s`', $table);
-                    if (false === self::$DB->query($drop)) {
-                        $error .= sprintf(
-                            "%s '<strong>%s': %s</strong><br/><br/>",
-                            _('Error performing query'),
-                            $drop,
-                            self::$DB->sqlerror()
-                        );
-                        break;
-                    }
+            $stmt = trim($tmpline);
+            $tmpline = '';
+
+            // Pre-drop on CREATE TABLE (so imports work over existing schemas)
+            if (preg_match('/^CREATE\s+TABLE\s+`?([A-Za-z0-9_]+)`?/i', $stmt, $m)) {
+                $drop = sprintf('DROP TABLE IF EXISTS `%s`', $m[1]);
+                if (false === self::$DB->query($drop)) {
+                    $error .= sprintf(
+                        "%s '<strong>%s': %s</strong><br/><br/>",
+                        _('Error performing query'),
+                        $drop,
+                        self::$DB->sqlerror()
+                    );
+                    break;
                 }
+            }
 
-                // Chunk large multi-row INSERTs to keep PHP/driver memory low.
-                if (preg_match('/^INSERT\s+INTO\s+`?([A-Za-z0-9_]+)`?\s+.*\sVALUES\s*(.+);$/is', $stmt, $m)) {
-                    $insertHead = substr($stmt, 0, stripos($stmt, 'VALUES'));
-                    $valuesBlob = trim(substr($stmt, stripos($stmt, 'VALUES') + 6));
-                    // Strip trailing semicolon and outer parens if present
-                    $valuesBlob = rtrim($valuesBlob, ';');
-                    $valuesBlob = preg_replace('/^\s*\(/', '', $valuesBlob);
-                    $valuesBlob = preg_replace('/\)\s*$/', '', $valuesBlob);
+            // Chunk extended INSERTS safely
+            if (preg_match('/^INSERT\s+INTO\s+`?([A-Za-z0-9_]+)`?.*?\sVALUES\s*(.+);\s*$/is', $stmt, $mm)) {
+                $insertHead = substr($stmt, 0, stripos($stmt, 'VALUES'));
+                $valuesPart = trim(substr($stmt, stripos($stmt, 'VALUES') + 6)); // includes the (...)… list, no trailing ';'
 
-                    // Split rows on '),(' which is how mysqldump extended inserts are formatted.
-                    // This is not a full SQL parser, but works for dumps produced by mysqldump-php.
-                    $rows = preg_split('/\)\s*,\s*\(/', $valuesBlob, -1, PREG_SPLIT_NO_EMPTY);
+                // Build rows array using a state machine that respects quotes/escapes/paren depth.
+                $rows = self::splitExtendedInsertRows($valuesPart);
 
-                    $batchSize = 200; // tuneable
-                    $batch = [];
-                    foreach ($rows as $i => $row) {
-                        $batch[] = '(' . $row . ')';
-                        if (count($batch) >= $batchSize) {
-                            $sql = $insertHead . ' VALUES ' . implode(',', $batch) . ';';
-                            if (false === self::$DB->query($sql)) {
-                                $error .= sprintf(
-                                    "%s '<strong>%s': %s</strong><br/><br/>",
-                                    _('Error performing query'),
-                                    $insertHead . ' VALUES ...',
-                                    self::$DB->sqlerror()
-                                );
-                                break 2; // break out of both foreach and while
-                            }
-                            $batch = [];
-                        }
+                $batchSize = 200; // tune as you like
+                $batch = [];
+                foreach ($rows as $row) {
+                    if ($row === '') {
+                        continue;
                     }
-                    // Flush any remainder
-                    if (empty($error) && count($batch)) {
+                    $batch[] = $row;
+                    if (count($batch) >= $batchSize) {
                         $sql = $insertHead . ' VALUES ' . implode(',', $batch) . ';';
                         if (false === self::$DB->query($sql)) {
                             $error .= sprintf(
                                 "%s '<strong>%s': %s</strong><br/><br/>",
                                 _('Error performing query'),
-                                $insertHead . ' VALUES ...',
+                                $insertHead . ' VALUES …',
                                 self::$DB->sqlerror()
                             );
+                            break 2;
                         }
+                        $batch = [];
                     }
-                } else {
-                    // Normal (non-INSERT) statement
-                    if (false === self::$DB->query($stmt)) {
+                }
+                if (!$error && $batch) {
+                    $sql = $insertHead . ' VALUES ' . implode(',', $batch) . ';';
+                    if (false === self::$DB->query($sql)) {
                         $error .= sprintf(
                             "%s '<strong>%s': %s</strong><br/><br/>",
                             _('Error performing query'),
-                            $stmt,
+                            $insertHead . ' VALUES …',
                             self::$DB->sqlerror()
                         );
-                        break;
                     }
+                }
+            } else {
+                if (false === self::$DB->query($stmt)) {
+                    $error .= sprintf(
+                        "%s '<strong>%s': %s</strong><br/><br/>",
+                        _('Error performing query'),
+                        $stmt,
+                        self::$DB->sqlerror()
+                    );
+                    break;
                 }
             }
         }
+
         fclose($fh);
         set_time_limit($orig_exec_time);
 
-        // Commit/rollback + re-enable FKs
         try {
-            if ($error) {
-                self::$DB->query('ROLLBACK');
-            } else {
-                self::$DB->query('COMMIT');
-            }
-        } catch (Exception $e) {
-            // ignore
+            self::$DB->query($error ? 'ROLLBACK' : 'COMMIT');
+        } catch (\Throwable $e) { /* ignore */
         }
         try {
             self::$DB->query('SET FOREIGN_KEY_CHECKS=1');
             self::$DB->query('SET autocommit=1');
-        } catch (Exception $e) {
-            // ignore
+        } catch (\Throwable $e) { /* ignore */
         }
 
-        if ($error) {
-            return $error; // matches existing behavior of returning an HTML error string
-        }
-        return true;
+        return $error ?: true;
     }
+    /**
+     * Split a VALUES blob like:  (..),(..),(..)
+     * into an array of row chunks preserving inner commas/parentheses/quotes.
+     */
+    private static function splitExtendedInsertRows(string $valuesPart): array
+    {
+        $valuesPart = rtrim(trim($valuesPart), ';');
+        // Ensure the overall thing starts with '(' and treat commas at depth 0 as separators.
+        $rows = [];
+        $buf = '';
+        $inQuote = false;
+        $q = '';
+        $esc = false;
+        $depth = 0;
+        $len = strlen($valuesPart);
 
+        for ($i = 0; $i < $len; $i++) {
+            $ch = $valuesPart[$i];
+
+            if ($esc) {
+                $buf .= $ch;
+                $esc = false;
+                continue;
+            }
+            if ($ch === '\\') {
+                $buf .= $ch;
+                $esc = true;
+                continue;
+            }
+
+            if ($inQuote) {
+                if ($ch === $q) {
+                    $inQuote = false;
+                }
+                $buf .= $ch;
+                continue;
+            }
+            if ($ch === "'" || $ch === '"') {
+                $inQuote = true;
+                $q = $ch;
+                $buf .= $ch;
+                continue;
+            }
+
+            if ($ch === '(') {
+                $depth++;
+                $buf .= $ch;
+                continue;
+            }
+            if ($ch === ')') {
+                $depth--;
+                $buf .= $ch;
+                continue;
+            }
+
+            // Split on commas only when not inside quotes and depth == 0
+            if ($ch === ',' && $depth === 0) {
+                $row = trim($buf);
+                if ($row !== '') {
+                    $rows[] = $row;
+                }
+                $buf = '';
+                continue;
+            }
+
+            $buf .= $ch;
+        }
+
+        $row = trim($buf);
+        if ($row !== '') {
+            $rows[] = $row;
+        }
+
+        // Normalize: ensure each row retains its surrounding parentheses
+        $rows = array_map(function ($r) {
+            $r = trim($r);
+            if ($r[0] !== '(') {
+                $r = '(' . $r;
+            }
+            if ($r[strlen($r) - 1] !== ')') {
+                $r .= ')';
+            }
+            return $r;
+        }, $rows);
+
+        return $rows;
+    }
     /**
      * SQL create database syntax.
      *

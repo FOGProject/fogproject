@@ -1632,6 +1632,9 @@ msgstr ""
 msgid "Failed to install logo file"
 msgstr ""
 
+msgid "Failed to move uploaded file."
+msgstr ""
+
 msgid "Failed to remove"
 msgstr ""
 
@@ -2733,6 +2736,9 @@ msgstr ""
 msgid "Invalid unit passed"
 msgstr ""
 
+msgid "Invalid upload."
+msgstr ""
+
 msgid "Inventory"
 msgstr ""
 
@@ -3550,6 +3556,9 @@ msgid "Not Registered Hosts"
 msgstr ""
 
 msgid "Not a number"
+msgstr ""
+
+msgid "Not a recognizable SQL dump."
 msgstr ""
 
 msgid "Not allowed here"
@@ -5462,6 +5471,9 @@ msgid "Upload Reports"
 msgstr ""
 
 msgid "Upload file extension must be, jpg, jpeg, or png"
+msgstr ""
+
+msgid "Uploaded file too large."
 msgstr ""
 
 msgid "Uptime"

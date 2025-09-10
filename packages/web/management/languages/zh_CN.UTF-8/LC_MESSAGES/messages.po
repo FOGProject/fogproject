@@ -1960,6 +1960,10 @@ msgid "Failed to install logo file"
 msgstr "未能摧毁"
 
 #, fuzzy
+msgid "Failed to move uploaded file."
+msgstr "无法删除文件"
+
+#, fuzzy
 msgid "Failed to remove"
 msgstr "连接失败"
 
@@ -3279,6 +3283,10 @@ msgstr ""
 msgid "Invalid unit passed"
 msgstr "无效的单元传递"
 
+#, fuzzy
+msgid "Invalid upload."
+msgstr "无效类"
+
 msgid "Inventory"
 msgstr "库存"
 
@@ -4237,6 +4245,9 @@ msgstr "未注册主机"
 
 msgid "Not a number"
 msgstr "不是一个数字"
+
+msgid "Not a recognizable SQL dump."
+msgstr ""
 
 msgid "Not allowed here"
 msgstr "这里不允许"
@@ -6501,6 +6512,9 @@ msgid "Upload Reports"
 msgstr "上传报告"
 
 msgid "Upload file extension must be, jpg, jpeg, or png"
+msgstr ""
+
+msgid "Uploaded file too large."
 msgstr ""
 
 msgid "Uptime"

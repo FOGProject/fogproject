@@ -1865,21 +1865,36 @@ class FOGConfigurationPage extends FOGPage
                 if ($_FILES['dbFile']['error'] > 0) {
                     throw new UploadException($_FILES['dbFile']['error']);
                 }
-                $original = $Schema->exportdb('', false);
-                $tmp_name = htmlentities(
-                    $_FILES['dbFile']['tmp_name'],
-                    ENT_QUOTES | ENT_HTML401,
-                    'utf-8'
-                );
-                $dir_name = dirname($tmp_name);
-                $tmp_name = basename($tmp_name);
-                $filename = sprintf(
-                    '%s%s%s',
-                    $dir_name,
-                    DS,
-                    $tmp_name
-                );
-                $result = self::getClass('Schema')->importdb($filename);
+
+                // Basic size sanity (e.g., 10 MB cap; adjust as you like)
+                if (!isset($_FILES['dbFile']['size']) || $_FILES['dbFile']['size'] > (10 * 1024 * 1024)) {
+                    throw new Exception(_('Uploaded file too large.'));
+                }
+
+                // Must be an uploaded file
+                if (!is_uploaded_file($_FILES['dbFile']['tmp_name'])) {
+                    throw new Exception(_('Invalid upload.'));
+                }
+
+                // Move to a safe temp file we control
+                $dest = sys_get_temp_dir() . DS . 'fog_import_' . bin2hex(random_bytes(8)) . '.sql';
+                if (!move_uploaded_file($_FILES['dbFile']['tmp_name'], $dest)) {
+                    throw new Exception(_('Failed to move uploaded file.'));
+                }
+
+                // Quick sniff: must look like SQL dump (CREATE/INSERT or mysqldump header)
+                $head = file_get_contents($dest, false, null, 0, 4096);
+                if ($head === false || !preg_match('/(CREATE\s+TABLE|INSERT\s+INTO|mysqldump)/i', $head)) {
+                    @unlink($dest);
+                    throw new Exception(_('Not a recognizable SQL dump.'));
+                }
+
+                // Now import
+                try {
+                    $result = self::getClass('Schema')->importdb($dest);
+                } finally {
+                    @unlink($dest); // cleanup regardless
+                }
                 if (true !== $result) {
                     $serverFault = true;
                     throw new Exception(_('Import failed!'));

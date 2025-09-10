@@ -2002,6 +2002,10 @@ msgid "Failed to install logo file"
 msgstr "No se ha podido destruir"
 
 #, fuzzy
+msgid "Failed to move uploaded file."
+msgstr "No se pudo crear el usuario"
+
+#, fuzzy
 msgid "Failed to remove"
 msgstr "No se ha podido destruir"
 
@@ -3362,6 +3366,10 @@ msgid "Invalid unit passed"
 msgstr "unidad no válida pasó"
 
 #, fuzzy
+msgid "Invalid upload."
+msgstr "tarea no válido"
+
+#, fuzzy
 msgid "Inventory"
 msgstr "ID de inventario"
 
@@ -4352,6 +4360,9 @@ msgstr "Registrado"
 
 msgid "Not a number"
 msgstr "No un número"
+
+msgid "Not a recognizable SQL dump."
+msgstr ""
 
 msgid "Not allowed here"
 msgstr ""
@@ -6660,6 +6671,9 @@ msgid "Upload Reports"
 msgstr "Subir archivo"
 
 msgid "Upload file extension must be, jpg, jpeg, or png"
+msgstr ""
+
+msgid "Uploaded file too large."
 msgstr ""
 
 msgid "Uptime"
