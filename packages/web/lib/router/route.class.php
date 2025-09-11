@@ -1327,7 +1327,14 @@ class Route extends FOGBase
                     PDO::FETCH_ASSOC,
                     'fetch_all'
                 )->get();
-                foreach ($vals as &$val) {
+                foreach ($vals as $val) {
+                    // Skip if the fields don't exist
+                    if (!($val[$classVars['databaseFields']['id']] ?? '')) {
+                        continue;
+                    }
+                    if (!($val[$classVars['databaseFields']['name']] ?? '')) {
+                        continue;
+                    }
                     if (!self::$ajax) {
                         $api = stripos(
                             $val[$classVars['databaseFields']['name']],
@@ -1337,11 +1344,16 @@ class Route extends FOGBase
                             continue;
                         }
                     }
+                    if (!($val[$classVars['databaseFields']['id']] ?? '')) {
+                        continue;
+                    }
+                    if (!($val[$classVars['databaseFields']['name']] ?? '')) {
+                        continue;
+                    }
                     $data[$search][] = [
                         'id' => $val[$classVars['databaseFields']['id']],
                         'name' => $val[$classVars['databaseFields']['name']]
                     ];
-                    unset($val);
                 }
                 if (array_search($search, $data)) {
                     $data['_results'][$search] = count(isset($data[$search]) ? $data[$search] : []);
