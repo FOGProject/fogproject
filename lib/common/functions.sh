@@ -696,7 +696,7 @@ installPackages() {
                         rpm -Uvh $y >>$error_log 2>&1
                         errorStat $? "skipOk"
                     fi
-                    rpm --import "https://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$error_log 2>&1
+                    rpm --import "https://rpms.remirepo.net/enterprise/${OSVersion}/RPM-GPG-KEY-remi" >>$error_log 2>&1
                     errorStat $? "skipOk"
                     if [[ -n $repoenable ]]; then
                         if [[ $OSVersion -le 7 ]]; then
