@@ -585,7 +585,7 @@ configureTFTPandPXE() {
                 fi
                 echo -e "[Unit]\nDescription=Tftp Server\nRequires=fog-tftp.socket\nDocumentation=man:in.tftpd\n\n[Service]\nExecStart=/usr/sbin/in.tftpd ${tftpAdvOpts:+$tftpAdvOpts }-s ${tftpdirdst}\nStandardInput=socket\n\n[Install]\nAlso=fog-tftp.socket" > /etc/systemd/system/fog-tftp.service
                 diffconfig "/etc/systemd/system/fog-tftp.service"
-                cp -v /usr/lib/systemd/system/tftp.socket /etc/systemd/system/fog-tftp.socket >>$error_log 2>&1
+                find /usr/lib/systemd/system -maxdepth 1 \( -name "tftp.socket" -o -name "tftpd.socket" \) -exec cp -v {} /etc/systemd/system/fog-tftp.socket \; -quit >>$error_log 2>&1
                 systemctl daemon-reload
                 systemctl is-enabled --quiet fog-tftp.socket && true || systemctl enable fog-tftp.socket >>$error_log 2>&1
                 systemctl is-active --quiet fog-tftp.socket && systemctl stop fog-tftp.socket >>$error_log 2>&1 || true
@@ -696,7 +696,7 @@ installPackages() {
                         rpm -Uvh $y >>$error_log 2>&1
                         errorStat $? "skipOk"
                     fi
-                    rpm --import "https://rpms.remirepo.net/RPM-GPG-KEY-remi" >>$error_log 2>&1
+                    rpm --import "https://rpms.remirepo.net/enterprise/${OSVersion}/RPM-GPG-KEY-remi" >>$error_log 2>&1
                     errorStat $? "skipOk"
                     if [[ -n $repoenable ]]; then
                         if [[ $OSVersion -le 7 ]]; then
@@ -756,6 +756,9 @@ installPackages() {
                         packages="${packages// libcurl3 / libcurl4 }">>$error_log 2>&1
                         packages="${packages// mysql-client / mariadb-client }">>$error_log 2>&1
                         packages="${packages// mysql-server / mariadb-server }">>$error_log 2>&1
+                    fi
+                    if [[ $OSVersion -ge 13 ]]; then
+                        packages="${packages// libcurl4 / libcurl4t64 }"
                     fi
                     ;;
             esac

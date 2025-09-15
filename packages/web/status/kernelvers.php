@@ -28,7 +28,7 @@ header('Content-Type: text/event-stream');
 if (isset($_POST['url'])) {
 
     // Prevent an unauthenticated user from making arbitrary requests.
-    FOGCore::is_authorized();
+    FOGCore::checkAuthAndCSRF();
 
     $res = $FOGURLRequests
         ->process(filter_input(INPUT_POST, 'url'));

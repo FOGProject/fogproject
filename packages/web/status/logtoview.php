@@ -20,6 +20,7 @@
  * @link     https://fogproject.org
  */
 require_once '../commons/base.inc.php';
+FOGCore::checkAuthAndCSRF();
 session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);

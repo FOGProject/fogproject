@@ -234,8 +234,7 @@ class StorageNode extends FOGController
             false,
             false,
             false,
-            false,
-            ['X-Requested-With: XMLHttpRequest']
+            false
         );
         $filelist = json_decode($response[0], true);
         if (isset($filelist) && is_array($filelist)) {

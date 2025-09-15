@@ -85,6 +85,7 @@ if (count($interface) < 1) {
     session_write_close();
     ignore_user_abort(true);
     set_time_limit(0);
+    FOGCore::checkAuthAndCSRF();
     // Find our server address
     $srvAddr = $_SERVER['SERVER_ADDR'];
     // If accessed by hostname resolve to ip

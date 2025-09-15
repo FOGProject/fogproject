@@ -30,22 +30,16 @@ class TaskQueue extends TaskingElement
     public function checkIn()
     {
         try {
-            self::randWait();
-            // $this->Task
-            //     ->set('stateID', self::getCheckedInState())
-            //     ->set('checkinTime', self::formatTime('now', 'Y-m-d H:i:s'))
-            //     ->save();
-            $this->Task->set(
-                'stateID',
-                self::getCheckedInState()
-            )->set(
-                'checkInTime',
-                self::formatTime('now', 'Y-m-d H:i:s')
-            );
-            if (!$this->Task->save()) {
-                throw new Exception(_('Failed to update task'));
-            }
+            $this->Task->taskCheckIn();
             if ($this->imagingTask) {
+                if ($this->Task->isCapture()) {
+                    $this->Task->getImage()->set('size', '')->save();
+                }
+                $method = (
+                    $this->Task->isCapture() || $this->Task->isMulticast() ?
+                    'getMasterStorageNode' :
+                    'getOptimalStorageNode'
+                );
                 if ($this->Task->isMulticast()) {
                     $msID = @min(
                         self::getSubObjectIDs(
@@ -69,7 +63,8 @@ class TaskQueue extends TaskingElement
                         $clients = $MulticastSession->get('clients') + 1;
                     }
                     $MulticastSession
-                        ->set('clients', $clients);
+                        ->set('clients', $clients)
+                        ->set('stateID', self::getProgressState());
                     if (!$MulticastSession->save()) {
                         throw new Exception(_('Failed to update Session'));
                     }
@@ -86,6 +81,7 @@ class TaskQueue extends TaskingElement
                         self::$Host->get('id')
                     );
                     if ($MulticastSession->get('stateID') == 1) {
+                        $inFront = $this->Task->getInFrontOfHostCount();
                         $msg = sprintf(
                             '%s, %s %d %s.',
                             _('No open slots'),
@@ -111,12 +107,6 @@ class TaskQueue extends TaskingElement
                             'Host' => &self::$Host
                         )
                     );
-                    $method = 'getOptimalStorageNode';
-                    if ($this->Task->isCapture()
-                        || $this->Task->isMulticast()
-                    ) {
-                        $method = 'getMasterStorageNode';
-                    }
                     if (!$this->StorageNode || !$this->StorageNode->isValid()) {
                         $this->StorageNode = $this->Image
                             ->getStorageGroup()
@@ -130,10 +120,10 @@ class TaskQueue extends TaskingElement
                         ),
                         self::$Host->get('id')
                     );
-                    $nodeTest = $this->StorageNode instanceof StorageNode &&
+                    $nodeOk = $this->StorageNode instanceof StorageNode &&
                         $this->StorageNode->isValid();
 
-                    if (!$nodeTest) {
+                    if (!$nodeOk) {
                         $msg = sprintf(
                             '%s %s. %s %s.',
                             _('The node trying to be used is currently'),
@@ -147,35 +137,41 @@ class TaskQueue extends TaskingElement
                     $usedSlots = $this->StorageNode->getUsedSlotCount();
                     $inFront = $this->Task->getInFrontOfHostCount();
                     $groupOpenSlots = $totalSlots - $usedSlots;
+
+                    $MyLineTime = self::niceDate($this->Task->get('scheduledStartTime'));
+                    // Fallback to now if placeholder hasn't been established yet.
+                    if (!self::validDate($MyLineTime)) {
+                        $MyLineTime = self::niceDate();
+                    }
+                    $msgFormat = '%s, %s %d %s. %s %s.';
                     if ($groupOpenSlots < 1) {
                         $msg = sprintf(
-                            '%s, %s %d %s.',
+                            $msgFormat,
                             _('No open slots'),
                             _('There are'),
                             $inFront,
-                            _('before me')
+                            _('before me on this node'),
+                            _('Got in line at'),
+                            $MyLineTime->format('Y-m-d H:i:s')
                         );
                         throw new Exception($msg);
                     }
-                    if ($groupOpenSlots <= $inFront) {
+                    
+                    if ($groupOpenSlots <= $inFront) {   
                         $msg = sprintf(
-                            '%s, %s %d %s.',
+                            $msgFormat,
                             _('There are open slots'),
-                            _('but'),
+                            _('but there are'),
                             $inFront,
-                            _('before me on this node')
+                            _('before me on this node'),
+                            _('Got in line at'),
+                            $MyLineTime->format('Y-m-d H:i:s')
                         );
                         throw new Exception($msg);
                     }
-                }
-                if ($this->Task->isCapture()) {
-                    $this->Task->getImage()->set('size', '')->save();
                 }
                 $this->Task
-                    ->set(
-                        'storagenodeID',
-                        $this->StorageNode->get('id')
-                    );
+                     ->set('storagenodeID', $this->StorageNode->get('id'));
                 if (!$this->imageLog(true)) {
                     throw new Exception(_('Failed to update/create image log'));
                 }

@@ -44,7 +44,7 @@ if (isset($_REQUEST['client'])) {
 } elseif (isset($_REQUEST['url'])) {
 
     // Prevent an unauthenticated user from making arbitrary requests.
-    FOGCore::is_authorized();
+    FOGCore::checkAuthAndCSRF();
 
     $url = $_REQUEST['url'];
     $res = $FOGURLRequests

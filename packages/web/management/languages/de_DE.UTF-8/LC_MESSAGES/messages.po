@@ -201,10 +201,6 @@ msgid "A rule already exists with this name."
 msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
-msgid "A site alread exists with this name!"
-msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
-
-#, fuzzy
 msgid "A site already exists with this name!"
 msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
@@ -845,8 +841,9 @@ msgstr "CUPS Drucker"
 msgid "Call"
 msgstr "Aufruf"
 
-msgid "Can be a comma seperated list."
-msgstr ""
+#, fuzzy
+msgid "Can be a comma separated list."
+msgstr "Bitte geben Sie eine gültige MAC-Adresse an"
 
 msgid "Can not redeclare route"
 msgstr "Route kann nicht nochmal neu definiert werden"
@@ -2122,6 +2119,15 @@ msgstr "Verbundene Snapins"
 msgid "For example, a GPO policy to push"
 msgstr "zum Beispiel, um eine Gruppenrichtlinie zu senden"
 
+msgid "Forbidden (disallowed Origin)"
+msgstr ""
+
+msgid "Forbidden (disallowed Referer)"
+msgstr ""
+
+msgid "Forbidden (invalid CSRF token)"
+msgstr ""
+
 msgid "Force"
 msgstr "zwingen"
 
@@ -2181,7 +2187,8 @@ msgstr "Funktion"
 msgid "Function does not exist"
 msgstr "Methode ist nicht vorhanden"
 
-msgid "GNU Gneral Public License"
+#, fuzzy
+msgid "GNU General Public License"
 msgstr "GNU General Public License"
 
 #, fuzzy
@@ -2210,6 +2217,9 @@ msgstr "Empfange Imagegrößé für"
 
 msgid "Getting snapin hash and size for"
 msgstr "Empfange Snapin-Hash und Größe für"
+
+msgid "Got in line at"
+msgstr ""
 
 msgid "Goto task list"
 msgstr "Zur Task-Liste"
@@ -5279,7 +5289,7 @@ msgid "Search results returned false"
 msgstr "Die Suche lieferte kein passendes Ergebnis"
 
 #, fuzzy
-msgid "Second paramater must be in array(class,function)"
+msgid "Second parameter must be in array(class,function)"
 msgstr "Zweiter Parameter muss innerhalb des Arrays (Klasse, Funktion) sein"
 
 msgid "Select Image"
@@ -6411,7 +6421,7 @@ msgid "This section allows you to update the modules and"
 msgstr "In diesem Abschnitt können Sie die Module und "
 
 #, fuzzy
-msgid "This section allows you to uploade user"
+msgid "This section allows you to upload user"
 msgstr "In diesem Abschnitt können Sie benutzerdefinierte "
 
 msgid "This servers ip(s)"
@@ -6539,7 +6549,7 @@ msgid "Unable to find master Storage Node"
 msgstr "Fehler beim Finden des Master Storage Nodes"
 
 #, fuzzy
-msgid "Unable to get server infromation!"
+msgid "Unable to get server information!"
 msgstr "Es konnten keine Serverinformationen abgerufen werden!"
 
 msgid "Unable to open file for reading"
@@ -7124,15 +7134,16 @@ msgstr "Host- und globalen Einstellungen gibt,"
 msgid "boot the client computers"
 msgstr "die Client Computer in den FOG"
 
-msgid "but"
-msgstr "aber "
-
 msgid "but bind password is not set"
 msgstr "aber das Anmeldekennwort ist nicht festgelegt."
 
 #, fuzzy
 msgid "but has recently failed for this host"
 msgstr "ist offen, aber ist vor kurzem für diesen Host fehlgeschlagen"
+
+#, fuzzy
+msgid "but there are"
+msgstr "Es gibt"
 
 msgid "check to ensure your filesystem has enough space"
 msgstr "prüfen Sie bitte, ob sie genügend Speicherplatz haben."
@@ -7862,6 +7873,10 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 #~ msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
 #, fuzzy
+#~ msgid "A site alread exists with this name!"
+#~ msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
+
+#, fuzzy
 #~ msgid "Add ou failed!"
 #~ msgstr "Gruppe hinzufügen fehlgeschlagen!"
 
@@ -7934,6 +7949,10 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 #~ msgstr "Host aktualisiert!"
 
 #, fuzzy
+#~ msgid "I checked in at"
+#~ msgstr "Task Eincheckdatum"
+
+#, fuzzy
 #~ msgid "Import Host Exts"
 #~ msgstr "Hosts importieren"
 
@@ -7980,6 +7999,9 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 
 #~ msgid "We highly recommend you make the switch for more"
 #~ msgstr "Wir empfehlen dringend, den Umstieg auf"
+
+#~ msgid "but"
+#~ msgstr "aber "
 
 #, fuzzy
 #~ msgid "file to"

@@ -201,9 +201,6 @@ msgstr "¡Ya existe un rol con este nombre!"
 msgid "A rule already exists with this name."
 msgstr "Ya existe una regla con este nombre."
 
-msgid "A site alread exists with this name!"
-msgstr ""
-
 #, fuzzy
 msgid "A site already exists with this name!"
 msgstr "¡Ya existe un rol con este nombre!"
@@ -844,7 +841,7 @@ msgstr "Impresora"
 msgid "Call"
 msgstr ""
 
-msgid "Can be a comma seperated list."
+msgid "Can be a comma separated list."
 msgstr ""
 
 msgid "Can not redeclare route"
@@ -2102,6 +2099,15 @@ msgstr ""
 msgid "For example, a GPO policy to push"
 msgstr ""
 
+msgid "Forbidden (disallowed Origin)"
+msgstr ""
+
+msgid "Forbidden (disallowed Referer)"
+msgstr ""
+
+msgid "Forbidden (invalid CSRF token)"
+msgstr ""
+
 msgid "Force"
 msgstr "Forzar"
 
@@ -2159,7 +2165,7 @@ msgstr ""
 msgid "Function does not exist"
 msgstr ""
 
-msgid "GNU Gneral Public License"
+msgid "GNU General Public License"
 msgstr ""
 
 #, fuzzy
@@ -2187,6 +2193,9 @@ msgid "Getting image size for"
 msgstr "Obteniendo tamaño de imagen para"
 
 msgid "Getting snapin hash and size for"
+msgstr ""
+
+msgid "Got in line at"
 msgstr ""
 
 #, fuzzy
@@ -5235,7 +5244,7 @@ msgstr "Búsqueda"
 msgid "Search results returned false"
 msgstr ""
 
-msgid "Second paramater must be in array(class,function)"
+msgid "Second parameter must be in array(class,function)"
 msgstr ""
 
 #, fuzzy
@@ -6370,7 +6379,7 @@ msgstr ""
 msgid "This section allows you to update the modules and"
 msgstr ""
 
-msgid "This section allows you to uploade user"
+msgid "This section allows you to upload user"
 msgstr ""
 
 msgid "This servers ip(s)"
@@ -6478,8 +6487,9 @@ msgstr ""
 msgid "Unable to find master Storage Node"
 msgstr "No se puede encontrar el nodo de almacenamiento:"
 
-msgid "Unable to get server infromation!"
-msgstr ""
+#, fuzzy
+msgid "Unable to get server information!"
+msgstr "Información de hardware"
 
 msgid "Unable to open file for reading"
 msgstr ""
@@ -7049,13 +7059,13 @@ msgstr ""
 msgid "boot the client computers"
 msgstr "Configuración del cliente"
 
-msgid "but"
-msgstr ""
-
 msgid "but bind password is not set"
 msgstr ""
 
 msgid "but has recently failed for this host"
+msgstr ""
+
+msgid "but there are"
 msgstr ""
 
 msgid "check to ensure your filesystem has enough space"
@@ -7822,6 +7832,10 @@ msgstr "has configurado el campo de ancho de banda en ese nodo a 1000"
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "Equipo"
+
+#, fuzzy
+#~ msgid "I checked in at"
+#~ msgstr "Tarea"
 
 #, fuzzy
 #~ msgid "Import Host Exts"

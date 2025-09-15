@@ -20,7 +20,7 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-FOGCore::is_authorized();
+FOGCore::checkAuthAndCSRF();
 
 $report = unserialize($_SESSION['foglastreport']);
 if (!($report instanceof ReportMaker)) {

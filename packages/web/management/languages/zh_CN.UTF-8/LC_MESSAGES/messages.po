@@ -206,10 +206,6 @@ msgid "A rule already exists with this name."
 msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
-msgid "A site alread exists with this name!"
-msgstr "图像已经存在具有此名称！"
-
-#, fuzzy
 msgid "A site already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
@@ -848,8 +844,9 @@ msgstr "CUPS打印机"
 msgid "Call"
 msgstr ""
 
-msgid "Can be a comma seperated list."
-msgstr ""
+#, fuzzy
+msgid "Can be a comma separated list."
+msgstr "请输入一个有效的IP地址"
 
 msgid "Can not redeclare route"
 msgstr ""
@@ -2119,6 +2116,15 @@ msgstr "没有snapins相关"
 msgid "For example, a GPO policy to push"
 msgstr ""
 
+msgid "Forbidden (disallowed Origin)"
+msgstr ""
+
+msgid "Forbidden (disallowed Referer)"
+msgstr ""
+
+msgid "Forbidden (invalid CSRF token)"
+msgstr ""
+
 msgid "Force"
 msgstr "力"
 
@@ -2178,7 +2184,7 @@ msgstr "行动"
 msgid "Function does not exist"
 msgstr "方法不存在"
 
-msgid "GNU Gneral Public License"
+msgid "GNU General Public License"
 msgstr ""
 
 #, fuzzy
@@ -2206,6 +2212,9 @@ msgid "Getting image size for"
 msgstr ""
 
 msgid "Getting snapin hash and size for"
+msgstr ""
+
+msgid "Got in line at"
 msgstr ""
 
 msgid "Goto task list"
@@ -5268,7 +5277,7 @@ msgid "Search results returned false"
 msgstr ""
 
 #, fuzzy
-msgid "Second paramater must be in array(class,function)"
+msgid "Second parameter must be in array(class,function)"
 msgstr "第二个参数的形式必须是数组（钩类，函数运行）"
 
 msgid "Select Image"
@@ -6396,7 +6405,7 @@ msgid "This section allows you to update the modules and"
 msgstr "此设置定义代理用户名使用。"
 
 #, fuzzy
-msgid "This section allows you to uploade user"
+msgid "This section allows you to upload user"
 msgstr "此设置定义代理用户名使用。"
 
 msgid "This servers ip(s)"
@@ -6518,7 +6527,7 @@ msgid "Unable to find master Storage Node"
 msgstr "未能摧毁存储节点"
 
 #, fuzzy
-msgid "Unable to get server infromation!"
+msgid "Unable to get server information!"
 msgstr "无法拉服务器的信息！"
 
 msgid "Unable to open file for reading"
@@ -7101,15 +7110,16 @@ msgstr ""
 msgid "boot the client computers"
 msgstr ""
 
-msgid "but"
-msgstr ""
-
 msgid "but bind password is not set"
 msgstr ""
 
 #, fuzzy
 msgid "but has recently failed for this host"
 msgstr "是开放的，但最近没有这个主机"
+
+#, fuzzy
+msgid "but there are"
+msgstr "有"
 
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
@@ -7829,6 +7839,10 @@ msgstr ""
 #~ msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
+#~ msgid "A site alread exists with this name!"
+#~ msgstr "图像已经存在具有此名称！"
+
+#, fuzzy
 #~ msgid "Add ou failed!"
 #~ msgstr "添加管理单元失败！"
 
@@ -7896,6 +7910,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "用户更新"
+
+#, fuzzy
+#~ msgid "I checked in at"
+#~ msgstr "任务登记入住日期"
 
 #, fuzzy
 #~ msgid "Import Host Exts"

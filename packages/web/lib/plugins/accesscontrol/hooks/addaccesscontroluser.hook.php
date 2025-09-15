@@ -232,23 +232,28 @@ class AddAccessControlUser extends Hook
         if (!in_array($sub, $subs)) {
             return;
         }
+        $ac_setter = $_REQUEST['accesscontrol'];
+        if (!$ac_setter) {
+            return;
+        }
         self::getClass('AccessControlAssociationManager')->destroy(
             array(
-                'userID' => $arguments['User']->get('id')
+                'userID' => $arguments['User']->get('id'),
+                'accesscontrolID' => $ac_setter
             )
         );
         $cnt = self::getClass('AccessControlManager')
             ->count(
-                array('id' => $_REQUEST['accesscontrol'])
+                array('id' => $ac_setter)
             );
         if ($cnt !== 1) {
             return;
         }
-        $Role = new AccessControl($_REQUEST['accesscontrol']);
+        $Role = new AccessControl($ac_setter);
         self::getClass('AccessControlAssociation')
             ->set('userID', $arguments['User']->get('id'))
             ->load('userID')
-            ->set('accesscontrolID', $_REQUEST['accesscontrol'])
+            ->set('accesscontrolID', $ac_setter)
             ->set(
                 'name',
                 sprintf(

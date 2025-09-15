@@ -206,10 +206,6 @@ msgid "A rule already exists with this name."
 msgstr "An image already exists with this name!"
 
 #, fuzzy
-msgid "A site alread exists with this name!"
-msgstr "An image already exists with this name!"
-
-#, fuzzy
 msgid "A site already exists with this name!"
 msgstr "An image already exists with this name!"
 
@@ -848,8 +844,9 @@ msgstr "CUPS Printer"
 msgid "Call"
 msgstr ""
 
-msgid "Can be a comma seperated list."
-msgstr ""
+#, fuzzy
+msgid "Can be a comma separated list."
+msgstr "Please enter a valid IP address"
 
 msgid "Can not redeclare route"
 msgstr ""
@@ -2118,6 +2115,15 @@ msgstr "No snapins associated"
 msgid "For example, a GPO policy to push"
 msgstr ""
 
+msgid "Forbidden (disallowed Origin)"
+msgstr ""
+
+msgid "Forbidden (disallowed Referer)"
+msgstr ""
+
+msgid "Forbidden (invalid CSRF token)"
+msgstr ""
+
 msgid "Force"
 msgstr "Force"
 
@@ -2177,7 +2183,7 @@ msgstr "Action"
 msgid "Function does not exist"
 msgstr "Method does not exist"
 
-msgid "GNU Gneral Public License"
+msgid "GNU General Public License"
 msgstr ""
 
 #, fuzzy
@@ -2205,6 +2211,9 @@ msgid "Getting image size for"
 msgstr ""
 
 msgid "Getting snapin hash and size for"
+msgstr ""
+
+msgid "Got in line at"
 msgstr ""
 
 msgid "Goto task list"
@@ -5267,7 +5276,7 @@ msgid "Search results returned false"
 msgstr ""
 
 #, fuzzy
-msgid "Second paramater must be in array(class,function)"
+msgid "Second parameter must be in array(class,function)"
 msgstr "Second parameter must be in the form array(Hook class,Function to run)"
 
 msgid "Select Image"
@@ -6402,7 +6411,7 @@ msgstr ""
 "Database for easier identification."
 
 #, fuzzy
-msgid "This section allows you to uploade user"
+msgid "This section allows you to upload user"
 msgstr ""
 "This section allows you to import known mac address makers into the FOG "
 "Database for easier identification."
@@ -6529,7 +6538,7 @@ msgid "Unable to find master Storage Node"
 msgstr "Failed to destroy Storage Node"
 
 #, fuzzy
-msgid "Unable to get server infromation!"
+msgid "Unable to get server information!"
 msgstr "Unable to pull server information!"
 
 msgid "Unable to open file for reading"
@@ -7114,15 +7123,16 @@ msgstr ""
 msgid "boot the client computers"
 msgstr ""
 
-msgid "but"
-msgstr ""
-
 msgid "but bind password is not set"
 msgstr ""
 
 #, fuzzy
 msgid "but has recently failed for this host"
 msgstr "is open, but has recently failed for this Host"
+
+#, fuzzy
+msgid "but there are"
+msgstr "There are"
 
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
@@ -7848,6 +7858,10 @@ msgstr ""
 #~ msgstr "An image already exists with this name!"
 
 #, fuzzy
+#~ msgid "A site alread exists with this name!"
+#~ msgstr "An image already exists with this name!"
+
+#, fuzzy
 #~ msgid "Add ou failed!"
 #~ msgstr "Add snapin failed!"
 
@@ -7918,6 +7932,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "User updated"
+
+#, fuzzy
+#~ msgid "I checked in at"
+#~ msgstr "Task Checkin Date"
 
 #, fuzzy
 #~ msgid "Import Host Exts"

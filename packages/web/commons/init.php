@@ -46,6 +46,21 @@ class Initiator
      */
     public function __construct()
     {
+        // Use cookies only, no URL-based sesions
+        ini_set('session.use_only_cookies', '1');
+        ini_set('session.use_strict_mode', '1');
+
+        // Ensure secure session cookie flags (adjust SameSite as needed for your flows)
+        $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path'     => '/',
+            'domain'   => '',            // default current host
+            'secure'   => $https,        // true in production over HTTPS
+            'httponly' => true,
+            'samesite' => 'Lax',         // 'Strict' if it doesn’t break your flows
+        ]);
+
         /**
          * Lambda to sanitize our user input data.
          *
@@ -160,9 +175,8 @@ class Initiator
          */
         $script = filter_input(INPUT_SERVER, 'SCRIPT_NAME');
         if ($self
-            && $useragent
             && file_exists(BASEPATH . $script)
-            && session_status() == PHP_SESSION_NONE
+            && session_status() !== PHP_SESSION_ACTIVE
             //&& false === stripos($script, '/api/')
         ) {
             session_start();

@@ -156,9 +156,6 @@ msgstr ""
 msgid "A rule already exists with this name."
 msgstr ""
 
-msgid "A site alread exists with this name!"
-msgstr ""
-
 msgid "A site already exists with this name!"
 msgstr ""
 
@@ -711,7 +708,7 @@ msgstr ""
 msgid "Call"
 msgstr ""
 
-msgid "Can be a comma seperated list."
+msgid "Can be a comma separated list."
 msgstr ""
 
 msgid "Can not redeclare route"
@@ -1826,6 +1823,15 @@ msgstr ""
 msgid "For example, a GPO policy to push"
 msgstr ""
 
+msgid "Forbidden (disallowed Origin)"
+msgstr ""
+
+msgid "Forbidden (disallowed Referer)"
+msgstr ""
+
+msgid "Forbidden (invalid CSRF token)"
+msgstr ""
+
 msgid "Force"
 msgstr ""
 
@@ -1877,7 +1883,7 @@ msgstr ""
 msgid "Function does not exist"
 msgstr ""
 
-msgid "GNU Gneral Public License"
+msgid "GNU General Public License"
 msgstr ""
 
 msgid "GPU Products"
@@ -1902,6 +1908,9 @@ msgid "Getting image size for"
 msgstr ""
 
 msgid "Getting snapin hash and size for"
+msgstr ""
+
+msgid "Got in line at"
 msgstr ""
 
 msgid "Goto task list"
@@ -4577,7 +4586,7 @@ msgstr ""
 msgid "Search results returned false"
 msgstr ""
 
-msgid "Second paramater must be in array(class,function)"
+msgid "Second parameter must be in array(class,function)"
 msgstr ""
 
 msgid "Select Image"
@@ -5554,7 +5563,7 @@ msgstr ""
 msgid "This section allows you to update the modules and"
 msgstr ""
 
-msgid "This section allows you to uploade user"
+msgid "This section allows you to upload user"
 msgstr ""
 
 msgid "This servers ip(s)"
@@ -5660,7 +5669,7 @@ msgstr ""
 msgid "Unable to find master Storage Node"
 msgstr ""
 
-msgid "Unable to get server infromation!"
+msgid "Unable to get server information!"
 msgstr ""
 
 msgid "Unable to open file for reading"
@@ -6164,13 +6173,13 @@ msgstr ""
 msgid "boot the client computers"
 msgstr ""
 
-msgid "but"
-msgstr ""
-
 msgid "but bind password is not set"
 msgstr ""
 
 msgid "but has recently failed for this host"
+msgstr ""
+
+msgid "but there are"
 msgstr ""
 
 msgid "check to ensure your filesystem has enough space"
