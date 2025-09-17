@@ -1812,6 +1812,7 @@ class Route extends FOGBase
                     _('Already created'),
                     HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
                 );
+                exit;
             }
             foreach ($classVars['databaseFields'] as &$key) {
                 $key = $class->key($key);
@@ -1890,6 +1891,7 @@ class Route extends FOGBase
                         self::$foglang['RequiredDB'] . ": " . $key,
                         HTTPResponseCodes::HTTP_EXPECTATION_FAILED
                     );
+                    exit;
                 }
             }
             // Store the data and recreate.
@@ -1901,6 +1903,7 @@ class Route extends FOGBase
                 self::sendResponse(
                     HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
                 );
+                exit;
             }
             self::indiv($classname, $id);
         } catch (Exception $e) {
