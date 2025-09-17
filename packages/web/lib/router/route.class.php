@@ -1268,6 +1268,8 @@ class Route extends FOGBase
                 $limit = 0;
             }
             $item = trim($item);
+            $like = '%' . $item . '%';
+
             $data = [];
             $data['_query'] = $item;
             $data['_lang']['AllResults'] = _('See all results');
@@ -1293,27 +1295,27 @@ class Route extends FOGBase
                     '',
                     true
                 );
+                $j = $w = $g = '';
+                $params = ['item1' => $like, 'item2' => $like];
                 switch ($search) {
                     case 'host':
                         $j = "LEFT OUTER JOIN `hostMAC`
                         ON `hosts`.`hostID` = `hostMAC`.`hmHostID`";
-                        $w = " OR `hostMAC`.`hmMAC` LIKE :item";
+                        $w = " OR `hostMAC`.`hmMAC` LIKE :item3";
+                        $params['item3'] = $like;
                         $g = "GROUP BY `hosts`.`hostName`";
                         break;
                     case 'setting':
-                        $w = " OR `settingValue` LIKE :item";
+                        $w = " OR `settingValue` LIKE :item3";
+                        $params['item3'] = $like;
                         break;
-                    default:
-                        $j = '';
-                        $w = '';
-                        $g = '';
                 }
                 $sql = "SELECT `{$classVars['databaseFields']['id']}`,"
                     . "`{$classVars['databaseFields']['name']}`
                     FROM `{$classVars['databaseTable']}`
                 {$j}
-                WHERE `{$classVars['databaseFields']['id']}` LIKE :item
-                OR `{$classVars['databaseFields']['name']}` LIKE :item
+                WHERE `{$classVars['databaseFields']['id']}` LIKE :item1
+                OR `{$classVars['databaseFields']['name']}` LIKE :item2
                 ${w}
                 ${g}";
                 if ($limit > 0) {
@@ -1322,7 +1324,7 @@ class Route extends FOGBase
                 $vals = self::$DB->query(
                     $sql,
                     [],
-                    ['item' => '%'.$item.'%']
+                    $params
                 )->fetch(
                     PDO::FETCH_ASSOC,
                     'fetch_all'
