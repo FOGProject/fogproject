@@ -1,106 +1,149 @@
-#!/usr/bin/sh
-#
-# An example hook script to verify what is about to be committed.
-# Called by "git commit" with no arguments.  The hook should
-# exit with non-zero status after issuing an appropriate message if
-# it wants to stop the commit.
-#
-# To enable this hook, rename this file to "pre-commit".
-#
-# Exit on error
-# set -e
+#!/usr/bin/env sh
+# POSIX /bin/sh hook: works on Debian (dash) and Fedora/RHEL
+# set -e  # uncomment if you want hard-fail on first error
+set -u
 
 project_dir=$(git rev-parse --show-toplevel)
 
 psrfix() {
-    command -v php-cs-fixer >/dev/null || return
-    $(command -v php-cs-fixer) fix $project_dir/packages/web --rules=@PSR2
-    git add $project_dir/packages/web
+    command -v php-cs-fixer >/dev/null 2>&1 || return 0
+    php_cs_fix_bin=$(command -v php-cs-fixer)
+    "$php_cs_fix_bin" fix "$project_dir/packages/web" --rules=@PSR2
+    git add "$project_dir/packages/web"
 }
 
 updateLanguage() {
-    command -v xgettext >/dev/null || return
-    command -v msgcat >/dev/null || return
-    command -v msgmerge >/dev/null || return
-    xgettext --language=PHP --from-code=UTF-8 --output="$project_dir/packages/web/management/languages/messages.pot" --omit-header --no-location $(find $project_dir/packages/web/ -name "*.php")
-    msgcat --sort-output -o "$project_dir/packages/web/management/languages/messages.pot" "$project_dir/packages/web/management/languages/messages.pot"
-    for PO_FILE in $(find $project_dir/packages/web/management/languages/ -type f -name *.po); do
-        msgmerge --update --backup=none $PO_FILE $project_dir/packages/web/management/languages/messages.pot 2>/dev/null >/dev/null
-        msgcat --sort-output -o $PO_FILE $PO_FILE
+    command -v xgettext >/dev/null 2>&1 || return 0
+    command -v msgcat   >/dev/null 2>&1 || return 0
+    command -v msgmerge >/dev/null 2>&1 || return 0
+
+    pot="$project_dir/packages/web/management/languages/messages.pot"
+    tmp_list="$(mktemp)"
+
+    # Build a newline-separated list of PHP files (safe for typical paths)
+    find "$project_dir/packages/web" -type f -name '*.php' -print > "$tmp_list"
+
+    if [ -s "$tmp_list" ]; then
+        xgettext --language=PHP --from-code=UTF-8 \
+                 --output="$pot" --omit-header --no-location \
+                 -f "$tmp_list"
+        msgcat --sort-output -o "$pot" "$pot"
+    fi
+
+    # Update all .po files
+    find "$project_dir/packages/web/management/languages" -type f -name '*.po' -print \
+    | while IFS= read -r po; do
+        [ -f "$po" ] || continue
+        msgmerge --update --backup=none "$po" "$pot" >/dev/null 2>&1 || true
+        msgcat --sort-output -o "$po" "$po"
     done
+
+    rm -f "$tmp_list"
+}
+
+# --- tag-aware helpers (POSIX) ---
+nearest_tag() {
+    ref="${1:-HEAD}"
+    git describe --tags --abbrev=0 "$ref" 2>/dev/null || echo ""
+}
+
+count_since_tag() {
+    ref="${1:-HEAD}"
+    tag="$(nearest_tag "$ref")"
+    if [ -n "$tag" ]; then
+        git rev-list "${tag}..${ref}" --count 2>/dev/null || echo 0
+    else
+        git rev-list "$ref" --count 2>/dev/null || echo 0
+    fi
+}
+
+baseversion_from_tag() {
+    tag="$1"
+    if [ -z "$tag" ]; then
+        echo "0.0"
+        return
+    fi
+    # Drop last dot segment: X.Y.Z -> X.Y ; X -> X
+    echo "$tag" | awk -F. '{ if (NF>1){NF--; print $0} else {print $0} }' OFS='.'
 }
 
 updateLanguage
 #psrfix
 
-# Get the current branch name
-gitbranch=$(git branch --show-current)
+# Current branch (fallback if detached)
+gitbranch=$(git branch --show-current 2>/dev/null || git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
 
-# Get the latest tag commit
-gitcom=$(git rev-list --tags --no-walk --max-count=1)
+# Extract parts around first '-'
+branchon=${gitbranch%%-*}
+branchend=${gitbranch#*-}
+[ "$branchend" = "$gitbranch" ] && branchend=""
 
-# Count commits from the last tag to HEAD
-gitcount=$(git rev-list master..HEAD --count)
-
-# Extract the first part of the branch name
-branchon=$(echo ${gitbranch} | awk -F'-' '{print $1}')
-
-# Extract the second part of the branch name
-branchend=$(echo ${gitbranch} | awk -F'-' '{print $2}')
-
-# Define the path to the system file
 system_file="$project_dir/packages/web/lib/fog/system.class.php"
 
-current_version=$(grep "define('FOG_VERSION'" $system_file | sed "s/.*FOG_VERSION', '\([^']*\)');/\1/")
+# Current values (best-effort)
+current_version=$(grep "define('FOG_VERSION'" "$system_file" | sed "s/.*FOG_VERSION', '\([^']*\)');/\1/")
+current_channel=$(grep "define('FOG_CHANNEL'" "$system_file" | sed "s/.*FOG_CHANNEL', '\([^']*\)');/\1/")
 
-verbegin=""
 channel=""
+trunkversion=""
 
-case $branchon in
+case "$branchon" in
     dev)
-        # Describe the tag and append the commit count correctly
-        tagversion=$(git describe --tags ${gitcom})
-        baseversion=${tagversion%.*}   # Retain everything before the last segment
-        lastrevision=${tagversion##*.} # Extracts the last segment
+        tag="$(nearest_tag HEAD)"
+        baseversion="$(baseversion_from_tag "$tag")"
+        gitcount="$(count_since_tag HEAD)"
         trunkversion="${baseversion}.${gitcount}"
         channel="Patches"
         ;;
     stable)
-        # Describe the tag and append the commit count correctly
-        tagversion=$(git describe --tags ${gitcom})
-        baseversion=${tagversion%.*}   # Retain everything before the last segment
-        lastrevision=${tagversion##*.} # Extracts the last segment
+        # Derive from dev-branch if it exists, else HEAD
+        if git rev-parse --verify dev-branch >/dev/null 2>&1; then
+            tag="$(nearest_tag dev-branch)"
+            baseversion="$(baseversion_from_tag "$tag")"
+            gitcount="$(count_since_tag dev-branch)"
+        else
+            tag="$(nearest_tag HEAD)"
+            baseversion="$(baseversion_from_tag "$tag")"
+            gitcount="$(count_since_tag HEAD)"
+        fi
         trunkversion="${baseversion}.${gitcount}"
-        gitcount=$(git rev-list master..dev-branch --count) # Get the gitcount from dev-branch instead
         channel="Patches"
         ;;
     working)
-        # Generate a version number based on the branchend and commit count for the working branch
-        verbegin="${branchend}.0-beta"
-        trunkversion="${verbegin}.${gitcount}"
+        gitcount="$(count_since_tag HEAD)"
+        trunkversion="${branchend}.0-beta.${gitcount}"
         channel="Beta"
         ;;
     rc)
         channel="Release Candidate"
         version_prefix="${branchend}.0-RC"
-        if [[ $current_version =~ ${version_prefix}-([0-9]+) ]]; then
-            last_rc_version=${BASH_REMATCH[1]}
-            next_rc_version=$((last_rc_version + 1))
+        # If current_version matches PREFIX-N, increment N; else start at 1
+        n=$(printf '%s\n' "$current_version" | sed -n "s/^${version_prefix}-\([0-9][0-9]*\)\$/\1/p")
+        if [ -n "$n" ]; then
+            n=$((n + 1))
+            trunkversion="${version_prefix}-${n}"
         else
             trunkversion="${version_prefix}-1"
         fi
         ;;
     feature)
-        verbegin="${branchend}.0-feature"
-        trunkversion="${verbegin}.${gitcount}"
+        gitcount="$(count_since_tag HEAD)"
+        trunkversion="${branchend}.0-feature.${gitcount}"
         channel="Feature"
+        ;;
+    *)
+        # Unknown naming: keep existing values
+        trunkversion="${current_version:-0.0.0}"
+        channel="${current_channel:-Patches}"
         ;;
 esac
 
+# Update the version and channel if computed
+if [ -n "$trunkversion" ] && [ -n "$channel" ]; then
+    sed -i \
+        -e "s/define('FOG_VERSION', *'.*');/define('FOG_VERSION', '${trunkversion}');/g" \
+        -e "s/define('FOG_CHANNEL', *'.*');/define('FOG_CHANNEL', '${channel}');/g" \
+        "$system_file"
+    git add "$system_file"
+fi
 
-# Update the version and channel in the system file
-sed -i "s/define('FOG_VERSION',.*);/define('FOG_VERSION', '$trunkversion');/g" $system_file
-sed -i "s/define('FOG_CHANNEL',.*);/define('FOG_CHANNEL', '$channel');/g" $system_file
-
-# Add the modified system file to the staging area
-git add $system_file
