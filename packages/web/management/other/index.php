@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Presents the page the same to all.
  *
@@ -19,6 +20,10 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+// Ensure session is started
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 $ulang = isset($_SESSION['FOG_LANG']) ? $_SESSION['FOG_LANG'] : '';
 echo '<!DOCTYPE html>';
 echo '<html lang="' . $ulang . '">';
@@ -26,6 +31,7 @@ echo '<head>';
 echo '<meta charset="utf-8"/>';
 echo '<meta http-equiv="X-UA-Compatible" content="IE=edge"/>';
 echo '<meta name="viewport" content="width=device-width, initial-scale=1"/>';
+echo '<meta name="csrf-token" content="' . htmlspecialchars(CSRF::token(), ENT_QUOTES, 'UTF-8') . '"/>';
 echo '<title>' . $this->pageTitle . '</title>';
 self::$HookManager
     ->processEvent(

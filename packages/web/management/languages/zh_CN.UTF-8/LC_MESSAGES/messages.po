@@ -2727,9 +2727,6 @@ msgstr "IP"
 msgid "IP Address"
 msgstr "IP地址"
 
-msgid "IP Address Changed"
-msgstr "更改IP地址"
-
 msgid "IP Passed is incorrect"
 msgstr "IP传递是不正确"
 
@@ -5376,9 +5373,6 @@ msgstr "服务更新失败"
 msgid "Session Name"
 msgstr "会话名称"
 
-msgid "Session altered improperly"
-msgstr "会议修改不当"
-
 msgid "Session name cannot be the same as an existing hostname"
 msgstr "会话名称不能相同的现有的主机名"
 
@@ -6690,9 +6684,6 @@ msgstr "访问令牌"
 msgid "User Access Control"
 msgstr "访问控制"
 
-msgid "User Agent Changed"
-msgstr "用户代理更改"
-
 msgid "User Already Exists"
 msgstr "用户已存在"
 
@@ -7915,6 +7906,9 @@ msgstr ""
 #~ msgid "I checked in at"
 #~ msgstr "任务登记入住日期"
 
+#~ msgid "IP Address Changed"
+#~ msgstr "更改IP地址"
+
 #, fuzzy
 #~ msgid "Import Host Exts"
 #~ msgstr "进口主机"
@@ -7935,12 +7929,18 @@ msgstr ""
 #~ msgid "Legacy FOG Client"
 #~ msgstr "旧客户端FOG"
 
+#~ msgid "Session altered improperly"
+#~ msgstr "会议修改不当"
+
 #, fuzzy
 #~ msgid "This file is used to encrypt the AD Password"
 #~ msgstr "这个文件被用于加密的AD密码。请勿使用本如果使用新的客户端。"
 
 #~ msgid "Unable to determine plugin details"
 #~ msgstr "无法确定插件的详细信息"
+
+#~ msgid "User Agent Changed"
+#~ msgstr "用户代理更改"
 
 #, fuzzy
 #~ msgid "file to"

@@ -2741,9 +2741,6 @@ msgstr "IP"
 msgid "IP Address"
 msgstr "IP Nodo Almacenamiento"
 
-msgid "IP Address Changed"
-msgstr "Dirección IP cambiada"
-
 msgid "IP Passed is incorrect"
 msgstr "IP incorrecta"
 
@@ -5349,9 +5346,6 @@ msgstr "Fallo al actualizar"
 msgid "Session Name"
 msgstr "Nombre"
 
-msgid "Session altered improperly"
-msgstr ""
-
 msgid "Session name cannot be the same as an existing hostname"
 msgstr ""
 
@@ -6646,9 +6640,6 @@ msgstr "Usuario"
 msgid "User Access Control"
 msgstr ""
 
-msgid "User Agent Changed"
-msgstr ""
-
 msgid "User Already Exists"
 msgstr "Usuario ya creado"
 
@@ -7836,6 +7827,9 @@ msgstr "has configurado el campo de ancho de banda en ese nodo a 1000"
 #, fuzzy
 #~ msgid "I checked in at"
 #~ msgstr "Tarea"
+
+#~ msgid "IP Address Changed"
+#~ msgstr "Dirección IP cambiada"
 
 #, fuzzy
 #~ msgid "Import Host Exts"

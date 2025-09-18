@@ -5,13 +5,18 @@
 # exit with non-zero status after issuing an appropriate message if
 # it wants to stop the commit.
 #
-# To enable this hook, rename this file to "pre-commit" within .git\hooks
-# or run git config core.hooksPath .githooks
+# To enable this hook, rename this file to "pre-commit".
 #
 # Exit on error
-#set -e
+# set -e
 
 project_dir=$(git rev-parse --show-toplevel)
+
+psrfix() {
+    command -v php-cs-fixer >/dev/null || return
+    $(command -v php-cs-fixer) fix $project_dir/packages/web --rules=@PSR2
+    git add $project_dir/packages/web
+}
 
 updateLanguage() {
     command -v xgettext >/dev/null || return
@@ -23,10 +28,10 @@ updateLanguage() {
         msgmerge --update --backup=none $PO_FILE $project_dir/packages/web/management/languages/messages.pot 2>/dev/null >/dev/null
         msgcat --sort-output -o $PO_FILE $PO_FILE
     done
-    git add "$project_dir/packages/web/management/languages"
 }
 
 updateLanguage
+#psrfix
 
 # Get the current branch name
 gitbranch=$(git branch --show-current)
@@ -44,7 +49,7 @@ branchon=$(echo ${gitbranch} | awk -F'-' '{print $1}')
 branchend=$(echo ${gitbranch} | awk -F'-' '{print $2}')
 
 # Define the path to the system file
-system_file="$(git rev-parse --show-toplevel)/packages/web/lib/fog/system.class.php"
+system_file="$project_dir/packages/web/lib/fog/system.class.php"
 
 current_version=$(grep "define('FOG_VERSION'" $system_file | sed "s/.*FOG_VERSION', '\([^']*\)');/\1/")
 
@@ -61,12 +66,12 @@ case $branchon in
         channel="Patches"
         ;;
     stable)
-        # For stable, don't increment version, use what is being pulled from dev-branch
+        # Describe the tag and append the commit count correctly
         tagversion=$(git describe --tags ${gitcom})
         baseversion=${tagversion%.*}   # Retain everything before the last segment
         lastrevision=${tagversion##*.} # Extracts the last segment
-        gitcount=$(git rev-list master..dev-branch --count) #get the gitcount from dev-branch instead
         trunkversion="${baseversion}.${gitcount}"
+        gitcount=$(git rev-list master..dev-branch --count) # Get the gitcount from dev-branch instead
         channel="Patches"
         ;;
     working)
@@ -78,7 +83,7 @@ case $branchon in
     rc)
         channel="Release Candidate"
         version_prefix="${branchend}.0-RC"
-        if [[ $current_version =~ $version_prefix-([0-9]+) ]]; then
+        if [[ $current_version =~ "${version_prefix}-([0-9]+)" ]]; then
             last_rc_version=${BASH_REMATCH[1]}
             next_rc_version=$((last_rc_version + 1))
         else

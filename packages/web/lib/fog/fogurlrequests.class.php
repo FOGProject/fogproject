@@ -450,6 +450,9 @@ class FOGURLRequests extends FOGBase
             $options[CURLOPT_HEADER] = 0;
             $options[CURLOPT_HTTPHEADER] = (array)$headers;
         }
+        if (!isset($options[CURLOPT_COOKIE])) {
+            $options[CURLOPT_COOKIE] = session_name() . '=' . session_id();
+        }
         list($ip, $password, $port, $username) = self::getSubObjectIDs(
             'Service',
             array(
@@ -485,9 +488,6 @@ class FOGURLRequests extends FOGBase
                     );
                 }
             }
-        }
-        if (!isset($options[CURLOPT_COOKIE])) {
-            $options[CURLOPT_COOKIE] = session_name() . '=' . session_id();
         }
 
         return $options;
@@ -550,7 +550,6 @@ class FOGURLRequests extends FOGBase
         }
         // ---- BEGIN CSRF + session forwarding ----
         $csrfToken = class_exists('CSRF') ? CSRF::token() : '';
-        $cookieHdr = session_name() . '=' . session_id();
 
         // Important: release the session lock so the called script can read it
         if (session_status() === PHP_SESSION_ACTIVE) {
@@ -588,7 +587,6 @@ class FOGURLRequests extends FOGBase
 
         // Assign headers (class merges via __set) and forward the cookie via options
         $this->headers = $normalizedHeaders;
-        $this->options[CURLOPT_COOKIE] = $cookieHdr;
         // ---- END CSRF + session forwarding ----
 
         if ($file) {

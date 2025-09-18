@@ -2360,9 +2360,6 @@ msgstr ""
 msgid "IP Address"
 msgstr ""
 
-msgid "IP Address Changed"
-msgstr ""
-
 msgid "IP Passed is incorrect"
 msgstr ""
 
@@ -4673,9 +4670,6 @@ msgstr ""
 msgid "Session Name"
 msgstr ""
 
-msgid "Session altered improperly"
-msgstr ""
-
 msgid "Session name cannot be the same as an existing hostname"
 msgstr ""
 
@@ -5805,9 +5799,6 @@ msgid "User API Token"
 msgstr ""
 
 msgid "User Access Control"
-msgstr ""
-
-msgid "User Agent Changed"
 msgstr ""
 
 msgid "User Already Exists"

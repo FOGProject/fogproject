@@ -2404,9 +2404,6 @@ msgstr "IP"
 msgid "IP Address"
 msgstr "Adresse IP"
 
-msgid "IP Address Changed"
-msgstr "Adresse IP modifiée"
-
 msgid "IP Passed is incorrect"
 msgstr "L'IP passée est incorrecte"
 
@@ -4746,9 +4743,6 @@ msgstr "La mise à jour du service a échoué"
 msgid "Session Name"
 msgstr "Nom de session"
 
-msgid "Session altered improperly"
-msgstr "Session modifiée incorrectement"
-
 msgid "Session name cannot be the same as an existing hostname"
 msgstr "Nom de la session ne peut pas être le même qu'un nom de machine"
 
@@ -4993,8 +4987,8 @@ msgstr "Snapin ajouté !"
 
 msgid "Snapin file is too big, increase post_max_size in php.ini."
 msgstr ""
-"Le fichier Snapin est trop gros, augmentez post_max_size dans le fichier "
-"php.ini."
+"Le fichier Snapin est trop gros, augmentez post_max_size dans le fichier php."
+"ini."
 
 msgid "Snapin is invalid"
 msgstr "Snapin n'est pas valide"
@@ -5909,9 +5903,6 @@ msgstr "Jeton d'accès API utilisateur"
 
 msgid "User Access Control"
 msgstr "Contrôle d'accès des utilisateurs"
-
-msgid "User Agent Changed"
-msgstr "L'agent utilisateur modifié"
 
 msgid "User Already Exists"
 msgstr "L'utilisateur existe déjà"
@@ -6999,6 +6990,9 @@ msgstr "vous définissez le champ de la bande passante sur ce nœud à 1000"
 #~ msgid "I checked in at"
 #~ msgstr "Date de vérification de la tâche"
 
+#~ msgid "IP Address Changed"
+#~ msgstr "Adresse IP modifiée"
+
 #~ msgid "Import Host Exts"
 #~ msgstr "Importation Host ext"
 
@@ -7020,6 +7014,9 @@ msgstr "vous définissez le champ de la bande passante sur ce nœud à 1000"
 #~ msgid "Replicating ssl less private key"
 #~ msgstr "Réplication de ssl sans clé privée"
 
+#~ msgid "Session altered improperly"
+#~ msgstr "Session modifiée incorrectement"
+
 #, fuzzy
 #~ msgid "This file is used to encrypt the AD Password"
 #~ msgstr ""
@@ -7033,6 +7030,9 @@ msgstr "vous définissez le champ de la bande passante sur ce nœud à 1000"
 #~ msgstr ""
 #~ "Utilisez le sélecteur pour choisir le nombre d'éléments que vous "
 #~ "souhaitez exporter"
+
+#~ msgid "User Agent Changed"
+#~ msgstr "L'agent utilisateur modifié"
 
 #~ msgid "but"
 #~ msgstr "mais"

@@ -2730,9 +2730,6 @@ msgstr "IP"
 msgid "IP Address"
 msgstr "Endereço de IP"
 
-msgid "IP Address Changed"
-msgstr "Endereço IP Changed"
-
 msgid "IP Passed is incorrect"
 msgstr "IP Passou está incorreta"
 
@@ -5384,9 +5381,6 @@ msgstr "atualização do Service falhou"
 msgid "Session Name"
 msgstr "Nome da sessão"
 
-msgid "Session altered improperly"
-msgstr "Sessão alterada indevidamente"
-
 msgid "Session name cannot be the same as an existing hostname"
 msgstr "O nome da sessão não pode ser o mesmo que um nome de host existente"
 
@@ -6708,9 +6702,6 @@ msgstr "token de acesso"
 msgid "User Access Control"
 msgstr "Controle de acesso"
 
-msgid "User Agent Changed"
-msgstr "User Agent Changed"
-
 msgid "User Already Exists"
 msgstr "Usuário já existe"
 
@@ -7942,6 +7933,9 @@ msgstr ""
 #~ msgid "I checked in at"
 #~ msgstr "Tarefa Checkin Data"
 
+#~ msgid "IP Address Changed"
+#~ msgstr "Endereço IP Changed"
+
 #, fuzzy
 #~ msgid "Import Host Exts"
 #~ msgstr "Hosts de importação"
@@ -7962,6 +7956,9 @@ msgstr ""
 #~ msgid "Legacy FOG Client"
 #~ msgstr "Legacy Client FOG"
 
+#~ msgid "Session altered improperly"
+#~ msgstr "Sessão alterada indevidamente"
+
 #, fuzzy
 #~ msgid "This file is used to encrypt the AD Password"
 #~ msgstr ""
@@ -7970,6 +7967,9 @@ msgstr ""
 
 #~ msgid "Unable to determine plugin details"
 #~ msgstr "Não foi possível determinar detalhes de plugin"
+
+#~ msgid "User Agent Changed"
+#~ msgstr "User Agent Changed"
 
 #, fuzzy
 #~ msgid "file to"
