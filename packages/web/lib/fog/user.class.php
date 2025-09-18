@@ -232,7 +232,7 @@ class User extends FOGController
         $password,
         $remember = false
     ) {
-        if (session_status() == PHP_SESSION_NONE) {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
         /**
@@ -353,7 +353,7 @@ class User extends FOGController
      */
     private function _isLoggedIn()
     {
-        if (!$this->isValid() || session_status() == PHP_SESSION_NONE) {
+        if (!$this->isValid() || session_status() !== PHP_SESSION_ACTIVE) {
             return false;
         }
         $keys = [
@@ -478,7 +478,7 @@ class User extends FOGController
             ->set('password', '', '');
 
         // If the session is already gone, return.
-        if (session_status() == PHP_SESSION_NONE) {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
             return;
         }
         $messages = isset($_SESION['FOG_MESSAGES']) ? $_SESSION['FOG_MESSAGES'] : null;
@@ -488,6 +488,9 @@ class User extends FOGController
         session_write_close();
         session_start();
         $_SESSION=[];
+        if (isset($messages)) {
+            self::setMessage($messages);
+        }
     }
 
     /**

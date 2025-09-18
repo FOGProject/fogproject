@@ -76,7 +76,7 @@ class Initiator
     {
         $validLangs = ['de' => 'DE', 'en' => 'US', 'es' => 'ES', 'eu' => 'ES', 'fr' => 'FR', 'it' => 'IT', 'pt' => 'BR', 'zh' => 'CN'];
         $lang = array_key_exists($lang, $validLangs) ? $lang : 'en';
-        if (session_status() !== PHP_SESSION_NONE) {
+        if (session_status() === PHP_SESSION_ACTIVE) {
             $_SESSION['FOG_LANG'] = $lang;
         }
         $lang = "{$lang}_{$validLangs[$lang]}";
