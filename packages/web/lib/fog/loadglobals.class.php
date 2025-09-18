@@ -54,7 +54,6 @@ class LoadGlobals extends FOGBase
             $userID = isset($_SESSION['FOG_USER']) ? (int)$_SESSION['FOG_USER'] : 0;
         }
         $GLOBALS['currentUser'] = new User($userID);
-        FOGCore::var_dump_log($GLOBALS['currentUser']);
         $GLOBALS['HookManager']->load();
         $GLOBALS['EventManager']->load();
         $subs = array(

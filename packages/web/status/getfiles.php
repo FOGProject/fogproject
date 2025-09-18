@@ -1,6 +1,6 @@
 <?php
 /**
- * Gets files stored as requested
+ * Get's files stored as requested
  *
  * PHP version 5
  *
@@ -11,7 +11,7 @@
  * @link     https://fogproject.org
  */
 /**
- * Gets files stored as requested
+ * Get's files stored as requested
  *
  * PHP version 5
  *
@@ -22,39 +22,61 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
-
-// Prevent file enumeration by an unauthenticated user
 FOGCore::checkAuthAndCSRF();
-
-if (!is_string($_GET['path'])) {
+$path = filter_input(INPUT_GET, 'path');
+if (!is_string($path)) {
     echo json_encode(
         _('Invalid')
     );
     exit;
 }
-$path = $_GET['path'];
 $decodePath = urldecode(
     Initiator::sanitizeItems(
         $path
     )
 );
+Route::ids('storagenode', [], 'path');
+$imagePaths = json_decode(Route::getData(), true);
+Route::ids('storagenode', [], 'snapinpath');
+$snapinPaths = json_decode(Route::getData(), true);
+$validPaths = [
+    '/var/log/apache2',
+    '/var/log/fog',
+    '/var/log/httpd',
+    '/var/log/nginx',
+    '/var/log/php*'
+];
+$validPaths = array_merge(
+    $imagePaths,
+    $snapinPaths,
+    $validPaths
+);
 $paths = explode(':', $decodePath);
-$files = array();
-foreach ((array)$paths as &$decodedPath) {
-    if (!(is_dir($decodedPath)
-        && file_exists($decodedPath)
-        && is_readable($decodedPath))
+$realpaths = [];
+foreach ((array)$paths as $decodedPath) {
+    $pathTest = preg_grep('#' . $decodedPath . '#', $validPaths);
+    if (count($pathTest ?: []) < 1) {
+        continue;
+    }
+    foreach ($pathTest as $path) {
+        $realpaths = FOGCore::fastmerge(
+            (array)$realpaths,
+            glob($path)
+        );
+    }
+}
+$files = [];
+foreach ($realpaths as $path) {
+    if (!(is_dir($path)
+        && file_exists($path)
+        && is_readable($path))
     ) {
-        $files[] = json_encode(_('Path is unavailable'));
         continue;
     }
     $replaced_dir_sep = str_replace(
-        array('\\', '/'),
-        array(
-            DS,
-            DS
-        ),
-        $decodedPath
+        ['\\', '/'],
+        [DS, DS],
+        $path
     );
     $glob_str = sprintf(
         '%s%s*',
@@ -62,8 +84,8 @@ foreach ((array)$paths as &$decodedPath) {
         DS
     );
     $files = FOGCore::fastmerge(
-        (array) $files,
-        (array) glob($glob_str)
+        (array)$files,
+        (array)glob($glob_str)
     );
 }
 echo json_encode(

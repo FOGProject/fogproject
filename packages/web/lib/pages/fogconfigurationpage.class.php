@@ -3197,7 +3197,6 @@ class FOGConfigurationPage extends FOGPage
             $StorageNode = json_decode(
                 Route::getData()
             );
-            self::var_dump_log($StorageNode);
             if (!$StorageNode->isEnabled) {
                 continue;
             }

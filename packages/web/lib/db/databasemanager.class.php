@@ -37,7 +37,6 @@ class DatabaseManager extends FOGCore
         $noDBpattern = array(
             'status\/bandwidth\.php$',
             'status\/freespace\.php$',
-            'status\/getfiles\.php$',
             'status\/gethash\.php$',
             'status\/getservertime\.php$',
             'status\/getsize\.php$',
