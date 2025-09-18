@@ -1,106 +1,165 @@
-#!/usr/bin/sh
-#
-# An example hook script to verify what is about to be committed.
-# Called by "git commit" with no arguments.  The hook should
-# exit with non-zero status after issuing an appropriate message if
-# it wants to stop the commit.
-#
-# To enable this hook, rename this file to "pre-commit".
-#
-# Exit on error
-# set -e
+#!/usr/bin/env sh
+# POSIX /bin/sh pre-commit hook (dash-compatible)
+
+# set -e  # enable if you want hard fail
+set -u
 
 project_dir=$(git rev-parse --show-toplevel)
 
 psrfix() {
-    command -v php-cs-fixer >/dev/null || return
-    $(command -v php-cs-fixer) fix $project_dir/packages/web --rules=@PSR2
-    git add $project_dir/packages/web
+    command -v php-cs-fixer >/dev/null 2>&1 || return 0
+    php_cs_fix_bin=$(command -v php-cs-fixer)
+    "$php_cs_fix_bin" fix "$project_dir/packages/web" --rules=@PSR2
+    git add "$project_dir/packages/web"
 }
 
 updateLanguage() {
-    command -v xgettext >/dev/null || return
-    command -v msgcat >/dev/null || return
-    command -v msgmerge >/dev/null || return
-    xgettext --language=PHP --from-code=UTF-8 --output="$project_dir/packages/web/management/languages/messages.pot" --omit-header --no-location $(find $project_dir/packages/web/ -name "*.php")
-    msgcat --sort-output -o "$project_dir/packages/web/management/languages/messages.pot" "$project_dir/packages/web/management/languages/messages.pot"
-    for PO_FILE in $(find $project_dir/packages/web/management/languages/ -type f -name *.po); do
-        msgmerge --update --backup=none $PO_FILE $project_dir/packages/web/management/languages/messages.pot 2>/dev/null >/dev/null
-        msgcat --sort-output -o $PO_FILE $PO_FILE
+    command -v xgettext >/dev/null 2>&1 || return 0
+    command -v msgcat   >/dev/null 2>&1 || return 0
+    command -v msgmerge >/dev/null 2>&1 || return 0
+
+    pot="$project_dir/packages/web/management/languages/messages.pot"
+    tmp_list="$(mktemp)"
+
+    find "$project_dir/packages/web" -type f -name '*.php' -print > "$tmp_list"
+
+    if [ -s "$tmp_list" ]; then
+        xgettext --language=PHP --from-code=UTF-8 \
+                 --output="$pot" --omit-header --no-location \
+                 -f "$tmp_list"
+        msgcat --sort-output -o "$pot" "$pot"
+    fi
+
+    find "$project_dir/packages/web/management/languages" -type f -name '*.po' -print \
+    | while IFS= read -r po; do
+        [ -f "$po" ] || continue
+        msgmerge --update --backup=none "$po" "$pot" >/dev/null 2>&1 || true
+        msgcat --sort-output -o "$po" "$po"
     done
+
+    rm -f "$tmp_list"
 }
+
+# --- tag/series helpers (POSIX) ---
+
+nearest_tag() {
+    # Most recent tag reachable from the given ref (default HEAD)
+    ref="${1:-HEAD}"
+    git describe --tags --abbrev=0 "$ref" 2>/dev/null || echo ""
+}
+
+# Extract major minor patch from tag like: v1.7.1695 or 1.7.1695
+# Prints: "1 7 1695" or empty if no match.
+split_semver() {
+    t="$1"
+    printf '%s' "$t" | sed -n 's/^v\{0,1\}\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\).*$/\1 \2 \3/p'
+}
+
+# Count commits since a tag to a ref
+delta_since_tag() {
+    base_tag="$1"
+    ref="${2:-HEAD}"
+    if [ -n "$base_tag" ]; then
+        git rev-list "${base_tag}..${ref}" --count 2>/dev/null || echo 0
+    else
+        git rev-list "${ref}" --count 2>/dev/null || echo 0
+    fi
+}
+
+# Compute X.Y.Z where Z = (patch in nearest tag) + (commits since that tag)
+series_version_from_ref() {
+    ref="$1"
+    tag="$(nearest_tag "$ref")"
+    majminpatch="$(split_semver "$tag")"
+
+    if [ -n "$majminpatch" ]; then
+        set -- $majminpatch
+        maj="$1"; min="$2"; patch="$3"
+        delta="$(delta_since_tag "$tag" "$ref")"
+        total_patch=$((patch + delta))
+        printf '%s.%s.%s\n' "$maj" "$min" "$total_patch"
+    else
+        # No usable tag on this ref: fall back to 0.0.(total commits)
+        delta="$(git rev-list "$ref" --count 2>/dev/null || echo 0)"
+        printf '0.0.%s\n' "$delta"
+    fi
+}
+
+# --- main flow ---
 
 updateLanguage
 #psrfix
 
-# Get the current branch name
-gitbranch=$(git branch --show-current)
+# Current branch (fallback if detached)
+gitbranch=$(git branch --show-current 2>/dev/null || git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
 
-# Get the latest tag commit
-gitcom=$(git rev-list --tags --no-walk --max-count=1)
+# Parts around first '-'
+branchon=${gitbranch%%-*}
+branchend=${gitbranch#*-}
+[ "$branchend" = "$gitbranch" ] && branchend=""
 
-# Count commits from the last tag to HEAD
-gitcount=$(git rev-list master..HEAD --count)
-
-# Extract the first part of the branch name
-branchon=$(echo ${gitbranch} | awk -F'-' '{print $1}')
-
-# Extract the second part of the branch name
-branchend=$(echo ${gitbranch} | awk -F'-' '{print $2}')
-
-# Define the path to the system file
 system_file="$project_dir/packages/web/lib/fog/system.class.php"
 
-current_version=$(grep "define('FOG_VERSION'" $system_file | sed "s/.*FOG_VERSION', '\([^']*\)');/\1/")
+current_version=$(grep "define('FOG_VERSION'" "$system_file" | sed "s/.*FOG_VERSION', '\([^']*\)');/\1/")
+current_channel=$(grep "define('FOG_CHANNEL'" "$system_file" | sed "s/.*FOG_CHANNEL', '\([^']*\)');/\1/")
 
-verbegin=""
 channel=""
+trunkversion=""
 
-case $branchon in
+case "$branchon" in
     dev)
-        # Describe the tag and append the commit count correctly
-        tagversion=$(git describe --tags ${gitcom})
-        baseversion=${tagversion%.*}   # Retain everything before the last segment
-        lastrevision=${tagversion##*.} # Extracts the last segment
-        trunkversion="${baseversion}.${gitcount}"
+        trunkversion="$(series_version_from_ref HEAD)"
         channel="Patches"
         ;;
     stable)
-        # Describe the tag and append the commit count correctly
-        tagversion=$(git describe --tags ${gitcom})
-        baseversion=${tagversion%.*}   # Retain everything before the last segment
-        lastrevision=${tagversion##*.} # Extracts the last segment
-        trunkversion="${baseversion}.${gitcount}"
-        gitcount=$(git rev-list master..dev-branch --count) # Get the gitcount from dev-branch instead
+        if git rev-parse --verify dev-branch >/dev/null 2>&1; then
+            trunkversion="$(series_version_from_ref dev-branch)"
+        else
+            trunkversion="$(series_version_from_ref HEAD)"
+        fi
         channel="Patches"
         ;;
     working)
-        # Generate a version number based on the branchend and commit count for the working branch
-        verbegin="${branchend}.0-beta"
-        trunkversion="${verbegin}.${gitcount}"
+        # keep your original beta scheme but use a stable delta baseline
+        tag="$(nearest_tag HEAD)"
+        delta="$(delta_since_tag "$tag" HEAD)"
+        trunkversion="${branchend}.0-beta.${delta}"
         channel="Beta"
         ;;
     rc)
         channel="Release Candidate"
         version_prefix="${branchend}.0-RC"
-        if [[ $current_version =~ ${version_prefix}-([0-9]+) ]]; then
-            last_rc_version=${BASH_REMATCH[1]}
-            next_rc_version=$((last_rc_version + 1))
+        n=$(printf '%s\n' "$current_version" | sed -n "s/^${version_prefix}-\([0-9][0-9]*\)\$/\1/p")
+        if [ -n "$n" ]; then
+            n=$((n + 1))
+            trunkversion="${version_prefix}-${n}"
         else
             trunkversion="${version_prefix}-1"
         fi
         ;;
     feature)
-        verbegin="${branchend}.0-feature"
-        trunkversion="${verbegin}.${gitcount}"
+        tag="$(nearest_tag HEAD)"
+        delta="$(delta_since_tag "$tag" HEAD)"
+        trunkversion="${branchend}.0-feature.${delta}"
         channel="Feature"
+        ;;
+    *)
+        trunkversion="${current_version:-0.0.0}"
+        channel="${current_channel:-Patches}"
         ;;
 esac
 
+# Write back
+if [ -n "$trunkversion" ] && [ -n "$channel" ]; then
+    sed -i \
+        -e "s/define('FOG_VERSION', *'.*');/define('FOG_VERSION', '${trunkversion}');/g" \
+        -e "s/define('FOG_CHANNEL', *'.*');/define('FOG_CHANNEL', '${channel}');/g" \
+        "$system_file"
+    git add "$system_file"
+fi
 
-# Update the version and channel in the system file
-sed -i "s/define('FOG_VERSION',.*);/define('FOG_VERSION', '$trunkversion');/g" $system_file
-sed -i "s/define('FOG_CHANNEL',.*);/define('FOG_CHANNEL', '$channel');/g" $system_file
+# Optional: warn if repo is shallow (can skew counts if tags aren't fetched)
+if [ -f "$(git rev-parse --git-dir)/shallow" ]; then
+    echo "pre-commit: shallow clone detected; if counts look off, run: git fetch --unshallow --tags" >&2
+fi
 
-# Add the modified system file to the staging area
-git add $system_file
