@@ -83,7 +83,7 @@ case $branchon in
     rc)
         channel="Release Candidate"
         version_prefix="${branchend}.0-RC"
-        if [[ $current_version =~ "${version_prefix}-([0-9]+)" ]]; then
+        if [[ $current_version =~ ${version_prefix}-([0-9]+) ]]; then
             last_rc_version=${BASH_REMATCH[1]}
             next_rc_version=$((last_rc_version + 1))
         else
