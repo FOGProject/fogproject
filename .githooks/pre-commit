@@ -100,3 +100,4 @@ sed -i "s/define('FOG_CHANNEL',.*);/define('FOG_CHANNEL', '$channel');/g" "$syst
 # Add the modified system file to the staging area
 git add "$system_file"
 
+
