@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 #
 # An example hook script to verify what is about to be committed.
 # Called by "git commit" with no arguments.  The hook should
@@ -39,9 +39,15 @@ gitbranch=$(git branch --show-current)
 # Get the latest tag commit
 gitcom=$(git rev-list --tags --no-walk --max-count=1)
 
-# Count commits from the last tag to HEAD
-gitcount=$(git rev-list master..HEAD --count)
-
+# Count commits from the default base to HEAD (master → main → none)
+if git rev-parse --verify master >/dev/null 2>&1; then
+    gitcount=$(git rev-list master..HEAD --count)
+elif git rev-parse --verify main >/dev/null 2>&1; then
+    gitcount=$(git rev-list main..HEAD --count)
+else
+    gitcount=$(git rev-list HEAD --count)
+fi
+    
 # Extract the first part of the branch name
 branchon=$(echo ${gitbranch} | awk -F'-' '{print $1}')
 
