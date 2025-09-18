@@ -2879,8 +2879,7 @@ abstract class FOGBase
     {
         $authorized = (self::$FOGUser && self::$FOGUser->isValid())
             || ((self::$newService || filter_input(INPUT_GET, 'clientver')) && basename(self::$scriptname) == 'getversion.php')
-            || (self::$newService && self::$Host->isValid() && self::$Host->get('pub_key'))
-            || (CSRF::token() == $_SESSION['_csrf_token']);
+            || (self::$newService && self::$Host->isValid() && self::$Host->get('pub_key'));
         if ($return_bool) {
             return $authorized;
         }
