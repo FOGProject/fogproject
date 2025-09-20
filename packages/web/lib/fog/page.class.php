@@ -94,7 +94,6 @@ class Page extends FOGBase
      * @var array
      */
     protected static $commonJavascripts = [
-        'js/fog/bootstrap-csrf.js',
         'js/jquery.min.js',
         'js/jquery.color.min.js',
         'js/lodash.min.js',
@@ -122,6 +121,7 @@ class Page extends FOGBase
         'js/input-mask/jquery.inputmask.regex.extensions.js',
         'js/input-mask/jquery.inputmask.numeric.extensions.js',
         'js/input-mask/jquery.inputmask.date.extensions.js',
+        'js/fog/bootstrap-csrf.js',
         'js/fog/fog.common.js'
     ];
     /**
