@@ -266,7 +266,6 @@ class Page extends FOGBase
             $this->menu = ob_get_clean();
         }
         $files = array(
-            'js/fog/bootstrap-csrf.js',
             'js/jquery-latest.min.js',
             'js/jquery.validate.min.js',
             'js/additional-methods.min.js',
@@ -285,6 +284,7 @@ class Page extends FOGBase
             'js/jquery-ui-timepicker-addon.js',
             'js/bootstrap.min.js',
             'js/bootstrap-dialog.min.js',
+            'js/fog/bootstrap-csrf.js',
             'js/fog/fog.js',
             'js/fog/fog.main.js',
             'js/jscolor.min.js'
