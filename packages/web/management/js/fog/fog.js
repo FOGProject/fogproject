@@ -999,9 +999,21 @@ function ajaxRun(
             } else {
                 dialog.close();
                 if (authneeded) {
-                    $('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/><input type="hidden" name="nojson"/></form>').appendTo('body').submit().remove();
+                    $(
+                      '<form id="'+formid+'" method="post" action="'+url+'">' +
+                      '<input type="hidden" name="_csrf" value="'+($('meta[name="csrf-token"]').attr('content')||'')+'"/>' +
+                      '<input type="hidden" name="fogguiuser" value="'+username+'"/>' +
+                      '<input type="hidden" name="fogguipass" value="'+password+'"/>' +
+                      '<input type="hidden" name="nojson"/>' +
+                      '</form>'
+                    ).appendTo('body').submit().remove();
                 } else {
-                    $('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="nojson"/></form>').appendTo('body').submit().remove();
+                    $(
+                      '<form id="'+formid+'" method="post" action="'+url+'">' +
+                      '<input type="hidden" name="_csrf" value="'+($('meta[name="csrf-token"]').attr('content')||'')+'"/>' +
+                      '<input type="hidden" name="nojson"/>' +
+                      '</form>'
+                    ).appendTo('body').submit().remove();
                 }
             }
         }
