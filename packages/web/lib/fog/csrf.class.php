@@ -51,7 +51,6 @@ class CSRF
 
         // Accept either header or body param for flexibility
         $provided = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
-        FOGCore::var_dump_log('Header Provided: ' . $provided);
         if ($provided === null) {
             // Common places to look (application/x-www-form-urlencoded, multipart, JSON)
             $provided = $_POST['_csrf'] ?? null;
@@ -64,9 +63,7 @@ class CSRF
                     }
                 }
             }
-            FOGCore::var_dump_log('POST Provided _csrf: ' . $provided);
         }
-        FOGCore::var_dump_log('Session Provided: ' . $_SESSION[self::SESSION_KEY]);
 
         if (!self::validate($provided)) {
             http_response_code(403);
