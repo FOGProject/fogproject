@@ -149,6 +149,6 @@ class Virus_History extends ReportManagementPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
-        $_SESSION['foglastreport'] = serialize($this->ReportMaker);
+        $_SESSION['foglastreport'] = base64_encode(serialize($this->ReportMaker));
     }
 }
