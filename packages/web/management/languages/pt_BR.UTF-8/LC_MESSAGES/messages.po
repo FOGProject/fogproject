@@ -2900,9 +2900,9 @@ msgstr "Tipo de imagem"
 msgid ""
 "Image Type is a very important setting and can have a major impact on how "
 "your imaging works or fails. Please read more about the different image "
-"types and how to use them <a href=\"https://wiki.fogproject.org/wiki/index."
-"php?title=Managing_FOG#Images\" target=\"_blank\">in our wiki</a> before you "
-"choose!"
+"types and how to use them <a href=\"https://wiki.fogproject.org/wiki/"
+"index.php?title=Managing_FOG#Images\" target=\"_blank\">in our wiki</a> "
+"before you choose!"
 msgstr ""
 
 #, fuzzy
@@ -3224,6 +3224,10 @@ msgstr "Inválida Storage Node"
 #, fuzzy
 msgid "Invalid Tasking"
 msgstr "tarefa inválido"
+
+#, fuzzy
+msgid "Invalid URL"
+msgstr "URL inválida"
 
 #, fuzzy
 msgid "Invalid Unit"
@@ -6485,6 +6489,9 @@ msgstr ""
 #, fuzzy
 msgid "Unset storage group as primary group"
 msgstr "Grupo primário de actualização"
+
+msgid "Unsupported URL Scheme"
+msgstr ""
 
 msgid "Update"
 msgstr "Atualizar"

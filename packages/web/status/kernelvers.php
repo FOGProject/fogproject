@@ -24,12 +24,35 @@ ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
 $url = filter_input(INPUT_POST, 'url');
-$userID = filter_input(INPUT_POST, 'fog_user');
-parse_str(
-    $userID,
-    $items
-);
-FOGCore::checkAuthAndCSRF();
+if (isset($_POST['url'])) {
+    // Prevent an unauthenticated user from making arbitrary requests.
+    FOGCore::checkAuthAndCSRF();
+
+    $url = filter_input(INPUT_POST, 'url');
+    if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
+        http_response_code(400);
+        echo _('Invalid URL');
+        exit;
+    }
+
+    $parts = parse_url($url);
+    $scheme = isset($parts['scheme']) ? strtolower($parts['scheme']) : '';
+    $allowed_schemes = ['http','https'];
+    if (!in_array($scheme, $allowed_schemes, true)) {
+        http_response_code(400);
+        echo _('Unsupported URL Scheme');
+        exit;
+    }
+
+    $res = $FOGURLRequests
+        ->process($url);
+    foreach ((array) $res as &$response) {
+        echo $response;
+        unset($response);
+    }
+    
+    exit;
+}
 $initrdvers = function ($initrd) {
     $currpath = sprintf(
         '%s%sservice%sipxe%s%s',

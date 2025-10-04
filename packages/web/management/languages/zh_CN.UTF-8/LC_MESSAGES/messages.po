@@ -2898,9 +2898,9 @@ msgstr "图像类型"
 msgid ""
 "Image Type is a very important setting and can have a major impact on how "
 "your imaging works or fails. Please read more about the different image "
-"types and how to use them <a href=\"https://wiki.fogproject.org/wiki/index."
-"php?title=Managing_FOG#Images\" target=\"_blank\">in our wiki</a> before you "
-"choose!"
+"types and how to use them <a href=\"https://wiki.fogproject.org/wiki/"
+"index.php?title=Managing_FOG#Images\" target=\"_blank\">in our wiki</a> "
+"before you choose!"
 msgstr ""
 
 #, fuzzy
@@ -3222,6 +3222,10 @@ msgstr "无效的存储节点"
 #, fuzzy
 msgid "Invalid Tasking"
 msgstr "任务无效"
+
+#, fuzzy
+msgid "Invalid URL"
+msgstr "无效的网址"
 
 #, fuzzy
 msgid "Invalid Unit"
@@ -6476,6 +6480,9 @@ msgstr ""
 #, fuzzy
 msgid "Unset storage group as primary group"
 msgstr "更新主要组"
+
+msgid "Unsupported URL Scheme"
+msgstr ""
 
 msgid "Update"
 msgstr "更新"
