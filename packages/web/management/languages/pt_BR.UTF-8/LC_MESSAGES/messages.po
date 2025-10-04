@@ -3200,6 +3200,10 @@ msgid "Invalid Type"
 msgstr "tipo inválido"
 
 #, fuzzy
+msgid "Invalid URL"
+msgstr "URL inválida"
+
+#, fuzzy
 msgid "Invalid data being parsed"
 msgstr "Token inválido passado"
 
@@ -6567,6 +6571,9 @@ msgstr "Desconhecido"
 msgid "Unknown upload error occurred"
 msgstr "Ocorreu um erro de upload desconhecido. Código de retorno: "
 
+msgid "Unsupported URL Scheme"
+msgstr ""
+
 msgid "Update"
 msgstr "Atualizar"
 
@@ -7939,10 +7946,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Import Host Exts"
 #~ msgstr "Hosts de importação"
-
-#, fuzzy
-#~ msgid "Invalid Unit"
-#~ msgstr "URL inválida"
 
 #~ msgid "Invalid unit passed"
 #~ msgstr "unidade inválido passado"

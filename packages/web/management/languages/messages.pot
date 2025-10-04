@@ -2759,6 +2759,9 @@ msgstr ""
 msgid "Invalid Type"
 msgstr ""
 
+msgid "Invalid URL"
+msgstr ""
+
 msgid "Invalid data being parsed"
 msgstr ""
 
@@ -5685,6 +5688,9 @@ msgid "Unknown"
 msgstr ""
 
 msgid "Unknown upload error occurred"
+msgstr ""
+
+msgid "Unsupported URL Scheme"
 msgstr ""
 
 msgid "Update"

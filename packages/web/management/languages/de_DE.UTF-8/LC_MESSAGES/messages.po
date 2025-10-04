@@ -3201,6 +3201,10 @@ msgid "Invalid Type"
 msgstr "Ungültiger Typ"
 
 #, fuzzy
+msgid "Invalid URL"
+msgstr "Ungültige Einheit"
+
+#, fuzzy
 msgid "Invalid data being parsed"
 msgstr "Ungültige Daten wurden geparst"
 
@@ -6571,6 +6575,9 @@ msgstr "Unbekannt"
 msgid "Unknown upload error occurred"
 msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 
+msgid "Unsupported URL Scheme"
+msgstr ""
+
 msgid "Update"
 msgstr "Update"
 
@@ -7949,10 +7956,6 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 #, fuzzy
 #~ msgid "Import Host Exts"
 #~ msgstr "Hosts importieren"
-
-#, fuzzy
-#~ msgid "Invalid Unit"
-#~ msgstr "Ungültige Einheit"
 
 #~ msgid "Invalid unit passed"
 #~ msgstr "Ungültige Einheit übergeben"

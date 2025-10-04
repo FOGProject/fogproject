@@ -3196,6 +3196,10 @@ msgid "Invalid Type"
 msgstr "无效类型"
 
 #, fuzzy
+msgid "Invalid URL"
+msgstr "无效的网址"
+
+#, fuzzy
 msgid "Invalid data being parsed"
 msgstr "无效的令牌传递"
 
@@ -6549,6 +6553,9 @@ msgstr "未知"
 msgid "Unknown upload error occurred"
 msgstr "发生未知上传错误。返回代码："
 
+msgid "Unsupported URL Scheme"
+msgstr ""
+
 msgid "Update"
 msgstr "更新"
 
@@ -7912,10 +7919,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Import Host Exts"
 #~ msgstr "进口主机"
-
-#, fuzzy
-#~ msgid "Invalid Unit"
-#~ msgstr "无效的网址"
 
 #~ msgid "Invalid unit passed"
 #~ msgstr "无效的单元传递"

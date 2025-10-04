@@ -2869,6 +2869,10 @@ msgstr "Non valido Valore Timeout"
 msgid "Invalid Type"
 msgstr "Tipo non valido"
 
+#, fuzzy
+msgid "Invalid URL"
+msgstr "Unità non valida"
+
 msgid "Invalid data being parsed"
 msgstr "Dati non validi parsati"
 
@@ -5898,6 +5902,9 @@ msgstr "Sconosciuto"
 msgid "Unknown upload error occurred"
 msgstr "Si è verificato errore di caricamento sconosciuto"
 
+msgid "Unsupported URL Scheme"
+msgstr ""
+
 msgid "Update"
 msgstr "Aggiornare"
 
@@ -7125,9 +7132,6 @@ msgstr "si imposti il campo di larghezza di banda su quel nodo a 1000"
 #, fuzzy
 #~ msgid "Import Host Exts"
 #~ msgstr "Importa Host"
-
-#~ msgid "Invalid Unit"
-#~ msgstr "Unità non valida"
 
 #~ msgid "Invalid unit passed"
 #~ msgstr "Unità non valido passato"

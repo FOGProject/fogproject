@@ -3213,6 +3213,10 @@ msgstr "Login incorrecto"
 msgid "Invalid Type"
 msgstr "tipo incorrecto"
 
+#, fuzzy
+msgid "Invalid URL"
+msgstr "Unidad incorrecto"
+
 msgid "Invalid data being parsed"
 msgstr ""
 
@@ -6506,6 +6510,9 @@ msgstr "Desconocida"
 msgid "Unknown upload error occurred"
 msgstr ""
 
+msgid "Unsupported URL Scheme"
+msgstr ""
+
 msgid "Update"
 msgstr "Actualizar"
 
@@ -7834,9 +7841,6 @@ msgstr "has configurado el campo de ancho de banda en ese nodo a 1000"
 #, fuzzy
 #~ msgid "Import Host Exts"
 #~ msgstr "Importar equipos"
-
-#~ msgid "Invalid Unit"
-#~ msgstr "Unidad incorrecto"
 
 #~ msgid "Invalid unit passed"
 #~ msgstr "MAC Address inválida"
