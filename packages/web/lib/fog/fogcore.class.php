@@ -214,8 +214,7 @@ class FOGCore extends FOGBase
         self::$fogpingactive = $hostLookup;
         self::$fogdeleteactive = $authdelete;
         self::$fogexportactive = $authexport;
-        $defTz = ini_get('date.timezone');
-        $GLOBALS['TimeZone'] = $tzInfo ?? ($defTz ?? 'UTC');
+        $GLOBALS['TimeZone'] = $tzInfo ?? (ini_get('date.timezone') ?: 'UTC');
         ini_set('max_input_vars', 10000);
         $memorySet = preg_replace('#M#', '', ini_get('memory_limit'));
         if ($memorySet < $memoryLimit) {
