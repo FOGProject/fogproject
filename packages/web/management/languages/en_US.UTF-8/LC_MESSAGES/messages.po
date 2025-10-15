@@ -2725,9 +2725,6 @@ msgstr "IP"
 msgid "IP Address"
 msgstr "IP Address"
 
-msgid "IP Address Changed"
-msgstr "IP Address Changed"
-
 msgid "IP Passed is incorrect"
 msgstr "IP Passed is incorrect"
 
@@ -3195,6 +3192,10 @@ msgstr "Invalid Timeout Value"
 #, fuzzy
 msgid "Invalid Type"
 msgstr "Invalid type"
+
+#, fuzzy
+msgid "Invalid URL"
+msgstr "Invalid URL"
 
 #, fuzzy
 msgid "Invalid data being parsed"
@@ -5375,9 +5376,6 @@ msgstr "Service update failed"
 msgid "Session Name"
 msgstr "Session Name"
 
-msgid "Session altered improperly"
-msgstr "Session altered improperly"
-
 msgid "Session name cannot be the same as an existing hostname"
 msgstr "Session name cannot be the same as an existing hostname"
 
@@ -6566,6 +6564,9 @@ msgstr "Unknown"
 msgid "Unknown upload error occurred"
 msgstr "Unknown upload error occurred.  Return code: "
 
+msgid "Unsupported URL Scheme"
+msgstr ""
+
 msgid "Update"
 msgstr "Update"
 
@@ -6700,9 +6701,6 @@ msgstr "Access Token"
 #, fuzzy
 msgid "User Access Control"
 msgstr "Access Control"
-
-msgid "User Agent Changed"
-msgstr "User Agent Changed"
 
 msgid "User Already Exists"
 msgstr "User Already Exists"
@@ -7937,13 +7935,12 @@ msgstr ""
 #~ msgid "I checked in at"
 #~ msgstr "Task Checkin Date"
 
+#~ msgid "IP Address Changed"
+#~ msgstr "IP Address Changed"
+
 #, fuzzy
 #~ msgid "Import Host Exts"
 #~ msgstr "Import Hosts"
-
-#, fuzzy
-#~ msgid "Invalid Unit"
-#~ msgstr "Invalid URL"
 
 #~ msgid "Invalid unit passed"
 #~ msgstr "Invalid unit passed"
@@ -7957,6 +7954,9 @@ msgstr ""
 #~ msgid "Legacy FOG Client"
 #~ msgstr "Legacy FOG Client"
 
+#~ msgid "Session altered improperly"
+#~ msgstr "Session altered improperly"
+
 #, fuzzy
 #~ msgid "This file is used to encrypt the AD Password"
 #~ msgstr ""
@@ -7965,6 +7965,9 @@ msgstr ""
 
 #~ msgid "Unable to determine plugin details"
 #~ msgstr "Unable to determine plugin details"
+
+#~ msgid "User Agent Changed"
+#~ msgstr "User Agent Changed"
 
 #, fuzzy
 #~ msgid "file to"

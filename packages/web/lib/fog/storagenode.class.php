@@ -122,9 +122,10 @@ class StorageNode extends FOGController
             'images' => 'getImages',
             'logfiles' => 'getLogfiles'
         );
-        if (in_array($key, array_keys($loaders))
-            && !$this->isLoaded($key)
-        ) {
+        if (in_array($key, array_keys($loaders))) {
+            if (!$this->get('online')) {
+                return parent::get($key);
+            }
             $func = $loaders[$key];
             $this->{$func}();
         }
@@ -147,7 +148,7 @@ class StorageNode extends FOGController
      */
     public function loadOnline()
     {
-        $test = self::$FOGURLRequests->isAvailable($this->get('ip'), 1);
+        $test = self::$FOGURLRequests->isAvailable($this->get('ip'), '0.1', 21);
         $this->set('online', array_shift($test));
     }
     /**
@@ -203,14 +204,11 @@ class StorageNode extends FOGController
             return;
         }
         $logpaths = array(
-            '/var/log/nginx',
-            '/var/log/httpd',
             '/var/log/apache2',
             '/var/log/fog',
-            '/var/log/php7.0-fpm',
-            '/var/log/php-fpm',
-            '/var/log/php5-fpm',
-            '/var/log/php5.6-fpm',
+            '/var/log/httpd',
+            '/var/log/nginx',
+            '/var/log/php*',
         );
         $items = array(
             'images' => urlencode($this->get('path')),
@@ -220,11 +218,27 @@ class StorageNode extends FOGController
         if (!array_key_exists($item, $items)) {
             return;
         }
+        $imagePaths = [$this->get('path')];
+        $snapinPaths = [$this->get('snapinpath')];
+        $validPaths = array_merge(
+            $imagePaths,
+            $snapinPaths,
+            $logpaths
+        );
+        $pathTest = preg_grep(
+            '#'
+            . str_replace(':', '|', urldecode($items[$item]))
+            . '#',
+            $validPaths
+        );
+        if (count($pathTest ?: []) < 1) {
+            return [];
+        }
         $url = sprintf(
             '%s://%s/fog/status/getfiles.php?path=%s',
             self::$httpproto,
             $this->get('ip'),
-            $items[$item]
+            rtrim($items[$item], DS)
         );
         $response = self::$FOGURLRequests->process(
             $url,
@@ -236,16 +250,11 @@ class StorageNode extends FOGController
             false,
             false
         );
-        $filelist = json_decode($response[0], true);
-        if (isset($filelist) && is_array($filelist)) {
-            return preg_grep(
-                '#dev|postdownloadscripts|ssl#',
-                json_decode($response[0], true),
-                PREG_GREP_INVERT
-            );
-        } else {
-            return array();
-        }
+        return preg_grep(
+            '#dev|postdownloadscripts|ssl#',
+            json_decode($response[0], true) ?? [],
+            PREG_GREP_INVERT
+        );
     }
     /**
      * Loads the snapins available on this node.

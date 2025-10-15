@@ -20,12 +20,12 @@
  * @link     https://fogproject.org
  */
 require_once '../commons/base.inc.php';
-FOGCore::checkAuthAndCSRF();
 session_write_close();
 ignore_user_abort(true);
 set_time_limit(0);
 header('Content-Type: text/event-stream');
 header('Connection: close');
+FOGCore::checkAuthAndCSRF();
 if (!(isset($_POST['ip'])
     && is_string($_POST['ip']))
 ) {

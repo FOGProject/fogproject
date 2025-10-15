@@ -21,8 +21,7 @@
  */
 require '../commons/base.inc.php';
 FOGCore::checkAuthAndCSRF();
-
-$report = unserialize($_SESSION['foglastreport']);
+$report = unserialize(base64_decode($_SESSION['foglastreport']));
 if (!($report instanceof ReportMaker)) {
     $report = FOGCore::getClass('ReportMaker');
 }

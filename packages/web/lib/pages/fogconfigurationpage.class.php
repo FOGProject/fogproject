@@ -3520,7 +3520,7 @@ class FOGConfigurationPage extends FOGPage
         self::$HookManager->processEvent('IMPORT');
         $this->title = _('Configuration Import/Export');
         $report = self::getClass('ReportMaker');
-        $_SESSION['foglastreport'] = serialize($report);
+        $_SESSION['foglastreport'] = base64_encode(serialize($report));
         unset(
             $this->data,
             $this->form,

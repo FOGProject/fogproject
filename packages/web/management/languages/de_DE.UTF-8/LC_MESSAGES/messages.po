@@ -2731,9 +2731,6 @@ msgstr "IP"
 msgid "IP Address"
 msgstr "IP-Adresse"
 
-msgid "IP Address Changed"
-msgstr "IP-Adresse geändert"
-
 msgid "IP Passed is incorrect"
 msgstr "IP ist inkorrekt"
 
@@ -3202,6 +3199,10 @@ msgstr "Ungültiger Wert für Timeout"
 #, fuzzy
 msgid "Invalid Type"
 msgstr "Ungültiger Typ"
+
+#, fuzzy
+msgid "Invalid URL"
+msgstr "Ungültige Einheit"
 
 #, fuzzy
 msgid "Invalid data being parsed"
@@ -5388,9 +5389,6 @@ msgstr "Service-Update fehlgeschlagen"
 msgid "Session Name"
 msgstr "Sitzungsname"
 
-msgid "Session altered improperly"
-msgstr "Sitzung nicht ordnungsgemäß geändert"
-
 msgid "Session name cannot be the same as an existing hostname"
 msgstr "Sitzungsname darf nicht mit vorhandenem Hostname identisch sein"
 
@@ -6577,6 +6575,9 @@ msgstr "Unbekannt"
 msgid "Unknown upload error occurred"
 msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 
+msgid "Unsupported URL Scheme"
+msgstr ""
+
 msgid "Update"
 msgstr "Update"
 
@@ -6711,9 +6712,6 @@ msgstr "API-Zugangstoken"
 #, fuzzy
 msgid "User Access Control"
 msgstr "Benutzerzugriffskontrolle"
-
-msgid "User Agent Changed"
-msgstr "User-Agent geändert"
 
 msgid "User Already Exists"
 msgstr "Benutzer ist bereits vorhanden"
@@ -7952,13 +7950,12 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 #~ msgid "I checked in at"
 #~ msgstr "Task Eincheckdatum"
 
+#~ msgid "IP Address Changed"
+#~ msgstr "IP-Adresse geändert"
+
 #, fuzzy
 #~ msgid "Import Host Exts"
 #~ msgstr "Hosts importieren"
-
-#, fuzzy
-#~ msgid "Invalid Unit"
-#~ msgstr "Ungültige Einheit"
 
 #~ msgid "Invalid unit passed"
 #~ msgstr "Ungültige Einheit übergeben"
@@ -7978,6 +7975,9 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 #~ msgid "Replicating ssl less private key"
 #~ msgstr "Replizieren von SSL-freiem privatem Schlüssel"
 
+#~ msgid "Session altered improperly"
+#~ msgstr "Sitzung nicht ordnungsgemäß geändert"
+
 #~ msgid "The legacy client and fog crypt utility for those"
 #~ msgstr "Der Legacy Client und FOG Krypto Dienstprogramm für diejenigen,"
 
@@ -7996,6 +7996,9 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 
 #~ msgid "Unable to determine plugin details"
 #~ msgstr "Plugin-Details können nicht ermittelt werden"
+
+#~ msgid "User Agent Changed"
+#~ msgstr "User-Agent geändert"
 
 #~ msgid "We highly recommend you make the switch for more"
 #~ msgstr "Wir empfehlen dringend, den Umstieg auf"

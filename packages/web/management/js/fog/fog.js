@@ -998,11 +998,31 @@ function ajaxRun(
                 }
             } else {
                 dialog.close();
-                if (authneeded) {
-                    $('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="fogguiuser" value="'+username+'"/><input type="hidden" name="fogguipass" value="'+password+'"/><input type="hidden" name="nojson"/></form>').appendTo('body').submit().remove();
-                } else {
-                    $('<form id="'+formid+'" method="post" action="'+url+'"><input type="hidden" name="nojson"/></form>').appendTo('body').submit().remove();
+                var $f = $('<form id="'+formid+'" method="post" action="'+url+'"></form>').appendTo('body');
+                // Always include nojson so the route streams the file
+                $f.append('<input type="hidden" name="nojson" value="1"/>');
+                // Ensure CSRF (your bootstrap submit-listener will add _csrf as well, but this is explicit)
+                var tok = $('meta[name="csrf-token"]').attr('content') || '';
+                if (tok) $f.append('<input type="hidden" name="_csrf" value="'+tok+'"/>');
+                // Copy current search/filter inputs so the server can rebuild the same dataset
+                var $scope = $('.search-wrapper:visible').closest('form');
+                if (!$scope.length) $scope = $(document.forms[0]); // best-effort fallback
+                if ($scope && $scope.length) {
+                  // Serialize current form state into hidden inputs
+                  var ser = $scope.serializeArray();
+                  $.each(ser, function(_, pair) {
+                    // Avoid duplicates of the auth/nojson we already added
+                    if (pair.name === 'fogguiuser' || pair.name === 'fogguipass' || pair.name === 'nojson') return;
+                    $f.append($('<input type="hidden"/>').attr('name', pair.name).val(pair.value));
+                  });
                 }
+                // Include auth if it was required
+                if (authneeded) {
+                    $f.append('<input type="hidden" name="fogguiuser" value="'+username+'"/>');
+                    $f.append('<input type="hidden" name="fogguipass" value="'+password+'"/>');
+                }
+                $f[0].submit();
+                $f.remove();
             }
         }
     });

@@ -2360,9 +2360,6 @@ msgstr ""
 msgid "IP Address"
 msgstr ""
 
-msgid "IP Address Changed"
-msgstr ""
-
 msgid "IP Passed is incorrect"
 msgstr ""
 
@@ -2760,6 +2757,9 @@ msgid "Invalid Timeout Value"
 msgstr ""
 
 msgid "Invalid Type"
+msgstr ""
+
+msgid "Invalid URL"
 msgstr ""
 
 msgid "Invalid data being parsed"
@@ -4673,9 +4673,6 @@ msgstr ""
 msgid "Session Name"
 msgstr ""
 
-msgid "Session altered improperly"
-msgstr ""
-
 msgid "Session name cannot be the same as an existing hostname"
 msgstr ""
 
@@ -5693,6 +5690,9 @@ msgstr ""
 msgid "Unknown upload error occurred"
 msgstr ""
 
+msgid "Unsupported URL Scheme"
+msgstr ""
+
 msgid "Update"
 msgstr ""
 
@@ -5805,9 +5805,6 @@ msgid "User API Token"
 msgstr ""
 
 msgid "User Access Control"
-msgstr ""
-
-msgid "User Agent Changed"
 msgstr ""
 
 msgid "User Already Exists"

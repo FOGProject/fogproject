@@ -3882,7 +3882,7 @@ abstract class FOGPage extends FOGBase
             $report->endCSVLine();
             unset($Item);
         }
-        $_SESSION['foglastreport'] = serialize($report);
+        $_SESSION['foglastreport'] = base64_encode(serialize($report));
         array_walk($fields, $this->fieldsToData);
         self::$HookManager->processEvent(
             strtoupper($this->node) . '_EXPORT',

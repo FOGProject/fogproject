@@ -20,26 +20,34 @@
  * @link     https://fogproject.org
  */
 require '../commons/base.inc.php';
+
+// Initialize required classes
 $FOGPageManager = FOGCore::getClass('FOGPageManager');
-if (session_status() != PHP_SESSION_NONE) {
-    if (isset($_SESSION['delitems'])
-        && !in_array($sub, array('deletemulti', 'deleteconf'))
-    ) {
-        unset($_SESSION['delitems']);
-    }
-}
+
+// Get login process
 FOGCore::getClass('ProcessLogin')->processMainLogin();
+
 require '../commons/text.php';
 $Page = FOGCore::getClass('Page');
+
+// Define allowed nodes
 $nodes = array(
     'schema',
     'client',
     'ipxe'
 );
-if (!in_array($node, $nodes)
-    && ($node == 'logout' || !$currentUser->isValid())
-) {
-    $currentUser->logout();
+
+// Handle logout or login nodes
+if (isset($node) && in_array($node, ['logout', 'login'])) {
+    if ($node === 'logout') {
+        $currentUser->logout();
+    }
+    FOGCore::redirect('../management/index.php');
+    exit;
+}
+
+// Render login page if user is not valid
+if (!isset($node) || (!in_array($node, $nodes) && !$currentUser->isValid())) {
     $Page
         ->setTitle($foglang['Login'])
         ->setSecTitle($foglang['ManagementLogin'])
@@ -50,18 +58,18 @@ if (!in_array($node, $nodes)
         ->endBody()
         ->render();
 } else {
+    // Handle AJAX requests
     if (FOGCore::$ajax) {
         $FOGPageManager->render();
         exit;
     }
+
+    // Render main page content
     $Page->startBody();
     $FOGPageManager->render();
-    //if ($FOGPageManager->getFOGPageName() !== $FOGPageManager->getFOGPageTitle()) {
     $Page
-            ->setTitle($FOGPageManager->getFOGPageTitle());
-    //}
-    $Page->setSecTitle($FOGPageManager->getFOGPageName());
-    $Page
+        ->setTitle($FOGPageManager->getFOGPageTitle())
+        ->setSecTitle($FOGPageManager->getFOGPageName())
         ->endBody()
         ->render();
 }

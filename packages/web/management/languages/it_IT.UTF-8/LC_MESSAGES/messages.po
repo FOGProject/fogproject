@@ -2460,9 +2460,6 @@ msgstr "IP"
 msgid "IP Address"
 msgstr "Indirizzo IP"
 
-msgid "IP Address Changed"
-msgstr "Indirizzo IP cambiato"
-
 msgid "IP Passed is incorrect"
 msgstr "IP Passato è corretto"
 
@@ -2871,6 +2868,10 @@ msgstr "Non valido Valore Timeout"
 
 msgid "Invalid Type"
 msgstr "Tipo non valido"
+
+#, fuzzy
+msgid "Invalid URL"
+msgstr "Unità non valida"
 
 msgid "Invalid data being parsed"
 msgstr "Dati non validi parsati"
@@ -4831,9 +4832,6 @@ msgstr "aggiornamento del servizio non riuscito"
 msgid "Session Name"
 msgstr "Nome sessione"
 
-msgid "Session altered improperly"
-msgstr "Sessione alterato in modo improprio"
-
 msgid "Session name cannot be the same as an existing hostname"
 msgstr "nome della sessione non può essere la stessa di un nome host esistente"
 
@@ -5904,6 +5902,9 @@ msgstr "Sconosciuto"
 msgid "Unknown upload error occurred"
 msgstr "Si è verificato errore di caricamento sconosciuto"
 
+msgid "Unsupported URL Scheme"
+msgstr ""
+
 msgid "Update"
 msgstr "Aggiornare"
 
@@ -6018,9 +6019,6 @@ msgstr "API Utente Token"
 
 msgid "User Access Control"
 msgstr "User Access Control"
-
-msgid "User Agent Changed"
-msgstr "User Agent cambiato"
 
 msgid "User Already Exists"
 msgstr "L'utente esiste già"
@@ -7128,12 +7126,12 @@ msgstr "si imposti il campo di larghezza di banda su quel nodo a 1000"
 #~ msgid "I checked in at"
 #~ msgstr "Compito di arrivo Data"
 
+#~ msgid "IP Address Changed"
+#~ msgstr "Indirizzo IP cambiato"
+
 #, fuzzy
 #~ msgid "Import Host Exts"
 #~ msgstr "Importa Host"
-
-#~ msgid "Invalid Unit"
-#~ msgstr "Unità non valida"
 
 #~ msgid "Invalid unit passed"
 #~ msgstr "Unità non valido passato"
@@ -7153,6 +7151,9 @@ msgstr "si imposti il campo di larghezza di banda su quel nodo a 1000"
 #~ msgid "Replicating ssl less private key"
 #~ msgstr "Replica ssl senza chiave privata"
 
+#~ msgid "Session altered improperly"
+#~ msgstr "Sessione alterato in modo improprio"
+
 #~ msgid "The legacy client and fog crypt utility for those"
 #~ msgstr "Il client legacy e l'utilità FOG crypt per quelli"
 
@@ -7170,6 +7171,9 @@ msgstr "si imposti il campo di larghezza di banda su quel nodo a 1000"
 
 #~ msgid "Unable to determine plugin details"
 #~ msgstr "Impossibile determinare i dettagli del plugin"
+
+#~ msgid "User Agent Changed"
+#~ msgstr "User Agent cambiato"
 
 #~ msgid "We highly recommend you make the switch for more"
 #~ msgstr "Ti consigliamo di effettuare l'aggiornamento per maggiore"

@@ -26,9 +26,24 @@ set_time_limit(0);
 header('Content-Type: text/event-stream');
 
 if (isset($_POST['url'])) {
-
     // Prevent an unauthenticated user from making arbitrary requests.
     FOGCore::checkAuthAndCSRF();
+
+    $url = filter_input(INPUT_POST, 'url');
+    if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
+        http_response_code(400);
+        echo _('Invalid URL');
+        exit;
+    }
+
+    $parts = parse_url($url);
+    $scheme = isset($parts['scheme']) ? strtolower($parts['scheme']) : '';
+    $allowed_schemes = ['http','https'];
+    if (!in_array($scheme, $allowed_schemes, true)) {
+        http_response_code(400);
+        echo _('Unsupported URL Scheme');
+        exit;
+    }
 
     $res = $FOGURLRequests
         ->process(filter_input(INPUT_POST, 'url'));

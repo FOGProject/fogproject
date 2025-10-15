@@ -45,19 +45,17 @@ class LoadGlobals extends FOGBase
         if (!$GLOBALS['DB']) {
             return;
         }
-        FOGCore::setEnv();
-        if (session_status() != PHP_SESSION_NONE) {
-            $GLOBALS['currentUser'] = new User(isset($_SESSION['FOG_USER']) ? (int)$_SESSION['FOG_USER'] : 0);
-        } else {
-            $GLOBALS['currentUser'] = new User(0);
-        }
         $GLOBALS['HookManager'] = FOGCore::getClass('HookManager');
-        $GLOBALS['HookManager']
-            ->load();
         $GLOBALS['EventManager'] = FOGCore::getClass('EventManager');
-        $GLOBALS['EventManager']
-            ->load();
         $GLOBALS['FOGURLRequests'] = FOGCore::getClass('FOGURLRequests');
+        $userID = 0;
+        FOGCore::setEnv();
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            $userID = isset($_SESSION['FOG_USER']) ? (int)$_SESSION['FOG_USER'] : 0;
+        }
+        $GLOBALS['currentUser'] = new User($userID);
+        $GLOBALS['HookManager']->load();
+        $GLOBALS['EventManager']->load();
         $subs = array(
             'configure',
             'authorize',

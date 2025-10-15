@@ -182,7 +182,7 @@ class Pending_MAC_List extends ReportManagementPage
         }
         echo '</form>';
         echo '</div>';
-        $_SESSION['foglastreport'] = serialize($this->ReportMaker);
+        $_SESSION['foglastreport'] = base64_encode(serialize($this->ReportMaker));
     }
     /**
      * Approves pending macs
